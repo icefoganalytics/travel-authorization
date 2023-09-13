@@ -1,5 +1,6 @@
 import * as knex from "knex";
 
+// Last updated: 2023-09-13T20:50:49.298Z
 exports.up = function (knex: knex.Knex, Promise: any) {
   knex.schema.createTable('knex_migrations', (t) => {
     t.increments('id').notNullable().primary()

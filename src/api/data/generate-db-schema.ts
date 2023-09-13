@@ -40,6 +40,7 @@ function mapPostgresTypeToColumnCreationMethod(
 const migrationTemplate = `
 import * as knex from "knex";
 
+// Last updated: ${new Date().toISOString()}
 exports.up = function (knex: knex.Knex, Promise: any) {
 UP_BODY
 }
