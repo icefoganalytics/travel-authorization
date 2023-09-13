@@ -392,8 +392,6 @@ exports.up = function (knex: knex.Knex, Promise: any) {
     table.text('location')
     table.text('currency')
   });
-  
-  
 }
 
 exports.down = function (knex: knex.Knex, Promise: any) {

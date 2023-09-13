@@ -50,7 +50,7 @@ async function fetchPrimaryKeyColumnForTable(tableName: string) {
 
 export async function generateDbSchema(): Promise<string> {
   const tables = await knex.raw(`SELECT tablename FROM pg_tables WHERE schemaname='public'`)
-  let knexStatements = ""
+  const schemaStatements = []
   for (const table of tables.rows) {
     const tableName = table.tablename
     const columns = await knex.raw(
@@ -59,27 +59,27 @@ export async function generateDbSchema(): Promise<string> {
     )
     const primaryKeyColumn = await fetchPrimaryKeyColumnForTable(tableName)
 
-    knexStatements += `knex.schema.createTable('${tableName}', (table) => {\n`
-
+    const tableStatements = [`knex.schema.createTable('${tableName}', (table) => {`]
     for (const column of columns.rows) {
       const knexMethod = mapPostgresTypeToKnex(column.data_type)
-      knexStatements += `  table.${knexMethod}('${column.column_name}')`
+      const columnStatements = [`  table.${knexMethod}('${column.column_name}')`]
 
       if (column.is_nullable === "NO") {
-        knexStatements += `.notNullable()`
+        columnStatements.push(`.notNullable()`)
       }
       if (column.column_name === primaryKeyColumn) {
-        knexStatements += `.primary()`
+        columnStatements.push(`.primary()`)
       }
-      knexStatements += `\n`
+      tableStatements.push(columnStatements.join(""))
     }
-
-    knexStatements += `});\n\n`
+    tableStatements.push(`});`)
+    schemaStatements.push(tableStatements.join("\n"))
   }
 
-  const indentedKnexStatements = increaseIndent(knexStatements, 2)
-  const migration = migrationTemplate.replace("UP_BODY", indentedKnexStatements)
+  const schemaString = schemaStatements.join('\n\n')
+  const indentedSchemaString = increaseIndent(schemaString, 2)
+  const migration = migrationTemplate.replace("UP_BODY", indentedSchemaString)
 
   fs.writeFileSync("./data/schema.ts", migration)
-  return knexStatements
+  return migration
 }
