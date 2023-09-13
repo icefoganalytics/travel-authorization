@@ -2,6 +2,7 @@ import { Express, Request, Response } from "express";
 import { sqldb } from "./index";
 import { join } from "path";
 import { seedUp } from "./seeds";
+import { generateDbSchema } from "./generate-db-schema";
 
 export async function migrateUp() {
   console.log("-------- MIGRATE UP ---------");
@@ -39,5 +40,11 @@ export async function CreateMigrationRoutes(app: Express) {
 
   app.get("/migrate/seed", async (req: Request, res: Response) => {
     res.send(await seedUp());
+  });
+
+  app.get("/migrate/schema", async (req: Request, res: Response) => {
+    return generateDbSchema().then((schema) => {
+      return res.status(200).send(schema);
+    })
   });
 }
