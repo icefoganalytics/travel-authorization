@@ -1,16 +1,38 @@
 import fs from "fs"
 import { sqldb as knex } from "./index"
 
-function mapPostgresTypeToKnex(type: string) {
+function mapPostgresTypeToColumnCreationMethod(
+  type: string,
+  columnName: string,
+  isPrimary: boolean
+) {
   switch (type) {
+    case "boolean":
+      return `boolean('${columnName}')`
+    case "bytea":
+      return `binary('${columnName}')`
+    case "date":
+      return `date('${columnName}')`
     case "integer":
-      return "integer"
+      if (isPrimary) {
+        return `increments('${columnName}')`
+      } else {
+        return `integer('${columnName}')`
+      }
+    case "real":
+      return `float('${columnName}')`
     case "text":
-      return "text"
+      return `text('${columnName}')`
     case "timestamp without time zone":
-      return "timestamp"
-    // Add other mappings as needed
+      return `timestamp('${columnName}')`
+    case "timestamp with time zone":
+      return `timestamp('${columnName}', { useTz: true })`
+    case "time without time zone":
+      return `time('${columnName}')`
+    case "character varying":
+      return `string('${columnName}')`
     default:
+      console.warn("Unknown type: ", type)
       return "text" // Default to text for simplicity, adjust as needed
   }
 }
@@ -52,20 +74,24 @@ function createColumnStatement({
   dataType,
   columnName,
   isNullable,
-  isPrimaryKey,
+  isPrimary,
 }: {
   dataType: string
   columnName: string
   isNullable: boolean
-  isPrimaryKey: boolean
+  isPrimary: boolean
 }) {
-  const knexMethod = mapPostgresTypeToKnex(dataType)
-  const columnStatements = [`table.${knexMethod}('${columnName}')`]
+  const columnCreationMethod = mapPostgresTypeToColumnCreationMethod(
+    dataType,
+    columnName,
+    isPrimary
+  )
+  const columnStatements = [`table.${columnCreationMethod}`]
 
   if (isNullable) {
     columnStatements.push(".notNullable()")
   }
-  if (isPrimaryKey) {
+  if (isPrimary) {
     columnStatements.push(".primary()")
   }
 
@@ -93,7 +119,7 @@ async function createTableStatement({ tableName }: { tableName: string }) {
       dataType: column.dataType,
       columnName: column.columnName,
       isNullable: column.isNullable === "NO",
-      isPrimaryKey: column.columnName === primaryKeyColumn,
+      isPrimary: column.columnName === primaryKeyColumn,
     })
     tableStatements.push(`  ${columnStatement}`)
   }
