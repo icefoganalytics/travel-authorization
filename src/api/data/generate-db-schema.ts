@@ -72,13 +72,9 @@ function createColumnStatement({
   return columnStatements.join("")
 }
 
-export async function generateDbSchema(): Promise<string> {
-  const tables = await knex.raw(`SELECT tablename FROM pg_tables WHERE schemaname='public'`)
-  const schemaStatements = []
-  for (const table of tables.rows) {
-    const tableName = table.tablename
-    const columns = await knex.raw(
-      `SELECT
+async function createTableStatement({ tableName }: { tableName: string }) {
+  const columns = await knex.raw(
+    `SELECT
         column_name AS "columnName"
         , data_type AS "dataType"
         , is_nullable AS "isNullable"
@@ -87,22 +83,32 @@ export async function generateDbSchema(): Promise<string> {
       WHERE
         table_name = ?
       `,
-      [tableName]
-    )
-    const primaryKeyColumn = await fetchPrimaryKeyColumnForTable(tableName)
+    [tableName]
+  )
+  const primaryKeyColumn = await fetchPrimaryKeyColumnForTable(tableName)
+  const tableStatements = [`knex.schema.createTable('${tableName}', (table) => {`]
 
-    const tableStatements = [`knex.schema.createTable('${tableName}', (table) => {`]
-    for (const column of columns.rows) {
-      const columnStatement = createColumnStatement({
-        dataType: column.dataType,
-        columnName: column.columnName,
-        isNullable: column.isNullable === "NO",
-        isPrimaryKey: column.columnName === primaryKeyColumn,
-      })
-      tableStatements.push(`  ${columnStatement}`)
-    }
-    tableStatements.push(`});`)
-    schemaStatements.push(tableStatements.join("\n"))
+  for (const column of columns.rows) {
+    const columnStatement = createColumnStatement({
+      dataType: column.dataType,
+      columnName: column.columnName,
+      isNullable: column.isNullable === "NO",
+      isPrimaryKey: column.columnName === primaryKeyColumn,
+    })
+    tableStatements.push(`  ${columnStatement}`)
+  }
+
+  tableStatements.push(`});`)
+
+  return tableStatements.join("\n")
+}
+
+export async function generateDbSchema(): Promise<string> {
+  const tables = await knex.raw(`SELECT tablename FROM pg_tables WHERE schemaname='public'`)
+  const schemaStatements = []
+  for (const table of tables.rows) {
+    const tableStatement = await createTableStatement({ tableName: table.tablename })
+    schemaStatements.push(tableStatement)
   }
 
   const schemaString = schemaStatements.join("\n\n")
