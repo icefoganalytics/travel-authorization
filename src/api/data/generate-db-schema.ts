@@ -26,7 +26,7 @@ function mapPostgresTypeToColumnCreationMethod(
     case "timestamp without time zone":
       return `timestamp('${columnName}')`
     case "timestamp with time zone":
-      return `timestamp('${columnName}', { useTz: true })`
+      return `datetime('${columnName}')`
     case "time without time zone":
       return `time('${columnName}')`
     case "character varying":
@@ -86,7 +86,7 @@ function createColumnStatement({
     columnName,
     isPrimary
   )
-  const columnStatements = [`table.${columnCreationMethod}`]
+  const columnStatements = [columnCreationMethod]
 
   if (isNullable) {
     columnStatements.push(".notNullable()")
@@ -112,7 +112,7 @@ async function createTableStatement({ tableName }: { tableName: string }) {
     [tableName]
   )
   const primaryKeyColumn = await fetchPrimaryKeyColumnForTable(tableName)
-  const tableStatements = [`knex.schema.createTable('${tableName}', (table) => {`]
+  const tableStatements = [`knex.schema.createTable('${tableName}', (t) => {`]
 
   for (const column of columns.rows) {
     const columnStatement = createColumnStatement({
@@ -121,7 +121,7 @@ async function createTableStatement({ tableName }: { tableName: string }) {
       isNullable: column.isNullable === "NO",
       isPrimary: column.columnName === primaryKeyColumn,
     })
-    tableStatements.push(`  ${columnStatement}`)
+    tableStatements.push(`  t.${columnStatement}`)
   }
 
   tableStatements.push(`});`)
