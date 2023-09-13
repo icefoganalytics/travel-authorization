@@ -48,35 +48,64 @@ async function fetchPrimaryKeyColumnForTable(tableName: string) {
   return primaryKeyColumn
 }
 
+function createColumnStatement({
+  dataType,
+  columnName,
+  isNullable,
+  isPrimaryKey,
+}: {
+  dataType: string
+  columnName: string
+  isNullable: boolean
+  isPrimaryKey: boolean
+}) {
+  const knexMethod = mapPostgresTypeToKnex(dataType)
+  const columnStatements = [`table.${knexMethod}('${columnName}')`]
+
+  if (isNullable) {
+    columnStatements.push(".notNullable()")
+  }
+  if (isPrimaryKey) {
+    columnStatements.push(".primary()")
+  }
+
+  return columnStatements.join("")
+}
+
 export async function generateDbSchema(): Promise<string> {
   const tables = await knex.raw(`SELECT tablename FROM pg_tables WHERE schemaname='public'`)
   const schemaStatements = []
   for (const table of tables.rows) {
     const tableName = table.tablename
     const columns = await knex.raw(
-      `SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = ?`,
+      `SELECT
+        column_name AS "columnName"
+        , data_type AS "dataType"
+        , is_nullable AS "isNullable"
+      FROM
+        information_schema.columns
+      WHERE
+        table_name = ?
+      `,
       [tableName]
     )
     const primaryKeyColumn = await fetchPrimaryKeyColumnForTable(tableName)
 
     const tableStatements = [`knex.schema.createTable('${tableName}', (table) => {`]
     for (const column of columns.rows) {
-      const knexMethod = mapPostgresTypeToKnex(column.data_type)
-      const columnStatements = [`  table.${knexMethod}('${column.column_name}')`]
-
-      if (column.is_nullable === "NO") {
-        columnStatements.push(`.notNullable()`)
-      }
-      if (column.column_name === primaryKeyColumn) {
-        columnStatements.push(`.primary()`)
-      }
-      tableStatements.push(columnStatements.join(""))
+      const columnStatement = createColumnStatement({
+        dataType: column.dataType,
+        columnName: column.columnName,
+        isNullable: column.isNullable === "NO",
+        isPrimaryKey: column.columnName === primaryKeyColumn,
+      })
+      tableStatements.push(`  ${columnStatement}`)
     }
     tableStatements.push(`});`)
     schemaStatements.push(tableStatements.join("\n"))
   }
 
-  const schemaString = schemaStatements.join('\n\n')
+  const schemaString = schemaStatements.join("\n\n")
   const indentedSchemaString = increaseIndent(schemaString, 2)
   const migration = migrationTemplate.replace("UP_BODY", indentedSchemaString)
 
