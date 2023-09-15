@@ -15,14 +15,8 @@ import VueApexCharts from "vue-apexcharts";
 Vue.use(VueApexCharts);
 
 Vue.use(Auth0Plugin, {
-  // domain,
-  // client_id: clientId,
-  // audience,
-  onRedirectCallback: (appState) => {
-    router.push(appState && appState.targetUrl ? appState.targetUrl : window.location.pathname);
-  },
+  router,
 });
-
 
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
@@ -48,5 +42,5 @@ new Vue({
   router,
   store,
   vuetify,
-  render: (h) => h(App),
+  render: h => h(App),
 }).$mount("#app");

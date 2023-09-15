@@ -6,7 +6,6 @@ import Vue from "vue";
 import createAuth0Client from "@auth0/auth0-spa-js";
 import { secureDelete, secureGet, securePut, securePost } from "@/store/jwt";
 import { domain, clientId, audience } from "../../auth_config.json";
-import router from "../router";
 
 /**
  *  Vue.js Instance Definition
@@ -21,11 +20,8 @@ export const getInstance = () => instance;
  */
 
 export const useAuth0 = ({
-  onRedirectCallback = appState => {
-    console.log("APPSTTE", appState);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  },
   redirectUri = window.location.origin,
+  router,
   ...pluginOptions //eslint-disable-line no-unused-vars
 }) => {
   if (instance) return instance;
@@ -76,7 +72,7 @@ export const useAuth0 = ({
           this.user = {};
 
           if (error.error === "login_required") {
-            return null
+            return null;
           }
 
           return Promise.reject(error);
@@ -104,26 +100,28 @@ export const useAuth0 = ({
         audience,
         redirect_uri: redirectUri,
       });
-
-      try {
-        if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-          const { appState } = await this.auth0Client.handleRedirectCallback();
-
-          if (appState && appState.targetUrl) this.targetUrl = appState.targetUrl;
-
-          onRedirectCallback(appState);
-        }
-      } catch (error) {
-        this.error = error;
-      } finally {
-        this.isAuthenticated = await this.auth0Client.isAuthenticated();
-        this.user = await this.auth0Client.getUser();
-        //set the access token in the auth store
-        //await this.getTokenSilently();
-        //store.commit("auth/setToken", token);
-        this.isLoading = false;
-      }
     },
+  });
+
+  router.beforeEach(async (to, _from, next) => {
+    const redirectPath = new URL(redirectUri).pathname;
+    if (instance && to.path === redirectPath && window.location.search.includes("code=") && window.location.search.includes("state=")) {
+      try {
+        const { appState } = await instance.auth0Client.handleRedirectCallback();
+        instance.targetUrl = appState?.targetUrl || "/dashboard"
+
+        instance.user = await instance.auth0Client.getUser();
+        instance.isAuthenticated = true;
+        return next(instance.targetUrl)
+      } catch (error) {
+        instance.error = error;
+        return next("/sign-in")
+      } finally {
+        instance.isLoading = false;
+      }
+    }
+
+    return next()
   });
 
   return instance;
