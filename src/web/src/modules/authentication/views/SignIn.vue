@@ -34,7 +34,7 @@
                   This application is only available to authorized users. If you have an account, click the button
                   below.
                 </h6>
-                <v-btn v-if="!$auth.isAuthenticated" @click="login" color="primary">
+                <v-btn @click="login" color="primary">
                   Sign In
                 </v-btn>
               </div>
