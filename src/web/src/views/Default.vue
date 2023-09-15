@@ -22,14 +22,21 @@ export default {
   async mounted() {
     const authService = getInstance();
 
-    let i = window.setInterval(() => {
+    const autoRedirectInterval = window.setInterval(() => {
       if (authService.isLoading === false) {
-        window.clearInterval(i);
+        window.clearInterval(autoRedirectInterval);
 
         if (authService.isAuthenticated) {
-          if (authService.targetUrl) this.$router.push(authService.targetUrl);
-          else this.$router.push("/dashboard");
-        } else this.$router.push("/sign-in");
+          if (authService.targetUrl === this.$route.path) {
+            window.clearInterval(autoRedirectInterval);
+          } else if (authService.targetUrl) {
+            this.$router.push(authService.targetUrl);
+          } else {
+            this.$router.push("/dashboard");
+          }
+        } else {
+          this.$router.push("/sign-in");
+        }
       }
     }, 1000);
   },
