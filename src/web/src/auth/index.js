@@ -21,7 +21,7 @@ export const getInstance = () => instance;
  */
 
 export const useAuth0 = ({
-  onRedirectCallback = (appState) => {
+  onRedirectCallback = appState => {
     console.log("APPSTTE", appState);
     window.history.replaceState({}, document.title, window.location.pathname);
   },
@@ -66,10 +66,21 @@ export const useAuth0 = ({
         return this.auth0Client.logout(options);
       },
 
-      getTokenSilently(o) {
-        // console.log(this.auth0Client)
-        if(!this.auth0Client) router.push('/');
-        return this.auth0Client?.getTokenSilently(o);
+      async getTokenSilently(options) {
+        if (this.auth0Client === null) router.push("/");
+
+        return this.auth0Client.getTokenSilently(options).catch(async error => {
+          this.isAuthenticated = false;
+          this.error = error;
+          this.isLoading = true;
+          this.user = {};
+
+          if (error.error === "login_required") {
+            return null
+          }
+
+          return Promise.reject(error);
+        });
       },
 
       get(url) {
