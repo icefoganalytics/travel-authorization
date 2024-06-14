@@ -49,7 +49,7 @@ class Auth0PayloadError extends Error {
   }
 }
 
-async function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
+export async function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
   return await axios
     .get(`${AUTH0_DOMAIN}/userinfo`, {
       headers: {
@@ -98,17 +98,16 @@ export async function loadUser(req: AuthorizationRequest, res: Response, next: N
   }
 
   const token = req.headers.authorization || ""
-  return await findOrCreateUserFromAuth0Token(token)
-    .then((user) => {
-      req.user = user
-      return next()
-    })
-    .catch((error) => {
-      if (error instanceof Auth0PayloadError) {
-        logger.info(error)
-        return res.status(502).json({ message: "External authorization api failed." })
-      } else {
-        return res.status(401).json({ message: "User authentication failed." })
-      }
-    })
+  try {
+    const user = await findOrCreateUserFromAuth0Token(token)
+    req.user = user
+    return next()
+  } catch(error) {
+    if (error instanceof Auth0PayloadError) {
+      logger.info(error)
+      return res.status(502).json({ message: "External authorization api failed." })
+    } else {
+      return res.status(401).json({ message: "User authentication failed." })
+    }
+  }
 }
