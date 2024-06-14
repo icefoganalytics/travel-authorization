@@ -50,6 +50,7 @@ class Auth0PayloadError extends Error {
 }
 
 function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
+  logger.info("===== findOrCreateUserFromAuth0Token FUNC IS CALLED");
   return axios
     .get(`${AUTH0_DOMAIN}/userinfo`, {
       headers: {
