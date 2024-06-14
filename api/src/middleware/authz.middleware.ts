@@ -78,9 +78,12 @@ function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
       })
 
       if (created) {
+        console.log('======== user is created!');
         logger.info(`CREATED USER FOR ${email}: ${JSON.stringify(user.dataValues)}`)
+      } else {
+        console.log('======== user was not created???');
       }
-
+        
       return user
     })
 }
@@ -90,10 +93,11 @@ export async function loadUser(req: AuthorizationRequest, res: Response, next: N
 
   const user = await User.findOne({ where: { sub } })
   if (user !== null) {
+    console.log("========== Found auth0user, returning.")
     req.user = user
     return next()
   }
-
+  console.log("====== Trying to find again")
   const token = req.headers.authorization || ""
   return findOrCreateUserFromAuth0Token(token)
     .then((user) => {
