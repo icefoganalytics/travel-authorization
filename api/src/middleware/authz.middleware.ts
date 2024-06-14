@@ -86,6 +86,9 @@ async function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
 }
 
 export async function loadUser(req: AuthorizationRequest, res: Response, next: NextFunction) {
+  const stack = new Error().stack;
+  console.log('===== loadUser() called');
+  console.log(`===== Stack trace: ${stack}`);
   const sub = req.auth?.sub // from express-jwt
 
   const user = await User.findOne({ where: { sub } })
