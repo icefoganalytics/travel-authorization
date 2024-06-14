@@ -50,8 +50,7 @@ class Auth0PayloadError extends Error {
 }
 
 async function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
-  logger.info("===== findOrCreateUserFromAuth0Token FUNC IS CALLED");
-  return axios
+  return await axios
     .get(`${AUTH0_DOMAIN}/userinfo`, {
       headers: {
         authorization: token,
@@ -66,27 +65,6 @@ async function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
       const { email, given_name: firstName, family_name: lastName } = data
 
       const fallbackEmail = `${firstName}.${lastName}@yukon-no-email.ca`
-      
-      const user = await User.findOne({ where: { sub } });
-      
-      if(user){
-          return user;
-      } else {
-          const created = await User.create({
-            sub,
-            email: email || fallbackEmail,
-            firstName,
-            lastName,
-            roles: [User.Roles.USER],
-            status: User.Statuses.ACTIVE,
-          });
-          
-          if (created) {
-            logger.info(`CREATED USER FOR ${email}: ${JSON.stringify(created.dataValues)}`);
-          }
-          return created;
-      }
-      /*
       const [user, created] = await User.findOrCreate({
         where: { sub },
         defaults: {
@@ -98,8 +76,12 @@ async function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
           status: User.Statuses.ACTIVE,
         },
       })
+
+      if (created) {
+        logger.info(`CREATED USER FOR ${email}: ${JSON.stringify(user.dataValues)}`)
+      }
+
       return user
-      */
     })
 }
 
@@ -108,23 +90,22 @@ export async function loadUser(req: AuthorizationRequest, res: Response, next: N
 
   const user = await User.findOne({ where: { sub } })
   if (user !== null) {
-    console.log("========== Found auth0user, returning.")
     req.user = user
     return next()
   }
-  console.log("====== Trying to find again")
+
   const token = req.headers.authorization || ""
-  
-  try {
-    const user = await findOrCreateUserFromAuth0Token(token);
-    req.user = user;
-    return next();
-  } catch (error){
-     if (error instanceof Auth0PayloadError) {
+  return await findOrCreateUserFromAuth0Token(token)
+    .then((user) => {
+      req.user = user
+      return next()
+    })
+    .catch((error) => {
+      if (error instanceof Auth0PayloadError) {
         logger.info(error)
         return res.status(502).json({ message: "External authorization api failed." })
       } else {
         return res.status(401).json({ message: "User authentication failed." })
       }
-  }
+    })
 }
