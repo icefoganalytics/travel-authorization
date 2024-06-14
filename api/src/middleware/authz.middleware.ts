@@ -65,6 +65,27 @@ function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
       const { email, given_name: firstName, family_name: lastName } = data
 
       const fallbackEmail = `${firstName}.${lastName}@yukon-no-email.ca`
+      
+      const user = await User.findOne({ where: { sub } });
+      
+      if(user){
+          return user;
+      } else {
+          const created = await User.create({
+            sub,
+            email: email || fallbackEmail,
+            firstName,
+            lastName,
+            roles: [User.Roles.USER],
+            status: User.Statuses.ACTIVE,
+          });
+          
+          if (created) {
+            logger.info(`CREATED USER FOR ${email}: ${JSON.stringify(created.dataValues)}`);
+          }
+          return created;
+      }
+      /*
       const [user, created] = await User.findOrCreate({
         where: { sub },
         defaults: {
@@ -76,15 +97,8 @@ function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
           status: User.Statuses.ACTIVE,
         },
       })
-
-      if (created) {
-        console.log('======== user is created!');
-        logger.info(`CREATED USER FOR ${email}: ${JSON.stringify(user.dataValues)}`)
-      } else {
-        console.log('======== user was not created???');
-      }
-        
       return user
+      */
     })
 }
 
