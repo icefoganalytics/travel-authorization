@@ -4,11 +4,7 @@ import { faker } from "@faker-js/faker"
 import { isNil } from "lodash"
 
 import { TravelAuthorization, TravelSegment } from "@/models"
-import {
-  travelAuthorizationPreApprovalFactory,
-  travelPurposeFactory,
-  userFactory,
-} from "@/factories"
+import { travelPurposeFactory, userFactory } from "@/factories"
 import { POSTGRES_INT_4_MAX, presence } from "./helpers"
 
 type TransientParam = {
