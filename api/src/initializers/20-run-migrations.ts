@@ -1,8 +1,13 @@
 import knex from "@/db/db-client-legacy"
 import logger from "@/utils/logger"
 
+type MigrationInfo = {
+  name: string
+}
+
 async function runMigrations(): Promise<void> {
-  const [_completedMigrations, pendingMigrations]: [string[], string[]] = await knex.migrate.list()
+  const [_completedMigrations, pendingMigrations]: [MigrationInfo[], MigrationInfo[]] =
+    await knex.migrate.list()
 
   if (pendingMigrations.length === 0) {
     logger.info("No pending migrations.")
@@ -10,10 +15,10 @@ async function runMigrations(): Promise<void> {
   }
 
   return pendingMigrations
-    .reduce(async (previousMigration, migration) => {
+    .reduce(async (previousMigration, { name }) => {
       await previousMigration
 
-      logger.info(`Running migration: ${migration}`)
+      logger.info(`Running migration: ${name}`)
       return knex.migrate.up()
     }, Promise.resolve())
     .then(() => {

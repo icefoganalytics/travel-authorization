@@ -50,7 +50,11 @@ class GithubApi
   end
 
   def self.format_branch_name(issue_repo, issue_number, issue_title)
-    formatted_title = issue_title.downcase.gsub(/\s+/, '-').gsub(/[^a-z0-9\-]/, '')
+    formatted_title = issue_title.downcase
+                                 .strip
+                                 .gsub(/\s+/, '-')
+                                 .gsub(/[^a-z0-9\-]/, '')
+                                 .gsub(/-+/, '-')
 
     if issue_repo == GITHUB_REPO
       return "issue-#{issue_number}/#{formatted_title}"
