@@ -235,13 +235,6 @@ User.init(
     modelName: "User",
     tableName: "users",
     paranoid: false,
-    hooks: {
-        afterCreate(attributes, options) {
-            const stack = new Error().stack;
-            console.log(`User created: ${attributes.email}`);
-            console.log(`Stack trace: ${stack}`);
-        },
-    }
   }
 )
 
