@@ -49,40 +49,80 @@ class Auth0PayloadError extends Error {
   }
 }
 
-function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
-  return axios
-    .get(`${AUTH0_DOMAIN}/userinfo`, {
-      headers: {
-        authorization: token,
-      },
-    })
-    .then(async ({ data }: { data: Auth0Response }) => {
-      const sub = data.sub
-      if (isNil(sub)) {
-        throw new Auth0PayloadError(data)
-      }
+export async function findUserFromAuth0Token(token: string): Promise<User | null> {
+  const response = await axios.get(`${AUTH0_DOMAIN}/userinfo`, {
+    headers: {
+      authorization: token,
+    },
+  });
 
-      const { email, given_name: firstName, family_name: lastName } = data
+  const data = response.data;
+  const sub = data.sub;
 
-      const fallbackEmail = `${firstName}.${lastName}@yukon-no-email.ca`
-      const [user, created] = await User.findOrCreate({
-        where: { sub },
-        defaults: {
-          sub,
-          email: email || fallbackEmail,
-          firstName,
-          lastName,
-          roles: [User.Roles.USER],
-          status: User.Statuses.ACTIVE,
-        },
-      })
+  if (isNil(sub)) {
+    throw new Auth0PayloadError(data);
+  }
 
-      if (created) {
-        logger.info(`CREATED USER FOR ${email}: ${JSON.stringify(user.dataValues)}`)
-      }
+  const user = await User.findOne({ where: { sub } });
+  return user; // NOTE null if not found
+}
 
-      return user
-    })
+export async function createUserFromAuth0Token(token: string): Promise<User | null> {
+  const user = await findUserFromAuth0Token(token);
+
+  // user with token is already in database
+  if(user !== null){
+    logger.error(`ATTEMPTING TO CREATE EXISTING USER: ${JSON.stringify(user.dataValues)}`)
+    return null; // return null since no user was created
+  }
+  
+  // user with token is not in database
+  const response = await axios.get(`${AUTH0_DOMAIN}/userinfo`, {
+    headers: {
+      authorization: token,
+    },
+  });
+
+  const data: Auth0Response = response.data;
+  const sub = data.sub;
+
+  if (isNil(sub)) {
+    throw new Auth0PayloadError(data);
+  }
+
+  const { email, given_name: firstName, family_name: lastName } = data;
+  const fallbackEmail = `${firstName}.${lastName}@yukon-no-email.ca`;
+  
+  const newUser = await User.create({
+    sub: sub,
+    email: email || fallbackEmail,
+    firstName: firstName,
+    lastName: lastName,
+    roles: [User.Roles.USER],
+    status: User.Statuses.ACTIVE,
+  });
+
+  logger.info(`CREATED USER FOR ${email}: ${JSON.stringify(newUser.dataValues)}`)
+  return newUser;
+}
+
+export async function findOrCreateUserFromAuth0Token(token: string): Promise<User> {
+  const user = await findUserFromAuth0Token(token);
+
+  // user exists in database
+  if(user !== null){
+    return user;
+  }
+  
+  // user does not exist in database
+  const newUser = await createUserFromAuth0Token(token);
+
+  // new user was created in database
+  if(newUser !== null){
+    return newUser;
+  }
+
+  throw new Auth0PayloadError("Unknown Error");
 }
 
 export async function loadUser(req: AuthorizationRequest, res: Response, next: NextFunction) {
@@ -94,18 +134,17 @@ export async function loadUser(req: AuthorizationRequest, res: Response, next: N
     return next()
   }
 
-  const token = req.headers.authorization || ""
-  return findOrCreateUserFromAuth0Token(token)
-    .then((user) => {
-      req.user = user
-      return next()
-    })
-    .catch((error) => {
-      if (error instanceof Auth0PayloadError) {
-        logger.info(error)
-        return res.status(502).json({ message: "External authorization api failed." })
-      } else {
-        return res.status(401).json({ message: "User authentication failed." })
-      }
-    })
+  const token = req.headers.authorization || ''
+  try {
+    const user = await findOrCreateUserFromAuth0Token(token)
+    req.user = user
+    return next()
+  } catch (error) {
+    if (error instanceof Auth0PayloadError) {
+      logger.info(error)
+      return res.status(502).json({ message: "External authorization api failed." })
+    } else {
+      return res.status(401).json({ message: "User authentication failed." })
+    }
+  }
 }
