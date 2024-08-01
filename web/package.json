@@ -5,6 +5,7 @@
   "scripts": {
     "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test": "vitest",
     "lint": "eslint --ext .js,.vue --ignore-path ../.gitignore"
   },
   "dependencies": {
@@ -43,7 +44,8 @@
     "eslint-plugin-vue": "^9.18.1",
     "prettier": "^3.0.3",
     "sass": "^1.77.6",
-    "sass-loader": "^10.5.2"
+    "sass-loader": "^10.5.2",
+    "vitest": "^2.0.5"
   },
   "browserslist": [
     "> 1%",
