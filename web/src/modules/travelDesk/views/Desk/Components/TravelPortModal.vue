@@ -172,7 +172,7 @@ export default {
       readonly: false,
       savingData: false,
       portText: "",
-      flightOptions: {},
+      flightOptions: [],
       flightText: {},
       flightSegments: [],
       state: {

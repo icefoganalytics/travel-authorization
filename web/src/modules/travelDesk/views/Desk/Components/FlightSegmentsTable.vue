@@ -84,8 +84,8 @@ export default {
       default: () => [],
     },
     flightText: {
-      type: Array,
-      default: () => [],
+      type: Object,
+      default: () => {},
     },
   },
   data() {
