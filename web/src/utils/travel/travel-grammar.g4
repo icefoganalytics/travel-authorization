@@ -5,16 +5,16 @@ flightDetails
    : airlineClause departureClause arrivalClause durationClause statusClause classClause
 
 airlineClause
-   : Name FlightNumber (operatedByClause)?
+   : Identifier FlightNumber (operatedByClause)?
 
 operatedByClause
-   : "- Operated By:" Name
+   : "- Operated By:" Identifier
 
 departureClause
-   : "Departure:" Date Time Name "(" AirportCode ")" "Terminal:" TerminalCode?
+   : "Departure:" Date Time Identifier "(" AirportCode ")" "Terminal:" TerminalCode?
 
 arrivalClause
-   : "Arrival:" Date Time Name "(" AirportCode ")" "Terminal:" TerminalCode?
+   : "Arrival:" Date Time Identifier "(" AirportCode ")" "Terminal:" TerminalCode?
 
 durationClause
    : "Duration:" Duration
@@ -26,8 +26,8 @@ classClause
    : "Class:" Class
 
 // Atomic expressions
-Name
-   : [a-zA-Z ]+
+Identifier
+   : [a-zA-Z]+
 
 FlightNumber
    : [A-Z]{2}\d{1,4}

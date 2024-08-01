@@ -4,11 +4,11 @@ const Flights = createToken({ name: "Flights", pattern: /Flights:/ })
 const Departure = createToken({ name: "Departure", pattern: /Departure:/ })
 const Arrival = createToken({ name: "Arrival", pattern: /Arrival:/ })
 const Duration = createToken({ name: "Duration", pattern: /\d+ Hour\(s\) \d+ Minutes/ })
-const Status = createToken({ name: "Status", pattern: /Status: [a-zA-Z ]+/ })
+const Status = createToken({ name: "Status", pattern: /Status: [a-zA-Z]+/ })
 const Class = createToken({ name: "Class", pattern: /Class: [a-zA-Z]/ })
 const Terminal = createToken({ name: "Terminal", pattern: /Terminal:/ })
-const Name = createToken({ name: "Name", pattern: /[a-zA-Z ]+/ })
 const FlightNumber = createToken({ name: "FlightNumber", pattern: /[A-Z]{2}\d{1,4}/ })
+const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]+/ })
 const OperatedBy = createToken({ name: "OperatedBy", pattern: /- Operated By:/ })
 const Date = createToken({ name: "Date", pattern: /\d{2} \w{3}/ })
 const Time = createToken({ name: "Time", pattern: /\d{2}:\d{2}/ })
@@ -16,12 +16,12 @@ const AirportCode = createToken({ name: "AirportCode", pattern: /[A-Z]{3}/ })
 const TerminalCode = createToken({ name: "TerminalCode", pattern: /[a-zA-Z0-9]+/ })
 const OpenParen = createToken({ name: "OpenParen", pattern: /\(/ })
 const CloseParen = createToken({ name: "CloseParen", pattern: /\)/ })
-const Newline = createToken({ name: "Newline", pattern: /\n/, group: Lexer.SKIPPED })
-const WhiteSpace = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED })
+const Newline = createToken({ name: "Newline", pattern: /\n/ })
+const WhiteSpace = createToken({ name: "WhiteSpace", pattern: /\s+/ })
 
 const allTokens = [
-  WhiteSpace,
   Newline,
+  WhiteSpace,
   Flights,
   Departure,
   Arrival,
@@ -29,8 +29,8 @@ const allTokens = [
   Status,
   Class,
   Terminal,
-  Name,
   FlightNumber,
+  Identifier,
   OperatedBy,
   Date,
   Time,
@@ -57,6 +57,7 @@ export class TravelParser extends CstParser {
 
     $.RULE("flightsSection", () => {
       $.CONSUME(Flights)
+      $.CONSUME(Newline)
       $.MANY(() => {
         $.SUBRULE($.flightDetails)
       })
@@ -72,28 +73,38 @@ export class TravelParser extends CstParser {
     })
 
     $.RULE("airlineClause", () => {
-      $.CONSUME(Name)
-      $.CONSUME(FlightNumber)
       $.OPTION(() => {
+        $.CONSUME(WhiteSpace)
+      })
+      $.AT_LEAST_ONE(() => {
+        $.CONSUME(Identifier)
+        $.CONSUME1(WhiteSpace)
+      })
+      $.CONSUME(FlightNumber)
+      $.OPTION1(() => {
         $.SUBRULE($.operatedByClause)
       })
+      $.CONSUME(Newline)
     })
 
     $.RULE("operatedByClause", () => {
       $.CONSUME(OperatedBy)
-      $.CONSUME(Name)
+      $.CONSUME(Identifier)
     })
 
     $.RULE("departureClause", () => {
+      $.OPTION(() => {
+        $.CONSUME(WhiteSpace)
+      })
       $.CONSUME(Departure)
       $.CONSUME(Date)
       $.CONSUME(Time)
-      $.CONSUME(Name)
+      $.CONSUME(Identifier)
       $.CONSUME(OpenParen)
       $.CONSUME(AirportCode)
       $.CONSUME(CloseParen)
       $.CONSUME(Terminal)
-      $.OPTION(() => {
+      $.OPTION1(() => {
         $.CONSUME(TerminalCode)
       })
     })
@@ -102,7 +113,7 @@ export class TravelParser extends CstParser {
       $.CONSUME(Arrival)
       $.CONSUME(Date)
       $.CONSUME(Time)
-      $.CONSUME(Name)
+      $.CONSUME(Identifier)
       $.CONSUME(AirportCode)
       $.CONSUME(Terminal)
       $.OPTION(() => {
