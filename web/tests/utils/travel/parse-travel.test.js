@@ -1,6 +1,6 @@
-import { parseTravel } from "@/utils/parse-travel"
+import parseTravel from "@/utils/travel/parse-travel"
 
-describe("web/src/utils/parse-travel.js", () => {
+describe("web/src/utils/travel/parse-travel.js", () => {
   describe(".parseTravel", () => {
     test("when given two flights from Air Canada, parses them correctly", () => {
       const text = `Flights:
