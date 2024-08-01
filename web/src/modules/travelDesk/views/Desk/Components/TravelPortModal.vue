@@ -136,6 +136,7 @@
 import Vue from "vue"
 
 import { TRAVEL_DESK_URL } from "@/urls"
+import { parseTravel } from "@/utils/parse-travel"
 import http from "@/api/http-client"
 
 import FlightSegmentsTable from "@/modules/travelDesk/views/Desk/Components/FlightSegmentsTable.vue"
@@ -254,9 +255,9 @@ export default {
       }
     },
 
-    parseTravel() {
+    parseTravelWrapper() {
       if (!this.portText) return
-      const parsedTravel = Vue.filter("parseTravel")(this.portText)
+      const parsedTravel = parseTravel(this.portText)
       console.log(parsedTravel)
       this.flightText = parsedTravel.flights
     },
