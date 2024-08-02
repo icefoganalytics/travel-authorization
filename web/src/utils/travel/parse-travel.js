@@ -6,6 +6,8 @@ const parser = new TravelParser()
 
 export function parseTravel(text) {
   const lexingResult = TravelLexer.tokenize(text)
+  console.log("lexingResult:", lexingResult)
+  console.log("lexingResult:", JSON.stringify(lexingResult, null, 2))
   parser.input = lexingResult.tokens
 
   const cst = parser.main()
