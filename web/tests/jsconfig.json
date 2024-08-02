@@ -1,0 +1,8 @@
+// Helps VSCode detect typescript path aliases in test files
+{
+  "extends": "../jsconfig.json",
+  "include": ["./**/*.test.js"],
+  "compilerOptions": {
+    "types": ["vitest/globals"] // https://vitest.dev/config/#globals
+  }
+}

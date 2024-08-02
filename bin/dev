@@ -81,11 +81,25 @@ class DevHelper
     run(*%w[api npm run check-types], *args, **kwargs)
   end
 
+  def test(*args, **kwargs)
+    service = args[0]
+    if service == 'api'
+      test_api(*args.drop(1), **kwargs)
+    elsif service == 'web'
+      test_web(*args.drop(1), **kwargs)
+    else
+      test_api(*args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      test_web(*args, **kwargs)
+    end
+  end
+
   def test_api(*args, **kwargs)
     run(*%w[test_api npm run test], *args, **kwargs)
   end
 
-  alias_method :test, :test_api
+  def test_web(*args, **kwargs)
+    run(*%w[test_web npm run test], *args, **kwargs)
+  end
 
   def psql(*args, **kwargs)
     # TODO: use environment variables for this instead

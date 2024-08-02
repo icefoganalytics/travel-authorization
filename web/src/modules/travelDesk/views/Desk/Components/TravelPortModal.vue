@@ -19,63 +19,56 @@
 
       <v-card>
         <v-card-title
-          class="primary"
+          class="d-flex justify-space-between align-center primary"
           style="border-bottom: 1px solid black"
         >
-          <div class="text-h5">Manage Groups/Flight Options</div>
+          <h2>Manage Groups/Flight Options</h2>
           <v-btn
             color="grey darken-5"
-            class="my-0 ml-auto px-5"
+            class="my-0 px-5"
             :loading="savingData"
-            @click="closeModal()"
+            @click="closeModal"
           >
-            <div>Close</div>
+            Close
           </v-btn>
         </v-card-title>
-
         <v-card-text>
           <v-row class="mt-5">
-            <v-col cols="3">
-              <TitleCard
-                class="mt-5"
-                large-title
-              >
-                <template #title>
-                  <div>Travel Port Text</div>
-                </template>
-                <template #body>
-                  <v-row class="mx-0">
-                    <v-btn
-                      class="mx-auto mt-7 mb-7"
-                      style="min-width: 0"
-                      color="blue"
-                      @click="parseTravel()"
-                    >
-                      <div class="mx-0 px-1">Clean and Seperate Options</div>
-                    </v-btn>
+            <v-col>
+              <v-card class="mt-5">
+                <v-card-title><h3>Travel Port Text</h3></v-card-title>
+                <v-card-text>
+                  <v-row>
+                    <v-col>
+                      <v-textarea
+                        v-model="portText"
+                        :error="state.portTextErr"
+                        label="Paste Text Here"
+                        rows="20"
+                        clearable
+                        outlined
+                        @input="state.portTextErr = false"
+                      />
+                    </v-col>
                   </v-row>
-                  <v-textarea
-                    v-model="portText"
-                    class="mx-5"
-                    :error="state.portTextErr"
-                    label="Paste Text Here"
-                    rows="20"
-                    clearable
-                    outlined
-                    @input="state.portTextErr = false"
-                  />
-                </template>
-              </TitleCard>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer />
+                  <v-btn
+                    color="primary"
+                    @click="parseTravel"
+                  >
+                    Clean and Seperate Options
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
             </v-col>
-            <v-col cols="9">
-              <TitleCard
-                class="mt-5"
-                large-title
-              >
-                <template #title>
-                  <div>Cost and Group Segments</div>
-                </template>
-                <template #body>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-card class="mt-5">
+                <v-card-title><h3>Cost and Group Segments</h3></v-card-title>
+                <v-card-text>
                   <FlightSegmentsTable
                     :flight-segments="flightSegments"
                     :flight-options="flightOptions"
@@ -89,7 +82,7 @@
                     :flight-options="flightOptions"
                     style="margin: 7rem 0.5rem 2rem 0.5rem"
                   />
-                  <v-row class="mx-0">
+                  <v-card-actions>
                     <v-btn
                       class="ml-3 mr-2 my-5 px-3 py-4"
                       style="min-width: 0"
@@ -115,7 +108,7 @@
                       class="ml-auto mr-3 my-5 px-3 py-4"
                       :loading="savingData"
                       small
-                      @click="removeAllFlightOptions()"
+                      @click="removeAllFlightOptions"
                       >Remove All Groups
                     </v-btn>
                     <v-btn
@@ -125,12 +118,12 @@
                       class="ml-3 mr-3 my-5 px-3 py-4"
                       :loading="savingData"
                       small
-                      @click="saveAllFlightOptions()"
+                      @click="saveAllFlightOptions"
                       >Save Groupings
                     </v-btn>
-                  </v-row>
-                </template>
-              </TitleCard>
+                  </v-card-actions>
+                </v-card-text>
+              </v-card>
             </v-col>
           </v-row>
         </v-card-text>
@@ -143,16 +136,15 @@
 import Vue from "vue"
 
 import { TRAVEL_DESK_URL } from "@/urls"
+import { parseTravel } from "@/utils/parse-travel"
 import http from "@/api/http-client"
 
-import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 import FlightSegmentsTable from "@/modules/travelDesk/views/Desk/Components/FlightSegmentsTable.vue"
 import FlightOptionsTable from "@/modules/travelDesk/views/Desk/Components/FlightOptionsTable.vue"
 
 export default {
   name: "TravelPortModal",
   components: {
-    TitleCard,
     FlightSegmentsTable,
     FlightOptionsTable,
   },
@@ -172,7 +164,7 @@ export default {
       readonly: false,
       savingData: false,
       portText: "",
-      flightOptions: {},
+      flightOptions: [],
       flightText: {},
       flightSegments: [],
       state: {
@@ -188,7 +180,7 @@ export default {
       this.flightOptions = []
       this.legs = []
       for (const flightRequest of this.flightRequests) {
-        this.flightOptions.push(...flightRequest.flightOptions)
+        this.flightOptions.push(...(flightRequest.flightOptions || []))
         // console.log(flightRequest)
         this.legs.push({
           flightRequestID: flightRequest.id,
@@ -263,9 +255,9 @@ export default {
       }
     },
 
-    parseTravel() {
+    parseTravelWrapper() {
       if (!this.portText) return
-      const parsedTravel = Vue.filter("parseTravel")(this.portText)
+      const parsedTravel = parseTravel(this.portText)
       console.log(parsedTravel)
       this.flightText = parsedTravel.flights
     },

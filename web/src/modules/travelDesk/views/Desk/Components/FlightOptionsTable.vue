@@ -1,14 +1,14 @@
 <template>
   <div>
-    <TitleCard
+    <v-card
       class="mt-5"
       large-title
       :border="'1px solid #FFEEDD !important'"
     >
-      <template #title>
-        <div class="brown--text">Grouping</div>
-      </template>
-      <template #body>
+      <v-card-title>
+        <span class="brown--text">Grouping</span>
+      </v-card-title>
+      <v-card-text>
         <v-data-table
           :headers="headers"
           :items="flightOptions"
@@ -18,14 +18,14 @@
           :hide-default-header="true"
         >
           <template #item.name="{ item, index }">
-            <TitleCard
+            <v-card
               class="my-5"
               :border="'1px solid #AAEEFF !important'"
             >
-              <template #title>
+              <v-card-title>
                 <v-row class="mx-0 blue--text">Group {{ index + 1 }}</v-row>
-              </template>
-              <template #body>
+              </v-card-title>
+              <v-card-text>
                 <v-row class="mx-3 mt-0 mb-n8">
                   <v-col cols="3">
                     <v-text-field
@@ -87,25 +87,23 @@
                     </div>
                   </v-row>
                 </div>
-              </template>
-            </TitleCard>
+              </v-card-text>
+            </v-card>
           </template>
         </v-data-table>
-      </template>
-    </TitleCard>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 
 <script>
 import Vue from "vue"
 
-import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 import FlightSegment from "@/modules/travelDesk/views/Desk/Components/FlightSegment.vue"
 
 export default {
   name: "FlightOptionsTable",
   components: {
-    TitleCard,
     FlightSegment,
   },
   props: {

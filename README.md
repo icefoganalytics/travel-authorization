@@ -113,9 +113,18 @@ by default.
 
 ## Testing
 
+With `dev` helper run: `dev test api` or `dev test web`.
+
+### Back-end
+
 1. Run the api test suite via `dev test_api`.
 
 See [api/tests/README.md](./api/tests/README.md) for more detailed info.
+
+### Front-end
+
+Run `dev test_web` to run the front-end tests.
+Currently can only test `.js` files. `.vue` files are not yet supported.
 
 ## Migrations
 

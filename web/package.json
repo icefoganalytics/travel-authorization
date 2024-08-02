@@ -5,6 +5,7 @@
   "scripts": {
     "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test": "vitest",
     "lint": "eslint --ext .js,.vue --ignore-path ../.gitignore"
   },
   "dependencies": {
@@ -12,6 +13,7 @@
     "@vueuse/shared": "^10.11.0",
     "apexcharts": "^3.37.1",
     "axios": "^1.6.8",
+    "chevrotain": "^11.0.3",
     "esri-loader": "^3.6.0",
     "export-to-csv": "^0.2.1",
     "lodash": "^4.17.21",
@@ -43,7 +45,8 @@
     "eslint-plugin-vue": "^9.18.1",
     "prettier": "^3.0.3",
     "sass": "^1.77.6",
-    "sass-loader": "^10.5.2"
+    "sass-loader": "^10.5.2",
+    "vitest": "^2.0.5"
   },
   "browserslist": [
     "> 1%",

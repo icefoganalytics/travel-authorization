@@ -4,6 +4,7 @@ module.exports = {
   root: true,
   env: {
     node: true,
+    "vitest/globals": true,
   },
   extends: ["plugin:vue/recommended", "eslint:recommended", "plugin:prettier/recommended"],
   parserOptions: {

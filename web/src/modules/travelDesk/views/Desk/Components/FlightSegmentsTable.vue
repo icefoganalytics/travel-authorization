@@ -1,13 +1,13 @@
 <template>
   <div>
-    <TitleCard
+    <v-card
       class="mt-5"
       large-title
     >
-      <template #title>
-        <div>Segments</div>
-      </template>
-      <template #body>
+      <v-card-title>
+        <h4>Segments</h4>
+      </v-card-title>
+      <v-card-text>
         <v-row class="mx-0">
           <v-btn
             style="min-width: 0"
@@ -56,21 +56,19 @@
             />
           </template>
         </v-data-table>
-      </template>
-    </TitleCard>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 
 <script>
 import { TRAVEL_DESK_QUESTION_REQUEST_TYPES } from "@/api/travel-desk-questions-api"
 
-import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 import FlightSegment from "@/modules/travelDesk/views/Desk/Components/FlightSegment.vue"
 
 export default {
   name: "FlightSegmentsTable",
   components: {
-    TitleCard,
     FlightSegment,
   },
   props: {
@@ -84,8 +82,8 @@ export default {
       default: () => [],
     },
     flightText: {
-      type: Array,
-      default: () => [],
+      type: Object,
+      default: () => {},
     },
   },
   data() {

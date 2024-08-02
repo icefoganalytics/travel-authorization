@@ -1,6 +1,5 @@
 import Vue from "vue"
-import store from "../store"
-import { parseTravel } from "./parseTravel"
+import store from "@/store"
 
 Vue.filter("isAdmin", function () {
   const userDept = store.state.auth?.department
@@ -69,5 +68,3 @@ Vue.filter("flightStartEnd", function (flights) {
     return { start: dates[0], end: flights.length > 1 ? dates[flights.length - 1] : "" }
   } else return { start: "", end: "" }
 })
-
-Vue.filter("parseTravel", parseTravel)
