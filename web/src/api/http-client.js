@@ -12,7 +12,7 @@ export const httpClient = axios.create({
   paramsSerializer: {
     serialize: (params) => {
       return qs.stringify(params, {
-        arrayFormat: "brackets",
+        arrayFormat: "indexes",
         strictNullHandling: true,
       })
     },

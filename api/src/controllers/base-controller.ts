@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { Attributes, Model, WhereOptions } from "sequelize"
+import { Attributes, Model, Order, WhereOptions } from "sequelize"
 import { isEmpty } from "lodash"
 
 import { AuthorizedRequest } from "@/middleware/authorization-middleware"
@@ -196,6 +196,22 @@ export class BaseController<TModel extends Model = never> {
     }
 
     return scopes
+  }
+
+  buildOrder(overridableOrder: Order = [], nonOverridableOrder: Order = []): Order | undefined {
+    const orderQuery = (this.query.order as Order) || []
+    // if (isArray(value) && isArray(value[0])) {
+    //   return value as OrderType[];
+    // }
+
+    if (isEmpty(orderQuery)) {
+      return undefined
+    }
+
+    console.log(`orderQuery:`, orderQuery)
+
+    // @ts-expect-error - lots of type issues, but I'll solve that later
+    return nonOverridableOrder.concat(orderQuery).concat(overridableOrder)
   }
 
   private determineLimit(perPage: number) {

@@ -13,10 +13,12 @@
         <v-data-table
           :page.sync="page"
           :items-per-page.sync="perPage"
+          :options.sync="options"
           :headers="headers"
           :items="travelDeskTravelAgencies"
           :loading="isLoading"
           :server-items-length="totalCount"
+          multi-sort
           class="elevation-1 mt-4"
           @dblclick:row="(_, { item }) => goToEditPage(item.id)"
         >
@@ -55,8 +57,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
+import { isEmpty, isNil } from "lodash"
 
 import { useSnack } from "@/plugins/snack-plugin"
 import travelDeskTravelAgenciesApi from "@/api/travel-desk-travel-agencies-api"
@@ -82,10 +85,27 @@ const headers = ref([
 
 const page = useRouteQuery("page", "1", { transform: parseInt })
 const perPage = useRouteQuery("perPage", "5", { transform: parseInt })
+const options = ref(null)
+
+const order = computed(() => {
+  if (isNil(options.value) || isNil(options.value.sortBy) || isEmpty(options.value.sortBy)) {
+    return undefined
+  }
+
+  return options.value.sortBy.map((column, index) => {
+    const direction = options.value.sortDesc[index] ? "DESC" : "ASC"
+    return [column, direction]
+  })
+})
+
+watch(order, (newOrder) => {
+  console.log("newOrder:", newOrder)
+})
 
 const travelDeskTravelAgenciesQuery = computed(() => ({
   page: page.value,
   perPage: perPage.value,
+  order: order.value,
 }))
 const { travelDeskTravelAgencies, totalCount, isLoading, refresh } = useTravelDeskTravelAgencies(
   travelDeskTravelAgenciesQuery

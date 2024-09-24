@@ -11,6 +11,8 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
+      const order = this.buildOrder()
+      console.log(`order:`, order)
       const scopedTravelDeskTravelAgencies = TravelDeskTravelAgenciesPolicy.applyScope(
         scopes,
         this.currentUser
@@ -19,6 +21,7 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
       const totalCount = await scopedTravelDeskTravelAgencies.count({ where })
       const travelDeskTravelAgencies = await scopedTravelDeskTravelAgencies.findAll({
         where,
+        order,
         limit: this.pagination.limit,
         offset: this.pagination.offset,
       })
@@ -69,7 +72,10 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const travelDeskTravelAgency = await CreateService.perform(permittedAttributes, this.currentUser)
+      const travelDeskTravelAgency = await CreateService.perform(
+        permittedAttributes,
+        this.currentUser
+      )
       return this.response.status(201).json({ travelDeskTravelAgency })
     } catch (error) {
       logger.error("Error creating travel desk travel agency" + error)
@@ -136,7 +142,9 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
     return TravelDeskTravelAgency.findByPk(this.params.travelDeskTravelAgencyId)
   }
 
-  private buildPolicy(travelDeskTravelAgency: TravelDeskTravelAgency = TravelDeskTravelAgency.build()) {
+  private buildPolicy(
+    travelDeskTravelAgency: TravelDeskTravelAgency = TravelDeskTravelAgency.build()
+  ) {
     return new TravelDeskTravelAgenciesPolicy(this.currentUser, travelDeskTravelAgency)
   }
 }
