@@ -24,9 +24,10 @@
                   dense
                   item-text="purpose"
                   item-value="id"
-                  label="Purpose"
+                  label="Purpose *"
                   outlined
                   required
+                  validate-on-blur
                 ></v-select>
               </v-col>
               <v-col cols="12">
@@ -34,9 +35,10 @@
                   v-model="travelAuthorization.eventName"
                   :rules="[required]"
                   dense
-                  label="Name of meeting/conference, mission, trade fair or course"
+                  label="Name of meeting/conference, mission, trade fair or course *"
                   outlined
                   required
+                  validate-on-blur
                 ></v-text-field>
               </v-col>
               <v-col
@@ -48,7 +50,6 @@
                   v-model="travelAuthorization.allTravelWithinTerritory"
                   label="In Territory?"
                   dense
-                  required
                 >
                 </v-checkbox>
               </v-col>
@@ -62,7 +63,7 @@
                   :rules="[required]"
                   clearable
                   dense
-                  label="Final Destination"
+                  label="Final Destination *"
                   outlined
                   persistent-hint
                   required
@@ -96,9 +97,11 @@
                   :rules="[required]"
                   auto-grow
                   dense
-                  label="Objectives"
+                  label="Objectives *"
                   outlined
+                  required
                   rows="10"
+                  validate-on-blur
                 >
                 </v-textarea>
               </v-col>

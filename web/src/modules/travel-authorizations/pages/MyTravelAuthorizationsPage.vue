@@ -15,7 +15,7 @@
           <v-icon>mdi-cached</v-icon>
         </v-btn>
       </h1>
-      <CreateTravelAuthorizationButton />
+      <CreateTravelAuthorizationButton class="my-0" />
     </div>
 
     <v-card class="default">
@@ -28,7 +28,7 @@
 <script>
 import Breadcrumbs from "@/components/Breadcrumbs"
 
-import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationButton"
+import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
 import MyTravelAuthorizationsTable from "@/modules/travel-authorizations/components/MyTravelAuthorizationsTable"
 
 export default {

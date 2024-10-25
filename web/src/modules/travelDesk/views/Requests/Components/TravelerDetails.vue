@@ -208,9 +208,10 @@ export default {
       type: Object,
       required: true,
     },
+    // TODO: replace with more traditional Vuetify form input "rules"
     travelerState: {
       type: Object,
-      required: true,
+      default: () => ({}),
     },
   },
   data() {

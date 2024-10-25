@@ -4,52 +4,24 @@
       v-model="addNewTravelDialog"
       persistent
     >
-      <template #activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          v-bind="attrs"
-          @click="initForm"
-          v-on="on"
-        >
-          Edit
-          <v-icon
-            right
-            dark
-          >
-            mdi-pencil
-          </v-icon>
-        </v-btn>
-      </template>
-
-      <v-card
-        :loading="loadingData"
-        :disabled="loadingData"
-        en
-      >
-        <v-card-title
-          class="primary"
-          style="border-bottom: 1px solid black"
-        >
+      <v-card>
+        <v-card-title class="primary">
           <div class="text-h5">Travel Desk Request</div>
         </v-card-title>
 
-        <div
-          v-if="loadingData"
-          class="mt-10"
-          style="text-align: center"
-        >
-          loading ...
-        </div>
-        <v-card-text v-if="!loadingData">
+        <v-skeleton-loader
+          v-if="isNil(travelDeskTravelRequest)"
+          type="card"
+        />
+        <v-card-text v-else>
           <v-row class="mb-3">
             <v-col cols="8">
-              <traveler-details
-                :traveler-details="travelRequest"
-                :traveler-state="state"
+              <TravelerDetails
+                :traveler-details="travelDeskTravelRequest"
                 :readonly="readonly"
               />
 
-              <title-card
+              <TitleCard
                 class="mt-10"
                 large-title
               >
@@ -61,9 +33,9 @@
                     v-if="!readonly"
                     class="mt-n2 mb-n9 mr-5"
                   >
-                    <travel-port-modal
-                      :flight-requests="travelRequest.flightRequests"
-                      :travel-desk-travel-request-id="travelDetail.id"
+                    <TravelPortModal
+                      :flight-requests="travelDeskTravelRequest.flightRequests"
+                      :travel-desk-travel-request-id="travelDeskTravelRequest.id"
                       class="my-1 ml-auto"
                       @close="flightKey++"
                     />
@@ -78,14 +50,14 @@
                           cols="9"
                           class="my-0 mx-0 py-4"
                         >
-                          <flight-request-table
+                          <FlightRequestTable
                             :key="flightKey"
                             class="mr-n5 mt-n1"
                             :readonly="readonly"
-                            :travel-desk-travel-request-id="travelDetail.id"
+                            :travel-desk-travel-request-id="travelDeskTravelRequest.id"
                             show-flight-options
                             travel-desk-user
-                            :flight-requests="travelRequest.flightRequests"
+                            :flight-requests="travelDeskTravelRequest.flightRequests"
                           />
                         </v-col>
                         <v-col
@@ -93,7 +65,7 @@
                           class="px-0"
                         >
                           <v-textarea
-                            v-model="travelRequest.additionalInformation"
+                            v-model="travelDeskTravelRequest.additionalInformation"
                             class="mt-3 ml-0 mr-5"
                             :readonly="readonly"
                             label="Additional Information"
@@ -109,28 +81,28 @@
                       </v-row>
                     </template>
                   </title-card>
-                  <rental-car-request-table
+                  <RentalCarRequestTable
                     :readonly="readonly"
-                    :flight-requests="travelRequest.flightRequests"
-                    :rental-cars="travelRequest.rentalCars"
+                    :flight-requests="travelDeskTravelRequest.flightRequests"
+                    :rental-cars="travelDeskTravelRequest.rentalCars"
                   />
-                  <hotel-request-table
+                  <HotelRequestTable
                     :readonly="readonly"
-                    :flight-requests="travelRequest.flightRequests"
-                    :hotels="travelRequest.hotels"
+                    :flight-requests="travelDeskTravelRequest.flightRequests"
+                    :hotels="travelDeskTravelRequest.hotels"
                   />
-                  <transportation-request-table
+                  <TransportationRequestTable
                     :readonly="readonly"
-                    :other-transportations="travelRequest.otherTransportations"
+                    :other-transportations="travelDeskTravelRequest.otherTransportations"
                   />
                 </template>
-              </title-card>
+              </TitleCard>
             </v-col>
             <v-col cols="4">
               <v-row class="mt-3 mb-0 mx-0">
                 <v-col cols="6">
                   <TravelDeskTravelAgencySelect
-                    v-model="travelRequest.travelAgencyId"
+                    v-model="travelDeskTravelRequest.travelAgencyId"
                     label="Assign Agency"
                     placeholder="None"
                     clearable
@@ -140,7 +112,7 @@
                 </v-col>
                 <v-col cols="6">
                   <v-select
-                    v-model="travelRequest.travelDeskOfficer"
+                    v-model="travelDeskTravelRequest.travelDeskOfficer"
                     :readonly="readonly"
                     class="mr-2"
                     :items="travelDeskAgentList"
@@ -150,10 +122,10 @@
                 </v-col>
               </v-row>
               <v-row
-                v-if="travelRequest.invoiceNumber"
+                v-if="travelDeskTravelRequest.invoiceNumber"
                 class="mx-0 mb-5 mt-n6"
               >
-                <title-card
+                <TitleCard
                   class="mt-10 mx-4"
                   style="width: 100%"
                 >
@@ -166,7 +138,7 @@
                         style="font-size: 13pt"
                         class="my-auto ml-4 primary--text"
                       >
-                        Invoice Number: {{ travelRequest.invoiceNumber }}
+                        Invoice Number: {{ travelDeskTravelRequest.invoiceNumber }}
                       </div>
                       <v-btn
                         class="ml-auto mr-3 px-5"
@@ -178,33 +150,37 @@
                       </v-btn>
                     </v-row>
                   </template>
-                </title-card>
+                </TitleCard>
               </v-row>
               <QuestionsTable
                 :readonly="readonly"
                 :travel-desk-user="true"
-                :questions="travelRequest.questions"
+                :questions="travelDeskTravelRequest.questions"
               />
             </v-col>
           </v-row>
         </v-card-text>
 
-        <v-card-actions>
+        <v-skeleton-loader
+          v-if="isNil(travelDeskTravelRequest)"
+          type="actions"
+        />
+        <v-card-actions v-else>
           <v-btn
             color="grey darken-5"
             class="px-5"
-            @click="closeDialog"
+            @click="close"
           >
             <div>Close</div>
           </v-btn>
-          <itinerary-modal
-            v-if="travelRequest.invoiceNumber"
+          <ItineraryModal
+            v-if="travelDeskTravelRequest.invoiceNumber"
             class="ml-auto mr-3"
-            :invoice-number="travelRequest.invoiceNumber"
+            :invoice-number="travelDeskTravelRequest.invoiceNumber"
           />
           <UploadPnrModal
-            :travel-request="travelRequest"
-            :class="travelRequest.invoiceNumber ? 'ml-1 mr-2' : 'ml-auto mr-2'"
+            :travel-request="travelDeskTravelRequest"
+            :class="travelDeskTravelRequest.invoiceNumber ? 'ml-1 mr-2' : 'ml-auto mr-2'"
             @saveData="saveNewTravelRequest('save')"
             @close="initForm"
           />
@@ -226,7 +202,7 @@
           </v-btn>
 
           <v-btn
-            v-if="!readonly && travelRequest.invoiceNumber"
+            v-if="!readonly && travelDeskTravelRequest.invoiceNumber"
             class="mr-5 px-5"
             color="#005A65"
             :loading="savingData"
@@ -242,11 +218,7 @@
       persistent
       width="30%"
     >
-      <v-card
-        :loading="loadingData"
-        :disabled="loadingData"
-        en
-      >
+      <v-card :loading="isLoading">
         <v-card-title class="warning">
           <div class="text-h5">Confirm Booking is Complete</div>
         </v-card-title>
@@ -278,15 +250,18 @@
   </div>
 </template>
 
-<script>
-import Vue from "vue"
-import { cloneDeep } from "lodash"
+<script setup>
+import { ref, computed, watch } from "vue"
+import { useStore } from "vue2-helpers/vuex"
+import { cloneDeep, isNil } from "lodash"
 
 import { TRAVEL_DESK_URL } from "@/urls"
 import { useSnack } from "@/plugins/snack-plugin"
 import http from "@/api/http-client"
 import { TRAVEL_DESK_TRAVEL_REQUEST_STATUSES } from "@/api/travel-desk-travel-requests-api"
+
 import useCurrentUser from "@/use/use-current-user"
+import useRouteQuery, { integerTransformer } from "@/use/use-route-query"
 
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 import TravelerDetails from "@/modules/travelDesk/views/Requests/Components/TravelerDetails.vue"
@@ -302,240 +277,167 @@ import ItineraryModal from "@/modules/travelDesk/views/Requests/Components/Itine
 
 import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
-export default {
-  name: "ProcessTravelDeskRequest",
-  components: {
-    FlightRequestTable,
-    HotelRequestTable,
-    ItineraryModal,
-    QuestionsTable,
-    RentalCarRequestTable,
-    TitleCard,
-    TransportationRequestTable,
-    TravelDeskTravelAgencySelect,
-    TravelerDetails,
-    TravelPortModal,
-    UploadPnrModal,
-  },
-  props: {
-    type: {
-      type: String,
-      required: true,
-    },
-    travelDetail: {
-      type: Object,
-      required: true,
-    },
-  },
-  setup() {
-    const { currentUser } = useCurrentUser()
-    const snack = useSnack()
+const emit = defineEmits({
+  close: null,
+})
 
-    return {
-      currentUser,
-      snack,
+const snack = useSnack()
+const { currentUser } = useCurrentUser()
+
+const addNewTravelDialog = ref(false)
+const travelDeskTravelRequestId = useRouteQuery("showEditTravelDeskRequest", null, {
+  mode: "push",
+  transform: integerTransformer,
+})
+const confirmBookingDialog = useRouteQuery("confirmBookingDialog", false, {
+  transform: Boolean,
+})
+
+const travelDeskTravelRequest = ref(null)
+const readonly = computed(
+  () => travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED
+)
+const savingData = ref(false)
+const flightKey = ref(0)
+const isLoading = ref(false)
+
+const store = useStore()
+const travelDeskAgentList = computed(() =>
+  store.state.traveldesk.travelDeskUsers.map(({ firstName, lastName }) =>
+    [firstName, lastName].join(" ")
+  )
+)
+
+async function initForm() {
+  travelDeskTravelRequest.value = await fetchTravelDeskTravelRequest(
+    travelDeskTravelRequestId.value
+  )
+
+  if (isNil(travelDeskTravelRequest.value)) {
+    snack.error("Failed to load travel request.")
+    close()
+    return
+  }
+
+  if (isNil(travelDeskTravelRequest.value.travelDeskOfficer)) {
+    travelDeskTravelRequest.value.travelDeskOfficer = currentUser.value.displayName
+  }
+
+  travelDeskTravelRequest.value.internationalTravel =
+    travelDeskTravelRequest.value.passportCountry || travelDeskTravelRequest.value.passportNum
+}
+
+async function fetchTravelDeskTravelRequest(travelDeskTravelRequestId) {
+  isLoading.value = true
+  try {
+    const { data } = await http.get(
+      `${TRAVEL_DESK_URL}/travel-request/${travelDeskTravelRequestId}`
+    )
+    return data
+  } catch (error) {
+    console.log(error)
+    snack.error(`Failed to load travel request: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function saveNewTravelRequest(saveType, { close = false, refresh = false } = {}) {
+  const body = cloneDeep(travelDeskTravelRequest.value)
+  delete body.internationalTravel
+  delete body.differentTravelContact
+  delete body.office
+  delete body.department
+  delete body.fullName
+
+  // TODO: move status updates to state specific endpoints
+  if (saveType == "save") {
+    // no-op
+  } else if (saveType == "sendback") {
+    body.status = TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_PROVIDED
+  } else if (saveType == "booked") {
+    body.status = TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED
+  }
+
+  savingData.value = true
+  try {
+    await http.post(`${TRAVEL_DESK_URL}/travel-request/${travelDeskTravelRequestId.value}`, body)
+
+    snack.success("Travel request saved.", {
+      color: "success",
+    })
+    savingData.value = false
+    confirmBookingDialog.value = false
+
+    if (close) {
+      close()
     }
-  },
-  data() {
-    return {
-      addNewTravelDialog: false,
-      confirmBookingDialog: false,
-      readonly: false,
-      internationalTravel: false,
-      travelDeskAgentList: [],
-      travelerDetails: {},
-      savingData: false,
-      travelRequest: {},
-      flightKey: 0,
 
-      state: {
-        firstNameErr: false,
-        middleNameErr: false,
-        lastNameErr: false,
-        birthDateErr: false,
-        travelAuthErr: false,
-        addressErr: false,
-        cityErr: false,
-        provinceErr: false,
-        postalCodeErr: false,
-        passportNumberErr: false,
-        passportCountryErr: false,
-        businessPhoneErr: false,
-        businessEmailErr: false,
-        travelPhoneErr: false,
-        travelEmailErr: false,
-        flightRequestsErr: false,
-        rentalCarsErr: false,
-        hotelsErr: false,
-        otherTransportationErr: false,
-      },
-      id: null,
-      loadingData: false,
+    if (refresh) {
+      initForm()
     }
-  },
-  mounted() {},
-  methods: {
-    updateTable() {
-      this.$emit("updateTable")
-    },
+  } catch (error) {
+    console.error(error)
+    snack.error(`Failed to save travel request: ${error}`)
+  } finally {
+    savingData.value = false
+  }
+}
 
-    async initForm() {
-      this.initStates()
-      this.savingData = false
-      this.loadingData = true
-      const travelDeskTravelRequestId = this.travelDetail.id
-      this.travelRequest = await this.getTravelRequestInfo(travelDeskTravelRequestId)
-      this.readonly = this.type == "booked" || this.travelRequest.status == "booked"
-      const agents = this.$store.state.traveldesk.travelDeskUsers
-      this.travelDeskAgentList = agents.map((agent) => agent.first_name + " " + agent.last_name)
-
-      if (!this.travelRequest.travelDeskOfficer) {
-        this.travelRequest.travelDeskOfficer =
-          this.currentUser.firstName + " " + this.currentUser.lastName
-      }
-      this.travelRequest.internationalTravel =
-        this.travelRequest.passportCountry || this.travelRequest.passportNum
-      Vue.nextTick(() => (this.loadingData = false))
-    },
-
-    closeDialog() {
-      this.updateTable()
-      this.addNewTravelDialog = false
-    },
-
-    async getTravelRequestInfo(travelDeskTravelRequestId) {
-      return http
-        .get(`${TRAVEL_DESK_URL}/travel-request/` + travelDeskTravelRequestId)
-        .then((resp) => {
-          // console.log(resp.data)
-          return resp.data
-        })
-        .catch((e) => {
-          console.log(e)
-        })
-    },
-
-    saveNewTravelRequest(saveType, { close = false, refresh = false } = {}) {
-      const body = cloneDeep(this.travelRequest)
-      delete body.internationalTravel
-      delete body.differentTravelContact
-      delete body.office
-      delete body.department
-      delete body.fullName
-
-      if (!this.checkFields()) {
-        this.snack("Please fill out all required fields.", {
-          color: "error",
-        })
-        return
-      }
-
-      // TODO: move status updates to state specific endpoints
-      if (saveType == "save") {
-        // no-op
-      } else if (saveType == "sendback") {
-        body.status = TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_PROVIDED
-      } else if (saveType == "booked") {
-        body.status = TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED
-      }
-
-      const travelDeskTravelRequestId = this.travelRequest.id
-      this.savingData = true
-      return http
-        .post(`${TRAVEL_DESK_URL}/travel-request/${travelDeskTravelRequestId}`, body)
-        .then(() => {
-          this.snack("Travel request saved.", {
-            color: "success",
-          })
-          this.savingData = false
-          this.confirmBookingDialog = false
-          if (close) this.closeDialog()
-          if (refresh) this.initForm()
-        })
-        .catch((error) => {
-          console.error(error)
-        })
-        .finally(() => {
-          this.savingData = false
-        })
-    },
-
-    initStates() {
-      for (const key of Object.keys(this.state)) {
-        this.state[key] = false
-      }
-    },
-
-    checkFields() {
-      this.state.firstNameErr = this.travelRequest.legalFirstName ? false : true
-      this.state.middleNameErr = false
-      this.state.lastNameErr = this.travelRequest.legalLastName ? false : true
-      this.state.birthDateErr = this.travelRequest.birthDate ? false : true
-      this.state.travelAuthErr = false
-      this.state.addressErr = this.travelRequest.strAddress ? false : true
-      this.state.cityErr = this.travelRequest.city ? false : true
-      this.state.provinceErr = this.travelRequest.province ? false : true
-      this.state.postalCodeErr = this.travelRequest.postalCode ? false : true
-      this.state.passportNumberErr =
-        this.internationalTravel && !this.travelRequest.passportNum ? true : false
-      this.state.passportCountryErr =
-        this.internationalTravel && !this.travelRequest.passportCountry ? true : false
-      this.state.businessPhoneErr = this.travelRequest.busPhone ? false : true
-      this.state.businessEmailErr = this.travelRequest.busEmail ? false : true
-      this.state.travelPhoneErr =
-        this.travelRequest.travelContact && !this.travelRequest.travelPhone ? true : false //show hint
-      this.state.travelEmailErr =
-        this.travelRequest.travelContact && !this.travelRequest.travelEmail ? true : false //show hint
-      this.state.flightRequestsErr = false
-      this.state.rentalCarsErr = false
-      this.state.hotelsErr = false
-      this.state.otherTransportationErr = false
-
-      let error = false
-      for (const question of this.travelRequest.questions) {
-        if (question.question)
-          question.state = { ...question.state, questionErr: question.state?.questionErr ?? false }
-        else {
-          question.state = { ...question.state, questionErr: question.state?.questionErr ?? true }
-          error = true
-        }
-      }
-      if (error) return false
-
-      for (const key of Object.keys(this.state)) {
-        if (this.state[key]) return false
-      }
-      return true
-    },
-
-    downloadPdf() {
-      this.savingData = true
-      const header = {
+async function downloadPdf() {
+  savingData.value = true
+  try {
+    const { data } = await http.get(
+      `${TRAVEL_DESK_URL}/pnr-document/${travelDeskTravelRequestId.value}`,
+      {
         responseType: "application/pdf",
         headers: {
           "Content-Type": "application/text",
         },
       }
-      const travelDeskTravelRequestId = this.travelRequest.id
+    )
 
-      return http
-        .get(`${TRAVEL_DESK_URL}/pnr-document/${travelDeskTravelRequestId}`, header)
-        .then((res) => {
-          this.savingData = false
-          const link = document.createElement("a")
-          link.href = res.data
-          document.body.appendChild(link)
-          link.download = "pnr_doc.pdf"
-          link.click()
-          setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-        })
-        .catch((e) => {
-          this.savingData = false
-          console.log(e)
-        })
-    },
-  },
+    const link = document.createElement("a")
+    link.href = data
+    document.body.appendChild(link)
+    link.download = "pnr_doc.pdf"
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000)
+  } catch (error) {
+    console.log(error)
+    snack.error(`Failed to download PNR: ${error}`)
+  } finally {
+    savingData.value = false
+  }
 }
+
+watch(
+  travelDeskTravelRequestId,
+  (newTravelDeskTravelRequestId) => {
+    if (isNil(newTravelDeskTravelRequestId)) {
+      addNewTravelDialog.value = false
+      emit("close")
+    } else {
+      addNewTravelDialog.value = true
+      initForm()
+    }
+  },
+  {
+    immediate: true,
+  }
+)
+
+function open(newTravelDeskTravelRequestId) {
+  travelDeskTravelRequestId.value = newTravelDeskTravelRequestId
+}
+
+function close() {
+  travelDeskTravelRequestId.value = null
+}
+
+defineExpose({
+  open,
+})
 </script>
 
 <style scoped></style>

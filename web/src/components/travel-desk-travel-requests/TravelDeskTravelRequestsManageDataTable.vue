@@ -32,6 +32,12 @@
       :items-per-page="15"
       show-select
     >
+      <template #top>
+        <ProcessTravelDeskRequest
+          ref="processTravelDeskRequest"
+          @closed="getTravelDeskRequests"
+        />
+      </template>
       <template #item.createdAt="{ item }">
         <div>
           {{ item.createdAt | beautifyDate }}
@@ -104,12 +110,19 @@
       </template>
 
       <template #item.edit="{ item }">
-        <ProcessTravelDeskRequest
+        <v-btn
           class="pr-2"
-          :type="item.status == 'booked' ? 'booked' : 'edit'"
-          :travel-detail="item"
-          @update-table="getTravelDeskRequests"
-        />
+          color="primary"
+          @click="openProcessTravelDeskRequest(item.id)"
+        >
+          Edit
+          <v-icon
+            right
+            dark
+          >
+            mdi-pencil
+          </v-icon>
+        </v-btn>
       </template>
     </v-data-table>
   </div>
@@ -260,6 +273,12 @@ function determineRequestedOptions(travelDeskTravelRequest) {
 
 function itemRowBackground(item) {
   return item.userTravel > 0 ? "red lighten-5" : ""
+}
+
+const processTravelDeskRequest = ref(null)
+
+function openProcessTravelDeskRequest(travelDeskTravelRequestId) {
+  processTravelDeskRequest.value?.open(travelDeskTravelRequestId)
 }
 </script>
 

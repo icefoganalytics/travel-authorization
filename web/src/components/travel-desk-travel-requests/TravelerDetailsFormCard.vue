@@ -1,15 +1,15 @@
 <template>
   <v-card>
-    <v-card-title>
+    <v-card-title class="d-flex justify-space-between align-center">
       <h4 class="text-h6">Traveler Details</h4>
-    </v-card-title>
-    <v-card-text>
       <SaveStateProgress
         v-if="showSaveStateProgress"
-        class="float-right my-0 mr-3 hidden-sm-and-down"
+        class="my-0"
         :saving="isSaving"
         @click="emit('save-requested')"
       />
+    </v-card-title>
+    <v-card-text>
       <v-form ref="form">
         <v-row class="mt-5 mx-3">
           <v-col

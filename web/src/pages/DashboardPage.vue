@@ -151,12 +151,7 @@
             bellow.</v-card-text
           >
           <v-card-actions>
-            <v-btn
-              color="blue"
-              @click="createForm"
-            >
-              New Travel Request
-            </v-btn>
+            <CreateTravelAuthorizationButton color="blue" />
           </v-card-actions>
         </v-card>
       </v-col>
@@ -174,9 +169,12 @@ import DatePicker from "@/components/common/DatePicker"
 import TimePicker from "@/components/Utils/TimePicker.vue"
 import UploadReceipts from "@/components/Utils/UploadReceipts.vue"
 
+import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
+
 export default {
   name: "DashboardPage",
   components: {
+    CreateTravelAuthorizationButton,
     DatePicker,
     TimePicker,
     UploadReceipts,

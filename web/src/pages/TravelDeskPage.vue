@@ -1,13 +1,13 @@
 <template>
-  <v-container>
-    <h1>Travel Desk</h1>
+  <v-card>
+    <v-card-title>
+      <h2>Travel Desk</h2>
+    </v-card-title>
 
-    <v-card class="default">
-      <v-card-text>
-        <TravelDeskTravelRequestsManageDataTable />
-      </v-card-text>
-    </v-card>
-  </v-container>
+    <v-card-text>
+      <TravelDeskTravelRequestsManageDataTable />
+    </v-card-text>
+  </v-card>
 </template>
 
 <script setup>
