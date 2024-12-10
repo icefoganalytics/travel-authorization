@@ -1,5 +1,5 @@
 <template>
-  <v-container class="px-0 px-md-6">
+  <v-container class="mx-0 mx-md-auto px-0 px-md-4">
     <v-skeleton-loader
       v-if="isNil(travelDeskTravelRequestId) && !isErrored"
       type="card"
@@ -10,7 +10,24 @@
     >
       Failed to fetch travel desk travel request.
     </v-alert>
-    TODO: Build travel desk travel request rank options page.
+    <template v-else>
+      <v-card>
+        <v-card-title>
+          <h3>Rank Options</h3>
+        </v-card-title>
+        <v-card-text class="px-0 px-md-4">
+          <TravelDeskFlightRequestsCard
+            class="card--outlined"
+            :travel-desk-travel-request-id="travelDeskTravelRequestId"
+          />
+          <TravelDeskFlightOptionsDataIterator
+            :filters="{
+              forTravelRequest: travelDeskTravelRequestId,
+            }"
+          />
+        </v-card-text>
+      </v-card>
+    </template>
   </v-container>
 </template>
 
@@ -21,6 +38,9 @@ import { isNil } from "lodash"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
+
+import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
+import TravelDeskFlightOptionsDataIterator from "@/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

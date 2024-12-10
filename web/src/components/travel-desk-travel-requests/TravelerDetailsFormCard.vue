@@ -14,7 +14,7 @@
         <v-row class="mt-5 mx-3">
           <v-col
             cols="12"
-            md="2"
+            md="3"
           >
             <v-text-field
               v-model="travelerDetails.legalFirstName"
@@ -25,7 +25,7 @@
           </v-col>
           <v-col
             cols="12"
-            md="3"
+            md="2"
           >
             <v-text-field
               v-model="travelerDetails.legalMiddleName"

@@ -10,13 +10,13 @@
 
 <script setup>
 import { computed, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import formatDate from "@/utils/format-date"
 
 import useTravelDeskFlightRequest from "@/use/use-travel-desk-flight-request"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
-import { isNil } from "lodash"
 
 /** @typedef {import('@/api/travel-desk-flight-requests-api.js').TravelDeskFlightRequest} TravelDeskFlightRequest */
 

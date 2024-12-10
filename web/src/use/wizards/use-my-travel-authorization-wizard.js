@@ -56,6 +56,12 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
       travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED
     )
   })
+  const isInTravelDeskTravelRequestSubmittedStates = computed(() => {
+    return (
+      travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED ||
+      travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_PROVIDED
+    )
+  })
 
   const steps = computed(() =>
     [
@@ -107,8 +113,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
         backButtonProps: {
           color: "warning",
         },
-        disabled:
-          travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED,
+        disabled: isInTravelDeskTravelRequestSubmittedStates.value,
       },
       {
         title: "Estimate",
@@ -117,8 +122,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
           name: "my-travel-requests/estimate/EstimatePage",
           params: { travelAuthorizationId: travelAuthorizationId.value },
         },
-        disabled:
-          travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED,
+        disabled: isInTravelDeskTravelRequestSubmittedStates.value,
       },
       ...(isAwaitingApproval.value
         ? [
@@ -144,9 +148,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
                 name: "my-travel-requests/request/RequestEditTravelDetailsPage",
                 params: { travelAuthorizationId: travelAuthorizationId.value },
               },
-              disabled:
-                travelDeskTravelRequest.value?.status ===
-                TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED,
+              disabled: isInTravelDeskTravelRequestSubmittedStates.value,
             },
             {
               title: "Request: edit",
@@ -156,9 +158,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
                 params: { travelAuthorizationId: travelAuthorizationId.value },
               },
               continueButtonText: "Submit",
-              disabled:
-                travelDeskTravelRequest.value?.status ===
-                TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED,
+              disabled: isInTravelDeskTravelRequestSubmittedStates.value,
             },
             {
               title: "Request",

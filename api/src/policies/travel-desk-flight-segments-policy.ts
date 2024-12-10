@@ -1,15 +1,17 @@
 import { Attributes, FindOptions } from "sequelize"
+import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
-import { User, TravelDeskFlightSegment } from "@/models"
-import { allRecordsScope, noRecordsScope } from "@/policies/base-policy"
+import { User, TravelDeskFlightSegment, TravelDeskFlightOption } from "@/models"
+import { allRecordsScope } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
+import TravelDeskFlightOptionsPolicy from "@/policies/travel-desk-flight-options-policy"
 
 export class TravelDeskFlightSegmentsPolicy extends PolicyFactory(TravelDeskFlightSegment) {
   // TODO: add ability for traveller to create/read/update/delete their own data
   // Might need to add travelerId to a bunch of models?
   show(): boolean {
-    return this.user.isTravelDeskUser || this.user.isAdmin
+    return this.travelDeskFlightOptionsPolicy.show()
   }
 
   create(): boolean {
@@ -47,7 +49,29 @@ export class TravelDeskFlightSegmentsPolicy extends PolicyFactory(TravelDeskFlig
       return allRecordsScope
     }
 
-    return noRecordsScope
+    return {
+      include: [
+        {
+          association: "flightOption",
+          where: {
+            travelerId: user.id,
+          },
+        },
+      ],
+    }
+  }
+
+  private get travelDeskFlightOption(): TravelDeskFlightOption {
+    const { flightOption } = this.record
+    if (isUndefined(flightOption)) {
+      throw new Error("Flight option is required")
+    }
+
+    return flightOption
+  }
+
+  private get travelDeskFlightOptionsPolicy(): TravelDeskFlightOptionsPolicy {
+    return new TravelDeskFlightOptionsPolicy(this.user, this.travelDeskFlightOption)
   }
 }
 

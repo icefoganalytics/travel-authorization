@@ -305,7 +305,7 @@ TravelDeskTravelRequest.init(
       includeIsBookedAttribute() {
         const isBookedQuery = minify(/* sql */ `
           CASE
-            WHEN "status" = '${TravelDeskTravelRequest.Statuses.BOOKED}' THEN 1
+            WHEN "TravelDeskTravelRequest"."status" = '${TravelDeskTravelRequest.Statuses.BOOKED}' THEN 1
             ELSE 0
           END
         `)

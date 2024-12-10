@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <LeftSidebarNavigationDrawer
-      v-model="showDrawer"
+      v-model="showLeftSidebarNav"
       style="margin-top: 70px"
       app
     />
@@ -103,11 +103,10 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
-
 import { RELEASE_TAG, APPLICATION_NAME } from "@/config"
 import { auth0 } from "@/plugins/auth0-plugin"
 
+import useRouteQuery from "@/use/utils/use-route-query"
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useCurrentUser from "@/use/use-current-user"
 
@@ -118,10 +117,17 @@ const { unset: unsetCurrentUser, fullName } = useCurrentUser()
 
 const { lgAndUp } = useVuetify2()
 
-const showDrawer = ref(lgAndUp.value)
+const showLeftSidebarNav = useRouteQuery("showLeftSidebarNav", lgAndUp.value, {
+  transform: (value) => {
+    if (value === "true") return true
+    if (value === "false") return false
+
+    return value
+  },
+})
 
 function toggleDrawer() {
-  showDrawer.value = !showDrawer.value
+  showLeftSidebarNav.value = !showLeftSidebarNav.value
 }
 
 function signOut() {

@@ -39,6 +39,7 @@
                 <TravelDeskFlightRequestDescriptionElement
                   :travel-desk-flight-request-id="item.flightRequestId"
                   label="Leg"
+                  vertical
                 />
               </v-col>
               <v-col
@@ -48,6 +49,7 @@
                 <DescriptionElement
                   :value="'$' + item.cost"
                   label="Cost"
+                  vertical
                 />
               </v-col>
               <v-col
@@ -57,6 +59,7 @@
                 <DescriptionElement
                   :value="item.duration"
                   label="Travel Duration"
+                  vertical
                 />
               </v-col>
             </v-row>
