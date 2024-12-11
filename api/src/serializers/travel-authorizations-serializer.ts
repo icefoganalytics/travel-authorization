@@ -115,7 +115,8 @@ export class TravelAuthorizationsSerializer extends BaseSerializer<TravelAuthori
       this.isApproved() &&
       this.anyTransportTypeIsAircraft() &&
       !this.travelDeskRequestIsSubmitted() &&
-      !this.travelDeskRequestIsOptionsProvided()
+      !this.travelDeskRequestIsOptionsProvided() &&
+      !this.travelDeskRequestIsOptionsRanked()
     ) {
       return ["submit_travel_desk_request"]
     } else if (
@@ -238,6 +239,13 @@ export class TravelAuthorizationsSerializer extends BaseSerializer<TravelAuthori
     return (
       this.record.travelDeskTravelRequest?.status ===
       TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
+    )
+  }
+
+  travelDeskRequestIsOptionsRanked() {
+    return (
+      this.record.travelDeskTravelRequest?.status ===
+      TravelDeskTravelRequest.Statuses.OPTIONS_RANKED
     )
   }
 

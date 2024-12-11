@@ -1,8 +1,5 @@
 <template>
-  <v-card
-    :loading="isLoading"
-    :disabled="isLoading"
-  >
+  <v-card>
     <v-card-title
       class="primary"
       style="border-bottom: 1px solid black"

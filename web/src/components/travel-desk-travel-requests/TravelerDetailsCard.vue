@@ -24,6 +24,7 @@
               label="Legal First Name"
               icon="mdi-account-details"
               :value="travelDeskTravelRequest.legalFirstName"
+              vertical
             />
           </v-col>
 
@@ -35,6 +36,7 @@
               label="Legal Middle Name"
               icon="mdi-account-details"
               :value="travelDeskTravelRequest.legalMiddleName || 'N/A'"
+              vertical
             />
           </v-col>
 
@@ -46,6 +48,7 @@
               label="Legal Last Name"
               icon="mdi-account-details"
               :value="travelDeskTravelRequest.legalLastName"
+              vertical
             />
           </v-col>
         </v-row>
@@ -59,6 +62,7 @@
               label="Birth Date"
               icon="mdi-calendar"
               :value="travelDeskTravelRequest.birthDate"
+              vertical
             />
           </v-col>
 
@@ -70,6 +74,7 @@
               label="Travel Auth"
               icon="mdi-key"
               :value="prettyTravelAuthorizationId"
+              vertical
             />
           </v-col>
         </v-row>
@@ -85,6 +90,7 @@
               label="Business Phone"
               icon="mdi-phone"
               :value="travelDeskTravelRequest.busPhone"
+              vertical
             />
           </v-col>
 
@@ -96,6 +102,7 @@
               label="Business Email"
               icon="mdi-email"
               :value="travelDeskTravelRequest.busEmail"
+              vertical
             />
           </v-col>
         </v-row>
@@ -109,6 +116,7 @@
               label="International Travel"
               icon="mdi-airplane"
               :value="travelDeskTravelRequest.isInternationalTravel ? 'Yes' : 'No'"
+              vertical
             />
           </v-col>
         </v-row>
@@ -122,6 +130,7 @@
               label="Passport Number"
               icon="mdi-passport"
               :value="travelDeskTravelRequest.passportNum"
+              vertical
             />
           </v-col>
 
@@ -133,6 +142,7 @@
               label="Passport Country"
               icon="mdi-flag"
               :value="travelDeskTravelRequest.passportCountry"
+              vertical
             />
           </v-col>
         </v-row>
@@ -148,6 +158,7 @@
               label="Address"
               icon="mdi-home"
               :value="travelDeskTravelRequest.strAddress"
+              vertical
             />
           </v-col>
 
@@ -159,6 +170,7 @@
               label="City"
               icon="mdi-city"
               :value="travelDeskTravelRequest.city"
+              vertical
             />
           </v-col>
 
@@ -170,6 +182,7 @@
               label="Province"
               icon="mdi-map"
               :value="travelDeskTravelRequest.province"
+              vertical
             />
           </v-col>
         </v-row>
@@ -183,6 +196,7 @@
               label="Postal Code"
               icon="mdi-mailbox"
               :value="travelDeskTravelRequest.postalCode"
+              vertical
             />
           </v-col>
         </v-row>
@@ -198,6 +212,7 @@
               label="Different Travel Contact"
               icon="mdi-account-switch"
               :value="travelDeskTravelRequest.travelContact ? 'Yes' : 'No'"
+              vertical
             />
           </v-col>
         </v-row>
@@ -211,6 +226,7 @@
               label="Travel Phone"
               icon="mdi-phone"
               :value="travelDeskTravelRequest.travelPhone"
+              vertical
             />
           </v-col>
 
@@ -222,6 +238,7 @@
               label="Travel Email"
               icon="mdi-email"
               :value="travelDeskTravelRequest.travelEmail"
+              vertical
             />
           </v-col>
         </v-row>
@@ -234,6 +251,7 @@
               label="Additional Information"
               icon="mdi-text"
               :value="travelDeskTravelRequest?.additionalInformation || 'N/A'"
+              vertical
             />
           </v-col>
         </v-row>

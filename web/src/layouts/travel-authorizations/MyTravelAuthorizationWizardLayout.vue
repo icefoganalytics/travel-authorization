@@ -27,7 +27,7 @@
               @updated="refreshHeaderAndLocalState"
             ></router-view>
 
-            <div class="d-flex justify-end">
+            <div class="d-flex flex-column flex-md-row justify-md-end">
               <v-btn
                 v-bind="{
                   color: 'secondary',
@@ -38,7 +38,7 @@
                 {{ currentStep.backButtonText || "Back" }}
               </v-btn>
               <v-btn
-                class="ml-3"
+                class="ml-0 ml-md-3"
                 v-bind="{
                   color: 'primary',
                   ...currentStep.continueButtonProps,

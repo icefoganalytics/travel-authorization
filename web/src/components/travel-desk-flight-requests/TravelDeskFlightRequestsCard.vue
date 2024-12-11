@@ -3,7 +3,7 @@
     <v-card-title>
       <h4>Flight Requests</h4>
     </v-card-title>
-    <v-card-text>
+    <v-card-text class="px-0 px-md-4">
       <TravelDeskFlightRequestsDataTable
         :where="{
           travelRequestId: travelDeskTravelRequestId,

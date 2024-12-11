@@ -56,6 +56,14 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
       travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED
     )
   })
+  const isInTravelDeskTravelRequestSubmittedStates = computed(() => {
+    return (
+      travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED ||
+      travelDeskTravelRequest.value?.status ===
+        TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_PROVIDED ||
+      travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_RANKED
+    )
+  })
 
   const steps = computed(() =>
     [
@@ -107,8 +115,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
         backButtonProps: {
           color: "warning",
         },
-        disabled:
-          travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED,
+        disabled: isInTravelDeskTravelRequestSubmittedStates.value,
       },
       {
         title: "Estimate",
@@ -117,8 +124,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
           name: "my-travel-requests/estimate/EstimatePage",
           params: { travelAuthorizationId: travelAuthorizationId.value },
         },
-        disabled:
-          travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED,
+        disabled: isInTravelDeskTravelRequestSubmittedStates.value,
       },
       ...(isAwaitingApproval.value
         ? [
@@ -144,9 +150,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
                 name: "my-travel-requests/request/RequestEditTravelDetailsPage",
                 params: { travelAuthorizationId: travelAuthorizationId.value },
               },
-              disabled:
-                travelDeskTravelRequest.value?.status ===
-                TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED,
+              disabled: isInTravelDeskTravelRequestSubmittedStates.value,
             },
             {
               title: "Request: edit",
@@ -156,9 +160,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
                 params: { travelAuthorizationId: travelAuthorizationId.value },
               },
               continueButtonText: "Submit",
-              disabled:
-                travelDeskTravelRequest.value?.status ===
-                TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED,
+              disabled: isInTravelDeskTravelRequestSubmittedStates.value,
             },
             {
               title: "Request",
@@ -170,10 +172,16 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
               backButtonProps: {
                 disabled: true,
               },
+              // TODO: make this more resilient.
+              // I'm starting to think that I should return a fully unique list for every state?
+              // It would be hard to maintain, but easy to understand.
+              disabled:
+                travelDeskTravelRequest.value?.status ===
+                TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_RANKED,
             },
           ]
         : []),
-      ...(isAwaitingFlightOptionsOptions.value
+      ...(isTravelingByAir.value && isAwaitingFlightOptionsOptions.value
         ? [
             {
               title: "Awaiting flight options",
@@ -196,6 +204,30 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
               to: {
                 name: "my-travel-requests/request/RequestOptionsProvidedPage",
                 params: { travelAuthorizationId: travelAuthorizationId.value },
+              },
+              continueButtonText: "Submit Option Rankings",
+              disabled:
+                travelDeskTravelRequest.value?.status !==
+                TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_PROVIDED,
+            },
+          ]
+        : []),
+      // TODO: consider how to show some read-only views when in this state?
+      ...(isTravelingByAir.value && !isAwaitingFlightOptionsOptions.value
+        ? [
+            {
+              title: "Waiting for booking",
+              subtitle:
+                "Travel request flight options are ranked, waiting for booking confirmation.",
+              to: {
+                name: "my-travel-requests/AwaitingRequestBookingPage",
+                params: { travelAuthorizationId: travelAuthorizationId.value },
+              },
+              backButtonProps: {
+                disabled: true,
+              },
+              continueButtonProps: {
+                disabled: true,
               },
             },
           ]

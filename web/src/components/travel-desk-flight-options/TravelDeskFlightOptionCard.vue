@@ -56,6 +56,7 @@
 import { computed } from "vue"
 
 import formatCurrency from "@/utils/format-currency"
+import { DOES_NOT_WORK } from "@/api/travel-desk-flight-options-api"
 import useTravelDeskFlightSegments from "@/use/use-travel-desk-flight-segments"
 
 import TravelDeskFlightSegmentCard from "@/components/travel-desk-flight-segments/TravelDeskFlightSegmentCard.vue"
@@ -79,8 +80,6 @@ const travelDeskFlightSegmentsQuery = computed(() => ({
 const { travelDeskFlightSegments, isLoading } = useTravelDeskFlightSegments(
   travelDeskFlightSegmentsQuery
 )
-
-const DOES_NOT_WORK = 0
 
 const flightPreferenceOrderText = computed(() => {
   return props.flightOption.flightPreferenceOrder === DOES_NOT_WORK

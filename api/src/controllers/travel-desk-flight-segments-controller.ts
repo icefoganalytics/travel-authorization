@@ -152,7 +152,9 @@ export class TravelDeskFlightSegmentsController extends BaseController<TravelDes
   }
 
   private async loadTravelDeskFlightSegment() {
-    return TravelDeskFlightSegment.findByPk(this.params.travelDeskFlightSegmentId)
+    return TravelDeskFlightSegment.findByPk(this.params.travelDeskFlightSegmentId, {
+      include: ["flightOption"],
+    })
   }
 
   private buildPolicy(

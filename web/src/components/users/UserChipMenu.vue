@@ -2,10 +2,8 @@
   <v-menu
     v-model="menu"
     :close-on-content-click="false"
-    bottom
-    right
+    offset-y
     transition="scale-transition"
-    origin="top left"
   >
     <template #activator="{ on }">
       <v-chip

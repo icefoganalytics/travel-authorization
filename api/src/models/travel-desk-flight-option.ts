@@ -8,14 +8,14 @@ import {
   Model,
   NonAttribute,
 } from "sequelize"
+import { isEmpty } from "lodash"
 
 import sequelize from "@/db/db-client"
 import TravelDeskFlightRequest from "@/models/travel-desk-flight-request"
 import TravelDeskFlightSegment from "@/models/travel-desk-flight-segment"
 import User from "@/models/user"
 
-// TODO: Set up flight preference order of -1, meaning "does not work"
-// const FLIGHT_DOES_NOT_WORK = -1
+const DOES_NOT_WORK = 0
 
 class TravelDeskFlightOption extends Model<
   InferAttributes<TravelDeskFlightOption>,
@@ -28,6 +28,7 @@ class TravelDeskFlightOption extends Model<
   declare flightPreferenceOrder: string | null
   declare leg: string // TODO: validate if "leg" is being used?
   declare duration: string
+  declare additionalInformation: string | null
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
   declare deletedAt: CreationOptional<Date>
@@ -90,6 +91,12 @@ TravelDeskFlightOption.init(
     flightPreferenceOrder: {
       type: DataTypes.STRING(255),
       allowNull: true,
+      validate: {
+        min: {
+          args: [DOES_NOT_WORK],
+          msg: "Invalid flight preference order",
+        },
+      },
     },
     // TODO: validate if "leg" is being used?
     leg: {
@@ -99,6 +106,10 @@ TravelDeskFlightOption.init(
     duration: {
       type: DataTypes.STRING(255),
       allowNull: false,
+    },
+    additionalInformation: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -129,8 +140,17 @@ TravelDeskFlightOption.init(
             },
           ],
         }
-      }
-    }
+      },
+    },
+    validate: {
+      flightPreferenceOrderAndAdditionalInformationConsistency() {
+        if (this.flightPreferenceOrder === DOES_NOT_WORK && isEmpty(this.additionalInformation)) {
+          throw new Error(
+            "Additional information is required when flight preference order is 'Does not work'"
+          )
+        }
+      },
+    },
   }
 )
 

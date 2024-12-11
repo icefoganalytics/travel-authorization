@@ -20,7 +20,7 @@ import { isUndefined } from "lodash"
 const BASE_CRUMB = {
   text: "Dashboard",
   to: {
-    name: "Dashboard",
+    name: "DashboardPage",
   },
 }
 

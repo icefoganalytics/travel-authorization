@@ -26,7 +26,7 @@ export class TravelDeskFlightRequestsPolicy extends PolicyFactory(TravelDeskFlig
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelDeskFlightRequest>> {
-    if (user.roles.includes(User.Roles.ADMIN)) {
+    if (user.isTravelDeskUser || user.isAdmin) {
       return allRecordsScope
     }
 

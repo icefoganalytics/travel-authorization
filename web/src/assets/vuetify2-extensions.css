@@ -7,9 +7,12 @@
  *   </v-card-title>
  * </v-card>
  */
+.v-card.card--outlined > .v-card__title > h1,
 .v-card.card--outlined > .v-card__title > h2,
 .v-card.card--outlined > .v-card__title > h3,
-.v-card.card--outlined > .v-card__title > h4 {
+.v-card.card--outlined > .v-card__title > h4,
+.v-card.card--outlined > .v-card__title > h5,
+.v-card.card--outlined > .v-card__title > h6 {
   margin-top: -2.25rem;
   background: white;
   padding-left: 0.33rem;

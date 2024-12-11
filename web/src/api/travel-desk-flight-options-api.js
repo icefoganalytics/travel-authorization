@@ -2,6 +2,8 @@ import http from "@/api/http-client"
 
 /** @typedef {import('@/api/base-api.js').Policy} Policy */
 
+export const DOES_NOT_WORK = 0
+
 /**
  * Keep in sync with api/src/models/travel-desk-flight-option.ts
  * @typedef {{
@@ -12,6 +14,7 @@ import http from "@/api/http-client"
  *   leg: string;
  *   duration: string;
  *   flightPreferenceOrder: string | null;
+ *   additionalInformation: string | null;
  *   createdAt: string;
  *   updatedAt: string;
  * }} TravelDeskFlightOption

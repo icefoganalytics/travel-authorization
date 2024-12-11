@@ -25,7 +25,7 @@ const routes = [
         redirect: "dashboard",
       },
       {
-        name: "Dashboard",
+        name: "DashboardPage",
         path: "dashboard",
         component: () => import("@/pages/DashboardPage"),
       },
@@ -253,6 +253,13 @@ const routes = [
                 name: "my-travel-requests/request/RequestOptionsProvidedPage",
                 component: () =>
                   import("@/pages/my-travel-requests/request/RequestOptionsProvidedPage.vue"),
+                props: true,
+              },
+              {
+                path: "awaiting-request-booking",
+                name: "my-travel-requests/AwaitingRequestBookingPage",
+                component: () =>
+                  import("@/pages/my-travel-requests/AwaitingRequestBookingPage.vue"),
                 props: true,
               },
               {

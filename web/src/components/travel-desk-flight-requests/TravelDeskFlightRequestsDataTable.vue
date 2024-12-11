@@ -58,10 +58,6 @@ const headers = [
     text: "Seat Preference",
     value: "seatPreference",
   },
-  {
-    text: "Actions",
-    value: "actions",
-  },
 ]
 
 const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
@@ -86,8 +82,4 @@ defineExpose({
 })
 </script>
 
-<style scoped>
-::v-deep .v-data-table > .v-data-table__wrapper tbody tr.v-data-table__expanded__content {
-  background: #f9f9f9 !important;
-}
-</style>
+<style scoped></style>
