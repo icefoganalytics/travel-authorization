@@ -7,6 +7,7 @@ import {
   InferCreationAttributes,
   Model,
   NonAttribute,
+  Op,
 } from "sequelize"
 
 import sequelize from "@/integrations/trav-com-integration/db/db-client"
@@ -212,8 +213,19 @@ ArInvoiceDetail.init(
     timestamps: false,
     paranoid: false,
     scopes: {
-      // add scopes as needed
-    }
+      invoiceBookingDateBetween([startDate, endDate]: [string, string]) {
+        return {
+          include: {
+            association: "invoice",
+            where: {
+              bookingDate: {
+                [Op.between]: [startDate, endDate],
+              },
+            },
+          },
+        }
+      },
+    },
   }
 )
 

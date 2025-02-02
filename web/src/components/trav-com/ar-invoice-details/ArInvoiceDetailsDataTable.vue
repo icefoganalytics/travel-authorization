@@ -4,7 +4,7 @@
     :items-per-page.sync="perPage"
     :sort-by.sync="vuetify2SortBy"
     :sort-desc.sync="vuetify2SortDesc"
-    :items="arInvoices"
+    :items="arInvoiceDetails"
     :headers="headers"
     :server-items-length="totalCount"
     :loading="isLoading"
@@ -26,7 +26,7 @@
     travelerFirstName: name[1],
     travelerLastName: name[0],
     -->
-    <template #item.bookingDate="{ value }">
+    <template #item.invoice.bookingDate="{ value }">
       {{ formatDate(value) }}
     </template>
 
@@ -87,7 +87,7 @@ import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useCurrentUser from "@/use/use-current-user"
-import useArInvoices from "@/use/trav-com/use-ar-invoices"
+import useArInvoiceDetails from "@/use/trav-com/use-ar-invoice-details"
 
 const props = defineProps({
   where: {
@@ -109,12 +109,12 @@ const { isAdmin } = useCurrentUser()
 const headers = ref([
   {
     text: "Purchase Date",
-    value: "bookingDate",
+    value: "invoice.bookingDate",
     sortable: false,
   },
   {
     text: "Cost",
-    value: "sellingFare",
+    value: "invoice.sellingFare",
     sortable: false,
   },
   {
@@ -154,7 +154,7 @@ const headers = ref([
   },
   {
     text: "Reconciled",
-    value: "reconciled",
+    value: "invoice.reconciled",
     sortable: false,
     align: "center",
   },
@@ -167,22 +167,24 @@ const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "10", {
   transform: integerTransformer,
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  // TODO: consider sorting by invoice.bookingDate instead.
   {
-    key: "BookingDate",
+    key: "travelDate",
     order: "desc",
   },
 ])
 const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
-const arInvoicesQuery = computed(() => ({
+const arInvoiceDetailsQuery = computed(() => ({
   where: props.where,
   filters: props.filters,
   order: order.value,
   page: page.value,
   perPage: perPage.value,
 }))
-const { arInvoices, totalCount, isLoading, refresh } = useArInvoices(arInvoicesQuery)
+const { arInvoiceDetails, totalCount, isLoading, refresh } =
+  useArInvoiceDetails(arInvoiceDetailsQuery)
 
 defineExpose({
   refresh,

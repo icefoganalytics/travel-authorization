@@ -280,12 +280,20 @@ router
   .route("/api/travel-authorization-action-logs")
   .get(TravelAuthorizationActionLogsController.index)
 
+// TravCom Integration
 router
   .route("/api/trav-com/ar-invoices")
   .get(TravComIntegration.Controllers.ArInvoicesController.index)
 router
   .route("/api/trav-com/ar-invoices/:arInvoiceId")
   .get(TravComIntegration.Controllers.ArInvoicesController.show)
+
+router
+  .route("/api/trav-com/ar-invoice-details")
+  .get(TravComIntegration.Controllers.ArInvoiceDetailsController.index)
+router
+  .route("/api/trav-com/ar-invoice-details/:arInvoiceDetailId")
+  .get(TravComIntegration.Controllers.ArInvoiceDetailsController.show)
 
 // QA testing scenarios
 router.route("/api/qa/scenarios").get(Qa.ScenariosController.index)

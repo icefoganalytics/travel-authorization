@@ -1,5 +1,5 @@
 <template>
-  <ArInvoicesDataTable
+  <ArInvoiceDetailsDataTable
     v-model="selectedFlights"
     :filters="filters"
   >
@@ -21,7 +21,7 @@
         </v-col>
       </v-row>
     </template>
-  </ArInvoicesDataTable>
+  </ArInvoiceDetailsDataTable>
 </template>
 
 <script setup>
@@ -31,7 +31,7 @@ import { isNil, isEmpty } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import ArInvoicesDataTable from "@/components/trav-com/ar-invoices/ArInvoicesDataTable.vue"
+import ArInvoiceDetailsDataTable from "@/components/trav-com/ar-invoice-details/ArInvoiceDetailsDataTable.vue"
 
 const props = defineProps({
   startDate: {
@@ -44,7 +44,7 @@ const props = defineProps({
   },
 })
 
-const betweenFilters = computed(() => {
+const filters = computed(() => {
   if (
     isNil(props.startDate) ||
     isEmpty(props.startDate) ||
@@ -55,12 +55,9 @@ const betweenFilters = computed(() => {
   }
 
   return {
-    between: [props.startDate, props.endDate],
+    invoiceBookingDateBetween: [props.startDate, props.endDate],
   }
 })
-const filters = computed(() => ({
-  ...betweenFilters.value,
-}))
 
 const selectedFlights = ref([])
 

@@ -10,7 +10,7 @@ import {
 } from "sequelize"
 
 import sequelize from "@/integrations/trav-com-integration/db/db-client"
-import ArInvoiceDetail from "@/integrations/trav-com-integration/models/ar-invoice-details"
+import ArInvoiceDetail from "@/integrations/trav-com-integration/models/ar-invoice-detail"
 
 export type ArInvoiceNoHealthRaw = {
   InvoiceID: number
