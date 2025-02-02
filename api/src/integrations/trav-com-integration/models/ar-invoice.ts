@@ -109,7 +109,7 @@ ArInvoice.init(
     timestamps: false,
     paranoid: false,
     scopes: {
-      between([startDate, endDate]: [string, string]) {
+      bookingDateBetween([startDate, endDate]: [string, string]) {
         return {
           where: {
             bookingDate: {

@@ -35,7 +35,7 @@ import http from "@/api/http-client"
 /**
  * // match with model scopes signatures
  * @typedef {{
- *   between?: [string, string];
+ *   bookingDateBetween?: [string, string];
  * }} ArInvoiceFiltersOptions
  */
 
