@@ -2,19 +2,16 @@
   <v-card :loading="isLoading">
     <v-card-title>
       <h2 class="mb-md-0">Flight Expenses</h2>
-    </v-card-title>
-    <v-card-text>
       <v-row class="d-flex align-center">
         <v-spacer />
         <v-col
           cols="12"
-          md="3"
+          md="4"
         >
           <DatePickerRangeDialog
             v-model="dateRange"
             label="Records date range"
             :activator-props="{
-              clearable: true,
               outlined: true,
               dense: true,
               hideDetails: true,
@@ -26,6 +23,22 @@
           md="2"
         >
           <v-btn
+            v-if="isEmpty(dateRange)"
+            class="my-0"
+            color="primary"
+            block
+            primary
+            @click="resetDateRange"
+          >
+            <v-icon
+              small
+              left
+              >mdi-refresh</v-icon
+            >
+            Reset
+          </v-btn>
+          <v-btn
+            v-else
             class="my-0"
             color="primary"
             block
@@ -41,8 +54,9 @@
           </v-btn>
         </v-col>
       </v-row>
+    </v-card-title>
+    <v-card-text>
       <v-tabs
-        class="mt-8"
         active-class="primary--text teal lighten-5"
         show-arrows
       >
@@ -93,6 +107,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue"
 import { DateTime } from "luxon"
+import { isEmpty } from "lodash"
 
 import http from "@/api/http-client"
 import { TRAVEL_COM_URL } from "@/urls"
@@ -117,6 +132,10 @@ const endDate = computed(() => dateRange.value[1])
 
 function clearDateRange() {
   dateRange.value = []
+}
+
+function resetDateRange() {
+  dateRange.value = [DateTime.local().toISODate(), DateTime.local().minus({ days: 1 }).toISODate()]
 }
 
 onMounted(async () => {

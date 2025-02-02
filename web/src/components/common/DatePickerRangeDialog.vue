@@ -15,7 +15,6 @@
         readonly
         v-bind="activatorProps"
         v-on="on"
-        @click:clear="closeMenuAndEmitInput([])"
       ></v-text-field>
     </template>
     <v-date-picker
