@@ -1,13 +1,16 @@
 import {
+  Association,
   CreationOptional,
   DataTypes,
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
   Op,
 } from "sequelize"
 
 import sequelize from "@/integrations/trav-com-integration/db/db-client"
+import ArInvoiceDetail from "@/integrations/trav-com-integration/models/ar-invoice-details"
 
 export type ArInvoiceNoHealthRaw = {
   InvoiceID: number
@@ -36,12 +39,17 @@ export class ArInvoice extends Model<
   declare invoiceRemarks: string | null
 
   // associations
+  declare details?: NonAttribute<ArInvoiceDetail[]>
+
   declare static associations: {
-    // add association to this model here
+    details: Association<ArInvoice, ArInvoiceDetail>
   }
 
   static establishAssociations() {
-    // add this.hasMany etc. as needed
+    this.hasMany(ArInvoiceDetail, {
+      as: "details",
+      foreignKey: "invoiceId",
+    })
   }
 }
 

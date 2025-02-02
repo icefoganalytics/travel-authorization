@@ -4,6 +4,7 @@ import logger from "@/utils/logger"
 
 import { ArInvoice } from "@/integrations/trav-com-integration/models"
 import { ArInvoicesPolicy } from "@/integrations/trav-com-integration/policies"
+import { IndexSerializer } from "@/integrations/trav-com-integration/serializers/ar-invoices"
 import BaseController from "@/controllers/base-controller"
 
 export class ArInvoicesController extends BaseController<ArInvoice> {
@@ -21,10 +22,15 @@ export class ArInvoicesController extends BaseController<ArInvoice> {
         limit: this.pagination.limit,
         offset: this.pagination.offset,
         order,
-        // include: ["details", "segments"],
+        include: [
+          "details",
+          // "segments",
+        ],
       })
+      const serializedArInvoices = await IndexSerializer.perform(arInvoices)
+
       return this.response.status(200).json({
-        arInvoices,
+        arInvoices: serializedArInvoices,
         totalCount,
       })
     } catch (error) {
