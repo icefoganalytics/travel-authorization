@@ -1,0 +1,72 @@
+@startuml Entity Relationship Diagram
+top to bottom direction
+
+note as Disclaimer
+Diagram generated with the assistance of AI - may contain errors
+PlantUML URL: https://plantuml.com/ie-diagram
+Last Updated: 2025-02-03
+This diagram should be verified against the current database schema for accuracy.
+end note
+
+entity "ARInvoicesNoHealth" {
+  * InvoiceID : decimal(18,0) <<PK>>
+  --
+  * InvoiceNumber : nvarchar(10)
+  --
+  ProfileNumber : nvarchar(10)
+  ProfileName : nvarchar(50)
+  Department : nvarchar(30)
+  BookingDate : datetime2
+  SystemDate : datetime2
+  Description : nvarchar(50)
+  InvoiceRemarks : nvarchar(MAX)
+}
+
+entity "ARInvoiceDetailsNoHealth" {
+  * InvoiceDetailID : decimal(18,0) <<PK>>
+  --
+  * InvoiceID : decimal(18,0) <<FK>>
+  * AddedBy : decimal(18,0) <<FK>>
+  * TransactionType : tinyint
+  * VendorNumber : nvarchar(8)
+  * VendorName : nvarchar(50)
+  * ProductCode : tinyint
+  * PassengerName : nvarchar(50)
+  * TicketNumber : nvarchar(20)
+  * PublishedFare : money - equivalent to decimal(19,4)
+  * SellingFare : money - equivalent to decimal(19,4)
+  * ReferenceFare : money - equivalent to decimal(19,4)
+  * LowFare : money - equivalent to decimal(19,4)
+  * Tax1 : money - equivalent to decimal(19,4)
+  * GrossAmount : money - equivalent to decimal(19,4)
+  * CommissionAmount : money - equivalent to decimal(19,4)
+  * VatOnCommission : money - equivalent to decimal(19,4)
+  --
+  FreeFieldA : nvarchar(MAX)
+  TravelDate : datetime2
+  ReturnDate : datetime2
+  NumberOfDays : smallint
+  CityCode : nvarchar(5)
+  ProfileNumber : nvarchar(10)
+}
+
+entity "segmentsNoHealth" {
+  * segmentID : decimal(18,0) <<PK>>
+  --
+  * invoiceID : decimal(18,0) <<FK>>
+  * invoiceDetailID : decimal(18,0) <<FK>>
+  * LegNumber : tinyint
+  DepartureCityCode : nvarchar(5)
+  DepartureInfo : datetime2
+  ArrivalCityCode : nvarchar(5)
+  ArrivalInfo : datetime2
+  AirlineCode : nvarchar(3)
+  FlightNumber : nvarchar(5)
+  ClassOfService : nvarchar(2)
+  FareBasis : nvarchar(15)
+}
+
+ARInvoicesNoHealth::InvoiceID |o--|{ ARInvoiceDetailsNoHealth::InvoiceID
+ARInvoicesNoHealth::InvoiceID |o--|{ segmentsNoHealth::invoiceID
+ARInvoiceDetailsNoHealth::InvoiceDetailID |o--|{ segmentsNoHealth::invoiceDetailID
+@enduml
