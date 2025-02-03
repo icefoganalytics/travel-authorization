@@ -1,2 +1,2 @@
 export { AccountsReceivableInvoicesPolicy } from "./accounts-receivable-invoices-policy"
-export { ArInvoiceDetailsPolicy } from "./ar-invoice-details-policy"
+export { AccountsReceivableInvoiceDetailsPolicy } from "./accounts-receivable-invoice-details-policy"

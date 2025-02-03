@@ -2,7 +2,7 @@ import { isUndefined, pick } from "lodash"
 
 import {
   AccountsReceivableInvoice,
-  ArInvoiceDetail,
+  AccountsReceivableInvoiceDetail,
 } from "@/integrations/trav-com-integration/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
@@ -18,9 +18,9 @@ export type AccountsReceivableInvoiceIndexView = Pick<
   | "description"
   | "invoiceRemarks"
 > & {
-  // TODO: move detail type definition to ar-invoice-detail serializer
+  // TODO: move detail type definition to accounts-receivable-invoice-detail serializer
   details: Pick<
-    ArInvoiceDetail,
+    AccountsReceivableInvoiceDetail,
     | "id"
     | "invoiceId"
     | "transactionType"

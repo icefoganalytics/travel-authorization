@@ -4,7 +4,7 @@
     :items-per-page.sync="perPage"
     :sort-by.sync="vuetify2SortBy"
     :sort-desc.sync="vuetify2SortDesc"
-    :items="arInvoiceDetails"
+    :items="accountsReceivableInvoiceDetails"
     :headers="headers"
     :server-items-length="totalCount"
     :loading="isLoading"
@@ -87,7 +87,7 @@ import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useCurrentUser from "@/use/use-current-user"
-import useArInvoiceDetails from "@/use/trav-com/use-ar-invoice-details"
+import useAccountsReceivableInvoiceDetails from "@/use/trav-com/use-accounts-receivable-invoice-details"
 
 const props = defineProps({
   where: {
@@ -176,15 +176,15 @@ const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}
 const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
-const arInvoiceDetailsQuery = computed(() => ({
+const accountsReceivableInvoiceDetailsQuery = computed(() => ({
   where: props.where,
   filters: props.filters,
   order: order.value,
   page: page.value,
   perPage: perPage.value,
 }))
-const { arInvoiceDetails, totalCount, isLoading, refresh } =
-  useArInvoiceDetails(arInvoiceDetailsQuery)
+const { accountsReceivableInvoiceDetails, totalCount, isLoading, refresh } =
+  useAccountsReceivableInvoiceDetails(accountsReceivableInvoiceDetailsQuery)
 
 defineExpose({
   refresh,

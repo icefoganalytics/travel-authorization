@@ -289,11 +289,11 @@ router
   .get(TravComIntegration.Controllers.AccountsReceivableInvoicesController.show)
 
 router
-  .route("/api/trav-com/ar-invoice-details")
-  .get(TravComIntegration.Controllers.ArInvoiceDetailsController.index)
+  .route("/api/trav-com/accounts-receivable-invoice-details")
+  .get(TravComIntegration.Controllers.AccountsReceivableInvoiceDetailsController.index)
 router
-  .route("/api/trav-com/ar-invoice-details/:arInvoiceDetailId")
-  .get(TravComIntegration.Controllers.ArInvoiceDetailsController.show)
+  .route("/api/trav-com/accounts-receivable-invoice-details/:accountsReceivableInvoiceDetailId")
+  .get(TravComIntegration.Controllers.AccountsReceivableInvoiceDetailsController.show)
 
 // QA testing scenarios
 router.route("/api/qa/scenarios").get(Qa.ScenariosController.index)

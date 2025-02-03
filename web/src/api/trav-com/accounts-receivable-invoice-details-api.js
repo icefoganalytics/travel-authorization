@@ -4,7 +4,7 @@ import http from "@/api/http-client"
 /** @typedef {import("@/api/base-api").ModelOrder} ModelOrder */
 
 /**
- * Keep in sync with api/src/integrations/trav-com-integration/models/ar-invoice-detail.ts
+ * Keep in sync with api/src/integrations/trav-com-integration/models/accounts-receivable-invoice-detail.ts
  * @typedef {{
  *   id: number
  *   invoiceId: number
@@ -29,7 +29,7 @@ import http from "@/api/http-client"
  *   cityCode: string | null
  *   profileNumber: string | null
  *   addedBy: number
- * }} ArInvoiceDetail
+ * }} AccountsReceivableInvoiceDetail
  */
 
 /**
@@ -44,52 +44,54 @@ import http from "@/api/http-client"
  *   cityCode?: string;
  *   profileNumber?: string;
  *   addedBy?: number;
- * }} ArInvoiceDetailWhereOptions
+ * }} AccountsReceivableInvoiceDetailWhereOptions
  */
 
 /**
  * // match with model scopes signatures
  * @typedef {{
  *   invoiceBookingDateBetween?: [string, string];
- * }} ArInvoiceDetailFiltersOptions
+ * }} AccountsReceivableInvoiceDetailFiltersOptions
  */
 
 /**
  * @typedef {{
- *   where?: ArInvoiceDetailWhereOptions;
- *   filters?: ArInvoiceDetailFiltersOptions;
+ *   where?: AccountsReceivableInvoiceDetailWhereOptions;
+ *   filters?: AccountsReceivableInvoiceDetailFiltersOptions;
  *   order?: ModelOrder[];
  *   page?: number;
  *   perPage?: number
- * }} ArInvoiceDetailsQueryOptions
+ * }} AccountsReceivableInvoiceDetailsQueryOptions
  */
 
-export const arInvoiceDetailsApi = {
+export const accountsReceivableInvoiceDetailsApi = {
   /**
-   * @param {ArInvoiceDetailsQueryOptions} [params={}]
+   * @param {AccountsReceivableInvoiceDetailsQueryOptions} [params={}]
    * @returns {Promise<{
-   *   arInvoiceDetails: ArInvoiceDetail[];
+   *   accountsReceivableInvoiceDetails: AccountsReceivableInvoiceDetail[];
    *   totalCount: number;
    * }>}
    */
   async list(params = {}) {
-    const { data } = await http.get("/api/trav-com/ar-invoice-details", {
+    const { data } = await http.get("/api/trav-com/accounts-receivable-invoice-details", {
       params,
     })
     return data
   },
 
   /**
-   * @param {number} arInvoiceDetailId
+   * @param {number} accountsReceivableInvoiceDetailId
    * @returns {Promise<{
-   *   arInvoiceDetail: ArInvoiceDetail;
+   *   accountsReceivableInvoiceDetail: AccountsReceivableInvoiceDetail;
    *   policy: Policy;
    * }>}
    */
-  async get(arInvoiceDetailId) {
-    const { data } = await http.get(`/api/trav-com/ar-invoice-details/${arInvoiceDetailId}`)
+  async get(accountsReceivableInvoiceDetailId) {
+    const { data } = await http.get(
+      `/api/trav-com/accounts-receivable-invoice-details/${accountsReceivableInvoiceDetailId}`
+    )
     return data
   },
 }
 
-export default arInvoiceDetailsApi
+export default accountsReceivableInvoiceDetailsApi

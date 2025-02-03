@@ -1,10 +1,13 @@
 import { isUndefined, pick } from "lodash"
 
-import { AccountsReceivableInvoice, ArInvoiceDetail } from "@/integrations/trav-com-integration/models"
+import {
+  AccountsReceivableInvoice,
+  AccountsReceivableInvoiceDetail,
+} from "@/integrations/trav-com-integration/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type ArInvoiceDetailIndexView = Pick<
-  ArInvoiceDetail,
+export type AccountsReceivableInvoiceDetailIndexView = Pick<
+  AccountsReceivableInvoiceDetail,
   | "id"
   | "invoiceId"
   | "transactionType"
@@ -44,12 +47,12 @@ export type ArInvoiceDetailIndexView = Pick<
   >
 }
 
-export class IndexSerializer extends BaseSerializer<ArInvoiceDetail> {
-  constructor(protected record: ArInvoiceDetail) {
+export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDetail> {
+  constructor(protected record: AccountsReceivableInvoiceDetail) {
     super(record)
   }
 
-  perform(): ArInvoiceDetailIndexView {
+  perform(): AccountsReceivableInvoiceDetailIndexView {
     if (isUndefined(this.record.invoice)) {
       throw new Error("'invoice' association is required")
     }

@@ -1,5 +1,5 @@
 <template>
-  <ArInvoiceDetailsDataTable
+  <AccountsReceivableInvoiceDetailsDataTable
     v-model="selectedFlights"
     :filters="filters"
   >
@@ -21,7 +21,7 @@
         </v-col>
       </v-row>
     </template>
-  </ArInvoiceDetailsDataTable>
+  </AccountsReceivableInvoiceDetailsDataTable>
 </template>
 
 <script setup>
@@ -31,7 +31,7 @@ import { isNil, isEmpty } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import ArInvoiceDetailsDataTable from "@/components/trav-com/ar-invoice-details/ArInvoiceDetailsDataTable.vue"
+import AccountsReceivableInvoiceDetailsDataTable from "@/components/trav-com/accounts-receivable-invoice-details/AccountsReceivableInvoiceDetailsDataTable.vue"
 
 const props = defineProps({
   startDate: {

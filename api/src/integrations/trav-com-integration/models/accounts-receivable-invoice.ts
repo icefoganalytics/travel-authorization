@@ -10,7 +10,7 @@ import {
 } from "sequelize"
 
 import sequelize from "@/integrations/trav-com-integration/db/db-client"
-import ArInvoiceDetail from "@/integrations/trav-com-integration/models/ar-invoice-detail"
+import AccountsReceivableInvoiceDetail from "@/integrations/trav-com-integration/models/accounts-receivable-invoice-detail"
 
 export type ArInvoiceNoHealthRaw = {
   InvoiceID: number
@@ -39,14 +39,14 @@ export class AccountsReceivableInvoice extends Model<
   declare invoiceRemarks: string | null
 
   // associations
-  declare details?: NonAttribute<ArInvoiceDetail[]>
+  declare details?: NonAttribute<AccountsReceivableInvoiceDetail[]>
 
   declare static associations: {
-    details: Association<AccountsReceivableInvoice, ArInvoiceDetail>
+    details: Association<AccountsReceivableInvoice, AccountsReceivableInvoiceDetail>
   }
 
   static establishAssociations() {
-    this.hasMany(ArInvoiceDetail, {
+    this.hasMany(AccountsReceivableInvoiceDetail, {
       as: "details",
       foreignKey: "invoiceId",
     })
