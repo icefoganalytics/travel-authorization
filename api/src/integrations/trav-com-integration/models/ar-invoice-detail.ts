@@ -11,7 +11,7 @@ import {
 } from "sequelize"
 
 import sequelize from "@/integrations/trav-com-integration/db/db-client"
-import ArInvoice from "@/integrations/trav-com-integration/models/ar-invoice"
+import AccountsReceivableInvoice from "@/integrations/trav-com-integration/models/accounts-receivable-invoice"
 
 export type ArInvoiceDetailNoHealthRaw = {
   InvoiceDetailID: number
@@ -44,7 +44,7 @@ export class ArInvoiceDetail extends Model<
   InferCreationAttributes<ArInvoiceDetail>
 > {
   declare id: CreationOptional<number>
-  declare invoiceId: ForeignKey<ArInvoice["id"]>
+  declare invoiceId: ForeignKey<AccountsReceivableInvoice["id"]>
   declare transactionType: number
   declare vendorNumber: string
   declare vendorName: string
@@ -68,14 +68,14 @@ export class ArInvoiceDetail extends Model<
   declare addedBy: number
 
   // associations
-  declare invoice?: NonAttribute<ArInvoice>
+  declare invoice?: NonAttribute<AccountsReceivableInvoice>
 
   declare static associations: {
-    invoice: Association<ArInvoiceDetail, ArInvoice>
+    invoice: Association<ArInvoiceDetail, AccountsReceivableInvoice>
   }
 
   static establishAssociations() {
-    this.belongsTo(ArInvoice, {
+    this.belongsTo(AccountsReceivableInvoice, {
       as: "invoice",
       foreignKey: "invoiceId",
     })
@@ -95,7 +95,7 @@ ArInvoiceDetail.init(
       field: "InvoiceID",
       allowNull: false,
       references: {
-        model: ArInvoice,
+        model: AccountsReceivableInvoice,
         key: "id",
       },
     },

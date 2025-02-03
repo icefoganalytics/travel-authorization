@@ -2,11 +2,11 @@ import { Attributes, FindOptions } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
 import { User } from "@/models"
-import { ArInvoice } from "@/integrations/trav-com-integration/models"
+import { AccountsReceivableInvoice } from "@/integrations/trav-com-integration/models"
 import PolicyFactory from "@/policies/policy-factory"
 import { allRecordsScope, noRecordsScope } from "@/policies/base-policy"
 
-export class ArInvoicesPolicy extends PolicyFactory(ArInvoice) {
+export class AccountsReceivableInvoicesPolicy extends PolicyFactory(AccountsReceivableInvoice) {
   show(): boolean {
     if (this.user.isTravelDeskUser || this.user.isAdmin) return true
 
@@ -33,7 +33,7 @@ export class ArInvoicesPolicy extends PolicyFactory(ArInvoice) {
     return [...this.permittedAttributes()]
   }
 
-  static policyScope(user: User): FindOptions<Attributes<ArInvoice>> {
+  static policyScope(user: User): FindOptions<Attributes<AccountsReceivableInvoice>> {
     if (user.isTravelDeskUser || user.isAdmin) {
       return allRecordsScope
     }
@@ -42,4 +42,4 @@ export class ArInvoicesPolicy extends PolicyFactory(ArInvoice) {
   }
 }
 
-export default ArInvoicesPolicy
+export default AccountsReceivableInvoicesPolicy

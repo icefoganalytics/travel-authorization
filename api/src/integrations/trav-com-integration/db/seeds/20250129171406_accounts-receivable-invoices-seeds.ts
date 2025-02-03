@@ -23,7 +23,9 @@ export async function seed(_knex: Knex): Promise<void> {
       .first()
 
     if (isNil(existingInvoice)) {
-      await dbMigrationClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth").insert(arInvoiceAttributes)
+      await dbMigrationClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth").insert(
+        arInvoiceAttributes
+      )
     } else {
       await dbMigrationClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth")
         .where({

@@ -282,11 +282,11 @@ router
 
 // TravCom Integration
 router
-  .route("/api/trav-com/ar-invoices")
-  .get(TravComIntegration.Controllers.ArInvoicesController.index)
+  .route("/api/trav-com/accounts-receivable-invoices")
+  .get(TravComIntegration.Controllers.AccountsReceivableInvoicesController.index)
 router
-  .route("/api/trav-com/ar-invoices/:arInvoiceId")
-  .get(TravComIntegration.Controllers.ArInvoicesController.show)
+  .route("/api/trav-com/accounts-receivable-invoices/:accountsReceivableInvoiceId")
+  .get(TravComIntegration.Controllers.AccountsReceivableInvoicesController.show)
 
 router
   .route("/api/trav-com/ar-invoice-details")

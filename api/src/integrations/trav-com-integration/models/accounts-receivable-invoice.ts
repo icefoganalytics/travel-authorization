@@ -24,9 +24,9 @@ export type ArInvoiceNoHealthRaw = {
   InvoiceRemarks: string | null
 }
 
-export class ArInvoice extends Model<
-  InferAttributes<ArInvoice>,
-  InferCreationAttributes<ArInvoice>
+export class AccountsReceivableInvoice extends Model<
+  InferAttributes<AccountsReceivableInvoice>,
+  InferCreationAttributes<AccountsReceivableInvoice>
 > {
   declare id: CreationOptional<number>
   declare invoiceNumber: string
@@ -42,7 +42,7 @@ export class ArInvoice extends Model<
   declare details?: NonAttribute<ArInvoiceDetail[]>
 
   declare static associations: {
-    details: Association<ArInvoice, ArInvoiceDetail>
+    details: Association<AccountsReceivableInvoice, ArInvoiceDetail>
   }
 
   static establishAssociations() {
@@ -53,7 +53,7 @@ export class ArInvoice extends Model<
   }
 }
 
-ArInvoice.init(
+AccountsReceivableInvoice.init(
   {
     id: {
       type: DataTypes.DECIMAL(18, 0),
@@ -122,4 +122,4 @@ ArInvoice.init(
   }
 )
 
-export default ArInvoice
+export default AccountsReceivableInvoice
