@@ -32,6 +32,8 @@ export type AccountsReceivableInvoiceDetailIndexView = Pick<
   | "profileNumber"
   | "addedBy"
 > & {
+  agentName: string | null // see includeAgentNameAttribute scope
+} & {
   // TODO: move invoice type definition to accounts-receivable-invoice show serializer
   invoice: Pick<
     AccountsReceivableInvoice,
@@ -55,6 +57,10 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
   perform(): AccountsReceivableInvoiceDetailIndexView {
     if (isUndefined(this.record.invoice)) {
       throw new Error("'invoice' association is required")
+    }
+
+    const { agentName } = this.record.dataValues as AccountsReceivableInvoiceDetail & {
+      agentName: string | null
     }
 
     return {
@@ -84,6 +90,7 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
         "profileNumber",
         "addedBy"
       ),
+      agentName,
       // TODO: move invoice serialization to accounts receivable invoice show serializer
       invoice: pick(
         this.record.invoice,

@@ -11,7 +11,7 @@ export class AccountsReceivableInvoiceDetailsController extends BaseController<A
   async index() {
     try {
       const where = this.buildWhere()
-      const scopes = this.buildFilterScopes()
+      const scopes = this.buildFilterScopes(["includeAgentNameAttribute"])
       const order = this.buildOrder()
 
       const scopedAccountsReceivableInvoiceDetails =

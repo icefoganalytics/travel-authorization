@@ -5,11 +5,13 @@ import {
   ForeignKey,
   InferAttributes,
   InferCreationAttributes,
+  literal,
   Model,
   NonAttribute,
   Op,
 } from "sequelize"
 
+import { compactSql } from "@/integrations/trav-com-integration/utils"
 import sequelize from "@/integrations/trav-com-integration/db/db-client"
 import AccountsReceivableInvoice from "@/integrations/trav-com-integration/models/accounts-receivable-invoice"
 
@@ -222,6 +224,26 @@ AccountsReceivableInvoiceDetail.init(
                 [Op.between]: [startDate, endDate],
               },
             },
+          },
+        }
+      },
+      includeAgentNameAttribute() {
+        const parentTableAlias = AccountsReceivableInvoiceDetail.name
+        const agentNameQuery = compactSql(/* sql */ `
+          COALESCE(
+            (
+              SELECT TOP 1
+                VendorName
+              FROM ARInvoiceDetailsNoHealth as agent_name_query
+              WHERE agent_name_query.InvoiceID = ${parentTableAlias}.InvoiceID
+                AND agent_name_query.ProductCode = 18
+              ORDER BY agent_name_query.InvoiceDetailID ASC
+            ),
+            ${parentTableAlias}.VendorName
+          )`)
+        return {
+          attributes: {
+            include: [[literal(agentNameQuery), "agentName"]],
           },
         }
       },

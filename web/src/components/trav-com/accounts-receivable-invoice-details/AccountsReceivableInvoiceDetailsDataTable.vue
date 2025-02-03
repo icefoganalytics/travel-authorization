@@ -29,6 +29,7 @@
     <template #item.invoice.bookingDate="{ value }">
       {{ formatDate(value) }}
     </template>
+    <template #item.sellingFare="{ value }"> {{ formatCurrency(value) }} </template>
 
     <template #item.agent="{ value }">
       {{ capitalize(value) }}
@@ -55,8 +56,7 @@
         {{ flight }}
       </div>
     </template>
-    <template #item.sellingFare="{ value }"> {{ formatCurrency(value) }} </template>
-    <template #item.reconciled="{ value }">
+    <template #item.invoice.reconciled="{ value }">
       <v-chip
         v-if="value"
         color="success"
@@ -114,12 +114,12 @@ const headers = ref([
   },
   {
     text: "Cost",
-    value: "invoice.sellingFare",
+    value: "sellingFare",
     sortable: false,
   },
   {
     text: "Agent",
-    value: "agent",
+    value: "agentName", // from includeAgentNameAttribute scope
     sortable: false,
   },
   {
