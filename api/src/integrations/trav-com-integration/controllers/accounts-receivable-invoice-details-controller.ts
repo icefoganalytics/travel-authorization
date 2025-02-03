@@ -26,11 +26,11 @@ export class AccountsReceivableInvoiceDetailsController extends BaseController<A
           order,
           include: [
             "invoice",
-            // "segments",
+            "segments",
           ],
         }
       )
-      const serializedAccountsReceivableInvoiceDetails = await IndexSerializer.perform(
+      const serializedAccountsReceivableInvoiceDetails = IndexSerializer.perform(
         accountsReceivableInvoiceDetails
       )
 

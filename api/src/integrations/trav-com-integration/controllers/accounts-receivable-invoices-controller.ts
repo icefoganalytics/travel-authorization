@@ -30,7 +30,7 @@ export class AccountsReceivableInvoicesController extends BaseController<Account
           // "segments",
         ],
       })
-      const serializedAccountsReceivableInvoices = await IndexSerializer.perform(
+      const serializedAccountsReceivableInvoices = IndexSerializer.perform(
         accountsReceivableInvoices
       )
 
