@@ -8,6 +8,24 @@ Last Updated: 2025-02-03
 This diagram should be verified against the current database schema for accuracy.
 end note
 
+namespace external #LightGrey {
+  entity "airports" {
+    * id : serial4
+    --
+    * ident : varchar(4)
+    * name : varchar(255)
+    * iso_country : varchar(2)
+    continent : varchar(3)
+    municipality : varchar(255)
+    iata_code : varchar(3)
+    created_at : timestamptz
+    updated_at : timestamptz
+    --
+    Supports TravCom integration.
+    This entity is potentially replaceable with Internal Data Portal integration
+  }
+}
+
 entity "ARInvoicesNoHealth" {
   * InvoiceID : decimal(18,0) <<PK>>
   --
@@ -69,4 +87,6 @@ entity "segmentsNoHealth" {
 ARInvoicesNoHealth::InvoiceID |o--|{ ARInvoiceDetailsNoHealth::InvoiceID
 ARInvoicesNoHealth::InvoiceID |o--|{ segmentsNoHealth::invoiceID
 ARInvoiceDetailsNoHealth::InvoiceDetailID |o--|{ segmentsNoHealth::invoiceDetailID
+segmentsNoHealth::ArrivalCityCode ||..o{ airports::iata_code
+segmentsNoHealth::DepartureCityCode ||..o{ airports::iata_code
 @enduml
