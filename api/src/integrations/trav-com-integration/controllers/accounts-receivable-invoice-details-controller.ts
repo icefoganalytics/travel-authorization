@@ -24,10 +24,7 @@ export class AccountsReceivableInvoiceDetailsController extends BaseController<A
           limit: this.pagination.limit,
           offset: this.pagination.offset,
           order,
-          include: [
-            "invoice",
-            "segments",
-          ],
+          include: ["invoice", "segments"],
         }
       )
       const serializedAccountsReceivableInvoiceDetails = IndexSerializer.perform(
