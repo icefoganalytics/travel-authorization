@@ -1,5 +1,7 @@
-import { isUndefined, pick, sortBy } from "lodash"
+import { Op } from "sequelize"
+import { isEmpty, isNil, isUndefined, keyBy, pick, sortBy } from "lodash"
 
+import { Airport } from "@/models"
 import {
   AccountsReceivableInvoice,
   AccountsReceivableInvoiceDetail,
@@ -35,7 +37,7 @@ export type AccountsReceivableInvoiceDetailIndexView = Pick<
 > & {
   // magic attributes
   agentName: string | null // see includeAgentNameAttribute scope
-  flightInfo: string | null
+  flightInfo: string
 
   // associations
   // TODO: move invoice type definition to accounts-receivable-invoice show serializer
@@ -74,7 +76,7 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
     super(record)
   }
 
-  perform(): AccountsReceivableInvoiceDetailIndexView {
+  async perform(): Promise<AccountsReceivableInvoiceDetailIndexView> {
     if (isUndefined(this.record.invoice)) {
       throw new Error("'invoice' association is required")
     }
@@ -82,7 +84,8 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
     const { agentName } = this.record.dataValues as AccountsReceivableInvoiceDetail & {
       agentName: string | null
     }
-    const flightInfo = this.buildFlightInfo(this.segments)
+    const arrivalAirportsByIataCode = await this.buildArrivalAirportsByIataCode(this.segments)
+    const flightInfo = await this.buildFlightInfo(this.segments, arrivalAirportsByIataCode)
 
     return {
       ...pick(
@@ -146,12 +149,28 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
     }
   }
 
-  private buildFlightInfo(segments: Segment[]): string | null {
+  private async buildFlightInfo(
+    segments: Segment[],
+    arrivalAirportsByIataCode: Record<string, Airport>
+  ): Promise<string> {
     return segments
       .map((segment) => {
         const { airlineCode, flightNumber, arrivalCityCode } = segment
+        if (isNil(arrivalCityCode) || isEmpty(arrivalCityCode)) {
+          return `${airlineCode}${flightNumber}`
+        }
 
-        return `${airlineCode}${flightNumber}\u00A0(${arrivalCityCode})`
+        const arrivalAirport = arrivalAirportsByIataCode[arrivalCityCode]
+        if (isNil(arrivalAirport) || isEmpty(arrivalAirport)) {
+          return `${airlineCode}${flightNumber}\u00A0(${arrivalCityCode})`
+        }
+
+        const { municipality } = arrivalAirport
+        if (isNil(municipality) || isEmpty(municipality)) {
+          return `${airlineCode}${flightNumber}\u00A0(${arrivalCityCode})`
+        }
+
+        return `${airlineCode}${flightNumber}\u00A0(${municipality})`
       })
       .join(", ")
   }
@@ -162,5 +181,24 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
     }
 
     return sortBy(this.record.segments, "departureInfo")
+  }
+
+  // TODO: consider if this needs to be optimized further
+  private async buildArrivalAirportsByIataCode(
+    segments: Segment[]
+  ): Promise<Record<string, Airport>> {
+    const arrivalCityCodes = segments
+      .map((segment) => segment.arrivalCityCode)
+      .filter((segment) => !isNil(segment) && !isEmpty(segment)) as string[]
+
+    const arrivalAirports = await Airport.findAll({
+      where: {
+        iataCode: {
+          [Op.in]: arrivalCityCodes,
+        },
+      },
+    })
+    const arrivalAirportsByIataCode = keyBy(arrivalAirports, "iataCode")
+    return arrivalAirportsByIataCode
   }
 }

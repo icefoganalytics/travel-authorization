@@ -27,7 +27,7 @@ export class AccountsReceivableInvoiceDetailsController extends BaseController<A
           include: ["invoice", "segments"],
         }
       )
-      const serializedAccountsReceivableInvoiceDetails = IndexSerializer.perform(
+      const serializedAccountsReceivableInvoiceDetails = await IndexSerializer.perform(
         accountsReceivableInvoiceDetails
       )
 

@@ -1,4 +1,5 @@
 import { Model } from "sequelize"
+import { isPromise } from "util/types"
 
 type RemainingConstructorParameters<C extends new (...args: any[]) => any> = C extends new (
   head: any,
@@ -6,6 +7,20 @@ type RemainingConstructorParameters<C extends new (...args: any[]) => any> = C e
 ) => any
   ? TT
   : []
+
+/**
+ * For a function type F, returns either:
+ *    - Promise<R> if `F` returns `Promise<R>`, or
+ *    - R if `F` returns a non-promise type `R`
+ */
+type MaybePromiseOf<F extends (...args: any[]) => any> =
+  ReturnType<F> extends Promise<infer R> ? Promise<R> : ReturnType<F>
+
+/**
+ * Same logic, but returns an array type or `Promise<array>`.
+ */
+type MaybePromiseOfArray<F extends (...args: any[]) => any> =
+  ReturnType<F> extends Promise<infer R> ? Promise<R[]> : ReturnType<F>[]
 
 /**
  * BaseSerializer is a generic class that provides a common interface for all serializers.
@@ -43,13 +58,13 @@ export class BaseSerializer<M extends Model> {
   static perform<T extends BaseSerializer<any>, C extends new (...args: any[]) => T>(
     this: C,
     ...args: ConstructorParameters<C>
-  ): ReturnType<InstanceType<C>["perform"]>
+  ): MaybePromiseOf<InstanceType<C>["perform"]>
 
   // Overload for handling an array of records
   static perform<T extends BaseSerializer<any>, C extends new (...args: any[]) => T>(
     this: C,
     ...args: [ConstructorParameters<C>[0][], ...RemainingConstructorParameters<C>]
-  ): ReturnType<InstanceType<C>["perform"]>[]
+  ): MaybePromiseOfArray<InstanceType<C>["perform"]>
 
   // Implementation of the perform method
   static perform<T extends BaseSerializer<any>, C extends new (...args: any[]) => T>(
@@ -57,21 +72,34 @@ export class BaseSerializer<M extends Model> {
     ...args:
       | ConstructorParameters<C>
       | [ConstructorParameters<C>[0][], ...RemainingConstructorParameters<C>]
-  ): ReturnType<InstanceType<C>["perform"]> | ReturnType<InstanceType<C>["perform"]>[] {
+  ): MaybePromiseOf<InstanceType<C>["perform"]> | MaybePromiseOfArray<InstanceType<C>["perform"]> {
     if (Array.isArray(args[0])) {
       const records = args[0] as ConstructorParameters<C>[0][]
-      return records.map((record) => {
+      const results = records.map((record) => {
         const instance = new this(record, ...args.slice(1))
         return instance.perform()
-      }) as ReturnType<InstanceType<C>["perform"]>[]
+      })
+      if (!isPromise(results[0])) {
+        return results as MaybePromiseOfArray<InstanceType<C>["perform"]>
+      }
+
+      return Promise.all(results) as MaybePromiseOfArray<InstanceType<C>["perform"]>
     } else {
       const instance = new this(...args)
-      return instance.perform() as ReturnType<InstanceType<C>["perform"]>
+      const result = instance.perform()
+      if (!isPromise(result)) {
+        return result as MaybePromiseOf<InstanceType<C>["perform"]>
+      }
+
+      return Promise.resolve(result) as MaybePromiseOf<InstanceType<C>["perform"]>
     }
   }
 
-  perform(): any {
-    throw new Error("Not Implemented")
+  /**
+   * Instance `perform()` can be either sync or async:
+   */
+  perform(): unknown | Promise<unknown> {
+    throw new Error("Method not implemented.")
   }
 }
 
