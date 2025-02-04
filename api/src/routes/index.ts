@@ -3,6 +3,7 @@ import { DatabaseError } from "sequelize"
 
 import logger from "@/utils/logger"
 import { GIT_COMMIT_HASH, RELEASE_TAG } from "@/config"
+import { TravComIntegration } from "@/integrations"
 import { databaseHealthCheckMiddleware, jwtMiddleware, authorizationMiddleware } from "@/middleware"
 import { healthCheckRouter } from "@/routes/healthcheck-router"
 import {
@@ -278,6 +279,21 @@ router
 router
   .route("/api/travel-authorization-action-logs")
   .get(TravelAuthorizationActionLogsController.index)
+
+// TravCom Integration
+router
+  .route("/api/trav-com/accounts-receivable-invoices")
+  .get(TravComIntegration.Controllers.AccountsReceivableInvoicesController.index)
+router
+  .route("/api/trav-com/accounts-receivable-invoices/:accountsReceivableInvoiceId")
+  .get(TravComIntegration.Controllers.AccountsReceivableInvoicesController.show)
+
+router
+  .route("/api/trav-com/accounts-receivable-invoice-details")
+  .get(TravComIntegration.Controllers.AccountsReceivableInvoiceDetailsController.index)
+router
+  .route("/api/trav-com/accounts-receivable-invoice-details/:accountsReceivableInvoiceDetailId")
+  .get(TravComIntegration.Controllers.AccountsReceivableInvoiceDetailsController.show)
 
 // QA testing scenarios
 router.route("/api/qa/scenarios").get(Qa.ScenariosController.index)
