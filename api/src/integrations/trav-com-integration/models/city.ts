@@ -175,4 +175,8 @@ City.init(
   }
 )
 
+// Workaround to tell Sequelize there is no primary key
+// See https://sequelize.org/docs/v6/other-topics/legacy/#primary-keys
+City.removeAttribute("id")
+
 export default City
