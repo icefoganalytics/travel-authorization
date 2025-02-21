@@ -1,4 +1,4 @@
-import { isUndefined, pick, sortBy } from "lodash"
+import { isEmpty, isNil, isUndefined, pick, sortBy } from "lodash"
 
 import {
   AccountsReceivableInvoice,
@@ -35,7 +35,7 @@ export type AccountsReceivableInvoiceDetailIndexView = Pick<
 > & {
   // magic attributes
   agentName: string | null // see includeAgentNameAttribute scope
-  flightInfo: string | null
+  flightInfo: string
 
   // associations
   // TODO: move invoice type definition to accounts-receivable-invoice show serializer
@@ -84,6 +84,39 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
     }
     const flightInfo = this.buildFlightInfo(this.segments)
 
+    // TODO: move invoice serialization to accounts receivable invoice show serializer
+    const invoice = pick(
+      this.record.invoice,
+      "id",
+      "invoiceNumber",
+      "profileNumber",
+      "profileName",
+      "department",
+      "bookingDate",
+      "systemDate",
+      "description",
+      "invoiceRemarks"
+    )
+
+    // TODO: move segment serialization to segments show serializer
+    const segments = this.segments.map((segment) =>
+      pick(
+        segment,
+        "id",
+        "invoiceId",
+        "invoiceDetailId",
+        "legNumber",
+        "departureCityCode",
+        "departureInfo",
+        "arrivalCityCode",
+        "arrivalInfo",
+        "airlineCode",
+        "flightNumber",
+        "classOfService",
+        "fareBasis"
+      )
+    )
+
     return {
       ...pick(
         this.record,
@@ -113,45 +146,29 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
       ),
       agentName,
       flightInfo,
-      // TODO: move invoice serialization to accounts receivable invoice show serializer
-      invoice: pick(
-        this.record.invoice,
-        "id",
-        "invoiceNumber",
-        "profileNumber",
-        "profileName",
-        "department",
-        "bookingDate",
-        "systemDate",
-        "description",
-        "invoiceRemarks"
-      ),
-      segments: this.segments.map((segment) =>
-        pick(
-          segment,
-          "id",
-          "invoiceId",
-          "invoiceDetailId",
-          "legNumber",
-          "departureCityCode",
-          "departureInfo",
-          "arrivalCityCode",
-          "arrivalInfo",
-          "airlineCode",
-          "flightNumber",
-          "classOfService",
-          "fareBasis"
-        )
-      ),
+      invoice,
+      segments,
     }
   }
 
-  private buildFlightInfo(segments: Segment[]): string | null {
+  private buildFlightInfo(segments: Segment[]): string {
     return segments
       .map((segment) => {
-        const { airlineCode, flightNumber, arrivalCityCode } = segment
+        const { airlineCode, flightNumber, arrivalCityCode, arrivalCity } = segment
+        if (isNil(arrivalCityCode) || isEmpty(arrivalCityCode)) {
+          return `${airlineCode}${flightNumber}`
+        }
 
-        return `${airlineCode}${flightNumber}\u00A0(${arrivalCityCode})`
+        if (isNil(arrivalCity)) {
+          return `${airlineCode}${flightNumber}\u00A0(${arrivalCityCode})`
+        }
+
+        const { cityName } = arrivalCity
+        if (isNil(cityName) || isEmpty(cityName)) {
+          return `${airlineCode}${flightNumber}\u00A0(${arrivalCityCode})`
+        }
+
+        return `${airlineCode}${flightNumber}\u00A0(${cityName})`
       })
       .join(", ")
   }
