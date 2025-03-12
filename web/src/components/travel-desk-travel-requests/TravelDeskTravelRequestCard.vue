@@ -1,10 +1,7 @@
 <template>
   <v-card>
-    <v-card-title
-      class="primary"
-      style="border-bottom: 1px solid black"
-    >
-      <div class="text-h5">Travel Desk Request</div>
+    <v-card-title>
+      <h2 class="text-h5">Travel Desk Request</h2>
     </v-card-title>
 
     <v-card-text>
@@ -15,24 +12,30 @@
       </v-row>
       <v-row>
         <v-col>
-          <TitleCard large-title>
-            <template #title>
-              <div>Travel Information</div>
-            </template>
-            <template #body>
+          <v-card>
+            <v-card-title>
+              <h3>Travel Information</h3>
+            </v-card-title>
+            <v-divider />
+            <v-card-text class="px-0 px-md-4">
               <TravelDeskFlightRequestsCard
                 class="borderless-card"
                 :travel-desk-travel-request-id="travelDeskTravelRequestId"
               />
               <TravelDeskRentalCarsTable
+                class="borderless-card"
                 :travel-desk-travel-request-id="travelDeskTravelRequestId"
               />
-              <TravelDeskHotelsTable :travel-desk-travel-request-id="travelDeskTravelRequestId" />
+              <TravelDeskHotelsTable
+                class="borderless-card"
+                :travel-desk-travel-request-id="travelDeskTravelRequestId"
+              />
               <TravelDeskOtherTransportationsTable
+                class="borderless-card"
                 :travel-desk-travel-request-id="travelDeskTravelRequestId"
               />
-            </template>
-          </TitleCard>
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
     </v-card-text>
@@ -40,8 +43,6 @@
 </template>
 
 <script setup>
-import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
-
 import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
 import TravelDeskHotelsTable from "@/components/travel-desk-hotels/TravelDeskHotelsTable.vue"
 import TravelDeskOtherTransportationsTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationsTable.vue"
