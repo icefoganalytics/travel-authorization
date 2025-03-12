@@ -2,12 +2,6 @@
   <v-card class="card--outlined">
     <v-card-title class="d-flex justify-space-between align-center">
       <h4 class="text-h6">Traveler Details</h4>
-      <SaveStateProgress
-        v-if="showSaveStateProgress"
-        class="my-0"
-        :saving="isSaving"
-        @click="emit('save-requested')"
-      />
     </v-card-title>
     <v-card-text>
       <v-form ref="form">
@@ -237,17 +231,12 @@ import { cloneDeep, isNil } from "lodash"
 
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 
-import SaveStateProgress from "@/components/SaveStateProgress.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 
 const props = defineProps({
   value: {
     type: Object,
     required: true,
-  },
-  showSaveStateProgress: {
-    type: Boolean,
-    default: false,
   },
   isSaving: {
     type: Boolean,
