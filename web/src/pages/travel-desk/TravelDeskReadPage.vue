@@ -36,8 +36,8 @@
             <TravelDeskTravelAgencySelect
               v-model="travelDeskTravelRequest.travelAgencyId"
               label="Assign Agency"
+              append-icon="mdi-lock"
               placeholder="None"
-              clearable
               outlined
               persistent-placeholder
               readonly
@@ -50,6 +50,7 @@
             <UserTravelDeskAgentSelect
               v-model="travelDeskTravelRequest.travelDeskOfficer"
               label="Travel Desk Agent Assigned"
+              append-icon="mdi-lock"
               readonly
               outlined
             />
@@ -67,33 +68,30 @@
         </v-row>
         <v-row>
           <v-col>
-            <TitleCard
-              class="mt-10"
-              large-title
-            >
-              <template #title>
+            <v-card>
+              <v-card-title>
                 <h3>Travel Information</h3>
-              </template>
-              <template #body>
+              </v-card-title>
+              <v-divider />
+              <v-card-text>
                 <TravelDeskFlightRequestsCard
-                  :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
                   class="borderless-card"
                 />
-                <RentalCarRequestTable
-                  readonly
-                  :flight-requests="travelDeskTravelRequest.flightRequests"
-                  :rental-cars="travelDeskTravelRequest.rentalCars"
+                <TravelDeskRentalCarsTable
+                  class="borderless-card"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
                 />
-                <HotelRequestTable
-                  readonly
-                  :flight-requests="travelDeskTravelRequest.flightRequests"
-                  :hotels="travelDeskTravelRequest.hotels"
+                <TravelDeskHotelsTable
+                  class="borderless-card"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
                 />
                 <TravelDeskOtherTransportationsTable
-                  :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+                  class="borderless-card"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
                 />
-              </template>
-            </TitleCard>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
       </v-card-text>
@@ -129,15 +127,14 @@ import useTravelDeskTravelRequest, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
 } from "@/use/use-travel-desk-travel-request"
 
-import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 import TravelerDetailsCard from "@/components/travel-desk-travel-requests/TravelerDetailsCard.vue"
-import RentalCarRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/RentalCarRequestTable.vue"
-import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
 
 import ItineraryModal from "@/modules/travelDesk/views/Requests/Components/ItineraryModal.vue"
 
 import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
 import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
+import TravelDeskRentalCarsTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsTable.vue"
+import TravelDeskHotelsTable from "@/components/travel-desk-hotels/TravelDeskHotelsTable.vue"
 import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
 import TravelDeskOtherTransportationsTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationsTable.vue"
 import TravelDeskQuestionsCard from "@/components/travel-desk-questions/TravelDeskQuestionsCard.vue"
