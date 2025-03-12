@@ -4,8 +4,14 @@
       <h4 class="text-h6">Traveler Details</h4>
     </v-card-title>
     <v-card-text>
+      <div class="d-flex justify-center justify-md-end mt-md-n4 mb-2">
+        <DescriptionElement
+          v-model="travelAuthorizationId"
+          label="Travel Auth"
+        />
+      </div>
       <v-form ref="form">
-        <v-row class="mt-5 mx-3">
+        <v-row class="mt-0 mx-3">
           <v-col
             cols="12"
             md="3"
@@ -19,7 +25,7 @@
           </v-col>
           <v-col
             cols="12"
-            md="2"
+            md="3"
           >
             <v-text-field
               v-model="travelerDetails.legalMiddleName"
@@ -40,7 +46,7 @@
           </v-col>
           <v-col
             cols="12"
-            md="2"
+            md="3"
           >
             <v-text-field
               v-model="travelerDetails.birthDate"
@@ -48,17 +54,6 @@
               type="date"
               :max="dobMaxDate"
               :rules="[required]"
-              outlined
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="2"
-          >
-            <v-text-field
-              v-model="travelAuthorizationId"
-              readonly
-              label="Travel Auth"
               outlined
             />
           </v-col>
@@ -150,7 +145,7 @@
         <v-row class="mt-0 mx-3">
           <v-col
             cols="12"
-            md="2"
+            md="3"
           >
             <v-text-field
               v-model="travelerDetails.busPhone"
@@ -231,6 +226,7 @@ import { cloneDeep, isNil } from "lodash"
 
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 
+import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 
 const props = defineProps({
