@@ -8,6 +8,7 @@ class DevHelper
   COMMAND_TO_METHOD = {
     "ts-node" => :ts_node,
     "branch-from" => :branch_from,
+    "description-from" => :description_from,
     "check-types" => :check_types,
     "bash-completions" => :bash_completions,
     "plantuml-to-png" => :plantuml_to_png,

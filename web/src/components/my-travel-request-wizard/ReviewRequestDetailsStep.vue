@@ -1,21 +1,19 @@
 <template>
-  <v-container class="px-0 px-md-6">
-    <v-skeleton-loader
-      v-if="isNil(travelDeskTravelRequestId) && !isErrored"
-      type="card"
-    />
-    <v-alert
-      v-else-if="isErrored"
-      type="error"
-    >
-      Failed to fetch travel desk travel request.
-    </v-alert>
+  <v-skeleton-loader
+    v-if="isNil(travelDeskTravelRequestId) && !isErrored"
+    type="card"
+  />
+  <v-alert
+    v-else-if="isErrored"
+    type="error"
+  >
+    Failed to fetch travel desk travel request.
+  </v-alert>
 
-    <TravelDeskTravelRequestCard
-      v-else
-      :travel-desk-travel-request-id="travelDeskTravelRequestId"
-    />
-  </v-container>
+  <TravelDeskTravelRequestCard
+    v-else
+    :travel-desk-travel-request-id="travelDeskTravelRequestId"
+  />
 </template>
 
 <script setup>
