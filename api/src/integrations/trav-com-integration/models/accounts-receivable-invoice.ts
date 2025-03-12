@@ -9,7 +9,7 @@ import {
   Op,
 } from "sequelize"
 
-import sequelize from "@/integrations/trav-com-integration/db/db-client"
+import sequelize, { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
 
 import AccountsReceivableInvoiceDetail from "@/integrations/trav-com-integration/models/accounts-receivable-invoice-detail"
 import Segment from "@/integrations/trav-com-integration/models/segment"
@@ -90,12 +90,12 @@ AccountsReceivableInvoice.init(
       field: "Department",
     },
     bookingDate: {
-      type: DataTypes.DATE,
+      type: MssqlTypeExtensions.DATETIME,
       allowNull: true,
       field: "BookingDate",
     },
     systemDate: {
-      type: DataTypes.DATE,
+      type: MssqlTypeExtensions.DATETIME,
       allowNull: true,
       field: "SystemDate",
     },

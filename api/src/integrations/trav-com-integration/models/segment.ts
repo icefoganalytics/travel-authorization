@@ -9,7 +9,7 @@ import {
   NonAttribute,
 } from "sequelize"
 
-import sequelize from "@/integrations/trav-com-integration/db/db-client"
+import sequelize, { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
 
 import AccountsReceivableInvoice from "@/integrations/trav-com-integration/models/accounts-receivable-invoice"
 import AccountsReceivableInvoiceDetail from "@/integrations/trav-com-integration/models/accounts-receivable-invoice-detail"
@@ -116,7 +116,7 @@ Segment.init(
       field: "DepartureCityCode",
     },
     departureInfo: {
-      type: DataTypes.DATE,
+      type: MssqlTypeExtensions.DATETIME,
       allowNull: true,
       field: "DepartureInfo",
     },
@@ -126,7 +126,7 @@ Segment.init(
       field: "ArrivalCityCode",
     },
     arrivalInfo: {
-      type: DataTypes.DATE,
+      type: MssqlTypeExtensions.DATETIME,
       allowNull: true,
       field: "ArrivalInfo",
     },
