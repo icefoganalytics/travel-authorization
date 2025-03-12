@@ -1,8 +1,8 @@
 import { Includeable } from "sequelize"
-import { Factory } from "fishery"
 import { faker } from "@faker-js/faker"
 
 import { TravelAuthorization } from "@/models"
+import BaseFactory from "@/factories/base-factory"
 import { travelPurposeFactory, userFactory } from "@/factories"
 import { nestedSaveAndAssociateIfNew } from "@/factories/helpers"
 
@@ -10,7 +10,9 @@ type TransientParam = {
   include?: Includeable | Includeable[]
 }
 
-export const travelAuthorizationFactory = Factory.define<TravelAuthorization, TransientParam>(
+class TravelAuthorizationFactory extends BaseFactory<TravelAuthorization, TransientParam> {}
+
+export const travelAuthorizationFactory = TravelAuthorizationFactory.define(
   ({ associations, transientParams, onCreate }) => {
     onCreate(async (travelAuthorization) => {
       try {

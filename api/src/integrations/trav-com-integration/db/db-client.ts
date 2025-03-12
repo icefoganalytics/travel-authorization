@@ -1,5 +1,4 @@
 import { Sequelize, Options } from "sequelize"
-import { createNamespace } from "cls-hooked"
 
 import {
   TRAVCOM_DB_NAME,
@@ -13,8 +12,10 @@ import { compactSql } from "@/integrations/trav-com-integration/utils/compact-sq
 
 export * as MssqlTypeExtensions from "@/integrations/trav-com-integration/db/mssql-type-extensions"
 
-export const transactionManager = createNamespace("transaction-manager-trav-com")
-Sequelize.useCLS(transactionManager)
+// NOTE: you cannot use multiple transaction managers for the same Sequelize instance until Sequelize 7
+// So the following code should not be used, as it will break transactions everywhere.
+// export const transactionManager = createNamespace("transaction-manager-trav-com")
+// Sequelize.useCLS(transactionManager)
 
 if (TRAVCOM_DB_NAME === undefined) throw new Error("database name is unset.")
 if (TRAVCOM_DB_USER === undefined) throw new Error("database username is unset.")
