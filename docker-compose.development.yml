@@ -8,6 +8,10 @@ x-default-environment: &default-environment
   DB_PASS: &default-db-password itsallgood
   DB_USER: &default-db-user app
   DB_PORT: 5432
+  DB_HEALTH_CHECK_INTERVAL_SECONDS: 5
+  DB_HEALTH_CHECK_TIMEOUT_SECONDS: 10
+  DB_HEALTH_CHECK_RETRIES: 3
+  DB_HEALTH_CHECK_START_PERIOD_SECONDS: 5
   TRAVCOM_DB_HOST: db_trav_com
   TRAVCOM_DB_USER: sa
   TRAVCOM_DB_PASS: &default-trav-com-db-password "DevPwd99!"

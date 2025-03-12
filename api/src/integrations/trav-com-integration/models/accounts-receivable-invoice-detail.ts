@@ -13,7 +13,7 @@ import { sortBy } from "lodash"
 
 import BaseModel from "@/models/base-model"
 import { FlightReconciliation } from "@/models"
-import sequelize from "@/integrations/trav-com-integration/db/db-client"
+import sequelize, { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
 
 import AccountsReceivableInvoice from "@/integrations/trav-com-integration/models/accounts-receivable-invoice"
 import City from "@/integrations/trav-com-integration/models/city"
@@ -197,12 +197,12 @@ AccountsReceivableInvoiceDetail.init(
       allowNull: true,
     },
     travelDate: {
-      type: DataTypes.DATE,
+      type: MssqlTypeExtensions.DATETIME,
       field: "TravelDate",
       allowNull: true,
     },
     returnDate: {
-      type: DataTypes.DATE,
+      type: MssqlTypeExtensions.DATETIME,
       field: "ReturnDate",
       allowNull: true,
     },
