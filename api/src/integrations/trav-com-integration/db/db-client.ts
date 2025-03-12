@@ -11,6 +11,8 @@ import {
 } from "@/config"
 import { compactSql } from "@/integrations/trav-com-integration/utils/compact-sql"
 
+export * as MssqlTypeExtensions from "@/integrations/trav-com-integration/db/mssql-type-extensions"
+
 export const transactionManager = createNamespace("transaction-manager-trav-com")
 Sequelize.useCLS(transactionManager)
 
