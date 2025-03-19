@@ -130,13 +130,6 @@ entity "per_diems" {
   UNIQUE(claim_type, travel_region, currency) WHERE deleted_at IS NULL
 }
 
-entity "preapprovedDocuments" {
-  * preTDocID : serial4
-  --
-  submission_id : int4 <<FK>>
-  approvalDoc : bytea
-}
-
 entity "roles" {
   * id : serial4
   --
@@ -215,6 +208,16 @@ entity "travel_authorization_action_logs" {
   note : varchar(255)
   created_at : timestamptz
   updated_at : timestamptz
+}
+
+entity "travel_authorization_pre_approval_documents" {
+  * id : serial4
+  --
+  * submission_id : int4 <<FK>>
+  * approval_document : bytea
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
 }
 
 entity "travel_authorization_pre_approval_profiles" {
@@ -609,7 +612,7 @@ travel_authorization_action_logs::assignee_id ||--o{ users::id
 travel_authorization_action_logs::travel_authorization_id ||--o{ travel_authorizations::id
 travel_authorization_pre_approval_submissions::approver_id |o--o{ users::id
 travel_authorization_pre_approval_submissions::creator_id ||--o{ users::id
-travel_authorization_pre_approval_submissions::id }o--|| preapprovedDocuments::submission_id
+travel_authorization_pre_approval_submissions::id }o--|| travel_authorization_pre_approval_documents::submission_id
 travel_authorization_pre_approval_submissions::pre_approval_id ||--o{ travel_authorization_pre_approvals::id
 travel_authorization_pre_approvals::id }o--|| travel_authorization_pre_approval_profiles::pre_approval_id
 travel_authorizations::pre_approval_profile_id |o--o{ travel_authorization_pre_approval_profiles::id
