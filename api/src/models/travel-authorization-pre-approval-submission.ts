@@ -21,6 +21,8 @@ import User from "@/models/user"
 export enum TravelAuthorizationPreApprovalSubmissionStatuses {
   DRAFT = "draft",
   SUBMITTED = "submitted",
+  APPROVED = "approved",
+  REJECTED = "rejected",
   FINISHED = "finished",
 }
 
