@@ -1,25 +1,11 @@
 import {
-  Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
-  HasManyAddAssociationMixin,
-  HasManyAddAssociationsMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin,
-  HasManyRemoveAssociationsMixin,
-  HasManySetAssociationsMixin,
-  InferAttributes,
-  InferCreationAttributes,
   Model,
-  NonAttribute,
+  type Association,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
 } from "sequelize"
 
 import sequelize from "@/db/db-client"
@@ -46,7 +32,6 @@ export class TravelAuthorizationPreApproval extends Model<
   static readonly Statuses = Statuses
 
   declare id: CreationOptional<number>
-  declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["preTSubID"] | null>
   declare estimatedCost: number
   declare location: string
   declare department: CreationOptional<string | null>
@@ -65,66 +50,25 @@ export class TravelAuthorizationPreApproval extends Model<
   declare updatedAt: CreationOptional<Date>
   declare deletedAt: CreationOptional<Date | null>
 
-  // https://sequelize.org/docs/v6/other-topics/typescript/#usage
-  // https://sequelize.org/docs/v6/core-concepts/assocs/#special-methodsmixins-added-to-instances
-  // https://sequelize.org/api/v7/types/_sequelize_core.index.belongstocreateassociationmixin
-  declare getSubmission: BelongsToGetAssociationMixin<TravelAuthorizationPreApprovalSubmission>
-  declare setSubmission: BelongsToSetAssociationMixin<
-    TravelAuthorizationPreApprovalSubmission,
-    TravelAuthorizationPreApprovalSubmission["preTSubID"]
-  >
-  declare createSubmission: BelongsToCreateAssociationMixin<TravelAuthorizationPreApprovalSubmission>
-
-  declare getProfiles: HasManyGetAssociationsMixin<TravelAuthorizationPreApprovalProfile>
-  declare setProfiles: HasManySetAssociationsMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare hasProfile: HasManyHasAssociationMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare hasProfiles: HasManyHasAssociationsMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare addProfile: HasManyAddAssociationMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare addProfiles: HasManyAddAssociationsMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare removeProfile: HasManyRemoveAssociationMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare removeProfiles: HasManyRemoveAssociationsMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare countProfiles: HasManyCountAssociationsMixin
-  declare createProfile: HasManyCreateAssociationMixin<TravelAuthorizationPreApprovalProfile>
-
-  declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
+  // Assocations
   declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
+  declare submissions?: NonAttribute<TravelAuthorizationPreApprovalSubmission[]>
 
   declare static associations: {
-    submission: Association<
+    profiles: Association<TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile>
+    submissions: Association<
       TravelAuthorizationPreApproval,
       TravelAuthorizationPreApprovalSubmission
     >
-    profiles: Association<TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile>
   }
 
   static establishAssociations() {
-    this.belongsTo(TravelAuthorizationPreApprovalSubmission, {
-      as: "submission",
-      foreignKey: "submissionId",
-    })
     this.hasMany(TravelAuthorizationPreApprovalProfile, {
       as: "profiles",
+      foreignKey: "preApprovalId",
+    })
+    this.hasMany(TravelAuthorizationPreApprovalSubmission, {
+      as: "submissions",
       foreignKey: "preApprovalId",
     })
   }
@@ -137,14 +81,6 @@ TravelAuthorizationPreApproval.init(
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
-    },
-    submissionId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: TravelAuthorizationPreApprovalSubmission,
-        key: "preTSubID",
-      },
     },
     estimatedCost: {
       type: DataTypes.INTEGER,
@@ -206,7 +142,7 @@ TravelAuthorizationPreApproval.init(
       validate: {
         isIn: {
           args: [Object.values(Statuses)],
-          msg: "Invalid status value",
+          msg: `Status must be one of: ${Object.values(Statuses).join(", ")}`,
         },
       },
     },
