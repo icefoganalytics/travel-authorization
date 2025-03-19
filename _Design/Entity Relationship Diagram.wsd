@@ -4,7 +4,7 @@ top to bottom direction
 note as Disclaimer
 Diagram generated with the assistance of Cascade AI coding assistant - may contain errors
 PlantUML URL: https://plantuml.com/ie-diagram
-Last Updated: 2024-11-29
+Last Updated: 2025-03-19
 This diagram should be verified against the current database schema for accuracy.
 end note
 
@@ -133,19 +133,8 @@ entity "per_diems" {
 entity "preapprovedDocuments" {
   * preTDocID : serial4
   --
-  preTSubID : int4
+  submission_id : int4 <<FK>>
   approvalDoc : bytea
-}
-
-entity "preapprovedSubmissions" {
-  * preTSubID : serial4
-  --
-  submitter : varchar(255)
-  status : varchar(255)
-  submissionDate : date
-  approvalDate : date
-  approvedBy : varchar(255)
-  department : varchar(255)
 }
 
 entity "roles" {
@@ -240,10 +229,23 @@ entity "travel_authorization_pre_approval_profiles" {
   deleted_at: timestamptz
 }
 
+entity "travel_authorization_pre_approval_submissions" {
+  * id : serial4 <<PK>>
+  --
+  * pre_approval_id : int4 <<FK>>
+  * creator_id : int4 <<FK>>
+  approver_id : int4 <<FK>>
+  approved_at : timestamptz
+  * status : varchar(255)
+  * department : varchar(255)
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
+}
+
 entity "travel_authorization_pre_approvals" {
   * id : int <<PK>>
   --
-  submission_id : int <<FK>>
   * estimated_cost : int
   * is_open_for_any_date : bool
   * is_open_for_any_traveler : bool
@@ -598,15 +600,18 @@ namespace external #LightGrey {
 ' Relationships
 expenses .. per_diems : estimates generation
 expenses .. travel_allowances : estimates generation
+
 expenses::travel_authorization_id ||--o{ travel_authorizations::id
 general_ledger_codings::travel_authorization_id ||--o{ travel_authorizations::id
-preapprovedSubmissions::preTSubID }o--o| preapprovedDocuments::preTSubID
 stops::travel_authorization_id }o--|| travel_authorizations::id
 travel_authorization_action_logs::actor_id ||--o{ users::id
 travel_authorization_action_logs::assignee_id ||--o{ users::id
 travel_authorization_action_logs::travel_authorization_id ||--o{ travel_authorizations::id
-travel_authorization_pre_approval_profiles::pre_approval_id ||--o{ travel_authorization_pre_approvals::id
-travel_authorization_pre_approvals::submission_id |o--o{ preapprovedSubmissions::preTSubID
+travel_authorization_pre_approval_submissions::approver_id |o--o{ users::id
+travel_authorization_pre_approval_submissions::creator_id ||--o{ users::id
+travel_authorization_pre_approval_submissions::id }o--|| preapprovedDocuments::submission_id
+travel_authorization_pre_approval_submissions::pre_approval_id ||--o{ travel_authorization_pre_approvals::id
+travel_authorization_pre_approvals::id }o--|| travel_authorization_pre_approval_profiles::pre_approval_id
 travel_authorizations::pre_approval_profile_id |o--o{ travel_authorization_pre_approval_profiles::id
 travel_authorizations::purpose_id ||--o{ travel_purposes::id
 travel_desk_flight_options::id }o--|| travel_desk_flight_segments::flight_option_id
@@ -622,9 +627,9 @@ travel_desk_travel_requests::travel_authorization_id ||--o{ travel_authorization
 travel_segments::arrival_location_id |o--o{ locations::id
 travel_segments::departure_location_id |o--o{ locations::id
 travel_segments::travel_authorization_id ||--o{ travel_authorizations::id
-users::roles }o..o{ roles::name
-users::id }o--|| travel_desk_flight_options::traveler_id
 users::id }o--|| travel_authorizations::user_id
+users::id }o--|| travel_desk_flight_options::traveler_id
+users::roles }o..o{ roles::name
 
 flight_reconciliations::external_trav_com_identifier ||..o{ external.ARInvoicesNoHealth::InvoiceNumber
 @enduml
