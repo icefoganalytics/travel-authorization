@@ -58,25 +58,24 @@ const routes = [
             component: () => import("@/pages/ManageTravelRequestsPage.vue"),
           },
           {
-            path: "pre-approved-travel",
-            component: () => import("@/pages/PreApprovedTravelPage.vue"),
+            path: "travel-pre-approvals",
+            component: () => import("@/pages/TravelPreApprovalsPage.vue"),
             children: [
               {
                 path: "",
-                name: "PreApprovedTravelPage",
                 redirect: "requests",
               },
               {
                 path: "requests",
-                name: "pre-approved-travel/PreApprovedTravelRequestsPage",
+                name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
                 component: () =>
-                  import("@/pages/pre-approved-travel/PreApprovedTravelRequestsPage.vue"),
+                  import("@/pages/travel-pre-approvals/TravelPreApprovalRequestsPage.vue"),
               },
               {
                 path: "submissions",
-                name: "pre-approved-travel/PreApprovedTravelSubmissionsPage",
+                name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
                 component: () =>
-                  import("@/pages/pre-approved-travel/PreApprovedTravelSubmissionsPage.vue"),
+                  import("@/pages/travel-pre-approvals/TravelPreApprovalSubmissionsPage.vue"),
               },
             ],
           },

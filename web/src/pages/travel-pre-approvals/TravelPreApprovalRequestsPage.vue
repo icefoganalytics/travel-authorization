@@ -42,6 +42,8 @@ import { isEmpty } from "lodash"
 import { ExportToCsv } from "export-to-csv"
 import { DateTime } from "luxon"
 
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
@@ -93,6 +95,21 @@ function exportToExcel(travelAuthorizationPreApprovals) {
   const csvExporter = new ExportToCsv(options)
   csvExporter.generateCsv(csvInfo)
 }
+
+useBreadcrumbs([
+  {
+    text: "Travel Pre-Approvals",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+    },
+  },
+  {
+    text: "Requests",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+    },
+  },
+])
 </script>
 
 <style scoped>

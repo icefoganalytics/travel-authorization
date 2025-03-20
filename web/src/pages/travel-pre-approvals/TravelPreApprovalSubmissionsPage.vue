@@ -51,6 +51,7 @@
 
 <script setup>
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 import useTravelAuthorizationPreApprovalSubmissions from "@/use/use-travel-authorization-pre-approval-submissions"
 
@@ -103,6 +104,21 @@ async function refresh() {
   await refreshPreApprovalSubmissions()
   await refreshPreApprovals()
 }
+
+useBreadcrumbs([
+  {
+    text: "Travel Pre-Approvals",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+    },
+  },
+  {
+    text: "Submissions",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
+    },
+  },
+])
 </script>
 
 <style scoped>

@@ -27,13 +27,13 @@
       <v-list-item
         v-if="isAdmin"
         :to="{
-          name: 'PreApprovedTravelPage',
+          name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
         }"
       >
         <v-list-item-icon>
           <v-icon>mdi-check-circle</v-icon>
         </v-list-item-icon>
-        <v-list-item-title>Pre-Approved Travel</v-list-item-title>
+        <v-list-item-title>Travel Pre-Approvals</v-list-item-title>
       </v-list-item>
 
       <v-list-item to="/travel-desk">
