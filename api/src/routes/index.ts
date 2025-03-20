@@ -21,6 +21,7 @@ import {
   TravelAuthorizationActionLogsController,
   TravelAuthorizationPreApprovalProfilesController,
   TravelAuthorizationPreApprovalsController,
+  TravelAuthorizationPreApprovalSubmissionsController,
   TravelAuthorizations,
   TravelAuthorizationsController,
   TravelDeskFlightOptions,
@@ -272,6 +273,18 @@ router
   .get(TravelAuthorizationPreApprovalsController.show)
   .patch(TravelAuthorizationPreApprovalsController.update)
   .delete(TravelAuthorizationPreApprovalsController.destroy)
+
+router
+  .route("/api/travel-authorization-pre-approval-submissions")
+  .get(TravelAuthorizationPreApprovalSubmissionsController.index)
+  .post(TravelAuthorizationPreApprovalSubmissionsController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId"
+  )
+  .get(TravelAuthorizationPreApprovalSubmissionsController.show)
+  .patch(TravelAuthorizationPreApprovalSubmissionsController.update)
+  .delete(TravelAuthorizationPreApprovalSubmissionsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
 router.route("/api/users/:userId").get(UsersController.show)
