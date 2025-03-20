@@ -24,11 +24,15 @@
         <v-list-item-title>My Travel Requests</v-list-item-title>
       </v-list-item>
 
-      <v-list-item to="/preapproved">
+      <v-list-item
+        :to="{
+          name: 'PreApprovedTravelPage',
+        }"
+      >
         <v-list-item-icon>
           <v-icon>mdi-check-circle</v-icon>
         </v-list-item-icon>
-        <v-list-item-title>PreApproved</v-list-item-title>
+        <v-list-item-title>Pre-Approved Travel</v-list-item-title>
       </v-list-item>
 
       <v-list-item to="/travel-desk">

@@ -3,7 +3,6 @@ import VueRouter from "vue-router"
 
 import { authGuard } from "@/utils/auth-guard"
 
-import preapprovedRouter from "@/modules/preapproved/router"
 import travelDeskRouter from "@/modules/travelDesk/router"
 import travelAuthorizationsRouter from "@/modules/travel-authorizations/router"
 import reportsRouter from "@/modules/reports/router"
@@ -44,6 +43,14 @@ const routes = [
             name: "users/UserPage",
             component: () => import("@/pages/users/UserPage.vue"),
             props: true,
+          },
+          {
+            path: "pre-approved-travel",
+            name: "PreApprovedTravelPage",
+            component: () => import("@/pages/PreApprovedTravelPage.vue"),
+            children: [
+              // TODO: add tabs as children
+            ],
           },
           {
             name: "TravelDeskPage",
@@ -176,7 +183,6 @@ const routes = [
     ],
   },
 
-  ...preapprovedRouter,
   ...travelDeskRouter,
   ...travelAuthorizationsRouter,
   ...reportsRouter,
