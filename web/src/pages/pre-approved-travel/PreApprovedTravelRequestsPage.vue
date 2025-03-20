@@ -1,108 +1,107 @@
 <template>
-  <div class="mx-10 mb-5">
-    <v-row class="my-0 mx-0">
-      <SubmitTravel
-        :disabled="selectedRequests.length == 0"
-        :travel-requests="travelAuthorizationPreApprovals"
-        :selected-requests="selectedRequests"
-        :submission-id="0"
-        button-name="Submit Selected Travel"
-        class="ml-auto"
-        @updateTable="refresh"
-      />
-      <PrintReport
-        :disabled="selectedRequests.length == 0"
-        :travel-requests="selectedRequests"
-        button-name="Print Report"
-      />
-      <v-btn
-        :disabled="selectedRequests.length == 0"
-        class="mr-5 my-7"
-        color="primary"
-        @click="exportToExcel"
-      >
-        Export To Excel
-      </v-btn>
-      <new-travel-request
-        type="Add New"
-        @updateTable="refresh"
-      />
-    </v-row>
-    <v-data-table
-      v-model="selectedRequests"
-      :headers="headers"
-      :items="travelAuthorizationPreApprovalsWithRestrictedSelectability"
-      :items-per-page="5"
-      class="elevation-1"
-      @item-selected="applySameDeptSelection"
-      @toggle-select-all="applyAllSameDeptSelection"
-    >
-      <template #item.name="{ item }">
-        <template v-if="item.profiles.length === 0"> Unspecified </template>
-        <template v-else-if="item.profiles.length === 1">
-          {{ item.profiles[0].profileName.replace(".", " ") }}
-        </template>
-        <v-tooltip
-          v-else
-          top
-          color="primary"
-        >
-          <template #activator="{ on }">
-            <div v-on="on">
-              <span>
-                {{ item.profiles[0].profileName.replace(".", " ") }}
-              </span>
-              <span>, ... </span>
-            </div>
-          </template>
-          <span
-            ><div
-              v-for="(profile, index) in item.profiles"
-              :key="index"
-            >
-              {{ profile.profileName.replace(".", " ") }}
-            </div></span
+  <v-data-table
+    v-model="selectedRequests"
+    :headers="headers"
+    :items="travelAuthorizationPreApprovalsWithRestrictedSelectability"
+    :items-per-page="5"
+    :loading="isLoading"
+    :server-items-length="totalCount"
+    @item-selected="applySameDeptSelection"
+    @toggle-select-all="applyAllSameDeptSelection"
+  >
+    <template #top>
+      <v-row>
+        <v-col class="d-flex flex-column flex-md-row align-center">
+          <!-- TODO: make all of these buttons full width on small screens -->
+          <v-spacer />
+          <SubmitTravel
+            :disabled="selectedRequests.length == 0"
+            :travel-requests="travelAuthorizationPreApprovals"
+            :selected-requests="selectedRequests"
+            :submission-id="0"
+            button-name="Submit Selected Travel"
+            @updateTable="refresh"
+          />
+          <PrintReport
+            :disabled="selectedRequests.length == 0"
+            :travel-requests="selectedRequests"
+            button-name="Print Report"
+          />
+          <v-btn
+            :disabled="selectedRequests.length == 0"
+            class="mr-5 my-7"
+            color="primary"
+            @click="exportToExcel"
           >
-        </v-tooltip>
+            Export To Excel
+          </v-btn>
+          <new-travel-request
+            type="Add New"
+            @updateTable="refresh"
+          />
+        </v-col>
+      </v-row>
+    </template>
+    <template #item.name="{ item }">
+      <template v-if="item.profiles.length === 0"> Unspecified </template>
+      <template v-else-if="item.profiles.length === 1">
+        {{ item.profiles[0].profileName.replace(".", " ") }}
       </template>
-
-      <template #item.travelDate="{ item }">
-        <div v-if="item.isOpenForAnyDate">
-          {{ item.month }}
-        </div>
-        <div v-else>
-          <div>
-            <!-- eslint-disable-next-line vue/no-parsing-error -->
-            {{ item.startDate | beautifyDate }}
-            to
+      <v-tooltip
+        v-else
+        top
+        color="primary"
+      >
+        <template #activator="{ on }">
+          <div v-on="on">
+            <span>
+              {{ item.profiles[0].profileName.replace(".", " ") }}
+            </span>
+            <span>, ... </span>
           </div>
-          <div>
-            <!-- eslint-disable-next-line vue/no-parsing-error -->
-            {{ item.endDate | beautifyDate }}
-          </div>
-        </div>
-      </template>
+        </template>
+        <span
+          ><div
+            v-for="(profile, index) in item.profiles"
+            :key="index"
+          >
+            {{ profile.profileName.replace(".", " ") }}
+          </div></span
+        >
+      </v-tooltip>
+    </template>
 
-      <template #item.edit="{ item }">
-        <NewTravelRequest
-          :type="
-            item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT || isNil(item.status)
-              ? 'Edit'
-              : 'View'
-          "
-          :travel-request="item"
-          @updateTable="refresh"
-        />
-      </template>
-    </v-data-table>
-  </div>
+    <template #item.travelDate="{ item }">
+      <div v-if="item.isOpenForAnyDate">
+        {{ item.month }}
+      </div>
+      <div v-else>
+        <div>
+          {{ formatDate(item.startDate) }}
+          to
+        </div>
+        <div>
+          {{ formatDate(item.endDate) }}
+        </div>
+      </div>
+    </template>
+
+    <template #item.actions="{ item }">
+      <NewTravelRequest
+        :type="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT ? 'Edit' : 'View'"
+        :travel-request="item"
+        @updateTable="refresh"
+      />
+    </template>
+  </v-data-table>
 </template>
 
 <script setup>
 import { computed, nextTick, ref } from "vue"
 import { ExportToCsv } from "export-to-csv"
-import { isNil } from "lodash"
 import { DateTime } from "luxon"
+
+import { formatDate } from "@/utils/formatters"
 
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
@@ -115,55 +114,48 @@ const headers = ref([
   {
     text: "Name",
     value: "name",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Department",
     value: "department",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Branch",
     value: "branch",
-    class: "blue-grey lighten-4",
   },
   {
-    text: "TravelDate",
+    text: "Travel Date",
     value: "travelDate",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Location",
     value: "location",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Purpose Type",
     value: "purpose",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Reason",
     value: "reason",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Status",
     value: "status",
-    class: "blue-grey lighten-4",
   },
   {
-    text: "",
-    value: "edit",
-    class: "blue-grey lighten-4",
-    cellClass: "px-0 mx-0",
+    text: "Actions",
+    value: "actions",
     sortable: false,
-    width: "1rem",
   },
 ])
 
-const { travelAuthorizationPreApprovals, refresh: refreshPreApprovals } =
-  useTravelAuthorizationPreApprovals()
+const {
+  travelAuthorizationPreApprovals,
+  isLoading,
+  totalCount,
+  refresh: refreshPreApprovals,
+} = useTravelAuthorizationPreApprovals()
 
 const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() => {
   return travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
