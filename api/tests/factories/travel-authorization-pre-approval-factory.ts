@@ -2,7 +2,6 @@ import { Factory } from "fishery"
 import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { TravelAuthorizationPreApproval } from "@/models"
-import { Statuses } from "@/models/travel-authorization-pre-approval"
 
 export const travelAuthorizationPreApprovalFactory = Factory.define<TravelAuthorizationPreApproval>(
   ({ onCreate }) => {
@@ -39,7 +38,7 @@ export const travelAuthorizationPreApprovalFactory = Factory.define<TravelAuthor
       isOpenForAnyTraveler: faker.datatype.boolean(),
       numberTravelers: faker.number.int({ min: 1, max: 5 }),
       travelerNotes: faker.lorem.sentence(),
-      status: faker.helpers.enumValue(Statuses),
+      status: faker.helpers.enumValue(TravelAuthorizationPreApproval.Statuses),
     })
   }
 )
