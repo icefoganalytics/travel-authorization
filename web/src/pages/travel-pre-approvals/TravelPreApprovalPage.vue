@@ -3,11 +3,23 @@
     v-if="isNil(travelAuthorizationPreApproval)"
     type="card"
   />
-  <v-card v-else>
-    <v-card-title>
-      <h2>Travel Pre-Approval</h2>
-    </v-card-title>
-    <v-divider />
+  <HeaderActionsCard
+    v-else
+    title="Travel Pre-Approval"
+    header-tag="h2"
+    header-class="mb-0"
+  >
+    <template #header-actions>
+      <v-btn
+        class="my-0"
+        color="error"
+        variant="outlined"
+        :loading="isDeleting"
+        @click="deleteDialog = true"
+      >
+        Delete
+      </v-btn>
+    </template>
     <v-card-text>
       <v-row class="mt-5">
         <v-col cols="3">
@@ -203,25 +215,16 @@
 
     <v-card-actions>
       <v-btn
-        color="grey darken-5"
-        @click="addNewTravelDialog = false"
+        color="warning"
+        :to="{
+          name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
+        }"
       >
-        Close
+        Return
       </v-btn>
-      <v-btn
-        class="ml-5"
-        color="red darken-5"
-        :loading="isDeletion"
-        @click="deleteDialog = true"
-      >
-        Delete
-      </v-btn>
-      <v-btn
-        class="ml-auto"
-        color="primary"
-      >
-        Edit
-      </v-btn>
+      <v-spacer />
+      <!-- TODO: implement edit page -->
+      <v-btn color="primary"> Edit </v-btn>
     </v-card-actions>
 
     <v-dialog
@@ -256,7 +259,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-card>
+  </HeaderActionsCard>
 </template>
 
 <script setup>
@@ -269,6 +272,7 @@ import http from "@/api/http-client"
 import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pre-approval"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalId: {
@@ -305,7 +309,7 @@ const headers = ref([
   },
 ])
 
-const isDeletion = ref(false)
+const isDeleting = ref(false)
 const loadingData = ref(false)
 const deleteDialog = ref(false)
 
@@ -339,13 +343,13 @@ async function downloadPdf() {
 
 async function deleteTravelRequest() {
   deleteDialog.value = false
-  isDeletion.value = true
+  isDeleting.value = true
   try {
     await http.delete(`${PREAPPROVED_URL}/${props.travelAuthorizationPreApprovalId}`)
   } catch (error) {
     console.error(`Failed to delete travel request: ${error}`)
   } finally {
-    isDeletion.value = false
+    isDeleting.value = false
   }
 }
 </script>
