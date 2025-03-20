@@ -18,7 +18,7 @@ import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization
 // I would expect these status to make more sense on the TravelAuthorizationPreApprovalSubmission.
 // Or mabye the status would be something like "avaialable" and "used_up" based on the
 // pre-approval profile usage.
-export enum Statuses {
+export enum TravelAuthorizationPreApprovalStatuses {
   DRAFT = "draft",
   SUBMITTED = "submitted",
   APPROVED = "approved",
@@ -29,7 +29,7 @@ export class TravelAuthorizationPreApproval extends Model<
   InferAttributes<TravelAuthorizationPreApproval>,
   InferCreationAttributes<TravelAuthorizationPreApproval>
 > {
-  static readonly Statuses = Statuses
+  static readonly Statuses = TravelAuthorizationPreApprovalStatuses
 
   declare id: CreationOptional<number>
   declare estimatedCost: number
@@ -141,8 +141,8 @@ TravelAuthorizationPreApproval.init(
       allowNull: true,
       validate: {
         isIn: {
-          args: [Object.values(Statuses)],
-          msg: `Status must be one of: ${Object.values(Statuses).join(", ")}`,
+          args: [Object.values(TravelAuthorizationPreApprovalStatuses)],
+          msg: `Status must be one of: ${Object.values(TravelAuthorizationPreApprovalStatuses).join(", ")}`,
         },
       },
     },

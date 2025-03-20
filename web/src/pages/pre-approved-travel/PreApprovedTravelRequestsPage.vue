@@ -90,7 +90,11 @@
 
       <template #item.edit="{ item }">
         <NewTravelRequest
-          :type="item.status === STATUSES.DRAFT || isNil(item.status) ? 'Edit' : 'View'"
+          :type="
+            item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT || isNil(item.status)
+              ? 'Edit'
+              : 'View'
+          "
           :travel-request="item"
           @updateTable="updateTable"
         />
@@ -105,7 +109,7 @@ import { ExportToCsv } from "export-to-csv"
 import { isNil } from "lodash"
 import { DateTime } from "luxon"
 
-import { STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 import useCurrentUser from "@/use/use-current-user"
 
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"

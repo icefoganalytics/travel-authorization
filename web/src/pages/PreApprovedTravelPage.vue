@@ -37,7 +37,7 @@ import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 
 import travelAuthorizationPreApprovalsApi, {
-  STATUSES,
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
 } from "@/api/travel-authorization-pre-approvals-api"
 import useSnack from "@/use/use-snack"
 
@@ -79,7 +79,8 @@ async function getPreapprovedTravel() {
     travelAuthorizationPreApprovals.value = travelAuthorizationPreApprovals.map((preApproval) => ({
       ...preApproval,
       isSelectable:
-        preApproval.status !== STATUSES.APPROVED && preApproval.status !== STATUSES.DECLINED,
+        preApproval.status !== TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED &&
+        preApproval.status !== TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED,
     }))
   } catch (error) {
     console.error(error)

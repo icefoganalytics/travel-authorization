@@ -429,7 +429,7 @@ import Vue from "vue"
 
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
-import { STATUSES as PRE_APPROVED_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 import { STATUSES as SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 import useCurrentUser from "@/use/use-current-user"
 
@@ -673,7 +673,6 @@ export default {
     },
 
     initForm() {
-
       const userDept = this.$store.state.auth.department
       this.lockDepartment = !this.isAdmin || this.type != "Add New"
 
@@ -709,14 +708,15 @@ export default {
 
       this.loadingData = false
       this.showApproval = false
-      this.approved = this.travelRequest?.status === PRE_APPROVED_STATUSES.APPROVED
+      this.approved =
+        this.travelRequest?.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
       this.approvedBy = ""
       this.approvalDate = ""
 
       if (
         this.travelRequest?.submissionId &&
-        (this.travelRequest.status === PRE_APPROVED_STATUSES.APPROVED ||
-          this.travelRequest.status === PRE_APPROVED_STATUSES.DECLINED)
+        (this.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED ||
+          this.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED)
       )
         this.initSubmission(this.travelRequest.submissionId)
     },
