@@ -99,8 +99,8 @@
   </div>
 </template>
 
-<script>
-import Vue, { ref } from "vue"
+<script setup>
+import { computed, nextTick, ref } from "vue"
 import { ExportToCsv } from "export-to-csv"
 import { isNil } from "lodash"
 import { DateTime } from "luxon"
@@ -112,161 +112,148 @@ import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequ
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
 
-export default {
-  name: "PreapprovedRequests",
-  components: {
-    NewTravelRequest,
-    PrintReport,
-    SubmitTravel,
+const props = defineProps({
+  travelRequests: {
+    type: Array,
+    default: () => [],
   },
-  props: {
-    travelRequests: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  setup() {
-    const { isAdmin } = useCurrentUser()
+})
 
-    return {
-      headers: ref([
-        {
-          text: "Name",
-          value: "name",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Department",
-          value: "department",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Branch",
-          value: "branch",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "TravelDate",
-          value: "travelDate",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Location",
-          value: "location",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Purpose Type",
-          value: "purpose",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Reason",
-          value: "reason",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Status",
-          value: "status",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "",
-          value: "edit",
-          class: "blue-grey lighten-4",
-          cellClass: "px-0 mx-0",
-          sortable: false,
-          width: "1rem",
-        },
-      ]),
-      admin: isAdmin,
-      selectedRequests: ref([]),
-      firstSelectionDept: ref(""),
+const emit = defineEmits(["updateTable"])
+
+const { isAdmin: admin } = useCurrentUser()
+
+const headers = ref([
+  {
+    text: "Name",
+    value: "name",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "Department",
+    value: "department",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "Branch",
+    value: "branch",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "TravelDate",
+    value: "travelDate",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "Location",
+    value: "location",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "Purpose Type",
+    value: "purpose",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "Reason",
+    value: "reason",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "Status",
+    value: "status",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "",
+    value: "edit",
+    class: "blue-grey lighten-4",
+    cellClass: "px-0 mx-0",
+    sortable: false,
+    width: "1rem",
+  },
+])
+
+const selectedRequests = ref([])
+const firstSelectionDept = ref("")
+
+const grayedOutTravelRequests = computed(() => {
+  const travelRequestsCopy = JSON.parse(JSON.stringify(props.travelRequests))
+  if (firstSelectionDept.value)
+    travelRequestsCopy.forEach((req) => {
+      req.isSelectable = req.isSelectable ? req.department == firstSelectionDept.value : false
+    })
+  return travelRequestsCopy
+})
+
+function updateTable() {
+  emit("updateTable")
+}
+
+async function applySameDeptSelection(selection) {
+  await nextTick(() => {
+    if (selectedRequests.value.length == 1) {
+      firstSelectionDept.value = selectedRequests.value[0].department
+    } else if (selectedRequests.value.length == 0) {
+      firstSelectionDept.value = ""
     }
-  },
-  computed: {
-    STATUSES() {
-      return STATUSES
-    },
-    grayedOutTravelRequests() {
-      const travelRequests = JSON.parse(JSON.stringify(this.travelRequests))
-      if (this.firstSelectionDept)
-        travelRequests.forEach((req) => {
-          req.isSelectable = req.isSelectable ? req.department == this.firstSelectionDept : false
-        })
-      return travelRequests
-    },
-  },
-  methods: {
-    isNil,
-    updateTable() {
-      this.$emit("updateTable")
-    },
-    applySameDeptSelection(selection) {
-      Vue.nextTick(() => {
-        if (this.selectedRequests.length == 1) {
-          this.firstSelectionDept = this.selectedRequests[0].department
-        } else if (this.selectedRequests.length == 0) {
-          this.firstSelectionDept = ""
-        }
 
-        if (selection.value == true && selection.item.department != this.firstSelectionDept) {
-          this.selectedRequests = this.selectedRequests.filter((req) => req.id != selection.item.id)
-        }
-      })
-    },
-    applyAllSameDeptSelection(selection) {
-      console.log(selection)
-      Vue.nextTick(() => {
-        if (selection.value == true && this.firstSelectionDept) {
-          this.selectedRequests = this.selectedRequests.filter(
-            (req) => req.department == this.firstSelectionDept
-          )
-        } else {
-          this.selectedRequests = []
-          this.firstSelectionDept = ""
-        }
-      })
-    },
-    exportToExcel() {
-      // The object keys must match the headers option.
-      // In future versions of the library, the headers can be customized independently.
-      const csvInfo = this.selectedRequests.map((req) => {
-        return {
-          Name: req.profiles?.map((profile) => profile.profileName.replace(".", " "))?.join(", "),
-          Department: req.department,
-          Branch: req.branch ? req.branch : "",
-          "Travel Date": req.isOpenForAnyDate ? req.month : req.startDate + " " + req.endDate,
-          Location: req.location,
-          Purpose: req.purpose ? req.purpose : "",
-          "Estimated Cost": req.estimatedCost,
-          Reason: req.reason ? req.reason : "",
-          Status: req.status ? req.status : "",
-          Notes: req.travelerNotes ? req.travelerNotes : "",
-        }
-      })
-      const currentDate = DateTime.now().toFormat("yyyy-MM-dd")
-      const options = {
-        filename: `Travel Requests, Pre-Approved, ${currentDate}`,
-        decimalSeparator: "locale",
-        showLabels: true,
-        headers: [
-          "Name",
-          "Department",
-          "Branch",
-          "Travel Date",
-          "Location",
-          "Purpose",
-          "Estimated Cost",
-          "Reason",
-          "Status",
-          "Notes",
-        ],
-      }
-      const csvExporter = new ExportToCsv(options)
-      csvExporter.generateCsv(csvInfo)
-    },
-  },
+    if (selection.value == true && selection.item.department != firstSelectionDept.value) {
+      selectedRequests.value = selectedRequests.value.filter((req) => req.id != selection.item.id)
+    }
+  })
+}
+
+async function applyAllSameDeptSelection(selection) {
+  await nextTick(() => {
+    if (selection.value == true && firstSelectionDept.value) {
+      selectedRequests.value = selectedRequests.value.filter(
+        (req) => req.department == firstSelectionDept.value
+      )
+    } else {
+      selectedRequests.value = []
+      firstSelectionDept.value = ""
+    }
+  })
+}
+
+function exportToExcel() {
+  // The object keys must match the headers option.
+  // In future versions of the library, the headers can be customized independently.
+  const csvInfo = selectedRequests.value.map((req) => {
+    return {
+      Name: req.profiles?.map((profile) => profile.profileName.replace(".", " "))?.join(", "),
+      Department: req.department,
+      Branch: req.branch ? req.branch : "",
+      "Travel Date": req.isOpenForAnyDate ? req.month : req.startDate + " " + req.endDate,
+      Location: req.location,
+      Purpose: req.purpose ? req.purpose : "",
+      "Estimated Cost": req.estimatedCost,
+      Reason: req.reason ? req.reason : "",
+      Status: req.status ? req.status : "",
+      Notes: req.travelerNotes ? req.travelerNotes : "",
+    }
+  })
+  const currentDate = DateTime.now().toFormat("yyyy-MM-dd")
+  const options = {
+    filename: `Travel Requests, Pre-Approved, ${currentDate}`,
+    decimalSeparator: "locale",
+    showLabels: true,
+    headers: [
+      "Name",
+      "Department",
+      "Branch",
+      "Travel Date",
+      "Location",
+      "Purpose",
+      "Estimated Cost",
+      "Reason",
+      "Status",
+      "Notes",
+    ],
+  }
+  const csvExporter = new ExportToCsv(options)
+  csvExporter.generateCsv(csvInfo)
 }
 </script>
 
