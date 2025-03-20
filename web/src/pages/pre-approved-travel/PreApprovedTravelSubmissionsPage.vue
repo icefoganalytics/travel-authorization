@@ -18,7 +18,7 @@
         <v-row>
           <div style="width: 4.5rem">
             <SubmitTravel
-              v-if="item.status === STATUSES.DRAFT && admin"
+              v-if="item.status === STATUSES.DRAFT"
               :submission-id="item.preTSubID"
               :edit-button="true"
               button-name="Edit"
@@ -29,7 +29,7 @@
           </div>
           <div style="width: 6.75rem">
             <ApproveTravel
-              v-if="item.status === STATUSES.SUBMITTED && admin"
+              v-if="item.status === STATUSES.SUBMITTED"
               :travel-requests="item.preApprovals"
               :submission-id="item.preTSubID"
               @updateTable="updateTable"
@@ -37,7 +37,6 @@
           </div>
           <div style="width: 5.75rem">
             <PrintReport
-              v-if="admin"
               :id="item.preTSubID"
               :travel-requests="item.preApprovals"
               :button-inside-table="true"
@@ -52,7 +51,6 @@
 
 <script setup>
 import { STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
-import useCurrentUser from "@/use/use-current-user"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
@@ -67,8 +65,6 @@ defineProps({
 })
 
 const emit = defineEmits(["updateTable"])
-
-const { isAdmin: admin } = useCurrentUser
 
 const headers = [
   {

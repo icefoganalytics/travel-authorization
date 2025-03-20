@@ -2,7 +2,6 @@
   <div class="mx-10 mb-5">
     <v-row class="my-0 mx-0">
       <SubmitTravel
-        v-if="admin"
         :disabled="selectedRequests.length == 0"
         :travel-requests="travelAuthorizationPreApprovals"
         :selected-requests="selectedRequests"
@@ -12,13 +11,11 @@
         @updateTable="updateTable"
       />
       <PrintReport
-        v-if="admin"
         :disabled="selectedRequests.length == 0"
         :travel-requests="selectedRequests"
         button-name="Print Report"
       />
       <v-btn
-        v-if="admin"
         :disabled="selectedRequests.length == 0"
         class="mr-5 my-7"
         color="primary"
@@ -28,7 +25,6 @@
       </v-btn>
       <new-travel-request
         type="Add New"
-        :class="admin ? '' : 'ml-auto'"
         @updateTable="updateTable"
       />
     </v-row>
@@ -38,7 +34,6 @@
       :items="travelAuthorizationPreApprovalsWithRestrictedSelectability"
       :items-per-page="5"
       class="elevation-1"
-      :show-select="admin"
       @item-selected="applySameDeptSelection"
       @toggle-select-all="applyAllSameDeptSelection"
     >
@@ -110,7 +105,6 @@ import { isNil } from "lodash"
 import { DateTime } from "luxon"
 
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-import useCurrentUser from "@/use/use-current-user"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
@@ -118,8 +112,6 @@ import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
 
 const emit = defineEmits(["updateTable"])
-
-const { isAdmin: admin } = useCurrentUser()
 
 const headers = ref([
   {

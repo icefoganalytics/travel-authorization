@@ -25,6 +25,7 @@
       </v-list-item>
 
       <v-list-item
+        v-if="isAdmin"
         :to="{
           name: 'PreApprovedTravelPage',
         }"
@@ -104,6 +105,7 @@ export default {
 import { computed } from "vue"
 
 import { ENVIRONMENT } from "@/config"
+import useCurrentUser from "@/use/use-current-user"
 
 defineProps({
   showDrawer: {
@@ -113,6 +115,8 @@ defineProps({
 })
 
 const emit = defineEmits(["update"])
+
+const { isAdmin } = useCurrentUser()
 
 const isInDevelopmentOrUserAcceptanceTesting = computed(() => {
   return (
