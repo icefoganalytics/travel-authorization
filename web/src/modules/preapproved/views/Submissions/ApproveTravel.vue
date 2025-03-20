@@ -183,7 +183,7 @@
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-import { STATUSES as SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
 export default {
   name: "ApproveTravel",
@@ -320,7 +320,7 @@ export default {
 
         this.savingData = true
         const data = {
-          status: SUBMISSION_STATUSES.FINISHED,
+          status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED,
           approvalDate: this.approvalDate,
           approvedBy: this.approvedBy,
           preApprovals: this.approvalRequests.map((req) => {

@@ -18,7 +18,7 @@
         <v-row>
           <div style="width: 4.5rem">
             <SubmitTravel
-              v-if="item.status === STATUSES.DRAFT"
+              v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT"
               :submission-id="item.preTSubID"
               :edit-button="true"
               button-name="Edit"
@@ -29,7 +29,7 @@
           </div>
           <div style="width: 6.75rem">
             <ApproveTravel
-              v-if="item.status === STATUSES.SUBMITTED"
+              v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED"
               :travel-requests="item.preApprovals"
               :submission-id="item.preTSubID"
               @updateTable="updateTable"
@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"

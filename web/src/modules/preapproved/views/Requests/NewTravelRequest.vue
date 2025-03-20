@@ -430,7 +430,7 @@ import Vue from "vue"
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-import { STATUSES as SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 import useCurrentUser from "@/use/use-current-user"
 
 export default {
@@ -752,7 +752,8 @@ export default {
       return http
         .get(`${PREAPPROVED_URL}/submissions/${id}`)
         .then((res) => {
-          this.showApproval = res.data.status === SUBMISSION_STATUSES.FINISHED
+          this.showApproval =
+            res.data.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED
           this.approvedBy = res.data.approvedBy
           this.approvalDate = res.data.approvalDate
         })
