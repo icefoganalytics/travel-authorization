@@ -108,9 +108,9 @@ import { DateTime } from "luxon"
 import { STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 import useCurrentUser from "@/use/use-current-user"
 
-import NewTravelRequest from "./NewTravelRequest.vue"
-import PrintReport from "../Common/PrintReport.vue"
-import SubmitTravel from "../Common/SubmitTravel.vue"
+import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
+import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
+import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
 
 export default {
   name: "PreapprovedRequests",

@@ -55,9 +55,9 @@ import Vue from "vue"
 
 import { STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
-import PrintReport from "../Common/PrintReport.vue"
-import SubmitTravel from "../Common/SubmitTravel.vue"
-import ApproveTravel from "./ApproveTravel.vue"
+import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
+import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
+import ApproveTravel from "@/modules/preapproved/views/Submissions/ApproveTravel.vue"
 
 export default {
   name: "Submissions",

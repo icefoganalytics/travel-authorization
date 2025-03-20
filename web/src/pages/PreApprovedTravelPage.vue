@@ -4,33 +4,28 @@
       <h2>Pre-Approved Travel</h2>
     </v-card-title>
     <v-card-text>
-      <v-tabs
-        v-model="tabs"
-        active-class="primary--text teal lighten-5"
-      >
-        <v-tab>Requests</v-tab>
-        <v-tab>Submissions</v-tab>
+      <v-tabs active-class="primary--text teal lighten-5">
+        <v-tab
+          :to="{
+            name: 'pre-approved-travel/PreApprovedTravelRequestsPage',
+          }"
+        >
+          Requests
+        </v-tab>
+        <v-tab
+          :to="{
+            name: 'pre-approved-travel/PreApprovedTravelSubmissionsPage',
+          }"
+        >
+          Submissions
+        </v-tab>
       </v-tabs>
 
-      <v-tabs-items v-model="tabs">
-        <v-tab-item>
-          <v-card flat>
-            <PreapprovedRequests
-              :travel-requests="travelAuthorizationPreApprovals"
-              @updateTable="updatePreapprovedTravel"
-            />
-          </v-card>
-        </v-tab-item>
-        <v-tab-item>
-          <v-card flat>
-            <Submissions
-              :travel-submissions="travelAuthorizationPreApprovalSubmissions"
-              :travel-requests="travelAuthorizationPreApprovals"
-              @updateTable="updatePreapprovedTravel"
-            />
-          </v-card>
-        </v-tab-item>
-      </v-tabs-items>
+      <router-view
+        :travel-requests="travelAuthorizationPreApprovals"
+        :travel-submissions="travelAuthorizationPreApprovalSubmissions"
+        @updateTable="updatePreapprovedTravel"
+      />
     </v-card-text>
   </v-card>
 </template>
@@ -45,11 +40,6 @@ import travelAuthorizationPreApprovalsApi, {
   STATUSES,
 } from "@/api/travel-authorization-pre-approvals-api"
 import useSnack from "@/use/use-snack"
-
-import PreapprovedRequests from "@/modules/preapproved/views/Requests/PreapprovedRequests.vue"
-import Submissions from "@/modules/preapproved/views/Submissions/Submissions.vue"
-
-const tabs = ref(null)
 
 const travelAuthorizationPreApprovals = ref([])
 const travelAuthorizationPreApprovalSubmissions = ref([])

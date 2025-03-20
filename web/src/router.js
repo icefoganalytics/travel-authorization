@@ -59,10 +59,25 @@ const routes = [
           },
           {
             path: "pre-approved-travel",
-            name: "PreApprovedTravelPage",
             component: () => import("@/pages/PreApprovedTravelPage.vue"),
             children: [
-              // TODO: add tabs as children
+              {
+                path: "",
+                name: "PreApprovedTravelPage",
+                redirect: "requests",
+              },
+              {
+                path: "requests",
+                name: "pre-approved-travel/PreApprovedTravelRequestsPage",
+                component: () =>
+                  import("@/pages/pre-approved-travel/PreApprovedTravelRequestsPage.vue"),
+              },
+              {
+                path: "submissions",
+                name: "pre-approved-travel/PreApprovedTravelSubmissionsPage",
+                component: () =>
+                  import("@/pages/pre-approved-travel/PreApprovedTravelSubmissionsPage.vue"),
+              },
             ],
           },
           {
