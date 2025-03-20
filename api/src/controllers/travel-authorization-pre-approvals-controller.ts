@@ -147,7 +147,10 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
 
   private async loadTravelAuthorizationPreApproval() {
     return await TravelAuthorizationPreApproval.findByPk(
-      this.params.travelAuthorizationPreApprovalId
+      this.params.travelAuthorizationPreApprovalId,
+      {
+        include: ["submission"],
+      }
     )
   }
 

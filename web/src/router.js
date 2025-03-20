@@ -80,6 +80,12 @@ const routes = [
             ],
           },
           {
+            path: "travel-pre-approvals/:travelAuthorizationPreApprovalId",
+            name: "travel-pre-approvals/TravelPreApprovalPage",
+            component: () => import("@/pages/travel-pre-approvals/TravelPreApprovalPage.vue"),
+            props: true,
+          },
+          {
             name: "TravelDeskPage",
             path: "travel-desk",
             component: () => import("@/pages/TravelDeskPage.vue"),

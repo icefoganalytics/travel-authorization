@@ -3,6 +3,8 @@ import http from "@/api/http-client"
 /** @typedef {import('@/api/base-api.js').Policy} Policy */
 /** @typedef {import("@/api/base-api").ModelOrder} ModelOrder */
 
+/** @typedef {import('@/api/travel-authorization-pre-approval-submissions-api.js').TravelAuthorizationPreApprovalSubmission} TravelAuthorizationPreApprovalSubmission */
+
 /** Keep in sync with api/src/models/travel-authorization-pre-approval.ts */
 export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES = Object.freeze({
   DRAFT: "draft",
@@ -34,6 +36,12 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES = Object.freeze({
  *   createdAt: string,
  *   updatedAt: string,
  * }} TravelAuthorizationPreApproval
+ */
+
+/**
+ * @typedef {TravelAuthorizationPreApproval & {
+ *   submission: TravelAuthorizationPreApprovalSubmission
+ * }} TravelAuthorizationPreApprovalAsShow
  */
 
 /**
@@ -87,7 +95,7 @@ export const travelAuthorizationPreApprovalsApi = {
   /**
    * @param {number} travelAuthorizationPreApprovalId
    * @returns {Promise<{
-   *   travelAuthorizationPreApproval: TravelAuthorizationPreApproval,
+   *   travelAuthorizationPreApproval: TravelAuthorizationPreApprovalAsShow,
    *   policy: Policy,
    * }>
    */
