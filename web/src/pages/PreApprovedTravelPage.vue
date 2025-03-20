@@ -26,4 +26,15 @@
   </v-card>
 </template>
 
-<script setup></script>
+<script setup>
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+
+useBreadcrumbs([
+  {
+    text: "Pre-Approved Travel",
+    to: {
+      name: "pre-approved-travel/PreApprovedTravelRequestsPage",
+    },
+  },
+])
+</script>
