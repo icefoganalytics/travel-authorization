@@ -52,11 +52,11 @@ export class TravelAuthorizationPreApproval extends Model<
 
   // Assocations
   declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
-  declare submissions?: NonAttribute<TravelAuthorizationPreApprovalSubmission[]>
+  declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
 
   declare static associations: {
     profiles: Association<TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile>
-    submissions: Association<
+    submission: Association<
       TravelAuthorizationPreApproval,
       TravelAuthorizationPreApprovalSubmission
     >
@@ -67,8 +67,8 @@ export class TravelAuthorizationPreApproval extends Model<
       as: "profiles",
       foreignKey: "preApprovalId",
     })
-    this.hasMany(TravelAuthorizationPreApprovalSubmission, {
-      as: "submissions",
+    this.hasOne(TravelAuthorizationPreApprovalSubmission, {
+      as: "submission",
       foreignKey: "preApprovalId",
     })
   }

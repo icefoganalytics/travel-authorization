@@ -149,6 +149,16 @@ TravelAuthorizationPreApprovalSubmission.init(
   },
   {
     sequelize,
+    indexes: [
+      {
+        unique: true,
+        fields: ["pre_approval_id"],
+        name: "travel_authorization_pre_approval_submissions_pre_approval_id_u",
+        where: {
+          deletedAt: null,
+        },
+      },
+    ],
   }
 )
 
