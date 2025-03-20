@@ -9,10 +9,12 @@
     :headers="headers"
     :server-items-length="totalCount"
     :loading="isLoading"
+    show-select
+    :single-select="noRowsAreSelectable"
     v-bind="$attrs"
     v-on="$listeners"
-    @item-selected="applySameDeptSelection"
-    @toggle-select-all="applyAllSameDeptSelection"
+    @item-selected="lockSelectabilityToSameDepartment"
+    @toggle-select-all="selectAllOfSameDepartment"
   >
     <template #top="slotProps">
       <slot
@@ -77,7 +79,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, ref } from "vue"
+import { computed, ref } from "vue"
 
 import { formatDate } from "@/utils/formatters"
 
@@ -175,7 +177,7 @@ const { travelAuthorizationPreApprovals, isLoading, totalCount, refresh } =
   useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
 
 const selectedItems = ref([])
-const firstSelectionDept = ref("")
+const departmentSelectionLimiter = ref("")
 
 const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() => {
   return travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
@@ -184,7 +186,7 @@ const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() =
         TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED &&
       travelAuthorizationPreApproval.status !==
         TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED &&
-      travelAuthorizationPreApproval.department === firstSelectionDept.value
+      travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
 
     return {
       ...travelAuthorizationPreApproval,
@@ -193,29 +195,43 @@ const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() =
   })
 })
 
-async function applySameDeptSelection(selection) {
-  await nextTick()
+const noRowsAreSelectable = computed(
+  () =>
+    !travelAuthorizationPreApprovalsWithRestrictedSelectability.value.some(
+      (travelAuthorizationPreApproval) => travelAuthorizationPreApproval.isSelectable
+    )
+)
 
-  if (selectedItems.value.length == 1) {
-    firstSelectionDept.value = selectedItems.value[0].department
-  } else if (selectedItems.value.length === 0) {
-    firstSelectionDept.value = ""
-  }
-
-  if (selection.value == true && selection.item.department != firstSelectionDept.value) {
-    selectedItems.value = selectedItems.value.filter((req) => req.id != selection.item.id)
+async function lockSelectabilityToSameDepartment({
+  item: travelAuthorizationPreApproval,
+  value: isSelected,
+}) {
+  if (isSelected) {
+    departmentSelectionLimiter.value = travelAuthorizationPreApproval.department
+  } else {
+    departmentSelectionLimiter.value = null
   }
 }
 
-async function applyAllSameDeptSelection(selection) {
-  await nextTick()
-  if (selection.value == true && firstSelectionDept.value) {
-    selectedItems.value = selectedItems.value.filter(
-      (req) => req.department == firstSelectionDept.value
+async function selectAllOfSameDepartment({
+  items: travelAuthorizationPreApprovals,
+  value: isSelected,
+}) {
+  if (isSelected && departmentSelectionLimiter.value) {
+    selectedItems.value = travelAuthorizationPreApprovals.value.filter(
+      (travelAuthorizationPreApproval) =>
+        travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
+    )
+  } else if (isSelected) {
+    const firstTravelAuthorizationPreApproval = travelAuthorizationPreApprovals.value[0]
+    departmentSelectionLimiter.value = firstTravelAuthorizationPreApproval
+    selectedItems.value = travelAuthorizationPreApprovals.value.filter(
+      (travelAuthorizationPreApproval) =>
+        travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
     )
   } else {
     selectedItems.value = []
-    firstSelectionDept.value = ""
+    departmentSelectionLimiter.value = null
   }
 }
 
