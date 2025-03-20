@@ -4,7 +4,7 @@
       <SubmitTravel
         v-if="admin"
         :disabled="selectedRequests.length == 0"
-        :travel-requests="travelRequests"
+        :travel-requests="travelAuthorizationPreApprovals"
         :selected-requests="selectedRequests"
         :submission-id="0"
         button-name="Submit Selected Travel"
@@ -35,7 +35,7 @@
     <v-data-table
       v-model="selectedRequests"
       :headers="headers"
-      :items="grayedOutTravelRequests"
+      :items="travelAuthorizationPreApprovalsWithRestrictedSelectability"
       :items-per-page="5"
       class="elevation-1"
       :show-select="admin"
@@ -111,17 +111,11 @@ import { DateTime } from "luxon"
 
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 import useCurrentUser from "@/use/use-current-user"
+import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
-
-const props = defineProps({
-  travelRequests: {
-    type: Array,
-    default: () => [],
-  },
-})
 
 const emit = defineEmits(["updateTable"])
 
@@ -178,47 +172,56 @@ const headers = ref([
   },
 ])
 
+const { travelAuthorizationPreApprovals, refresh } = useTravelAuthorizationPreApprovals()
+
+const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() => {
+  return travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
+    const isSelectable =
+      travelAuthorizationPreApproval.status !==
+        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED &&
+      travelAuthorizationPreApproval.status !==
+        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED &&
+      travelAuthorizationPreApproval.department === firstSelectionDept.value
+
+    return {
+      ...travelAuthorizationPreApproval,
+      isSelectable,
+    }
+  })
+})
+
 const selectedRequests = ref([])
 const firstSelectionDept = ref("")
 
-const grayedOutTravelRequests = computed(() => {
-  const travelRequestsCopy = JSON.parse(JSON.stringify(props.travelRequests))
-  if (firstSelectionDept.value)
-    travelRequestsCopy.forEach((req) => {
-      req.isSelectable = req.isSelectable ? req.department == firstSelectionDept.value : false
-    })
-  return travelRequestsCopy
-})
-
-function updateTable() {
+async function updateTable() {
+  await refresh()
   emit("updateTable")
 }
 
 async function applySameDeptSelection(selection) {
-  await nextTick(() => {
-    if (selectedRequests.value.length == 1) {
-      firstSelectionDept.value = selectedRequests.value[0].department
-    } else if (selectedRequests.value.length == 0) {
-      firstSelectionDept.value = ""
-    }
+  await nextTick()
 
-    if (selection.value == true && selection.item.department != firstSelectionDept.value) {
-      selectedRequests.value = selectedRequests.value.filter((req) => req.id != selection.item.id)
-    }
-  })
+  if (selectedRequests.value.length == 1) {
+    firstSelectionDept.value = selectedRequests.value[0].department
+  } else if (selectedRequests.value.length === 0) {
+    firstSelectionDept.value = ""
+  }
+
+  if (selection.value == true && selection.item.department != firstSelectionDept.value) {
+    selectedRequests.value = selectedRequests.value.filter((req) => req.id != selection.item.id)
+  }
 }
 
 async function applyAllSameDeptSelection(selection) {
-  await nextTick(() => {
-    if (selection.value == true && firstSelectionDept.value) {
-      selectedRequests.value = selectedRequests.value.filter(
-        (req) => req.department == firstSelectionDept.value
-      )
-    } else {
-      selectedRequests.value = []
-      firstSelectionDept.value = ""
-    }
-  })
+  await nextTick()
+  if (selection.value == true && firstSelectionDept.value) {
+    selectedRequests.value = selectedRequests.value.filter(
+      (req) => req.department == firstSelectionDept.value
+    )
+  } else {
+    selectedRequests.value = []
+    firstSelectionDept.value = ""
+  }
 }
 
 function exportToExcel() {

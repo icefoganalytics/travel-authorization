@@ -22,7 +22,7 @@
               :submission-id="item.preTSubID"
               :edit-button="true"
               button-name="Edit"
-              :travel-requests="travelRequests"
+              :travel-requests="travelAuthorizationPreApprovals"
               :selected-requests="item.preApprovals"
               @updateTable="updateTable"
             />
@@ -53,6 +53,7 @@
 <script setup>
 import { STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 import useCurrentUser from "@/use/use-current-user"
+import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
@@ -60,10 +61,6 @@ import ApproveTravel from "@/modules/preapproved/views/Submissions/ApproveTravel
 
 defineProps({
   travelSubmissions: {
-    type: Array,
-    default: () => [],
-  },
-  travelRequests: {
     type: Array,
     default: () => [],
   },
@@ -108,7 +105,10 @@ const headers = [
   },
 ]
 
-function updateTable() {
+const { travelAuthorizationPreApprovals, refresh } = useTravelAuthorizationPreApprovals()
+
+async function updateTable() {
+  await refresh()
   emit("updateTable")
 }
 </script>

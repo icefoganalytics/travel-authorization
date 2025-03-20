@@ -22,7 +22,6 @@
       </v-tabs>
 
       <router-view
-        :travel-requests="travelAuthorizationPreApprovals"
         :travel-submissions="travelAuthorizationPreApprovalSubmissions"
         @updateTable="updatePreapprovedTravel"
       />
@@ -36,12 +35,8 @@ import { onMounted, ref } from "vue"
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 
-import travelAuthorizationPreApprovalsApi, {
-  TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
-} from "@/api/travel-authorization-pre-approvals-api"
 import useSnack from "@/use/use-snack"
 
-const travelAuthorizationPreApprovals = ref([])
 const travelAuthorizationPreApprovalSubmissions = ref([])
 
 const isLoading = ref(false)
@@ -50,7 +45,6 @@ const snack = useSnack()
 onMounted(async () => {
   isLoading.value = true
   try {
-    await getPreapprovedTravel()
     await getPreapprovedTravelSubmissions()
   } catch (error) {
     console.error(`Failed to load preapproved travel data: ${error}`)
@@ -63,28 +57,12 @@ onMounted(async () => {
 async function updatePreapprovedTravel() {
   isLoading.value = true
   try {
-    await getPreapprovedTravel()
     await getPreapprovedTravelSubmissions()
   } catch (error) {
     console.error(`Failed to load preapproved travel data: ${error}`)
     snack.error(`Failed to load preapproved travel data: ${error}`)
   } finally {
     isLoading.value = false
-  }
-}
-
-async function getPreapprovedTravel() {
-  try {
-    const { travelAuthorizationPreApprovals } = await travelAuthorizationPreApprovalsApi.list()
-    travelAuthorizationPreApprovals.value = travelAuthorizationPreApprovals.map((preApproval) => ({
-      ...preApproval,
-      isSelectable:
-        preApproval.status !== TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED &&
-        preApproval.status !== TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED,
-    }))
-  } catch (error) {
-    console.error(error)
-    throw error
   }
 }
 
