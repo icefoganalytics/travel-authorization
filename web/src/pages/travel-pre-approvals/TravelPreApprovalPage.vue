@@ -71,13 +71,16 @@
           />
         </v-col>
         <v-col cols="1" />
-        <v-col cols="8">
+        <v-col
+          v-if="travelAuthorizationPreApproval.unknownDate"
+          cols="8"
+        >
           <v-row>
             <v-col cols="5">
-              <v-checkbox
+              <DescriptionElement
                 label="Exact Date Unknown"
-                :value="travelAuthorizationPreApproval.unknownDate"
-                readonly
+                :value="travelAuthorizationPreApproval.unknownDate ? 'Yes' : 'No'"
+                vertical
               />
             </v-col>
             <v-col cols="5">
@@ -110,13 +113,13 @@
           </v-col>
         </v-row>
 
-        <v-row>
+        <v-row v-if="travelAuthorizationPreApproval.undefinedTraveller">
           <v-col cols="1" />
           <v-col cols="3">
-            <v-checkbox
+            <DescriptionElement
               label="Exact Traveler Not Known"
-              :value="travelAuthorizationPreApproval.undefinedTraveller"
-              readonly
+              :value="travelAuthorizationPreApproval.undefinedTraveller ? 'Yes' : 'No'"
+              vertical
             />
           </v-col>
           <v-col cols="4">
@@ -213,7 +216,9 @@
       </v-card>
     </v-card-text>
 
-    <v-card-actions>
+    <template #actions>
+      <!-- TODO: implement edit page -->
+      <v-btn color="primary"> Edit </v-btn>
       <v-btn
         color="warning"
         :to="{
@@ -222,11 +227,9 @@
       >
         Return
       </v-btn>
-      <v-spacer />
-      <!-- TODO: implement edit page -->
-      <v-btn color="primary"> Edit </v-btn>
-    </v-card-actions>
+    </template>
 
+    <!-- TODO: move to a component -->
     <v-dialog
       :value="deleteDialog"
       persistent
