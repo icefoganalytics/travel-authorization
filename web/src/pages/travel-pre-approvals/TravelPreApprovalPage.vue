@@ -11,58 +11,51 @@
     <v-card-text>
       <v-row class="mt-5">
         <v-col cols="3">
-          <v-select
+          <DescriptionElement
             label="Purpose"
             :value="travelAuthorizationPreApproval.purpose"
-            :items="purposeList"
-            readonly
-            outlined
+            vertical
           />
         </v-col>
         <v-col cols="1" />
         <v-col cols="8">
-          <v-text-field
+          <DescriptionElement
             label="Location"
             :value="travelAuthorizationPreApproval.location"
-            readonly
-            outlined
+            vertical
           />
         </v-col>
       </v-row>
 
       <v-row class="mt-n5">
         <v-col cols="3">
-          <v-text-field
+          <DescriptionElement
             label="Estimated Cost ($)"
             :value="travelAuthorizationPreApproval.cost"
-            readonly
-            outlined
+            vertical
           />
-          <v-text-field
+          <DescriptionElement
             label="Start Date"
             :value="travelAuthorizationPreApproval.startDate"
-            readonly
-            outlined
+            vertical
           />
         </v-col>
         <v-col cols="1" />
         <v-col cols="8">
-          <v-textarea
+          <DescriptionElement
             label="Reason"
             :value="travelAuthorizationPreApproval.reason"
-            readonly
-            outlined
+            vertical
           />
         </v-col>
       </v-row>
 
       <v-row class="mt-n5">
         <v-col cols="3">
-          <v-text-field
+          <DescriptionElement
             label="End Date"
             :value="travelAuthorizationPreApproval.endDate"
-            readonly
-            outlined
+            vertical
           />
         </v-col>
         <v-col cols="1" />
@@ -76,12 +69,10 @@
               />
             </v-col>
             <v-col cols="5">
-              <v-select
+              <DescriptionElement
                 label="Anticipated Month"
                 :value="travelAuthorizationPreApproval.anticipatedMonth"
-                :items="monthList"
-                readonly
-                outlined
+                vertical
               />
             </v-col>
           </v-row>
@@ -92,24 +83,17 @@
       <v-card outlined>
         <v-row class="mt-5 mx-3">
           <v-col cols="6">
-            <v-select
+            <DescriptionElement
               label="Department"
               :value="travelAuthorizationPreApproval.department"
-              :items="departmentList"
-              item-text="name"
-              readonly
-              outlined
+              vertical
             />
           </v-col>
           <v-col cols="6">
-            <v-select
+            <DescriptionElement
               label="Branch"
               :value="travelAuthorizationPreApproval.branch"
-              :items="branchList"
-              item-text="name"
-              item-value="name"
-              readonly
-              outlined
+              vertical
             />
           </v-col>
         </v-row>
@@ -124,11 +108,10 @@
             />
           </v-col>
           <v-col cols="4">
-            <v-text-field
+            <DescriptionElement
               label="Number of Travellers"
               :value="travelAuthorizationPreApproval.profilesNum"
-              readonly
-              outlined
+              vertical
             />
           </v-col>
         </v-row>
@@ -148,11 +131,10 @@
 
         <v-row class="mx-3">
           <v-col cols="12">
-            <v-textarea
+            <DescriptionElement
               label="Traveller Notes"
               :value="travelAuthorizationPreApproval.travelerNotes"
-              readonly
-              outlined
+              vertical
             />
           </v-col>
         </v-row>
@@ -229,7 +211,7 @@
       <v-btn
         class="ml-5"
         color="red darken-5"
-        :loading="savingData"
+        :loading="isDeletion"
         @click="deleteDialog = true"
       >
         Delete
@@ -278,14 +260,15 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, toRefs } from "vue"
-import { useStore } from "vue2-helpers/vuex"
+import { computed, ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
 
 import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pre-approval"
+
+import DescriptionElement from "@/components/common/DescriptionElement.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalId: {
@@ -322,55 +305,9 @@ const headers = ref([
   },
 ])
 
-const purposeList = ref([])
-const departmentList = ref([])
-const branchList = ref([])
-const monthList = ref([
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-])
-const employeeList = ref([])
-const savingData = ref(false)
+const isDeletion = ref(false)
 const loadingData = ref(false)
 const deleteDialog = ref(false)
-
-onMounted(() => {
-  initEmployeeList()
-  initDepartments()
-})
-
-const store = useStore()
-
-function initEmployeeList() {
-  // TODO: load from back-end
-  employeeList.value = store.state.preapproved.employees.map((item) => {
-    return {
-      fullName: item.fullName,
-      department: item.department,
-    }
-  })
-}
-
-function initDepartments() {
-  // TODO: load from back-end
-  departmentList.value = []
-  const depts = store.state.preapproved.departmentBranch
-  for (const key of Object.keys(depts)) {
-    departmentList.value.push({
-      name: key,
-    })
-  }
-}
 
 async function downloadPdf() {
   loadingData.value = true
@@ -402,13 +339,13 @@ async function downloadPdf() {
 
 async function deleteTravelRequest() {
   deleteDialog.value = false
-  savingData.value = true
+  isDeletion.value = true
   try {
     await http.delete(`${PREAPPROVED_URL}/${props.travelAuthorizationPreApprovalId}`)
   } catch (error) {
     console.error(`Failed to delete travel request: ${error}`)
   } finally {
-    savingData.value = false
+    isDeletion.value = false
   }
 }
 </script>
