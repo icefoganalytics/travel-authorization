@@ -50,91 +50,66 @@
   </div>
 </template>
 
-<script>
-import Vue from "vue"
-
+<script setup>
 import { STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import useCurrentUser from "@/use/use-current-user"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
 import ApproveTravel from "@/modules/preapproved/views/Submissions/ApproveTravel.vue"
 
-export default {
-  name: "Submissions",
-  components: {
-    PrintReport,
-    SubmitTravel,
-    ApproveTravel,
+defineProps({
+  travelSubmissions: {
+    type: Array,
+    default: () => [],
   },
-  props: {
-    travelSubmissions: {
-      type: Array,
-      default: () => [],
-    },
-    travelRequests: {
-      type: Array,
-      default: () => [],
-    },
+  travelRequests: {
+    type: Array,
+    default: () => [],
   },
-  data() {
-    return {
-      headers: [
-        {
-          text: "Submission Date",
-          value: "submissionDate",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Department",
-          value: "department",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Location",
-          value: "location",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Submitter",
-          value: "submitter",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Status",
-          value: "status",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "",
-          sortable: false,
-          value: "edit",
-          class: "blue-grey lighten-4",
-          width: "18rem",
-        },
-      ],
-      admin: false,
-    }
-  },
-  computed: {
-    STATUSES() {
-      return STATUSES
-    },
-  },
-  mounted() {
-    this.admin = Vue.filter("isAdmin")()
+})
 
-    const dialogId = this.$store.state.preapproved.openDialogId
-    const el = document.getElementById(dialogId)
-    if (el) {
-      this.$store.commit("preapproved/SET_OPEN_DIALOG_ID", "")
-      el.click()
-    }
+const emit = defineEmits(["updateTable"])
+
+const { isAdmin: admin } = useCurrentUser
+
+const headers = [
+  {
+    text: "Submission Date",
+    value: "submissionDate",
+    class: "blue-grey lighten-4",
   },
-  methods: {
-    updateTable() {
-      this.$emit("updateTable")
-    },
+  {
+    text: "Department",
+    value: "department",
+    class: "blue-grey lighten-4",
   },
+  {
+    text: "Location",
+    value: "location",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "Submitter",
+    value: "submitter",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "Status",
+    value: "status",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "",
+    sortable: false,
+    value: "edit",
+    class: "blue-grey lighten-4",
+    width: "18rem",
+  },
+]
+
+function updateTable() {
+  emit("updateTable")
 }
 </script>
 
