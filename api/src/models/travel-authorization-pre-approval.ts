@@ -34,21 +34,21 @@ export class TravelAuthorizationPreApproval extends Model<
   declare id: CreationOptional<number>
   declare estimatedCost: number
   declare location: string
-  declare department: CreationOptional<string | null>
-  declare branch: CreationOptional<string | null>
-  declare purpose: CreationOptional<string | null>
-  declare reason: CreationOptional<string | null>
-  declare startDate: CreationOptional<Date | null>
-  declare endDate: CreationOptional<Date | null>
+  declare department: string | null
+  declare branch: string | null
+  declare purpose: string | null
+  declare reason: string | null
+  declare startDate: Date | null
+  declare endDate: Date | null
   declare isOpenForAnyDate: CreationOptional<boolean>
-  declare month: CreationOptional<string | null>
+  declare month: string | null
   declare isOpenForAnyTraveler: CreationOptional<boolean>
-  declare numberTravelers: CreationOptional<number | null>
-  declare travelerNotes: CreationOptional<string | null>
-  declare status: CreationOptional<string | null>
+  declare numberTravelers: number | null
+  declare travelerNotes: string | null
+  declare status: string | null
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date | null>
+  declare deletedAt: Date | null
 
   // Assocations
   declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
@@ -116,7 +116,7 @@ TravelAuthorizationPreApproval.init(
     },
     isOpenForAnyDate: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      allowNull: false,
       defaultValue: false,
     },
     month: {
@@ -125,7 +125,7 @@ TravelAuthorizationPreApproval.init(
     },
     isOpenForAnyTraveler: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      allowNull: false,
       defaultValue: false,
     },
     numberTravelers: {
@@ -138,7 +138,7 @@ TravelAuthorizationPreApproval.init(
     },
     status: {
       type: DataTypes.STRING(255),
-      allowNull: true,
+      allowNull: false,
       validate: {
         isIn: {
           args: [Object.values(TravelAuthorizationPreApprovalStatuses)],
@@ -148,12 +148,12 @@ TravelAuthorizationPreApproval.init(
     },
     createdAt: {
       type: DataTypes.DATE,
-      allowNull: true,
+      allowNull: false,
       defaultValue: DataTypes.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
-      allowNull: true,
+      allowNull: false,
       defaultValue: DataTypes.NOW,
     },
     deletedAt: {
