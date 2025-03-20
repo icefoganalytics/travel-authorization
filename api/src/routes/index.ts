@@ -266,6 +266,12 @@ router
 router
   .route("/api/travel-authorization-pre-approvals")
   .get(TravelAuthorizationPreApprovalsController.index)
+  .post(TravelAuthorizationPreApprovalsController.create)
+router
+  .route("/api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId")
+  .get(TravelAuthorizationPreApprovalsController.show)
+  .patch(TravelAuthorizationPreApprovalsController.update)
+  .delete(TravelAuthorizationPreApprovalsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
 router.route("/api/users/:userId").get(UsersController.show)
