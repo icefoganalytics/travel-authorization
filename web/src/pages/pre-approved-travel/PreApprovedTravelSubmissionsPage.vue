@@ -2,7 +2,7 @@
   <div class="mt-15 mx-10 mb-5">
     <v-data-table
       :headers="headers"
-      :items="travelSubmissions"
+      :items="travelAuthorizationPreApprovalSubmissions"
       :items-per-page="5"
       class="elevation-1"
     >
@@ -24,7 +24,7 @@
               button-name="Edit"
               :travel-requests="travelAuthorizationPreApprovals"
               :selected-requests="item.preApprovals"
-              @updateTable="updateTable"
+              @updateTable="refresh"
             />
           </div>
           <div style="width: 6.75rem">
@@ -32,7 +32,7 @@
               v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED"
               :travel-requests="item.preApprovals"
               :submission-id="item.preTSubID"
-              @updateTable="updateTable"
+              @updateTable="refresh"
             />
           </div>
           <div style="width: 5.75rem">
@@ -52,19 +52,11 @@
 <script setup>
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
+import useTravelAuthorizationPreApprovalSubmissions from "@/use/use-travel-authorization-pre-approval-submissions"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
 import ApproveTravel from "@/modules/preapproved/views/Submissions/ApproveTravel.vue"
-
-defineProps({
-  travelSubmissions: {
-    type: Array,
-    default: () => [],
-  },
-})
-
-const emit = defineEmits(["updateTable"])
 
 const headers = [
   {
@@ -101,11 +93,15 @@ const headers = [
   },
 ]
 
-const { travelAuthorizationPreApprovals, refresh } = useTravelAuthorizationPreApprovals()
+const { travelAuthorizationPreApprovalSubmissions, refresh: refreshPreApprovalSubmissions } =
+  useTravelAuthorizationPreApprovalSubmissions()
 
-async function updateTable() {
-  await refresh()
-  emit("updateTable")
+const { travelAuthorizationPreApprovals, refresh: refreshPreApprovals } =
+  useTravelAuthorizationPreApprovals()
+
+async function refresh() {
+  await refreshPreApprovalSubmissions()
+  await refreshPreApprovals()
 }
 </script>
 

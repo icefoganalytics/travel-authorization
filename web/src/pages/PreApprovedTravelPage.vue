@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card>
     <v-card-title>
       <h2>Pre-Approved Travel</h2>
     </v-card-title>
@@ -21,59 +21,9 @@
         </v-tab>
       </v-tabs>
 
-      <router-view
-        :travel-submissions="travelAuthorizationPreApprovalSubmissions"
-        @updateTable="updatePreapprovedTravel"
-      />
+      <router-view />
     </v-card-text>
   </v-card>
 </template>
 
-<script setup>
-import { onMounted, ref } from "vue"
-
-import http from "@/api/http-client"
-import { PREAPPROVED_URL } from "@/urls"
-
-import useSnack from "@/use/use-snack"
-
-const travelAuthorizationPreApprovalSubmissions = ref([])
-
-const isLoading = ref(false)
-const snack = useSnack()
-
-onMounted(async () => {
-  isLoading.value = true
-  try {
-    await getPreapprovedTravelSubmissions()
-  } catch (error) {
-    console.error(`Failed to load preapproved travel data: ${error}`)
-    snack.error(`Failed to load preapproved travel data: ${error}`)
-  } finally {
-    isLoading.value = false
-  }
-})
-
-async function updatePreapprovedTravel() {
-  isLoading.value = true
-  try {
-    await getPreapprovedTravelSubmissions()
-  } catch (error) {
-    console.error(`Failed to load preapproved travel data: ${error}`)
-    snack.error(`Failed to load preapproved travel data: ${error}`)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-async function getPreapprovedTravelSubmissions() {
-  return http
-    .get(`${PREAPPROVED_URL}/submissions`)
-    .then((resp) => {
-      travelAuthorizationPreApprovalSubmissions.value = resp.data
-    })
-    .catch((e) => {
-      console.log(e)
-    })
-}
-</script>
+<script setup></script>

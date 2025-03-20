@@ -8,7 +8,7 @@
         :submission-id="0"
         button-name="Submit Selected Travel"
         class="ml-auto"
-        @updateTable="updateTable"
+        @updateTable="refresh"
       />
       <PrintReport
         :disabled="selectedRequests.length == 0"
@@ -25,7 +25,7 @@
       </v-btn>
       <new-travel-request
         type="Add New"
-        @updateTable="updateTable"
+        @updateTable="refresh"
       />
     </v-row>
     <v-data-table
@@ -91,7 +91,7 @@
               : 'View'
           "
           :travel-request="item"
-          @updateTable="updateTable"
+          @updateTable="refresh"
         />
       </template>
     </v-data-table>
@@ -110,8 +110,6 @@ import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-p
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
-
-const emit = defineEmits(["updateTable"])
 
 const headers = ref([
   {
@@ -164,7 +162,8 @@ const headers = ref([
   },
 ])
 
-const { travelAuthorizationPreApprovals, refresh } = useTravelAuthorizationPreApprovals()
+const { travelAuthorizationPreApprovals, refresh: refreshPreApprovals } =
+  useTravelAuthorizationPreApprovals()
 
 const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() => {
   return travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
@@ -185,9 +184,8 @@ const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() =
 const selectedRequests = ref([])
 const firstSelectionDept = ref("")
 
-async function updateTable() {
-  await refresh()
-  emit("updateTable")
+async function refresh() {
+  await refreshPreApprovals()
 }
 
 async function applySameDeptSelection(selection) {
