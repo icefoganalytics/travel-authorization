@@ -29,11 +29,6 @@ const routes = [
         path: "",
         children: [
           {
-            name: "ManageTravelRequests",
-            path: "manage-travel-requests",
-            component: () => import("@/pages/ManageTravelRequestsPage.vue"),
-          },
-          {
             path: "profile",
             name: "ProfilePage",
             component: () => import("@/pages/ProfilePage.vue"),
@@ -43,6 +38,24 @@ const routes = [
             name: "users/UserPage",
             component: () => import("@/pages/users/UserPage.vue"),
             props: true,
+          },
+
+          // Start of Main Content Pages
+          {
+            path: "my-travel-requests",
+            name: "my-travel-requests/MyTravelRequestsPage",
+            component: () => import("@/pages/my-travel-requests/MyTravelRequestsPage.vue"),
+          },
+          {
+            path: "my-travel-requests/:travelAuthorizationId/wizard/:stepName",
+            name: "my-travel-requests/MyTravelRequestWizardPage",
+            component: () => import("@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"),
+            props: true,
+          },
+          {
+            name: "ManageTravelRequests",
+            path: "manage-travel-requests",
+            component: () => import("@/pages/ManageTravelRequestsPage.vue"),
           },
           {
             path: "pre-approved-travel",
@@ -101,6 +114,7 @@ const routes = [
               },
             ],
           },
+          // End of Main Content Pages
           // Start of Administration pages
           {
             path: "administration",
@@ -186,30 +200,7 @@ const routes = [
   ...travelDeskRouter,
   ...travelAuthorizationsRouter,
   ...reportsRouter,
-  {
-    path: "",
-    component: () => import("@/layouts/DefaultLayout.vue"),
-    children: [
-      {
-        // TODO: push readcrumbs into higher layout
-        path: "",
-        component: () => import("@/layouts/LayoutWithBreadcrumbs.vue"),
-        children: [
-          {
-            path: "my-travel-requests",
-            name: "my-travel-requests/MyTravelRequestsPage",
-            component: () => import("@/pages/my-travel-requests/MyTravelRequestsPage.vue"),
-          },
-          {
-            path: "my-travel-requests/:travelAuthorizationId/wizard/:stepName",
-            name: "my-travel-requests/MyTravelRequestWizardPage",
-            component: () => import("@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"),
-            props: true,
-          },
-        ],
-      },
-    ],
-  },
+
   {
     name: "SignInPage",
     path: "/sign-in",
