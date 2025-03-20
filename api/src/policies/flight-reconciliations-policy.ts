@@ -2,7 +2,7 @@ import { Attributes, FindOptions } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
 import { User, FlightReconciliation } from "@/models"
-import { allRecordsScope, noRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 
 export class FlightReconciliationsPolicy extends PolicyFactory(FlightReconciliation) {
@@ -40,10 +40,10 @@ export class FlightReconciliationsPolicy extends PolicyFactory(FlightReconciliat
 
   static policyScope(user: User): FindOptions<Attributes<FlightReconciliation>> {
     if (user.isTravelDeskUser || user.isAdmin) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
-    return noRecordsScope
+    return NO_RECORDS_SCOPE
   }
 }
 

@@ -4,18 +4,18 @@ import { isNil } from "lodash"
 import { TravelAuthorizationPreApprovalProfile, User } from "@/models"
 
 import PolicyFactory from "@/policies/policy-factory"
-import { allRecordsScope, noRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
 
 export class TravelAuthorizationPreApprovalProfilesPolicy extends PolicyFactory(
   TravelAuthorizationPreApprovalProfile
 ) {
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorizationPreApprovalProfile>> {
     if (user.roles.includes(User.Roles.ADMIN)) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
     if (isNil(user.department)) {
-      return noRecordsScope
+      return NO_RECORDS_SCOPE
     }
 
     return {

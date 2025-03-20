@@ -2,7 +2,7 @@ import { Attributes, FindOptions } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
 import { TravelAuthorizationPreApproval, User } from "@/models"
-import { allRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 
 export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
@@ -57,7 +57,7 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
 
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorizationPreApproval>> {
     if (user.roles.includes(User.Roles.ADMIN)) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
     return {
