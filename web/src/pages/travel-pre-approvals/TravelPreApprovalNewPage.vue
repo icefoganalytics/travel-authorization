@@ -2,6 +2,7 @@
   <HeaderActionsFormCard
     ref="headerActionsFormCard"
     title="New Travel Pre-Approval"
+    header-tag="h2"
     lazy-validation
     @submit.prevent="createTravelAuthorizationPreApproval"
   >
@@ -38,20 +39,20 @@
       </v-col>
     </v-row>
 
-    <v-row class="mt-n5">
+    <v-row>
       <v-col
         cols="12"
         md="3"
       >
         <v-text-field
-          v-model="cost"
+          v-model="travelAuthorizationPreApprovalAttributes.estimatedCost"
           label="Estimated Cost ($)"
           type="number"
           outlined
           clearable
         />
         <v-text-field
-          v-model="startDate"
+          v-model="travelAuthorizationPreApprovalAttributes.startDate"
           label="Start Date"
           outlined
           type="date"
@@ -67,7 +68,7 @@
         md="8"
       >
         <v-textarea
-          v-model="reason"
+          v-model="travelAuthorizationPreApprovalAttributes.reason"
           label="Reason"
           outlined
           clearable
@@ -75,19 +76,16 @@
       </v-col>
     </v-row>
 
-    <v-row class="mt-n5">
+    <v-row>
       <v-col
         cols="12"
         md="3"
       >
         <v-text-field
-          v-model="endDate"
-          :readonly="readonly"
-          :error="state.endDateErr"
+          v-model="travelAuthorizationPreApprovalAttributes.endDate"
           label="End Date"
           outlined
           type="date"
-          @input="state.unknownDateErr = false"
         />
       </v-col>
       <v-col
@@ -104,9 +102,9 @@
             cols="12"
             md="5"
           >
+            <!-- TODO: add custom validator that checks if startDate and endDate are selected -->
             <v-checkbox
-              v-model="unknownDate"
-              :readonly="readonly"
+              v-model="travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
               label="exact date unknown"
               :error-messages="
                 state.unknownDateErr
@@ -121,207 +119,213 @@
             md="5"
           >
             <v-select
-              v-model="anticipatedMonth"
-              :readonly="readonly"
-              :error="state.anticipatedMonthErr"
-              :disabled="!unknownDate"
+              v-model="travelAuthorizationPreApprovalAttributes.month"
+              :disabled="!travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
               :items="monthList"
               label="Anticipated Month"
               outlined
-              @change="state.anticipatedMonthErr = false"
             />
           </v-col>
         </v-row>
       </v-col>
     </v-row>
 
-    <div>Traveller Details</div>
-    <v-card outlined>
-      <v-row class="mt-5 mx-3">
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-select
-            v-model="department"
-            :readonly="readonly || lockDepartment"
-            :error="state.departmentErr"
-            :items="departmentList"
-            item-text="name"
-            label="Department"
-            outlined
-            @change="departmentChanged"
-          />
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-select
-            v-model="branch"
-            :readonly="readonly"
-            :error="state.branchErr"
-            :items="branchList"
-            item-text="name"
-            item-value="name"
-            label="Branch"
-            outlined
-            @change="state.branchErr = false"
-          />
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col
-          class="d-none d-md-block"
-          cols="12"
-          md="1"
-        />
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-checkbox
-            v-model="undefinedTraveller"
-            :readonly="readonly"
-            :error-messages="
-              state.undefinedTravellerErr
-                ? `Either add Travelers' name below or Select this option`
-                : undefinedTravellerHint
-                  ? undefinedTravellerHint
-                  : ''
-            "
-            label="exact traveler not known"
-            @change="selectUndefinedTraveller"
-          />
-        </v-col>
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-text-field
-            v-model="profilesNum"
-            :readonly="readonly"
-            :error="state.travellerNumErr"
-            :disabled="!undefinedTraveller"
-            label="Number of Travellers"
-            type="number"
-            outlined
-            @input="addUndefinedTraveller"
-          />
-        </v-col>
-      </v-row>
-
-      <v-row class="mt-5 mx-3">
-        <v-col
-          cols="12"
-          md="9"
-        >
-          <v-data-table
-            :headers="headers"
-            :items="profiles"
-            hide-default-footer
-            class="elevation-1"
-          >
-            <template #item.remove="{ item }">
-              <v-btn
-                v-if="!readonly"
-                style="min-width: 0"
-                color="transparent"
-                class="px-1"
-                small
-                @click="removeTraveller(item)"
+    <v-row>
+      <v-col>
+        <v-card>
+          <v-card-title>
+            <h3 class="text-h6 mb-0">Traveller Details</h3>
+          </v-card-title>
+          <v-divider />
+          <v-card-text>
+            <v-row>
+              <v-col
+                cols="12"
+                md="6"
               >
-                <v-icon
-                  class=""
-                  color="red"
-                  >mdi-account-remove</v-icon
-                >
-              </v-btn>
-            </template>
-          </v-data-table>
-        </v-col>
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-btn
-            :disabled="undefinedTraveller || readonly"
-            class="ml-auto mr-5 my-7"
-            color="primary"
-            @click="addTravellerName"
-          >
-            Add Traveller
-          </v-btn>
-
-          <!-- TODO: move to its own component -->
-          <v-dialog
-            v-model="travellerDialog"
-            persistent
-            max-width="400px"
-          >
-            <v-card>
-              <v-card-title
-                class="primary"
-                style="border-bottom: 1px solid black"
+                <v-select
+                  v-model="department"
+                  :readonly="readonly || lockDepartment"
+                  :error="state.departmentErr"
+                  :items="departmentList"
+                  item-text="name"
+                  label="Department"
+                  outlined
+                  @change="departmentChanged"
+                />
+              </v-col>
+              <v-col
+                cols="12"
+                md="6"
               >
-                <div class="text-h5">Traveller</div>
-              </v-card-title>
+                <v-select
+                  v-model="branch"
+                  :readonly="readonly"
+                  :error="state.branchErr"
+                  :items="branchList"
+                  item-text="name"
+                  item-value="name"
+                  label="Branch"
+                  outlined
+                  @change="state.branchErr = false"
+                />
+              </v-col>
+            </v-row>
 
-              <v-card-text>
-                <v-row>
-                  <v-col
-                    cols="12"
-                    md="12"
-                  >
-                    <v-autocomplete
-                      v-model="adName"
-                      :error="adNameErr"
-                      :items="adNameList"
-                      item-text="fullName"
-                      label="Traveller Name"
-                      outlined
-                      @change="adNameErr = false"
-                    />
-                  </v-col>
-                </v-row>
-              </v-card-text>
+            <v-row>
+              <v-col
+                class="d-none d-md-block"
+                cols="12"
+                md="1"
+              />
+              <v-col
+                cols="12"
+                md="3"
+              >
+                <v-checkbox
+                  v-model="undefinedTraveller"
+                  :readonly="readonly"
+                  :error-messages="
+                    state.undefinedTravellerErr
+                      ? `Either add Travelers' name below or Select this option`
+                      : undefinedTravellerHint
+                        ? undefinedTravellerHint
+                        : ''
+                  "
+                  label="exact traveler not known"
+                  @change="selectUndefinedTraveller"
+                />
+              </v-col>
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-text-field
+                  v-model="profilesNum"
+                  :readonly="readonly"
+                  :error="state.travellerNumErr"
+                  :disabled="!undefinedTraveller"
+                  label="Number of Travellers"
+                  type="number"
+                  outlined
+                  @input="addUndefinedTraveller"
+                />
+              </v-col>
+            </v-row>
 
-              <v-card-actions>
-                <v-btn
-                  color="grey darken-5"
-                  @click="travellerDialog = false"
+            <v-row>
+              <v-col
+                cols="12"
+                md="9"
+              >
+                <v-data-table
+                  :headers="headers"
+                  :items="profiles"
+                  hide-default-footer
+                  class="elevation-1"
                 >
-                  Cancel
-                </v-btn>
+                  <template #item.remove="{ item }">
+                    <v-btn
+                      v-if="!readonly"
+                      style="min-width: 0"
+                      color="transparent"
+                      class="px-1"
+                      small
+                      @click="removeTraveller(item)"
+                    >
+                      <v-icon
+                        class=""
+                        color="red"
+                        >mdi-account-remove</v-icon
+                      >
+                    </v-btn>
+                  </template>
+                </v-data-table>
+              </v-col>
+              <v-col
+                cols="12"
+                md="3"
+              >
                 <v-btn
-                  class="ml-auto"
-                  color="green darken-1"
-                  @click="addTraveller"
+                  :disabled="undefinedTraveller || readonly"
+                  class="ml-auto mr-5 my-7"
+                  color="primary"
+                  @click="addTravellerName"
                 >
-                  Add
+                  Add Traveller
                 </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-col>
-      </v-row>
 
-      <v-row class="mx-3">
-        <v-col
-          cols="12"
-          md="12"
-        >
-          <v-textarea
-            v-model="travellerNotes"
-            :readonly="readonly"
-            label="Traveller Notes"
-            outlined
-            :clearable="!readonly"
-          />
-        </v-col>
-      </v-row>
-    </v-card>
+                <!-- TODO: move to its own component -->
+                <v-dialog
+                  v-model="travellerDialog"
+                  persistent
+                  max-width="400px"
+                >
+                  <v-card>
+                    <v-card-title
+                      class="primary"
+                      style="border-bottom: 1px solid black"
+                    >
+                      <div class="text-h5">Traveller</div>
+                    </v-card-title>
+
+                    <v-card-text>
+                      <v-row>
+                        <v-col
+                          cols="12"
+                          md="12"
+                        >
+                          <v-autocomplete
+                            v-model="adName"
+                            :error="adNameErr"
+                            :items="adNameList"
+                            item-text="fullName"
+                            label="Traveller Name"
+                            outlined
+                            @change="adNameErr = false"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-btn
+                        color="grey darken-5"
+                        @click="travellerDialog = false"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        class="ml-auto"
+                        color="green darken-1"
+                        @click="addTraveller"
+                      >
+                        Add
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col
+                cols="12"
+                md="12"
+              >
+                <v-textarea
+                  v-model="travellerNotes"
+                  :readonly="readonly"
+                  label="Traveller Notes"
+                  outlined
+                  :clearable="!readonly"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <template #actions>
       <v-btn
@@ -362,6 +366,8 @@ import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 
+/** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
+
 const props = defineProps({
   type: {
     type: String,
@@ -375,19 +381,21 @@ const props = defineProps({
 
 const { isAdmin } = useCurrentUser()
 
+/** @type {Partial<TravelAuthorizationPreApproval>} */
 const travelAuthorizationPreApprovalAttributes = ref({
-  purpose: null,
-  location: null,
-  cost: null,
-  startDate: null,
-  endDate: null,
-  reason: null,
-  unknownDate: false,
-  anticipatedMonth: null,
-  department: null,
-  branch: null,
-  traveller: null,
-  travellerNotes: null,
+  estimatedCost: undefined,
+  location: undefined,
+  department: undefined,
+  branch: undefined,
+  purpose: undefined,
+  reason: undefined,
+  startDate: undefined,
+  endDate: undefined,
+  isOpenForAnyDate: undefined,
+  month: undefined,
+  isOpenForAnyTraveler: undefined,
+  numberTravelers: undefined,
+  travelerNotes: undefined,
 })
 
 const headers = ref([
