@@ -4,7 +4,10 @@
     type="card"
   />
   <v-card
-    v-else-if="travelAuthorizationPreApprovalSubmission.status === 'approved'"
+    v-else-if="
+      travelAuthorizationPreApprovalSubmission.status ===
+      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.APPROVED
+    "
     class="mt-5 grey lighten-5"
     outlined
   >
@@ -58,7 +61,10 @@
   </v-card>
 
   <v-card
-    v-else
+    v-else-if="
+      travelAuthorizationPreApprovalSubmission.status ===
+      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DECLINED
+    "
     class="mt-5 grey lighten-5"
     outlined
   >
@@ -107,6 +113,15 @@
       </v-row>
     </v-card-text>
   </v-card>
+  <v-alert
+    v-else
+    type="warning"
+    class="mt-5"
+    title="Unknown Status"
+  >
+    Not sure how to handle Travel Pre-Approval Submission with status
+    {{ travelAuthorizationPreApprovalSubmission.status }}
+  </v-alert>
 </template>
 
 <script setup>
@@ -116,7 +131,9 @@ import { isNil } from "lodash"
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 
-import useTravelAuthorizationPreApprovalSubmissions from "@/use/use-travel-authorization-pre-approval-submissions"
+import useTravelAuthorizationPreApprovalSubmissions, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
+} from "@/use/use-travel-authorization-pre-approval-submissions"
 
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {

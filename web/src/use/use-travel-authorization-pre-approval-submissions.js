@@ -1,6 +1,10 @@
 import { reactive, toRefs, ref, unref, watch } from "vue"
 
-import travelAuthorizationPreApprovalSubmissionsApi from "@/api/travel-authorization-pre-approval-submissions-api"
+import travelAuthorizationPreApprovalSubmissionsApi, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
+} from "@/api/travel-authorization-pre-approval-submissions-api"
+
+export { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES }
 
 /**
  * @template [T=any]
