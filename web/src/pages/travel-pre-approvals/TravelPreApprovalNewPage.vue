@@ -4,6 +4,7 @@
     title="New Travel Pre-Approval"
     header-tag="h2"
     lazy-validation
+    :loading="isLoading"
     @submit.prevent="createTravelAuthorizationPreApproval"
   >
     <v-row>
@@ -118,10 +119,9 @@
             cols="12"
             md="5"
           >
-            <v-select
+            <MonthSelect
               v-model="travelAuthorizationPreApprovalAttributes.month"
               :disabled="!travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
-              :items="monthList"
               label="Anticipated Month"
               outlined
             />
@@ -329,20 +329,22 @@
 
     <template #actions>
       <v-btn
-        color="grey darken-5"
-        @click="addNewTravelDialog = false"
-      >
-        <div v-if="type == 'View'">Close</div>
-        <div v-else>Cancel</div>
-      </v-btn>
-      <v-btn
-        v-if="type == 'Add New' || type == 'Edit'"
-        class="ml-auto"
-        color="green darken-1"
-        :loading="savingData"
-        @click="saveNewTravelRequest"
+        class="my-0"
+        color="primary"
+        :loading="isLoading"
+        type="submit"
       >
         Save
+      </v-btn>
+      <v-btn
+        class="my-0"
+        color="warning"
+        outlined
+        :to="{
+          name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
+        }"
+      >
+        Cancel
       </v-btn>
     </template>
   </HeaderActionsFormCard>
@@ -351,8 +353,6 @@
 <script setup>
 import { ref, nextTick } from "vue"
 import { useStore } from "vue2-helpers/vuex"
-
-import { capitalize } from "@/utils/formatters"
 
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
@@ -364,6 +364,7 @@ import useCurrentUser from "@/use/use-current-user"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+import MonthSelect from "@/components/common/MonthSelect.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
@@ -441,25 +442,12 @@ const undefinedTravellerHint = ref("")
 const profilesNum = ref(null)
 const anticipatedMonth = ref("")
 const travellerNotes = ref("")
-const monthList = ref([
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-])
+
 const travellerDialog = ref(false)
 const employeeList = ref([])
 const adNameList = ref([])
 const adName = ref("")
-const savingData = ref(false)
+const isLoading = ref(false)
 const loadingData = ref(false)
 const showApproval = ref(false)
 const approved = ref(false)
@@ -570,9 +558,9 @@ function checkFields() {
   return true
 }
 
-async function saveNewTravelRequest() {
+async function createTravelAuthorizationPreApproval() {
   if (checkFields()) {
-    savingData.value = true
+    isLoading.value = true
     const body = {
       location: travelAuthorizationPreApprovalAttributes.value.location,
       purpose: travelAuthorizationPreApprovalAttributes.value.purpose,
@@ -593,12 +581,12 @@ async function saveNewTravelRequest() {
     return http
       .post(`${PREAPPROVED_URL}/${id}`, body)
       .then(() => {
-        savingData.value = false
+        isLoading.value = false
         addNewTravelDialog.value = false
         emit("updateTable")
       })
       .catch((e) => {
-        savingData.value = false
+        isLoading.value = false
         console.log(e)
       })
   }
