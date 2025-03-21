@@ -177,13 +177,10 @@
                 cols="12"
                 md="9"
               >
-                <!-- TODO: move this to its own component and load data from "where" travelAuthorizationPreApprovalId -->
-                <v-data-table
-                  :headers="headers"
-                  :items="preApprovalProfiles"
-                  hide-default-footer
-                >
-                </v-data-table>
+                <TravelAuthorizationPreApprovalProfilesDataTable
+                  :where="preApprovalProfileWhere"
+                  route-query-suffix="Profile"
+                />
               </v-col>
             </v-row>
 
@@ -337,6 +334,8 @@ import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pr
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
+import TravelAuthorizationPreApprovalProfilesDataTable from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTable.vue"
+
 const props = defineProps({
   travelAuthorizationPreApprovalId: {
     type: [String, Number],
@@ -349,28 +348,11 @@ const { travelAuthorizationPreApproval } = useTravelAuthorizationPreApproval(
   travelAuthorizationPreApprovalId
 )
 
-const preApprovalProfiles = computed(() => travelAuthorizationPreApproval.value?.profiles)
-const preApprovalSubmission = computed(() => travelAuthorizationPreApproval.value?.submission)
+const preApprovalProfileWhere = computed(() => ({
+  preApprovalId: props.travelAuthorizationPreApprovalId,
+}))
 
-const headers = ref([
-  {
-    text: "Name",
-    value: "profileName",
-  },
-  {
-    text: "Dept.",
-    value: "department",
-  },
-  {
-    text: "Branch",
-    value: "branch",
-  },
-  {
-    text: "Actions",
-    value: "actions",
-    sortable: false,
-  },
-])
+const preApprovalSubmission = computed(() => travelAuthorizationPreApproval.value?.submission)
 
 const isDeleting = ref(false)
 const loadingData = ref(false)
@@ -417,8 +399,4 @@ async function deleteTravelRequest() {
 }
 </script>
 
-<style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-</style>
+<style scoped></style>
