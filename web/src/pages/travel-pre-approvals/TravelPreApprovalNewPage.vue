@@ -5,68 +5,81 @@
     lazy-validation
     @submit.prevent="createTravelAuthorizationPreApproval"
   >
-    <v-row class="mt-5">
-      <v-col cols="3">
-        <v-select
-          v-model="purpose"
-          :readonly="readonly"
-          :error="state.purposeErr"
-          :items="purposeList"
+    <v-row>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <!-- TODO: update data model to store purpose id -->
+        <TravelPurposeSelect
+          v-model="travelAuthorizationPreApprovalAttributes.purpose"
           label="Purpose"
+          item-value="purpose"
           outlined
-          @change="state.purposeErr = false"
         />
       </v-col>
-      <v-col cols="1" />
-      <v-col cols="8">
-        <v-text-field
-          v-model="location"
-          :readonly="readonly"
-          :error="state.locationErr"
+      <v-col
+        class="d-none d-md-block"
+        cols="12"
+        md="1"
+      />
+      <v-col
+        cols="12"
+        md="8"
+      >
+        <!-- TODO: update data model to store location id -->
+        <LocationsAutocomplete
+          v-model="travelAuthorizationPreApprovalAttributes.location"
           label="Location"
+          item-value="text"
           outlined
-          :clearable="!readonly"
-          @input="state.locationErr = false"
+          clearable
         />
       </v-col>
     </v-row>
 
     <v-row class="mt-n5">
-      <v-col cols="3">
+      <v-col
+        cols="12"
+        md="3"
+      >
         <v-text-field
           v-model="cost"
-          :readonly="readonly"
-          :error="state.costErr"
           label="Estimated Cost ($)"
           type="number"
           outlined
-          :clearable="!readonly"
-          @input="state.costErr = false"
+          clearable
         />
         <v-text-field
           v-model="startDate"
-          :readonly="readonly"
-          :error="state.startDateErr"
           label="Start Date"
           outlined
           type="date"
-          @input="state.unknownDateErr = false"
         />
       </v-col>
-      <v-col cols="1" />
-      <v-col cols="8">
+      <v-col
+        class="d-none d-md-block"
+        cols="12"
+        md="1"
+      />
+      <v-col
+        cols="12"
+        md="8"
+      >
         <v-textarea
           v-model="reason"
-          :readonly="readonly"
           label="Reason"
           outlined
-          :clearable="!readonly"
+          clearable
         />
       </v-col>
     </v-row>
 
     <v-row class="mt-n5">
-      <v-col cols="3">
+      <v-col
+        cols="12"
+        md="3"
+      >
         <v-text-field
           v-model="endDate"
           :readonly="readonly"
@@ -77,10 +90,20 @@
           @input="state.unknownDateErr = false"
         />
       </v-col>
-      <v-col cols="1" />
-      <v-col cols="8">
+      <v-col
+        class="d-none d-md-block"
+        cols="12"
+        md="1"
+      />
+      <v-col
+        cols="12"
+        md="8"
+      >
         <v-row>
-          <v-col cols="5">
+          <v-col
+            cols="12"
+            md="5"
+          >
             <v-checkbox
               v-model="unknownDate"
               :readonly="readonly"
@@ -93,7 +116,10 @@
               @change="selectUnknownDate"
             />
           </v-col>
-          <v-col cols="5">
+          <v-col
+            cols="12"
+            md="5"
+          >
             <v-select
               v-model="anticipatedMonth"
               :readonly="readonly"
@@ -109,10 +135,13 @@
       </v-col>
     </v-row>
 
-    <div id="traveller-detail">Traveller Details</div>
+    <div>Traveller Details</div>
     <v-card outlined>
       <v-row class="mt-5 mx-3">
-        <v-col cols="6">
+        <v-col
+          cols="12"
+          md="6"
+        >
           <v-select
             v-model="department"
             :readonly="readonly || lockDepartment"
@@ -124,7 +153,10 @@
             @change="departmentChanged"
           />
         </v-col>
-        <v-col cols="6">
+        <v-col
+          cols="12"
+          md="6"
+        >
           <v-select
             v-model="branch"
             :readonly="readonly"
@@ -140,8 +172,15 @@
       </v-row>
 
       <v-row>
-        <v-col cols="1" />
-        <v-col cols="3">
+        <v-col
+          class="d-none d-md-block"
+          cols="12"
+          md="1"
+        />
+        <v-col
+          cols="12"
+          md="3"
+        >
           <v-checkbox
             v-model="undefinedTraveller"
             :readonly="readonly"
@@ -156,7 +195,10 @@
             @change="selectUndefinedTraveller"
           />
         </v-col>
-        <v-col cols="4">
+        <v-col
+          cols="12"
+          md="4"
+        >
           <v-text-field
             v-model="profilesNum"
             :readonly="readonly"
@@ -171,7 +213,10 @@
       </v-row>
 
       <v-row class="mt-5 mx-3">
-        <v-col cols="9">
+        <v-col
+          cols="12"
+          md="9"
+        >
           <v-data-table
             :headers="headers"
             :items="profiles"
@@ -196,7 +241,10 @@
             </template>
           </v-data-table>
         </v-col>
-        <v-col cols="3">
+        <v-col
+          cols="12"
+          md="3"
+        >
           <v-btn
             :disabled="undefinedTraveller || readonly"
             class="ml-auto mr-5 my-7"
@@ -221,8 +269,11 @@
               </v-card-title>
 
               <v-card-text>
-                <v-row class="mt-5">
-                  <v-col cols="12">
+                <v-row>
+                  <v-col
+                    cols="12"
+                    md="12"
+                  >
                     <v-autocomplete
                       v-model="adName"
                       :error="adNameErr"
@@ -257,72 +308,16 @@
       </v-row>
 
       <v-row class="mx-3">
-        <v-col cols="12">
+        <v-col
+          cols="12"
+          md="12"
+        >
           <v-textarea
             v-model="travellerNotes"
             :readonly="readonly"
             label="Traveller Notes"
             outlined
             :clearable="!readonly"
-          />
-        </v-col>
-      </v-row>
-    </v-card>
-
-    <v-card
-      v-if="showApproval"
-      class="mt-5 grey lighten-5"
-      outlined
-    >
-      <v-card-title
-        class="grey lighten-5"
-        style="border-bottom: 1px solid black"
-      >
-        <div
-          v-if="approved"
-          class="text-h5"
-        >
-          Approval
-        </div>
-        <div
-          v-else
-          class="text-h5 red--text"
-        >
-          Declined
-        </div>
-      </v-card-title>
-      <v-row class="mt-0 mx-3">
-        <v-col cols="5">
-          <v-text-field
-            v-model="approvedBy"
-            readonly
-            hide-details
-            :label="approved ? 'Approved By' : 'Signed By'"
-            outlined
-          />
-        </v-col>
-        <v-col cols="1" />
-        <v-col cols="5">
-          <v-btn
-            :loading="loadingData"
-            color="transparent"
-            @click="downloadPdf()"
-            ><span class="text-h6 primary--text text-decoration-underline">
-              <b v-if="approved">approval</b>
-              doc.pdf</span
-            >
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row class="mx-3 mt-n5 mb-5">
-        <v-col cols="3">
-          <v-text-field
-            v-model="approvalDate"
-            readonly
-            hide-details
-            :label="approved ? 'Approval Date' : 'Date'"
-            outlined
-            type="date"
           />
         </v-col>
       </v-row>
@@ -364,6 +359,8 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 
 const props = defineProps({
   type: {
@@ -377,6 +374,21 @@ const props = defineProps({
 })
 
 const { isAdmin } = useCurrentUser()
+
+const travelAuthorizationPreApprovalAttributes = ref({
+  purpose: null,
+  location: null,
+  cost: null,
+  startDate: null,
+  endDate: null,
+  reason: null,
+  unknownDate: false,
+  anticipatedMonth: null,
+  department: null,
+  branch: null,
+  traveller: null,
+  travellerNotes: null,
+})
 
 const headers = ref([
   {
@@ -405,11 +417,8 @@ const headers = ref([
 ])
 
 const profiles = ref([])
-const purposeList = ref([])
-const purpose = ref("")
 const addNewTravelDialog = ref(false)
 const unknownDate = ref(false)
-const location = ref("")
 const cost = ref("")
 const reason = ref("")
 const startDate = ref("")
@@ -451,9 +460,7 @@ const approvalDate = ref("")
 const readonly = ref(false)
 const deleteDialog = ref(false)
 const state = ref({
-  purposeErr: false,
   costErr: false,
-  locationErr: false,
   departmentErr: false,
   branchErr: false,
   anticipatedMonthErr: false,
@@ -535,9 +542,7 @@ function addUndefinedTraveller() {
 }
 
 function checkFields() {
-  state.value.purposeErr = purpose.value ? false : true
   state.value.costErr = cost.value ? false : true
-  state.value.locationErr = location.value ? false : true
 
   state.value.unknownDateErr =
     !startDate.value && !endDate.value && !unknownDate.value ? true : false
@@ -561,8 +566,8 @@ async function saveNewTravelRequest() {
   if (checkFields()) {
     savingData.value = true
     const body = {
-      location: capitalize(location.value),
-      purpose: purpose.value,
+      location: travelAuthorizationPreApprovalAttributes.value.location,
+      purpose: travelAuthorizationPreApprovalAttributes.value.purpose,
       estimatedCost: cost.value,
       reason: reason.value,
       isOpenForAnyDate: unknownDate.value,
@@ -600,12 +605,9 @@ function initForm() {
   initStates()
   initEmployeeList()
   initDepartments()
-  purposeList.value = store.state.preapproved?.travelPurposes?.map((item) => item.purpose)
 
   profiles.value = props.type == "Add New" ? [] : props.travelRequest.profiles
-  purpose.value = props.type == "Add New" ? "" : props.travelRequest.purpose
   unknownDate.value = props.type == "Add New" ? false : props.travelRequest.isOpenForAnyDate
-  location.value = props.type == "Add New" ? "" : props.travelRequest.location
   cost.value = props.type == "Add New" ? "" : props.travelRequest.estimatedCost
   reason.value = props.type == "Add New" ? "" : props.travelRequest.reason
   startDate.value = props.type == "Add New" ? "" : props.travelRequest.startDate
@@ -624,8 +626,11 @@ function initForm() {
 
   readonly.value = props.type != "Add New" && props.type != "Edit"
 
-  if (props.type != "Add New") departmentChanged(branch.value)
-  else departmentChanged()
+  if (props.type != "Add New") {
+    departmentChanged(branch.value)
+  } else {
+    departmentChanged()
+  }
 
   loadingData.value = false
   showApproval.value = false
@@ -638,8 +643,9 @@ function initForm() {
     props.travelRequest?.submissionId &&
     (props.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED ||
       props.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED)
-  )
+  ) {
     initSubmission(props.travelRequest.submissionId)
+  }
 }
 
 function initStates() {
@@ -683,32 +689,6 @@ async function initSubmission(id) {
     })
 }
 
-async function downloadPdf() {
-  loadingData.value = true
-  const header = {
-    responseType: "application/pdf",
-    headers: {
-      "Content-Type": "application/text",
-    },
-  }
-
-  return http
-    .get(`${PREAPPROVED_URL}/document/${props.travelRequest.submissionId}`, header)
-    .then((res) => {
-      loadingData.value = false
-      const link = document.createElement("a")
-      link.href = res.data
-      document.body.appendChild(link)
-      link.download = approved.value ? "approval_doc.pdf" : "doc.pdf"
-      link.click()
-      setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-    })
-    .catch((e) => {
-      loadingData.value = false
-      console.log(e)
-    })
-}
-
 function departmentChanged(branch) {
   state.value.departmentErr = false
   branch.value = branch ? branch : ""
@@ -746,17 +726,6 @@ useBreadcrumbs([
 </script>
 
 <style scoped>
-#traveller-detail {
-  position: relative;
-  top: 12px;
-  left: 15px;
-  width: 20%;
-  font-size: 15pt;
-  height: 100%;
-  background: rgb(255, 255, 255);
-  z-index: 99;
-}
-
 ::v-deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
