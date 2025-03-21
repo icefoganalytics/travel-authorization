@@ -138,12 +138,13 @@
                 md="6"
               >
                 <v-select
-                  v-model="department"
-                  :readonly="readonly || lockDepartment"
-                  :error="state.departmentErr"
+                  v-model="travelAuthorizationPreApprovalAttributes.department"
+                  label="Department *"
                   :items="departmentList"
                   item-text="name"
-                  label="Department"
+                  :rules="[
+                    travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler || required,
+                  ]"
                   outlined
                   @change="departmentChanged"
                 />
@@ -153,32 +154,27 @@
                 md="6"
               >
                 <v-select
-                  v-model="branch"
-                  :readonly="readonly"
-                  :error="state.branchErr"
+                  v-model="travelAuthorizationPreApprovalAttributes.branch"
+                  label="Branch"
                   :items="branchList"
                   item-text="name"
                   item-value="name"
-                  label="Branch"
+                  :rules="[
+                    travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler || required,
+                  ]"
                   outlined
-                  @change="state.branchErr = false"
                 />
               </v-col>
             </v-row>
 
             <v-row>
               <v-col
-                class="d-none d-md-block"
-                cols="12"
-                md="1"
-              />
-              <v-col
                 cols="12"
                 md="3"
               >
                 <v-checkbox
                   v-model="undefinedTraveller"
-                  :readonly="readonly"
+                  label="exact traveler not known"
                   :error-messages="
                     state.undefinedTravellerErr
                       ? `Either add Travelers' name below or Select this option`
@@ -186,62 +182,28 @@
                         ? undefinedTravellerHint
                         : ''
                   "
-                  label="exact traveler not known"
                   @change="selectUndefinedTraveller"
                 />
               </v-col>
               <v-col
+                v-if="!undefinedTraveller"
                 cols="12"
                 md="4"
               >
                 <v-text-field
-                  v-model="profilesNum"
-                  :readonly="readonly"
-                  :error="state.travellerNumErr"
-                  :disabled="!undefinedTraveller"
+                  v-model="travelAuthorizationPreApprovalAttributes.numberTravelers"
                   label="Number of Travellers"
                   type="number"
                   outlined
                   @input="addUndefinedTraveller"
                 />
               </v-col>
-            </v-row>
-
-            <v-row>
               <v-col
+                v-else
                 cols="12"
-                md="9"
-              >
-                <v-data-table
-                  :headers="headers"
-                  :items="profiles"
-                  hide-default-footer
-                  class="elevation-1"
-                >
-                  <template #item.remove="{ item }">
-                    <v-btn
-                      v-if="!readonly"
-                      style="min-width: 0"
-                      color="transparent"
-                      class="px-1"
-                      small
-                      @click="removeTraveller(item)"
-                    >
-                      <v-icon
-                        class=""
-                        color="red"
-                        >mdi-account-remove</v-icon
-                      >
-                    </v-btn>
-                  </template>
-                </v-data-table>
-              </v-col>
-              <v-col
-                cols="12"
-                md="3"
+                md="4"
               >
                 <v-btn
-                  :disabled="undefinedTraveller || readonly"
                   class="ml-auto mr-5 my-7"
                   color="primary"
                   @click="addTravellerName"
@@ -299,6 +261,37 @@
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col
+                cols="12"
+                md="9"
+              >
+                <v-data-table
+                  :headers="headers"
+                  :items="profiles"
+                  hide-default-footer
+                  class="elevation-1"
+                >
+                  <template #item.remove="{ item }">
+                    <v-btn
+                      v-if="!readonly"
+                      style="min-width: 0"
+                      color="transparent"
+                      class="px-1"
+                      small
+                      @click="removeTraveller(item)"
+                    >
+                      <v-icon
+                        class=""
+                        color="red"
+                        >mdi-account-remove</v-icon
+                      >
+                    </v-btn>
+                  </template>
+                </v-data-table>
               </v-col>
             </v-row>
 
