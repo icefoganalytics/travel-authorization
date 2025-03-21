@@ -15,7 +15,7 @@
         color="error"
         variant="outlined"
         :loading="isDeleting"
-        @click="deleteDialog = true"
+        @click="deleteTravelAuthorizationPreApproval"
       >
         Delete
       </v-btn>
@@ -51,7 +51,7 @@
       >
         <DescriptionElement
           label="Estimated Cost ($)"
-          :value="travelAuthorizationPreApproval.cost || 'not specified'"
+          :value="travelAuthorizationPreApproval.cost || 'cost not specified'"
           vertical
         />
       </v-col>
@@ -285,50 +285,21 @@
         Return
       </v-btn>
     </template>
-
-    <!-- TODO: move to a component -->
-    <v-dialog
-      :value="deleteDialog"
-      persistent
-      max-width="400px"
-    >
-      <v-card>
-        <v-card-title
-          class="amber accent-2"
-          style="border-bottom: 1px solid black"
-        >
-          <div class="text-h5">Delete Travel Request</div>
-        </v-card-title>
-
-        <v-card-text> </v-card-text>
-
-        <v-card-actions>
-          <v-btn
-            color="grey darken-5"
-            @click="deleteDialog = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            class="ml-auto"
-            color="red darken-1"
-            @click="deleteTravelRequest"
-          >
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </HeaderActionsCard>
 </template>
 
 <script setup>
 import { computed, ref, toRefs } from "vue"
+import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
 import { PREAPPROVED_URL } from "@/urls"
+import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import http from "@/api/http-client"
+import travelAuthorizationPreApprovalApi from "@/api/travel-authorization-pre-approvals-api"
 
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pre-approval"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
@@ -354,9 +325,7 @@ const preApprovalProfileWhere = computed(() => ({
 
 const preApprovalSubmission = computed(() => travelAuthorizationPreApproval.value?.submission)
 
-const isDeleting = ref(false)
 const loadingData = ref(false)
-const deleteDialog = ref(false)
 
 async function downloadPdf() {
   loadingData.value = true
@@ -386,17 +355,42 @@ async function downloadPdf() {
   }
 }
 
-async function deleteTravelRequest() {
-  deleteDialog.value = false
+const isDeleting = ref(false)
+const snack = useSnack()
+const router = useRouter()
+
+async function deleteTravelAuthorizationPreApproval() {
+  if (!blockedToTrueConfirm("Are you sure you want to remove this travel pre-approval?")) return
+
   isDeleting.value = true
   try {
-    await http.delete(`${PREAPPROVED_URL}/${props.travelAuthorizationPreApprovalId}`)
+    await travelAuthorizationPreApprovalApi.delete(travelAuthorizationPreApprovalId.value)
+    snack.success("Travel pre-approval deleted.")
+    return router.push({
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+    })
   } catch (error) {
-    console.error(`Failed to delete travel request: ${error}`)
+    console.error(`Failed to delete travel authorization pre-approval: ${error}`)
+    snack.error(`Failed to delete travel pre-approval: ${error}`)
   } finally {
     isDeleting.value = false
   }
 }
+
+useBreadcrumbs([
+  {
+    text: "Travel Pre-Approvals",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+    },
+  },
+  {
+    text: "Travel Pre-Approval",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalPage",
+    },
+  },
+])
 </script>
 
 <style scoped></style>
