@@ -201,77 +201,17 @@
       </v-col>
     </v-row>
 
-    <!-- TODO: move this to its own component and load data internally -->
-    <v-card
-      v-if="!isNil(preApprovalSubmission)"
-      class="mt-5 grey lighten-5"
-      outlined
-    >
-      <v-card-title
-        class="grey lighten-5"
-        style="border-bottom: 1px solid black"
-      >
-        <div
-          v-if="preApprovalSubmission.status === 'approved'"
-          class="text-h5"
-        >
-          Approval
-        </div>
-        <div
-          v-else
-          class="text-h5 red--text"
-        >
-          Declined
-        </div>
-      </v-card-title>
-      <v-row class="mt-0 mx-3">
-        <v-col
-          cols="12"
-          md="5"
-        >
-          <v-text-field
-            :value="preApprovalSubmission.approverId"
-            readonly
-            hide-details
-            :label="preApprovalSubmission.status === 'approved' ? 'Approved By' : 'Signed By'"
-            outlined
-          />
-        </v-col>
-        <v-col
-          cols="12"
-          md="1"
-        />
-        <v-col
-          cols="12"
-          md="5"
-        >
-          <v-btn
-            :loading="loadingData"
-            color="transparent"
-            @click="downloadPdf"
-            ><span class="text-h6 primary--text text-decoration-underline">
-              <b v-if="preApprovalSubmission.status === 'approved'">approval</b>
-              doc.pdf</span
-            >
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row class="mx-3 mt-n5 mb-5">
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-text-field
-            :value="preApprovalSubmission.approvedAt"
-            readonly
-            hide-details
-            :label="preApprovalSubmission.status === 'approved' ? 'Approval Date' : 'Date'"
-            outlined
-            type="date"
-          />
-        </v-col>
-      </v-row>
-    </v-card>
+    <v-skeleton-loader
+      v-if="isNil(preApprovalSubmissionId) && isNil(travelAuthorizationPreApproval)"
+      type="card"
+    />
+    <template v-else-if="isNil(preApprovalSubmissionId)">
+      <!-- No submission is present -->
+    </template>
+    <TravelAuthorizationPreApprovalSubmissionCard
+      v-else
+      :travel-authorization-pre-approval-submission-id="preApprovalSubmissionId"
+    />
 
     <template #actions>
       <!-- TODO: implement edit page -->
@@ -293,9 +233,7 @@ import { computed, ref, toRefs } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
-import { PREAPPROVED_URL } from "@/urls"
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
-import http from "@/api/http-client"
 import travelAuthorizationPreApprovalApi from "@/api/travel-authorization-pre-approvals-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -306,6 +244,7 @@ import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
 import TravelAuthorizationPreApprovalProfilesDataTable from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTable.vue"
+import TravelAuthorizationPreApprovalSubmissionCard from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionCard.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalId: {
@@ -323,37 +262,7 @@ const preApprovalProfileWhere = computed(() => ({
   preApprovalId: props.travelAuthorizationPreApprovalId,
 }))
 
-const preApprovalSubmission = computed(() => travelAuthorizationPreApproval.value?.submission)
-
-const loadingData = ref(false)
-
-async function downloadPdf() {
-  loadingData.value = true
-  try {
-    const header = {
-      responseType: "application/pdf",
-      headers: {
-        "Content-Type": "application/text",
-      },
-    }
-
-    const { data } = await http.get(
-      `${PREAPPROVED_URL}/document/${travelAuthorizationPreApproval.value.submissionId}`,
-      header
-    )
-    loadingData.value = false
-    const link = document.createElement("a")
-    link.href = data
-    document.body.appendChild(link)
-    link.download = "approval_doc.pdf"
-    link.click()
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-  } catch (error) {
-    console.error(`Failed to download PDF: ${error}`)
-  } finally {
-    loadingData.value = false
-  }
-}
+const preApprovalSubmissionId = computed(() => travelAuthorizationPreApproval.value?.submission?.id)
 
 const isDeleting = ref(false)
 const snack = useSnack()
