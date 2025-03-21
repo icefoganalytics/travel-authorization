@@ -67,6 +67,7 @@ const mutations = {
   },
 }
 
+/** @deprecated - prefer web/src/use/use-locations.js or web/src/use/use-location.js */
 export default {
   namespaced: true,
   state,

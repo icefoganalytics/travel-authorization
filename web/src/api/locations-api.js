@@ -1,11 +1,59 @@
 import http from "@/api/http-client"
 
+/** @typedef {import("@/api/base-api").ModelOrder} ModelOrder */
+
+/**
+ * @typedef {{
+ *   id: number;
+ *   province: string;
+ *   city: string;
+ *   createdAt: string;
+ *   updatedAt: string;
+ * }} Location
+ */
+
+/**
+ * @typedef {{
+ *   id?: number;
+ *   province?: string;
+ *   city?: string;
+ * }} LocationWhereOptions
+ */
+
+/**
+ * // match with model scopes signatures
+ * @typedef {{
+ *   byProvince?: string | string[];
+ * }} LocationFiltersOptions
+ */
+
+/**
+ * @typedef {{
+ *   where?: LocationWhereOptions;
+ *   filters?: LocationFiltersOptions;
+ *   order?: ModelOrder[];
+ *   page?: number;
+ *   perPage?: number
+ * }} LocationsQueryOptions
+ */
+
 export const locationsApi = {
-  // TODO: support pagination and filtering
-  async list() {
-    const { data } = await http.get("/api/locations")
+  /**
+   * @param {LocationsQueryOptions} [params={}]
+   * @returns {Promise<{
+   *   locations: Location[];
+   *   totalCount: number;
+   * }}
+   */
+  async list(params = {}) {
+    const { data } = await http.get("/api/locations", { params })
     return data
   },
+
+  /**
+   * @param {number} locationId
+   * @returns {Promise<Location>}
+   */
   async fetch(locationId) {
     const { data } = await http.get(`/api/locations/${locationId}`)
     return data
