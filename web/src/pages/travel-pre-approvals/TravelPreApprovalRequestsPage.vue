@@ -48,7 +48,6 @@ import { DateTime } from "luxon"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
 

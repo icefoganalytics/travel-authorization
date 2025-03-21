@@ -15,8 +15,9 @@
         <!-- TODO: update data model to store purpose id -->
         <TravelPurposeSelect
           v-model="travelAuthorizationPreApprovalAttributes.purpose"
-          label="Purpose"
+          label="Purpose *"
           item-value="purpose"
+          :rules="[required]"
           outlined
         />
       </v-col>
@@ -32,10 +33,10 @@
         <!-- TODO: update data model to store location id -->
         <LocationsAutocomplete
           v-model="travelAuthorizationPreApprovalAttributes.location"
-          label="Location"
+          label="Location *"
           item-value="text"
+          :rules="[required]"
           outlined
-          clearable
         />
       </v-col>
     </v-row>
@@ -47,10 +48,10 @@
       >
         <v-text-field
           v-model="travelAuthorizationPreApprovalAttributes.estimatedCost"
-          label="Estimated Cost ($)"
+          label="Estimated Cost ($) *"
           type="number"
+          :rules="[required]"
           outlined
-          clearable
         />
       </v-col>
       <v-col
@@ -90,7 +91,8 @@
         <MonthSelect
           v-model="travelAuthorizationPreApprovalAttributes.month"
           :disabled="!travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
-          label="Anticipated Month"
+          label="Anticipated Month *"
+          :rules="[required]"
           outlined
         />
       </v-col>
@@ -101,9 +103,10 @@
         >
           <v-text-field
             v-model="travelAuthorizationPreApprovalAttributes.startDate"
-            label="Start Date"
-            outlined
+            label="Start Date *"
             type="date"
+            :rules="[required]"
+            outlined
           />
         </v-col>
         <v-col
@@ -112,9 +115,10 @@
         >
           <v-text-field
             v-model="travelAuthorizationPreApprovalAttributes.endDate"
-            label="End Date"
-            outlined
+            label="End Date *"
             type="date"
+            :rules="[required]"
+            outlined
           />
         </v-col>
       </template>
@@ -344,6 +348,7 @@
 import { ref, nextTick } from "vue"
 import { useStore } from "vue2-helpers/vuex"
 
+import { required } from "@/utils/validators"
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
