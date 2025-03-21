@@ -3,6 +3,7 @@
     v-if="isNil(travelAuthorizationPreApprovalSubmission)"
     type="card"
   />
+  <!-- TODO: make each status type its own component -->
   <v-card
     v-else-if="
       travelAuthorizationPreApprovalSubmission.status ===
