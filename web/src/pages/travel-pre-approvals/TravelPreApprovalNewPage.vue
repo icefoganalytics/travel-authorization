@@ -349,413 +349,400 @@
   </HeaderActionsFormCard>
 </template>
 
-<script>
-import Vue from "vue"
+<script setup>
+import { ref, nextTick } from "vue"
+import { useStore } from "vue2-helpers/vuex"
+
+import { capitalize } from "@/utils/formatters"
 
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+
+import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
-export default {
-  name: "NewTravelRequest",
-  props: {
-    type: {
-      type: String,
-      default: "Add New",
-    },
-    travelRequest: {
-      type: Object,
-      default: () => {},
-    },
+const props = defineProps({
+  type: {
+    type: String,
+    default: "Add New",
   },
-  components: {
-    HeaderActionsFormCard,
+  travelRequest: {
+    type: Object,
+    default: () => ({}),
   },
-  setup() {
-    const { isAdmin } = useCurrentUser()
+})
 
-    return {
-      isAdmin,
-    }
+const { isAdmin } = useCurrentUser()
+
+const headers = ref([
+  {
+    text: "Name",
+    value: "profileName",
+    class: "blue-grey lighten-4",
   },
-  data() {
-    return {
-      headers: [
-        {
-          text: "Name",
-          value: "profileName",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Dept.",
-          value: "department",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Branch",
-          value: "branch",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "",
-          value: "remove",
-          class: "blue-grey lighten-4",
-          cellClass: "px-0 mx-0",
-          sortable: false,
-          width: "1rem",
-        },
-      ],
-      profiles: [],
-      purposeList: [],
-      purpose: "",
-      addNewTravelDialog: false,
-      unknownDate: false,
-      location: "",
-      cost: "",
-      reason: "",
-      startDate: "",
-      endDate: "",
-      lockDepartment: false,
-      department: "",
-      departmentList: [],
-      branch: "",
-      branchList: [],
-      undefinedTraveller: false,
-      undefinedTravellerHint: "",
-      profilesNum: null,
-      anticipatedMonth: "",
-      travellerNotes: "",
-      monthList: [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ],
-      travellerDialog: false,
-      employeeList: [],
-      adNameList: [],
-      adName: "",
-      savingData: false,
-      loadingData: false,
-      showApproval: false,
-      approved: false,
-      approvedBy: "",
-      approvalDate: "",
-      readonly: false,
-      deleteDialog: false,
-
-      state: {
-        purposeErr: false,
-        costErr: false,
-        locationErr: false,
-        departmentErr: false,
-        branchErr: false,
-        anticipatedMonthErr: false,
-        travellerNumErr: false,
-        startDateErr: false,
-        endDateErr: false,
-        unknownDateErr: false,
-        undefinedTravellerErr: false,
-      },
-
-      adNameErr: false,
-    }
+  {
+    text: "Dept.",
+    value: "department",
+    class: "blue-grey lighten-4",
   },
-  mounted() {},
-  methods: {
-    addTraveller() {
-      if (this.adName) {
-        this.travellerDialog = false
-        const profileIndex = this.profiles.findIndex(
-          (profile) => profile.profileName === this.adName && profile.department === this.department
-        )
-        if (profileIndex < 0)
-          this.profiles.push({
-            profileName: this.adName,
-            department: this.department,
-            branch: this.branch,
-          })
-      } else this.adNameErr = true
-    },
+  {
+    text: "Branch",
+    value: "branch",
+    class: "blue-grey lighten-4",
+  },
+  {
+    text: "",
+    value: "remove",
+    class: "blue-grey lighten-4",
+    cellClass: "px-0 mx-0",
+    sortable: false,
+    width: "1rem",
+  },
+])
 
-    addTravellerName() {
-      this.state.undefinedTravellerErr = false
-      this.undefinedTravellerHint = ""
-      this.adNameErr = false
-      this.adName = ""
-      this.state.departmentErr = this.department ? false : true
-      this.state.branchErr = this.branchList.length > 0 && !this.branch ? true : false
-      if (this.department && (this.branch || this.branchList.length == 0)) {
-        this.adNameList = this.employeeList
-          .filter((employee) => employee.department == this.department)
-          .sort((a, b) => (a.fullName >= b.fullName ? 1 : -1))
-        this.travellerDialog = true
-      }
-    },
+const profiles = ref([])
+const purposeList = ref([])
+const purpose = ref("")
+const addNewTravelDialog = ref(false)
+const unknownDate = ref(false)
+const location = ref("")
+const cost = ref("")
+const reason = ref("")
+const startDate = ref("")
+const endDate = ref("")
+const lockDepartment = ref(false)
+const department = ref("")
+const departmentList = ref([])
+const branch = ref("")
+const branchList = ref([])
+const undefinedTraveller = ref(false)
+const undefinedTravellerHint = ref("")
+const profilesNum = ref(null)
+const anticipatedMonth = ref("")
+const travellerNotes = ref("")
+const monthList = ref([
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+])
+const travellerDialog = ref(false)
+const employeeList = ref([])
+const adNameList = ref([])
+const adName = ref("")
+const savingData = ref(false)
+const loadingData = ref(false)
+const showApproval = ref(false)
+const approved = ref(false)
+const approvedBy = ref("")
+const approvalDate = ref("")
+const readonly = ref(false)
+const deleteDialog = ref(false)
+const state = ref({
+  purposeErr: false,
+  costErr: false,
+  locationErr: false,
+  departmentErr: false,
+  branchErr: false,
+  anticipatedMonthErr: false,
+  travellerNumErr: false,
+  startDateErr: false,
+  endDateErr: false,
+  unknownDateErr: false,
+  undefinedTravellerErr: false,
+})
+const adNameErr = ref(false)
 
-    selectUnknownDate() {
-      this.state.unknownDateErr = false
-      if (!this.unknownDate) {
-        this.anticipatedMonth = ""
-        this.state.anticipatedMonthErr = false
-      }
-    },
-
-    selectUndefinedTraveller() {
-      this.undefinedTravellerHint = ""
-      this.state.departmentErr = this.department ? false : true
-      this.state.branchErr = this.branchList.length > 0 && !this.branch ? true : false
-      if (!this.undefinedTraveller) {
-        this.profiles = []
-        return
-      }
-      if (this.department && (this.branch || this.branchList.length == 0)) {
-        this.state.undefinedTravellerErr = false
-        this.addUndefinedTraveller()
-      } else
-        Vue.nextTick(() => {
-          this.undefinedTraveller = false
-          this.undefinedTravellerHint = "Please Select the Department and Branch First!"
-        })
-    },
-
-    addUndefinedTraveller() {
-      this.state.travellerNumErr = false
-      if (this.profilesNum > 0) {
-        this.profiles = [
-          {
-            profileName: this.department + " " + (this.branch ? this.branch + " " : "") + "staff",
-            department: this.department,
-            branch: this.branch,
-          },
-        ]
-      }
-    },
-
-    checkFields() {
-      this.state.purposeErr = this.purpose ? false : true
-      this.state.costErr = this.cost ? false : true
-      this.state.locationErr = this.location ? false : true
-
-      this.state.unknownDateErr =
-        !this.startDate && !this.endDate && !this.unknownDate ? true : false
-      this.state.anticipatedMonthErr = this.unknownDate && !this.anticipatedMonth ? true : false
-
-      this.state.startDateErr = !this.startDate && this.endDate && !this.unknownDate ? true : false
-      this.state.endDateErr = this.startDate && !this.endDate && !this.unknownDate ? true : false
-
-      this.state.undefinedTravellerErr =
-        !this.undefinedTraveller && this.profiles.length == 0 ? true : false
-      this.state.travellerNumErr =
-        this.undefinedTraveller && (!this.profilesNum || this.profilesNum < 1) ? true : false
-
-      for (const key of Object.keys(this.state)) {
-        if (this.state[key]) return false
-      }
-      return true
-    },
-
-    saveNewTravelRequest() {
-      if (this.checkFields()) {
-        this.savingData = true
-        const body = {
-          location: Vue.filter("capitalize")(this.location),
-          purpose: this.purpose,
-          estimatedCost: this.cost,
-          reason: this.reason,
-          isOpenForAnyDate: this.unknownDate,
-          month: this.anticipatedMonth,
-          startDate: !this.unknownDate ? this.startDate : null,
-          endDate: !this.unknownDate ? this.endDate : null,
-          department: this.department,
-          branch: this.branch,
-          isOpenForAnyTraveler: this.undefinedTraveller,
-          numberTravelers: this.profilesNum,
-          profiles: this.profiles,
-          travelerNotes: this.travellerNotes,
-        }
-        // console.log(body);
-        const id = this.travelRequest?.id ? this.travelRequest.id : 0
-        return http
-          .post(`${PREAPPROVED_URL}/${id}`, body)
-          .then(() => {
-            this.savingData = false
-            this.addNewTravelDialog = false
-            this.$emit("updateTable")
-          })
-          .catch((e) => {
-            this.savingData = false
-            console.log(e)
-          })
-      }
-    },
-
-    initForm() {
-      const userDept = this.$store.state.auth.department
-      this.lockDepartment = !this.isAdmin || this.type != "Add New"
-
-      this.initStates()
-      this.initEmployeeList()
-      this.initDepartments()
-      this.purposeList = this.$store.state.preapproved?.travelPurposes?.map((item) => item.purpose)
-
-      this.profiles = this.type == "Add New" ? [] : this.travelRequest.profiles
-      this.purpose = this.type == "Add New" ? "" : this.travelRequest.purpose
-      this.unknownDate = this.type == "Add New" ? false : this.travelRequest.isOpenForAnyDate
-      this.location = this.type == "Add New" ? "" : this.travelRequest.location
-      this.cost = this.type == "Add New" ? "" : this.travelRequest.estimatedCost
-      this.reason = this.type == "Add New" ? "" : this.travelRequest.reason
-      this.startDate = this.type == "Add New" ? "" : this.travelRequest.startDate
-      this.endDate = this.type == "Add New" ? "" : this.travelRequest.endDate
-      this.department = this.type == "Add New" ? userDept : this.travelRequest.department
-      this.branch = this.type == "Add New" ? "" : this.travelRequest.branch
-      this.undefinedTraveller =
-        this.type == "Add New" ? false : this.travelRequest.isOpenForAnyTraveler
-      this.undefinedTravellerHint = ""
-      this.profilesNum = this.type == "Add New" ? null : this.travelRequest.numberTravelers
-      this.anticipatedMonth = this.type == "Add New" ? "" : this.travelRequest.month
-      this.travellerNotes = this.type == "Add New" ? "" : this.travelRequest.travelerNotes
-      this.travellerDialog = false
-      this.adName = ""
-      this.deleteDialog = false
-
-      this.readonly = this.type != "Add New" && this.type != "Edit"
-
-      if (this.type != "Add New") this.departmentChanged(this.travelRequest.branch)
-      else this.departmentChanged()
-
-      this.loadingData = false
-      this.showApproval = false
-      this.approved =
-        this.travelRequest?.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
-      this.approvedBy = ""
-      this.approvalDate = ""
-
-      if (
-        this.travelRequest?.submissionId &&
-        (this.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED ||
-          this.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED)
-      )
-        this.initSubmission(this.travelRequest.submissionId)
-    },
-
-    initStates() {
-      this.adNameErr = false
-      this.undefinedTravellerHint = ""
-      for (const key of Object.keys(this.state)) {
-        this.state[key] = false
-      }
-    },
-
-    initEmployeeList() {
-      this.employeeList = this.$store.state.preapproved.employees.map((item) => {
-        return {
-          fullName: item.fullName,
-          department: item.department,
-        }
+function addTraveller() {
+  if (adName.value) {
+    travellerDialog.value = false
+    const profileIndex = profiles.value.findIndex(
+      (profile) => profile.profileName === adName.value && profile.department === department.value
+    )
+    if (profileIndex < 0)
+      profiles.value.push({
+        profileName: adName.value,
+        department: department.value,
+        branch: branch.value,
       })
+  } else adNameErr.value = true
+}
+
+function addTravellerName() {
+  state.value.undefinedTravellerErr = false
+  undefinedTravellerHint.value = ""
+  adNameErr.value = false
+  adName.value = ""
+  state.value.departmentErr = department.value ? false : true
+  state.value.branchErr = branchList.value.length > 0 && !branch.value ? true : false
+  if (department.value && (branch.value || branchList.value.length == 0)) {
+    adNameList.value = employeeList.value
+      .filter((employee) => employee.department == department.value)
+      .sort((a, b) => (a.fullName >= b.fullName ? 1 : -1))
+    travellerDialog.value = true
+  }
+}
+
+function selectUnknownDate() {
+  state.value.unknownDateErr = false
+  if (!unknownDate.value) {
+    anticipatedMonth.value = ""
+    state.value.anticipatedMonthErr = false
+  }
+}
+
+async function selectUndefinedTraveller() {
+  undefinedTravellerHint.value = ""
+  state.value.departmentErr = department.value ? false : true
+  state.value.branchErr = branchList.value.length > 0 && !branch.value ? true : false
+  if (!undefinedTraveller.value) {
+    profiles.value = []
+    return
+  }
+  if (department.value && (branch.value || branchList.value.length == 0)) {
+    state.value.undefinedTravellerErr = false
+    addUndefinedTraveller()
+  } else {
+    await nextTick()
+    undefinedTraveller.value = false
+    undefinedTravellerHint.value = "Please Select the Department and Branch First!"
+  }
+}
+
+function addUndefinedTraveller() {
+  state.value.travellerNumErr = false
+  if (profiles.value.length > 0) {
+    profiles.value = [
+      {
+        profileName: department.value + " " + (branch.value ? branch.value + " " : "") + "staff",
+        department: department.value,
+        branch: branch.value,
+      },
+    ]
+  }
+}
+
+function checkFields() {
+  state.value.purposeErr = purpose.value ? false : true
+  state.value.costErr = cost.value ? false : true
+  state.value.locationErr = location.value ? false : true
+
+  state.value.unknownDateErr =
+    !startDate.value && !endDate.value && !unknownDate.value ? true : false
+  state.value.anticipatedMonthErr = unknownDate.value && !anticipatedMonth.value ? true : false
+
+  state.value.startDateErr = !startDate.value && endDate.value && !unknownDate.value ? true : false
+  state.value.endDateErr = startDate.value && !endDate.value && !unknownDate.value ? true : false
+
+  state.value.undefinedTravellerErr =
+    !undefinedTraveller.value && profiles.value.length == 0 ? true : false
+  state.value.travellerNumErr =
+    undefinedTraveller.value && (!profilesNum.value || profilesNum.value < 1) ? true : false
+
+  for (const key of Object.keys(state.value)) {
+    if (state.value[key]) return false
+  }
+  return true
+}
+
+async function saveNewTravelRequest() {
+  if (checkFields()) {
+    savingData.value = true
+    const body = {
+      location: capitalize(location.value),
+      purpose: purpose.value,
+      estimatedCost: cost.value,
+      reason: reason.value,
+      isOpenForAnyDate: unknownDate.value,
+      month: anticipatedMonth.value,
+      startDate: !unknownDate.value ? startDate.value : null,
+      endDate: !unknownDate.value ? endDate.value : null,
+      department: department.value,
+      branch: branch.value,
+      isOpenForAnyTraveler: undefinedTraveller.value,
+      numberTravelers: profilesNum.value,
+      profiles: profiles.value,
+      travelerNotes: travellerNotes.value,
+    }
+    const id = props.travelRequest.value?.id ? props.travelRequest.value.id : 0
+    return http
+      .post(`${PREAPPROVED_URL}/${id}`, body)
+      .then(() => {
+        savingData.value = false
+        addNewTravelDialog.value = false
+        emit("updateTable")
+      })
+      .catch((e) => {
+        savingData.value = false
+        console.log(e)
+      })
+  }
+}
+
+const store = useStore()
+
+function initForm() {
+  const userDept = store.state.auth.department
+  lockDepartment.value = !isAdmin.value || props.type != "Add New"
+
+  initStates()
+  initEmployeeList()
+  initDepartments()
+  purposeList.value = store.state.preapproved?.travelPurposes?.map((item) => item.purpose)
+
+  profiles.value = props.type == "Add New" ? [] : props.travelRequest.profiles
+  purpose.value = props.type == "Add New" ? "" : props.travelRequest.purpose
+  unknownDate.value = props.type == "Add New" ? false : props.travelRequest.isOpenForAnyDate
+  location.value = props.type == "Add New" ? "" : props.travelRequest.location
+  cost.value = props.type == "Add New" ? "" : props.travelRequest.estimatedCost
+  reason.value = props.type == "Add New" ? "" : props.travelRequest.reason
+  startDate.value = props.type == "Add New" ? "" : props.travelRequest.startDate
+  endDate.value = props.type == "Add New" ? "" : props.travelRequest.endDate
+  department.value = props.type == "Add New" ? userDept : props.travelRequest.department
+  branch.value = props.type == "Add New" ? "" : props.travelRequest.branch
+  undefinedTraveller.value =
+    props.type == "Add New" ? false : props.travelRequest.isOpenForAnyTraveler
+  undefinedTravellerHint.value = ""
+  profilesNum.value = props.type == "Add New" ? null : props.travelRequest.numberTravelers
+  anticipatedMonth.value = props.type == "Add New" ? "" : props.travelRequest.month
+  travellerNotes.value = props.type == "Add New" ? "" : props.travelRequest.travelerNotes
+  travellerDialog.value = false
+  adName.value = ""
+  deleteDialog.value = false
+
+  readonly.value = props.type != "Add New" && props.type != "Edit"
+
+  if (props.type != "Add New") departmentChanged(branch.value)
+  else departmentChanged()
+
+  loadingData.value = false
+  showApproval.value = false
+  approved.value =
+    props.travelRequest?.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
+  approvedBy.value = ""
+  approvalDate.value = ""
+
+  if (
+    props.travelRequest?.submissionId &&
+    (props.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED ||
+      props.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED)
+  )
+    initSubmission(props.travelRequest.submissionId)
+}
+
+function initStates() {
+  adNameErr.value = false
+  undefinedTravellerHint.value = ""
+  for (const key of Object.keys(state.value)) {
+    state.value[key] = false
+  }
+}
+
+function initEmployeeList() {
+  employeeList.value = store.state.preapproved.employees.map((item) => {
+    return {
+      fullName: item.fullName,
+      department: item.department,
+    }
+  })
+}
+
+function initDepartments() {
+  departmentList.value = []
+  const depts = store.state.preapproved.departmentBranch
+  for (const key of Object.keys(depts)) {
+    departmentList.value.push({
+      name: key,
+    })
+  }
+}
+
+async function initSubmission(id) {
+  return http
+    .get(`${PREAPPROVED_URL}/submissions/${id}`)
+    .then((res) => {
+      showApproval.value =
+        res.data.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED
+      approvedBy.value = res.data.approvedBy
+      approvalDate.value = res.data.approvalDate
+    })
+    .catch((e) => {
+      console.log(e)
+    })
+}
+
+async function downloadPdf() {
+  loadingData.value = true
+  const header = {
+    responseType: "application/pdf",
+    headers: {
+      "Content-Type": "application/text",
     },
+  }
 
-    initDepartments() {
-      this.departmentList = []
-      const depts = this.$store.state.preapproved.departmentBranch
-      for (const key of Object.keys(depts)) {
-        this.departmentList.push({
-          name: key,
-        })
-      }
-    },
+  return http
+    .get(`${PREAPPROVED_URL}/document/${props.travelRequest.submissionId}`, header)
+    .then((res) => {
+      loadingData.value = false
+      const link = document.createElement("a")
+      link.href = res.data
+      document.body.appendChild(link)
+      link.download = approved.value ? "approval_doc.pdf" : "doc.pdf"
+      link.click()
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000)
+    })
+    .catch((e) => {
+      loadingData.value = false
+      console.log(e)
+    })
+}
 
-    initSubmission(id) {
-      return http
-        .get(`${PREAPPROVED_URL}/submissions/${id}`)
-        .then((res) => {
-          this.showApproval =
-            res.data.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED
-          this.approvedBy = res.data.approvedBy
-          this.approvalDate = res.data.approvalDate
-        })
-        .catch((e) => {
-          console.log(e)
-        })
-    },
+function departmentChanged(branch) {
+  state.value.departmentErr = false
+  branch.value = branch ? branch : ""
+  const depts = store.state.preapproved.departmentBranch
+  if (department.value) {
+    branchList.value = depts[department.value]?.branches || []
+  } else {
+    branchList.value = []
+  }
+}
 
-    downloadPdf() {
-      this.loadingData = true
-      const header = {
-        responseType: "application/pdf",
-        headers: {
-          "Content-Type": "application/text",
-        },
-      }
+function removeTraveller(item) {
+  profiles.value = profiles.value.filter(
+    (profile) => !(profile.profileName == item.profileName && profile.department == item.department)
+  )
+  if (profiles.value.length == 0 && undefinedTraveller.value) {
+    profilesNum.value = null
+  }
+}
 
-      return http
-        .get(`${PREAPPROVED_URL}/document/${this.travelRequest.submissionId}`, header)
-        .then((res) => {
-          this.loadingData = false
-          const link = document.createElement("a")
-          link.href = res.data
-          document.body.appendChild(link)
-          link.download = this.approved ? "approval_doc.pdf" : "doc.pdf"
-          link.click()
-          setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-        })
-        .catch((e) => {
-          this.loadingData = false
-          console.log(e)
-        })
-    },
-
-    deleteTravelRequest() {
-      this.deleteDialog = false
-      this.savingData = true
-      return http
-        .delete(`${PREAPPROVED_URL}/${this.travelRequest.id}`)
-        .then(() => {
-          this.savingData = false
-          this.addNewTravelDialog = false
-          this.$emit("updateTable")
-        })
-        .catch((e) => {
-          this.savingData = false
-          console.log(e)
-        })
-    },
-
-    departmentChanged(branch) {
-      this.state.departmentErr = false
-      this.branch = branch ? branch : ""
-      const depts = this.$store.state.preapproved.departmentBranch
-      if (this.department) {
-        this.branchList = depts[this.department]?.branches || []
-      } else {
-        this.branchList = []
-      }
-    },
-
-    removeTraveller(item) {
-      this.profiles = this.profiles.filter(
-        (profile) =>
-          !(profile.profileName == item.profileName && profile.department == item.department)
-      )
-      if (this.profiles.length == 0 && this.undefinedTraveller) {
-        this.profilesNum = null
-      }
+useBreadcrumbs([
+  {
+    text: "Travel Pre-Approvals",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
-}
+  {
+    text: "New",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalNewPage",
+    },
+  },
+])
 </script>
 
 <style scoped>
