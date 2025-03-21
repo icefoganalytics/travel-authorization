@@ -26,10 +26,14 @@
           >
             Export To Excel
           </v-btn>
-          <NewTravelRequest
-            type="Add New"
-            @updateTable="refresh"
-          />
+          <v-btn
+            color="primary"
+            :to="{
+              name: 'travel-pre-approvals/TravelPreApprovalNewPage',
+            }"
+          >
+            Add Travel Pre-Approval
+          </v-btn>
         </v-col>
       </v-row>
     </template>
