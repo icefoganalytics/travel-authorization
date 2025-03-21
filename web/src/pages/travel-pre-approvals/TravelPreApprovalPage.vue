@@ -20,207 +20,267 @@
         Delete
       </v-btn>
     </template>
-    <v-card-text>
-      <v-row class="mt-5">
-        <v-col cols="3">
-          <DescriptionElement
-            label="Purpose"
-            :value="travelAuthorizationPreApproval.purpose"
-            vertical
-          />
-        </v-col>
-        <v-col cols="1" />
-        <v-col cols="8">
-          <DescriptionElement
-            label="Location"
-            :value="travelAuthorizationPreApproval.location"
-            vertical
-          />
-        </v-col>
-      </v-row>
 
-      <v-row class="mt-n5">
-        <v-col cols="3">
-          <DescriptionElement
-            label="Estimated Cost ($)"
-            :value="travelAuthorizationPreApproval.cost"
-            vertical
-          />
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="Purpose"
+          :value="travelAuthorizationPreApproval.purpose"
+          vertical
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="Location"
+          :value="travelAuthorizationPreApproval.location"
+          vertical
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <DescriptionElement
+          label="Estimated Cost ($)"
+          :value="travelAuthorizationPreApproval.cost || 'not specified'"
+          vertical
+        />
+      </v-col>
+      <template v-if="!travelAuthorizationPreApproval.unknownDate">
+        <v-col
+          cols="12"
+          md="4"
+        >
           <DescriptionElement
             label="Start Date"
             :value="travelAuthorizationPreApproval.startDate"
             vertical
           />
         </v-col>
-        <v-col cols="1" />
-        <v-col cols="8">
-          <DescriptionElement
-            label="Reason"
-            :value="travelAuthorizationPreApproval.reason"
-            vertical
-          />
-        </v-col>
-      </v-row>
-
-      <v-row class="mt-n5">
-        <v-col cols="3">
+        <v-col
+          cols="12"
+          md="4"
+        >
           <DescriptionElement
             label="End Date"
             :value="travelAuthorizationPreApproval.endDate"
             vertical
           />
         </v-col>
-        <v-col cols="1" />
+      </template>
+      <template v-else>
         <v-col
-          v-if="travelAuthorizationPreApproval.unknownDate"
-          cols="8"
+          cols="12"
+          md="3"
         >
-          <v-row>
-            <v-col cols="5">
-              <DescriptionElement
-                label="Exact Date Unknown"
-                :value="travelAuthorizationPreApproval.unknownDate ? 'Yes' : 'No'"
-                vertical
+          <DescriptionElement
+            label="Exact Date Unknown"
+            :value="travelAuthorizationPreApproval.unknownDate ? 'Yes' : 'No'"
+            vertical
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <DescriptionElement
+            label="Anticipated Month"
+            :value="travelAuthorizationPreApproval.anticipatedMonth"
+            vertical
+          />
+        </v-col>
+      </template>
+    </v-row>
+
+    <v-row>
+      <v-col
+        cols="12"
+        md="8"
+      >
+        <DescriptionElement
+          label="Reason"
+          :value="travelAuthorizationPreApproval.reason"
+          vertical
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <v-card>
+          <v-card-title>
+            <h3 class="mb-0">Traveller Details</h3>
+          </v-card-title>
+          <v-divider />
+          <v-card-text>
+            <v-row>
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <DescriptionElement
+                  label="Department"
+                  :value="travelAuthorizationPreApproval.department"
+                  vertical
+                />
+              </v-col>
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <DescriptionElement
+                  label="Branch"
+                  :value="travelAuthorizationPreApproval.branch"
+                  vertical
+                />
+              </v-col>
+            </v-row>
+
+            <v-row v-if="travelAuthorizationPreApproval.undefinedTraveller">
+              <v-col
+                cols="12"
+                md="1"
               />
-            </v-col>
-            <v-col cols="5">
-              <DescriptionElement
-                label="Anticipated Month"
-                :value="travelAuthorizationPreApproval.anticipatedMonth"
-                vertical
-              />
-            </v-col>
-          </v-row>
+              <v-col
+                cols="12"
+                md="3"
+              >
+                <DescriptionElement
+                  label="Exact Traveler Not Known"
+                  :value="travelAuthorizationPreApproval.undefinedTraveller ? 'Yes' : 'No'"
+                  vertical
+                />
+              </v-col>
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <DescriptionElement
+                  label="Number of Travellers"
+                  :value="travelAuthorizationPreApproval.profilesNum"
+                  vertical
+                />
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col
+                cols="12"
+                md="9"
+              >
+                <!-- TODO: move this to its own component and load data from "where" travelAuthorizationPreApprovalId -->
+                <v-data-table
+                  :headers="headers"
+                  :items="preApprovalProfiles"
+                  hide-default-footer
+                >
+                </v-data-table>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col
+                cols="12"
+                md="12"
+              >
+                <DescriptionElement
+                  label="Traveller Notes"
+                  :value="travelAuthorizationPreApproval.travelerNotes"
+                  vertical
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- TODO: move this to its own component and load data internally -->
+    <v-card
+      v-if="!isNil(preApprovalSubmission)"
+      class="mt-5 grey lighten-5"
+      outlined
+    >
+      <v-card-title
+        class="grey lighten-5"
+        style="border-bottom: 1px solid black"
+      >
+        <div
+          v-if="preApprovalSubmission.status === 'approved'"
+          class="text-h5"
+        >
+          Approval
+        </div>
+        <div
+          v-else
+          class="text-h5 red--text"
+        >
+          Declined
+        </div>
+      </v-card-title>
+      <v-row class="mt-0 mx-3">
+        <v-col
+          cols="12"
+          md="5"
+        >
+          <v-text-field
+            :value="preApprovalSubmission.approverId"
+            readonly
+            hide-details
+            :label="preApprovalSubmission.status === 'approved' ? 'Approved By' : 'Signed By'"
+            outlined
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="1"
+        />
+        <v-col
+          cols="12"
+          md="5"
+        >
+          <v-btn
+            :loading="loadingData"
+            color="transparent"
+            @click="downloadPdf"
+            ><span class="text-h6 primary--text text-decoration-underline">
+              <b v-if="preApprovalSubmission.status === 'approved'">approval</b>
+              doc.pdf</span
+            >
+          </v-btn>
         </v-col>
       </v-row>
-
-      <div id="traveller-detail">Traveller Details</div>
-      <v-card outlined>
-        <v-row class="mt-5 mx-3">
-          <v-col cols="6">
-            <DescriptionElement
-              label="Department"
-              :value="travelAuthorizationPreApproval.department"
-              vertical
-            />
-          </v-col>
-          <v-col cols="6">
-            <DescriptionElement
-              label="Branch"
-              :value="travelAuthorizationPreApproval.branch"
-              vertical
-            />
-          </v-col>
-        </v-row>
-
-        <v-row v-if="travelAuthorizationPreApproval.undefinedTraveller">
-          <v-col cols="1" />
-          <v-col cols="3">
-            <DescriptionElement
-              label="Exact Traveler Not Known"
-              :value="travelAuthorizationPreApproval.undefinedTraveller ? 'Yes' : 'No'"
-              vertical
-            />
-          </v-col>
-          <v-col cols="4">
-            <DescriptionElement
-              label="Number of Travellers"
-              :value="travelAuthorizationPreApproval.profilesNum"
-              vertical
-            />
-          </v-col>
-        </v-row>
-
-        <v-row class="mt-5 mx-3">
-          <v-col cols="9">
-            <!-- TODO: move this to its own component and load data from "where" travelAuthorizationPreApprovalId -->
-            <v-data-table
-              :headers="headers"
-              :items="preApprovalProfiles"
-              hide-default-footer
-              class="elevation-1"
-            >
-            </v-data-table>
-          </v-col>
-        </v-row>
-
-        <v-row class="mx-3">
-          <v-col cols="12">
-            <DescriptionElement
-              label="Traveller Notes"
-              :value="travelAuthorizationPreApproval.travelerNotes"
-              vertical
-            />
-          </v-col>
-        </v-row>
-      </v-card>
-
-      <!-- TODO: move this to its own component and load data internally -->
-      <v-card
-        v-if="!isNil(preApprovalSubmission)"
-        class="mt-5 grey lighten-5"
-        outlined
-      >
-        <v-card-title
-          class="grey lighten-5"
-          style="border-bottom: 1px solid black"
+      <v-row class="mx-3 mt-n5 mb-5">
+        <v-col
+          cols="12"
+          md="3"
         >
-          <div
-            v-if="preApprovalSubmission.status === 'approved'"
-            class="text-h5"
-          >
-            Approval
-          </div>
-          <div
-            v-else
-            class="text-h5 red--text"
-          >
-            Declined
-          </div>
-        </v-card-title>
-        <v-row class="mt-0 mx-3">
-          <v-col cols="5">
-            <v-text-field
-              :value="preApprovalSubmission.approverId"
-              readonly
-              hide-details
-              :label="preApprovalSubmission.status === 'approved' ? 'Approved By' : 'Signed By'"
-              outlined
-            />
-          </v-col>
-          <v-col cols="1" />
-          <v-col cols="5">
-            <v-btn
-              :loading="loadingData"
-              color="transparent"
-              @click="downloadPdf"
-              ><span class="text-h6 primary--text text-decoration-underline">
-                <b v-if="preApprovalSubmission.status === 'approved'">approval</b>
-                doc.pdf</span
-              >
-            </v-btn>
-          </v-col>
-        </v-row>
-        <v-row class="mx-3 mt-n5 mb-5">
-          <v-col cols="3">
-            <v-text-field
-              :value="preApprovalSubmission.approvedAt"
-              readonly
-              hide-details
-              :label="preApprovalSubmission.status === 'approved' ? 'Approval Date' : 'Date'"
-              outlined
-              type="date"
-            />
-          </v-col>
-        </v-row>
-      </v-card>
-    </v-card-text>
+          <v-text-field
+            :value="preApprovalSubmission.approvedAt"
+            readonly
+            hide-details
+            :label="preApprovalSubmission.status === 'approved' ? 'Approval Date' : 'Date'"
+            outlined
+            type="date"
+          />
+        </v-col>
+      </v-row>
+    </v-card>
 
     <template #actions>
       <!-- TODO: implement edit page -->
       <v-btn color="primary"> Edit </v-btn>
       <v-btn
-        color="warning"
+        color="secondary"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
         }"
@@ -358,17 +418,6 @@ async function deleteTravelRequest() {
 </script>
 
 <style scoped>
-#traveller-detail {
-  position: relative;
-  top: 12px;
-  left: 15px;
-  width: 20%;
-  font-size: 15pt;
-  height: 100%;
-  background: rgb(255, 255, 255);
-  z-index: 99;
-}
-
 ::v-deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
