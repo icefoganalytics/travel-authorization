@@ -52,12 +52,6 @@
           outlined
           clearable
         />
-        <v-text-field
-          v-model="travelAuthorizationPreApprovalAttributes.startDate"
-          label="Start Date"
-          outlined
-          type="date"
-        />
       </v-col>
       <v-col
         class="d-none d-md-block"
@@ -80,54 +74,50 @@
     <v-row>
       <v-col
         cols="12"
-        md="3"
+        md="4"
       >
-        <v-text-field
-          v-model="travelAuthorizationPreApprovalAttributes.endDate"
-          label="End Date"
-          outlined
-          type="date"
+        <v-checkbox
+          v-model="travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
+          label="Exact date unknown"
+          @change="clearDateRelatedFields"
         />
       </v-col>
       <v-col
-        class="d-none d-md-block"
+        v-if="travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
         cols="12"
-        md="1"
-      />
-      <v-col
-        cols="12"
-        md="8"
+        md="3"
       >
-        <v-row>
-          <v-col
-            cols="12"
-            md="5"
-          >
-            <!-- TODO: add custom validator that checks if startDate and endDate are selected -->
-            <v-checkbox
-              v-model="travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
-              label="exact date unknown"
-              :error-messages="
-                state.unknownDateErr
-                  ? 'Either select Start and End Dates or Select this option'
-                  : ''
-              "
-              @change="selectUnknownDate"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="5"
-          >
-            <MonthSelect
-              v-model="travelAuthorizationPreApprovalAttributes.month"
-              :disabled="!travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
-              label="Anticipated Month"
-              outlined
-            />
-          </v-col>
-        </v-row>
+        <MonthSelect
+          v-model="travelAuthorizationPreApprovalAttributes.month"
+          :disabled="!travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
+          label="Anticipated Month"
+          outlined
+        />
       </v-col>
+      <template v-else>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <v-text-field
+            v-model="travelAuthorizationPreApprovalAttributes.startDate"
+            label="Start Date"
+            outlined
+            type="date"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <v-text-field
+            v-model="travelAuthorizationPreApprovalAttributes.endDate"
+            label="End Date"
+            outlined
+            type="date"
+          />
+        </v-col>
+      </template>
     </v-row>
 
     <v-row>
@@ -498,12 +488,10 @@ function addTravellerName() {
   }
 }
 
-function selectUnknownDate() {
-  state.value.unknownDateErr = false
-  if (!unknownDate.value) {
-    anticipatedMonth.value = ""
-    state.value.anticipatedMonthErr = false
-  }
+function clearDateRelatedFields() {
+  travelAuthorizationPreApprovalAttributes.value.startDate = undefined
+  travelAuthorizationPreApprovalAttributes.value.endDate = undefined
+  travelAuthorizationPreApprovalAttributes.value.month = undefined
 }
 
 async function selectUndefinedTraveller() {
