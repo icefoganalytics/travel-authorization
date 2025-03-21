@@ -132,6 +132,9 @@ const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreAp
 
 const isDownloading = ref(false)
 
+// TODO: update this to use new endpoint, preferably via form post redirect to get best user experience with the least code
+// See https://github.com/icefoganalytics/internal-data-portal/blob/0eb01fff60c6b5d72b060f89e92cf15336225531/web/src/components/dataset-entries/DownloadAsCsvButton.vue#L18
+// Or use an http only cookie for auth, but that will take a lot more setup.
 async function downloadPdf() {
   isDownloading.value = true
   try {
