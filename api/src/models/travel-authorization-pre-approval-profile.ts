@@ -1,25 +1,12 @@
 import {
-  Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  CreationOptional,
+  type Association,
+  type CreationOptional,
   DataTypes,
-  ForeignKey,
-  HasManyAddAssociationMixin,
-  HasManyAddAssociationsMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin,
-  HasManyRemoveAssociationsMixin,
-  HasManySetAssociationsMixin,
-  InferAttributes,
-  InferCreationAttributes,
+  type ForeignKey,
+  type InferAttributes,
+  type InferCreationAttributes,
   Model,
-  NonAttribute,
+  type NonAttribute,
   Op,
 } from "sequelize"
 
@@ -36,51 +23,12 @@ export class TravelAuthorizationPreApprovalProfile extends Model<
   declare preApprovalId: ForeignKey<TravelAuthorizationPreApproval["id"]>
   declare profileName: string
   declare department: string
-  declare branch: CreationOptional<string | null>
+  declare branch: string | null
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date | null>
+  declare deletedAt: Date | null
 
   // Associations
-  declare getPreApproval: BelongsToGetAssociationMixin<TravelAuthorizationPreApproval>
-  declare setPreApproval: BelongsToSetAssociationMixin<
-    TravelAuthorizationPreApproval,
-    TravelAuthorizationPreApproval["id"]
-  >
-  declare createPreApproval: BelongsToCreateAssociationMixin<TravelAuthorizationPreApproval>
-
-  declare getTravelAuthorizations: HasManyGetAssociationsMixin<TravelAuthorization>
-  declare setTravelAuthorizations: HasManySetAssociationsMixin<
-    TravelAuthorization,
-    TravelAuthorization["preApprovalProfileId"]
-  >
-  declare hasTravelAuthorization: HasManyHasAssociationMixin<
-    TravelAuthorization,
-    TravelAuthorization["preApprovalProfileId"]
-  >
-  declare hasTravelAuthorizations: HasManyHasAssociationsMixin<
-    TravelAuthorization,
-    TravelAuthorization["preApprovalProfileId"]
-  >
-  declare addTravelAuthorization: HasManyAddAssociationMixin<
-    TravelAuthorization,
-    TravelAuthorization["preApprovalProfileId"]
-  >
-  declare addTravelAuthorizations: HasManyAddAssociationsMixin<
-    TravelAuthorization,
-    TravelAuthorization["preApprovalProfileId"]
-  >
-  declare removeTravelAuthorization: HasManyRemoveAssociationMixin<
-    TravelAuthorization,
-    TravelAuthorization["preApprovalProfileId"]
-  >
-  declare removeTravelAuthorizations: HasManyRemoveAssociationsMixin<
-    TravelAuthorization,
-    TravelAuthorization["preApprovalProfileId"]
-  >
-  declare countTravelAuthorizations: HasManyCountAssociationsMixin
-  declare createTravelAuthorization: HasManyCreateAssociationMixin<TravelAuthorizationPreApprovalProfile>
-
   preApproval?: NonAttribute<TravelAuthorizationPreApproval>
   travelAuthorizations?: NonAttribute<TravelAuthorization[]>
 

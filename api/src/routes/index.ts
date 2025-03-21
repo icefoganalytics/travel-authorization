@@ -260,9 +260,12 @@ router.route("/api/locations/:locationId").get(LocationsController.show)
 router
   .route("/api/travel-authorization-pre-approval-profiles")
   .get(TravelAuthorizationPreApprovalProfilesController.index)
+  .post(TravelAuthorizationPreApprovalProfilesController.create)
 router
-  .route("/api/travel-authorization-pre-approval-profiles/:id")
+  .route("/api/travel-authorization-pre-approval-profiles/:travelAuthorizationPreApprovalProfileId")
   .get(TravelAuthorizationPreApprovalProfilesController.show)
+  .patch(TravelAuthorizationPreApprovalProfilesController.update)
+  .delete(TravelAuthorizationPreApprovalProfilesController.destroy)
 
 router
   .route("/api/travel-authorization-pre-approvals")
