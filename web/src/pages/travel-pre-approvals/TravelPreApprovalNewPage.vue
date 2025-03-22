@@ -173,20 +173,19 @@
                 md="3"
               >
                 <v-checkbox
-                  v-model="undefinedTraveller"
+                  v-model="travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler"
                   label="exact traveler not known"
-                  :error-messages="
-                    state.undefinedTravellerErr
-                      ? `Either add Travelers' name below or Select this option`
-                      : undefinedTravellerHint
-                        ? undefinedTravellerHint
-                        : ''
+                  :disabled="
+                    isNil(travelAuthorizationPreApprovalAttributes.department) ||
+                    isNil(travelAuthorizationPreApprovalAttributes.branch)
                   "
+                  hint="Unlocks when department and branch are selected."
+                  persistent-hint
                   @change="selectUndefinedTraveller"
                 />
               </v-col>
               <v-col
-                v-if="!undefinedTraveller"
+                v-if="travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler"
                 cols="12"
                 md="4"
               >
@@ -195,6 +194,7 @@
                   label="Number of Travellers"
                   type="number"
                   outlined
+                  :rules="[required]"
                   @input="addUndefinedTraveller"
                 />
               </v-col>
@@ -204,7 +204,6 @@
                 md="4"
               >
                 <v-btn
-                  class="ml-auto mr-5 my-7"
                   color="primary"
                   @click="addTravellerName"
                 >
@@ -273,9 +272,8 @@
                   :headers="headers"
                   :items="profiles"
                   hide-default-footer
-                  class="elevation-1"
                 >
-                  <template #item.remove="{ item }">
+                  <template #item.actions="{ item }">
                     <v-btn
                       v-if="!readonly"
                       style="min-width: 0"
@@ -340,6 +338,7 @@
 <script setup>
 import { ref, nextTick } from "vue"
 import { useStore } from "vue2-helpers/vuex"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 import { PREAPPROVED_URL } from "@/urls"
@@ -391,25 +390,19 @@ const headers = ref([
   {
     text: "Name",
     value: "profileName",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Dept.",
     value: "department",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Branch",
     value: "branch",
-    class: "blue-grey lighten-4",
   },
   {
-    text: "",
-    value: "remove",
-    class: "blue-grey lighten-4",
-    cellClass: "px-0 mx-0",
+    text: "Actions",
+    value: "actions",
     sortable: false,
-    width: "1rem",
   },
 ])
 
