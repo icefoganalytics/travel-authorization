@@ -556,20 +556,20 @@ entity "YgDepartments" {
   order : int4
 }
 
-entity "YgEmployees" {
+entity "yg_employees" {
   * id : serial4
   --
-  update_date : timestamptz
-  full_name : varchar(255)
-  first_name : varchar(255)
-  last_name : varchar(255)
-  organization : varchar(255)
-  department : varchar(255)
+  * email : varchar(255) <<UNIQUE>>
+  * username : varchar(255)
+  * full_name : varchar(255)
+  * first_name : varchar(255)
+  * last_name : varchar(255)
+  * department : varchar(255)
   division : varchar(255)
   branch : varchar(255)
   unit : varchar(255)
-  title : varchar(255)
-  email : varchar(255)
+  organization : varchar(255)
+  "title" : varchar(255)
   suite : varchar(255)
   phone_office : varchar(255)
   fax_office : varchar(255)
@@ -583,7 +583,11 @@ entity "YgEmployees" {
   longitude : varchar(255)
   mailcode : varchar(255)
   manager : varchar(255)
-  username : varchar(255)
+  last_sync_success_at : timestamptz
+  last_sync_failure_at : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
 }
 
 namespace external #LightGrey {
@@ -607,6 +611,8 @@ namespace external #LightGrey {
 ' Relationships
 expenses .. per_diems : estimates generation
 expenses .. travel_allowances : estimates generation
+flight_reconciliations .. travel_desk_flight_options : flight bookings
+travel_authorization_pre_approval_profiles .. yg_employees : profile_name
 
 expenses::travel_authorization_id ||--o{ travel_authorizations::id
 general_ledger_codings::travel_authorization_id ||--o{ travel_authorizations::id
