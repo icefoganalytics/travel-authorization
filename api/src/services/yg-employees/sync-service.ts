@@ -12,7 +12,7 @@ export class SyncService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    logger.debug("Began syncing Yukon government employees...")
+    logger.debug("Started syncing Yukon government employees...")
     const today = new Date()
     try {
       const { employees } = await yukonGovernmentIntegration.fetchEmployees()
@@ -20,7 +20,14 @@ export class SyncService extends BaseService {
         await db.query(/* sql */ ` TRUNCATE "yg_employees" RESTART IDENTITY CASCADE`)
 
         const ygEmployeesAttributes: CreationAttributes<YgEmployee>[] = []
+        const emailsSet: Set<string> = new Set()
         for (const employee of employees) {
+          if (emailsSet.has(employee.email)) {
+            logger.debug(`Skipping duplicate YG employee: ${employee.email} -> ${JSON.stringify(employee)}`)
+            continue
+          }
+
+          emailsSet.add(employee.email)
           ygEmployeesAttributes.push({
             email: employee.email,
             username: employee.email,
