@@ -2,14 +2,16 @@ import express, { Request, Response } from "express"
 import knex from "knex"
 import axios from "axios"
 import { uniq } from "lodash"
+import { type CreationAttributes } from "sequelize"
 
 import { RequiresAuth, ReturnValidationErrors } from "@/middleware"
 import { DB_CONFIG, AZURE_KEY } from "@/config"
 import logger from "@/utils/logger"
-import { TravelPurpose } from "@/models"
+import db, { YgEmployee } from "@/models"
+import { yukonGovernmentIntegration } from "@/integrations"
 
 export const lookupRouter = express.Router()
-const db = knex(DB_CONFIG)
+const dbLegacy = knex(DB_CONFIG)
 
 const cache = new Map<string, any>()
 
@@ -44,7 +46,7 @@ lookupRouter.get(
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
     try {
-      let result = await db("departments")
+      let result = await dbLegacy("departments")
         .select("id", "name", "type", "ownedby")
         .where("type", "=", "department")
       res.status(200).json(result)
@@ -57,7 +59,7 @@ lookupRouter.get(
 
 lookupRouter.get("/branches", ReturnValidationErrors, async function (req: Request, res: Response) {
   try {
-    let result = await db("departments")
+    let result = await dbLegacy("departments")
       .select(
         "departments.id",
         "departments.name",
@@ -82,7 +84,7 @@ lookupRouter.get(
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
     try {
-      let result = await db("departments")
+      let result = await dbLegacy("departments")
         .select("id", "name", "type", "ownedby")
         .where("ownedby", "=", req.params.id)
         .andWhere("type", "=", "branch")
@@ -96,7 +98,7 @@ lookupRouter.get(
 
 lookupRouter.get("/roles", ReturnValidationErrors, async function (req: Request, res: Response) {
   try {
-    let result = await db("roles").select("name")
+    let result = await dbLegacy("roles").select("name")
     res.status(200).json(result)
   } catch (error: any) {
     logger.info(error)
@@ -218,7 +220,7 @@ lookupRouter.get(
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
     try {
-      let result = await db("transportMethod").select("id", "method")
+      let result = await dbLegacy("transportMethod").select("id", "method")
       res.status(200).json(result)
     } catch (error: any) {
       logger.info(error)
@@ -234,12 +236,12 @@ lookupRouter.get(
   async function (req: Request, res: Response) {
     let cleanList: any = {}
     try {
-      let departments = await db("YgDepartments").select("*")
+      let departments = await dbLegacy("YgDepartments").select("*")
       const updateRequired = timeToUpdate(departments[0])
 
       if (!departments[0] || updateRequired) {
         await updateYgDepartments()
-        departments = await db("YgDepartments").select("*")
+        departments = await dbLegacy("YgDepartments").select("*")
       }
 
       for (const slice of departments) {
@@ -267,20 +269,20 @@ lookupRouter.get(
   async function (req: Request, res: Response) {
     const cleanList: any[] = []
     try {
-      let employees = await db("YgEmployees").select("*")
+      let employees = await YgEmployee.findAll()
       const updateRequired = timeToUpdate(employees[0])
 
       if (!employees[0] || updateRequired) {
         await updateYgEmployees()
-        employees = await db("YgEmployees").select("*")
+        employees = await YgEmployee.findAll()
       }
 
       for (const employee of employees) {
         cleanList.push({
-          firstName: employee.first_name,
-          lastName: employee.last_name,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
           department: employee.department,
-          fullName: employee.full_name,
+          fullName: employee.fullName,
           email: employee.email,
         })
       }
@@ -294,29 +296,37 @@ lookupRouter.get(
 
 lookupRouter.get("/employee-info", async function (req: Request, res: Response) {
   try {
-    let employees = await db("YgEmployees").select("*").where("email", String(req.query.email))
+    let employees = await YgEmployee.findAll({
+      where: {
+        email: req.query.email as string | string[],
+      },
+    })
     const updateRequired = timeToUpdate(employees[0])
 
     if (!employees[0] || updateRequired) {
       await updateYgEmployees()
-      employees = await db("YgEmployees").select("*").where("email", String(req.query.email))
+      employees = await YgEmployee.findAll({
+        where: {
+          email: req.query.email as string | string[],
+        },
+      })
     }
 
     let employeeInfo = {}
     if (employees[0]) {
       const employee = employees[0]
       employeeInfo = {
-        firstName: employee.first_name,
-        lastName: employee.last_name,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
         department: employee.department,
-        fullName: employee.full_name,
+        fullName: employee.fullName,
         email: employee.email,
-        businessPhone: employee.phone_office,
+        businessPhone: employee.phoneOffice,
         mobile: employee.mobile,
         office: employee.office,
         address: employee.address,
         community: employee.community,
-        postalCode: employee.postal_code,
+        postalCode: employee.postalCode,
       }
     }
 
@@ -336,40 +346,53 @@ function timeToUpdate(item: any) {
 }
 
 async function updateYgEmployees() {
-  logger.info("___________UPDATING EMPLOYEE LIST___________")
   const today = new Date()
   try {
-    await axios
-      .get(`https://api.gov.yk.ca/directory/employees`, {
-        headers: {
-          "Ocp-Apim-Subscription-Key": AZURE_KEY,
-        },
-        timeout: 10000,
-      })
-      .then(async (resp: any) => {
-        if (resp?.data?.employees)
-          await db.transaction(async (trx) => {
-            logger.info("_____START_Updating_Employees_____")
-            await db("YgEmployees").del()
-            await db.raw(`ALTER SEQUENCE "YgEmployees_id_seq" RESTART WITH 1;`)
+    const { employees } = await yukonGovernmentIntegration.fetchEmployees()
+    await db.transaction(async () => {
+      await db.query(/* sql */ ` TRUNCATE "yg_employees" RESTART IDENTITY CASCADE`)
 
-            const employees = resp.data.employees
-            for (const employee of employees) {
-              employee.update_date = today
-            }
+      const ygEmployeesAttributes: CreationAttributes<YgEmployee>[] = []
+      for (const employee of employees) {
+        ygEmployeesAttributes.push({
+          email: employee.email,
+          username: employee.email,
+          fullName: employee.full_name,
+          firstName: employee.first_name,
+          lastName: employee.last_name,
+          department: employee.department,
+          division: employee.division,
+          branch: employee.branch,
+          unit: employee.unit,
+          organization: employee.organization,
+          title: employee.title,
+          suite: employee.suite,
+          phoneOffice: employee.phone_office,
+          faxOffice: employee.fax_office,
+          mobile: employee.mobile,
+          office: employee.office,
+          address: employee.address,
+          poBox: employee.po_box,
+          community: employee.community,
+          postalCode: employee.postal_code,
+          latitude: employee.latitude?.toString(),
+          longitude: employee.longitude?.toString(),
+          mailcode: employee.mailcode,
+          manager: employee.manager,
+          lastSyncSuccessAt: today,
+        })
+      }
 
-            for (let ctt = 0; ctt < employees.length; ctt = ctt + 70)
-              await db("YgEmployees").insert(employees.slice(ctt, ctt + 70))
-
-            logger.info("_____FINISH______")
-          })
-      })
-      .catch(async () => {
-        logger.info("_____err_____________")
-        await db("YgEmployees").update({ update_date: today })
-      })
-  } catch (error: any) {
-    logger.info(error)
+      await YgEmployee.bulkCreateBatched(ygEmployeesAttributes)
+    })
+  } catch (error: unknown) {
+    await YgEmployee.update(
+      { lastSyncFailureAt: today },
+      {
+        where: {},
+      }
+    )
+    logger.error(`Failed to update Yukon Government employees: ${error}`)
   }
 }
 
@@ -386,10 +409,10 @@ async function updateYgDepartments() {
       })
       .then(async (resp: any) => {
         if (resp?.data?.divisions)
-          await db.transaction(async (trx) => {
+          await dbLegacy.transaction(async (trx) => {
             logger.info("_____START_Updating_Departments______")
-            await db("YgDepartments").del()
-            await db.raw(`ALTER SEQUENCE "YgDepartments_id_seq" RESTART WITH 1;`)
+            await dbLegacy("YgDepartments").del()
+            await dbLegacy.raw(`ALTER SEQUENCE "YgDepartments_id_seq" RESTART WITH 1;`)
 
             const departments = resp.data.divisions
 
@@ -398,14 +421,14 @@ async function updateYgDepartments() {
             }
 
             for (let ctt = 0; ctt < departments.length; ctt = ctt + 70)
-              await db("YgDepartments").insert(departments.slice(ctt, ctt + 70))
+              await dbLegacy("YgDepartments").insert(departments.slice(ctt, ctt + 70))
 
             logger.info("_____FINISH______")
           })
       })
       .catch(async () => {
         logger.info("_____err_____________")
-        await db("YgDepartments").update({ update_date: today })
+        await dbLegacy("YgDepartments").update({ update_date: today })
       })
   } catch (error: any) {
     logger.info(error)

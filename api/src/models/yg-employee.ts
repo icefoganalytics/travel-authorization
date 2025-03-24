@@ -3,12 +3,12 @@ import {
   DataTypes,
   type InferAttributes,
   type InferCreationAttributes,
-  Model,
 } from "sequelize"
 
 import sequelize from "@/db/db-client"
+import BaseModel from "@/models/base-model"
 
-export class YgEmployee extends Model<
+export class YgEmployee extends BaseModel<
   InferAttributes<YgEmployee>,
   InferCreationAttributes<YgEmployee>
 > {

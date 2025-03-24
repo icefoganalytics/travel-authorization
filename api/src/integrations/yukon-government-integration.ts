@@ -51,17 +51,19 @@ type YukonGovernmentDivision = {
 }
 
 export const yukonGovernmentIntegration = {
-  async searchEmployees(params?: { email?: string }): Promise<{
+  // I haven't been able identify the params required for pagination
+  async fetchEmployees(params: { email?: string } = {}): Promise<{
     employees: YukonGovernmentEmployee[]
     count: number
   }> {
     const { data } = await yukonGovernmentApi.get("/directory/employees", {
       params,
+      timeout: 10000, // Without pagination, response can be very slow.
     })
     return data
   },
   async fetchEmployee(email: string): Promise<YukonGovernmentEmployee | null> {
-    const { employees } = await yukonGovernmentIntegration.searchEmployees({ email })
+    const { employees } = await yukonGovernmentIntegration.fetchEmployees({ email })
 
     if (isEmpty(employees)) {
       return null
