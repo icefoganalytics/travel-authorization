@@ -261,11 +261,17 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer using /yg-employees -> api/src/controllers/yg-employees-controller.ts#index instead
+ */
 lookupRouter.get(
   "/employees",
   RequiresAuth,
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /yg-employees -> api/src/controllers/yg-employees-controller.ts#index instead"
+    )
     const cleanList: any[] = []
     try {
       let employees = await YgEmployee.findAll()
@@ -293,7 +299,13 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer using /yg-employees/:ygEmployeeId -> api/src/controllers/yg-employees-controller.ts#show instead
+ */
 lookupRouter.get("/employee-info", async function (req: Request, res: Response) {
+  logger.warn(
+    "DEPRECATED: Prefer using /yg-employees/:ygEmployeeId -> api/src/controllers/yg-employees-controller.ts#show instead"
+  )
   try {
     let employees = await YgEmployee.findAll({
       where: {

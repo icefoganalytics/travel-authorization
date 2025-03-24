@@ -3,6 +3,7 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 import { YgEmployee } from "@/models"
 import { YgEmployeesPolicy } from "@/policies"
+import { IndexSerializer, ShowSerializer } from "@/serializers/yg-employees"
 import BaseController from "@/controllers/base-controller"
 
 export class YgEmployeesController extends BaseController<YgEmployee> {
@@ -21,8 +22,9 @@ export class YgEmployeesController extends BaseController<YgEmployee> {
         offset: this.pagination.offset,
         order,
       })
+      const serializedYgEmployees = IndexSerializer.perform(ygEmployees, this.currentUser)
       return this.response.status(200).json({
-        ygEmployees,
+        ygEmployees: serializedYgEmployees,
         totalCount,
       })
     } catch (error) {
@@ -48,8 +50,9 @@ export class YgEmployeesController extends BaseController<YgEmployee> {
       })
     }
 
+    const serializedYgEmployee = ShowSerializer.perform(ygEmployee, this.currentUser)
     return this.response.status(200).json({
-      ygEmployee,
+      ygEmployee: serializedYgEmployee,
       policy,
     })
   }
