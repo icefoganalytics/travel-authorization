@@ -177,4 +177,6 @@ YgEmployee.init(
   }
 )
 
+YgEmployee.addSearchScope(["email", "username", "full_name", "first_name", "last_name", "title"])
+
 export default YgEmployee
