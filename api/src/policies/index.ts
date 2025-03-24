@@ -18,6 +18,7 @@ export { TravelDeskRentalCarsPolicy } from "./travel-desk-rental-cars-policy"
 export { TravelDeskTravelAgenciesPolicy } from "./travel-desk-travel-agencies-policy"
 export { TravelDeskTravelRequestsPolicy } from "./travel-desk-travel-requests-policy"
 export { UsersPolicy } from "./users-policy"
+export { YgEmployeesPolicy } from "./yg-employees-policy"
 
 // Namespaced policies
 export * as TravelAuthorizations from "./travel-authorizations"

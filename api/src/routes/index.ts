@@ -38,6 +38,8 @@ import {
   TravelPurposesController,
   Users,
   UsersController,
+  YgEmployees,
+  YgEmployeesController,
 } from "@/controllers"
 
 //// START LEGACY IMPORTS
@@ -309,6 +311,10 @@ router
 router
   .route("/api/travel-authorization-action-logs")
   .get(TravelAuthorizationActionLogsController.index)
+
+router.route("/api/yg-employees").get(YgEmployeesController.index)
+router.route("/api/yg-employees/sync").post(YgEmployees.SyncController.create)
+router.route("/api/yg-employees/:ygEmployeeId").get(YgEmployeesController.show)
 
 // TravCom Integration
 router
