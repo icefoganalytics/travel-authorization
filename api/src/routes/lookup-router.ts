@@ -2,16 +2,15 @@ import express, { Request, Response } from "express"
 import knex from "knex"
 import axios from "axios"
 import { uniq } from "lodash"
-import { type CreationAttributes } from "sequelize"
 
 import { RequiresAuth, ReturnValidationErrors } from "@/middleware"
 import { DB_CONFIG, AZURE_KEY } from "@/config"
 import logger from "@/utils/logger"
-import db, { YgEmployee } from "@/models"
-import { yukonGovernmentIntegration } from "@/integrations"
+import { YgEmployee } from "@/models"
+import { YgEmployees } from "@/services"
 
 export const lookupRouter = express.Router()
-const dbLegacy = knex(DB_CONFIG)
+const db = knex(DB_CONFIG)
 
 const cache = new Map<string, any>()
 
@@ -46,7 +45,7 @@ lookupRouter.get(
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
     try {
-      let result = await dbLegacy("departments")
+      let result = await db("departments")
         .select("id", "name", "type", "ownedby")
         .where("type", "=", "department")
       res.status(200).json(result)
@@ -59,7 +58,7 @@ lookupRouter.get(
 
 lookupRouter.get("/branches", ReturnValidationErrors, async function (req: Request, res: Response) {
   try {
-    let result = await dbLegacy("departments")
+    let result = await db("departments")
       .select(
         "departments.id",
         "departments.name",
@@ -84,7 +83,7 @@ lookupRouter.get(
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
     try {
-      let result = await dbLegacy("departments")
+      let result = await db("departments")
         .select("id", "name", "type", "ownedby")
         .where("ownedby", "=", req.params.id)
         .andWhere("type", "=", "branch")
@@ -98,7 +97,7 @@ lookupRouter.get(
 
 lookupRouter.get("/roles", ReturnValidationErrors, async function (req: Request, res: Response) {
   try {
-    let result = await dbLegacy("roles").select("name")
+    let result = await db("roles").select("name")
     res.status(200).json(result)
   } catch (error: any) {
     logger.info(error)
@@ -220,7 +219,7 @@ lookupRouter.get(
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
     try {
-      let result = await dbLegacy("transportMethod").select("id", "method")
+      let result = await db("transportMethod").select("id", "method")
       res.status(200).json(result)
     } catch (error: any) {
       logger.info(error)
@@ -236,12 +235,12 @@ lookupRouter.get(
   async function (req: Request, res: Response) {
     let cleanList: any = {}
     try {
-      let departments = await dbLegacy("YgDepartments").select("*")
+      let departments = await db("YgDepartments").select("*")
       const updateRequired = timeToUpdate(departments[0])
 
       if (!departments[0] || updateRequired) {
         await updateYgDepartments()
-        departments = await dbLegacy("YgDepartments").select("*")
+        departments = await db("YgDepartments").select("*")
       }
 
       for (const slice of departments) {
@@ -273,7 +272,7 @@ lookupRouter.get(
       const updateRequired = timeToUpdate(employees[0])
 
       if (!employees[0] || updateRequired) {
-        await updateYgEmployees()
+        await YgEmployees.SyncService.perform()
         employees = await YgEmployee.findAll()
       }
 
@@ -304,7 +303,7 @@ lookupRouter.get("/employee-info", async function (req: Request, res: Response) 
     const updateRequired = timeToUpdate(employees[0])
 
     if (!employees[0] || updateRequired) {
-      await updateYgEmployees()
+      await YgEmployees.SyncService.perform()
       employees = await YgEmployee.findAll({
         where: {
           email: req.query.email as string | string[],
@@ -345,57 +344,6 @@ function timeToUpdate(item: any) {
   return updateTime > lastUpdate
 }
 
-async function updateYgEmployees() {
-  const today = new Date()
-  try {
-    const { employees } = await yukonGovernmentIntegration.fetchEmployees()
-    await db.transaction(async () => {
-      await db.query(/* sql */ ` TRUNCATE "yg_employees" RESTART IDENTITY CASCADE`)
-
-      const ygEmployeesAttributes: CreationAttributes<YgEmployee>[] = []
-      for (const employee of employees) {
-        ygEmployeesAttributes.push({
-          email: employee.email,
-          username: employee.email,
-          fullName: employee.full_name,
-          firstName: employee.first_name,
-          lastName: employee.last_name,
-          department: employee.department,
-          division: employee.division,
-          branch: employee.branch,
-          unit: employee.unit,
-          organization: employee.organization,
-          title: employee.title,
-          suite: employee.suite,
-          phoneOffice: employee.phone_office,
-          faxOffice: employee.fax_office,
-          mobile: employee.mobile,
-          office: employee.office,
-          address: employee.address,
-          poBox: employee.po_box,
-          community: employee.community,
-          postalCode: employee.postal_code,
-          latitude: employee.latitude?.toString(),
-          longitude: employee.longitude?.toString(),
-          mailcode: employee.mailcode,
-          manager: employee.manager,
-          lastSyncSuccessAt: today,
-        })
-      }
-
-      await YgEmployee.bulkCreateBatched(ygEmployeesAttributes)
-    })
-  } catch (error: unknown) {
-    await YgEmployee.update(
-      { lastSyncFailureAt: today },
-      {
-        where: {},
-      }
-    )
-    logger.error(`Failed to update Yukon Government employees: ${error}`)
-  }
-}
-
 async function updateYgDepartments() {
   logger.info("___________UPDATING DEPARTMENTS___________")
   const today = new Date()
@@ -409,10 +357,10 @@ async function updateYgDepartments() {
       })
       .then(async (resp: any) => {
         if (resp?.data?.divisions)
-          await dbLegacy.transaction(async (trx) => {
+          await db.transaction(async (trx) => {
             logger.info("_____START_Updating_Departments______")
-            await dbLegacy("YgDepartments").del()
-            await dbLegacy.raw(`ALTER SEQUENCE "YgDepartments_id_seq" RESTART WITH 1;`)
+            await db("YgDepartments").del()
+            await db.raw(`ALTER SEQUENCE "YgDepartments_id_seq" RESTART WITH 1;`)
 
             const departments = resp.data.divisions
 
@@ -421,14 +369,14 @@ async function updateYgDepartments() {
             }
 
             for (let ctt = 0; ctt < departments.length; ctt = ctt + 70)
-              await dbLegacy("YgDepartments").insert(departments.slice(ctt, ctt + 70))
+              await db("YgDepartments").insert(departments.slice(ctt, ctt + 70))
 
             logger.info("_____FINISH______")
           })
       })
       .catch(async () => {
         logger.info("_____err_____________")
-        await dbLegacy("YgDepartments").update({ update_date: today })
+        await db("YgDepartments").update({ update_date: today })
       })
   } catch (error: any) {
     logger.info(error)
