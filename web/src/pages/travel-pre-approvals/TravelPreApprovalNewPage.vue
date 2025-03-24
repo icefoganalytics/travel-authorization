@@ -203,9 +203,10 @@
                 cols="12"
                 md="4"
               >
+                <!-- TODO: disable unless department and branch are filled in -->
                 <v-btn
                   color="primary"
-                  @click="addTravellerName"
+                  @click="showTravellerProfileCreateDialog"
                 >
                   Add Traveller
                 </v-btn>
@@ -213,52 +214,43 @@
                 <!-- TODO: move to its own component -->
                 <v-dialog
                   v-model="travellerDialog"
-                  persistent
                   max-width="400px"
                 >
-                  <v-card>
-                    <v-card-title
-                      class="primary"
-                      style="border-bottom: 1px solid black"
-                    >
-                      <div class="text-h5">Traveller</div>
-                    </v-card-title>
-
-                    <v-card-text>
+                  <HeaderActionsFormCard
+                    title="Traveller"
+                    header-tag="h2"
+                    @close="travellerDialog = false"
+                  >
                       <v-row>
-                        <v-col
-                          cols="12"
-                          md="12"
-                        >
-                          <v-autocomplete
+                        <v-col>
+                          <!-- TODO: update data model to store traveller id (User|YgEmployee) -->
+                          <YgEmployeeAutocomplete
                             v-model="adName"
-                            :error="adNameErr"
-                            :items="adNameList"
+                            item-value="fullName"
                             item-text="fullName"
                             label="Traveller Name"
                             outlined
-                            @change="adNameErr = false"
+                            :where="ygEmployeeWhere"
                           />
                         </v-col>
                       </v-row>
-                    </v-card-text>
 
-                    <v-card-actions>
+                    <template #actions>
                       <v-btn
-                        color="grey darken-5"
-                        @click="travellerDialog = false"
-                      >
-                        Cancel
-                      </v-btn>
-                      <v-btn
-                        class="ml-auto"
-                        color="green darken-1"
+                        color="primary"
                         @click="addTraveller"
                       >
                         Add
                       </v-btn>
-                    </v-card-actions>
-                  </v-card>
+                      <v-btn
+                        color="warning"
+                        outlined
+                        @click="travellerDialog = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </template #actions>
+                  </HeaderActionsFormCard>
                 </v-dialog>
               </v-col>
             </v-row>
@@ -336,7 +328,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from "vue"
+import { computed, ref, nextTick } from "vue"
 import { useStore } from "vue2-helpers/vuex"
 import { isNil } from "lodash"
 
@@ -353,6 +345,7 @@ import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import MonthSelect from "@/components/common/MonthSelect.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
+import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
 
@@ -385,6 +378,11 @@ const travelAuthorizationPreApprovalAttributes = ref({
   numberTravelers: undefined,
   travelerNotes: undefined,
 })
+
+const ygEmployeeWhere = computed(() => ({
+  department: travelAuthorizationPreApprovalAttributes.value.department,
+  branch: travelAuthorizationPreApprovalAttributes.value.branch,
+}))
 
 const headers = ref([
   {
@@ -464,19 +462,8 @@ function addTraveller() {
   } else adNameErr.value = true
 }
 
-function addTravellerName() {
-  state.value.undefinedTravellerErr = false
-  undefinedTravellerHint.value = ""
-  adNameErr.value = false
-  adName.value = ""
-  state.value.departmentErr = department.value ? false : true
-  state.value.branchErr = branchList.value.length > 0 && !branch.value ? true : false
-  if (department.value && (branch.value || branchList.value.length == 0)) {
-    adNameList.value = employeeList.value
-      .filter((employee) => employee.department == department.value)
-      .sort((a, b) => (a.fullName >= b.fullName ? 1 : -1))
-    travellerDialog.value = true
-  }
+function showTravellerProfileCreateDialog() {
+  travellerDialog.value = true
 }
 
 function clearDateRelatedFields() {
