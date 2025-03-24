@@ -6,8 +6,8 @@ import { uniq } from "lodash"
 import { RequiresAuth, ReturnValidationErrors } from "@/middleware"
 import { DB_CONFIG, AZURE_KEY } from "@/config"
 import logger from "@/utils/logger"
-import { YgEmployee } from "@/models"
-import { YgEmployees } from "@/services"
+import { YgEmployeeGroup, YgEmployee } from "@/models"
+import { YgEmployeeGroups, YgEmployees } from "@/services"
 
 export const lookupRouter = express.Router()
 const db = knex(DB_CONFIG)
@@ -235,12 +235,12 @@ lookupRouter.get(
   async function (req: Request, res: Response) {
     let cleanList: any = {}
     try {
-      let departments = await db("YgDepartments").select("*")
+      let departments = await YgEmployeeGroup.findAll()
       const updateRequired = timeToUpdate(departments[0])
 
       if (!departments[0] || updateRequired) {
-        await updateYgDepartments()
-        departments = await db("YgDepartments").select("*")
+        await YgEmployeeGroups.SyncService.perform()
+        departments = await YgEmployeeGroup.findAll()
       }
 
       for (const slice of departments) {
@@ -354,43 +354,4 @@ function timeToUpdate(item: any) {
   updateTime.setDate(updateTime.getDate() - 1) //Update Time is 24 hours after last update
   const lastUpdate = item?.update_date ? new Date(item.update_date) : new Date("2000-01-01")
   return updateTime > lastUpdate
-}
-
-async function updateYgDepartments() {
-  logger.info("___________UPDATING DEPARTMENTS___________")
-  const today = new Date()
-  try {
-    await axios
-      .get(`https://api.gov.yk.ca/directory/divisions`, {
-        headers: {
-          "Ocp-Apim-Subscription-Key": AZURE_KEY,
-        },
-        timeout: 5000,
-      })
-      .then(async (resp: any) => {
-        if (resp?.data?.divisions)
-          await db.transaction(async (trx) => {
-            logger.info("_____START_Updating_Departments______")
-            await db("YgDepartments").del()
-            await db.raw(`ALTER SEQUENCE "YgDepartments_id_seq" RESTART WITH 1;`)
-
-            const departments = resp.data.divisions
-
-            for (const department of departments) {
-              department.update_date = today
-            }
-
-            for (let ctt = 0; ctt < departments.length; ctt = ctt + 70)
-              await db("YgDepartments").insert(departments.slice(ctt, ctt + 70))
-
-            logger.info("_____FINISH______")
-          })
-      })
-      .catch(async () => {
-        logger.info("_____err_____________")
-        await db("YgDepartments").update({ update_date: today })
-      })
-  } catch (error: any) {
-    logger.info(error)
-  }
 }

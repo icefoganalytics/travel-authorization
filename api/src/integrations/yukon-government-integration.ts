@@ -62,6 +62,7 @@ export const yukonGovernmentIntegration = {
     })
     return data
   },
+
   async fetchEmployee(email: string): Promise<YukonGovernmentEmployee | null> {
     const { employees } = await yukonGovernmentIntegration.fetchEmployees({ email })
 
@@ -78,6 +79,7 @@ export const yukonGovernmentIntegration = {
 
     return employees[0]
   },
+
   async fetchDepartments(): Promise<{
     departments: string[]
     count: number
@@ -85,11 +87,15 @@ export const yukonGovernmentIntegration = {
     const { data } = await yukonGovernmentApi.get("/directory/departments")
     return data
   },
+
+  // I haven't been able identify the params required for pagination
   async fetchDivisions(): Promise<{
     divisions: YukonGovernmentDivision[]
     count: number
   }> {
-    const { data } = await yukonGovernmentApi.get("/directory/divisions")
+    const { data } = await yukonGovernmentApi.get("/directory/divisions", {
+      timeout: 5000, // Without pagination, response can be very slow.
+    })
     return data
   },
 }
