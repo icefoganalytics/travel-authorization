@@ -38,6 +38,8 @@ import {
   TravelPurposesController,
   Users,
   UsersController,
+  YgEmployeeGroups,
+  YgEmployeeGroupsController,
   YgEmployees,
   YgEmployeesController,
 } from "@/controllers"
@@ -311,6 +313,10 @@ router
 router
   .route("/api/travel-authorization-action-logs")
   .get(TravelAuthorizationActionLogsController.index)
+
+router.route("/api/yg-employee-groups").get(YgEmployeeGroupsController.index)
+router.route("/api/yg-employee-groups/sync").post(YgEmployeeGroups.SyncController.create)
+router.route("/api/yg-employee-groups/:ygEmployeeGroupId").get(YgEmployeeGroupsController.show)
 
 router.route("/api/yg-employees").get(YgEmployeesController.index)
 router.route("/api/yg-employees/sync").post(YgEmployees.SyncController.create)

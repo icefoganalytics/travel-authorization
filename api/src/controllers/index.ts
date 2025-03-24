@@ -22,6 +22,7 @@ export { TravelDeskTravelAgenciesController } from "./travel-desk-travel-agencie
 export { TravelDeskTravelRequestsController } from "./travel-desk-travel-requests-controller"
 export { TravelPurposesController } from "./travel-purposes-controller"
 export { UsersController } from "./users-controller"
+export { YgEmployeeGroupsController } from "./yg-employee-groups-controller"
 export { YgEmployeesController } from "./yg-employees-controller"
 
 // Namespaced controllers
@@ -32,4 +33,5 @@ export * as TravelAuthorizations from "./travel-authorizations"
 export * as TravelDeskFlightOptions from "./travel-desk-flight-options"
 export * as TravelDeskTravelRequests from "./travel-desk-travel-requests"
 export * as Users from "./users"
+export * as YgEmployeeGroups from "./yg-employee-groups"
 export * as YgEmployees from "./yg-employees"
