@@ -545,15 +545,20 @@ entity "users" {
   last_employee_directory_sync_at : timestamptz
 }
 
-entity "YgDepartments" {
+
+entity "yg_employee_groups" {
   * id : serial4
   --
-  update_date : timestamptz
-  department : varchar(255)
+  * department : varchar(255)
   division : varchar(255)
   branch : varchar(255)
   unit : varchar(255)
-  order : int4
+  * order : int4
+  last_sync_success_at : timestamptz
+  last_sync_failure_at : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
 }
 
 entity "yg_employees" {
@@ -613,6 +618,7 @@ expenses .. per_diems : estimates generation
 expenses .. travel_allowances : estimates generation
 flight_reconciliations .. travel_desk_flight_options : flight bookings
 travel_authorization_pre_approval_profiles .. yg_employees : profile_name
+yg_employees .. yg_employee_groups : department, division, branch, unit
 
 expenses::travel_authorization_id ||--o{ travel_authorizations::id
 general_ledger_codings::travel_authorization_id ||--o{ travel_authorizations::id
