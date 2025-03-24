@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc && tsc-alias",
     "start": "ts-node-dev -r tsconfig-paths/register src/server.ts",
+    "start:scheduler": "ts-node-dev -r tsconfig-paths/register src/scheduler.ts",
     "initializers": "ts-node -r tsconfig-paths/register --files src/initializers/index.ts",
     "ts-node": "ts-node -r tsconfig-paths/register",
     "knex": "ts-node -r tsconfig-paths/register ./node_modules/.bin/knex --knexfile src/config.d/knexfile.ts",
