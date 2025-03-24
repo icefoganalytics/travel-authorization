@@ -28,6 +28,7 @@ import TravelDeskTravelRequest from "./travel-desk-travel-request"
 import TravelPurpose from "./travel-purpose"
 import TravelSegment from "./travel-segment"
 import User from "./user"
+import YgEmployee from "./yg-employee"
 
 Expense.establishAssociations()
 FlightReconciliation.establishAssociations()
@@ -81,6 +82,7 @@ export {
   TravelPurpose,
   TravelSegment,
   User,
+  YgEmployee,
 }
 
 // special db instance that has access to all models.
