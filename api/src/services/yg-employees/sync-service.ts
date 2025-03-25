@@ -23,15 +23,20 @@ export class SyncService extends BaseService {
         const emailsSet: Set<string> = new Set()
         for (const employee of employees) {
           if (emailsSet.has(employee.email)) {
-            logger.debug(`Skipping duplicate YG employee: ${employee.email} -> ${JSON.stringify(employee)}`)
+            logger.debug(
+              `Skipping duplicate YG employee: ${employee.email} -> ${JSON.stringify(employee)}`
+            )
             continue
           }
 
           emailsSet.add(employee.email)
+
+          const fullName = employee.full_name?.split(".")?.join(" ")
+          const manager = employee.manager?.split(".")?.join(" ")
           ygEmployeesAttributes.push({
             email: employee.email,
             username: employee.email,
-            fullName: employee.full_name,
+            fullName,
             firstName: employee.first_name,
             lastName: employee.last_name,
             department: employee.department,
@@ -52,7 +57,7 @@ export class SyncService extends BaseService {
             latitude: employee.latitude?.toString(),
             longitude: employee.longitude?.toString(),
             mailcode: employee.mailcode,
-            manager: employee.manager,
+            manager,
             lastSyncSuccessAt: today,
           })
         }
