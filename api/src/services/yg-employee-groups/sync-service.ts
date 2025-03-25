@@ -23,7 +23,7 @@ export class SyncService extends BaseService {
         const userGroupSet: Set<string> = new Set()
         for (const employeeGroup of employeeGroups) {
           const { department, division, branch, unit } = employeeGroup
-          const userGroupKey = `${department}-${division}-${branch}-${unit}`
+          const userGroupKey = [department, division, branch, unit].filter(Boolean).join("-")
           if (userGroupSet.has(userGroupKey)) {
             logger.debug(
               `Skipping duplicate YG employee group: ${userGroupKey} -> ${JSON.stringify(employeeGroup)}`
