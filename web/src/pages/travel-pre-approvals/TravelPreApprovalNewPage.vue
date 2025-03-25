@@ -76,26 +76,14 @@
         cols="12"
         md="4"
       >
-        <v-checkbox
-          v-model="travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
-          label="Exact date unknown"
-          @change="clearDateRelatedFields"
+        <v-switch
+          :input-value="exactTravelDateKnown"
+          :label="exactTravelDateKnown ? 'Exact date known' : 'Exact date not known'"
+          inset
+          @change="toggleExactTravelDateKnown"
         />
       </v-col>
-      <v-col
-        v-if="travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
-        cols="12"
-        md="3"
-      >
-        <MonthSelect
-          v-model="travelAuthorizationPreApprovalAttributes.month"
-          :disabled="!travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
-          label="Anticipated Month *"
-          :rules="[required]"
-          outlined
-        />
-      </v-col>
-      <template v-else>
+      <template v-if="exactTravelDateKnown">
         <v-col
           cols="12"
           md="3"
@@ -121,6 +109,19 @@
           />
         </v-col>
       </template>
+      <v-col
+        v-else
+        cols="12"
+        md="3"
+      >
+        <MonthSelect
+          v-model="travelAuthorizationPreApprovalAttributes.month"
+          :disabled="!travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
+          label="Anticipated Month *"
+          :rules="[required]"
+          outlined
+        />
+      </v-col>
     </v-row>
 
     <v-row>
@@ -212,7 +213,12 @@ const travelAuthorizationPreApprovalAttributes = ref({
   profilesAttributes: [],
 })
 
-function clearDateRelatedFields() {
+const exactTravelDateKnown = ref(true)
+
+function toggleExactTravelDateKnown(value) {
+  exactTravelDateKnown.value = value
+
+  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = !value
   travelAuthorizationPreApprovalAttributes.value.startDate = undefined
   travelAuthorizationPreApprovalAttributes.value.endDate = undefined
   travelAuthorizationPreApprovalAttributes.value.month = undefined
