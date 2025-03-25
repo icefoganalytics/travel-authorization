@@ -178,7 +178,8 @@ function addTravelerProfileAttributes() {
     emit("input", [...props.value, newProfileAttributes])
     return
   } else {
-    const profileName = [props.department, props.branch].filter(Boolean).join(" ") + " staff"
+    const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")
+    const profileName = `${profilePrefix} staff`
     const newProfileAttributes = {
       profileName,
       department: props.department,
