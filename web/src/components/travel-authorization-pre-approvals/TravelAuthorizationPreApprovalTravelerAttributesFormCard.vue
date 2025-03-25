@@ -6,7 +6,7 @@
     <v-row>
       <v-col
         cols="12"
-        md="12"
+        md="3"
       >
         <v-switch
           :input-value="exactTravelerKnown"
