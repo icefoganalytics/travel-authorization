@@ -179,6 +179,8 @@ function addTravelerProfileAttributes() {
     return
   } else {
     const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")
+    // TODO: consider if we should be adding one record for each "number of travelers"?
+    // TODO: consider if we should be including the "number of travelers" in the profile name
     const profileName = `${profilePrefix} staff`
     const newProfileAttributes = {
       profileName,
