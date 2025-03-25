@@ -6,20 +6,6 @@
     <v-row>
       <v-col
         cols="12"
-        md="12"
-      >
-        <v-switch
-          :input-value="exactTravelerKnown"
-          :label="exactTravelerKnown ? 'Exact traveler known' : 'Exact traveler not known'"
-          inset
-          @change="toggleExactTravelerKnown"
-        />
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col
-        cols="12"
         md="6"
       >
         <DepartmentAutocomplete
@@ -38,6 +24,7 @@
           v-model="branch"
           label="Branch"
           :disabled="isNil(department)"
+          :hint="isNil(department) ? 'Select a department to unlock' : 'Search for a branch'"
           :where="branchWhere"
           outlined
           clearable
@@ -46,8 +33,23 @@
       </v-col>
     </v-row>
 
-    <v-row v-if="exactTravelerKnown">
+    <v-row>
       <v-col
+        cols="12"
+        md="12"
+      >
+        <v-switch
+          :input-value="exactTravelerKnown"
+          :label="exactTravelerKnown ? 'Exact traveler known' : 'Exact traveler not known'"
+          inset
+          @change="toggleExactTravelerKnown"
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col
+        v-if="exactTravelerKnown"
         cols="12"
         md="4"
       >
@@ -56,16 +58,16 @@
           item-value="fullName"
           item-text="fullName"
           label="Traveler name *"
-          hint="Search for a traveler"
           :clearable="false"
+          :disabled="isNil(department)"
+          :hint="isNil(department) ? 'Select a department to unlock' : 'Search for a traveler'"
           outlined
           :where="ygEmployeeWhere"
           :rules="[required]"
         />
       </v-col>
-    </v-row>
-    <v-row v-else>
       <v-col
+        v-else
         cols="12"
         md="4"
       >
@@ -73,19 +75,20 @@
           v-model="numberTravelers"
           label="Number of Travelers *"
           type="number"
-          outlined
+          :disabled="isNil(department)"
+          :hint="isNil(department) ? 'Select a department to unlock' : ''"
           :rules="[required]"
+          outlined
+          persistent-hint
         />
       </v-col>
-    </v-row>
-
-    <v-row>
       <v-col
         cols="12"
-        md="3"
+        md="4"
       >
         <v-btn
           color="primary"
+          :disabled="isNil(department) && (isNil(travelerName) || isNil(numberTravelers))"
           @click="addTravelerProfileAttributes"
         >
           Add traveler profile
