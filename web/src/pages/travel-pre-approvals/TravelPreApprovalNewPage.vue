@@ -135,121 +135,113 @@
             <v-row>
               <v-col
                 cols="12"
-                md="6"
+                md="12"
               >
-                <DepartmentAutocomplete
-                  v-model="travelAuthorizationPreApprovalAttributes.department"
-                  label="Department *"
-                  :rules="[
-                    travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler || required,
-                  ]"
-                  outlined
-                  :clearable="false"
-                />
-              </v-col>
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <v-select
-                  v-model="travelAuthorizationPreApprovalAttributes.branch"
-                  label="Branch"
-                  :items="branchList"
-                  item-text="name"
-                  item-value="name"
-                  :rules="[
-                    travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler || required,
-                  ]"
-                  outlined
+                <v-switch
+                  :input-value="exactTravelerKnown"
+                  :label="exactTravelerKnown ? 'Exact traveler known' : 'Exact traveler not known'"
+                  inset
+                  @change="toggleExactTravelerKnown"
                 />
               </v-col>
             </v-row>
 
+            <template v-if="travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler">
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <DepartmentAutocomplete
+                    v-model="travelAuthorizationPreApprovalAttributes.department"
+                    label="Department *"
+                    :rules="[required]"
+                    outlined
+                  />
+                </v-col>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <BranchAutocomplete
+                    v-model="travelAuthorizationPreApprovalAttributes.branch"
+                    label="Branch"
+                    :disabled="isNil(travelAuthorizationPreApprovalAttributes.department)"
+                    :where="branchWhere"
+                    outlined
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="4"
+                >
+                  <v-text-field
+                    v-model="travelAuthorizationPreApprovalAttributes.numberTravelers"
+                    label="Number of Travelers *"
+                    type="number"
+                    outlined
+                    :rules="[required]"
+                  />
+                </v-col>
+              </v-row>
+            </template>
+            <template v-else>
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <DepartmentAutocomplete
+                    v-model="travelAuthorizationPreApprovalAttributes.department"
+                    label="Department"
+                    hint="Filter traveler name by department (optional)"
+                    outlined
+                    clearable
+                  />
+                </v-col>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <BranchAutocomplete
+                    v-model="travelAuthorizationPreApprovalAttributes.branch"
+                    label="Branch"
+                    hint="Filter traveler name by branch (optional)"
+                    :disabled="isNil(travelAuthorizationPreApprovalAttributes.department)"
+                    :where="branchWhere"
+                    outlined
+                    clearable
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="4"
+                >
+                  <YgEmployeeAutocomplete
+                    v-model="travelerName"
+                    item-value="fullName"
+                    item-text="fullName"
+                    label="Traveler name *"
+                    hint="Search for a traveler"
+                    :clearable="false"
+                    outlined
+                    :where="ygEmployeeWhere"
+                    :rules="[required]"
+                  />
+                </v-col>
+              </v-row>
+            </template>
             <v-row>
               <v-col
                 cols="12"
                 md="3"
               >
-                <v-checkbox
-                  v-model="travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler"
-                  label="exact traveler not known"
-                  :disabled="
-                    isNil(travelAuthorizationPreApprovalAttributes.department) ||
-                    isNil(travelAuthorizationPreApprovalAttributes.branch)
-                  "
-                  hint="Unlocks when department and branch are selected."
-                  persistent-hint
-                  @change="selectUndefinedTraveller"
-                />
-              </v-col>
-              <v-col
-                v-if="travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler"
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  v-model="travelAuthorizationPreApprovalAttributes.numberTravelers"
-                  label="Number of Travellers"
-                  type="number"
-                  outlined
-                  :rules="[required]"
-                  @input="addUndefinedTraveller"
-                />
-              </v-col>
-              <v-col
-                v-else
-                cols="12"
-                md="4"
-              >
-                <!-- TODO: disable unless department and branch are filled in -->
-                <v-btn
-                  color="primary"
-                  @click="showTravellerProfileCreateDialog"
-                >
-                  Add Traveller
-                </v-btn>
-
-                <!-- TODO: move to its own component -->
-                <v-dialog
-                  v-model="travellerDialog"
-                  max-width="400px"
-                >
-                  <HeaderActionsFormCard
-                    title="Traveller"
-                    header-tag="h2"
-                    @close="travellerDialog = false"
-                  >
-                      <v-row>
-                        <v-col>
-                          <!-- TODO: update data model to store traveller id (User|YgEmployee) -->
-                          <YgEmployeeAutocomplete
-                            v-model="adName"
-                            item-value="fullName"
-                            item-text="fullName"
-                            label="Traveller Name"
-                            outlined
-                            :where="ygEmployeeWhere"
-                          />
-                        </v-col>
-                      </v-row>
-
-                    <template #actions>
-                      <v-btn
-                        color="primary"
-                        @click="addTraveller"
-                      >
-                        Add
-                      </v-btn>
-                      <v-btn
-                        color="warning"
-                        outlined
-                        @click="travellerDialog = false"
-                      >
-                        Cancel
-                      </v-btn>
-                    </template #actions>
-                  </HeaderActionsFormCard>
-                </v-dialog>
+                <!-- TODO: trigger traveller profile creation -->
+                <v-btn color="primary"> Add traveler profile(s) </v-btn>
               </v-col>
             </v-row>
 
@@ -345,6 +337,7 @@ import MonthSelect from "@/components/common/MonthSelect.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
+import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomplete.vue"
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
 
@@ -377,6 +370,31 @@ const travelAuthorizationPreApprovalAttributes = ref({
   numberTravelers: undefined,
   travelerNotes: undefined,
 })
+
+const exactTravelerKnown = ref(true)
+
+function toggleExactTravelerKnown(value) {
+  exactTravelerKnown.value = value
+  if (value) {
+    travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = false
+    travelAuthorizationPreApprovalAttributes.value.department = undefined
+    travelAuthorizationPreApprovalAttributes.value.branch = undefined
+    travelAuthorizationPreApprovalAttributes.value.numberTravelers = undefined
+    travelerName.value = undefined
+  } else {
+    travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = true
+    travelAuthorizationPreApprovalAttributes.value.department = undefined
+    travelAuthorizationPreApprovalAttributes.value.branch = undefined
+    travelAuthorizationPreApprovalAttributes.value.numberTravelers = undefined
+    travelerName.value = undefined
+  }
+}
+
+const branchWhere = computed(() => ({
+  department: travelAuthorizationPreApprovalAttributes.value.department,
+}))
+
+const travelerName = ref(undefined)
 
 const ygEmployeeWhere = computed(() => ({
   department: travelAuthorizationPreApprovalAttributes.value.department,

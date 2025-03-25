@@ -3,17 +3,18 @@
     :value="value"
     :loading="isLoading"
     :items="allYgEmployees"
-    label="Employee"
-    hint="Search for an employee."
-    item-value="fullName"
-    item-text="fullName"
-    auto-select-first
-    chips
-    clearable
-    hide-no-data
-    hide-selected
-    no-filter
-    persistent-hint
+    :label="label"
+    :hint="hint"
+    :item-value="itemValue"
+    :item-text="itemText"
+    :auto-select-first="autoSelectFirst"
+    :chips="chips"
+    :clearable="clearable"
+    :hide-no-data="hideNoData"
+    :hide-selected="hideSelected"
+    :no-filter="noFilter"
+    :persistent-hint="persistentHint"
+    :small-chips="smallChips"
     v-bind="$attrs"
     v-on="$listeners"
     @input="emit('input', $event)"
@@ -55,11 +56,63 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  label: {
+    type: String,
+    default: "Employee",
+  },
+  hint: {
+    type: String,
+    default: "Search for an employee.",
+  },
+  itemValue: {
+    type: String,
+    default: "fullName",
+  },
+  itemText: {
+    type: String,
+    default: "fullName",
+  },
+  autoSelectFirst: {
+    type: Boolean,
+    default: true,
+  },
+  chips: {
+    type: Boolean,
+    default: true,
+  },
+  clearable: {
+    type: Boolean,
+    default: true,
+  },
+  hideNoData: {
+    type: Boolean,
+    default: true,
+  },
+  hideSelected: {
+    type: Boolean,
+    default: true,
+  },
+  noFilter: {
+    type: Boolean,
+    default: true,
+  },
+  persistentHint: {
+    type: Boolean,
+    default: true,
+  },
+  smallChips: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits(["input"])
 
-const ygEmployeeId = computed(() => props.value)
+const ygEmployeeId = computed(() => {
+  if (props.itemText !== "id") return null
+
+  return props.value
+})
 const { ygEmployee } = useYgEmployee(ygEmployeeId)
 
 const searchToken = ref("")

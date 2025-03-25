@@ -2,14 +2,14 @@
   <v-autocomplete
     :value="value"
     :loading="isLoading"
-    :items="departments"
+    :items="branches"
     :label="label"
     :hint="hint"
     :auto-select-first="autoSelectFirst"
     :chips="chips"
     :clearable="clearable"
-    :hide-no-data="hideNoData"
     :hide-selected="hideSelected"
+    :no-data-text="noDataText"
     :no-filter="noFilter"
     :persistent-hint="persistentHint"
     :small-chips="smallChips"
@@ -55,11 +55,15 @@ const props = defineProps({
   },
   label: {
     type: String,
-    default: "Department",
+    default: "Branch",
   },
   hint: {
     type: String,
-    default: "Search for a department.",
+    default: "Search for a branch.",
+  },
+  noDataText: {
+    type: String,
+    default: "No branches found.",
   },
   autoSelectFirst: {
     type: Boolean,
@@ -70,10 +74,6 @@ const props = defineProps({
     default: true,
   },
   clearable: {
-    type: Boolean,
-    default: true,
-  },
-  hideNoData: {
     type: Boolean,
     default: true,
   },
@@ -135,7 +135,7 @@ const ygEmployeeGroupsQuery = computed(() => {
     filters: {
       ...props.filters,
       ...searchFilter.value,
-      isDepartment: true,
+      isBranch: true,
     },
     perPage: perPage.value,
     page: page.value,
@@ -144,8 +144,8 @@ const ygEmployeeGroupsQuery = computed(() => {
 const { ygEmployeeGroups, totalCount, isLoading, refresh } =
   useYgEmployeeGroups(ygEmployeeGroupsQuery)
 
-const departments = computed(() => {
-  return ygEmployeeGroups.value.map((ygEmployeeGroup) => ygEmployeeGroup.department)
+const branches = computed(() => {
+  return ygEmployeeGroups.value.map((ygEmployeeGroup) => ygEmployeeGroup.branch)
 })
 
 async function reset() {
