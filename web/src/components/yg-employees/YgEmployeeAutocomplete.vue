@@ -37,7 +37,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { debounce, isEmpty, isNil, omit, uniqBy } from "lodash"
+import { debounce, isEmpty, isNil, uniqBy } from "lodash"
 
 import useYgEmployee from "@/use/use-yg-employee"
 import useYgEmployees from "@/use/use-yg-employees"
