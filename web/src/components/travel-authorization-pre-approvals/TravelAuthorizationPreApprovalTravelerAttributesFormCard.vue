@@ -169,17 +169,6 @@ const ygEmployeeWhere = computed(() => ({
   branch: branch.value,
 }))
 
-function resetDependentFieldsDepartment() {
-  branch.value = undefined
-  travelerName.value = undefined
-  numberTravelers.value = undefined
-}
-
-function resetDependentFieldsBranch() {
-  travelerName.value = undefined
-  numberTravelers.value = undefined
-}
-
 const headers = ref([
   {
     text: "Name",
@@ -200,18 +189,45 @@ const headers = ref([
   },
 ])
 
-function toggleExactTravelerKnown(value) {
-  exactTravelerKnown.value = value
-  department.value = undefined
+function resetDependentFieldsDepartment() {
   branch.value = undefined
   travelerName.value = undefined
+  numberTravelers.value = undefined
+
+  const { profilesAttributes, ...otherAttributes } = props.value
+  const newPreApprovalAttributes = {
+    ...otherAttributes,
+    department: undefined,
+    branch: undefined,
+    numberTravelers: undefined,
+    profilesAttributes: [],
+  }
+  emit("input", newPreApprovalAttributes)
+}
+
+function resetDependentFieldsBranch() {
+  travelerName.value = undefined
+  numberTravelers.value = undefined
+
+  const { profilesAttributes, ...otherAttributes } = props.value
+  const newPreApprovalAttributes = {
+    ...otherAttributes,
+    branch: undefined,
+    numberTravelers: undefined,
+    profilesAttributes: [],
+  }
+  emit("input", newPreApprovalAttributes)
+}
+
+function toggleExactTravelerKnown(value) {
+  exactTravelerKnown.value = value
+  travelerName.value = undefined
+  numberTravelers.value = undefined
 
   const { profilesAttributes, ...otherAttributes } = props.value
   const newPreApprovalAttributes = {
     ...otherAttributes,
     isOpenForAnyTraveler: !exactTravelerKnown.value,
-    department: undefined,
-    branch: undefined,
     numberTravelers: undefined,
     profilesAttributes: [],
   }
