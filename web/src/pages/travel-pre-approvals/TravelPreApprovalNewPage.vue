@@ -137,14 +137,17 @@
                 cols="12"
                 md="6"
               >
-                <v-select
+                <YgEmployeeGroupAutocomplete
                   v-model="travelAuthorizationPreApprovalAttributes.department"
                   label="Department *"
-                  :items="departmentList"
-                  item-text="name"
+                  hint="Search for a department"
+                  item-value="department"
+                  item-text="department"
+                  :filters="ygEmployeeGroupDepartmentFilter"
                   :rules="[
                     travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler || required,
                   ]"
+                  :chips="false"
                   outlined
                   @change="departmentChanged"
                 />
@@ -346,6 +349,7 @@ import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.
 import MonthSelect from "@/components/common/MonthSelect.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
+import YgEmployeeGroupAutocomplete from "@/components/yg-employees/YgEmployeeGroupAutocomplete.vue"
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
 
@@ -378,6 +382,10 @@ const travelAuthorizationPreApprovalAttributes = ref({
   numberTravelers: undefined,
   travelerNotes: undefined,
 })
+
+const ygEmployeeGroupDepartmentFilter = computed(() => ({
+  isDepartment: true,
+}))
 
 const ygEmployeeWhere = computed(() => ({
   department: travelAuthorizationPreApprovalAttributes.value.department,
@@ -565,7 +573,6 @@ function initForm() {
   lockDepartment.value = !isAdmin.value || props.type != "Add New"
 
   initStates()
-  initEmployeeList()
   initDepartments()
 
   profiles.value = props.type == "Add New" ? [] : props.travelRequest.profiles
@@ -616,15 +623,6 @@ function initStates() {
   for (const key of Object.keys(state.value)) {
     state.value[key] = false
   }
-}
-
-function initEmployeeList() {
-  employeeList.value = store.state.preapproved.employees.map((item) => {
-    return {
-      fullName: item.fullName,
-      department: item.department,
-    }
-  })
 }
 
 function initDepartments() {

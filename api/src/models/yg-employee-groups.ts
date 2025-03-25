@@ -104,6 +104,68 @@ YgEmployeeGroup.init(
         },
       },
     ],
+    scopes: {
+      isDepartment() {
+        return {
+          where: {
+            department: {
+              [Op.not]: null,
+            },
+            division: null,
+            branch: null,
+            unit: null,
+          },
+        }
+      },
+      isDivision() {
+        return {
+          where: {
+            department: {
+              [Op.not]: null,
+            },
+            division: {
+              [Op.not]: null,
+            },
+            branch: null,
+            unit: null,
+          },
+        }
+      },
+      isBranch() {
+        return {
+          where: {
+            department: {
+              [Op.not]: null,
+            },
+            division: {
+              [Op.not]: null,
+            },
+            branch: {
+              [Op.not]: null,
+            },
+            unit: null,
+          },
+        }
+      },
+      isUnit() {
+        return {
+          where: {
+            department: {
+              [Op.not]: null,
+            },
+            division: {
+              [Op.not]: null,
+            },
+            branch: {
+              [Op.not]: null,
+            },
+            unit: {
+              [Op.not]: null,
+            },
+          },
+        }
+      },
+    },
   }
 )
 
