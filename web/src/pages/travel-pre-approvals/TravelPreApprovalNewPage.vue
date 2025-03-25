@@ -125,26 +125,76 @@
     </v-row>
 
     <v-row>
-      <v-col>
-        <TravelAuthorizationPreApprovalTravelerAttributesFormCard
-          v-model="travelAuthorizationPreApprovalAttributes"
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DepartmentAutocomplete
+          v-model="travelAuthorizationPreApprovalAttributes.department"
+          label="Department *"
+          :rules="[required]"
+          outlined
+          :clearable="false"
+          @input="resetDependentFieldsDepartment"
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <BranchAutocomplete
+          v-model="travelAuthorizationPreApprovalAttributes.branch"
+          label="Branch"
+          :disabled="isNil(travelAuthorizationPreApprovalAttributes.department)"
+          :hint="
+            isNil(travelAuthorizationPreApprovalAttributes.department)
+              ? 'Select a department to unlock'
+              : 'Search for a branch'
+          "
+          :where="branchWhere"
+          outlined
+          clearable
+          @input="resetDependentFieldsBranch"
         />
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col
-        cols="12"
-        md="12"
-      >
-        <v-textarea
-          v-model="travelAuthorizationPreApprovalAttributes.travelerNotes"
-          label="Traveler Notes"
-          outlined
-          clearable
-        />
-      </v-col>
-    </v-row>
+    <v-alert
+      v-if="isNil(travelAuthorizationPreApprovalAttributes.department)"
+      type="info"
+      class="mt-4"
+    >
+      Please select a department to add traveler details
+    </v-alert>
+    <template v-else>
+      <v-row>
+        <v-col>
+          <TravelAuthorizationPreApprovalTravelerAttributesFormCard
+            v-model="travelAuthorizationPreApprovalProfilesAttributes"
+            :numberTravelers.sync="travelAuthorizationPreApprovalAttributes.numberTravelers"
+            :isOpenForAnyTraveler.sync="
+              travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler
+            "
+            :department="travelAuthorizationPreApprovalAttributes.department"
+            :branch="travelAuthorizationPreApprovalAttributes.branch"
+          />
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col
+          cols="12"
+          md="12"
+        >
+          <v-textarea
+            v-model="travelAuthorizationPreApprovalAttributes.travelerNotes"
+            label="Traveler Notes"
+            outlined
+            clearable
+          />
+        </v-col>
+      </v-row>
+    </template>
 
     <template #actions>
       <v-btn
@@ -170,15 +220,19 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed, ref } from "vue"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import MonthSelect from "@/components/common/MonthSelect.vue"
+
+import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
+import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomplete.vue"
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalTravelerAttributesFormCard.vue"
 
@@ -210,8 +264,9 @@ const travelAuthorizationPreApprovalAttributes = ref({
   isOpenForAnyTraveler: undefined,
   numberTravelers: undefined,
   travelerNotes: undefined,
-  profilesAttributes: [],
 })
+
+const travelAuthorizationPreApprovalProfilesAttributes = ref([])
 
 const exactTravelDateKnown = ref(true)
 
@@ -222,6 +277,23 @@ function toggleExactTravelDateKnown(value) {
   travelAuthorizationPreApprovalAttributes.value.startDate = undefined
   travelAuthorizationPreApprovalAttributes.value.endDate = undefined
   travelAuthorizationPreApprovalAttributes.value.month = undefined
+}
+
+const branchWhere = computed(() => ({
+  department: travelAuthorizationPreApprovalAttributes.value.department,
+}))
+
+function resetDependentFieldsDepartment() {
+  travelAuthorizationPreApprovalAttributes.value.branch = undefined
+  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = undefined
+  travelAuthorizationPreApprovalAttributes.value.numberTravelers = undefined
+  travelAuthorizationPreApprovalProfilesAttributes.value = []
+}
+
+function resetDependentFieldsBranch() {
+  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = undefined
+  travelAuthorizationPreApprovalAttributes.value.numberTravelers = undefined
+  travelAuthorizationPreApprovalProfilesAttributes.value = []
 }
 
 const isLoading = ref(false)

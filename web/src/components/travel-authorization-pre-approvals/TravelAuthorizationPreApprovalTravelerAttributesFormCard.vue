@@ -6,36 +6,6 @@
     <v-row>
       <v-col
         cols="12"
-        md="6"
-      >
-        <DepartmentAutocomplete
-          v-model="department"
-          label="Department *"
-          :rules="[required]"
-          outlined
-          @input="resetDependentFieldsDepartment"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <BranchAutocomplete
-          v-model="branch"
-          label="Branch"
-          :disabled="isNil(department)"
-          :hint="isNil(department) ? 'Select a department to unlock' : 'Search for a branch'"
-          :where="branchWhere"
-          outlined
-          clearable
-          @input="resetDependentFieldsBranch"
-        />
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col
-        cols="12"
         md="12"
       >
         <v-switch
@@ -59,8 +29,7 @@
           item-text="fullName"
           label="Traveler name *"
           :clearable="false"
-          :disabled="isNil(department)"
-          :hint="isNil(department) ? 'Select a department to unlock' : 'Search for a traveler'"
+          :hint="'Search for a traveler'"
           outlined
           :where="ygEmployeeWhere"
           :rules="[required]"
@@ -72,14 +41,13 @@
         md="4"
       >
         <v-text-field
-          v-model="numberTravelers"
+          v-model.number="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
-          :disabled="isNil(department)"
-          :hint="isNil(department) ? 'Select a department to unlock' : ''"
           :rules="[required]"
           outlined
           persistent-hint
+          @input="emit('update:numberTravelers', Number($event))"
         />
       </v-col>
       <v-col
@@ -88,7 +56,7 @@
       >
         <v-btn
           color="primary"
-          :disabled="isNil(department) && (isNil(travelerName) || isNil(numberTravelers))"
+          :disabled="isNil(travelerName) && isNil(numberTravelersLocal)"
           @click="addTravelerProfileAttributes"
         >
           Add traveler profile
@@ -103,7 +71,7 @@
       >
         <v-data-table
           :headers="headers"
-          :items="profilesAttributesReadOnly"
+          :items="value"
           hide-default-footer
         >
           <template #item.actions="{ item }">
@@ -130,43 +98,44 @@ import { required } from "@/utils/validators"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
-import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
-import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomplete.vue"
 
-/** @typedef {import("@/api/travel-authorization-pre-approvals-api").TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
 /** @typedef {import("@/api/travel-authorization-pre-approvals-api").TravelAuthorizationPreApprovalProfile} TravelAuthorizationPreApprovalProfile */
 
 const props = defineProps({
+  department: {
+    type: String,
+    required: true,
+  },
   value: {
     /**
-     * @type {Partial<TravelAuthorizationPreApproval> & {
-     *   profilesAttributes: Partial<TravelAuthorizationPreApprovalProfile>[]
-     * }}
+     * @type {Partial<TravelAuthorizationPreApprovalProfile>[]}
      */
-    type: Object,
-    default: () => ({
-      profilesAttributes: [],
-    }),
+    type: Array,
+    default: () => [],
+  },
+  numberTravelers: {
+    type: Number,
+    default: undefined,
+  },
+  isOpenForAnyTraveler: {
+    type: Boolean,
+    default: false,
+  },
+  branch: {
+    type: String,
+    default: undefined,
   },
 })
 
-const emit = defineEmits(["input"])
-
-const profilesAttributesReadOnly = computed(() => props.value.profilesAttributes)
+const emit = defineEmits(["input", "update:numberTravelers", "update:isOpenForAnyTraveler"])
 
 const exactTravelerKnown = ref(true)
-const department = ref(undefined)
-const branch = ref(undefined)
 const travelerName = ref(undefined)
-const numberTravelers = ref(undefined)
-
-const branchWhere = computed(() => ({
-  department: department.value,
-}))
+const numberTravelersLocal = ref(undefined)
 
 const ygEmployeeWhere = computed(() => ({
-  department: department.value,
-  branch: branch.value,
+  department: props.department,
+  branch: props.branch,
 }))
 
 const headers = ref([
@@ -189,91 +158,41 @@ const headers = ref([
   },
 ])
 
-function resetDependentFieldsDepartment() {
-  branch.value = undefined
-  travelerName.value = undefined
-  numberTravelers.value = undefined
-
-  const { profilesAttributes, ...otherAttributes } = props.value
-  const newPreApprovalAttributes = {
-    ...otherAttributes,
-    department: undefined,
-    branch: undefined,
-    numberTravelers: undefined,
-    profilesAttributes: [],
-  }
-  emit("input", newPreApprovalAttributes)
-}
-
-function resetDependentFieldsBranch() {
-  travelerName.value = undefined
-  numberTravelers.value = undefined
-
-  const { profilesAttributes, ...otherAttributes } = props.value
-  const newPreApprovalAttributes = {
-    ...otherAttributes,
-    branch: undefined,
-    numberTravelers: undefined,
-    profilesAttributes: [],
-  }
-  emit("input", newPreApprovalAttributes)
-}
-
 function toggleExactTravelerKnown(value) {
   exactTravelerKnown.value = value
   travelerName.value = undefined
-  numberTravelers.value = undefined
+  numberTravelersLocal.value = undefined
 
-  const { profilesAttributes, ...otherAttributes } = props.value
-  const newPreApprovalAttributes = {
-    ...otherAttributes,
-    isOpenForAnyTraveler: !exactTravelerKnown.value,
-    numberTravelers: undefined,
-    profilesAttributes: [],
-  }
-  emit("input", newPreApprovalAttributes)
+  emit("update:isOpenForAnyTraveler", !exactTravelerKnown.value)
+  emit("update:numberTravelers", numberTravelersLocal.value)
+  emit("input", [])
 }
 
 function addTravelerProfileAttributes() {
-  const { profilesAttributes, ...otherAttributes } = props.value
   if (exactTravelerKnown.value) {
     const newProfileAttributes = {
       profileName: travelerName.value,
-      department: department.value,
-      branch: branch.value,
+      department: props.department,
+      branch: props.branch,
     }
-    const newPreApprovalAttributes = {
-      ...otherAttributes,
-      profilesAttributes: [...profilesAttributes, newProfileAttributes],
-    }
-    emit("input", newPreApprovalAttributes)
+    emit("input", [...props.value, newProfileAttributes])
     return
   } else {
-    const profileName = [department.value, branch.value].filter(Boolean).join(" ") + " staff"
+    const profileName = [props.department, props.branch].filter(Boolean).join(" ") + " staff"
     const newProfileAttributes = {
       profileName,
-      department: department.value,
-      branch: branch.value,
+      department: props.department,
+      branch: props.branch,
     }
-    const newPreApprovalAttributes = {
-      ...otherAttributes,
-      profilesAttributes: [...profilesAttributes, newProfileAttributes],
-    }
-
-    emit("input", newPreApprovalAttributes)
+    emit("input", [...props.value, newProfileAttributes])
     return
   }
 }
 
 function removeTravelerProfileAttributes(item) {
-  const { profilesAttributes, ...otherAttributes } = props.value
-  const travelerProfilesAttributesWithoutItem = profilesAttributes.filter(
+  const travelerProfilesAttributesWithoutItem = props.value.filter(
     (profile) => !isEqual(profile, item)
   )
-  const newPreApprovalAttributes = {
-    ...otherAttributes,
-    profilesAttributes: travelerProfilesAttributesWithoutItem,
-  }
-  emit("input", newPreApprovalAttributes)
+  emit("input", travelerProfilesAttributesWithoutItem)
 }
 </script>
