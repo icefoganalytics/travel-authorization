@@ -20,23 +20,30 @@ export class SyncService extends BaseService {
         await db.query(/* sql */ ` TRUNCATE "yg_employee_groups" RESTART IDENTITY CASCADE`)
 
         const ygEmployeeGroupsAttributes: CreationAttributes<YgEmployeeGroup>[] = []
-        const userGroupSet: Set<string> = new Set()
+        const employeeGroupSet: Set<string> = new Set()
         for (const employeeGroup of employeeGroups) {
           const { department, division, branch, unit } = employeeGroup
-          const userGroupKey = [department, division, branch, unit].filter(Boolean).join("-")
-          if (userGroupSet.has(userGroupKey)) {
+          const cleanDepartment = department?.trim()
+          const cleanDivision = division?.trim()
+          const cleanBranch = branch?.trim()
+          const cleanUnit = unit?.trim()
+
+          const employeeGroupKey = [cleanDepartment, cleanDivision, cleanBranch, cleanUnit]
+            .filter(Boolean)
+            .join("-")
+          if (employeeGroupSet.has(employeeGroupKey)) {
             logger.debug(
-              `Skipping duplicate YG employee group: ${userGroupKey} -> ${JSON.stringify(employeeGroup)}`
+              `Skipping duplicate YG employee group: ${employeeGroupKey} -> ${JSON.stringify(employeeGroup)}`
             )
             continue
           }
 
-          userGroupSet.add(userGroupKey)
+          employeeGroupSet.add(employeeGroupKey)
           ygEmployeeGroupsAttributes.push({
-            department,
-            division,
-            branch,
-            unit,
+            department: cleanDepartment,
+            division: cleanDivision,
+            branch: cleanBranch,
+            unit: cleanUnit,
             order: employeeGroup.order,
             lastSyncSuccessAt: today,
           })
