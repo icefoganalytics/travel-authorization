@@ -2,11 +2,9 @@
   <v-autocomplete
     :value="value"
     :loading="isLoading"
-    :items="allYgEmployeeGroups"
+    :items="departments"
     :label="label"
     :hint="hint"
-    :item-value="itemValue"
-    :item-text="itemText"
     :auto-select-first="autoSelectFirst"
     :chips="chips"
     :clearable="clearable"
@@ -14,9 +12,10 @@
     :hide-selected="hideSelected"
     :no-filter="noFilter"
     :persistent-hint="persistentHint"
+    :small-chips="smallChips"
     v-bind="$attrs"
     v-on="$listeners"
-    @input="emit('input', $event)"
+    @input="updateSearchAndEmitInput"
     @update:search-input="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
@@ -37,9 +36,8 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { debounce, isEmpty, isNil, uniqBy } from "lodash"
+import { debounce, isEmpty, isNil } from "lodash"
 
-import useYgEmployeeGroup from "@/use/use-yg-employee-group"
 import useYgEmployeeGroups from "@/use/use-yg-employee-groups"
 
 const props = defineProps({
@@ -53,25 +51,15 @@ const props = defineProps({
   },
   filters: {
     type: Object,
-    default: () => ({
-      isBranch: true,
-    }),
+    default: () => ({}),
   },
   label: {
     type: String,
-    default: "Employee Group",
-  },
-  itemValue: {
-    type: String,
-    default: "id",
-  },
-  itemText: {
-    type: String,
-    default: "branch",
+    default: "Department",
   },
   hint: {
     type: String,
-    default: "Search for an employee group.",
+    default: "Search for a department.",
   },
   autoSelectFirst: {
     type: Boolean,
@@ -101,16 +89,24 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  smallChips: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits(["input"])
 
-const ygEmployeeGroupId = computed(() => props.value)
-const { ygEmployeeGroup } = useYgEmployeeGroup(ygEmployeeGroupId)
+function updateSearchAndEmitInput(value) {
+  emit("input", value)
+  updateSearchToken("")
+}
 
 const searchToken = ref("")
 
 function updateSearchToken(value) {
+  if (value === props.value) return
+
   searchToken.value = value
   page.value = 1
 }
@@ -139,6 +135,7 @@ const ygEmployeeGroupsQuery = computed(() => {
     filters: {
       ...props.filters,
       ...searchFilter.value,
+      isDepartment: true,
     },
     perPage: perPage.value,
     page: page.value,
@@ -147,17 +144,12 @@ const ygEmployeeGroupsQuery = computed(() => {
 const { ygEmployeeGroups, totalCount, isLoading, refresh } =
   useYgEmployeeGroups(ygEmployeeGroupsQuery)
 
-const allYgEmployeeGroups = computed(() => {
-  if (isNil(ygEmployeeGroup.value)) {
-    return ygEmployeeGroups.value
-  }
-
-  return uniqBy([...ygEmployeeGroups.value, ygEmployeeGroup.value], "id")
+const departments = computed(() => {
+  return ygEmployeeGroups.value.map((ygEmployeeGroup) => ygEmployeeGroup.department)
 })
 
 async function reset() {
   searchToken.value = ""
-  ygEmployeeGroup.value = null
   await refresh()
 }
 
