@@ -14,10 +14,16 @@ const db = knex(DB_CONFIG)
 
 const cache = new Map<string, any>()
 
+/**
+ * @deprecated - Prefer /api/yg-employees?filters['search']=<email> -> api/src/controllers/yg-employees-controller.ts#index -> YgEmployee "search" scope
+ */
 lookupRouter.get(
   "/emailList",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employees?filters['search']=<email> -> api/src/controllers/yg-employees-controller.ts#index -> YgEmployee 'search' scope"
+    )
     try {
       let emailList = await axios
         .get(`https://api.gov.yk.ca/directory/employees?email=` + req.query.email, {
@@ -40,10 +46,16 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get(
   "/departments",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+    )
     try {
       let result = await db("departments")
         .select("id", "name", "type", "ownedby")
@@ -56,7 +68,13 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get("/branches", ReturnValidationErrors, async function (req: Request, res: Response) {
+  logger.warn(
+    "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+  )
   try {
     let result = await db("departments")
       .select(
@@ -78,10 +96,16 @@ lookupRouter.get("/branches", ReturnValidationErrors, async function (req: Reque
   }
 })
 
+/**
+ * @deprecated - Prefer /api/yg-employee-groups/:ygEmployeeGroupId -> api/src/controllers/yg-employee-groups-controller.ts#show
+ */
 lookupRouter.get(
   "/department/:id",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups/:ygEmployeeGroupId -> api/src/controllers/yg-employee-groups-controller.ts#show"
+    )
     try {
       let result = await db("departments")
         .select("id", "name", "type", "ownedby")
@@ -105,10 +129,16 @@ lookupRouter.get("/roles", ReturnValidationErrors, async function (req: Request,
   }
 })
 
+/**
+ * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get(
   "/departmentList",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+    )
     if (cache.has("departmentList")) {
       return res.json(cache.get("departmentList"))
     }
@@ -150,10 +180,16 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get(
   "/departmentList2",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+    )
     if (cache.has("departmentList2")) {
       return res.json({ data: cache.get("departmentList2") })
     }
@@ -228,11 +264,17 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get(
   "/department-branch",
   RequiresAuth,
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+    )
     let cleanList: any = {}
     try {
       let departments = await YgEmployeeGroup.findAll()
