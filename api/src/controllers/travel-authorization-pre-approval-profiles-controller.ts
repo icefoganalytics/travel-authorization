@@ -146,7 +146,7 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
 
   async loadTravelAuthorizationPreApprovalProfile() {
     return TravelAuthorizationPreApprovalProfile.findByPk(
-      this.params.travelAuthorizationPreApprovalId,
+      this.params.travelAuthorizationPreApprovalProfileId,
       {
         include: ["preApproval"],
       }

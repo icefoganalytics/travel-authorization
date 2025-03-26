@@ -70,6 +70,7 @@
         md="9"
       >
         <TravelAuthorizationPreApprovalProfilesDataTable
+          ref="travelAuthorizationPreApprovalProfilesDataTable"
           :where="preApprovalProfileWhere"
           route-query-suffix="Profile"
         >
@@ -78,7 +79,7 @@
               title="Remove traveler profile"
               icon
               color="error"
-              @click="removeTravelerProfileAttributes(item)"
+              @click="removeTravelAuthorizationPreApprovalProfile(item.id)"
             >
               <v-icon>mdi-delete</v-icon>
             </v-btn>
@@ -91,9 +92,11 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { isEqual, isNil } from "lodash"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
+import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorization-pre-approval-profiles-api"
+import useSnack from "@/use/use-snack"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
@@ -141,9 +144,16 @@ const exactTravelerKnown = ref(true)
 const travelerName = ref(undefined)
 const numberTravelersLocal = ref(undefined)
 
+const branchWhere = computed(() => {
+  if (isNil(props.branch)) return {}
+
+  return {
+    branch: props.branch,
+  }
+})
 const ygEmployeeWhere = computed(() => ({
   department: props.department,
-  branch: props.branch,
+  ...branchWhere.value,
 }))
 
 function toggleExactTravelerKnown(value) {
@@ -180,10 +190,25 @@ function addTravelerProfileAttributes() {
   }
 }
 
-function removeTravelerProfileAttributes(item) {
-  const travelerProfilesAttributesWithoutItem = props.value.filter(
-    (profile) => !isEqual(profile, item)
-  )
-  emit("input", travelerProfilesAttributesWithoutItem)
+const isDeleting = ref(false)
+const snack = useSnack()
+
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalProfilesDataTable> | null>} */
+const travelAuthorizationPreApprovalProfilesDataTable = ref(null)
+
+async function removeTravelAuthorizationPreApprovalProfile(
+  travelAuthorizationPreApprovalProfileId
+) {
+  isDeleting.value = true
+  try {
+    await travelAuthorizationPreApprovalProfilesApi.delete(travelAuthorizationPreApprovalProfileId)
+    snack.success(`Travel pre-approval profile deleted successfully`)
+    await travelAuthorizationPreApprovalProfilesDataTable.value.refresh()
+  } catch (error) {
+    console.error(`failed to delete travel authorization pre-approval profile: ${error}`, { error })
+    snack.error(`Failed to delete travel pre-approval profile: ${error}`)
+  } finally {
+    isDeleting.value = false
+  }
 }
 </script>

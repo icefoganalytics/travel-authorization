@@ -18,19 +18,23 @@
       ></slot>
     </template>
 
-    <template #item.actions="{ item: _ }">
-      <!-- TODO: add read page for pre-approval profile -->
-      <!-- <v-btn
-        color="secondary"
-        :to="{
-          name: 'travel-pre-approvals/TravelPreApprovalPage',
-          params: {
-            travelAuthorizationPreApprovalId: item.id,
-          },
-        }"
-      >
-        View
-      </v-btn> -->
+    <!-- TODO: add read page for pre-approval profile -->
+    <!-- <v-btn
+      color="secondary"
+      :to="{
+        name: 'travel-pre-approvals/TravelPreApprovalPage',
+        params: {
+          travelAuthorizationPreApprovalId: item.id,
+        },
+      }"
+    >
+      View
+    </v-btn> -->
+    <template #item.actions="slotProps">
+      <slot
+        name="item.actions"
+        v-bind="slotProps"
+      ></slot>
     </template>
   </v-data-table>
 </template>
