@@ -47,14 +47,11 @@
         md="8"
       >
         <LocationsAutocomplete
-          v-model="location"
-          :readonly="readonly"
-          :error="state.locationErr"
-          label="Location"
+          v-model="travelAuthorizationPreApproval.location"
+          label="Location *"
           item-value="text"
           outlined
-          :clearable="!readonly"
-          @input="state.locationErr = false"
+          :rules="[required]"
         />
       </v-col>
     </v-row>
@@ -65,23 +62,11 @@
         md="3"
       >
         <v-text-field
-          v-model="cost"
-          :readonly="readonly"
-          :error="state.costErr"
-          label="Estimated Cost ($)"
+          v-model="travelAuthorizationPreApproval.estimatedCost"
+          label="Estimated Cost ($) *"
           type="number"
+          :rules="[required]"
           outlined
-          :clearable="!readonly"
-          @input="state.costErr = false"
-        />
-        <v-text-field
-          v-model="startDate"
-          :readonly="readonly"
-          :error="state.startDateErr"
-          label="Start Date"
-          outlined
-          type="date"
-          @input="state.unknownDateErr = false"
         />
       </v-col>
       <v-col
@@ -94,11 +79,10 @@
         md="8"
       >
         <v-textarea
-          v-model="reason"
-          :readonly="readonly"
+          v-model="travelAuthorizationPreApproval.reason"
           label="Reason"
           outlined
-          :clearable="!readonly"
+          clearable
         />
       </v-col>
     </v-row>
@@ -106,168 +90,125 @@
     <v-row>
       <v-col
         cols="12"
-        md="3"
+        md="4"
       >
-        <v-text-field
-          v-model="endDate"
-          :readonly="readonly"
-          :error="state.endDateErr"
-          label="End Date"
-          outlined
-          type="date"
-          @input="state.unknownDateErr = false"
+        <v-switch
+          :input-value="exactTravelDateKnown"
+          :label="exactTravelDateKnown ? 'Exact date known' : 'Exact date not known'"
+          inset
+          @change="toggleExactTravelDateKnown"
         />
       </v-col>
+      <template v-if="exactTravelDateKnown">
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <v-text-field
+            v-model="travelAuthorizationPreApproval.startDate"
+            label="Start Date *"
+            type="date"
+            :rules="[required]"
+            outlined
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <v-text-field
+            v-model="travelAuthorizationPreApproval.endDate"
+            label="End Date *"
+            type="date"
+            :rules="[required]"
+            outlined
+          />
+        </v-col>
+      </template>
       <v-col
-        class="d-none d-md-block"
+        v-else
         cols="12"
-        md="1"
-      />
-      <v-col
-        cols="12"
-        md="8"
+        md="3"
       >
-        <v-row>
-          <v-col cols="5">
-            <v-checkbox
-              v-model="unknownDate"
-              :readonly="readonly"
-              label="exact date unknown"
-              :error-messages="
-                state.unknownDateErr
-                  ? 'Either select Start and End Dates or Select this option'
-                  : ''
-              "
-              @change="selectUnknownDate"
-            />
-          </v-col>
-          <v-col cols="5">
-            <MonthSelect
-              v-model="anticipatedMonth"
-              :readonly="readonly"
-              :error="state.anticipatedMonthErr"
-              :disabled="!unknownDate"
-              label="Anticipated Month"
-              outlined
-              @change="state.anticipatedMonthErr = false"
-            />
-          </v-col>
-        </v-row>
+        <MonthSelect
+          v-model="travelAuthorizationPreApproval.month"
+          :disabled="!travelAuthorizationPreApproval.isOpenForAnyDate"
+          label="Anticipated Month *"
+          :rules="[required]"
+          outlined
+        />
       </v-col>
     </v-row>
 
-    <div id="traveller-detail">Traveller Details</div>
-    <v-card outlined>
-      <v-row class="mt-5 mx-3">
-        <v-col cols="6">
-          <DepartmentAutocomplete
-            v-model="department"
-            :readonly="readonly || lockDepartment"
-            :error="state.departmentErr"
-            label="Department"
-            outlined
-            @change="departmentChanged"
-          />
-        </v-col>
-        <v-col cols="6">
-          <BranchAutocomplete
-            v-model="branch"
-            :readonly="readonly"
-            :error="state.branchErr"
-            label="Branch"
-            outlined
-            @change="state.branchErr = false"
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DepartmentAutocomplete
+          v-model="travelAuthorizationPreApproval.department"
+          label="Department *"
+          :rules="[required]"
+          outlined
+          :clearable="false"
+          @input="resetDependentFieldsDepartment"
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <BranchAutocomplete
+          v-model="travelAuthorizationPreApproval.branch"
+          label="Branch"
+          :disabled="isNil(travelAuthorizationPreApproval.department)"
+          :hint="
+            isNil(travelAuthorizationPreApproval.department)
+              ? 'Select a department to unlock'
+              : 'Search for a branch'
+          "
+          :where="branchWhere"
+          outlined
+          clearable
+          @input="resetDependentFieldsBranch"
+        />
+      </v-col>
+    </v-row>
+
+    <v-alert
+      v-if="isNil(travelAuthorizationPreApproval.department)"
+      type="info"
+      class="mt-4"
+    >
+      Please select a department to add traveler details
+    </v-alert>
+    <template v-else>
+      <v-row>
+        <v-col>
+          <TravelAuthorizationPreApprovalTravelerAttributesFormCard
+            v-model="travelAuthorizationPreApprovalProfilesAttributes"
+            :numberTravelers.sync="travelAuthorizationPreApproval.numberTravelers"
+            :isOpenForAnyTraveler.sync="travelAuthorizationPreApproval.isOpenForAnyTraveler"
+            :department="travelAuthorizationPreApproval.department"
+            :branch="travelAuthorizationPreApproval.branch"
           />
         </v-col>
       </v-row>
 
       <v-row>
-        <v-col cols="1" />
         <v-col
           cols="12"
-          md="3"
+          md="12"
         >
-          <v-checkbox
-            v-model="undefinedTraveller"
-            :readonly="readonly"
-            :error-messages="
-              state.undefinedTravellerErr
-                ? `Either add Travelers' name below or Select this option`
-                : undefinedTravellerHint
-                  ? undefinedTravellerHint
-                  : ''
-            "
-            label="exact traveler not known"
-            @change="selectUndefinedTraveller"
-          />
-        </v-col>
-        <v-col cols="4">
-          <v-text-field
-            v-model="profilesNum"
-            :readonly="readonly"
-            :error="state.travellerNumErr"
-            :disabled="!undefinedTraveller"
-            label="Number of Travellers"
-            type="number"
-            outlined
-            @input="addUndefinedTraveller"
-          />
-        </v-col>
-      </v-row>
-
-      <v-row class="mt-5 mx-3">
-        <v-col cols="9">
-          <v-data-table
-            :headers="headers"
-            :items="profiles"
-            hide-default-footer
-            class="elevation-1"
-          >
-            <template #item.remove="{ item }">
-              <v-btn
-                v-if="!readonly"
-                style="min-width: 0"
-                color="transparent"
-                class="px-1"
-                small
-                @click="removeTraveller(item)"
-              >
-                <v-icon
-                  class=""
-                  color="red"
-                  >mdi-account-remove</v-icon
-                >
-              </v-btn>
-            </template>
-          </v-data-table>
-        </v-col>
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-btn
-            :disabled="undefinedTraveller || readonly"
-            class="ml-auto mr-5 my-7"
-            color="primary"
-            @click="addTravellerName"
-          >
-            Add Traveller
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <v-row class="mx-3">
-        <v-col cols="12">
           <v-textarea
-            v-model="travellerNotes"
-            :readonly="readonly"
-            label="Traveller Notes"
+            v-model="travelAuthorizationPreApproval.travelerNotes"
+            label="Traveler Notes"
             outlined
-            :clearable="!readonly"
+            clearable
           />
         </v-col>
       </v-row>
-    </v-card>
+    </template>
 
     <v-card
       v-if="showApproval"
@@ -435,7 +376,7 @@
 </template>
 
 <script>
-import { nextTick, toRefs } from "vue"
+import { computed, nextTick, ref, toRefs } from "vue"
 import { isNil, isEmpty } from "lodash"
 
 import { capitalize } from "@/utils/formatters"
@@ -455,10 +396,11 @@ import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pr
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import MonthSelect from "@/components/common/MonthSelect.vue"
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
-import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
 import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomplete.vue"
+import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalTravelerAttributesFormCard.vue"
+import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
 export default {
@@ -475,6 +417,7 @@ export default {
     HeaderActionsFormCard,
     LocationsAutocomplete,
     MonthSelect,
+    TravelAuthorizationPreApprovalTravelerAttributesFormCard,
     TravelPurposeSelect,
     YgEmployeeAutocomplete,
   },
@@ -484,14 +427,37 @@ export default {
       travelAuthorizationPreApprovalId
     )
 
-    const { currentUser, isAdmin } = useCurrentUser()
-    const { previousRoute } = useRouteHistory()
-    const previousRouteOrFallback = computed(
-      () =>
-        previousRoute.value || {
-          name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
-        }
-    )
+    const { currentUser } = useCurrentUser()
+
+    const travelAuthorizationPreApprovalProfilesAttributes = ref([])
+
+    const exactTravelDateKnown = ref(true)
+
+    function toggleExactTravelDateKnown(value) {
+      exactTravelDateKnown.value = value
+
+      travelAuthorizationPreApproval.value.isOpenForAnyTraveler = !value
+      travelAuthorizationPreApproval.value.startDate = undefined
+      travelAuthorizationPreApproval.value.endDate = undefined
+      travelAuthorizationPreApproval.value.month = undefined
+    }
+
+    const branchWhere = computed(() => ({
+      department: travelAuthorizationPreApproval.value.department,
+    }))
+
+    function resetDependentFieldsDepartment() {
+      travelAuthorizationPreApproval.value.branch = undefined
+      travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
+      travelAuthorizationPreApproval.value.numberTravelers = undefined
+      travelAuthorizationPreApprovalProfilesAttributes.value = []
+    }
+
+    function resetDependentFieldsBranch() {
+      travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
+      travelAuthorizationPreApproval.value.numberTravelers = undefined
+      travelAuthorizationPreApprovalProfilesAttributes.value = []
+    }
 
     const snack = useSnack()
 
@@ -508,16 +474,37 @@ export default {
       }
     }
 
+    const { previousRoute } = useRouteHistory()
+    const previousRouteOrFallback = computed(() => {
+      if (
+        [
+          "travel-pre-approvals/TravelPreApprovalRequestsPage",
+          "travel-pre-approvals/TravelPreApprovalPage",
+        ].includes(previousRoute.value?.name)
+      ) {
+        return previousRoute.value
+      }
+
+      return {
+        name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+      }
+    })
+
     return {
+      branchWhere,
       currentUser,
-      isAdmin,
+      exactTravelDateKnown,
       isEmpty,
       isLoading,
       isNil,
       previousRouteOrFallback,
       required,
       saveWrapper,
+      resetDependentFieldsBranch,
+      resetDependentFieldsDepartment,
+      toggleExactTravelDateKnown,
       travelAuthorizationPreApproval,
+      travelAuthorizationPreApprovalProfilesAttributes,
     }
   },
   data() {
