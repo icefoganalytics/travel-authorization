@@ -25,14 +25,13 @@
       >
         <YgEmployeeAutocomplete
           v-model="travelerName"
+          label="Traveler name *"
+          :where="ygEmployeeWhere"
           item-value="fullName"
           item-text="fullName"
-          label="Traveler name *"
           :clearable="false"
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
           outlined
-          :where="ygEmployeeWhere"
-          :rules="[required]"
         />
       </v-col>
       <v-col
@@ -44,7 +43,6 @@
           v-model.number="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
-          :rules="[required]"
           outlined
           persistent-hint
           @input="emit('update:numberTravelers', Number($event))"
@@ -57,7 +55,8 @@
         <v-btn
           color="primary"
           :disabled="isNil(travelerName) && isNil(numberTravelersLocal)"
-          @click="addTravelerProfileAttributes"
+          :loading="isLoading"
+          @click="createTravelAuthorizationPreApprovalProfile"
         >
           Add traveler profile
         </v-btn>
@@ -94,7 +93,6 @@
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 
-import { required } from "@/utils/validators"
 import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorization-pre-approval-profiles-api"
 import useSnack from "@/use/use-snack"
 
@@ -166,35 +164,45 @@ function toggleExactTravelerKnown(value) {
   emit("input", [])
 }
 
-function addTravelerProfileAttributes() {
-  if (exactTravelerKnown.value) {
-    const newProfileAttributes = {
-      profileName: travelerName.value,
-      department: props.department,
-      branch: props.branch,
-    }
-    emit("input", [...props.value, newProfileAttributes])
-    return
-  } else {
-    const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")
-    // TODO: consider if we should be adding one record for each "number of travelers"?
-    // TODO: consider if we should be including the "number of travelers" in the profile name
-    const profileName = `${profilePrefix} staff`
-    const newProfileAttributes = {
-      profileName,
-      department: props.department,
-      branch: props.branch,
-    }
-    emit("input", [...props.value, newProfileAttributes])
-    return
-  }
-}
-
-const isDeleting = ref(false)
+const isLoading = ref(false)
 const snack = useSnack()
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalProfilesDataTable> | null>} */
 const travelAuthorizationPreApprovalProfilesDataTable = ref(null)
+
+async function createTravelAuthorizationPreApprovalProfile() {
+  let profileName
+  if (exactTravelerKnown.value) {
+    profileName = travelerName.value
+  } else {
+    const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")
+    // TODO: consider if we should be adding one record for each "number of travelers"?
+    // TODO: consider if we should be including the "number of travelers" in the profile name
+    profileName = `${profilePrefix} staff`
+  }
+
+  const newProfileAttributes = {
+    preApprovalId: props.travelAuthorizationPreApprovalId,
+    profileName,
+    department: props.department,
+    branch: props.branch,
+  }
+
+  isLoading.value = true
+  try {
+    await travelAuthorizationPreApprovalProfilesApi.create(newProfileAttributes)
+    snack.success(`Travel pre-approval profile created successfully`)
+    await travelAuthorizationPreApprovalProfilesDataTable.value.refresh()
+    reset()
+  } catch (error) {
+    console.error(`failed to create travel authorization pre-approval profile: ${error}`, { error })
+    snack.error(`Failed to create travel pre-approval profile: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const isDeleting = ref(false)
 
 async function removeTravelAuthorizationPreApprovalProfile(
   travelAuthorizationPreApprovalProfileId
@@ -210,5 +218,11 @@ async function removeTravelAuthorizationPreApprovalProfile(
   } finally {
     isDeleting.value = false
   }
+}
+
+function reset() {
+  exactTravelerKnown.value = true
+  travelerName.value = undefined
+  numberTravelersLocal.value = undefined
 }
 </script>
