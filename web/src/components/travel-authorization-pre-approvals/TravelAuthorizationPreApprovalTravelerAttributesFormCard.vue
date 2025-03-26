@@ -29,7 +29,7 @@
           item-text="fullName"
           label="Traveler name *"
           :clearable="false"
-          :hint="'Search for a traveler'"
+          hint="Search for a traveler. If no travelers are found, try a different department or branch."
           outlined
           :where="ygEmployeeWhere"
           :rules="[required]"

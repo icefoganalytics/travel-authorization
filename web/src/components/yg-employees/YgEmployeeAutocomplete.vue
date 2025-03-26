@@ -10,7 +10,6 @@
     :auto-select-first="autoSelectFirst"
     :chips="chips"
     :clearable="clearable"
-    :hide-no-data="hideNoData"
     :hide-selected="hideSelected"
     :no-filter="noFilter"
     :persistent-hint="persistentHint"
