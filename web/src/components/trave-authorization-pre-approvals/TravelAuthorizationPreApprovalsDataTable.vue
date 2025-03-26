@@ -111,8 +111,6 @@ import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-b
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
-import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
-
 const props = defineProps({
   where: {
     type: Object,
