@@ -25,5 +25,11 @@ module.exports = {
         allowModifiers: true,
       },
     ],
+    "vue/no-unused-vars": [
+      "error",
+      {
+        ignorePattern: "^_",
+      },
+    ],
   },
 }
