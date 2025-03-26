@@ -10,5 +10,7 @@
   "plantuml.server": "http://localhost:9999/",
   "plantuml.exportOutDir": ".",
   "plantuml.diagramsRoot": ".",
-  "plantuml.exportSubFolder": false
+  "plantuml.exportSubFolder": false,
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative"
 }
