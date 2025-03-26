@@ -93,7 +93,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
 import { formatDate } from "@/utils/formatters"
 
@@ -228,20 +228,19 @@ async function lockSelectabilityToSameDepartment({
   }
 }
 
-async function selectAllOfSameDepartment({
-  items: travelAuthorizationPreApprovals,
-  value: isSelected,
-}) {
+async function selectAllOfSameDepartment({ items, value: isSelected }) {
   if (isSelected && departmentSelectionLimiter.value) {
-    selectedItems.value = travelAuthorizationPreApprovals.value.filter(
+    selectedItems.value = items.filter(
       (travelAuthorizationPreApproval) =>
+        travelAuthorizationPreApproval.isSelectable &&
         travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
     )
-  } else if (isSelected) {
-    const firstTravelAuthorizationPreApproval = travelAuthorizationPreApprovals.value[0]
-    departmentSelectionLimiter.value = firstTravelAuthorizationPreApproval
-    selectedItems.value = travelAuthorizationPreApprovals.value.filter(
+  } else if (isSelected && !isEmpty(items)) {
+    const firstTravelAuthorizationPreApproval = items[0]
+    departmentSelectionLimiter.value = firstTravelAuthorizationPreApproval.department
+    selectedItems.value = items.filter(
       (travelAuthorizationPreApproval) =>
+        travelAuthorizationPreApproval.isSelectable &&
         travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
     )
   } else {
