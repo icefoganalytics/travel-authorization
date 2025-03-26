@@ -18,7 +18,11 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorizationPreApprovalProfile> {
-    const { profileName, department, ...optionalAttributes } = this.attributes
+    const { preApprovalId, profileName, department, ...optionalAttributes } = this.attributes
+
+    if (isNil(preApprovalId)) {
+      throw new Error("Pre-approval ID is required.")
+    }
 
     if (isNil(profileName)) {
       throw new Error("Profile name is required.")
@@ -28,11 +32,13 @@ export class CreateService extends BaseService {
       throw new Error("Department is required.")
     }
 
-    const travelAuthorizationPreApprovalProfile = await TravelAuthorizationPreApprovalProfile.create({
-      ...optionalAttributes,
-      profileName,
-      department,
-    })
+    const travelAuthorizationPreApprovalProfile =
+      await TravelAuthorizationPreApprovalProfile.create({
+        ...optionalAttributes,
+        preApprovalId,
+        profileName,
+        department,
+      })
 
     return travelAuthorizationPreApprovalProfile
   }

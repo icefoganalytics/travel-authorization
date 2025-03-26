@@ -224,11 +224,15 @@
 <script setup>
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
+import { useRouter } from "vue2-helpers/vue-router"
+
+import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
 
 import { required } from "@/utils/validators"
 
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useSnack from "@/use/use-snack"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import MonthSelect from "@/components/common/MonthSelect.vue"
@@ -302,6 +306,25 @@ function resetDependentFieldsBranch() {
 }
 
 const isLoading = ref(false)
+const snack = useSnack()
+const router = useRouter()
+
+async function createTravelAuthorizationPreApproval() {
+  isLoading.value = true
+
+  try {
+    await travelAuthorizationPreApprovalsApi.create(travelAuthorizationPreApprovalAttributes.value)
+    snack.success("Travel pre-approval created.")
+    return router.push({
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+    })
+  } catch (error) {
+    console.error(`Failed to create travel authorization pre-approval: ${error}`, { error })
+    snack.error(`Failed to create travel authorization pre-approval: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 useBreadcrumbs([
   {

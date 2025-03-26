@@ -1,13 +1,20 @@
 import { CreationAttributes } from "sequelize"
 
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
-import { TravelAuthorizationPreApproval, User } from "@/models"
+import db, {
+  TravelAuthorizationPreApproval,
+  TravelAuthorizationPreApprovalProfile,
+  User,
+} from "@/models"
 import BaseService from "@/services/base-service"
+import { TravelAuthorizationPreApprovalProfiles } from "@/services"
 
 type TravelAuthorizationPreApprovalCreationAttributes = Partial<
   CreationAttributes<TravelAuthorizationPreApproval>
->
+> & {
+  profilesAttributes?: CreationAttributes<TravelAuthorizationPreApprovalProfile>[]
+}
 
 export class CreateService extends BaseService {
   constructor(
@@ -18,7 +25,7 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorizationPreApproval> {
-    const { estimatedCost, location, ...optionalAttributes } = this.attributes
+    const { estimatedCost, location, profilesAttributes, ...optionalAttributes } = this.attributes
 
     if (isNil(estimatedCost)) {
       throw new Error("Estimated cost is required.")
@@ -28,13 +35,33 @@ export class CreateService extends BaseService {
       throw new Error("Location is required.")
     }
 
-    const travelAuthorizationPreApproval = await TravelAuthorizationPreApproval.create({
-      ...optionalAttributes,
-      estimatedCost,
-      location,
-    })
+    if (isNil(profilesAttributes) || isEmpty(profilesAttributes)) {
+      throw new Error("At least one pre-approval profile is required.")
+    }
 
-    return travelAuthorizationPreApproval
+    return db.transaction(async () => {
+      const travelAuthorizationPreApproval = await TravelAuthorizationPreApproval.create({
+        ...optionalAttributes,
+        estimatedCost,
+        location,
+        status: TravelAuthorizationPreApproval.Statuses.DRAFT,
+      })
+
+      for (const profileAttributes of profilesAttributes) {
+        const safeProfileAttributes = {
+          ...profileAttributes,
+          preApprovalId: travelAuthorizationPreApproval.id,
+        }
+        await TravelAuthorizationPreApprovalProfiles.CreateService.perform(
+          safeProfileAttributes,
+          this.currentUser
+        )
+      }
+
+      return travelAuthorizationPreApproval.reload({
+        include: ["submission"],
+      })
+    })
   }
 }
 
