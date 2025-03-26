@@ -75,43 +75,40 @@ export const travelAuthorizationPreApprovalProfilesApi = {
   /**
    * @param {Partial<TravelAuthorizationPreApprovalProfile>} attributes
    * @returns {Promise<{
-  *   travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile,
-  * }>}
-  */
- async create(attributes) {
-   const { data } = await http.post(
-     "/api/travel-authorization-pre-approval-profiles",
-     attributes
-   )
-   return data
- },
+   *   travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile,
+   * }>}
+   */
+  async create(attributes) {
+    const { data } = await http.post("/api/travel-authorization-pre-approval-profiles", attributes)
+    return data
+  },
 
- /**
-  * @param {number} travelAuthorizationPreApprovalProfileId
-  * @param {Partial<TravelAuthorizationPreApprovalProfile>} attributes
-  * @returns {Promise<{
-  *   travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile,
-  *   policy: Policy,
-  * }>}
-  */
- async update(travelAuthorizationPreApprovalProfileId, attributes) {
-   const { data } = await http.put(
-     `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`,
-     attributes
-   )
-   return data
- },
+  /**
+   * @param {number} travelAuthorizationPreApprovalProfileId
+   * @param {Partial<TravelAuthorizationPreApprovalProfile>} attributes
+   * @returns {Promise<{
+   *   travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile,
+   *   policy: Policy,
+   * }>}
+   */
+  async update(travelAuthorizationPreApprovalProfileId, attributes) {
+    const { data } = await http.put(
+      `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`,
+      attributes
+    )
+    return data
+  },
 
- /**
-  * @param {number} travelAuthorizationPreApprovalProfileId
-  * @returns {Promise<void>}
-  */
- async delete(travelAuthorizationPreApprovalProfileId) {
-   const { data } = await http.delete(
-     `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`
-   )
-   return data
- },
+  /**
+   * @param {number} travelAuthorizationPreApprovalProfileId
+   * @returns {Promise<void>}
+   */
+  async delete(travelAuthorizationPreApprovalProfileId) {
+    const { data } = await http.delete(
+      `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`
+    )
+    return data
+  },
 }
 
 export default travelAuthorizationPreApprovalProfilesApi

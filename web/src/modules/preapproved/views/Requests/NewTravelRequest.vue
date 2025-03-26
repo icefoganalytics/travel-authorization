@@ -440,6 +440,14 @@ import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomp
 
 export default {
   name: "NewTravelRequest",
+  components: {
+    BranchAutocomplete,
+    DepartmentAutocomplete,
+    LocationsAutocomplete,
+    MonthSelect,
+    TravelPurposeSelect,
+    YgEmployeeAutocomplete,
+  },
   props: {
     type: {
       type: String,
@@ -449,14 +457,6 @@ export default {
       type: Object,
       default: () => {},
     },
-  },
-  components: {
-    BranchAutocomplete,
-    DepartmentAutocomplete,
-    LocationsAutocomplete,
-    MonthSelect,
-    TravelPurposeSelect,
-    YgEmployeeAutocomplete,
   },
   setup() {
     const { currentUser, isAdmin } = useCurrentUser()
@@ -539,7 +539,6 @@ export default {
       adNameErr: false,
     }
   },
-  mounted() {},
   computed: {
     departmentWhere() {
       if (isNil(this.department) || isEmpty(this.department)) return {}
@@ -562,6 +561,7 @@ export default {
       }
     },
   },
+  mounted() {},
   methods: {
     addTraveller() {
       if (this.adName) {

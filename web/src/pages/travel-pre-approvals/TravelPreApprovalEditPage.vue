@@ -187,8 +187,8 @@
         <v-col>
           <TravelAuthorizationPreApprovalTravelerAttributesFormCard
             v-model="travelAuthorizationPreApprovalProfilesAttributes"
-            :numberTravelers.sync="travelAuthorizationPreApproval.numberTravelers"
-            :isOpenForAnyTraveler.sync="travelAuthorizationPreApproval.isOpenForAnyTraveler"
+            :number-travelers.sync="travelAuthorizationPreApproval.numberTravelers"
+            :is-open-for-any-traveler.sync="travelAuthorizationPreApproval.isOpenForAnyTraveler"
             :department="travelAuthorizationPreApproval.department"
             :branch="travelAuthorizationPreApproval.branch"
           />
@@ -405,12 +405,6 @@ import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomp
 
 export default {
   name: "TravelPreApprovalEditPage",
-  props: {
-    travelAuthorizationPreApprovalId: {
-      type: [String, Number],
-      required: true,
-    },
-  },
   components: {
     BranchAutocomplete,
     DepartmentAutocomplete,
@@ -420,6 +414,12 @@ export default {
     TravelAuthorizationPreApprovalTravelerAttributesFormCard,
     TravelPurposeSelect,
     YgEmployeeAutocomplete,
+  },
+  props: {
+    travelAuthorizationPreApprovalId: {
+      type: [String, Number],
+      required: true,
+    },
   },
   setup(props) {
     const { travelAuthorizationPreApprovalId } = toRefs(props)
@@ -576,7 +576,6 @@ export default {
       adNameErr: false,
     }
   },
-  mounted() {},
   computed: {
     departmentWhere() {
       if (isNil(this.department) || isEmpty(this.department)) return {}
@@ -599,6 +598,7 @@ export default {
       }
     },
   },
+  mounted() {},
   methods: {
     addTraveller() {
       if (this.adName) {

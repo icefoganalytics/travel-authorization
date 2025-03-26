@@ -164,7 +164,7 @@ async function downloadPdf() {
     }
 
     const { data } = await http.get(
-      `${PREAPPROVED_URL}/document/${travelAuthorizationPreApprovalSubmissionId}`,
+      `${PREAPPROVED_URL}/document/${travelAuthorizationPreApprovalSubmissionId.value}`,
       header
     )
     isDownloading.value = false
