@@ -202,16 +202,18 @@
         color="primary"
         :loading="isLoading"
         type="submit"
+        :block="smAndDown"
       >
         Save
       </v-btn>
       <v-btn
-        class="my-0"
+        class="my-0 mt-4 mt-md-0"
         color="warning"
         outlined
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
         }"
+        :block="smAndDown"
       >
         Cancel
       </v-btn>
@@ -225,6 +227,7 @@ import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
+import useVuetify2 from "@/use/utils/use-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
@@ -248,6 +251,8 @@ const props = defineProps({
     default: () => ({}),
   },
 })
+
+const { smAndDown } = useVuetify2()
 
 /** @type {Partial<TravelAuthorizationPreApproval>} */
 const travelAuthorizationPreApprovalAttributes = ref({
