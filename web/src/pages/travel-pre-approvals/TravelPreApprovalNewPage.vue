@@ -245,17 +245,6 @@ import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/componen
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
 
-const props = defineProps({
-  type: {
-    type: String,
-    default: "Add New",
-  },
-  travelRequest: {
-    type: Object,
-    default: () => ({}),
-  },
-})
-
 const { smAndDown } = useVuetify2()
 
 /** @type {Partial<TravelAuthorizationPreApproval>} */
