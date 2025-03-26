@@ -93,6 +93,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
+import { isNil } from "lodash"
 
 import { formatDate } from "@/utils/formatters"
 
@@ -190,7 +191,7 @@ const { travelAuthorizationPreApprovals, isLoading, totalCount, refresh } =
   useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
 
 const selectedItems = ref([])
-const departmentSelectionLimiter = ref("")
+const departmentSelectionLimiter = ref(null)
 
 const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() => {
   return travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
@@ -199,7 +200,8 @@ const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() =
         TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED &&
       travelAuthorizationPreApproval.status !==
         TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED &&
-      travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
+      (travelAuthorizationPreApproval.department === departmentSelectionLimiter.value ||
+        isNil(departmentSelectionLimiter.value))
 
     return {
       ...travelAuthorizationPreApproval,
