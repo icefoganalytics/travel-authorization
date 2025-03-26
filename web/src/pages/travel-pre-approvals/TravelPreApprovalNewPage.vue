@@ -305,11 +305,18 @@ function resetDependentFieldsBranch() {
   travelAuthorizationPreApprovalProfilesAttributes.value = []
 }
 
+/** @type {import('vue').Ref<InstanceType<typeof HeaderActionsFormCard> | null>} */
+const headerActionsFormCard = ref(null)
 const isLoading = ref(false)
 const snack = useSnack()
 const router = useRouter()
 
 async function createTravelAuthorizationPreApproval() {
+  if (headerActionsFormCard.value === null) return
+
+  const valid = await headerActionsFormCard.value.validate()
+  if (!valid) return
+
   isLoading.value = true
 
   try {
