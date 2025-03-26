@@ -313,7 +313,10 @@ async function createTravelAuthorizationPreApproval() {
   isLoading.value = true
 
   try {
-    await travelAuthorizationPreApprovalsApi.create(travelAuthorizationPreApprovalAttributes.value)
+    await travelAuthorizationPreApprovalsApi.create({
+      ...travelAuthorizationPreApprovalAttributes.value,
+      profilesAttributes: travelAuthorizationPreApprovalProfilesAttributes.value,
+    })
     snack.success("Travel pre-approval created.")
     return router.push({
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
