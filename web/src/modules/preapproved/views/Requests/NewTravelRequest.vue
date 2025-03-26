@@ -446,9 +446,10 @@ export default {
     },
   },
   setup() {
-    const { isAdmin } = useCurrentUser()
+    const { currentUser, isAdmin } = useCurrentUser()
 
     return {
+      currentUser,
       isAdmin,
     }
   },
@@ -673,7 +674,7 @@ export default {
     },
 
     initForm() {
-      const userDept = this.$store.state.auth.department
+      const userDept = this.currentUser.department
       this.lockDepartment = !this.isAdmin || this.type != "Add New"
 
       this.initStates()
