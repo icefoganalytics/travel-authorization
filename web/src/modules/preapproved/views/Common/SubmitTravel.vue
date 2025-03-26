@@ -104,7 +104,7 @@
               </v-tooltip>
             </template>
             <template #item.edit="{ item }">
-              <new-travel-request
+              <NewTravelRequest
                 :travel-request="item"
                 type="Edit"
                 @updateTable="updateAndOpenDialog"

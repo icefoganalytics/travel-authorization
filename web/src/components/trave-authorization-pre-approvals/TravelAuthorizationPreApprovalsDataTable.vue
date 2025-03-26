@@ -69,12 +69,18 @@
     </template>
 
     <template #item.actions="{ item }">
-      <NewTravelRequest
+      <v-btn
         v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT"
-        :type="'Edit'"
-        :travel-request="item"
-        @updateTable="refresh"
-      />
+        color="secondary"
+        :to="{
+          name: 'travel-pre-approvals/TravelPreApprovalEditPage',
+          params: {
+            travelAuthorizationPreApprovalId: item.id,
+          },
+        }"
+      >
+        Edit
+      </v-btn>
       <v-btn
         v-else
         color="secondary"
