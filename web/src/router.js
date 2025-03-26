@@ -2,6 +2,7 @@ import Vue from "vue"
 import VueRouter from "vue-router"
 
 import { authGuard } from "@/utils/auth-guard"
+import useRouteHistory from "@/use/use-route-history"
 
 import travelDeskRouter from "@/modules/travelDesk/router"
 import travelAuthorizationsRouter from "@/modules/travel-authorizations/router"
@@ -258,11 +259,19 @@ const router = new VueRouter({
   routes,
 })
 
+const { add } = useRouteHistory()
+
 router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth === false) return next()
+  if (to.meta.requiresAuth === false) {
+    add(from)
+    return next()
+  }
 
   const isAuthenticated = await authGuard(to)
-  if (isAuthenticated) return next()
+  if (isAuthenticated) {
+    add(from)
+    return next()
+  }
 
   return next(false)
 })

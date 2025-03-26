@@ -11,6 +11,18 @@
     lazy-validation
     @submit.prevent="saveWrapper"
   >
+    <template #header-actions>
+      <v-btn
+        class="my-0"
+        color="error"
+        outlined
+        :loading="savingData"
+        @click="deleteDialog = true"
+      >
+        Delete
+      </v-btn>
+    </template>
+
     <v-row>
       <v-col
         cols="12"
@@ -405,30 +417,18 @@
 
     <template #actions>
       <v-btn
-        color="warning"
-        outlined
-        :to="{
-          name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
-        }"
-      >
-        Cancel
-      </v-btn>
-      <v-btn
-        class="ml-5"
-        color="error"
-        outlined
-        :loading="savingData"
-        @click="deleteDialog = true"
-      >
-        Delete
-      </v-btn>
-      <v-btn
-        class="ml-auto"
         color="primary"
         :loading="savingData"
         @click="saveNewTravelRequest"
       >
         Save
+      </v-btn>
+      <v-btn
+        color="warning"
+        outlined
+        :to="previousRouteOrFallback"
+      >
+        Cancel
       </v-btn>
     </template>
   </HeaderActionsFormCard>
@@ -449,6 +449,7 @@ import travelAuthorizationPreApprovalsApi, {
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
 import useCurrentUser from "@/use/use-current-user"
+import useRouteHistory from "@/use/use-route-history"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pre-approval"
 
@@ -461,7 +462,7 @@ import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomple
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
 export default {
-  name: "NewTravelRequest",
+  name: "TravelPreApprovalEditPage",
   props: {
     travelAuthorizationPreApprovalId: {
       type: [String, Number],
@@ -484,6 +485,14 @@ export default {
     )
 
     const { currentUser, isAdmin } = useCurrentUser()
+    const { previousRoute } = useRouteHistory()
+    const previousRouteOrFallback = computed(
+      () =>
+        previousRoute.value || {
+          name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+        }
+    )
+
     const snack = useSnack()
 
     async function saveWrapper() {
@@ -505,6 +514,7 @@ export default {
       isEmpty,
       isLoading,
       isNil,
+      previousRouteOrFallback,
       required,
       saveWrapper,
       travelAuthorizationPreApproval,
