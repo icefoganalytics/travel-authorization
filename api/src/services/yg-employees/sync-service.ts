@@ -33,16 +33,21 @@ export class SyncService extends BaseService {
 
           const fullName = employee.full_name?.split(".")?.join(" ")
           const manager = employee.manager?.split(".")?.join(" ")
+          const cleanDepartment = employee.department?.trim()
+          const cleanDivision = employee.division?.trim()
+          const cleanBranch = employee.branch?.trim()
+          const cleanUnit = employee.unit?.trim()
+
           ygEmployeesAttributes.push({
             email: employee.email,
             username: employee.email,
             fullName,
             firstName: employee.first_name,
             lastName: employee.last_name,
-            department: employee.department,
-            division: employee.division,
-            branch: employee.branch,
-            unit: employee.unit,
+            department: cleanDepartment,
+            division: cleanDivision,
+            branch: cleanBranch,
+            unit: cleanUnit,
             organization: employee.organization,
             title: employee.title,
             suite: employee.suite,
