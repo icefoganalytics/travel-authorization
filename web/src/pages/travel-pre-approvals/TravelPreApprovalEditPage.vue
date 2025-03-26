@@ -16,8 +16,8 @@
         class="my-0"
         color="error"
         outlined
-        :loading="savingData"
-        @click="deleteDialog = true"
+        :loading="isDeleting"
+        @click="deleteTravelAuthorizationPreApproval"
       >
         Delete
       </v-btn>
@@ -185,8 +185,9 @@
     <template v-else>
       <v-row>
         <v-col>
-          <TravelAuthorizationPreApprovalTravelerAttributesFormCard
+          <TravelAuthorizationPreApprovalTravelerEditFormCard
             v-model="travelAuthorizationPreApprovalProfilesAttributes"
+            :travel-authorization-pre-approval-id="travelAuthorizationPreApprovalId"
             :number-travelers.sync="travelAuthorizationPreApproval.numberTravelers"
             :is-open-for-any-traveler.sync="travelAuthorizationPreApproval.isOpenForAnyTraveler"
             :department="travelAuthorizationPreApproval.department"
@@ -210,6 +211,7 @@
       </v-row>
     </template>
 
+    <!-- TODO: move to its own component: see web/src/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionCard.vue -->
     <v-card
       v-if="showApproval"
       class="mt-5 grey lighten-5"
@@ -272,95 +274,11 @@
       </v-row>
     </v-card>
 
-    <!-- START DIALOGS -->
-    <!-- TODO: move dialogs to their own components -->
-    <v-dialog
-      v-model="travellerDialog"
-      persistent
-      max-width="400px"
-    >
-      <v-card>
-        <v-card-title
-          class="primary"
-          style="border-bottom: 1px solid black"
-        >
-          <div class="text-h5">Traveller</div>
-        </v-card-title>
-
-        <v-card-text>
-          <v-row>
-            <v-col cols="12">
-              <YgEmployeeAutocomplete
-                v-model="adName"
-                :error="adNameErr"
-                item-value="fullName"
-                item-text="fullName"
-                label="Traveller Name"
-                :where="ygEmployeeWhere"
-                outlined
-                @change="adNameErr = false"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-btn
-            color="grey darken-5"
-            @click="travellerDialog = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            class="ml-auto"
-            color="green darken-1"
-            @click="addTraveller"
-          >
-            Add
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog
-      v-model="deleteDialog"
-      persistent
-      max-width="400px"
-    >
-      <v-card>
-        <v-card-title
-          class="amber accent-2"
-          style="border-bottom: 1px solid black"
-        >
-          <div class="text-h5">Delete Travel Request</div>
-        </v-card-title>
-
-        <v-card-text> </v-card-text>
-
-        <v-card-actions>
-          <v-btn
-            color="grey darken-5"
-            @click="deleteDialog = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            class="ml-auto"
-            color="red darken-1"
-            @click="deleteTravelRequest()"
-          >
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- END DIALOGS -->
-
     <template #actions>
       <v-btn
         color="primary"
-        :loading="savingData"
-        @click="saveNewTravelRequest"
+        :loading="isLoading"
+        type="submit"
       >
         Save
       </v-btn>
@@ -375,11 +293,11 @@
   </HeaderActionsFormCard>
 </template>
 
-<script>
-import { computed, nextTick, ref, toRefs } from "vue"
+<script setup>
+import { computed, onMounted, ref, toRefs } from "vue"
 import { isNil, isEmpty } from "lodash"
 
-import { capitalize } from "@/utils/formatters"
+import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
 
 import { PREAPPROVED_URL } from "@/urls"
@@ -389,7 +307,6 @@ import travelAuthorizationPreApprovalsApi, {
 } from "@/api/travel-authorization-pre-approvals-api"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
-import useCurrentUser from "@/use/use-current-user"
 import useRouteHistory from "@/use/use-route-history"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pre-approval"
@@ -399,475 +316,167 @@ import MonthSelect from "@/components/common/MonthSelect.vue"
 import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomplete.vue"
 import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalTravelerAttributesFormCard.vue"
+import TravelAuthorizationPreApprovalTravelerEditFormCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalTravelerEditFormCard.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
-import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
-export default {
-  name: "TravelPreApprovalEditPage",
-  components: {
-    BranchAutocomplete,
-    DepartmentAutocomplete,
-    HeaderActionsFormCard,
-    LocationsAutocomplete,
-    MonthSelect,
-    TravelAuthorizationPreApprovalTravelerAttributesFormCard,
-    TravelPurposeSelect,
-    YgEmployeeAutocomplete,
+const props = defineProps({
+  travelAuthorizationPreApprovalId: {
+    type: [String, Number],
+    required: true,
   },
-  props: {
-    travelAuthorizationPreApprovalId: {
-      type: [String, Number],
-      required: true,
-    },
-  },
-  setup(props) {
-    const { travelAuthorizationPreApprovalId } = toRefs(props)
-    const { travelAuthorizationPreApproval, isLoading } = useTravelAuthorizationPreApproval(
-      travelAuthorizationPreApprovalId
-    )
+})
 
-    const { currentUser } = useCurrentUser()
+const { travelAuthorizationPreApprovalId } = toRefs(props)
+const { travelAuthorizationPreApproval, isLoading } = useTravelAuthorizationPreApproval(
+  travelAuthorizationPreApprovalId
+)
 
-    const travelAuthorizationPreApprovalProfilesAttributes = ref([])
+const travelAuthorizationPreApprovalProfilesAttributes = ref([])
 
-    const exactTravelDateKnown = ref(true)
+const exactTravelDateKnown = ref(true)
 
-    function toggleExactTravelDateKnown(value) {
-      exactTravelDateKnown.value = value
+function toggleExactTravelDateKnown(value) {
+  exactTravelDateKnown.value = value
 
-      travelAuthorizationPreApproval.value.isOpenForAnyTraveler = !value
-      travelAuthorizationPreApproval.value.startDate = undefined
-      travelAuthorizationPreApproval.value.endDate = undefined
-      travelAuthorizationPreApproval.value.month = undefined
+  travelAuthorizationPreApproval.value.isOpenForAnyTraveler = !value
+  travelAuthorizationPreApproval.value.startDate = undefined
+  travelAuthorizationPreApproval.value.endDate = undefined
+  travelAuthorizationPreApproval.value.month = undefined
+}
+
+const branchWhere = computed(() => ({
+  department: travelAuthorizationPreApproval.value.department,
+}))
+
+function resetDependentFieldsDepartment() {
+  travelAuthorizationPreApproval.value.branch = undefined
+  travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
+  travelAuthorizationPreApproval.value.numberTravelers = undefined
+  travelAuthorizationPreApprovalProfilesAttributes.value = []
+}
+
+function resetDependentFieldsBranch() {
+  travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
+  travelAuthorizationPreApproval.value.numberTravelers = undefined
+  travelAuthorizationPreApprovalProfilesAttributes.value = []
+}
+
+const snack = useSnack()
+
+async function saveWrapper() {
+  isLoading.value = true
+  try {
+    if (isEmpty(travelAuthorizationPreApprovalProfilesAttributes.value)) {
+      await travelAuthorizationPreApprovalsApi.update(travelAuthorizationPreApproval.value)
+    } else {
+      await travelAuthorizationPreApprovalsApi.update({
+        ...travelAuthorizationPreApproval.value,
+        profilesAttributes: travelAuthorizationPreApprovalProfilesAttributes.value,
+      })
     }
+    snack.success("Travel authorization pre-approval saved successfully")
+  } catch (error) {
+    console.error(`Failed to save travel authorization pre-approval: ${error}`, { error })
+    snack.error(`Failed to save travel authorization pre-approval: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
 
-    const branchWhere = computed(() => ({
-      department: travelAuthorizationPreApproval.value.department,
-    }))
+const isDeleting = ref(false)
 
-    function resetDependentFieldsDepartment() {
-      travelAuthorizationPreApproval.value.branch = undefined
-      travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
-      travelAuthorizationPreApproval.value.numberTravelers = undefined
-      travelAuthorizationPreApprovalProfilesAttributes.value = []
-    }
+async function deleteTravelAuthorizationPreApproval() {
+  if (!blockedToTrueConfirm("Are you sure you want to remove this travel pre-approval?")) return
 
-    function resetDependentFieldsBranch() {
-      travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
-      travelAuthorizationPreApproval.value.numberTravelers = undefined
-      travelAuthorizationPreApprovalProfilesAttributes.value = []
-    }
+  isDeleting.value = true
+  try {
+    await travelAuthorizationPreApprovalsApi.delete(travelAuthorizationPreApproval.value)
+    snack.success("Travel authorization pre-approval deleted successfully")
+  } catch (error) {
+    console.error(`Failed to delete travel authorization pre-approval: ${error}`, { error })
+    snack.error(`Failed to delete travel authorization pre-approval: ${error}`)
+  } finally {
+    isDeleting.value = false
+  }
+}
 
-    const snack = useSnack()
+const { previousRoute } = useRouteHistory()
+const previousRouteOrFallback = computed(() => {
+  if (
+    [
+      "travel-pre-approvals/TravelPreApprovalRequestsPage",
+      "travel-pre-approvals/TravelPreApprovalPage",
+    ].includes(previousRoute.value?.name)
+  ) {
+    return previousRoute.value
+  }
 
-    async function saveWrapper() {
-      isLoading.value = true
-      try {
-        await travelAuthorizationPreApprovalsApi.update(travelAuthorizationPreApproval.value)
-        snack.success("Travel authorization pre-approval saved successfully")
-      } catch (error) {
-        console.error(`Failed to save travel authorization pre-approval: ${error}`, { error })
-        snack.error(`Failed to save travel authorization pre-approval: ${error}`)
-      } finally {
-        isLoading.value = false
-      }
-    }
+  return {
+    name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+  }
+})
 
-    const { previousRoute } = useRouteHistory()
-    const previousRouteOrFallback = computed(() => {
-      if (
-        [
-          "travel-pre-approvals/TravelPreApprovalRequestsPage",
-          "travel-pre-approvals/TravelPreApprovalPage",
-        ].includes(previousRoute.value?.name)
-      ) {
-        return previousRoute.value
-      }
+const showApproval = ref(false)
+const approved = ref(false)
+const approvedBy = ref("")
+const approvalDate = ref("")
 
-      return {
-        name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
-      }
-    })
+onMounted(() => {
+  initForm()
+})
 
-    return {
-      branchWhere,
-      currentUser,
-      exactTravelDateKnown,
-      isEmpty,
-      isLoading,
-      isNil,
-      previousRouteOrFallback,
-      required,
-      saveWrapper,
-      resetDependentFieldsBranch,
-      resetDependentFieldsDepartment,
-      toggleExactTravelDateKnown,
-      travelAuthorizationPreApproval,
-      travelAuthorizationPreApprovalProfilesAttributes,
-    }
-  },
-  data() {
-    return {
-      headers: [
-        {
-          text: "Name",
-          value: "profileName",
-        },
-        {
-          text: "Dept.",
-          value: "department",
-        },
-        {
-          text: "Branch",
-          value: "branch",
-        },
-        {
-          text: "",
-          value: "remove",
-          cellClass: "px-0 mx-0",
-          sortable: false,
-          width: "1rem",
-        },
-      ],
-      profiles: [],
-      purpose: "",
-      addNewTravelDialog: false,
-      unknownDate: false,
-      location: "",
-      cost: "",
-      reason: "",
-      startDate: "",
-      endDate: "",
-      lockDepartment: false,
-      department: "",
-      branch: "",
-      branchList: [],
-      undefinedTraveller: false,
-      undefinedTravellerHint: "",
-      profilesNum: null,
-      anticipatedMonth: "",
-      travellerNotes: "",
-      travellerDialog: false,
-      adName: "",
-      savingData: false,
-      loadingData: false,
-      showApproval: false,
-      approved: false,
-      approvedBy: "",
-      approvalDate: "",
-      readonly: false,
-      deleteDialog: false,
+function initForm() {
+  showApproval.value = false
+  approved.value =
+    travelAuthorizationPreApproval.value?.status ===
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
+  approvedBy.value = ""
+  approvalDate.value = ""
 
-      state: {
-        purposeErr: false,
-        costErr: false,
-        locationErr: false,
-        departmentErr: false,
-        branchErr: false,
-        anticipatedMonthErr: false,
-        travellerNumErr: false,
-        startDateErr: false,
-        endDateErr: false,
-        unknownDateErr: false,
-        undefinedTravellerErr: false,
-      },
+  if (
+    travelAuthorizationPreApproval.value?.submission?.id &&
+    (travelAuthorizationPreApproval.value.status ===
+      TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED ||
+      travelAuthorizationPreApproval.value.status ===
+        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED)
+  ) {
+    initSubmission(travelAuthorizationPreApproval.value.submission.id)
+  }
+}
 
-      adNameErr: false,
-    }
-  },
-  computed: {
-    departmentWhere() {
-      if (isNil(this.department) || isEmpty(this.department)) return {}
+async function initSubmission(id) {
+  const { data } = await http.get(`${PREAPPROVED_URL}/submissions/${id}`)
+  showApproval.value =
+    data.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED
+  approvedBy.value = data.approvedBy
+  approvalDate.value = data.approvalDate
+}
 
-      return {
-        department: this.department,
-      }
+async function downloadPdf() {
+  isLoading.value = true
+  const header = {
+    responseType: "application/pdf",
+    headers: {
+      "Content-Type": "application/text",
     },
-    branchWhere() {
-      if (isNil(this.branch) || isEmpty(this.branch)) return {}
+  }
 
-      return {
-        branch: this.branch,
-      }
-    },
-    ygEmployeeWhere() {
-      return {
-        ...this.departmentWhere,
-        ...this.branchWhere,
-      }
-    },
-  },
-  mounted() {},
-  methods: {
-    addTraveller() {
-      if (this.adName) {
-        this.travellerDialog = false
-        const profileIndex = this.profiles.findIndex(
-          (profile) => profile.profileName === this.adName && profile.department === this.department
-        )
-        if (profileIndex < 0)
-          this.profiles.push({
-            profileName: this.adName,
-            department: this.department,
-            branch: this.branch,
-          })
-      } else this.adNameErr = true
-    },
+  const { data } = await http.get(
+    `${PREAPPROVED_URL}/document/${travelAuthorizationPreApproval.value.submission.id}`,
+    header
+  )
 
-    addTravellerName() {
-      this.state.undefinedTravellerErr = false
-      this.undefinedTravellerHint = ""
-      this.adNameErr = false
-      this.adName = ""
-      this.state.departmentErr = this.department ? false : true
-      this.state.branchErr = this.branchList.length > 0 && !this.branch ? true : false
-      if (this.department && (this.branch || this.branchList.length == 0)) {
-        this.travellerDialog = true
-      }
-    },
-
-    selectUnknownDate() {
-      this.state.unknownDateErr = false
-      if (!this.unknownDate) {
-        this.anticipatedMonth = ""
-        this.state.anticipatedMonthErr = false
-      }
-    },
-
-    async selectUndefinedTraveller() {
-      this.undefinedTravellerHint = ""
-      this.state.departmentErr = this.department ? false : true
-      this.state.branchErr = this.branchList.length > 0 && !this.branch ? true : false
-      if (!this.undefinedTraveller) {
-        this.profiles = []
-        return
-      }
-      if (this.department && (this.branch || this.branchList.length == 0)) {
-        this.state.undefinedTravellerErr = false
-        this.addUndefinedTraveller()
-      } else {
-        await nextTick()
-        this.undefinedTraveller = false
-        this.undefinedTravellerHint = "Please Select the Department and Branch First!"
-      }
-    },
-
-    addUndefinedTraveller() {
-      this.state.travellerNumErr = false
-      if (this.profilesNum > 0) {
-        this.profiles = [
-          {
-            profileName: this.department + " " + (this.branch ? this.branch + " " : "") + "staff",
-            department: this.department,
-            branch: this.branch,
-          },
-        ]
-      }
-    },
-
-    checkFields() {
-      this.state.purposeErr = this.purpose ? false : true
-      this.state.costErr = this.cost ? false : true
-      this.state.locationErr = this.location ? false : true
-
-      this.state.unknownDateErr =
-        !this.startDate && !this.endDate && !this.unknownDate ? true : false
-      this.state.anticipatedMonthErr = this.unknownDate && !this.anticipatedMonth ? true : false
-
-      this.state.startDateErr = !this.startDate && this.endDate && !this.unknownDate ? true : false
-      this.state.endDateErr = this.startDate && !this.endDate && !this.unknownDate ? true : false
-
-      this.state.undefinedTravellerErr =
-        !this.undefinedTraveller && this.profiles.length == 0 ? true : false
-      this.state.travellerNumErr =
-        this.undefinedTraveller && (!this.profilesNum || this.profilesNum < 1) ? true : false
-
-      for (const key of Object.keys(this.state)) {
-        if (this.state[key]) return false
-      }
-      return true
-    },
-
-    saveNewTravelRequest() {
-      if (this.checkFields()) {
-        this.savingData = true
-        const body = {
-          location: capitalize(this.location),
-          purpose: this.purpose,
-          estimatedCost: this.cost,
-          reason: this.reason,
-          isOpenForAnyDate: this.unknownDate,
-          month: this.anticipatedMonth,
-          startDate: !this.unknownDate ? this.startDate : null,
-          endDate: !this.unknownDate ? this.endDate : null,
-          department: this.department,
-          branch: this.branch,
-          isOpenForAnyTraveler: this.undefinedTraveller,
-          numberTravelers: this.profilesNum,
-          profiles: this.profiles,
-          travelerNotes: this.travellerNotes,
-        }
-        // console.log(body);
-        const id = this.travelRequest?.id ? this.travelRequest.id : 0
-        return http
-          .post(`${PREAPPROVED_URL}/${id}`, body)
-          .then(() => {
-            this.savingData = false
-            this.addNewTravelDialog = false
-            this.$emit("updateTable")
-          })
-          .catch((e) => {
-            this.savingData = false
-            console.log(e)
-          })
-      }
-    },
-
-    initForm() {
-      const userDept = this.currentUser.department
-      this.lockDepartment = false
-
-      this.initStates()
-
-      this.profiles = this.travelRequest.profiles
-      this.purpose = this.travelRequest.purpose
-      this.unknownDate = this.travelRequest.isOpenForAnyDate
-      this.location = this.travelRequest.location
-      this.cost = this.travelRequest.estimatedCost
-      this.reason = this.travelRequest.reason
-      this.startDate = this.travelRequest.startDate
-      this.endDate = this.travelRequest.endDate
-      this.department = this.travelRequest.department
-      this.branch = this.travelRequest.branch
-      this.undefinedTraveller = this.travelRequest.isOpenForAnyTraveler
-      this.undefinedTravellerHint = ""
-      this.profilesNum = this.travelRequest.numberTravelers
-      this.anticipatedMonth = this.travelRequest.month
-      this.travellerNotes = this.travelRequest.travelerNotes
-      this.travellerDialog = false
-      this.adName = ""
-      this.deleteDialog = false
-
-      this.readonly = false
-
-      this.departmentChanged(this.travelRequest.branch)
-
-      this.loadingData = false
-      this.showApproval = false
-      this.approved =
-        this.travelRequest?.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
-      this.approvedBy = ""
-      this.approvalDate = ""
-
-      if (
-        this.travelRequest?.submissionId &&
-        (this.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED ||
-          this.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED)
-      )
-        this.initSubmission(this.travelRequest.submissionId)
-    },
-
-    initStates() {
-      this.adNameErr = false
-      this.undefinedTravellerHint = ""
-      for (const key of Object.keys(this.state)) {
-        this.state[key] = false
-      }
-    },
-
-    initSubmission(id) {
-      return http
-        .get(`${PREAPPROVED_URL}/submissions/${id}`)
-        .then((res) => {
-          this.showApproval =
-            res.data.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED
-          this.approvedBy = res.data.approvedBy
-          this.approvalDate = res.data.approvalDate
-        })
-        .catch((e) => {
-          console.log(e)
-        })
-    },
-
-    downloadPdf() {
-      this.loadingData = true
-      const header = {
-        responseType: "application/pdf",
-        headers: {
-          "Content-Type": "application/text",
-        },
-      }
-
-      return http
-        .get(`${PREAPPROVED_URL}/document/${this.travelRequest.submissionId}`, header)
-        .then((res) => {
-          this.loadingData = false
-          const link = document.createElement("a")
-          link.href = res.data
-          document.body.appendChild(link)
-          link.download = this.approved ? "approval_doc.pdf" : "doc.pdf"
-          link.click()
-          setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-        })
-        .catch((e) => {
-          this.loadingData = false
-          console.log(e)
-        })
-    },
-
-    deleteTravelRequest() {
-      this.deleteDialog = false
-      this.savingData = true
-      return http
-        .delete(`${PREAPPROVED_URL}/${this.travelRequest.id}`)
-        .then(() => {
-          this.savingData = false
-          this.addNewTravelDialog = false
-          this.$emit("updateTable")
-        })
-        .catch((e) => {
-          this.savingData = false
-          console.log(e)
-        })
-    },
-
-    departmentChanged(branch) {
-      this.state.departmentErr = false
-      this.branch = branch ? branch : ""
-      const depts = this.$store.state.preapproved.departmentBranch
-      if (this.department) {
-        this.branchList = depts[this.department]?.branches || []
-      } else {
-        this.branchList = []
-      }
-    },
-
-    removeTraveller(item) {
-      this.profiles = this.profiles.filter(
-        (profile) =>
-          !(profile.profileName == item.profileName && profile.department == item.department)
-      )
-      if (this.profiles.length == 0 && this.undefinedTraveller) {
-        this.profilesNum = null
-      }
-    },
-  },
+  isLoading.value = false
+  const link = document.createElement("a")
+  link.href = data
+  document.body.appendChild(link)
+  link.download = approved.value ? "approval_doc.pdf" : "doc.pdf"
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000)
 }
 </script>
 
 <style scoped>
-#traveller-detail {
-  position: relative;
-  top: 12px;
-  left: 15px;
-  width: 20%;
-  font-size: 15pt;
-  height: 100%;
-  background: rgb(255, 255, 255);
-  z-index: 99;
-}
-
 ::v-deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
