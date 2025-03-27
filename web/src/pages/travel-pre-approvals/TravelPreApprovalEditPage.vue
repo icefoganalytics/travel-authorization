@@ -210,69 +210,6 @@
       </v-row>
     </template>
 
-    <!-- TODO: move to its own component: see web/src/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionCard.vue -->
-    <v-card
-      v-if="showApproval"
-      class="mt-5 grey lighten-5"
-      outlined
-    >
-      <v-card-title
-        class="grey lighten-5"
-        style="border-bottom: 1px solid black"
-      >
-        <div
-          v-if="approved"
-          class="text-h5"
-        >
-          Approval
-        </div>
-        <div
-          v-else
-          class="text-h5 red--text"
-        >
-          Declined
-        </div>
-      </v-card-title>
-      <v-row class="mt-0 mx-3">
-        <v-col cols="5">
-          <v-text-field
-            v-model="approvedBy"
-            readonly
-            hide-details
-            :label="approved ? 'Approved By' : 'Signed By'"
-            outlined
-          />
-        </v-col>
-        <v-col cols="1" />
-        <v-col cols="5">
-          <v-btn
-            :loading="loadingData"
-            color="transparent"
-            @click="downloadPdf()"
-            ><span class="text-h6 primary--text text-decoration-underline">
-              <b v-if="approved">approval</b>
-              doc.pdf</span
-            >
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row class="mx-3 mt-n5 mb-5">
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-text-field
-            v-model="approvalDate"
-            readonly
-            hide-details
-            :label="approved ? 'Approval Date' : 'Date'"
-            outlined
-            type="date"
-          />
-        </v-col>
-      </v-row>
-    </v-card>
-
     <template #actions>
       <v-btn
         color="primary"
@@ -293,19 +230,14 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, toRefs } from "vue"
+import { computed, ref, toRefs } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
 
-import { PREAPPROVED_URL } from "@/urls"
-import http from "@/api/http-client"
-import travelAuthorizationPreApprovalsApi, {
-  TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
-} from "@/api/travel-authorization-pre-approvals-api"
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useRouteHistory from "@/use/use-route-history"
@@ -415,65 +347,6 @@ const previousRouteOrFallback = computed(() => {
     name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
   }
 })
-
-const showApproval = ref(false)
-const approved = ref(false)
-const approvedBy = ref("")
-const approvalDate = ref("")
-
-onMounted(() => {
-  initForm()
-})
-
-function initForm() {
-  showApproval.value = false
-  approved.value =
-    travelAuthorizationPreApproval.value?.status ===
-    TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
-  approvedBy.value = ""
-  approvalDate.value = ""
-
-  if (
-    travelAuthorizationPreApproval.value?.submission?.id &&
-    (travelAuthorizationPreApproval.value.status ===
-      TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED ||
-      travelAuthorizationPreApproval.value.status ===
-        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED)
-  ) {
-    initSubmission(travelAuthorizationPreApproval.value.submission.id)
-  }
-}
-
-async function initSubmission(id) {
-  const { data } = await http.get(`${PREAPPROVED_URL}/submissions/${id}`)
-  showApproval.value =
-    data.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED
-  approvedBy.value = data.approvedBy
-  approvalDate.value = data.approvalDate
-}
-
-async function downloadPdf() {
-  isLoading.value = true
-  const header = {
-    responseType: "application/pdf",
-    headers: {
-      "Content-Type": "application/text",
-    },
-  }
-
-  const { data } = await http.get(
-    `${PREAPPROVED_URL}/document/${travelAuthorizationPreApproval.value.submission.id}`,
-    header
-  )
-
-  isLoading.value = false
-  const link = document.createElement("a")
-  link.href = data
-  document.body.appendChild(link)
-  link.download = approved.value ? "approval_doc.pdf" : "doc.pdf"
-  link.click()
-  setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-}
 
 useBreadcrumbs([
   {
