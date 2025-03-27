@@ -59,7 +59,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
 
-import TravelAuthorizationPreApprovalsDataTable from "@/components/trave-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
+import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
 
 const selectedItems = ref([])
 
