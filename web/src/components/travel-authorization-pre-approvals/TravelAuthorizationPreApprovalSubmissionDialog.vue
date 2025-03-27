@@ -1,20 +1,11 @@
 <template>
   <v-dialog
-    v-model="showSubmissionDialog"
+    :value="showSubmissionDialog"
     persistent
     max-width="950px"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
   >
-    <template #activator="{ on, attrs }">
-      <v-btn
-        color="primary"
-        v-bind="merge({}, attrs, activatorProps)"
-        v-on="on"
-        @click="extractTravelRequests"
-      >
-        Submit Selected Requests
-      </v-btn>
-    </template>
-
     <HeaderActionsFormCard
       ref="headerActionsFormCard"
       title="Submit Travel Pre-Approval Requests"
@@ -133,7 +124,7 @@
           <!-- TODO: move to component? -->
           <v-data-table
             :headers="headers"
-            :items="submittingRequests"
+            :items="travelAuthorizationPreApprovals"
             :items-per-page="5"
             hide-default-footer
           >
@@ -183,7 +174,7 @@
         <v-btn
           color="warning"
           outlined
-          @click="showSubmissionDialog = false"
+          @click="hide"
         >
           Cancel
         </v-btn>
@@ -210,25 +201,15 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { cloneDeep, merge } from "lodash"
+import { isNil } from "lodash"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
+import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
-
-const props = defineProps({
-  selectedRequests: {
-    type: Array,
-    default: () => [],
-  },
-  activatorProps: {
-    type: Object,
-    default: () => ({}),
-  },
-})
 
 const emit = defineEmits(["submitted"])
 
@@ -256,9 +237,21 @@ const headers = ref([
   },
 ])
 
-const showSubmissionDialog = useRouteQuery("showSubmissionDialog", false, {
-  transform: booleanTransformer,
+const travelAuthorizationPreApprovalIds = useRouteQuery("showSubmissionDialog", undefined, {
+  transform: jsonTransformer,
 })
+const showSubmissionDialog = computed(() => !isNil(travelAuthorizationPreApprovalIds.value))
+
+const travelAuthorizationPreApprovalsQuery = computed(() => {
+  return {
+    where: {
+      id: travelAuthorizationPreApprovalIds.value,
+    },
+  }
+})
+const { travelAuthorizationPreApprovals } = useTravelAuthorizationPreApprovals(
+  travelAuthorizationPreApprovalsQuery
+)
 
 const addTravelHeaders = ref([
   {
@@ -296,15 +289,14 @@ const addTravelHeaders = ref([
   },
 ])
 
-const submittingRequests = ref([])
 const newSelectedRequests = ref([])
 const addTravelDialog = ref(false)
 const isSubmitting = ref(false)
 
 const remainingTravelRequests = computed(() => {
-  const currentIDs = submittingRequests.value.map((req) => req.id)
-  const currentDept = submittingRequests.value[0]?.department
-  return props.travelRequests?.filter(
+  const currentIDs = travelAuthorizationPreApprovals.value.map((req) => req.id)
+  const currentDept = travelAuthorizationPreApprovals.value[0]?.department
+  return travelAuthorizationPreApprovals.value.filter(
     (req) =>
       !currentIDs.includes(req.id) &&
       (req.status == null || req.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT) &&
@@ -312,20 +304,11 @@ const remainingTravelRequests = computed(() => {
   )
 })
 
-function extractTravelRequests() {
-  submittingRequests.value = cloneDeep(
-    props.selectedRequests.filter(
-      (request) =>
-        request.status == null ||
-        request.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT
-    )
+function removeTravel(travelAuthorizationPreApprovalId) {
+  const newTravelAuthorizationPreApprovalIds = travelAuthorizationPreApprovalIds.value.filter(
+    (id) => id !== travelAuthorizationPreApprovalId
   )
-}
-
-function removeTravel(item) {
-  submittingRequests.value = cloneDeep(
-    submittingRequests.value.filter((request) => request.id != item.id)
-  )
+  travelAuthorizationPreApprovalIds.value = newTravelAuthorizationPreApprovalIds
 }
 
 function openAddTravel() {
@@ -334,14 +317,17 @@ function openAddTravel() {
 }
 
 function addTravel() {
-  submittingRequests.value = [...submittingRequests.value, ...newSelectedRequests.value]
+  travelAuthorizationPreApprovals.value = [
+    ...travelAuthorizationPreApprovals.value,
+    ...newSelectedRequests.value,
+  ]
   addTravelDialog.value = false
 }
 
 async function submitTravelRequest(status) {
-  const currentIDs = submittingRequests.value.map((req) => req.id)
+  const currentIDs = travelAuthorizationPreApprovals.value.map((req) => req.id)
   if (currentIDs.length > 0) {
-    const currentDept = submittingRequests.value[0].department
+    const currentDept = travelAuthorizationPreApprovals.value[0].department
     isSubmitting.value = true
     const body = {
       department: currentDept,
@@ -350,9 +336,9 @@ async function submitTravelRequest(status) {
       preApprovalIds: currentIDs,
     }
     try {
-      await http.post(`${PREAPPROVED_URL}/submissions/${props.submissionId}`, body)
-      isSubmitting.value = false
-      showSubmissionDialog.value = false
+      // TODO: switch to standard create/read/update/delete API.
+      await http.post(`${PREAPPROVED_URL}/submissions/0`, body)
+      hide()
       emit("submitted")
     } catch (error) {
       isSubmitting.value = false
@@ -360,6 +346,25 @@ async function submitTravelRequest(status) {
     }
   }
 }
+
+function show(newTravelAuthorizationPreApprovalIds) {
+  travelAuthorizationPreApprovalIds.value = newTravelAuthorizationPreApprovalIds
+}
+
+function hide() {
+  travelAuthorizationPreApprovalIds.value = undefined
+}
+
+function hideIfFalse(value) {
+  if (value !== false) return
+
+  hide()
+}
+
+defineExpose({
+  show,
+  hide,
+})
 </script>
 
 <style scoped>
