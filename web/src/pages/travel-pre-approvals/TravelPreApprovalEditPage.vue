@@ -348,13 +348,13 @@ const branchWhere = computed(() => ({
 
 function resetDependentFieldsDepartment() {
   travelAuthorizationPreApproval.value.branch = undefined
-  travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
+  travelAuthorizationPreApproval.value.isOpenForAnyTraveler = false
   travelAuthorizationPreApproval.value.numberTravelers = undefined
   // TODO: delete all traveler profiles
 }
 
 function resetDependentFieldsBranch() {
-  travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
+  travelAuthorizationPreApproval.value.isOpenForAnyTraveler = false
   travelAuthorizationPreApproval.value.numberTravelers = undefined
   // TODO: delete all traveler profiles
 }

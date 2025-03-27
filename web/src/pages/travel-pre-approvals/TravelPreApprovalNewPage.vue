@@ -257,9 +257,9 @@ const travelAuthorizationPreApprovalAttributes = ref({
   reason: undefined,
   startDate: undefined,
   endDate: undefined,
-  isOpenForAnyDate: undefined,
+  isOpenForAnyDate: false,
   month: undefined,
-  isOpenForAnyTraveler: undefined,
+  isOpenForAnyTraveler: false,
   numberTravelers: undefined,
   travelerNotes: undefined,
 })
@@ -283,13 +283,13 @@ const branchWhere = computed(() => ({
 
 function resetDependentFieldsDepartment() {
   travelAuthorizationPreApprovalAttributes.value.branch = undefined
-  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = undefined
+  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = false
   travelAuthorizationPreApprovalAttributes.value.numberTravelers = undefined
   travelAuthorizationPreApprovalProfilesAttributes.value = []
 }
 
 function resetDependentFieldsBranch() {
-  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = undefined
+  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = false
   travelAuthorizationPreApprovalAttributes.value.numberTravelers = undefined
   travelAuthorizationPreApprovalProfilesAttributes.value = []
 }
