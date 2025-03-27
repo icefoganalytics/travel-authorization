@@ -177,10 +177,7 @@ const departmentSelectionLimiter = ref(null)
 const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() => {
   return travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
     const isSelectable =
-      travelAuthorizationPreApproval.status !==
-        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED &&
-      travelAuthorizationPreApproval.status !==
-        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED &&
+      travelAuthorizationPreApproval.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT &&
       (travelAuthorizationPreApproval.department === departmentSelectionLimiter.value ||
         isNil(departmentSelectionLimiter.value))
 
@@ -217,8 +214,10 @@ async function selectAllOfSameDepartment({ items, value: isSelected }) {
         travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
     )
   } else if (isSelected && !isEmpty(items)) {
-    const firstTravelAuthorizationPreApproval = items[0]
-    departmentSelectionLimiter.value = firstTravelAuthorizationPreApproval.department
+    const firstSelectableTravelAuthorizationPreApproval = items.find(
+      (travelAuthorizationPreApproval) => travelAuthorizationPreApproval.isSelectable
+    )
+    departmentSelectionLimiter.value = firstSelectableTravelAuthorizationPreApproval.department
     selectedItems.value = items.filter(
       (travelAuthorizationPreApproval) =>
         travelAuthorizationPreApproval.isSelectable &&
