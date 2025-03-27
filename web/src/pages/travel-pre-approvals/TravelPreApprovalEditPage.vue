@@ -319,7 +319,7 @@ async function deleteTravelAuthorizationPreApproval() {
 
   isDeleting.value = true
   try {
-    await travelAuthorizationPreApprovalsApi.delete(travelAuthorizationPreApproval.value)
+    await travelAuthorizationPreApprovalsApi.delete(props.travelAuthorizationPreApprovalId)
     snack.success("Travel authorization pre-approval deleted successfully")
     return router.replace({
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
