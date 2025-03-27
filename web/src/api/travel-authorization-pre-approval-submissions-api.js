@@ -18,7 +18,6 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES = Object.free
  * Keep in sync with api/src/models/travel-authorization-pre-approval-submission.ts
  * @typedef {{
  *   id: number,
- *   preApprovalId: number,
  *   creatorId: number,
  *   approverId: number | null,
  *   approvedAt: string | null,
@@ -32,7 +31,6 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES = Object.free
 /**
  * @typedef {{
  *   id?: number,
- *   preApprovalId?: number,
  *   creatorId?: number,
  *   approverId?: number | null,
  *   status?: TravelAuthorizationPreApprovalSubmissionStatus,

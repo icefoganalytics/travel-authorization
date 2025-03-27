@@ -26,7 +26,7 @@ export class TravelAuthorizationPreApprovalSubmissionsController extends BaseCon
           order,
           include: [
             {
-              association: "preApproval",
+              association: "preApprovals",
               include: ["profiles"],
             },
           ],

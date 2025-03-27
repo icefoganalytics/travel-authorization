@@ -38,7 +38,7 @@ export class TravelAuthorizationPreApprovalSubmissionsPolicy extends PolicyFacto
   }
 
   permittedAttributesForCreate(): Path[] {
-    return ["preApprovalId", ...this.permittedAttributes()]
+    return [...this.permittedAttributes()]
   }
 
   static policyScope(
