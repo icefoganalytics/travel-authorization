@@ -6,11 +6,7 @@
     @keydown.esc="hide"
     @input="hideIfFalse"
   >
-    <HeaderActionsFormCard
-      ref="headerActionsFormCard"
-      title="Submit Travel Pre-Approval Requests"
-      @submit.prevent="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED)"
-    >
+    <HeaderActionsCard title="Submit Travel Pre-Approval Requests">
       <v-row>
         <v-col>
           <!-- TODO: move to component? -->
@@ -53,7 +49,7 @@
         <v-btn
           color="secondary"
           :loading="isSubmitting"
-          @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT)"
+          @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT)"
         >
           Save Draft
         </v-btn>
@@ -61,12 +57,14 @@
           class="ml-0 ml-md-5"
           color="primary"
           :loading="isSubmitting"
-          type="submit"
+          @click="
+            submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED)
+          "
         >
           Submit
         </v-btn>
       </template>
-    </HeaderActionsFormCard>
+    </HeaderActionsCard>
   </v-dialog>
 </template>
 
@@ -74,13 +72,15 @@
 import { computed, ref } from "vue"
 import { isEmpty, isNil } from "lodash"
 
-import http from "@/api/http-client"
-import { PREAPPROVED_URL } from "@/urls"
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import travelAuthorizationPreApprovalSubmissionsApi, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
+} from "@/api/travel-authorization-pre-approval-submissions-api"
+
 import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
-import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 
 const emit = defineEmits(["submitted"])
@@ -140,27 +140,31 @@ function removePreApprovalRequest(travelAuthorizationPreApprovalId) {
 }
 
 const isSubmitting = ref(false)
+const snack = useSnack()
 
 async function submitTravelRequest(status) {
-  const currentIDs = travelAuthorizationPreApprovals.value.map((req) => req.id)
-  if (currentIDs.length > 0) {
-    const currentDept = travelAuthorizationPreApprovals.value[0].department
-    isSubmitting.value = true
-    const body = {
-      department: currentDept,
+  isSubmitting.value = true
+
+  const firstTravelAuthorizationPreApproval = travelAuthorizationPreApprovals.value[0]
+  if (isNil(firstTravelAuthorizationPreApproval)) {
+    throw new Error("No travel authorization pre-approvals found.")
+  }
+  const department = firstTravelAuthorizationPreApproval.department
+
+  try {
+    travelAuthorizationPreApprovalSubmissionsApi.create({
+      department,
       status,
-      submitter: "SYSTEM",
-      preApprovalIds: currentIDs,
-    }
-    try {
-      // TODO: switch to standard create/read/update/delete API.
-      await http.post(`${PREAPPROVED_URL}/submissions/0`, body)
-      hide()
-      emit("submitted")
-    } catch (error) {
-      isSubmitting.value = false
-      console.log(error)
-    }
+      preApprovalIds: travelAuthorizationPreApprovalIds.value,
+    })
+    snack.success("Travel pre-approvals submitted successfully.")
+    emit("submitted")
+    hide()
+  } catch (error) {
+    console.log(`Failed to submit travel authorization pre-approvals: ${error}`, { error })
+    snack.error(`Failed to submit travel pre-approvals: ${error}`)
+  } finally {
+    isSubmitting.value = false
   }
 }
 

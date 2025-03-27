@@ -1,13 +1,19 @@
 import { CreationAttributes } from "sequelize"
 
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
-import { TravelAuthorizationPreApprovalSubmission, User } from "@/models"
+import db, {
+  TravelAuthorizationPreApproval,
+  TravelAuthorizationPreApprovalSubmission,
+  User,
+} from "@/models"
 import BaseService from "@/services/base-service"
 
 type TravelAuthorizationPreApprovalSubmissionCreationAttributes = Partial<
   CreationAttributes<TravelAuthorizationPreApprovalSubmission>
->
+> & {
+  preApprovalIds?: number[]
+}
 
 export class CreateService extends BaseService {
   constructor(
@@ -18,21 +24,59 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorizationPreApprovalSubmission> {
-    const { department, ...optionalAttributes } = this.attributes
+    const { department, status, preApprovalIds, ...optionalAttributes } = this.attributes
 
     if (isNil(department)) {
       throw new Error("Department is required.")
     }
 
-    const travelAuthorizationPreApprovalSubmission =
-      await TravelAuthorizationPreApprovalSubmission.create({
-        ...optionalAttributes,
-        department,
-        creatorId: this.currentUser.id,
-        status: TravelAuthorizationPreApprovalSubmission.Statuses.DRAFT,
-      })
+    if (isNil(preApprovalIds) || isEmpty(preApprovalIds)) {
+      throw new Error("preApprovalIds must have at least one element.")
+    }
 
-    return travelAuthorizationPreApprovalSubmission
+    const statusOrDefault = status ?? TravelAuthorizationPreApprovalSubmission.Statuses.DRAFT
+    if (
+      ![
+        TravelAuthorizationPreApprovalSubmission.Statuses.DRAFT,
+        TravelAuthorizationPreApprovalSubmission.Statuses.SUBMITTED,
+      ].includes(statusOrDefault)
+    ) {
+      throw new Error("Status can only be DRAFT or SUBMITTED during creation.")
+    }
+
+    return db.transaction(async () => {
+      const travelAuthorizationPreApprovalSubmission =
+        await TravelAuthorizationPreApprovalSubmission.create({
+          ...optionalAttributes,
+          department,
+          creatorId: this.currentUser.id,
+          status: statusOrDefault,
+        })
+
+      await this.markPreApprovalsAsSubmitted(
+        travelAuthorizationPreApprovalSubmission.id,
+        preApprovalIds
+      )
+
+      return travelAuthorizationPreApprovalSubmission
+    })
+  }
+
+  private async markPreApprovalsAsSubmitted(
+    travelAuthorizationPreApprovalSubmissionId: number,
+    preApprovalIds: number[]
+  ): Promise<void> {
+    await TravelAuthorizationPreApproval.update(
+      {
+        submissionId: travelAuthorizationPreApprovalSubmissionId,
+        status: TravelAuthorizationPreApproval.Statuses.SUBMITTED,
+      },
+      {
+        where: {
+          id: preApprovalIds,
+        },
+      }
+    )
   }
 }
 

@@ -34,7 +34,7 @@ export class TravelAuthorizationPreApprovalSubmissionsPolicy extends PolicyFacto
   }
 
   permittedAttributes(): Path[] {
-    return ["department"]
+    return ["department", "status", "preApprovalIds"]
   }
 
   permittedAttributesForCreate(): Path[] {
