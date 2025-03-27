@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    v-model="submitTravelDialog"
+    v-model="showSubmissionDialog"
     persistent
     max-width="950px"
   >
@@ -137,16 +137,6 @@
             :items-per-page="5"
             hide-default-footer
           >
-            <template #item.actions="{ item }">
-              <v-btn
-                color="transparent"
-                class="px-1"
-                small
-                @click="removeTravel(item)"
-              >
-                <v-icon color="red">mdi-delete</v-icon>
-              </v-btn>
-            </template>
             <template #item.name="{ item }">
               <template v-if="item.profiles.length === 0"> Unspecified </template>
               <template v-else-if="item.profiles.length === 1">
@@ -175,29 +165,40 @@
                 >
               </v-tooltip>
             </template>
+            <template #item.actions="{ item }">
+              <v-btn
+                color="transparent"
+                class="px-1"
+                small
+                @click="removeTravel(item)"
+              >
+                <v-icon color="red">mdi-delete</v-icon>
+              </v-btn>
+            </template>
           </v-data-table>
         </v-col>
       </v-row>
 
       <template #actions>
         <v-btn
-          color="grey darken-5"
-          @click="submitTravelDialog = false"
+          color="warning"
+          outlined
+          @click="showSubmissionDialog = false"
         >
           Cancel
         </v-btn>
+        <v-spacer />
         <v-btn
-          class="ml-auto"
-          color="lime darken-1"
-          :loading="savingData"
+          color="secondary"
+          :loading="isSubmitting"
           @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT)"
         >
           Save Draft
         </v-btn>
         <v-btn
-          class="ml-5"
-          color="green darken-1"
-          :loading="savingData"
+          class="ml-0 ml-md-5"
+          color="primary"
+          :loading="isSubmitting"
           type="submit"
         >
           Submit
@@ -214,6 +215,7 @@ import { cloneDeep, merge } from "lodash"
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
@@ -254,6 +256,10 @@ const headers = ref([
   },
 ])
 
+const showSubmissionDialog = useRouteQuery("showSubmissionDialog", false, {
+  transform: booleanTransformer,
+})
+
 const addTravelHeaders = ref([
   {
     text: "Name",
@@ -291,10 +297,9 @@ const addTravelHeaders = ref([
 ])
 
 const submittingRequests = ref([])
-const submitTravelDialog = ref(false)
 const newSelectedRequests = ref([])
 const addTravelDialog = ref(false)
-const savingData = ref(false)
+const isSubmitting = ref(false)
 
 const remainingTravelRequests = computed(() => {
   const currentIDs = submittingRequests.value.map((req) => req.id)
@@ -337,7 +342,7 @@ async function submitTravelRequest(status) {
   const currentIDs = submittingRequests.value.map((req) => req.id)
   if (currentIDs.length > 0) {
     const currentDept = submittingRequests.value[0].department
-    savingData.value = true
+    isSubmitting.value = true
     const body = {
       department: currentDept,
       status,
@@ -346,11 +351,11 @@ async function submitTravelRequest(status) {
     }
     try {
       await http.post(`${PREAPPROVED_URL}/submissions/${props.submissionId}`, body)
-      savingData.value = false
-      submitTravelDialog.value = false
+      isSubmitting.value = false
+      showSubmissionDialog.value = false
       emit("submitted")
     } catch (error) {
-      savingData.value = false
+      isSubmitting.value = false
       console.log(error)
     }
   }
