@@ -1,240 +1,239 @@
 <template>
-  <div>
-    <v-dialog
-      v-model="submitTravelDialog"
-      persistent
-      max-width="950px"
-    >
-      <template #activator="{ on, attrs }">
-        <v-btn
-          :id="'edit-' + submissionId"
-          :disabled="disabled"
-          :small="editButton"
-          :class="editButton ? 'my-0' : 'mr-5 my-7'"
-          color="primary"
-          v-bind="attrs"
-          @click="extractTravelRequests"
-          v-on="on"
+  <v-dialog
+    v-model="submitTravelDialog"
+    persistent
+    max-width="950px"
+  >
+    <template #activator="{ on, attrs }">
+      <v-btn
+        :id="'edit-' + submissionId"
+        :disabled="disabled"
+        :small="editButton"
+        :class="editButton ? 'my-0' : 'mr-5 my-7'"
+        color="primary"
+        v-bind="attrs"
+        @click="extractTravelRequests"
+        v-on="on"
+      >
+        {{ buttonName }}
+      </v-btn>
+    </template>
+
+    <v-card :key="update">
+      <v-card-title style="border-bottom: 1px solid black">
+        <div class="text-h5">Submit/Draft Travel Request</div>
+      </v-card-title>
+
+      <v-card-text>
+        <v-row class="mt-3">
+          <v-btn
+            class="ml-auto mr-5"
+            color="primary"
+            @click="openAddTravel"
+          >
+            Add Request
+          </v-btn>
+
+          <!-- TODO: replace with search? -->
+          <v-dialog
+            v-model="addTravelDialog"
+            persistent
+            max-width="900px"
+          >
+            <v-card>
+              <v-card-title
+                class="primary"
+                style="border-bottom: 1px solid black"
+              >
+                <div class="text-h5">Requests</div>
+              </v-card-title>
+
+              <v-card-text>
+                <v-data-table
+                  v-model="newSelectedRequests"
+                  :headers="addTravelHeaders"
+                  :items="remainingTravelRequests"
+                  :items-per-page="5"
+                  class="elevation-1 mt-5"
+                  show-select
+                  single-select
+                >
+                  <template #item.name="{ item }">
+                    <template v-if="item.profiles.length === 0"> Unspecified </template>
+                    <template v-else-if="item.profiles.length === 1">
+                      {{ item.profiles[0].profileName.replace(".", " ") }}
+                    </template>
+                    <v-tooltip
+                      v-else
+                      top
+                      color="primary"
+                    >
+                      <template #activator="{ on }">
+                        <div v-on="on">
+                          <span>
+                            {{ item.profiles[0].profileName.replace(".", " ") }}
+                          </span>
+                          <span>, ... </span>
+                        </div>
+                      </template>
+                      <span
+                        ><div
+                          v-for="(profile, index) in item.profiles"
+                          :key="index"
+                        >
+                          {{ profile.profileName.replace(".", " ") }}
+                        </div></span
+                      >
+                    </v-tooltip>
+                  </template>
+
+                  <template #item.travelDate="{ item }">
+                    <div v-if="item.isOpenForAnyDate">
+                      {{ item.month }}
+                    </div>
+                    <div v-else>
+                      <div>
+                        <!-- eslint-disable-next-line vue/no-parsing-error -->
+                        {{ item.startDate | beautifyDate }}
+                        to
+                      </div>
+                      <div>
+                        <!-- eslint-disable-next-line vue/no-parsing-error -->
+                        {{ item.endDate | beautifyDate }}
+                      </div>
+                    </div>
+                  </template>
+
+                  <template #item.status="{ item }">
+                    <div v-if="item.submissionId != submissionId">
+                      {{ item.status }}
+                    </div>
+                  </template>
+                </v-data-table>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-btn
+                  color="grey darken-5"
+                  @click="addTravelDialog = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  class="ml-auto"
+                  color="green darken-1"
+                  @click="addTravel"
+                >
+                  Add
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-row>
+        <v-data-table
+          style="margin-top: 1rem"
+          :headers="headers"
+          :items="submittingRequests"
+          :items-per-page="5"
+          class="elevation-1"
+          hide-default-footer
         >
-          {{ buttonName }}
-        </v-btn>
-      </template>
-
-      <v-card :key="update">
-        <v-card-title style="border-bottom: 1px solid black">
-          <div class="text-h5">Submit/Draft Travel Request</div>
-        </v-card-title>
-
-        <v-card-text>
-          <v-row class="mt-3">
+          <template #item.remove="{ item }">
             <v-btn
-              class="ml-auto mr-5"
-              color="primary"
-              @click="openAddTravel"
+              style="min-width: 0"
+              color="transparent"
+              class="px-1"
+              small
+              @click="removeTravel(item)"
             >
-              Add Request
+              <v-icon color="red">mdi-delete</v-icon>
             </v-btn>
-          </v-row>
-          <v-data-table
-            style="margin-top: 1rem"
-            :headers="headers"
-            :items="submittingRequests"
-            :items-per-page="5"
-            class="elevation-1"
-            hide-default-footer
-          >
-            <template #item.remove="{ item }">
-              <v-btn
-                style="min-width: 0"
-                color="transparent"
-                class="px-1"
-                small
-                @click="removeTravel(item)"
-              >
-                <v-icon color="red">mdi-delete</v-icon>
-              </v-btn>
+          </template>
+          <template #item.name="{ item }">
+            <template v-if="item.profiles.length === 0"> Unspecified </template>
+            <template v-else-if="item.profiles.length === 1">
+              {{ item.profiles[0].profileName.replace(".", " ") }}
             </template>
-            <template #item.name="{ item }">
-              <template v-if="item.profiles.length === 0"> Unspecified </template>
-              <template v-else-if="item.profiles.length === 1">
-                {{ item.profiles[0].profileName.replace(".", " ") }}
+            <v-tooltip
+              v-else
+              top
+              color="primary"
+            >
+              <template #activator="{ on }">
+                <div v-on="on">
+                  <span>
+                    {{ item.profiles[0].profileName.replace(".", " ") }}
+                  </span>
+                  <span>, ... </span>
+                </div>
               </template>
-              <v-tooltip
-                v-else
-                top
-                color="primary"
-              >
-                <template #activator="{ on }">
-                  <div v-on="on">
-                    <span>
-                      {{ item.profiles[0].profileName.replace(".", " ") }}
-                    </span>
-                    <span>, ... </span>
-                  </div>
-                </template>
-                <span
-                  ><div
-                    v-for="(profile, index) in item.profiles"
-                    :key="index"
-                  >
-                    {{ profile.profileName.replace(".", " ") }}
-                  </div></span
+              <span
+                ><div
+                  v-for="(profile, index) in item.profiles"
+                  :key="index"
                 >
-              </v-tooltip>
-            </template>
-            <template #item.status="{ item }">
-              <v-tooltip
-                top
-                color="amber accent-4"
+                  {{ profile.profileName.replace(".", " ") }}
+                </div></span
               >
-                <template #activator="{ on }">
-                  <v-icon
-                    v-if="item.status && item.sumssionId != submissionId"
-                    style="cursor: pointer"
-                    class=""
-                    color="amber accent-2"
-                    v-on="on"
-                    >mdi-alert</v-icon
-                  >
-                </template>
-                <span class="black--text">
-                  This request is already in another submission.<br />
-                  If you Save/Submit this change, it will be removed from the other submission.
-                </span>
-              </v-tooltip>
-            </template>
-          </v-data-table>
-        </v-card-text>
+            </v-tooltip>
+          </template>
+          <template #item.status="{ item }">
+            <v-tooltip
+              top
+              color="amber accent-4"
+            >
+              <template #activator="{ on }">
+                <v-icon
+                  v-if="item.status && item.sumssionId != submissionId"
+                  style="cursor: pointer"
+                  class=""
+                  color="amber accent-2"
+                  v-on="on"
+                  >mdi-alert</v-icon
+                >
+              </template>
+              <span class="black--text">
+                This request is already in another submission.<br />
+                If you Save/Submit this change, it will be removed from the other submission.
+              </span>
+            </v-tooltip>
+          </template>
+        </v-data-table>
+      </v-card-text>
 
-        <v-card-actions>
-          <v-btn
-            color="grey darken-5"
-            @click="submitTravelDialog = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            v-if="editButton"
-            color="red darken-5"
-            @click="deleteSubmission()"
-          >
-            Delete
-          </v-btn>
-          <v-btn
-            class="ml-auto"
-            color="lime darken-1"
-            :loading="savingData"
-            @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT)"
-          >
-            Save Draft
-          </v-btn>
-          <v-btn
-            class="ml-5"
-            color="green darken-1"
-            :loading="savingData"
-            @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED)"
-          >
-            Submit
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog
-      v-model="addTravelDialog"
-      persistent
-      max-width="900px"
-    >
-      <v-card>
-        <v-card-title
-          class="primary"
-          style="border-bottom: 1px solid black"
+      <v-card-actions>
+        <v-btn
+          color="grey darken-5"
+          @click="submitTravelDialog = false"
         >
-          <div class="text-h5">Requests</div>
-        </v-card-title>
-
-        <v-card-text>
-          <v-data-table
-            v-model="newSelectedRequests"
-            :headers="addTravelHeaders"
-            :items="remainingTravelRequests"
-            :items-per-page="5"
-            class="elevation-1 mt-5"
-            show-select
-            single-select
-          >
-            <template #item.name="{ item }">
-              <template v-if="item.profiles.length === 0"> Unspecified </template>
-              <template v-else-if="item.profiles.length === 1">
-                {{ item.profiles[0].profileName.replace(".", " ") }}
-              </template>
-              <v-tooltip
-                v-else
-                top
-                color="primary"
-              >
-                <template #activator="{ on }">
-                  <div v-on="on">
-                    <span>
-                      {{ item.profiles[0].profileName.replace(".", " ") }}
-                    </span>
-                    <span>, ... </span>
-                  </div>
-                </template>
-                <span
-                  ><div
-                    v-for="(profile, index) in item.profiles"
-                    :key="index"
-                  >
-                    {{ profile.profileName.replace(".", " ") }}
-                  </div></span
-                >
-              </v-tooltip>
-            </template>
-
-            <template #item.travelDate="{ item }">
-              <div v-if="item.isOpenForAnyDate">
-                {{ item.month }}
-              </div>
-              <div v-else>
-                <div>
-                  <!-- eslint-disable-next-line vue/no-parsing-error -->
-                  {{ item.startDate | beautifyDate }}
-                  to
-                </div>
-                <div>
-                  <!-- eslint-disable-next-line vue/no-parsing-error -->
-                  {{ item.endDate | beautifyDate }}
-                </div>
-              </div>
-            </template>
-
-            <template #item.status="{ item }">
-              <div v-if="item.submissionId != submissionId">
-                {{ item.status }}
-              </div>
-            </template>
-          </v-data-table>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-btn
-            color="grey darken-5"
-            @click="addTravelDialog = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            class="ml-auto"
-            color="green darken-1"
-            @click="addTravel"
-          >
-            Add
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+          Cancel
+        </v-btn>
+        <v-btn
+          v-if="editButton"
+          color="red darken-5"
+          @click="deleteSubmission()"
+        >
+          Delete
+        </v-btn>
+        <v-btn
+          class="ml-auto"
+          color="lime darken-1"
+          :loading="savingData"
+          @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT)"
+        >
+          Save Draft
+        </v-btn>
+        <v-btn
+          class="ml-5"
+          color="green darken-1"
+          :loading="savingData"
+          @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED)"
+        >
+          Submit
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
