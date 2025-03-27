@@ -1,12 +1,12 @@
 <template>
   <v-autocomplete
     :value="value"
-    :items="locationsAsSelectorListByRestriction"
+    :items="formattedLocations"
     :loading="isLoading"
     auto-select-first
     v-bind="$attrs"
     v-on="$listeners"
-    @input="onInput"
+    @input="emit('input', $event)"
     ><template
       v-for="(_, slotName) in $scopedSlots"
       #[slotName]="slotData"
@@ -17,53 +17,63 @@
   ></v-autocomplete>
 </template>
 
-<script>
-import { mapActions, mapGetters } from "vuex"
-import { isEmpty } from "lodash"
+<script setup>
+import { computed } from "vue"
 
-export default {
-  name: "LocationsAutocomplete",
-  props: {
-    value: {
-      type: [Number, String],
-      default: null,
-    },
-    inTerritory: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    ...mapGetters("locations", ["items", "isLoading", "byProvince"]),
-    locationsByRestriction() {
-      if (this.inTerritory) {
-        return this.byProvince("YT")
-      }
+import { MAX_PER_PAGE } from "@/api/base-api"
+import useLocations from "@/use/use-locations"
 
-      return this.items
-    },
-    locationsAsSelectorListByRestriction() {
-      if (isEmpty(this.locationsByRestriction)) return []
+const props = defineProps({
+  value: {
+    type: [Number, String],
+    default: null,
+  },
+  where: {
+    type: Object,
+    default: () => ({}),
+  },
+  filters: {
+    type: Object,
+    default: () => ({}),
+  },
+  // TODO: replace legacy inTerritory prop with new filter pattern
+  inTerritory: {
+    type: Boolean,
+    default: false,
+  },
+})
 
-      return this.locationsByRestriction.map(({ id, city, province }) => {
-        return {
-          value: id,
-          text: `${city} (${province})`,
-          // These legacy fields support using location selector string values.
-          city,
-          province,
-        }
-      })
+const emit = defineEmits(["input"])
+
+const byProvinceFilter = computed(() => {
+  if (props.inTerritory) {
+    return { byProvince: "YT" }
+  }
+
+  return {}
+})
+const locationsQuery = computed(() => {
+  return {
+    where: props.where,
+    filters: {
+      ...byProvinceFilter.value,
+      ...props.filters,
     },
-  },
-  async mounted() {
-    await this.ensure()
-  },
-  methods: {
-    ...mapActions("locations", ["ensure"]),
-    onInput(value) {
-      this.$emit("input", value)
-    },
-  },
-}
+    // TODO: replace max per page with search feature at some point
+    perPage: MAX_PER_PAGE,
+  }
+})
+const { locations, isLoading } = useLocations(locationsQuery)
+
+const formattedLocations = computed(() => {
+  return locations.value.map(({ id, city, province }) => {
+    return {
+      value: id,
+      text: `${city} (${province})`,
+      // These legacy fields support using location selector string values.
+      city,
+      province,
+    }
+  })
+})
 </script>

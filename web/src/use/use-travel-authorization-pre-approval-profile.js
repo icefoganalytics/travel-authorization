@@ -7,6 +7,7 @@ import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorizatio
  * @template [T=any]
  * @typedef {import('vue').Ref<T>} Ref
  */
+/** @typedef {import('@/api/base-api.js').Policy} Policy */
 /** @typedef {import('@/api/travel-authorization-pre-approval-profiles-api.js').TravelAuthorizationPreApprovalProfile} TravelAuthorizationPreApprovalProfile */
 
 /**
@@ -14,6 +15,7 @@ import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorizatio
  * @param {Ref<number>} id
  * @returns {{
  *   travelAuthorizationPreApprovalProfile: Ref<TravelAuthorizationPreApprovalProfile | null | undefined>,
+ *   policy: Ref<Policy | null>,
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
  *   fetch: () => Promise<TravelAuthorizationPreApprovalProfile>,
@@ -25,6 +27,7 @@ import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorizatio
 export function useTravelAuthorizationPreApprovalProfile(id) {
   const state = reactive({
     travelAuthorizationPreApprovalProfile: null,
+    policy: null,
     isLoading: false,
     isErrored: false,
   })
@@ -32,10 +35,11 @@ export function useTravelAuthorizationPreApprovalProfile(id) {
   async function fetch() {
     state.isLoading = true
     try {
-      const { travelAuthorizationPreApprovalProfile } =
+      const { travelAuthorizationPreApprovalProfile, policy } =
         await travelAuthorizationPreApprovalProfilesApi.get(unref(id))
       state.isErrored = false
       state.travelAuthorizationPreApprovalProfile = travelAuthorizationPreApprovalProfile
+      state.policy = policy
       return travelAuthorizationPreApprovalProfile
     } catch (error) {
       console.error("Failed to fetch travel authorization pre-approval profile:", error)

@@ -3,7 +3,7 @@ import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
 import { User, TravelDeskTravelRequest, TravelAuthorization } from "@/models"
-import { allRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
@@ -57,7 +57,7 @@ export class TravelDeskTravelRequestsPolicy extends PolicyFactory(TravelDeskTrav
   // CONSIDER: should draft records be hidden from non-creator?
   static policyScope(user: User): FindOptions<Attributes<TravelDeskTravelRequest>> {
     if (user.isAdmin) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
     return {

@@ -38,11 +38,10 @@
         <v-card-text>
           <v-row class="mt-5">
             <v-col cols="3">
-              <v-select
+              <TravelPurposeSelect
                 v-model="purpose"
                 :readonly="readonly"
                 :error="state.purposeErr"
-                :items="purposeList"
                 label="Purpose"
                 outlined
                 @change="state.purposeErr = false"
@@ -50,11 +49,12 @@
             </v-col>
             <v-col cols="1" />
             <v-col cols="8">
-              <v-text-field
+              <LocationsAutocomplete
                 v-model="location"
                 :readonly="readonly"
                 :error="state.locationErr"
                 label="Location"
+                item-value="text"
                 outlined
                 :clearable="!readonly"
                 @input="state.locationErr = false"
@@ -125,12 +125,11 @@
                   />
                 </v-col>
                 <v-col cols="5">
-                  <v-select
+                  <MonthSelect
                     v-model="anticipatedMonth"
                     :readonly="readonly"
                     :error="state.anticipatedMonthErr"
                     :disabled="!unknownDate"
-                    :items="monthList"
                     label="Anticipated Month"
                     outlined
                     @change="state.anticipatedMonthErr = false"
@@ -144,25 +143,20 @@
           <v-card outlined>
             <v-row class="mt-5 mx-3">
               <v-col cols="6">
-                <v-select
+                <DepartmentAutocomplete
                   v-model="department"
                   :readonly="readonly || lockDepartment"
                   :error="state.departmentErr"
-                  :items="departmentList"
-                  item-text="name"
                   label="Department"
                   outlined
                   @change="departmentChanged"
                 />
               </v-col>
               <v-col cols="6">
-                <v-select
+                <BranchAutocomplete
                   v-model="branch"
                   :readonly="readonly"
                   :error="state.branchErr"
-                  :items="branchList"
-                  item-text="name"
-                  item-value="name"
                   label="Branch"
                   outlined
                   @change="state.branchErr = false"
@@ -358,12 +352,13 @@
         <v-card-text>
           <v-row class="mt-5">
             <v-col cols="12">
-              <v-autocomplete
+              <YgEmployeeAutocomplete
                 v-model="adName"
                 :error="adNameErr"
-                :items="adNameList"
+                item-value="fullName"
                 item-text="fullName"
                 label="Traveller Name"
+                :where="ygEmployeeWhere"
                 outlined
                 @change="adNameErr = false"
               />
@@ -425,16 +420,34 @@
 </template>
 
 <script>
-import Vue from "vue"
+import { nextTick } from "vue"
+import { isNil, isEmpty } from "lodash"
+
+import { capitalize } from "@/utils/formatters"
 
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
-import { STATUSES as PRE_APPROVED_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-import { STATUSES as SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 import useCurrentUser from "@/use/use-current-user"
+
+import MonthSelect from "@/components/common/MonthSelect.vue"
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
+import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
+import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomplete.vue"
+import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
 export default {
   name: "NewTravelRequest",
+  components: {
+    BranchAutocomplete,
+    DepartmentAutocomplete,
+    LocationsAutocomplete,
+    MonthSelect,
+    TravelPurposeSelect,
+    YgEmployeeAutocomplete,
+  },
   props: {
     type: {
       type: String,
@@ -446,9 +459,10 @@ export default {
     },
   },
   setup() {
-    const { isAdmin } = useCurrentUser()
+    const { currentUser, isAdmin } = useCurrentUser()
 
     return {
+      currentUser,
       isAdmin,
     }
   },
@@ -480,7 +494,6 @@ export default {
         },
       ],
       profiles: [],
-      purposeList: [],
       purpose: "",
       addNewTravelDialog: false,
       unknownDate: false,
@@ -491,7 +504,6 @@ export default {
       endDate: "",
       lockDepartment: false,
       department: "",
-      departmentList: [],
       branch: "",
       branchList: [],
       undefinedTraveller: false,
@@ -499,23 +511,7 @@ export default {
       profilesNum: null,
       anticipatedMonth: "",
       travellerNotes: "",
-      monthList: [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ],
       travellerDialog: false,
-      employeeList: [],
-      adNameList: [],
       adName: "",
       savingData: false,
       loadingData: false,
@@ -543,6 +539,28 @@ export default {
       adNameErr: false,
     }
   },
+  computed: {
+    departmentWhere() {
+      if (isNil(this.department) || isEmpty(this.department)) return {}
+
+      return {
+        department: this.department,
+      }
+    },
+    branchWhere() {
+      if (isNil(this.branch) || isEmpty(this.branch)) return {}
+
+      return {
+        branch: this.branch,
+      }
+    },
+    ygEmployeeWhere() {
+      return {
+        ...this.departmentWhere,
+        ...this.branchWhere,
+      }
+    },
+  },
   mounted() {},
   methods: {
     addTraveller() {
@@ -568,9 +586,6 @@ export default {
       this.state.departmentErr = this.department ? false : true
       this.state.branchErr = this.branchList.length > 0 && !this.branch ? true : false
       if (this.department && (this.branch || this.branchList.length == 0)) {
-        this.adNameList = this.employeeList
-          .filter((employee) => employee.department == this.department)
-          .sort((a, b) => (a.fullName >= b.fullName ? 1 : -1))
         this.travellerDialog = true
       }
     },
@@ -583,7 +598,7 @@ export default {
       }
     },
 
-    selectUndefinedTraveller() {
+    async selectUndefinedTraveller() {
       this.undefinedTravellerHint = ""
       this.state.departmentErr = this.department ? false : true
       this.state.branchErr = this.branchList.length > 0 && !this.branch ? true : false
@@ -594,11 +609,11 @@ export default {
       if (this.department && (this.branch || this.branchList.length == 0)) {
         this.state.undefinedTravellerErr = false
         this.addUndefinedTraveller()
-      } else
-        Vue.nextTick(() => {
-          this.undefinedTraveller = false
-          this.undefinedTravellerHint = "Please Select the Department and Branch First!"
-        })
+      } else {
+        await nextTick()
+        this.undefinedTraveller = false
+        this.undefinedTravellerHint = "Please Select the Department and Branch First!"
+      }
     },
 
     addUndefinedTraveller() {
@@ -641,7 +656,7 @@ export default {
       if (this.checkFields()) {
         this.savingData = true
         const body = {
-          location: Vue.filter("capitalize")(this.location),
+          location: capitalize(this.location),
           purpose: this.purpose,
           estimatedCost: this.cost,
           reason: this.reason,
@@ -673,14 +688,10 @@ export default {
     },
 
     initForm() {
-
-      const userDept = this.$store.state.auth.department
+      const userDept = this.currentUser.department
       this.lockDepartment = !this.isAdmin || this.type != "Add New"
 
       this.initStates()
-      this.initEmployeeList()
-      this.initDepartments()
-      this.purposeList = this.$store.state.preapproved?.travelPurposes?.map((item) => item.purpose)
 
       this.profiles = this.type == "Add New" ? [] : this.travelRequest.profiles
       this.purpose = this.type == "Add New" ? "" : this.travelRequest.purpose
@@ -709,14 +720,15 @@ export default {
 
       this.loadingData = false
       this.showApproval = false
-      this.approved = this.travelRequest?.status === PRE_APPROVED_STATUSES.APPROVED
+      this.approved =
+        this.travelRequest?.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
       this.approvedBy = ""
       this.approvalDate = ""
 
       if (
         this.travelRequest?.submissionId &&
-        (this.travelRequest.status === PRE_APPROVED_STATUSES.APPROVED ||
-          this.travelRequest.status === PRE_APPROVED_STATUSES.DECLINED)
+        (this.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED ||
+          this.travelRequest.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED)
       )
         this.initSubmission(this.travelRequest.submissionId)
     },
@@ -729,30 +741,12 @@ export default {
       }
     },
 
-    initEmployeeList() {
-      this.employeeList = this.$store.state.preapproved.employees.map((item) => {
-        return {
-          fullName: item.fullName,
-          department: item.department,
-        }
-      })
-    },
-
-    initDepartments() {
-      this.departmentList = []
-      const depts = this.$store.state.preapproved.departmentBranch
-      for (const key of Object.keys(depts)) {
-        this.departmentList.push({
-          name: key,
-        })
-      }
-    },
-
     initSubmission(id) {
       return http
         .get(`${PREAPPROVED_URL}/submissions/${id}`)
         .then((res) => {
-          this.showApproval = res.data.status === SUBMISSION_STATUSES.FINISHED
+          this.showApproval =
+            res.data.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED
           this.approvedBy = res.data.approvedBy
           this.approvalDate = res.data.approvalDate
         })

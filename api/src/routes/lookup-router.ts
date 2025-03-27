@@ -6,17 +6,24 @@ import { uniq } from "lodash"
 import { RequiresAuth, ReturnValidationErrors } from "@/middleware"
 import { DB_CONFIG, AZURE_KEY } from "@/config"
 import logger from "@/utils/logger"
-import { TravelPurpose } from "@/models"
+import { YgEmployeeGroup, YgEmployee } from "@/models"
+import { YgEmployeeGroups, YgEmployees } from "@/services"
 
 export const lookupRouter = express.Router()
 const db = knex(DB_CONFIG)
 
 const cache = new Map<string, any>()
 
+/**
+ * @deprecated - Prefer /api/yg-employees?filters['search']=<email> -> api/src/controllers/yg-employees-controller.ts#index -> YgEmployee "search" scope
+ */
 lookupRouter.get(
   "/emailList",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employees?filters['search']=<email> -> api/src/controllers/yg-employees-controller.ts#index -> YgEmployee 'search' scope"
+    )
     try {
       let emailList = await axios
         .get(`https://api.gov.yk.ca/directory/employees?email=` + req.query.email, {
@@ -39,10 +46,16 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get(
   "/departments",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+    )
     try {
       let result = await db("departments")
         .select("id", "name", "type", "ownedby")
@@ -55,7 +68,13 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get("/branches", ReturnValidationErrors, async function (req: Request, res: Response) {
+  logger.warn(
+    "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+  )
   try {
     let result = await db("departments")
       .select(
@@ -77,10 +96,16 @@ lookupRouter.get("/branches", ReturnValidationErrors, async function (req: Reque
   }
 })
 
+/**
+ * @deprecated - Prefer /api/yg-employee-groups/:ygEmployeeGroupId -> api/src/controllers/yg-employee-groups-controller.ts#show
+ */
 lookupRouter.get(
   "/department/:id",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups/:ygEmployeeGroupId -> api/src/controllers/yg-employee-groups-controller.ts#show"
+    )
     try {
       let result = await db("departments")
         .select("id", "name", "type", "ownedby")
@@ -104,10 +129,16 @@ lookupRouter.get("/roles", ReturnValidationErrors, async function (req: Request,
   }
 })
 
+/**
+ * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get(
   "/departmentList",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+    )
     if (cache.has("departmentList")) {
       return res.json(cache.get("departmentList"))
     }
@@ -149,10 +180,16 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get(
   "/departmentList2",
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+    )
     if (cache.has("departmentList2")) {
       return res.json({ data: cache.get("departmentList2") })
     }
@@ -227,19 +264,25 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
+ */
 lookupRouter.get(
   "/department-branch",
   RequiresAuth,
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
+    )
     let cleanList: any = {}
     try {
-      let departments = await db("YgDepartments").select("*")
+      let departments = await YgEmployeeGroup.findAll()
       const updateRequired = timeToUpdate(departments[0])
 
       if (!departments[0] || updateRequired) {
-        await updateYgDepartments()
-        departments = await db("YgDepartments").select("*")
+        await YgEmployeeGroups.SyncService.perform()
+        departments = await YgEmployeeGroup.findAll()
       }
 
       for (const slice of departments) {
@@ -260,27 +303,33 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer using /yg-employees -> api/src/controllers/yg-employees-controller.ts#index instead
+ */
 lookupRouter.get(
   "/employees",
   RequiresAuth,
   ReturnValidationErrors,
   async function (req: Request, res: Response) {
+    logger.warn(
+      "DEPRECATED: Prefer using /yg-employees -> api/src/controllers/yg-employees-controller.ts#index instead"
+    )
     const cleanList: any[] = []
     try {
-      let employees = await db("YgEmployees").select("*")
+      let employees = await YgEmployee.findAll()
       const updateRequired = timeToUpdate(employees[0])
 
       if (!employees[0] || updateRequired) {
-        await updateYgEmployees()
-        employees = await db("YgEmployees").select("*")
+        await YgEmployees.SyncService.perform()
+        employees = await YgEmployee.findAll()
       }
 
       for (const employee of employees) {
         cleanList.push({
-          firstName: employee.first_name,
-          lastName: employee.last_name,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
           department: employee.department,
-          fullName: employee.full_name,
+          fullName: employee.fullName,
           email: employee.email,
         })
       }
@@ -292,31 +341,45 @@ lookupRouter.get(
   }
 )
 
+/**
+ * @deprecated - Prefer using /yg-employees/:ygEmployeeId -> api/src/controllers/yg-employees-controller.ts#show instead
+ */
 lookupRouter.get("/employee-info", async function (req: Request, res: Response) {
+  logger.warn(
+    "DEPRECATED: Prefer using /yg-employees/:ygEmployeeId -> api/src/controllers/yg-employees-controller.ts#show instead"
+  )
   try {
-    let employees = await db("YgEmployees").select("*").where("email", String(req.query.email))
+    let employees = await YgEmployee.findAll({
+      where: {
+        email: req.query.email as string | string[],
+      },
+    })
     const updateRequired = timeToUpdate(employees[0])
 
     if (!employees[0] || updateRequired) {
-      await updateYgEmployees()
-      employees = await db("YgEmployees").select("*").where("email", String(req.query.email))
+      await YgEmployees.SyncService.perform()
+      employees = await YgEmployee.findAll({
+        where: {
+          email: req.query.email as string | string[],
+        },
+      })
     }
 
     let employeeInfo = {}
     if (employees[0]) {
       const employee = employees[0]
       employeeInfo = {
-        firstName: employee.first_name,
-        lastName: employee.last_name,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
         department: employee.department,
-        fullName: employee.full_name,
+        fullName: employee.fullName,
         email: employee.email,
-        businessPhone: employee.phone_office,
+        businessPhone: employee.phoneOffice,
         mobile: employee.mobile,
         office: employee.office,
         address: employee.address,
         community: employee.community,
-        postalCode: employee.postal_code,
+        postalCode: employee.postalCode,
       }
     }
 
@@ -333,81 +396,4 @@ function timeToUpdate(item: any) {
   updateTime.setDate(updateTime.getDate() - 1) //Update Time is 24 hours after last update
   const lastUpdate = item?.update_date ? new Date(item.update_date) : new Date("2000-01-01")
   return updateTime > lastUpdate
-}
-
-async function updateYgEmployees() {
-  logger.info("___________UPDATING EMPLOYEE LIST___________")
-  const today = new Date()
-  try {
-    await axios
-      .get(`https://api.gov.yk.ca/directory/employees`, {
-        headers: {
-          "Ocp-Apim-Subscription-Key": AZURE_KEY,
-        },
-        timeout: 10000,
-      })
-      .then(async (resp: any) => {
-        if (resp?.data?.employees)
-          await db.transaction(async (trx) => {
-            logger.info("_____START_Updating_Employees_____")
-            await db("YgEmployees").del()
-            await db.raw(`ALTER SEQUENCE "YgEmployees_id_seq" RESTART WITH 1;`)
-
-            const employees = resp.data.employees
-            for (const employee of employees) {
-              employee.update_date = today
-            }
-
-            for (let ctt = 0; ctt < employees.length; ctt = ctt + 70)
-              await db("YgEmployees").insert(employees.slice(ctt, ctt + 70))
-
-            logger.info("_____FINISH______")
-          })
-      })
-      .catch(async () => {
-        logger.info("_____err_____________")
-        await db("YgEmployees").update({ update_date: today })
-      })
-  } catch (error: any) {
-    logger.info(error)
-  }
-}
-
-async function updateYgDepartments() {
-  logger.info("___________UPDATING DEPARTMENTS___________")
-  const today = new Date()
-  try {
-    await axios
-      .get(`https://api.gov.yk.ca/directory/divisions`, {
-        headers: {
-          "Ocp-Apim-Subscription-Key": AZURE_KEY,
-        },
-        timeout: 5000,
-      })
-      .then(async (resp: any) => {
-        if (resp?.data?.divisions)
-          await db.transaction(async (trx) => {
-            logger.info("_____START_Updating_Departments______")
-            await db("YgDepartments").del()
-            await db.raw(`ALTER SEQUENCE "YgDepartments_id_seq" RESTART WITH 1;`)
-
-            const departments = resp.data.divisions
-
-            for (const department of departments) {
-              department.update_date = today
-            }
-
-            for (let ctt = 0; ctt < departments.length; ctt = ctt + 70)
-              await db("YgDepartments").insert(departments.slice(ctt, ctt + 70))
-
-            logger.info("_____FINISH______")
-          })
-      })
-      .catch(async () => {
-        logger.info("_____err_____________")
-        await db("YgDepartments").update({ update_date: today })
-      })
-  } catch (error: any) {
-    logger.info(error)
-  }
 }

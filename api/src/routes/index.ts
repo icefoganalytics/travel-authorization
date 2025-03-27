@@ -21,6 +21,7 @@ import {
   TravelAuthorizationActionLogsController,
   TravelAuthorizationPreApprovalProfilesController,
   TravelAuthorizationPreApprovalsController,
+  TravelAuthorizationPreApprovalSubmissionsController,
   TravelAuthorizations,
   TravelAuthorizationsController,
   TravelDeskFlightOptions,
@@ -37,6 +38,10 @@ import {
   TravelPurposesController,
   Users,
   UsersController,
+  YgEmployeeGroups,
+  YgEmployeeGroupsController,
+  YgEmployees,
+  YgEmployeesController,
 } from "@/controllers"
 
 //// START LEGACY IMPORTS
@@ -259,13 +264,34 @@ router.route("/api/locations/:locationId").get(LocationsController.show)
 router
   .route("/api/travel-authorization-pre-approval-profiles")
   .get(TravelAuthorizationPreApprovalProfilesController.index)
+  .post(TravelAuthorizationPreApprovalProfilesController.create)
 router
-  .route("/api/travel-authorization-pre-approval-profiles/:id")
+  .route("/api/travel-authorization-pre-approval-profiles/:travelAuthorizationPreApprovalProfileId")
   .get(TravelAuthorizationPreApprovalProfilesController.show)
+  .patch(TravelAuthorizationPreApprovalProfilesController.update)
+  .delete(TravelAuthorizationPreApprovalProfilesController.destroy)
 
 router
   .route("/api/travel-authorization-pre-approvals")
   .get(TravelAuthorizationPreApprovalsController.index)
+  .post(TravelAuthorizationPreApprovalsController.create)
+router
+  .route("/api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId")
+  .get(TravelAuthorizationPreApprovalsController.show)
+  .patch(TravelAuthorizationPreApprovalsController.update)
+  .delete(TravelAuthorizationPreApprovalsController.destroy)
+
+router
+  .route("/api/travel-authorization-pre-approval-submissions")
+  .get(TravelAuthorizationPreApprovalSubmissionsController.index)
+  .post(TravelAuthorizationPreApprovalSubmissionsController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId"
+  )
+  .get(TravelAuthorizationPreApprovalSubmissionsController.show)
+  .patch(TravelAuthorizationPreApprovalSubmissionsController.update)
+  .delete(TravelAuthorizationPreApprovalSubmissionsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
 router.route("/api/users/:userId").get(UsersController.show)
@@ -287,6 +313,14 @@ router
 router
   .route("/api/travel-authorization-action-logs")
   .get(TravelAuthorizationActionLogsController.index)
+
+router.route("/api/yg-employee-groups").get(YgEmployeeGroupsController.index)
+router.route("/api/yg-employee-groups/sync").post(YgEmployeeGroups.SyncController.create)
+router.route("/api/yg-employee-groups/:ygEmployeeGroupId").get(YgEmployeeGroupsController.show)
+
+router.route("/api/yg-employees").get(YgEmployeesController.index)
+router.route("/api/yg-employees/sync").post(YgEmployees.SyncController.create)
+router.route("/api/yg-employees/:ygEmployeeId").get(YgEmployeesController.show)
 
 // TravCom Integration
 router

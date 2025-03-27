@@ -2,7 +2,7 @@ import { Attributes, FindOptions } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
 import { TravelDeskTravelAgency, User } from "@/models"
-import { noRecordsScope } from "@/policies/base-policy"
+import { NO_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 
 export class TravelDeskTravelAgenciesPolicy extends PolicyFactory(TravelDeskTravelAgency) {
@@ -51,7 +51,7 @@ export class TravelDeskTravelAgenciesPolicy extends PolicyFactory(TravelDeskTrav
       return {} // all records
     }
 
-    return noRecordsScope
+    return NO_RECORDS_SCOPE
   }
 }
 

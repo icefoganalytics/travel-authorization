@@ -1,8 +1,5 @@
 import {
   Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
   CreationOptional,
   DataTypes,
   ForeignKey,
@@ -20,20 +17,14 @@ export class TravelAuthorizationPreApprovalDocument extends Model<
   InferAttributes<TravelAuthorizationPreApprovalDocument>,
   InferCreationAttributes<TravelAuthorizationPreApprovalDocument>
 > {
-  declare preTDocID: CreationOptional<number>
-  declare preTSubID: ForeignKey<TravelAuthorizationPreApprovalSubmission["preTSubID"] | null>
-  declare approvalDoc: CreationOptional<Buffer | null>
+  declare id: CreationOptional<number>
+  declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["id"]>
+  declare approvalDocument: Buffer
+  declare createdAt: CreationOptional<Date>
+  declare updatedAt: CreationOptional<Date>
+  declare deletedAt: Date | null
 
-  // https://sequelize.org/docs/v6/other-topics/typescript/#usage
-  // https://sequelize.org/docs/v6/core-concepts/assocs/#special-methodsmixins-added-to-instances
-  // https://sequelize.org/api/v7/types/_sequelize_core.index.belongstocreateassociationmixin
-  declare getSubmission: BelongsToGetAssociationMixin<TravelAuthorizationPreApprovalSubmission>
-  declare setSubmission: BelongsToSetAssociationMixin<
-    TravelAuthorizationPreApprovalSubmission,
-    TravelAuthorizationPreApprovalSubmission["preTSubID"]
-  >
-  declare createSubmission: BelongsToCreateAssociationMixin<TravelAuthorizationPreApprovalSubmission>
-
+  // Associations
   declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
 
   declare static associations: {
@@ -45,40 +36,49 @@ export class TravelAuthorizationPreApprovalDocument extends Model<
 
   static establishAssociations() {
     this.belongsTo(TravelAuthorizationPreApprovalSubmission, {
-      foreignKey: "preTSubID",
       as: "submission",
+      foreignKey: "submissionId",
     })
   }
 }
 
 TravelAuthorizationPreApprovalDocument.init(
   {
-    preTDocID: {
+    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
-    preTSubID: {
+    submissionId: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: TravelAuthorizationPreApprovalSubmission,
-        key: "preTSubID",
+        key: "id",
       },
     },
-    approvalDoc: {
+    approvalDocument: {
       type: DataTypes.BLOB,
+      allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    deletedAt: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },
   {
     sequelize,
-    modelName: "TravelAuthorizationPreApprovalDocument",
-    tableName: "preapprovedDocuments",
-    underscored: false,
-    timestamps: false,
-    paranoid: false,
   }
 )
 

@@ -104,7 +104,7 @@
               </v-tooltip>
             </template>
             <template #item.edit="{ item }">
-              <new-travel-request
+              <NewTravelRequest
                 :travel-request="item"
                 type="Edit"
                 @updateTable="updateAndOpenDialog"
@@ -249,7 +249,7 @@ import { cloneDeep } from "lodash"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
-import { STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
 
@@ -377,7 +377,7 @@ export default {
   },
   computed: {
     STATUSES() {
-      return STATUSES
+      return TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES
     },
     remainingTravelRequests() {
       const currentIDs = this.submittingRequests.map((req) => req.id)
@@ -385,7 +385,7 @@ export default {
       return this.travelRequests?.filter(
         (req) =>
           !currentIDs.includes(req.id) &&
-          (req.status == null || req.status === STATUSES.DRAFT) &&
+          (req.status == null || req.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT) &&
           (req.department == currentDept || currentIDs.length == 0)
       )
     },
@@ -394,7 +394,9 @@ export default {
     extractTravelRequests() {
       this.submittingRequests = cloneDeep(
         this.selectedRequests.filter(
-          (request) => request.status == null || request.status === STATUSES.DRAFT
+          (request) =>
+            request.status == null ||
+            request.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT
         )
       )
     },

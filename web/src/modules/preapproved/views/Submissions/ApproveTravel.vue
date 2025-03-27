@@ -182,8 +182,8 @@
 <script>
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
-import { STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-import { STATUSES as SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
 export default {
   name: "ApproveTravel",
@@ -235,9 +235,9 @@ export default {
       approvalDate: "",
       approvalDateErr: false,
       statusList: [
-        { text: "Approved", value: STATUSES.APPROVED },
-        { text: "Declined", value: STATUSES.DECLINED },
-        { text: "Submitted", value: STATUSES.SUBMITTED },
+        { text: "Approved", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED },
+        { text: "Declined", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED },
+        { text: "Submitted", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED },
       ],
       approveTravelDialog: false,
       approvalFileType: "",
@@ -293,7 +293,12 @@ export default {
       if (this.approvedByErr || this.approvalDateErr) return false
 
       for (const request of this.approvalRequests) {
-        if (![STATUSES.APPROVED, STATUSES.DECLINED].includes(request.status)) {
+        if (
+          ![
+            TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED,
+            TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED,
+          ].includes(request.status)
+        ) {
           this.alertMsg =
             "Please select either 'Approved' or 'Declined' status for all the records."
           this.alert = true
@@ -315,7 +320,7 @@ export default {
 
         this.savingData = true
         const data = {
-          status: SUBMISSION_STATUSES.FINISHED,
+          status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED,
           approvalDate: this.approvalDate,
           approvedBy: this.approvedBy,
           preApprovals: this.approvalRequests.map((req) => {

@@ -5,7 +5,7 @@ import { Path } from "@/utils/deep-pick"
 import { User, TravelDeskFlightRequest, TravelDeskTravelRequest } from "@/models"
 import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
 
-import { allRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 
 export class TravelDeskFlightRequestsPolicy extends PolicyFactory(TravelDeskFlightRequest) {
@@ -27,7 +27,7 @@ export class TravelDeskFlightRequestsPolicy extends PolicyFactory(TravelDeskFlig
 
   static policyScope(user: User): FindOptions<Attributes<TravelDeskFlightRequest>> {
     if (user.isTravelDeskUser || user.isAdmin) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
     return {

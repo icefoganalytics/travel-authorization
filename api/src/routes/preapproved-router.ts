@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express"
-import { ModelStatic, Op } from "sequelize"
+import { ModelStatic } from "sequelize"
 import { isNil } from "lodash"
+import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 import { RequiresAuth, RequiresRolePatAdminOrAdmin } from "@/middleware"
@@ -35,7 +36,7 @@ preapprovedRouter.get("/submissions", RequiresAuth, async function (req: Request
   const submissionList = await scopedSubmissions.findAll({
     include: [
       {
-        association: "preApprovals",
+        association: "preApproval",
         include: ["profiles"],
       },
     ],
@@ -89,30 +90,6 @@ preapprovedRouter.post(
             submission = await TravelAuthorizationPreApprovalSubmission.create(newSubmission)
           }
 
-          await TravelAuthorizationPreApproval.update(
-            {
-              status: submission.status,
-              submissionId: submission.preTSubID,
-            },
-            {
-              where: {
-                id: preApprovalIds,
-              },
-            }
-          )
-          await TravelAuthorizationPreApproval.update(
-            {
-              status: null,
-              submissionId: null,
-            },
-            {
-              where: {
-                submissionId: submission.preTSubID,
-                [Op.not]: [{ id: preApprovalIds }],
-              },
-            }
-          )
-
           res.status(200).json("Successful")
         } else {
           res.status(500).json("Required fields in submission are blank")
@@ -140,22 +117,11 @@ preapprovedRouter.delete(
       await db.transaction(async () => {
         if (
           submission.status === TravelAuthorizationPreApprovalSubmission.Statuses.FINISHED ||
-          submission.approvalDate ||
-          submission.approvedBy
+          submission.approverId ||
+          submission.approvedAt
         ) {
           res.status(403).json("Cannot delete final records")
         } else {
-          await TravelAuthorizationPreApproval.update(
-            {
-              status: null,
-              submissionId: null,
-            },
-            {
-              where: {
-                submissionId: submission.preTSubID,
-              },
-            }
-          )
           await submission.destroy()
 
           res.status(200).json("Delete Successful")
@@ -174,44 +140,37 @@ preapprovedRouter.post(
   RequiresRolePatAdminOrAdmin,
   async function (req: Request, res: Response) {
     const file = req.body.file
-    const preTSubID = Number(req.params.submissionId)
+    const submissionId = Number(req.params.submissionId)
     const data = JSON.parse(req.body.data)
+
+    const travelAuthorizationPreApprovalSubmission =
+      await TravelAuthorizationPreApprovalSubmission.findByPk(submissionId)
+    if (isNil(travelAuthorizationPreApprovalSubmission)) {
+      return res.status(404).json("Submission not found")
+    }
 
     try {
       const approvalDoc = await TravelAuthorizationPreApprovalDocument.findOne({
         where: {
-          preTSubID,
+          submissionId,
         },
       })
       if (approvalDoc) {
         return res.status(409).json("File Already Exist!")
       }
 
-      if (
-        preTSubID &&
-        data.status &&
-        data.approvalDate &&
-        data.approvedBy &&
-        data.preApprovals.length > 0
-      ) {
-        const newDocument = {
-          preTSubID,
-          approvalDoc: file,
-        }
+      if (submissionId && data.status && data.approvedBy && data.preApprovals.length > 0) {
         await db.transaction(async () => {
-          await TravelAuthorizationPreApprovalDocument.create(newDocument)
-          await TravelAuthorizationPreApprovalSubmission.update(
-            {
-              status: data.status,
-              approvalDate: data.approvalDate,
-              approvedBy: data.approvedBy,
-            },
-            {
-              where: {
-                preTSubID,
-              },
-            }
-          )
+          await TravelAuthorizationPreApprovalDocument.create({
+            submissionId,
+            approvalDocument: file,
+          })
+
+          await travelAuthorizationPreApprovalSubmission.update({
+            status: data.status,
+            approvedAt: DateTime.utc().toJSDate(),
+            approverId: data.approvedBy,
+          })
 
           for (const preApproval of data.preApprovals) {
             await TravelAuthorizationPreApproval.update(
@@ -240,17 +199,17 @@ preapprovedRouter.post(
 
 preapprovedRouter.get("/document/:submissionId", RequiresAuth, async function (req, res) {
   try {
-    const preTSubID = req.params.submissionId
+    const submissionId = Number(req.params.submissionId)
     const document = await TravelAuthorizationPreApprovalDocument.findOne({
       where: {
-        preTSubID,
+        submissionId,
       },
     })
     if (isNil(document)) {
       return res.status(404).json("Document not found")
     }
 
-    res.status(200).send(document.approvalDoc)
+    res.status(200).send(document.approvalDocument)
   } catch (error: unknown) {
     logger.info(error)
     res.status(500).json("PDF not Found")
