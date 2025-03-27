@@ -186,7 +186,6 @@
       <v-row>
         <v-col>
           <TravelAuthorizationPreApprovalTravelerEditFormCard
-            v-model="travelAuthorizationPreApprovalProfilesAttributes"
             :travel-authorization-pre-approval-id="travelAuthorizationPreApprovalId"
             :number-travelers.sync="travelAuthorizationPreApproval.numberTravelers"
             :is-open-for-any-traveler.sync="travelAuthorizationPreApproval.isOpenForAnyTraveler"
@@ -295,7 +294,8 @@
 
 <script setup>
 import { computed, onMounted, ref, toRefs } from "vue"
-import { isNil, isEmpty } from "lodash"
+import { useRouter } from "vue2-helpers/vue-router"
+import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
@@ -327,11 +327,9 @@ const props = defineProps({
 })
 
 const { travelAuthorizationPreApprovalId } = toRefs(props)
-const { travelAuthorizationPreApproval, isLoading } = useTravelAuthorizationPreApproval(
+const { travelAuthorizationPreApproval, isLoading, refresh } = useTravelAuthorizationPreApproval(
   travelAuthorizationPreApprovalId
 )
-
-const travelAuthorizationPreApprovalProfilesAttributes = ref([])
 
 const exactTravelDateKnown = ref(true)
 
@@ -352,13 +350,13 @@ function resetDependentFieldsDepartment() {
   travelAuthorizationPreApproval.value.branch = undefined
   travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
   travelAuthorizationPreApproval.value.numberTravelers = undefined
-  travelAuthorizationPreApprovalProfilesAttributes.value = []
+  // TODO: delete all traveler profiles
 }
 
 function resetDependentFieldsBranch() {
   travelAuthorizationPreApproval.value.isOpenForAnyTraveler = undefined
   travelAuthorizationPreApproval.value.numberTravelers = undefined
-  travelAuthorizationPreApprovalProfilesAttributes.value = []
+  // TODO: delete all traveler profiles
 }
 
 const snack = useSnack()
@@ -366,15 +364,12 @@ const snack = useSnack()
 async function saveWrapper() {
   isLoading.value = true
   try {
-    if (isEmpty(travelAuthorizationPreApprovalProfilesAttributes.value)) {
-      await travelAuthorizationPreApprovalsApi.update(travelAuthorizationPreApproval.value)
-    } else {
-      await travelAuthorizationPreApprovalsApi.update({
-        ...travelAuthorizationPreApproval.value,
-        profilesAttributes: travelAuthorizationPreApprovalProfilesAttributes.value,
-      })
-    }
+    await travelAuthorizationPreApprovalsApi.update(
+      props.travelAuthorizationPreApprovalId,
+      travelAuthorizationPreApproval.value
+    )
     snack.success("Travel authorization pre-approval saved successfully")
+    await refresh()
   } catch (error) {
     console.error(`Failed to save travel authorization pre-approval: ${error}`, { error })
     snack.error(`Failed to save travel authorization pre-approval: ${error}`)
@@ -384,6 +379,7 @@ async function saveWrapper() {
 }
 
 const isDeleting = ref(false)
+const router = useRouter()
 
 async function deleteTravelAuthorizationPreApproval() {
   if (!blockedToTrueConfirm("Are you sure you want to remove this travel pre-approval?")) return
@@ -392,6 +388,9 @@ async function deleteTravelAuthorizationPreApproval() {
   try {
     await travelAuthorizationPreApprovalsApi.delete(travelAuthorizationPreApproval.value)
     snack.success("Travel authorization pre-approval deleted successfully")
+    return router.replace({
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+    })
   } catch (error) {
     console.error(`Failed to delete travel authorization pre-approval: ${error}`, { error })
     snack.error(`Failed to delete travel authorization pre-approval: ${error}`)

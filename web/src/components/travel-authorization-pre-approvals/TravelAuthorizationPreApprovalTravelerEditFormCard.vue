@@ -8,11 +8,11 @@
         cols="12"
         md="3"
       >
+        <!-- TODO: update travelPreApproval attributes on add traveller. -->
         <v-switch
-          :input-value="exactTravelerKnown"
+          v-model="exactTravelerKnown"
           :label="exactTravelerKnown ? 'Exact traveler known' : 'Exact traveler not known'"
           inset
-          @change="toggleExactTravelerKnown"
         />
       </v-col>
     </v-row>
@@ -40,12 +40,11 @@
         md="4"
       >
         <v-text-field
-          v-model.number="numberTravelersLocal"
+          v-model="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
           outlined
           persistent-hint
-          @input="emit('update:numberTravelers', Number($event))"
         />
       </v-col>
       <v-col
@@ -91,8 +90,9 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
+import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
 import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorization-pre-approval-profiles-api"
 import useSnack from "@/use/use-snack"
 
@@ -111,20 +111,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  value: {
-    /**
-     * @type {Partial<TravelAuthorizationPreApprovalProfile>[]}
-     */
-    type: Array,
-    default: () => [],
+  isOpenForAnyTraveler: {
+    type: Boolean,
+    required: true,
   },
   numberTravelers: {
     type: Number,
     default: undefined,
-  },
-  isOpenForAnyTraveler: {
-    type: Boolean,
-    default: false,
   },
   branch: {
     type: String,
@@ -132,15 +125,40 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input", "update:numberTravelers", "update:isOpenForAnyTraveler"])
+const emit = defineEmits(["update:numberTravelers", "update:isOpenForAnyTraveler"])
 
 const preApprovalProfileWhere = computed(() => ({
   preApprovalId: props.travelAuthorizationPreApprovalId,
 }))
 
-const exactTravelerKnown = ref(true)
+const exactTravelerKnown = computed({
+  get() {
+    return props.isOpenForAnyTraveler === false
+  },
+  set(value) {
+    travelerName.value = undefined
+    emit("update:isOpenForAnyTraveler", !value)
+    emit("update:numberTravelers", undefined)
+  },
+})
+
+const numberTravelersLocal = computed({
+  get() {
+    if (isNil(props.numberTravelers)) return undefined
+
+    return props.numberTravelers
+  },
+  set(value) {
+    if (isNil(value) || isEmpty(value)) {
+      emit("update:numberTravelers", undefined)
+    } else {
+      const newNumberOfTravelers = parseInt(value)
+      emit("update:numberTravelers", newNumberOfTravelers)
+    }
+  },
+})
+
 const travelerName = ref(undefined)
-const numberTravelersLocal = ref(undefined)
 
 const branchWhere = computed(() => {
   if (isNil(props.branch)) return {}
@@ -153,16 +171,6 @@ const ygEmployeeWhere = computed(() => ({
   department: props.department,
   ...branchWhere.value,
 }))
-
-function toggleExactTravelerKnown(value) {
-  exactTravelerKnown.value = value
-  travelerName.value = undefined
-  numberTravelersLocal.value = undefined
-
-  emit("update:isOpenForAnyTraveler", !exactTravelerKnown.value)
-  emit("update:numberTravelers", numberTravelersLocal.value)
-  emit("input", [])
-}
 
 const isLoading = ref(false)
 const snack = useSnack()
@@ -190,6 +198,10 @@ async function createTravelAuthorizationPreApprovalProfile() {
 
   isLoading.value = true
   try {
+    await travelAuthorizationPreApprovalsApi.update(props.travelAuthorizationPreApprovalId, {
+      isOpenForAnyTraveler: props.isOpenForAnyTraveler,
+      numberTravelers: props.numberTravelers,
+    })
     await travelAuthorizationPreApprovalProfilesApi.create(newProfileAttributes)
     snack.success(`Travel pre-approval profile created successfully`)
     await travelAuthorizationPreApprovalProfilesDataTable.value.refresh()
@@ -221,8 +233,7 @@ async function removeTravelAuthorizationPreApprovalProfile(
 }
 
 function reset() {
-  exactTravelerKnown.value = true
   travelerName.value = undefined
-  numberTravelersLocal.value = undefined
+  emit("update:numberTravelers", undefined)
 }
 </script>
