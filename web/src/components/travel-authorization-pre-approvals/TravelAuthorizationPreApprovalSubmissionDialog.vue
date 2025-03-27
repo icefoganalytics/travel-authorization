@@ -129,32 +129,9 @@
             hide-default-footer
           >
             <template #item.name="{ item }">
-              <template v-if="item.profiles.length === 0"> Unspecified </template>
-              <template v-else-if="item.profiles.length === 1">
-                {{ item.profiles[0].profileName.replace(".", " ") }}
-              </template>
-              <v-tooltip
-                v-else
-                top
-                color="primary"
-              >
-                <template #activator="{ on }">
-                  <div v-on="on">
-                    <span>
-                      {{ item.profiles[0].profileName.replace(".", " ") }}
-                    </span>
-                    <span>, ... </span>
-                  </div>
-                </template>
-                <span
-                  ><div
-                    v-for="(profile, index) in item.profiles"
-                    :key="index"
-                  >
-                    {{ profile.profileName.replace(".", " ") }}
-                  </div></span
-                >
-              </v-tooltip>
+              <VTravelAuthorizationPreApprovalProfilesChip
+                :travel-authorization-pre-approval="item"
+              />
             </template>
             <template #item.actions="{ item }">
               <v-btn
@@ -212,6 +189,7 @@ import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 
 const emit = defineEmits(["submitted"])
 

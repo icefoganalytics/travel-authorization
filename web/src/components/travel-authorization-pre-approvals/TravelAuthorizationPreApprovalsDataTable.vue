@@ -25,32 +25,7 @@
     </template>
 
     <template #item.name="{ item }">
-      <template v-if="item.profiles.length === 0"> Unspecified </template>
-      <template v-else-if="item.profiles.length === 1">
-        {{ item.profiles[0].profileName.replace(".", " ") }}
-      </template>
-      <v-tooltip
-        v-else
-        top
-        color="primary"
-      >
-        <template #activator="{ on }">
-          <div v-on="on">
-            <span>
-              {{ item.profiles[0].profileName.replace(".", " ") }}
-            </span>
-            <span>, ... </span>
-          </div>
-        </template>
-        <span
-          ><div
-            v-for="(profile, index) in item.profiles"
-            :key="index"
-          >
-            {{ profile.profileName.replace(".", " ") }}
-          </div></span
-        >
-      </v-tooltip>
+      <VTravelAuthorizationPreApprovalProfilesChip :travel-authorization-pre-approval="item" />
     </template>
 
     <template #item.travelDate="{ item }">
@@ -110,6 +85,8 @@ import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
+
+import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 
 const props = defineProps({
   where: {
