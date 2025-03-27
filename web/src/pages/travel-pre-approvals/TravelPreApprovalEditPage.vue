@@ -307,6 +307,7 @@ import travelAuthorizationPreApprovalsApi, {
 } from "@/api/travel-authorization-pre-approvals-api"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
+import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useRouteHistory from "@/use/use-route-history"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pre-approval"
@@ -473,6 +474,33 @@ async function downloadPdf() {
   link.click()
   setTimeout(() => URL.revokeObjectURL(link.href), 1000)
 }
+
+useBreadcrumbs([
+  {
+    text: "Travel Pre-Approvals",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+    },
+  },
+  {
+    text: "Travel Pre-Approval",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalPage",
+      params: {
+        travelAuthorizationPreApprovalId: props.travelAuthorizationPreApprovalId,
+      },
+    },
+  },
+  {
+    text: "Edit",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalEditPage",
+      params: {
+        travelAuthorizationPreApprovalId: props.travelAuthorizationPreApprovalId,
+      },
+    },
+  },
+])
 </script>
 
 <style scoped>
