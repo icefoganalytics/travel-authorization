@@ -1,19 +1,19 @@
 <template>
   <TravelAuthorizationPreApprovalsDataTable ref="travelAuthorizationPreApprovalsDataTable">
-    <template #top="{ items, selectedItems }">
+    <template #top="{ selectedItems }">
       <v-row>
         <v-col class="d-flex flex-column flex-md-row align-center">
           <!-- TODO: make all of these buttons full width on small screens -->
           <v-spacer />
           <TravelAuthorizationPreApprovalSubmissionDialog
-            :disabled="isEmpty(selectedItems)"
-            :travel-requests="items"
+            :activator-props="{
+              disabled: isEmpty(selectedItems),
+            }"
             :selected-requests="selectedItems"
-            :submission-id="0"
-            button-name="Submit Selected Travel"
-            @updateTable="refresh"
+            @submitted="refresh"
           />
           <PrintReport
+            class="ml-md-4"
             :disabled="isEmpty(selectedItems)"
             :travel-requests="selectedItems"
             button-name="Print Report"

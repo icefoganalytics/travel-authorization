@@ -6,24 +6,20 @@
   >
     <template #activator="{ on, attrs }">
       <v-btn
-        :id="'edit-' + submissionId"
-        :disabled="disabled"
-        :small="editButton"
-        :class="editButton ? 'my-0' : 'mr-5 my-7'"
         color="primary"
-        v-bind="attrs"
-        @click="extractTravelRequests"
+        v-bind="merge({}, attrs, activatorProps)"
         v-on="on"
+        @click="extractTravelRequests"
       >
-        {{ buttonName }}
+        Submit Selected Requests
       </v-btn>
     </template>
 
     <v-card :key="update">
-      <v-card-title style="border-bottom: 1px solid black">
-        <div class="text-h5">Submit/Draft Travel Request</div>
+      <v-card-title>
+        <div class="text-h5">Submit Travel Pre-Approval Requests</div>
       </v-card-title>
-
+      <v-divider />
       <v-card-text>
         <v-row class="mt-3">
           <v-btn
@@ -130,17 +126,16 @@
             </v-card>
           </v-dialog>
         </v-row>
+
+        <!-- TODO: move to component? -->
         <v-data-table
-          style="margin-top: 1rem"
           :headers="headers"
           :items="submittingRequests"
           :items-per-page="5"
-          class="elevation-1"
           hide-default-footer
         >
-          <template #item.remove="{ item }">
+          <template #item.actions="{ item }">
             <v-btn
-              style="min-width: 0"
               color="transparent"
               class="px-1"
               small
@@ -177,27 +172,6 @@
               >
             </v-tooltip>
           </template>
-          <template #item.status="{ item }">
-            <v-tooltip
-              top
-              color="amber accent-4"
-            >
-              <template #activator="{ on }">
-                <v-icon
-                  v-if="item.status && item.sumssionId != submissionId"
-                  style="cursor: pointer"
-                  class=""
-                  color="amber accent-2"
-                  v-on="on"
-                  >mdi-alert</v-icon
-                >
-              </template>
-              <span class="black--text">
-                This request is already in another submission.<br />
-                If you Save/Submit this change, it will be removed from the other submission.
-              </span>
-            </v-tooltip>
-          </template>
         </v-data-table>
       </v-card-text>
 
@@ -207,13 +181,6 @@
           @click="submitTravelDialog = false"
         >
           Cancel
-        </v-btn>
-        <v-btn
-          v-if="editButton"
-          color="red darken-5"
-          @click="deleteSubmission()"
-        >
-          Delete
         </v-btn>
         <v-btn
           class="ml-auto"
@@ -238,85 +205,46 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { cloneDeep } from "lodash"
+import { cloneDeep, merge } from "lodash"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 
 const props = defineProps({
-  buttonName: {
-    type: String,
-    default: "Submit Travel",
-  },
-  editButton: {
-    type: Boolean,
-    default: false,
-  },
-  submissionId: {
-    type: Number,
-    default: 0,
-  },
-  travelRequests: {
-    type: Array,
-    default: () => [],
-  },
   selectedRequests: {
     type: Array,
     default: () => [],
   },
-  disabled: {
-    type: Boolean,
-    default: false,
+  activatorProps: {
+    type: Object,
+    default: () => ({}),
   },
 })
 
-const emit = defineEmits(["updateTable"])
+const emit = defineEmits(["submitted"])
 
 const headers = ref([
   {
     text: "Name",
     value: "name",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Branch",
     value: "branch",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Reason",
     value: "reason",
-    class: "blue-grey lighten-4",
   },
   {
     text: "Location",
     value: "location",
-    class: "blue-grey lighten-4",
   },
   {
-    text: "",
+    text: "Actions",
     sortable: false,
-    value: "status",
-    class: "blue-grey lighten-4",
-    cellClass: "px-0 mx-0",
-    width: "1rem",
-  },
-  {
-    text: "",
-    sortable: false,
-    value: "remove",
-    class: "blue-grey lighten-4",
-    cellClass: "px-0 mx-0",
-    width: "1rem",
-  },
-  {
-    text: "",
-    sortable: false,
-    value: "edit",
-    class: "blue-grey lighten-4",
-    cellClass: "px-0 mx-0",
-    width: "1rem",
+    value: "actions",
   },
 ])
 
@@ -416,23 +344,11 @@ async function submitTravelRequest(status) {
       await http.post(`${PREAPPROVED_URL}/submissions/${props.submissionId}`, body)
       savingData.value = false
       submitTravelDialog.value = false
-      emit("updateTable")
+      emit("submitted")
     } catch (error) {
       savingData.value = false
       console.log(error)
     }
-  }
-}
-
-async function deleteSubmission() {
-  try {
-    await http.delete(`${PREAPPROVED_URL}/submissions/${props.submissionId}`)
-    savingData.value = false
-    submitTravelDialog.value = false
-    emit("updateTable")
-  } catch (error) {
-    savingData.value = false
-    console.log(error)
   }
 }
 </script>
