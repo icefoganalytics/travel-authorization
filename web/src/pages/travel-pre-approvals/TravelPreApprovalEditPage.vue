@@ -268,8 +268,7 @@ const exactTravelDateKnown = ref(true)
 
 function toggleExactTravelDateKnown(value) {
   exactTravelDateKnown.value = value
-
-  travelAuthorizationPreApproval.value.isOpenForAnyTraveler = !value
+  travelAuthorizationPreApproval.value.isOpenForAnyDate = !value
   travelAuthorizationPreApproval.value.startDate = undefined
   travelAuthorizationPreApproval.value.endDate = undefined
   travelAuthorizationPreApproval.value.month = undefined
@@ -283,13 +282,13 @@ function resetDependentFieldsDepartment() {
   travelAuthorizationPreApproval.value.branch = undefined
   travelAuthorizationPreApproval.value.isOpenForAnyTraveler = false
   travelAuthorizationPreApproval.value.numberTravelers = undefined
-  // TODO: delete all traveler profiles
+  // TODO: delete all traveler profiles?
 }
 
 function resetDependentFieldsBranch() {
   travelAuthorizationPreApproval.value.isOpenForAnyTraveler = false
   travelAuthorizationPreApproval.value.numberTravelers = undefined
-  // TODO: delete all traveler profiles
+  // TODO: delete all traveler profiles?
 }
 
 const snack = useSnack()
