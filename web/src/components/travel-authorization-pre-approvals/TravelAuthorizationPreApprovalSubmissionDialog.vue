@@ -158,12 +158,14 @@
             </template>
             <template #item.actions="{ item }">
               <v-btn
-                color="transparent"
-                class="px-1"
+                v-if="canDelete"
+                title="Remove"
+                color="error"
+                icon
                 small
-                @click="removeTravel(item)"
+                @click="removePreApprovalRequest(item.id)"
               >
-                <v-icon color="red">mdi-delete</v-icon>
+                <v-icon>mdi-delete</v-icon>
               </v-btn>
             </template>
           </v-data-table>
@@ -201,7 +203,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
@@ -250,8 +252,15 @@ const travelAuthorizationPreApprovalsQuery = computed(() => {
   }
 })
 const { travelAuthorizationPreApprovals } = useTravelAuthorizationPreApprovals(
-  travelAuthorizationPreApprovalsQuery
+  travelAuthorizationPreApprovalsQuery,
+  {
+    skipWatchIf: () =>
+      isNil(travelAuthorizationPreApprovalIds.value) ||
+      isEmpty(travelAuthorizationPreApprovalIds.value),
+  }
 )
+
+const canDelete = computed(() => travelAuthorizationPreApprovals.value.length > 1)
 
 const addTravelHeaders = ref([
   {
@@ -304,7 +313,7 @@ const remainingTravelRequests = computed(() => {
   )
 })
 
-function removeTravel(travelAuthorizationPreApprovalId) {
+function removePreApprovalRequest(travelAuthorizationPreApprovalId) {
   const newTravelAuthorizationPreApprovalIds = travelAuthorizationPreApprovalIds.value.filter(
     (id) => id !== travelAuthorizationPreApprovalId
   )
