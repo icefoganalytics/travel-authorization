@@ -15,15 +15,15 @@
       </v-btn>
     </template>
 
-    <v-card :key="update">
-      <v-card-title>
-        <div class="text-h5">Submit Travel Pre-Approval Requests</div>
-      </v-card-title>
-      <v-divider />
-      <v-card-text>
-        <v-row class="mt-3">
+    <HeaderActionsFormCard
+      ref="headerActionsFormCard"
+      title="Submit Travel Pre-Approval Requests"
+      @submit.prevent="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED)"
+    >
+      <v-row>
+        <v-col class="d-flex justify-end">
           <v-btn
-            class="ml-auto mr-5"
+            class="my-0"
             color="primary"
             @click="openAddTravel"
           >
@@ -125,57 +125,61 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-        </v-row>
+        </v-col>
+      </v-row>
 
-        <!-- TODO: move to component? -->
-        <v-data-table
-          :headers="headers"
-          :items="submittingRequests"
-          :items-per-page="5"
-          hide-default-footer
-        >
-          <template #item.actions="{ item }">
-            <v-btn
-              color="transparent"
-              class="px-1"
-              small
-              @click="removeTravel(item)"
-            >
-              <v-icon color="red">mdi-delete</v-icon>
-            </v-btn>
-          </template>
-          <template #item.name="{ item }">
-            <template v-if="item.profiles.length === 0"> Unspecified </template>
-            <template v-else-if="item.profiles.length === 1">
-              {{ item.profiles[0].profileName.replace(".", " ") }}
-            </template>
-            <v-tooltip
-              v-else
-              top
-              color="primary"
-            >
-              <template #activator="{ on }">
-                <div v-on="on">
-                  <span>
-                    {{ item.profiles[0].profileName.replace(".", " ") }}
-                  </span>
-                  <span>, ... </span>
-                </div>
-              </template>
-              <span
-                ><div
-                  v-for="(profile, index) in item.profiles"
-                  :key="index"
-                >
-                  {{ profile.profileName.replace(".", " ") }}
-                </div></span
+      <v-row>
+        <v-col>
+          <!-- TODO: move to component? -->
+          <v-data-table
+            :headers="headers"
+            :items="submittingRequests"
+            :items-per-page="5"
+            hide-default-footer
+          >
+            <template #item.actions="{ item }">
+              <v-btn
+                color="transparent"
+                class="px-1"
+                small
+                @click="removeTravel(item)"
               >
-            </v-tooltip>
-          </template>
-        </v-data-table>
-      </v-card-text>
+                <v-icon color="red">mdi-delete</v-icon>
+              </v-btn>
+            </template>
+            <template #item.name="{ item }">
+              <template v-if="item.profiles.length === 0"> Unspecified </template>
+              <template v-else-if="item.profiles.length === 1">
+                {{ item.profiles[0].profileName.replace(".", " ") }}
+              </template>
+              <v-tooltip
+                v-else
+                top
+                color="primary"
+              >
+                <template #activator="{ on }">
+                  <div v-on="on">
+                    <span>
+                      {{ item.profiles[0].profileName.replace(".", " ") }}
+                    </span>
+                    <span>, ... </span>
+                  </div>
+                </template>
+                <span
+                  ><div
+                    v-for="(profile, index) in item.profiles"
+                    :key="index"
+                  >
+                    {{ profile.profileName.replace(".", " ") }}
+                  </div></span
+                >
+              </v-tooltip>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
 
-      <v-card-actions>
+      <template #actions>
         <v-btn
           color="grey darken-5"
           @click="submitTravelDialog = false"
@@ -194,12 +198,12 @@
           class="ml-5"
           color="green darken-1"
           :loading="savingData"
-          @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED)"
+          type="submit"
         >
           Submit
         </v-btn>
-      </v-card-actions>
-    </v-card>
+      </template>
+    </HeaderActionsFormCard>
   </v-dialog>
 </template>
 
@@ -210,6 +214,8 @@ import { cloneDeep, merge } from "lodash"
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+
+import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
 const props = defineProps({
   selectedRequests: {
@@ -289,7 +295,6 @@ const submitTravelDialog = ref(false)
 const newSelectedRequests = ref([])
 const addTravelDialog = ref(false)
 const savingData = ref(false)
-const update = ref(0)
 
 const remainingTravelRequests = computed(() => {
   const currentIDs = submittingRequests.value.map((req) => req.id)
@@ -316,7 +321,6 @@ function removeTravel(item) {
   submittingRequests.value = cloneDeep(
     submittingRequests.value.filter((request) => request.id != item.id)
   )
-  update.value++
 }
 
 function openAddTravel() {
