@@ -103,13 +103,6 @@
                 </span>
               </v-tooltip>
             </template>
-            <template #item.edit="{ item }">
-              <NewTravelRequest
-                :travel-request="item"
-                type="Edit"
-                @updateTable="updateAndOpenDialog"
-              />
-            </template>
           </v-data-table>
         </v-card-text>
 
@@ -246,14 +239,11 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { useStore } from "vue2-helpers/vuex"
 import { cloneDeep } from "lodash"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-
-import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
 
 const props = defineProps({
   buttonName: {
@@ -445,17 +435,6 @@ async function deleteSubmission() {
     savingData.value = false
     console.log(error)
   }
-}
-
-function updateTable() {
-  emit("updateTable")
-}
-
-const store = useStore()
-
-function updateAndOpenDialog() {
-  store.commit("preapproved/SET_OPEN_DIALOG_ID", "edit-" + props.submissionId)
-  updateTable()
 }
 </script>
 
