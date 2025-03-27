@@ -5,7 +5,7 @@
         <v-col class="d-flex flex-column flex-md-row align-center">
           <!-- TODO: make all of these buttons full width on small screens -->
           <v-spacer />
-          <SubmitTravel
+          <TravelAuthorizationPreApprovalSubmissionDialog
             :disabled="isEmpty(selectedItems)"
             :travel-requests="items"
             :selected-requests="selectedItems"
@@ -49,7 +49,7 @@ import { DateTime } from "luxon"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
-import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
+import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
 
 import TravelAuthorizationPreApprovalsDataTable from "@/components/trave-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
 
