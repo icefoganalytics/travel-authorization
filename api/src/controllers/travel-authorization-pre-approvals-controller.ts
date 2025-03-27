@@ -155,12 +155,16 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
   }
 
   private buildPolicy(
-    travelAuthorizationPreApproval: TravelAuthorizationPreApproval = TravelAuthorizationPreApproval.build()
+    travelAuthorizationPreApproval: TravelAuthorizationPreApproval = this.buildTravelAuthorizationPreApproval()
   ) {
     return new TravelAuthorizationPreApprovalsPolicy(
       this.currentUser,
       travelAuthorizationPreApproval
     )
+  }
+
+  private buildTravelAuthorizationPreApproval() {
+    return TravelAuthorizationPreApproval.build(this.request.body)
   }
 }
 

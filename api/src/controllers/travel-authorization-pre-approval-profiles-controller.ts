@@ -154,12 +154,16 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
   }
 
   private buildPolicy(
-    travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile = TravelAuthorizationPreApprovalProfile.build()
+    travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile = this.buildTravelAuthorizationPreApprovalProfile()
   ) {
     return new TravelAuthorizationPreApprovalProfilesPolicy(
       this.currentUser,
       travelAuthorizationPreApprovalProfile
     )
+  }
+
+  private buildTravelAuthorizationPreApprovalProfile() {
+    return TravelAuthorizationPreApprovalProfile.build(this.request.body)
   }
 }
 
