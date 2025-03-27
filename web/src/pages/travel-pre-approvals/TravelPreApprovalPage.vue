@@ -9,7 +9,10 @@
     header-tag="h2"
     header-class="mb-0"
   >
-    <template #header-actions>
+    <template
+      v-if="canEdit"
+      #header-actions
+    >
       <v-btn
         class="my-0"
         color="error"
@@ -215,6 +218,7 @@
 
     <template #actions>
       <v-btn
+        v-if="canEdit"
         color="primary"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalEditPage',
@@ -243,7 +247,9 @@ import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
-import travelAuthorizationPreApprovalApi from "@/api/travel-authorization-pre-approvals-api"
+import travelAuthorizationPreApprovalApi, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
+} from "@/api/travel-authorization-pre-approvals-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
@@ -265,6 +271,13 @@ const props = defineProps({
 const { travelAuthorizationPreApprovalId } = toRefs(props)
 const { travelAuthorizationPreApproval } = useTravelAuthorizationPreApproval(
   travelAuthorizationPreApprovalId
+)
+
+// TODO: replace with policy.update?
+const canEdit = computed(
+  () =>
+    travelAuthorizationPreApproval.value?.status ===
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT
 )
 
 const preApprovalProfileWhere = computed(() => ({
