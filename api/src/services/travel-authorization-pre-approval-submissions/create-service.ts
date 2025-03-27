@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes, Op } from "sequelize"
 
 import { isEmpty, isNil } from "lodash"
 
@@ -53,6 +53,7 @@ export class CreateService extends BaseService {
           status: statusOrDefault,
         })
 
+      await this.validatePreApprovalsHaveNotAlreadyBeenSubmitted(preApprovalIds)
       await this.markPreApprovalsAsSubmitted(
         travelAuthorizationPreApprovalSubmission.id,
         preApprovalIds
@@ -60,6 +61,23 @@ export class CreateService extends BaseService {
 
       return travelAuthorizationPreApprovalSubmission
     })
+  }
+
+  private async validatePreApprovalsHaveNotAlreadyBeenSubmitted(
+    preApprovalIds: number[]
+  ): Promise<void> {
+    const existingSubmissions = await TravelAuthorizationPreApproval.findAll({
+      where: {
+        id: preApprovalIds,
+        submissionId: {
+          [Op.not]: null,
+        },
+      },
+    })
+
+    if (!isEmpty(existingSubmissions)) {
+      throw new Error("Pre-approvals have already been submitted.")
+    }
   }
 
   private async markPreApprovalsAsSubmitted(
