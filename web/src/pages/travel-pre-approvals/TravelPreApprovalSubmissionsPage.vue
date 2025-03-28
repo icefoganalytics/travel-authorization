@@ -6,7 +6,7 @@
       <div class="d-flex justify-end gap-4">
         <SubmitTravel
           v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT"
-          :submission-id="item.preTSubID"
+          :submission-id="item.id"
           :edit-button="true"
           button-name="Edit"
           :travel-requests="travelAuthorizationPreApprovals"
@@ -16,15 +16,28 @@
         <ApproveTravel
           v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED"
           :travel-requests="item.preApprovals"
-          :submission-id="item.preTSubID"
+          :submission-id="item.id"
           @updateTable="refresh"
         />
         <PrintReport
-          :id="item.preTSubID"
+          :id="item.id"
           :travel-requests="item.preApprovals"
           :button-inside-table="true"
           button-name="Print"
         />
+        <v-btn
+          class="my-0"
+          small
+          color="secondary"
+          :to="{
+            name: 'travel-pre-approval-submissions/TravelPreApprovalSubmissionPage',
+            params: {
+              travelAuthorizationPreApprovalSubmissionId: item.id,
+            },
+          }"
+        >
+          View
+        </v-btn>
       </div>
     </template>
   </TravelAuthorizationPreApprovalSubmissionsDataTable>
