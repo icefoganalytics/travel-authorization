@@ -8,8 +8,16 @@
     title="Submit Travel Pre-Approval Requests"
   >
     <v-row>
-      <v-col> <DescriptionElement label="???" /> </v-col>
+      <v-col>
+        <DescriptionElement label="Creator">
+          <UserChip :user-id="travelAuthorizationPreApprovalSubmission.creatorId" />
+        </DescriptionElement>
+      </v-col>
     </v-row>
+    <TravelAuthorizationPreApprovalSubmissionCard
+      v-if="isApprovedOrDeclined"
+      :travel-authorization-pre-approval-submission-id="travelAuthorizationPreApprovalSubmissionId"
+    />
     <v-row>
       <v-col>
         <!-- TODO: move to component? -->
@@ -34,12 +42,16 @@
 import { computed, ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useTravelAuthorizationPreApprovalSubmission, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
+} from "@/use/use-travel-authorization-pre-approval-submission"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
+import UserChip from "@/components/users/UserChip.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
-import useBreadcrumbs from "@/use/use-breadcrumbs"
+import TravelAuthorizationPreApprovalSubmissionCard from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionCard.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {
@@ -56,6 +68,14 @@ const travelAuthorizationPreApprovals = computed(() => {
   return travelAuthorizationPreApprovalSubmission.value?.preApprovals ?? []
 })
 
+const isApprovedOrDeclined = computed(() => {
+  return (
+    travelAuthorizationPreApprovalSubmission.value?.status ===
+      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.APPROVED ||
+    travelAuthorizationPreApprovalSubmission.value?.status ===
+      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DECLINED
+  )
+})
 const headers = ref([
   {
     text: "Name",
