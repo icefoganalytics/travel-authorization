@@ -5,42 +5,76 @@
   />
   <HeaderActionsCard
     v-else
-    title="Submit Travel Pre-Approval Requests"
+    title="Travel Pre-Approval Submission"
   >
     <v-row>
+      <v-col>
+        <DescriptionElement label="Status">
+          <TravelAuthorizationPreApprovalStatusChip
+            :status="travelAuthorizationPreApprovalSubmission.status"
+          />
+        </DescriptionElement>
+      </v-col>
       <v-col>
         <DescriptionElement label="Creator">
           <UserChip :user-id="travelAuthorizationPreApprovalSubmission.creatorId" />
         </DescriptionElement>
       </v-col>
     </v-row>
-    <TravelAuthorizationPreApprovalSubmissionCard
-      v-if="isApprovedOrDeclined"
-      :travel-authorization-pre-approval-submission-id="travelAuthorizationPreApprovalSubmissionId"
-    />
+    <template v-if="isApproved">
+      <v-row>
+        <v-col>
+          <DescriptionElement
+            label="Approved By"
+            vertical
+          >
+            <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
+          </DescriptionElement>
+        </v-col>
+        <v-col>
+          <DescriptionElement
+            label="Approval Date"
+            :value="formatDate(travelAuthorizationPreApprovalSubmission.approvedAt)"
+            vertical
+          />
+        </v-col>
+      </v-row>
+    </template>
+    <template v-else-if="isRejected">
+      <v-row>
+        <v-col>
+          <DescriptionElement
+            label="Signed By"
+            vertical
+          >
+            <UserChip :user-id="travelAuthorizationPreApprovalSubmission.rejectorId" />
+          </DescriptionElement>
+        </v-col>
+        <v-col>
+          <DescriptionElement
+            label="Date"
+            :value="formatDate(travelAuthorizationPreApprovalSubmission.rejectedAt)"
+            vertical
+          />
+        </v-col>
+      </v-row>
+    </template>
     <v-row>
       <v-col>
-        <!-- TODO: move to component? -->
-        <v-data-table
-          :headers="headers"
-          :items="travelAuthorizationPreApprovals"
-          :items-per-page="5"
-          hide-default-footer
-        >
-          <template #item.name="{ item }">
-            <VTravelAuthorizationPreApprovalProfilesChip
-              :travel-authorization-pre-approval="item"
-            />
-          </template>
-        </v-data-table>
+        <TravelAuthorizationPreApprovalsSimpleDataTable
+          :where="travelAuthorizationPreApprovalsWhere"
+          route-query-suffix="Requests"
+        />
       </v-col>
     </v-row>
   </HeaderActionsCard>
 </template>
 
 <script setup>
-import { computed, ref, toRefs } from "vue"
+import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
+
+import { formatDate } from "@/utils/formatters"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useTravelAuthorizationPreApprovalSubmission, {
@@ -50,8 +84,8 @@ import useTravelAuthorizationPreApprovalSubmission, {
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import UserChip from "@/components/users/UserChip.vue"
-import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
-import TravelAuthorizationPreApprovalSubmissionCard from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionCard.vue"
+import TravelAuthorizationPreApprovalStatusChip from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalStatusChip.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {
@@ -64,36 +98,22 @@ const { travelAuthorizationPreApprovalSubmissionId } = toRefs(props)
 const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreApprovalSubmission(
   travelAuthorizationPreApprovalSubmissionId
 )
-const travelAuthorizationPreApprovals = computed(() => {
-  return travelAuthorizationPreApprovalSubmission.value?.preApprovals ?? []
-})
+const travelAuthorizationPreApprovalsWhere = computed(() => ({
+  submissionId: props.travelAuthorizationPreApprovalSubmissionId,
+}))
 
-const isApprovedOrDeclined = computed(() => {
+const isApproved = computed(() => {
   return (
     travelAuthorizationPreApprovalSubmission.value?.status ===
-      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.APPROVED ||
-    travelAuthorizationPreApprovalSubmission.value?.status ===
-      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DECLINED
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.APPROVED
   )
 })
-const headers = ref([
-  {
-    text: "Name",
-    value: "name",
-  },
-  {
-    text: "Branch",
-    value: "branch",
-  },
-  {
-    text: "Reason",
-    value: "reason",
-  },
-  {
-    text: "Location",
-    value: "location",
-  },
-])
+const isRejected = computed(() => {
+  return (
+    travelAuthorizationPreApprovalSubmission.value?.status ===
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.REJECTED
+  )
+})
 
 useBreadcrumbs([
   {
