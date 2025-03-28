@@ -14,18 +14,15 @@
           @updateTable="refresh"
         />
         <ApproveTravel
-          v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED"
+          v-else-if="
+            item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED
+          "
           :travel-requests="item.preApprovals"
           :submission-id="item.id"
           @updateTable="refresh"
         />
-        <PrintReport
-          :id="item.id"
-          :travel-requests="item.preApprovals"
-          :button-inside-table="true"
-          button-name="Print"
-        />
         <v-btn
+          v-else
           class="my-0"
           small
           color="secondary"
@@ -38,6 +35,12 @@
         >
           View
         </v-btn>
+        <PrintReport
+          :id="item.id"
+          :travel-requests="item.preApprovals"
+          :button-inside-table="true"
+          button-name="Print"
+        />
       </div>
     </template>
   </TravelAuthorizationPreApprovalSubmissionsDataTable>
