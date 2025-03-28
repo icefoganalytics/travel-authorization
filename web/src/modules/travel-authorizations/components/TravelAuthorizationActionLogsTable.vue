@@ -8,10 +8,10 @@
       {{ formatAction(value) }}
     </template>
     <template #item.actorId="{ value }">
-      <UserChipMenu :user-id="value" />
+      <UserChip :user-id="value" />
     </template>
     <template #item.assigneeId="{ value }">
-      <UserChipMenu :user-id="value" />
+      <UserChip :user-id="value" />
     </template>
     <template #item.createdAt="{ value }">
       {{ formatDate(value) }}
@@ -27,7 +27,7 @@ import { computed } from "vue"
 import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { useTravelAuthorizationActionLogs } from "@/use/use-travel-authorization-action-logs"
 
-import UserChipMenu from "@/components/users/UserChipMenu.vue"
+import UserChip from "@/components/users/UserChip.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

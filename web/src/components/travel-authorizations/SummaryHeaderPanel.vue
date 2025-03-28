@@ -54,7 +54,7 @@
           md="2"
           class="d-flex align-center"
         >
-          <UserChipMenu :user-id="currentUser.id" />
+          <UserChip :user-id="currentUser.id" />
         </v-col>
       </v-row>
     </v-card-text>
@@ -72,7 +72,7 @@ import useCurrentUser from "@/use/use-current-user"
 import { useTravelAuthorization } from "@/use/use-travel-authorization"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
-import UserChipMenu from "@/components/users/UserChipMenu.vue"
+import UserChip from "@/components/users/UserChip.vue"
 import LocationDescriptionElement from "@/components/locations/LocationDescriptionElement.vue"
 
 const props = defineProps({

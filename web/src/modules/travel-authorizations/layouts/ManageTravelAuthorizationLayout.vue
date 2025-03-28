@@ -6,7 +6,7 @@
     <h1 class="d-flex justify-space-between">
       <span>
         Travel -
-        <UserChipMenu :user-id="travelAuthorizationUser.id" />
+        <UserChip :user-id="travelAuthorizationUser.id" />
       </span>
       <v-tooltip bottom>
         <template #activator="{ on, attrs }">
@@ -53,7 +53,7 @@ import useTravelAuthorization from "@/use/use-travel-authorization"
 import Breadcrumbs from "@/components/Breadcrumbs.vue"
 import PageLoader from "@/components/PageLoader.vue"
 import SummaryHeaderPanelLegacy from "@/components/travel-authorizations/SummaryHeaderPanelLegacy.vue"
-import UserChipMenu from "@/components/users/UserChipMenu.vue"
+import UserChip from "@/components/users/UserChip.vue"
 
 import DetailsTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/DetailsTab.vue"
 import EstimateTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/EstimateTab.vue"
