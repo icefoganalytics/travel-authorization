@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: consider making this a "page" instead of a dialog -->
   <v-dialog
     :value="showSubmissionDialog"
     persistent
