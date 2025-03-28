@@ -34,8 +34,10 @@ export class TravelAuthorizationPreApprovalSubmission extends Model<
 
   declare id: CreationOptional<number>
   declare creatorId: ForeignKey<User["id"]>
-  declare approverId: ForeignKey<User["id"]>
+  declare approverId: ForeignKey<User["id"]> | null
   declare approvedAt: Date | null
+  declare rejectorId: ForeignKey<User["id"]> | null
+  declare rejectedAt: Date | null
   declare status: TravelAuthorizationPreApprovalSubmissionStatuses
   declare department: string
   declare createdAt: CreationOptional<Date>
@@ -106,6 +108,18 @@ TravelAuthorizationPreApprovalSubmission.init(
       },
     },
     approvedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    rejectorId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
+    rejectedAt: {
       type: DataTypes.DATE,
       allowNull: true,
     },
