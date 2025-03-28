@@ -22,6 +22,13 @@
     <template #item.name="{ item }">
       <VTravelAuthorizationPreApprovalProfilesChip :travel-authorization-pre-approval="item" />
     </template>
+
+    <template #item.actions="slotProps">
+      <slot
+        name="item.actions"
+        v-bind="slotProps"
+      ></slot>
+    </template>
   </v-data-table>
 </template>
 
@@ -53,28 +60,43 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showActionsHeader: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const headers = [
-  {
-    text: "Name",
-    value: "name",
-    sortable: false,
-  },
-  {
-    text: "Branch",
-    value: "branch",
-  },
-  {
-    text: "Reason",
-    value: "reason",
-    sortable: false,
-  },
-  {
-    text: "Location",
-    value: "location",
-  },
-]
+const headers = computed(() => {
+  const baseHeaders = [
+    {
+      text: "Name",
+      value: "name",
+      sortable: false,
+    },
+    {
+      text: "Branch",
+      value: "branch",
+    },
+    {
+      text: "Reason",
+      value: "reason",
+      sortable: false,
+    },
+    {
+      text: "Location",
+      value: "location",
+    },
+  ]
+
+  if (props.showActionsHeader) {
+    baseHeaders.push({
+      text: "Actions",
+      value: "actions",
+      sortable: false,
+    })
+  }
+  return baseHeaders
+})
 
 const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformer,

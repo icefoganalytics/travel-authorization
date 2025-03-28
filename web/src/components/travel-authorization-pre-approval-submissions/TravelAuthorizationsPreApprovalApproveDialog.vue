@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: consider if this should just be a page? -->
   <v-dialog
     v-model="showDialog"
     persistent
@@ -69,16 +70,13 @@
         </v-col>
       </v-row>
 
-      <v-row class="mt-1 mb-5">
+      <v-row>
         <v-col>
-          <v-data-table
-            :key="tableRefreshKey"
-            :items="travelAuthorizationPreApprovals"
-            :headers="headers"
-            :items-per-page="5"
-            :loading="isLoading"
-            :server-items-length="totalTravelAuthorizationPreApprovalsTotalCount"
-            hide-default-footer
+          <TravelAuthorizationPreApprovalsSimpleDataTable
+            :where="travelAuthorizationPreApprovalsWhere"
+            show-actions-header
+            :hide-default-footer="false"
+            route-query-suffix="Request"
           >
             <template #item.name="{ item }">
               <VTravelAuthorizationPreApprovalProfilesChip
@@ -87,37 +85,49 @@
             </template>
 
             <template #item.actions="{ item }">
-              <TravelAuthorizationPreApprovalStatusChip
-                v-if="markedAsApprovedOrRejected(item.id)"
-                :status="markedTravelAuthorizationPreApprovalMaps.get(item.id)"
-              />
-              <template v-else>
-                <v-btn
-                  class="my-0"
-                  color="success"
-                  @click="markAsApproved(item.id)"
-                >
-                  Approve
-                </v-btn>
-                <v-btn
-                  class="my-0 ml-0 ml-md-2 mt-2 mt-md-0"
-                  color="error"
-                  @click="markAsRejected(item.id)"
-                >
-                  Decline
-                </v-btn>
-              </template>
+              <div
+                :key="rowRefreshKey"
+                class="d-flex flex-column flex-md-row justify-end"
+              >
+                <template v-if="markedAsApprovedOrRejected(item.id)">
+                  <TravelAuthorizationPreApprovalStatusChip
+                    :status="markedTravelAuthorizationPreApprovalMaps.get(item.id)"
+                  />
+                  <v-btn
+                    class="my-0 ml-0 ml-md-2 mt-2 mt-md-0"
+                    color="warning"
+                    small
+                    outlined
+                    @click="unmark(item.id)"
+                  >
+                    Revert
+                  </v-btn>
+                </template>
+                <template v-else>
+                  <v-btn
+                    class="my-0"
+                    color="success"
+                    @click="markAsApproved(item.id)"
+                  >
+                    Approve
+                  </v-btn>
+                  <v-btn
+                    class="my-0 ml-0 ml-md-2 mt-2 mt-md-0"
+                    color="error"
+                    @click="markAsRejected(item.id)"
+                  >
+                    Decline
+                  </v-btn>
+                </template>
+              </div>
             </template>
-          </v-data-table>
+          </TravelAuthorizationPreApprovalsSimpleDataTable>
         </v-col>
       </v-row>
 
       <v-alert
         v-model="showAlert"
-        dense
-        color="error"
-        dark
-        dismissible
+        type="error"
       >
         Please select either 'Approved' or 'Declined' status for all the records.
       </v-alert>
@@ -164,6 +174,7 @@ import useTravelAuthorizationPreApprovalSubmission, {
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 import TravelAuthorizationPreApprovalStatusChip from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalStatusChip.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
 const emit = defineEmits(["approved"])
@@ -177,49 +188,16 @@ const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreAp
   travelAuthorizationPreApprovalSubmissionId
 )
 
-const headers = ref([
-  {
-    text: "Name",
-    value: "name",
-    sortable: false,
-  },
-  {
-    text: "Branch",
-    value: "branch",
-  },
-  {
-    text: "Reason",
-    value: "reason",
-  },
-  {
-    text: "Location",
-    value: "location",
-  },
-  {
-    text: "Actions",
-    align: "center",
-    value: "actions",
-    sortable: false,
-  },
-])
-
-const travelAuthorizationPreApprovalsQuery = computed(() => ({
-  where: {
-    submissionId: travelAuthorizationPreApprovalSubmissionId.value,
-  },
+const travelAuthorizationPreApprovalsWhere = computed(() => ({
+  submissionId: travelAuthorizationPreApprovalSubmissionId.value,
 }))
-const {
-  travelAuthorizationPreApprovals,
-  totalCount: totalTravelAuthorizationPreApprovalsTotalCount,
-  isLoading,
-} = useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
 
 const approvedBy = ref(null)
 const approvedAt = ref(null)
 const approvalDocument = ref(null)
-const markedTravelAuthorizationPreApprovalMaps = ref(new Map())
 
-const tableRefreshKey = ref(0)
+const markedTravelAuthorizationPreApprovalMaps = ref(new Map())
+const rowRefreshKey = ref(0)
 
 function markedAsApprovedOrRejected(travelAuthorizationPreApprovalId) {
   return markedTravelAuthorizationPreApprovalMaps.value.has(travelAuthorizationPreApprovalId)
@@ -230,7 +208,8 @@ function markAsApproved(travelAuthorizationPreApprovalId) {
     travelAuthorizationPreApprovalId,
     TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
   )
-  tableRefreshKey.value += 1
+  showAlert.value = false
+  rowRefreshKey.value += 1
 }
 
 function markAsRejected(travelAuthorizationPreApprovalId) {
@@ -238,7 +217,14 @@ function markAsRejected(travelAuthorizationPreApprovalId) {
     travelAuthorizationPreApprovalId,
     TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED
   )
-  tableRefreshKey.value += 1
+  showAlert.value = false
+  rowRefreshKey.value += 1
+}
+
+function unmark(travelAuthorizationPreApprovalId) {
+  markedTravelAuthorizationPreApprovalMaps.value.delete(travelAuthorizationPreApprovalId)
+  showAlert.value = false
+  rowRefreshKey.value += 1
 }
 
 const showAlert = ref(false)
@@ -247,6 +233,13 @@ const snack = useSnack()
 
 /** @type {import('vue').Ref<InstanceType<typeof HeaderActionsFormCard> | null>} */
 const headerActionsFormCard = ref(null)
+
+const travelAuthorizationPreApprovalsQuery = computed(() => ({
+  where: travelAuthorizationPreApprovalsWhere.value,
+  perPage: 1, // We only want the total count, not the actual records.
+}))
+const { totalCount: totalTravelAuthorizationPreApprovalsTotalCount } =
+  useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
 
 async function approve() {
   if (headerActionsFormCard.value === null) return
@@ -310,11 +303,12 @@ function show(newTravelAuthorizationPreApprovalSubmissionId) {
 
 function hide() {
   travelAuthorizationPreApprovalSubmissionId.value = undefined
-  tableRefreshKey.value = new Date().getTime()
-  markedTravelAuthorizationPreApprovalMaps.value.clear()
-  approvalDocument.value = null
   approvedBy.value = null
   approvedAt.value = null
+  approvalDocument.value = null
+  markedTravelAuthorizationPreApprovalMaps.value.clear()
+  rowRefreshKey.value = 0
+  showAlert.value = false
 }
 
 function hideIfFalse(value) {
