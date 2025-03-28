@@ -1,48 +1,48 @@
 <template>
   <v-dialog
-    v-model="approveTravelDialog"
+    v-model="showDialog"
     persistent
     max-width="950px"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
   >
-    <template #activator="{ on, attrs }">
-      <v-btn
-        small
-        class="my-0"
-        color="primary"
-        v-bind="attrs"
-        v-on="on"
-        @click="extractTravelRequests"
-      >
-        Approve
-      </v-btn>
-    </template>
-
     <HeaderActionsFormCard
       ref="headerActionsFormCard"
       title="Approval"
-      @submit.prevent="saveApproval"
+      @submit.prevent="approve"
     >
-      <v-row class="mt-10">
-        <v-col cols="6">
-          <v-text-field
-            v-model="approvedBy"
+      <v-row>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <YgEmployeeAutocomplete
+            v-model="travelAuthorizationPreApprovalSubmission.approverId"
             label="Approved By"
             outlined
             :rules="[required]"
           />
         </v-col>
-        <v-col cols="1" />
-        <v-col cols="3">
+        <v-col
+          class="d-none d-md-block"
+          cols="1"
+        />
+        <v-col
+          cols="12"
+          md="3"
+        >
           <v-text-field
-            v-model="approvalDate"
-            :error="approvalDateErr"
+            v-model="travelAuthorizationPreApprovalSubmission.approvedAt"
             label="Approval Date"
+            :rules="[required]"
             outlined
             type="date"
-            @input="approvalDateErr = false"
           />
         </v-col>
-        <v-col cols="1" />
+        <v-col
+          class="d-none d-md-block"
+          cols="1"
+        />
       </v-row>
 
       <v-row
@@ -86,8 +86,8 @@
       <v-row class="mt-1 mb-5">
         <v-col>
           <v-data-table
+            :items="travelAuthorizationPreApprovals"
             :headers="headers"
-            :items="approvalRequests"
             :items-per-page="5"
             hide-default-footer
           >
@@ -119,6 +119,7 @@
           </v-data-table>
         </v-col>
       </v-row>
+
       <v-alert
         v-model="alert"
         dense
@@ -131,16 +132,17 @@
 
       <template #actions>
         <v-btn
+          :loading="isSaving"
           color="success"
           type="submit"
-          :loading="savingData"
         >
           Approve
         </v-btn>
         <v-btn
+          :loading="isSaving"
           color="warning"
           outlined
-          @click="approveTravelDialog = false"
+          @click="hide"
         >
           Cancel
         </v-btn>
@@ -150,30 +152,35 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed, ref } from "vue"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
+import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
 
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
+import useSnack from "@/use/use-snack"
+import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
+import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
+
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
+import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
-const props = defineProps({
-  travelRequests: {
-    type: Array,
-    default: () => [],
-  },
-  submissionId: {
-    type: Number,
-    required: true,
-  },
+const emit = defineEmits(["approved"])
+
+const travelAuthorizationPreApprovalSubmissionId = useRouteQuery("showApprovalDialog", undefined, {
+  transform: jsonTransformer,
 })
+const showDialog = computed(() => !isNil(travelAuthorizationPreApprovalSubmissionId.value))
 
-const emit = defineEmits(["updateTable"])
+const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreApprovalSubmission(
+  travelAuthorizationPreApprovalSubmissionId
+)
 
 const headers = ref([
   {
@@ -200,35 +207,30 @@ const headers = ref([
   },
 ])
 
+const travelAuthorizationPreApprovalsQuery = computed(() => ({
+  where: {
+    submissionId: travelAuthorizationPreApprovalSubmissionId.value,
+  },
+}))
+const { travelAuthorizationPreApprovals } = useTravelAuthorizationPreApprovals(
+  travelAuthorizationPreApprovalsQuery
+)
+
 const approvalRequests = ref([])
 const approvedBy = ref("")
-const approvedByErr = ref(false)
 const approvalDate = ref("")
-const approvalDateErr = ref(false)
 const statusList = ref([
   { text: "Approved", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED },
   { text: "Declined", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED },
   { text: "Submitted", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED },
 ])
-const approveTravelDialog = ref(false)
 const approvalFileType = ref("")
 const approvalFileName = ref("")
 const alert = ref(false)
 const alertMsg = ref("")
-const savingData = ref(false)
+const isSaving = ref(false)
 const reader = ref(new FileReader())
 const update = ref(0)
-
-function extractTravelRequests() {
-  alert.value = false
-  approvalFileName.value = ""
-  approvalFileType.value = ""
-  approvedBy.value = ""
-  approvalDate.value = ""
-  approvedByErr.value = false
-  approvalDateErr.value = false
-  approvalRequests.value = JSON.parse(JSON.stringify(props.travelRequests))
-}
 
 function uploadApproval() {
   alert.value = false
@@ -256,10 +258,6 @@ function handleSelectedFile(event) {
 function checkFields() {
   alert.value = false
 
-  approvedByErr.value = approvedBy.value ? false : true
-  approvalDateErr.value = approvalDate.value ? false : true
-  if (approvedByErr.value || approvalDateErr.value) return false
-
   for (const request of approvalRequests.value) {
     if (
       ![
@@ -275,54 +273,76 @@ function checkFields() {
   return true
 }
 
-async function saveApproval() {
-  alert.value = false
+const snack = useSnack()
 
-  if (checkFields()) {
-    if (!reader.value?.result || approvalFileType.value != "application/pdf") {
-      alertMsg.value = "Please upload the approval PDF file."
-      alert.value = true
-      return
-    }
+async function approve() {
+  if (!checkFields()) return
+  if (!reader.value?.result || approvalFileType.value != "application/pdf") {
+    alertMsg.value = "Please upload the approval PDF file."
+    alert.value = true
+    return
+  }
 
-    savingData.value = true
-    const data = {
-      status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED,
-      approvalDate: approvalDate.value,
-      approvedBy: approvedBy.value,
-      preApprovals: approvalRequests.value.map((req) => {
-        return {
-          id: req.id,
-          status: req.status,
-        }
-      }),
-    }
-    const bodyFormData = new FormData()
-    bodyFormData.append("file", reader.value.result)
-    bodyFormData.append("data", JSON.stringify(data))
+  isSaving.value = true
+  const data = {
+    status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED,
+    approvalDate: approvalDate.value,
+    approvedBy: approvedBy.value,
+    preApprovals: approvalRequests.value.map((req) => {
+      return {
+        id: req.id,
+        status: req.status,
+      }
+    }),
+  }
+  const bodyFormData = new FormData()
+  bodyFormData.append("file", reader.value.result)
+  bodyFormData.append("data", JSON.stringify(data))
 
-    const header = {
-      responseType: "application/pdf",
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+  const header = {
+    responseType: "application/pdf",
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }
 
-    return http
-      .post(`${PREAPPROVED_URL}/approval/${props.submissionId}`, bodyFormData, header)
-      .then(() => {
-        savingData.value = false
-        approveTravelDialog.value = false
-        emit("updateTable")
-      })
-      .catch((e) => {
-        savingData.value = false
-        console.log(e.response.data)
-        alertMsg.value = e.response.data
-        alert.value = true
-      })
+  try {
+    await http.post(
+      `${PREAPPROVED_URL}/approval/${travelAuthorizationPreApprovalSubmissionId.value}`,
+      bodyFormData,
+      header
+    )
+    snack.success("Travel pre-approval submission approved.")
+    emit("approved", travelAuthorizationPreApprovalSubmissionId.value)
+    hide()
+  } catch (error) {
+    console.error(`Error approving travel authorization pre-approval submission: ${error}`, {
+      error,
+    })
+    snack.error(`Failed to approve travel pre-approval submission: ${error}`)
+  } finally {
+    isSaving.value = false
   }
 }
+
+function show(newTravelAuthorizationPreApprovalSubmissionId) {
+  travelAuthorizationPreApprovalSubmissionId.value = newTravelAuthorizationPreApprovalSubmissionId
+}
+
+function hide() {
+  travelAuthorizationPreApprovalSubmissionId.value = undefined
+}
+
+function hideIfFalse(value) {
+  if (value !== false) return
+
+  hide()
+}
+
+defineExpose({
+  show,
+  hide,
+})
 </script>
 
 <style scoped>

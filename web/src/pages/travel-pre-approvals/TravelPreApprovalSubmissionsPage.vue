@@ -2,6 +2,12 @@
   <TravelAuthorizationPreApprovalSubmissionsDataTable
     ref="travelAuthorizationPreApprovalSubmissionsDataTable"
   >
+    <template #top>
+      <TravelAuthorizationsPreApprovalApproveDialog
+        ref="travelAuthorizationsPreApprovalApproveDialog"
+        @approved="refresh"
+      />
+    </template>
     <template #item.actions="{ item }">
       <div class="d-flex justify-end gap-4">
         <SubmitTravel
@@ -13,14 +19,17 @@
           :selected-requests="item.preApprovals"
           @updateTable="refresh"
         />
-        <TravelAuthorizationsPreApprovalApproveDialog
+        <v-btn
           v-else-if="
             item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED
           "
-          :travel-requests="item.preApprovals"
-          :submission-id="item.id"
-          @updateTable="refresh"
-        />
+          class="my-0"
+          color="primary"
+          small
+          @click="showTravelAuthorizationsPreApprovalApproveDialog(item.id)"
+        >
+          Approve
+        </v-btn>
         <v-btn
           v-else
           class="my-0"
@@ -60,6 +69,17 @@ import TravelAuthorizationPreApprovalSubmissionsDataTable from "@/components/tra
 
 const { travelAuthorizationPreApprovals, refresh: refreshPreApprovals } =
   useTravelAuthorizationPreApprovals()
+
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationsPreApprovalApproveDialog> | null>} */
+const travelAuthorizationsPreApprovalApproveDialog = ref(null)
+
+function showTravelAuthorizationsPreApprovalApproveDialog(
+  travelAuthorizationPreApprovalSubmissionId
+) {
+  travelAuthorizationsPreApprovalApproveDialog.value?.show(
+    travelAuthorizationPreApprovalSubmissionId
+  )
+}
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionsDataTable> | null>} */
 const travelAuthorizationPreApprovalSubmissionsDataTable = ref(null)
