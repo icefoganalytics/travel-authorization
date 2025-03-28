@@ -13,7 +13,7 @@
           :selected-requests="item.preApprovals"
           @updateTable="refresh"
         />
-        <ApproveTravel
+        <TravelAuthorizationsPreApprovalApproveDialog
           v-else-if="
             item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED
           "
@@ -55,7 +55,7 @@ import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-p
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
-import ApproveTravel from "@/modules/preapproved/views/Submissions/ApproveTravel.vue"
+import TravelAuthorizationsPreApprovalApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalApproveDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionsDataTable from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTable.vue"
 
 const { travelAuthorizationPreApprovals, refresh: refreshPreApprovals } =
