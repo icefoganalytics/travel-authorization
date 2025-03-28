@@ -5,7 +5,7 @@
     style="min-width: fit-content"
     color="teal"
     text-color="white"
-    pill
+    link
   >
     <v-progress-circular
       v-if="isLoading"
