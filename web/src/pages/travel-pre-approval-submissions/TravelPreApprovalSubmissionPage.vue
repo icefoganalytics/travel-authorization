@@ -10,7 +10,7 @@
     <v-row>
       <v-col>
         <DescriptionElement label="Status">
-          <TravelAuthorizationPreApprovalStatusChip
+          <TravelAuthorizationPreApprovalSubmissionStatusChip
             :status="travelAuthorizationPreApprovalSubmission.status"
           />
         </DescriptionElement>
@@ -84,7 +84,7 @@ import useTravelAuthorizationPreApprovalSubmission, {
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import UserChip from "@/components/users/UserChip.vue"
-import TravelAuthorizationPreApprovalStatusChip from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalStatusChip.vue"
+import TravelAuthorizationPreApprovalSubmissionStatusChip from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionStatusChip.vue"
 import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
 
 const props = defineProps({

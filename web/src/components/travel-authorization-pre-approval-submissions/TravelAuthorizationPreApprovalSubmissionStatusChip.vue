@@ -9,7 +9,7 @@ import { computed } from "vue"
 
 import { useI18n } from "@/plugins/vue-i18n-plugin"
 
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/use/use-travel-authorization-pre-approval-submission"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
 const props = defineProps({
   status: {
