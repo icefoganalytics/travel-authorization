@@ -152,7 +152,7 @@ async function submitTravelRequest(status) {
   const department = firstTravelAuthorizationPreApproval.department
 
   try {
-    travelAuthorizationPreApprovalSubmissionsApi.create({
+    await travelAuthorizationPreApprovalSubmissionsApi.create({
       department,
       status,
       preApprovalIds: travelAuthorizationPreApprovalIds.value,
