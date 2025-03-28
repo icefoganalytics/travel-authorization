@@ -6,9 +6,15 @@
     @keydown.esc="hide"
     @input="hideIfFalse"
   >
+    <v-skeleton-loader
+      v-if="isNil(travelAuthorizationPreApprovalSubmission)"
+      type="card"
+    />
     <HeaderActionsFormCard
+      v-else
       ref="headerActionsFormCard"
       title="Approval"
+      lazy-validation
       @submit.prevent="approve"
     >
       <v-row>
@@ -45,41 +51,21 @@
         />
       </v-row>
 
-      <v-row
-        class="mt-1 mb-5"
-        align="center"
-        justify="center"
-      >
-        <v-col cols="4">
-          <v-btn
-            class="ml-1"
-            color="primary"
-            @click="uploadApproval"
-          >
-            Upload Approval
-            <input
-              id="inputfile"
-              type="file"
-              style="display: none"
-              accept="application/pdf,image/x-png,image/jpeg"
-              onclick="this.value=null;"
-              @change="handleSelectedFile"
-            />
-          </v-btn>
-        </v-col>
-        <v-col cols="1" />
+      <v-row>
         <v-col
-          :key="update"
-          class="blue--text text-h6 text-decoration-underline"
-          cols="7"
+          cols="12"
+          md="6"
         >
-          <a
-            v-if="reader.result"
-            :href="reader.result"
-            download="UploadedFile.pdf"
-            target="_blank"
-            >{{ approvalFileName }}</a
-          >
+          <v-file-input
+            v-model="approvalDocument"
+            accept="application/pdf,image/x-png,image/jpeg"
+            label="Approval Document"
+            placeholder="Upload approval"
+            hint="Only PDF, PNG, and JPEG files are allowed"
+            :rules="[required]"
+            persistent-hint
+            outlined
+          />
         </v-col>
       </v-row>
 
@@ -89,6 +75,8 @@
             :items="travelAuthorizationPreApprovals"
             :headers="headers"
             :items-per-page="5"
+            :loading="isLoading"
+            :server-items-length="totalTravelAuthorizationPreApprovalsTotalCount"
             hide-default-footer
           >
             <template #item.name="{ item }">
@@ -98,36 +86,39 @@
             </template>
 
             <template #item.actions="{ item }">
-              <v-select
-                v-model="item.status"
-                :background-color="
-                  item.status == 'declined'
-                    ? 'red lighten-4'
-                    : item.status == 'approved'
-                      ? 'green lighten-4'
-                      : 'grey lighten-4'
-                "
-                class="my-0 py-0"
-                dense
-                hide-details
-                :items="statusList"
-                label=""
-                solo
-                @change="alert = false"
+              <TravelAuthorizationPreApprovalStatusChip
+                v-if="markedAsApprovedOrRejected(item.id)"
+                :status="markedTravelAuthorizationPreApprovalMaps.get(item.id)"
               />
+              <template v-else>
+                <v-btn
+                  class="my-0"
+                  color="success"
+                  @click="markAsApproved(item.id)"
+                >
+                  Approve
+                </v-btn>
+                <v-btn
+                  class="my-0 ml-0 ml-md-2 mt-2 mt-md-0"
+                  color="error"
+                  @click="markAsRejected(item.id)"
+                >
+                  Decline
+                </v-btn>
+              </template>
             </template>
           </v-data-table>
         </v-col>
       </v-row>
 
       <v-alert
-        v-model="alert"
+        v-model="showAlert"
         dense
-        color="red darken-4"
+        color="error"
         dark
         dismissible
       >
-        {{ alertMsg }}
+        Please select either 'Approved' or 'Declined' status for all the records.
       </v-alert>
 
       <template #actions>
@@ -160,15 +151,18 @@ import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
 
 import { PREAPPROVED_URL } from "@/urls"
 import http from "@/api/http-client"
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
 import useSnack from "@/use/use-snack"
-import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
-import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
+import useTravelAuthorizationPreApprovals, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
+} from "@/use/use-travel-authorization-pre-approvals"
+import useTravelAuthorizationPreApprovalSubmission, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
+} from "@/use/use-travel-authorization-pre-approval-submission"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
+import TravelAuthorizationPreApprovalStatusChip from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalStatusChip.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
 const emit = defineEmits(["approved"])
@@ -202,6 +196,7 @@ const headers = ref([
   },
   {
     text: "Actions",
+    align: "center",
     value: "actions",
     sortable: false,
   },
@@ -212,91 +207,70 @@ const travelAuthorizationPreApprovalsQuery = computed(() => ({
     submissionId: travelAuthorizationPreApprovalSubmissionId.value,
   },
 }))
-const { travelAuthorizationPreApprovals } = useTravelAuthorizationPreApprovals(
-  travelAuthorizationPreApprovalsQuery
-)
+const {
+  travelAuthorizationPreApprovals,
+  totalCount: totalTravelAuthorizationPreApprovalsTotalCount,
+  isLoading,
+} = useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
 
-const approvalRequests = ref([])
-const approvedBy = ref("")
-const approvalDate = ref("")
-const statusList = ref([
-  { text: "Approved", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED },
-  { text: "Declined", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED },
-  { text: "Submitted", value: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED },
-])
-const approvalFileType = ref("")
-const approvalFileName = ref("")
-const alert = ref(false)
-const alertMsg = ref("")
+const approvedBy = ref(null)
+const approvedAt = ref(null)
+const approvalDocument = ref(null)
+const markedTravelAuthorizationPreApprovalMaps = ref(new Map())
+
+function markedAsApprovedOrRejected(travelAuthorizationPreApprovalId) {
+  return markedTravelAuthorizationPreApprovalMaps.value.has(travelAuthorizationPreApprovalId)
+}
+
+function markAsApproved(travelAuthorizationPreApprovalId) {
+  markedTravelAuthorizationPreApprovalMaps.value.set(
+    travelAuthorizationPreApprovalId,
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
+  )
+}
+
+function markAsRejected(travelAuthorizationPreApprovalId) {
+  markedTravelAuthorizationPreApprovalMaps.value.set(
+    travelAuthorizationPreApprovalId,
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED
+  )
+}
+
+const showAlert = ref(false)
 const isSaving = ref(false)
-const reader = ref(new FileReader())
-const update = ref(0)
-
-function uploadApproval() {
-  alert.value = false
-  const el = document.getElementById("inputfile")
-  if (el) el.click()
-}
-
-function handleSelectedFile(event) {
-  event.preventDefault()
-  event.stopPropagation()
-
-  if (event.target.files && event.target.files[0]) {
-    const file = event.target.files[0]
-
-    approvalFileType.value = file.type
-    approvalFileName.value = file.name
-
-    reader.value.onload = () => {
-      update.value++
-    }
-    reader.value.readAsDataURL(file)
-  }
-}
-
-function checkFields() {
-  alert.value = false
-
-  for (const request of approvalRequests.value) {
-    if (
-      ![
-        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED,
-        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED,
-      ].includes(request.status)
-    ) {
-      alertMsg.value = "Please select either 'Approved' or 'Declined' status for all the records."
-      alert.value = true
-      return false
-    }
-  }
-  return true
-}
-
 const snack = useSnack()
 
+/** @type {import('vue').Ref<InstanceType<typeof HeaderActionsFormCard> | null>} */
+const headerActionsFormCard = ref(null)
+
 async function approve() {
-  if (!checkFields()) return
-  if (!reader.value?.result || approvalFileType.value != "application/pdf") {
-    alertMsg.value = "Please upload the approval PDF file."
-    alert.value = true
+  if (headerActionsFormCard.value === null) return
+
+  const valid = await headerActionsFormCard.value.validate()
+  if (!valid) return
+
+  if (
+    markedTravelAuthorizationPreApprovalMaps.value.size !==
+    totalTravelAuthorizationPreApprovalsTotalCount.value
+  ) {
+    showAlert.value = true
     return
   }
 
   isSaving.value = true
   const data = {
     status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED,
-    approvalDate: approvalDate.value,
     approvedBy: approvedBy.value,
-    preApprovals: approvalRequests.value.map((req) => {
+    approvedAt: approvedAt.value,
+    preApprovals: travelAuthorizationPreApprovals.value.map((preApprovalRequest) => {
       return {
-        id: req.id,
-        status: req.status,
+        id: preApprovalRequest.id,
+        status: preApprovalRequest.status,
       }
     }),
   }
   const bodyFormData = new FormData()
-  bodyFormData.append("file", reader.value.result)
+  bodyFormData.append("file", approvalDocument.value)
   bodyFormData.append("data", JSON.stringify(data))
 
   const header = {
