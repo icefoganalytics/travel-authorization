@@ -3,46 +3,33 @@
     <v-card-text>
       <v-row dense>
         <v-col
-          cols="12"
-          md="2"
-          class="d-flex align-center"
+          class="d-flex align-center justify-center justify-md-start"
+          :cols="mdAndUp ? undefined : 12"
         >
           <h2 class="mb-0">Travel</h2>
         </v-col>
-        <v-col
-          cols="12"
-          md="2"
-        >
+        <v-col :cols="mdAndUp ? undefined : 12">
           <DescriptionElement
             label="Purpose"
             :value="purposeText"
             :vertical="mdAndUp"
           />
         </v-col>
-        <v-col
-          cols="12"
-          md="2"
-        >
+        <v-col :cols="mdAndUp ? undefined : 12">
           <LocationDescriptionElement
             label="Final Destination"
             :location-id="finalDestination.locationId"
             :vertical="mdAndUp"
           />
         </v-col>
-        <v-col
-          cols="12"
-          md="2"
-        >
+        <v-col :cols="mdAndUp ? undefined : 12">
           <DescriptionElement
             label="Depart"
             :value="initialDestination.departureDate"
             :vertical="mdAndUp"
           />
         </v-col>
-        <v-col
-          cols="12"
-          md="2"
-        >
+        <v-col :cols="mdAndUp ? undefined : 12">
           <DescriptionElement
             label="Return"
             :value="finalDestinationDepartureDate"
@@ -50,9 +37,8 @@
           />
         </v-col>
         <v-col
-          cols="12"
-          md="2"
-          class="d-flex align-center"
+          class="d-flex align-center justify-center justify-md-start"
+          :cols="mdAndUp ? undefined : 12"
         >
           <UserChip :user-id="currentUser.id" />
         </v-col>
