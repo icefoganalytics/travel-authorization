@@ -20,12 +20,12 @@
           cols="12"
           md="5"
         >
-          <!-- TODO: make dedicated component to load approver (User)-->
           <DescriptionElement
             label="Approved By"
-            :value="travelAuthorizationPreApprovalSubmission.approverId"
             vertical
-          />
+          >
+            <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
+          </DescriptionElement>
         </v-col>
         <v-col
           cols="12"
@@ -77,12 +77,12 @@
           cols="12"
           md="5"
         >
-          <!-- TODO: make dedicated component to load approver (User)-->
           <DescriptionElement
             label="Signed By"
-            :value="travelAuthorizationPreApprovalSubmission.approverId"
             vertical
-          />
+          >
+            <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
+          </DescriptionElement>
         </v-col>
         <v-col
           cols="12"
@@ -135,6 +135,8 @@ import { PREAPPROVED_URL } from "@/urls"
 import useTravelAuthorizationPreApprovalSubmission, {
   TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
 } from "@/use/use-travel-authorization-pre-approval-submission"
+
+import UserChip from "@/components/users/UserChip.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {
