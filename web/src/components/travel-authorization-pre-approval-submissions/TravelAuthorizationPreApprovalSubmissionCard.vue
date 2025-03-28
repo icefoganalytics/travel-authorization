@@ -132,19 +132,19 @@ import { isNil } from "lodash"
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 
-import useTravelAuthorizationPreApprovalSubmissions, {
+import useTravelAuthorizationPreApprovalSubmission, {
   TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
-} from "@/use/use-travel-authorization-pre-approval-submissions"
+} from "@/use/use-travel-authorization-pre-approval-submission"
 
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {
-    type: Number,
+    type: [String, Number],
     required: true,
   },
 })
 
 const { travelAuthorizationPreApprovalSubmissionId } = toRefs(props)
-const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreApprovalSubmissions(
+const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreApprovalSubmission(
   travelAuthorizationPreApprovalSubmissionId
 )
 
