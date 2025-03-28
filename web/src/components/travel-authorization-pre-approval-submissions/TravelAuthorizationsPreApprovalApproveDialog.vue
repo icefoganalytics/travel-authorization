@@ -72,6 +72,7 @@
       <v-row class="mt-1 mb-5">
         <v-col>
           <v-data-table
+            :key="tableRefreshKey"
             :items="travelAuthorizationPreApprovals"
             :headers="headers"
             :items-per-page="5"
@@ -218,6 +219,8 @@ const approvedAt = ref(null)
 const approvalDocument = ref(null)
 const markedTravelAuthorizationPreApprovalMaps = ref(new Map())
 
+const tableRefreshKey = ref(0)
+
 function markedAsApprovedOrRejected(travelAuthorizationPreApprovalId) {
   return markedTravelAuthorizationPreApprovalMaps.value.has(travelAuthorizationPreApprovalId)
 }
@@ -227,6 +230,7 @@ function markAsApproved(travelAuthorizationPreApprovalId) {
     travelAuthorizationPreApprovalId,
     TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
   )
+  tableRefreshKey.value += 1
 }
 
 function markAsRejected(travelAuthorizationPreApprovalId) {
@@ -234,6 +238,7 @@ function markAsRejected(travelAuthorizationPreApprovalId) {
     travelAuthorizationPreApprovalId,
     TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED
   )
+  tableRefreshKey.value += 1
 }
 
 const showAlert = ref(false)
@@ -305,6 +310,11 @@ function show(newTravelAuthorizationPreApprovalSubmissionId) {
 
 function hide() {
   travelAuthorizationPreApprovalSubmissionId.value = undefined
+  tableRefreshKey.value = new Date().getTime()
+  markedTravelAuthorizationPreApprovalMaps.value.clear()
+  approvalDocument.value = null
+  approvedBy.value = null
+  approvedAt.value = null
 }
 
 function hideIfFalse(value) {
