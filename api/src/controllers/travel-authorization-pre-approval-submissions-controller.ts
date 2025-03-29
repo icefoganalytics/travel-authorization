@@ -26,7 +26,7 @@ export class TravelAuthorizationPreApprovalSubmissionsController extends BaseCon
           order,
           include: [
             {
-              association: "preApproval",
+              association: "preApprovals",
               include: ["profiles"],
             },
           ],
@@ -168,7 +168,15 @@ export class TravelAuthorizationPreApprovalSubmissionsController extends BaseCon
 
   private async loadTravelAuthorizationPreApprovalSubmission() {
     return await TravelAuthorizationPreApprovalSubmission.findByPk(
-      this.params.travelAuthorizationPreApprovalSubmissionId
+      this.params.travelAuthorizationPreApprovalSubmissionId,
+      {
+        include: [
+          {
+            association: "preApprovals",
+            include: ["profiles"],
+          },
+        ],
+      }
     )
   }
 

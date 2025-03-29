@@ -1,19 +1,27 @@
 <template>
-  <TravelAuthorizationPreApprovalsDataTable ref="travelAuthorizationPreApprovalsDataTable">
-    <template #top="{ items, selectedItems }">
+  <TravelAuthorizationPreApprovalsDataTable
+    ref="travelAuthorizationPreApprovalsDataTable"
+    v-model="selectedItems"
+  >
+    <template #top>
       <v-row>
         <v-col class="d-flex flex-column flex-md-row align-center">
           <!-- TODO: make all of these buttons full width on small screens -->
           <v-spacer />
-          <SubmitTravel
-            :disabled="isEmpty(selectedItems)"
-            :travel-requests="items"
-            :selected-requests="selectedItems"
-            :submission-id="0"
-            button-name="Submit Selected Travel"
-            @updateTable="refresh"
-          />
+          <v-btn
+            color="primary"
+            :disabled="isEmpty(selectedItemIds)"
+            @click="showTravelAuthorizationPreApprovalSubmissionDialog"
+          >
+            Submit Selected Requests
+            <TravelAuthorizationPreApprovalSubmissionDialog
+              ref="travelAuthorizationPreApprovalSubmissionDialog"
+              @submitted="refresh"
+            />
+          </v-btn>
+
           <PrintReport
+            class="ml-md-4"
             :disabled="isEmpty(selectedItems)"
             :travel-requests="selectedItems"
             button-name="Print Report"
@@ -41,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { isEmpty } from "lodash"
 import { ExportToCsv } from "export-to-csv"
 import { DateTime } from "luxon"
@@ -49,9 +57,22 @@ import { DateTime } from "luxon"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
-import SubmitTravel from "@/modules/preapproved/views/Common/SubmitTravel.vue"
+import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
 
-import TravelAuthorizationPreApprovalsDataTable from "@/components/trave-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
+import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
+
+const selectedItems = ref([])
+
+const selectedItemIds = computed(() => {
+  return selectedItems.value.map((item) => item.id)
+})
+
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionDialog> | null>} */
+const travelAuthorizationPreApprovalSubmissionDialog = ref(null)
+
+function showTravelAuthorizationPreApprovalSubmissionDialog() {
+  travelAuthorizationPreApprovalSubmissionDialog.value?.show(selectedItemIds.value)
+}
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsDataTable> | null>} */
 const travelAuthorizationPreApprovalsDataTable = ref(null)

@@ -5,7 +5,7 @@
 
     <h1>
       Travel -
-      <UserChipMenu :user-id="travelAuthorizationUser.id" />
+      <UserChip :user-id="travelAuthorizationUser.id" />
     </h1>
 
     <SummaryHeaderPanel :travel-authorization-id="travelAuthorizationId" />
@@ -29,7 +29,7 @@ import useTravelAuthorization from "@/use/use-travel-authorization"
 import Breadcrumbs from "@/components/Breadcrumbs.vue"
 import PageLoader from "@/components/PageLoader.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanelLegacy.vue"
-import UserChipMenu from "@/components/users/UserChipMenu.vue"
+import UserChip from "@/components/users/UserChip.vue"
 
 import DetailsTab from "@/modules/travel-authorizations/components/travel-authorization-layout/DetailsTab.vue"
 import EstimateTab from "@/modules/travel-authorizations/components/travel-authorization-layout/EstimateTab.vue"

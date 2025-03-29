@@ -50,7 +50,14 @@ app.use(
   })
 )
 // Adds FormData support
-app.use(fileUpload())
+app.use(
+  fileUpload({
+    // 2 GB, capped by estimated memory size, because current uploads run entirely in memory.
+    // See https://github.com/icefoganalytics/internal-data-portal/issues/95
+    // for how to handle larger files.
+    limits: { fileSize: 2 * 1024 * 1024 * 1024 },
+  })
+)
 
 if (NODE_ENV !== "test") {
   logger.info(`host: ${DB_HOST}`)

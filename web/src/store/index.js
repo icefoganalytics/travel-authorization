@@ -5,7 +5,6 @@ import alerts from "./alerts"
 import auth from "./auth"
 import current from "./current"
 import expenses from "@/store/expenses"
-import preapproved from "./preapproved" // TODO: replace "preapproved" usage with use file concept.
 import reports from "./reports"
 import travelAuthorization from "@/store/travel-authorization"
 import travelAuthorizations from "@/store/travel-authorizations"
@@ -62,7 +61,6 @@ export default new Vuex.Store({
     auth,
     current,
     expenses,
-    preapproved,
     reports,
     travelAuthorization,
     travelAuthorizations,

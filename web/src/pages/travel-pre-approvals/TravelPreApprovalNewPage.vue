@@ -116,7 +116,6 @@
       >
         <MonthSelect
           v-model="travelAuthorizationPreApprovalAttributes.month"
-          :disabled="!travelAuthorizationPreApprovalAttributes.isOpenForAnyDate"
           label="Anticipated Month *"
           :rules="[required]"
           outlined

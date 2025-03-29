@@ -25,32 +25,7 @@
     </template>
 
     <template #item.name="{ item }">
-      <template v-if="item.profiles.length === 0"> Unspecified </template>
-      <template v-else-if="item.profiles.length === 1">
-        {{ item.profiles[0].profileName.replace(".", " ") }}
-      </template>
-      <v-tooltip
-        v-else
-        top
-        color="primary"
-      >
-        <template #activator="{ on }">
-          <div v-on="on">
-            <span>
-              {{ item.profiles[0].profileName.replace(".", " ") }}
-            </span>
-            <span>, ... </span>
-          </div>
-        </template>
-        <span
-          ><div
-            v-for="(profile, index) in item.profiles"
-            :key="index"
-          >
-            {{ profile.profileName.replace(".", " ") }}
-          </div></span
-        >
-      </v-tooltip>
+      <VTravelAuthorizationPreApprovalProfilesChip :travel-authorization-pre-approval="item" />
     </template>
 
     <template #item.travelDate="{ item }">
@@ -110,6 +85,8 @@ import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
+
+import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 
 const props = defineProps({
   where: {
@@ -200,10 +177,7 @@ const departmentSelectionLimiter = ref(null)
 const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() => {
   return travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
     const isSelectable =
-      travelAuthorizationPreApproval.status !==
-        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED &&
-      travelAuthorizationPreApproval.status !==
-        TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED &&
+      travelAuthorizationPreApproval.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT &&
       (travelAuthorizationPreApproval.department === departmentSelectionLimiter.value ||
         isNil(departmentSelectionLimiter.value))
 
@@ -240,8 +214,10 @@ async function selectAllOfSameDepartment({ items, value: isSelected }) {
         travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
     )
   } else if (isSelected && !isEmpty(items)) {
-    const firstTravelAuthorizationPreApproval = items[0]
-    departmentSelectionLimiter.value = firstTravelAuthorizationPreApproval.department
+    const firstSelectableTravelAuthorizationPreApproval = items.find(
+      (travelAuthorizationPreApproval) => travelAuthorizationPreApproval.isSelectable
+    )
+    departmentSelectionLimiter.value = firstSelectableTravelAuthorizationPreApproval.department
     selectedItems.value = items.filter(
       (travelAuthorizationPreApproval) =>
         travelAuthorizationPreApproval.isSelectable &&

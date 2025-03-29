@@ -19,6 +19,7 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES = Object.freeze({
  * Keep in sync with api/src/models/travel-authorization-pre-approval.ts
  * @typedef {{
  *   id: number,
+ *   submissionId: number | null,
  *   estimatedCost: number,
  *   location: string,
  *   department: string | null,
@@ -47,6 +48,7 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES = Object.freeze({
 /**
  * @typedef {{
  *   id?: number,
+ *   submissionId?: number | null,
  *   location?: string,
  *   department?: string | null,
  *   branch?: string | null,

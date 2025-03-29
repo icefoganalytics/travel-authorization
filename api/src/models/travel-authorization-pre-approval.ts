@@ -3,6 +3,7 @@ import {
   Model,
   type Association,
   type CreationOptional,
+  type ForeignKey,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
@@ -32,6 +33,7 @@ export class TravelAuthorizationPreApproval extends Model<
   static readonly Statuses = TravelAuthorizationPreApprovalStatuses
 
   declare id: CreationOptional<number>
+  declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["id"]> | null
   declare estimatedCost: number
   declare location: string
   declare department: string | null
@@ -67,9 +69,9 @@ export class TravelAuthorizationPreApproval extends Model<
       as: "profiles",
       foreignKey: "preApprovalId",
     })
-    this.hasOne(TravelAuthorizationPreApprovalSubmission, {
+    this.belongsTo(TravelAuthorizationPreApprovalSubmission, {
       as: "submission",
-      foreignKey: "preApprovalId",
+      foreignKey: "submissionId",
     })
   }
 }
@@ -81,6 +83,14 @@ TravelAuthorizationPreApproval.init(
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
+    },
+    submissionId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: TravelAuthorizationPreApprovalSubmission,
+        key: "id",
+      },
     },
     estimatedCost: {
       type: DataTypes.INTEGER,
@@ -163,6 +173,17 @@ TravelAuthorizationPreApproval.init(
   },
   {
     sequelize,
+    indexes: [
+      {
+        unique: true,
+        fields: ["submission_id"],
+        name: "travel_authorization_pre_approvals_submission_id_unique",
+        where: {
+          submissionId: null,
+          deletedAt: null,
+        },
+      },
+    ],
   }
 )
 

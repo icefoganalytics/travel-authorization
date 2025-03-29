@@ -69,6 +69,23 @@ export default {
       multi_city: "Multi-city",
     },
   },
+  travel_authorization_pre_approval_submission: {
+    status: {
+      draft: "Draft",
+      submitted: "Submitted",
+      approved: "Approved",
+      rejected: "Rejected",
+      finished: "Finished",
+    },
+  },
+  travel_authorization_pre_approval: {
+    status: {
+      draft: "Draft",
+      submitted: "Submitted",
+      approved: "Approved",
+      declined: "Declined",
+    },
+  },
   travel_desk_travel_request: {
     status: {
       booked: "Booked",
