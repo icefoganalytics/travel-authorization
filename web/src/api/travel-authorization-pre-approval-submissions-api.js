@@ -124,6 +124,28 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
     )
     return data
   },
+
+  // Stateful actions
+  /**
+   * @param {number} travelAuthorizationPreApprovalSubmissionId
+   * @param {FormData} attributes
+   * @returns {Promise<{
+   *   travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission,
+   *   policy: Policy,
+   * }>}
+   */
+  async approve(travelAuthorizationPreApprovalSubmissionId, attributes) {
+    const { data } = await http.post(
+      `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}/approve`,
+      attributes,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    )
+    return data
+  },
 }
 
 export default travelAuthorizationPreApprovalSubmissionsApi

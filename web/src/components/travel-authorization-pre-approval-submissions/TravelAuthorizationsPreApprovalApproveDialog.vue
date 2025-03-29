@@ -25,7 +25,7 @@
         >
           <YgEmployeeAutocomplete
             v-model="travelAuthorizationPreApprovalSubmission.approverId"
-            label="Approved By"
+            label="Approved By *"
             outlined
             :rules="[required]"
           />
@@ -40,7 +40,7 @@
         >
           <v-text-field
             v-model="travelAuthorizationPreApprovalSubmission.approvedAt"
-            label="Approval Date"
+            label="Approval Date *"
             :rules="[required]"
             outlined
             type="date"
@@ -60,7 +60,7 @@
           <v-file-input
             v-model="approvalDocument"
             accept="application/pdf,image/x-png,image/jpeg"
-            label="Approval Document"
+            label="Approval Document *"
             placeholder="Upload approval"
             hint="Only PDF, PNG, and JPEG files are allowed"
             :rules="[required]"
