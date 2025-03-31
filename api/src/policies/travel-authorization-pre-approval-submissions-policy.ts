@@ -44,7 +44,7 @@ export class TravelAuthorizationPreApprovalSubmissionsPolicy extends PolicyFacto
       {
         documentsAttributes: [
           "name",
-          "approvalDocument",
+          // "approvalDocument", // NOTE: current deep-pick algorithm does not support Buffer type.
           "approvalDocumentApproverName",
           "approvalDocumentApprovedOn",
           "sizeInBytes",
