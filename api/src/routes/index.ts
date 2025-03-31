@@ -8,6 +8,7 @@ import { databaseHealthCheckMiddleware, jwtMiddleware, authorizationMiddleware }
 import { healthCheckRouter } from "@/routes/healthcheck-router"
 import {
   CurrentUserController,
+  Downloads,
   Expenses,
   ExpensesController,
   FlightReconciliations,
@@ -89,6 +90,12 @@ router.use("/api/travCom", travComRouter)
 //// END MORE LEGACY ROUTES
 
 router.route("/api/current-user").get(CurrentUserController.show)
+
+router
+  .route(
+    "/api/downloads/travel-authorization-pre-approval-documents/:travelAuthorizationPreApprovalDocumentId"
+  )
+  .post(Downloads.TravelAuthorizationPreApprovalDocumentsController.create)
 
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router

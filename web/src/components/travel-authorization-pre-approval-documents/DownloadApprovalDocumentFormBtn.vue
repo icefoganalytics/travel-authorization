@@ -64,7 +64,7 @@ const form = ref(null)
 const accessToken = ref(null)
 
 const downloadUrl = computed(() => {
-  return `${API_BASE_URL}/download/travel-authorization-pre-approval-documents/${props.travelAuthorizationPreApprovalDocumentId}`
+  return `${API_BASE_URL}/api/downloads/travel-authorization-pre-approval-documents/${props.travelAuthorizationPreApprovalDocumentId}`
 })
 
 const isDownloading = ref(false)

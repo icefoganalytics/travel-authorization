@@ -26,6 +26,7 @@ export { YgEmployeeGroupsController } from "./yg-employee-groups-controller"
 export { YgEmployeesController } from "./yg-employees-controller"
 
 // Namespaced controllers
+export * as Downloads from "./downloads"
 export * as Expenses from "./expenses"
 export * as FlightReconciliations from "./flight-reconciliations"
 export * as Qa from "./qa"
