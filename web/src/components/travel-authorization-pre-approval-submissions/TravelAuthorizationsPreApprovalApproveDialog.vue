@@ -72,7 +72,7 @@
 
             <template #item.actions="{ item }">
               <div
-                :key="rowRefreshKey"
+                :key="preApprovalMarkRefreshKey"
                 class="d-flex flex-column flex-md-row justify-end"
               >
                 <template v-if="markedAsApprovedOrRejected(item.id)">
@@ -120,7 +120,9 @@
 
       <template #actions>
         <v-btn
+          :key="preApprovalMarkRefreshKey"
           :loading="isSaving"
+          :outlined="!everyTravelAuthorizationPreApprovalMarked"
           color="success"
           type="submit"
         >
@@ -140,7 +142,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { isNil } from "lodash"
 import { serialize } from "object-to-formdata"
 
@@ -179,7 +181,7 @@ const approvalDocumentApproverName = ref(null)
 const approvalDocumentApprovedOn = ref(null)
 
 const markedTravelAuthorizationPreApprovalMaps = ref(new Map())
-const rowRefreshKey = ref(0)
+const preApprovalMarkRefreshKey = ref(0)
 
 function markedAsApprovedOrRejected(travelAuthorizationPreApprovalId) {
   return markedTravelAuthorizationPreApprovalMaps.value.has(travelAuthorizationPreApprovalId)
@@ -191,7 +193,7 @@ function markAsApproved(travelAuthorizationPreApprovalId) {
     TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.APPROVED
   )
   showAlert.value = false
-  rowRefreshKey.value += 1
+  preApprovalMarkRefreshKey.value += 1
 }
 
 function markAsRejected(travelAuthorizationPreApprovalId) {
@@ -200,13 +202,13 @@ function markAsRejected(travelAuthorizationPreApprovalId) {
     TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DECLINED
   )
   showAlert.value = false
-  rowRefreshKey.value += 1
+  preApprovalMarkRefreshKey.value += 1
 }
 
 function unmark(travelAuthorizationPreApprovalId) {
   markedTravelAuthorizationPreApprovalMaps.value.delete(travelAuthorizationPreApprovalId)
   showAlert.value = false
-  rowRefreshKey.value += 1
+  preApprovalMarkRefreshKey.value += 1
 }
 
 const showAlert = ref(false)
@@ -223,16 +225,24 @@ const travelAuthorizationPreApprovalsQuery = computed(() => ({
 const { totalCount: totalTravelAuthorizationPreApprovalsTotalCount } =
   useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
 
+const everyTravelAuthorizationPreApprovalMarked = ref(false)
+
+watch(
+  () => preApprovalMarkRefreshKey.value,
+  () => {
+    everyTravelAuthorizationPreApprovalMarked.value =
+      markedTravelAuthorizationPreApprovalMaps.value.size ===
+      totalTravelAuthorizationPreApprovalsTotalCount.value
+  }
+)
+
 async function approve() {
   if (headerActionsFormCard.value === null) return
 
   const valid = await headerActionsFormCard.value.validate()
   if (!valid) return
 
-  if (
-    markedTravelAuthorizationPreApprovalMaps.value.size !==
-    totalTravelAuthorizationPreApprovalsTotalCount.value
-  ) {
+  if (!everyTravelAuthorizationPreApprovalMarked.value) {
     showAlert.value = true
     return
   }
@@ -286,7 +296,7 @@ function hide() {
   approvalDocumentApprovedOn.value = null
   approvalDocument.value = null
   markedTravelAuthorizationPreApprovalMaps.value.clear()
-  rowRefreshKey.value = 0
+  preApprovalMarkRefreshKey.value = 0
   showAlert.value = false
 }
 
