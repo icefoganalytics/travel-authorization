@@ -109,6 +109,18 @@ TravelAuthorizationPreApprovalDocument.init(
   },
   {
     sequelize,
+    defaultScope: {
+      attributes: {
+        exclude: ["approvalDocument"],
+      },
+    },
+    scopes: {
+      withDocument: {
+        attributes: {
+          include: ["approvalDocument"],
+        },
+      },
+    },
   }
 )
 

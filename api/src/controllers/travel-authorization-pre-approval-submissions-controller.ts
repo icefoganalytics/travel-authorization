@@ -171,6 +171,7 @@ export class TravelAuthorizationPreApprovalSubmissionsController extends BaseCon
       this.params.travelAuthorizationPreApprovalSubmissionId,
       {
         include: [
+          "documents",
           {
             association: "preApprovals",
             include: ["profiles"],
