@@ -21,8 +21,10 @@ export class TravelAuthorizationPreApprovalDocument extends Model<
   declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["id"]>
   declare name: string
   declare approvalDocument: Buffer
+  declare approvalDocumentApproverName: string
+  declare approvalDocumentApprovedOn: Date
   declare sizeInBytes: number
-  declare mimetype: string
+  declare mimeType: string
   declare md5: string
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
@@ -70,11 +72,19 @@ TravelAuthorizationPreApprovalDocument.init(
       type: DataTypes.BLOB,
       allowNull: false,
     },
+    approvalDocumentApproverName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    approvalDocumentApprovedOn: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
     sizeInBytes: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    mimetype: {
+    mimeType: {
       type: DataTypes.STRING,
       allowNull: false,
     },

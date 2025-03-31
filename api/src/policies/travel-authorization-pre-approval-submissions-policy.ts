@@ -38,10 +38,18 @@ export class TravelAuthorizationPreApprovalSubmissionsPolicy extends PolicyFacto
       "department",
       "status",
       "preApprovalIds",
-      "approverId",
-      "approvedAt",
       {
         preApprovalsAttributes: ["id", "status"],
+      },
+      {
+        documentsAttributes: [
+          "name",
+          "approvalDocument",
+          "approvalDocumentApproverName",
+          "approvalDocumentApprovedOn",
+          "sizeInBytes",
+          "md5",
+        ],
       },
     ]
   }

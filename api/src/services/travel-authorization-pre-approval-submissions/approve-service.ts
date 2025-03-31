@@ -48,7 +48,7 @@ export class ApproveService extends BaseService {
       )
     }
 
-    const { approverId, approvedAt, preApprovalsAttributes, documentsAttributes } = this.attributes
+    const { preApprovalsAttributes, documentsAttributes } = this.attributes
 
     if (isNil(documentsAttributes) || isEmpty(documentsAttributes)) {
       throw new Error("At least one document must be provided.")
@@ -61,20 +61,27 @@ export class ApproveService extends BaseService {
     return db.transaction(async () => {
       await this.travelAuthorizationPreApprovalSubmission.update({
         ...this.attributes,
-        approverId,
-        approvedAt,
+        approverId: this.currentUser.id,
+        approvedAt: new Date(),
         status: TravelAuthorizationPreApprovalSubmission.Statuses.APPROVED,
       })
 
-      await this.updateTravelAuthorizationPreApprovalsStatuses(preApprovalsAttributes)
+      await this.updateTravelAuthorizationPreApprovalsStatuses(
+        this.travelAuthorizationPreApprovalSubmission.id,
+        preApprovalsAttributes
+      )
 
-      await this.createTravelAuthorizationPreApprovalDocuments(documentsAttributes)
+      await this.createTravelAuthorizationPreApprovalDocuments(
+        this.travelAuthorizationPreApprovalSubmission.id,
+        documentsAttributes
+      )
 
       return this.travelAuthorizationPreApprovalSubmission
     })
   }
 
   private async updateTravelAuthorizationPreApprovalsStatuses(
+    travelAuthorizationPreApprovalSubmissionId: number,
     preApprovals: TravelAuthorizationPreApprovalAttributes[]
   ): Promise<void> {
     for (const preApproval of preApprovals) {
@@ -85,6 +92,7 @@ export class ApproveService extends BaseService {
         {
           where: {
             id: preApproval.id,
+            submissionId: travelAuthorizationPreApprovalSubmissionId,
           },
         }
       )
@@ -92,16 +100,32 @@ export class ApproveService extends BaseService {
   }
 
   private async createTravelAuthorizationPreApprovalDocuments(
+    travelAuthorizationPreApprovalSubmissionId: number,
     documentsAttributes: TravelAuthorizationPreApprovalDocumentAttributes[]
   ): Promise<void> {
     for (const documentAttributes of documentsAttributes) {
-      const { name, approvalDocument, sizeInBytes, md5 } = documentAttributes
+      const {
+        name,
+        approvalDocument,
+        approvalDocumentApproverName,
+        approvalDocumentApprovedOn,
+        sizeInBytes,
+        md5,
+      } = documentAttributes
       if (isNil(name)) {
         throw new Error("Name must be provided.")
       }
 
       if (isNil(approvalDocument)) {
         throw new Error("Approval document must be provided.")
+      }
+
+      if (isNil(approvalDocumentApproverName)) {
+        throw new Error("Approval document approver name must be provided.")
+      }
+
+      if (isNil(approvalDocumentApprovedOn)) {
+        throw new Error("Approval document approved on must be provided.")
       }
 
       if (isNil(sizeInBytes)) {
@@ -112,12 +136,15 @@ export class ApproveService extends BaseService {
         throw new Error("MD5 must be provided.")
       }
 
-      const mimetype = await this.safeMimeType(approvalDocument)
+      const mimeType = await this.safeMimeType(approvalDocument)
       await TravelAuthorizationPreApprovalDocument.create({
+        submissionId: travelAuthorizationPreApprovalSubmissionId,
         name,
         approvalDocument,
+        approvalDocumentApproverName,
+        approvalDocumentApprovedOn,
         sizeInBytes,
-        mimetype,
+        mimeType,
         md5,
       })
     }

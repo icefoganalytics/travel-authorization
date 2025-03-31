@@ -1,4 +1,4 @@
-import { isNil, isEmpty, isArray } from "lodash"
+import { isNil, isEmpty, isArray, merge } from "lodash"
 import { type UploadedFile } from "express-fileupload"
 
 import { TravelAuthorizationPreApprovalSubmission } from "@/models"
@@ -32,7 +32,7 @@ export class ApproveController extends BaseController<TravelAuthorizationPreAppr
           message: "No files were uploaded.",
         })
       }
-      const { approvalDocument } = files
+      const approvalDocument = files["documentsAttributes[0][approvalDocument]"]
       if (isArray(approvalDocument)) {
         return this.response.status(422).json({
           message: "Only one file can be uploaded at a time.",
@@ -44,14 +44,12 @@ export class ApproveController extends BaseController<TravelAuthorizationPreAppr
       }
 
       const documentsAttributes = this.buildDocumentsAttributes(approvalDocument)
-
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
+      const permittedAttributesWithFile = merge({}, permittedAttributes, { documentsAttributes })
+
       const updatedTravelAuthorizationPreApprovalSubmission = await ApproveService.perform(
         travelAuthorizationPreApprovalSubmission,
-        {
-          ...permittedAttributes,
-          documentsAttributes,
-        },
+        permittedAttributesWithFile,
         this.currentUser
       )
       return this.response.status(200).json({

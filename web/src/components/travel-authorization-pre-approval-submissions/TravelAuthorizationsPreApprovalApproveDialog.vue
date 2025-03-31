@@ -14,44 +14,7 @@
       @submit.prevent="approve"
     >
       <v-row>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <YgEmployeeAutocomplete
-            v-model="approverId"
-            label="Approved By *"
-            outlined
-            :rules="[required]"
-          />
-        </v-col>
-        <v-col
-          class="d-none d-md-block"
-          cols="1"
-        />
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-text-field
-            v-model="approvedAt"
-            label="Approval Date *"
-            :rules="[required]"
-            outlined
-            type="date"
-          />
-        </v-col>
-        <v-col
-          class="d-none d-md-block"
-          cols="1"
-        />
-      </v-row>
-
-      <v-row>
-        <v-col
-          cols="12"
-          md="6"
-        >
+        <v-col cols="12">
           <v-file-input
             v-model="approvalDocument"
             accept="application/pdf,image/x-png,image/jpeg"
@@ -61,6 +24,34 @@
             :rules="[required]"
             persistent-hint
             outlined
+            prepend-icon=""
+            append-icon="$file"
+          />
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <YgEmployeeAutocomplete
+            v-model="approvalDocumentApproverName"
+            label="Approved By (in document) *"
+            outlined
+            :rules="[required]"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <v-text-field
+            v-model="approvalDocumentApprovedOn"
+            label="Approval Date (of document) *"
+            :rules="[required]"
+            outlined
+            type="date"
           />
         </v-col>
       </v-row>
@@ -182,10 +173,10 @@ const travelAuthorizationPreApprovalsWhere = computed(() => ({
   submissionId: travelAuthorizationPreApprovalSubmissionId.value,
 }))
 
-const approverId = ref(null)
-const approvedAt = ref(null)
 /** @type {File | null} */
 const approvalDocument = ref(null)
+const approvalDocumentApproverName = ref(null)
+const approvalDocumentApprovedOn = ref(null)
 
 const markedTravelAuthorizationPreApprovalMaps = ref(new Map())
 const rowRefreshKey = ref(0)
@@ -253,11 +244,15 @@ async function approve() {
   )
 
   const data = {
-    approvalDocument: approvalDocument.value,
     status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED,
-    approverId: approverId.value,
-    approvedAt: approvedAt.value,
     preApprovalsAttributes,
+    documentsAttributes: [
+      {
+        approvalDocument: approvalDocument.value,
+        approvalDocumentApprovedOn: approvalDocumentApprovedOn.value,
+        approvalDocumentApproverName: approvalDocumentApproverName.value,
+      },
+    ],
   }
   const formData = serialize(data, {
     indices: true,
@@ -287,8 +282,8 @@ function show(newTravelAuthorizationPreApprovalSubmissionId) {
 
 function hide() {
   travelAuthorizationPreApprovalSubmissionId.value = undefined
-  approverId.value = null
-  approvedAt.value = null
+  approvalDocumentApproverName.value = null
+  approvalDocumentApprovedOn.value = null
   approvalDocument.value = null
   markedTravelAuthorizationPreApprovalMaps.value.clear()
   rowRefreshKey.value = 0
