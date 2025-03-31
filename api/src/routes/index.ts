@@ -4,10 +4,16 @@ import { DatabaseError } from "sequelize"
 import logger from "@/utils/logger"
 import { GIT_COMMIT_HASH, RELEASE_TAG } from "@/config"
 import { TravComIntegration } from "@/integrations"
-import { databaseHealthCheckMiddleware, jwtMiddleware, authorizationMiddleware } from "@/middleware"
+import {
+  databaseHealthCheckMiddleware,
+  jwtMiddleware,
+  authorizationMiddleware,
+  bodyAuthorizationHoistMiddleware,
+} from "@/middleware"
 import { healthCheckRouter } from "@/routes/healthcheck-router"
 import {
   CurrentUserController,
+  Downloads,
   Expenses,
   ExpensesController,
   FlightReconciliations,
@@ -21,6 +27,7 @@ import {
   TravelAuthorizationActionLogsController,
   TravelAuthorizationPreApprovalProfilesController,
   TravelAuthorizationPreApprovalsController,
+  TravelAuthorizationPreApprovalSubmissions,
   TravelAuthorizationPreApprovalSubmissionsController,
   TravelAuthorizations,
   TravelAuthorizationsController,
@@ -76,7 +83,13 @@ router.use("/api/lookup-tables", databaseHealthCheckMiddleware, lookupTableRoute
 //// END LEGACY ROUTES
 
 // api routes
-router.use("/api", databaseHealthCheckMiddleware, jwtMiddleware, authorizationMiddleware)
+router.use(
+  "/api",
+  databaseHealthCheckMiddleware,
+  bodyAuthorizationHoistMiddleware,
+  jwtMiddleware,
+  authorizationMiddleware
+)
 
 //// START MORE LEGACY ROUTES
 router.use("/api/form", formRouter)
@@ -88,6 +101,12 @@ router.use("/api/travCom", travComRouter)
 //// END MORE LEGACY ROUTES
 
 router.route("/api/current-user").get(CurrentUserController.show)
+
+router
+  .route(
+    "/api/downloads/travel-authorization-pre-approval-documents/:travelAuthorizationPreApprovalDocumentId"
+  )
+  .post(Downloads.TravelAuthorizationPreApprovalDocumentsController.create)
 
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router
@@ -292,6 +311,11 @@ router
   .get(TravelAuthorizationPreApprovalSubmissionsController.show)
   .patch(TravelAuthorizationPreApprovalSubmissionsController.update)
   .delete(TravelAuthorizationPreApprovalSubmissionsController.destroy)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/approve"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.ApproveController.create)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
 router.route("/api/users/:userId").get(UsersController.show)

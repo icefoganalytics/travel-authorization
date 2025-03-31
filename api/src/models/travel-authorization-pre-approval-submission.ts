@@ -33,10 +33,11 @@ export class TravelAuthorizationPreApprovalSubmission extends Model<
   static readonly Statuses = TravelAuthorizationPreApprovalSubmissionStatuses
 
   declare id: CreationOptional<number>
-  declare preApprovalId: ForeignKey<TravelAuthorizationPreApproval["id"]>
   declare creatorId: ForeignKey<User["id"]>
-  declare approverId: ForeignKey<User["id"]>
+  declare approverId: ForeignKey<User["id"]> | null
   declare approvedAt: Date | null
+  declare rejectorId: ForeignKey<User["id"]> | null
+  declare rejectedAt: Date | null
   declare status: TravelAuthorizationPreApprovalSubmissionStatuses
   declare department: string
   declare createdAt: CreationOptional<Date>
@@ -47,7 +48,7 @@ export class TravelAuthorizationPreApprovalSubmission extends Model<
   declare approver?: NonAttribute<User>
   declare creator?: NonAttribute<User>
   declare documents?: NonAttribute<TravelAuthorizationPreApprovalDocument[]>
-  declare preApproval?: NonAttribute<TravelAuthorizationPreApproval>
+  declare preApprovals?: NonAttribute<TravelAuthorizationPreApproval[]>
 
   declare static associations: {
     approver: Association<TravelAuthorizationPreApprovalSubmission, User>
@@ -56,7 +57,7 @@ export class TravelAuthorizationPreApprovalSubmission extends Model<
       TravelAuthorizationPreApprovalSubmission,
       TravelAuthorizationPreApprovalDocument
     >
-    preApproval: Association<
+    preApprovals: Association<
       TravelAuthorizationPreApprovalSubmission,
       TravelAuthorizationPreApproval
     >
@@ -71,9 +72,9 @@ export class TravelAuthorizationPreApprovalSubmission extends Model<
       as: "approver",
       foreignKey: "approverId",
     })
-    this.belongsTo(TravelAuthorizationPreApproval, {
-      as: "preApproval",
-      foreignKey: "preApprovalId",
+    this.hasMany(TravelAuthorizationPreApproval, {
+      as: "preApprovals",
+      foreignKey: "submissionId",
     })
     this.hasMany(TravelAuthorizationPreApprovalDocument, {
       as: "documents",
@@ -89,14 +90,6 @@ TravelAuthorizationPreApprovalSubmission.init(
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
-    },
-    preApprovalId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelAuthorizationPreApproval,
-        key: "id",
-      },
     },
     creatorId: {
       type: DataTypes.INTEGER,
@@ -115,6 +108,18 @@ TravelAuthorizationPreApprovalSubmission.init(
       },
     },
     approvedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    rejectorId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
+    rejectedAt: {
       type: DataTypes.DATE,
       allowNull: true,
     },
@@ -149,16 +154,6 @@ TravelAuthorizationPreApprovalSubmission.init(
   },
   {
     sequelize,
-    indexes: [
-      {
-        unique: true,
-        fields: ["pre_approval_id"],
-        name: "travel_authorization_pre_approval_submissions_pre_approval_id_u",
-        where: {
-          deletedAt: null,
-        },
-      },
-    ],
   }
 )
 

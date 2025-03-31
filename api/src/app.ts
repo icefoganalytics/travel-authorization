@@ -5,7 +5,7 @@ import helmet from "helmet"
 import fileUpload from "express-fileupload"
 
 import { DB_HOST, DB_NAME, DB_USER, FRONTEND_URL, NODE_ENV } from "@/config"
-import { requestLoggerMiddleware } from "@/middleware"
+import { betterFormDataBodyParserMiddleware, requestLoggerMiddleware } from "@/middleware"
 import logger from "@/utils/logger"
 import enhancedQsDecoder from "@/utils/enhanced-qs-decoder"
 import router from "@/routes"
@@ -50,7 +50,15 @@ app.use(
   })
 )
 // Adds FormData support
-app.use(fileUpload())
+app.use(
+  fileUpload({
+    // 2 GB, capped by estimated memory size, because current uploads run entirely in memory.
+    // See https://github.com/icefoganalytics/internal-data-portal/issues/95
+    // for how to handle larger files.
+    limits: { fileSize: 2 * 1024 * 1024 * 1024 },
+  })
+)
+app.use(betterFormDataBodyParserMiddleware)
 
 if (NODE_ENV !== "test") {
   logger.info(`host: ${DB_HOST}`)

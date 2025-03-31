@@ -26,9 +26,11 @@ export { YgEmployeeGroupsController } from "./yg-employee-groups-controller"
 export { YgEmployeesController } from "./yg-employees-controller"
 
 // Namespaced controllers
+export * as Downloads from "./downloads"
 export * as Expenses from "./expenses"
 export * as FlightReconciliations from "./flight-reconciliations"
 export * as Qa from "./qa"
+export * as TravelAuthorizationPreApprovalSubmissions from "./travel-authorization-pre-approval-submissions"
 export * as TravelAuthorizations from "./travel-authorizations"
 export * as TravelDeskFlightOptions from "./travel-desk-flight-options"
 export * as TravelDeskTravelRequests from "./travel-desk-travel-requests"

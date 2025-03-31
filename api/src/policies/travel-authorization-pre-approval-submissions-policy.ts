@@ -34,11 +34,28 @@ export class TravelAuthorizationPreApprovalSubmissionsPolicy extends PolicyFacto
   }
 
   permittedAttributes(): Path[] {
-    return ["department"]
+    return [
+      "department",
+      "status",
+      "preApprovalIds",
+      {
+        preApprovalsAttributes: ["id", "status"],
+      },
+      {
+        documentsAttributes: [
+          "name",
+          // "approvalDocument", // NOTE: current deep-pick algorithm does not support Buffer type.
+          "approvalDocumentApproverName",
+          "approvalDocumentApprovedOn",
+          "sizeInBytes",
+          "md5",
+        ],
+      },
+    ]
   }
 
   permittedAttributesForCreate(): Path[] {
-    return ["preApprovalId", ...this.permittedAttributes()]
+    return [...this.permittedAttributes()]
   }
 
   static policyScope(

@@ -20,6 +20,7 @@
     @update:search-input="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
+    <!-- TODO: triggers => [Vuetify] assert: staticList should not be called if slots are used -->
     <template
       v-if="hasMore"
       #append-item

@@ -213,6 +213,7 @@
     </template>
     <TravelAuthorizationPreApprovalSubmissionCard
       v-else
+      class="mt-5"
       :travel-authorization-pre-approval-submission-id="preApprovalSubmissionId"
     />
 
@@ -284,7 +285,7 @@ const preApprovalProfileWhere = computed(() => ({
   preApprovalId: props.travelAuthorizationPreApprovalId,
 }))
 
-const preApprovalSubmissionId = computed(() => travelAuthorizationPreApproval.value?.submission?.id)
+const preApprovalSubmissionId = computed(() => travelAuthorizationPreApproval.value?.submissionId)
 
 const isDeleting = ref(false)
 const snack = useSnack()

@@ -19,7 +19,13 @@ export class TravelAuthorizationPreApprovalDocument extends Model<
 > {
   declare id: CreationOptional<number>
   declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["id"]>
+  declare name: string
   declare approvalDocument: Buffer
+  declare approvalDocumentApproverName: string
+  declare approvalDocumentApprovedOn: Date
+  declare sizeInBytes: number
+  declare mimeType: string
+  declare md5: string
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
   declare deletedAt: Date | null
@@ -58,8 +64,32 @@ TravelAuthorizationPreApprovalDocument.init(
         key: "id",
       },
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     approvalDocument: {
       type: DataTypes.BLOB,
+      allowNull: false,
+    },
+    approvalDocumentApproverName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    approvalDocumentApprovedOn: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    sizeInBytes: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    mimeType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    md5: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     createdAt: {
@@ -79,6 +109,18 @@ TravelAuthorizationPreApprovalDocument.init(
   },
   {
     sequelize,
+    defaultScope: {
+      attributes: {
+        exclude: ["approvalDocument"],
+      },
+    },
+    scopes: {
+      withDocument: {
+        attributes: {
+          include: ["approvalDocument"],
+        },
+      },
+    },
   }
 )
 

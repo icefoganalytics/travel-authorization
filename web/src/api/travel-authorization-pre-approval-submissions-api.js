@@ -18,7 +18,6 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES = Object.free
  * Keep in sync with api/src/models/travel-authorization-pre-approval-submission.ts
  * @typedef {{
  *   id: number,
- *   preApprovalId: number,
  *   creatorId: number,
  *   approverId: number | null,
  *   approvedAt: string | null,
@@ -32,7 +31,6 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES = Object.free
 /**
  * @typedef {{
  *   id?: number,
- *   preApprovalId?: number,
  *   creatorId?: number,
  *   approverId?: number | null,
  *   status?: TravelAuthorizationPreApprovalSubmissionStatus,
@@ -123,6 +121,28 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
   async delete(travelAuthorizationPreApprovalSubmissionId) {
     const { data } = await http.delete(
       `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}`
+    )
+    return data
+  },
+
+  // Stateful actions
+  /**
+   * @param {number} travelAuthorizationPreApprovalSubmissionId
+   * @param {FormData} attributes
+   * @returns {Promise<{
+   *   travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission,
+   *   policy: Policy,
+   * }>}
+   */
+  async approve(travelAuthorizationPreApprovalSubmissionId, attributes) {
+    const { data } = await http.post(
+      `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}/approve`,
+      attributes,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     )
     return data
   },
