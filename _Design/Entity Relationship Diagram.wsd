@@ -216,6 +216,8 @@ together {
     --
     * submission_id : int4 <<FK>>
     * approval_document : bytea
+    * approval_document_approver_name : varchar(255)
+    * approval_document_approved_on : date
     * name : varchar(255)
     * mime_type : varchar(255)
     * size_in_bytes : int4
