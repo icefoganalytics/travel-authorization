@@ -216,6 +216,10 @@ together {
     --
     * submission_id : int4 <<FK>>
     * approval_document : bytea
+    * name : varchar(255)
+    * mime_type : varchar(255)
+    * size_in_bytes : int4
+    * md5 : varchar(255)
     * created_at : timestamptz
     * updated_at : timestamptz
     deleted_at : timestamptz
