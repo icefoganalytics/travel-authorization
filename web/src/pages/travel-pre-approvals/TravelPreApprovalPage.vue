@@ -213,6 +213,7 @@
     </template>
     <TravelAuthorizationPreApprovalSubmissionCard
       v-else
+      class="mt-5"
       :travel-authorization-pre-approval-submission-id="preApprovalSubmissionId"
     />
 

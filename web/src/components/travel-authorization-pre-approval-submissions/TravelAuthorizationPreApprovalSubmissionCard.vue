@@ -4,116 +4,124 @@
     type="card"
   />
   <!-- TODO: make each status type its own component -->
-  <v-card
-    v-else-if="
-      travelAuthorizationPreApprovalSubmission.status ===
-      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.APPROVED
-    "
-    class="mt-5 grey lighten-5"
-    outlined
+  <HeaderActionsFormCard
+    v-else-if="isApproved"
+    title="Approved"
   >
-    <v-card-title class="grey lighten-5 text-h5"> Approval </v-card-title>
-    <v-divider />
-    <v-card-text>
-      <v-row class="mt-0 mx-3">
-        <v-col
-          cols="12"
-          md="5"
+    <v-row
+      v-for="travelAuthorizationPreApprovalDocument in travelAuthorizationPreApprovalDocuments"
+      :key="travelAuthorizationPreApprovalDocument.id"
+    >
+      <v-col cols="12">
+        <v-btn
+          :loading="isDownloading"
+          color="transparent"
+          @click="downloadPdf(travelAuthorizationPreApprovalDocument.id)"
         >
-          <DescriptionElement
-            label="Approved By"
-            vertical
-          >
-            <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
-          </DescriptionElement>
-        </v-col>
-        <v-col
-          cols="12"
-          md="1"
+          <span class="text-h6 primary--text text-decoration-underline">
+            <b>{{ travelAuthorizationPreApprovalDocument.name }}</b>
+          </span>
+        </v-btn>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="Approved By (in document)"
+          :value="travelAuthorizationPreApprovalDocument.approvalDocumentApproverName"
+          vertical
         />
-        <v-col
-          cols="12"
-          md="5"
-        >
-          <v-btn
-            :loading="isDownloading"
-            color="transparent"
-            @click="downloadPdf"
-          >
-            <span class="text-h6 primary--text text-decoration-underline">
-              <b>Approval Document.pdf</b>
-            </span>
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row class="mx-3 mt-n5 mb-5">
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <DescriptionElement
-            label="Approval Date"
-            :value="formatDate(travelAuthorizationPreApprovalSubmission.approvedAt)"
-            vertical
-          />
-        </v-col>
-      </v-row>
-    </v-card-text>
-  </v-card>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="Approved Date (in document)"
+          :value="formatDate(travelAuthorizationPreApprovalDocument.approvalDocumentApprovedOn)"
+          vertical
+        />
+      </v-col>
+    </v-row>
 
-  <v-card
-    v-else-if="
-      travelAuthorizationPreApprovalSubmission.status ===
-      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DECLINED
-    "
-    class="mt-5 grey lighten-5"
-    outlined
-  >
-    <v-card-title class="grey lighten-5 text-h5 red--text"> Declined </v-card-title>
-    <v-divider />
-    <v-card-text>
-      <v-row class="mt-0 mx-3">
-        <v-col
-          cols="12"
-          md="5"
+    <v-row>
+      <v-col>
+        <DescriptionElement
+          label="Performed By"
+          vertical
         >
-          <DescriptionElement
-            label="Signed By"
-            vertical
-          >
-            <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
-          </DescriptionElement>
-        </v-col>
-        <v-col
-          cols="12"
-          md="1"
+          <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
+        </DescriptionElement>
+      </v-col>
+      <v-col>
+        <DescriptionElement
+          label="Date"
+          :value="formatDate(travelAuthorizationPreApprovalSubmission.approvedAt)"
+          vertical
         />
-        <v-col
-          cols="12"
-          md="5"
+      </v-col>
+    </v-row>
+  </HeaderActionsFormCard>
+  <HeaderActionsFormCard
+    v-else-if="isDeclined"
+    title="Declined"
+  >
+    <v-row
+      v-for="travelAuthorizationPreApprovalDocument in travelAuthorizationPreApprovalDocuments"
+      :key="travelAuthorizationPreApprovalDocument.id"
+    >
+      <v-col cols="12">
+        <v-btn
+          :loading="isDownloading"
+          color="transparent"
+          @click="downloadPdf(travelAuthorizationPreApprovalDocument.id)"
         >
-          <v-btn
-            :loading="isDownloading"
-            color="transparent"
-            @click="downloadPdf"
-            ><span class="text-h6 primary--text text-decoration-underline"> Document.pdf </span>
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row class="mx-3 mt-n5 mb-5">
-        <v-col
-          cols="12"
-          md="3"
+          <span class="text-h6 primary--text text-decoration-underline">
+            <b>{{ travelAuthorizationPreApprovalDocument.name }}</b>
+          </span>
+        </v-btn>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="Signed By (in document)"
+          :value="travelAuthorizationPreApprovalDocument.approvalDocumentApproverName"
+          vertical
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="Signed Date (in document)"
+          :value="formatDate(travelAuthorizationPreApprovalDocument.approvalDocumentApprovedOn)"
+          vertical
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <DescriptionElement
+          label="Performed By"
+          vertical
         >
-          <DescriptionElement
-            label="Date"
-            :value="formatDate(travelAuthorizationPreApprovalSubmission.approvedAt)"
-            vertical
-          />
-        </v-col>
-      </v-row>
-    </v-card-text>
-  </v-card>
+          <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
+        </DescriptionElement>
+      </v-col>
+      <v-col>
+        <DescriptionElement
+          label="Date"
+          :value="formatDate(travelAuthorizationPreApprovalSubmission.approvedAt)"
+          vertical
+        />
+      </v-col>
+    </v-row>
+  </HeaderActionsFormCard>
   <v-alert
     v-else
     type="warning"
@@ -126,17 +134,21 @@
 </template>
 
 <script setup>
-import { ref, toRefs } from "vue"
+import { computed, ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
+
+import { formatDate } from "@/utils/formatters"
 
 import useTravelAuthorizationPreApprovalSubmission, {
   TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
 } from "@/use/use-travel-authorization-pre-approval-submission"
 
 import UserChip from "@/components/users/UserChip.vue"
+import DescriptionElement from "@/components/common/DescriptionElement.vue"
+import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {
@@ -148,6 +160,22 @@ const props = defineProps({
 const { travelAuthorizationPreApprovalSubmissionId } = toRefs(props)
 const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreApprovalSubmission(
   travelAuthorizationPreApprovalSubmissionId
+)
+
+const isApproved = computed(
+  () =>
+    travelAuthorizationPreApprovalSubmission.value?.status ===
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.APPROVED
+)
+
+const isDeclined = computed(
+  () =>
+    travelAuthorizationPreApprovalSubmission.value?.status ===
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DECLINED
+)
+
+const travelAuthorizationPreApprovalDocuments = computed(
+  () => travelAuthorizationPreApprovalSubmission.value?.documents
 )
 
 const isDownloading = ref(false)
