@@ -21,11 +21,12 @@
         </DescriptionElement>
       </v-col>
     </v-row>
+    <!-- TODO: build separate page per state -->
     <template v-if="isApproved">
       <v-row>
         <v-col>
           <DescriptionElement
-            label="Approved By"
+            label="Performed By"
             vertical
           >
             <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
@@ -33,8 +34,46 @@
         </v-col>
         <v-col>
           <DescriptionElement
-            label="Approval Date"
+            label="Date"
             :value="formatDate(travelAuthorizationPreApprovalSubmission.approvedAt)"
+            vertical
+          />
+        </v-col>
+      </v-row>
+      <v-row
+        v-for="travelAuthorizationPreApprovalDocument in travelAuthorizationPreApprovalDocuments"
+        :key="travelAuthorizationPreApprovalDocument.id"
+      >
+        <v-col cols="12">
+          <DescriptionElement
+            label="Approval Document"
+            vertical
+          >
+            <DownloadApprovalDocumentFormBtn
+              :travel-authorization-pre-approval-document-id="
+                travelAuthorizationPreApprovalDocument.id
+              "
+              :button-text="travelAuthorizationPreApprovalDocument.name"
+            />
+          </DescriptionElement>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <DescriptionElement
+            label="Approved By (in document)"
+            :value="travelAuthorizationPreApprovalDocument.approvalDocumentApproverName"
+            vertical
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <DescriptionElement
+            label="Approved Date (in document)"
+            :value="formatDate(travelAuthorizationPreApprovalDocument.approvalDocumentApprovedOn)"
             vertical
           />
         </v-col>
@@ -44,16 +83,54 @@
       <v-row>
         <v-col>
           <DescriptionElement
-            label="Signed By"
+            label="Performed By"
             vertical
           >
-            <UserChip :user-id="travelAuthorizationPreApprovalSubmission.rejectorId" />
+            <UserChip :user-id="travelAuthorizationPreApprovalSubmission.approverId" />
           </DescriptionElement>
         </v-col>
         <v-col>
           <DescriptionElement
             label="Date"
-            :value="formatDate(travelAuthorizationPreApprovalSubmission.rejectedAt)"
+            :value="formatDate(travelAuthorizationPreApprovalSubmission.approvedAt)"
+            vertical
+          />
+        </v-col>
+      </v-row>
+      <v-row
+        v-for="travelAuthorizationPreApprovalDocument in travelAuthorizationPreApprovalDocuments"
+        :key="travelAuthorizationPreApprovalDocument.id"
+      >
+        <v-col cols="12">
+          <DescriptionElement
+            label="Signature Document"
+            vertical
+          >
+            <DownloadApprovalDocumentFormBtn
+              :travel-authorization-pre-approval-document-id="
+                travelAuthorizationPreApprovalDocument.id
+              "
+              :button-text="travelAuthorizationPreApprovalDocument.name"
+            />
+          </DescriptionElement>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <DescriptionElement
+            label="Signed By (in document)"
+            :value="travelAuthorizationPreApprovalDocument.approvalDocumentApproverName"
+            vertical
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <DescriptionElement
+            label="Signed Date (in document)"
+            :value="formatDate(travelAuthorizationPreApprovalDocument.approvalDocumentApprovedOn)"
             vertical
           />
         </v-col>
@@ -83,9 +160,10 @@ import useTravelAuthorizationPreApprovalSubmission, {
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import UserChip from "@/components/users/UserChip.vue"
-import TravelAuthorizationPreApprovalSubmissionStatusChip from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionStatusChip.vue"
+import DownloadApprovalDocumentFormBtn from "@/components/travel-authorization-pre-approval-documents/DownloadApprovalDocumentFormBtn.vue"
 import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalSubmissionStatusChip from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionStatusChip.vue"
+import UserChip from "@/components/users/UserChip.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {
@@ -114,6 +192,10 @@ const isRejected = computed(() => {
     TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.REJECTED
   )
 })
+
+const travelAuthorizationPreApprovalDocuments = computed(
+  () => travelAuthorizationPreApprovalSubmission.value?.documents
+)
 
 useBreadcrumbs([
   {
