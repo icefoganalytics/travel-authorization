@@ -3,6 +3,7 @@
     v-if="isNil(travelAuthorizationPreApprovalSubmission)"
     type="card"
   />
+  <!-- TODO: share content with web/src/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionCard.vue -->
   <HeaderActionsCard
     v-else
     title="Travel Pre-Approval Submission"

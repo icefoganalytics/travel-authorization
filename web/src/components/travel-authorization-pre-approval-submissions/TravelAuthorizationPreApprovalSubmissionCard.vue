@@ -4,6 +4,7 @@
     type="card"
   />
   <!-- TODO: make each status type its own component -->
+  <!-- TODO: share content with web/src/pages/travel-pre-approval-submissions/TravelPreApprovalSubmissionPage.vue -->
   <HeaderActionsFormCard
     v-else-if="isApproved"
     title="Approved"
