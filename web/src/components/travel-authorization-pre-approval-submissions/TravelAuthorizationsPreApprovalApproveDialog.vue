@@ -151,6 +151,7 @@
 <script setup>
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
+import { serialize } from "object-to-formdata"
 
 import { required } from "@/utils/validators"
 import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
@@ -251,15 +252,15 @@ async function approve() {
     markedTravelAuthorizationPreApprovalMaps.value.entries().map(([id, status]) => ({ id, status }))
   )
 
-  const formData = new FormData()
-  formData.append("approvalDocument", approvalDocument.value)
-  formData.append("status", TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED)
-  formData.append("approverId", approverId.value)
-  formData.append("approvedAt", approvedAt.value)
-
-  preApprovalsAttributes.forEach((preApprovalAttributes, index) => {
-    formData.append(`preApprovalsAttributes[${index}][id]`, preApprovalAttributes.id)
-    formData.append(`preApprovalsAttributes[${index}][status]`, preApprovalAttributes.status)
+  const data = {
+    approvalDocument: approvalDocument.value,
+    status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED,
+    approverId: approverId.value,
+    approvedAt: approvedAt.value,
+    preApprovalsAttributes,
+  }
+  const formData = serialize(data, {
+    indices: true,
   })
 
   try {

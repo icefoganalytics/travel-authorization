@@ -5,7 +5,7 @@ import helmet from "helmet"
 import fileUpload from "express-fileupload"
 
 import { DB_HOST, DB_NAME, DB_USER, FRONTEND_URL, NODE_ENV } from "@/config"
-import { requestLoggerMiddleware } from "@/middleware"
+import { betterFormDataBodyParserMiddleware, requestLoggerMiddleware } from "@/middleware"
 import logger from "@/utils/logger"
 import enhancedQsDecoder from "@/utils/enhanced-qs-decoder"
 import router from "@/routes"
@@ -58,6 +58,7 @@ app.use(
     limits: { fileSize: 2 * 1024 * 1024 * 1024 },
   })
 )
+app.use(betterFormDataBodyParserMiddleware)
 
 if (NODE_ENV !== "test") {
   logger.info(`host: ${DB_HOST}`)
