@@ -180,6 +180,7 @@ const approvalDocument = ref(null)
 const approvalDocumentApproverName = ref(null)
 const approvalDocumentApprovedOn = ref(null)
 
+// NOTE: Vue 2 is not capable of tracking reactive changes to a Map, so we need a "refresh key" to force Vue to re-render the components.
 const markedTravelAuthorizationPreApprovalMaps = ref(new Map())
 const preApprovalMarkRefreshKey = ref(0)
 
