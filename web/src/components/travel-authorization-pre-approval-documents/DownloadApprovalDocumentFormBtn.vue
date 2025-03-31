@@ -8,7 +8,7 @@
   >
     <input
       type="hidden"
-      name="FORM_API_BEARER_TOKEN"
+      name="HOISTABLE_AUTHORIZATION_TOKEN"
       :value="accessToken"
     />
     <v-btn
