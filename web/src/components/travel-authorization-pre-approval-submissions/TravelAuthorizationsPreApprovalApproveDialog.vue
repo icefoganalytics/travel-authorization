@@ -7,12 +7,7 @@
     @keydown.esc="hide"
     @input="hideIfFalse"
   >
-    <v-skeleton-loader
-      v-if="isNil(travelAuthorizationPreApprovalSubmission)"
-      type="card"
-    />
     <HeaderActionsFormCard
-      v-else
       ref="headerActionsFormCard"
       title="Approval"
       lazy-validation
@@ -24,7 +19,7 @@
           md="6"
         >
           <YgEmployeeAutocomplete
-            v-model="travelAuthorizationPreApprovalSubmission.approverId"
+            v-model="approverId"
             label="Approved By *"
             outlined
             :rules="[required]"
@@ -39,7 +34,7 @@
           md="3"
         >
           <v-text-field
-            v-model="travelAuthorizationPreApprovalSubmission.approvedAt"
+            v-model="approvedAt"
             label="Approval Date *"
             :rules="[required]"
             outlined
@@ -160,16 +155,14 @@ import { isNil } from "lodash"
 import { required } from "@/utils/validators"
 import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
 
-import { PREAPPROVED_URL } from "@/urls"
-import http from "@/api/http-client"
+import travelAuthorizationPreApprovalSubmissionsApi, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
+} from "@/api/travel-authorization-pre-approval-submissions-api"
 
 import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApprovals, {
   TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
 } from "@/use/use-travel-authorization-pre-approvals"
-import useTravelAuthorizationPreApprovalSubmission, {
-  TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
-} from "@/use/use-travel-authorization-pre-approval-submission"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
@@ -184,16 +177,13 @@ const travelAuthorizationPreApprovalSubmissionId = useRouteQuery("showApprovalDi
 })
 const showDialog = computed(() => !isNil(travelAuthorizationPreApprovalSubmissionId.value))
 
-const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreApprovalSubmission(
-  travelAuthorizationPreApprovalSubmissionId
-)
-
 const travelAuthorizationPreApprovalsWhere = computed(() => ({
   submissionId: travelAuthorizationPreApprovalSubmissionId.value,
 }))
 
-const approvedBy = ref(null)
+const approverId = ref(null)
 const approvedAt = ref(null)
+/** @type {File | null} */
 const approvalDocument = ref(null)
 
 const markedTravelAuthorizationPreApprovalMaps = ref(new Map())
@@ -256,33 +246,26 @@ async function approve() {
   }
 
   isSaving.value = true
-  const data = {
-    status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED,
-    approvedBy: approvedBy.value,
-    approvedAt: approvedAt.value,
-    preApprovals: travelAuthorizationPreApprovals.value.map((preApprovalRequest) => {
-      return {
-        id: preApprovalRequest.id,
-        status: preApprovalRequest.status,
-      }
-    }),
-  }
-  const bodyFormData = new FormData()
-  bodyFormData.append("file", approvalDocument.value)
-  bodyFormData.append("data", JSON.stringify(data))
 
-  const header = {
-    responseType: "application/pdf",
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  }
+  const preApprovalsAttributes = Array.from(
+    markedTravelAuthorizationPreApprovalMaps.value.entries().map(([id, status]) => ({ id, status }))
+  )
+
+  const formData = new FormData()
+  formData.append("approvalDocument", approvalDocument.value)
+  formData.append("status", TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.FINISHED)
+  formData.append("approverId", approverId.value)
+  formData.append("approvedAt", approvedAt.value)
+
+  preApprovalsAttributes.forEach((preApprovalAttributes, index) => {
+    formData.append(`preApprovalsAttributes[${index}][id]`, preApprovalAttributes.id)
+    formData.append(`preApprovalsAttributes[${index}][status]`, preApprovalAttributes.status)
+  })
 
   try {
-    await http.post(
-      `${PREAPPROVED_URL}/approval/${travelAuthorizationPreApprovalSubmissionId.value}`,
-      bodyFormData,
-      header
+    await travelAuthorizationPreApprovalSubmissionsApi.approve(
+      travelAuthorizationPreApprovalSubmissionId.value,
+      formData
     )
     snack.success("Travel pre-approval submission approved.")
     emit("approved", travelAuthorizationPreApprovalSubmissionId.value)
@@ -303,7 +286,7 @@ function show(newTravelAuthorizationPreApprovalSubmissionId) {
 
 function hide() {
   travelAuthorizationPreApprovalSubmissionId.value = undefined
-  approvedBy.value = null
+  approverId.value = null
   approvedAt.value = null
   approvalDocument.value = null
   markedTravelAuthorizationPreApprovalMaps.value.clear()

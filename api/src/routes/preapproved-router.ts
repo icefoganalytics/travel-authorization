@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express"
 import { ModelStatic } from "sequelize"
 import { isNil } from "lodash"
-import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 import { RequiresAuth, RequiresRolePatAdminOrAdmin } from "@/middleware"
@@ -130,69 +129,6 @@ preapprovedRouter.delete(
     } catch (error: unknown) {
       logger.info(error)
       res.status(500).json("Delete failed")
-    }
-  }
-)
-
-preapprovedRouter.post(
-  "/approval/:submissionId",
-  RequiresAuth,
-  RequiresRolePatAdminOrAdmin,
-  async function (req: Request, res: Response) {
-    const file = req.body.file
-    const submissionId = Number(req.params.submissionId)
-    const data = JSON.parse(req.body.data)
-
-    const travelAuthorizationPreApprovalSubmission =
-      await TravelAuthorizationPreApprovalSubmission.findByPk(submissionId)
-    if (isNil(travelAuthorizationPreApprovalSubmission)) {
-      return res.status(404).json("Submission not found")
-    }
-
-    try {
-      const approvalDoc = await TravelAuthorizationPreApprovalDocument.findOne({
-        where: {
-          submissionId,
-        },
-      })
-      if (approvalDoc) {
-        return res.status(409).json("File Already Exist!")
-      }
-
-      if (submissionId && data.status && data.approvedBy && data.preApprovals.length > 0) {
-        await db.transaction(async () => {
-          await TravelAuthorizationPreApprovalDocument.create({
-            submissionId,
-            approvalDocument: file,
-          })
-
-          await travelAuthorizationPreApprovalSubmission.update({
-            status: data.status,
-            approvedAt: DateTime.utc().toJSDate(),
-            approverId: data.approvedBy,
-          })
-
-          for (const preApproval of data.preApprovals) {
-            await TravelAuthorizationPreApproval.update(
-              {
-                status: preApproval.status,
-              },
-              {
-                where: {
-                  id: preApproval.id,
-                },
-              }
-            )
-          }
-
-          res.status(200).json("Successful")
-        })
-      } else {
-        res.status(422).json("Required fields in submission are blank")
-      }
-    } catch (error: unknown) {
-      logger.info(error)
-      res.status(500).json("Insert failed")
     }
   }
 )

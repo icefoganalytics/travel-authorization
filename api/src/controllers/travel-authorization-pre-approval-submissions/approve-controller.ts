@@ -1,8 +1,10 @@
 import { isNil, isEmpty, isArray } from "lodash"
+import { type UploadedFile } from "express-fileupload"
 
 import { TravelAuthorizationPreApprovalSubmission } from "@/models"
 import { TravelAuthorizationPreApprovalSubmissionsPolicy } from "@/policies"
 import { ApproveService } from "@/services/travel-authorization-pre-approval-submissions"
+import { type TravelAuthorizationPreApprovalDocumentAttributes } from "@/services/travel-authorization-pre-approval-submissions/approve-service"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -24,35 +26,24 @@ export class ApproveController extends BaseController<TravelAuthorizationPreAppr
         })
       }
 
-      if (
-        isNil(this.request.files) ||
-        isEmpty(this.request.files) ||
-        isNil(this.request.files.file)
-      ) {
+      const { files } = this.request
+      if (isNil(files) || isEmpty(files)) {
         return this.response.status(400).json({
           message: "No files were uploaded.",
         })
-      } else if (isArray(this.request.files.file)) {
+      }
+      const { approvalDocument } = files
+      if (isArray(approvalDocument)) {
         return this.response.status(422).json({
           message: "Only one file can be uploaded at a time.",
         })
-      } else if (this.request.files.file.truncated) {
+      } else if (approvalDocument.truncated) {
         return this.response.status(413).json({
           message: "The file is too large.",
         })
       }
 
-      const { file } = this.request.files
-      const { name, data, size, mimetype, md5 } = file
-      const documentsAttributes = [
-        {
-          name,
-          data,
-          size,
-          mimetype,
-          md5,
-        },
-      ]
+      const documentsAttributes = this.buildDocumentsAttributes(approvalDocument)
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
       const updatedTravelAuthorizationPreApprovalSubmission = await ApproveService.perform(
@@ -86,6 +77,21 @@ export class ApproveController extends BaseController<TravelAuthorizationPreAppr
       this.currentUser,
       travelAuthorizationPreApprovalSubmission
     )
+  }
+
+  private buildDocumentsAttributes(
+    file: UploadedFile
+  ): TravelAuthorizationPreApprovalDocumentAttributes[] {
+    const { name, data, size, md5 } = file
+    const documentsAttributes: TravelAuthorizationPreApprovalDocumentAttributes[] = [
+      {
+        name,
+        approvalDocument: data,
+        sizeInBytes: size,
+        md5,
+      },
+    ]
+    return documentsAttributes
   }
 }
 
