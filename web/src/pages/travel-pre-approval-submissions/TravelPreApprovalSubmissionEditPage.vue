@@ -53,6 +53,7 @@
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
                 <v-btn
+                  v-if="canDeleteTravelAuthorizationPreApprovals"
                   class="my-0"
                   title="Remove"
                   color="error"
@@ -262,8 +263,13 @@ const travelAuthorizationPreApprovalsQuery = computed(() => {
     where: travelAuthorizationPreApprovalsWhere.value,
   }
 })
-const { travelAuthorizationPreApprovals: selectedRequests } = useTravelAuthorizationPreApprovals(
-  travelAuthorizationPreApprovalsQuery
+const {
+  travelAuthorizationPreApprovals: selectedRequests,
+  totalCount: totalCountTravelAuthorizationPreApprovals,
+} = useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
+
+const canDeleteTravelAuthorizationPreApprovals = computed(
+  () => totalCountTravelAuthorizationPreApprovals.value > 1
 )
 
 const submittingRequests = ref([])

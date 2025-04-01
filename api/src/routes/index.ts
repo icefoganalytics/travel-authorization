@@ -314,6 +314,11 @@ router
     "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/approve"
   )
   .post(TravelAuthorizationPreApprovalSubmissions.ApproveController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/pre-approvals/:travelAuthorizationPreApprovalId"
+  )
+  .delete(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
 router.route("/api/users/:userId").get(UsersController.show)
