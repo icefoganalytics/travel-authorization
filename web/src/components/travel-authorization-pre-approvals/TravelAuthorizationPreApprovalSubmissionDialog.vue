@@ -10,18 +10,11 @@
     <HeaderActionsCard title="Submit Travel Pre-Approval Requests">
       <v-row>
         <v-col>
-          <!-- TODO: move to component? -->
-          <v-data-table
-            :headers="headers"
-            :items="travelAuthorizationPreApprovals"
-            :items-per-page="5"
+          <TravelAuthorizationPreApprovalsSimpleDataTable
+            :where="travelAuthorizationPreApprovalsWhere"
             hide-default-footer
+            show-actions-header
           >
-            <template #item.name="{ item }">
-              <VTravelAuthorizationPreApprovalProfilesChip
-                :travel-authorization-pre-approval="item"
-              />
-            </template>
             <template #item.actions="{ item }">
               <v-btn
                 v-if="canDelete"
@@ -34,7 +27,7 @@
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </template>
-          </v-data-table>
+          </TravelAuthorizationPreApprovalsSimpleDataTable>
         </v-col>
       </v-row>
 
@@ -82,47 +75,27 @@ import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
 
 const emit = defineEmits(["submitted"])
-
-const headers = ref([
-  {
-    text: "Name",
-    value: "name",
-  },
-  {
-    text: "Branch",
-    value: "branch",
-  },
-  {
-    text: "Reason",
-    value: "reason",
-  },
-  {
-    text: "Location",
-    value: "location",
-  },
-  {
-    text: "Actions",
-    sortable: false,
-    value: "actions",
-  },
-])
 
 const travelAuthorizationPreApprovalIds = useRouteQuery("showSubmissionDialog", undefined, {
   transform: jsonTransformer,
 })
 const showSubmissionDialog = computed(() => !isNil(travelAuthorizationPreApprovalIds.value))
 
-const travelAuthorizationPreApprovalsQuery = computed(() => {
+const travelAuthorizationPreApprovalsWhere = computed(() => {
   return {
-    where: {
-      id: travelAuthorizationPreApprovalIds.value,
-    },
+    id: travelAuthorizationPreApprovalIds.value,
   }
 })
-const { travelAuthorizationPreApprovals } = useTravelAuthorizationPreApprovals(
+const travelAuthorizationPreApprovalsQuery = computed(() => {
+  return {
+    where: travelAuthorizationPreApprovalsWhere.value,
+    perPage: 1, // We only need one elemnt to determine department, and total count for UI rendering
+  }
+})
+const { travelAuthorizationPreApprovals, totalCount } = useTravelAuthorizationPreApprovals(
   travelAuthorizationPreApprovalsQuery,
   {
     skipWatchIf: () =>
@@ -131,7 +104,7 @@ const { travelAuthorizationPreApprovals } = useTravelAuthorizationPreApprovals(
   }
 )
 
-const canDelete = computed(() => travelAuthorizationPreApprovals.value.length > 1)
+const canDelete = computed(() => totalCount.value > 1)
 
 function removePreApprovalRequest(travelAuthorizationPreApprovalId) {
   const newTravelAuthorizationPreApprovalIds = travelAuthorizationPreApprovalIds.value.filter(
