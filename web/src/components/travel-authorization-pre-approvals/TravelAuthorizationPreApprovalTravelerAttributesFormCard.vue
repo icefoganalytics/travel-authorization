@@ -72,12 +72,12 @@
           :items="value"
           hide-default-footer
         >
-          <template #item.actions="{ item }">
+          <template #item.actions="{ index }">
             <v-btn
               title="Remove traveler profile"
               icon
               color="error"
-              @click="removeTravelerProfileAttributes(item)"
+              @click="removeTravelerProfileAttributes(index)"
             >
               <v-icon>mdi-delete</v-icon>
             </v-btn>
@@ -90,7 +90,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { isEqual, isNil } from "lodash"
+import { isNil } from "lodash"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
@@ -190,10 +190,11 @@ function addTravelerProfileAttributes() {
   }
 }
 
-function removeTravelerProfileAttributes(item) {
-  const travelerProfilesAttributesWithoutItem = props.value.filter(
-    (profile) => !isEqual(profile, item)
-  )
+function removeTravelerProfileAttributes(index) {
+  const travelerProfilesAttributesWithoutItem = [
+    ...props.value.slice(0, index),
+    ...props.value.slice(index + 1),
+  ]
   emit("input", travelerProfilesAttributesWithoutItem)
 }
 </script>
