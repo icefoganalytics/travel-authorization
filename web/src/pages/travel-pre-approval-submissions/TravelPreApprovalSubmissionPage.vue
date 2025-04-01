@@ -8,6 +8,21 @@
     v-else
     title="Travel Pre-Approval Submission"
   >
+    <template #header-actions>
+      <v-btn
+        v-if="isDraft"
+        class="my-0"
+        color="primary"
+        :to="{
+          name: 'travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage',
+          params: {
+            travelAuthorizationPreApprovalSubmissionId,
+          },
+        }"
+      >
+        Edit
+      </v-btn>
+    </template>
     <v-row>
       <v-col>
         <DescriptionElement label="Status">
@@ -181,6 +196,12 @@ const travelAuthorizationPreApprovalsWhere = computed(() => ({
   submissionId: props.travelAuthorizationPreApprovalSubmissionId,
 }))
 
+const isDraft = computed(() => {
+  return (
+    travelAuthorizationPreApprovalSubmission.value?.status ===
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT
+  )
+})
 const isApproved = computed(() => {
   return (
     travelAuthorizationPreApprovalSubmission.value?.status ===
