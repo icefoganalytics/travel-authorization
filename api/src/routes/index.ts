@@ -55,7 +55,6 @@ import {
 import { migrateRouter } from "./migrate-router"
 import { formRouter } from "./form-router"
 import { userRouter } from "./users-router"
-import { preapprovedRouter } from "./preapproved-router"
 import { travelDeskRouter } from "./traveldesk-router"
 import { travComRouter } from "./travCom-router"
 import { lookupRouter } from "./lookup-router"
@@ -94,7 +93,6 @@ router.use(
 //// START MORE LEGACY ROUTES
 router.use("/api/form", formRouter)
 router.use("/api/user", userRouter)
-router.use("/api/preapproved", preapprovedRouter)
 router.use("/api/traveldesk", travelDeskRouter)
 
 router.use("/api/travCom", travComRouter)
