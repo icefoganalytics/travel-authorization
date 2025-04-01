@@ -32,7 +32,6 @@
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
           outlined
           :where="ygEmployeeWhere"
-          :rules="[required]"
         />
       </v-col>
       <v-col
@@ -44,7 +43,6 @@
           v-model.number="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
-          :rules="[required]"
           outlined
           persistent-hint
           @input="emit('update:numberTravelers', Number($event))"
@@ -93,8 +91,6 @@
 <script setup>
 import { computed, ref } from "vue"
 import { isEqual, isNil } from "lodash"
-
-import { required } from "@/utils/validators"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
@@ -176,6 +172,7 @@ function addTravelerProfileAttributes() {
       branch: props.branch,
     }
     emit("input", [...props.value, newProfileAttributes])
+    travelerName.value = undefined
     return
   } else {
     const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")
@@ -188,6 +185,7 @@ function addTravelerProfileAttributes() {
       branch: props.branch,
     }
     emit("input", [...props.value, newProfileAttributes])
+    numberTravelersLocal.value = undefined
     return
   }
 }
