@@ -12,7 +12,7 @@
         <v-btn
           class="my-0"
           color="error"
-          :loading="isDeleting"
+          :loading="isLoading"
           @click="deleteTravelAuthorizationPreApprovalSubmission"
         >
           Delete
@@ -89,13 +89,6 @@
 
       <template #actions>
         <v-btn
-          color="success"
-          :loading="savingData"
-          @click="submitTravelRequest(STATUSES.DRAFT)"
-        >
-          Save
-        </v-btn>
-        <v-btn
           color="secondary"
           :to="{
             name: 'travel-pre-approvals/TravelPreApprovalSubmissionsPage',
@@ -103,10 +96,9 @@
         >
           Return
         </v-btn>
-        <v-spacer />
         <v-btn
           color="primary"
-          :loading="savingData"
+          :loading="isLoading"
           @click="submitTravelRequest(STATUSES.SUBMITTED)"
         >
           Submit
@@ -245,9 +237,8 @@ const props = defineProps({
 const emit = defineEmits(["updateTable"])
 
 const { travelAuthorizationPreApprovalSubmissionId } = toRefs(props)
-const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreApprovalSubmission(
-  travelAuthorizationPreApprovalSubmissionId
-)
+const { travelAuthorizationPreApprovalSubmission, isLoading } =
+  useTravelAuthorizationPreApprovalSubmission(travelAuthorizationPreApprovalSubmissionId)
 
 const { travelAuthorizationPreApprovals: travelRequests } = useTravelAuthorizationPreApprovals()
 
@@ -307,7 +298,6 @@ const addTravelHeaders = ref([
 const submitTravelDialog = ref(false)
 const newSelectedRequests = ref([])
 const addTravelDialog = ref(false)
-const savingData = ref(false)
 const update = ref(0)
 
 const STATUSES = computed(() => TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES)
@@ -343,7 +333,7 @@ function submitTravelRequest(status) {
   const currentIDs = submittingRequests.value.map((req) => req.id)
   if (currentIDs.length > 0) {
     const currentDept = submittingRequests.value[0].department
-    savingData.value = true
+    isLoading.value = true
     const body = {
       department: currentDept,
       status,
@@ -357,25 +347,25 @@ function submitTravelRequest(status) {
         body
       )
       .then(() => {
-        savingData.value = false
+        isLoading.value = false
         submitTravelDialog.value = false
         this.$emit("updateTable")
       })
       .catch((e) => {
-        savingData.value = false
+        isLoading.value = false
         console.log(e)
       })
   }
 }
 
-const isDeleting = ref(false)
 const snack = useSnack()
 const router = useRouter()
 
 async function deleteTravelAuthorizationPreApprovalSubmission() {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this travel pre-approval?")) return
+  if (!blockedToTrueConfirm("Are you sure you want to remove this travel pre-approval submission?"))
+    return
 
-  isDeleting.value = true
+  isLoading.value = true
   try {
     await travelAuthorizationPreApprovalSubmissionApi.delete(
       props.travelAuthorizationPreApprovalSubmissionId
@@ -390,7 +380,7 @@ async function deleteTravelAuthorizationPreApprovalSubmission() {
     })
     snack.error(`Failed to delete travel pre-approval submission: ${error}`)
   } finally {
-    isDeleting.value = false
+    isLoading.value = false
   }
 }
 
