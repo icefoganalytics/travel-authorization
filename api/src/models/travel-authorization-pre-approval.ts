@@ -1,7 +1,6 @@
 import {
   DataTypes,
   Model,
-  Op,
   type Association,
   type CreationOptional,
   type ForeignKey,
@@ -186,12 +185,10 @@ TravelAuthorizationPreApproval.init(
       },
     ],
     scopes: {
-      availableForSubmission(submissionId: number) {
+      availableForSubmission() {
         return {
           where: {
-            submissionId: {
-              [Op.ne]: submissionId,
-            },
+            submissionId: null,
             status: TravelAuthorizationPreApproval.Statuses.DRAFT,
           },
         }

@@ -111,7 +111,7 @@ const travelAuthorizationPreApprovalSubmissionId = useRouteQuery(
 const showDialog = computed(() => !isNil(travelAuthorizationPreApprovalSubmissionId.value))
 
 const travelAuthorizationPreApprovalsFilters = computed(() => ({
-  availableForSubmission: travelAuthorizationPreApprovalSubmissionId.value,
+  availableForSubmission: true,
 }))
 
 const isSaving = ref(false)
