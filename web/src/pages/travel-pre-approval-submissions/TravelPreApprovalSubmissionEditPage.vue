@@ -40,7 +40,6 @@
               <div class="d-flex align-center justify-center">
                 <v-btn
                   class="my-0"
-                  title="Edit"
                   :to="{
                     name: 'travel-pre-approvals/TravelPreApprovalEditPage',
                     params: {
@@ -48,16 +47,18 @@
                     },
                   }"
                   color="primary"
-                  icon
+                  outlined
+                  small
                 >
-                  <v-icon>mdi-pencil</v-icon>
+                  Edit
                 </v-btn>
                 <v-btn
                   v-if="canDeleteTravelAuthorizationPreApprovals"
                   class="my-0"
                   title="Remove"
                   color="error"
-                  icon
+                  outlined
+                  small
                   @click="
                     removeTravelAuthorizationPreApprovalFromSubmission(
                       travelAuthorizationPreApprovalSubmissionId,
@@ -65,7 +66,7 @@
                     )
                   "
                 >
-                  <v-icon>mdi-delete</v-icon>
+                  Remove
                 </v-btn>
 
                 <!--
@@ -82,7 +83,7 @@
                   <template #activator="{ on }">
                     <v-icon
                       v-if="
-                        item.status && item.sumssionId != travelAuthorizationPreApprovalSubmissionId
+                        item.submissionId !== parseInt(travelAuthorizationPreApprovalSubmissionId)
                       "
                       style="cursor: pointer"
                       class=""
