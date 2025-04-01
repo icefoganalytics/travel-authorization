@@ -192,7 +192,7 @@ TravelAuthorizationPreApproval.init(
             submissionId: {
               [Op.ne]: submissionId,
             },
-            status: TravelAuthorizationPreApprovalSubmission.Statuses.DRAFT,
+            status: TravelAuthorizationPreApproval.Statuses.DRAFT,
           },
         }
       },
