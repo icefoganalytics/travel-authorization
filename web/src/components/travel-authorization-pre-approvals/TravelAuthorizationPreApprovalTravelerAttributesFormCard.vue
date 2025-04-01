@@ -2,6 +2,7 @@
   <HeaderActionsFormCard
     title="Traveller Details"
     header-tag="h3"
+    @submit.prevent="addTravelerProfileAttributes"
   >
     <v-row>
       <v-col
@@ -177,6 +178,10 @@ function toggleExactTravelerKnown(value) {
 }
 
 function addTravelerProfileAttributes() {
+  if (isNil(travelerName.value) && isNil(numberTravelersLocal.value)) {
+    return
+  }
+
   let newProfileAttributes
 
   if (exactTravelerKnown.value) {
