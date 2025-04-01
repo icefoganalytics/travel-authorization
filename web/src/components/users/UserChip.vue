@@ -3,9 +3,8 @@
     ref="chip"
     class="d-flex-inline justify-center"
     style="min-width: fit-content"
-    color="teal"
-    text-color="white"
     link
+    outlined
   >
     <v-progress-circular
       v-if="isLoading"
