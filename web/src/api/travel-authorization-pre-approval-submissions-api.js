@@ -146,6 +146,20 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
     )
     return data
   },
+  /**
+   * @param {number} travelAuthorizationPreApprovalSubmissionId
+   * @param {Partial<TravelAuthorizationPreApprovalSubmission>} attributes
+   * @returns {Promise<{
+   *   travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission,
+   * }>}
+   */
+  async submit(travelAuthorizationPreApprovalSubmissionId, attributes) {
+    const { data } = await http.post(
+      `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}/submit`,
+      attributes
+    )
+    return data
+  },
 }
 
 export default travelAuthorizationPreApprovalSubmissionsApi

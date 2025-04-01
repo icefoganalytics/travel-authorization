@@ -110,7 +110,6 @@ import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 
 import { travelAuthorizationPreApprovalSubmissions } from "@/api"
 import travelAuthorizationPreApprovalSubmissionApi from "@/api/travel-authorization-pre-approval-submissions-api"
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
@@ -190,20 +189,12 @@ async function submitTravelAuthorizationPreApprovalSubmission() {
 
   isLoading.value = true
   try {
-    // TODO: add dedicated endpoint for "submit" status change
-    await travelAuthorizationPreApprovalSubmissionApi.update(
-      props.travelAuthorizationPreApprovalSubmissionId,
-      {
-        status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED,
-      }
+    await travelAuthorizationPreApprovalSubmissionApi.submit(
+      props.travelAuthorizationPreApprovalSubmissionId
     )
     snack.success("Travel pre-approval submission submitted successfully")
     return router.replace({
-      name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionPage",
-      params: {
-        travelAuthorizationPreApprovalSubmissionId:
-          props.travelAuthorizationPreApprovalSubmissionId,
-      },
+      name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
     })
   } catch (error) {
     console.error(`Failed to submit travel authorization pre-approval submission: ${error}`, {
