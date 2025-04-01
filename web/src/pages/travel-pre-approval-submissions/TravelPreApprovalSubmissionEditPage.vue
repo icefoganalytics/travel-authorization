@@ -1,101 +1,102 @@
 <template>
   <div>
-    <v-card :key="update">
-      <v-card-title style="border-bottom: 1px solid black">
-        <div class="text-h5">Submit/Draft Travel Request</div>
-      </v-card-title>
-
-      <v-card-text>
-        <v-row class="mt-3">
+    <v-skeleton-loader
+      v-if="isNil(travelAuthorizationPreApprovalSubmission)"
+      type="card"
+    />
+    <HeaderActionsFormCard
+      v-else
+      title="Edit Travel Pre-Approval Submission"
+    >
+      <v-row>
+        <v-col class="d-flex justify-end">
           <v-btn
-            class="ml-auto mr-5"
+            class="my-0"
             color="primary"
             @click="openAddTravel"
           >
             Add Request
           </v-btn>
-        </v-row>
-        <v-data-table
-          style="margin-top: 1rem"
-          :headers="headers"
-          :items="submittingRequests"
-          :items-per-page="5"
-          class="elevation-1"
-          hide-default-footer
-        >
-          <template #item.remove="{ item }">
-            <v-btn
-              style="min-width: 0"
-              color="transparent"
-              class="px-1"
-              small
-              @click="removeTravel(item)"
-            >
-              <v-icon color="red">mdi-delete</v-icon>
-            </v-btn>
-          </template>
-          <template #item.name="{ item }">
-            <template v-if="item.profiles.length === 0"> Unspecified </template>
-            <template v-else-if="item.profiles.length === 1">
-              {{ item.profiles[0].profileName.replace(".", " ") }}
-            </template>
-            <v-tooltip
-              v-else
-              top
-              color="primary"
-            >
-              <template #activator="{ on }">
-                <div v-on="on">
-                  <span>
-                    {{ item.profiles[0].profileName.replace(".", " ") }}
-                  </span>
-                  <span>, ... </span>
-                </div>
-              </template>
-              <span
-                ><div
-                  v-for="(profile, index) in item.profiles"
-                  :key="index"
-                >
-                  {{ profile.profileName.replace(".", " ") }}
-                </div></span
-              >
-            </v-tooltip>
-          </template>
-          <template #item.status="{ item }">
-            <v-tooltip
-              top
-              color="amber accent-4"
-            >
-              <template #activator="{ on }">
-                <v-icon
-                  v-if="
-                    item.status && item.sumssionId != travelAuthorizationPreApprovalSubmissionId
-                  "
-                  style="cursor: pointer"
-                  class=""
-                  color="amber accent-2"
-                  v-on="on"
-                  >mdi-alert</v-icon
-                >
-              </template>
-              <span class="black--text">
-                This request is already in another submission.<br />
-                If you Save/Submit this change, it will be removed from the other submission.
-              </span>
-            </v-tooltip>
-          </template>
-          <template #item.edit="{ item }">
-            <NewTravelRequest
-              :travel-request="item"
-              type="Edit"
-              @updateTable="updateAndOpenDialog"
-            />
-          </template>
-        </v-data-table>
-      </v-card-text>
+        </v-col>
+      </v-row>
 
-      <v-card-actions>
+      <v-data-table
+        style="margin-top: 1rem"
+        :headers="headers"
+        :items="submittingRequests"
+        :items-per-page="5"
+        hide-default-footer
+      >
+        <template #item.remove="{ item }">
+          <v-btn
+            style="min-width: 0"
+            color="transparent"
+            class="px-1"
+            small
+            @click="removeTravel(item)"
+          >
+            <v-icon color="red">mdi-delete</v-icon>
+          </v-btn>
+        </template>
+        <template #item.name="{ item }">
+          <template v-if="item.profiles.length === 0"> Unspecified </template>
+          <template v-else-if="item.profiles.length === 1">
+            {{ item.profiles[0].profileName.replace(".", " ") }}
+          </template>
+          <v-tooltip
+            v-else
+            top
+            color="primary"
+          >
+            <template #activator="{ on }">
+              <div v-on="on">
+                <span>
+                  {{ item.profiles[0].profileName.replace(".", " ") }}
+                </span>
+                <span>, ... </span>
+              </div>
+            </template>
+            <span
+              ><div
+                v-for="(profile, index) in item.profiles"
+                :key="index"
+              >
+                {{ profile.profileName.replace(".", " ") }}
+              </div></span
+            >
+          </v-tooltip>
+        </template>
+        <template #item.status="{ item }">
+          <v-tooltip
+            top
+            color="amber accent-4"
+          >
+            <template #activator="{ on }">
+              <v-icon
+                v-if="item.status && item.sumssionId != travelAuthorizationPreApprovalSubmissionId"
+                style="cursor: pointer"
+                class=""
+                color="amber accent-2"
+                v-on="on"
+                >mdi-alert</v-icon
+              >
+            </template>
+            <span class="black--text">
+              This request is already in another submission.<br />
+              If you Save/Submit this change, it will be removed from the other submission.
+            </span>
+          </v-tooltip>
+        </template>
+        <template #item.edit="{ item }">
+          <NewTravelRequest
+            :travel-request="item"
+            type="Edit"
+            @updateTable="updateAndOpenDialog"
+          />
+        </template>
+      </v-data-table>
+
+      <template #actions>
         <v-btn
           color="grey darken-5"
           @click="submitTravelDialog = false"
@@ -124,8 +125,8 @@
         >
           Submit
         </v-btn>
-      </v-card-actions>
-    </v-card>
+      </template>
+    </HeaderActionsFormCard>
 
     <v-dialog
       v-model="addTravelDialog"
@@ -224,9 +225,10 @@
   </div>
 </template>
 
-<script>
-import { computed, ref, watch } from "vue"
-import { cloneDeep } from "lodash"
+<script setup>
+import { computed, ref, toRefs, watch } from "vue"
+import { useStore } from "vue2-helpers/vuex"
+import { cloneDeep, isNil } from "lodash"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
@@ -235,259 +237,239 @@ import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authori
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
+import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
+import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
 
-export default {
-  name: "SubmitTravel",
-  components: {
-    NewTravelRequest,
+const props = defineProps({
+  travelAuthorizationPreApprovalSubmissionId: {
+    type: [String, Number],
+    required: true,
   },
-  props: {
-    travelAuthorizationPreApprovalSubmissionId: {
-      type: [String, Number],
-      required: true,
-    },
+})
+
+const emit = defineEmits(["updateTable"])
+
+const { travelAuthorizationPreApprovalSubmissionId } = toRefs(props)
+const { travelAuthorizationPreApprovalSubmission } = useTravelAuthorizationPreApprovalSubmission(
+  travelAuthorizationPreApprovalSubmissionId
+)
+
+const { travelAuthorizationPreApprovals: travelRequests } = useTravelAuthorizationPreApprovals()
+
+const travelAuthorizationPreApprovalsWhere = computed(() => {
+  return {
+    submissionId: props.travelAuthorizationPreApprovalSubmissionId,
+  }
+})
+const travelAuthorizationPreApprovalsQuery = computed(() => {
+  return {
+    where: travelAuthorizationPreApprovalsWhere.value,
+  }
+})
+const { travelAuthorizationPreApprovals: selectedRequests } = useTravelAuthorizationPreApprovals(
+  travelAuthorizationPreApprovalsQuery
+)
+
+const submittingRequests = ref([])
+
+watch(
+  () => selectedRequests.value,
+  (newSelectedRequests) => {
+    submittingRequests.value = cloneDeep(newSelectedRequests)
   },
-  setup(props) {
-    const { travelAuthorizationPreApprovals: travelRequests } = useTravelAuthorizationPreApprovals()
+  { deep: true, immediate: true }
+)
 
-    const travelAuthorizationPreApprovalsWhere = computed(() => {
-      return {
-        submissionId: props.travelAuthorizationPreApprovalSubmissionId,
-      }
-    })
-    const travelAuthorizationPreApprovalsQuery = computed(() => {
-      return {
-        where: travelAuthorizationPreApprovalsWhere.value,
-      }
-    })
-    const { travelAuthorizationPreApprovals: selectedRequests } =
-      useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
-
-    const submittingRequests = ref([])
-
-    watch(
-      () => selectedRequests.value,
-      (newSelectedRequests) => {
-        submittingRequests.value = cloneDeep(newSelectedRequests)
-      },
-      { deep: true, immediate: true }
-    )
-
-    useBreadcrumbs([
-      {
-        text: "Travel Pre-Approval Submissions",
-        to: {
-          name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
-        },
-      },
-      {
-        text: "Submission",
-        to: {
-          name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionPage",
-          params: {
-            travelAuthorizationPreApprovalSubmissionId:
-              props.travelAuthorizationPreApprovalSubmissionId,
-          },
-        },
-      },
-      {
-        text: "Edit",
-        to: {
-          name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage",
-          params: {
-            travelAuthorizationPreApprovalSubmissionId:
-              props.travelAuthorizationPreApprovalSubmissionId,
-          },
-        },
-      },
-    ])
-
-    return {
-      travelRequests,
-      selectedRequests,
-      submittingRequests,
-    }
+const headers = ref([
+  {
+    text: "Name",
+    value: "name",
   },
-  data() {
-    return {
-      headers: [
-        {
-          text: "Name",
-          value: "name",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Branch",
-          value: "branch",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Reason",
-          value: "reason",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Location",
-          value: "location",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "",
-          sortable: false,
-          value: "status",
-          class: "blue-grey lighten-4",
-          cellClass: "px-0 mx-0",
-          width: "1rem",
-        },
-        {
-          text: "",
-          sortable: false,
-          value: "remove",
-          class: "blue-grey lighten-4",
-          cellClass: "px-0 mx-0",
-          width: "1rem",
-        },
-        {
-          text: "",
-          sortable: false,
-          value: "edit",
-          class: "blue-grey lighten-4",
-          cellClass: "px-0 mx-0",
-          width: "1rem",
-        },
-      ],
-      addTravelHeaders: [
-        {
-          text: "Name",
-          value: "name",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Department",
-          value: "department",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Branch",
-          value: "branch",
-          class: "blue-grey lighten-4",
-        },
-
-        {
-          text: "Location",
-          value: "location",
-          class: "blue-grey lighten-4",
-        },
-        {
-          text: "Purpose Type",
-          value: "purpose",
-          class: "blue-grey lighten-4",
-        },
-        // { text: 'Reason',       value: 'reason',      class: 'blue-grey lighten-4' },
-        {
-          text: "Status",
-          value: "status",
-          class: "blue-grey lighten-4",
-          cellClass: "text-h6 red--text",
-        },
-      ],
-      submitTravelDialog: false,
-      newSelectedRequests: [],
-      addTravelDialog: false,
-      savingData: false,
-      update: 0,
-    }
+  {
+    text: "Branch",
+    value: "branch",
   },
-  computed: {
-    STATUSES() {
-      return TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES
-    },
-    remainingTravelRequests() {
-      const currentIDs = this.submittingRequests.map((req) => req.id)
-      const currentDept = this.submittingRequests[0]?.department
-      return this.travelRequests?.filter(
-        (req) =>
-          !currentIDs.includes(req.id) &&
-          (req.status == null || req.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT) &&
-          (req.department == currentDept || currentIDs.length == 0)
-      )
-    },
+  {
+    text: "Reason",
+    value: "reason",
   },
-  methods: {
-    removeTravel(item) {
-      this.submittingRequests = cloneDeep(
-        this.submittingRequests.filter((request) => request.id != item.id)
-      )
-      this.update++
-    },
-
-    openAddTravel() {
-      this.newSelectedRequests = []
-      this.addTravelDialog = true
-    },
-
-    addTravel() {
-      this.submittingRequests = [...this.submittingRequests, ...this.newSelectedRequests]
-      this.addTravelDialog = false
-    },
-
-    submitTravelRequest(status) {
-      const currentIDs = this.submittingRequests.map((req) => req.id)
-      if (currentIDs.length > 0) {
-        const currentDept = this.submittingRequests[0].department
-        this.savingData = true
-        const body = {
-          department: currentDept,
-          status,
-          submitter: "SYSTEM",
-          preApprovalIds: currentIDs,
-        }
-        // console.log(body)
-        return http
-          .post(
-            `${PREAPPROVED_URL}/submissions/${this.travelAuthorizationPreApprovalSubmissionId}`,
-            body
-          )
-          .then(() => {
-            this.savingData = false
-            this.submitTravelDialog = false
-            this.$emit("updateTable")
-          })
-          .catch((e) => {
-            this.savingData = false
-            console.log(e)
-          })
-      }
-    },
-
-    deleteSubmission() {
-      return http
-        .delete(`${PREAPPROVED_URL}/submissions/${this.travelAuthorizationPreApprovalSubmissionId}`)
-        .then(() => {
-          this.savingData = false
-          this.submitTravelDialog = false
-          this.$emit("updateTable")
-        })
-        .catch((e) => {
-          this.savingData = false
-          console.log(e)
-        })
-    },
-
-    updateTable() {
-      this.$emit("updateTable")
-    },
-
-    updateAndOpenDialog() {
-      this.$store.commit(
-        "preapproved/SET_OPEN_DIALOG_ID",
-        "edit-" + this.travelAuthorizationPreApprovalSubmissionId
-      )
-      this.updateTable()
-    },
+  {
+    text: "Location",
+    value: "location",
   },
+  {
+    text: "",
+    sortable: false,
+    value: "status",
+    cellClass: "px-0 mx-0",
+    width: "1rem",
+  },
+  {
+    text: "",
+    sortable: false,
+    value: "remove",
+    cellClass: "px-0 mx-0",
+    width: "1rem",
+  },
+  {
+    text: "",
+    sortable: false,
+    value: "edit",
+    cellClass: "px-0 mx-0",
+    width: "1rem",
+  },
+])
+
+const addTravelHeaders = ref([
+  {
+    text: "Name",
+    value: "name",
+  },
+  {
+    text: "Department",
+    value: "department",
+  },
+  {
+    text: "Branch",
+    value: "branch",
+  },
+
+  {
+    text: "Location",
+    value: "location",
+  },
+  {
+    text: "Purpose Type",
+    value: "purpose",
+  },
+  // { text: 'Reason',       value: 'reason',      class: 'blue-grey lighten-4' },
+  {
+    text: "Status",
+    value: "status",
+    cellClass: "text-h6 red--text",
+  },
+])
+const submitTravelDialog = ref(false)
+const newSelectedRequests = ref([])
+const addTravelDialog = ref(false)
+const savingData = ref(false)
+const update = ref(0)
+
+const STATUSES = computed(() => TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES)
+const remainingTravelRequests = computed(() => {
+  const currentIDs = submittingRequests.value.map((req) => req.id)
+  const currentDept = submittingRequests.value[0]?.department
+  return travelRequests.value?.filter(
+    (req) =>
+      !currentIDs.includes(req.id) &&
+      (req.status == null || req.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT) &&
+      (req.department == currentDept || currentIDs.length == 0)
+  )
+})
+
+function removeTravel(item) {
+  submittingRequests.value = cloneDeep(
+    submittingRequests.value.filter((request) => request.id != item.id)
+  )
+  update.value++
 }
+
+function openAddTravel() {
+  newSelectedRequests.value = []
+  addTravelDialog.value = true
+}
+
+function addTravel() {
+  submittingRequests.value = [...submittingRequests.value, ...newSelectedRequests.value]
+  addTravelDialog.value = false
+}
+
+function submitTravelRequest(status) {
+  const currentIDs = submittingRequests.value.map((req) => req.id)
+  if (currentIDs.length > 0) {
+    const currentDept = submittingRequests.value[0].department
+    savingData.value = true
+    const body = {
+      department: currentDept,
+      status,
+      submitter: "SYSTEM",
+      preApprovalIds: currentIDs,
+    }
+    // console.log(body)
+    return http
+      .post(
+        `${PREAPPROVED_URL}/submissions/${props.travelAuthorizationPreApprovalSubmissionId}`,
+        body
+      )
+      .then(() => {
+        savingData.value = false
+        submitTravelDialog.value = false
+        this.$emit("updateTable")
+      })
+      .catch((e) => {
+        savingData.value = false
+        console.log(e)
+      })
+  }
+}
+
+function deleteSubmission() {
+  return http
+    .delete(`${PREAPPROVED_URL}/submissions/${props.travelAuthorizationPreApprovalSubmissionId}`)
+    .then(() => {
+      savingData.value = false
+      submitTravelDialog.value = false
+      emit("updateTable")
+    })
+    .catch((e) => {
+      savingData.value = false
+      console.log(e)
+    })
+}
+
+function updateTable() {
+  emit("updateTable")
+}
+
+const store = useStore()
+
+function updateAndOpenDialog() {
+  store.commit(
+    "preapproved/SET_OPEN_DIALOG_ID",
+    "edit-" + props.travelAuthorizationPreApprovalSubmissionId
+  )
+  updateTable()
+}
+
+useBreadcrumbs([
+  {
+    text: "Travel Pre-Approval Submissions",
+    to: {
+      name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
+    },
+  },
+  {
+    text: "Submission",
+    to: {
+      name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionPage",
+      params: {
+        travelAuthorizationPreApprovalSubmissionId:
+          props.travelAuthorizationPreApprovalSubmissionId,
+      },
+    },
+  },
+  {
+    text: "Edit",
+    to: {
+      name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage",
+      params: {
+        travelAuthorizationPreApprovalSubmissionId:
+          props.travelAuthorizationPreApprovalSubmissionId,
+      },
+    },
+  },
+])
 </script>
 
 <style scoped>
