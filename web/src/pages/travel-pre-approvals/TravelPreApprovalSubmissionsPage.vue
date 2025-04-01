@@ -3,8 +3,8 @@
     ref="travelAuthorizationPreApprovalSubmissionsDataTable"
   >
     <template #top>
-      <TravelAuthorizationsPreApprovalApproveDialog
-        ref="travelAuthorizationsPreApprovalApproveDialog"
+      <TravelAuthorizationsPreApprovalSubmissionApproveDialog
+        ref="travelAuthorizationsPreApprovalSubmissionApproveDialog"
         @approved="refresh"
       />
     </template>
@@ -67,16 +67,16 @@ import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/tra
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
-import TravelAuthorizationsPreApprovalApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalApproveDialog.vue"
+import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionApproveDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionsDataTable from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTable.vue"
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationsPreApprovalApproveDialog> | null>} */
-const travelAuthorizationsPreApprovalApproveDialog = ref(null)
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationsPreApprovalSubmissionApproveDialog> | null>} */
+const travelAuthorizationsPreApprovalSubmissionApproveDialog = ref(null)
 
 function showTravelAuthorizationsPreApprovalApproveDialog(
   travelAuthorizationPreApprovalSubmissionId
 ) {
-  travelAuthorizationsPreApprovalApproveDialog.value?.show(
+  travelAuthorizationsPreApprovalSubmissionApproveDialog.value?.show(
     travelAuthorizationPreApprovalSubmissionId
   )
 }
