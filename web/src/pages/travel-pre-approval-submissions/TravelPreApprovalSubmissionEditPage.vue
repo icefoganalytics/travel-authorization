@@ -20,81 +20,62 @@
         </v-col>
       </v-row>
 
-      <v-data-table
-        style="margin-top: 1rem"
-        :headers="headers"
-        :items="submittingRequests"
-        :items-per-page="5"
-        hide-default-footer
-      >
-        <template #item.remove="{ item }">
-          <v-btn
-            style="min-width: 0"
-            color="transparent"
-            class="px-1"
-            small
-            @click="removeTravel(item)"
+      <v-row>
+        <v-col>
+          <TravelAuthorizationPreApprovalsSimpleDataTable
+            :where="travelAuthorizationPreApprovalsWhere"
+            show-actions-header
           >
-            <v-icon color="red">mdi-delete</v-icon>
-          </v-btn>
-        </template>
-        <template #item.name="{ item }">
-          <template v-if="item.profiles.length === 0"> Unspecified </template>
-          <template v-else-if="item.profiles.length === 1">
-            {{ item.profiles[0].profileName.replace(".", " ") }}
-          </template>
-          <v-tooltip
-            v-else
-            top
-            color="primary"
-          >
-            <template #activator="{ on }">
-              <div v-on="on">
-                <span>
-                  {{ item.profiles[0].profileName.replace(".", " ") }}
-                </span>
-                <span>, ... </span>
+            <template #item.actions="{ item }">
+              <div class="d-flex align-center justify-center">
+                <NewTravelRequest
+                  :travel-request="item"
+                  type="Edit"
+                  @updateTable="updateAndOpenDialog"
+                />
+                <v-btn
+                  style="min-width: 0"
+                  color="transparent"
+                  class="px-1"
+                  small
+                  @click="removeTravel(item)"
+                >
+                  <v-icon color="red">mdi-delete</v-icon>
+                </v-btn>
+
+                <!--
+                  TODO: Move this to "add new pre-approval request", or drop entirely?
+                  This seems like something that that should happen during search?
+                  e.g. the ability to "merge" pre-approval submissions?
+                  or during the pre-approval request search, you can change filter to include request that are in
+                  other submissions, and when you click to "add" them it gives you a confirmation dialog at that time.
+                -->
+                <v-tooltip
+                  top
+                  color="amber accent-4"
+                >
+                  <template #activator="{ on }">
+                    <v-icon
+                      v-if="
+                        item.status && item.sumssionId != travelAuthorizationPreApprovalSubmissionId
+                      "
+                      style="cursor: pointer"
+                      class=""
+                      color="amber accent-2"
+                      v-on="on"
+                      >mdi-alert</v-icon
+                    >
+                  </template>
+                  <span class="black--text">
+                    This request is already in another submission.<br />
+                    If you Save/Submit this change, it will be removed from the other submission.
+                  </span>
+                </v-tooltip>
               </div>
             </template>
-            <span
-              ><div
-                v-for="(profile, index) in item.profiles"
-                :key="index"
-              >
-                {{ profile.profileName.replace(".", " ") }}
-              </div></span
-            >
-          </v-tooltip>
-        </template>
-        <template #item.status="{ item }">
-          <v-tooltip
-            top
-            color="amber accent-4"
-          >
-            <template #activator="{ on }">
-              <v-icon
-                v-if="item.status && item.sumssionId != travelAuthorizationPreApprovalSubmissionId"
-                style="cursor: pointer"
-                class=""
-                color="amber accent-2"
-                v-on="on"
-                >mdi-alert</v-icon
-              >
-            </template>
-            <span class="black--text">
-              This request is already in another submission.<br />
-              If you Save/Submit this change, it will be removed from the other submission.
-            </span>
-          </v-tooltip>
-        </template>
-        <template #item.edit="{ item }">
-          <NewTravelRequest
-            :travel-request="item"
-            type="Edit"
-            @updateTable="updateAndOpenDialog"
-          />
-        </template>
-      </v-data-table>
+          </TravelAuthorizationPreApprovalsSimpleDataTable>
+        </v-col>
+      </v-row>
 
       <template #actions>
         <v-btn
@@ -236,10 +217,12 @@ import { PREAPPROVED_URL } from "@/urls"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
+import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
-import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
 
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {
@@ -280,46 +263,6 @@ watch(
   },
   { deep: true, immediate: true }
 )
-
-const headers = ref([
-  {
-    text: "Name",
-    value: "name",
-  },
-  {
-    text: "Branch",
-    value: "branch",
-  },
-  {
-    text: "Reason",
-    value: "reason",
-  },
-  {
-    text: "Location",
-    value: "location",
-  },
-  {
-    text: "",
-    sortable: false,
-    value: "status",
-    cellClass: "px-0 mx-0",
-    width: "1rem",
-  },
-  {
-    text: "",
-    sortable: false,
-    value: "remove",
-    cellClass: "px-0 mx-0",
-    width: "1rem",
-  },
-  {
-    text: "",
-    sortable: false,
-    value: "edit",
-    cellClass: "px-0 mx-0",
-    width: "1rem",
-  },
-])
 
 const addTravelHeaders = ref([
   {
