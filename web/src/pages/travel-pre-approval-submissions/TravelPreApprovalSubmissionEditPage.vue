@@ -38,19 +38,33 @@
           >
             <template #item.actions="{ item }">
               <div class="d-flex align-center justify-center">
-                <NewTravelRequest
-                  :travel-request="item"
-                  type="Edit"
-                  @updateTable="updateAndOpenDialog"
-                />
                 <v-btn
-                  style="min-width: 0"
-                  color="transparent"
-                  class="px-1"
-                  small
-                  @click="removeTravel(item)"
+                  class="my-0"
+                  title="Edit"
+                  :to="{
+                    name: 'travel-pre-approvals/TravelPreApprovalEditPage',
+                    params: {
+                      travelAuthorizationPreApprovalId: item.id,
+                    },
+                  }"
+                  color="primary"
+                  icon
                 >
-                  <v-icon color="red">mdi-delete</v-icon>
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn
+                  class="my-0"
+                  title="Remove"
+                  color="error"
+                  icon
+                  @click="
+                    removeTravelAuthorizationPreApprovalFromSubmission(
+                      travelAuthorizationPreApprovalSubmissionId,
+                      item.id
+                    )
+                  "
+                >
+                  <v-icon>mdi-delete</v-icon>
                 </v-btn>
 
                 <!--
@@ -205,7 +219,6 @@
 
 <script setup>
 import { computed, ref, toRefs, watch } from "vue"
-import { useStore } from "vue2-helpers/vuex"
 import { useRouter } from "vue2-helpers/vue-router"
 import { cloneDeep, isNil } from "lodash"
 
@@ -214,6 +227,7 @@ import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 
+import { travelAuthorizationPreApprovalSubmissions } from "@/api"
 import travelAuthorizationPreApprovalSubmissionApi from "@/api/travel-authorization-pre-approval-submissions-api"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 
@@ -225,16 +239,12 @@ import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-author
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
 
-import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
-
 const props = defineProps({
   travelAuthorizationPreApprovalSubmissionId: {
     type: [String, Number],
     required: true,
   },
 })
-
-const emit = defineEmits(["updateTable"])
 
 const { travelAuthorizationPreApprovalSubmissionId } = toRefs(props)
 const { travelAuthorizationPreApprovalSubmission, isLoading } =
@@ -298,7 +308,6 @@ const addTravelHeaders = ref([
 const submitTravelDialog = ref(false)
 const newSelectedRequests = ref([])
 const addTravelDialog = ref(false)
-const update = ref(0)
 
 const STATUSES = computed(() => TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES)
 const remainingTravelRequests = computed(() => {
@@ -312,11 +321,25 @@ const remainingTravelRequests = computed(() => {
   )
 })
 
-function removeTravel(item) {
-  submittingRequests.value = cloneDeep(
-    submittingRequests.value.filter((request) => request.id != item.id)
-  )
-  update.value++
+async function removeTravelAuthorizationPreApprovalFromSubmission(
+  travelAuthorizationPreApprovalSubmissionId,
+  travelAuthorizationPreApprovalId
+) {
+  isLoading.value = true
+  try {
+    await travelAuthorizationPreApprovalSubmissions.preApprovalsApi.delete(
+      travelAuthorizationPreApprovalSubmissionId,
+      travelAuthorizationPreApprovalId
+    )
+    snack.success("Travel pre-approval removed from submission successfully")
+  } catch (error) {
+    console.error(`Failed to remove travel authorization pre-approval from submission: ${error}`, {
+      error,
+    })
+    snack.error(`Failed to remove travel pre-approval from submission: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 function openAddTravel() {
@@ -349,7 +372,13 @@ function submitTravelRequest(status) {
       .then(() => {
         isLoading.value = false
         submitTravelDialog.value = false
-        this.$emit("updateTable")
+        return router.replace({
+          name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionPage",
+          params: {
+            travelAuthorizationPreApprovalSubmissionId:
+              props.travelAuthorizationPreApprovalSubmissionId,
+          },
+        })
       })
       .catch((e) => {
         isLoading.value = false
@@ -382,20 +411,6 @@ async function deleteTravelAuthorizationPreApprovalSubmission() {
   } finally {
     isLoading.value = false
   }
-}
-
-function updateTable() {
-  emit("updateTable")
-}
-
-const store = useStore()
-
-function updateAndOpenDialog() {
-  store.commit(
-    "preapproved/SET_OPEN_DIALOG_ID",
-    "edit-" + props.travelAuthorizationPreApprovalSubmissionId
-  )
-  updateTable()
 }
 
 useBreadcrumbs([
