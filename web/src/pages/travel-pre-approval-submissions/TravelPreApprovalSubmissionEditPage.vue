@@ -1,151 +1,131 @@
 <template>
   <div>
-    <v-dialog
-      v-model="submitTravelDialog"
-      persistent
-      max-width="950px"
-    >
-      <template #activator="{ on, attrs }">
-        <v-btn
-          :id="'edit-' + submissionId"
-          :disabled="disabled"
-          :small="editButton"
-          :class="editButton ? 'my-0' : 'mr-5 my-7'"
-          color="primary"
-          v-bind="attrs"
-          @click="extractTravelRequests"
-          v-on="on"
+    <v-card :key="update">
+      <v-card-title style="border-bottom: 1px solid black">
+        <div class="text-h5">Submit/Draft Travel Request</div>
+      </v-card-title>
+
+      <v-card-text>
+        <v-row class="mt-3">
+          <v-btn
+            class="ml-auto mr-5"
+            color="primary"
+            @click="openAddTravel"
+          >
+            Add Request
+          </v-btn>
+        </v-row>
+        <v-data-table
+          style="margin-top: 1rem"
+          :headers="headers"
+          :items="submittingRequests"
+          :items-per-page="5"
+          class="elevation-1"
+          hide-default-footer
         >
-          {{ buttonName }}
-        </v-btn>
-      </template>
-
-      <v-card :key="update">
-        <v-card-title style="border-bottom: 1px solid black">
-          <div class="text-h5">Submit/Draft Travel Request</div>
-        </v-card-title>
-
-        <v-card-text>
-          <v-row class="mt-3">
+          <template #item.remove="{ item }">
             <v-btn
-              class="ml-auto mr-5"
-              color="primary"
-              @click="openAddTravel"
+              style="min-width: 0"
+              color="transparent"
+              class="px-1"
+              small
+              @click="removeTravel(item)"
             >
-              Add Request
+              <v-icon color="red">mdi-delete</v-icon>
             </v-btn>
-          </v-row>
-          <v-data-table
-            style="margin-top: 1rem"
-            :headers="headers"
-            :items="submittingRequests"
-            :items-per-page="5"
-            class="elevation-1"
-            hide-default-footer
-          >
-            <template #item.remove="{ item }">
-              <v-btn
-                style="min-width: 0"
-                color="transparent"
-                class="px-1"
-                small
-                @click="removeTravel(item)"
-              >
-                <v-icon color="red">mdi-delete</v-icon>
-              </v-btn>
+          </template>
+          <template #item.name="{ item }">
+            <template v-if="item.profiles.length === 0"> Unspecified </template>
+            <template v-else-if="item.profiles.length === 1">
+              {{ item.profiles[0].profileName.replace(".", " ") }}
             </template>
-            <template #item.name="{ item }">
-              <template v-if="item.profiles.length === 0"> Unspecified </template>
-              <template v-else-if="item.profiles.length === 1">
-                {{ item.profiles[0].profileName.replace(".", " ") }}
+            <v-tooltip
+              v-else
+              top
+              color="primary"
+            >
+              <template #activator="{ on }">
+                <div v-on="on">
+                  <span>
+                    {{ item.profiles[0].profileName.replace(".", " ") }}
+                  </span>
+                  <span>, ... </span>
+                </div>
               </template>
-              <v-tooltip
-                v-else
-                top
-                color="primary"
-              >
-                <template #activator="{ on }">
-                  <div v-on="on">
-                    <span>
-                      {{ item.profiles[0].profileName.replace(".", " ") }}
-                    </span>
-                    <span>, ... </span>
-                  </div>
-                </template>
-                <span
-                  ><div
-                    v-for="(profile, index) in item.profiles"
-                    :key="index"
-                  >
-                    {{ profile.profileName.replace(".", " ") }}
-                  </div></span
+              <span
+                ><div
+                  v-for="(profile, index) in item.profiles"
+                  :key="index"
                 >
-              </v-tooltip>
-            </template>
-            <template #item.status="{ item }">
-              <v-tooltip
-                top
-                color="amber accent-4"
+                  {{ profile.profileName.replace(".", " ") }}
+                </div></span
               >
-                <template #activator="{ on }">
-                  <v-icon
-                    v-if="item.status && item.sumssionId != submissionId"
-                    style="cursor: pointer"
-                    class=""
-                    color="amber accent-2"
-                    v-on="on"
-                    >mdi-alert</v-icon
-                  >
-                </template>
-                <span class="black--text">
-                  This request is already in another submission.<br />
-                  If you Save/Submit this change, it will be removed from the other submission.
-                </span>
-              </v-tooltip>
-            </template>
-            <template #item.edit="{ item }">
-              <NewTravelRequest
-                :travel-request="item"
-                type="Edit"
-                @updateTable="updateAndOpenDialog"
-              />
-            </template>
-          </v-data-table>
-        </v-card-text>
+            </v-tooltip>
+          </template>
+          <template #item.status="{ item }">
+            <v-tooltip
+              top
+              color="amber accent-4"
+            >
+              <template #activator="{ on }">
+                <v-icon
+                  v-if="
+                    item.status && item.sumssionId != travelAuthorizationPreApprovalSubmissionId
+                  "
+                  style="cursor: pointer"
+                  class=""
+                  color="amber accent-2"
+                  v-on="on"
+                  >mdi-alert</v-icon
+                >
+              </template>
+              <span class="black--text">
+                This request is already in another submission.<br />
+                If you Save/Submit this change, it will be removed from the other submission.
+              </span>
+            </v-tooltip>
+          </template>
+          <template #item.edit="{ item }">
+            <NewTravelRequest
+              :travel-request="item"
+              type="Edit"
+              @updateTable="updateAndOpenDialog"
+            />
+          </template>
+        </v-data-table>
+      </v-card-text>
 
-        <v-card-actions>
-          <v-btn
-            color="grey darken-5"
-            @click="submitTravelDialog = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            v-if="editButton"
-            color="red darken-5"
-            @click="deleteSubmission()"
-          >
-            Delete
-          </v-btn>
-          <v-btn
-            class="ml-auto"
-            color="lime darken-1"
-            :loading="savingData"
-            @click="submitTravelRequest(STATUSES.DRAFT)"
-          >
-            Save Draft
-          </v-btn>
-          <v-btn
-            class="ml-5"
-            color="green darken-1"
-            :loading="savingData"
-            @click="submitTravelRequest(STATUSES.SUBMITTED)"
-          >
-            Submit
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <v-card-actions>
+        <v-btn
+          color="grey darken-5"
+          @click="submitTravelDialog = false"
+        >
+          Cancel
+        </v-btn>
+        <v-btn
+          color="red darken-5"
+          @click="deleteSubmission()"
+        >
+          Delete
+        </v-btn>
+        <v-btn
+          class="ml-auto"
+          color="lime darken-1"
+          :loading="savingData"
+          @click="submitTravelRequest(STATUSES.DRAFT)"
+        >
+          Save Draft
+        </v-btn>
+        <v-btn
+          class="ml-5"
+          color="green darken-1"
+          :loading="savingData"
+          @click="submitTravelRequest(STATUSES.SUBMITTED)"
+        >
+          Submit
+        </v-btn>
+      </v-card-actions>
+    </v-card>
 
     <v-dialog
       v-model="addTravelDialog"
@@ -217,7 +197,7 @@
             </template>
 
             <template #item.status="{ item }">
-              <div v-if="item.submissionId != submissionId">
+              <div v-if="item.submissionId != travelAuthorizationPreApprovalSubmissionId">
                 {{ item.status }}
               </div>
             </template>
@@ -245,11 +225,14 @@
 </template>
 
 <script>
+import { computed, ref, watch } from "vue"
 import { cloneDeep } from "lodash"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
+
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
 
@@ -259,30 +242,42 @@ export default {
     NewTravelRequest,
   },
   props: {
-    buttonName: {
-      type: String,
-      default: "Submit Travel",
+    travelAuthorizationPreApprovalSubmissionId: {
+      type: [String, Number],
+      required: true,
     },
-    editButton: {
-      type: Boolean,
-      default: false,
-    },
-    submissionId: {
-      type: Number,
-      default: 0,
-    },
-    travelRequests: {
-      type: Array,
-      default: () => [],
-    },
-    selectedRequests: {
-      type: Array,
-      default: () => [],
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
+  },
+  setup(props) {
+    const { travelAuthorizationPreApprovals: travelRequests } = useTravelAuthorizationPreApprovals()
+
+    const travelAuthorizationPreApprovalsWhere = computed(() => {
+      return {
+        submissionId: props.travelAuthorizationPreApprovalSubmissionId,
+      }
+    })
+    const travelAuthorizationPreApprovalsQuery = computed(() => {
+      return {
+        where: travelAuthorizationPreApprovalsWhere.value,
+      }
+    })
+    const { travelAuthorizationPreApprovals: selectedRequests } =
+      useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
+
+    const submittingRequests = ref([])
+
+    watch(
+      () => selectedRequests.value,
+      (newSelectedRequests) => {
+        submittingRequests.value = cloneDeep(newSelectedRequests)
+      },
+      { deep: true, immediate: true }
+    )
+
+    return {
+      travelRequests,
+      selectedRequests,
+      submittingRequests,
+    }
   },
   data() {
     return {
@@ -367,7 +362,6 @@ export default {
           cellClass: "text-h6 red--text",
         },
       ],
-      submittingRequests: [],
       submitTravelDialog: false,
       newSelectedRequests: [],
       addTravelDialog: false,
@@ -391,16 +385,6 @@ export default {
     },
   },
   methods: {
-    extractTravelRequests() {
-      this.submittingRequests = cloneDeep(
-        this.selectedRequests.filter(
-          (request) =>
-            request.status == null ||
-            request.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT
-        )
-      )
-    },
-
     removeTravel(item) {
       this.submittingRequests = cloneDeep(
         this.submittingRequests.filter((request) => request.id != item.id)
@@ -431,7 +415,10 @@ export default {
         }
         // console.log(body)
         return http
-          .post(`${PREAPPROVED_URL}/submissions/${this.submissionId}`, body)
+          .post(
+            `${PREAPPROVED_URL}/submissions/${this.travelAuthorizationPreApprovalSubmissionId}`,
+            body
+          )
           .then(() => {
             this.savingData = false
             this.submitTravelDialog = false
@@ -446,7 +433,7 @@ export default {
 
     deleteSubmission() {
       return http
-        .delete(`${PREAPPROVED_URL}/submissions/${this.submissionId}`)
+        .delete(`${PREAPPROVED_URL}/submissions/${this.travelAuthorizationPreApprovalSubmissionId}`)
         .then(() => {
           this.savingData = false
           this.submitTravelDialog = false
@@ -463,7 +450,10 @@ export default {
     },
 
     updateAndOpenDialog() {
-      this.$store.commit("preapproved/SET_OPEN_DIALOG_ID", "edit-" + this.submissionId)
+      this.$store.commit(
+        "preapproved/SET_OPEN_DIALOG_ID",
+        "edit-" + this.travelAuthorizationPreApprovalSubmissionId
+      )
       this.updateTable()
     },
   },
