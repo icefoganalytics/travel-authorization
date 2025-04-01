@@ -232,6 +232,7 @@ import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import NewTravelRequest from "@/modules/preapproved/views/Requests/NewTravelRequest.vue"
@@ -272,6 +273,35 @@ export default {
       },
       { deep: true, immediate: true }
     )
+
+    useBreadcrumbs([
+      {
+        text: "Travel Pre-Approval Submissions",
+        to: {
+          name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
+        },
+      },
+      {
+        text: "Submission",
+        to: {
+          name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionPage",
+          params: {
+            travelAuthorizationPreApprovalSubmissionId:
+              props.travelAuthorizationPreApprovalSubmissionId,
+          },
+        },
+      },
+      {
+        text: "Edit",
+        to: {
+          name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage",
+          params: {
+            travelAuthorizationPreApprovalSubmissionId:
+              props.travelAuthorizationPreApprovalSubmissionId,
+          },
+        },
+      },
+    ])
 
     return {
       travelRequests,
