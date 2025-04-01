@@ -32,6 +32,7 @@
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
           outlined
           :where="ygEmployeeWhere"
+          :filters="ygEmployeeFilters"
         />
       </v-col>
       <v-col
@@ -45,6 +46,7 @@
           type="number"
           outlined
           persistent-hint
+          :disabled="profileAlreadyCreated"
           @input="emit('update:numberTravelers', Number($event))"
         />
       </v-col>
@@ -90,7 +92,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
@@ -133,6 +135,16 @@ const ygEmployeeWhere = computed(() => ({
   department: props.department,
   branch: props.branch,
 }))
+const ygEmployeeFilters = computed(() => {
+  if (isEmpty(props.value)) return {}
+
+  const fullNamesToExclude = props.value.map((profile) => profile.profileName)
+  return {
+    excludingByFullNames: fullNamesToExclude,
+  }
+})
+
+const profileAlreadyCreated = computed(() => !isEmpty(props.value))
 
 const headers = ref([
   {
@@ -165,29 +177,29 @@ function toggleExactTravelerKnown(value) {
 }
 
 function addTravelerProfileAttributes() {
+  let newProfileAttributes
+
   if (exactTravelerKnown.value) {
-    const newProfileAttributes = {
+    newProfileAttributes = {
       profileName: travelerName.value,
       department: props.department,
       branch: props.branch,
     }
-    emit("input", [...props.value, newProfileAttributes])
-    travelerName.value = undefined
-    return
   } else {
     const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")
     // TODO: consider if we should be adding one record for each "number of travelers"?
     // TODO: consider if we should be including the "number of travelers" in the profile name
     const profileName = `${profilePrefix} staff`
-    const newProfileAttributes = {
+    newProfileAttributes = {
       profileName,
       department: props.department,
       branch: props.branch,
     }
-    emit("input", [...props.value, newProfileAttributes])
-    numberTravelersLocal.value = undefined
-    return
   }
+
+  emit("input", [...props.value, newProfileAttributes])
+  travelerName.value = undefined
+  numberTravelersLocal.value = undefined
 }
 
 function removeTravelerProfileAttributes(index) {

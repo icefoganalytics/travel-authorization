@@ -92,6 +92,7 @@ import http from "@/api/http-client"
  * // match with model scopes signatures
  * @typedef {{
  *   search?: string | string[]
+ *   excludingByFullNames?: string[]
  * }} YgEmployeeFiltersOptions
  */
 
