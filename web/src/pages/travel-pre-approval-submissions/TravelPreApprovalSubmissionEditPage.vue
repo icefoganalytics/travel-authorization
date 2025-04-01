@@ -8,6 +8,16 @@
       v-else
       title="Edit Travel Pre-Approval Submission"
     >
+      <template #header-actions>
+        <v-btn
+          class="my-0"
+          color="error"
+          :loading="isDeleting"
+          @click="deleteTravelAuthorizationPreApprovalSubmission"
+        >
+          Delete
+        </v-btn>
+      </template>
       <v-row>
         <v-col class="d-flex justify-end">
           <v-btn
@@ -79,28 +89,23 @@
 
       <template #actions>
         <v-btn
-          color="grey darken-5"
-          @click="submitTravelDialog = false"
-        >
-          Cancel
-        </v-btn>
-        <v-btn
-          color="red darken-5"
-          @click="deleteSubmission()"
-        >
-          Delete
-        </v-btn>
-        <v-btn
-          class="ml-auto"
-          color="lime darken-1"
+          color="success"
           :loading="savingData"
           @click="submitTravelRequest(STATUSES.DRAFT)"
         >
-          Save Draft
+          Save
         </v-btn>
         <v-btn
-          class="ml-5"
-          color="green darken-1"
+          color="secondary"
+          :to="{
+            name: 'travel-pre-approvals/TravelPreApprovalSubmissionsPage',
+          }"
+        >
+          Return
+        </v-btn>
+        <v-spacer />
+        <v-btn
+          color="primary"
           :loading="savingData"
           @click="submitTravelRequest(STATUSES.SUBMITTED)"
         >
@@ -209,13 +214,19 @@
 <script setup>
 import { computed, ref, toRefs, watch } from "vue"
 import { useStore } from "vue2-helpers/vuex"
+import { useRouter } from "vue2-helpers/vue-router"
 import { cloneDeep, isNil } from "lodash"
+
+import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 
 import http from "@/api/http-client"
 import { PREAPPROVED_URL } from "@/urls"
 
+import travelAuthorizationPreApprovalSubmissionApi from "@/api/travel-authorization-pre-approval-submissions-api"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
+
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
 
@@ -357,18 +368,30 @@ function submitTravelRequest(status) {
   }
 }
 
-function deleteSubmission() {
-  return http
-    .delete(`${PREAPPROVED_URL}/submissions/${props.travelAuthorizationPreApprovalSubmissionId}`)
-    .then(() => {
-      savingData.value = false
-      submitTravelDialog.value = false
-      emit("updateTable")
+const isDeleting = ref(false)
+const snack = useSnack()
+const router = useRouter()
+
+async function deleteTravelAuthorizationPreApprovalSubmission() {
+  if (!blockedToTrueConfirm("Are you sure you want to remove this travel pre-approval?")) return
+
+  isDeleting.value = true
+  try {
+    await travelAuthorizationPreApprovalSubmissionApi.delete(
+      props.travelAuthorizationPreApprovalSubmissionId
+    )
+    snack.success("Travel pre-approval submission deleted successfully")
+    return router.replace({
+      name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionsPage",
     })
-    .catch((e) => {
-      savingData.value = false
-      console.log(e)
+  } catch (error) {
+    console.log(`Failed to delete travel authorization pre-approval submission: ${error}`, {
+      error,
     })
+    snack.error(`Failed to delete travel pre-approval submission: ${error}`)
+  } finally {
+    isDeleting.value = false
+  }
 }
 
 function updateTable() {
