@@ -14,6 +14,5 @@ export const YTPLACE_URL = `${API_BASE_URL}/api/ytplace`
 export const FORM_URL = `${API_BASE_URL}/api/form`
 export const LOOKUP_URL = `${API_BASE_URL}/api/lookup`
 export const USERS_URL = `${API_BASE_URL}/api/user`
-export const PREAPPROVED_URL = `${API_BASE_URL}/api/preapproved`
 export const TRAVEL_DESK_URL = `${API_BASE_URL}/api/traveldesk`
 export const TRAVEL_COM_URL = `${API_BASE_URL}/api/travCom`

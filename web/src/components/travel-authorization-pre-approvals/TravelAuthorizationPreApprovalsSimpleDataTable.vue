@@ -74,6 +74,10 @@ const headers = computed(() => {
       sortable: false,
     },
     {
+      text: "Department",
+      value: "department",
+    },
+    {
       text: "Branch",
       value: "branch",
     },
@@ -85,6 +89,10 @@ const headers = computed(() => {
     {
       text: "Location",
       value: "location",
+    },
+    {
+      text: "Purpose Type",
+      value: "purpose",
     },
   ]
 
