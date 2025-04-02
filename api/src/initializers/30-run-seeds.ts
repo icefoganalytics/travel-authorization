@@ -2,8 +2,8 @@ import knex from "@/db/db-client-legacy"
 import { TravelAuthorization } from "@/models"
 import logger from "@/utils/logger"
 
-async function runSeeds(): Promise<void> {
-  if (process.env.SKIP_SEEDING_UNLESS_EMPTY === "true") {
+async function runSeeds(force = false): Promise<void> {
+  if (process.env.SKIP_SEEDING_UNLESS_EMPTY === "true" && force !== true) {
     const count = await TravelAuthorization.count()
     if (count > 0) {
       logger.info("Skipping seeding as SKIP_SEEDING_UNLESS_EMPTY set, and data already seeded.")
@@ -23,3 +23,16 @@ async function runSeeds(): Promise<void> {
 }
 
 export default runSeeds
+
+// Run via `dev ts-node ./src/initializers/30-run-seeds.ts`
+if (require.main === module) {
+  ;(async () => {
+    try {
+      await runSeeds(true)
+    } catch {
+      logger.error("Failed to complete initialization!")
+    }
+
+    process.exit(0)
+  })()
+}
