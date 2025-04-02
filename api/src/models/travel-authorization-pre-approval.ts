@@ -184,6 +184,16 @@ TravelAuthorizationPreApproval.init(
         },
       },
     ],
+    scopes: {
+      availableForSubmission() {
+        return {
+          where: {
+            submissionId: null,
+            status: TravelAuthorizationPreApproval.Statuses.DRAFT,
+          },
+        }
+      },
+    },
   }
 )
 

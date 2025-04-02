@@ -4,7 +4,10 @@ import logger from "@/utils/logger"
 
 import { TravelAuthorizationPreApprovalSubmission } from "@/models"
 import { TravelAuthorizationPreApprovalSubmissionsPolicy } from "@/policies"
-import { CreateService } from "@/services/travel-authorization-pre-approval-submissions"
+import {
+  CreateService,
+  DestroyService,
+} from "@/services/travel-authorization-pre-approval-submissions"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAuthorizationPreApprovalSubmissionsController extends BaseController<TravelAuthorizationPreApprovalSubmission> {
@@ -154,7 +157,7 @@ export class TravelAuthorizationPreApprovalSubmissionsController extends BaseCon
         })
       }
 
-      await travelAuthorizationPreApprovalSubmission.destroy()
+      await DestroyService.perform(travelAuthorizationPreApprovalSubmission, this.currentUser)
       return this.response.status(204).send()
     } catch (error) {
       logger.error(`Error deleting travel authorization pre-approval submission: ${error}`, {

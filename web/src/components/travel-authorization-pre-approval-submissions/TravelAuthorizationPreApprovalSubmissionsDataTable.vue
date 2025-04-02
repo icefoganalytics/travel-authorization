@@ -24,12 +24,20 @@
       ></slot>
     </template>
 
-    <template #item.submissionDate="{ item }">
-      {{ formatDate(item.submissionDate) }}
+    <!-- TODO: maybe show approvedAt instead when available? -->
+    <template #item.createdAt="{ item }">
+      {{ formatDate(item.createdAt) }}
     </template>
+
     <template #item.location="{ item }">
       {{ item.preApprovals.map((p) => p.location).join(" - ") }}
     </template>
+
+    <!-- TODO: maybe show approverId instead when available? -->
+    <template #item.creatorId="{ item }">
+      <UserChip :user-id="item.creatorId" />
+    </template>
+
     <template #item.actions="slotProps">
       <slot
         name="item.actions"
@@ -53,6 +61,8 @@ import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-b
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useTravelAuthorizationPreApprovalSubmissions from "@/use/use-travel-authorization-pre-approval-submissions"
 
+import UserChip from "@/components/users/UserChip.vue"
+
 const props = defineProps({
   where: {
     type: Object,
@@ -71,7 +81,7 @@ const props = defineProps({
 const headers = [
   {
     text: "Submission Date",
-    value: "submissionDate",
+    value: "createdAt",
   },
   {
     text: "Department",
@@ -83,7 +93,7 @@ const headers = [
   },
   {
     text: "Submitter",
-    value: "submitter",
+    value: "creatorId",
   },
   {
     text: "Status",

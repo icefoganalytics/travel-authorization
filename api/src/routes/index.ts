@@ -55,7 +55,6 @@ import {
 import { migrateRouter } from "./migrate-router"
 import { formRouter } from "./form-router"
 import { userRouter } from "./users-router"
-import { preapprovedRouter } from "./preapproved-router"
 import { travelDeskRouter } from "./traveldesk-router"
 import { travComRouter } from "./travCom-router"
 import { lookupRouter } from "./lookup-router"
@@ -94,7 +93,6 @@ router.use(
 //// START MORE LEGACY ROUTES
 router.use("/api/form", formRouter)
 router.use("/api/user", userRouter)
-router.use("/api/preapproved", preapprovedRouter)
 router.use("/api/traveldesk", travelDeskRouter)
 
 router.use("/api/travCom", travComRouter)
@@ -316,6 +314,17 @@ router
     "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/approve"
   )
   .post(TravelAuthorizationPreApprovalSubmissions.ApproveController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/submit"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.SubmitController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/pre-approvals/:travelAuthorizationPreApprovalId"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.create)
+  .delete(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
 router.route("/api/users/:userId").get(UsersController.show)

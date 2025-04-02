@@ -3,6 +3,7 @@ import {
   DataTypes,
   type InferAttributes,
   type InferCreationAttributes,
+  Op,
 } from "sequelize"
 
 import sequelize from "@/db/db-client"
@@ -174,6 +175,17 @@ YgEmployee.init(
   },
   {
     sequelize,
+    scopes: {
+      excludingByFullNames(fullNames: string[]) {
+        return {
+          where: {
+            fullName: {
+              [Op.notIn]: fullNames,
+            },
+          },
+        }
+      },
+    },
   }
 )
 

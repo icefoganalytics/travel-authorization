@@ -64,7 +64,9 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES = Object.freeze({
 
 /**
  * // match with model scopes signatures
- * @typedef {{}} TravelAuthorizationPreApprovalFiltersOptions
+ * @typedef {{
+ *   availableForSubmission?: true
+ * }} TravelAuthorizationPreApprovalFiltersOptions
  */
 
 /**

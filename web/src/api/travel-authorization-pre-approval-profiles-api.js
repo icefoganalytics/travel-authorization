@@ -92,7 +92,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
    * }>}
    */
   async update(travelAuthorizationPreApprovalProfileId, attributes) {
-    const { data } = await http.put(
+    const { data } = await http.patch(
       `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`,
       attributes
     )

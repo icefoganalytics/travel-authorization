@@ -107,7 +107,7 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
    * }>}
    */
   async update(travelAuthorizationPreApprovalSubmissionId, attributes) {
-    const { data } = await http.put(
+    const { data } = await http.patch(
       `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}`,
       attributes
     )
@@ -143,6 +143,20 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
           "Content-Type": "multipart/form-data",
         },
       }
+    )
+    return data
+  },
+  /**
+   * @param {number} travelAuthorizationPreApprovalSubmissionId
+   * @param {Partial<TravelAuthorizationPreApprovalSubmission>} attributes
+   * @returns {Promise<{
+   *   travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission,
+   * }>}
+   */
+  async submit(travelAuthorizationPreApprovalSubmissionId, attributes) {
+    const { data } = await http.post(
+      `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}/submit`,
+      attributes
     )
     return data
   },

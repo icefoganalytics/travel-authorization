@@ -2,6 +2,7 @@
   <HeaderActionsFormCard
     title="Traveller Details"
     header-tag="h3"
+    @submit.prevent="addTravelerProfileAttributes"
   >
     <v-row>
       <v-col
@@ -32,7 +33,7 @@
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
           outlined
           :where="ygEmployeeWhere"
-          :rules="[required]"
+          :filters="ygEmployeeFilters"
         />
       </v-col>
       <v-col
@@ -44,9 +45,9 @@
           v-model.number="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
-          :rules="[required]"
           outlined
           persistent-hint
+          :disabled="profileAlreadyCreated"
           @input="emit('update:numberTravelers', Number($event))"
         />
       </v-col>
@@ -74,12 +75,12 @@
           :items="value"
           hide-default-footer
         >
-          <template #item.actions="{ item }">
+          <template #item.actions="{ index }">
             <v-btn
               title="Remove traveler profile"
               icon
               color="error"
-              @click="removeTravelerProfileAttributes(item)"
+              @click="removeTravelerProfileAttributes(index)"
             >
               <v-icon>mdi-delete</v-icon>
             </v-btn>
@@ -92,9 +93,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { isEqual, isNil } from "lodash"
-
-import { required } from "@/utils/validators"
+import { isEmpty, isNil } from "lodash"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
@@ -137,6 +136,16 @@ const ygEmployeeWhere = computed(() => ({
   department: props.department,
   branch: props.branch,
 }))
+const ygEmployeeFilters = computed(() => {
+  if (isEmpty(props.value)) return {}
+
+  const fullNamesToExclude = props.value.map((profile) => profile.profileName)
+  return {
+    excludingByFullNames: fullNamesToExclude,
+  }
+})
+
+const profileAlreadyCreated = computed(() => !isEmpty(props.value))
 
 const headers = ref([
   {
@@ -169,33 +178,40 @@ function toggleExactTravelerKnown(value) {
 }
 
 function addTravelerProfileAttributes() {
+  if (isNil(travelerName.value) && isNil(numberTravelersLocal.value)) {
+    return
+  }
+
+  let newProfileAttributes
+
   if (exactTravelerKnown.value) {
-    const newProfileAttributes = {
+    newProfileAttributes = {
       profileName: travelerName.value,
       department: props.department,
       branch: props.branch,
     }
-    emit("input", [...props.value, newProfileAttributes])
-    return
   } else {
     const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")
     // TODO: consider if we should be adding one record for each "number of travelers"?
     // TODO: consider if we should be including the "number of travelers" in the profile name
     const profileName = `${profilePrefix} staff`
-    const newProfileAttributes = {
+    newProfileAttributes = {
       profileName,
       department: props.department,
       branch: props.branch,
     }
-    emit("input", [...props.value, newProfileAttributes])
-    return
   }
+
+  emit("input", [...props.value, newProfileAttributes])
+  travelerName.value = undefined
+  numberTravelersLocal.value = undefined
 }
 
-function removeTravelerProfileAttributes(item) {
-  const travelerProfilesAttributesWithoutItem = props.value.filter(
-    (profile) => !isEqual(profile, item)
-  )
+function removeTravelerProfileAttributes(index) {
+  const travelerProfilesAttributesWithoutItem = [
+    ...props.value.slice(0, index),
+    ...props.value.slice(index + 1),
+  ]
   emit("input", travelerProfilesAttributesWithoutItem)
 }
 </script>
