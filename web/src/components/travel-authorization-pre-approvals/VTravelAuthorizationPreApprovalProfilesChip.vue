@@ -1,39 +1,43 @@
 <template>
   <!-- TODO: re-write this so that it accepts where/filters and loads the profiles internally? -->
   <v-chip
+    ref="chip"
     outlined
+    link
     v-bind="$attrs"
   >
     <template v-if="travelAuthorizationPreApprovalProfiles.length === 0"> Unspecified </template>
     <template v-else-if="travelAuthorizationPreApprovalProfiles.length === 1">
       {{ travelAuthorizationPreApprovalProfiles[0].profileName }}
     </template>
-    <v-tooltip
-      v-else
-      top
+    <template v-else> {{ travelAuthorizationPreApprovalProfiles[0].profileName }}, ... </template>
+
+    <v-icon right>mdi-menu-down</v-icon>
+
+    <v-menu
+      :activator="chip?.$el"
+      :close-on-content-click="false"
+      offset-y
+      transition="scale-transition"
     >
-      <template #activator="{ on }">
-        <div v-on="on">
-          <span>
-            {{ travelAuthorizationPreApprovalProfiles[0].profileName }}
-          </span>
-          <span>, ... </span>
-        </div>
-      </template>
-      <span>
-        <div
-          v-for="profile in travelAuthorizationPreApprovalProfiles"
-          :key="profile.id"
-        >
-          {{ profile.profileName }}
-        </div>
-      </span>
-    </v-tooltip>
+      <v-card>
+        <v-list>
+          <v-list-item
+            v-for="profile in travelAuthorizationPreApprovalProfiles"
+            :key="profile.id"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ profile.profileName }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-menu>
   </v-chip>
 </template>
 
 <script setup>
-import { computed } from "vue"
+import { computed, ref } from "vue"
 
 const props = defineProps({
   travelAuthorizationPreApproval: {
@@ -45,4 +49,8 @@ const props = defineProps({
 const travelAuthorizationPreApprovalProfiles = computed(() => {
   return props.travelAuthorizationPreApproval.profiles || []
 })
+
+/** @typedef {import('vuetify/lib/components').VChip} VChip */
+/** @type {import('vue').Ref<InstanceType<typeof VChip> | null>} */
+const chip = ref(null)
 </script>
