@@ -95,6 +95,7 @@ import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
 import { travelAuthorizationPreApprovalSubmissions } from "@/api"
 
 import useSnack from "@/use/use-snack"
+import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
@@ -114,6 +115,17 @@ const showDialog = computed(() => !isNil(travelAuthorizationPreApprovalSubmissio
 const travelAuthorizationPreApprovalsFilters = computed(() => ({
   availableForSubmission: true,
 }))
+
+const travelAuthorizationPreApprovalsQuery = computed(() => ({
+  filters: travelAuthorizationPreApprovalsFilters.value,
+  perPage: 1, // we just need a quick way to count how many pre-approvals are available
+}))
+const { totalCount, refresh: refreshTravelAuthorizationPreApprovals } =
+  useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
+
+const noMorePreApprovalsAvailable = computed(() => {
+  return totalCount.value === 0
+})
 
 const isSaving = ref(false)
 const snack = useSnack()
@@ -137,6 +149,10 @@ async function addTravelAuthorizationPreApprovalToSubmission(
     snack.success("Travel pre-approval request successfully added to submission.")
     emit("added", travelAuthorizationPreApprovalId)
     await refresh()
+
+    if (noMorePreApprovalsAvailable.value) {
+      hide()
+    }
   } catch (error) {
     console.error(`Error adding travel authorization pre-approval to submission: ${error}`, {
       error,
@@ -152,6 +168,7 @@ const travelAuthorizationPreApprovalsSimpleDataTable = ref(null)
 
 async function refresh() {
   await travelAuthorizationPreApprovalsSimpleDataTable.value.refresh()
+  await refreshTravelAuthorizationPreApprovals()
 }
 
 function show(newTravelAuthorizationPreApprovalSubmissionId) {
