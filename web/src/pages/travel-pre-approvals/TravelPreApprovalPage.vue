@@ -271,15 +271,14 @@ const props = defineProps({
 })
 
 const { travelAuthorizationPreApprovalId } = toRefs(props)
-const { travelAuthorizationPreApproval } = useTravelAuthorizationPreApproval(
+const { travelAuthorizationPreApproval, policy } = useTravelAuthorizationPreApproval(
   travelAuthorizationPreApprovalId
 )
 
-// TODO: replace with policy.update?
 const canEdit = computed(
   () =>
     travelAuthorizationPreApproval.value?.status ===
-    TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT
+      TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT && policy.value.update
 )
 
 const preApprovalProfileWhere = computed(() => ({
