@@ -214,6 +214,7 @@
     <TravelAuthorizationPreApprovalSubmissionCard
       v-else
       class="mt-5"
+      :travel-authorization-pre-approval-status="travelAuthorizationPreApproval.status"
       :travel-authorization-pre-approval-submission-id="preApprovalSubmissionId"
     />
 
@@ -260,7 +261,7 @@ import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
 import TravelAuthorizationPreApprovalProfilesDataTable from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTable.vue"
-import TravelAuthorizationPreApprovalSubmissionCard from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionCard.vue"
+import TravelAuthorizationPreApprovalSubmissionCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDocumentsCard.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalId: {
