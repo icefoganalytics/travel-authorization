@@ -169,7 +169,7 @@ async function removeTravelAuthorizationPreApprovalFromSubmission(
       travelAuthorizationPreApprovalSubmissionId,
       travelAuthorizationPreApprovalId
     )
-    snack.success("Travel pre-approval removed from submission successfully")
+    snack.success("Travel pre-approval successfully removed from submission!")
     await refresh()
   } catch (error) {
     console.error(`Failed to remove travel authorization pre-approval from submission: ${error}`, {
