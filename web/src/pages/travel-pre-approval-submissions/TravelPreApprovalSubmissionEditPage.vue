@@ -61,7 +61,7 @@
               </v-btn>
               <v-btn
                 v-if="canDeleteTravelAuthorizationPreApprovals"
-                class="my-0"
+                class="my-0 ml-3"
                 title="Remove"
                 color="error"
                 outlined
@@ -170,6 +170,7 @@ async function removeTravelAuthorizationPreApprovalFromSubmission(
       travelAuthorizationPreApprovalId
     )
     snack.success("Travel pre-approval removed from submission successfully")
+    await refresh()
   } catch (error) {
     console.error(`Failed to remove travel authorization pre-approval from submission: ${error}`, {
       error,

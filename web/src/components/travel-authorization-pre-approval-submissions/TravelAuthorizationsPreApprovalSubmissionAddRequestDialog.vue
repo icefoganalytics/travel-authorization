@@ -15,6 +15,7 @@
       <v-row>
         <v-col>
           <TravelAuthorizationPreApprovalsSimpleDataTable
+            ref="travelAuthorizationPreApprovalsSimpleDataTable"
             :filters="travelAuthorizationPreApprovalsFilters"
             show-actions-header
             :hide-default-footer="false"
@@ -135,6 +136,7 @@ async function addTravelAuthorizationPreApprovalToSubmission(
     )
     snack.success("Travel pre-approval request successfully added to submission.")
     emit("added", travelAuthorizationPreApprovalId)
+    await refresh()
   } catch (error) {
     console.error(`Error adding travel authorization pre-approval to submission: ${error}`, {
       error,
@@ -143,6 +145,13 @@ async function addTravelAuthorizationPreApprovalToSubmission(
   } finally {
     isSaving.value = false
   }
+}
+
+/** @type {import('vue').Ref<InstanceType<typeof TravelAuthorizationPreApprovalsSimpleDataTable> | null>} */
+const travelAuthorizationPreApprovalsSimpleDataTable = ref(null)
+
+async function refresh() {
+  await travelAuthorizationPreApprovalsSimpleDataTable.value.refresh()
 }
 
 function show(newTravelAuthorizationPreApprovalSubmissionId) {
