@@ -165,7 +165,7 @@ async function removeTravelAuthorizationPreApprovalFromSubmission(
 ) {
   isLoading.value = true
   try {
-    await travelAuthorizationPreApprovalSubmissions.preApprovalsApi.delete(
+    await travelAuthorizationPreApprovalSubmissions.preApprovalsApi.destroy(
       travelAuthorizationPreApprovalSubmissionId,
       travelAuthorizationPreApprovalId
     )
