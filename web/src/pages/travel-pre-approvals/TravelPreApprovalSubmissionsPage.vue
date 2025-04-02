@@ -11,7 +11,7 @@
     <template #item.actions="{ item }">
       <div class="d-flex justify-end gap-4">
         <v-btn
-          v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT"
+          v-if="canEdit(item)"
           class="my-0"
           color="primary"
           :to="{
@@ -25,9 +25,7 @@
           Edit
         </v-btn>
         <v-btn
-          v-else-if="
-            item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED
-          "
+          v-else-if="canApprove(item)"
           class="my-0"
           color="primary"
           small
@@ -50,6 +48,7 @@
           View
         </v-btn>
         <PrintReport
+          v-if="canAdminTravelPreApprovals"
           :id="item.id"
           :travel-requests="item.preApprovals"
           :button-inside-table="true"
@@ -61,14 +60,34 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed, ref } from "vue"
 
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useCurrentUser from "@/use/use-current-user"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionApproveDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionsDataTable from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTable.vue"
+
+const { isAdmin, isPreApprovedTravelAdmin } = useCurrentUser()
+const canAdminTravelPreApprovals = computed(() => isAdmin.value || isPreApprovedTravelAdmin.value)
+
+function canEdit(travelAuthorizationPreApprovalSubmission) {
+  return (
+    travelAuthorizationPreApprovalSubmission.status ===
+      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT &&
+    canAdminTravelPreApprovals.value
+  )
+}
+
+function canApprove(travelAuthorizationPreApprovalSubmission) {
+  return (
+    travelAuthorizationPreApprovalSubmission.status ===
+      TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED &&
+    canAdminTravelPreApprovals.value
+  )
+}
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationsPreApprovalSubmissionApproveDialog> | null>} */
 const travelAuthorizationsPreApprovalSubmissionApproveDialog = ref(null)
