@@ -131,6 +131,7 @@
         <DepartmentAutocomplete
           v-model="travelAuthorizationPreApprovalAttributes.department"
           label="Department *"
+          :where="departmentWhere"
           :rules="[required]"
           outlined
           :clearable="false"
@@ -231,6 +232,7 @@ import { required } from "@/utils/validators"
 
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useCurrentUser from "@/use/use-current-user"
 import useSnack from "@/use/use-snack"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
@@ -276,6 +278,17 @@ function toggleExactTravelDateKnown(value) {
   travelAuthorizationPreApprovalAttributes.value.month = undefined
 }
 
+const { currentUser, isAdmin } = useCurrentUser()
+
+const departmentWhere = computed(() => {
+  if (isAdmin.value) {
+    return {}
+  }
+
+  return {
+    department: currentUser.value.department,
+  }
+})
 const branchWhere = computed(() => ({
   department: travelAuthorizationPreApprovalAttributes.value.department,
 }))
