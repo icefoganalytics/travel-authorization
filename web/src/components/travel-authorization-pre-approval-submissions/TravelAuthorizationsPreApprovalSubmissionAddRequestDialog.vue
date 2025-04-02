@@ -167,12 +167,13 @@ async function addTravelAuthorizationPreApprovalToSubmission(
 const travelAuthorizationPreApprovalsSimpleDataTable = ref(null)
 
 async function refresh() {
-  await travelAuthorizationPreApprovalsSimpleDataTable.value.refresh()
+  await travelAuthorizationPreApprovalsSimpleDataTable.value?.refresh()
   await refreshTravelAuthorizationPreApprovals()
 }
 
 function show(newTravelAuthorizationPreApprovalSubmissionId) {
   travelAuthorizationPreApprovalSubmissionId.value = newTravelAuthorizationPreApprovalSubmissionId
+  refresh()
 }
 
 function hide() {
