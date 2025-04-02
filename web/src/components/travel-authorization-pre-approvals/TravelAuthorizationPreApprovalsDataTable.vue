@@ -108,6 +108,7 @@ const headers = [
     text: "Name",
     value: "name",
     sortable: false,
+    cellClass: "max-w-64",
   },
   {
     text: "Department",
@@ -233,3 +234,11 @@ defineExpose({
   refresh,
 })
 </script>
+
+<style scoped>
+/* https://tailwindcss.com/docs/max-width#basic-example */
+:deep(.max-w-64) {
+  --spacing: 0.25rem;
+  max-width: calc(var(--spacing) * 64);
+}
+</style>
