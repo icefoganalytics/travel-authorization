@@ -272,7 +272,7 @@ const exactTravelDateKnown = ref(true)
 function toggleExactTravelDateKnown(value) {
   exactTravelDateKnown.value = value
 
-  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyTraveler = !value
+  travelAuthorizationPreApprovalAttributes.value.isOpenForAnyDate = !value
   travelAuthorizationPreApprovalAttributes.value.startDate = undefined
   travelAuthorizationPreApprovalAttributes.value.endDate = undefined
   travelAuthorizationPreApprovalAttributes.value.month = undefined
