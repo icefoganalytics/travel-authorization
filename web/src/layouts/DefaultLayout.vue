@@ -63,6 +63,7 @@
         fluid
         class="h-full"
       >
+        <UnsetDepartmentAlert />
         <router-view></router-view>
         <RequestAlert />
       </v-container>
@@ -79,6 +80,7 @@ import useCurrentUser from "@/use/use-current-user"
 
 import RequestAlert from "@/components/RequestAlert.vue"
 import KebabMenu from "@/components/default-layout/KebabMenu.vue"
+import UnsetDepartmentAlert from "@/components/default-layout/UnsetDepartmentAlert.vue"
 import LeftSidebarNavigationDrawer from "@/components/default-layout/LeftSidebarNavigationDrawer.vue"
 
 const { fullName } = useCurrentUser()
