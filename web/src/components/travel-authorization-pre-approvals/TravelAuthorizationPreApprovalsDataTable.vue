@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: split component into table and selectable table so each layer is less complex -->
   <v-data-table
     v-model="selectedItems"
     :page.sync="page"
@@ -9,7 +10,7 @@
     :headers="headers"
     :server-items-length="totalCount"
     :loading="isLoading"
-    show-select
+    :show-select="showSelect"
     :single-select="noRowsAreSelectable"
     v-bind="$attrs"
     v-on="$listeners"
@@ -102,6 +103,10 @@ const props = defineProps({
   routeQuerySuffix: {
     type: String,
     default: "",
+  },
+  showSelect: {
+    type: Boolean,
+    default: true,
   },
 })
 

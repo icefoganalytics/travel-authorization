@@ -2,6 +2,7 @@
   <TravelAuthorizationPreApprovalsDataTable
     ref="travelAuthorizationPreApprovalsDataTable"
     v-model="selectedItems"
+    :show-select="canAdminTravelPreApprovals"
   >
     <template #top>
       <v-row>
@@ -9,6 +10,7 @@
           <!-- TODO: make all of these buttons full width on small screens -->
           <v-spacer />
           <v-btn
+            v-if="canAdminTravelPreApprovals"
             color="primary"
             :disabled="isEmpty(selectedItemIds)"
             @click="showTravelAuthorizationPreApprovalSubmissionDialog"
@@ -21,12 +23,14 @@
           </v-btn>
 
           <PrintReport
+            v-if="canAdminTravelPreApprovals"
             class="ml-md-4"
             :disabled="isEmpty(selectedItems)"
             :travel-requests="selectedItems"
             button-name="Print Report"
           />
           <v-btn
+            v-if="canAdminTravelPreApprovals"
             :disabled="isEmpty(selectedItems)"
             class="mr-5 my-7"
             color="primary"
@@ -55,6 +59,7 @@ import { ExportToCsv } from "export-to-csv"
 import { DateTime } from "luxon"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useCurrentUser from "@/use/use-current-user"
 
 import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
@@ -66,6 +71,9 @@ const selectedItems = ref([])
 const selectedItemIds = computed(() => {
   return selectedItems.value.map((item) => item.id)
 })
+
+const { isAdmin, isPreApprovedTravelAdmin } = useCurrentUser()
+const canAdminTravelPreApprovals = computed(() => isAdmin.value || isPreApprovedTravelAdmin.value)
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionDialog> | null>} */
 const travelAuthorizationPreApprovalSubmissionDialog = ref(null)
