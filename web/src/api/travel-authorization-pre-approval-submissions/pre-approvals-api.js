@@ -2,6 +2,17 @@ import http from "@/api/http-client"
 
 export const preApprovalsApi = {
   /**
+   * @param {Partial<TravelAuthorizationPreApproval>} attributes
+   * @returns {Promise<void>}
+   */
+  async create(travelAuthorizationPreApprovalSubmissionId, attributes) {
+    const { data } = await http.post(
+      `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}/pre-approvals`,
+      attributes
+    )
+    return data
+  },
+  /**
    * @param {number} travelAuthorizationPreApprovalSubmissionId
    * @param {number} travelAuthorizationPreApprovalId
    * @returns {Promise<void>}

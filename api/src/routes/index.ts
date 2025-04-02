@@ -314,11 +314,17 @@ router
     "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/approve"
   )
   .post(TravelAuthorizationPreApprovalSubmissions.ApproveController.create)
-  router
+router
   .route(
     "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/submit"
   )
   .post(TravelAuthorizationPreApprovalSubmissions.SubmitController.create)
+
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/pre-approvals"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.create)
 router
   .route(
     "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/pre-approvals/:travelAuthorizationPreApprovalId"

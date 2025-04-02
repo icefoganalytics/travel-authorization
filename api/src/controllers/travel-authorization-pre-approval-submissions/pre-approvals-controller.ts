@@ -1,12 +1,53 @@
 import { isNil } from "lodash"
 
 import { TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalSubmission } from "@/models"
-import { TravelAuthorizationPreApprovalSubmissionsPolicy } from "@/policies"
-import { DestroyService } from "@/services/travel-authorization-pre-approval-submissions/pre-approvals"
+import {
+  TravelAuthorizationPreApprovalsPolicy,
+  TravelAuthorizationPreApprovalSubmissionsPolicy,
+} from "@/policies"
+import {
+  CreateService,
+  DestroyService,
+} from "@/services/travel-authorization-pre-approval-submissions/pre-approvals"
 
 import BaseController from "@/controllers/base-controller"
 
 export class PreApprovalsController extends BaseController<TravelAuthorizationPreApproval> {
+  async create() {
+    try {
+      const travelAuthorizationPreApprovalSubmission =
+        await this.loadTravelAuthorizationPreApprovalSubmission()
+      if (isNil(travelAuthorizationPreApprovalSubmission)) {
+        return this.response.status(404).json({
+          message: "Travel pre-approval submission not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(travelAuthorizationPreApprovalSubmission)
+      if (!policy.update()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to add requests to this travel pre-approval submission.",
+        })
+      }
+
+      const travelAuthorizationPreApprovalPolicy = this.buildTravelAuthorizationPreApprovalPolicy()
+      const permittedAttributes = travelAuthorizationPreApprovalPolicy.permitAttributes(
+        this.request.body
+      )
+
+      await CreateService.perform(
+        travelAuthorizationPreApprovalSubmission,
+        permittedAttributes,
+        this.currentUser
+      )
+      return this.response.status(204).send()
+    } catch (error) {
+      return this.response.status(422).json({
+        message: `Failed to add request to travel pre-approval submission: ${error}`,
+      })
+    }
+  }
+
   async destroy() {
     try {
       const travelAuthorizationPreApprovalSubmission =
@@ -60,6 +101,15 @@ export class PreApprovalsController extends BaseController<TravelAuthorizationPr
     return new TravelAuthorizationPreApprovalSubmissionsPolicy(
       this.currentUser,
       travelAuthorizationPreApprovalSubmission
+    )
+  }
+
+  private buildTravelAuthorizationPreApprovalPolicy(
+    travelAuthorizationPreApproval: TravelAuthorizationPreApproval = TravelAuthorizationPreApproval.build()
+  ): TravelAuthorizationPreApprovalsPolicy {
+    return new TravelAuthorizationPreApprovalsPolicy(
+      this.currentUser,
+      travelAuthorizationPreApproval
     )
   }
 }

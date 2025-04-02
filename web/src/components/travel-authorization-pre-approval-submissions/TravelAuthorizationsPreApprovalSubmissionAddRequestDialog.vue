@@ -92,7 +92,6 @@ import { isNil } from "lodash"
 import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
 
 import { travelAuthorizationPreApprovalSubmissions } from "@/api"
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
 
 import useSnack from "@/use/use-snack"
 
@@ -134,8 +133,6 @@ async function addTravelAuthorizationPreApprovalToSubmission(
       travelAuthorizationPreApprovalSubmissionId,
       {
         id: travelAuthorizationPreApprovalId,
-        submissionId: travelAuthorizationPreApprovalSubmissionId,
-        status: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.SUBMITTED,
       }
     )
     snack.success("Travel pre-approval request successfully added to submission.")
