@@ -157,7 +157,7 @@ const headers = [
 const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformer,
 })
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "10", {
+const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "5", {
   transform: integerTransformer,
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
