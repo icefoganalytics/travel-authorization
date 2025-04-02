@@ -45,7 +45,7 @@
 
     <template #item.actions="{ item }">
       <v-btn
-        v-if="item.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT"
+        v-if="canEdit(item)"
         color="secondary"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalEditPage',
@@ -78,13 +78,15 @@ import { isEmpty, isNil } from "lodash"
 
 import { formatDate } from "@/utils/formatters"
 
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES } from "@/api/travel-authorization-pre-approvals-api"
-
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
-import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
+
+import useCurrentUser from "@/use/use-current-user"
+import useTravelAuthorizationPreApprovals, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
+} from "@/use/use-travel-authorization-pre-approvals"
 
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 
@@ -171,6 +173,24 @@ const travelAuthorizationPreApprovalsQuery = computed(() => ({
 }))
 const { travelAuthorizationPreApprovals, isLoading, totalCount, refresh } =
   useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
+
+const { currentUser, isAdmin, isPreApprovedTravelAdmin } = useCurrentUser()
+
+function canEdit(travelAuthorizationPreApproval) {
+  if (travelAuthorizationPreApproval.status !== TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT) {
+    return false
+  }
+
+  if (isAdmin.value) return true
+  if (
+    isPreApprovedTravelAdmin.value &&
+    travelAuthorizationPreApproval.department === currentUser.value.department
+  ) {
+    return true
+  }
+
+  return travelAuthorizationPreApproval.creatorId === currentUser.value.id
+}
 
 const selectedItems = ref([])
 const departmentSelectionLimiter = ref(null)
