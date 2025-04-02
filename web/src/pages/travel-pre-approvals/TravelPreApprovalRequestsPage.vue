@@ -78,6 +78,7 @@ function showTravelAuthorizationPreApprovalSubmissionDialog() {
 const travelAuthorizationPreApprovalsDataTable = ref(null)
 
 function refresh() {
+  selectedItems.value = []
   travelAuthorizationPreApprovalsDataTable.value?.refresh()
 }
 
