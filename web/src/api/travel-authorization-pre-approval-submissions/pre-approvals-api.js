@@ -5,10 +5,9 @@ export const preApprovalsApi = {
    * @param {Partial<TravelAuthorizationPreApproval>} attributes
    * @returns {Promise<void>}
    */
-  async create(travelAuthorizationPreApprovalSubmissionId, attributes) {
+  async create(travelAuthorizationPreApprovalSubmissionId, travelAuthorizationPreApprovalId) {
     const { data } = await http.post(
-      `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}/pre-approvals`,
-      attributes
+      `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}/pre-approvals/${travelAuthorizationPreApprovalId}`
     )
     return data
   },

@@ -319,16 +319,11 @@ router
     "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/submit"
   )
   .post(TravelAuthorizationPreApprovalSubmissions.SubmitController.create)
-
-router
-  .route(
-    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/pre-approvals"
-  )
-  .post(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.create)
 router
   .route(
     "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/pre-approvals/:travelAuthorizationPreApprovalId"
   )
+  .post(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.create)
   .delete(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)

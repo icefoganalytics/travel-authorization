@@ -1,6 +1,3 @@
-import { Attributes } from "sequelize"
-import { isNil } from "lodash"
-
 import {
   TravelAuthorizationPreApproval,
   TravelAuthorizationPreApprovalSubmission,
@@ -8,14 +5,10 @@ import {
 } from "@/models"
 import BaseService from "@/services/base-service"
 
-export type TravelAuthorizationPreApprovalAttributes = Partial<
-  Attributes<TravelAuthorizationPreApproval>
->
-
 export class CreateService extends BaseService {
   constructor(
     protected travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission,
-    protected attributes: TravelAuthorizationPreApprovalAttributes,
+    protected travelAuthorizationPreApproval: TravelAuthorizationPreApproval,
     protected currentUser: User
   ) {
     super()
@@ -29,22 +22,16 @@ export class CreateService extends BaseService {
       throw new Error("Only draft submissions support pre-approval attachment.")
     }
 
-    const { id } = this.attributes
-    if (isNil(id)) {
-      throw new Error("Pre-approval ID is required.")
+    if (
+      this.travelAuthorizationPreApproval.status !== TravelAuthorizationPreApproval.Statuses.DRAFT
+    ) {
+      throw new Error("Only draft pre-approvals support attachment to a submission.")
     }
 
-    await TravelAuthorizationPreApproval.update(
-      {
-        submissionId: this.travelAuthorizationPreApprovalSubmission.id,
-        status: TravelAuthorizationPreApproval.Statuses.SUBMITTED,
-      },
-      {
-        where: {
-          id,
-        },
-      }
-    )
+    await this.travelAuthorizationPreApproval.update({
+      submissionId: this.travelAuthorizationPreApprovalSubmission.id,
+      status: TravelAuthorizationPreApproval.Statuses.SUBMITTED,
+    })
     return
   }
 }

@@ -23,6 +23,13 @@ export class PreApprovalsController extends BaseController<TravelAuthorizationPr
         })
       }
 
+      const travelAuthorizationPreApproval = await this.loadTravelAuthorizationPreApproval()
+      if (isNil(travelAuthorizationPreApproval)) {
+        return this.response.status(404).json({
+          message: "Travel pre-approval not found.",
+        })
+      }
+
       const policy = this.buildPolicy(travelAuthorizationPreApprovalSubmission)
       if (!policy.update()) {
         return this.response.status(403).json({
@@ -30,14 +37,9 @@ export class PreApprovalsController extends BaseController<TravelAuthorizationPr
         })
       }
 
-      const travelAuthorizationPreApprovalPolicy = this.buildTravelAuthorizationPreApprovalPolicy()
-      const permittedAttributes = travelAuthorizationPreApprovalPolicy.permitAttributes(
-        this.request.body
-      )
-
       await CreateService.perform(
         travelAuthorizationPreApprovalSubmission,
-        permittedAttributes,
+        travelAuthorizationPreApproval,
         this.currentUser
       )
       return this.response.status(204).send()

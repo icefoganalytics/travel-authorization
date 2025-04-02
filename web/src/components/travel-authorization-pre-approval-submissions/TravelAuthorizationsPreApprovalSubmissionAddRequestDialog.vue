@@ -131,9 +131,7 @@ async function addTravelAuthorizationPreApprovalToSubmission(
   try {
     await travelAuthorizationPreApprovalSubmissions.preApprovalsApi.create(
       travelAuthorizationPreApprovalSubmissionId,
-      {
-        id: travelAuthorizationPreApprovalId,
-      }
+      travelAuthorizationPreApprovalId
     )
     snack.success("Travel pre-approval request successfully added to submission.")
     emit("added", travelAuthorizationPreApprovalId)
