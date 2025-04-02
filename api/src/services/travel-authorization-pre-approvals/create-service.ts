@@ -42,6 +42,7 @@ export class CreateService extends BaseService {
     return db.transaction(async () => {
       const travelAuthorizationPreApproval = await TravelAuthorizationPreApproval.create({
         ...optionalAttributes,
+        creatorId: this.currentUser.id,
         estimatedCost,
         location,
         status: TravelAuthorizationPreApproval.Statuses.DRAFT,
