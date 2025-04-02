@@ -224,7 +224,7 @@ async function deleteTravelAuthorizationPreApprovalSubmission() {
     )
     snack.success("Travel pre-approval submission deleted successfully")
     return router.replace({
-      name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionsPage",
+      name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
     })
   } catch (error) {
     console.log(`Failed to delete travel authorization pre-approval submission: ${error}`, {
