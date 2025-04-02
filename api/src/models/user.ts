@@ -52,6 +52,14 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     return this.roles.includes(RoleNames.TRAVEL_DESK_USER)
   }
 
+  get isPreApprovedTravelAdmin(): NonAttribute<boolean> {
+    return this.roles.includes(RoleNames.PRE_APPROVED_TRAVEL_ADMIN)
+  }
+
+  get isUser(): NonAttribute<boolean> {
+    return this.roles.includes(RoleNames.USER)
+  }
+
   // Associations
   declare travelAuthorizations?: NonAttribute<TravelAuthorization[]>
   declare travelDeskFlightOptions?: NonAttribute<TravelDeskFlightOption[]>
