@@ -135,7 +135,6 @@ async function addTravelAuthorizationPreApprovalToSubmission(
     )
     snack.success("Travel pre-approval request successfully added to submission.")
     emit("added", travelAuthorizationPreApprovalId)
-    hide()
   } catch (error) {
     console.error(`Error adding travel authorization pre-approval to submission: ${error}`, {
       error,
