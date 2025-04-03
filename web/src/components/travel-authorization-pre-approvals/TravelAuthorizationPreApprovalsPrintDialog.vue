@@ -137,6 +137,7 @@
 import { computed, ref, watch } from "vue"
 import { sumBy, uniqueId } from "lodash"
 import { Printd } from "printd"
+import { DateTime } from "luxon"
 
 import { formatDate, formatCurrency } from "@/utils/formatters"
 
@@ -191,7 +192,7 @@ watch(
   () => showDialog.value,
   (newShowDialog) => {
     if (newShowDialog === true) {
-      currentDate.value = formatDate(new Date(), "MMMM d, yyyy")
+      currentDate.value = DateTime.now().toFormat("MMMM d, yyyy")
     }
   },
   {
@@ -258,9 +259,21 @@ function print() {
 
   if (pageToPrint) {
     const pdf = new Printd()
+    setPdfTitle(pdf)
     pdf.print(pageToPrint, styles)
     hide()
   }
+}
+
+function setPdfTitle(pdf) {
+  const iframe = pdf.getIFrame()
+
+  iframe.addEventListener("load", () => {
+    const iframeDocument = iframe.contentDocument || iframe.contentWindow.document
+
+    const currentDate = DateTime.now().toFormat("yyyy-MM-dd_HHmm")
+    iframeDocument.title = `Report, Travel Pre-Approval Requests, ${currentDate}`
+  })
 }
 
 function show() {
