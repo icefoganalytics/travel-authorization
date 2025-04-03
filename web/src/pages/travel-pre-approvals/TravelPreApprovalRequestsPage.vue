@@ -34,15 +34,14 @@
               ref="travelAuthorizationPreApprovalsPrintDialog"
             />
           </v-btn>
-          <v-btn
+          <ExportToCsvButton
             v-if="canAdminTravelPreApprovals"
-            :disabled="isEmpty(selectedItems)"
             class="ml-md-5"
             color="primary"
-            @click="exportToExcel(selectedItems)"
+            outlined
           >
             Export To Excel
-          </v-btn>
+          </ExportToCsvButton>
           <v-btn
             class="ml-md-5"
             color="primary"
@@ -61,12 +60,11 @@
 <script setup>
 import { computed, ref } from "vue"
 import { isEmpty } from "lodash"
-import { ExportToCsv } from "export-to-csv"
-import { DateTime } from "luxon"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
+import ExportToCsvButton from "@/components/travel-authorization-pre-approvals/ExportToCsvButton.vue"
 import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
@@ -100,45 +98,6 @@ const travelAuthorizationPreApprovalsDataTable = ref(null)
 function refresh() {
   selectedItems.value = []
   travelAuthorizationPreApprovalsDataTable.value?.refresh()
-}
-
-function exportToExcel(travelAuthorizationPreApprovals) {
-  // The object keys must match the headers option.
-  // In future versions of the library, the headers can be customized independently.
-  const csvInfo = travelAuthorizationPreApprovals.map((req) => {
-    return {
-      Name: req.profiles?.map((profile) => profile.profileName.replace(".", " "))?.join(", "),
-      Department: req.department,
-      Branch: req.branch ? req.branch : "",
-      "Travel Date": req.isOpenForAnyDate ? req.month : req.startDate + " " + req.endDate,
-      Location: req.location,
-      Purpose: req.purpose ? req.purpose : "",
-      "Estimated Cost": req.estimatedCost,
-      Reason: req.reason ? req.reason : "",
-      Status: req.status ? req.status : "",
-      Notes: req.travelerNotes ? req.travelerNotes : "",
-    }
-  })
-  const currentDate = DateTime.now().toFormat("yyyy-MM-dd")
-  const options = {
-    filename: `Travel Requests, Pre-Approved, ${currentDate}`,
-    decimalSeparator: "locale",
-    showLabels: true,
-    headers: [
-      "Name",
-      "Department",
-      "Branch",
-      "Travel Date",
-      "Location",
-      "Purpose",
-      "Estimated Cost",
-      "Reason",
-      "Status",
-      "Notes",
-    ],
-  }
-  const csvExporter = new ExportToCsv(options)
-  csvExporter.generateCsv(csvInfo)
 }
 
 useBreadcrumbs([
