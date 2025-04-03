@@ -1,0 +1,318 @@
+<template>
+  <v-dialog
+    v-model="showDialog"
+    persistent
+    max-width="950px"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
+  >
+    <v-card class="px-10 py-5">
+      <v-row
+        class="mb-3"
+        justify="space-around"
+      >
+        <v-col cols="5" />
+        <v-col cols="2">
+          <v-btn
+            color="secondary"
+            @click="print"
+          >
+            Print
+            <v-icon
+              class="ml-2"
+              color="primary darken-2"
+              >mdi-printer</v-icon
+            >
+          </v-btn>
+        </v-col>
+        <v-col cols="3" />
+        <v-col
+          cols="2"
+          align="right"
+        >
+          <v-btn
+            color="grey"
+            @click="hide"
+            >Close</v-btn
+          >
+        </v-col>
+      </v-row>
+
+      <div :id="PDF_SCOPE_ID">
+        <v-app-bar
+          color="#fff"
+          flat
+          height="70"
+          style="left: 0; border-bottom: 3px #f3b228 solid"
+        >
+          <img
+            src="/yukon.svg"
+            style="margin: -1.2rem -10rem 0 0"
+            height="44"
+          />
+          <div style="margin: 0 auto !important; font-size: 14pt !important">
+            <b>Out-of-Territory Travel</b>
+          </div>
+        </v-app-bar>
+
+        <v-data-table
+          style="margin: 1rem 0"
+          dense
+          :headers="headers"
+          :items="travelAuthorizationPreApprovals"
+          :items-per-page="MAX_PER_PAGE"
+          class="elevation-1"
+          hide-default-footer
+        >
+          <template #item.name="{ item }">
+            <span> {{ item.department }}, </span>
+            <span
+              v-for="(profile, index) in item.profiles"
+              :key="index"
+              style="line-height: 1rem"
+              >{{ profile.profileName.replace(".", " ") }}</span
+            >
+          </template>
+
+          <template #item.travelDate="{ item }">
+            <div v-if="item.isOpenForAnyDate">
+              {{ item.month }}
+            </div>
+            <div v-else>
+              <div style="line-height: 1rem">{{ formatDate(item.startDate) }}-</div>
+              <div style="line-height: 1rem">
+                {{ formatDate(item.endDate) }}
+              </div>
+            </div>
+          </template>
+          <template #item.estimatedCost="{ item }">
+            <div style="text-align: right !important">${{ item.estimatedCost | currency }}</div>
+          </template>
+          <template #body.append>
+            <tr style="">
+              <td
+                colspan="4"
+                style="border-top: 2px solid !important; font-size: 10pt !important"
+              >
+                <b>Total</b>
+              </td>
+              <td
+                style="
+                  border-top: 2px solid !important;
+                  font-size: 10pt !important;
+                  text-align: right !important;
+                "
+              >
+                <b>${{ totalCost | currency }}</b>
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+
+        <v-row style="margin-top: 3rem">
+          <div style="width: 10%"></div>
+          <div style="width: 40%; border-top: 1px solid #333333; font-size: 8pt">
+            <v-row>
+              <v-col
+                cols="2"
+                style="padding-right: 0"
+                >Approved:</v-col
+              >
+              <v-col style="padding-left: 0; margin-left: 0">
+                <input
+                  v-model="approver"
+                  style="width: 100%; cursor: pointer; padding-left: 0.25rem"
+                  class="yellow darken-3"
+                  clearable
+                />
+              </v-col>
+            </v-row>
+          </div>
+          <div style="width: 1%"></div>
+          <div style="width: 10%; border-top: 1px solid #333333; font-size: 8pt">Date:</div>
+        </v-row>
+        <div
+          style="font-size: 7pt"
+          class="form-footer"
+        >
+          <i>Printed on: {{ currentDate }}</i>
+        </div>
+      </div>
+
+      <div class="mt-10"></div>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script setup>
+import { computed, ref, watch } from "vue"
+import { sumBy, uniqueId } from "lodash"
+import { Printd } from "printd"
+
+import { formatDate } from "@/utils/formatters"
+
+import { MAX_PER_PAGE } from "@/api/base-api"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
+
+const PDF_SCOPE_ID = uniqueId("pdf-scope-")
+
+const headers = ref([
+  {
+    text: "Date of Travel ",
+    value: "travelDate",
+    class: "m-0 p-0",
+    width: "8.5rem",
+  },
+  {
+    text: "Purpose",
+    value: "purpose",
+    class: "",
+  },
+  {
+    text: "Location",
+    value: "location",
+    class: "",
+  },
+  {
+    text: "Person/Position Travelling",
+    value: "name",
+    class: "",
+  },
+  {
+    text: "Estimated Travel Cost",
+    value: "estimatedCost",
+    class: "m-0 p-0",
+    width: "7.5rem",
+  },
+])
+
+const showDialog = useRouteQuery("showPrintDialog", false, {
+  transform: booleanTransformer,
+})
+
+const approver = ref("")
+const currentDate = ref("")
+
+watch(
+  () => showDialog.value,
+  (newShowDialog) => {
+    if (newShowDialog === true) {
+      currentDate.value = formatDate(new Date(), "MMMM d, yyyy")
+    }
+  },
+  {
+    immediate: true,
+  }
+)
+
+const travelAuthorizationPreApprovalsQuery = computed(() => {
+  return {
+    perPage: MAX_PER_PAGE, // since we aren't rendering in the back-end we need to load as much as we can here.
+  }
+})
+const { travelAuthorizationPreApprovals } = useTravelAuthorizationPreApprovals(
+  travelAuthorizationPreApprovalsQuery
+)
+
+const totalCost = computed(() => {
+  return sumBy(travelAuthorizationPreApprovals.value, "estimatedCost")
+})
+
+function print() {
+  const styles = [
+    /* css */ `
+      @media print {
+        @page {
+          size: letter landscape !important;
+        }
+        div.form-footer {
+          position: fixed;
+          bottom: 0;
+          width: 100%;
+          display: inline-block;
+        }
+        .new-page {
+          page-break-before: always;
+          position: relative;
+          top: 8em;
+        }
+      }
+    `,
+    `https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css`,
+    /* css */ `
+      thead th {
+        font-size: 11pt !important;
+        color: #111111 !important;
+        text-align: center !important;
+        border: 1px solid #333334 !important;
+        border-bottom: 2px solid #333334 !important;
+      }
+    `,
+    /* css */ `
+      tbody td {
+        border: 1px solid #666666 !important;
+      }
+    `,
+    /* css */ `
+      table {
+        border: 2px solid #333334;
+      }
+    `,
+  ]
+
+  const pageToPrint = window.document.getElementById(PDF_SCOPE_ID)
+
+  if (pageToPrint) {
+    const pdf = new Printd()
+    pdf.print(pageToPrint, styles)
+    hide()
+  }
+}
+
+function show() {
+  showDialog.value = true
+}
+
+function hide() {
+  showDialog.value = false
+}
+
+function hideIfFalse(value) {
+  if (value !== false) return
+
+  hide()
+}
+
+defineExpose({
+  show,
+  hide,
+})
+</script>
+
+<style scoped>
+::v-deep(tbody td) {
+  font-size: 7.5pt !important;
+  border: 1px solid #666666 !important;
+}
+
+::v-deep(tbody th) {
+  font-size: 7pt !important;
+}
+
+::v-deep(thead th) {
+  border: 1px solid #333334 !important;
+  border-bottom: 2px solid #333334 !important;
+  text-align: center !important;
+  font-size: 9pt !important;
+  color: #111111 !important;
+}
+
+::v-deep(table) {
+  border: 2px solid #333334;
+}
+
+.form-footer {
+  display: none;
+}
+</style>

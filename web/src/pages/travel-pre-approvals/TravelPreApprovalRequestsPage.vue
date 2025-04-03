@@ -22,23 +22,29 @@
             />
           </v-btn>
 
-          <PrintReport
+          <v-btn
             v-if="canAdminTravelPreApprovals"
-            class="ml-md-4"
-            :disabled="isEmpty(selectedItems)"
-            :travel-requests="selectedItems"
-            button-name="Print Report"
-          />
+            class="ml-md-5"
+            color="primary"
+            outlined
+            @click="showTravelAuthorizationPreApprovalsPrintDialog"
+          >
+            Print Report
+            <TravelAuthorizationPreApprovalsPrintDialog
+              ref="travelAuthorizationPreApprovalsPrintDialog"
+            />
+          </v-btn>
           <v-btn
             v-if="canAdminTravelPreApprovals"
             :disabled="isEmpty(selectedItems)"
-            class="mr-5 my-7"
+            class="ml-md-5"
             color="primary"
             @click="exportToExcel(selectedItems)"
           >
             Export To Excel
           </v-btn>
           <v-btn
+            class="ml-md-5"
             color="primary"
             :to="{
               name: 'travel-pre-approvals/TravelPreApprovalNewPage',
@@ -61,10 +67,9 @@ import { DateTime } from "luxon"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
-import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
-import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
-
 import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
+import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
+import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
 
 const selectedItems = ref([])
 
@@ -80,6 +85,13 @@ const travelAuthorizationPreApprovalSubmissionDialog = ref(null)
 
 function showTravelAuthorizationPreApprovalSubmissionDialog() {
   travelAuthorizationPreApprovalSubmissionDialog.value?.show(selectedItemIds.value)
+}
+
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsPrintDialog> | null>} */
+const travelAuthorizationPreApprovalsPrintDialog = ref(null)
+
+function showTravelAuthorizationPreApprovalsPrintDialog() {
+  travelAuthorizationPreApprovalsPrintDialog.value?.show()
 }
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsDataTable> | null>} */
