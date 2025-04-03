@@ -90,6 +90,7 @@ const headers = [
   {
     text: "Location",
     value: "location",
+    sortable: false,
   },
   {
     text: "Submitter",
