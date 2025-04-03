@@ -62,7 +62,7 @@
             :where="travelAuthorizationPreApprovalsWhere"
             show-actions-header
             :hide-default-footer="false"
-            route-query-suffix="Request"
+            route-query-suffix="ApproveDialog"
           >
             <template #item.name="{ item }">
               <VTravelAuthorizationPreApprovalProfilesChip
@@ -166,7 +166,7 @@ import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomp
 
 const emit = defineEmits(["approved"])
 
-const travelAuthorizationPreApprovalSubmissionId = useRouteQuery("showApprovalDialog", undefined, {
+const travelAuthorizationPreApprovalSubmissionId = useRouteQuery("showApproveDialog", undefined, {
   transform: jsonTransformer,
 })
 const showDialog = computed(() => !isNil(travelAuthorizationPreApprovalSubmissionId.value))
