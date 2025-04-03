@@ -12,6 +12,7 @@
         <v-col>
           <TravelAuthorizationPreApprovalsSimpleDataTable
             :where="travelAuthorizationPreApprovalsWhere"
+            route-query-suffix="SubmissionDialog"
             hide-default-footer
             show-actions-header
           >
