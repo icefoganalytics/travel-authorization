@@ -17,18 +17,27 @@ export class TravelAuthorizationPreApprovalSubmissionsPolicy extends PolicyFacto
 
   create(): boolean {
     if (this.user.isAdmin) return true
+    if (this.user.isPreApprovedTravelAdmin) {
+      return this.record.department === this.user.department
+    }
 
     return false
   }
 
   update(): boolean {
     if (this.user.isAdmin) return true
+    if (this.user.isPreApprovedTravelAdmin) {
+      return this.record.department === this.user.department
+    }
 
     return false
   }
 
   destroy(): boolean {
     if (this.user.isAdmin) return true
+    if (this.user.isPreApprovedTravelAdmin) {
+      return this.record.department === this.user.department
+    }
 
     return false
   }
