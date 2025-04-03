@@ -13,6 +13,7 @@
             v-if="canAdminTravelPreApprovals"
             color="primary"
             :disabled="isEmpty(selectedItemIds)"
+            :block="smAndDown"
             @click="showTravelAuthorizationPreApprovalSubmissionDialog"
           >
             Submit Selected Requests
@@ -27,6 +28,7 @@
             class="ml-md-5"
             color="primary"
             outlined
+            :block="smAndDown"
             @click="showTravelAuthorizationPreApprovalsPrintDialog"
           >
             Print Report
@@ -39,6 +41,7 @@
             class="ml-md-5"
             color="primary"
             outlined
+            :block="smAndDown"
           >
             Export To Excel
           </ExportToCsvButton>
@@ -48,6 +51,8 @@
             :to="{
               name: 'travel-pre-approvals/TravelPreApprovalNewPage',
             }"
+            :outlined="!isEmpty(selectedItemIds)"
+            :block="smAndDown"
           >
             Add Travel Pre-Approval
           </v-btn>
@@ -61,6 +66,7 @@
 import { computed, ref } from "vue"
 import { isEmpty } from "lodash"
 
+import useVuetify2 from "@/use/utils/use-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
@@ -68,6 +74,8 @@ import ExportToCsvButton from "@/components/travel-authorization-pre-approvals/E
 import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
+
+const { smAndDown } = useVuetify2()
 
 const selectedItems = ref([])
 
