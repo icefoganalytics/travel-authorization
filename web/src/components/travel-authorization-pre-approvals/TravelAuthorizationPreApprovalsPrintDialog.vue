@@ -6,38 +6,11 @@
     @keydown.esc="hide"
     @input="hideIfFalse"
   >
-    <v-card class="px-10 py-5">
-      <v-row
-        class="mb-3"
-        justify="space-around"
-      >
-        <v-col cols="5" />
-        <v-col cols="2">
-          <v-btn
-            color="secondary"
-            @click="print"
-          >
-            Print
-            <v-icon
-              class="ml-2"
-              color="primary darken-2"
-              >mdi-printer</v-icon
-            >
-          </v-btn>
-        </v-col>
-        <v-col cols="3" />
-        <v-col
-          cols="2"
-          align="right"
-        >
-          <v-btn
-            color="grey"
-            @click="hide"
-            >Close</v-btn
-          >
-        </v-col>
-      </v-row>
-
+    <HeaderActionsFormCard
+      ref="headerActionsFormCard"
+      title="Travel Pre-Approval Requests"
+      @submit.prevent="print"
+    >
       <div :id="PDF_SCOPE_ID">
         <v-app-bar
           color="#fff"
@@ -86,7 +59,9 @@
             </div>
           </template>
           <template #item.estimatedCost="{ item }">
-            <div style="text-align: right !important">${{ item.estimatedCost | currency }}</div>
+            <div style="text-align: right !important">
+              {{ formatCurrency(item.estimatedCost) }}
+            </div>
           </template>
           <template #body.append>
             <tr style="">
@@ -103,7 +78,7 @@
                   text-align: right !important;
                 "
               >
-                <b>${{ totalCost | currency }}</b>
+                <b>{{ formatCurrency(totalCost) }}</b>
               </td>
             </tr>
           </template>
@@ -114,7 +89,7 @@
           <div style="width: 40%; border-top: 1px solid #333333; font-size: 8pt">
             <v-row>
               <v-col
-                cols="2"
+                cols="3"
                 style="padding-right: 0"
                 >Approved:</v-col
               >
@@ -139,8 +114,22 @@
         </div>
       </div>
 
-      <div class="mt-10"></div>
-    </v-card>
+      <template #actions>
+        <v-btn
+          color="primary"
+          type="submit"
+        >
+          Print
+          <v-icon start>mdi-printer</v-icon>
+        </v-btn>
+        <v-btn
+          color="secondary"
+          @click="hide"
+        >
+          Close
+        </v-btn>
+      </template>
+    </HeaderActionsFormCard>
   </v-dialog>
 </template>
 
@@ -149,11 +138,13 @@ import { computed, ref, watch } from "vue"
 import { sumBy, uniqueId } from "lodash"
 import { Printd } from "printd"
 
-import { formatDate } from "@/utils/formatters"
+import { formatDate, formatCurrency } from "@/utils/formatters"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
+
+import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
 const PDF_SCOPE_ID = uniqueId("pdf-scope-")
 
@@ -163,6 +154,7 @@ const headers = ref([
     value: "travelDate",
     class: "m-0 p-0",
     width: "8.5rem",
+    sortable: false,
   },
   {
     text: "Purpose",
@@ -178,6 +170,7 @@ const headers = ref([
     text: "Person/Position Travelling",
     value: "name",
     class: "",
+    sortable: false,
   },
   {
     text: "Estimated Travel Cost",
