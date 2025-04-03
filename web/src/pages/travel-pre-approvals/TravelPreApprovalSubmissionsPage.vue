@@ -1,42 +1,78 @@
 <template>
   <TravelAuthorizationPreApprovalSubmissionsDataTable
     ref="travelAuthorizationPreApprovalSubmissionsDataTable"
+    v-model="selectedItems"
+    show-select
+    single-select
   >
     <template #top>
-      <TravelAuthorizationsPreApprovalSubmissionApproveDialog
-        ref="travelAuthorizationsPreApprovalSubmissionApproveDialog"
-        @approved="refresh"
-      />
+      <v-row>
+        <v-col class="d-flex flex-column flex-md-row justify-end">
+          <TravelAuthorizationsPreApprovalSubmissionApproveDialog
+            ref="travelAuthorizationsPreApprovalSubmissionApproveDialog"
+            @approved="refresh"
+          />
+
+          <v-tooltip
+            v-if="canAdminTravelPreApprovals && isEmpty(selectedItems)"
+            bottom
+          >
+            <template #activator="{ on, attrs }">
+              <span
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-btn
+                  color="primary"
+                  :disabled="isEmpty(selectedItems)"
+                >
+                  Print
+                  <v-icon right>mdi-help-circle-outline</v-icon>
+                </v-btn>
+              </span>
+            </template>
+            <span>Select an item to enable the print action.</span>
+          </v-tooltip>
+          <v-btn
+            v-else-if="canAdminTravelPreApprovals && !isEmpty(selectedItems)"
+            color="primary"
+            @click="showTravelAuthorizationPreApprovalsPrintDialog"
+          >
+            Print
+            <v-icon right>mdi-help-circle-outline</v-icon>
+            <TravelAuthorizationPreApprovalsPrintDialog
+              ref="travelAuthorizationPreApprovalsPrintDialog"
+              :where="travelAuthorizationPreApprovalsWhere"
+            />
+          </v-btn>
+        </v-col>
+      </v-row>
     </template>
     <template #item.actions="{ item }">
       <div class="d-flex justify-end gap-4">
         <v-btn
           v-if="canEdit(item)"
-          class="my-0"
           color="primary"
+          :outlined="hasSelectedItems"
           :to="{
             name: 'travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage',
             params: {
               travelAuthorizationPreApprovalSubmissionId: item.id,
             },
           }"
-          small
         >
           Edit
         </v-btn>
         <v-btn
           v-else-if="canApprove(item)"
-          class="my-0"
           color="primary"
-          small
+          :outlined="hasSelectedItems"
           @click="showTravelAuthorizationsPreApprovalApproveDialog(item.id)"
         >
           Approve
         </v-btn>
         <v-btn
           v-else
-          class="my-0"
-          small
           color="secondary"
           :to="{
             name: 'travel-pre-approval-submissions/TravelPreApprovalSubmissionPage',
@@ -47,13 +83,6 @@
         >
           View
         </v-btn>
-        <PrintReport
-          v-if="canAdminTravelPreApprovals"
-          :id="item.id"
-          :travel-requests="item.preApprovals"
-          :button-inside-table="true"
-          button-name="Print"
-        />
       </div>
     </template>
   </TravelAuthorizationPreApprovalSubmissionsDataTable>
@@ -61,14 +90,30 @@
 
 <script setup>
 import { computed, ref } from "vue"
+import { isEmpty } from "lodash"
 
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
-import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
-import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionApproveDialog.vue"
+import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionsDataTable from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTable.vue"
+import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionApproveDialog.vue"
+
+const selectedItems = ref([])
+const hasSelectedItems = computed(() => !isEmpty(selectedItems.value))
+const firstSelectedItem = computed(() => selectedItems.value[0])
+
+const travelAuthorizationPreApprovalsWhere = computed(() => ({
+  submissionId: firstSelectedItem.value.id,
+}))
+
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsPrintDialog> | null>} */
+const travelAuthorizationPreApprovalsPrintDialog = ref(null)
+
+function showTravelAuthorizationPreApprovalsPrintDialog() {
+  travelAuthorizationPreApprovalsPrintDialog.value?.show()
+}
 
 const { isAdmin, isPreApprovedTravelAdmin } = useCurrentUser()
 const canAdminTravelPreApprovals = computed(() => isAdmin.value || isPreApprovedTravelAdmin.value)

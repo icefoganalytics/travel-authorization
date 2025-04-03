@@ -149,6 +149,17 @@ import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue
 
 const PDF_SCOPE_ID = uniqueId("pdf-scope-")
 
+const props = defineProps({
+  where: {
+    type: Object,
+    default: () => ({}),
+  },
+  filters: {
+    type: Object,
+    default: () => ({}),
+  },
+})
+
 // TODO: support passing filter options so we aren't printing all pre-approvals each time.
 
 const headers = ref([
@@ -204,6 +215,8 @@ watch(
 
 const travelAuthorizationPreApprovalsQuery = computed(() => {
   return {
+    where: props.where,
+    filters: props.filters,
     perPage: MAX_PER_PAGE, // since we aren't rendering in the back-end we need to load as much as we can here.
   }
 })

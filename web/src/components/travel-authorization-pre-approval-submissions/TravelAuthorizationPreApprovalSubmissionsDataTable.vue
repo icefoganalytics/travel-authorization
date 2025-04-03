@@ -1,25 +1,19 @@
 <template>
   <v-data-table
-    v-model="selectedItems"
     :page.sync="page"
     :items-per-page.sync="perPage"
     :sort-by.sync="vuetify2SortBy"
     :sort-desc.sync="vuetify2SortDesc"
-    :items="travelAuthorizationPreApprovalSubmissionsWithRestrictedSelectability"
+    :items="travelAuthorizationPreApprovalSubmissions"
     :headers="headers"
     :server-items-length="totalCount"
     :loading="isLoading"
-    show-select
-    :single-select="noRowsAreSelectable"
     v-bind="$attrs"
     v-on="$listeners"
-    @item-selected="lockSelectabilityToSameDepartment"
-    @toggle-select-all="selectAllOfSameDepartment"
   >
     <template #top="slotProps">
       <slot
         name="top"
-        :selected-items="selectedItems"
         v-bind="slotProps"
       ></slot>
     </template>
@@ -48,12 +42,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue"
-import { isEmpty, isNil } from "lodash"
+import { computed } from "vue"
 
 import { formatDate } from "@/utils/formatters"
-
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
@@ -131,69 +122,6 @@ const travelAuthorizationPreApprovalSubmissionsQuery = computed(() => ({
 }))
 const { travelAuthorizationPreApprovalSubmissions, isLoading, totalCount, refresh } =
   useTravelAuthorizationPreApprovalSubmissions(travelAuthorizationPreApprovalSubmissionsQuery)
-
-const selectedItems = ref([])
-const departmentSelectionLimiter = ref(null)
-
-const travelAuthorizationPreApprovalSubmissionsWithRestrictedSelectability = computed(() => {
-  return travelAuthorizationPreApprovalSubmissions.value.map(
-    (travelAuthorizationPreApprovalSubmission) => {
-      const isSelectable =
-        travelAuthorizationPreApprovalSubmission.status ===
-          TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT &&
-        (travelAuthorizationPreApprovalSubmission.department === departmentSelectionLimiter.value ||
-          isNil(departmentSelectionLimiter.value))
-
-      return {
-        ...travelAuthorizationPreApprovalSubmission,
-        isSelectable,
-      }
-    }
-  )
-})
-
-const noRowsAreSelectable = computed(
-  () =>
-    !travelAuthorizationPreApprovalSubmissionsWithRestrictedSelectability.value.some(
-      (travelAuthorizationPreApprovalSubmission) =>
-        travelAuthorizationPreApprovalSubmission.isSelectable
-    )
-)
-
-async function lockSelectabilityToSameDepartment({
-  item: travelAuthorizationPreApprovalSubmission,
-  value: isSelected,
-}) {
-  if (isSelected) {
-    departmentSelectionLimiter.value = travelAuthorizationPreApprovalSubmission.department
-  } else {
-    departmentSelectionLimiter.value = null
-  }
-}
-
-async function selectAllOfSameDepartment({ items, value: isSelected }) {
-  if (isSelected && departmentSelectionLimiter.value) {
-    selectedItems.value = items.filter(
-      (travelAuthorizationPreApprovalSubmission) =>
-        travelAuthorizationPreApprovalSubmission.isSelectable &&
-        travelAuthorizationPreApprovalSubmission.department === departmentSelectionLimiter.value
-    )
-  } else if (isSelected && !isEmpty(items)) {
-    const firstSelectableTravelAuthorizationPreApproval = items.find(
-      (travelAuthorizationPreApprovalSubmission) =>
-        travelAuthorizationPreApprovalSubmission.isSelectable
-    )
-    departmentSelectionLimiter.value = firstSelectableTravelAuthorizationPreApproval.department
-    selectedItems.value = items.filter(
-      (travelAuthorizationPreApprovalSubmission) =>
-        travelAuthorizationPreApprovalSubmission.isSelectable &&
-        travelAuthorizationPreApprovalSubmission.department === departmentSelectionLimiter.value
-    )
-  } else {
-    selectedItems.value = []
-    departmentSelectionLimiter.value = null
-  }
-}
 
 defineExpose({
   refresh,
