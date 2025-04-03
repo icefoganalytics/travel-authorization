@@ -15,6 +15,7 @@
 import { computed } from "vue"
 import { ExportToCsv } from "export-to-csv"
 import { DateTime } from "luxon"
+import { isNil, isEmpty } from "lodash"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
 
@@ -50,23 +51,28 @@ async function exportToCsv() {
       travelerNotes,
     } = travelAuthorizationPreApproval
 
-    const formattedName = profiles
-      ?.map((profile) => profile.profileName.replace(".", " "))
-      ?.join(", ")
-    const travelDate = isOpenForAnyDate ? month : startDate + " " + endDate
+    const formattedName = formatName(profiles)
+    const formattedDepartment = department ?? ""
+    const formattedBranch = branch ?? ""
+    const travelDate = formatTravelDate(isOpenForAnyDate, startDate, endDate, month)
+    const formattedLocation = location ?? ""
+    const formattedPurpose = purpose ?? ""
     const formattedEstimatedCost = formatCurrency(estimatedCost)
+    const formattedReason = reason ?? ""
+    const formattedStatus = status ?? ""
+    const formattedNotes = travelerNotes ?? ""
 
     return {
       ["Name"]: formattedName,
-      ["Department"]: department,
-      ["Branch"]: branch,
+      ["Department"]: formattedDepartment,
+      ["Branch"]: formattedBranch,
       ["Travel Date"]: travelDate,
-      ["Location"]: location,
-      ["Purpose"]: purpose,
+      ["Location"]: formattedLocation,
+      ["Purpose"]: formattedPurpose,
       ["Estimated Cost"]: formattedEstimatedCost,
-      ["Reason"]: reason,
-      ["Status"]: status,
-      ["Notes"]: travelerNotes,
+      ["Reason"]: formattedReason,
+      ["Status"]: formattedStatus,
+      ["Notes"]: formattedNotes,
     }
   })
 
@@ -87,5 +93,26 @@ async function exportToCsv() {
   }
   const csvExporter = new ExportToCsv(options)
   csvExporter.generateCsv(csvInfo)
+}
+
+function formatName(travelAuthorizationPreApprovalProfiles) {
+  if (
+    isNil(travelAuthorizationPreApprovalProfiles) ||
+    isEmpty(travelAuthorizationPreApprovalProfiles)
+  ) {
+    return ""
+  }
+
+  return travelAuthorizationPreApprovalProfiles
+    .map((profile) => profile.profileName.replace(".", " "))
+    .join(", ")
+}
+
+function formatTravelDate(isOpenForAnyDate, startDate, endDate, month) {
+  if (isOpenForAnyDate) {
+    return month ?? ""
+  }
+
+  return [startDate, endDate].filter(Boolean).join(" to ") ?? ""
 }
 </script>
