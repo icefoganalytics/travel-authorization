@@ -149,6 +149,8 @@ import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue
 
 const PDF_SCOPE_ID = uniqueId("pdf-scope-")
 
+// TODO: support passing filter options so we aren't printing all pre-approvals each time.
+
 const headers = ref([
   {
     text: "Date of Travel ",
