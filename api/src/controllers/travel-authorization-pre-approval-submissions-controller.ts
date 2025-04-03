@@ -184,8 +184,14 @@ export class TravelAuthorizationPreApprovalSubmissionsController extends BaseCon
     )
   }
 
+  // TODO: develop safer pattern for this
+  // this could potentially cause a permission leak see https://yg-hpw.atlassian.net/browse/WRAPX-126
+  private buildTravelAuthorizationPreApprovalSubmission() {
+    return TravelAuthorizationPreApprovalSubmission.build(this.request.body)
+  }
+
   private buildPolicy(
-    travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission = TravelAuthorizationPreApprovalSubmission.build()
+    travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission = this.buildTravelAuthorizationPreApprovalSubmission()
   ) {
     return new TravelAuthorizationPreApprovalSubmissionsPolicy(
       this.currentUser,
