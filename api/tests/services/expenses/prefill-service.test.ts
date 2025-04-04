@@ -1,8 +1,8 @@
-import PrefillService from "@/services/expenses/prefill-service"
+import { faker } from "@faker-js/faker"
 
 import { Expense, TravelAuthorization } from "@/models"
-
-import { expenseFactory, travelAuthorizationFactory } from "@/factories"
+import PrefillService from "@/services/expenses/prefill-service"
+import { expenseFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
 
 describe("api/src/services/expenses/prefill-service.ts", () => {
   describe("PrefillService", () => {
@@ -11,6 +11,11 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
         // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
           tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          status: TravelAuthorization.Statuses.APPROVED,
+        })
+        await travelSegmentFactory.create({
+          travelAuthorizationId: travelAuthorization.id,
+          departureOn: faker.date.past(),
         })
         await expenseFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -133,6 +138,40 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
             expenseType: Expense.ExpenseTypes.MEALS_AND_INCIDENTALS,
           }),
         ])
+      })
+
+      test("when travel authorization is not approved, errors informatively", async () => {
+        // Arrange
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          status: TravelAuthorization.Statuses.DENIED,
+        })
+
+        // Assert
+        expect.assertions(1)
+        await expect(
+          // Act
+          PrefillService.perform(travelAuthorization.id, [])
+        ).rejects.toThrow("Can only prefill expenses for approved travel authorizations.")
+      })
+
+      test("when travel authorization is approved but current date is not after travel start date, errors informatively", async () => {
+        // Arrange
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          status: TravelAuthorization.Statuses.APPROVED,
+        })
+        await travelSegmentFactory.create({
+          travelAuthorizationId: travelAuthorization.id,
+          departureOn: faker.date.future(),
+        })
+
+        // Assert
+        expect.assertions(1)
+        await expect(
+          // Act
+          PrefillService.perform(travelAuthorization.id, [])
+        ).rejects.toThrow("Can only prefill expenses after travel start date.")
       })
     })
   })
