@@ -221,7 +221,10 @@ const travelAuthorizationPreApprovalsQuery = computed(() => {
   }
 })
 const { travelAuthorizationPreApprovals } = useTravelAuthorizationPreApprovals(
-  travelAuthorizationPreApprovalsQuery
+  travelAuthorizationPreApprovalsQuery,
+  {
+    skipWatchIf: () => showDialog.value !== true,
+  }
 )
 
 const totalCost = computed(() => {

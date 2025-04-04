@@ -27,13 +27,17 @@ const travelAuthorizationPreApprovalsQuery = computed(() => {
     perPage: MAX_PER_PAGE, // TODO: support passing filter options so we aren't printing all pre-approvals each time.
   }
 })
-const { travelAuthorizationPreApprovals, isLoading } = useTravelAuthorizationPreApprovals(
-  travelAuthorizationPreApprovalsQuery
+const { travelAuthorizationPreApprovals, isLoading, refresh } = useTravelAuthorizationPreApprovals(
+  travelAuthorizationPreApprovalsQuery,
+  {
+    skipWatchIf: () => true, // never fetch automatically
+  }
 )
 
 // TODO: switch to back-end rendering at a dedicated endpoint via
 // fast-csv, see https://github.com/icefoganalytics/internal-data-portal/blob/0eb01fff60c6b5d72b060f89e92cf15336225531/api/src/controllers/download/datasets-controller.ts#L28
 async function exportToCsv() {
+  await refresh()
   const csvInfo = travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
     const {
       profiles,
