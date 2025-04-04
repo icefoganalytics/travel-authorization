@@ -13,38 +13,31 @@
             @approved="refresh"
           />
 
-          <v-tooltip
-            v-if="canAdminTravelPreApprovals && isEmpty(selectedItems)"
-            bottom
-          >
-            <template #activator="{ on, attrs }">
-              <span
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-btn
-                  color="primary"
-                  :disabled="isEmpty(selectedItems)"
-                >
-                  Print
-                  <v-icon right>mdi-help-circle-outline</v-icon>
-                </v-btn>
-              </span>
-            </template>
-            <span>Select an item to enable the print action.</span>
-          </v-tooltip>
-          <v-btn
-            v-else-if="canAdminTravelPreApprovals && !isEmpty(selectedItems)"
+          <ConditionalTooltipButton
+            v-if="canAdminTravelPreApprovals"
+            :disabled="isEmpty(selectedItems)"
             color="primary"
+            tooltip-text="Select an item to enable the print action."
             @click="showTravelAuthorizationPreApprovalsPrintDialog"
           >
             Print
-            <v-icon right>mdi-help-circle-outline</v-icon>
             <TravelAuthorizationPreApprovalsPrintDialog
+              v-if="!isEmpty(selectedItems)"
               ref="travelAuthorizationPreApprovalsPrintDialog"
               :where="travelAuthorizationPreApprovalsWhere"
             />
-          </v-btn>
+          </ConditionalTooltipButton>
+          <ConditionalTooltipButton
+            v-if="canAdminTravelPreApprovals"
+            :disabled="!canRevertToDraft"
+            class="ml-3"
+            color="warning"
+            outlined
+            tooltip-text="Select submitted item to enable revert to draft option."
+            @click="revertToDraft(firstSelectedItem.id)"
+          >
+            Revert to Draft
+          </ConditionalTooltipButton>
         </v-col>
       </v-row>
     </template>
@@ -96,6 +89,7 @@ import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/tra
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
+import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionsDataTable from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTable.vue"
 import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionApproveDialog.vue"
@@ -103,9 +97,14 @@ import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components
 const selectedItems = ref([])
 const hasSelectedItems = computed(() => !isEmpty(selectedItems.value))
 const firstSelectedItem = computed(() => selectedItems.value[0])
+const canRevertToDraft = computed(
+  () =>
+    firstSelectedItem.value?.status ===
+    TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.SUBMITTED
+)
 
 const travelAuthorizationPreApprovalsWhere = computed(() => ({
-  submissionId: firstSelectedItem.value.id,
+  submissionId: firstSelectedItem.value?.id,
 }))
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsPrintDialog> | null>} */
@@ -143,6 +142,10 @@ function showTravelAuthorizationsPreApprovalApproveDialog(
   travelAuthorizationsPreApprovalSubmissionApproveDialog.value?.show(
     travelAuthorizationPreApprovalSubmissionId
   )
+}
+
+function revertToDraft(travelAuthorizationPreApprovalSubmissionId) {
+  alert(`Revert to draft for submission ${travelAuthorizationPreApprovalSubmissionId}`)
 }
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionsDataTable> | null>} */
