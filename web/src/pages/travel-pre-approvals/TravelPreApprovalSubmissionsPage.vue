@@ -30,6 +30,7 @@
           <ConditionalTooltipButton
             v-if="canAdminTravelPreApprovals"
             :disabled="!canRevertToDraft"
+            :loading="isLoading"
             class="ml-3"
             color="warning"
             outlined
@@ -85,9 +86,13 @@
 import { computed, ref } from "vue"
 import { isEmpty } from "lodash"
 
-import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
+import travelAuthorizationPreApprovalSubmissionsApi, {
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
+} from "@/api/travel-authorization-pre-approval-submissions-api"
+
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
+import useSnack from "@/use/use-snack"
 
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
@@ -144,8 +149,24 @@ function showTravelAuthorizationsPreApprovalApproveDialog(
   )
 }
 
-function revertToDraft(travelAuthorizationPreApprovalSubmissionId) {
-  alert(`Revert to draft for submission ${travelAuthorizationPreApprovalSubmissionId}`)
+const isLoading = ref(false)
+const snack = useSnack()
+
+async function revertToDraft(travelAuthorizationPreApprovalSubmissionId) {
+  isLoading.value = true
+  try {
+    await travelAuthorizationPreApprovalSubmissionsApi.revertToDraft(
+      travelAuthorizationPreApprovalSubmissionId
+    )
+    snack.success("Travel pre-approval submission successfully reverted to draft!")
+    selectedItems.value = []
+    await refresh()
+  } catch (error) {
+    console.error(`Failed to revert travel pre-approval submission to draft: ${error}`, { error })
+    snack.error(`Failed to revert travel pre-approval submission to draft: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionsDataTable> | null>} */
