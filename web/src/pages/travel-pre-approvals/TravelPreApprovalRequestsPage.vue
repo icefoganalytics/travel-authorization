@@ -9,19 +9,20 @@
         <v-col class="d-flex flex-column flex-md-row align-center">
           <!-- TODO: make all of these buttons full width on small screens -->
           <v-spacer />
-          <v-btn
-            v-if="canAdminTravelPreApprovals"
+          <ConditionalTooltipButton
             color="primary"
             :disabled="isEmpty(selectedItemIds)"
+            tooltip-text="Select draft items to enable the submit action."
             :block="smAndDown"
             @click="showTravelAuthorizationPreApprovalSubmissionDialog"
           >
             Submit Selected Requests
             <TravelAuthorizationPreApprovalSubmissionDialog
+              v-if="canAdminTravelPreApprovals"
               ref="travelAuthorizationPreApprovalSubmissionDialog"
               @submitted="refresh"
             />
-          </v-btn>
+          </ConditionalTooltipButton>
 
           <v-btn
             v-if="canAdminTravelPreApprovals"
@@ -69,6 +70,8 @@ import { isEmpty } from "lodash"
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
+
+import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 
 import ExportToCsvButton from "@/components/travel-authorization-pre-approvals/ExportToCsvButton.vue"
 import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"

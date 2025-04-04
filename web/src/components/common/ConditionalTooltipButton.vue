@@ -47,7 +47,7 @@ defineProps({
   },
   tooltipText: {
     type: String,
-    default: "",
+    required: true,
   },
   buttonProps: {
     type: Object,
