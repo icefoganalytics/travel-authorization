@@ -160,12 +160,7 @@ const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
 const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "5", {
   transform: integerTransformer,
 })
-const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
-  {
-    key: "status",
-    order: "desc",
-  },
-])
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [])
 const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
