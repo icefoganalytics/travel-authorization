@@ -59,7 +59,7 @@
         </v-btn>
         <v-btn
           v-else-if="canApprove(item)"
-          color="primary"
+          color="success"
           :outlined="hasSelectedItems"
           @click="showTravelAuthorizationsPreApprovalApproveDialog(item.id)"
         >
