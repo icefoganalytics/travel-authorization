@@ -2,43 +2,58 @@
   <TravelAuthorizationPreApprovalsDataTable
     ref="travelAuthorizationPreApprovalsDataTable"
     v-model="selectedItems"
+    :show-select="canAdminTravelPreApprovals"
   >
     <template #top>
       <v-row>
         <v-col class="d-flex flex-column flex-md-row align-center">
           <!-- TODO: make all of these buttons full width on small screens -->
           <v-spacer />
-          <v-btn
+          <ConditionalTooltipButton
             color="primary"
             :disabled="isEmpty(selectedItemIds)"
+            tooltip-text="Select draft items to enable the submit action."
+            :block="smAndDown"
             @click="showTravelAuthorizationPreApprovalSubmissionDialog"
           >
             Submit Selected Requests
             <TravelAuthorizationPreApprovalSubmissionDialog
+              v-if="canAdminTravelPreApprovals"
               ref="travelAuthorizationPreApprovalSubmissionDialog"
               @submitted="refresh"
             />
-          </v-btn>
+          </ConditionalTooltipButton>
 
-          <PrintReport
-            class="ml-md-4"
-            :disabled="isEmpty(selectedItems)"
-            :travel-requests="selectedItems"
-            button-name="Print Report"
-          />
           <v-btn
-            :disabled="isEmpty(selectedItems)"
-            class="mr-5 my-7"
+            v-if="canAdminTravelPreApprovals"
+            class="ml-md-5"
             color="primary"
-            @click="exportToExcel(selectedItems)"
+            outlined
+            :block="smAndDown"
+            @click="showTravelAuthorizationPreApprovalsPrintDialog"
+          >
+            Print Report
+            <TravelAuthorizationPreApprovalsPrintDialog
+              ref="travelAuthorizationPreApprovalsPrintDialog"
+            />
+          </v-btn>
+          <ExportToCsvButton
+            v-if="canAdminTravelPreApprovals"
+            class="ml-md-5"
+            color="primary"
+            outlined
+            :block="smAndDown"
           >
             Export To Excel
-          </v-btn>
+          </ExportToCsvButton>
           <v-btn
+            class="ml-md-5"
             color="primary"
             :to="{
               name: 'travel-pre-approvals/TravelPreApprovalNewPage',
             }"
+            :outlined="!isEmpty(selectedItemIds)"
+            :block="smAndDown"
           >
             Add Travel Pre-Approval
           </v-btn>
@@ -51,21 +66,28 @@
 <script setup>
 import { computed, ref } from "vue"
 import { isEmpty } from "lodash"
-import { ExportToCsv } from "export-to-csv"
-import { DateTime } from "luxon"
 
+import useVuetify2 from "@/use/utils/use-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useCurrentUser from "@/use/use-current-user"
 
-import PrintReport from "@/modules/preapproved/views/Common/PrintReport.vue"
+import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
+
+import ExportToCsvButton from "@/components/travel-authorization-pre-approvals/ExportToCsvButton.vue"
+import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
+import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
 
-import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
+const { smAndDown } = useVuetify2()
 
 const selectedItems = ref([])
 
 const selectedItemIds = computed(() => {
   return selectedItems.value.map((item) => item.id)
 })
+
+const { isAdmin, isPreApprovedTravelAdmin } = useCurrentUser()
+const canAdminTravelPreApprovals = computed(() => isAdmin.value || isPreApprovedTravelAdmin.value)
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionDialog> | null>} */
 const travelAuthorizationPreApprovalSubmissionDialog = ref(null)
@@ -74,51 +96,19 @@ function showTravelAuthorizationPreApprovalSubmissionDialog() {
   travelAuthorizationPreApprovalSubmissionDialog.value?.show(selectedItemIds.value)
 }
 
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsPrintDialog> | null>} */
+const travelAuthorizationPreApprovalsPrintDialog = ref(null)
+
+function showTravelAuthorizationPreApprovalsPrintDialog() {
+  travelAuthorizationPreApprovalsPrintDialog.value?.show()
+}
+
 /** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsDataTable> | null>} */
 const travelAuthorizationPreApprovalsDataTable = ref(null)
 
 function refresh() {
   selectedItems.value = []
   travelAuthorizationPreApprovalsDataTable.value?.refresh()
-}
-
-function exportToExcel(travelAuthorizationPreApprovals) {
-  // The object keys must match the headers option.
-  // In future versions of the library, the headers can be customized independently.
-  const csvInfo = travelAuthorizationPreApprovals.map((req) => {
-    return {
-      Name: req.profiles?.map((profile) => profile.profileName.replace(".", " "))?.join(", "),
-      Department: req.department,
-      Branch: req.branch ? req.branch : "",
-      "Travel Date": req.isOpenForAnyDate ? req.month : req.startDate + " " + req.endDate,
-      Location: req.location,
-      Purpose: req.purpose ? req.purpose : "",
-      "Estimated Cost": req.estimatedCost,
-      Reason: req.reason ? req.reason : "",
-      Status: req.status ? req.status : "",
-      Notes: req.travelerNotes ? req.travelerNotes : "",
-    }
-  })
-  const currentDate = DateTime.now().toFormat("yyyy-MM-dd")
-  const options = {
-    filename: `Travel Requests, Pre-Approved, ${currentDate}`,
-    decimalSeparator: "locale",
-    showLabels: true,
-    headers: [
-      "Name",
-      "Department",
-      "Branch",
-      "Travel Date",
-      "Location",
-      "Purpose",
-      "Estimated Cost",
-      "Reason",
-      "Status",
-      "Notes",
-    ],
-  }
-  const csvExporter = new ExportToCsv(options)
-  csvExporter.generateCsv(csvInfo)
 }
 
 useBreadcrumbs([

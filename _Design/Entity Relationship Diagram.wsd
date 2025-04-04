@@ -255,6 +255,7 @@ together {
   entity "travel_authorization_pre_approvals" {
     * id : int <<PK>>
     --
+    * creator_id : int4 <<FK>>
     * submission_id : int4 <<FK>>
     * estimated_cost : int
     * is_open_for_any_date : bool
@@ -637,6 +638,7 @@ travel_authorization_pre_approval_submissions::creator_id ||--o{ users::id
 travel_authorization_pre_approval_submissions::id }o--|| travel_authorization_pre_approval_documents::submission_id
 travel_authorization_pre_approval_submissions::id }|--o| travel_authorization_pre_approvals::submission_id
 travel_authorization_pre_approvals::id }|--|| travel_authorization_pre_approval_profiles::pre_approval_id
+travel_authorization_pre_approvals::creator_id ||--o{ users::id
 travel_authorizations::pre_approval_profile_id |o--o{ travel_authorization_pre_approval_profiles::id
 travel_authorizations::purpose_id ||--o{ travel_purposes::id
 travel_desk_flight_options::id }o--|| travel_desk_flight_segments::flight_option_id

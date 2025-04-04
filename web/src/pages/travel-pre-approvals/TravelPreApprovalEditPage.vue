@@ -263,10 +263,9 @@ const { travelAuthorizationPreApproval, isLoading, refresh } = useTravelAuthoriz
   travelAuthorizationPreApprovalId
 )
 
-const exactTravelDateKnown = ref(true)
+const exactTravelDateKnown = computed(() => !travelAuthorizationPreApproval.value.isOpenForAnyDate)
 
 function toggleExactTravelDateKnown(value) {
-  exactTravelDateKnown.value = value
   travelAuthorizationPreApproval.value.isOpenForAnyDate = !value
   travelAuthorizationPreApproval.value.startDate = undefined
   travelAuthorizationPreApproval.value.endDate = undefined

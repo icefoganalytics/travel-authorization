@@ -28,14 +28,20 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
 
   update(): boolean {
     if (this.user.isAdmin) return true
+    if (this.user.isPreApprovedTravelAdmin) {
+      return this.record.department === this.user.department
+    }
 
-    return this.record.department === this.user.department
+    return this.record.creatorId === this.user.id
   }
 
   destroy(): boolean {
     if (this.user.isAdmin) return true
+    if (this.user.isPreApprovedTravelAdmin) {
+      return this.record.department === this.user.department
+    }
 
-    return this.record.department === this.user.department
+    return this.record.creatorId === this.user.id
   }
 
   permittedAttributes(): Path[] {

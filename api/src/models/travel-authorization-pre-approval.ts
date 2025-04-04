@@ -13,6 +13,7 @@ import sequelize from "@/db/db-client"
 
 import TravelAuthorizationPreApprovalSubmission from "@/models/travel-authorization-pre-approval-submission"
 import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization-pre-approval-profile"
+import User from "@/models/user"
 
 /** Keep in sync with web/src/api/travel-authorization-pre-approvals-api.js */
 // TODO: check if these status are on the correct model?
@@ -33,6 +34,7 @@ export class TravelAuthorizationPreApproval extends Model<
   static readonly Statuses = TravelAuthorizationPreApprovalStatuses
 
   declare id: CreationOptional<number>
+  declare creatorId: ForeignKey<User["id"]>
   declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["id"]> | null
   declare estimatedCost: number
   declare location: string
@@ -53,10 +55,12 @@ export class TravelAuthorizationPreApproval extends Model<
   declare deletedAt: Date | null
 
   // Assocations
+  declare creator?: NonAttribute<User>
   declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
   declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
 
   declare static associations: {
+    creator: Association<TravelAuthorizationPreApproval, User>
     profiles: Association<TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile>
     submission: Association<
       TravelAuthorizationPreApproval,
@@ -73,6 +77,10 @@ export class TravelAuthorizationPreApproval extends Model<
       as: "submission",
       foreignKey: "submissionId",
     })
+    this.belongsTo(User, {
+      as: "creator",
+      foreignKey: "creatorId",
+    })
   }
 }
 
@@ -83,6 +91,14 @@ TravelAuthorizationPreApproval.init(
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
+    },
+    creatorId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
     },
     submissionId: {
       type: DataTypes.INTEGER,

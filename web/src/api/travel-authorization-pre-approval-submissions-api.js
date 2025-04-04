@@ -160,6 +160,18 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
     )
     return data
   },
+  /**
+   * @param {number} travelAuthorizationPreApprovalSubmissionId
+   * @returns {Promise<{
+   *   travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission,
+   * }>}
+   */
+  async revertToDraft(travelAuthorizationPreApprovalSubmissionId) {
+    const { data } = await http.post(
+      `/api/travel-authorization-pre-approval-submissions/${travelAuthorizationPreApprovalSubmissionId}/revert-to-draft`
+    )
+    return data
+  },
 }
 
 export default travelAuthorizationPreApprovalSubmissionsApi

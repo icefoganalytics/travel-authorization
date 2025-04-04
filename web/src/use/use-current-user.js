@@ -32,6 +32,7 @@ const state = reactive({
  *   isReady: Ref<boolean>,
  *   fullName: Ref<string>,
  *   isAdmin: Ref<boolean>,
+ *   isPreApprovedTravelAdmin: Ref<boolean>,
  *   fetch: () => Promise<UserDetailedView>,
  *   unset: () => void,
  * }}
@@ -44,6 +45,9 @@ export function useCurrentUser() {
     return [firstName, lastName].filter(Boolean).join(" ")
   })
   const isAdmin = computed(() => state.currentUser.roles?.includes(USER_ROLES.ADMIN))
+  const isPreApprovedTravelAdmin = computed(() =>
+    state.currentUser.roles?.includes(USER_ROLES.PRE_APPROVED_TRAVEL_ADMIN)
+  )
 
   async function fetch() {
     state.isLoading = true
@@ -78,6 +82,7 @@ export function useCurrentUser() {
     isReady,
     fullName,
     isAdmin,
+    isPreApprovedTravelAdmin,
     // actions
     fetch,
     refresh: fetch,

@@ -55,7 +55,6 @@
                 }"
                 color="primary"
                 outlined
-                small
               >
                 Edit
               </v-btn>
@@ -65,7 +64,6 @@
                 title="Remove"
                 color="error"
                 outlined
-                small
                 @click="
                   removeTravelAuthorizationPreApprovalFromSubmission(
                     travelAuthorizationPreApprovalSubmissionId,

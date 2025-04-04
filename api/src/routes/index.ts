@@ -321,6 +321,11 @@ router
   .post(TravelAuthorizationPreApprovalSubmissions.SubmitController.create)
 router
   .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/revert-to-draft"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.RevertToDraftController.create)
+router
+  .route(
     "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/pre-approvals/:travelAuthorizationPreApprovalId"
   )
   .post(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.create)
