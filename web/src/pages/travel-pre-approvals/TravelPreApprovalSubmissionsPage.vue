@@ -57,6 +57,11 @@
         >
           Edit
         </v-btn>
+        <!--
+          TODO: add "reject" pipeline to reject the entire set of requests?
+          Alternatively, change this button to "sign" and make it UI more generic,
+          with approve/reject ocurring on the pre-approval requests, and not the submission level?
+        -->
         <v-btn
           v-else-if="canApprove(item)"
           color="success"
