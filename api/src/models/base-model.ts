@@ -9,6 +9,9 @@ import {
   WhereAttributeHash,
 } from "sequelize"
 
+import { type AttributeNames } from "@/utils/utility-types"
+import searchFieldsByTermsFactory from "@/utils/search-fields-by-terms-factory"
+
 type BaseModelStatic<M extends BaseModel> = typeof BaseModel & ModelStatic<M>
 
 // See api/node_modules/@sequelize/core/lib/model.d.ts -> Model
@@ -23,6 +26,11 @@ export abstract class BaseModel<
     options?: string | ScopeOptions | readonly (string | ScopeOptions)[] | WhereAttributeHash<M>
   ): BaseModelStatic<M> {
     return super.scope(options) as BaseModelStatic<M>
+  }
+
+  static addSearchScope<M extends BaseModel>(this: ModelStatic<M>, fields: AttributeNames<M>[]) {
+    const searchScopeFunction = searchFieldsByTermsFactory<M>(fields)
+    this.addScope("search", searchScopeFunction)
   }
 
   // static findByPk<M extends Model, R = Attributes<M>>

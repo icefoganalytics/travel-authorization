@@ -1,38 +1,26 @@
 import {
-  Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
-  HasManyAddAssociationMixin,
-  HasManyAddAssociationsMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin,
-  HasManyRemoveAssociationsMixin,
-  HasManySetAssociationsMixin,
-  InferAttributes,
-  InferCreationAttributes,
   Model,
-  NonAttribute,
+  type Association,
+  type CreationOptional,
+  type ForeignKey,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
 } from "sequelize"
 
 import sequelize from "@/db/db-client"
 
 import TravelAuthorizationPreApprovalSubmission from "@/models/travel-authorization-pre-approval-submission"
 import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization-pre-approval-profile"
+import User from "@/models/user"
 
 /** Keep in sync with web/src/api/travel-authorization-pre-approvals-api.js */
 // TODO: check if these status are on the correct model?
 // I would expect these status to make more sense on the TravelAuthorizationPreApprovalSubmission.
 // Or mabye the status would be something like "avaialable" and "used_up" based on the
 // pre-approval profile usage.
-export enum Statuses {
+export enum TravelAuthorizationPreApprovalStatuses {
   DRAFT = "draft",
   SUBMITTED = "submitted",
   APPROVED = "approved",
@@ -43,89 +31,55 @@ export class TravelAuthorizationPreApproval extends Model<
   InferAttributes<TravelAuthorizationPreApproval>,
   InferCreationAttributes<TravelAuthorizationPreApproval>
 > {
-  static readonly Statuses = Statuses
+  static readonly Statuses = TravelAuthorizationPreApprovalStatuses
 
   declare id: CreationOptional<number>
-  declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["preTSubID"] | null>
+  declare creatorId: ForeignKey<User["id"]>
+  declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["id"]> | null
   declare estimatedCost: number
   declare location: string
-  declare department: CreationOptional<string | null>
-  declare branch: CreationOptional<string | null>
-  declare purpose: CreationOptional<string | null>
-  declare reason: CreationOptional<string | null>
-  declare startDate: CreationOptional<Date | null>
-  declare endDate: CreationOptional<Date | null>
+  declare department: string | null
+  declare branch: string | null
+  declare purpose: string | null
+  declare reason: string | null
+  declare startDate: Date | null
+  declare endDate: Date | null
   declare isOpenForAnyDate: CreationOptional<boolean>
-  declare month: CreationOptional<string | null>
+  declare month: string | null
   declare isOpenForAnyTraveler: CreationOptional<boolean>
-  declare numberTravelers: CreationOptional<number | null>
-  declare travelerNotes: CreationOptional<string | null>
-  declare status: CreationOptional<string | null>
+  declare numberTravelers: number | null
+  declare travelerNotes: string | null
+  declare status: string | null
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date | null>
+  declare deletedAt: Date | null
 
-  // https://sequelize.org/docs/v6/other-topics/typescript/#usage
-  // https://sequelize.org/docs/v6/core-concepts/assocs/#special-methodsmixins-added-to-instances
-  // https://sequelize.org/api/v7/types/_sequelize_core.index.belongstocreateassociationmixin
-  declare getSubmission: BelongsToGetAssociationMixin<TravelAuthorizationPreApprovalSubmission>
-  declare setSubmission: BelongsToSetAssociationMixin<
-    TravelAuthorizationPreApprovalSubmission,
-    TravelAuthorizationPreApprovalSubmission["preTSubID"]
-  >
-  declare createSubmission: BelongsToCreateAssociationMixin<TravelAuthorizationPreApprovalSubmission>
-
-  declare getProfiles: HasManyGetAssociationsMixin<TravelAuthorizationPreApprovalProfile>
-  declare setProfiles: HasManySetAssociationsMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare hasProfile: HasManyHasAssociationMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare hasProfiles: HasManyHasAssociationsMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare addProfile: HasManyAddAssociationMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare addProfiles: HasManyAddAssociationsMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare removeProfile: HasManyRemoveAssociationMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare removeProfiles: HasManyRemoveAssociationsMixin<
-    TravelAuthorizationPreApprovalProfile,
-    TravelAuthorizationPreApprovalProfile["id"]
-  >
-  declare countProfiles: HasManyCountAssociationsMixin
-  declare createProfile: HasManyCreateAssociationMixin<TravelAuthorizationPreApprovalProfile>
-
-  declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
+  // Assocations
+  declare creator?: NonAttribute<User>
   declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
+  declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
 
   declare static associations: {
+    creator: Association<TravelAuthorizationPreApproval, User>
+    profiles: Association<TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile>
     submission: Association<
       TravelAuthorizationPreApproval,
       TravelAuthorizationPreApprovalSubmission
     >
-    profiles: Association<TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile>
   }
 
   static establishAssociations() {
+    this.hasMany(TravelAuthorizationPreApprovalProfile, {
+      as: "profiles",
+      foreignKey: "preApprovalId",
+    })
     this.belongsTo(TravelAuthorizationPreApprovalSubmission, {
       as: "submission",
       foreignKey: "submissionId",
     })
-    this.hasMany(TravelAuthorizationPreApprovalProfile, {
-      as: "profiles",
-      foreignKey: "preApprovalId",
+    this.belongsTo(User, {
+      as: "creator",
+      foreignKey: "creatorId",
     })
   }
 }
@@ -138,12 +92,20 @@ TravelAuthorizationPreApproval.init(
       primaryKey: true,
       autoIncrement: true,
     },
+    creatorId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
     submissionId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: TravelAuthorizationPreApprovalSubmission,
-        key: "preTSubID",
+        key: "id",
       },
     },
     estimatedCost: {
@@ -180,7 +142,7 @@ TravelAuthorizationPreApproval.init(
     },
     isOpenForAnyDate: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      allowNull: false,
       defaultValue: false,
     },
     month: {
@@ -189,7 +151,7 @@ TravelAuthorizationPreApproval.init(
     },
     isOpenForAnyTraveler: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      allowNull: false,
       defaultValue: false,
     },
     numberTravelers: {
@@ -202,22 +164,22 @@ TravelAuthorizationPreApproval.init(
     },
     status: {
       type: DataTypes.STRING(255),
-      allowNull: true,
+      allowNull: false,
       validate: {
         isIn: {
-          args: [Object.values(Statuses)],
-          msg: "Invalid status value",
+          args: [Object.values(TravelAuthorizationPreApprovalStatuses)],
+          msg: `Status must be one of: ${Object.values(TravelAuthorizationPreApprovalStatuses).join(", ")}`,
         },
       },
     },
     createdAt: {
       type: DataTypes.DATE,
-      allowNull: true,
+      allowNull: false,
       defaultValue: DataTypes.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
-      allowNull: true,
+      allowNull: false,
       defaultValue: DataTypes.NOW,
     },
     deletedAt: {
@@ -227,6 +189,27 @@ TravelAuthorizationPreApproval.init(
   },
   {
     sequelize,
+    indexes: [
+      {
+        unique: true,
+        fields: ["submission_id"],
+        name: "travel_authorization_pre_approvals_submission_id_unique",
+        where: {
+          submissionId: null,
+          deletedAt: null,
+        },
+      },
+    ],
+    scopes: {
+      availableForSubmission() {
+        return {
+          where: {
+            submissionId: null,
+            status: TravelAuthorizationPreApproval.Statuses.DRAFT,
+          },
+        }
+      },
+    },
   }
 )
 

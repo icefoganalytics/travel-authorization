@@ -2,8 +2,8 @@ import Vue from "vue"
 import VueRouter from "vue-router"
 
 import { authGuard } from "@/utils/auth-guard"
+import useRouteHistory from "@/use/use-route-history"
 
-import preapprovedRouter from "@/modules/preapproved/router"
 import travelDeskRouter from "@/modules/travelDesk/router"
 import travelAuthorizationsRouter from "@/modules/travel-authorizations/router"
 import reportsRouter from "@/modules/reports/router"
@@ -30,11 +30,6 @@ const routes = [
         path: "",
         children: [
           {
-            name: "ManageTravelRequests",
-            path: "manage-travel-requests",
-            component: () => import("@/pages/ManageTravelRequestsPage.vue"),
-          },
-          {
             path: "profile",
             name: "ProfilePage",
             component: () => import("@/pages/ProfilePage.vue"),
@@ -43,6 +38,79 @@ const routes = [
             path: "users/:userId",
             name: "users/UserPage",
             component: () => import("@/pages/users/UserPage.vue"),
+            props: true,
+          },
+
+          // Start of Main Content Pages
+          {
+            path: "my-travel-requests",
+            name: "my-travel-requests/MyTravelRequestsPage",
+            component: () => import("@/pages/my-travel-requests/MyTravelRequestsPage.vue"),
+          },
+          {
+            path: "my-travel-requests/:travelAuthorizationId/wizard/:stepName",
+            name: "my-travel-requests/MyTravelRequestWizardPage",
+            component: () => import("@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"),
+            props: true,
+          },
+          {
+            name: "ManageTravelRequests",
+            path: "manage-travel-requests",
+            component: () => import("@/pages/ManageTravelRequestsPage.vue"),
+          },
+          {
+            path: "travel-pre-approvals",
+            component: () => import("@/pages/TravelPreApprovalsPage.vue"),
+            children: [
+              {
+                path: "",
+                redirect: "requests",
+              },
+              {
+                path: "requests",
+                name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
+                component: () =>
+                  import("@/pages/travel-pre-approvals/TravelPreApprovalRequestsPage.vue"),
+              },
+              {
+                path: "submissions",
+                name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
+                component: () =>
+                  import("@/pages/travel-pre-approvals/TravelPreApprovalSubmissionsPage.vue"),
+              },
+            ],
+          },
+          {
+            path: "travel-pre-approvals/new",
+            name: "travel-pre-approvals/TravelPreApprovalNewPage",
+            component: () => import("@/pages/travel-pre-approvals/TravelPreApprovalNewPage.vue"),
+          },
+          {
+            path: "travel-pre-approvals/:travelAuthorizationPreApprovalId",
+            name: "travel-pre-approvals/TravelPreApprovalPage",
+            component: () => import("@/pages/travel-pre-approvals/TravelPreApprovalPage.vue"),
+            props: true,
+          },
+          {
+            path: "travel-pre-approvals/:travelAuthorizationPreApprovalId/edit",
+            name: "travel-pre-approvals/TravelPreApprovalEditPage",
+            component: () => import("@/pages/travel-pre-approvals/TravelPreApprovalEditPage.vue"),
+            props: true,
+          },
+          {
+            path: "travel-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId",
+            name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionPage",
+            component: () =>
+              import("@/pages/travel-pre-approval-submissions/TravelPreApprovalSubmissionPage.vue"),
+            props: true,
+          },
+          {
+            path: "travel-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/edit",
+            name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage",
+            component: () =>
+              import(
+                "@/pages/travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage.vue"
+              ),
             props: true,
           },
           {
@@ -94,6 +162,7 @@ const routes = [
               },
             ],
           },
+          // End of Main Content Pages
           // Start of Administration pages
           {
             path: "administration",
@@ -176,34 +245,10 @@ const routes = [
     ],
   },
 
-  ...preapprovedRouter,
   ...travelDeskRouter,
   ...travelAuthorizationsRouter,
   ...reportsRouter,
-  {
-    path: "",
-    component: () => import("@/layouts/DefaultLayout.vue"),
-    children: [
-      {
-        // TODO: push readcrumbs into higher layout
-        path: "",
-        component: () => import("@/layouts/LayoutWithBreadcrumbs.vue"),
-        children: [
-          {
-            path: "my-travel-requests",
-            name: "my-travel-requests/MyTravelRequestsPage",
-            component: () => import("@/pages/my-travel-requests/MyTravelRequestsPage.vue"),
-          },
-          {
-            path: "my-travel-requests/:travelAuthorizationId/wizard/:stepName",
-            name: "my-travel-requests/MyTravelRequestWizardPage",
-            component: () => import("@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"),
-            props: true,
-          },
-        ],
-      },
-    ],
-  },
+
   {
     name: "SignInPage",
     path: "/sign-in",
@@ -230,11 +275,19 @@ const router = new VueRouter({
   routes,
 })
 
+const { add } = useRouteHistory()
+
 router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth === false) return next()
+  if (to.meta.requiresAuth === false) {
+    add(from)
+    return next()
+  }
 
   const isAuthenticated = await authGuard(to)
-  if (isAuthenticated) return next()
+  if (isAuthenticated) {
+    add(from)
+    return next()
+  }
 
   return next(false)
 })

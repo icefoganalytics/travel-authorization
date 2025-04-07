@@ -28,7 +28,7 @@ import useTravelPurposes from "@/use/use-travel-purposes"
 
 defineProps({
   value: {
-    type: Number,
+    type: [Number, String],
     default: null,
   },
   itemText: {

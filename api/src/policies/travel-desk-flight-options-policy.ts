@@ -2,7 +2,7 @@ import { Attributes, FindOptions } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
 import { User, TravelDeskFlightOption, TravelDeskFlightSegment } from "@/models"
-import { allRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 import TravelDeskFlightSegmentsPolicy from "@/policies/travel-desk-flight-segments-policy"
 
@@ -54,7 +54,7 @@ export class TravelDeskFlightOptionsPolicy extends PolicyFactory(TravelDeskFligh
 
   static policyScope(user: User): FindOptions<Attributes<TravelDeskFlightOption>> {
     if (user.isTravelDeskUser || user.isAdmin) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
     return {

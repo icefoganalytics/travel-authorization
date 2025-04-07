@@ -4,7 +4,7 @@ import { isUndefined } from "lodash"
 import { Path } from "@/utils/deep-pick"
 import { User, TravelDeskHotel, TravelDeskTravelRequest } from "@/models"
 import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
-import { allRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 
 export class TravelDeskHotelsPolicy extends PolicyFactory(TravelDeskHotel) {
@@ -44,7 +44,7 @@ export class TravelDeskHotelsPolicy extends PolicyFactory(TravelDeskHotel) {
 
   static policyScope(user: User): FindOptions<Attributes<TravelDeskHotel>> {
     if (user.isAdmin) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
     return {

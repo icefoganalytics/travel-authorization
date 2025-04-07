@@ -48,6 +48,15 @@ Location.init(
     modelName: "Location",
     tableName: "locations",
     paranoid: false,
+    scopes: {
+      byProvince(province: string) {
+        return {
+          where: {
+            province,
+          },
+        }
+      },
+    },
   }
 )
 export default Location

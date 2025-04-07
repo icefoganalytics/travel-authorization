@@ -4,10 +4,16 @@ import { DatabaseError } from "sequelize"
 import logger from "@/utils/logger"
 import { GIT_COMMIT_HASH, RELEASE_TAG } from "@/config"
 import { TravComIntegration } from "@/integrations"
-import { databaseHealthCheckMiddleware, jwtMiddleware, authorizationMiddleware } from "@/middleware"
+import {
+  databaseHealthCheckMiddleware,
+  jwtMiddleware,
+  authorizationMiddleware,
+  bodyAuthorizationHoistMiddleware,
+} from "@/middleware"
 import { healthCheckRouter } from "@/routes/healthcheck-router"
 import {
   CurrentUserController,
+  Downloads,
   Expenses,
   ExpensesController,
   FlightReconciliations,
@@ -21,6 +27,8 @@ import {
   TravelAuthorizationActionLogsController,
   TravelAuthorizationPreApprovalProfilesController,
   TravelAuthorizationPreApprovalsController,
+  TravelAuthorizationPreApprovalSubmissions,
+  TravelAuthorizationPreApprovalSubmissionsController,
   TravelAuthorizations,
   TravelAuthorizationsController,
   TravelDeskFlightOptions,
@@ -37,13 +45,16 @@ import {
   TravelPurposesController,
   Users,
   UsersController,
+  YgEmployeeGroups,
+  YgEmployeeGroupsController,
+  YgEmployees,
+  YgEmployeesController,
 } from "@/controllers"
 
 //// START LEGACY IMPORTS
 import { migrateRouter } from "./migrate-router"
 import { formRouter } from "./form-router"
 import { userRouter } from "./users-router"
-import { preapprovedRouter } from "./preapproved-router"
 import { travelDeskRouter } from "./traveldesk-router"
 import { travComRouter } from "./travCom-router"
 import { lookupRouter } from "./lookup-router"
@@ -71,18 +82,29 @@ router.use("/api/lookup-tables", databaseHealthCheckMiddleware, lookupTableRoute
 //// END LEGACY ROUTES
 
 // api routes
-router.use("/api", databaseHealthCheckMiddleware, jwtMiddleware, authorizationMiddleware)
+router.use(
+  "/api",
+  databaseHealthCheckMiddleware,
+  bodyAuthorizationHoistMiddleware,
+  jwtMiddleware,
+  authorizationMiddleware
+)
 
 //// START MORE LEGACY ROUTES
 router.use("/api/form", formRouter)
 router.use("/api/user", userRouter)
-router.use("/api/preapproved", preapprovedRouter)
 router.use("/api/traveldesk", travelDeskRouter)
 
 router.use("/api/travCom", travComRouter)
 //// END MORE LEGACY ROUTES
 
 router.route("/api/current-user").get(CurrentUserController.show)
+
+router
+  .route(
+    "/api/downloads/travel-authorization-pre-approval-documents/:travelAuthorizationPreApprovalDocumentId"
+  )
+  .post(Downloads.TravelAuthorizationPreApprovalDocumentsController.create)
 
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router
@@ -259,13 +281,55 @@ router.route("/api/locations/:locationId").get(LocationsController.show)
 router
   .route("/api/travel-authorization-pre-approval-profiles")
   .get(TravelAuthorizationPreApprovalProfilesController.index)
+  .post(TravelAuthorizationPreApprovalProfilesController.create)
 router
-  .route("/api/travel-authorization-pre-approval-profiles/:id")
+  .route("/api/travel-authorization-pre-approval-profiles/:travelAuthorizationPreApprovalProfileId")
   .get(TravelAuthorizationPreApprovalProfilesController.show)
+  .patch(TravelAuthorizationPreApprovalProfilesController.update)
+  .delete(TravelAuthorizationPreApprovalProfilesController.destroy)
 
 router
   .route("/api/travel-authorization-pre-approvals")
   .get(TravelAuthorizationPreApprovalsController.index)
+  .post(TravelAuthorizationPreApprovalsController.create)
+router
+  .route("/api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId")
+  .get(TravelAuthorizationPreApprovalsController.show)
+  .patch(TravelAuthorizationPreApprovalsController.update)
+  .delete(TravelAuthorizationPreApprovalsController.destroy)
+
+router
+  .route("/api/travel-authorization-pre-approval-submissions")
+  .get(TravelAuthorizationPreApprovalSubmissionsController.index)
+  .post(TravelAuthorizationPreApprovalSubmissionsController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId"
+  )
+  .get(TravelAuthorizationPreApprovalSubmissionsController.show)
+  .patch(TravelAuthorizationPreApprovalSubmissionsController.update)
+  .delete(TravelAuthorizationPreApprovalSubmissionsController.destroy)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/approve"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.ApproveController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/submit"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.SubmitController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/revert-to-draft"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.RevertToDraftController.create)
+router
+  .route(
+    "/api/travel-authorization-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/pre-approvals/:travelAuthorizationPreApprovalId"
+  )
+  .post(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.create)
+  .delete(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
 router.route("/api/users/:userId").get(UsersController.show)
@@ -287,6 +351,14 @@ router
 router
   .route("/api/travel-authorization-action-logs")
   .get(TravelAuthorizationActionLogsController.index)
+
+router.route("/api/yg-employee-groups").get(YgEmployeeGroupsController.index)
+router.route("/api/yg-employee-groups/sync").post(YgEmployeeGroups.SyncController.create)
+router.route("/api/yg-employee-groups/:ygEmployeeGroupId").get(YgEmployeeGroupsController.show)
+
+router.route("/api/yg-employees").get(YgEmployeesController.index)
+router.route("/api/yg-employees/sync").post(YgEmployees.SyncController.create)
+router.route("/api/yg-employees/:ygEmployeeId").get(YgEmployeesController.show)
 
 // TravCom Integration
 router

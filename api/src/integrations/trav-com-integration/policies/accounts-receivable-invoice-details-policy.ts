@@ -4,7 +4,7 @@ import { Path } from "@/utils/deep-pick"
 import { User } from "@/models"
 import { AccountsReceivableInvoiceDetail } from "@/integrations/trav-com-integration/models"
 import PolicyFactory from "@/policies/policy-factory"
-import { allRecordsScope, noRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
 
 export class AccountsReceivableInvoiceDetailsPolicy extends PolicyFactory(
   AccountsReceivableInvoiceDetail
@@ -37,10 +37,10 @@ export class AccountsReceivableInvoiceDetailsPolicy extends PolicyFactory(
 
   static policyScope(user: User): FindOptions<Attributes<AccountsReceivableInvoiceDetail>> {
     if (user.isTravelDeskUser || user.isAdmin) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
-    return noRecordsScope
+    return NO_RECORDS_SCOPE
   }
 }
 

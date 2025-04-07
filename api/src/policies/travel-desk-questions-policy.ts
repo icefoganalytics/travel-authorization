@@ -6,7 +6,7 @@ import { User, TravelDeskQuestion, TravelDeskTravelRequest } from "@/models"
 import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
 
 import PolicyFactory from "@/policies/policy-factory"
-import { allRecordsScope } from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 
 export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion) {
   show(): boolean {
@@ -35,7 +35,7 @@ export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion)
 
   static policyScope(user: User): FindOptions<Attributes<TravelDeskQuestion>> {
     if (user.isAdmin || user.isTravelDeskUser) {
-      return allRecordsScope
+      return ALL_RECORDS_SCOPE
     }
 
     return {
