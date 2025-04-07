@@ -39,7 +39,18 @@ export class PrefillController extends BaseController {
   }
 
   private async loadTravelAuthorization() {
-    return TravelAuthorization.findByPk(this.params.travelAuthorizationId)
+    return TravelAuthorization.findByPk(this.params.travelAuthorizationId, {
+      include: [
+        {
+          association: "expenses",
+          where: {
+            type: Expense.Types.ESTIMATE,
+          },
+          required: false,
+        },
+      ],
+      order: [["expenses", "date", "ASC"]],
+    })
   }
 
   private async buildExpense(travelAuthorization: TravelAuthorization) {

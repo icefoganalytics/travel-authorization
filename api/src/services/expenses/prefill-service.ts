@@ -35,20 +35,8 @@ export class PrefillService extends BaseService {
 
   private async loadTravelAuthorization(): Promise<TravelAuthorization> {
     return TravelAuthorization.findByPk(this.travelAuthorizationId, {
-      include: [
-        {
-          association: "expenses",
-          where: {
-            type: Expense.Types.ESTIMATE,
-          },
-          required: false,
-        },
-        {
-          association: "travelSegments",
-          order: [["segmentNumber", "ASC"]],
-        },
-      ],
-      order: [["expenses", "date", "ASC"]],
+      include: ["travelSegments"],
+      order: [["travelSegments", "segmentNumber", "ASC"]],
       rejectOnEmpty: true,
     })
   }
