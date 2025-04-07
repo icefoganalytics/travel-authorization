@@ -1,14 +1,12 @@
+import { FindOptions, Attributes, Op } from "sequelize"
 import { isUndefined } from "lodash"
 
 import { Expense, User } from "@/models"
-import BasePolicy from "@/policies/base-policy"
 import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
+import PolicyFactory from "@/policies/policy-factory"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 
-export class ExpensesPolicy extends BasePolicy<Expense> {
-  constructor(user: User, record: Expense) {
-    super(user, record)
-  }
-
+export class ExpensesPolicy extends PolicyFactory(Expense) {
   show(): boolean {
     if (this.travelAuthorizationPolicy.show()) return true
 
@@ -39,6 +37,30 @@ export class ExpensesPolicy extends BasePolicy<Expense> {
 
   permittedAttributesForCreate(): string[] {
     return ["travelAuthorizationId", "type", "currency", ...this.permittedAttributes()]
+  }
+
+  static policyScope(user: User): FindOptions<Attributes<Expense>> {
+    if (user.roles.includes(User.Roles.ADMIN)) {
+      return ALL_RECORDS_SCOPE
+    }
+
+    return {
+      include: [
+        {
+          association: "travelAuthorization",
+          where: {
+            [Op.or]: [
+              {
+                supervisorEmail: user.email,
+              },
+              {
+                userId: user.id,
+              },
+            ],
+          },
+        },
+      ],
+    }
   }
 
   private get travelAuthorizationPolicy(): TravelAuthorizationsPolicy {
