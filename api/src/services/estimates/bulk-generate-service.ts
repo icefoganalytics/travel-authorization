@@ -135,7 +135,7 @@ export class BulkGenerateService extends BaseService {
     return {
       type: Expense.Types.ESTIMATE,
       travelAuthorizationId: this.travelAuthorizationId,
-      currency: "CAD",
+      currency: Expense.CurrencyTypes.CAD,
       expenseType: Expense.ExpenseTypes.TRANSPORTATION,
       description,
       cost,
@@ -166,7 +166,7 @@ export class BulkGenerateService extends BaseService {
       return {
         type: Expense.Types.ESTIMATE,
         travelAuthorizationId: this.travelAuthorizationId,
-        currency: "CAD",
+        currency: Expense.CurrencyTypes.CAD,
         expenseType: Expense.ExpenseTypes.ACCOMMODATIONS,
         description,
         cost,
@@ -209,7 +209,7 @@ export class BulkGenerateService extends BaseService {
       estimates.push({
         type: Expense.Types.ESTIMATE,
         travelAuthorizationId: this.travelAuthorizationId,
-        currency: "CAD",
+        currency: Expense.CurrencyTypes.CAD,
         expenseType: Expense.ExpenseTypes.MEALS_AND_INCIDENTALS,
         description,
         cost,

@@ -60,7 +60,7 @@ export function buildNonTravelStatusDaysCorrectingLine({
     type: Expense.Types.ESTIMATE,
     expenseType: Expense.ExpenseTypes.NON_TRAVEL_STATUS,
     travelAuthorizationId,
-    currency: "CAD",
+    currency: Expense.CurrencyTypes.CAD,
     description: [perDiemReductionDetails, accommodationReductionDetails].join(" and "),
     cost: -(accommodationReduction + perDiemReduction),
     date: travelEndAt,

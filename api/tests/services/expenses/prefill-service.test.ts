@@ -22,7 +22,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
           description: "Aircraft from Whitehorse to Vancouver",
           date: new Date("2022-06-05"),
           cost: 350.0,
-          currency: "CAD",
+          currency: Expense.CurrencyTypes.CAD,
           type: Expense.Types.ESTIMATE,
           expenseType: Expense.ExpenseTypes.TRANSPORTATION,
         })
@@ -31,7 +31,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
           description: "Hotel in Vancouver",
           date: new Date("2022-06-05"),
           cost: 250.0,
-          currency: "CAD",
+          currency: Expense.CurrencyTypes.CAD,
           type: Expense.Types.ESTIMATE,
           expenseType: Expense.ExpenseTypes.ACCOMMODATIONS,
         })
@@ -40,7 +40,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
           description: "Hotel in Vancouver",
           date: new Date("2022-06-06"),
           cost: 250.0,
-          currency: "CAD",
+          currency: Expense.CurrencyTypes.CAD,
           type: Expense.Types.ESTIMATE,
           expenseType: Expense.ExpenseTypes.ACCOMMODATIONS,
         })
@@ -49,7 +49,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
           description: "Aircraft from Vancouver to Whitehorse",
           date: new Date("2022-06-07"),
           cost: 350.0,
-          currency: "CAD",
+          currency: Expense.CurrencyTypes.CAD,
           type: Expense.Types.ESTIMATE,
           expenseType: Expense.ExpenseTypes.TRANSPORTATION,
         })
@@ -58,7 +58,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
           description: "Breakfast/Lunch/Dinner",
           date: new Date("2022-06-05"),
           cost: 106.1,
-          currency: "CAD",
+          currency: Expense.CurrencyTypes.CAD,
           type: Expense.Types.ESTIMATE,
           expenseType: Expense.ExpenseTypes.MEALS_AND_INCIDENTALS,
         })
@@ -67,7 +67,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
           description: "Breakfast/Lunch/Dinner/Incidentals",
           date: new Date("2022-06-06"),
           cost: 123.4,
-          currency: "CAD",
+          currency: Expense.CurrencyTypes.CAD,
           type: Expense.Types.ESTIMATE,
           expenseType: Expense.ExpenseTypes.MEALS_AND_INCIDENTALS,
         })
@@ -76,7 +76,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
           description: "Breakfast/Lunch/Incidentals",
           date: new Date("2022-06-07"),
           cost: 64.8,
-          currency: "CAD",
+          currency: Expense.CurrencyTypes.CAD,
           type: Expense.Types.ESTIMATE,
           expenseType: Expense.ExpenseTypes.MEALS_AND_INCIDENTALS,
         })

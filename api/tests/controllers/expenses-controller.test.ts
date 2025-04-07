@@ -23,7 +23,7 @@ describe("api/src/controllers/expenses-controller.ts", () => {
         const newExpenseAttributes = expenseFactory.attributesFor({
           travelAuthorizationId: travelAuthorization.id,
           type: Expense.Types.ESTIMATE,
-          currency: "CAD",
+          currency: Expense.CurrencyTypes.CAD,
           expenseType: Expense.ExpenseTypes.ACCOMMODATIONS,
           description: "Hotel in Vancouver",
           cost: 250.0,

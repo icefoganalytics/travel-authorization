@@ -4,8 +4,8 @@ import logger from "@/utils/logger"
 
 import { Expense, TravelAuthorization } from "@/models"
 import { ExpensesPolicy } from "@/policies"
+import { CreateService } from "@/services/expenses"
 import { ExpensesSerializer } from "@/serializers"
-import { ExpensesService } from "@/services"
 import BaseController from "@/controllers/base-controller"
 
 export class ExpensesController extends BaseController<Expense> {
@@ -79,7 +79,7 @@ export class ExpensesController extends BaseController<Expense> {
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const newExpense = await ExpensesService.create(permittedAttributes)
+      const newExpense = await CreateService.perform(permittedAttributes)
       return this.response.status(201).json({
         expense: newExpense,
       })

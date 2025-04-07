@@ -2,7 +2,7 @@ import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
-import { Expense, PerDiem, TravelAuthorization } from "@/models"
+import { Expense, TravelAuthorization } from "@/models"
 import { ExpensesPolicy } from "@/policies"
 import { PrefillService } from "@/services/expenses"
 import BaseController from "@/controllers/base-controller"
@@ -58,7 +58,7 @@ export class PrefillController extends BaseController {
       type: Expense.Types.EXPENSE,
       description: "Generated expense",
       cost: 0,
-      currency: PerDiem.CurrencyTypes.CAD,
+      currency: Expense.CurrencyTypes.CAD,
       expenseType: Expense.ExpenseTypes.ACCOMMODATIONS,
     })
     expense.travelAuthorization = travelAuthorization

@@ -6,11 +6,6 @@ import { Expense } from "@/models"
 import BaseService from "./base-service"
 
 export class ExpensesService extends BaseService {
-  static async create(attributes: Partial<Expense>): Promise<Expense> {
-    // TODO: figure out typing for 'attributes' parameter
-    return Expense.create(attributes as any)
-  }
-
   static async bulkCreate(
     travelAuthorizationId: number,
     expenses: CreationAttributes<Expense>[]
