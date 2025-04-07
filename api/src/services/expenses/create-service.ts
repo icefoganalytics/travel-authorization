@@ -1,7 +1,7 @@
 import { CreationAttributes } from "sequelize"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
-import { Expense } from "@/models"
+import { Expense, TravelAuthorization } from "@/models"
 import BaseService from "@/services/base-service"
 
 export type ExpenseCreationAttributes = Partial<CreationAttributes<Expense>>
@@ -12,7 +12,19 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<Expense> {
-    const { description, cost, currency, type, expenseType, ...optionalAttributes } = this.attributes
+    const {
+      travelAuthorizationId,
+      description,
+      cost,
+      currency,
+      type,
+      expenseType,
+      ...optionalAttributes
+    } = this.attributes
+
+    if (isNil(travelAuthorizationId)) {
+      throw new Error("Travel authorization ID is required.")
+    }
 
     if (isNil(description)) {
       throw new Error("Description is required.")
@@ -30,15 +42,46 @@ export class CreateService extends BaseService {
       throw new Error("Expense type is required.")
     }
 
+    // TODO: consider separating expense creation by type if complexity increases.
+    // e.g. Estimates.CreateService and Expenses.CreateService
+    if (type === Expense.Types.EXPENSE) {
+      const isAfterTravelStartDate = await this.isAfterTravelStartDate(travelAuthorizationId)
+      if (!isAfterTravelStartDate) {
+        throw new Error("Can only create expenses after travel has started.")
+      }
+    }
+
     const currencyOrDefault = currency ?? Expense.CurrencyTypes.CAD
 
     return Expense.create({
       ...optionalAttributes,
+      travelAuthorizationId,
       description,
       cost,
       currency: currencyOrDefault,
       type,
       expenseType,
     })
+  }
+
+  private async isAfterTravelStartDate(travelAuthorizationId: number): Promise<boolean> {
+    const travelAuthorization = await TravelAuthorization.findByPk(travelAuthorizationId, {
+      include: ["travelSegments"],
+      order: [["travelSegments", "segmentNumber", "ASC"]],
+      rejectOnEmpty: true,
+    })
+
+    const { travelSegments } = travelAuthorization
+    if (isNil(travelSegments) || isEmpty(travelSegments)) {
+      throw new Error(
+        "Travel authorization must have travel segments to check expense creation conditions."
+      )
+    }
+
+    const firstTravelSegment = travelSegments[0]
+    if (isNil(firstTravelSegment)) return false
+    if (isNil(firstTravelSegment.departureOn)) return false
+
+    return new Date(firstTravelSegment.departureOn) < new Date()
   }
 }
