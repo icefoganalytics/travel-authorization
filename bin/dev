@@ -92,8 +92,7 @@ class DevHelper
     elsif service == "web"
       test_web(*args.drop(1), **kwargs)
     else
-      test_api(*args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
-      test_web(*args, **kwargs)
+      raise ArgumentError, "Must provide a service (api or web) as first argument"
     end
   end
 
