@@ -1,4 +1,3 @@
-export { ExpensesSerializer } from "./expenses-serializer"
 export { GeneralLedgerCodingsSerializer } from "./general-ledger-codings-serializer"
 export { StopsSerializer } from "./stops-serializer"
 export { TravelAuthorizationActionLogsSerializer } from "./travel-authorization-action-logs-serializer"

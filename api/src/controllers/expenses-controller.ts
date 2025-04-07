@@ -5,7 +5,7 @@ import logger from "@/utils/logger"
 import { Expense, TravelAuthorization } from "@/models"
 import { ExpensesPolicy } from "@/policies"
 import { CreateService } from "@/services/expenses"
-import { ExpensesSerializer } from "@/serializers"
+import { IndexSerializer, ShowSerializer } from "@/serializers/expenses"
 import BaseController from "@/controllers/base-controller"
 
 export class ExpensesController extends BaseController<Expense> {
@@ -27,7 +27,7 @@ export class ExpensesController extends BaseController<Expense> {
         offset: this.pagination.offset,
         order,
       })
-      const serializedExpenses = ExpensesSerializer.asTable(expenses)
+      const serializedExpenses = IndexSerializer.perform(expenses, this.currentUser)
       return this.response.json({
         expenses: serializedExpenses,
         totalCount,
@@ -56,8 +56,9 @@ export class ExpensesController extends BaseController<Expense> {
         })
       }
 
+      const serializedExpense = ShowSerializer.perform(expense, this.currentUser)
       return this.response.status(200).json({
-        expense,
+        expense: serializedExpense,
         policy,
       })
     } catch (error) {
@@ -80,8 +81,9 @@ export class ExpensesController extends BaseController<Expense> {
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
       const newExpense = await CreateService.perform(permittedAttributes)
+      const serializedExpense = ShowSerializer.perform(newExpense, this.currentUser)
       return this.response.status(201).json({
-        expense: newExpense,
+        expense: serializedExpense,
       })
     } catch (error) {
       logger.error(`Error creating expense: ${error}`, { error })
@@ -109,8 +111,10 @@ export class ExpensesController extends BaseController<Expense> {
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
       await expense.update(permittedAttributes)
+      const serializedExpense = ShowSerializer.perform(expense, this.currentUser)
       return this.response.json({
-        expense,
+        expense: serializedExpense,
+        policy,
       })
     } catch (error) {
       logger.error(`Error updating expense: ${error}`, { error })
