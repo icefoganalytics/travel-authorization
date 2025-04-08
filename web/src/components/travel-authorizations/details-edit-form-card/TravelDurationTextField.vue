@@ -75,6 +75,6 @@ function computeTravelDuration(initialDepartureDate, finalDepartureDate) {
   const departureDateOrigin = DateTime.fromISO(initialDepartureDate)
   const departureDateFinal = DateTime.fromISO(finalDepartureDate)
   const timeDifference = departureDateFinal.diff(departureDateOrigin, "days")
-  return max([0, timeDifference.days])
+  return max([0, timeDifference.days + 1])
 }
 </script>
