@@ -14,8 +14,8 @@
     <template #item.name="{ item }">
       <span>{{ item.firstName }} {{ item.lastName }}</span>
     </template>
-    <template #item.tripType="{ value }">
-      <span>{{ formatTripType(value) }}</span>
+    <template #item.purposeText="{ value }">
+      <span>{{ value }}</span>
     </template>
     <template #item.finalDestination="{ value }">
       <span>{{ formatFinalDestination(value) }}</span>
@@ -33,8 +33,6 @@
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue2-helpers/vue-router"
-
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 
 import formatDate from "@/utils/format-date"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
@@ -74,7 +72,7 @@ const headers = ref([
   },
   {
     text: "Type",
-    value: "tripType",
+    value: "purposeText",
     sortable: false,
   },
   {
@@ -112,19 +110,11 @@ const travelAuthorizationsQuery = computed(() => {
 const { travelAuthorizations, totalCount, isLoading, refresh } =
   useTravelAuthorizations(travelAuthorizationsQuery)
 
-const { t } = useI18n()
-
 function formatFinalDestination(value) {
   if (isNil(value)) return ""
 
   const { city, province } = value
   return `${city} (${province})`
-}
-
-function formatTripType(value) {
-  if (isNil(value)) return ""
-
-  return t(`travel_authorization.trip_type.${value}`, { $default: value })
 }
 
 const router = useRouter()
