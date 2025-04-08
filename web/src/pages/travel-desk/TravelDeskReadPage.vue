@@ -61,11 +61,14 @@
             <TravelDeskInvoiceCard :travel-desk-travel-request-id="travelDeskTravelRequest.id" />
           </v-col>
         </v-row>
-        <v-row>
+
+        <!-- Removed for now see https://github.com/icefoganalytics/travel-authorization/issues/248#issuecomment-2787649358 -->
+        <v-row v-if="false">
           <v-col>
             <TravelDeskQuestionsCard :travel-desk-travel-request-id="travelDeskTravelRequest.id" />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col>
             <v-card>
