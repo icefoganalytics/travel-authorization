@@ -11,9 +11,10 @@
         <v-col :cols="mdAndUp ? undefined : 12">
           <DescriptionElement
             label="Purpose"
-            :value="purposeText"
             :vertical="mdAndUp"
-          />
+          >
+            <TravelPurposeChip :travel-purpose-id="travelAuthorization.purposeId" />
+          </DescriptionElement>
         </v-col>
         <v-col :cols="mdAndUp ? undefined : 12">
           <LocationDescriptionElement
@@ -50,16 +51,14 @@
 <script setup>
 import { computed, toRefs } from "vue"
 
-import { MAX_PER_PAGE } from "@/api/base-api"
-
 import useVuetify2 from "@/use/utils/use-vuetify2"
-import useTravelPurposes from "@/use/use-travel-purposes"
 import useCurrentUser from "@/use/use-current-user"
 import { useTravelAuthorization } from "@/use/use-travel-authorization"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import UserChip from "@/components/users/UserChip.vue"
 import LocationDescriptionElement from "@/components/locations/LocationDescriptionElement.vue"
+import TravelPurposeChip from "@/components/travel-purposes/TravelPurposeChip.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -79,18 +78,6 @@ const {
 
 const { currentUser } = useCurrentUser()
 const { mdAndUp } = useVuetify2()
-
-const travelPurposesQuery = computed(() => {
-  return {
-    perPage: MAX_PER_PAGE,
-  }
-})
-const { travelPurposes } = useTravelPurposes(travelPurposesQuery)
-
-const purposeText = computed(() => {
-  const purpose = travelPurposes.value.find((p) => p.id === travelAuthorization.value.purposeId)
-  return purpose?.purpose || ""
-})
 
 const finalDestinationDepartureDate = computed(() => {
   if (travelAuthorization.value.multiStop) {
