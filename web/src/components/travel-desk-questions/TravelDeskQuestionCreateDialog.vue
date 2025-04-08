@@ -48,15 +48,6 @@
               />
             </v-col>
           </v-row>
-          <v-row>
-            <v-col>
-              <v-textarea
-                v-model="travelDeskQuestion.response"
-                label="Response"
-                outlined
-              />
-            </v-col>
-          </v-row>
         </v-card-text>
 
         <v-card-actions>
