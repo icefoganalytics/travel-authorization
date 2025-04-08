@@ -82,7 +82,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, toRefs } from "vue"
+import { computed, nextTick, onMounted, ref, toRefs, watch } from "vue"
 import { findLast, isNil } from "lodash"
 
 import { required, isInteger } from "@/utils/validators"
@@ -109,6 +109,21 @@ const { travelAuthorization, stops, firstStop, lastStop, save, newBlankStop, rep
 
 const lastDepartureDate = computed(
   () => (findLast(stops.value, (stop) => !isNil(stop.departureDate)) || {}).departureDate
+)
+
+watch(
+  () => lastDepartureDate.value,
+  (newLastDepartureDate) => {
+    if (isNil(newLastDepartureDate)) return
+    if (
+      !isNil(travelAuthorization.value.dateBackToWork) &&
+      newLastDepartureDate < travelAuthorization.value.dateBackToWork
+    ) {
+      return
+    }
+
+    travelAuthorization.value.dateBackToWork = newLastDepartureDate
+  }
 )
 
 const tripTypeComponent = computed(() => {
