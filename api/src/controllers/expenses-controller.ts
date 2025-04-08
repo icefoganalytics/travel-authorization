@@ -1,83 +1,153 @@
 import { isNil } from "lodash"
-import { WhereOptions } from "sequelize"
 
-import BaseController from "./base-controller"
+import logger from "@/utils/logger"
 
 import { Expense, TravelAuthorization } from "@/models"
 import { ExpensesPolicy } from "@/policies"
-import { ExpensesSerializer } from "@/serializers"
-import { ExpensesService } from "@/services"
+import { CreateService } from "@/services/expenses"
+import { IndexSerializer, ShowSerializer } from "@/serializers/expenses"
+import BaseController from "@/controllers/base-controller"
 
-export class ExpensesController extends BaseController {
-  index() {
-    const where = this.query.where as WhereOptions<Expense>
-    return Expense.findAll({
-      where,
-      order: ["date", "expenseType"],
-    }).then((expenses) => {
-      const serializedExpenses = ExpensesSerializer.asTable(expenses)
-      return this.response.json({ expenses: serializedExpenses })
-    })
+export class ExpensesController extends BaseController<Expense> {
+  async index() {
+    try {
+      const where = this.buildWhere()
+      const scopes = this.buildFilterScopes()
+      const order = this.buildOrder([
+        ["date", "ASC"],
+        ["expenseType", "ASC"],
+      ])
+
+      const scopedExpenses = ExpensesPolicy.applyScope(scopes, this.currentUser)
+
+      const totalCount = await scopedExpenses.count({ where })
+      const expenses = await scopedExpenses.findAll({
+        where,
+        limit: this.pagination.limit,
+        offset: this.pagination.offset,
+        order,
+      })
+      const serializedExpenses = IndexSerializer.perform(expenses, this.currentUser)
+      return this.response.json({
+        expenses: serializedExpenses,
+        totalCount,
+      })
+    } catch (error) {
+      logger.error(`Error fetching expenses: ${error}`, { error })
+      return this.response.status(400).json({
+        message: `Failed to retrieve expenses: ${error}`,
+      })
+    }
+  }
+
+  async show() {
+    try {
+      const expense = await this.loadExpense()
+      if (isNil(expense)) {
+        return this.response.status(404).json({
+          message: "Expense not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(expense)
+      if (!policy.show()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to view this expense.",
+        })
+      }
+
+      const serializedExpense = ShowSerializer.perform(expense, this.currentUser)
+      return this.response.status(200).json({
+        expense: serializedExpense,
+        policy,
+      })
+    } catch (error) {
+      logger.error(`Error fetching expense: ${error}`, { error })
+      return this.response.status(400).json({
+        message: `Failed to retrieve expense: ${error}`,
+      })
+    }
   }
 
   async create() {
-    const expense = await this.buildExpense()
-    const policy = this.buildPolicy(expense)
-    if (!policy.create()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to create this expense." })
-    }
+    try {
+      const expense = await this.buildExpense()
+      const policy = this.buildPolicy(expense)
+      if (!policy.create()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to create this expense.",
+        })
+      }
 
-    const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-    return ExpensesService.create(permittedAttributes)
-      .then((expense) => {
-        return this.response.status(201).json({ expense })
+      const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
+      const newExpense = await CreateService.perform(permittedAttributes)
+      const serializedExpense = ShowSerializer.perform(newExpense, this.currentUser)
+      return this.response.status(201).json({
+        expense: serializedExpense,
       })
-      .catch((error) => {
-        return this.response.status(422).json({ message: `Expense creation failed: ${error}` })
+    } catch (error) {
+      logger.error(`Error creating expense: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Expense creation failed: ${error}`,
       })
+    }
   }
 
   async update() {
-    const expense = await this.loadExpense()
-    if (isNil(expense)) return this.response.status(404).json({ message: "Expense not found." })
+    try {
+      const expense = await this.loadExpense()
+      if (isNil(expense)) {
+        return this.response.status(404).json({
+          message: "Expense not found.",
+        })
+      }
 
-    const policy = this.buildPolicy(expense)
-    if (!policy.update()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to update this expense." })
+      const policy = this.buildPolicy(expense)
+      if (!policy.update()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to update this expense.",
+        })
+      }
+
+      const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
+      await expense.update(permittedAttributes)
+      const serializedExpense = ShowSerializer.perform(expense, this.currentUser)
+      return this.response.json({
+        expense: serializedExpense,
+        policy,
+      })
+    } catch (error) {
+      logger.error(`Error updating expense: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Expense update failed: ${error}`,
+      })
     }
-
-    const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-    return ExpensesService.update(this.params.expenseId, permittedAttributes)
-      .then((expense) => {
-        return this.response.json({ expense })
-      })
-      .catch((error) => {
-        return this.response.status(422).json({ message: `Expense update failed: ${error}` })
-      })
   }
 
   async destroy() {
-    const expense = await this.loadExpense()
-    if (isNil(expense)) return this.response.status(404).json({ message: "Expense not found." })
+    try {
+      const expense = await this.loadExpense()
+      if (isNil(expense)) {
+        return this.response.status(404).json({
+          message: "Expense not found.",
+        })
+      }
 
-    const policy = this.buildPolicy(expense)
-    if (!policy.destroy()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to delete this expense." })
+      const policy = this.buildPolicy(expense)
+      if (!policy.destroy()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to delete this expense.",
+        })
+      }
+
+      await expense.destroy()
+      return this.response.status(204).end()
+    } catch (error) {
+      logger.error(`Error deleting expense: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Expense deletion failed: ${error}`,
+      })
     }
-
-    return ExpensesService.destroy(this.params.expenseId)
-      .then(() => {
-        return this.response.status(204).end()
-      })
-      .catch((error) => {
-        return this.response.status(422).json({ message: `Expense deletion failed: ${error}` })
-      })
   }
 
   private async buildExpense() {

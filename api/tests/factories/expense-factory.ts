@@ -49,7 +49,7 @@ export const expenseFactory = ExpenseFactory.define(({ associations, onCreate })
 
   const expense = Expense.build({
     type: faker.helpers.enumValue(Expense.Types),
-    currency: "CAD",
+    currency: Expense.CurrencyTypes.CAD,
     expenseType: faker.helpers.enumValue(Expense.ExpenseTypes),
     description: faker.lorem.sentence({ min: 3, max: 6 }),
     cost: parseFloat(faker.finance.amount({ min: 17.3, max: 500 })),

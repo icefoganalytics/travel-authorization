@@ -5,7 +5,7 @@
   />
   <v-card v-else>
     <v-card-title>
-      <h2>Traveller Desk Request</h2>
+      <h2>Travel Desk Request</h2>
     </v-card-title>
     <v-card-text>
       <TravelerDetailsFormCard

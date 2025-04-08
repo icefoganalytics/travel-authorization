@@ -24,6 +24,11 @@ export enum ExpenseTypes {
   NON_TRAVEL_STATUS = "Non-Travel Status",
 }
 
+export enum ExpenseCurrencyTypes {
+  USD = "USD",
+  CAD = "CAD",
+}
+
 // TODO: replace this with a boolean of isEstimate or
 // move estimates to there own table.
 // It's also possible that this is a single table inheritance model,
@@ -34,15 +39,16 @@ export enum Types {
 }
 
 export class Expense extends Model<InferAttributes<Expense>, InferCreationAttributes<Expense>> {
-  static Types = Types
-  static ExpenseTypes = ExpenseTypes
+  static readonly Types = Types
+  static readonly ExpenseTypes = ExpenseTypes
+  static readonly CurrencyTypes = ExpenseCurrencyTypes
 
   declare id: CreationOptional<number>
   declare travelAuthorizationId: ForeignKey<TravelAuthorization["id"]>
   declare description: string
   declare date: Date | string | null // DATEONLY accepts Date or string, but returns string
   declare cost: number
-  declare currency: string
+  declare currency: ExpenseCurrencyTypes
   declare type: Types
   declare receiptImage: Buffer | null
   declare fileSize: number | null
@@ -106,6 +112,12 @@ Expense.init(
     currency: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      validate: {
+        isIn: {
+          args: [Object.values(ExpenseCurrencyTypes)],
+          msg: `Currency must be one of: ${Object.values(ExpenseCurrencyTypes).join(", ")}`,
+        },
+      },
     },
     type: {
       type: DataTypes.STRING(255),

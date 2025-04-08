@@ -1,54 +1,34 @@
-import { isNil } from "lodash"
+import { FindOptions, Attributes, Op } from "sequelize"
+import { isUndefined } from "lodash"
 
-import BasePolicy from "./base-policy"
-import TravelAuthorizationsPolicy from "./travel-authorizations-policy"
-import { Expense, TravelAuthorization, User } from "@/models"
+import { Expense, User } from "@/models"
+import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
+import PolicyFactory from "@/policies/policy-factory"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 
-export class ExpensesPolicy extends BasePolicy<Expense> {
-  private travelAuthorization: Expense["travelAuthorization"]
-  private travelSegments: TravelAuthorization["travelSegments"]
-
-  constructor(user: User, record: Expense) {
-    super(user, record)
-    this.travelAuthorization = record.travelAuthorization
-    this.travelSegments = this.travelAuthorization?.travelSegments
-  }
-
+export class ExpensesPolicy extends PolicyFactory(Expense) {
   show(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
-    if (this.travelAuthorization?.supervisorEmail === this.user.email) return true
-    if (this.travelAuthorization?.userId === this.user.id) return true
+    if (this.travelAuthorizationPolicy.show()) return true
 
     return false
   }
 
   create(): boolean {
-    if (this.record.type === Expense.Types.ESTIMATE) {
-      if (this.travelAuthorizationPolicy?.update()) return true
+    if (this.travelAuthorizationPolicy.update()) return true
 
-      return false
-    } else if (this.record.type === Expense.Types.EXPENSE) {
-      // state checks, that supersede roles
-      // maybe shouldn't be in a policy?
-      if (this.travelAuthorization?.status !== TravelAuthorization.Statuses.APPROVED) return false
-      if (!this.isAfterTravelStartDate()) return false
-
-      if (this.user.roles.includes(User.Roles.ADMIN)) return true
-      if (this.travelAuthorization.supervisorEmail === this.user.email) return true
-      if (this.travelAuthorization.userId === this.user.id) return true
-
-      return false
-    } else {
-      return false
-    }
+    return false
   }
 
   update(): boolean {
-    return this.create()
+    if (this.travelAuthorizationPolicy.update()) return true
+
+    return false
   }
 
   destroy(): boolean {
-    return this.create()
+    if (this.travelAuthorizationPolicy.update()) return true
+
+    return false
   }
 
   permittedAttributes(): string[] {
@@ -59,20 +39,37 @@ export class ExpensesPolicy extends BasePolicy<Expense> {
     return ["travelAuthorizationId", "type", "currency", ...this.permittedAttributes()]
   }
 
-  private get travelAuthorizationPolicy(): TravelAuthorizationsPolicy | null {
-    if (this.travelAuthorization === undefined) return null
+  static policyScope(user: User): FindOptions<Attributes<Expense>> {
+    if (user.roles.includes(User.Roles.ADMIN)) {
+      return ALL_RECORDS_SCOPE
+    }
 
-    return new TravelAuthorizationsPolicy(this.user, this.travelAuthorization)
+    return {
+      include: [
+        {
+          association: "travelAuthorization",
+          where: {
+            [Op.or]: [
+              {
+                supervisorEmail: user.email,
+              },
+              {
+                userId: user.id,
+              },
+            ],
+          },
+        },
+      ],
+    }
   }
 
-  private isAfterTravelStartDate(): boolean {
-    if (this.travelSegments === undefined) return false
+  private get travelAuthorizationPolicy(): TravelAuthorizationsPolicy {
+    const { travelAuthorization } = this.record
+    if (isUndefined(travelAuthorization)) {
+      throw new Error("Expected record to have pre-loaded travel authorization association")
+    }
 
-    const firstTravelSegment = this.travelSegments[0]
-    if (isNil(firstTravelSegment)) return false
-    if (isNil(firstTravelSegment.departureOn)) return false
-
-    return new Date(firstTravelSegment.departureOn) < new Date()
+    return new TravelAuthorizationsPolicy(this.user, travelAuthorization)
   }
 }
 

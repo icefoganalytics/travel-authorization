@@ -28,18 +28,8 @@
               @updated="refreshHeaderAndLocalState"
             />
 
-            <div class="d-flex flex-column flex-md-row justify-md-end">
+            <div class="d-flex flex-column flex-md-row">
               <v-btn
-                v-bind="{
-                  color: 'secondary',
-                  ...currentStep.backButtonProps,
-                }"
-                @click="backAndGoToPreviousStep"
-              >
-                {{ currentStep.backButtonText || "Back" }}
-              </v-btn>
-              <v-btn
-                class="ml-0 ml-md-3"
                 v-bind="{
                   color: 'primary',
                   ...currentStep.continueButtonProps,
@@ -48,6 +38,16 @@
                 @click="continueAndGoToNextStep"
               >
                 {{ currentStep.continueButtonText || "Continue" }}
+              </v-btn>
+              <v-btn
+                class="ml-0 ml-md-3"
+                v-bind="{
+                  color: 'secondary',
+                  ...currentStep.backButtonProps,
+                }"
+                @click="backAndGoToPreviousStep"
+              >
+                {{ currentStep.backButtonText || "Back" }}
               </v-btn>
             </div>
           </v-card-text>
