@@ -25,6 +25,12 @@
               v-else
               ref="currentStepComponent"
               :travel-authorization-id="travelAuthorizationIdAsNumber"
+              @update:travelPurposeId="
+                updateMyTravelRequestWizardSummary('travelPurposeId', $event)
+              "
+              @update:finalDestinationLocationId="
+                updateMyTravelRequestWizardSummary('finalDestinationLocationId', $event)
+              "
               @updated="refreshHeaderAndLocalState"
             />
 
@@ -70,15 +76,11 @@ import { isNil, isEmpty, isString } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useMyTravelRequestWizard from "@/use/wizards/use-my-travel-request-wizard"
+import useMyTravelRequestWizardSummary from "@/use/wizards/use-my-travel-request-wizard-summary"
 
 import StateStepper from "@/components/common/wizards/StateStepper.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable.vue"
-
-/**
- * @template [T=any]
- * @typedef {import("vue").Ref<T>} Ref
- */
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -169,7 +171,14 @@ async function continueAndGoToNextStep() {
   }
 }
 
-/** @type {Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
+const myTravelRequestWizardSummary = useMyTravelRequestWizardSummary()
+
+function updateMyTravelRequestWizardSummary(attribute, value) {
+  const attributeRef = myTravelRequestWizardSummary[attribute]
+  attributeRef.value = value
+}
+
+/** @type {import('vue').Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
 const summaryHeaderPanel = ref(null)
 
 async function refreshHeaderAndLocalState() {
