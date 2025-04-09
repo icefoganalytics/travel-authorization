@@ -15,7 +15,7 @@ const yukonGovernmentApi = axios.create({
 })
 
 // Its possible that any field might be null, but I haven't been able to verify this.
-type YukonGovernmentEmployee = {
+export type YukonGovernmentEmployee = {
   full_name: string //  "John.Doe"
   first_name: string //  "John"
   last_name: string //  "Doe"
@@ -42,7 +42,7 @@ type YukonGovernmentEmployee = {
   username: string //  "jdoe"
 }
 
-type YukonGovernmentDivision = {
+export type YukonGovernmentDivision = {
   department: string // "Cabinet Office",
   division: string | null // null,
   branch: string | null // null,

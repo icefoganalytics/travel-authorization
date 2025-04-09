@@ -1,0 +1,4944 @@
+{
+  "count": 709,
+  "divisions": [
+    {
+      "department": "Cabinet Office",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Commissioners Office",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Community Services",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Community Services",
+      "division": "Branch reports direct to CS DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Community Services",
+      "division": "Branch reports direct to CS DM",
+      "branch": "Communications",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Community Services",
+      "division": "Branch reports direct to CS DM",
+      "branch": "Finance, Systems and Administration",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Community Services",
+      "division": "Branch reports direct to CS DM",
+      "branch": "Finance, Systems and Administration",
+      "unit": "Finance and Space Planning",
+      "order": 30
+    },
+    {
+      "department": "Community Services",
+      "division": "Branch reports direct to CS DM",
+      "branch": "Finance, Systems and Administration",
+      "unit": "Information Systems",
+      "order": 30
+    },
+    {
+      "department": "Community Services",
+      "division": "Branch reports direct to CS DM",
+      "branch": "Human Resources",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Community Services",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Community Development",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Community Development",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Community Development",
+      "branch": "Community Affairs",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Community Development",
+      "branch": "Community Operations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Community Development",
+      "branch": "Finance and Procurement Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Community Development",
+      "branch": "Infrastructure Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Community Development",
+      "branch": "Land Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Community Development",
+      "branch": "Sport and Recreation",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Building Safety",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Emergency Measures Organization",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Fire Marshals Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Wildland Fire Management",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Wildland Fire Management",
+      "unit": "Air Operations",
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Wildland Fire Management",
+      "unit": "Finance and Administration",
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Wildland Fire Management",
+      "unit": "Logistics",
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Wildland Fire Management",
+      "unit": "Planning and Sciences",
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Protective Services",
+      "branch": "Wildland Fire Management",
+      "unit": "Wildfire and Emergency Operations",
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Regulatory and Consumer Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Regulatory and Consumer Services",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Regulatory and Consumer Services",
+      "branch": "Corporate Affairs",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Regulatory and Consumer Services",
+      "branch": "Corporate Policy",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Regulatory and Consumer Services",
+      "branch": "Employment Standards and Residential Tenancies",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Regulatory and Consumer Services",
+      "branch": "Professional Licensing and Regulatory Affairs",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Regulatory and Consumer Services",
+      "branch": "Property Assessment and Taxation",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Community Services",
+      "division": "Regulatory and Consumer Services",
+      "branch": "Public Libraries",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Economic Development",
+      "division": "Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Economic Development",
+      "division": "Corporate Services ",
+      "branch": "Deputy Ministers Office",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Economic Development",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management ",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Economic Development",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management ",
+      "unit": "Finance",
+      "order": 40
+    },
+    {
+      "department": "Economic Development",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management ",
+      "unit": "Information Management",
+      "order": 40
+    },
+    {
+      "department": "Economic Development",
+      "division": "Corporate Services ",
+      "branch": "Human Resources",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Economic Development",
+      "division": "Corporate Services ",
+      "branch": "Policy, Planning, and Communications",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Economic Development",
+      "division": "Corporate Services ",
+      "branch": "Policy, Planning, and Communications",
+      "unit": "Marketing and Communications",
+      "order": 40
+    },
+    {
+      "department": "Economic Development",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": "Assistant Deputy Ministers Office ",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": "Assistant Deputy Ministers Office ",
+      "unit": "Special Projects",
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": "Immigration",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": "Innovation, Industry, and Business Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": "Labour Market Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": "Media Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": "Regional Economic Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Economic Development",
+      "division": "Operations ",
+      "branch": "Regional Economic Development",
+      "unit": "Community Development",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Education",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": "Community Relations and Engagement",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": "Community Relations and Engagement",
+      "unit": "Communication and Public Engagement",
+      "order": 30
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": "Finance ",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": "Finance ",
+      "unit": "Accounting",
+      "order": 30
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": "Finance ",
+      "unit": "Budgets and Financial Planning",
+      "order": 30
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": "Human Resources ",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": "Human Resources ",
+      "unit": "Labour Relations",
+      "order": 30
+    },
+    {
+      "department": "Education",
+      "division": "Branch reports direct to EDU DM",
+      "branch": "Human Resources ",
+      "unit": "Staffing and Recruitment",
+      "order": 30
+    },
+    { "department": "Education", "division": null, "branch": null, "unit": null, "order": 100 },
+    {
+      "department": "Education",
+      "division": "Commission scolaire francophone du Yukon",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Commission scolaire francophone du Yukon",
+      "branch": "Commission scolaire francophone du Yukon",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Commission scolaire francophone du Yukon",
+      "branch": "CSSC Mercier",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Commission scolaire francophone du Yukon",
+      "branch": "Ecole Emilie-Tremblay",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "First Nations Initiatives and Student Learning Division",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "First Nations Initiatives and Student Learning Division",
+      "branch": "Curriculum and Assessment",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "First Nations Initiatives and Student Learning Division",
+      "branch": "First Nations Initiatives",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "First Nations Initiatives and Student Learning Division",
+      "branch": "Gadzoosdaa Student Residence",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Curriculum and Assessment",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Early Learning and Child Care",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "French Programs",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Performance and Analytics",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Policy and Planning ",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Policy and Planning ",
+      "unit": "Policy",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Policy and Planning ",
+      "unit": "Records",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Post-Secondary and Labour Market",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Training Programs",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Training Programs",
+      "unit": "Apprenticeship and Tradesperson Qualification",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Training Programs",
+      "unit": "Student Financial Assistance",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Policy and Partnerships",
+      "branch": "Training Programs",
+      "unit": "Student Training and Employment Program",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Operations ",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Operations ",
+      "unit": "Custodial Programs",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Operations ",
+      "unit": "Facilities",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Operations ",
+      "unit": "Health and Safety",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Operations ",
+      "unit": "Student Transportation",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Chief Zzeh Gittlit School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Del Van Gorder School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Eliza Van Bibber School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Ghuch Tla Community School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "J.V. Clark School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Johnson Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Khatinas.axh Community School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Kluane Lake School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Nelnah Bessie John School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Robert Service School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Ross River School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "St. Elias Community School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Tantalus School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools - Rural",
+      "unit": "Watson Lake Secondary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Aurora Virtual School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Christ the King Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Elijah Smith Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "F.H. Collins Secondary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Gadzoosdaa Student Residence",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Golden Horn Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Grey Mountain Primary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Hidden Valley Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Holy Family Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Individual Learning Centre",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Jack Hulland Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Porter Creek Secondary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Selkirk Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Takhini Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Teen Parent Centre",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Vanier Catholic Secondary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Whitehorse Elementary School",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Wood Street Centre",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Public Schools Whitehorse",
+      "unit": "Yukon Schools Athletic Association (YSSA)",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "School Councils Support",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Student Support Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Technology and Student Information",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Technology and Student Information",
+      "unit": "Learning Resource Services",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Technology and Student Information",
+      "unit": "Privacy Management",
+      "order": 100
+    },
+    {
+      "department": "Education",
+      "division": "Schools and Student Services",
+      "branch": "Technology and Student Information",
+      "unit": "Student Information",
+      "order": 100
+    },
+    {
+      "department": "Elections Yukon",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Elections Yukon",
+      "division": "Elections Office",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Communications",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Compliance Monitoring and Inspections",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Compliance Monitoring and Inspections",
+      "unit": "Major Mines and Monitoring",
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Compliance Monitoring and Inspections",
+      "unit": "Operations",
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Compliance Monitoring and Inspections",
+      "unit": "Program Standards and Partnership",
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Corporate Policy and Planning",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management ",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management ",
+      "unit": "Access and Information",
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management ",
+      "unit": "Finance",
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management ",
+      "unit": "Informatics",
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management ",
+      "unit": "Library",
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Corporate Services ",
+      "branch": "Human Resources",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Assessment and Abandoned Mines",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Mineral Resources",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Mineral Resources",
+      "unit": "Major Mine Licensing",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Mineral Resources",
+      "unit": "Mineral Planning and Development",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Mineral Resources",
+      "unit": "Mining Lands",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Yukon Geological Survey",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Yukon Geological Survey",
+      "unit": "Bedrock Geology",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Yukon Geological Survey",
+      "unit": "Mineral Geology",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Yukon Geological Survey",
+      "unit": "Surficial Geology",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Mineral Resources and Geoscience Services",
+      "branch": "Yukon Geological Survey",
+      "unit": "Technical Services",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Strategic Initiatives and Partnerships",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Strategic Initiatives and Partnerships",
+      "branch": "Energy",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Strategic Initiatives and Partnerships",
+      "branch": "Geothermal and Petroleum Resources",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Strategic Initiatives and Partnerships",
+      "branch": "Strategic Alliances",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Agriculture",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Forest Management",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Forest Management",
+      "unit": "Operations",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Forest Management",
+      "unit": "Planning and Development",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Land Management",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Land Management",
+      "unit": "Client Services",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Land Management",
+      "unit": "Land Use",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Land Management",
+      "unit": "Policy and Program Support",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Land Planning",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Land Planning",
+      "unit": "Community Land Use Planning",
+      "order": 100
+    },
+    {
+      "department": "Energy Mines and Resources",
+      "division": "Sustainable Resources",
+      "branch": "Land Planning",
+      "unit": "Regional Land Use Planning",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Environment",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Environment",
+      "division": "Branch or Unit reports direct to ENV DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Environment",
+      "division": "Branch or Unit reports direct to ENV DM",
+      "branch": "Animal Health Unit",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Client Business and Technology Solutions",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Client Business and Technology Solutions",
+      "unit": "Business, Information and Technology Solutions ",
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Client Business and Technology Solutions",
+      "unit": "Client Solutions",
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Client Business and Technology Solutions",
+      "unit": "Directorate",
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Client Business and Technology Solutions",
+      "unit": "Technology, Innovation and Mapping",
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Climate Change Secretariat",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Communications",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Finance ",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Finance ",
+      "unit": "Financial Services",
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Human Resources",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Policy and Planning",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Policy and Planning",
+      "unit": "Corporate Planning and IFA Secretariat",
+      "order": 40
+    },
+    {
+      "department": "Environment",
+      "division": "Corporate Services and Climate Change",
+      "branch": "Policy and Planning",
+      "unit": "Policy and Land Claims",
+      "order": 40
+    },
+    { "department": "Environment", "division": null, "branch": null, "unit": null, "order": 100 },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Enforcement and Compliance",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Environmental Education and Youth Programs",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations North",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations North - Carmacks District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations North - Dawson District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations North - Faro District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations North - Mayo District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations North - Old Crow District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations North - Ross River District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations South",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations South - Haines Junction District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations South - Teslin District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations South - Watson Lake District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Field Operations South - Whitehorse District",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Conservation Officer Services",
+      "unit": "Fur Industry Development and Support",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Environmental Protection and Assessment",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Environmental Protection and Assessment",
+      "unit": "Environmental Affairs",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Environmental Protection and Assessment",
+      "unit": "Environmental Compliance and Inspections",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Environmental Protection and Assessment",
+      "unit": "Site Assessment and Remediation Unit",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Environmental Protection and Assessment",
+      "unit": "Standards and Approvals",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Biodiversity Programs",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Habitat Programs",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Regional Programs",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Regional Programs - Kluane",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Regional Programs - Liard",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Regional Programs - North Yukon",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Regional Programs - Northern Tutchone",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Regional Programs - Southern Lakes",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Fish and Wildlife",
+      "unit": "Species Programs",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Water Resources",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Water Resources",
+      "unit": "Directorate",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Water Resources",
+      "unit": "Groundwater",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Water Resources",
+      "unit": "Hydrology",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Water Resources",
+      "unit": "Water Quality",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Yukon Parks",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Yukon Parks",
+      "unit": "Park Officers",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Yukon Parks",
+      "unit": "Park Planning",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Yukon Parks",
+      "unit": "Regional Operations - North Yukon",
+      "order": 100
+    },
+    {
+      "department": "Environment",
+      "division": "Environmental Sustainability",
+      "branch": "Yukon Parks",
+      "unit": "Regional Operations - South Yukon",
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Branch reports direct to ECO DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Branch reports direct to ECO DM",
+      "branch": "Government Internal Audit Services",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Corporate Programs and Intergovernmental Relations",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Corporate Programs and Intergovernmental Relations",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Corporate Programs and Intergovernmental Relations",
+      "branch": "Intergovernmental Relations",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Corporate Programs and Intergovernmental Relations",
+      "branch": "Major Projects Yukon",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Corporate Programs and Intergovernmental Relations",
+      "branch": "Office of the Science Advisor",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Corporate Programs and Intergovernmental Relations",
+      "branch": "Youth Directorate",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Corporate Programs and Intergovernmental Relations",
+      "branch": "Yukon Water Board Secretariat",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Executive Council Office",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Aboriginal Relations",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Aboriginal Relations",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Aboriginal Relations",
+      "branch": "First Nations Relations and Implementation",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Aboriginal Relations",
+      "branch": "Negotiations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Aboriginal Relations",
+      "branch": "Policy and Consultation",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Strategic Corporate Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Strategic Corporate Services",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Strategic Corporate Services",
+      "branch": "Communications",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Strategic Corporate Services",
+      "branch": "Finance and Administration",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Strategic Corporate Services",
+      "branch": "Human Resources",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Strategic Corporate Services",
+      "branch": "Policy and Planning",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Strategic Corporate Services",
+      "branch": "Policy and Planning",
+      "unit": "Corporate Planning and IFA Secretariat",
+      "order": 100
+    },
+    {
+      "department": "Executive Council Office",
+      "division": "Strategic Corporate Services",
+      "branch": "Policy and Planning",
+      "unit": "Policy and Land Claims",
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Finance",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Finance",
+      "division": "Branch reports direct to FIN DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Finance",
+      "division": "Branch reports direct to FIN DM",
+      "branch": "Corporate Services ",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Finance",
+      "division": "Branch reports direct to FIN DM",
+      "branch": "Corporate Services ",
+      "unit": "Communications",
+      "order": 30
+    },
+    {
+      "department": "Finance",
+      "division": "Branch reports direct to FIN DM",
+      "branch": "Corporate Services ",
+      "unit": "Finance and Administration",
+      "order": 30
+    },
+    {
+      "department": "Finance",
+      "division": "Branch reports direct to FIN DM",
+      "branch": "Corporate Services ",
+      "unit": "Human Resources",
+      "order": 30
+    },
+    { "department": "Finance", "division": null, "branch": null, "unit": null, "order": 100 },
+    {
+      "department": "Finance",
+      "division": "Economics, Fiscal Policy and Statistics",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Economics, Fiscal Policy and Statistics",
+      "branch": "Economic Research",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Economics, Fiscal Policy and Statistics",
+      "branch": "Fiscal Relations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Economics, Fiscal Policy and Statistics",
+      "branch": "Program Management",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Economics, Fiscal Policy and Statistics",
+      "branch": "Yukon Bureau of Statistics",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Banking Investments and Debt Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Evaluation",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Financial Management Information Systems",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Financial Operations ",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Financial Operations ",
+      "unit": "Accounts Payable",
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Financial Operations ",
+      "unit": "Accounts Receivable",
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Financial Operations ",
+      "unit": "Payroll",
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Program Management",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Financial Operations and Revenue Services",
+      "branch": "Tax Administration",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Management Board Secretariat",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Management Board Secretariat",
+      "branch": "Budgets",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Management Board Secretariat",
+      "branch": "Capital Planning Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Management Board Secretariat",
+      "branch": "Management Board Analysis",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Office of the Comptroller",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Office of the Comptroller",
+      "branch": "Financial Accounting",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Finance",
+      "division": "Office of the Comptroller",
+      "branch": "Policy and Compliance",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Ministers Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Branch reports direct to FLSD DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Branch reports direct to FLSD DM",
+      "branch": "Bilingual Communications",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Branch reports direct to FLSD DM",
+      "branch": "Bilingual Communications",
+      "unit": "Communications",
+      "order": 30
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Branch reports direct to FLSD DM",
+      "branch": "Bilingual Communications",
+      "unit": "Translation",
+      "order": 30
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Branch reports direct to FLSD DM",
+      "branch": "Corporate Services ",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Branch reports direct to FLSD DM",
+      "branch": "Language Policy and Planning",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Branch reports direct to FLSD DM",
+      "branch": "Language Policy and Planning",
+      "unit": "Policy",
+      "order": 30
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": "Branch reports direct to FLSD DM",
+      "branch": "Language Policy and Planning",
+      "unit": "Training and assessment",
+      "order": 30
+    },
+    {
+      "department": "French Language Services Directorate",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Branch reports direct to HSS DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Branch reports direct to HSS DM",
+      "branch": "Human Resources",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "1Health",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Facilities and Capital Planning",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Finance and Administration",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Health, Safety and Emergency Management",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Information Services",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Information Services",
+      "unit": "Access and Information Management",
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Information Services",
+      "unit": "Operations (IT)",
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Strategic Finance",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Strategic Finance",
+      "unit": "Financial Operations",
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Strategic Finance",
+      "unit": "Strategic Finance",
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Corporate Services ",
+      "branch": "Strategic Policy and Planning",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Health and Social Services",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "ColonCheck",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "COVID Testing and Assessment Centre",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "Environmental Health Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "Hearing",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "Panorama",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "Sexual Assault Response Team",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "Yukon Child Dental Program",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "Yukon Communicable Disease Control",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Health Programs",
+      "unit": "Yukon Immunization Program",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Nursing",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Nursing",
+      "unit": "Clinical Practice and Quality Improvement",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Nursing",
+      "unit": "Community Nursing 1",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Nursing",
+      "unit": "Community Nursing 2",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Nursing",
+      "unit": "Community Nursing 3",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Nursing",
+      "unit": "Relief and Recruitment",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Community Nursing",
+      "unit": "Support Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Emergency Medical Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Integrated Health Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Integrated Health Services",
+      "unit": "Centre de sante Constellation Health Centre",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Integrated Health Services",
+      "unit": "Chronic Conditions Support Program",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Integrated Health Services",
+      "unit": "Dawson City Medical Clinic",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Integrated Health Services",
+      "unit": "Whitehorse Walk-In Clinic",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Integrated Health Services",
+      "unit": "Yukon Midwifery Program",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Administrative Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Child, Youth and Family Treatment Team",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Community Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Counselling Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Forensic Complex Care",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Intensive Treatment Programs",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Psychiatric Outreach Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Referred Care Clinic / Opioid Agonist Treatment",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Community and Primary Care",
+      "branch": "Mental Wellness and Substance Use Services",
+      "unit": "Withdrawal Management",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Care and Community",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Care and Community",
+      "unit": "Administration",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Care and Community",
+      "unit": "Facility Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Care and Community",
+      "unit": "Food Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Care and Community",
+      "unit": "McDonald Lodge",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Care and Community",
+      "unit": "Nursing",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Care and Community",
+      "unit": "Therapies",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Home Care",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Home Care",
+      "unit": "Administration",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Home Care",
+      "unit": "Home Support",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Home Care",
+      "unit": "Palliative Care",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Home Care",
+      "unit": "Professional Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Home Care",
+      "unit": "Therapies",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Quality and Safety",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Continuing Care",
+      "branch": "Quality and Safety",
+      "unit": "Administration",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Deputy Ministers Office ",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Deputy Ministers Office ",
+      "branch": "Issues Management Unit",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Innovation, Quality and Performance",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Innovation, Quality and Performance",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Innovation, Quality and Performance",
+      "branch": "Communications and Social Marketing",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Innovation, Quality and Performance",
+      "branch": "Population and Public Health Evidence and Evaluation",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Innovation, Quality and Performance",
+      "branch": "Population and Public Health Evidence and Evaluation",
+      "unit": "Health Promotion",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Innovation, Quality and Performance",
+      "branch": "Transformation Innovation and Putting People First",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Divisional Support Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Divisional Support Services",
+      "unit": "Branch Management",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Divisional Support Services",
+      "unit": "Divisional Finance",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Divisional Support Services",
+      "unit": "Divisional Policy",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Divisional Support Services",
+      "unit": "Divisional Program Support",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Divisional Support Services",
+      "unit": "Divisional Project Management",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Family and Childrens Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Family and Childrens Services",
+      "unit": "Child Welfare",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Family and Childrens Services",
+      "unit": "Early Childhood Prevention and Support",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Family and Childrens Services",
+      "unit": "Family Resource Unit",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Family and Childrens Services",
+      "unit": "Family Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Family and Childrens Services",
+      "unit": "Operations",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Family and Childrens Services",
+      "unit": "Transitional Support Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Family and Childrens Services",
+      "unit": "Youth Justice",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Insured Health",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Insured Health",
+      "unit": "Care and Coordination",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Insured Health",
+      "unit": "Extended Benefits",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Insured Health",
+      "unit": "Hearing Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Insured Health",
+      "unit": "Registration, Physician and Hospital Claims, Medical Travel",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Insured Health",
+      "unit": "Vital Statistics",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": "Adult Protection",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": "Alcohol and Drug Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": "Community Outreach Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": "Disability Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": "Employment and Training Services",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": "Housing First",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": "Income Support Unit",
+      "order": 100
+    },
+    {
+      "department": "Health and Social Services",
+      "division": "Social Services",
+      "branch": "Social Supports",
+      "unit": "Whitehorse Shelter Services",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Branch reports direct to HPW DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Branch reports direct to HPW DM",
+      "branch": "Human Resources",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Finance",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Policy and Communications",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Procurement Support Centre",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Supply Services",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Supply Services",
+      "unit": "Acquisition Services and Planning",
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Supply Services",
+      "unit": "Finance and Administrative Services",
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Supply Services",
+      "unit": "Fleet Vehicle Agency",
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Supply Services",
+      "unit": "Mail and Logistics Services",
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Supply Services",
+      "unit": "Queens Printer",
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Supply Services",
+      "unit": "Stores and Assets",
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Corporate Services ",
+      "branch": "Supply Services",
+      "unit": "Travel Services",
+      "order": 40
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Capital Planning",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Capital Planning",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Capital Planning",
+      "branch": "Operations Strategy",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Capital Planning",
+      "branch": "Operations Strategy",
+      "unit": "Business Modernization Unit",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Capital Planning",
+      "branch": "Sustainable Infrastructure",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Capital Planning",
+      "branch": "Sustainable Infrastructure",
+      "unit": "Energy Management Unit",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Capital Planning",
+      "branch": "Sustainable Infrastructure",
+      "unit": "Projects and Partnerships Unit",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Corporate Information Management",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Corporate Information Management",
+      "unit": "ATIPP Office",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Corporate Information Management",
+      "unit": "Records and Information Management",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Data and Application Support",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Data and Application Support",
+      "unit": "Application Platforms",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Data and Application Support",
+      "unit": "Database Administration",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Data and Application Support",
+      "unit": "Storage and Virtualization",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Electronic Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Electronic Services",
+      "unit": "Geomatics Yukon",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Information Technology and Client Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Information Technology and Client Services",
+      "unit": "Client Services Liaison",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Information Technology and Client Services",
+      "unit": "Client Solutions and Project Development",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Information Technology and Client Services",
+      "unit": "Client Technical Solutions",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Information Technology and Client Services",
+      "unit": "End User Computing",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Information Technology and Client Services",
+      "unit": "Information Management",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Information Technology and Client Services",
+      "unit": "Shared Technology Services",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Office of the CIO",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Planning and Administration",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Records Program Improvement Initiative",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Service Innovation and Support",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Service Innovation and Support",
+      "unit": "Business Analysts Office",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Service Innovation and Support",
+      "unit": "Functional Analysts Office",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Service Innovation and Support",
+      "unit": "Project Management Office",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Technology Infrastructure",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Information and Communications Technology",
+      "branch": "Technology Infrastructure",
+      "unit": "Security",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Capital Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Facilities Management and Regional Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Facilities Management and Regional Services",
+      "unit": "Central Region",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Facilities Management and Regional Services",
+      "unit": "Eastern Region",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Facilities Management and Regional Services",
+      "unit": "Northern Region",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Facilities Management and Regional Services",
+      "unit": "Western Region",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Finance and Administration",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Property Management",
+      "branch": "Realty and Capital Asset Planning",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Finance and Administration",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transport Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transport Services",
+      "unit": "Carrier Compliance Section",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transport Services",
+      "unit": "Finance and Administration",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transport Services",
+      "unit": "Motor Vehicles",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transport Services",
+      "unit": "National Safety Code",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transport Services",
+      "unit": "Road Safety",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transport Services",
+      "unit": "Yukon Driver Control Board",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Aviation",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Aviation",
+      "unit": "Administration",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Aviation",
+      "unit": "Aerodrome and Airports",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Aviation",
+      "unit": "Maintenance",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Aviation",
+      "unit": "Safety and Security",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": "Bridges",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": "Design and Construction",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": "Environmental Affairs",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": "Finance",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": "Geotechnical and Materials",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": "Indigenous Engagement Advisory Team",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": "Major Programs",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Engineering",
+      "unit": "Planning and Programming",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": "Eastern Area",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": "Finance and Administration",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": "Maintenance and Planning",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": "Mechanical Operations",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": "Northern Area",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": "Safety and Operations",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": "Safety and Training",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Maintenance",
+      "unit": "Western Area",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Planning",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Planning",
+      "unit": "Planning",
+      "order": 100
+    },
+    {
+      "department": "Highways and Public Works",
+      "division": "Transportation",
+      "branch": "Transportation Planning",
+      "unit": "Transportation Asset Management",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Justice",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Justice",
+      "division": "Branch reports direct to JUS DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Justice",
+      "division": "Branch reports direct to JUS DM",
+      "branch": "Independent Prosecution Unit",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Justice",
+      "division": "Branch reports direct to JUS DM",
+      "branch": "Negotiations, Collaborations and Partnerships",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Justice",
+      "division": "Branch reports direct to JUS DM",
+      "branch": "Sharing Common Ground Implementation",
+      "unit": null,
+      "order": 30
+    },
+    { "department": "Justice", "division": null, "branch": null, "unit": null, "order": 100 },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": "Addictions Counselling",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": "Community and Correctional Services",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": "Dawson City Offender Supervision and Services",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": "Family Violence Prevention",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": "Offender Supervision and Services",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": "Sex Offender Risk Management",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": "Watson Lake Offender Supervision and Services",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Corrections",
+      "unit": "Whitehorse Corrections Centre",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Public Safety and Investigations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Public Safety and Investigations",
+      "unit": "Crime Prevention",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Public Safety and Investigations",
+      "unit": "Integrated Restorative Justice",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Public Safety and Investigations",
+      "unit": "Investigation Standards",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Public Safety and Investigations",
+      "unit": "Safer Communities and Neighbourhoods",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Community Justice and Public Safety",
+      "branch": "Victim Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Court Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Court Services",
+      "branch": "Court Administration",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Court Services",
+      "branch": "Court Operations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Court Services",
+      "branch": "Justice Wellness Centre",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Court Services",
+      "branch": "Sheriffs Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Aboriginal Law",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Assistant Deputy Minister's Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Coroners Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Legislative Counsel",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Litigation",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Natural Resources and Environmental Law",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Negotiations Collaborations and Partnerships",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Solicitors",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Legal Services",
+      "branch": "Workers Advocate Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Regulatory Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Regulatory Services",
+      "branch": "Coroners Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Regulatory Services",
+      "branch": "Family Law Support Programs",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Regulatory Services",
+      "branch": "Land Titles Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Regulatory Services",
+      "branch": "Office of the Public Guardian and Trustee",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Regulatory Services",
+      "branch": "Workers Advocate Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Strategic Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Strategic Corporate Services ",
+      "branch": "Client, Business and Technology Solutions",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Strategic Corporate Services ",
+      "branch": "Client, Business and Technology Solutions",
+      "unit": "Information Systems",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Strategic Corporate Services ",
+      "branch": "Client, Business and Technology Solutions",
+      "unit": "Information Technology",
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Strategic Corporate Services ",
+      "branch": "Finance, Administration and Records",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Strategic Corporate Services ",
+      "branch": "Human Resources",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Justice",
+      "division": "Strategic Corporate Services ",
+      "branch": "Policy and Communications",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Legislative Assembly Office",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Legislative Assembly Office",
+      "division": "Legislative Assembly Office Staff",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Legislative Assembly Office",
+      "division": "Liberal Party Private Member Caucus",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Legislative Assembly Office",
+      "division": "New Democrat Party Caucus",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Legislative Assembly Office",
+      "division": "Yukon Party Caucus",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Ombudsman / Information and Privacy Commissioner",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Public Service Commissioners Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Corporate Services ",
+      "branch": "Corporate Funds",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Corporate Services ",
+      "branch": "Finance and Administration",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Corporate Services ",
+      "branch": "Human Resource Business Partners",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Corporate Services ",
+      "branch": "Policy",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Public Service Commission",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Employee Relations",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Employee Relations",
+      "branch": "Conflict Management Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Employee Relations",
+      "branch": "Health, Safety and Wellbeing",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Employee Relations",
+      "branch": "Investigations Office",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "Employee Relations",
+      "branch": "Labour Relations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "Compensation and Benefit Programs",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "Compensation and Classification",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "Compensation and Classification",
+      "unit": "Classification",
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "Compensation and Classification",
+      "unit": "Compensation",
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "HR Shared Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "Human Resource Information System and Analytics",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "Human Resource Information System and Analytics",
+      "unit": "Human Resource Information Software Development and Analytics",
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "Human Resource Information System and Analytics",
+      "unit": "Human Resource Management System",
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "HR Service Centre",
+      "branch": "Staffing Management and Solutions",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "People and Culture",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "People and Culture",
+      "branch": "Communications, Policy and Change Initiatives",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "People and Culture",
+      "branch": "Diversity and Inclusion",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "People and Culture",
+      "branch": "Organizational Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "People and Culture",
+      "branch": "Organizational Development",
+      "unit": "French Language Training Centre",
+      "order": 100
+    },
+    {
+      "department": "Public Service Commission",
+      "division": "People and Culture",
+      "branch": "People Metrics, Analytics and Projects",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Deputy Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": null,
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Corporate Services ",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Corporate Services ",
+      "unit": "Finance",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Corporate Services ",
+      "unit": "Human Resources",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Corporate Services ",
+      "unit": "Records Management",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Corporate Services ",
+      "unit": "Systems Administration",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Cultural Services",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Cultural Services",
+      "unit": "Arts",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Cultural Services",
+      "unit": "Directorate",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Cultural Services",
+      "unit": "Heritage",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Cultural Services",
+      "unit": "Historic Sites",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Cultural Services",
+      "unit": "Yukon Archives",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Policy and Communications ",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Policy and Communications ",
+      "unit": "Communications",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Policy and Communications ",
+      "unit": "Policy",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Tourism",
+      "unit": null,
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Tourism",
+      "unit": "Industry Services",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Tourism",
+      "unit": "Marketing",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": "Branch reports direct to TOU DM",
+      "branch": "Tourism",
+      "unit": "Visitor Services",
+      "order": 30
+    },
+    {
+      "department": "Tourism and Culture",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Women and Gender Equity Directorate",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Women and Gender Equity Directorate",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Corporate Services ",
+      "branch": "Policy Planning and Evaluation",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Corporate Services ",
+      "branch": "Social Marketing and Communications",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Assessments",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Assessments",
+      "branch": "Employer and Client Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Claims",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Claims",
+      "branch": "Claimant Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Executive",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Executive",
+      "branch": "Board",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Executive",
+      "branch": "Human Resources ",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Executive",
+      "branch": "Legal Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Executive",
+      "branch": "President",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Operations ",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Operations ",
+      "branch": "Finance ",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Operations ",
+      "branch": "Information Management ",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Operations ",
+      "branch": "Information Systems ",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Workplace Health and Safety",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Workplace Health and Safety",
+      "branch": "Inspections and Compliance",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Workplace Health and Safety",
+      "branch": "Investigations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Workplace Health and Safety",
+      "branch": "Mine Safety",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Workers Safety and Compensation Board",
+      "division": "Workplace Health and Safety",
+      "branch": "Occupational Hygiene",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Development Corporation",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Environmental and Socioeconomic Assessment Board",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Hospital Corporation",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "YHC President's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Corporate Services ",
+      "branch": "Finance and Risk Management Branch",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Corporate Services ",
+      "branch": "Finance and Risk Management Branch",
+      "unit": "Finance",
+      "order": 40
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Corporate Services ",
+      "branch": "Finance and Risk Management Branch",
+      "unit": "Loans and Grants",
+      "order": 40
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Corporate Services ",
+      "branch": "Human Resources ",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Corporate Services ",
+      "branch": "Information Management and Technology Branch",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Corporate Services ",
+      "branch": "Policy and Communications ",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Executive",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Executive",
+      "branch": "President",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Capital Development",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "First Nations and Community Partnerships",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Carcross Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Carmacks Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Dawson City Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Faro Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Haines Junction Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Mayo Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Ross River Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Teslin Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Watson Lake Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Housing Corporation",
+      "division": "Operations ",
+      "branch": "Tenancy Supports",
+      "unit": "Whitehorse Housing Office",
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "YLC President's Office",
+      "branch": null,
+      "unit": null,
+      "order": 20
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Corporate Services ",
+      "branch": null,
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Corporate Services ",
+      "branch": "Finance and Information Management",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Corporate Services ",
+      "branch": "Social Responsibility, Policy and Planning",
+      "unit": null,
+      "order": 40
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Human Resources",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Licensing and Compliance Services",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Purchasing",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Retail Operations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Rural Stores and Territorial Agent Services",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Rural Stores and Territorial Agent Services",
+      "unit": "Dawson City Liquor Store and Territorial Agent",
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Rural Stores and Territorial Agent Services",
+      "unit": "Faro Liquor Store and Territorial Agent",
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Rural Stores and Territorial Agent Services",
+      "unit": "Haines Junction Liquor Store and Territorial Agent",
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Rural Stores and Territorial Agent Services",
+      "unit": "Mayo Liquor Store and Territorial Agent",
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Rural Stores and Territorial Agent Services",
+      "unit": "Watson Lake Liquor Store and Territorial Agent",
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Sales and Distribution",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Sourcing and Supply",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Warehouse Operations",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Liquor Corporation",
+      "division": "Operations ",
+      "branch": "Whitehorse Liquor Store",
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Lottery Commission",
+      "division": "Minister's Office",
+      "branch": null,
+      "unit": null,
+      "order": 10
+    },
+    {
+      "department": "Yukon Lottery Commission",
+      "division": null,
+      "branch": null,
+      "unit": null,
+      "order": 100
+    },
+    {
+      "department": "Yukon Lottery Commission",
+      "division": "Lotteries Yukon",
+      "branch": null,
+      "unit": null,
+      "order": 100
+    }
+  ]
+}
