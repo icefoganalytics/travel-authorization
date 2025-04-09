@@ -41,6 +41,9 @@ const state = reactive({
 export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
   async function fetch(params = {}) {
     const staticId = unref(travelAuthorizationId)
+    if (isNil(staticId)) {
+      throw new Error("travelAuthorizationId is required")
+    }
 
     state.isLoading = true
     try {
