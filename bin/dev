@@ -92,7 +92,7 @@ class DevHelper
     elsif service == "web"
       test_web(*args.drop(1), **kwargs)
     else
-      raise ArgumentError, "Must provide a service (api or web) as first argument"
+      test_api(*args, **kwargs)
     end
   end
 
