@@ -2,6 +2,7 @@
   <DetailsEditFormCard
     ref="detailsEditFormCard"
     :travel-authorization-id="travelAuthorizationId"
+    v-on="$listeners"
   />
 </template>
 
