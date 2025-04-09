@@ -102,7 +102,11 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["update:departureDate", "update:returnDate"])
+const emit = defineEmits([
+  "update:finalDestinationLocationId",
+  "update:departureDate",
+  "update:returnDate",
+])
 
 const { mdAndUp } = useVuetify2()
 
@@ -117,6 +121,16 @@ watch(
 
     const { departureDate } = newFirstStop
     emit("update:departureDate", departureDate)
+  }
+)
+
+watch(
+  () => lastStop.value,
+  (newLastStop) => {
+    if (isNil(newLastStop)) return
+
+    const { locationId } = newLastStop
+    emit("update:finalDestinationLocationId", locationId)
   }
 )
 
