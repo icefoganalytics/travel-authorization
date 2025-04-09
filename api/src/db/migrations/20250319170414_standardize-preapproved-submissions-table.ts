@@ -22,31 +22,20 @@ export async function up(knex: Knex): Promise<void> {
     table.foreign("approver_id").references("users.id").onDelete("RESTRICT")
   })
 
+  // As we are not migrating the pre-approved submission data, we can't migrate the pre-approved documents either.
+  await knex.raw(/* sql */ `
+    TRUNCATE TABLE "preapprovedDocuments" RESTART IDENTITY CASCADE;
+  `)
+
   await knex.schema.alterTable("preapprovedDocuments", (table) => {
-    table.integer("submission_id")
+    table.integer("submission_id").notNullable()
     table
       .foreign("submission_id")
       .references("travel_authorization_pre_approval_submissions.id")
       .onDelete("CASCADE")
-  })
 
-  await knex.raw(/* sql */ `
-    UPDATE "preapprovedDocuments"
-    SET
-      submission_id = "preTSubID"
-  `)
-
-  await knex.raw(/* sql */ `
-    DELETE FROM "preapprovedDocuments"
-    WHERE
-      submission_id IS NULL
-  `)
-
-  await knex.schema.alterTable("preapprovedDocuments", (table) => {
     table.dropForeign("preTSubID")
     table.dropColumn("preTSubID")
-
-    table.integer("submission_id").notNullable().alter()
   })
 
   // NOTE: I think this relationship was backwards?
