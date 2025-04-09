@@ -127,6 +127,15 @@ export const ygEmployeesApi = {
     const { data } = await http.get(`/api/yg-employees/${ygEmployeeId}`)
     return data
   },
+
+  // Special actions
+  /**
+   * @returns {Promise<void>}
+   */
+  async sync() {
+    const { data } = await http.post("/api/yg-employees/sync")
+    return data
+  },
 }
 
 export default ygEmployeesApi

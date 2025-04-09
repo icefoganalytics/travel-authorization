@@ -5,7 +5,7 @@
     <Breadcrumbs />
 
     <v-card
-      :loading="loading"
+      :loading="isLoading"
       class="mx-auto"
       max-width="400"
     >
@@ -24,11 +24,30 @@
         >
           <v-list-item-content>
             <v-btn
-              :loading="loading"
-              :disabled="loading"
+              :loading="isLoading"
               color="primary"
               @click="triggerScenario(scenario)"
               >{{ scenario }}</v-btn
+            >
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-btn
+              :loading="isLoading"
+              color="primary"
+              @click="syncYgEmployeeGroups"
+              >Sync YG Employee Groups</v-btn
+            >
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-btn
+              :loading="isLoading"
+              color="primary"
+              @click="syncYgEmployees"
+              >Sync YG Employees</v-btn
             >
           </v-list-item-content>
         </v-list-item>
@@ -37,51 +56,73 @@
   </div>
 </template>
 
-<script>
-import Breadcrumbs from "@/components/Breadcrumbs"
+<script setup>
+import { onMounted, ref } from "vue"
 
 import scenariosApi from "@/api/qa/scenarios-api"
+import ygEmployeesApi from "@/api/yg-employees-api"
+import ygEmployeeGroupsApi from "@/api/yg-employee-groups-api"
+import useSnack from "@/use/use-snack"
 
-export default {
-  name: "ScenariosListPage",
-  components: {
-    Breadcrumbs,
-  },
-  data() {
-    return {
-      scenarios: [],
-      loading: true,
-    }
-  },
-  async mounted() {
-    this.loading = true
-    await scenariosApi
-      .list()
-      .then(({ scenarios }) => {
-        this.scenarios = scenarios
-      })
-      .catch((error) => {
-        this.$snack(error.message, { color: "error" })
-      })
-      .finally(() => {
-        this.loading = false
-      })
-  },
-  methods: {
-    triggerScenario(scenario) {
-      this.loading = true
-      return scenariosApi
-        .create(scenario)
-        .then(({ message }) => {
-          this.$snack(message, { color: "success" })
-        })
-        .catch((error) => {
-          this.$snack(error.message, { color: "error" })
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-  },
+import Breadcrumbs from "@/components/Breadcrumbs"
+
+const scenarios = ref([])
+const isLoading = ref(true)
+const snack = useSnack()
+
+onMounted(async () => {
+  await listScenarios()
+})
+
+async function listScenarios() {
+  isLoading.value = true
+  try {
+    const { scenarios: newScenarios } = await scenariosApi.list()
+    scenarios.value = newScenarios
+  } catch (error) {
+    console.error(`Failed to list scenarios: ${error}`, { error })
+    snack.error(`Failed to list scenarios: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function triggerScenario(scenario) {
+  isLoading.value = true
+  try {
+    await scenariosApi.create(scenario)
+    snack.success(`Scenario ${scenario} triggered successfully`)
+  } catch (error) {
+    console.error(`Failed to trigger scenario ${scenario}: ${error}`, { error })
+    snack.error(`Failed to trigger scenario ${scenario}: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function syncYgEmployeeGroups() {
+  isLoading.value = true
+  try {
+    await ygEmployeeGroupsApi.sync()
+    snack.success("Yg employee groups synced successfully")
+  } catch (error) {
+    console.error(`Failed to sync Yg employee groups: ${error}`, { error })
+    snack.error(`Failed to sync Yg employee groups: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function syncYgEmployees() {
+  isLoading.value = true
+  try {
+    await ygEmployeesApi.sync()
+    snack.success("Yg employees synced successfully")
+  } catch (error) {
+    console.error(`Failed to sync Yg employees: ${error}`, { error })
+    snack.error(`Failed to sync Yg employees: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
