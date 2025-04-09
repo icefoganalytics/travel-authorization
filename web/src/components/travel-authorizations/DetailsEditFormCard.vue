@@ -102,13 +102,23 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["update:returnDate"])
+const emit = defineEmits(["update:departureDate", "update:returnDate"])
 
 const { mdAndUp } = useVuetify2()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, stops, firstStop, lastStop, save, newBlankStop, replaceStops } =
   useTravelAuthorization(travelAuthorizationId)
+
+watch(
+  () => firstStop.value,
+  (newFirstStop) => {
+    if (isNil(newFirstStop)) return
+
+    const { departureDate } = newFirstStop
+    emit("update:departureDate", departureDate)
+  }
+)
 
 const lastDepartureDate = computed(() => {
   if (travelAuthorization.value.tripType === TRIP_TYPES.ONE_WAY) {

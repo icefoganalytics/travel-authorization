@@ -31,6 +31,7 @@
               @update:finalDestinationLocationId="
                 updateMyTravelRequestWizardSummary('finalDestinationLocationId', $event)
               "
+              @update:departureDate="updateMyTravelRequestWizardSummary('departureDate', $event)"
               @update:returnDate="updateMyTravelRequestWizardSummary('returnDate', $event)"
               @updated="refreshHeaderAndLocalState"
             />
