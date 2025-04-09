@@ -23,14 +23,30 @@ export async function up(knex: Knex): Promise<void> {
   })
 
   await knex.schema.alterTable("preapprovedDocuments", (table) => {
-    table.dropForeign("preTSubID")
-    table.dropColumn("preTSubID")
-
-    table.integer("submission_id").notNullable()
+    table.integer("submission_id")
     table
       .foreign("submission_id")
       .references("travel_authorization_pre_approval_submissions.id")
       .onDelete("CASCADE")
+  })
+
+  await knex.raw(/* sql */ `
+    UPDATE "preapprovedDocuments"
+    SET
+      submission_id = "preTSubID"
+  `)
+
+  await knex.raw(/* sql */ `
+    DELETE FROM "preapprovedDocuments"
+    WHERE
+      submission_id IS NULL
+  `)
+
+  await knex.schema.alterTable("preapprovedDocuments", (table) => {
+    table.dropForeign("preTSubID")
+    table.dropColumn("preTSubID")
+
+    table.integer("submission_id").notNullable().alter()
   })
 
   // NOTE: I think this relationship was backwards?

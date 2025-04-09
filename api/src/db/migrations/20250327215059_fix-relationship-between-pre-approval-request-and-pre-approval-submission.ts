@@ -33,7 +33,7 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   await knex.schema.alterTable("travel_authorization_pre_approval_submissions", (table) => {
-    table.integer("pre_approval_id").notNullable()
+    table.integer("pre_approval_id")
     table
       .foreign("pre_approval_id")
       .references("travel_authorization_pre_approvals.id")
@@ -47,8 +47,18 @@ export async function down(knex: Knex): Promise<void> {
     FROM
       travel_authorization_pre_approvals
     WHERE
-      travel_authorization_pre_approvals.id = travel_authorization_pre_approval_submissions.pre_approval_id
+      travel_authorization_pre_approvals.submission_id = travel_authorization_pre_approval_submissions.id
   `)
+
+  await knex.raw(/* sql */ `
+    DELETE FROM travel_authorization_pre_approval_submissions
+    WHERE
+      pre_approval_id IS NULL
+  `)
+
+  await knex.schema.alterTable("travel_authorization_pre_approval_submissions", (table) => {
+    table.integer("pre_approval_id").notNullable().alter()
+  })
 
   await knex.schema.alterTable("travel_authorization_pre_approvals", (table) => {
     table.dropForeign("submission_id")
