@@ -10,10 +10,7 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.alterTable("travel_authorization_pre_approval_submissions", (table) => {
-    table.dropIndex(
-      ["pre_approval_id"],
-      "travel_authorization_pre_approval_submissions_pre_approval_id_u"
-    )
-  })
+  await knex.raw(`
+    DROP INDEX IF EXISTS "travel_authorization_pre_approval_submissions_pre_approval_id_u"
+  `)
 }

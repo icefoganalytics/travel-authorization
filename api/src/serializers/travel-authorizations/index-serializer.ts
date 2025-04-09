@@ -18,9 +18,10 @@ import {
 
 export type TravelAuthorizationIndexView = Pick<
   TravelAuthorization,
-  "id" | "eventName" | "tripType" | "wizardStepName" | "status" | "createdAt" | "updatedAt"
+  "id" | "eventName" | "purposeId" | "wizardStepName" | "status" | "createdAt" | "updatedAt"
 > & {
   // computed fields
+  purposeText: string
   finalDestination?: Pick<Location, "id" | "city" | "province" | "createdAt" | "updatedAt">
   departingAt?: string | null
   returningAt?: string | null
@@ -48,13 +49,14 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       ...pick(this.record, [
         "id",
         "eventName",
-        "tripType",
+        "purposeId",
         "wizardStepName",
         "status",
         "createdAt",
         "updatedAt",
       ]),
       // computed fields
+      purposeText: this.record.purpose?.purpose ?? "",
       finalDestination:
         this.lastStop?.location &&
         pick(this.lastStop?.location, ["id", "city", "province", "createdAt", "updatedAt"]),

@@ -67,7 +67,7 @@ async function fetch(queryOptions) {
     profiles.value = newProfiles.map(({ id, preApproval }) => {
       // TODO: consider if "profileName" should be included here?
       const { branch, location, purpose } = preApproval
-      const text = `${branch} - ${location} - ${purpose}`
+      const text = [branch, location, purpose].filter(Boolean).join(" - ")
       return {
         text,
         value: id,

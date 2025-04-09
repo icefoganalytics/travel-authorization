@@ -50,7 +50,7 @@ async function checkForApproval() {
       return true
     }
 
-    snack.warning("Approval has not been received yet.")
+    snack.warning("Approval has not been reviewed yet.")
     return false
   } catch (error) {
     console.error(`Errored while checking for approval: ${error}`)

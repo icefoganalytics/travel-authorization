@@ -109,6 +109,7 @@ router
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router
   .route("/api/expenses/:expenseId")
+  .get(ExpensesController.show)
   .patch(ExpensesController.update)
   .delete(ExpensesController.destroy)
 router

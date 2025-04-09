@@ -1,7 +1,7 @@
 import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
-import { Expense, PerDiem, TravelAuthorization } from "@/models"
+import { Expense, TravelAuthorization } from "@/models"
 import { ExpensesPolicy } from "@/policies"
 import { BulkGenerateService } from "@/services/estimates"
 import BaseController from "@/controllers/base-controller"
@@ -55,7 +55,7 @@ export class GenerateController extends BaseController {
       type: Expense.Types.ESTIMATE,
       description: "Generated estimate",
       cost: 0,
-      currency: PerDiem.CurrencyTypes.CAD,
+      currency: Expense.CurrencyTypes.CAD,
       expenseType: Expense.ExpenseTypes.ACCOMMODATIONS,
     })
     expense.travelAuthorization = travelAuthorization
