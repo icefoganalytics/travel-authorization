@@ -6,8 +6,8 @@ import { uniq } from "lodash"
 import { RequiresAuth, ReturnValidationErrors } from "@/middleware"
 import { DB_CONFIG, AZURE_KEY } from "@/config"
 import logger from "@/utils/logger"
-import { YgEmployeeGroup, YgEmployee } from "@/models"
-import { YgEmployeeGroups, YgEmployees } from "@/services"
+import { YgEmployee } from "@/models"
+import { YgEmployees } from "@/services"
 
 export const lookupRouter = express.Router()
 const db = knex(DB_CONFIG)
@@ -257,45 +257,6 @@ lookupRouter.get(
     try {
       let result = await db("transportMethod").select("id", "method")
       res.status(200).json(result)
-    } catch (error: any) {
-      logger.info(error)
-      res.status(500).json("Internal Server Error")
-    }
-  }
-)
-
-/**
- * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
- */
-lookupRouter.get(
-  "/department-branch",
-  RequiresAuth,
-  ReturnValidationErrors,
-  async function (req: Request, res: Response) {
-    logger.warn(
-      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
-    )
-    let cleanList: any = {}
-    try {
-      let departments = await YgEmployeeGroup.findAll()
-      const updateRequired = timeToUpdate(departments[0])
-
-      if (!departments[0] || updateRequired) {
-        await YgEmployeeGroups.SyncService.perform()
-        departments = await YgEmployeeGroup.findAll()
-      }
-
-      for (const slice of departments) {
-        if (cleanList[slice.department] == null)
-          cleanList[slice.department] = {
-            branches: [],
-          }
-
-        if (slice.branch && !cleanList[slice.department].branches.includes(slice.branch))
-          cleanList[slice.department].branches.push(slice.branch)
-      }
-
-      res.status(200).json(cleanList)
     } catch (error: any) {
       logger.info(error)
       res.status(500).json("Internal Server Error")
