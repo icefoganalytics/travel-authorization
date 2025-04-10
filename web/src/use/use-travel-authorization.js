@@ -12,7 +12,7 @@ export { STATUSES, TRIP_TYPES }
 /** @typedef {import('@/api/travel-authorizations-api.js').TravelAuthorization} TravelAuthorization */
 
 /**
- * This stores a global user state per id.
+ * Provides reactive state for a travel authorization.
  *
  * @callback UseTravelAuthorization
  * @param {Ref<string | number>} [travelAuthorizationId]

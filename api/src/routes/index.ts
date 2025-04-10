@@ -337,7 +337,9 @@ router.route("/api/users/:userId").get(UsersController.show)
 router
   .route("/api/users/:userId/yg-government-directory-sync")
   .post(Users.YgGovernmentDirectorySyncController.create)
+
 router.route("/api/travel-purposes").get(TravelPurposesController.index)
+router.route("/api/travel-purposes/:travelPurposeId").get(TravelPurposesController.show)
 
 router
   .route("/api/general-ledger-codings")

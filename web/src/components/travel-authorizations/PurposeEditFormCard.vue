@@ -26,6 +26,7 @@
                   outlined
                   required
                   validate-on-blur
+                  @input="emit('update:travelPurposeId', $event)"
                 />
               </v-col>
               <v-col cols="12">
@@ -127,6 +128,8 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(["update:travelPurposeId", "update:finalDestinationLocationId"])
+
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, stops, lastStop, replaceStops, save } =
   useTravelAuthorization(travelAuthorizationId)
@@ -139,6 +142,7 @@ function updateLastStopLocationId(locationId) {
       locationId,
     },
   ])
+  emit("update:finalDestinationLocationId", locationId)
 }
 
 const form = ref(null)
