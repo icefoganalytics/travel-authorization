@@ -71,19 +71,16 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <v-select
+                  <DepartmentAutocomplete
                     v-model="user.department"
-                    :items="departments"
-                    item-text="name"
-                    label="Departments"
+                    label="Department *"
+                    :rules="[required]"
                     outlined
                     dense
                     small-chips
-                    clearable
+                    :clearable="false"
                     background-color="white"
-                    hide-details
-                    @change="alertMsg = ''"
-                  ></v-select>
+                  />
                 </v-col>
                 <v-col cols="12">
                   <v-select
@@ -133,8 +130,13 @@ import { useSnack } from "@/plugins/snack-plugin"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
+import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete"
+
 export default {
   name: "UserEditPage",
+  components: {
+    DepartmentAutocomplete,
+  },
   props: {
     userId: {
       type: [String, Number],
@@ -175,7 +177,6 @@ export default {
     }
   },
   data: () => ({
-    departments: [],
     roles: [],
     user: {
       firstName: "",
@@ -189,7 +190,6 @@ export default {
   }),
   async mounted() {
     try {
-      await this.loadDepartments()
       await this.loadRoles()
       await this.loadUser(this.userId)
     } finally {
@@ -220,14 +220,6 @@ export default {
     async loadUser(id) {
       await http.get(`${USERS_URL}/${id}`).then((resp) => {
         this.user = resp.data
-      })
-    },
-    async loadDepartments() {
-      return http.get(`${LOOKUP_URL}/department-branch`).then((resp) => {
-        for (const key of Object.keys(resp.data))
-          this.departments.push({
-            name: key,
-          })
       })
     },
     async loadRoles() {

@@ -112,3 +112,8 @@ export const DB_HEALTH_CHECK_RETRIES = parseInt(process.env.DB_HEALTH_CHECK_RETR
 export const DB_HEALTH_CHECK_START_PERIOD_SECONDS = parseInt(
   process.env.DB_HEALTH_CHECK_START_PERIOD_SECONDS || "5"
 )
+
+// Internal Helpers
+export const APP_ROOT_PATH = path.resolve(__dirname, "..")
+export const SOURCE_ROOT_PATH =
+  NODE_ENV === "production" ? path.join(APP_ROOT_PATH, "dist") : path.join(APP_ROOT_PATH, "src")

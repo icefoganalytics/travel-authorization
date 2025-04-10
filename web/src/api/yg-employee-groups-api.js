@@ -102,6 +102,15 @@ export const ygEmployeeGroupsApi = {
     const { data } = await http.get(`/api/yg-employee-groups/${ygEmployeeId}`)
     return data
   },
+
+  // Special actions
+  /**
+   * @returns {Promise<void>}
+   */
+  async sync() {
+    const { data } = await http.post("/api/yg-employee-groups/sync")
+    return data
+  },
 }
 
 export default ygEmployeeGroupsApi
