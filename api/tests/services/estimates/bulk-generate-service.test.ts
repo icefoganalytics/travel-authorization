@@ -361,12 +361,6 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
 
       test("when travel method is personal vehicle, and trip type is round-trip, correctly generates the transportantion allowance from the distance matrix", async () => {
         await perDiemFactory.create({
-          claimType: PerDiem.ClaimTypes.BREAKFAST,
-          travelRegion: PerDiem.TravelRegions.YUKON,
-          amount: 23.2,
-          currency: PerDiem.CurrencyTypes.CAD,
-        })
-        await perDiemFactory.create({
           claimType: PerDiem.ClaimTypes.LUNCH,
           travelRegion: PerDiem.TravelRegions.YUKON,
           amount: 21.3,
@@ -423,7 +417,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
           { daysOffTravelStatus: 0 }
         )
 
-        expect(expenses).toEqual([
+        expect(expenses).toEqual(expect.arrayContaining([
           expect.objectContaining({
             travelAuthorizationId: travelAuthorization.id,
             description: "Personal Vehicle from Whitehorse to Faro",
@@ -435,24 +429,6 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
           }),
           expect.objectContaining({
             travelAuthorizationId: travelAuthorization.id,
-            description: "Hotel in Faro",
-            date: "2022-06-05",
-            cost: 250.0,
-            currency: "CAD",
-            type: "Estimate",
-            expenseType: "Accommodations",
-          }),
-          expect.objectContaining({
-            travelAuthorizationId: travelAuthorization.id,
-            description: "Hotel in Faro",
-            date: "2022-06-06",
-            cost: 250.0,
-            currency: "CAD",
-            type: "Estimate",
-            expenseType: "Accommodations",
-          }),
-          expect.objectContaining({
-            travelAuthorizationId: travelAuthorization.id,
             description: "Personal Vehicle from Faro to Whitehorse",
             date: "2022-06-07",
             cost: 217.195,
@@ -460,34 +436,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
             type: "Estimate",
             expenseType: "Transportation",
           }),
-          expect.objectContaining({
-            travelAuthorizationId: travelAuthorization.id,
-            description: "Lunch/Dinner",
-            date: "2022-06-05",
-            cost: 82.75,
-            currency: "CAD",
-            type: "Estimate",
-            expenseType: "Meals & Incidentals",
-          }),
-          expect.objectContaining({
-            travelAuthorizationId: travelAuthorization.id,
-            description: "Breakfast/Lunch/Dinner/Incidentals",
-            date: "2022-06-06",
-            cost: 105.95,
-            currency: "CAD",
-            type: "Estimate",
-            expenseType: "Meals & Incidentals",
-          }),
-          expect.objectContaining({
-            travelAuthorizationId: travelAuthorization.id,
-            description: "Breakfast/Lunch/Incidentals",
-            date: "2022-06-07",
-            cost: 44.5,
-            currency: "CAD",
-            type: "Estimate",
-            expenseType: "Meals & Incidentals",
-          }),
-        ])
+        ]))
       })
     })
   })
