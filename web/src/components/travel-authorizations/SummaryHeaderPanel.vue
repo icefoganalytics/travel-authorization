@@ -13,7 +13,10 @@
             label="Purpose"
             :vertical="mdAndUp"
           >
-            <TravelPurposeChip :travel-purpose-id="travelPurposeId" />
+            <TravelPurposeChip
+              v-show="travelPurposeId"
+              :travel-purpose-id="travelPurposeId"
+            />
           </DescriptionElement>
         </v-col>
         <v-col :cols="mdAndUp ? undefined : 12">
