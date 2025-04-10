@@ -27,7 +27,7 @@ function isValidEmail(v) {
 }
 
 export default {
-  name: "SearchableUserEmailCombobox",
+  name: "UserEmailSearchableCombobox",
   inheritAttrs: false,
   props: {
     value: {

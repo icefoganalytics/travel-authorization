@@ -74,7 +74,7 @@
             cols="12"
             md="3"
           >
-            <SearchableUserEmailCombobox
+            <UserEmailSearchableCombobox
               v-model="travelAuthorization.supervisorEmail"
               :rules="[required]"
               label="Submit to"
@@ -113,7 +113,7 @@ import { required, isInteger } from "@/utils/validators"
 import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
 import useUser from "@/use/use-user"
 
-import SearchableUserEmailCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
+import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 import TravelAuthorizationPreApprovalProfileSelect from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileSelect"
 import EstimatedCostTextField from "@/modules/travel-authorizations/components/EstimatedCostTextField.vue"
 import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable"
