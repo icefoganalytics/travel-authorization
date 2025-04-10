@@ -8,7 +8,7 @@
         cols="12"
         md="3"
       >
-        <SearchableUserEmailCombobox
+        <UserEmailSearchableCombobox
           v-model="travelAuthorization.supervisorEmail"
           :rules="[required]"
           label="Reassign to"
@@ -43,7 +43,7 @@ import { required } from "@/utils/validators"
 import { useSnack } from "@/plugins/snack-plugin"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
-import SearchableUserEmailCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
+import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

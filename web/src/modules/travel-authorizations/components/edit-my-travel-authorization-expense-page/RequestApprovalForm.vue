@@ -8,7 +8,7 @@
         cols="12"
         md="6"
       >
-        <SearchableUserEmailCombobox
+        <UserEmailSearchableCombobox
           v-model="travelAuthorization.supervisorEmail"
           :rules="[required]"
           label="Submit to"
@@ -32,7 +32,7 @@ import { useTravelAuthorization } from "@/use/use-travel-authorization"
 import { useGeneralLedgerCodings } from "@/use/use-general-ledger-codings"
 import { useExpenses, TYPES, EXPENSE_TYPES } from "@/use/use-expenses"
 
-import SearchableUserEmailCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
+import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
