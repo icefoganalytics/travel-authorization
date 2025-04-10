@@ -9,7 +9,6 @@
     :item-text="itemText"
     :auto-select-first="autoSelectFirst"
     :chips="chips"
-    :clearable="clearable"
     :hide-selected="hideSelected"
     :no-filter="noFilter"
     :persistent-hint="persistentHint"
@@ -77,10 +76,6 @@ const props = defineProps({
     default: true,
   },
   chips: {
-    type: Boolean,
-    default: true,
-  },
-  clearable: {
     type: Boolean,
     default: true,
   },
