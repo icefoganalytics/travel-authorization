@@ -1,11 +1,11 @@
 import axios from "axios"
 import { isEmpty, pick } from "lodash"
 
-import { NODE_ENV, AZURE_KEY } from "@/config"
+import { AZURE_KEY } from "@/config"
 
-// Use optimized direct URL for production, and the slow open API Gateway URL for development.
-const baseURL =
-  NODE_ENV === "production" ? "https://directory-api-prd.ynet.gov.yk.ca" : "https://api.gov.yk.ca"
+// TODO: once the API Gateway is fixed, use optimized direct URL for production, and the slow open API Gateway URL for development.
+// const baseURL = NODE_ENV === "production" ? "https://directory-api-prd.ynet.gov.yk.ca" : "https://api.gov.yk.ca"
+const baseURL = "https://api.gov.yk.ca"
 
 const yukonGovernmentApi = axios.create({
   baseURL,
