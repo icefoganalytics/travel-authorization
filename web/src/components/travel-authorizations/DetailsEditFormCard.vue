@@ -73,6 +73,7 @@
               label="Expected Date return to work"
               dense
               required
+              @input="emit('update:returnDate', $event)"
             />
           </v-col>
         </v-row>
@@ -101,15 +102,47 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits([
+  "update:finalDestinationLocationId",
+  "update:departureDate",
+  "update:returnDate",
+])
+
 const { mdAndUp } = useVuetify2()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, stops, firstStop, lastStop, save, newBlankStop, replaceStops } =
   useTravelAuthorization(travelAuthorizationId)
 
-const lastDepartureDate = computed(
-  () => (findLast(stops.value, (stop) => !isNil(stop.departureDate)) || {}).departureDate
+watch(
+  () => firstStop.value,
+  (newFirstStop) => {
+    if (isNil(newFirstStop)) return
+
+    const { departureDate } = newFirstStop
+    emit("update:departureDate", departureDate)
+  }
 )
+
+watch(
+  () => lastStop.value,
+  (newLastStop) => {
+    if (isNil(newLastStop)) return
+
+    const { locationId } = newLastStop
+    emit("update:finalDestinationLocationId", locationId)
+  }
+)
+
+const lastDepartureDate = computed(() => {
+  if (travelAuthorization.value.tripType === TRIP_TYPES.ONE_WAY) {
+    const lastDepartureStop = firstStop.value
+    return lastDepartureStop.departureDate
+  } else {
+    const lastDepartureStop = findLast(stops.value, (stop) => !isNil(stop.departureDate))
+    return lastDepartureStop?.departureDate
+  }
+})
 
 watch(
   () => lastDepartureDate.value,
@@ -123,6 +156,7 @@ watch(
     }
 
     travelAuthorization.value.dateBackToWork = newLastDepartureDate
+    emit("update:returnDate", newLastDepartureDate)
   }
 )
 

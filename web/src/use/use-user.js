@@ -10,7 +10,7 @@ import usersApi from "@/api/users-api"
 /** @typedef {import('@/api/users-api.js').User} User */
 
 /**
- * This stores a global user state per id.
+ * Provides reactive state for a user.
  *
  * @callback UseUser
  * @param {Ref<number>} userId

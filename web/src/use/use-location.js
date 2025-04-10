@@ -10,7 +10,7 @@ import locationsApi from "@/api/locations-api"
  */
 
 /**
- * This stores a global user state per id.
+ * Provides reactive state for a location.
  *
  * @callback UseLocation
  * @param {import('vue').Ref<number>} locationId

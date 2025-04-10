@@ -1,18 +1,15 @@
 import express, { Request, Response } from "express"
 import knex from "knex"
 import axios from "axios"
-import { uniq } from "lodash"
 
 import { RequiresAuth, ReturnValidationErrors } from "@/middleware"
 import { DB_CONFIG, AZURE_KEY } from "@/config"
 import logger from "@/utils/logger"
-import { YgEmployeeGroup, YgEmployee } from "@/models"
-import { YgEmployeeGroups, YgEmployees } from "@/services"
+import { YgEmployee } from "@/models"
+import { YgEmployees } from "@/services"
 
 export const lookupRouter = express.Router()
 const db = knex(DB_CONFIG)
-
-const cache = new Map<string, any>()
 
 /**
  * @deprecated - Prefer /api/yg-employees?filters['search']=<email> -> api/src/controllers/yg-employees-controller.ts#index -> YgEmployee "search" scope
@@ -47,56 +44,6 @@ lookupRouter.get(
 )
 
 /**
- * @deprecated - Prefer /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
- */
-lookupRouter.get(
-  "/departments",
-  ReturnValidationErrors,
-  async function (req: Request, res: Response) {
-    logger.warn(
-      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
-    )
-    try {
-      let result = await db("departments")
-        .select("id", "name", "type", "ownedby")
-        .where("type", "=", "department")
-      res.status(200).json(result)
-    } catch (error: any) {
-      logger.info(error)
-      res.status(500).json("Internal Server Error")
-    }
-  }
-)
-
-/**
- * @deprecated - Prefer /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
- */
-lookupRouter.get("/branches", ReturnValidationErrors, async function (req: Request, res: Response) {
-  logger.warn(
-    "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
-  )
-  try {
-    let result = await db("departments")
-      .select(
-        "departments.id",
-        "departments.name",
-        "departments.type",
-        "departments.ownedby",
-        "b.name as department"
-      )
-      .where("departments.type", "=", "branch")
-      .innerJoin("departments as b", "departments.ownedby", "b.id")
-    result.map((element) => {
-      element.fullName = `${element.department} - ${element.name}`
-    })
-    res.status(200).json(result)
-  } catch (error: any) {
-    logger.info(error)
-    res.status(500).json("Internal Server Error")
-  }
-})
-
-/**
  * @deprecated - Prefer /api/yg-employee-groups/:ygEmployeeGroupId -> api/src/controllers/yg-employee-groups-controller.ts#show
  */
 lookupRouter.get(
@@ -129,127 +76,6 @@ lookupRouter.get("/roles", ReturnValidationErrors, async function (req: Request,
   }
 })
 
-/**
- * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
- */
-lookupRouter.get(
-  "/departmentList",
-  ReturnValidationErrors,
-  async function (req: Request, res: Response) {
-    logger.warn(
-      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
-    )
-    if (cache.has("departmentList")) {
-      return res.json(cache.get("departmentList"))
-    }
-
-    let cleanList: any = {}
-    try {
-      let depList = await axios
-        .get(`https://api.gov.yk.ca/directory/departments`, {
-          headers: {
-            "Ocp-Apim-Subscription-Key": AZURE_KEY,
-          },
-        })
-        .then((resp: any) => {
-          for (let slice of resp.data.divisions) {
-            if (cleanList[slice.department] == null) cleanList[slice.department] = {}
-
-            if (slice.division)
-              if (cleanList[slice.department][slice.division] == null)
-                cleanList[slice.department][slice.division] = {}
-
-            if (slice.branch)
-              if (cleanList[slice.department][slice.division][slice.branch] == null)
-                cleanList[slice.department][slice.division][slice.branch] = []
-
-            if (slice.unit)
-              cleanList[slice.department][slice.division][slice.branch].push(slice.unit)
-          }
-
-          return cleanList
-        })
-
-      cache.set("departmentList", depList)
-
-      res.status(200).json(depList)
-    } catch (error: any) {
-      logger.info(error)
-      res.status(500).json("Internal Server Error")
-    }
-  }
-)
-
-/**
- * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
- */
-lookupRouter.get(
-  "/departmentList2",
-  ReturnValidationErrors,
-  async function (req: Request, res: Response) {
-    logger.warn(
-      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
-    )
-    if (cache.has("departmentList2")) {
-      return res.json({ data: cache.get("departmentList2") })
-    }
-
-    try {
-      axios
-        .get(`https://api.gov.yk.ca/directory/divisions`, {
-          headers: {
-            "Ocp-Apim-Subscription-Key": AZURE_KEY,
-          },
-        })
-        .then((resp: any) => {
-          let departments = uniq(resp.data.divisions.map((d: any) => d.department))
-
-          let result = []
-
-          for (let depart of departments) {
-            let l1 = { name: depart, divisions: new Array() }
-            result.push(l1)
-
-            let deptList = resp.data.divisions.filter((d: any) => d.department == depart)
-            let divisions = uniq(
-              deptList.filter((d: any) => d.division != null).map((d: any) => d.division)
-            )
-
-            for (let div of divisions as any[]) {
-              let l2 = { name: div, branches: new Array() }
-              l1.divisions.push(l2)
-
-              let divList = deptList.filter((d: any) => d.division == div)
-              let branches = uniq(
-                divList.filter((d: any) => d.branch != null).map((d: any) => d.branch)
-              )
-
-              for (let branch of branches) {
-                let l3 = { name: branch, units: new Array() }
-                l2.branches.push(l3)
-
-                let branchList = divList.filter((d: any) => d.branch == branch)
-                let units = uniq(
-                  branchList.filter((d: any) => d.unit != null).map((d: any) => d.unit)
-                )
-
-                for (let unit of units) {
-                  l3.units.push(unit)
-                }
-              }
-            }
-          }
-
-          cache.set("departmentList2", result)
-          res.json({ data: result })
-        })
-    } catch (error: any) {
-      logger.info(error)
-      res.status(500).json("Internal Server Error")
-    }
-  }
-)
-
 lookupRouter.get(
   "/transportMethod",
   ReturnValidationErrors,
@@ -257,45 +83,6 @@ lookupRouter.get(
     try {
       let result = await db("transportMethod").select("id", "method")
       res.status(200).json(result)
-    } catch (error: any) {
-      logger.info(error)
-      res.status(500).json("Internal Server Error")
-    }
-  }
-)
-
-/**
- * @deprecated - Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index
- */
-lookupRouter.get(
-  "/department-branch",
-  RequiresAuth,
-  ReturnValidationErrors,
-  async function (req: Request, res: Response) {
-    logger.warn(
-      "DEPRECATED: Prefer using /api/yg-employee-groups -> api/src/controllers/yg-employee-groups-controller.ts#index"
-    )
-    let cleanList: any = {}
-    try {
-      let departments = await YgEmployeeGroup.findAll()
-      const updateRequired = timeToUpdate(departments[0])
-
-      if (!departments[0] || updateRequired) {
-        await YgEmployeeGroups.SyncService.perform()
-        departments = await YgEmployeeGroup.findAll()
-      }
-
-      for (const slice of departments) {
-        if (cleanList[slice.department] == null)
-          cleanList[slice.department] = {
-            branches: [],
-          }
-
-        if (slice.branch && !cleanList[slice.department].branches.includes(slice.branch))
-          cleanList[slice.department].branches.push(slice.branch)
-      }
-
-      res.status(200).json(cleanList)
     } catch (error: any) {
       logger.info(error)
       res.status(500).json("Internal Server Error")
