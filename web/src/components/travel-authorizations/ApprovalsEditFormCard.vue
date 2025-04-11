@@ -34,15 +34,10 @@
         cols="12"
         md="6"
       >
-        <TravelAuthorizationPreApprovalProfileSelect
+        <TravelAuthorizationPreApprovalProfileSearchableAutocomplete
           v-model="travelAuthorization.preApprovalProfileId"
-          :query-options="{
-            where: { department },
-            filters: {
-              approved: true,
-              openDateOrBeforeStartDate: true,
-            },
-          }"
+          :where="travelAuthorizationPreApprovalProfileWhere"
+          :filters="travelAuthorizationPreApprovalProfileFilters"
           outlined
         />
       </v-col>
@@ -66,6 +61,7 @@
 
 <script setup>
 import { computed, onMounted, ref, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import { required, isInteger } from "@/utils/validators"
 
@@ -73,9 +69,9 @@ import useCurrentUser from "@/use/use-current-user"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
-import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
-import TravelAuthorizationPreApprovalProfileSelect from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileSelect.vue"
 import EstimatedCostDescriptionElement from "@/components/travel-authorizations/EstimatedCostDescriptionElement.vue"
+import TravelAuthorizationPreApprovalProfileSearchableAutocomplete from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileSearchableAutocomplete.vue"
+import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -88,10 +84,20 @@ const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, submit } = useTravelAuthorization(travelAuthorizationId)
 
 const { currentUser } = useCurrentUser()
-const department = computed(() => {
-  return currentUser.value?.department
-})
+const travelAuthorizationPreApprovalProfileWhere = computed(() => {
+  const { department } = currentUser.value
+  if (isNil(department)) return {}
 
+  return {
+    department,
+  }
+})
+const travelAuthorizationPreApprovalProfileFilters = computed(() => {
+  return {
+    approved: true,
+    openDateOrBeforeStartDate: true,
+  }
+})
 const travelAdvanceInDollars = computed({
   get() {
     return Math.ceil(travelAuthorization.value.travelAdvanceInCents / 100.0) || 0

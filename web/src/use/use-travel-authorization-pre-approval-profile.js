@@ -8,18 +8,18 @@ import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorizatio
  * @typedef {import('vue').Ref<T>} Ref
  */
 /** @typedef {import('@/api/base-api.js').Policy} Policy */
-/** @typedef {import('@/api/travel-authorization-pre-approval-profiles-api.js').TravelAuthorizationPreApprovalProfile} TravelAuthorizationPreApprovalProfile */
+/** @typedef {import('@/api/travel-authorization-pre-approval-profiles-api.js').TravelAuthorizationPreApprovalProfileAsShow} TravelAuthorizationPreApprovalProfileAsShow */
 
 /**
  * @callback UseTravelAuthorizationPreApprovalProfile
  * @param {Ref<number>} id
  * @returns {{
- *   travelAuthorizationPreApprovalProfile: Ref<TravelAuthorizationPreApprovalProfile | null | undefined>,
+ *   travelAuthorizationPreApprovalProfile: Ref<TravelAuthorizationPreApprovalProfileAsShow | null | undefined>,
  *   policy: Ref<Policy | null>,
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
- *   fetch: () => Promise<TravelAuthorizationPreApprovalProfile>,
- *   refresh: () => Promise<TravelAuthorizationPreApprovalProfile>,
+ *   fetch: () => Promise<TravelAuthorizationPreApprovalProfileAsShow>,
+ *   refresh: () => Promise<TravelAuthorizationPreApprovalProfileAsShow>,
  * }}
  */
 
