@@ -1,80 +1,64 @@
 <template>
-  <v-card>
-    <v-card-title><h3>Details</h3></v-card-title>
-    <v-card-text>
-      <v-row>
-        <v-col cols="12">
-          <DescriptionElement
-            :value="
-              t(`travel_authorization.trip_type.${travelAuthorization.tripType}`, {
-                $default: travelAuthorization.tripType,
-              })
-            "
-            label="Trip Type"
-          />
-        </v-col>
-      </v-row>
+  <HeaderActionsCard title="Details">
+    <v-row>
+      <v-col cols="12">
+        <DescriptionElement label="Trip Type">
+          <TravelAuthorizationTripTypeChip :value="travelAuthorization.tripType" />
+        </DescriptionElement>
+      </v-col>
+    </v-row>
 
-      <component
-        :is="tripTypeComponent"
-        v-if="tripTypeComponent"
-        :travel-authorization-id="travelAuthorizationId"
-        class="mt-3"
-      />
-      <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
-      <v-row>
-        <v-col
-          cols="12"
-          md="2"
-        >
-          <v-text-field
-            :value="travelAuthorization.travelDuration"
-            label="# Days"
-            dense
-            outlined
-            readonly
-            append-icon="mdi-lock"
-          ></v-text-field>
-        </v-col>
-        <v-col
-          cols="12"
-          md="2"
-        >
-          <v-text-field
-            :value="travelAuthorization.daysOffTravelStatus"
-            label="Days on non-travel status"
-            dense
-            outlined
-            readonly
-            append-icon="mdi-lock"
-          ></v-text-field>
-        </v-col>
-        <v-col
-          cols="12"
-          md="3"
-        >
-          <v-text-field
-            :value="travelAuthorization.dateBackToWork"
-            label="Expected Date return to work"
-            prepend-icon="mdi-calendar"
-            dense
-            outlined
-            readonly
-            append-icon="mdi-lock"
-          />
-        </v-col>
-      </v-row>
-    </v-card-text>
-  </v-card>
+    <component
+      :is="tripTypeComponent"
+      v-if="tripTypeComponent"
+      :travel-authorization-id="travelAuthorizationId"
+      class="mt-3"
+    />
+    <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
+
+    <v-row>
+      <v-col
+        cols="12"
+        md="2"
+      >
+        <DescriptionElement
+          :value="travelAuthorization.travelDuration"
+          label="Travel Days"
+          vertical
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <DescriptionElement
+          :value="travelAuthorization.daysOffTravelStatus || '0'"
+          label="Days on non-travel status"
+          vertical
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <DescriptionElement
+          :value="travelAuthorization.dateBackToWork"
+          label="Expected Date return to work"
+          vertical
+        />
+      </v-col>
+    </v-row>
+  </HeaderActionsCard>
 </template>
 
 <script setup>
 import { computed, toRefs } from "vue"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
+import TravelAuthorizationTripTypeChip from "@/components/travel-authorizations/TravelAuthorizationTripTypeChip.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -82,8 +66,6 @@ const props = defineProps({
     required: true,
   },
 })
-
-const { t } = useI18n()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
