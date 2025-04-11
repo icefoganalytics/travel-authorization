@@ -34,12 +34,19 @@
             label="Pre-approved travel for (if applicable)"
             vertical
           >
+            <v-progress-circular
+              v-if="isLoading"
+              size="20"
+              width="2"
+              indeterminate
+            />
             <TravelAuthorizationPreApprovalProfileChip
-              v-if="travelAuthorizationPreApprovalProfileId"
+              v-else-if="travelAuthorizationPreApprovalProfileId"
               :travel-authorization-pre-approval-profile-id="
                 travelAuthorizationPreApprovalProfileId
               "
             />
+            <span v-else>None supplied</span>
           </DescriptionElement>
         </v-col>
       </v-row>
@@ -78,7 +85,7 @@ const props = defineProps({
 })
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, isLoading } = useTravelAuthorization(travelAuthorizationId)
 
 const travelAuthorizationPreApprovalProfileId = computed(() => {
   return travelAuthorization.value?.preApprovalProfileId
