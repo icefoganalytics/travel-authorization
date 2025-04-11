@@ -1,21 +1,30 @@
 <template>
-  <!-- TODO: update to newest table pattern -->
   <v-data-table
-    :headers="headers"
+    :page.sync="page"
+    :items-per-page.sync="perPage"
+    :sort-by.sync="vuetify2SortBy"
+    :sort-desc.sync="vuetify2SortDesc"
     :items="estimates"
-    :loading="isLoading"
+    :headers="headers"
     :server-items-length="totalCount"
-    :items-per-page="10"
+    :loading="isLoading"
+    v-bind="$attrs"
+    v-on="$listeners"
   >
-    <template #top>
-      <EstimateEditDialog
-        ref="editDialog"
-        @saved="refreshAndEmitUpdated"
-      />
-      <EstimateDeleteDialog
-        ref="deleteDialog"
-        @deleted="refreshAndEmitUpdated"
-      />
+    <template #top="slotProps">
+      <slot
+        name="top"
+        v-bind="slotProps"
+      >
+        <EstimateEditDialog
+          ref="editDialog"
+          @saved="refreshAndEmitUpdated"
+        />
+        <EstimateDeleteDialog
+          ref="deleteDialog"
+          @deleted="refreshAndEmitUpdated"
+        />
+      </slot>
     </template>
     <template #item.date="{ value }">
       {{ formatDate(value) }}
@@ -43,11 +52,13 @@
     <template #foot>
       <tfoot>
         <tr>
-          <td :class="totalRowClasses"></td>
-          <td :class="totalRowClasses"></td>
-          <td :class="totalRowClasses">Total</td>
-          <td :class="totalRowClasses">{{ formatCurrency(totalAmount) }}</td>
-          <td :class="totalRowClasses"></td>
+          <td></td>
+          <td></td>
+          <td class="text-start font-weight-bold text-uppercase">Total</td>
+          <td class="text-start font-weight-bold text-uppercase">
+            {{ formatCurrency(totalAmount) }}
+          </td>
+          <td></td>
         </tr>
       </tfoot>
     </template>
@@ -59,8 +70,14 @@ import { computed, onMounted, ref } from "vue"
 import { useRoute } from "vue2-helpers/vue-router"
 import { sumBy } from "lodash"
 
-import { MAX_PER_PAGE } from "@/api/base-api"
 import { formatDate, formatCurrency } from "@/utils/formatters"
+
+import { MAX_PER_PAGE } from "@/api/base-api"
+
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useExpenses, { TYPES } from "@/use/use-expenses"
 
 import EstimateDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateDeleteDialog.vue"
@@ -106,7 +123,36 @@ const headers = ref([
   },
 ])
 
+const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
+})
+const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "10", {
+  transform: integerTransformer,
+})
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  {
+    key: "date",
+    order: "desc",
+  },
+])
+const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
+
 const expensesQuery = computed(() => ({
+  where: {
+    ...props.where,
+    type: TYPES.ESTIMATE,
+  },
+  filters: props.filters,
+  order: order.value,
+  page: page.value,
+  perPage: perPage.value,
+}))
+const { expenses: estimates, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
+
+// TODO: add dedicated endpoint to obtain total amount
+// We can't use this for the normal table display as it breaks pagination
+const expensesTotalAmountQuery = computed(() => ({
   where: {
     ...props.where,
     type: TYPES.ESTIMATE,
@@ -114,15 +160,12 @@ const expensesQuery = computed(() => ({
   filters: props.filters,
   perPage: MAX_PER_PAGE, // Need to load all estimates to calculate total amount, without dedicated endpoint
 }))
-const { expenses: estimates, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
-
-const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
-
-// TODO: add dedicated endpoint to obtain total amount
-const totalAmount = computed(() => sumBy(estimates.value, "cost"))
+const { expenses: totalAmountEstimates, refresh: refreshTotalAmountEstimates } =
+  useExpenses(expensesTotalAmountQuery)
+const totalAmount = computed(() => sumBy(totalAmountEstimates.value, "cost"))
 
 async function refreshAndEmitUpdated() {
-  await refresh()
+  await Promise.all([refresh(), refreshTotalAmountEstimates()])
   emit("updated")
 }
 
