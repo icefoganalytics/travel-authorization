@@ -8,43 +8,20 @@
           md="3"
         >
           <!-- TODO: add tooltip with link to estimate tab explaining where this data comes from -->
-          <v-text-field
-            :value="formatCurrency(estimatedCost)"
+          <EstimatedCostDescriptionElement
             label="Estimated Cost"
-            disabled
-            dense
-            outlined
-            readonly
-            append-icon="mdi-lock"
-          ></v-text-field>
+            :travel-authorization-id="travelAuthorizationId"
+            vertical
+          />
         </v-col>
         <v-col
           cols="12"
           md="3"
         >
-          <v-text-field
-            :value="travelAdvanceInDollars"
+          <DescriptionElement
             label="Travel Advance"
-            prefix="$"
-            dense
-            outlined
-            readonly
-            append-icon="mdi-lock"
-          ></v-text-field>
-        </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <!-- TODO: make this a re-usable component -->
-          <v-text-field
-            :value="travelAuthorizationPreApprovalProfileText"
-            :loading="isLoadingTravelAuthorizationPreApprovalProfile"
-            label="Pre-approved travel for (if applicable)"
-            dense
-            outlined
-            readonly
-            append-icon="mdi-lock"
+            :value="formattedTravelAdvanceInDollars"
+            vertical
           />
         </v-col>
       </v-row>
@@ -53,13 +30,28 @@
           cols="12"
           md="6"
         >
-          <v-text-field
+          <DescriptionElement
+            label="Pre-approved travel for (if applicable)"
+            vertical
+          >
+            <TravelAuthorizationPreApprovalProfileChip
+              v-if="travelAuthorizationPreApprovalProfileId"
+              :travel-authorization-pre-approval-profile-id="
+                travelAuthorizationPreApprovalProfileId
+              "
+            />
+          </DescriptionElement>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <DescriptionElement
+            label="Submitted to"
             :value="travelAuthorization.supervisorEmail"
-            label="Submit to"
-            dense
-            outlined
-            readonly
-            append-icon="mdi-lock"
+            vertical
           />
         </v-col>
       </v-row>
@@ -69,11 +61,14 @@
 
 <script setup>
 import { computed, toRefs } from "vue"
-import { isNil, sumBy } from "lodash"
 
-import formatCurrency from "@/utils/format-currency"
+import { formatCurrency } from "@/utils/formatters"
+
 import useTravelAuthorization from "@/use/use-travel-authorization"
-import useTravelAuthorizationPreApprovalProfile from "@/use/use-travel-authorization-pre-approval-profile"
+
+import DescriptionElement from "@/components/common/DescriptionElement.vue"
+import EstimatedCostDescriptionElement from "@/components/travel-authorizations/EstimatedCostDescriptionElement.vue"
+import TravelAuthorizationPreApprovalProfileChip from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileChip.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -83,30 +78,14 @@ const props = defineProps({
 })
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, estimates } = useTravelAuthorization(travelAuthorizationId)
-
-const estimatedCost = computed(() => sumBy(estimates.value, "cost"))
+const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 
 const travelAuthorizationPreApprovalProfileId = computed(() => {
   return travelAuthorization.value?.preApprovalProfileId
-})
-const {
-  travelAuthorizationPreApprovalProfile,
-  isLoading: isLoadingTravelAuthorizationPreApprovalProfile,
-} = useTravelAuthorizationPreApprovalProfile(travelAuthorizationPreApprovalProfileId)
-
-const travelAuthorizationPreApprovalProfileText = computed(() => {
-  if (
-    isNil(travelAuthorizationPreApprovalProfile.value) ||
-    isLoadingTravelAuthorizationPreApprovalProfile.value
-  ) {
-    return ""
-  }
-
-  return travelAuthorizationPreApprovalProfile.value.profileName
 })
 
 const travelAdvanceInDollars = computed(() =>
   Math.ceil(travelAuthorization.value.travelAdvanceInCents / 100.0)
 )
+const formattedTravelAdvanceInDollars = computed(() => formatCurrency(travelAdvanceInDollars.value))
 </script>
