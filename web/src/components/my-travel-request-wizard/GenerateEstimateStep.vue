@@ -42,9 +42,10 @@ const expensesQuery = computed(() => ({
     travelAuthorizationId: props.travelAuthorizationId,
     type: EXPENSE_TYPES.ESTIMATE,
   },
+  perPage: 1, // only need 1 estimate to determine if there are any
 }))
-const { expenses: estimates, isLoading, refresh } = useExpenses(expensesQuery)
-const hasEstimates = computed(() => isLoading.value === false && estimates.value.length > 0)
+const { totalCount, isLoading, refresh } = useExpenses(expensesQuery)
+const hasEstimates = computed(() => isLoading.value === false && totalCount.value > 0)
 
 /** @type {import("vue").Ref<InstanceType<typeof EstimatesEditDataTable> | null>} */
 const estimatesTable = ref(null)
