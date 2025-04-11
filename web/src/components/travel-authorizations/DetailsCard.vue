@@ -12,7 +12,7 @@
       :is="tripTypeComponent"
       v-if="tripTypeComponent"
       :travel-authorization-id="travelAuthorizationId"
-      class="mt-3"
+      class="mb-6"
     />
     <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
 

@@ -1,161 +1,98 @@
 <template>
+  <!-- TODO: deuglify this UI -->
   <div>
     <v-row>
       <v-col
         cols="12"
-        md="2"
+        md="6"
       >
-        <LocationReadonlyTextField
-          :location-id="originStop.locationId"
-          label="From"
-          dense
-          outlined
-          persistent-hint
-        />
+        <DescriptionElement
+          label="From / To"
+          vertical
+        >
+          <LocationChip :location-id="originStop.locationId" />
+          -
+          <LocationChip :location-id="destinationStop.locationId" />
+        </DescriptionElement>
       </v-col>
       <v-col
         cols="12"
-        md="2"
+        md="3"
       >
-        <LocationReadonlyTextField
-          :location-id="destinationStop.locationId"
-          label="To"
-          dense
-          outlined
-          persistent-hint
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <v-text-field
-          :value="originStop.departureDate"
-          label="Date"
-          prepend-icon="mdi-calendar"
-          dense
-          outlined
-          persistent-hint
-          readonly
-          append-icon="mdi-lock"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <v-text-field
-          :value="originStop.departureTime"
-          label="Time (24h)"
-          prepend-icon="mdi-clock"
-          dense
-          outlined
-          persistent-hint
-          readonly
-          append-icon="mdi-lock"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <v-text-field
-          :value="originStop.transport"
-          label="Travel Method"
-          dense
-          persistent-hint
-          outlined
-          readonly
-          append-icon="mdi-lock"
-        />
-        <v-text-field
-          :value="originStop.accommodationType"
-          label="Type of Accommodation"
-          dense
-          outlined
-          readonly
-          append-icon="mdi-lock"
+        <DescriptionElement
+          label="Date / Time (24h)"
+          :value="originStop.departureDate + ' at ' + originStop.departureTime"
+          vertical
         />
       </v-col>
     </v-row>
     <v-row>
       <v-col
         cols="12"
-        md="2"
+        md="3"
       >
-        <LocationReadonlyTextField
-          :location-id="destinationStop.locationId"
-          label="To"
-          dense
-          outlined
-          persistent-hint
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <LocationReadonlyTextField
-          :location-id="originStop.locationId"
-          label="From"
-          dense
-          outlined
-          persistent-hint
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <v-text-field
-          :value="destinationStop.departureDate"
-          label="Date"
-          prepend-icon="mdi-calendar"
-          dense
-          outlined
-          persistent-hint
-          readonly
-          append-icon="mdi-lock"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <v-text-field
-          :value="destinationStop.departureTime"
-          label="Time (24h)"
-          prepend-icon="mdi-clock"
-          dense
-          outlined
-          persistent-hint
-          readonly
-          append-icon="mdi-lock"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <v-text-field
-          :value="destinationStop.transport"
+        <DescriptionElement
           label="Travel Method"
-          dense
-          persistent-hint
-          outlined
-          readonly
-          append-icon="mdi-lock"
+          :value="originStop.transport"
+          vertical
         />
-        <v-text-field
-          :value="destinationStop.accommodationType"
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
           label="Type of Accommodation"
-          hint="Optional, set only if neccessary"
-          placeholder="N/A"
-          dense
-          outlined
-          persistent-hint
-          readonly
-          append-icon="mdi-lock"
+          :value="originStop.accommodationType"
+          vertical
+        />
+      </v-col>
+    </v-row>
+    <v-divider class="my-3" />
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="From / To"
+          vertical
+        >
+          <LocationChip :location-id="destinationStop.locationId" />
+          -
+          <LocationChip :location-id="originStop.locationId" />
+        </DescriptionElement>
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="Date / Time (24h)"
+          :value="destinationStop.departureDate + ' at ' + destinationStop.departureTime"
+          vertical
+        />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <DescriptionElement
+          label="Travel Method"
+          :value="destinationStop.transport"
+          vertical
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
+          label="Type of Accommodation"
+          :value="destinationStop.accommodationType || 'N/A'"
+          vertical
         />
       </v-col>
     </v-row>
@@ -167,7 +104,8 @@ import { computed, toRefs } from "vue"
 
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
-import LocationReadonlyTextField from "@/components/locations/LocationReadonlyTextField.vue"
+import LocationChip from "@/components/locations/LocationChip.vue"
+import DescriptionElement from "@/components/common/DescriptionElement.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
