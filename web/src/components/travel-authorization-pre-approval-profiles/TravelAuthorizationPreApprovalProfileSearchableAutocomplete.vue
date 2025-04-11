@@ -1,6 +1,6 @@
 <template>
   <v-autocomplete
-    :model="value"
+    :value="value"
     :loading="isLoading"
     :items="allTravelAuthorizationPreApprovalProfiles"
     :label="label"
