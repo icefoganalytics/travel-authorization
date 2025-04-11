@@ -54,9 +54,10 @@
             md="3"
           >
             <v-text-field
-              v-model="travelAuthorization.daysOffTravelStatus"
+              v-model.number="travelAuthorization.daysOffTravelStatus"
               :rules="[isInteger]"
               label="Days on non-travel status"
+              type="number"
               dense
               required
               outlined
