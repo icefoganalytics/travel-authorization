@@ -3,19 +3,22 @@
     <div class="d-flex justify-end">
       <EstimateCreateDialog
         v-if="hasEstimates"
+        :loading="isLoading"
         :travel-authorization-id="travelAuthorizationId"
-        @created="refreshEstimates"
+        @created="refreshEstimatesAndTable"
       />
       <EstimateGenerateDialog
         v-else
+        :loading="isLoading"
         :travel-authorization-id="travelAuthorizationId"
-        @created="refreshEstimates"
+        @created="refreshEstimatesAndTable"
       />
     </div>
 
     <EstimatesEditDataTable
       ref="estimatesTable"
-      :travel-authorization-id="travelAuthorizationId"
+      :where="estimatesWhere"
+      @updated="refresh"
     />
   </div>
 </template>
@@ -37,6 +40,10 @@ const props = defineProps({
   },
 })
 
+const estimatesWhere = computed(() => ({
+  travelAuthorizationId: props.travelAuthorizationId,
+}))
+
 const expensesQuery = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
@@ -45,12 +52,12 @@ const expensesQuery = computed(() => ({
   perPage: 1, // only need 1 estimate to determine if there are any
 }))
 const { totalCount, isLoading, refresh } = useExpenses(expensesQuery)
-const hasEstimates = computed(() => isLoading.value === false && totalCount.value > 0)
+const hasEstimates = computed(() => totalCount.value > 0)
 
 /** @type {import("vue").Ref<InstanceType<typeof EstimatesEditDataTable> | null>} */
 const estimatesTable = ref(null)
 
-async function refreshEstimates() {
+async function refreshEstimatesAndTable() {
   await Promise.all([refresh(), estimatesTable.value?.refresh()])
 }
 

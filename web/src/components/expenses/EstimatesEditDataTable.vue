@@ -1,19 +1,20 @@
 <template>
+  <!-- TODO: update to newest table pattern -->
   <v-data-table
     :headers="headers"
-    :items="items"
-    :items-per-page="10"
+    :items="estimates"
     :loading="isLoading"
-    class="elevation-2"
+    :server-items-length="totalCount"
+    :items-per-page="10"
   >
     <template #top>
       <EstimateEditDialog
         ref="editDialog"
-        @saved="refresh"
+        @saved="refreshAndEmitUpdated"
       />
       <EstimateDeleteDialog
         ref="deleteDialog"
-        @deleted="refresh"
+        @deleted="refreshAndEmitUpdated"
       />
     </template>
     <template #item.date="{ value }">
@@ -53,100 +54,124 @@
   </v-data-table>
 </template>
 
-<script>
+<script setup>
+import { computed, onMounted, ref } from "vue"
+import { useRoute } from "vue2-helpers/vue-router"
 import { sumBy } from "lodash"
-import { mapActions, mapGetters } from "vuex"
-import { DateTime } from "luxon"
 
-import { TYPES } from "@/api/expenses-api"
+import { MAX_PER_PAGE } from "@/api/base-api"
+import { formatDate, formatCurrency } from "@/utils/formatters"
+import useExpenses, { TYPES } from "@/use/use-expenses"
 
-import EstimateDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateDeleteDialog"
-import EstimateEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateEditDialog"
+import EstimateDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateDeleteDialog.vue"
+import EstimateEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateEditDialog.vue"
 
-export default {
-  name: "EstimatesTable",
-  components: {
-    EstimateDeleteDialog,
-    EstimateEditDialog,
+const props = defineProps({
+  where: {
+    type: Object,
+    default: () => ({}),
   },
-  props: {
-    travelAuthorizationId: {
-      type: Number,
-      required: true,
-    },
+  filters: {
+    type: Object,
+    default: () => ({}),
   },
-  data: () => ({
-    headers: [
-      { text: "Expense Type", value: "expenseType" },
-      { text: "Description", value: "description" },
-      { text: "Date", value: "date" },
-      { text: "Amount", value: "cost" },
-      { text: "", value: "actions" },
-    ],
-    totalRowClasses: "text-start font-weight-bold text-uppercase",
-  }),
-  computed: {
-    ...mapGetters("expenses", ["items", "isLoading"]),
-    // Will need to be calculated in the back-end if data is multi-page.
-    totalAmount() {
-      return sumBy(this.items, "cost")
-    },
+  routeQuerySuffix: {
+    type: String,
+    default: "",
   },
-  mounted() {
-    return this.ensure({
-      where: {
-        travelAuthorizationId: this.travelAuthorizationId,
-        type: TYPES.ESTIMATE,
-      },
-    }).then(() => {
-      this.showEditDialogForRouteQuery()
-      this.showDeleteDialogForRouteQuery()
-    })
+})
+
+const emit = defineEmits(["updated"])
+
+const headers = ref([
+  {
+    text: "Expense Type",
+    value: "expenseType",
   },
-  methods: {
-    ...mapActions("expenses", ["ensure", "fetch"]),
-    formatDate(date) {
-      return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
-    },
-    formatCurrency(amount) {
-      const formatter = new Intl.NumberFormat("en-CA", {
-        style: "currency",
-        currency: "CAD",
-      })
-      return formatter.format(amount)
-    },
-    refresh() {
-      return this.fetch({
-        where: {
-          travelAuthorizationId: this.travelAuthorizationId,
-          type: TYPES.ESTIMATE,
-        },
-      })
-    },
-    showDeleteDialog(item) {
-      this.$refs.deleteDialog.show(item)
-    },
-    showEditDialog(item) {
-      this.$refs.editDialog.show(item)
-    },
-    showEditDialogForRouteQuery() {
-      const estimateId = parseInt(this.$route.query.showEdit)
-      if (isNaN(estimateId)) return
-
-      const estimate = this.items.find((estimate) => estimate.id === estimateId)
-      if (!estimate) return
-
-      this.showEditDialog(estimate)
-    },
-    showDeleteDialogForRouteQuery() {
-      const estimateId = parseInt(this.$route.query.showDelete)
-      if (isNaN(estimateId)) return
-
-      const estimate = this.items.find((estimate) => estimate.id === estimateId)
-      if (!estimate) return
-
-      this.showDeleteDialog(estimate)
-    },
+  {
+    text: "Description",
+    value: "description",
   },
+  {
+    text: "Date",
+    value: "date",
+  },
+  {
+    text: "Amount",
+    value: "cost",
+  },
+  {
+    text: "Actions",
+    value: "actions",
+  },
+])
+
+const expensesQuery = computed(() => ({
+  where: {
+    ...props.where,
+    type: TYPES.ESTIMATE,
+  },
+  filters: props.filters,
+  perPage: MAX_PER_PAGE, // Need to load all estimates to calculate total amount, without dedicated endpoint
+}))
+const { expenses: estimates, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
+
+const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
+
+// TODO: add dedicated endpoint to obtain total amount
+const totalAmount = computed(() => sumBy(estimates.value, "cost"))
+
+async function refreshAndEmitUpdated() {
+  await refresh()
+  emit("updated")
 }
+
+onMounted(() => {
+  showEditDialogForRouteQuery()
+  showDeleteDialogForRouteQuery()
+})
+
+/** @type {import("vue").Ref<InstanceType<typeof EstimateEditDialog> | null>} */
+const editDialog = ref(null)
+
+// TODO: update dialog so it accepts an id instead of an item
+function showEditDialog(item) {
+  editDialog.value?.show(item)
+}
+
+const route = useRoute()
+
+// TODO: move logic inside of dialog, and load based on id
+function showEditDialogForRouteQuery() {
+  const estimateId = parseInt(route.query.showEdit)
+  if (isNaN(estimateId)) return
+
+  const estimate = estimates.value.find((estimate) => estimate.id === estimateId)
+  if (!estimate) return
+
+  showEditDialog(estimate)
+}
+
+/** @type {import("vue").Ref<InstanceType<typeof EstimateDeleteDialog> | null>} */
+const deleteDialog = ref(null)
+
+// TODO: update dialog so it accepts an id instead of an item
+function showDeleteDialog(item) {
+  deleteDialog.value?.show(item)
+}
+
+// TODO: move logic inside of dialog, and load based on id
+function showDeleteDialogForRouteQuery() {
+  const estimateId = parseInt(route.query.showDelete)
+  if (isNaN(estimateId)) return
+
+  const estimate = estimates.value.find((estimate) => estimate.id === estimateId)
+  if (!estimate) return
+
+  showDeleteDialog(estimate)
+}
+
+defineExpose({
+  refresh,
+})
 </script>
