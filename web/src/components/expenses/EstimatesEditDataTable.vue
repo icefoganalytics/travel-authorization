@@ -8,6 +8,7 @@
     :headers="headers"
     :server-items-length="totalCount"
     :loading="isLoading"
+    multi-sort
     v-bind="$attrs"
     v-on="$listeners"
   >
@@ -132,7 +133,11 @@ const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "10", {
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   {
     key: "date",
-    order: "desc",
+    order: "asc",
+  },
+  {
+    key: "expenseType",
+    order: "asc",
   },
 ])
 const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
