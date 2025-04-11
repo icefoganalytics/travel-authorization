@@ -29,8 +29,8 @@ import { computed, ref } from "vue"
 import { useSnack } from "@/plugins/snack-plugin"
 import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
 
-import EstimateCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateCreateDialog.vue"
-import EstimateGenerateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateGenerateDialog.vue"
+import EstimateCreateDialog from "@/components/expenses/EstimateCreateDialog.vue"
+import EstimateGenerateDialog from "@/components/expenses/EstimateGenerateDialog.vue"
 import EstimatesEditDataTable from "@/components/expenses/EstimatesEditDataTable.vue"
 
 const props = defineProps({

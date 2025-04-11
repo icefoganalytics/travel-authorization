@@ -80,8 +80,8 @@ import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useExpenses, { TYPES } from "@/use/use-expenses"
 
-import EstimateDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateDeleteDialog.vue"
-import EstimateEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateEditDialog.vue"
+import EstimateDeleteDialog from "@/components/expenses/EstimateDeleteDialog.vue"
+import EstimateEditDialog from "@/components/expenses/EstimateEditDialog.vue"
 
 const props = defineProps({
   where: {
