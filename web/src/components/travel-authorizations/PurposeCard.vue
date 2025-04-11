@@ -3,29 +3,23 @@
     <v-row>
       <v-col
         cols="12"
-        md="6"
+        md="3"
       >
-        <v-text-field
-          :value="purposeText"
-          :loading="isLoadingTravelPurposes"
+        <DescriptionElement
           label="Purpose"
-          dense
-          outlined
-          readonly
-          append-icon="mdi-lock"
-        />
+          vertical
+        >
+          <TravelPurposeChip :travel-purpose-id="travelAuthorization.purposeId" />
+        </DescriptionElement>
       </v-col>
       <v-col
         cols="12"
-        xl="6"
+        xl="9"
       >
-        <v-text-field
-          :value="travelAuthorization.eventName"
+        <DescriptionElement
           label="Name of meeting/conference, mission, trade fair or course"
-          dense
-          outlined
-          readonly
-          append-icon="mdi-lock"
+          :value="travelAuthorization.eventName"
+          vertical
         />
       </v-col>
       <v-col
@@ -33,13 +27,10 @@
         md="3"
         xl="2"
       >
-        <!-- Depending on in territory flag we will load a different list of destinations -->
-        <v-checkbox
-          :value="travelAuthorization.allTravelWithinTerritory"
+        <DescriptionElement
           label="In Territory?"
-          dense
-          readonly
-          append-icon="mdi-lock"
+          :value="travelAuthorization.allTravelWithinTerritory ? 'Yes' : 'No'"
+          vertical
         />
       </v-col>
       <v-col
@@ -48,34 +39,22 @@
         lg="6"
         xl="4"
       >
-        <LocationReadonlyTextField
-          :location-id="finalDestination.locationId"
+        <LocationDescriptionElement
           label="Final Destination"
-          dense
-          outlined
+          :location-id="finalDestination.locationId"
+          vertical
         />
       </v-col>
     </v-row>
     <v-row>
-      <v-col>
-        <h3>Objectives</h3>
-        <ul>
-          <li>Purpose of attendance</li>
-          <li>Relevance and anticipated benefits to branch and Government of Yukon</li>
-        </ul>
-      </v-col>
+      <v-col> </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <v-textarea
-          :value="travelAuthorization.benefits"
+        <TextareaDescriptionElement
           label="Objectives"
-          rows="10"
-          auto-grow
-          dense
-          outlined
-          readonly
-          append-icon="mdi-lock"
+          :value="travelAuthorization.benefits"
+          vertical
         />
       </v-col>
     </v-row>
@@ -86,12 +65,13 @@
 import { computed, toRefs } from "vue"
 import { last } from "lodash"
 
-import { MAX_PER_PAGE } from "@/api/base-api"
 import useTravelAuthorization from "@/use/use-travel-authorization"
-import useTravelPurposes from "@/use/use-travel-purposes"
 
+import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import LocationReadonlyTextField from "@/components/locations/LocationReadonlyTextField.vue"
+import TextareaDescriptionElement from "@/components/common/TextareaDescriptionElement.vue"
+import LocationDescriptionElement from "@/components/locations/LocationDescriptionElement.vue"
+import TravelPurposeChip from "@/components/travel-purposes/TravelPurposeChip.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -103,24 +83,11 @@ const props = defineProps({
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 
-const travelPurposesQuery = computed(() => {
-  return {
-    perPage: MAX_PER_PAGE,
-  }
-})
-const { travelPurposes, isLoading: isLoadingTravelPurposes } =
-  useTravelPurposes(travelPurposesQuery)
-
 const finalDestination = computed(() => {
   return (
     last(travelAuthorization.value.stops) || {
       travelAuthorizationId: travelAuthorizationId.value,
     }
   )
-})
-
-const purposeText = computed(() => {
-  const purpose = travelPurposes.value.find((p) => p.id === travelAuthorization.value.purposeId)
-  return purpose?.purpose || ""
 })
 </script>
