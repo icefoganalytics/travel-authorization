@@ -153,7 +153,12 @@ const expensesQuery = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const { expenses: estimates, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
+const {
+  expenses: estimates,
+  totalCount,
+  isLoading,
+  refresh: refreshEstimates,
+} = useExpenses(expensesQuery)
 
 // TODO: add dedicated endpoint to obtain total amount
 // We can't use this for the normal table display as it breaks pagination
@@ -169,8 +174,12 @@ const { expenses: totalAmountEstimates, refresh: refreshTotalAmountEstimates } =
   useExpenses(expensesTotalAmountQuery)
 const totalAmount = computed(() => sumBy(totalAmountEstimates.value, "cost"))
 
+async function refresh() {
+  await Promise.all([refreshEstimates(), refreshTotalAmountEstimates()])
+}
+
 async function refreshAndEmitUpdated() {
-  await Promise.all([refresh(), refreshTotalAmountEstimates()])
+  await refresh()
   emit("updated")
 }
 
