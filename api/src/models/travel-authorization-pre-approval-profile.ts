@@ -5,17 +5,17 @@ import {
   type ForeignKey,
   type InferAttributes,
   type InferCreationAttributes,
-  Model,
   type NonAttribute,
   Op,
 } from "sequelize"
 
 import sequelize from "@/db/db-client"
 
+import BaseModel from "@/models/base-model"
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelAuthorizationPreApproval from "@/models/travel-authorization-pre-approval"
 
-export class TravelAuthorizationPreApprovalProfile extends Model<
+export class TravelAuthorizationPreApprovalProfile extends BaseModel<
   InferAttributes<TravelAuthorizationPreApprovalProfile>,
   InferCreationAttributes<TravelAuthorizationPreApprovalProfile>
 > {
@@ -131,5 +131,8 @@ TravelAuthorizationPreApprovalProfile.init(
     },
   }
 )
+
+// TODO: add better search!
+TravelAuthorizationPreApprovalProfile.addSearchScope(["profile_name"])
 
 export default TravelAuthorizationPreApprovalProfile

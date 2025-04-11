@@ -1,81 +1,50 @@
 <template>
+  <!-- TODO: deuglify this UI -->
   <div>
     <v-row>
       <v-col
         cols="12"
-        md="2"
+        md="6"
       >
-        <LocationReadonlyTextField
-          :location-id="originStop.locationId"
-          label="From"
-          dense
-          outlined
-          persistent-hint
-        />
+        <DescriptionElement
+          label="1: From / To"
+          vertical
+        >
+          <LocationChip :location-id="originStop.locationId" />
+          -
+          <LocationChip :location-id="destinationStop.locationId" />
+        </DescriptionElement>
       </v-col>
       <v-col
         cols="12"
-        md="2"
+        md="3"
       >
-        <LocationReadonlyTextField
-          :location-id="destinationStop.locationId"
-          label="To"
-          dense
-          outlined
-          persistent-hint
+        <DescriptionElement
+          label="Date / Time (24h)"
+          :value="originStop.departureDate + ' at ' + originStop.departureTime"
+          vertical
         />
       </v-col>
+    </v-row>
+    <v-row>
       <v-col
         cols="12"
-        md="2"
+        md="3"
       >
-        <v-text-field
-          :value="originStop.departureDate"
-          label="Date"
-          prepend-icon="mdi-calendar"
-          dense
-          outlined
-          persistent-hint
-          readonly
-          append-icon="mdi-lock"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <v-text-field
-          :value="originStop.departureTime"
-          label="Time (24h)"
-          prepend-icon="mdi-clock"
-          dense
-          outlined
-          persistent-hint
-          readonly
-          append-icon="mdi-lock"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <v-text-field
-          :value="originStop.transport"
+        <DescriptionElement
           label="Travel Method"
-          dense
-          persistent-hint
-          outlined
-          readonly
-          append-icon="mdi-lock"
+          :value="originStop.transport"
+          vertical
         />
-        <v-text-field
-          :value="originStop.accommodationType"
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <DescriptionElement
           label="Type of Accommodation"
-          dense
-          persistent-hint
-          outlined
-          readonly
-          append-icon="mdi-lock"
+          :value="originStop.accommodationType"
+          vertical
         />
       </v-col>
     </v-row>
@@ -87,7 +56,8 @@ import { computed, toRefs } from "vue"
 
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
-import LocationReadonlyTextField from "@/components/locations/LocationReadonlyTextField.vue"
+import DescriptionElement from "@/components/common/DescriptionElement.vue"
+import LocationChip from "@/components/locations/LocationChip.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
