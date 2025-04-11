@@ -7,7 +7,7 @@
         md="6"
       >
         <DescriptionElement
-          label="From / To"
+          label="1: From / To"
           vertical
         >
           <LocationChip :location-id="originStop.locationId" />
@@ -55,7 +55,7 @@
         md="6"
       >
         <DescriptionElement
-          label="From / To"
+          label="2: From / To"
           vertical
         >
           <LocationChip :location-id="destinationStop.locationId" />
