@@ -3,7 +3,10 @@
     <v-row>
       <v-col cols="12">
         <DescriptionElement label="Trip Type">
-          <TravelAuthorizationTripTypeChip :value="travelAuthorization.tripType" />
+          <TravelAuthorizationTripTypeChip
+            v-if="travelAuthorization.tripType"
+            :value="travelAuthorization.tripType"
+          />
         </DescriptionElement>
       </v-col>
     </v-row>
