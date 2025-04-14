@@ -118,9 +118,17 @@ const firstStop = computed(() => props.value[0] || {})
 const lastStop = computed(() => props.value[props.value.length - 1] || {})
 
 async function updateStop(index, attribute, value) {
-  const updatedStops = props.value.map((stop, i) =>
-    i === index ? { ...stop, [attribute]: value } : stop
-  )
+  const updatedStops = props.value.map((stop, i) => {
+    if (i === index) {
+      return { ...stop, [attribute]: value }
+    }
+
+    if (attribute === "departureDate" && i > index && stop.departureDate < value) {
+      return { ...stop, [attribute]: value }
+    }
+
+    return stop
+  })
 
   emit("input", updatedStops)
 }
