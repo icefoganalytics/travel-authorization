@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex justify-space-between align-baseline my-5">
       <h1>
-        My Travel
+        My Travel Requests
         <v-btn
           class="ma-0 ml-1"
           icon

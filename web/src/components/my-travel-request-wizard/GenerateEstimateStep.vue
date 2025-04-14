@@ -3,19 +3,22 @@
     <div class="d-flex justify-end">
       <EstimateCreateDialog
         v-if="hasEstimates"
+        :loading="isLoading"
         :travel-authorization-id="travelAuthorizationId"
-        @created="refreshEstimates"
+        @created="refreshEstimatesAndTable"
       />
       <EstimateGenerateDialog
         v-else
+        :loading="isLoading"
         :travel-authorization-id="travelAuthorizationId"
-        @created="refreshEstimates"
+        @created="refreshEstimatesAndTable"
       />
     </div>
 
-    <EstimatesTable
+    <EstimatesEditDataTable
       ref="estimatesTable"
-      :travel-authorization-id="travelAuthorizationId"
+      :where="estimatesWhere"
+      @updated="refresh"
     />
   </div>
 </template>
@@ -26,14 +29,9 @@ import { computed, ref } from "vue"
 import { useSnack } from "@/plugins/snack-plugin"
 import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
 
-import EstimateCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateCreateDialog"
-import EstimateGenerateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimateGenerateDialog"
-import EstimatesTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-estimate-page/EstimatesTable"
-
-/**
- * @template [T=any]
- * @typedef {import("vue").Ref<T>} Ref
- */
+import EstimateCreateDialog from "@/components/expenses/EstimateCreateDialog.vue"
+import EstimateGenerateDialog from "@/components/expenses/EstimateGenerateDialog.vue"
+import EstimatesEditDataTable from "@/components/expenses/EstimatesEditDataTable.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -42,19 +40,24 @@ const props = defineProps({
   },
 })
 
+const estimatesWhere = computed(() => ({
+  travelAuthorizationId: props.travelAuthorizationId,
+}))
+
 const expensesQuery = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
     type: EXPENSE_TYPES.ESTIMATE,
   },
+  perPage: 1, // only need 1 estimate to determine if there are any
 }))
-const { expenses: estimates, isLoading, refresh } = useExpenses(expensesQuery)
-const hasEstimates = computed(() => isLoading.value === false && estimates.value.length > 0)
+const { totalCount, isLoading, refresh } = useExpenses(expensesQuery)
+const hasEstimates = computed(() => totalCount.value > 0)
 
-/** @type {Ref<InstanceType<typeof EstimatesTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof EstimatesEditDataTable> | null>} */
 const estimatesTable = ref(null)
 
-async function refreshEstimates() {
+async function refreshEstimatesAndTable() {
   await Promise.all([refresh(), estimatesTable.value?.refresh()])
 }
 

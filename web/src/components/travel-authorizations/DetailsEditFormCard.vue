@@ -54,9 +54,18 @@
             md="3"
           >
             <v-text-field
-              v-model="travelAuthorization.daysOffTravelStatus"
-              :rules="[isInteger]"
+              v-model.number="travelAuthorization.daysOffTravelStatus"
               label="Days on non-travel status"
+              :min="0"
+              :max="travelAuthorization.travelDuration - 1"
+              :rules="[
+                isInteger,
+                greaterThanOrEqualTo(0),
+                lessThan(travelAuthorization.travelDuration, {
+                  referenceFieldLabel: 'the number of travel days',
+                }),
+              ]"
+              type="number"
               dense
               required
               outlined
@@ -86,7 +95,7 @@
 import { computed, nextTick, onMounted, ref, toRefs, watch } from "vue"
 import { findLast, isNil } from "lodash"
 
-import { required, isInteger } from "@/utils/validators"
+import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/validators"
 import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/stops-api"
 
 import useVuetify2 from "@/use/utils/use-vuetify2"
@@ -94,6 +103,15 @@ import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorizati
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import TravelDurationTextField from "@/components/travel-authorizations/details-edit-form-card/TravelDurationTextField.vue"
+
+/**
+ * Travel time business rules:
+ * - travel start date must be earlier or the same day as end date
+ * - travel days are the duration of days lapsed between the start and end date
+ * - there must be more travel days than days on non-travel status
+ * - the date back to work must be the greater than or equal to the return date
+ * - date back to work is independent of non-travel status
+ */
 
 const props = defineProps({
   travelAuthorizationId: {

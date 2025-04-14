@@ -3,6 +3,7 @@ import { ApproveService } from "@/services/travel-authorizations"
 import { TravelDeskTravelRequests } from "@/services"
 import {
   travelAuthorizationFactory,
+  travelDeskTravelRequestFactory,
   travelPurposeFactory,
   travelSegmentFactory,
   userFactory,
@@ -138,6 +139,69 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
 
       // Assert
       expect(createServicePerformSpy).not.toHaveBeenCalled()
+    })
+
+    test("when travelling by air, and previous travel desk travel request exists for user, it passes the previous travel desk travel request data to create new one", async () => {
+      // Arrange
+      const approver = await userFactory.create()
+      const user = await userFactory.create()
+      const travelSegments = travelSegmentFactory.buildList(3, {
+        modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+      })
+      const purpose = await travelPurposeFactory.create()
+      const travelAuthorization = await travelAuthorizationFactory
+        .associations({
+          purpose,
+          travelSegments,
+          user,
+        })
+        .create({
+          status: TravelAuthorization.Statuses.SUBMITTED,
+        })
+
+      const previousTravelAuthorizationForUser = await travelAuthorizationFactory
+        .associations({
+          purpose,
+          travelSegments,
+          user,
+        })
+        .create({
+          status: TravelAuthorization.Statuses.EXPENSED,
+        })
+      const previousTravelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+        travelAuthorizationId: previousTravelAuthorizationForUser.id,
+        birthDate: "1990-01-01",
+        strAddress: "1487 Brycen Forks",
+        city: "Beierchester",
+        province: "Colorado",
+        postalCode: "49424",
+        busPhone: "1-243-312-1143 x454",
+      })
+
+      const createServicePerformSpy = vi.spyOn(TravelDeskTravelRequests.CreateService, "perform")
+
+      // Act
+      await ApproveService.perform(travelAuthorization, approver)
+
+      // Assert
+      expect(createServicePerformSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          travelAuthorizationId: travelAuthorization.id,
+          legalFirstName: user.firstName,
+          legalLastName: user.lastName,
+          birthDate: previousTravelDeskTravelRequest.birthDate,
+          strAddress: previousTravelDeskTravelRequest.strAddress,
+          city: previousTravelDeskTravelRequest.city,
+          province: previousTravelDeskTravelRequest.province,
+          postalCode: previousTravelDeskTravelRequest.postalCode,
+          busPhone: previousTravelDeskTravelRequest.busPhone,
+          busEmail: user.email,
+          travelPurpose: purpose.purpose,
+        }),
+        expect.objectContaining({
+          id: approver.id,
+        })
+      )
     })
   })
 })
