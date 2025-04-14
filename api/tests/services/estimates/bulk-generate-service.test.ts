@@ -1,6 +1,7 @@
 import { BulkGenerateService } from "@/services/estimates"
 
 import {
+  distanceMatrixFactory,
   locationFactory,
   perDiemFactory,
   travelAllowanceFactory,
@@ -356,6 +357,86 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
             expenseType: "Meals & Incidentals",
           }),
         ])
+      })
+
+      test("when travel method is personal vehicle, and trip type is round-trip, correctly generates the transportantion allowance from the distance matrix", async () => {
+        await perDiemFactory.create({
+          claimType: PerDiem.ClaimTypes.LUNCH,
+          travelRegion: PerDiem.TravelRegions.YUKON,
+          amount: 21.3,
+          currency: PerDiem.CurrencyTypes.CAD,
+        })
+        await perDiemFactory.create({
+          claimType: PerDiem.ClaimTypes.DINNER,
+          travelRegion: PerDiem.TravelRegions.YUKON,
+          amount: 61.45,
+          currency: PerDiem.CurrencyTypes.CAD,
+        })
+
+        await distanceMatrixFactory.create({
+          origin: "Faro",
+          destination: "Whitehorse",
+          kilometers: 359,
+        })
+
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+        })
+        const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
+        const faro = await locationFactory.create({ city: "Faro", province: "YT" })
+        const travelSegment1 = await travelSegmentFactory
+          .associations({
+            travelAuthorization,
+            departureLocation: whitehorse,
+            arrivalLocation: faro,
+          })
+          .create({
+            segmentNumber: 1,
+            departureOn: new Date("2022-06-05"),
+            departureTime: "10:00:00",
+            modeOfTransport: Stop.TravelMethods.PERSONAL_VEHICLE,
+            accommodationType: Stop.AccommodationTypes.HOTEL,
+          })
+        const travelSegment2 = await travelSegmentFactory
+          .associations({
+            travelAuthorization,
+            departureLocation: faro,
+            arrivalLocation: whitehorse,
+          })
+          .create({
+            segmentNumber: 2,
+            departureOn: new Date("2022-06-07"),
+            departureTime: "15:00:00",
+            modeOfTransport: Stop.TravelMethods.PERSONAL_VEHICLE,
+            accommodationType: null,
+          })
+
+        const expenses = await BulkGenerateService.perform(
+          travelAuthorization.id,
+          [travelSegment1, travelSegment2],
+          { daysOffTravelStatus: 0 }
+        )
+
+        expect(expenses).toEqual(expect.arrayContaining([
+          expect.objectContaining({
+            travelAuthorizationId: travelAuthorization.id,
+            description: "Personal Vehicle from Whitehorse to Faro",
+            date: "2022-06-05",
+            cost: 217.195,
+            currency: "CAD",
+            type: "Estimate",
+            expenseType: "Transportation",
+          }),
+          expect.objectContaining({
+            travelAuthorizationId: travelAuthorization.id,
+            description: "Personal Vehicle from Faro to Whitehorse",
+            date: "2022-06-07",
+            cost: 217.195,
+            currency: "CAD",
+            type: "Estimate",
+            expenseType: "Transportation",
+          }),
+        ]))
       })
     })
   })

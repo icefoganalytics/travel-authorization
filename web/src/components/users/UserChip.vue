@@ -10,7 +10,6 @@
       v-if="isLoading"
       size="20"
       width="2"
-      color="white"
       indeterminate
     ></v-progress-circular>
     <template v-else>

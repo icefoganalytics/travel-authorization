@@ -26,7 +26,7 @@
         <v-card-text :loading="isLoading">
           <v-row>
             <v-col>
-              <SearchableUserEmailCombobox
+              <UserEmailSearchableCombobox
                 v-model="supervisorEmail"
                 :rules="[required]"
                 label="Re-assign to *"
@@ -83,7 +83,7 @@ import { useSnack } from "@/plugins/snack-plugin"
 import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useRouteQuery from "@/use/utils/use-route-query"
 
-import SearchableUserEmailCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
+import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

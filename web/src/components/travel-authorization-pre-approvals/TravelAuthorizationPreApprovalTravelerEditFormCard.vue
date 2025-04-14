@@ -29,7 +29,6 @@
           :where="ygEmployeeWhere"
           item-value="fullName"
           item-text="fullName"
-          :clearable="false"
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
           outlined
         />

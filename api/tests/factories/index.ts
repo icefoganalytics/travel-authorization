@@ -1,4 +1,5 @@
 // Factories
+export { distanceMatrixFactory } from "./distance-matrix-factory"
 export { expenseFactory } from "./expense-factory"
 export { locationFactory } from "./location-factory"
 export { perDiemFactory } from "./per-diem-factory"

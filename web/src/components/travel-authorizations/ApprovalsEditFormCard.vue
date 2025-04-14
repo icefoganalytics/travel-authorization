@@ -1,81 +1,77 @@
 <template>
-  <v-card>
-    <v-card-title> Approvals </v-card-title>
-    <v-card-text>
-      <v-form
-        ref="form"
-        lazy-validation
+  <HeaderActionsFormCard
+    ref="headerActionsFormCard"
+    title="Approvals"
+    lazy-validation
+  >
+    <v-row>
+      <v-col
+        cols="12"
+        md="3"
       >
-        <v-row>
-          <v-col
-            cols="12"
-            md="2"
-          >
-            <EstimatedCostTextField :estimates="travelAuthorizationEstimates" />
-          </v-col>
-          <v-col
-            cols="12"
-            md="2"
-          >
-            <v-text-field
-              v-model="travelAdvanceInDollars"
-              :rules="[required, isInteger]"
-              label="Travel Advance"
-              prefix="$"
-              dense
-              outlined
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            md="4"
-          >
-            <TravelAuthorizationPreApprovalProfileSelect
-              v-model="travelAuthorization.preApprovalProfileId"
-              :query-options="{
-                where: { department },
-                filters: {
-                  approved: true,
-                  openDateOrBeforeStartDate: true,
-                },
-              }"
-              dense
-              outlined
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <SearchableUserEmailCombobox
-              v-model="travelAuthorization.supervisorEmail"
-              :rules="[required]"
-              label="Submit to"
-              dense
-              outlined
-              required
-            />
-          </v-col>
-        </v-row>
-      </v-form>
-    </v-card-text>
-  </v-card>
+        <EstimatedCostDescriptionElement
+          label="Estimated Cost"
+          :travel-authorization-id="travelAuthorizationId"
+          vertical
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <v-text-field
+          v-model="travelAdvanceInDollars"
+          :rules="[required, isInteger]"
+          label="Travel Advance"
+          prefix="$"
+          outlined
+          required
+        />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <TravelAuthorizationPreApprovalProfileSearchableAutocomplete
+          v-model="travelAuthorization.preApprovalProfileId"
+          :where="travelAuthorizationPreApprovalProfileWhere"
+          :filters="travelAuthorizationPreApprovalProfileFilters"
+          outlined
+        />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <UserEmailSearchableCombobox
+          v-model="travelAuthorization.supervisorEmail"
+          label="Submit to *"
+          :rules="[required]"
+          outlined
+          required
+        />
+      </v-col>
+    </v-row>
+  </HeaderActionsFormCard>
 </template>
 
 <script setup>
 import { computed, onMounted, ref, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import { required, isInteger } from "@/utils/validators"
 
 import useCurrentUser from "@/use/use-current-user"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
-import SearchableUserEmailCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
-import TravelAuthorizationPreApprovalProfileSelect from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileSelect.vue"
-import EstimatedCostTextField from "@/modules/travel-authorizations/components/EstimatedCostTextField.vue"
+import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import EstimatedCostDescriptionElement from "@/components/travel-authorizations/EstimatedCostDescriptionElement.vue"
+import TravelAuthorizationPreApprovalProfileSearchableAutocomplete from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileSearchableAutocomplete.vue"
+import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -85,17 +81,23 @@ const props = defineProps({
 })
 
 const { travelAuthorizationId } = toRefs(props)
-const {
-  travelAuthorization,
-  estimates: travelAuthorizationEstimates,
-  submit,
-} = useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, submit } = useTravelAuthorization(travelAuthorizationId)
 
 const { currentUser } = useCurrentUser()
-const department = computed(() => {
-  return currentUser.value?.department
-})
+const travelAuthorizationPreApprovalProfileWhere = computed(() => {
+  const { department } = currentUser.value
+  if (isNil(department)) return {}
 
+  return {
+    department,
+  }
+})
+const travelAuthorizationPreApprovalProfileFilters = computed(() => {
+  return {
+    approved: true,
+    openDateOrBeforeStartDate: true,
+  }
+})
 const travelAdvanceInDollars = computed({
   get() {
     return Math.ceil(travelAuthorization.value.travelAdvanceInCents / 100.0) || 0
@@ -106,14 +108,14 @@ const travelAdvanceInDollars = computed({
 })
 
 /** @type {import('vue').Ref<typeof import('vuetify/lib/components').VForm | null>} */
-const form = ref(null)
+const headerActionsFormCard = ref(null)
 
 onMounted(async () => {
-  await form.value?.resetValidation()
+  await headerActionsFormCard.value?.resetValidation()
 })
 
 defineExpose({
   save: submit,
-  validate: () => form.value?.validate(),
+  validate: () => headerActionsFormCard.value?.validate(),
 })
 </script>

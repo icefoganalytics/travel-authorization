@@ -3,6 +3,8 @@ import http from "@/api/http-client"
 /** @typedef {import('@/api/base-api.js').Policy} Policy */
 /** @typedef {import("@/api/base-api").ModelOrder} ModelOrder */
 
+/** @typedef {import("@/api/travel-authorization-pre-approvals-api.js").TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
+
 /**
  * @typedef {{
  *   id: number;
@@ -13,6 +15,12 @@ import http from "@/api/http-client"
  *   createdAt: string;
  *   updatedAt: string;
  * }} TravelAuthorizationPreApprovalProfile
+ */
+
+/**
+ * @typedef {TravelAuthorizationPreApprovalProfile & {
+ *   preApproval: TravelAuthorizationPreApproval;
+ * }} TravelAuthorizationPreApprovalProfileAsShow
  */
 
 /**
@@ -30,6 +38,7 @@ import http from "@/api/http-client"
  * @typedef {{
  *  approved?: true;
  *  openDateOrBeforeStartDate?: true;
+ *  search?: string;
  * }} TravelAuthorizationPreApprovalProfileFiltersOptions
  */
 
@@ -61,7 +70,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
   /**
    * @param {number} travelAuthorizationPreApprovalProfileId
    * @returns {Promise<{
-   *   travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile;
+   *   travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfileAsShow;
    *   policy: Policy;
    * }>}
    */
@@ -87,7 +96,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
    * @param {number} travelAuthorizationPreApprovalProfileId
    * @param {Partial<TravelAuthorizationPreApprovalProfile>} attributes
    * @returns {Promise<{
-   *   travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile,
+   *   travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfileAsShow,
    *   policy: Policy,
    * }>}
    */

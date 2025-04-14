@@ -4,7 +4,6 @@
       v-if="isNil(travelPurpose)"
       size="20"
       width="2"
-      color="white"
       indeterminate
     />
     <template v-else>

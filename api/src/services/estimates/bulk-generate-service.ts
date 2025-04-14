@@ -252,7 +252,12 @@ export class BulkGenerateService extends BaseService {
     toCity: string
   ): Promise<number> {
     const distanceMatrix = await DistanceMatrix.findOne({
-      where: { origin: fromCity, destination: toCity },
+      where: {
+        [Op.or]: [
+          { origin: fromCity, destination: toCity },
+          { origin: toCity, destination: fromCity },
+        ],
+      },
     })
     if (isNil(distanceMatrix) || isNil(distanceMatrix.kilometers)) return 0
 
