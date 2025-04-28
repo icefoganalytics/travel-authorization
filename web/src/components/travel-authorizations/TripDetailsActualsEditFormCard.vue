@@ -1,31 +1,23 @@
 <template>
   <v-card>
-    <v-card-title><h3>Details</h3></v-card-title>
-    <v-card-text>
+    <v-card-title><h3>Update Trip Details</h3></v-card-title>
+    <v-card-subtitle>Update trip details with actual travel times</v-card-subtitle>
+    <v-skeleton-loader
+      v-if="isNil(travelAuthorization?.id)"
+      type="card"
+    />
+    <v-card-text v-else>
       <v-form
         ref="form"
         lazy-validation
       >
         <v-row>
           <v-col cols="12">
-            <v-radio-group
+            <TripTypeRadioGroup
               :value="travelAuthorization.tripType"
               :row="mdAndUp"
-              @change="updateTripType"
-            >
-              <v-radio
-                label="Round trip"
-                :value="TRIP_TYPES.ROUND_TRIP"
-              ></v-radio>
-              <v-radio
-                label="One way"
-                :value="TRIP_TYPES.ONE_WAY"
-              ></v-radio>
-              <v-radio
-                label="Multi-city"
-                :value="TRIP_TYPES.MULTI_CITY"
-              ></v-radio>
-            </v-radio-group>
+              @input="updateTripType"
+            />
           </v-col>
         </v-row>
 
@@ -102,6 +94,7 @@ import useVuetify2 from "@/use/utils/use-vuetify2"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 
 import DatePicker from "@/components/common/DatePicker.vue"
+import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
 import TravelDurationTextField from "@/components/travel-authorizations/details-edit-form-card/TravelDurationTextField.vue"
 
 /**
