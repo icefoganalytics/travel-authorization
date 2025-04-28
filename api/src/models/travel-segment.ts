@@ -65,6 +65,7 @@ export class TravelSegment extends Model<
   declare modeOfTransportOther: string | null
   declare accommodationType: string | null
   declare accommodationTypeOther: string | null
+  declare isActual: CreationOptional<boolean>
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
 
@@ -135,6 +136,10 @@ export class TravelSegment extends Model<
     departureStop: Stop
     arrivalStop: Stop
   }) {
+    if (departureStop.isActual !== arrivalStop.isActual) {
+      throw new Error("Departure and arrival stops must have the same isActual value")
+    }
+
     if (isNil(departureStop.transport)) {
       throw new Error(`Missing transport on Stop#${departureStop.id}`)
     }
@@ -166,6 +171,7 @@ export class TravelSegment extends Model<
       modeOfTransportOther,
       accommodationType,
       accommodationTypeOther,
+      isActual: departureStop.isActual,
     })
   }
 
@@ -257,6 +263,11 @@ TravelSegment.init(
           }
         },
       },
+    },
+    isActual: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     createdAt: {
       type: DataTypes.DATE,

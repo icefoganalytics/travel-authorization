@@ -23,6 +23,7 @@ export const stopFactory = Factory.define<Stop>(({ associations, onCreate }) => 
     departureTime: anytime(),
     transport: faker.helpers.arrayElement(Object.values(Stop.TravelMethods)),
     accommodationType: faker.helpers.arrayElement(Object.values(Stop.AccommodationTypes)),
+    isActual: false,
   })
   stop.travelAuthorization = associations.travelAuthorization ?? travelAuthorizationFactory.build()
   stop.location = associations.location ?? locationFactory.build()

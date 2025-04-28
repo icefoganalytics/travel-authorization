@@ -50,6 +50,7 @@ export class MyTravelRequestsService extends BaseService {
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
         transport: Stop.TravelMethods.AIRCRAFT,
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization1.id,
@@ -57,6 +58,7 @@ export class MyTravelRequestsService extends BaseService {
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
         transport: Stop.TravelMethods.AIRCRAFT,
+        isActual: false,
       },
     })
     const [_lastStop] = await Stop.findOrCreate({
@@ -66,6 +68,7 @@ export class MyTravelRequestsService extends BaseService {
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
         transport: Stop.TravelMethods.AIRCRAFT,
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization1.id,
@@ -73,6 +76,7 @@ export class MyTravelRequestsService extends BaseService {
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
         transport: Stop.TravelMethods.AIRCRAFT,
+        isActual: false,
       },
     })
 
@@ -103,12 +107,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: vancouverLocation.id,
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization2.id,
         locationId: vancouverLocation.id,
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
     const [_lastStop2] = await Stop.findOrCreate({
@@ -117,12 +123,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: vancouverLocation.id,
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization2.id,
         locationId: vancouverLocation.id,
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
 
@@ -157,12 +165,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: edmontonLocation.id,
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization3.id,
         locationId: edmontonLocation.id,
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
     const [_lastStop3] = await Stop.findOrCreate({
@@ -171,12 +181,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: edmontonLocation.id,
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization3.id,
         locationId: edmontonLocation.id,
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
 
@@ -212,12 +224,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: calgaryLocation.id,
         departureDate: lastWeek.clone().subtract(2, "days").toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization4.id,
         locationId: calgaryLocation.id,
         departureDate: lastWeek.clone().subtract(2, "days").toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
     const [_lastStop4] = await Stop.findOrCreate({
@@ -226,12 +240,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: calgaryLocation.id,
         departureDate: lastWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization4.id,
         locationId: calgaryLocation.id,
         departureDate: lastWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
 
@@ -262,12 +278,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: calgaryLocation.id,
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization5.id,
         locationId: calgaryLocation.id,
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
     const [_lastStop5] = await Stop.findOrCreate({
@@ -276,12 +294,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: calgaryLocation.id,
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization5.id,
         locationId: calgaryLocation.id,
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
 
@@ -350,12 +370,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: calgaryLocation.id,
         departureDate: lastWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization6.id,
         locationId: calgaryLocation.id,
         departureDate: lastWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
     const [_lastStop6] = await Stop.findOrCreate({
@@ -364,12 +386,14 @@ export class MyTravelRequestsService extends BaseService {
         locationId: calgaryLocation.id,
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization6.id,
         locationId: calgaryLocation.id,
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
+        isActual: false,
       },
     })
 
@@ -405,6 +429,7 @@ export class MyTravelRequestsService extends BaseService {
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
         transport: Stop.TravelMethods.POOL_VEHICLE,
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization7.id,
@@ -412,6 +437,7 @@ export class MyTravelRequestsService extends BaseService {
         departureDate: nextWeek.toDate(),
         departureTime: "00:00:00",
         transport: Stop.TravelMethods.POOL_VEHICLE,
+        isActual: false,
       },
     })
     const [_lastStop7] = await Stop.findOrCreate({
@@ -421,6 +447,7 @@ export class MyTravelRequestsService extends BaseService {
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
         transport: Stop.TravelMethods.POOL_VEHICLE,
+        isActual: false,
       },
       defaults: {
         travelAuthorizationId: travelAuthorization7.id,
@@ -428,6 +455,7 @@ export class MyTravelRequestsService extends BaseService {
         departureDate: nextWeek.clone().add(2, "days").toDate(),
         departureTime: "00:00:00",
         transport: Stop.TravelMethods.POOL_VEHICLE,
+        isActual: false,
       },
     })
   }

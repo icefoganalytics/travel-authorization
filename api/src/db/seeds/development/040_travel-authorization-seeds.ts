@@ -237,6 +237,7 @@ export async function seed(_knex: Knex): Promise<void> {
       departureDate: new Date("2023-05-12"),
       departureTime: "12:00:00",
       transport: "Plane",
+      isActual: false,
     },
     {
       travelAuthorizationId: travelAuthorizations[0].id,
@@ -244,6 +245,7 @@ export async function seed(_knex: Knex): Promise<void> {
       departureDate: new Date("2019-05-15"),
       departureTime: "12:00:00",
       transport: "Plane",
+      isActual: false,
     },
     {
       travelAuthorizationId: travelAuthorizations[1].id,
@@ -251,6 +253,7 @@ export async function seed(_knex: Knex): Promise<void> {
       departureDate: new Date("2023-05-12"),
       departureTime: "12:00:00",
       transport: "Plane",
+      isActual: false,
     },
     {
       travelAuthorizationId: travelAuthorizations[1].id,
@@ -258,6 +261,7 @@ export async function seed(_knex: Knex): Promise<void> {
       departureDate: new Date("2019-05-15"),
       departureTime: "12:00:00",
       transport: "Plane",
+      isActual: false,
     },
     {
       travelAuthorizationId: travelAuthorizations[2].id,
@@ -265,6 +269,7 @@ export async function seed(_knex: Knex): Promise<void> {
       departureDate: new Date("2023-05-12"),
       departureTime: "12:00:00",
       transport: "Plane",
+      isActual: false,
     },
     {
       travelAuthorizationId: travelAuthorizations[2].id,
@@ -272,6 +277,7 @@ export async function seed(_knex: Knex): Promise<void> {
       departureDate: new Date("2019-05-15"),
       departureTime: "12:00:00",
       transport: "Plane",
+      isActual: false,
     },
   ]
   for (const stopAttributes of stopsAttributes) {
