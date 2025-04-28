@@ -42,7 +42,7 @@ const expenseOptions = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
     type: TYPES.EXPENSE,
-    expenseType: EXPENSE_TYPES.MEALS_AND_INCIDENTALS,
+    expenseType: [EXPENSE_TYPES.MEALS_AND_INCIDENTALS, EXPENSE_TYPES.NON_TRAVEL_STATUS],
   },
 }))
 const { expenses, isLoading, fetch: refresh } = useExpenses(expenseOptions)

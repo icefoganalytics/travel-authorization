@@ -1,8 +1,9 @@
-import { isUndefined } from "lodash"
+import { isNil, isUndefined, pick } from "lodash"
 
 import db, {
   TravelAuthorization,
   TravelAuthorizationActionLog,
+  TravelDeskTravelRequest,
   TravelSegment,
   User,
 } from "@/models"
@@ -44,16 +45,14 @@ export class ApproveService extends BaseService {
       })
 
       if (this.isTravellingByAir(travelSegments)) {
+        const defaultTravelDeskTravelRequestAttributes =
+          await this.loadDefaultsFromPreviousTravelDeskTravelRequest()
         await TravelDeskTravelRequests.CreateService.perform(
           {
+            ...defaultTravelDeskTravelRequestAttributes,
             travelAuthorizationId: this.travelAuthorization.id,
             legalFirstName: user.firstName || "",
             legalLastName: user.lastName || "",
-            strAddress: "",
-            city: "",
-            province: "",
-            postalCode: "",
-            busPhone: "",
             busEmail: user.email,
             travelPurpose: purpose.purpose,
           },
@@ -76,6 +75,43 @@ export class ApproveService extends BaseService {
     return travelSegments.some(
       (segment) => segment.modeOfTransport === TravelSegment.TravelMethods.AIRCRAFT
     )
+  }
+
+  private async loadDefaultsFromPreviousTravelDeskTravelRequest(): Promise<
+    Partial<TravelDeskTravelRequest>
+  > {
+    const newestPreviousTravelDeskTravelRequestForUser = await TravelDeskTravelRequest.findOne({
+      include: [
+        {
+          association: "travelAuthorization",
+          attributes: [],
+          where: {
+            userId: this.travelAuthorization.userId,
+          },
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    })
+    if (isNil(newestPreviousTravelDeskTravelRequestForUser)) {
+      return {
+        strAddress: "",
+        city: "",
+        province: "",
+        postalCode: "",
+        busPhone: "",
+      }
+    }
+
+    return {
+      ...pick(newestPreviousTravelDeskTravelRequestForUser.dataValues, [
+        "birthDate",
+        "strAddress",
+        "city",
+        "province",
+        "postalCode",
+        "busPhone",
+      ]),
+    }
   }
 }
 

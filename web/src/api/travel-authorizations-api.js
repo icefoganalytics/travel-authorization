@@ -42,7 +42,7 @@ export const TRIP_TYPES = Object.freeze({
  *   unit: string | null;
  *   email: string | null;
  *   mailcode: string | null;
- *   daysOffTravelStatus: string | null;
+ *   daysOffTravelStatus: number | null;
  *   dateBackToWork: string | null;
  *   travelDuration: string | null;
  *   travelAdvance: string | null;
