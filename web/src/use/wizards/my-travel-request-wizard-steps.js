@@ -162,6 +162,15 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       continueButtonText: "Check status?",
     },
     {
+      id: "update-trip-details",
+      title: "Update trip details",
+      subtitle: "Update trip details with actual travel times",
+      component: () => import("@/components/my-travel-request-wizard/UpdateTripDetailsStep.vue"),
+      backButtonProps: {
+        disabled: true,
+      },
+    },
+    {
       id: "submit-expenses",
       title: "Expense: edit",
       subtitle: "Submit expenses",
