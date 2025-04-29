@@ -14,16 +14,15 @@
         <v-row>
           <v-col cols="12">
             <TripTypeRadioGroup
-              :value="travelAuthorization.tripType"
+              v-model="travelAuthorization.tripType"
               :row="mdAndUp"
-              @input="updateTripType"
             />
           </v-col>
         </v-row>
 
         <component
           :is="tripTypeComponent"
-          v-if="tripTypeComponent && hasEnoughStops"
+          v-if="tripTypeComponent && hasEnoughTripSegments"
           :travel-authorization-id="travelAuthorizationId"
           :value="stops"
           :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
@@ -84,7 +83,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, toRefs, watch } from "vue"
+import { computed, nextTick, ref, toRefs, watch } from "vue"
 import { findLast, isNil } from "lodash"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/validators"
@@ -133,33 +132,51 @@ const travelSegmentActualsQuery = computed(() => ({
   },
 }))
 const { travelSegments } = useTravelSegments(travelSegmentActualsQuery)
+const firstTravelSegment = computed(() => travelSegments.value[0])
+const lastTravelSegment = computed(() => travelSegments.value[travelSegments.value.length - 1])
 
-const firstStop = computed(() => travelSegments.value[0])
-const lastStop = computed(() => travelSegments.value[travelSegments.value.length - 1])
+/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @type {import('vue').Ref<typeof VForm | null>} */
+const form = ref(null)
 
 watch(
-  () => firstStop.value,
-  (newFirstStop) => {
-    if (isNil(newFirstStop)) return
+  () => travelAuthorization.value.tripType,
+  async (newTripType) => {
+    if (isNil(newTripType)) return
 
-    const { departureDate } = newFirstStop
+    await ensureMinimalDefaultTravelSegments(newTripType)
+
+    await nextTick()
+    form.value?.resetValidation()
+  },
+  {
+    immediate: true,
+  }
+)
+
+watch(
+  () => firstTravelSegment.value,
+  (newFirstTravelSegment) => {
+    if (isNil(newFirstTravelSegment)) return
+
+    const { departureDate } = newFirstTravelSegment
     emit("update:departureDate", departureDate)
   }
 )
 
 watch(
-  () => lastStop.value,
-  (newLastStop) => {
-    if (isNil(newLastStop)) return
+  () => lastTravelSegment.value,
+  (newLastTravelSegment) => {
+    if (isNil(newLastTravelSegment)) return
 
-    const { locationId } = newLastStop
+    const { locationId } = newLastTravelSegment
     emit("update:finalDestinationLocationId", locationId)
   }
 )
 
 const lastDepartureDate = computed(() => {
   if (travelAuthorization.value.tripType === TRIP_TYPES.ONE_WAY) {
-    const lastDepartureStop = firstStop.value
+    const lastDepartureStop = firstTravelSegment.value
     return lastDepartureStop.departureDate
   } else {
     const lastDepartureStop = findLast(travelSegments.value, (stop) => !isNil(stop.departureDate))
@@ -203,7 +220,7 @@ const tripTypeComponent = computed(() => {
   }
 })
 
-const hasEnoughStops = computed(() => {
+const hasEnoughTripSegments = computed(() => {
   switch (travelAuthorization.value.tripType) {
     case TRIP_TYPES.ROUND_TRIP:
       return travelSegments.value.length === 2
@@ -212,46 +229,24 @@ const hasEnoughStops = computed(() => {
     case TRIP_TYPES.MULTI_CITY:
       return travelSegments.value.length >= 2
     default:
-      return true
+      return false
   }
 })
 
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
-/** @type {import('vue').Ref<typeof VForm | null>} */
-const form = ref(null)
-
-onMounted(async () => {
-  if (isNil(travelAuthorization.value.tripType)) {
-    travelAuthorization.value.tripType = TRIP_TYPES.ROUND_TRIP
-  }
-
-  await nextTick()
-  form.value?.resetValidation()
-})
-
-async function updateTripType(value) {
-  travelAuthorization.value.tripType = value
-
-  await ensureMinimalDefaultStops(value)
-
-  await nextTick()
-  form.value?.resetValidation()
-}
-
-async function ensureMinimalDefaultStops(tripType) {
+async function ensureMinimalDefaultTravelSegments(tripType) {
   if (tripType === TRIP_TYPES.ROUND_TRIP) {
-    return ensureMinimalDefaultRoundTripStops()
+    return ensureMinimalDefaultRoundTripTravelSegments()
   } else if (tripType === TRIP_TYPES.ONE_WAY) {
-    return ensureMinimalDefaultOneWayStops()
+    return ensureMinimalDefaultOneWayTravelSegments()
   } else if (tripType === TRIP_TYPES.MULTI_CITY) {
-    return ensureMinimalDefaultMultiDestinationStops()
+    return ensureMinimalDefaultMultiDestinationTravelSegments()
   } else {
     throw new Error("Invalid trip type")
   }
 }
 
 // TODO: implement as update or create.
-async function newBlankStop(attributes) {
+async function newBlankTravelSegment(attributes) {
   return {
     ...attributes,
     travelAuthorizationId: props.travelAuthorizationId,
@@ -265,50 +260,50 @@ async function replaceStops(stops) {
   console.log("TODO: replaceStops", stops)
 }
 
-async function ensureMinimalDefaultRoundTripStops() {
-  const newFirstStop = await newBlankStop({
+async function ensureMinimalDefaultRoundTripTravelSegments() {
+  const newFirstTravelSegment = await newBlankTravelSegment({
     transport: TRAVEL_METHODS.AIRCRAFT,
-    ...firstStop.value,
-    accommodationType: firstStop.value.accommodationType || ACCOMMODATION_TYPES.HOTEL,
+    ...firstTravelSegment.value,
+    accommodationType: firstTravelSegment.value.accommodationType || ACCOMMODATION_TYPES.HOTEL,
   })
-  const newLastStop = await newBlankStop({
-    ...lastStop.value,
+  const newLastTravelSegment = await newBlankTravelSegment({
+    ...lastTravelSegment.value,
     transport: TRAVEL_METHODS.AIRCRAFT,
     accommodationType: null,
   })
-  return replaceStops([newFirstStop, newLastStop])
+  return replaceStops([newFirstTravelSegment, newLastTravelSegment])
 }
 
-async function ensureMinimalDefaultOneWayStops() {
-  const newFirstStop = await newBlankStop({
-    ...firstStop.value,
+async function ensureMinimalDefaultOneWayTravelSegments() {
+  const newFirstTravelSegment = await newBlankTravelSegment({
+    ...firstTravelSegment.value,
     accommodationType: null,
     transport: TRAVEL_METHODS.AIRCRAFT,
   })
-  const newLastStop = await newBlankStop({
-    ...lastStop.value,
+  const newLastTravelSegment = await newBlankTravelSegment({
+    ...lastTravelSegment.value,
     transport: null,
     accommodationType: null,
   })
-  return replaceStops([newFirstStop, newLastStop])
+  return replaceStops([newFirstTravelSegment, newLastTravelSegment])
 }
 
-async function ensureMinimalDefaultMultiDestinationStops() {
-  const newFirstStop = await newBlankStop({
+async function ensureMinimalDefaultMultiDestinationTravelSegments() {
+  const newFirstTravelSegment = await newBlankTravelSegment({
     transport: TRAVEL_METHODS.AIRCRAFT,
-    ...firstStop.value,
-    accommodationType: firstStop.value.accommodationType || ACCOMMODATION_TYPES.HOTEL,
+    ...firstTravelSegment.value,
+    accommodationType: firstTravelSegment.value.accommodationType || ACCOMMODATION_TYPES.HOTEL,
   })
-  const newSecondStop = await newBlankStop({
+  const newSecondStop = await newBlankTravelSegment({
     accommodationType: ACCOMMODATION_TYPES.HOTEL,
     transport: TRAVEL_METHODS.AIRCRAFT,
-    ...lastStop.value,
+    ...lastTravelSegment.value,
   })
-  const newThirdStop = await newBlankStop({
+  const newThirdStop = await newBlankTravelSegment({
     transport: null,
     accommodationType: null,
   })
-  return replaceStops([newFirstStop, newSecondStop, newThirdStop])
+  return replaceStops([newFirstTravelSegment, newSecondStop, newThirdStop])
 }
 
 const isSaving = ref(false)
