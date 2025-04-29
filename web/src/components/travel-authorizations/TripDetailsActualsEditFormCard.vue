@@ -88,10 +88,11 @@ import { computed, nextTick, onMounted, ref, toRefs, watch } from "vue"
 import { findLast, isNil } from "lodash"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/validators"
-import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/stops-api"
 
 import useVuetify2 from "@/use/utils/use-vuetify2"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import useTravelSegments, { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/use/use-travel-segments"
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
@@ -122,8 +123,19 @@ const emit = defineEmits([
 const { mdAndUp } = useVuetify2()
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, stops, firstStop, lastStop, save, newBlankStop, replaceStops } =
+const { travelAuthorization, save: saveTravelAuthorization } =
   useTravelAuthorization(travelAuthorizationId)
+
+const travelSegmentActualsQuery = computed(() => ({
+  where: {
+    travelAuthorizationId: props.travelAuthorizationId,
+    isActual: true,
+  },
+}))
+const { travelSegments } = useTravelSegments(travelSegmentActualsQuery)
+
+const firstStop = computed(() => travelSegments.value[0])
+const lastStop = computed(() => travelSegments.value[travelSegments.value.length - 1])
 
 watch(
   () => firstStop.value,
@@ -150,7 +162,7 @@ const lastDepartureDate = computed(() => {
     const lastDepartureStop = firstStop.value
     return lastDepartureStop.departureDate
   } else {
-    const lastDepartureStop = findLast(stops.value, (stop) => !isNil(stop.departureDate))
+    const lastDepartureStop = findLast(travelSegments.value, (stop) => !isNil(stop.departureDate))
     return lastDepartureStop?.departureDate
   }
 })
@@ -194,11 +206,11 @@ const tripTypeComponent = computed(() => {
 const hasEnoughStops = computed(() => {
   switch (travelAuthorization.value.tripType) {
     case TRIP_TYPES.ROUND_TRIP:
-      return stops.value.length === 2
+      return travelSegments.value.length === 2
     case TRIP_TYPES.ONE_WAY:
-      return stops.value.length === 2
+      return travelSegments.value.length === 1
     case TRIP_TYPES.MULTI_CITY:
-      return stops.value.length >= 3
+      return travelSegments.value.length >= 2
     default:
       return true
   }
@@ -236,6 +248,21 @@ async function ensureMinimalDefaultStops(tripType) {
   } else {
     throw new Error("Invalid trip type")
   }
+}
+
+// TODO: implement as update or create.
+async function newBlankStop(attributes) {
+  return {
+    ...attributes,
+    travelAuthorizationId: props.travelAuthorizationId,
+    isActual: true,
+  }
+}
+
+// TODO: implement as update or create, or maybe just push to the lower component layer
+async function replaceStops(stops) {
+  // TODO
+  console.log("TODO: replaceStops", stops)
 }
 
 async function ensureMinimalDefaultRoundTripStops() {
@@ -282,6 +309,21 @@ async function ensureMinimalDefaultMultiDestinationStops() {
     accommodationType: null,
   })
   return replaceStops([newFirstStop, newSecondStop, newThirdStop])
+}
+
+const isSaving = ref(false)
+const snack = useSnack()
+
+async function save() {
+  isSaving.value = true
+  try {
+    await saveTravelAuthorization()
+  } catch (error) {
+    console.error(`Failed to save travel authorization: ${error}`, { error })
+    snack.error(`Failed to save travel authorization: ${error}`)
+  } finally {
+    isSaving.value = false
+  }
 }
 
 defineExpose({
