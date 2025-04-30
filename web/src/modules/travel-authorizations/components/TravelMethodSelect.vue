@@ -5,11 +5,11 @@
       :md="computedColSize"
     >
       <v-select
-        :value="travelMethod"
+        v-model="travelMethod"
         :items="travelMethods"
         :label="label"
         v-bind="$attrs"
-        @input="updateFromTravelMethod"
+        @change="updateFromTravelMethod"
       />
     </v-col>
     <v-col
@@ -89,14 +89,10 @@ export default {
     }
   },
   methods: {
-    updateFromTravelMethod(value) {
-      if (value === TRAVEL_METHODS.OTHER) {
-        this.$emit("input", this.travelMethodOther)
-      } else {
-        this.$emit("input", value)
-      }
+    updateFromTravelMethod() {
+      if (this.travelMethod === TRAVEL_METHODS.OTHER) return
 
-      this.travelMethod = value
+      this.$emit("input", this.travelMethod)
     },
     updateFromTravelMethodOther() {
       this.$emit("input", this.travelMethodOther)

@@ -5,11 +5,11 @@
       :md="computedColSize"
     >
       <v-select
-        :value="accommodationType"
+        v-model="accommodationType"
         :items="accommodationTypes"
         :label="label"
         v-bind="$attrs"
-        @input="updateAccommodationType"
+        @change="updateAccommodationType"
       />
     </v-col>
     <v-col
@@ -107,14 +107,10 @@ export default {
     }
   },
   methods: {
-    updateAccommodationType(value) {
-      if (value === ACCOMMODATION_TYPES.OTHER) {
-        this.$emit("input", this.accommodationTypeOther)
-      } else {
-        this.$emit("input", value)
-      }
+    updateAccommodationType() {
+      if (this.accommodationType === ACCOMMODATION_TYPES.OTHER) return
 
-      this.accommodationType = value
+      this.$emit("input", this.accommodationType)
     },
     updateAccommodationTypeOther() {
       this.$emit("input", this.accommodationTypeOther)
