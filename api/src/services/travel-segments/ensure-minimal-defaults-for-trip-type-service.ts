@@ -26,13 +26,6 @@ export class EnsureMinimalDefaultsForTripTypeService extends BaseService {
       },
     })
     return transaction(async () => {
-      await TravelSegment.destroy({
-        where: {
-          travelAuthorizationId: this.travelAuthorizationId,
-          isActual: this.isActual,
-        },
-      })
-
       if (this.tripType === TravelAuthorization.TripTypes.ROUND_TRIP) {
         return this.ensureMinimalDefaultRoundTripTravelSegments(travelSegments)
       } else if (this.tripType === TravelAuthorization.TripTypes.ONE_WAY) {
@@ -46,6 +39,15 @@ export class EnsureMinimalDefaultsForTripTypeService extends BaseService {
   }
 
   private async ensureMinimalDefaultRoundTripTravelSegments(travelSegments: TravelSegment[]) {
+    if (travelSegments.length === 2) return travelSegments
+
+    await TravelSegment.destroy({
+      where: {
+        travelAuthorizationId: this.travelAuthorizationId,
+        isActual: this.isActual,
+      },
+    })
+
     const firstTravelSegment = first(travelSegments)
     const lastTravelSegment = last(travelSegments)
 
@@ -66,6 +68,15 @@ export class EnsureMinimalDefaultsForTripTypeService extends BaseService {
   }
 
   private async ensureMinimalDefaultOneWayTravelSegments(travelSegments: TravelSegment[]) {
+    if (travelSegments.length === 1) return travelSegments
+
+    await TravelSegment.destroy({
+      where: {
+        travelAuthorizationId: this.travelAuthorizationId,
+        isActual: this.isActual,
+      },
+    })
+
     const firstTravelSegment = first(travelSegments)
 
     const newFirstTravelSegment = this.newBlankTravelSegmentAttributes({
@@ -80,6 +91,15 @@ export class EnsureMinimalDefaultsForTripTypeService extends BaseService {
   private async ensureMinimalDefaultMultiDestinationTravelSegments(
     travelSegments: TravelSegment[]
   ) {
+    if (travelSegments.length >= 2) return travelSegments
+
+    await TravelSegment.destroy({
+      where: {
+        travelAuthorizationId: this.travelAuthorizationId,
+        isActual: this.isActual,
+      },
+    })
+
     const firstTravelSegment = first(travelSegments)
     const lastTravelSegment = last(travelSegments)
 
