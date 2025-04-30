@@ -12,7 +12,7 @@
         md="3"
       >
         <LocationsAutocomplete
-          v-model="departTravelSegment.departureLocationId"
+          v-model="tripOriginLocationId"
           label="From"
           :in-territory="allTravelWithinTerritory"
           :rules="[required]"
@@ -27,7 +27,7 @@
         md="3"
       >
         <LocationsAutocomplete
-          v-model="returnTravelSegment.arrivalLocationId"
+          v-model="tripDestinationLocationId"
           label="To"
           :in-territory="allTravelWithinTerritory"
           :rules="[required]"
@@ -127,8 +127,8 @@
         md="3"
       >
         <LocationsAutocomplete
-          v-model="returnTravelSegment.departureLocationId"
-          label="To"
+          v-model="tripDestinationLocationId"
+          label="From"
           :in-territory="allTravelWithinTerritory"
           :rules="[required]"
           dense
@@ -142,8 +142,8 @@
         md="3"
       >
         <LocationsAutocomplete
-          v-model="departTravelSegment.arrivalLocationId"
-          label="From"
+          v-model="tripOriginLocationId"
+          label="To"
           :in-territory="allTravelWithinTerritory"
           :rules="[required]"
           dense
@@ -297,6 +297,32 @@ watch(
     immediate: true,
   }
 )
+
+const tripOriginLocationId = computed({
+  get: () => departTravelSegment.value?.departureLocationId,
+  set: (value) => {
+    if (!isNil(departTravelSegment.value)) {
+      departTravelSegment.value.departureLocationId = value
+    }
+
+    if (!isNil(returnTravelSegment.value)) {
+      returnTravelSegment.value.arrivalLocationId = value
+    }
+  },
+})
+
+const tripDestinationLocationId = computed({
+  get: () => departTravelSegment.value?.arrivalLocationId,
+  set: (value) => {
+    if (!isNil(departTravelSegment.value)) {
+      departTravelSegment.value.arrivalLocationId = value
+    }
+
+    if (!isNil(returnTravelSegment.value)) {
+      returnTravelSegment.value.departureLocationId = value
+    }
+  },
+})
 
 const isSaving = ref(false)
 const snack = useSnack()
