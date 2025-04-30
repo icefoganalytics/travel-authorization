@@ -6,9 +6,12 @@
   <div v-else>
     <h4>Departure</h4>
     <v-row class="mt-4">
-      <v-col cols="12">
+      <v-col
+        cols="12"
+        md="6"
+      >
         <TravelMethodSelect
-          :value="firstTravelSegment.modeOfTransport"
+          v-model="firstTravelSegment.modeOfTransport"
           :rules="[required]"
           background-color="white"
           dense
@@ -16,8 +19,27 @@
           required
           outlined
           @input="
+            $event === TRAVEL_METHODS.OTHER
+              ? null
+              : saveTravelSegment(firstTravelSegment.id, {
+                  modeOfTransport: $event,
+                })
+          "
+        />
+      </v-col>
+      <v-col
+        v-if="firstTravelSegment.modeOfTransport === TRAVEL_METHODS.OTHER"
+        cols="12"
+        md="6"
+      >
+        <v-text-field
+          :value="firstTravelSegment.modeOfTransportOther"
+          label="Travel Method - Other"
+          dense
+          outlined
+          @input="
             saveTravelSegment(firstTravelSegment.id, {
-              modeOfTransport: $event,
+              modeOfTransportOther: $event,
             })
           "
         />
@@ -247,7 +269,7 @@ import { isEmpty, isNil } from "lodash"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
-import travelSegmentsApi from "@/api/travel-segments-api"
+import travelSegmentsApi, { TRAVEL_METHODS } from "@/api/travel-segments-api"
 
 import useSnack from "@/use/use-snack"
 import useTravelSegments from "@/use/use-travel-segments"
@@ -255,8 +277,8 @@ import useTravelSegments from "@/use/use-travel-segments"
 import DatePicker from "@/components/common/DatePicker.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TimePicker from "@/components/Utils/TimePicker.vue"
+import TravelMethodSelect from "@/components/travel-segments/TravelMethodSelect.vue"
 import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect.vue"
-import TravelMethodSelect from "@/modules/travel-authorizations/components/TravelMethodSelect.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
