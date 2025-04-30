@@ -1,183 +1,140 @@
 <template>
   <v-skeleton-loader
-    v-if="isNil(firstTravelSegment) || isNil(lastTravelSegment)"
+    v-if="isNil(departTravelSegment) || isNil(returnTravelSegment)"
     type="card"
   />
   <div v-else>
-    <h4>Departure</h4>
-    <v-row class="mt-4">
+    <h4 class="mb-4">Depart</h4>
+
+    <v-row>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <LocationsAutocomplete
+          v-model="departTravelSegment.departureLocationId"
+          label="From"
+          :in-territory="allTravelWithinTerritory"
+          :rules="[required]"
+          dense
+          outlined
+          persistent-hint
+          required
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <LocationsAutocomplete
+          v-model="returnTravelSegment.arrivalLocationId"
+          label="To"
+          :in-territory="allTravelWithinTerritory"
+          :rules="[required]"
+          dense
+          outlined
+          persistent-hint
+          required
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <DatePicker
+          v-model="departTravelSegment.departureOn"
+          label="Date"
+          :rules="[required]"
+          dense
+          persistent-hint
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <TimePicker
+          v-model="departTravelSegment.departureTime"
+          label="Time (24h)"
+          persistent-hint
+        />
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col
         cols="12"
         md="6"
       >
         <TravelMethodSelect
-          v-model="firstTravelSegment.modeOfTransport"
+          v-model="departTravelSegment.modeOfTransport"
           :rules="[required]"
-          background-color="white"
           dense
           persistent-hint
           required
           outlined
-          @input="
-            $event === TRAVEL_METHODS.OTHER
-              ? null
-              : saveTravelSegment(firstTravelSegment.id, {
-                  modeOfTransport: $event,
-                })
-          "
         />
       </v-col>
       <v-col
-        v-if="firstTravelSegment.modeOfTransport === TRAVEL_METHODS.OTHER"
+        v-if="departTravelSegment.modeOfTransport === TRAVEL_METHODS.OTHER"
         cols="12"
         md="6"
       >
         <v-text-field
-          :value="firstTravelSegment.modeOfTransportOther"
+          v-model="departTravelSegment.modeOfTransportOther"
           label="Travel Method - Other"
+          :rules="[required]"
           dense
           outlined
-          @input="
-            saveTravelSegment(firstTravelSegment.id, {
-              modeOfTransportOther: $event,
-            })
-          "
+          required
         />
       </v-col>
     </v-row>
     <v-row>
       <v-col
         cols="12"
-        md="3"
+        md="6"
       >
-        <LocationsAutocomplete
-          :value="firstTravelSegment.departureLocationId"
-          :in-territory="allTravelWithinTerritory"
-          :rules="[required]"
-          label="From"
-          background-color="white"
-          dense
-          outlined
-          persistent-hint
-          required
-          @input="
-            saveTravelSegment(firstTravelSegment.id, {
-              departureLocationId: $event,
-            })
-          "
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <LocationsAutocomplete
-          :value="lastTravelSegment.arrivalLocationId"
-          :in-territory="allTravelWithinTerritory"
-          :rules="[required]"
-          label="To"
-          background-color="white"
-          dense
-          outlined
-          persistent-hint
-          required
-          @input="
-            saveTravelSegment(lastTravelSegment.id, {
-              arrivalLocationId: $event,
-            })
-          "
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <DatePicker
-          :value="firstTravelSegment.departureOn"
-          :rules="[required]"
-          label="Date"
-          dense
-          persistent-hint
-          @input="
-            saveTravelSegment(firstTravelSegment.id, {
-              departureOn: $event,
-            })
-          "
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <TimePicker
-          :value="firstTravelSegment.departureTime"
-          label="Time (24h)"
-          persistent-hint
-          @input="
-            saveTravelSegment(firstTravelSegment.id, {
-              departureTime: $event,
-            })
-          "
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12">
         <AccommodationTypeSelect
-          :value="firstTravelSegment.accommodationType"
+          v-model="departTravelSegment.accommodationType"
           :rules="[required]"
-          background-color="white"
           dense
           outlined
           required
-          @input="
-            saveTravelSegment(firstTravelSegment.id, {
-              accommodationType: $event,
-            })
-          "
+        />
+      </v-col>
+      <v-col
+        v-if="departTravelSegment.accommodationType === ACCOMMODATION_TYPES.OTHER"
+        cols="12"
+        md="6"
+      >
+        <v-text-field
+          v-model="departTravelSegment.accommodationTypeOther"
+          label="Type of Accommodation - Other"
+          :rules="[required]"
+          dense
+          outlined
+          required
         />
       </v-col>
     </v-row>
+
     <v-divider class="my-4" />
-    <h4>Return</h4>
-    <v-row class="mt-4">
-      <v-col cols="12">
-        <TravelMethodSelect
-          :value="lastTravelSegment.modeOfTransport"
-          :rules="[required]"
-          background-color="white"
-          dense
-          persistent-hint
-          required
-          outlined
-          @input="
-            saveTravelSegment(lastTravelSegment.id, {
-              modeOfTransport: $event,
-            })
-          "
-        />
-      </v-col>
-    </v-row>
+    <h4 class="mb-4">Return</h4>
+
     <v-row>
       <v-col
         cols="12"
         md="3"
       >
         <LocationsAutocomplete
-          :value="lastTravelSegment.departureLocationId"
+          v-model="returnTravelSegment.departureLocationId"
+          label="To"
           :in-territory="allTravelWithinTerritory"
           :rules="[required]"
-          label="To"
-          background-color="white"
           dense
           outlined
           persistent-hint
           required
-          @input="
-            saveTravelSegment(lastTravelSegment.id, {
-              departureLocationId: $event,
-            })
-          "
         />
       </v-col>
       <v-col
@@ -185,20 +142,14 @@
         md="3"
       >
         <LocationsAutocomplete
-          :value="firstTravelSegment.arrivalLocationId"
+          v-model="departTravelSegment.arrivalLocationId"
+          label="From"
           :in-territory="allTravelWithinTerritory"
           :rules="[required]"
-          label="From"
-          background-color="white"
           dense
           outlined
           persistent-hint
           required
-          @input="
-            saveTravelSegment(firstTravelSegment.id, {
-              arrivalLocationId: $event,
-            })
-          "
         />
       </v-col>
       <v-col
@@ -206,22 +157,17 @@
         md="3"
       >
         <DatePicker
-          :value="lastTravelSegment.departureOn"
-          :min="firstTravelSegment.departureOn"
+          v-model="returnTravelSegment.departureOn"
+          label="Date"
+          :min="departTravelSegment.departureOn"
           :rules="[
             required,
-            greaterThanOrEqualToDate(firstTravelSegment.departureOn, {
+            greaterThanOrEqualToDate(departTravelSegment.departureOn, {
               referenceFieldLabel: 'previous departure date',
             }),
           ]"
-          label="Date"
           dense
           persistent-hint
-          @input="
-            saveTravelSegment(lastTravelSegment.id, {
-              departureOn: $event,
-            })
-          "
         />
       </v-col>
       <v-col
@@ -229,34 +175,69 @@
         md="3"
       >
         <TimePicker
-          :value="lastTravelSegment.departureTime"
+          v-model="returnTravelSegment.departureTime"
           label="Time (24h)"
           persistent-hint
-          @input="
-            saveTravelSegment(lastTravelSegment.id, {
-              departureTime: $event,
-            })
-          "
         />
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="12">
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <TravelMethodSelect
+          v-model="returnTravelSegment.modeOfTransport"
+          :rules="[required]"
+          dense
+          persistent-hint
+          required
+          outlined
+        />
+      </v-col>
+      <v-col
+        v-if="returnTravelSegment.modeOfTransport === TRAVEL_METHODS.OTHER"
+        cols="12"
+        md="6"
+      >
+        <v-text-field
+          v-model="returnTravelSegment.modeOfTransportOther"
+          label="Travel Method - Other"
+          :rules="[required]"
+          dense
+          outlined
+          required
+        />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+      >
         <AccommodationTypeSelect
-          :value="lastTravelSegment.accommodationType"
+          v-model="returnTravelSegment.accommodationType"
           :default-value="null"
           hint="Optional, set only if neccessary"
           placeholder="N/A"
-          background-color="white"
           clearable
           dense
           outlined
           persistent-hint
-          @input="
-            saveTravelSegment(lastTravelSegment.id, {
-              accommodationType: $event,
-            })
-          "
+        />
+      </v-col>
+      <v-col
+        v-if="returnTravelSegment.accommodationType === ACCOMMODATION_TYPES.OTHER"
+        cols="12"
+        md="6"
+      >
+        <v-text-field
+          v-model="returnTravelSegment.accommodationTypeOther"
+          label="Type of Accommodation - Other"
+          :rules="[required]"
+          dense
+          outlined
+          required
         />
       </v-col>
     </v-row>
@@ -265,20 +246,20 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { isEmpty, isNil } from "lodash"
+import { first, isEmpty, isNil, last } from "lodash"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
-import travelSegmentsApi, { TRAVEL_METHODS } from "@/api/travel-segments-api"
+import travelSegmentsApi, { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/travel-segments-api"
 
 import useSnack from "@/use/use-snack"
 import useTravelSegments from "@/use/use-travel-segments"
 
+import TimePicker from "@/components/Utils/TimePicker.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import TimePicker from "@/components/Utils/TimePicker.vue"
+import AccommodationTypeSelect from "@/components/travel-segments/AccommodationTypeSelect.vue"
 import TravelMethodSelect from "@/components/travel-segments/TravelMethodSelect.vue"
-import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -291,7 +272,8 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["updated"])
+/** @type {import('vue/types/v3-setup-context').EmitFn<{'saved': [number, number]}> */
+const emit = defineEmits(["saved"])
 
 const travelSegmentActualsQuery = computed(() => ({
   where: {
@@ -300,14 +282,15 @@ const travelSegmentActualsQuery = computed(() => ({
   },
 }))
 const { travelSegments, isLoading, refresh } = useTravelSegments(travelSegmentActualsQuery)
-const firstTravelSegment = computed(() => travelSegments.value[0])
-const lastTravelSegment = computed(() => travelSegments.value[travelSegments.value.length - 1])
+
+const departTravelSegment = computed(() => first(travelSegments.value))
+const returnTravelSegment = computed(() => last(travelSegments.value))
 
 watch(
   () => isLoading.value,
   (newIsLoading, oldIsLoading) => {
     if (oldIsLoading === true && newIsLoading === false && isEmpty(travelSegments.value)) {
-      // ensure default travel segments are created
+      // TODO: ensure default travel segments are created
     }
   },
   {
@@ -318,13 +301,16 @@ watch(
 const isSaving = ref(false)
 const snack = useSnack()
 
-async function saveTravelSegment(id, travelSegment) {
+async function save() {
   isSaving.value = true
 
   try {
-    await travelSegmentsApi.update(id, travelSegment)
+    await Promise.all([
+      travelSegmentsApi.update(departTravelSegment.value.id, departTravelSegment.value),
+      travelSegmentsApi.update(returnTravelSegment.value.id, returnTravelSegment.value),
+    ])
     await refresh()
-    emit("updated")
+    emit("saved", [departTravelSegment.value.id, returnTravelSegment.value.id])
   } catch (error) {
     console.error(`Errored while saving travel segment: ${error}`)
     snack.error(`Errored while saving travel segment: ${error}`)
@@ -332,4 +318,8 @@ async function saveTravelSegment(id, travelSegment) {
     isSaving.value = false
   }
 }
+
+defineExpose({
+  save,
+})
 </script>

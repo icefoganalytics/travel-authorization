@@ -24,9 +24,10 @@
         <component
           :is="tripTypeComponent"
           v-if="tripTypeComponent"
+          ref="tripTypeComponentRef"
+          class="mt-3"
           :travel-authorization-id="travelAuthorizationId"
           :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-          class="mt-3"
         />
         <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
         <v-row class="mt-6">
@@ -215,9 +216,13 @@ const tripTypeComponent = computed(() => {
 const isSaving = ref(false)
 const snack = useSnack()
 
+/** @type {import('vue').Ref<InstanceType<typeof tripTypeComponent.value> | null>} */
+const tripTypeComponentRef = ref(null)
+
 async function save() {
   isSaving.value = true
   try {
+    await tripTypeComponentRef.value?.save()
     await saveTravelAuthorization()
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })
