@@ -1,21 +1,30 @@
 <template>
-  <div class="d-inlin-flex d-md-flex">
-    <v-select
-      :value="travelMethod"
-      :items="travelMethods"
-      :label="label"
-      class="mr-md-4"
-      v-bind="$attrs"
-      @change="updateFromTravelMethod"
-    ></v-select>
-    <v-text-field
-      v-if="travelMethod === TRAVEL_METHODS.OTHER"
-      v-model="travelMethodOther"
-      :label="`${label} - Other:`"
-      v-bind="$attrs"
-      @change="updateFromTravelMethodOther"
-    ></v-text-field>
-  </div>
+  <v-row ref="row">
+    <v-col
+      cols="12"
+      :md="computedColSize"
+    >
+      <v-select
+        :value="travelMethod"
+        :items="travelMethods"
+        :label="label"
+        v-bind="$attrs"
+        @input="updateFromTravelMethod"
+      />
+    </v-col>
+    <v-col
+      v-if="showOther"
+      cols="12"
+      :md="computedColSize"
+    >
+      <v-text-field
+        v-model="travelMethodOther"
+        :label="`${label} - Other:`"
+        v-bind="$attrs"
+        @blur="updateFromTravelMethodOther"
+      />
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -46,13 +55,38 @@ export default {
       travelMethods,
       travelMethod,
       travelMethodOther,
+      rowWidth: 0,
+      observer: null,
     }
+  },
+  computed: {
+    showOther() {
+      return this.travelMethod === TRAVEL_METHODS.OTHER
+    },
+    computedColSize() {
+      if (this.showOther) {
+        return 6
+      }
+
+      return this.rowWidth > this.$vuetify.breakpoint.thresholds.xs ? 6 : 12
+    },
   },
   watch: {
     value(newValue) {
       this.travelMethod = this.travelMethodFromValue(this.travelMethods, newValue)
       this.travelMethodOther = this.travelMethodOtherFromValue(this.travelMethods, newValue)
     },
+  },
+  mounted() {
+    this.observer = new ResizeObserver(([entry]) => {
+      this.rowWidth = entry.contentRect.width
+    })
+    this.observer.observe(this.$refs.row)
+  },
+  beforeDestroy() {
+    if (this.observer) {
+      this.observer.disconnect()
+    }
   },
   methods: {
     updateFromTravelMethod(value) {
@@ -64,9 +98,8 @@ export default {
 
       this.travelMethod = value
     },
-    updateFromTravelMethodOther(value) {
-      this.$emit("input", value)
-      this.travelMethodOther = value
+    updateFromTravelMethodOther() {
+      this.$emit("input", this.travelMethodOther)
     },
     travelMethodFromValue(travelMethods, value) {
       if (isNil(value)) {
