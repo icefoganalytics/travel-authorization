@@ -14,23 +14,22 @@
         <v-row>
           <v-col cols="12">
             <TripTypeRadioGroup
-              v-model="travelAuthorization.tripType"
+              :value="travelAuthorization.tripType"
               :row="mdAndUp"
+              @input="saveTravelAuthorizationAndRefreshTravelSegments"
             />
           </v-col>
         </v-row>
 
         <component
           :is="tripTypeComponent"
-          v-if="tripTypeComponent && hasEnoughTripSegments"
+          v-if="tripTypeComponent"
           :travel-authorization-id="travelAuthorizationId"
-          :value="stops"
           :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
           class="mt-3"
-          @input="replaceStops"
         />
         <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
-        <v-row>
+        <v-row class="mt-6">
           <v-col
             cols="12"
             md="2"
@@ -83,7 +82,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, ref, toRefs, watch } from "vue"
+import { computed, defineAsyncComponent, nextTick, ref, toRefs, watch } from "vue"
 import { findLast, isNil } from "lodash"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/validators"
@@ -91,7 +90,7 @@ import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/val
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
-import useTravelSegments, { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/use/use-travel-segments"
+import useTravelSegments from "@/use/use-travel-segments"
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
@@ -131,7 +130,8 @@ const travelSegmentActualsQuery = computed(() => ({
     isActual: true,
   },
 }))
-const { travelSegments } = useTravelSegments(travelSegmentActualsQuery)
+const { travelSegments, refresh: refreshTravelSegments } =
+  useTravelSegments(travelSegmentActualsQuery)
 const firstTravelSegment = computed(() => travelSegments.value[0])
 const lastTravelSegment = computed(() => travelSegments.value[travelSegments.value.length - 1])
 
@@ -139,28 +139,21 @@ const lastTravelSegment = computed(() => travelSegments.value[travelSegments.val
 /** @type {import('vue').Ref<typeof VForm | null>} */
 const form = ref(null)
 
-watch(
-  () => travelAuthorization.value.tripType,
-  async (newTripType) => {
-    if (isNil(newTripType)) return
+async function saveTravelAuthorizationAndRefreshTravelSegments() {
+  await saveTravelAuthorization()
+  await refreshTravelSegments()
 
-    await ensureMinimalDefaultTravelSegments(newTripType)
-
-    await nextTick()
-    form.value?.resetValidation()
-  },
-  {
-    immediate: true,
-  }
-)
+  await nextTick()
+  form.value?.resetValidation()
+}
 
 watch(
   () => firstTravelSegment.value,
   (newFirstTravelSegment) => {
     if (isNil(newFirstTravelSegment)) return
 
-    const { departureDate } = newFirstTravelSegment
-    emit("update:departureDate", departureDate)
+    const { departureOn } = newFirstTravelSegment
+    emit("update:departureDate", departureOn)
   }
 )
 
@@ -169,19 +162,17 @@ watch(
   (newLastTravelSegment) => {
     if (isNil(newLastTravelSegment)) return
 
-    const { locationId } = newLastTravelSegment
-    emit("update:finalDestinationLocationId", locationId)
+    const { arrivalLocationId } = newLastTravelSegment
+    emit("update:finalDestinationLocationId", arrivalLocationId)
   }
 )
 
 const lastDepartureDate = computed(() => {
-  if (travelAuthorization.value.tripType === TRIP_TYPES.ONE_WAY) {
-    const lastDepartureStop = firstTravelSegment.value
-    return lastDepartureStop.departureDate
-  } else {
-    const lastDepartureStop = findLast(travelSegments.value, (stop) => !isNil(stop.departureDate))
-    return lastDepartureStop?.departureDate
-  }
+  const lastTravelSegmentWithDepartureDate = findLast(
+    travelSegments.value,
+    (travelSegment) => !isNil(travelSegment.departureOn)
+  )
+  return lastTravelSegmentWithDepartureDate?.departureOn
 })
 
 watch(
@@ -200,13 +191,14 @@ watch(
   }
 )
 
+const TravelSegmentActualsRoundTripSection = defineAsyncComponent(
+  () => import("@/components/travel-segments/TravelSegmentActualsRoundTripSection.vue")
+)
+
 const tripTypeComponent = computed(() => {
   switch (travelAuthorization.value.tripType) {
     case TRIP_TYPES.ROUND_TRIP:
-      return () =>
-        import(
-          "@/components/travel-authorizations/details-edit-form-card/RoundTripStopsSection.vue"
-        )
+      return TravelSegmentActualsRoundTripSection
     case TRIP_TYPES.ONE_WAY:
       return () =>
         import("@/components/travel-authorizations/details-edit-form-card/OneWayStopsSection.vue")
@@ -219,92 +211,6 @@ const tripTypeComponent = computed(() => {
       return null
   }
 })
-
-const hasEnoughTripSegments = computed(() => {
-  switch (travelAuthorization.value.tripType) {
-    case TRIP_TYPES.ROUND_TRIP:
-      return travelSegments.value.length === 2
-    case TRIP_TYPES.ONE_WAY:
-      return travelSegments.value.length === 1
-    case TRIP_TYPES.MULTI_CITY:
-      return travelSegments.value.length >= 2
-    default:
-      return false
-  }
-})
-
-async function ensureMinimalDefaultTravelSegments(tripType) {
-  if (tripType === TRIP_TYPES.ROUND_TRIP) {
-    return ensureMinimalDefaultRoundTripTravelSegments()
-  } else if (tripType === TRIP_TYPES.ONE_WAY) {
-    return ensureMinimalDefaultOneWayTravelSegments()
-  } else if (tripType === TRIP_TYPES.MULTI_CITY) {
-    return ensureMinimalDefaultMultiDestinationTravelSegments()
-  } else {
-    throw new Error("Invalid trip type")
-  }
-}
-
-// TODO: implement as update or create.
-async function newBlankTravelSegment(attributes) {
-  return {
-    ...attributes,
-    travelAuthorizationId: props.travelAuthorizationId,
-    isActual: true,
-  }
-}
-
-// TODO: implement as update or create, or maybe just push to the lower component layer
-async function replaceStops(stops) {
-  // TODO
-  console.log("TODO: replaceStops", stops)
-}
-
-async function ensureMinimalDefaultRoundTripTravelSegments() {
-  const newFirstTravelSegment = await newBlankTravelSegment({
-    transport: TRAVEL_METHODS.AIRCRAFT,
-    ...firstTravelSegment.value,
-    accommodationType: firstTravelSegment.value.accommodationType || ACCOMMODATION_TYPES.HOTEL,
-  })
-  const newLastTravelSegment = await newBlankTravelSegment({
-    ...lastTravelSegment.value,
-    transport: TRAVEL_METHODS.AIRCRAFT,
-    accommodationType: null,
-  })
-  return replaceStops([newFirstTravelSegment, newLastTravelSegment])
-}
-
-async function ensureMinimalDefaultOneWayTravelSegments() {
-  const newFirstTravelSegment = await newBlankTravelSegment({
-    ...firstTravelSegment.value,
-    accommodationType: null,
-    transport: TRAVEL_METHODS.AIRCRAFT,
-  })
-  const newLastTravelSegment = await newBlankTravelSegment({
-    ...lastTravelSegment.value,
-    transport: null,
-    accommodationType: null,
-  })
-  return replaceStops([newFirstTravelSegment, newLastTravelSegment])
-}
-
-async function ensureMinimalDefaultMultiDestinationTravelSegments() {
-  const newFirstTravelSegment = await newBlankTravelSegment({
-    transport: TRAVEL_METHODS.AIRCRAFT,
-    ...firstTravelSegment.value,
-    accommodationType: firstTravelSegment.value.accommodationType || ACCOMMODATION_TYPES.HOTEL,
-  })
-  const newSecondStop = await newBlankTravelSegment({
-    accommodationType: ACCOMMODATION_TYPES.HOTEL,
-    transport: TRAVEL_METHODS.AIRCRAFT,
-    ...lastTravelSegment.value,
-  })
-  const newThirdStop = await newBlankTravelSegment({
-    transport: null,
-    accommodationType: null,
-  })
-  return replaceStops([newFirstTravelSegment, newSecondStop, newThirdStop])
-}
 
 const isSaving = ref(false)
 const snack = useSnack()
