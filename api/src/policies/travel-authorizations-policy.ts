@@ -121,6 +121,18 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
       ]
     }
 
+    // TODO: consider moving state based check to the service layer since its business logic?
+    if (this.record.status === TravelAuthorization.Statuses.APPROVED) {
+      // TODO: consider using actuals columns instead of current columns?
+      return [
+        "daysOffTravelStatus",
+        "dateBackToWork",
+        "travelDuration",
+        "tripType",
+        "wizardStepName",
+      ]
+    }
+
     return ["wizardStepName"]
   }
 
