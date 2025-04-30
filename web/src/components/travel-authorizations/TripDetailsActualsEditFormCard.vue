@@ -1,7 +1,7 @@
 <template>
   <v-card>
-    <v-card-title><h3>Update Trip Details</h3></v-card-title>
-    <v-card-subtitle>Update trip details with actual travel times</v-card-subtitle>
+    <v-card-title><h3>Confirm Actual Travel Details</h3></v-card-title>
+    <v-card-subtitle>Confirm actual travel details or record changes from estimate</v-card-subtitle>
     <v-skeleton-loader
       v-if="isNil(travelAuthorization?.id)"
       type="card"
