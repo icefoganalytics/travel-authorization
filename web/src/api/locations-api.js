@@ -1,5 +1,7 @@
 import http from "@/api/http-client"
 
+import debounceWithArgsCache from "@/utils/debounce-with-args-cache"
+
 /** @typedef {import("@/api/base-api").ModelOrder} ModelOrder */
 
 /**
@@ -59,5 +61,9 @@ export const locationsApi = {
     return data
   },
 }
+
+locationsApi.list = debounceWithArgsCache(locationsApi.list, {
+  trailing: false,
+})
 
 export default locationsApi
