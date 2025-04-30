@@ -1,85 +1,80 @@
 <template>
-  <v-card>
-    <v-card-title><h3>Confirm Actual Travel Details</h3></v-card-title>
-    <v-card-subtitle>Confirm actual travel details or record changes from estimate</v-card-subtitle>
-    <v-skeleton-loader
-      v-if="isNil(travelAuthorization?.id)"
-      type="card"
-    />
-    <v-card-text v-else>
-      <v-form
-        ref="form"
-        lazy-validation
-      >
-        <v-row>
-          <v-col cols="12">
-            <TripTypeRadioGroup
-              :value="travelAuthorization.tripType"
-              :row="mdAndUp"
-              @input="saveTravelAuthorizationAndRefreshTravelSegments"
-            />
-          </v-col>
-        </v-row>
-
-        <component
-          :is="tripTypeComponent"
-          v-if="tripTypeComponent"
-          ref="tripTypeComponentRef"
-          class="mt-3"
-          :travel-authorization-id="travelAuthorizationId"
-          :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
+  <v-skeleton-loader
+    v-if="isNil(travelAuthorization?.id)"
+    type="card"
+  />
+  <v-form
+    v-else
+    ref="form"
+    lazy-validation
+  >
+    <v-row>
+      <v-col cols="12">
+        <TripTypeRadioGroup
+          v-model="travelAuthorization.tripType"
+          :row="mdAndUp"
+          @input="saveTravelAuthorizationAndRefreshTravelSegments"
         />
-        <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
-        <v-row class="mt-6">
-          <v-col
-            cols="12"
-            md="2"
-          >
-            <TravelDurationTextField
-              v-model="travelAuthorization.travelDuration"
-              :stops="travelAuthorization.stops"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <v-text-field
-              v-model.number="travelAuthorization.daysOffTravelStatus"
-              label="Days on non-travel status"
-              :min="0"
-              :max="travelAuthorization.travelDuration - 1"
-              :rules="[
-                isInteger,
-                greaterThanOrEqualTo(0),
-                lessThan(travelAuthorization.travelDuration, {
-                  referenceFieldLabel: 'the number of travel days',
-                }),
-              ]"
-              type="number"
-              dense
-              required
-              outlined
-            ></v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <DatePicker
-              v-model="travelAuthorization.dateBackToWork"
-              :min="lastDepartureDate"
-              :rules="[required]"
-              label="Expected Date return to work"
-              dense
-              required
-              @input="emit('update:returnDate', $event)"
-            />
-          </v-col>
-        </v-row>
-      </v-form>
-    </v-card-text>
-  </v-card>
+      </v-col>
+    </v-row>
+
+    <component
+      :is="tripTypeComponent"
+      v-if="tripTypeComponent"
+      ref="tripTypeComponentRef"
+      class="mt-3"
+      :travel-authorization-id="travelAuthorizationId"
+      :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
+    />
+    <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
+    <v-row class="mt-6">
+      <v-col
+        cols="12"
+        md="2"
+      >
+        <TravelDurationTextField
+          v-model="travelAuthorization.travelDuration"
+          :stops="travelAuthorization.stops"
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <v-text-field
+          v-model.number="travelAuthorization.daysOffTravelStatus"
+          label="Days on non-travel status"
+          :min="0"
+          :max="travelAuthorization.travelDuration - 1"
+          :rules="[
+            isInteger,
+            greaterThanOrEqualTo(0),
+            lessThan(travelAuthorization.travelDuration, {
+              referenceFieldLabel: 'the number of travel days',
+            }),
+          ]"
+          type="number"
+          dense
+          required
+          outlined
+        ></v-text-field>
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <DatePicker
+          v-model="travelAuthorization.dateBackToWork"
+          :min="lastDepartureDate"
+          :rules="[required]"
+          label="Expected Date return to work"
+          dense
+          required
+          @input="emit('update:returnDate', $event)"
+        />
+      </v-col>
+    </v-row>
+  </v-form>
 </template>
 
 <script setup>

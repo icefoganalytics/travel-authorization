@@ -1,21 +1,38 @@
 <template>
-  <TripDetailsActualsEditFormCard
-    ref="tripDetailsActualsEditFormCard"
-    :travel-authorization-id="travelAuthorizationId"
-    v-on="$listeners"
-  />
+  <v-card>
+    <v-card-title>
+      <h3>{{ capitalize(stepTitle) }}</h3>
+    </v-card-title>
+    <v-card-subtitle>{{ stepSubtitle }}</v-card-subtitle>
+    <v-card-text>
+      <TripDetailsActualsEditForm
+        ref="tripDetailsActualsEditForm"
+        :travel-authorization-id="travelAuthorizationId"
+        v-on="$listeners"
+      />
+    </v-card-text>
+  </v-card>
 </template>
 
 <script setup>
 import { ref } from "vue"
 
 import { useSnack } from "@/plugins/snack-plugin"
+import { capitalize } from "@/utils/formatters"
 
-import TripDetailsActualsEditFormCard from "@/components/travel-authorizations/TripDetailsActualsEditFormCard.vue"
+import TripDetailsActualsEditForm from "@/components/travel-authorizations/TripDetailsActualsEditForm.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
     type: Number,
+    required: true,
+  },
+  stepTitle: {
+    type: String,
+    required: true,
+  },
+  stepSubtitle: {
+    type: String,
     required: true,
   },
 })
@@ -27,19 +44,19 @@ async function initialize(context) {
 }
 
 const isLoading = ref(false)
-/** @type {import('vue').Ref<InstanceType<typeof TripDetailsActualsEditFormCard> | null>} */
-const tripDetailsActualsEditFormCard = ref(null)
+/** @type {import('vue').Ref<InstanceType<typeof TripDetailsActualsEditForm> | null>} */
+const tripDetailsActualsEditForm = ref(null)
 const snack = useSnack()
 
 async function validateAndSave() {
   isLoading.value = true
   try {
-    if (tripDetailsActualsEditFormCard.value.validate() === false) {
+    if (tripDetailsActualsEditForm.value.validate() === false) {
       snack.error("Please fill in all required fields.")
       return false
     }
 
-    await tripDetailsActualsEditFormCard.value.save()
+    await tripDetailsActualsEditForm.value.save()
     snack.success("Travel request saved.")
     emit("updated", props.travelAuthorizationId)
     return true

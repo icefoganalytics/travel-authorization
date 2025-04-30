@@ -25,6 +25,8 @@
               v-else
               ref="currentStepComponent"
               :travel-authorization-id="travelAuthorizationIdAsNumber"
+              :step-title="currentStep.title"
+              :step-subtitle="currentStep.subtitle"
               @update:travelPurposeId="
                 updateMyTravelRequestWizardSummary('travelPurposeId', $event)
               "
