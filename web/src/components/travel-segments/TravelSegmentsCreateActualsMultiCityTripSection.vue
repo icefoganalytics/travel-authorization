@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4 class="mb-4">Leg 1</h4>
+    <h4 class="mb-4 h-9">Leg 1</h4>
 
     <v-row>
       <v-col
@@ -116,270 +116,145 @@
       </v-col>
     </v-row>
 
-    <v-divider class="my-4" />
-    <h4 class="mb-4">Leg 2</h4>
+    <div
+      v-for="index in times(travelSegmentsAttributes.length - 1, (i) => i + 1)"
+      :key="index"
+    >
+      <v-divider class="my-4" />
+      <h4 class="d-flex justify-space-between mb-4 h-9">
+        Leg {{ index + 1 }}
 
-    <v-row>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <LocationsAutocomplete
-          v-model="secondTravelSegmentAttributes.departureLocationId"
-          label="From"
-          :in-territory="allTravelWithinTerritory"
-          :rules="[required]"
-          dense
-          outlined
-          persistent-hint
-          required
-          @input="updateTravelSegmentAttributeByIndex(0, 'arrivalLocationId', $event)"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <LocationsAutocomplete
-          v-model="secondTravelSegmentAttributes.arrivalLocationId"
-          label="To"
-          :in-territory="allTravelWithinTerritory"
-          :rules="[required]"
-          dense
-          outlined
-          persistent-hint
-          required
-          @input="updateTravelSegmentAttributeByIndex(2, 'departureLocationId', $event)"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <DatePicker
-          v-model="secondTravelSegmentAttributes.departureOn"
-          label="Date"
-          :min="firstTravelSegmentAttributes.departureOn"
-          :rules="[
-            required,
-            greaterThanOrEqualToDate(firstTravelSegmentAttributes.departureOn, {
-              referenceFieldLabel: 'previous departure date',
-            }),
-          ]"
-          dense
-          persistent-hint
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <TimePicker
-          v-model="secondTravelSegmentAttributes.departureTime"
-          label="Time (24h)"
-          persistent-hint
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <TravelMethodSelect
-          v-model="secondTravelSegmentAttributes.modeOfTransport"
-          :rules="[required]"
-          dense
-          persistent-hint
-          required
-          outlined
-        />
-      </v-col>
-      <v-col
-        v-if="secondTravelSegmentAttributes.modeOfTransport === TRAVEL_METHODS.OTHER"
-        cols="12"
-        md="6"
-      >
-        <v-text-field
-          v-model="secondTravelSegmentAttributes.modeOfTransportOther"
-          label="Travel Method - Other"
-          :rules="[required]"
-          dense
-          outlined
-          required
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <AccommodationTypeSelect
-          v-model="secondTravelSegmentAttributes.accommodationType"
-          v-bind="finalAccommodationTypeSelectDefaults(0)"
-          dense
-          outlined
-        />
-      </v-col>
-      <v-col
-        v-if="secondTravelSegmentAttributes.accommodationType === ACCOMMODATION_TYPES.OTHER"
-        cols="12"
-        md="6"
-      >
-        <v-text-field
-          v-model="secondTravelSegmentAttributes.accommodationTypeOther"
-          label="Type of Accommodation - Other"
-          :rules="[required]"
-          dense
-          outlined
-          required
-        />
-      </v-col>
-    </v-row>
+        <v-btn
+          v-if="travelSegmentsAttributes.length > 2"
+          title="Remove leg"
+          icon
+          color="error"
+          class="my-0"
+          @click="removeTravelSegmentAttribute(index)"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </h4>
 
-    <template v-if="travelSegmentsAttributes.length > 3">
-      <div
-        v-for="(_, index) in travelSegmentsAttributes.slice(0, -3)"
-        :key="index"
-      >
-        <v-divider class="my-4" />
-        <h4 class="d-flex justify-space-between align-center">
-          Leg {{ index + 3 }}
-
-          <v-btn
-            title="Remove leg"
-            icon
-            color="error"
-            class="my-0"
-            @click="removeTravelSegmentAttribute(index + 2)"
-          >
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </h4>
-
-        <v-row>
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <LocationsAutocomplete
-              v-model="travelSegmentsAttributes[index + 2].departureLocationId"
-              label="From"
-              :in-territory="allTravelWithinTerritory"
-              :rules="[required]"
-              dense
-              outlined
-              persistent-hint
-              required
-              @input="updateTravelSegmentAttributeByIndex(index + 1, 'arrivalLocationId', $event)"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <LocationsAutocomplete
-              v-model="travelSegmentsAttributes[index + 2].arrivalLocationId"
-              label="To"
-              :in-territory="allTravelWithinTerritory"
-              :rules="[required]"
-              dense
-              outlined
-              persistent-hint
-              required
-              @input="updateTravelSegmentAttributeByIndex(index + 3, 'departureLocationId', $event)"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <DatePicker
-              v-model="travelSegmentsAttributes[index + 2].departureOn"
-              label="Date"
-              :min="travelSegmentsAttributes[index + 1].departureOn"
-              :rules="[
-                required,
-                greaterThanOrEqualToDate(travelSegmentsAttributes[index + 1].departureOn, {
-                  referenceFieldLabel: 'previous departure date',
-                }),
-              ]"
-              dense
-              persistent-hint
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <TimePicker
-              v-model="travelSegmentsAttributes[index + 2].departureTime"
-              label="Time (24h)"
-              persistent-hint
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <TravelMethodSelect
-              v-model="travelSegmentsAttributes[index + 2].modeOfTransport"
-              :rules="[required]"
-              dense
-              persistent-hint
-              required
-              outlined
-            />
-          </v-col>
-          <v-col
-            v-if="travelSegmentsAttributes[index + 2].modeOfTransport === TRAVEL_METHODS.OTHER"
-            cols="12"
-            md="6"
-          >
-            <v-text-field
-              v-model="travelSegmentsAttributes[index + 2].modeOfTransportOther"
-              label="Travel Method - Other"
-              :rules="[required]"
-              dense
-              outlined
-              required
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <AccommodationTypeSelect
-              v-model="travelSegmentsAttributes[index + 2].accommodationType"
-              v-bind="finalAccommodationTypeSelectDefaults(index + 2)"
-              dense
-              outlined
-            />
-          </v-col>
-          <v-col
-            v-if="
-              travelSegmentsAttributes[index + 2].accommodationType === ACCOMMODATION_TYPES.OTHER
-            "
-            cols="12"
-            md="6"
-          >
-            <v-text-field
-              v-model="travelSegmentsAttributes[index + 2].accommodationTypeOther"
-              label="Type of Accommodation - Other"
-              :rules="[required]"
-              dense
-              outlined
-              required
-            />
-          </v-col>
-        </v-row>
-      </div>
-    </template>
+      <v-row>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <LocationsAutocomplete
+            v-model="travelSegmentsAttributes[index].departureLocationId"
+            label="From"
+            :in-territory="allTravelWithinTerritory"
+            :rules="[required]"
+            dense
+            outlined
+            persistent-hint
+            required
+            @input="updateTravelSegmentAttributeByIndex(index + 1, 'arrivalLocationId', $event)"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <LocationsAutocomplete
+            v-model="travelSegmentsAttributes[index].arrivalLocationId"
+            label="To"
+            :in-territory="allTravelWithinTerritory"
+            :rules="[required]"
+            dense
+            outlined
+            persistent-hint
+            required
+            @input="updateTravelSegmentAttributeByIndex(index + 1, 'departureLocationId', $event)"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <DatePicker
+            v-model="travelSegmentsAttributes[index].departureOn"
+            label="Date"
+            :min="travelSegmentsAttributes[index - 1].departureOn"
+            :rules="[
+              required,
+              greaterThanOrEqualToDate(travelSegmentsAttributes[index - 1].departureOn, {
+                referenceFieldLabel: 'previous departure date',
+              }),
+            ]"
+            dense
+            persistent-hint
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="3"
+        >
+          <TimePicker
+            v-model="travelSegmentsAttributes[index].departureTime"
+            label="Time (24h)"
+            persistent-hint
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <TravelMethodSelect
+            v-model="travelSegmentsAttributes[index].modeOfTransport"
+            :rules="[required]"
+            dense
+            persistent-hint
+            required
+            outlined
+          />
+        </v-col>
+        <v-col
+          v-if="travelSegmentsAttributes[index].modeOfTransport === TRAVEL_METHODS.OTHER"
+          cols="12"
+          md="6"
+        >
+          <v-text-field
+            v-model="travelSegmentsAttributes[index].modeOfTransportOther"
+            label="Travel Method - Other"
+            :rules="[required]"
+            dense
+            outlined
+            required
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <AccommodationTypeSelect
+            v-model="travelSegmentsAttributes[index].accommodationType"
+            v-bind="finalAccommodationTypeSelectDefaults(index)"
+            dense
+            outlined
+          />
+        </v-col>
+        <v-col
+          v-if="travelSegmentsAttributes[index].accommodationType === ACCOMMODATION_TYPES.OTHER"
+          cols="12"
+          md="6"
+        >
+          <v-text-field
+            v-model="travelSegmentsAttributes[index].accommodationTypeOther"
+            label="Type of Accommodation - Other"
+            :rules="[required]"
+            dense
+            outlined
+            required
+          />
+        </v-col>
+      </v-row>
+    </div>
 
     <v-divider class="my-4" />
     <v-row>
@@ -399,7 +274,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { cloneDeep, first, isNil, last, pick } from "lodash"
+import { cloneDeep, first, isNil, last, pick, times } from "lodash"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
@@ -470,29 +345,35 @@ const travelSegmentsAttributes = ref([
 ])
 
 function applyExistingDefaultValues(newTravelSegments) {
-  const firstTravelSegment = pick(first(newTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
-  const lastTravelSegment = pick(last(newTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
+  const newTravelSegmentsSize = Math.max(
+    travelSegmentsAttributes.value.length,
+    newTravelSegments.length
+  )
 
-  travelSegmentsAttributes.value = [
-    {
-      ...travelSegmentsAttributes.value[0],
-      ...firstTravelSegment,
-      modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: firstTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL,
+  const newTravelSegmentsAttributes = []
+  for (let index = 0; index < newTravelSegmentsSize; index++) {
+    const currentTravelSegmentAttributes = travelSegmentsAttributes.value[index]
+    const newTravelSegment = pick(newTravelSegments[index], PERMITTED_ATTRIBUTES_FOR_CLONE)
+
+    const isLastTravelSegment = index === newTravelSegmentsSize - 1
+    const accommodationType = isLastTravelSegment
+      ? null
+      : newTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL
+
+    const newTravelSegmentAttributes = {
+      ...currentTravelSegmentAttributes,
+      ...newTravelSegment,
+      modeOfTransport: newTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
+      accommodationType,
       isActual: true,
-      segmentNumber: 1,
+      segmentNumber: index + 1,
       travelAuthorizationId: props.travelAuthorizationId,
-    },
-    {
-      ...travelSegmentsAttributes.value[1],
-      ...lastTravelSegment,
-      modeOfTransport: lastTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: null,
-      isActual: true,
-      segmentNumber: 2,
-      travelAuthorizationId: props.travelAuthorizationId,
-    },
-  ]
+    }
+
+    newTravelSegmentsAttributes.push(newTravelSegmentAttributes)
+  }
+
+  travelSegmentsAttributes.value = newTravelSegmentsAttributes
 }
 
 watch(
@@ -507,7 +388,6 @@ watch(
 )
 
 const firstTravelSegmentAttributes = computed(() => first(travelSegmentsAttributes.value))
-const secondTravelSegmentAttributes = computed(() => last(travelSegmentsAttributes.value))
 
 function updateTravelSegmentAttributeByIndex(index, attribute, value) {
   const travelSegment = travelSegmentsAttributes.value[index]
@@ -530,7 +410,10 @@ function removeTravelSegmentAttribute(index) {
 }
 
 function addTravelSegmentAttribute() {
-  // TODO: update previous last step accommodation type to be non-null
+  const lastTravelSegment = last(travelSegmentsAttributes.value)
+  lastTravelSegment.accommodationType =
+    lastTravelSegment.accommodationType || ACCOMMODATION_TYPES.HOTEL
+
   travelSegmentsAttributes.value.push({
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: true,
@@ -547,7 +430,7 @@ function addTravelSegmentAttribute() {
 }
 
 function finalAccommodationTypeSelectDefaults(index) {
-  if (index === travelSegmentsAttributes.value.length - 2) {
+  if (index === travelSegmentsAttributes.value.length - 1) {
     return {
       defaultValue: null,
       hint: "Optional, set only if neccessary",
@@ -612,3 +495,9 @@ defineExpose({
   save,
 })
 </script>
+
+<style scoped>
+.h-9 {
+  height: 2.25rem; /* 2.25 × 16 = 36px */
+}
+</style>
