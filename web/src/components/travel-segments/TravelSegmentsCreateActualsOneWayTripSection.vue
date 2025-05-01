@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4 class="mb-4">Depart</h4>
+    <h4 class="mb-4 h-9">Depart</h4>
 
     <v-row>
       <v-col
@@ -269,3 +269,9 @@ defineExpose({
   save,
 })
 </script>
+
+<style scoped>
+.h-9 {
+  height: 2.25rem; /* 2.25 × 16 = 36px */
+}
+</style>

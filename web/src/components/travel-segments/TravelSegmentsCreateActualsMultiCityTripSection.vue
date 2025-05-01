@@ -44,7 +44,7 @@
           :rules="[required]"
           dense
           persistent-hint
-          @input="nudgeTravelSegmentDateByIndexIfGreater(1, $event)"
+          @input="nudgeLaterTravelSegmentsDates(1, $event)"
         />
       </v-col>
       <v-col
@@ -150,7 +150,7 @@
             outlined
             persistent-hint
             required
-            @input="updateTravelSegmentAttributeByIndex(index + 1, 'arrivalLocationId', $event)"
+            @input="updateTravelSegmentAttributeByIndex(index - 1, 'arrivalLocationId', $event)"
           />
         </v-col>
         <v-col
@@ -185,6 +185,7 @@
             ]"
             dense
             persistent-hint
+            @input="nudgeLaterTravelSegmentsDates(index + 1, $event)"
           />
         </v-col>
         <v-col
@@ -396,12 +397,14 @@ function updateTravelSegmentAttributeByIndex(index, attribute, value) {
   travelSegment[attribute] = value
 }
 
-function nudgeTravelSegmentDateByIndexIfGreater(index, value) {
-  const travelSegment = travelSegmentsAttributes.value[index]
-  if (isNil(travelSegment)) return
+function nudgeLaterTravelSegmentsDates(index, value) {
+  for (let i = index; i < travelSegmentsAttributes.value.length; i++) {
+    const travelSegment = travelSegmentsAttributes.value[i]
+    if (isNil(travelSegment)) return
 
-  if (value > travelSegment.departureOn) {
-    travelSegment.departureOn = value
+    if (isNil(value) || value > travelSegment.departureOn) {
+      travelSegment.departureOn = value
+    }
   }
 }
 
