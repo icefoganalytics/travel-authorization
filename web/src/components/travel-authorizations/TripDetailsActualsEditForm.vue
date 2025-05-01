@@ -25,7 +25,7 @@
       class="mt-3"
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-      @update:travel-segments="updateTravelSegments"
+      :current-travel-segments="travelSegments"
     />
     <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
     <v-row class="mt-6">
@@ -87,6 +87,7 @@ import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/val
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import useTravelSegments from "@/use/use-travel-segments"
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
@@ -120,11 +121,13 @@ const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save: saveTravelAuthorization } =
   useTravelAuthorization(travelAuthorizationId)
 
-const travelSegments = ref([])
-
-function updateTravelSegments(travelSegments) {
-  travelSegments.value = travelSegments
-}
+const travelSegmentActualsQuery = computed(() => ({
+  where: {
+    travelAuthorizationId: props.travelAuthorizationId,
+    isActual: true,
+  },
+}))
+const { travelSegments } = useTravelSegments(travelSegmentActualsQuery)
 
 const firstTravelSegment = computed(() => first(travelSegments.value))
 const lastTravelSegment = computed(() => last(travelSegments.value))
@@ -183,7 +186,7 @@ watch(
 )
 
 const TravelSegmentActualsRoundTripSection = defineAsyncComponent(
-  () => import("@/components/travel-segments/TravelSegmentActualsRoundTripSection.vue")
+  () => import("@/components/travel-segments/TravelSegmentsCreateActualsRoundTripSection.vue")
 )
 
 const tripTypeComponent = computed(() => {

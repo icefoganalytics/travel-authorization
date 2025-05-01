@@ -1,9 +1,5 @@
 <template>
-  <v-skeleton-loader
-    v-if="isNil(departTravelSegment) || isNil(returnTravelSegment)"
-    type="card"
-  />
-  <div v-else>
+  <div>
     <h4 class="mb-4">Depart</h4>
 
     <v-row>
@@ -42,7 +38,7 @@
         md="3"
       >
         <DatePicker
-          v-model="departTravelSegment.departureOn"
+          v-model="departTravelSegmentAttributes.departureOn"
           label="Date"
           :rules="[required]"
           dense
@@ -54,7 +50,7 @@
         md="3"
       >
         <TimePicker
-          v-model="departTravelSegment.departureTime"
+          v-model="departTravelSegmentAttributes.departureTime"
           label="Time (24h)"
           persistent-hint
         />
@@ -66,7 +62,7 @@
         md="6"
       >
         <TravelMethodSelect
-          v-model="departTravelSegment.modeOfTransport"
+          v-model="departTravelSegmentAttributes.modeOfTransport"
           :rules="[required]"
           dense
           persistent-hint
@@ -75,12 +71,12 @@
         />
       </v-col>
       <v-col
-        v-if="departTravelSegment.modeOfTransport === TRAVEL_METHODS.OTHER"
+        v-if="departTravelSegmentAttributes.modeOfTransport === TRAVEL_METHODS.OTHER"
         cols="12"
         md="6"
       >
         <v-text-field
-          v-model="departTravelSegment.modeOfTransportOther"
+          v-model="departTravelSegmentAttributes.modeOfTransportOther"
           label="Travel Method - Other"
           :rules="[required]"
           dense
@@ -95,7 +91,7 @@
         md="6"
       >
         <AccommodationTypeSelect
-          v-model="departTravelSegment.accommodationType"
+          v-model="departTravelSegmentAttributes.accommodationType"
           :rules="[required]"
           dense
           outlined
@@ -103,12 +99,12 @@
         />
       </v-col>
       <v-col
-        v-if="departTravelSegment.accommodationType === ACCOMMODATION_TYPES.OTHER"
+        v-if="departTravelSegmentAttributes.accommodationType === ACCOMMODATION_TYPES.OTHER"
         cols="12"
         md="6"
       >
         <v-text-field
-          v-model="departTravelSegment.accommodationTypeOther"
+          v-model="departTravelSegmentAttributes.accommodationTypeOther"
           label="Type of Accommodation - Other"
           :rules="[required]"
           dense
@@ -157,12 +153,12 @@
         md="3"
       >
         <DatePicker
-          v-model="returnTravelSegment.departureOn"
+          v-model="returnTravelSegmentAttributes.departureOn"
           label="Date"
-          :min="departTravelSegment.departureOn"
+          :min="departTravelSegmentAttributes.departureOn"
           :rules="[
             required,
-            greaterThanOrEqualToDate(departTravelSegment.departureOn, {
+            greaterThanOrEqualToDate(departTravelSegmentAttributes.departureOn, {
               referenceFieldLabel: 'previous departure date',
             }),
           ]"
@@ -175,7 +171,7 @@
         md="3"
       >
         <TimePicker
-          v-model="returnTravelSegment.departureTime"
+          v-model="returnTravelSegmentAttributes.departureTime"
           label="Time (24h)"
           persistent-hint
         />
@@ -187,7 +183,7 @@
         md="6"
       >
         <TravelMethodSelect
-          v-model="returnTravelSegment.modeOfTransport"
+          v-model="returnTravelSegmentAttributes.modeOfTransport"
           :rules="[required]"
           dense
           persistent-hint
@@ -196,12 +192,12 @@
         />
       </v-col>
       <v-col
-        v-if="returnTravelSegment.modeOfTransport === TRAVEL_METHODS.OTHER"
+        v-if="returnTravelSegmentAttributes.modeOfTransport === TRAVEL_METHODS.OTHER"
         cols="12"
         md="6"
       >
         <v-text-field
-          v-model="returnTravelSegment.modeOfTransportOther"
+          v-model="returnTravelSegmentAttributes.modeOfTransportOther"
           label="Travel Method - Other"
           :rules="[required]"
           dense
@@ -216,7 +212,7 @@
         md="6"
       >
         <AccommodationTypeSelect
-          v-model="returnTravelSegment.accommodationType"
+          v-model="returnTravelSegmentAttributes.accommodationType"
           :default-value="null"
           hint="Optional, set only if neccessary"
           placeholder="N/A"
@@ -227,12 +223,12 @@
         />
       </v-col>
       <v-col
-        v-if="returnTravelSegment.accommodationType === ACCOMMODATION_TYPES.OTHER"
+        v-if="returnTravelSegmentAttributes.accommodationType === ACCOMMODATION_TYPES.OTHER"
         cols="12"
         md="6"
       >
         <v-text-field
-          v-model="returnTravelSegment.accommodationTypeOther"
+          v-model="returnTravelSegmentAttributes.accommodationTypeOther"
           label="Type of Accommodation - Other"
           :rules="[required]"
           dense
@@ -246,14 +242,13 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { cloneDeep, first, isNil, last } from "lodash"
+import { cloneDeep, first, isNil, last, pick } from "lodash"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
 import travelSegmentsApi, { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/travel-segments-api"
 
 import useSnack from "@/use/use-snack"
-import useTravelSegments from "@/use/use-travel-segments"
 
 import TimePicker from "@/components/Utils/TimePicker.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
@@ -270,76 +265,167 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  currentTravelSegments: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 /**
  * @type {import('vue/types/v3-setup-context').EmitFn<{
  *   'saved': [number, number]
- *   'update:travel-segments': [number, number]
+ *   'updated': [number, number]
  * }>}
  */
-const emit = defineEmits(["saved", "update:travel-segments"])
+const emit = defineEmits(["saved", "updated"])
 
-const travelSegmentActualsQuery = computed(() => ({
-  where: {
+const travelSegmentsAttributes = ref([
+  {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: true,
+    segmentNumber: 1,
+    departureLocationId: null,
+    arrivalLocationId: null,
+    departureOn: null,
+    departureTime: null,
+    modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
+    modeOfTransportOther: null,
+    accommodationType: ACCOMMODATION_TYPES.HOTEL,
+    accommodationTypeOther: null,
   },
-}))
-const { travelSegments, refresh } = useTravelSegments(travelSegmentActualsQuery)
+  {
+    travelAuthorizationId: props.travelAuthorizationId,
+    isActual: true,
+    segmentNumber: 2,
+    departureLocationId: null,
+    arrivalLocationId: null,
+    departureOn: null,
+    departureTime: null,
+    modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
+    modeOfTransportOther: null,
+    accommodationType: null,
+    accommodationTypeOther: null,
+  },
+])
 
-const departTravelSegment = computed(() => first(travelSegments.value))
-const returnTravelSegment = computed(() => last(travelSegments.value))
+const PERMITTED_ATTRIBUTES_FOR_CLONE = [
+  "departureLocationId",
+  "arrivalLocationId",
+  "departureOn",
+  "departureTime",
+  "modeOfTransport",
+  "modeOfTransportOther",
+  "accommodationType",
+  "accommodationTypeOther",
+]
+
+function applyExistingDefaultValues(newTravelSegments) {
+  const firstTravelSegment = pick(first(newTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
+  const lastTravelSegment = pick(last(newTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
+
+  travelSegmentsAttributes.value = [
+    {
+      ...travelSegmentsAttributes.value[0],
+      ...firstTravelSegment,
+      modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
+      accommodationType: firstTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL,
+      isActual: true,
+      segmentNumber: 1,
+      travelAuthorizationId: props.travelAuthorizationId,
+    },
+    {
+      ...travelSegmentsAttributes.value[1],
+      ...lastTravelSegment,
+      modeOfTransport: lastTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
+      accommodationType: null,
+      isActual: true,
+      segmentNumber: 2,
+      travelAuthorizationId: props.travelAuthorizationId,
+    },
+  ]
+}
+
+watch(
+  () => cloneDeep(props.currentTravelSegments),
+  (newTravelSegments) => {
+    applyExistingDefaultValues(newTravelSegments)
+  },
+  {
+    deep: true,
+    immediate: true,
+  }
+)
+
+const departTravelSegmentAttributes = computed(() => first(travelSegmentsAttributes.value))
+const returnTravelSegmentAttributes = computed(() => last(travelSegmentsAttributes.value))
 
 const tripOriginLocationId = computed({
-  get: () => departTravelSegment.value?.departureLocationId,
+  get: () => departTravelSegmentAttributes.value?.departureLocationId,
   set: (value) => {
-    if (!isNil(departTravelSegment.value)) {
-      departTravelSegment.value.departureLocationId = value
+    if (!isNil(departTravelSegmentAttributes.value)) {
+      departTravelSegmentAttributes.value.departureLocationId = value
     }
 
-    if (!isNil(returnTravelSegment.value)) {
-      returnTravelSegment.value.arrivalLocationId = value
+    if (!isNil(returnTravelSegmentAttributes.value)) {
+      returnTravelSegmentAttributes.value.arrivalLocationId = value
     }
   },
 })
 
 const tripDestinationLocationId = computed({
-  get: () => departTravelSegment.value?.arrivalLocationId,
+  get: () => departTravelSegmentAttributes.value?.arrivalLocationId,
   set: (value) => {
-    if (!isNil(departTravelSegment.value)) {
-      departTravelSegment.value.arrivalLocationId = value
+    if (!isNil(departTravelSegmentAttributes.value)) {
+      departTravelSegmentAttributes.value.arrivalLocationId = value
     }
 
-    if (!isNil(returnTravelSegment.value)) {
-      returnTravelSegment.value.departureLocationId = value
+    if (!isNil(returnTravelSegmentAttributes.value)) {
+      returnTravelSegmentAttributes.value.departureLocationId = value
     }
   },
 })
 
 watch(
-  () => cloneDeep(travelSegments.value),
+  () => cloneDeep(travelSegmentsAttributes.value),
   () => {
-    emit("update:travel-segments", travelSegments.value)
+    emit("updated", travelSegmentsAttributes.value)
+  },
+  {
+    deep: true,
   }
 )
 
 const isSaving = ref(false)
 const snack = useSnack()
 
+async function deleteCurrentTravelSegments() {
+  await Promise.all(
+    props.currentTravelSegments.map((travelSegment) => travelSegmentsApi.destroy(travelSegment.id))
+  )
+}
+
+async function createNewTravelSegments() {
+  const createdDepartTravelSegment = await travelSegmentsApi.create(
+    departTravelSegmentAttributes.value
+  )
+  const createdReturnTravelSegment = await travelSegmentsApi.create(
+    returnTravelSegmentAttributes.value
+  )
+
+  return [createdDepartTravelSegment.id, createdReturnTravelSegment.id]
+}
+
 async function save() {
   isSaving.value = true
 
   try {
-    await Promise.all([
-      travelSegmentsApi.update(departTravelSegment.value.id, departTravelSegment.value),
-      travelSegmentsApi.update(returnTravelSegment.value.id, returnTravelSegment.value),
-    ])
-    await refresh()
-    emit("saved", [departTravelSegment.value.id, returnTravelSegment.value.id])
+    // TODO: Consider switching to a dedicated replace endpoint?
+    await deleteCurrentTravelSegments()
+    const createdTravelSegmentsIds = await createNewTravelSegments()
+    emit("saved", createdTravelSegmentsIds)
   } catch (error) {
-    console.error(`Errored while saving travel segment: ${error}`)
-    snack.error(`Errored while saving travel segment: ${error}`)
+    console.error(`Errored while saving travel segments: ${error}`)
+    snack.error(`Errored while saving travel segments: ${error}`)
   } finally {
     isSaving.value = false
   }
