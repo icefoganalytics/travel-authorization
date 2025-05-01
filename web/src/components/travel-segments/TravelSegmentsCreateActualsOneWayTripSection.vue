@@ -92,10 +92,13 @@
       >
         <AccommodationTypeSelect
           v-model="departTravelSegmentAttributes.accommodationType"
-          :rules="[required]"
+          :default-value="null"
+          hint="Optional, set only if neccessary"
+          placeholder="N/A"
+          clearable
           dense
           outlined
-          required
+          persistent-hint
         />
       </v-col>
       <v-col
