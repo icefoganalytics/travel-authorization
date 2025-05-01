@@ -11,6 +11,7 @@
           v-model="firstTravelSegmentAttributes.departureLocationId"
           label="From"
           :in-territory="allTravelWithinTerritory"
+          :filters="buildLocationFilters(firstTravelSegmentAttributes.arrivalLocationId)"
           :rules="[required]"
           dense
           outlined
@@ -26,6 +27,7 @@
           v-model="firstTravelSegmentAttributes.arrivalLocationId"
           label="To"
           :in-territory="allTravelWithinTerritory"
+          :filters="buildLocationFilters(firstTravelSegmentAttributes.departureLocationId)"
           :rules="[required]"
           dense
           outlined
@@ -146,6 +148,12 @@
             label="From"
             :in-territory="allTravelWithinTerritory"
             :rules="[required]"
+            :filters="
+              buildLocationFilters(
+                travelSegmentsAttributes[index - 1].departureLocationId,
+                travelSegmentsAttributes[index].arrivalLocationId
+              )
+            "
             dense
             outlined
             persistent-hint
@@ -161,6 +169,7 @@
             v-model="travelSegmentsAttributes[index].arrivalLocationId"
             label="To"
             :in-territory="allTravelWithinTerritory"
+            :filters="buildLocationFilters(travelSegmentsAttributes[index].departureLocationId)"
             :rules="[required]"
             dense
             outlined
@@ -431,6 +440,12 @@ function addTravelSegmentAttribute() {
 
   previousLastTravelSegment.accommodationType =
     previousLastTravelSegment.accommodationType || ACCOMMODATION_TYPES.HOTEL
+}
+
+function buildLocationFilters(idsToExclude) {
+  return {
+    excludeById: idsToExclude,
+  }
 }
 
 function finalAccommodationTypeSelectDefaults(index) {
