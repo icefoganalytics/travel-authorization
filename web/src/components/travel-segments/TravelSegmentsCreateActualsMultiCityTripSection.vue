@@ -413,23 +413,24 @@ function removeTravelSegmentAttribute(index) {
 }
 
 function addTravelSegmentAttribute() {
-  const lastTravelSegment = last(travelSegmentsAttributes.value)
-  lastTravelSegment.accommodationType =
-    lastTravelSegment.accommodationType || ACCOMMODATION_TYPES.HOTEL
+  const previousLastTravelSegment = last(travelSegmentsAttributes.value)
 
   travelSegmentsAttributes.value.push({
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: true,
     segmentNumber: travelSegmentsAttributes.value.length + 1,
-    departureLocationId: null,
+    departureLocationId: previousLastTravelSegment.arrivalLocationId,
     arrivalLocationId: null,
-    departureOn: null,
+    departureOn: previousLastTravelSegment.departureOn,
     departureTime: null,
     modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
     modeOfTransportOther: null,
     accommodationType: null,
     accommodationTypeOther: null,
   })
+
+  previousLastTravelSegment.accommodationType =
+    previousLastTravelSegment.accommodationType || ACCOMMODATION_TYPES.HOTEL
 }
 
 function finalAccommodationTypeSelectDefaults(index) {
