@@ -20,16 +20,30 @@ export class BulkReplaceService extends BaseService {
 
   async perform(): Promise<TravelSegment[]> {
     if (
-      !this.travelSegmentsAttributes.every(
+      this.travelSegmentsAttributes.some(
         (travelSegmentAttributes) =>
-          travelSegmentAttributes.travelAuthorizationId === this.travelAuthorizationId
+          travelSegmentAttributes.travelAuthorizationId !== this.travelAuthorizationId
       )
     ) {
-      throw new Error("All travelSegments must belong to the same form.")
+      throw new Error("All travel segments must belong to the same travel authorization.")
+    }
+
+    const isActualBase = this.travelSegmentsAttributes[0].isActual
+    if (
+      this.travelSegmentsAttributes.some(
+        (travelSegmentAttributes) => travelSegmentAttributes.isActual !== isActualBase
+      )
+    ) {
+      throw new Error("All travel segments must have the same isActual value.")
     }
 
     return transaction(async () => {
-      await TravelSegment.destroy({ where: { travelAuthorizationId: this.travelAuthorizationId } })
+      await TravelSegment.destroy({
+        where: {
+          travelAuthorizationId: this.travelAuthorizationId,
+          isActual: isActualBase,
+        },
+      })
       return TravelSegment.bulkCreate(this.travelSegmentsAttributes)
     })
   }

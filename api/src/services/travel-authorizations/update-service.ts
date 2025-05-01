@@ -39,12 +39,10 @@ export class UpdateService extends BaseService {
         throw new Error(`Could not update TravelAuthorization: ${error}`)
       })
 
-      // TODO: make logic consistent between stops and travel segments
       const travelAuthorizationId = this.travelAuthorization.id
       if (!isEmpty(this.stops)) {
         await StopsService.bulkReplace(travelAuthorizationId, this.stops)
         // TODO: remove this once travel segments fully replace stops
-        // TODO: make sure this won't wipe trave segment "actuals".
         await Stops.BulkConvertStopsToTravelSegmentsService.perform(this.travelAuthorization)
       }
 
