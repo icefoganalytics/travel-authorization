@@ -25,7 +25,7 @@
       class="mt-3"
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-      :current-travel-segments="travelSegments"
+      :current-travel-segment-estimates="travelSegments"
     />
     <div v-else>Trip type {{ tripType }} not implemented!</div>
     <v-row class="mt-6">
@@ -128,7 +128,7 @@ const tripType = useRouteQuery("trip_type", defaultTripType)
 const travelSegmentActualsQuery = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
-    isActual: true,
+    isActual: false,
   },
 }))
 const { travelSegments } = useTravelSegments(travelSegmentActualsQuery)

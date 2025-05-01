@@ -311,9 +311,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  currentTravelSegments: {
+  currentTravelSegmentEstimates: {
     type: Array,
     default: () => [],
+    validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
 })
 
@@ -478,13 +479,7 @@ watch(
 const isSaving = ref(false)
 const snack = useSnack()
 
-async function deleteCurrentTravelSegments() {
-  await Promise.all(
-    props.currentTravelSegments.map((travelSegment) => travelSegmentsApi.delete(travelSegment.id))
-  )
-}
-
-async function createNewTravelSegments() {
+async function createNewTravelSegmentActuals() {
   const createdTravelSegmentsIds = []
   for (const travelSegmentAttributes of travelSegmentsAttributes.value) {
     const createdTravelSegment = await travelSegmentsApi.create(travelSegmentAttributes)
@@ -498,9 +493,7 @@ async function save() {
   isSaving.value = true
 
   try {
-    // TODO: Consider switching to a dedicated replace endpoint?
-    await deleteCurrentTravelSegments()
-    const createdTravelSegmentsIds = await createNewTravelSegments()
+    const createdTravelSegmentsIds = await createNewTravelSegmentActuals()
     emit("saved", createdTravelSegmentsIds)
   } catch (error) {
     console.error(`Errored while saving travel segments: ${error}`)
