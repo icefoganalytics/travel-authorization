@@ -480,7 +480,7 @@ const snack = useSnack()
 
 async function deleteCurrentTravelSegments() {
   await Promise.all(
-    props.currentTravelSegments.map((travelSegment) => travelSegmentsApi.destroy(travelSegment.id))
+    props.currentTravelSegments.map((travelSegment) => travelSegmentsApi.delete(travelSegment.id))
   )
 }
 
