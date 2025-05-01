@@ -1,12 +1,11 @@
 import { CreationAttributes } from "sequelize"
-import { isEmpty, isNil, isUndefined } from "lodash"
+import { isEmpty, isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
 import { Expense, Stop, TravelAuthorization, User } from "@/models"
-import { TripTypes as TravelAuthorizationTripTypes } from "@/models/travel-authorization"
-import { StopsService, ExpensesService, Stops, TravelSegments } from "@/services"
+import { StopsService, ExpensesService, Stops } from "@/services"
 
 type StopsCreationAttributes = CreationAttributes<Stop>[]
 
@@ -45,16 +44,8 @@ export class UpdateService extends BaseService {
       if (!isEmpty(this.stops)) {
         await StopsService.bulkReplace(travelAuthorizationId, this.stops)
         // TODO: remove this once travel segments fully replace stops
+        // TODO: make sure this won't wipe trave segment "actuals".
         await Stops.BulkConvertStopsToTravelSegmentsService.perform(this.travelAuthorization)
-      }
-
-      const { tripType } = this.travelAuthorization
-      if (!isNil(tripType)) {
-        await this.ensureMinimalDefaultTravelSegmentsForTripType(
-          travelAuthorizationId,
-          tripType,
-          true
-        )
       }
 
       // TODO: might need to tweak this, or any updates to a travel authorization will
@@ -88,18 +79,6 @@ export class UpdateService extends BaseService {
     } else {
       return stops.length === 2
     }
-  }
-
-  private ensureMinimalDefaultTravelSegmentsForTripType(
-    travelAuthorizationId: number,
-    tripType: TravelAuthorizationTripTypes,
-    isActual: boolean
-  ) {
-    return TravelSegments.EnsureMinimalDefaultsForTripTypeService.perform(
-      travelAuthorizationId,
-      tripType,
-      isActual
-    )
   }
 }
 
