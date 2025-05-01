@@ -13,7 +13,7 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
   }
 
   create(): boolean {
-    return this.travelAuthorizationPolicy.create()
+    return this.travelAuthorizationPolicy.update()
   }
 
   update(): boolean {
@@ -21,7 +21,7 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
   }
 
   destroy(): boolean {
-    return this.travelAuthorizationPolicy.destroy()
+    return this.travelAuthorizationPolicy.update()
   }
 
   permittedAttributes(): Path[] {
