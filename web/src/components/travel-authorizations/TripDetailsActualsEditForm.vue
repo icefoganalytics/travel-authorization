@@ -11,7 +11,7 @@
     <v-row>
       <v-col cols="12">
         <TripTypeRadioGroup
-          v-model="travelAuthorization.tripType"
+          v-model="tripType"
           :row="mdAndUp"
           @input="resetFormValidation"
         />
@@ -27,7 +27,7 @@
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
       :current-travel-segments="travelSegments"
     />
-    <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
+    <div v-else>Trip type {{ tripType }} not implemented!</div>
     <v-row class="mt-6">
       <v-col
         cols="12"
@@ -84,6 +84,7 @@ import { first, findLast, isNil, last } from "lodash"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/validators"
 
+import useRouteQuery from "@/use/utils/use-route-query"
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
@@ -120,6 +121,9 @@ const { mdAndUp } = useVuetify2()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save: saveTravelAuthorization } =
   useTravelAuthorization(travelAuthorizationId)
+
+const defaultTripType = computed(() => travelAuthorization.value.tripType)
+const tripType = useRouteQuery("trip_type", defaultTripType)
 
 const travelSegmentActualsQuery = computed(() => ({
   where: {
@@ -196,7 +200,7 @@ const TravelSegmentActualsMultiCityTripSection = defineAsyncComponent(
 )
 
 const tripTypeComponent = computed(() => {
-  switch (travelAuthorization.value.tripType) {
+  switch (tripType.value) {
     case TRIP_TYPES.ROUND_TRIP:
       return TravelSegmentActualsRoundTripSection
     case TRIP_TYPES.ONE_WAY:
@@ -218,7 +222,12 @@ async function save() {
   isSaving.value = true
   try {
     await tripTypeComponentRef.value?.save()
-    await saveTravelAuthorization()
+    await saveTravelAuthorization({
+      tripType: tripType.value,
+      travelDuration: travelAuthorization.value.travelDuration,
+      daysOffTravelStatus: travelAuthorization.value.daysOffTravelStatus,
+      dateBackToWork: travelAuthorization.value.dateBackToWork,
+    })
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })
     snack.error(`Failed to save travel authorization: ${error}`)
