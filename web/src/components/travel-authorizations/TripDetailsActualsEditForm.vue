@@ -13,7 +13,7 @@
         <TripTypeRadioGroup
           v-model="travelAuthorization.tripType"
           :row="mdAndUp"
-          @input="saveTravelAuthorizationAndRefreshTravelSegments"
+          @input="resetFormValidation"
         />
       </v-col>
     </v-row>
@@ -25,6 +25,7 @@
       class="mt-3"
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
+      @update:travel-segments="updateTravelSegments"
     />
     <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
     <v-row class="mt-6">
@@ -79,14 +80,13 @@
 
 <script setup>
 import { computed, defineAsyncComponent, nextTick, ref, toRefs, watch } from "vue"
-import { findLast, isNil } from "lodash"
+import { first, findLast, isNil, last } from "lodash"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/validators"
 
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
-import useTravelSegments from "@/use/use-travel-segments"
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
@@ -120,25 +120,20 @@ const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save: saveTravelAuthorization } =
   useTravelAuthorization(travelAuthorizationId)
 
-const travelSegmentActualsQuery = computed(() => ({
-  where: {
-    travelAuthorizationId: props.travelAuthorizationId,
-    isActual: true,
-  },
-}))
-const { travelSegments, refresh: refreshTravelSegments } =
-  useTravelSegments(travelSegmentActualsQuery)
-const firstTravelSegment = computed(() => travelSegments.value[0])
-const lastTravelSegment = computed(() => travelSegments.value[travelSegments.value.length - 1])
+const travelSegments = ref([])
+
+function updateTravelSegments(travelSegments) {
+  travelSegments.value = travelSegments
+}
+
+const firstTravelSegment = computed(() => first(travelSegments.value))
+const lastTravelSegment = computed(() => last(travelSegments.value))
 
 /** @typedef {import('vuetify/lib/components').VForm} VForm */
 /** @type {import('vue').Ref<typeof VForm | null>} */
 const form = ref(null)
 
-async function saveTravelAuthorizationAndRefreshTravelSegments() {
-  await saveTravelAuthorization()
-  await refreshTravelSegments()
-
+async function resetFormValidation() {
   await nextTick()
   form.value?.resetValidation()
 }

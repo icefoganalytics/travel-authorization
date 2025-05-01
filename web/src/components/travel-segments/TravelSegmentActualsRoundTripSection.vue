@@ -246,7 +246,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { first, isEmpty, isNil, last } from "lodash"
+import { cloneDeep, first, isNil, last } from "lodash"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
@@ -272,8 +272,13 @@ const props = defineProps({
   },
 })
 
-/** @type {import('vue/types/v3-setup-context').EmitFn<{'saved': [number, number]}> */
-const emit = defineEmits(["saved"])
+/**
+ * @type {import('vue/types/v3-setup-context').EmitFn<{
+ *   'saved': [number, number]
+ *   'update:travel-segments': [number, number]
+ * }>}
+ */
+const emit = defineEmits(["saved", "update:travel-segments"])
 
 const travelSegmentActualsQuery = computed(() => ({
   where: {
@@ -281,22 +286,10 @@ const travelSegmentActualsQuery = computed(() => ({
     isActual: true,
   },
 }))
-const { travelSegments, isLoading, refresh } = useTravelSegments(travelSegmentActualsQuery)
+const { travelSegments, refresh } = useTravelSegments(travelSegmentActualsQuery)
 
 const departTravelSegment = computed(() => first(travelSegments.value))
 const returnTravelSegment = computed(() => last(travelSegments.value))
-
-watch(
-  () => isLoading.value,
-  (newIsLoading, oldIsLoading) => {
-    if (oldIsLoading === true && newIsLoading === false && isEmpty(travelSegments.value)) {
-      // TODO: ensure default travel segments are created
-    }
-  },
-  {
-    immediate: true,
-  }
-)
 
 const tripOriginLocationId = computed({
   get: () => departTravelSegment.value?.departureLocationId,
@@ -323,6 +316,13 @@ const tripDestinationLocationId = computed({
     }
   },
 })
+
+watch(
+  () => cloneDeep(travelSegments.value),
+  () => {
+    emit("update:travel-segments", travelSegments.value)
+  }
+)
 
 const isSaving = ref(false)
 const snack = useSnack()
