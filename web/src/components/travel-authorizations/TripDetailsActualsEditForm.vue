@@ -191,6 +191,9 @@ const TravelSegmentActualsRoundTripSection = defineAsyncComponent(
 const TravelSegmentActualsOneWayTripSection = defineAsyncComponent(
   () => import("@/components/travel-segments/TravelSegmentsCreateActualsOneWayTripSection.vue")
 )
+const TravelSegmentActualsMultiCityTripSection = defineAsyncComponent(
+  () => import("@/components/travel-segments/TravelSegmentsCreateActualsMultiCityTripSection.vue")
+)
 
 const tripTypeComponent = computed(() => {
   switch (travelAuthorization.value.tripType) {
@@ -199,10 +202,7 @@ const tripTypeComponent = computed(() => {
     case TRIP_TYPES.ONE_WAY:
       return TravelSegmentActualsOneWayTripSection
     case TRIP_TYPES.MULTI_CITY:
-      return () =>
-        import(
-          "@/components/travel-authorizations/details-edit-form-card/MultiDestinationStopsSection.vue"
-        )
+      return TravelSegmentActualsMultiCityTripSection
     default:
       return null
   }
