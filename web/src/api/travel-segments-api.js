@@ -24,6 +24,17 @@ export const ACCOMMODATION_TYPES = {
 
 /** @typedef {typeof ACCOMMODATION_TYPES[keyof typeof ACCOMMODATION_TYPES]} AccommodationTypes */
 
+export const PERMITTED_ATTRIBUTES_FOR_CLONE = [
+  "departureLocationId",
+  "arrivalLocationId",
+  "departureOn",
+  "departureTime",
+  "modeOfTransport",
+  "modeOfTransportOther",
+  "accommodationType",
+  "accommodationTypeOther",
+]
+
 /**
  * Keep in sync with api/src/models/travel-segment.ts
  * @typedef {{

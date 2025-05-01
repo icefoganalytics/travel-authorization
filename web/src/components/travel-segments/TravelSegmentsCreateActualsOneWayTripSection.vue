@@ -113,138 +113,14 @@
         />
       </v-col>
     </v-row>
-
-    <v-divider class="my-4" />
-    <h4 class="mb-4">Return</h4>
-
-    <v-row>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <LocationsAutocomplete
-          v-model="tripDestinationLocationId"
-          label="From"
-          :in-territory="allTravelWithinTerritory"
-          :rules="[required]"
-          dense
-          outlined
-          persistent-hint
-          required
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <LocationsAutocomplete
-          v-model="tripOriginLocationId"
-          label="To"
-          :in-territory="allTravelWithinTerritory"
-          :rules="[required]"
-          dense
-          outlined
-          persistent-hint
-          required
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <DatePicker
-          v-model="returnTravelSegmentAttributes.departureOn"
-          label="Date"
-          :min="departTravelSegmentAttributes.departureOn"
-          :rules="[
-            required,
-            greaterThanOrEqualToDate(departTravelSegmentAttributes.departureOn, {
-              referenceFieldLabel: 'previous departure date',
-            }),
-          ]"
-          dense
-          persistent-hint
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <TimePicker
-          v-model="returnTravelSegmentAttributes.departureTime"
-          label="Time (24h)"
-          persistent-hint
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <TravelMethodSelect
-          v-model="returnTravelSegmentAttributes.modeOfTransport"
-          :rules="[required]"
-          dense
-          persistent-hint
-          required
-          outlined
-        />
-      </v-col>
-      <v-col
-        v-if="returnTravelSegmentAttributes.modeOfTransport === TRAVEL_METHODS.OTHER"
-        cols="12"
-        md="6"
-      >
-        <v-text-field
-          v-model="returnTravelSegmentAttributes.modeOfTransportOther"
-          label="Travel Method - Other"
-          :rules="[required]"
-          dense
-          outlined
-          required
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <AccommodationTypeSelect
-          v-model="returnTravelSegmentAttributes.accommodationType"
-          :default-value="null"
-          hint="Optional, set only if neccessary"
-          placeholder="N/A"
-          clearable
-          dense
-          outlined
-          persistent-hint
-        />
-      </v-col>
-      <v-col
-        v-if="returnTravelSegmentAttributes.accommodationType === ACCOMMODATION_TYPES.OTHER"
-        cols="12"
-        md="6"
-      >
-        <v-text-field
-          v-model="returnTravelSegmentAttributes.accommodationTypeOther"
-          label="Type of Accommodation - Other"
-          :rules="[required]"
-          dense
-          outlined
-          required
-        />
-      </v-col>
-    </v-row>
   </div>
 </template>
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { cloneDeep, first, isNil, last, pick } from "lodash"
+import { cloneDeep, first, isNil, pick } from "lodash"
 
-import { required, greaterThanOrEqualToDate } from "@/utils/validators"
+import { required } from "@/utils/validators"
 
 import travelSegmentsApi, {
   ACCOMMODATION_TYPES,
@@ -297,42 +173,19 @@ const travelSegmentsAttributes = ref([
     accommodationType: ACCOMMODATION_TYPES.HOTEL,
     accommodationTypeOther: null,
   },
-  {
-    travelAuthorizationId: props.travelAuthorizationId,
-    isActual: true,
-    segmentNumber: 2,
-    departureLocationId: null,
-    arrivalLocationId: null,
-    departureOn: null,
-    departureTime: null,
-    modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
-    modeOfTransportOther: null,
-    accommodationType: null,
-    accommodationTypeOther: null,
-  },
 ])
 
 function applyExistingDefaultValues(newTravelSegments) {
   const firstTravelSegment = pick(first(newTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
-  const lastTravelSegment = pick(last(newTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
 
   travelSegmentsAttributes.value = [
     {
       ...travelSegmentsAttributes.value[0],
       ...firstTravelSegment,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: firstTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL,
-      isActual: true,
-      segmentNumber: 1,
-      travelAuthorizationId: props.travelAuthorizationId,
-    },
-    {
-      ...travelSegmentsAttributes.value[1],
-      ...lastTravelSegment,
-      modeOfTransport: lastTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType: null,
       isActual: true,
-      segmentNumber: 2,
+      segmentNumber: 1,
       travelAuthorizationId: props.travelAuthorizationId,
     },
   ]
@@ -350,17 +203,12 @@ watch(
 )
 
 const departTravelSegmentAttributes = computed(() => first(travelSegmentsAttributes.value))
-const returnTravelSegmentAttributes = computed(() => last(travelSegmentsAttributes.value))
 
 const tripOriginLocationId = computed({
   get: () => departTravelSegmentAttributes.value?.departureLocationId,
   set: (value) => {
     if (!isNil(departTravelSegmentAttributes.value)) {
       departTravelSegmentAttributes.value.departureLocationId = value
-    }
-
-    if (!isNil(returnTravelSegmentAttributes.value)) {
-      returnTravelSegmentAttributes.value.arrivalLocationId = value
     }
   },
 })
@@ -370,10 +218,6 @@ const tripDestinationLocationId = computed({
   set: (value) => {
     if (!isNil(departTravelSegmentAttributes.value)) {
       departTravelSegmentAttributes.value.arrivalLocationId = value
-    }
-
-    if (!isNil(returnTravelSegmentAttributes.value)) {
-      returnTravelSegmentAttributes.value.departureLocationId = value
     }
   },
 })
@@ -401,11 +245,8 @@ async function createNewTravelSegments() {
   const createdDepartTravelSegment = await travelSegmentsApi.create(
     departTravelSegmentAttributes.value
   )
-  const createdReturnTravelSegment = await travelSegmentsApi.create(
-    returnTravelSegmentAttributes.value
-  )
 
-  return [createdDepartTravelSegment.id, createdReturnTravelSegment.id]
+  return [createdDepartTravelSegment.id]
 }
 
 async function save() {
