@@ -126,13 +126,13 @@ const { travelAuthorization, save: saveTravelAuthorization } =
 const defaultTripType = computed(() => travelAuthorization.value.tripType)
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
-const travelSegmentActualsQuery = computed(() => ({
+const travelSegmentEstimatesQuery = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: false,
   },
 }))
-const { travelSegments } = useTravelSegments(travelSegmentActualsQuery)
+const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 
