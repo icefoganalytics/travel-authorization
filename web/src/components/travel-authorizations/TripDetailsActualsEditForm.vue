@@ -26,7 +26,7 @@
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
       :current-travel-segment-estimates="travelSegments"
-      @updated="updateTravelAuthorizationAndEmitTripMetadataUpdate"
+      @updated="updateTravelSegmentsAttributes"
     />
     <div v-else>Trip type {{ tripType }} not implemented!</div>
     <v-row class="mt-6">
@@ -34,9 +34,9 @@
         cols="12"
         md="2"
       >
-        <TravelDurationTextField
+        <TravelDurationFromTravelSegmentsTextField
           v-model="travelAuthorization.travelDuration"
-          :stops="travelAuthorization.stops"
+          :travel-segments="travelSegmentsAttributes"
         />
       </v-col>
       <v-col
@@ -93,7 +93,7 @@ import useTravelSegments from "@/use/use-travel-segments"
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
-import TravelDurationTextField from "@/components/travel-authorizations/details-edit-form-card/TravelDurationTextField.vue"
+import TravelDurationFromTravelSegmentsTextField from "@/components/travel-authorizations/TravelDurationFromTravelSegmentsTextField.vue"
 
 /**
  * Travel time business rules:
@@ -135,6 +135,13 @@ const travelSegmentEstimatesQuery = computed(() => ({
 const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
+const travelSegmentsAttributes = ref([])
+
+function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
+  travelSegmentsAttributes.value = newTravelSegmentsAttributes
+
+  updateTravelAuthorizationAndEmitTripMetadataUpdate(newTravelSegmentsAttributes)
+}
 
 function updateTravelAuthorizationAndEmitTripMetadataUpdate(newTravelSegmentsAttributes) {
   const departureDate = newTravelSegmentsAttributes.at(0)?.departureOn
