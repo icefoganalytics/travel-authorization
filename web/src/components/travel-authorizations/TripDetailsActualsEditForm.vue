@@ -26,6 +26,7 @@
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
       :current-travel-segment-estimates="travelSegments"
+      @updated="updateTravelAuthorizationAndEmitTripMetadataUpdate"
     />
     <div v-else>Trip type {{ tripType }} not implemented!</div>
     <v-row class="mt-6">
@@ -66,7 +67,7 @@
       >
         <DatePicker
           v-model="travelAuthorization.dateBackToWork"
-          :min="lastDepartureDate"
+          :min="latestDepartureDate"
           :rules="[required]"
           label="Expected Date return to work"
           dense
@@ -79,8 +80,8 @@
 </template>
 
 <script setup>
-import { computed, defineAsyncComponent, nextTick, ref, toRefs, watch } from "vue"
-import { first, findLast, isNil, last } from "lodash"
+import { computed, defineAsyncComponent, nextTick, ref, toRefs } from "vue"
+import { max, isNil } from "lodash"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/validators"
 
@@ -133,8 +134,34 @@ const travelSegmentActualsQuery = computed(() => ({
 }))
 const { travelSegments } = useTravelSegments(travelSegmentActualsQuery)
 
-const firstTravelSegment = computed(() => first(travelSegments.value))
-const lastTravelSegment = computed(() => last(travelSegments.value))
+const latestDepartureDate = ref(null)
+
+function updateTravelAuthorizationAndEmitTripMetadataUpdate(newTravelSegmentsAttributes) {
+  const departureDate = newTravelSegmentsAttributes.at(0)?.departureOn
+  if (!isNil(departureDate)) {
+    emit("update:departureDate", departureDate)
+  }
+
+  const finalDestinationLocationId = newTravelSegmentsAttributes.at(-1)?.arrivalLocationId
+  if (!isNil(finalDestinationLocationId)) {
+    emit("update:finalDestinationLocationId", finalDestinationLocationId)
+  }
+
+  const newLatestDepartureDate = max(
+    newTravelSegmentsAttributes.map(
+      (travelSegmentAttributes) => travelSegmentAttributes.departureOn
+    )
+  )
+  if (!isNil(newLatestDepartureDate)) {
+    latestDepartureDate.value = newLatestDepartureDate
+
+    const currentReturnDate = travelAuthorization.value?.dateBackToWork
+    if (isNil(currentReturnDate) || newLatestDepartureDate > currentReturnDate) {
+      travelAuthorization.value.dateBackToWork = newLatestDepartureDate
+      emit("update:returnDate", newLatestDepartureDate)
+    }
+  }
+}
 
 /** @typedef {import('vuetify/lib/components').VForm} VForm */
 /** @type {import('vue').Ref<typeof VForm | null>} */
@@ -144,50 +171,6 @@ async function resetFormValidation() {
   await nextTick()
   form.value?.resetValidation()
 }
-
-watch(
-  () => firstTravelSegment.value,
-  (newFirstTravelSegment) => {
-    if (isNil(newFirstTravelSegment)) return
-
-    const { departureOn } = newFirstTravelSegment
-    emit("update:departureDate", departureOn)
-  }
-)
-
-watch(
-  () => lastTravelSegment.value,
-  (newLastTravelSegment) => {
-    if (isNil(newLastTravelSegment)) return
-
-    const { arrivalLocationId } = newLastTravelSegment
-    emit("update:finalDestinationLocationId", arrivalLocationId)
-  }
-)
-
-const lastDepartureDate = computed(() => {
-  const lastTravelSegmentWithDepartureDate = findLast(
-    travelSegments.value,
-    (travelSegment) => !isNil(travelSegment.departureOn)
-  )
-  return lastTravelSegmentWithDepartureDate?.departureOn
-})
-
-watch(
-  () => lastDepartureDate.value,
-  (newLastDepartureDate) => {
-    if (isNil(newLastDepartureDate)) return
-    if (
-      !isNil(travelAuthorization.value.dateBackToWork) &&
-      newLastDepartureDate < travelAuthorization.value.dateBackToWork
-    ) {
-      return
-    }
-
-    travelAuthorization.value.dateBackToWork = newLastDepartureDate
-    emit("update:returnDate", newLastDepartureDate)
-  }
-)
 
 const TravelSegmentActualsRoundTripSection = defineAsyncComponent(
   () => import("@/components/travel-segments/TravelSegmentsCreateActualsRoundTripSection.vue")
