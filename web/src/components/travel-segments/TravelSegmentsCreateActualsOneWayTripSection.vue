@@ -179,8 +179,8 @@ const travelSegmentsAttributes = ref([
   },
 ])
 
-function applyExistingDefaultValues(newTravelSegments) {
-  const firstTravelSegment = pick(first(newTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
+function applyExistingDefaultValues(newTravelSegmentEstimates) {
+  const firstTravelSegment = pick(first(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
 
   travelSegmentsAttributes.value = [
     {
@@ -196,9 +196,9 @@ function applyExistingDefaultValues(newTravelSegments) {
 }
 
 watch(
-  () => cloneDeep(props.currentTravelSegments),
-  (newTravelSegments) => {
-    applyExistingDefaultValues(newTravelSegments)
+  () => cloneDeep(props.currentTravelSegmentEstimates),
+  (newTravelSegmentEstimates) => {
+    applyExistingDefaultValues(newTravelSegmentEstimates)
   },
   {
     deep: true,
