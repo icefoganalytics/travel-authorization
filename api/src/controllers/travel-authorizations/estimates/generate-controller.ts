@@ -43,6 +43,9 @@ export class GenerateController extends BaseController {
       include: [
         {
           association: "travelSegments",
+          where: {
+            isActual: false,
+          },
           include: ["departureLocation", "arrivalLocation"],
         },
       ],
