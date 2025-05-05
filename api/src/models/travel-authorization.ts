@@ -122,6 +122,8 @@ export class TravelAuthorization extends Model<
   declare expenses?: NonAttribute<Expense[]>
   declare stops?: NonAttribute<Stop[]>
   declare travelSegments?: NonAttribute<TravelSegment[]>
+  declare travelSegmentActuals?: NonAttribute<TravelSegment[]>
+  declare travelSegmentEstimates?: NonAttribute<TravelSegment[]>
 
   declare static associations: {
     expenses: Association<TravelAuthorization, Expense>
@@ -130,6 +132,8 @@ export class TravelAuthorization extends Model<
     stops: Association<TravelAuthorization, Stop>
     travelDeskTravelRequest: Association<TravelAuthorization, TravelDeskTravelRequest>
     travelSegments: Association<TravelAuthorization, TravelSegment>
+    travelSegmentActuals: Association<TravelAuthorization, TravelSegment>
+    travelSegmentEstimates: Association<TravelAuthorization, TravelSegment>
     user: Association<TravelAuthorization, User>
   }
 
@@ -165,6 +169,22 @@ export class TravelAuthorization extends Model<
       as: "travelSegments",
       sourceKey: "id",
       foreignKey: "travelAuthorizationId",
+    })
+    this.hasMany(TravelSegment, {
+      as: "travelSegmentActuals",
+      sourceKey: "id",
+      foreignKey: "travelAuthorizationId",
+      scope: {
+        isActual: true,
+      },
+    })
+    this.hasMany(TravelSegment, {
+      as: "travelSegmentEstimates",
+      sourceKey: "id",
+      foreignKey: "travelAuthorizationId",
+      scope: {
+        isActual: false,
+      },
     })
   }
 
