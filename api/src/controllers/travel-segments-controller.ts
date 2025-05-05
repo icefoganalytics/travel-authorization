@@ -5,6 +5,7 @@ import logger from "@/utils/logger"
 import { TravelAuthorization, TravelSegment } from "@/models"
 import { TravelSegmentsPolicy } from "@/policies"
 import { CreateService, DestroyService, UpdateService } from "@/services/travel-segments"
+import { ShowSerializer } from "@/serializers/travel-segments"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelSegmentsController extends BaseController<TravelSegment> {
@@ -51,8 +52,10 @@ export class TravelSegmentsController extends BaseController<TravelSegment> {
         })
       }
 
+      const serializedTravelSegment = ShowSerializer.perform(travelSegment, this.currentUser)
+
       return this.response.status(200).json({
-        travelSegment,
+        travelSegment: serializedTravelSegment,
         policy,
       })
     } catch (error) {
@@ -74,9 +77,11 @@ export class TravelSegmentsController extends BaseController<TravelSegment> {
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const travelSegment = CreateService.perform(permittedAttributes, this.currentUser)
+      const travelSegment = await CreateService.perform(permittedAttributes, this.currentUser)
+      const serializedTravelSegment = ShowSerializer.perform(travelSegment, this.currentUser)
+
       return this.response.status(201).json({
-        travelSegment,
+        travelSegment: serializedTravelSegment,
       })
     } catch (error) {
       logger.error(`Error creating travel segment: ${error}`, { error })
@@ -104,8 +109,10 @@ export class TravelSegmentsController extends BaseController<TravelSegment> {
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
       await UpdateService.perform(travelSegment, permittedAttributes, this.currentUser)
+      const serializedTravelSegment = ShowSerializer.perform(travelSegment, this.currentUser)
+
       return this.response.status(200).json({
-        travelSegment,
+        travelSegment: serializedTravelSegment,
         policy,
       })
     } catch (error) {
