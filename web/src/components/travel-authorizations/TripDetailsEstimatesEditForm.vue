@@ -183,11 +183,11 @@ function updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes) {
 const TravelSegmentsAttributesRoundTripSection = defineAsyncComponent(
   () => import("@/components/travel-segments/TravelSegmentsAttributesRoundTripSection.vue")
 )
-const TravelSegmentActualsOneWayTripSection = defineAsyncComponent(
-  () => import("@/components/travel-segments/TravelSegmentsCreateActualsOneWayTripSection.vue")
+const TravelSegmentsAttributesOneWayTripSection = defineAsyncComponent(
+  () => import("@/components/travel-segments/TravelSegmentsAttributesOneWayTripSection.vue")
 )
-const TravelSegmentActualsMultiCityTripSection = defineAsyncComponent(
-  () => import("@/components/travel-segments/TravelSegmentsCreateActualsMultiCityTripSection.vue")
+const TravelSegmentsAttributesMultiCityTripSection = defineAsyncComponent(
+  () => import("@/components/travel-segments/TravelSegmentsAttributesMultiCityTripSection.vue")
 )
 
 const tripTypeComponent = computed(() => {
@@ -195,9 +195,9 @@ const tripTypeComponent = computed(() => {
     case TRIP_TYPES.ROUND_TRIP:
       return TravelSegmentsAttributesRoundTripSection
     case TRIP_TYPES.ONE_WAY:
-      return TravelSegmentActualsOneWayTripSection
+      return TravelSegmentsAttributesOneWayTripSection
     case TRIP_TYPES.MULTI_CITY:
-      return TravelSegmentActualsMultiCityTripSection
+      return TravelSegmentsAttributesMultiCityTripSection
     default:
       return null
   }
