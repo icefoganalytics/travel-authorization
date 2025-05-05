@@ -444,6 +444,8 @@ function addTravelSegmentAttribute() {
 }
 
 function buildLocationFilters(idsToExclude) {
+  if (isNil(idsToExclude)) return {}
+
   return {
     excludeById: idsToExclude,
   }
