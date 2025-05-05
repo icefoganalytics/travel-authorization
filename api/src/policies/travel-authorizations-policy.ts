@@ -1,9 +1,10 @@
 import { Attributes, FindOptions, Op } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
-import { User, TravelAuthorization } from "@/models"
+import { User, TravelAuthorization, TravelSegment } from "@/models"
 import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
+import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
 import UsersPolicy from "@/policies/users-policy"
 
 export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorization) {
@@ -118,6 +119,10 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
             "fileName",
           ],
         },
+        {
+          travelSegmentEstimatesAttributes:
+            this.travelSegmentsPolicy.permittedAttributesForCreate(),
+        },
       ]
     }
 
@@ -189,6 +194,10 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
 
   private get userPolicy(): UsersPolicy {
     return new UsersPolicy(this.user, User.build())
+  }
+
+  private get travelSegmentsPolicy(): TravelSegmentsPolicy {
+    return new TravelSegmentsPolicy(this.user, TravelSegment.build())
   }
 }
 

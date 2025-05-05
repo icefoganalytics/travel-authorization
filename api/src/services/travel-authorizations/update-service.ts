@@ -1,31 +1,26 @@
-import { CreationAttributes } from "sequelize"
+import { Attributes } from "sequelize"
 import { isEmpty, isNil, isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
-import { Expense, Stop, TravelAuthorization, User } from "@/models"
+import { Expense, Stop, TravelAuthorization, TravelSegment, User } from "@/models"
 import { TripTypes as TravelAuthorizationTripTypes } from "@/models/travel-authorization"
-import { StopsService, ExpensesService, Stops } from "@/services"
+import { StopsService, Expenses, Stops } from "@/services"
+
+export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAuthorization>> & {
+  stops?: Partial<Attributes<Stop>>[]
+  expenses?: Partial<Attributes<Expense>>[]
+  travelSegmentEstimatesAttributes?: Partial<Attributes<TravelSegment>>[]
+}
 
 export class UpdateService extends BaseService {
-  private travelAuthorization: TravelAuthorization
-  private stops?: CreationAttributes<Stop>[]
-  private expenses: CreationAttributes<Expense>[]
-  private attributes: Partial<TravelAuthorization>
-  private currentUser: User
-
   constructor(
-    travelAuthorization: TravelAuthorization,
-    { stops, expenses = [], ...attributes }: Partial<TravelAuthorization>,
-    currentUser: User
+    protected travelAuthorization: TravelAuthorization,
+    protected attributes: TravelAuthorizationUpdateAttributes,
+    protected currentUser: User
   ) {
     super()
-    this.travelAuthorization = travelAuthorization
-    this.attributes = attributes
-    this.stops = stops
-    this.expenses = expenses
-    this.currentUser = currentUser
   }
 
   async perform(): Promise<TravelAuthorization> {
@@ -34,14 +29,19 @@ export class UpdateService extends BaseService {
         throw new Error(`Could not update TravelAuthorization: ${error}`)
       })
 
+      const { travelSegmentEstimatesAttributes } = this.attributes
+      if (!isNil(travelSegmentEstimatesAttributes)) {
+        throw new Error("Debugging travel segment estimates nested attribute bulk replace.")
+      }
+
       const travelAuthorizationId = this.travelAuthorization.id
-      const { tripTypeEstimate } = this.travelAuthorization
-      if (!isUndefined(this.stops) && !isNil(tripTypeEstimate)) {
-        if (!this.isValidStopCount(tripTypeEstimate, this.stops)) {
+      const { tripTypeEstimate, stops } = this.travelAuthorization
+      if (!isUndefined(stops) && !isNil(tripTypeEstimate)) {
+        if (!this.isValidStopCount(tripTypeEstimate, stops)) {
           throw new Error("Stop count is not valid for trip type.")
         }
 
-        await StopsService.bulkReplace(travelAuthorizationId, this.stops)
+        await StopsService.bulkReplace(travelAuthorizationId, stops)
         // TODO: remove this once travel segments fully replace stops
         await Stops.BulkConvertStopsToTravelSegmentsService.perform(this.travelAuthorization)
       }

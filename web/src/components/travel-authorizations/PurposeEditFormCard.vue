@@ -55,7 +55,7 @@
         xl="4"
       >
         <LocationsAutocomplete
-          :value="lastStop.locationId"
+          v-model="finalDestinationLocationId"
           :in-territory="travelAuthorization.allTravelWithinTerritory"
           :rules="[required]"
           clearable
@@ -65,7 +65,7 @@
           persistent-hint
           required
           validate-on-blur
-          @input="updateLastStopLocationId"
+          @input="emit('update:finalDestinationLocationId', $event)"
         />
       </v-col>
     </v-row>
@@ -99,6 +99,8 @@
 <script setup>
 import { ref, toRefs } from "vue"
 
+import { TRIP_TYPES } from "@/use/use-travel-authorization"
+
 import { required } from "@/utils/validators"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
@@ -116,24 +118,31 @@ const props = defineProps({
 const emit = defineEmits(["update:travelPurposeId", "update:finalDestinationLocationId"])
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, stops, lastStop, replaceStops, save } =
-  useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
-function updateLastStopLocationId(locationId) {
-  replaceStops([
-    ...stops.value.slice(0, -1),
-    {
-      ...lastStop.value,
-      locationId,
-    },
-  ])
-  emit("update:finalDestinationLocationId", locationId)
-}
+const finalDestinationLocationId = ref(null)
 
 const headerActionsFormCard = ref(null)
 
+async function saveWrapper() {
+  return save({
+    purposeId: travelAuthorization.value.purposeId,
+    eventName: travelAuthorization.value.eventName,
+    allTravelWithinTerritory: travelAuthorization.value.allTravelWithinTerritory,
+    benefits: travelAuthorization.value.benefits,
+    travelSegmentEstimatesAttributes: [
+      {
+        departureStopId: null,
+        arrivalStopId: finalDestinationLocationId.value,
+        segmentNumber: 1,
+        travelType: TRIP_TYPES.ROUND_TRIP,
+      },
+    ],
+  })
+}
+
 defineExpose({
-  save,
+  save: saveWrapper,
   validate: () => headerActionsFormCard.value?.validate(),
 })
 </script>
