@@ -1,6 +1,6 @@
 import { stopFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
 import { TravelSegment } from "@/models"
-import { fa, faker } from "@faker-js/faker"
+import { faker } from "@faker-js/faker"
 
 describe("api/src/models/travel-segment.ts", () => {
   describe("TravelSegment", () => {
