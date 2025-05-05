@@ -45,6 +45,7 @@
           :rules="[required]"
           dense
           persistent-hint
+          @input="nudgeLaterTravelSegmentsDates(1, $event)"
         />
       </v-col>
       <v-col
@@ -227,6 +228,17 @@ const tripDestinationLocationId = computed({
     }
   },
 })
+
+function nudgeLaterTravelSegmentsDates(index, value) {
+  for (let i = index; i < travelSegmentsAttributes.value.length; i++) {
+    const travelSegment = travelSegmentsAttributes.value[i]
+    if (isNil(travelSegment)) return
+
+    if (isNil(value) || value > travelSegment.departureOn) {
+      travelSegment.departureOn = value
+    }
+  }
+}
 
 function buildLocationFilters(idsToExclude) {
   return {
