@@ -11,6 +11,7 @@
           v-model="tripOriginLocationId"
           label="From"
           :in-territory="allTravelWithinTerritory"
+          :filters="buildLocationFilters(tripDestinationLocationId)"
           :rules="[required]"
           dense
           outlined
@@ -26,6 +27,7 @@
           v-model="tripDestinationLocationId"
           label="To"
           :in-territory="allTravelWithinTerritory"
+          :filters="buildLocationFilters(tripOriginLocationId)"
           :rules="[required]"
           dense
           outlined
@@ -126,6 +128,7 @@
           v-model="tripDestinationLocationId"
           label="From"
           :in-territory="allTravelWithinTerritory"
+          :filters="buildLocationFilters(tripOriginLocationId)"
           :rules="[required]"
           dense
           outlined
@@ -141,6 +144,7 @@
           v-model="tripOriginLocationId"
           label="To"
           :in-territory="allTravelWithinTerritory"
+          :filters="buildLocationFilters(tripDestinationLocationId)"
           :rules="[required]"
           dense
           outlined
@@ -378,6 +382,12 @@ const tripDestinationLocationId = computed({
     }
   },
 })
+
+function buildLocationFilters(idsToExclude) {
+  return {
+    excludeById: idsToExclude,
+  }
+}
 
 watch(
   () => cloneDeep(travelSegmentsAttributes.value),
