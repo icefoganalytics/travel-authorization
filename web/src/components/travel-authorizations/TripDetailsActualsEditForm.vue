@@ -227,7 +227,7 @@ async function save() {
       travelDurationActual: travelAuthorization.value.travelDurationActual,
       daysOffTravelStatusActual: travelAuthorization.value.daysOffTravelStatusActual,
       dateBackToWorkActual: travelAuthorization.value.dateBackToWorkActual,
-      travelSegmentsActualsAttributes: travelSegmentsAttributes.value,
+      travelSegmentActualsAttributes: travelSegmentsAttributes.value,
     })
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })
