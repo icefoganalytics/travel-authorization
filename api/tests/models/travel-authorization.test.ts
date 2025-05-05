@@ -25,7 +25,7 @@ describe("api/src/models/travel-authorization.ts", () => {
           expect.objectContaining({
             departureLocationId: stop1.locationId,
             arrivalLocationId: stop2.locationId,
-            segmentNumber: 0,
+            segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: TravelSegment.AccommodationTypes.HOTEL,
             departureOn: stop1.departureDate,
@@ -34,7 +34,7 @@ describe("api/src/models/travel-authorization.ts", () => {
           expect.objectContaining({
             departureLocationId: stop2.locationId,
             arrivalLocationId: stop1.locationId,
-            segmentNumber: 1,
+            segmentNumber: 2,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
             departureOn: stop2.departureDate,
@@ -64,7 +64,7 @@ describe("api/src/models/travel-authorization.ts", () => {
           expect.objectContaining({
             departureLocationId: stop1.locationId,
             arrivalLocationId: stop2.locationId,
-            segmentNumber: 0,
+            segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
             departureOn: stop1.departureDate,
@@ -99,7 +99,7 @@ describe("api/src/models/travel-authorization.ts", () => {
           expect.objectContaining({
             departureLocationId: stop1.locationId,
             arrivalLocationId: stop2.locationId,
-            segmentNumber: 0,
+            segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: TravelSegment.AccommodationTypes.HOTEL,
             departureOn: stop1.departureDate,
@@ -108,7 +108,7 @@ describe("api/src/models/travel-authorization.ts", () => {
           expect.objectContaining({
             departureLocationId: stop2.locationId,
             arrivalLocationId: stop3.locationId,
-            segmentNumber: 1,
+            segmentNumber: 2,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
             departureOn: stop2.departureDate,
@@ -196,13 +196,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: "2025-01-20",
             departureTime: "08:30",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: "2025-01-28",
             departureTime: "11:30",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           // negative cases
@@ -214,13 +214,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: "2025-01-20",
             departureTime: "08:30",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: "2025-01-24",
             departureTime: "18:29",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const futureTravelAuthorization = await travelAuthorizationFactory.create({
@@ -231,13 +231,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: futureTravelAuthorization.id,
             departureOn: "2025-01-24",
             departureTime: "18:31",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: futureTravelAuthorization.id,
             departureOn: "2025-01-28",
             departureTime: "11:30",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const result = await TravelAuthorization.scope("isTravelling").findAll()
@@ -258,13 +258,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: "2025-01-20",
             departureTime: null,
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: "2025-01-28",
             departureTime: null,
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const result = await TravelAuthorization.scope("isTravelling").findAll()
@@ -285,13 +285,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: null,
             departureTime: null,
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: null,
             departureTime: null,
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const result = await TravelAuthorization.scope("isTravelling").findAll()
@@ -321,13 +321,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: "2025-01-28",
             departureTime: "08:30",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: "2025-01-30",
             departureTime: "11:30",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           // negative cases
@@ -339,13 +339,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: pastTravelAuthorization.id,
             departureOn: "2025-01-20",
             departureTime: "08:00",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: pastTravelAuthorization.id,
             departureOn: "2025-01-24",
             departureTime: "18:29",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const travellingTravelAuthorization = await travelAuthorizationFactory.create({
@@ -356,13 +356,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: "2025-01-20",
             departureTime: "18:00",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: "2025-01-28",
             departureTime: "11:30",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const result = await TravelAuthorization.scope("isUpcomingTravel").findAll()
@@ -383,13 +383,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: "2025-01-28",
             departureTime: null,
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: "2025-01-30",
             departureTime: null,
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const result = await TravelAuthorization.scope("isUpcomingTravel").findAll()
@@ -410,13 +410,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: null,
             departureTime: null,
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: null,
             departureTime: null,
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const result = await TravelAuthorization.scope("isUpcomingTravel").findAll()
@@ -446,13 +446,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: "2025-01-20",
             departureTime: "08:30",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: travellingTravelAuthorization.id,
             departureOn: "2025-01-28",
             departureTime: "11:30",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const upcomingTravelAuthorization = await travelAuthorizationFactory.create({
@@ -463,13 +463,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: "2025-01-24",
             departureTime: "18:31",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: upcomingTravelAuthorization.id,
             departureOn: "2025-01-28",
             departureTime: "10:00",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           // negative cases
@@ -481,13 +481,13 @@ describe("api/src/models/travel-authorization.ts", () => {
             travelAuthorizationId: completedTravelAuthorization.id,
             departureOn: "2025-01-20",
             departureTime: "08:00",
-            segmentNumber: 0,
+            segmentNumber: 1,
           })
           await travelSegmentFactory.create({
             travelAuthorizationId: completedTravelAuthorization.id,
             departureOn: "2025-01-24",
             departureTime: "18:29",
-            segmentNumber: 1,
+            segmentNumber: 2,
           })
 
           const result = await TravelAuthorization.scope("isBeforeTripEnd").findAll()

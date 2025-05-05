@@ -43,7 +43,7 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
           expect.objectContaining({
             departureLocationId: location1.id,
             arrivalLocationId: location2.id,
-            segmentNumber: 0,
+            segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: TravelSegment.AccommodationTypes.HOTEL,
             departureOn: stop1.departureDate,
@@ -52,7 +52,7 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
           expect.objectContaining({
             departureLocationId: location2.id,
             arrivalLocationId: location1.id,
-            segmentNumber: 1,
+            segmentNumber: 2,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
             departureOn: stop2.departureDate,

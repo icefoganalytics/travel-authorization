@@ -175,7 +175,7 @@ export class TravelAuthorization extends Model<
           travelAuthorizationId: this.id,
           departureStop: stop,
           arrivalStop,
-          segmentNumber: index,
+          segmentNumber: index + 1,
         })
         travelSegments.push(travelSegment)
         return travelSegments
@@ -190,7 +190,7 @@ export class TravelAuthorization extends Model<
         travelAuthorizationId: this.id,
         departureStop: stop,
         arrivalStop: stops[index + 1],
-        segmentNumber: index,
+        segmentNumber: index + 1,
       })
       travelSegments.push(travelSegment)
       return travelSegments

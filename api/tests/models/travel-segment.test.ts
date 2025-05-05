@@ -15,7 +15,7 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 0, max: 10 })
+        const segmentNumber = faker.number.int({ min: 1, max: 10 })
 
         const travelSegment = TravelSegment.buildFromStops({
           travelAuthorizationId: travelAuthorization.id,
@@ -47,7 +47,7 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 0, max: 10 })
+        const segmentNumber = faker.number.int({ min: 1, max: 10 })
 
         expect(() =>
           TravelSegment.buildFromStops({
@@ -68,7 +68,7 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 0, max: 10 })
+        const segmentNumber = faker.number.int({ min: 1, max: 10 })
 
         const travelSegment = TravelSegment.buildFromStops({
           travelAuthorizationId: travelAuthorization.id,
@@ -94,7 +94,7 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 0, max: 10 })
+        const segmentNumber = faker.number.int({ min: 1, max: 10 })
 
         const travelSegment = TravelSegment.buildFromStops({
           travelAuthorizationId: travelAuthorization.id,
@@ -120,7 +120,7 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 0, max: 10 })
+        const segmentNumber = faker.number.int({ min: 1, max: 10 })
 
         const travelSegment = TravelSegment.buildFromStops({
           travelAuthorizationId: travelAuthorization.id,

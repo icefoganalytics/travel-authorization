@@ -28,7 +28,7 @@ describe("api/src/services/stops/bulk-convert-stops-to-travel-segments-service.t
           expect.objectContaining({
             departureLocationId: stop1.locationId,
             arrivalLocationId: stop2.locationId,
-            segmentNumber: 0,
+            segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: TravelSegment.AccommodationTypes.HOTEL,
             departureOn: stop1.departureDate,
@@ -37,7 +37,7 @@ describe("api/src/services/stops/bulk-convert-stops-to-travel-segments-service.t
           expect.objectContaining({
             departureLocationId: stop2.locationId,
             arrivalLocationId: stop1.locationId,
-            segmentNumber: 1,
+            segmentNumber: 2,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
             departureOn: stop2.departureDate,
@@ -69,7 +69,7 @@ describe("api/src/services/stops/bulk-convert-stops-to-travel-segments-service.t
           expect.objectContaining({
             departureLocationId: stop1.locationId,
             arrivalLocationId: stop2.locationId,
-            segmentNumber: 0,
+            segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
             departureOn: stop1.departureDate,
@@ -113,7 +113,7 @@ describe("api/src/services/stops/bulk-convert-stops-to-travel-segments-service.t
           expect.objectContaining({
             departureLocationId: stop1.locationId,
             arrivalLocationId: stop2.locationId,
-            segmentNumber: 0,
+            segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: TravelSegment.AccommodationTypes.HOTEL,
             departureOn: stop1.departureDate,
@@ -122,7 +122,7 @@ describe("api/src/services/stops/bulk-convert-stops-to-travel-segments-service.t
           expect.objectContaining({
             departureLocationId: stop2.locationId,
             arrivalLocationId: stop3.locationId,
-            segmentNumber: 1,
+            segmentNumber: 2,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: TravelSegment.AccommodationTypes.HOTEL,
             departureOn: stop2.departureDate,
@@ -131,7 +131,7 @@ describe("api/src/services/stops/bulk-convert-stops-to-travel-segments-service.t
           expect.objectContaining({
             departureLocationId: stop3.locationId,
             arrivalLocationId: stop4.locationId,
-            segmentNumber: 2,
+            segmentNumber: 3,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
             departureOn: stop3.departureDate,
