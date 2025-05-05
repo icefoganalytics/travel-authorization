@@ -276,6 +276,7 @@ async function save() {
   } catch (error) {
     console.error(`Errored while saving travel segments: ${error}`)
     snack.error(`Errored while saving travel segments: ${error}`)
+    throw error
   } finally {
     isSaving.value = false
   }

@@ -221,6 +221,8 @@ async function save() {
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })
     snack.error(`Failed to save travel authorization: ${error}`)
+    // TODO: Consider deleting any created actuals?
+    throw error
   } finally {
     isSaving.value = false
   }
