@@ -138,20 +138,32 @@ const travelSegmentsAttributes = ref([])
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes
 
-  updateTravelAuthorizationAndEmitTripMetadataUpdate(newTravelSegmentsAttributes)
+  updateDepartureDate(newTravelSegmentsAttributes)
+  updateFinalDestinationLocationId(newTravelSegmentsAttributes)
+  updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes)
 }
 
-function updateTravelAuthorizationAndEmitTripMetadataUpdate(newTravelSegmentsAttributes) {
+function updateDepartureDate(newTravelSegmentsAttributes) {
   const departureDate = newTravelSegmentsAttributes.at(0)?.departureOn
   if (!isNil(departureDate)) {
     emit("update:departureDate", departureDate)
   }
+}
 
-  const finalDestinationLocationId = newTravelSegmentsAttributes.at(-1)?.arrivalLocationId
+function updateFinalDestinationLocationId(newTravelSegmentsAttributes) {
+  let finalDestinationLocationId = null
+  if (tripType.value === TRIP_TYPES.ROUND_TRIP) {
+    finalDestinationLocationId = newTravelSegmentsAttributes.at(-2)?.arrivalLocationId
+  } else {
+    finalDestinationLocationId = newTravelSegmentsAttributes.at(-1)?.arrivalLocationId
+  }
+
   if (!isNil(finalDestinationLocationId)) {
     emit("update:finalDestinationLocationId", finalDestinationLocationId)
   }
+}
 
+function updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes) {
   const newLatestDepartureDate = max(
     newTravelSegmentsAttributes.map(
       (travelSegmentAttributes) => travelSegmentAttributes.departureOn
