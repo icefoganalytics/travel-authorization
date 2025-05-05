@@ -15,9 +15,9 @@ import {
 
 import sequelize from "@/db/db-client"
 
-import Location from "./location"
-import TravelAuthorization from "./travel-authorization"
-import TravelSegment from "./travel-segment"
+import Location from "@/models/location"
+import TravelAuthorization from "@/models/travel-authorization"
+import TravelSegment from "@/models/travel-segment"
 
 /*
 DEPRECATED: Whenever you use this model, try and figure out how to migrate
@@ -38,6 +38,7 @@ export class Stop extends Model<InferAttributes<Stop>, InferCreationAttributes<S
   declare departureTime: string | null
   declare transport: string | null
   declare accommodationType: string | null
+  declare isActual: CreationOptional<boolean>
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
 
@@ -123,6 +124,11 @@ Stop.init(
     accommodationType: {
       type: DataTypes.STRING(255),
       allowNull: true,
+    },
+    isActual: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     createdAt: {
       type: DataTypes.DATE,

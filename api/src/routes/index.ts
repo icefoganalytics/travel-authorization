@@ -43,6 +43,7 @@ import {
   TravelDeskTravelRequests,
   TravelDeskTravelRequestsController,
   TravelPurposesController,
+  TravelSegmentsController,
   Users,
   UsersController,
   YgEmployeeGroups,
@@ -331,6 +332,16 @@ router
   )
   .post(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.create)
   .delete(TravelAuthorizationPreApprovalSubmissions.PreApprovalsController.destroy)
+
+router
+  .route("/api/travel-segments")
+  .get(TravelSegmentsController.index)
+  .post(TravelSegmentsController.create)
+router
+  .route("/api/travel-segments/:travelSegmentId")
+  .get(TravelSegmentsController.show)
+  .patch(TravelSegmentsController.update)
+  .delete(TravelSegmentsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
 router.route("/api/users/:userId").get(UsersController.show)

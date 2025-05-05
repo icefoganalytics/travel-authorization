@@ -21,6 +21,7 @@ export { TravelDeskRentalCarsController } from "./travel-desk-rental-cars-contro
 export { TravelDeskTravelAgenciesController } from "./travel-desk-travel-agencies-controller"
 export { TravelDeskTravelRequestsController } from "./travel-desk-travel-requests-controller"
 export { TravelPurposesController } from "./travel-purposes-controller"
+export { TravelSegmentsController } from "./travel-segments-controller"
 export { UsersController } from "./users-controller"
 export { YgEmployeeGroupsController } from "./yg-employee-groups-controller"
 export { YgEmployeesController } from "./yg-employees-controller"

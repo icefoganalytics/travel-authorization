@@ -8,14 +8,14 @@ import UsersPolicy from "@/policies/users-policy"
 
 export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.userId === this.user.id) return true
 
     return false
   }
 
   show(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
     if (this.record.userId === this.user.id) return true
 
@@ -23,7 +23,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   }
 
   update(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
     if (this.record.userId === this.user.id) return true
 
@@ -33,7 +33,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   // Currently the same as the update policy, but this is likely to change in the future
   // so opted for duplication over premature abstraction.
   destroy(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
     if (
       this.record.userId === this.user.id &&
@@ -49,7 +49,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   permittedAttributes(): Path[] {
     if (
       this.record.status === TravelAuthorization.Statuses.DRAFT ||
-      this.user.roles.includes(User.Roles.ADMIN) ||
+      this.user.isAdmin ||
       this.record.supervisorEmail === this.user.email
     ) {
       return [
@@ -121,6 +121,18 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
       ]
     }
 
+    // TODO: consider moving state based check to the service layer since its business logic?
+    if (this.record.status === TravelAuthorization.Statuses.APPROVED) {
+      // TODO: consider using actuals columns instead of current columns?
+      return [
+        "daysOffTravelStatus",
+        "dateBackToWork",
+        "travelDuration",
+        "tripType",
+        "wizardStepName",
+      ]
+    }
+
     return ["wizardStepName"]
   }
 
@@ -152,7 +164,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
       },
     ]
 
-    if (this.user.roles.includes(User.Roles.ADMIN)) {
+    if (this.user.isAdmin) {
       permittedAttributes.push("userId", {
         userAttributes: this.userPolicy.permittedAttributesForCreate(),
       })
@@ -162,9 +174,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorization>> {
-    if (user.roles.includes(User.Roles.ADMIN)) {
-      return ALL_RECORDS_SCOPE
-    }
+    if (user.isAdmin) return ALL_RECORDS_SCOPE
 
     return {
       where: {

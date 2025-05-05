@@ -1,21 +1,30 @@
 <template>
-  <div class="d-inlin-flex d-md-flex">
-    <v-select
-      :value="accommodationType"
-      :items="accommodationTypes"
-      :label="label"
-      class="mr-md-4"
-      v-bind="$attrs"
-      @input="updateAccommodationType"
-    ></v-select>
-    <v-text-field
-      v-if="accommodationType === ACCOMMODATION_TYPES.OTHER"
-      :value="accommodationTypeOther"
-      :label="`${label} - Other:`"
-      v-bind="$attrs"
-      @input="updateAccommodationTypeOther"
-    ></v-text-field>
-  </div>
+  <v-row ref="row">
+    <v-col
+      cols="12"
+      :md="computedColSize"
+    >
+      <v-select
+        v-model="accommodationType"
+        :items="accommodationTypes"
+        :label="label"
+        v-bind="$attrs"
+        @change="updateAccommodationType"
+      />
+    </v-col>
+    <v-col
+      v-if="showOther"
+      cols="12"
+      :md="computedColSize"
+    >
+      <v-text-field
+        v-model="accommodationTypeOther"
+        :label="`${label} - Other:`"
+        v-bind="$attrs"
+        @blur="updateAccommodationTypeOther"
+      />
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -31,7 +40,10 @@ export default {
       type: String,
       default: null,
     },
-    defaultValue: ACCOMMODATION_TYPES.HOTEL,
+    defaultValue: {
+      type: String,
+      default: ACCOMMODATION_TYPES.HOTEL,
+    },
     label: {
       type: String,
       default: "Type of Accommodation",
@@ -54,7 +66,21 @@ export default {
       accommodationType,
       accommodationTypeOther,
       accommodationTypes,
+      rowWidth: 0,
+      observer: null,
     }
+  },
+  computed: {
+    showOther() {
+      return this.accommodationType === ACCOMMODATION_TYPES.OTHER
+    },
+    computedColSize() {
+      if (this.showOther) {
+        return 6
+      }
+
+      return this.rowWidth > this.$vuetify.breakpoint.thresholds.xs ? 6 : 12
+    },
   },
   watch: {
     value(newValue) {
@@ -69,19 +95,25 @@ export default {
       )
     },
   },
+  mounted() {
+    this.observer = new ResizeObserver(([entry]) => {
+      this.rowWidth = entry.contentRect.width
+    })
+    this.observer.observe(this.$refs.row)
+  },
+  beforeDestroy() {
+    if (this.observer) {
+      this.observer.disconnect()
+    }
+  },
   methods: {
-    updateAccommodationType(value) {
-      if (value === ACCOMMODATION_TYPES.OTHER) {
-        this.$emit("input", this.accommodationTypeOther)
-      } else {
-        this.$emit("input", value)
-      }
+    updateAccommodationType() {
+      if (this.accommodationType === ACCOMMODATION_TYPES.OTHER) return
 
-      this.accommodationType = value
+      this.$emit("input", this.accommodationType)
     },
-    updateAccommodationTypeOther(value) {
-      this.$emit("input", value)
-      this.accommodationTypeOther = value
+    updateAccommodationTypeOther() {
+      this.$emit("input", this.accommodationTypeOther)
     },
     accommodationTypeFromValue(accommodationTypes, value, defaultValue) {
       if (isNil(value)) {

@@ -7,6 +7,7 @@ export type TravelSegmentShowView = Pick<
   TravelSegment,
   | "id"
   | "travelAuthorizationId"
+  | "isActual"
   | "departureLocationId"
   | "arrivalLocationId"
   | "segmentNumber"
@@ -32,6 +33,7 @@ export class ShowSerializer extends BaseSerializer<TravelSegment> {
     return pick(this.record, [
       "id",
       "travelAuthorizationId",
+      "isActual",
       "departureLocationId",
       "arrivalLocationId",
       "segmentNumber",
