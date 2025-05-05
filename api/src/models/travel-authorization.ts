@@ -73,9 +73,12 @@ export class TravelAuthorization extends Model<
   declare unit: string | null
   declare email: string | null
   declare mailcode: string | null
-  declare daysOffTravelStatus: number | null
-  declare dateBackToWork: Date | string | null // DATEONLY accepts Date or string, but returns string
-  declare travelDuration: number | null
+  declare daysOffTravelStatusEstimate: number | null
+  declare daysOffTravelStatusActual: number | null
+  declare dateBackToWorkEstimate: Date | string | null // DATEONLY accepts Date or string, but returns string
+  declare dateBackToWorkActual: Date | string | null // DATEONLY accepts Date or string, but returns string
+  declare travelDurationEstimate: number | null
+  declare travelDurationActual: number | null
   declare travelAdvance: number | null
   declare eventName: string | null
   declare summary: string | null
@@ -86,7 +89,8 @@ export class TravelAuthorization extends Model<
   declare supervisorEmail: string | null
   declare requestChange: string | null
   declare denialReason: string | null
-  declare tripType: TripTypes | null
+  declare tripTypeEstimate: TripTypes | null
+  declare tripTypeActual: TripTypes | null
   declare createdBy: number | null
   declare travelAdvanceInCents: number | null
   declare allTravelWithinTerritory: boolean | null
@@ -94,12 +98,20 @@ export class TravelAuthorization extends Model<
   declare updatedAt: CreationOptional<Date>
 
   // Magic methods
-  get dateBackToWorkAsString(): NonAttribute<string | null> {
-    if (this.dateBackToWork instanceof Date) {
-      return DateTime.fromJSDate(this.dateBackToWork).toFormat("yyyy-LL-dd")
+  get dateBackToWorkEstimateAsString(): NonAttribute<string | null> {
+    if (this.dateBackToWorkEstimate instanceof Date) {
+      return DateTime.fromJSDate(this.dateBackToWorkEstimate).toFormat("yyyy-LL-dd")
     }
 
-    return this.dateBackToWork
+    return this.dateBackToWorkEstimate
+  }
+
+  get dateBackToWorkActualAsString(): NonAttribute<string | null> {
+    if (this.dateBackToWorkActual instanceof Date) {
+      return DateTime.fromJSDate(this.dateBackToWorkActual).toFormat("yyyy-LL-dd")
+    }
+
+    return this.dateBackToWorkActual
   }
 
   // Associations
@@ -162,11 +174,11 @@ export class TravelAuthorization extends Model<
       throw new Error("Must have at least 2 stops to build a travel segments")
     }
 
-    if (this.tripType === TripTypes.MULTI_CITY && this.stops.length < 3) {
+    if (this.tripTypeEstimate === TripTypes.MULTI_CITY && this.stops.length < 3) {
       throw new Error("Must have at least 3 stops to build a multi-stop travel segments")
     }
 
-    if (this.tripType === TripTypes.ROUND_TRIP) {
+    if (this.tripTypeEstimate === TripTypes.ROUND_TRIP) {
       return this.stops.reduce((travelSegments: TravelSegment[], stop, index, stops) => {
         const isLastStop = index === stops.length - 1
         const arrivalStop = isLastStop ? stops[0] : stops[index + 1]
@@ -279,15 +291,27 @@ TravelAuthorization.init(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-    daysOffTravelStatus: {
+    daysOffTravelStatusEstimate: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    dateBackToWork: {
+    daysOffTravelStatusActual: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    dateBackToWorkEstimate: {
       type: DataTypes.DATEONLY,
       allowNull: true,
     },
-    travelDuration: {
+    dateBackToWorkActual: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+    travelDurationEstimate: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    travelDurationActual: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
@@ -340,9 +364,17 @@ TravelAuthorization.init(
       type: DataTypes.STRING(2000),
       allowNull: true,
     },
-    // TODO: replace with string enum field using TripTypes
-    // TODO: set default to false in the database
-    tripType: {
+    tripTypeEstimate: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      validate: {
+        isIn: {
+          args: [Object.values(TripTypes)],
+          msg: `Trip Type must be one of: ${Object.values(TripTypes).join(", ")}`,
+        },
+      },
+    },
+    tripTypeActual: {
       type: DataTypes.STRING(255),
       allowNull: true,
       validate: {

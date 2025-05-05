@@ -35,7 +35,7 @@
         md="2"
       >
         <TravelDurationFromTravelSegmentsTextField
-          v-model="travelAuthorization.travelDuration"
+          v-model="travelAuthorization.travelDurationActual"
           :travel-segments="travelSegmentsAttributes"
         />
       </v-col>
@@ -44,14 +44,14 @@
         md="3"
       >
         <v-text-field
-          v-model.number="travelAuthorization.daysOffTravelStatus"
+          v-model.number="travelAuthorization.daysOffTravelStatusActual"
           label="Days on non-travel status"
           :min="0"
-          :max="travelAuthorization.travelDuration - 1"
+          :max="travelAuthorization.travelDurationActual - 1"
           :rules="[
             isInteger,
             greaterThanOrEqualTo(0),
-            lessThan(travelAuthorization.travelDuration, {
+            lessThan(travelAuthorization.travelDurationActual, {
               referenceFieldLabel: 'the number of travel days',
             }),
           ]"
@@ -66,7 +66,7 @@
         md="3"
       >
         <DatePicker
-          v-model="travelAuthorization.dateBackToWork"
+          v-model="travelAuthorization.dateBackToWorkActual"
           :min="latestDepartureDate"
           :rules="[required]"
           label="Expected Date return to work"
@@ -123,7 +123,9 @@ const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save: saveTravelAuthorization } =
   useTravelAuthorization(travelAuthorizationId)
 
-const defaultTripType = computed(() => travelAuthorization.value.tripType)
+const defaultTripType = computed(
+  () => travelAuthorization.value.tripTypeActual || travelAuthorization.value.tripTypeEstimate
+)
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
 const travelSegmentEstimatesQuery = computed(() => ({
@@ -162,9 +164,9 @@ function updateTravelAuthorizationAndEmitTripMetadataUpdate(newTravelSegmentsAtt
   if (!isNil(newLatestDepartureDate)) {
     latestDepartureDate.value = newLatestDepartureDate
 
-    const currentReturnDate = travelAuthorization.value?.dateBackToWork
+    const currentReturnDate = travelAuthorization.value?.dateBackToWorkActual
     if (isNil(currentReturnDate) || newLatestDepartureDate > currentReturnDate) {
-      travelAuthorization.value.dateBackToWork = newLatestDepartureDate
+      travelAuthorization.value.dateBackToWorkActual = newLatestDepartureDate
       emit("update:returnDate", newLatestDepartureDate)
     }
   }
@@ -213,10 +215,10 @@ async function save() {
   try {
     await tripTypeComponentRef.value?.save()
     await saveTravelAuthorization({
-      tripType: tripType.value,
-      travelDuration: travelAuthorization.value.travelDuration,
-      daysOffTravelStatus: travelAuthorization.value.daysOffTravelStatus,
-      dateBackToWork: travelAuthorization.value.dateBackToWork,
+      tripTypeActual: tripType.value,
+      travelDurationActual: travelAuthorization.value.travelDurationActual,
+      daysOffTravelStatusActual: travelAuthorization.value.daysOffTravelStatusActual,
+      dateBackToWorkActual: travelAuthorization.value.dateBackToWorkActual,
     })
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })

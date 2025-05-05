@@ -55,7 +55,8 @@ export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
         travelAuthorization.stops
       )
       state.departureDate = _determineDepartureDate(travelAuthorization.stops)
-      state.returnDate = travelAuthorization.dateBackToWork
+      state.returnDate =
+        travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
 
       return travelAuthorization
     } catch (error) {

@@ -6,7 +6,7 @@ describe("api/src/models/travel-authorization.ts", () => {
     describe("#buildTravelSegmentsFromStops", () => {
       test("when has 2 stops, and is a round trip, builds the correct travel segment", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const stop1 = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -45,7 +45,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
       test("when has 2 stops, and is a one-way trip, builds the correct travel segment", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ONE_WAY,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
         })
         const stop1 = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -75,7 +75,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
       test("when has 3 stops, and is a multi-stop trip, builds the correct travel segment", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.MULTI_CITY,
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
         })
         const stop1 = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -119,7 +119,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
       test("when stops length is less than 2 for round trip type, errors informatively", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -136,7 +136,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
       test("when stops length is less than 2 for one-way trip type, errors informatively", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ONE_WAY,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
         })
         await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -153,7 +153,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
       test("when stops length is less than 3, for multi-stop trip type, errors informatively", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.MULTI_CITY,
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
         })
         await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -189,7 +189,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
         test("when current date is between trip start and end dates, returns travel authorization", async () => {
           const travellingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -207,7 +207,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
           // negative cases
           const upcomingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -224,7 +224,7 @@ describe("api/src/models/travel-authorization.ts", () => {
           })
 
           const futureTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -251,7 +251,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
         test("when travel time values are missing, still returns the travel authorization", async () => {
           const travellingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -278,7 +278,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
         test("when a date values are missing, does not crash and does not return the travel authorization", async () => {
           const travellingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -314,7 +314,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
         test("when current date is before trip start date, returns the travel authorization", async () => {
           const upcomingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -332,7 +332,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
           // negative cases
           const pastTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -349,7 +349,7 @@ describe("api/src/models/travel-authorization.ts", () => {
           })
 
           const travellingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -376,7 +376,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
         test("when travel time values are missing, still returns the travel authorization", async () => {
           const upcomingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -403,7 +403,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
         test("when a date values are missing, does not crash and does not return the travel authorization", async () => {
           const upcomingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -439,7 +439,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
         test("when current date is before trip end date, returns travel authorization", async () => {
           const travellingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -456,7 +456,7 @@ describe("api/src/models/travel-authorization.ts", () => {
           })
 
           const upcomingTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({
@@ -474,7 +474,7 @@ describe("api/src/models/travel-authorization.ts", () => {
 
           // negative cases
           const completedTravelAuthorization = await travelAuthorizationFactory.create({
-            tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             status: TravelAuthorization.Statuses.APPROVED,
           })
           await travelSegmentFactory.create({

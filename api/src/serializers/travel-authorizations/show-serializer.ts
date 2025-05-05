@@ -29,9 +29,12 @@ export type TravelAuthorizationShowView = Pick<
   | "unit"
   | "email"
   | "mailcode"
-  | "daysOffTravelStatus"
-  | "dateBackToWork"
-  | "travelDuration"
+  | "daysOffTravelStatusEstimate"
+  | "daysOffTravelStatusActual"
+  | "dateBackToWorkEstimate"
+  | "dateBackToWorkActual"
+  | "travelDurationEstimate"
+  | "travelDurationActual"
   | "travelAdvance"
   | "eventName"
   | "summary"
@@ -41,7 +44,8 @@ export type TravelAuthorizationShowView = Pick<
   | "supervisorEmail"
   | "requestChange"
   | "denialReason"
-  | "tripType"
+  | "tripTypeEstimate"
+  | "tripTypeActual"
   | "createdBy"
   | "travelAdvanceInCents"
   | "allTravelWithinTerritory"
@@ -82,9 +86,12 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
         "unit",
         "email",
         "mailcode",
-        "daysOffTravelStatus",
-        "dateBackToWork",
-        "travelDuration",
+        "daysOffTravelStatusEstimate",
+        "daysOffTravelStatusActual",
+        "dateBackToWorkEstimate",
+        "dateBackToWorkActual",
+        "travelDurationEstimate",
+        "travelDurationActual",
         "travelAdvance",
         "eventName",
         "summary",
@@ -94,7 +101,8 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
         "supervisorEmail",
         "requestChange",
         "denialReason",
-        "tripType",
+        "tripTypeEstimate",
+        "tripTypeActual",
         "createdBy",
         "travelAdvanceInCents",
         "allTravelWithinTerritory",

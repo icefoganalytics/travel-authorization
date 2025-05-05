@@ -10,7 +10,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
       test("when given some estimates, it prefills expenses from them", async () => {
         // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
           status: TravelAuthorization.Statuses.APPROVED,
         })
         await travelSegmentFactory.create({
@@ -143,7 +143,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
       test("when travel authorization is not approved, errors informatively", async () => {
         // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
           status: TravelAuthorization.Statuses.DENIED,
         })
 
@@ -158,7 +158,7 @@ describe("api/src/services/expenses/prefill-service.ts", () => {
       test("when travel authorization is approved but current date is not after travel start date, errors informatively", async () => {
         // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
           status: TravelAuthorization.Statuses.APPROVED,
         })
         await travelSegmentFactory.create({

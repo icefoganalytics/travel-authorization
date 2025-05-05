@@ -24,7 +24,7 @@ export class GenerateController extends BaseController {
 
       const travelSegments = travelAuthorization.travelSegments || []
       const estimates = await BulkGenerateService.perform(travelAuthorization.id, travelSegments, {
-        daysOffTravelStatus: travelAuthorization.daysOffTravelStatus || 0,
+        daysOffTravelStatus: travelAuthorization.daysOffTravelStatusEstimate || 0,
       })
       return this.response.status(201).json({
         estimates,

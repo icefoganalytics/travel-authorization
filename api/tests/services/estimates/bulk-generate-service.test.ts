@@ -68,7 +68,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
     describe(".perform", () => {
       test("creates some new estimates against the travel authorization", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
         const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
@@ -174,7 +174,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
 
       test("when times are not specified, defaults to full day times", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
         const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
@@ -282,7 +282,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
 
       test("when departure time is late in the day, no claims are generated for that day", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
         const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
@@ -380,7 +380,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
         })
 
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
         const faro = await locationFactory.create({ city: "Faro", province: "YT" })

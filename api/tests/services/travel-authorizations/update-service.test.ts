@@ -10,7 +10,7 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         const user = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
           userId: user.id,
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const location1 = await locationFactory.create()
         const stop1 = stopFactory.build({
@@ -70,7 +70,7 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         const user = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
           userId: user.id,
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const stop1 = stopFactory.build({
           travelAuthorizationId: travelAuthorization.id,
@@ -106,10 +106,10 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
           userId: user.id,
         })
         const attributes = {
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
-          travelDuration: 3,
-          daysOffTravelStatus: 0,
-          dateBackToWork: "2025-05-03",
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          travelDurationEstimate: 3,
+          daysOffTravelStatusEstimate: 0,
+          dateBackToWorkEstimate: "2025-05-03",
         }
 
         // Act
@@ -118,10 +118,10 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         // Assert
         expect.assertions(1)
         await expect(travelAuthorization.reload()).resolves.toMatchObject({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
-          travelDuration: 3,
-          daysOffTravelStatus: 0,
-          dateBackToWork: "2025-05-03",
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          travelDurationEstimate: 3,
+          daysOffTravelStatusEstimate: 0,
+          dateBackToWorkEstimate: "2025-05-03",
         })
       })
     })

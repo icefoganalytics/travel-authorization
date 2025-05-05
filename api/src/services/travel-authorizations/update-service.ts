@@ -35,9 +35,9 @@ export class UpdateService extends BaseService {
       })
 
       const travelAuthorizationId = this.travelAuthorization.id
-      const { tripType } = this.travelAuthorization
-      if (!isUndefined(this.stops) && !isNil(tripType)) {
-        if (!this.isValidStopCount(tripType, this.stops)) {
+      const { tripTypeEstimate } = this.travelAuthorization
+      if (!isUndefined(this.stops) && !isNil(tripTypeEstimate)) {
+        if (!this.isValidStopCount(tripTypeEstimate, this.stops)) {
           throw new Error("Stop count is not valid for trip type.")
         }
 

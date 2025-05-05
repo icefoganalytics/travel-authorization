@@ -4,8 +4,8 @@
       <v-col cols="12">
         <DescriptionElement label="Trip Type">
           <TravelAuthorizationTripTypeChip
-            v-if="travelAuthorization.tripType"
-            :value="travelAuthorization.tripType"
+            v-if="travelAuthorization.tripTypeEstimate"
+            :value="travelAuthorization.tripTypeEstimate"
           />
         </DescriptionElement>
       </v-col>
@@ -17,7 +17,7 @@
       :travel-authorization-id="travelAuthorizationId"
       class="mb-6"
     />
-    <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
+    <div v-else>Trip type {{ travelAuthorization.tripTypeEstimate }} not implemented!</div>
 
     <v-row>
       <v-col
@@ -25,7 +25,7 @@
         md="2"
       >
         <DescriptionElement
-          :value="travelAuthorization.travelDuration"
+          :value="travelAuthorization.travelDurationEstimate"
           label="Travel Days"
           vertical
         />
@@ -35,7 +35,7 @@
         md="4"
       >
         <DescriptionElement
-          :value="travelAuthorization.daysOffTravelStatus || '0'"
+          :value="travelAuthorization.daysOffTravelStatusEstimate || '0'"
           label="Days on non-travel status"
           vertical
         />
@@ -45,7 +45,7 @@
         md="4"
       >
         <DescriptionElement
-          :value="travelAuthorization.dateBackToWork"
+          :value="travelAuthorization.dateBackToWorkEstimate"
           label="Expected Date return to work"
           vertical
         />
@@ -74,7 +74,7 @@ const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 
 const tripTypeComponent = computed(() => {
-  switch (travelAuthorization.value.tripType) {
+  switch (travelAuthorization.value.tripTypeEstimate) {
     case TRIP_TYPES.ROUND_TRIP:
       return () =>
         import("@/components/travel-authorizations/details-card/RoundTripStopsSection.vue")

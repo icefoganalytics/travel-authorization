@@ -64,9 +64,9 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
         "unit",
         "email",
         "mailcode",
-        "daysOffTravelStatus",
-        "dateBackToWork",
-        "travelDuration",
+        "daysOffTravelStatusEstimate",
+        "dateBackToWorkEstimate",
+        "travelDurationEstimate",
         "travelAdvance",
         "eventName",
         "summary",
@@ -75,7 +75,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
         "approved",
         "requestChange",
         "denialReason",
-        "tripType",
+        "tripTypeEstimate",
         "travelAdvanceInCents",
         "allTravelWithinTerritory",
 
@@ -123,12 +123,11 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
 
     // TODO: consider moving state based check to the service layer since its business logic?
     if (this.record.status === TravelAuthorization.Statuses.APPROVED) {
-      // TODO: consider using actuals columns instead of current columns?
       return [
-        "daysOffTravelStatus",
-        "dateBackToWork",
-        "travelDuration",
-        "tripType",
+        "daysOffTravelStatusActual",
+        "dateBackToWorkActual",
+        "travelDurationActual",
+        "tripTypeActual",
         "wizardStepName",
       ]
     }

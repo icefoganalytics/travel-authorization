@@ -1,5 +1,6 @@
-import { Knex } from "knex"
+import { CreationAttributes } from "sequelize"
 import { isNil } from "lodash"
+import { Knex } from "knex"
 
 import {
   Location,
@@ -92,7 +93,7 @@ export async function seed(_knex: Knex): Promise<void> {
   if (users.length < 3) {
     throw new Error("Could not find enough users.")
   }
-  const travelAuthorizationsAttributes = [
+  const travelAuthorizationsAttributes: CreationAttributes<TravelAuthorization>[] = [
     {
       userId: users[0].id,
       firstName: "John",
@@ -103,9 +104,9 @@ export async function seed(_knex: Knex): Promise<void> {
       unit: "IT",
       email: "John.Doe@yukon.ca",
       mailcode: "123",
-      daysOffTravelStatus: 1,
-      dateBackToWork: new Date("2019-01-01"),
-      travelDuration: 1,
+      daysOffTravelStatusEstimate: 1,
+      dateBackToWorkEstimate: new Date("2019-01-01"),
+      travelDurationEstimate: 1,
       purposeId: travelPurposeInfoTech.id,
       travelAdvance: 4,
       eventName: "An Event",
@@ -117,7 +118,7 @@ export async function seed(_knex: Knex): Promise<void> {
       preApprovalProfileId: travelAuthorizationPreApprovalProfiles[0].id,
       requestChange: "",
       denialReason: "",
-      tripType: TravelAuthorization.TripTypes.ONE_WAY,
+      tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
       createdBy: users[0].id,
     },
     {
@@ -130,9 +131,9 @@ export async function seed(_knex: Knex): Promise<void> {
       unit: "IT",
       email: "Jane.Doe@yukon.ca",
       mailcode: "123",
-      daysOffTravelStatus: 1,
-      dateBackToWork: new Date("2019-01-01"),
-      travelDuration: 1,
+      daysOffTravelStatusEstimate: 1,
+      dateBackToWorkEstimate: new Date("2019-01-01"),
+      travelDurationEstimate: 1,
       purposeId: travelPurposeInfoTech.id,
       travelAdvance: 4,
       eventName: "An Event",
@@ -144,7 +145,7 @@ export async function seed(_knex: Knex): Promise<void> {
       preApprovalProfileId: travelAuthorizationPreApprovalProfiles[1].id,
       requestChange: "",
       denialReason: "",
-      tripType: TravelAuthorization.TripTypes.ONE_WAY,
+      tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
       createdBy: users[1].id,
     },
     {
@@ -157,9 +158,9 @@ export async function seed(_knex: Knex): Promise<void> {
       unit: "IT",
       email: "SomeOther.Guy@yukon.ca",
       mailcode: "123",
-      daysOffTravelStatus: 1,
-      dateBackToWork: new Date("2019-01-01"),
-      travelDuration: 1,
+      daysOffTravelStatusEstimate: 1,
+      dateBackToWorkEstimate: new Date("2019-01-01"),
+      travelDurationEstimate: 1,
       purposeId: travelPurposeInfoTech.id,
       travelAdvance: 4,
       eventName: "An Event",
@@ -171,7 +172,7 @@ export async function seed(_knex: Knex): Promise<void> {
       preApprovalProfileId: travelAuthorizationPreApprovalProfiles[2].id,
       requestChange: "",
       denialReason: "",
-      tripType: TravelAuthorization.TripTypes.ONE_WAY,
+      tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
       createdBy: users[2].id,
     },
   ]

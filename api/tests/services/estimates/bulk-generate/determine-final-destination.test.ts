@@ -8,7 +8,7 @@ describe("api/src/services/estimates/bulk-generate/determine-location-from-date.
     test("when trip is a round trip, final destination is departure location of last segment", async () => {
       // arrange
       const travelAuthorization = await travelAuthorizationFactory.create({
-        tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+        tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
       })
       const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
       const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
@@ -48,7 +48,7 @@ describe("api/src/services/estimates/bulk-generate/determine-location-from-date.
     test("when trip is a one way trip, final destination is arrival location of last segment", async () => {
       // arrange
       const travelAuthorization = await travelAuthorizationFactory.create({
-        tripType: TravelAuthorization.TripTypes.ONE_WAY,
+        tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
       })
       const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
       const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
@@ -76,7 +76,7 @@ describe("api/src/services/estimates/bulk-generate/determine-location-from-date.
     test("when trip is a multi-destination trip, final destination is arrival location of last segment", async () => {
       // arrange
       const travelAuthorization = await travelAuthorizationFactory.create({
-        tripType: TravelAuthorization.TripTypes.MULTI_CITY,
+        tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
       })
       const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
       const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
