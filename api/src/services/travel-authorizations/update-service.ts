@@ -66,7 +66,7 @@ export class UpdateService extends BaseService {
   }
 
   isValidStopCount(attributes: Partial<TravelAuthorization>, stops: Partial<Stop>[]): boolean {
-    if (isUndefined(attributes.tripType) && isEmpty(stops)) {
+    if (isUndefined(attributes.tripType) || isEmpty(stops)) {
       return true
     }
 
