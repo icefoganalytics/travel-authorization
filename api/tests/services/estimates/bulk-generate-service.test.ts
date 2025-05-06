@@ -102,7 +102,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
         const expenses = await BulkGenerateService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
-          { daysOffTravelStatus: 0 }
+          0
         )
 
         expect(expenses).toEqual([
@@ -208,9 +208,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
         const expenses = await BulkGenerateService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
-          {
-            daysOffTravelStatus: 0,
-          }
+          0
         )
 
         expect(expenses).toEqual([
@@ -316,7 +314,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
         const expenses = await BulkGenerateService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
-          { daysOffTravelStatus: 0 }
+          0
         )
 
         expect(expenses).toEqual([
@@ -414,7 +412,7 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
         const expenses = await BulkGenerateService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
-          { daysOffTravelStatus: 0 }
+          0
         )
 
         expect(expenses).toEqual(expect.arrayContaining([

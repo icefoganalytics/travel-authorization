@@ -11,24 +11,24 @@ export class GenerateController extends BaseController {
     try {
       const travelAuthorization = await this.loadTravelAuthorization()
       if (isNil(travelAuthorization)) {
-        return this.response.status(404).json({ message: "Travel authorization not found." })
+        return this.response.status(404).json({
+          message: "Travel authorization not found.",
+        })
       }
 
       const expense = await this.buildExpense(travelAuthorization)
       const policy = this.buildPolicy(expense)
       if (!policy.create()) {
-        return this.response
-          .status(403)
-          .json({ message: "You are not authorized to create this expense." })
+        return this.response.status(403).json({
+          message: "You are not authorized to create this expense.",
+        })
       }
 
-      const { travelSegmentEstimates = [] } = travelAuthorization
+      const { travelSegmentEstimates = [], daysOffTravelStatusEstimate } = travelAuthorization
       const estimates = await BulkGenerateService.perform(
         travelAuthorization.id,
         travelSegmentEstimates,
-        {
-          daysOffTravelStatus: travelAuthorization.daysOffTravelStatusEstimate || 0,
-        }
+        daysOffTravelStatusEstimate || 0
       )
       return this.response.status(201).json({
         estimates,
