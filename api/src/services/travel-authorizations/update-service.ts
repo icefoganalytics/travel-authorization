@@ -48,8 +48,9 @@ export class UpdateService extends BaseService {
 
       // TODO: might need to tweak this, or any updates to a travel authorization will
       // blow away all estimates and expenses.
-      if (!isEmpty(this.expenses)) {
-        await ExpensesService.bulkReplace(travelAuthorizationId, this.expenses)
+      const { expenses } = this.attributes
+      if (!isNil(expenses) && !isEmpty(expenses)) {
+        await Expenses.BulkReplaceService.perform(travelAuthorizationId, expenses)
       }
 
       return this.travelAuthorization.reload({

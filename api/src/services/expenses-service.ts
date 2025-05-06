@@ -17,6 +17,7 @@ export class ExpensesService extends BaseService {
     return Expense.bulkCreate(expenses)
   }
 
+  /** @deprecated prefer `api/src/services/expenses/bulk-replace-service.ts` */
   static async bulkReplace(
     travelAuthorizationId: number,
     expenses: CreationAttributes<Expense>[]
