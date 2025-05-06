@@ -41,7 +41,7 @@
       >
         <LocationDescriptionElement
           label="Final Destination"
-          :location-id="finalDestination.locationId"
+          :location-id="finalDestinationLocationId"
           vertical
         />
       </v-col>
@@ -63,9 +63,10 @@
 
 <script setup>
 import { computed, toRefs } from "vue"
-import { last } from "lodash"
+import { isNil, isEmpty } from "lodash"
 
-import useTravelAuthorization from "@/use/use-travel-authorization"
+import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import useTravelSegments from "@/use/use-travel-segments"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
@@ -83,11 +84,30 @@ const props = defineProps({
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 
-const finalDestination = computed(() => {
-  return (
-    last(travelAuthorization.value.stops) || {
-      travelAuthorizationId: travelAuthorizationId.value,
-    }
-  )
+const travelSegmentsQuery = computed(() => {
+  return {
+    where: {
+      travelAuthorizationId: props.travelAuthorizationId,
+    },
+  }
+})
+const { travelSegments } = useTravelSegments(travelSegmentsQuery)
+
+const finalDestinationLocationId = computed(() => {
+  if (isNil(travelSegments.value) || isEmpty(travelSegments.value)) return null
+  if (isNil(travelAuthorization.value)) return null
+
+  let finalDestinationLocationId = null
+  const { tripTypeEstimate, tripTypeActual } = travelAuthorization.value
+  const tripType = tripTypeActual ?? tripTypeEstimate
+  if (isNil(tripType)) return null
+
+  if (tripType === TRIP_TYPES.ROUND_TRIP) {
+    finalDestinationLocationId = travelSegments.value.at(-2)?.arrivalLocationId
+  } else {
+    finalDestinationLocationId = travelSegments.value.at(-1)?.arrivalLocationId
+  }
+
+  return finalDestinationLocationId
 })
 </script>
