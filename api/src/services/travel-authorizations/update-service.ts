@@ -12,6 +12,7 @@ export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAutho
   stops?: Partial<Attributes<Stop>>[]
   expenses?: Partial<Attributes<Expense>>[]
   travelSegmentEstimatesAttributes?: Partial<Attributes<TravelSegment>>[]
+  travelSegmentActualsAttributes?: Partial<Attributes<TravelSegment>>[]
 }
 
 export class UpdateService extends BaseService {
@@ -36,6 +37,15 @@ export class UpdateService extends BaseService {
           travelAuthorizationId,
           travelSegmentEstimatesAttributes,
           false
+        )
+      }
+
+      const { travelSegmentActualsAttributes } = this.attributes
+      if (!isUndefined(travelSegmentActualsAttributes)) {
+        await TravelSegments.BulkReplaceService.perform(
+          travelAuthorizationId,
+          travelSegmentActualsAttributes,
+          true
         )
       }
 
