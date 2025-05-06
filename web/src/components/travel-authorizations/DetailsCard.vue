@@ -11,13 +11,10 @@
       </v-col>
     </v-row>
 
-    <component
-      :is="tripTypeComponent"
-      v-if="tripTypeComponent"
+    <TravelSegmentsSection
       :travel-authorization-id="travelAuthorizationId"
       class="mb-6"
     />
-    <div v-else>Trip type {{ travelAuthorization.tripTypeEstimate }} not implemented!</div>
 
     <v-row>
       <v-col
@@ -55,13 +52,14 @@
 </template>
 
 <script setup>
-import { computed, toRefs } from "vue"
+import { toRefs } from "vue"
 
-import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import TravelAuthorizationTripTypeChip from "@/components/travel-authorizations/TravelAuthorizationTripTypeChip.vue"
+import TravelSegmentsSection from "@/components/travel-segments/TravelSegmentsSection.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -72,19 +70,4 @@ const props = defineProps({
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
-
-const tripTypeComponent = computed(() => {
-  switch (travelAuthorization.value.tripTypeEstimate) {
-    case TRIP_TYPES.ROUND_TRIP:
-      return () =>
-        import("@/components/travel-authorizations/details-card/RoundTripStopsSection.vue")
-    case TRIP_TYPES.ONE_WAY:
-      return () => import("@/components/travel-authorizations/details-card/OneWayStopsSection.vue")
-    case TRIP_TYPES.MULTI_CITY:
-      return () =>
-        import("@/components/travel-authorizations/details-card/MultiDestinationStopsSection.vue")
-    default:
-      return null
-  }
-})
 </script>
