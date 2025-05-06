@@ -98,6 +98,7 @@
 
 <script setup>
 import { ref, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import { TRAVEL_METHODS } from "@/api/travel-segments-api"
 
@@ -122,25 +123,38 @@ const { travelAuthorization, save } = useTravelAuthorization(travelAuthorization
 
 const finalDestinationLocationId = ref(null)
 
+/** @type {import('vue').Ref<InstanceType<typeof HeaderActionsFormCard> | null>} */
 const headerActionsFormCard = ref(null)
+const isSaving = ref(false)
 
 async function saveWrapper() {
-  return save({
-    purposeId: travelAuthorization.value.purposeId,
-    eventName: travelAuthorization.value.eventName,
-    allTravelWithinTerritory: travelAuthorization.value.allTravelWithinTerritory,
-    benefits: travelAuthorization.value.benefits,
-    tripTypeEstimate: TRIP_TYPES.ROUND_TRIP,
-    travelSegmentEstimatesAttributes: [
-      {
-        travelAuthorizationId: props.travelAuthorizationId,
-        segmentNumber: 1,
-        departureLocationId: null,
-        arrivalLocationId: finalDestinationLocationId.value,
-        modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
-      },
-    ],
-  })
+  if (isNil(headerActionsFormCard.value)) return
+  if (!headerActionsFormCard.value.validate()) return
+
+  isSaving.value = true
+  try {
+    await save({
+      purposeId: travelAuthorization.value.purposeId,
+      eventName: travelAuthorization.value.eventName,
+      allTravelWithinTerritory: travelAuthorization.value.allTravelWithinTerritory,
+      benefits: travelAuthorization.value.benefits,
+      tripTypeEstimate: TRIP_TYPES.ROUND_TRIP,
+      travelSegmentEstimatesAttributes: [
+        {
+          travelAuthorizationId: props.travelAuthorizationId,
+          segmentNumber: 1,
+          departureLocationId: null,
+          arrivalLocationId: finalDestinationLocationId.value,
+          modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
+        },
+      ],
+    })
+  } catch (error) {
+    console.error(`Failed to save travel authorization: ${error}`, { error })
+    throw error
+  } finally {
+    isSaving.value = false
+  }
 }
 
 defineExpose({

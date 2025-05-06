@@ -118,8 +118,7 @@ const emit = defineEmits([
 const { mdAndUp } = useVuetify2()
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, save: saveTravelAuthorization } =
-  useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
 const defaultTripType = computed(() => travelAuthorization.value.tripTypeEstimate)
 const tripType = useRouteQuery("trip_type", defaultTripType)
@@ -203,23 +202,23 @@ const tripTypeComponent = computed(() => {
   }
 })
 
-const isSaving = ref(false)
 /** @typedef {import('vuetify/lib/components').VForm} VForm */
 /** @type {import('vue').Ref<typeof VForm | null>} */
 const form = ref(null)
+const isSaving = ref(false)
 
 async function resetFormValidation() {
   await nextTick()
   form.value?.resetValidation()
 }
 
-async function save() {
+async function saveWrapper() {
   if (isNil(form.value)) return
   if (!form.value.validate()) return
 
   isSaving.value = true
   try {
-    await saveTravelAuthorization({
+    await save({
       tripTypeEstimate: tripType.value,
       travelDurationEstimate: travelAuthorization.value.travelDurationEstimate,
       daysOffTravelStatusEstimate: travelAuthorization.value.daysOffTravelStatusEstimate,
@@ -235,7 +234,7 @@ async function save() {
 }
 
 defineExpose({
-  save,
+  save: saveWrapper,
   validate: () => form.value?.validate(),
 })
 </script>
