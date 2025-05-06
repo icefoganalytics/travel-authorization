@@ -134,6 +134,10 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
         "travelDurationActual",
         "tripTypeActual",
         "wizardStepName",
+        {
+          travelSegmentActualsAttributes:
+            this.travelSegmentsPolicy.permittedAttributesForCreate(),
+        },
       ]
     }
 
