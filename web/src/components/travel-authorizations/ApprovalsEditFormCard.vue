@@ -114,8 +114,20 @@ onMounted(async () => {
   await headerActionsFormCard.value?.resetValidation()
 })
 
+async function submitWrapper() {
+  if (isNil(headerActionsFormCard.value)) return
+  if (!headerActionsFormCard.value.validate()) return
+  if (isNil(travelAuthorization.value)) return
+
+  await submit({
+    travelAdvanceInCents: travelAuthorization.value.travelAdvanceInCents,
+    preApprovalProfileId: travelAuthorization.value.preApprovalProfileId,
+    supervisorEmail: travelAuthorization.value.supervisorEmail,
+  })
+}
+
 defineExpose({
-  save: submit,
+  save: submitWrapper,
   validate: () => headerActionsFormCard.value?.validate(),
 })
 </script>
