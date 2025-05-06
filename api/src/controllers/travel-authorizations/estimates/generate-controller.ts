@@ -22,10 +22,14 @@ export class GenerateController extends BaseController {
           .json({ message: "You are not authorized to create this expense." })
       }
 
-      const travelSegments = travelAuthorization.travelSegments || []
-      const estimates = await BulkGenerateService.perform(travelAuthorization.id, travelSegments, {
-        daysOffTravelStatus: travelAuthorization.daysOffTravelStatusEstimate || 0,
-      })
+      const { travelSegmentEstimates = [] } = travelAuthorization
+      const estimates = await BulkGenerateService.perform(
+        travelAuthorization.id,
+        travelSegmentEstimates,
+        {
+          daysOffTravelStatus: travelAuthorization.daysOffTravelStatusEstimate || 0,
+        }
+      )
       return this.response.status(201).json({
         estimates,
         message: "Generated estimates",
@@ -42,14 +46,11 @@ export class GenerateController extends BaseController {
     return TravelAuthorization.findByPk(this.params.travelAuthorizationId, {
       include: [
         {
-          association: "travelSegments",
-          where: {
-            isActual: false,
-          },
+          association: "travelSegmentEstimates",
           include: ["departureLocation", "arrivalLocation"],
         },
       ],
-      order: [["travelSegments", "segmentNumber", "ASC"]],
+      order: [["travelSegmentEstimates", "segmentNumber", "ASC"]],
     })
   }
 
