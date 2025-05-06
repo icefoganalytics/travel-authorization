@@ -1,6 +1,6 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
 import { UpdateService } from "@/services/travel-authorizations"
-import { locationFactory, stopFactory, travelAuthorizationFactory, userFactory } from "@/factories"
+import { locationFactory, travelAuthorizationFactory, userFactory } from "@/factories"
 
 describe("api/src/services/travel-authorizations/update-service.ts", () => {
   describe("UpdateService", () => {
@@ -13,23 +13,26 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const location1 = await locationFactory.create()
-        const stop1 = stopFactory.build({
+        const stop1Attributes = {
           travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
           locationId: location1.id,
           departureDate: new Date("2023-11-29"),
           transport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-        })
+        }
         const location2 = await locationFactory.create()
-        const stop2 = stopFactory.build({
+        const stop2Attributes = {
           travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
           locationId: location2.id,
           departureDate: new Date("2023-11-30"),
           transport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: null,
-        })
+        }
         const attributes = {
-          stops: [stop1.dataValues, stop2.dataValues],
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          stops: [stop1Attributes, stop2Attributes],
         } as Partial<TravelAuthorization>
 
         // Act
@@ -50,8 +53,8 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
             segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-            departureOn: stop1.departureDate,
-            departureTime: stop1.departureTime,
+            departureOn: "2023-11-29",
+            departureTime: null,
           }),
           expect.objectContaining({
             departureLocationId: location2.id,
@@ -59,8 +62,8 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
             segmentNumber: 2,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
-            departureOn: stop2.departureDate,
-            departureTime: stop2.departureTime,
+            departureOn: "2023-11-30",
+            departureTime: null,
           }),
         ])
       })
@@ -72,23 +75,27 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
           userId: user.id,
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
-        const stop1 = stopFactory.build({
+        const stop1Attributes = {
           travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
           transport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-        })
-        const stop2 = stopFactory.build({
+        }
+        const stop2Attributes = {
           travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
           transport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: null,
-        })
-        const stop3 = stopFactory.build({
+        }
+        const stop3Attributes = {
           travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
           transport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: null,
-        })
+        }
         const attributes = {
-          stops: [stop1.dataValues, stop2.dataValues, stop3.dataValues],
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          stops: [stop1Attributes, stop2Attributes, stop3Attributes],
         } as Partial<TravelAuthorization>
 
         // Assert
