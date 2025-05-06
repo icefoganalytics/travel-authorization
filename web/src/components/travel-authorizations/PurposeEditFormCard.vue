@@ -99,10 +99,10 @@
 <script setup>
 import { ref, toRefs } from "vue"
 
-import { TRIP_TYPES } from "@/use/use-travel-authorization"
+import { TRAVEL_METHODS } from "@/api/travel-segments-api"
 
 import { required } from "@/utils/validators"
-import useTravelAuthorization from "@/use/use-travel-authorization"
+import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
@@ -130,12 +130,14 @@ async function saveWrapper() {
     eventName: travelAuthorization.value.eventName,
     allTravelWithinTerritory: travelAuthorization.value.allTravelWithinTerritory,
     benefits: travelAuthorization.value.benefits,
+    tripTypeEstimate: TRIP_TYPES.ROUND_TRIP,
     travelSegmentEstimatesAttributes: [
       {
-        departureStopId: null,
-        arrivalStopId: finalDestinationLocationId.value,
+        travelAuthorizationId: props.travelAuthorizationId,
         segmentNumber: 1,
-        travelType: TRIP_TYPES.ROUND_TRIP,
+        departureLocationId: null,
+        arrivalLocationId: finalDestinationLocationId.value,
+        modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
       },
     ],
   })

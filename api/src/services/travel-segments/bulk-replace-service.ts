@@ -1,21 +1,20 @@
-import { CreationAttributes } from "sequelize"
+import { Attributes } from "sequelize"
+import { isNil } from "lodash"
 
 import { transaction } from "@/utils/transaction"
-import BaseService from "@/services/base-service"
+import { type WithRequired } from "@/utils/utility-types"
 
 import { TravelSegment } from "@/models"
+import BaseService from "@/services/base-service"
+
+export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
 
 export class BulkReplaceService extends BaseService {
-  private travelAuthorizationId: number
-  private travelSegmentsAttributes: CreationAttributes<TravelSegment>[]
-
   constructor(
-    travelAuthorizationId: number,
-    travelSegmentsAttributes: CreationAttributes<TravelSegment>[]
+    protected travelAuthorizationId: number,
+    protected travelSegmentsAttributes: TravelSegmentAttributes[]
   ) {
     super()
-    this.travelAuthorizationId = travelAuthorizationId
-    this.travelSegmentsAttributes = travelSegmentsAttributes
   }
 
   async perform(): Promise<TravelSegment[]> {
@@ -28,10 +27,10 @@ export class BulkReplaceService extends BaseService {
       throw new Error("All travel segments must belong to the same travel authorization.")
     }
 
-    const isActualBase = this.travelSegmentsAttributes[0].isActual
+    const { isActual } = this.travelSegmentsAttributes[0]
     if (
       this.travelSegmentsAttributes.some(
-        (travelSegmentAttributes) => travelSegmentAttributes.isActual !== isActualBase
+        (travelSegmentAttributes) => travelSegmentAttributes.isActual !== isActual
       )
     ) {
       throw new Error("All travel segments must have the same isActual value.")
@@ -41,12 +40,29 @@ export class BulkReplaceService extends BaseService {
       await TravelSegment.destroy({
         where: {
           travelAuthorizationId: this.travelAuthorizationId,
-          isActual: isActualBase,
+          isActual,
         },
       })
+
+      this.hasAllRequiredAttributes(this.travelSegmentsAttributes)
       return TravelSegment.bulkCreate(this.travelSegmentsAttributes)
     })
   }
-}
 
-export default BulkReplaceService
+  private hasAllRequiredAttributes(
+    travelSegmentsAttributes: TravelSegmentAttributes[]
+  ): asserts travelSegmentsAttributes is WithRequired<
+    TravelSegmentAttributes,
+    "segmentNumber" | "modeOfTransport"
+  >[] {
+    for (const { segmentNumber, modeOfTransport } of travelSegmentsAttributes) {
+      if (isNil(segmentNumber)) {
+        throw new Error("Segment number is required.")
+      }
+
+      if (isNil(modeOfTransport)) {
+        throw new Error("Mode of transport is required.")
+      }
+    }
+  }
+}

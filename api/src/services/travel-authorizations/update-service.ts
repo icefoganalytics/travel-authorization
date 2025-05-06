@@ -1,12 +1,12 @@
 import { Attributes } from "sequelize"
-import { isEmpty, isNil, isUndefined } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
 import { Expense, Stop, TravelAuthorization, TravelSegment, User } from "@/models"
 import { TripTypes as TravelAuthorizationTripTypes } from "@/models/travel-authorization"
-import { StopsService, Expenses, Stops } from "@/services"
+import { StopsService, Expenses, Stops, TravelSegments } from "@/services"
 
 export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAuthorization>> & {
   stops?: Partial<Attributes<Stop>>[]
@@ -29,13 +29,16 @@ export class UpdateService extends BaseService {
         throw new Error(`Could not update TravelAuthorization: ${error}`)
       })
 
+      const travelAuthorizationId = this.travelAuthorization.id
       const { travelSegmentEstimatesAttributes } = this.attributes
-      if (!isNil(travelSegmentEstimatesAttributes)) {
-        throw new Error("Debugging travel segment estimates nested attribute bulk replace.")
+      if (!isUndefined(travelSegmentEstimatesAttributes)) {
+        await TravelSegments.BulkReplaceService.perform(
+          travelAuthorizationId,
+          travelSegmentEstimatesAttributes
+        )
       }
 
-      const travelAuthorizationId = this.travelAuthorization.id
-      const { tripTypeEstimate, stops } = this.travelAuthorization
+      const { tripTypeEstimate, stops } = this.attributes
       if (!isUndefined(stops) && !isNil(tripTypeEstimate)) {
         if (!this.isValidStopCount(tripTypeEstimate, stops)) {
           throw new Error("Stop count is not valid for trip type.")
@@ -49,7 +52,7 @@ export class UpdateService extends BaseService {
       // TODO: might need to tweak this, or any updates to a travel authorization will
       // blow away all estimates and expenses.
       const { expenses } = this.attributes
-      if (!isNil(expenses) && !isEmpty(expenses)) {
+      if (!isUndefined(expenses)) {
         await Expenses.BulkReplaceService.perform(travelAuthorizationId, expenses)
       }
 
