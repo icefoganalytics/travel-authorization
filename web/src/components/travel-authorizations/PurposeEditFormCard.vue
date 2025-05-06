@@ -142,9 +142,18 @@ async function saveWrapper() {
       travelSegmentEstimatesAttributes: [
         {
           travelAuthorizationId: props.travelAuthorizationId,
+          isActual: false,
           segmentNumber: 1,
           departureLocationId: null,
           arrivalLocationId: finalDestinationLocationId.value,
+          modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
+        },
+        {
+          travelAuthorizationId: props.travelAuthorizationId,
+          isActual: false,
+          segmentNumber: 2,
+          departureLocationId: finalDestinationLocationId.value,
+          arrivalLocationId: null,
           modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
         },
       ],
