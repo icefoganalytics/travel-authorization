@@ -12,7 +12,8 @@ export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
 export class BulkReplaceService extends BaseService {
   constructor(
     protected travelAuthorizationId: number,
-    protected travelSegmentsAttributes: TravelSegmentAttributes[]
+    protected travelSegmentsAttributes: TravelSegmentAttributes[],
+    protected isActual: boolean
   ) {
     super()
   }
@@ -27,10 +28,9 @@ export class BulkReplaceService extends BaseService {
       throw new Error("All travel segments must belong to the same travel authorization.")
     }
 
-    const { isActual } = this.travelSegmentsAttributes[0]
     if (
       this.travelSegmentsAttributes.some(
-        (travelSegmentAttributes) => travelSegmentAttributes.isActual !== isActual
+        (travelSegmentAttributes) => travelSegmentAttributes.isActual !== this.isActual
       )
     ) {
       throw new Error("All travel segments must have the same isActual value.")
@@ -40,7 +40,7 @@ export class BulkReplaceService extends BaseService {
       await TravelSegment.destroy({
         where: {
           travelAuthorizationId: this.travelAuthorizationId,
-          isActual,
+          isActual: this.isActual,
         },
       })
 

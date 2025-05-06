@@ -31,7 +31,8 @@ export class BulkConvertStopsToTravelSegmentsService extends BaseService {
 
     await TravelSegments.BulkReplaceService.perform(
       this.travelAuthorization.id,
-      travelSegmentsAttributes
+      travelSegmentsAttributes,
+      false
     )
     return this.travelAuthorization.reload({
       include: [

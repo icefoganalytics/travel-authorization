@@ -34,7 +34,8 @@ export class UpdateService extends BaseService {
       if (!isUndefined(travelSegmentEstimatesAttributes)) {
         await TravelSegments.BulkReplaceService.perform(
           travelAuthorizationId,
-          travelSegmentEstimatesAttributes
+          travelSegmentEstimatesAttributes,
+          false
         )
       }
 
