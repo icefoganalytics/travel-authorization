@@ -169,7 +169,8 @@ entity "StatisticsRecord" {
 entity "stops" {
   * id : serial4
   --
-  travel_authorization_id : int4
+  * travel_authorization_id : int4
+  * is_actual : bool : default false
   location_id : int4
   departure_date : date
   departure_time : time
@@ -293,9 +294,12 @@ entity "travel_authorizations" {
   unit : varchar(255)
   email : varchar(255)
   mailcode : varchar(255)
-  days_off_travel_status : int4
-  date_back_to_work : date
-  travel_duration : int4
+  days_off_travel_status_estimate : int4
+  days_off_travel_status_actual : int4
+  date_back_to_work_estimate : date
+  date_back_to_work_actual : date
+  travel_duration_estimate : int4
+  travel_duration_actual : int4
   travel_advance : int4
   event_name : varchar(255)
   summary : varchar(255)
@@ -304,7 +308,8 @@ entity "travel_authorizations" {
   supervisor_email : varchar(255)
   request_change : varchar(255)
   denial_reason : varchar(2000)
-  trip_type : varchar(255) - round_trip, one_way, multi_destination
+  trip_type_estimate : varchar(255) - round_trip, one_way, multi_destination
+  trip_type_actual : varchar(255) - round_trip, one_way, multi_destination
   created_by : int4
   travel_advance_in_cents : int4
   all_travel_within_territory : bool
@@ -400,7 +405,7 @@ together {
     * duration : varchar(255)
     * status : varchar(255)
     * class : varchar(255)
-    sort_order : int4 - default 1
+    sort_order : int4 : default 1
     * created_at : timestamptz
     * updated_at : timestamptz
     deleted_at : timestamptz
@@ -505,6 +510,7 @@ entity "travel_segments" {
   * id : serial4
   --
   * travel_authorization_id : int4
+  * is_actual : bool : default false
   departure_location_id : int4
   arrival_location_id : int4
   --

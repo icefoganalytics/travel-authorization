@@ -1,31 +1,27 @@
-import { CreationAttributes } from "sequelize"
-import { isEmpty, isNil, isUndefined } from "lodash"
+import { Attributes } from "sequelize"
+import { isNil, isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
-import { Expense, Stop, TravelAuthorization, User } from "@/models"
+import { Expense, Stop, TravelAuthorization, TravelSegment, User } from "@/models"
 import { TripTypes as TravelAuthorizationTripTypes } from "@/models/travel-authorization"
-import { StopsService, ExpensesService, Stops } from "@/services"
+import { StopsService, Expenses, Stops, TravelSegments } from "@/services"
+
+export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAuthorization>> & {
+  stops?: Partial<Attributes<Stop>>[]
+  expenses?: Partial<Attributes<Expense>>[]
+  travelSegmentEstimatesAttributes?: Partial<Attributes<TravelSegment>>[]
+  travelSegmentActualsAttributes?: Partial<Attributes<TravelSegment>>[]
+}
 
 export class UpdateService extends BaseService {
-  private travelAuthorization: TravelAuthorization
-  private stops?: CreationAttributes<Stop>[]
-  private expenses: CreationAttributes<Expense>[]
-  private attributes: Partial<TravelAuthorization>
-  private currentUser: User
-
   constructor(
-    travelAuthorization: TravelAuthorization,
-    { stops, expenses = [], ...attributes }: Partial<TravelAuthorization>,
-    currentUser: User
+    protected travelAuthorization: TravelAuthorization,
+    protected attributes: TravelAuthorizationUpdateAttributes,
+    protected currentUser: User
   ) {
     super()
-    this.travelAuthorization = travelAuthorization
-    this.attributes = attributes
-    this.stops = stops
-    this.expenses = expenses
-    this.currentUser = currentUser
   }
 
   async perform(): Promise<TravelAuthorization> {
@@ -35,21 +31,40 @@ export class UpdateService extends BaseService {
       })
 
       const travelAuthorizationId = this.travelAuthorization.id
-      const { tripType } = this.travelAuthorization
-      if (!isUndefined(this.stops) && !isNil(tripType)) {
-        if (!this.isValidStopCount(tripType, this.stops)) {
+      const { travelSegmentEstimatesAttributes } = this.attributes
+      if (!isUndefined(travelSegmentEstimatesAttributes)) {
+        await TravelSegments.BulkReplaceService.perform(
+          travelAuthorizationId,
+          travelSegmentEstimatesAttributes,
+          false
+        )
+      }
+
+      const { travelSegmentActualsAttributes } = this.attributes
+      if (!isUndefined(travelSegmentActualsAttributes)) {
+        await TravelSegments.BulkReplaceService.perform(
+          travelAuthorizationId,
+          travelSegmentActualsAttributes,
+          true
+        )
+      }
+
+      const { tripTypeEstimate, stops } = this.attributes
+      if (!isUndefined(stops) && !isNil(tripTypeEstimate)) {
+        if (!this.isValidStopCount(tripTypeEstimate, stops)) {
           throw new Error("Stop count is not valid for trip type.")
         }
 
-        await StopsService.bulkReplace(travelAuthorizationId, this.stops)
+        await StopsService.bulkReplace(travelAuthorizationId, stops)
         // TODO: remove this once travel segments fully replace stops
         await Stops.BulkConvertStopsToTravelSegmentsService.perform(this.travelAuthorization)
       }
 
       // TODO: might need to tweak this, or any updates to a travel authorization will
       // blow away all estimates and expenses.
-      if (!isEmpty(this.expenses)) {
-        await ExpensesService.bulkReplace(travelAuthorizationId, this.expenses)
+      const { expenses } = this.attributes
+      if (!isUndefined(expenses)) {
+        await Expenses.BulkReplaceService.perform(travelAuthorizationId, expenses)
       }
 
       return this.travelAuthorization.reload({

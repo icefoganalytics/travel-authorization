@@ -6,7 +6,7 @@ import determineClaimsPerDay, {
   middleDayClaimTypes,
   lastDayClaimTypes,
   isSameDay,
-} from "@/services/estimates/bulk-generate/determine-claims-per-day"
+} from "@/services/expenses/build-attributes-from-travel-segments-helpers/determine-claims-per-day"
 
 /*
 Requirements:
@@ -26,7 +26,7 @@ Requirements:
   3. Where travel ends at 7pm the traveler will receive breakfast, lunch and supper
   4. Incidental can be claimed this day regardless of arrival time.
 */
-describe("api/src/services/estimates/bulk-generate/determine-claims-per-day.ts", () => {
+describe("api/src/services/expenses/build-attributes-from-travel-segments-helpers/determine-claims-per-day.ts", () => {
   describe(".determineClaimsPerDay", () => {
     test("example case of 3 day trip", () => {
       const travelStartAt = new Date("2022-06-05")

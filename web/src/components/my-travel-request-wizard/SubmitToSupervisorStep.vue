@@ -61,7 +61,9 @@ async function validateAndSave() {
     emit("updated", props.travelAuthorizationId)
     return true
   } catch (error) {
-    snack.error(error.message)
+    console.error(`Failed to save travel request: ${error}`, { error })
+    snack.error(`Failed to save travel request: ${error}`)
+    return false
   } finally {
     isLoading.value = false
   }

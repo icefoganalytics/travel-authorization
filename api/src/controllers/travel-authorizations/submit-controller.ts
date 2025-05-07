@@ -1,5 +1,7 @@
 import { isNil } from "lodash"
 
+import logger from "@/utils/logger"
+
 import { BaseController } from "@/controllers/base-controller"
 import { TravelAuthorization } from "@/models"
 import { SubmitService } from "@/services/travel-authorizations"
@@ -10,39 +12,38 @@ import { ShowSerializer } from "@/serializers/travel-authorizations"
 // that also changes the status to "submitted".
 export class SubmitController extends BaseController {
   async create() {
-    if (isNil(this.params.travelAuthorizationId)) {
-      return this.response.status(404).json({ message: "Missing travel authorization id param." })
-    }
+    try {
+      const travelAuthorization = await this.loadTravelAuthorization()
+      if (isNil(travelAuthorization)) {
+        return this.response.status(404).json({
+          message: "Travel authorization not found.",
+        })
+      }
 
-    const travelAuthorization = await this.loadTravelAuthorization()
-    if (isNil(travelAuthorization)) {
-      return this.response.status(404).json({ message: "Travel authorization not found." })
-    }
+      const policy = this.buildPolicy(travelAuthorization)
+      if (!policy.create()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to submit this travel authorization.",
+        })
+      }
 
-    const policy = this.buildPolicy(travelAuthorization)
-    if (!policy.create()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to submit this travel authorization." })
-    }
+      const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
 
-    const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-    return SubmitService.perform(travelAuthorization, permittedAttributes, this.currentUser)
-      .then((travelAuthorization) => {
-        const serializedTravelAuthorization = ShowSerializer.perform(
-          travelAuthorization,
-          this.currentUser
-        )
+      await SubmitService.perform(travelAuthorization, permittedAttributes, this.currentUser)
 
-        return this.response
-          .status(200)
-          .json({ travelAuthorization: serializedTravelAuthorization })
+      const serializedTravelAuthorization = ShowSerializer.perform(
+        travelAuthorization,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        travelAuthorization: serializedTravelAuthorization,
       })
-      .catch((error) => {
-        return this.response
-          .status(422)
-          .json({ message: `Travel authorization submission failed: ${error}` })
+    } catch (error) {
+      logger.error(`Error submitting travel authorization: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Travel authorization submission failed: ${error}`,
       })
+    }
   }
 
   private loadTravelAuthorization(): Promise<TravelAuthorization | null> {

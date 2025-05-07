@@ -288,13 +288,11 @@ import { cloneDeep, first, isNil, last, pick, times } from "lodash"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
-import travelSegmentsApi, {
+import {
   ACCOMMODATION_TYPES,
   TRAVEL_METHODS,
   PERMITTED_ATTRIBUTES_FOR_CLONE,
 } from "@/api/travel-segments-api"
-
-import useSnack from "@/use/use-snack"
 
 import TimePicker from "@/components/Utils/TimePicker.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
@@ -316,6 +314,10 @@ const props = defineProps({
     default: () => [],
     validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
+  isActual: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 /**
@@ -329,7 +331,7 @@ const emit = defineEmits(["saved", "updated"])
 const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
-    isActual: true,
+    isActual: props.isActual,
     segmentNumber: 1,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -342,7 +344,7 @@ const travelSegmentsAttributes = ref([
   },
   {
     travelAuthorizationId: props.travelAuthorizationId,
-    isActual: true,
+    isActual: props.isActual,
     segmentNumber: 2,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -376,7 +378,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
       ...newTravelSegment,
       modeOfTransport: newTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType,
-      isActual: true,
+      isActual: props.isActual,
       segmentNumber: index + 1,
       travelAuthorizationId: props.travelAuthorizationId,
     }
@@ -427,7 +429,7 @@ function addTravelSegmentAttribute() {
 
   travelSegmentsAttributes.value.push({
     travelAuthorizationId: props.travelAuthorizationId,
-    isActual: true,
+    isActual: props.isActual,
     segmentNumber: travelSegmentsAttributes.value.length + 1,
     departureLocationId: previousLastTravelSegment.arrivalLocationId,
     arrivalLocationId: null,
@@ -477,38 +479,6 @@ watch(
     deep: true,
   }
 )
-
-const isSaving = ref(false)
-const snack = useSnack()
-
-async function createNewTravelSegmentActuals() {
-  const createdTravelSegmentsIds = []
-  for (const travelSegmentAttributes of travelSegmentsAttributes.value) {
-    const createdTravelSegment = await travelSegmentsApi.create(travelSegmentAttributes)
-    createdTravelSegmentsIds.push(createdTravelSegment.id)
-  }
-
-  return createdTravelSegmentsIds
-}
-
-async function save() {
-  isSaving.value = true
-
-  try {
-    const createdTravelSegmentsIds = await createNewTravelSegmentActuals()
-    emit("saved", createdTravelSegmentsIds)
-  } catch (error) {
-    console.error(`Errored while saving travel segments: ${error}`)
-    snack.error(`Errored while saving travel segments: ${error}`)
-    throw error
-  } finally {
-    isSaving.value = false
-  }
-}
-
-defineExpose({
-  save,
-})
 </script>
 
 <style scoped>

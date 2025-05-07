@@ -2,45 +2,48 @@ import { CreationAttributes } from "sequelize"
 import { sortBy, reverse } from "lodash"
 
 import { Expense } from "@/models"
+import { type Types } from "@/models/expense"
 
 export function buildNonTravelStatusDaysCorrectingLine({
-  estimates,
+  expensesAttributes,
   daysOffTravelStatus,
   travelAuthorizationId,
   travelEndAt,
+  type,
 }: {
-  estimates: CreationAttributes<Expense>[]
+  expensesAttributes: CreationAttributes<Expense>[]
   daysOffTravelStatus: number
   travelAuthorizationId: number
   travelEndAt: Date
+  type: Types
 }): CreationAttributes<Expense> {
-  const estimatesByDateReversed = reverse(sortBy(estimates, "date"))
+  const expensesByDateReversed = reverse(sortBy(expensesAttributes, "date"))
 
-  const accommodationEstimates = estimatesByDateReversed.filter(
-    (estimate) => estimate.expenseType === Expense.ExpenseTypes.ACCOMMODATIONS
+  const accommodationEstimates = expensesByDateReversed.filter(
+    (expense) => expense.expenseType === Expense.ExpenseTypes.ACCOMMODATIONS
   )
   let accommodationReduction = 0
   let accommodationReductionDays = 0
-  accommodationEstimates.forEach((estimate) => {
+  accommodationEstimates.forEach((expense) => {
     if (accommodationReductionDays >= daysOffTravelStatus) {
       return
     }
 
-    accommodationReduction += estimate.cost
+    accommodationReduction += expense.cost
     accommodationReductionDays += 1
   })
 
-  const perDiemEstimates = estimatesByDateReversed.filter(
-    (estimate) => estimate.expenseType === Expense.ExpenseTypes.MEALS_AND_INCIDENTALS
+  const perDiemEstimates = expensesByDateReversed.filter(
+    (expense) => expense.expenseType === Expense.ExpenseTypes.MEALS_AND_INCIDENTALS
   )
   let perDiemReduction = 0
   let perDiemReductionDays = 0
-  perDiemEstimates.forEach((estimate) => {
+  perDiemEstimates.forEach((expense) => {
     if (perDiemReductionDays >= daysOffTravelStatus) {
       return
     }
 
-    perDiemReduction += estimate.cost
+    perDiemReduction += expense.cost
     perDiemReductionDays += 1
   })
 
@@ -57,7 +60,7 @@ export function buildNonTravelStatusDaysCorrectingLine({
   const accommodationReductionDetails = `${accommodationReductionDays} day @ non-travel status accommodation -${accommodationReductionFormatted}`
 
   return {
-    type: Expense.Types.ESTIMATE,
+    type,
     expenseType: Expense.ExpenseTypes.NON_TRAVEL_STATUS,
     travelAuthorizationId,
     currency: Expense.CurrencyTypes.CAD,

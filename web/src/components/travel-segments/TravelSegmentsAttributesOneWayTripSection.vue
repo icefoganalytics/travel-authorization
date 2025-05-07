@@ -128,13 +128,11 @@ import { cloneDeep, first, isNil, pick } from "lodash"
 
 import { required } from "@/utils/validators"
 
-import travelSegmentsApi, {
+import {
   ACCOMMODATION_TYPES,
   TRAVEL_METHODS,
   PERMITTED_ATTRIBUTES_FOR_CLONE,
 } from "@/api/travel-segments-api"
-
-import useSnack from "@/use/use-snack"
 
 import TimePicker from "@/components/Utils/TimePicker.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
@@ -156,6 +154,10 @@ const props = defineProps({
     default: () => [],
     validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
+  isActual: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 /**
@@ -169,7 +171,7 @@ const emit = defineEmits(["saved", "updated"])
 const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
-    isActual: true,
+    isActual: props.isActual,
     segmentNumber: 1,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -191,7 +193,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
       ...firstTravelSegment,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType: null,
-      isActual: true,
+      isActual: props.isActual,
       segmentNumber: 1,
       travelAuthorizationId: props.travelAuthorizationId,
     },
@@ -257,36 +259,6 @@ watch(
     deep: true,
   }
 )
-
-const isSaving = ref(false)
-const snack = useSnack()
-
-async function createNewTravelSegmentActuals() {
-  const createdDepartTravelSegment = await travelSegmentsApi.create(
-    departTravelSegmentAttributes.value
-  )
-
-  return [createdDepartTravelSegment.id]
-}
-
-async function save() {
-  isSaving.value = true
-
-  try {
-    const createdTravelSegmentsIds = await createNewTravelSegmentActuals()
-    emit("saved", createdTravelSegmentsIds)
-  } catch (error) {
-    console.error(`Errored while saving travel segments: ${error}`)
-    snack.error(`Errored while saving travel segments: ${error}`)
-    throw error
-  } finally {
-    isSaving.value = false
-  }
-}
-
-defineExpose({
-  save,
-})
 </script>
 
 <style scoped>

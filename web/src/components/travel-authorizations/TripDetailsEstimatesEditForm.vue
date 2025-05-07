@@ -25,7 +25,6 @@
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
       :current-travel-segment-estimates="travelSegments"
-      is-actual
       @updated="updateTravelSegmentsAttributes"
     />
     <div v-else>Trip type {{ tripType }} not implemented!</div>
@@ -35,7 +34,7 @@
         md="2"
       >
         <TravelDurationFromTravelSegmentsTextField
-          v-model="travelAuthorization.travelDurationActual"
+          v-model="travelAuthorization.travelDurationEstimate"
           :travel-segments="travelSegmentsAttributes"
         />
       </v-col>
@@ -44,14 +43,14 @@
         md="3"
       >
         <v-text-field
-          v-model.number="travelAuthorization.daysOffTravelStatusActual"
+          v-model.number="travelAuthorization.daysOffTravelStatusEstimate"
           label="Days on non-travel status"
           :min="0"
-          :max="travelAuthorization.travelDurationActual - 1"
+          :max="travelAuthorization.travelDurationEstimate - 1"
           :rules="[
             isInteger,
             greaterThanOrEqualTo(0),
-            lessThan(travelAuthorization.travelDurationActual, {
+            lessThan(travelAuthorization.travelDurationEstimate, {
               referenceFieldLabel: 'the number of travel days',
             }),
           ]"
@@ -66,7 +65,7 @@
         md="3"
       >
         <DatePicker
-          v-model="travelAuthorization.dateBackToWorkActual"
+          v-model="travelAuthorization.dateBackToWorkEstimate"
           :min="latestDepartureDate"
           :rules="[required]"
           label="Expected Date return to work"
@@ -121,9 +120,7 @@ const { mdAndUp } = useVuetify2()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
-const defaultTripType = computed(
-  () => travelAuthorization.value.tripTypeActual || travelAuthorization.value.tripTypeEstimate
-)
+const defaultTripType = computed(() => travelAuthorization.value.tripTypeEstimate)
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
 const travelSegmentEstimatesQuery = computed(() => ({
@@ -174,9 +171,9 @@ function updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes) {
   if (!isNil(newLatestDepartureDate)) {
     latestDepartureDate.value = newLatestDepartureDate
 
-    const currentReturnDate = travelAuthorization.value?.dateBackToWorkActual
+    const currentReturnDate = travelAuthorization.value?.dateBackToWorkEstimate
     if (isNil(currentReturnDate) || newLatestDepartureDate > currentReturnDate) {
-      travelAuthorization.value.dateBackToWorkActual = newLatestDepartureDate
+      travelAuthorization.value.dateBackToWorkEstimate = newLatestDepartureDate
       emit("update:returnDate", newLatestDepartureDate)
     }
   }
@@ -222,11 +219,11 @@ async function saveWrapper() {
   isSaving.value = true
   try {
     await save({
-      tripTypeActual: tripType.value,
-      travelDurationActual: travelAuthorization.value.travelDurationActual,
-      daysOffTravelStatusActual: travelAuthorization.value.daysOffTravelStatusActual,
-      dateBackToWorkActual: travelAuthorization.value.dateBackToWorkActual,
-      travelSegmentActualsAttributes: travelSegmentsAttributes.value,
+      tripTypeEstimate: tripType.value,
+      travelDurationEstimate: travelAuthorization.value.travelDurationEstimate,
+      daysOffTravelStatusEstimate: travelAuthorization.value.daysOffTravelStatusEstimate,
+      dateBackToWorkEstimate: travelAuthorization.value.dateBackToWorkEstimate,
+      travelSegmentEstimatesAttributes: travelSegmentsAttributes.value,
     })
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })

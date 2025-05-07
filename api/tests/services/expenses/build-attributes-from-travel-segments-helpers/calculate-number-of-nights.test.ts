@@ -1,6 +1,6 @@
-import { calculateNumberOfNights } from "@/services/estimates/bulk-generate"
+import { calculateNumberOfNights } from "@/services/expenses/build-attributes-from-travel-segments-helpers"
 
-describe("api/src/services/estimates/bulk-generate/calculate-number-of-nights.ts", () => {
+describe("api/src/services/expenses/build-attributes-from-travel-segments-helpers/calculate-number-of-nights.ts", () => {
   describe(".calculateNumberOfNights", () => {
     test.each([
       {

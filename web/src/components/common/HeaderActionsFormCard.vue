@@ -75,13 +75,13 @@ const emit = defineEmits(["input", "submit"])
 /** @type {import('vue').Ref<InstanceType<typeof VForm> | null>} */
 const form = ref(null)
 
-async function validate() {
+function validate() {
   if (isNil(form.value)) throw new Error("form component not loaded")
 
   return form.value?.validate()
 }
 
-async function resetValidation() {
+function resetValidation() {
   if (isNil(form.value)) throw new Error("form component not loaded")
 
   return form.value?.resetValidation()

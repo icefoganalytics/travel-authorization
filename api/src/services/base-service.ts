@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HasNoArgsConstructor<T> = T extends { new (): any } ? true : false
 
 type CleanConstructorParameters<T extends typeof BaseService> = HasNoArgsConstructor<T> extends true
@@ -5,6 +6,7 @@ type CleanConstructorParameters<T extends typeof BaseService> = HasNoArgsConstru
   : ConstructorParameters<T>
 
 export class BaseService {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   constructor(...args: any[]) {}
 
   static perform<T extends typeof BaseService>(
@@ -15,6 +17,7 @@ export class BaseService {
     return instance.perform()
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   perform(): any {
     throw new Error("Not Implemented")
   }

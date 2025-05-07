@@ -42,9 +42,12 @@ export const TRIP_TYPES = Object.freeze({
  *   unit: string | null;
  *   email: string | null;
  *   mailcode: string | null;
- *   daysOffTravelStatus: number | null;
- *   dateBackToWork: string | null;
- *   travelDuration: string | null;
+ *   daysOffTravelStatusEstimate: number | null;
+ *   daysOffTravelStatusActual: number | null;
+ *   dateBackToWorkEstimate: string | null;
+ *   dateBackToWorkActual: string | null;
+ *   travelDurationEstimate: string | null;
+ *   travelDurationActual: string | null;
  *   travelAdvance: string | null;
  *   eventName: string | null;
  *   summary: string | null;
@@ -54,7 +57,8 @@ export const TRIP_TYPES = Object.freeze({
  *   supervisorEmail: string | null;
  *   requestChange: string | null;
  *   denialReason: string | null;
- *   tripType: TripTypes | null;
+ *   tripTypeEstimate: TripTypes | null;
+ *   tripTypeActual: TripTypes | null;
  *   travelAdvanceInCents: string | null;
  *   allTravelWithinTerritory: boolean | null;
  *   createdAt: string;
@@ -81,7 +85,8 @@ export const TRIP_TYPES = Object.freeze({
  *   status?: Statuses;
  *   wizardStepName?: string;
  *   supervisorEmail?: string;
- *   tripType?: TripTypes;
+ *   tripTypeEstimate?: TripTypes;
+ *   tripTypeActual?: TripTypes;
  *   allTravelWithinTerritory?: boolean;
  * }} TravelAuthorizationWhereOptions
  */

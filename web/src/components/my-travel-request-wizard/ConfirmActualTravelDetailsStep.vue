@@ -17,7 +17,7 @@
 <script setup>
 import { ref } from "vue"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import { capitalize } from "@/utils/formatters"
 
 import TripDetailsActualsEditForm from "@/components/travel-authorizations/TripDetailsActualsEditForm.vue"
@@ -61,8 +61,8 @@ async function validateAndSave() {
     emit("updated", props.travelAuthorizationId)
     return true
   } catch (error) {
-    console.error(`Failed to save trip details actuals: ${error}`, { error })
-    snack.error(`Failed to save trip details actuals: ${error}`)
+    console.error(`Failed to save travel request: ${error}`, { error })
+    snack.error(`Failed to save travel request: ${error}`)
     return false
   } finally {
     isLoading.value = false

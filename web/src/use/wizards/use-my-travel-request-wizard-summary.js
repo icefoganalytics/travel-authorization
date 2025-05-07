@@ -1,5 +1,5 @@
 import { reactive, toRefs, unref, watch } from "vue"
-import { isEmpty, isNil, last } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
 import travelAuthorizationsApi, { STATUSES, TRIP_TYPES } from "@/api/travel-authorizations-api"
 
@@ -51,11 +51,18 @@ export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
       state.isErrored = false
 
       state.travelPurposeId = travelAuthorization.purposeId
+
+      const tripType = travelAuthorization.tripTypeActual || travelAuthorization.tripTypeEstimate
+      const travelSegments = travelAuthorization.tripTypeActual
+        ? travelAuthorization.travelSegments.filter((segment) => segment.isActual)
+        : travelAuthorization.travelSegments.filter((segment) => !segment.isActual)
       state.finalDestinationLocationId = _determineFinalDestinationLocationId(
-        travelAuthorization.stops
+        tripType,
+        travelSegments
       )
-      state.departureDate = _determineDepartureDate(travelAuthorization.stops)
-      state.returnDate = travelAuthorization.dateBackToWork
+      state.departureDate = _determineDepartureDate(travelSegments)
+      state.returnDate =
+        travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
 
       return travelAuthorization
     } catch (error) {
@@ -67,19 +74,37 @@ export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
     }
   }
 
-  function _determineFinalDestinationLocationId(stops) {
-    if (isNil(stops) || isEmpty(stops)) return null
+  /**
+   * @param {TRIP_TYPES} tripType
+   * @param {TravelSegment[]} travelSegments
+   * @returns {number | null}
+   *
+   * TODO: update to handle differences between estimates and actuals
+   */
+  function _determineFinalDestinationLocationId(tripType, travelSegments) {
+    if (isNil(travelSegments) || isEmpty(travelSegments)) return null
 
-    const lastStop = last(stops)
-    if (isNil(lastStop)) return null
+    let finalDestinationLocationId = null
+    if (tripType === TRIP_TYPES.ROUND_TRIP) {
+      finalDestinationLocationId = travelSegments.at(-2)?.arrivalLocationId
+    } else {
+      finalDestinationLocationId = travelSegments.at(-1)?.arrivalLocationId
+    }
 
-    return lastStop.locationId
+    return finalDestinationLocationId
   }
 
-  function _determineDepartureDate(stops) {
-    if (isNil(stops) || isEmpty(stops)) return null
+  /**
+   * @param {TravelSegment[]} travelSegments
+   * @returns {string | null}
+   *
+   * TODO: update to handle differences between estimates and actuals
+   */
+  function _determineDepartureDate(travelSegments) {
+    if (isNil(travelSegments) || isEmpty(travelSegments)) return null
 
-    return stops[0].departureDate
+    const departureDate = travelSegments.at(0)?.departureOn
+    return departureDate
   }
 
   watch(
