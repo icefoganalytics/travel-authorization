@@ -150,6 +150,12 @@ function updateFinalDestinationLocationId(tripType, newTravelSegments) {
   }
 }
 
+function locationIdOrNullIfOverlapping(departureLocationId, arrivalLocationId) {
+  if (departureLocationId === arrivalLocationId) return null
+
+  return departureLocationId
+}
+
 function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
   if (isNil(tripType) || isNil(newTravelSegments) || isEmpty(newTravelSegments)) {
     return [
@@ -172,11 +178,37 @@ function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
     ]
   }
 
-  return newTravelSegments.map((travelSegment, index) => {
-    const numberOfSegments = newTravelSegments.length
-    const isSecondToLastSegment = index === numberOfSegments - 2
-    const isLastSegment = index === numberOfSegments - 1
+  if (tripType === TRIP_TYPES.ROUND_TRIP) {
+    const lastTravelSegment = newTravelSegments.at(-1)
+    const secondToLastTravelSegment = newTravelSegments.at(-2)
 
+    const destinationLocationId = finalDestinationLocationId.value
+    const originLocationId = locationIdOrNullIfOverlapping(
+      destinationLocationId,
+      lastTravelSegment.arrivalLocationId
+    )
+    return [
+      {
+        ...pick(secondToLastTravelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
+        travelAuthorizationId: props.travelAuthorizationId,
+        isActual: false,
+        segmentNumber: 1,
+        departureLocationId: originLocationId,
+        arrivalLocationId: destinationLocationId,
+      },
+      {
+        ...pick(lastTravelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
+        travelAuthorizationId: props.travelAuthorizationId,
+        isActual: false,
+        segmentNumber: 2,
+        departureLocationId: destinationLocationId,
+        arrivalLocationId: originLocationId,
+      },
+    ]
+  }
+
+  // NOTE: one way and multi-city trip types are handled the same way
+  return newTravelSegments.map((travelSegment, index) => {
     const newTravelSegmentAttributes = {
       ...pick(travelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
       travelAuthorizationId: props.travelAuthorizationId,
@@ -184,22 +216,18 @@ function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
       segmentNumber: index + 1,
     }
 
-    if (isSecondToLastSegment) {
+    const numberOfSegments = newTravelSegments.length
+    const isLastSegment = index === numberOfSegments - 1
+    if (isLastSegment) {
+      const arrivalLocationId = finalDestinationLocationId.value
+      const departureLocationId = locationIdOrNullIfOverlapping(
+        newTravelSegmentAttributes.departureLocationId,
+        arrivalLocationId
+      )
       return {
         ...newTravelSegmentAttributes,
-        arrivalLocationId: finalDestinationLocationId.value,
-      }
-    } else if (isLastSegment) {
-      if (tripType === TRIP_TYPES.ROUND_TRIP) {
-        return {
-          ...newTravelSegmentAttributes,
-          departureLocationId: finalDestinationLocationId.value,
-        }
-      } else {
-        return {
-          ...newTravelSegmentAttributes,
-          arrivalLocationId: finalDestinationLocationId.value,
-        }
+        departureLocationId,
+        arrivalLocationId,
       }
     } else {
       return newTravelSegmentAttributes
