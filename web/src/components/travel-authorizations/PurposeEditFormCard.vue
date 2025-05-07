@@ -97,13 +97,14 @@
 </template>
 
 <script setup>
-import { ref, toRefs } from "vue"
-import { isNil } from "lodash"
+import { computed, ref, toRefs, watch } from "vue"
+import { cloneDeep, isNil, isEmpty, pick } from "lodash"
 
-import { TRAVEL_METHODS } from "@/api/travel-segments-api"
+import { PERMITTED_ATTRIBUTES_FOR_CLONE, TRAVEL_METHODS } from "@/api/travel-segments-api"
 
 import { required } from "@/utils/validators"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import useTravelSegments from "@/use/use-travel-segments"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
@@ -120,8 +121,101 @@ const emit = defineEmits(["update:travelPurposeId", "update:finalDestinationLoca
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
+const tripType = computed(() => {
+  if (isNil(travelAuthorization.value)) return null
+
+  return travelAuthorization.value.tripTypeEstimate || TRIP_TYPES.ROUND_TRIP
+})
 
 const finalDestinationLocationId = ref(null)
+
+const travelSegmentsQuery = computed(() => {
+  return {
+    where: {
+      travelAuthorizationId: props.travelAuthorizationId,
+      isActual: false,
+    },
+  }
+})
+const { travelSegments } = useTravelSegments(travelSegmentsQuery)
+
+function updateFinalDestinationLocationId(tripType, newTravelSegments) {
+  if (isNil(tripType)) return null
+  if (isNil(newTravelSegments) || isEmpty(newTravelSegments)) return null
+
+  if (tripType === TRIP_TYPES.ROUND_TRIP) {
+    finalDestinationLocationId.value = newTravelSegments.at(-2)?.arrivalLocationId
+  } else {
+    finalDestinationLocationId.value = newTravelSegments.at(-1)?.arrivalLocationId
+  }
+}
+
+function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
+  if (isNil(tripType) || isNil(newTravelSegments) || isEmpty(newTravelSegments)) {
+    return [
+      {
+        travelAuthorizationId: props.travelAuthorizationId,
+        isActual: false,
+        segmentNumber: 1,
+        departureLocationId: null,
+        arrivalLocationId: finalDestinationLocationId.value,
+        modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
+      },
+      {
+        travelAuthorizationId: props.travelAuthorizationId,
+        isActual: false,
+        segmentNumber: 2,
+        departureLocationId: finalDestinationLocationId.value,
+        arrivalLocationId: null,
+        modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
+      },
+    ]
+  }
+
+  return newTravelSegments.map((travelSegment, index) => {
+    const numberOfSegments = newTravelSegments.length
+    const isSecondToLastSegment = index === numberOfSegments - 2
+    const isLastSegment = index === numberOfSegments - 1
+
+    const newTravelSegmentAttributes = {
+      ...pick(travelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
+      travelAuthorizationId: props.travelAuthorizationId,
+      isActual: false,
+      segmentNumber: index + 1,
+    }
+
+    if (isSecondToLastSegment) {
+      return {
+        ...newTravelSegmentAttributes,
+        arrivalLocationId: finalDestinationLocationId.value,
+      }
+    } else if (isLastSegment) {
+      if (tripType === TRIP_TYPES.ROUND_TRIP) {
+        return {
+          ...newTravelSegmentAttributes,
+          departureLocationId: finalDestinationLocationId.value,
+        }
+      } else {
+        return {
+          ...newTravelSegmentAttributes,
+          arrivalLocationId: finalDestinationLocationId.value,
+        }
+      }
+    } else {
+      return newTravelSegmentAttributes
+    }
+  })
+}
+
+watch(
+  () => cloneDeep(travelSegments.value),
+  (newTravelSegments) => {
+    updateFinalDestinationLocationId(tripType.value, newTravelSegments)
+  },
+  {
+    immediate: true,
+  }
+)
 
 /** @type {import('vue').Ref<InstanceType<typeof HeaderActionsFormCard> | null>} */
 const headerActionsFormCard = ref(null)
@@ -131,6 +225,11 @@ async function saveWrapper() {
   if (isNil(headerActionsFormCard.value)) return
   if (!headerActionsFormCard.value.validate()) return
 
+  const travelSegmentEstimatesAttributes = buildTravelSegmentEstimatesAttributes(
+    tripType.value,
+    travelSegments.value
+  )
+
   isSaving.value = true
   try {
     await save({
@@ -138,25 +237,8 @@ async function saveWrapper() {
       eventName: travelAuthorization.value.eventName,
       allTravelWithinTerritory: travelAuthorization.value.allTravelWithinTerritory,
       benefits: travelAuthorization.value.benefits,
-      tripTypeEstimate: TRIP_TYPES.ROUND_TRIP,
-      travelSegmentEstimatesAttributes: [
-        {
-          travelAuthorizationId: props.travelAuthorizationId,
-          isActual: false,
-          segmentNumber: 1,
-          departureLocationId: null,
-          arrivalLocationId: finalDestinationLocationId.value,
-          modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
-        },
-        {
-          travelAuthorizationId: props.travelAuthorizationId,
-          isActual: false,
-          segmentNumber: 2,
-          departureLocationId: finalDestinationLocationId.value,
-          arrivalLocationId: null,
-          modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
-        },
-      ],
+      tripTypeEstimate: tripType.value,
+      travelSegmentEstimatesAttributes,
     })
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })
