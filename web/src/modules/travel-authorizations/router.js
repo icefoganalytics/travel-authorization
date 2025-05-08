@@ -18,8 +18,10 @@ const routes = [
             path: "details/edit",
             name: "EditTravelAuthorizationDetailsPage",
             component: () =>
-              import("@/modules/travel-authorizations/pages/EditTravelAuthorizationDetailsPage"),
-            props: cast("travelAuthorizationId", parseInt),
+              import(
+                "@/modules/travel-authorizations/pages/EditTravelAuthorizationDetailsPage.vue"
+              ),
+            props: true,
           },
           {
             path: "estimate/edit",

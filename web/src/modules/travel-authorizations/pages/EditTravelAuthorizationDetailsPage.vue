@@ -2,28 +2,29 @@
   <div>
     <v-row>
       <v-col>
-        <PurposeEditFormCard :travel-authorization-id="travelAuthorizationId" />
+        <PurposeEditFormCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <!-- TODO: consider if actuals should only be displayed after travel authorization is approved? -->
         <!-- TODO: consider if edit page should be split into "before travel" and "after travel" pages -->
-        <HeaderActionsCard :title="tripDetailsCardTitle">
-          <TripDetailsEstimatesEditForm
-            v-if="isBeforeTravelStartDate"
-            :travel-authorization-id="travelAuthorizationId"
-          />
-          <TripDetailsActualsEditForm
-            v-else
-            :travel-authorization-id="travelAuthorizationId"
-          />
+        <HeaderActionsCard
+          v-if="isDuringTripEstimatePhase"
+          title="Trip Details (Estimated)"
+        >
+          <TripDetailsEstimatesEditForm :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        </HeaderActionsCard>
+        <HeaderActionsCard
+          v-else
+          title="Trip Details (Actual)"
+        >
+          <TripDetailsActualsEditForm :travel-authorization-id="travelAuthorizationIdAsNumber" />
         </HeaderActionsCard>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <ApprovalsEditFormCard :travel-authorization-id="travelAuthorizationId" />
+        <ApprovalsEditFormCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
       </v-col>
     </v-row>
     <div class="d-flex justify-end">
@@ -44,7 +45,9 @@
     </div>
     <v-row>
       <v-col>
-        <TravelAuthorizationActionLogsTable :travel-authorization-id="travelAuthorizationId" />
+        <TravelAuthorizationActionLogsTable
+          :travel-authorization-id="travelAuthorizationIdAsNumber"
+        />
       </v-col>
     </v-row>
   </div>
@@ -54,6 +57,7 @@
 import { computed } from "vue"
 import { isNil } from "lodash"
 
+import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
@@ -66,10 +70,15 @@ import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/
 
 const props = defineProps({
   travelAuthorizationId: {
-    type: Number,
+    type: String,
     required: true,
   },
 })
+
+const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+const { travelAuthorization, isLoading } = useTravelAuthorization(travelAuthorizationIdAsNumber)
+
+const isApproved = computed(() => travelAuthorization.value?.isApproved)
 
 const travelSegmentsQuery = computed(() => ({
   where: {
@@ -79,19 +88,15 @@ const travelSegmentsQuery = computed(() => ({
   perPage: 1, // we only need the first travel segment to check if travel has started
 }))
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
+
 const isBeforeTravelStartDate = computed(() => {
   const firstTravelSegment = travelSegments.value[0]
   if (isNil(firstTravelSegment)) return true
 
   return new Date(firstTravelSegment.departureOn) > new Date()
 })
-const tripDetailsCardTitle = computed(() => {
-  if (isBeforeTravelStartDate.value) {
-    return "Trip Details (Estimated)"
-  }
 
-  return "Trip Details (Actual)"
-})
+const isDuringTripEstimatePhase = computed(() => !isApproved.value || isBeforeTravelStartDate.value)
 
 function saveWrapper() {
   alert("TODO: implement save")
