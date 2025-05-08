@@ -1,19 +1,13 @@
 <template>
-  <PageLoader v-if="isLoadingTravelAuthorization" />
-  <div v-else>
+  <div>
     <Breadcrumbs />
 
-    <h1>
-      Travel -
-      <UserChip :user-id="travelAuthorizationUser.id" />
-    </h1>
-
-    <SummaryHeaderPanel :travel-authorization-id="travelAuthorizationId" />
+    <SummaryHeaderPanel :travel-authorization-id="travelAuthorizationIdAsNumber" />
 
     <v-tabs>
-      <DetailsTab :travel-authorization-id="travelAuthorizationId" />
-      <EstimateTab :travel-authorization-id="travelAuthorizationId" />
-      <ExpenseTab :travel-authorization-id="travelAuthorizationId" />
+      <DetailsTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <EstimateTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <ExpenseTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
       <!-- TODO: add in any tabs that you can normally see in manage mode -->
     </v-tabs>
 
@@ -24,12 +18,8 @@
 <script setup>
 import { computed } from "vue"
 
-import useTravelAuthorization from "@/use/use-travel-authorization"
-
 import Breadcrumbs from "@/components/Breadcrumbs.vue"
-import PageLoader from "@/components/PageLoader.vue"
-import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanelLegacy.vue"
-import UserChip from "@/components/users/UserChip.vue"
+import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 
 import DetailsTab from "@/modules/travel-authorizations/components/travel-authorization-layout/DetailsTab.vue"
 import EstimateTab from "@/modules/travel-authorizations/components/travel-authorization-layout/EstimateTab.vue"
@@ -37,13 +27,10 @@ import ExpenseTab from "@/modules/travel-authorizations/components/travel-author
 
 const props = defineProps({
   travelAuthorizationId: {
-    type: Number,
+    type: String,
     required: true,
   },
 })
 
-const { travelAuthorization, isLoading: isLoadingTravelAuthorization } = useTravelAuthorization(
-  props.travelAuthorizationId
-)
-const travelAuthorizationUser = computed(() => travelAuthorization.value?.user)
+const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 </script>

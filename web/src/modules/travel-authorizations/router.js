@@ -9,7 +9,7 @@ const routes = [
         path: ":travelAuthorizationId",
         component: () =>
           import("@/modules/travel-authorizations/layouts/TravelAuthorizationLayout.vue"),
-        props: cast("travelAuthorizationId", parseInt),
+        props: true,
         children: [
           {
             path: "",
@@ -42,7 +42,7 @@ const routes = [
         path: ":travelAuthorizationId",
         component: () =>
           import("@/modules/travel-authorizations/layouts/ManageTravelAuthorizationLayout"),
-        props: cast("travelAuthorizationId", parseInt),
+        props: true,
         children: [
           {
             path: "",
