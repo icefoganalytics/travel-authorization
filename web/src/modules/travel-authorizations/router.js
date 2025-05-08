@@ -27,14 +27,18 @@ const routes = [
             path: "estimate/edit",
             name: "EditTravelAuthorizationEstimatePage",
             component: () =>
-              import("@/modules/travel-authorizations/pages/EditTravelAuthorizationEstimatePage"),
+              import(
+                "@/modules/travel-authorizations/pages/EditTravelAuthorizationEstimatePage.vue"
+              ),
             props: cast("travelAuthorizationId", parseInt),
           },
           {
             path: "expense/edit",
             name: "EditTravelAuthorizationExpensePage",
             component: () =>
-              import("@/modules/travel-authorizations/pages/EditTravelAuthorizationExpensePage"),
+              import(
+                "@/modules/travel-authorizations/pages/EditTravelAuthorizationExpensePage.vue"
+              ),
             props: cast("travelAuthorizationId", parseInt),
           },
         ],
@@ -53,21 +57,27 @@ const routes = [
             name: "ManageTravelAuthorizationDetailsPage",
             path: "details/manage",
             component: () =>
-              import("@/modules/travel-authorizations/pages/ManageTravelAuthorizationDetailsPage"),
+              import(
+                "@/modules/travel-authorizations/pages/ManageTravelAuthorizationDetailsPage.vue"
+              ),
             props: cast("travelAuthorizationId", parseInt),
           },
           {
             path: "estimate/manage",
             name: "ManageTravelAuthorizationEstimatePage",
             component: () =>
-              import("@/modules/travel-authorizations/pages/ManageTravelAuthorizationEstimatePage"),
+              import(
+                "@/modules/travel-authorizations/pages/ManageTravelAuthorizationEstimatePage.vue"
+              ),
             props: cast("travelAuthorizationId", parseInt),
           },
           {
             path: "expense/manage",
             name: "ManageTravelAuthorizationExpensePage",
             component: () =>
-              import("@/modules/travel-authorizations/pages/ManageTravelAuthorizationExpensePage"),
+              import(
+                "@/modules/travel-authorizations/pages/ManageTravelAuthorizationExpensePage.vue"
+              ),
             props: cast("travelAuthorizationId", parseInt),
           },
         ],
