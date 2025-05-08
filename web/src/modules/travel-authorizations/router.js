@@ -7,8 +7,7 @@ const routes = [
     children: [
       {
         path: ":travelAuthorizationId",
-        component: () =>
-          import("@/modules/travel-authorizations/layouts/TravelAuthorizationLayout.vue"),
+        component: () => import("@/layouts/travel-authorizations/TravelAuthorizationLayout.vue"),
         props: true,
         children: [
           {
@@ -41,7 +40,7 @@ const routes = [
       {
         path: ":travelAuthorizationId",
         component: () =>
-          import("@/modules/travel-authorizations/layouts/ManageTravelAuthorizationLayout"),
+          import("@/layouts/travel-authorizations/TravelAuthorizationManageLayout.vue"),
         props: true,
         children: [
           {
