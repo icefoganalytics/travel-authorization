@@ -88,7 +88,7 @@ import ManagementCard from "@/modules/travel-authorizations/components/manage-tr
 
 const props = defineProps({
   travelAuthorizationId: {
-    type: String,
+    type: [String, Number],
     required: true,
   },
 })

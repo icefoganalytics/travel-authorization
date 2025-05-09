@@ -39,7 +39,7 @@ import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/
 
 const props = defineProps({
   travelAuthorizationId: {
-    type: String,
+    type: [String, Number],
     required: true,
   },
 })
