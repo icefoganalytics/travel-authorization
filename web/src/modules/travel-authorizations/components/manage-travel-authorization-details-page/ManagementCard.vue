@@ -1,6 +1,5 @@
 <template>
   <HeaderActionsCard title="Management">
-    <!-- TODO: add support for re-assignment to another supervisor -->
     <v-row>
       <v-col class="d-flex flex-column flex-md-row">
         <v-skeleton-loader
