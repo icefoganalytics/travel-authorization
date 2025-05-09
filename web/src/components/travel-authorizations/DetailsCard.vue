@@ -1,5 +1,7 @@
 <template>
   <HeaderActionsCard title="Details">
+    <template #header-actions><slot name="header-actions"></slot></template>
+
     <v-row>
       <v-col cols="12">
         <DescriptionElement label="Trip Type">

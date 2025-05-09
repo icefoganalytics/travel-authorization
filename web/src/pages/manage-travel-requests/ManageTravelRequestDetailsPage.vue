@@ -2,12 +2,42 @@
   <div class="mt-4">
     <v-row>
       <v-col>
-        <PurposeCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        <PurposeCard :travel-authorization-id="travelAuthorizationIdAsNumber">
+          <template #header-actions>
+            <v-btn
+              class="my-0"
+              color="primary"
+              :to="{
+                name: 'EditTravelAuthorizationDetailsPage',
+                params: {
+                  travelAuthorizationId: travelAuthorizationIdAsNumber,
+                },
+              }"
+            >
+              Edit
+            </v-btn>
+          </template>
+        </PurposeCard>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <DetailsCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        <DetailsCard :travel-authorization-id="travelAuthorizationIdAsNumber">
+          <template #header-actions>
+            <v-btn
+              class="my-0"
+              color="primary"
+              :to="{
+                name: 'EditTravelAuthorizationDetailsPage',
+                params: {
+                  travelAuthorizationId: travelAuthorizationIdAsNumber,
+                },
+              }"
+            >
+              Edit
+            </v-btn>
+          </template>
+        </DetailsCard>
       </v-col>
     </v-row>
     <v-row>
@@ -15,7 +45,22 @@
         <ApprovalsCard
           ref="approvalsCard"
           :travel-authorization-id="travelAuthorizationIdAsNumber"
-        />
+        >
+          <template #header-actions>
+            <v-btn
+              class="my-0"
+              color="primary"
+              :to="{
+                name: 'EditTravelAuthorizationDetailsPage',
+                params: {
+                  travelAuthorizationId: travelAuthorizationIdAsNumber,
+                },
+              }"
+            >
+              Edit
+            </v-btn>
+          </template>
+        </ApprovalsCard>
       </v-col>
     </v-row>
     <v-row>
