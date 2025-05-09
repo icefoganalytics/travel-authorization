@@ -28,7 +28,7 @@
               class="my-0"
               color="primary"
               :to="{
-                name: 'EditTravelAuthorizationDetailsPage',
+                name: 'manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage',
                 params: {
                   travelAuthorizationId: travelAuthorizationIdAsNumber,
                 },

@@ -84,6 +84,15 @@ const routes = [
                 props: true,
               },
               {
+                path: "details/edit-trip-details-estimates",
+                name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage.vue"
+                  ),
+                props: true,
+              },
+              {
                 path: "estimate",
                 name: "manage-travel-requests/ManageTravelRequestEstimatesPage",
                 component: () =>
