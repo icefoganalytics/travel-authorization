@@ -84,11 +84,29 @@ const routes = [
                 props: true,
               },
               {
+                path: "details/edit-trip-details-redirect-by-state",
+                name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsRedirectByStatePage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsRedirectByStatePage.vue"
+                  ),
+                props: true,
+              },
+              {
                 path: "details/edit-trip-details-estimates",
                 name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage",
                 component: () =>
                   import(
                     "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "details/edit-trip-details-actuals",
+                name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsActualsPage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsActualsPage.vue"
                   ),
                 props: true,
               },
