@@ -1,32 +1,40 @@
 <template>
-  <v-form
-    ref="form"
-    class="mt-4"
-    lazy-validation
-  >
+  <div>
     <v-row>
       <v-col>
-        <PurposeFormCard :travel-authorization-id="travelAuthorizationId" />
+        <PurposeEditFormCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <DetailsEditFormCard :travel-authorization-id="travelAuthorizationId" />
+        <!-- TODO: consider if edit page should be split into "before travel" and "after travel" pages -->
+        <HeaderActionsCard
+          v-if="isDuringTripEstimatePhase"
+          title="Trip Details (Estimated)"
+        >
+          <TripDetailsEstimatesEditForm :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        </HeaderActionsCard>
+        <HeaderActionsCard
+          v-else
+          title="Trip Details (Actual)"
+        >
+          <TripDetailsActualsEditForm :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        </HeaderActionsCard>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <ApprovalsFormCard
-          :travel-authorization-id="travelAuthorizationId"
-          :validate="validate"
-        />
+        <ApprovalsEditFormCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
       </v-col>
     </v-row>
     <div class="d-flex justify-end">
-      <SaveDraftButton
-        :travel-authorization-id="travelAuthorizationId"
-        :validate="validate"
-      />
+      <v-btn
+        :loading="isLoading"
+        color="green"
+        @click="saveWrapper"
+      >
+        Save Draft
+      </v-btn>
       <!-- TODO: re-add back button once travel authorizatons page exists -->
       <!-- <v-btn
         class="ml-3"
@@ -35,29 +43,62 @@
         >Back</v-btn
       > -->
     </div>
-  </v-form>
+    <v-row>
+      <v-col>
+        <TravelAuthorizationActionLogsTable
+          :travel-authorization-id="travelAuthorizationIdAsNumber"
+        />
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed } from "vue"
+import { isNil } from "lodash"
 
-import PurposeFormCard from "@/modules/travel-authorizations/components/edit-travel-authorization-details-page/PurposeFormCard"
-import DetailsEditFormCard from "@/components/travel-authorizations/DetailsEditFormCard.vue"
-import ApprovalsFormCard from "@/modules/travel-authorizations/components/edit-travel-authorization-details-page/ApprovalsFormCard"
+import useTravelAuthorization from "@/use/use-travel-authorization"
+import useTravelSegments from "@/use/use-travel-segments"
 
-import SaveDraftButton from "@/modules/travel-authorizations/components/edit-travel-authorization-details-page/SaveDraftButton"
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
-defineProps({
+import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
+import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/TripDetailsEstimatesEditForm.vue"
+import TripDetailsActualsEditForm from "@/components/travel-authorizations/TripDetailsActualsEditForm.vue"
+import ApprovalsEditFormCard from "@/components/travel-authorizations/ApprovalsEditFormCard.vue"
+import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable.vue"
+
+const props = defineProps({
   travelAuthorizationId: {
-    type: Number,
+    type: String,
     required: true,
   },
 })
 
-/** @type {import('vue').Ref<{ validate: () => boolean } | null>} */
-const form = ref(null)
+const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+const { travelAuthorization, isLoading } = useTravelAuthorization(travelAuthorizationIdAsNumber)
 
-function validate() {
-  return form.value.validate()
+const isApproved = computed(() => travelAuthorization.value?.isApproved)
+
+const travelSegmentsQuery = computed(() => ({
+  where: {
+    travelAuthorizationId: props.travelAuthorizationId,
+    isActual: false,
+  },
+  perPage: 1, // we only need the first travel segment to check if travel has started
+}))
+const { travelSegments } = useTravelSegments(travelSegmentsQuery)
+
+const isBeforeTravelStartDate = computed(() => {
+  const firstTravelSegment = travelSegments.value[0]
+  if (isNil(firstTravelSegment)) return true
+
+  return new Date(firstTravelSegment.departureOn) > new Date()
+})
+
+const isDuringTripEstimatePhase = computed(() => !isApproved.value || isBeforeTravelStartDate.value)
+
+function saveWrapper() {
+  alert("TODO: implement save")
 }
 </script>

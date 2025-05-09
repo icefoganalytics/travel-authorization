@@ -122,7 +122,7 @@ const router = useRouter()
 function goToManageTravelAuthorization(travelAuthorization) {
   const travelAuthorizationId = travelAuthorization.id
   router.push({
-    name: "ManageTravelAuthorizationDetailsPage",
+    name: "manage-travel-requests/ManageTravelRequestDetailsPage",
     params: {
       travelAuthorizationId,
     },

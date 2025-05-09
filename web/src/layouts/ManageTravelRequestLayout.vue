@@ -1,0 +1,64 @@
+<template>
+  <div>
+    <SummaryHeaderPanel
+      ref="summaryHeaderPanel"
+      :travel-authorization-id="travelAuthorizationIdAsNumber"
+    />
+
+    <v-tabs>
+      <DetailsTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <EstimateTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <ExpenseTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <!-- TODO: add in any tabs that you can normally see in manage mode -->
+    </v-tabs>
+
+    <router-view @updated="refresh"></router-view>
+
+    <v-row class="mt-md-10 mt-5">
+      <v-col>
+        <TravelAuthorizationActionLogsTable
+          :travel-authorization-id="travelAuthorizationIdAsNumber"
+        />
+      </v-col>
+    </v-row>
+  </div>
+</template>
+
+<script setup>
+import { computed, ref } from "vue"
+
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+
+import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
+
+import DetailsTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/DetailsTab.vue"
+import EstimateTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/EstimateTab.vue"
+import ExpenseTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/ExpenseTab.vue"
+
+import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable.vue"
+
+const props = defineProps({
+  travelAuthorizationId: {
+    type: [String, Number],
+    required: true,
+  },
+})
+
+const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+
+/** @type {import('vue').Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
+const summaryHeaderPanel = ref(null)
+
+async function refresh() {
+  await summaryHeaderPanel.value?.refresh()
+}
+
+useBreadcrumbs([
+  {
+    text: "Manage Travel Requests",
+    to: {
+      name: "ManageTravelRequests",
+    },
+  },
+])
+</script>

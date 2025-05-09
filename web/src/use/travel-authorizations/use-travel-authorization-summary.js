@@ -9,18 +9,28 @@ export { STATUSES, TRIP_TYPES }
  * @template [T=any]
  * @typedef {import('vue').Ref<T>} Ref
  */
+/**
+ * @template [T=any]
+ * @typedef {import('vue').ToRefs<T>} ToRefs
+ */
 /** @typedef {import('@/api/travel-authorizations-api.js').TravelAuthorization} TravelAuthorization */
+
+/**
+ * @typedef {{
+ *   travelPurposeId: number | null,
+ *   finalDestinationLocationId: number | null,
+ *   departureDate: string | null,
+ *   returnDate: string | null,
+ *   userId: number | null,
+ * }} TravelAuthorizationSummary
+ */
 
 /**
  * This stores a global user state per id.
  *
- * @callback UseMyTravelRequestWizardSummary
+ * @callback UseTravelAuthorizationSummary
  * @param {Ref<string | number>} [travelAuthorizationId]
- * @returns {{
- *   travelPurposeId: Ref<number | null>,
- *   finalDestinationLocationId: Ref<number | null>,
- *   departureDate: Ref<string | null>,
- *   returnDate: Ref<string | null>,
+ * @returns {ToRefs<TravelAuthorizationSummary> & {
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
  *   fetch: () => Promise<TravelAuthorization>,
@@ -33,12 +43,13 @@ const state = reactive({
   finalDestinationLocationId: null,
   departureDate: null,
   returnDate: null,
+  userId: null,
   isLoading: false,
   isErrored: false,
 })
 
-/** @type {UseMyTravelRequestWizardSummary} */
-export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
+/** @type {UseTravelAuthorizationSummary} */
+export function useTravelAuthorizationSummary(travelAuthorizationId) {
   async function fetch(params = {}) {
     const staticId = unref(travelAuthorizationId)
     if (isNil(staticId)) {
@@ -63,7 +74,7 @@ export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
       state.departureDate = _determineDepartureDate(travelSegments)
       state.returnDate =
         travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
-
+      state.userId = travelAuthorization.userId
       return travelAuthorization
     } catch (error) {
       console.error("Failed to fetch travel authorization:", error)
@@ -72,6 +83,16 @@ export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
     } finally {
       state.isLoading = false
     }
+  }
+
+  /**
+   * @param {Partial<TravelAuthorizationSummary>} attributes
+   */
+  function update(attributes) {
+    Object.entries(attributes).forEach(([key, value]) => {
+      state[key] = value
+    })
+    return state
   }
 
   /**
@@ -122,7 +143,8 @@ export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
     // methods
     fetch,
     refresh: fetch,
+    update,
   }
 }
 
-export default useMyTravelRequestWizardSummary
+export default useTravelAuthorizationSummary

@@ -315,6 +315,11 @@ TravelSegment.init(
           )
         }
       },
+      departureLocationIdAndArrivalLocationIdConsistency() {
+        if (this.departureLocationId === this.arrivalLocationId) {
+          throw new Error("departureLocationId and arrivalLocationId must be different")
+        }
+      },
     },
   }
 )

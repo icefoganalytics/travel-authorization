@@ -36,6 +36,18 @@ export class BulkReplaceService extends BaseService {
       throw new Error("All travel segments must have the same isActual value.")
     }
 
+    if (
+      this.travelSegmentsAttributes.some(
+        (travelSegmentAttributes) =>
+          travelSegmentAttributes.departureLocationId === travelSegmentAttributes.arrivalLocationId
+      )
+    ) {
+      const prettyTravelSegmentsAttributes = JSON.stringify(this.travelSegmentsAttributes)
+      throw new Error(
+        `Departure location and arrival location must be different for each travel segment: ${prettyTravelSegmentsAttributes}`
+      )
+    }
+
     return transaction(async () => {
       await TravelSegment.destroy({
         where: {

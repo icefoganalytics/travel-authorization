@@ -56,13 +56,13 @@ async function validateAndSave() {
       return false
     }
 
-    await approvalsEditFormCard.value.save()
-    snack.success("Travel request saved.")
+    await approvalsEditFormCard.value.submit()
+    snack.success("Travel request submitted.")
     emit("updated", props.travelAuthorizationId)
     return true
   } catch (error) {
-    console.error(`Failed to save travel request: ${error}`, { error })
-    snack.error(`Failed to save travel request: ${error}`)
+    console.error(`Failed to submit travel request: ${error}`, { error })
+    snack.error(`Failed to submit travel request: ${error}`)
     return false
   } finally {
     isLoading.value = false

@@ -79,46 +79,6 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
         "tripTypeEstimate",
         "travelAdvanceInCents",
         "allTravelWithinTerritory",
-
-        // TODO: use permitedAttributes from relevant policies once they exist
-        // Note that these nested attributes are "create" attributes, not "update" attributes
-        // as a full replace is occuring.
-        {
-          stops: [
-            "travelAuthorizationId",
-            "locationId",
-            "departureDate",
-            "departureTime",
-            "transport",
-            "accommodationType",
-          ],
-        },
-        {
-          expenses: [
-            "travelAuthorizationId",
-            "type",
-            "expenseType",
-            "description",
-            "date",
-            "cost",
-            "currency",
-            "receiptImage",
-            "fileName",
-          ],
-        },
-        {
-          estimates: [
-            "travelAuthorizationId",
-            "type",
-            "expenseType",
-            "description",
-            "date",
-            "cost",
-            "currency",
-            "receiptImage",
-            "fileName",
-          ],
-        },
         {
           travelSegmentEstimatesAttributes:
             this.travelSegmentsPolicy.permittedAttributesForCreate(),
