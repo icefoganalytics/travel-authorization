@@ -1,6 +1,6 @@
 <template>
   <HeaderActionsCard
-    title="Trip Details"
+    title="Edit Trip Details (Estimated)"
     class="mt-4"
   >
     <TripDetailsEstimatesEditForm
@@ -36,7 +36,8 @@ import { computed, ref } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useSnack from "@/use/use-snack"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/TripDetailsEstimatesEditForm.vue"
@@ -83,4 +84,31 @@ async function validateSaveAndReturn() {
     isLoading.value = false
   }
 }
+
+useBreadcrumbs([
+  {
+    text: "Manage Travel Requests",
+    to: {
+      name: "ManageTravelRequests",
+    },
+  },
+  {
+    text: "Details",
+    to: {
+      name: "manage-travel-requests/ManageTravelRequestDetailsPage",
+      params: {
+        travelAuthorizationId: props.travelAuthorizationId,
+      },
+    },
+  },
+  {
+    text: "Edit Trip Details (Estimates)",
+    to: {
+      name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage",
+      params: {
+        travelAuthorizationId: props.travelAuthorizationId,
+      },
+    },
+  },
+])
 </script>

@@ -33,7 +33,8 @@ import { computed, ref } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useSnack from "@/use/use-snack"
 
 import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
 
@@ -79,4 +80,31 @@ async function validateSaveAndReturn() {
     isLoading.value = false
   }
 }
+
+useBreadcrumbs([
+  {
+    text: "Manage Travel Requests",
+    to: {
+      name: "ManageTravelRequests",
+    },
+  },
+  {
+    text: "Details",
+    to: {
+      name: "manage-travel-requests/ManageTravelRequestDetailsPage",
+      params: {
+        travelAuthorizationId: props.travelAuthorizationId,
+      },
+    },
+  },
+  {
+    text: "Edit Purpose",
+    to: {
+      name: "manage-travel-requests/ManageTravelRequestDetailsEditPurposePage",
+      params: {
+        travelAuthorizationId: props.travelAuthorizationId,
+      },
+    },
+  },
+])
 </script>

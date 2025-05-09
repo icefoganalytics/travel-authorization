@@ -31,7 +31,7 @@
               :to="{
                 name: 'manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage',
                 params: {
-                  travelAuthorizationId: travelAuthorizationIdAsNumber,
+                  travelAuthorizationId,
                 },
               }"
             >
@@ -54,7 +54,7 @@
               :to="{
                 name: 'manage-travel-requests/ManageTravelRequestDetailsEditApprovalsPage',
                 params: {
-                  travelAuthorizationId: travelAuthorizationIdAsNumber,
+                  travelAuthorizationId,
                 },
               }"
             >
@@ -115,7 +115,7 @@ useBreadcrumbs([
     to: {
       name: "manage-travel-requests/ManageTravelRequestDetailsPage",
       params: {
-        travelAuthorizationId: travelAuthorizationIdAsNumber,
+        travelAuthorizationId: props.travelAuthorizationId,
       },
     },
   },
