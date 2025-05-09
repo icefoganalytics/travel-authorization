@@ -1,6 +1,9 @@
 <template>
   <div>
-    <SummaryHeaderPanel :travel-authorization-id="travelAuthorizationIdAsNumber" />
+    <SummaryHeaderPanel
+      ref="summaryHeaderPanel"
+      :travel-authorization-id="travelAuthorizationIdAsNumber"
+    />
 
     <v-tabs>
       <DetailsTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
@@ -9,7 +12,7 @@
       <!-- TODO: add in any tabs that you can normally see in manage mode -->
     </v-tabs>
 
-    <router-view></router-view>
+    <router-view @updated="refresh"></router-view>
 
     <v-row class="mt-md-10 mt-5">
       <v-col>
@@ -22,7 +25,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue"
+import { computed, ref } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
@@ -42,6 +45,13 @@ const props = defineProps({
 })
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+
+/** @type {import('vue').Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
+const summaryHeaderPanel = ref(null)
+
+async function refresh() {
+  await summaryHeaderPanel.value?.refresh()
+}
 
 useBreadcrumbs([
   {

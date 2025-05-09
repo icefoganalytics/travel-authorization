@@ -93,6 +93,8 @@
         />
       </v-col>
     </v-row>
+
+    <template #actions><slot name="actions"></slot></template>
   </HeaderActionsFormCard>
 </template>
 
