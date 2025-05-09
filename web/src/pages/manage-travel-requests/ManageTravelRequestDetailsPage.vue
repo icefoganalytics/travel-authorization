@@ -41,6 +41,8 @@
 <script setup>
 import { computed, ref } from "vue"
 
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+
 import PurposeCard from "@/components/travel-authorizations/PurposeCard.vue"
 import DetailsCard from "@/components/travel-authorizations/DetailsCard.vue"
 import ApprovalsCard from "@/modules/travel-authorizations/components/read-travel-authorization-details-page/ApprovalsCard.vue"
@@ -62,4 +64,22 @@ const approvalsCard = ref(null)
 function refresh() {
   approvalsCard.value.refresh()
 }
+
+useBreadcrumbs([
+  {
+    text: "Manage Travel Requests",
+    to: {
+      name: "ManageTravelRequests",
+    },
+  },
+  {
+    text: "Details",
+    to: {
+      name: "manage-travel-requests/ManageTravelRequestDetailsPage",
+      params: {
+        travelAuthorizationId: travelAuthorizationIdAsNumber,
+      },
+    },
+  },
+])
 </script>

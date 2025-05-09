@@ -42,6 +42,7 @@
 import { computed } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 
+import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
@@ -70,4 +71,13 @@ function goToAdminEditPage() {
     },
   })
 }
+
+useBreadcrumbs([
+  {
+    text: "Manage Travel Requests",
+    to: {
+      name: "ManageTravelRequests",
+    },
+  },
+])
 </script>

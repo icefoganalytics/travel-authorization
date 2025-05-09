@@ -43,6 +43,8 @@
 <script setup>
 import { computed } from "vue"
 
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+
 import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable"
 
 import ExpensesTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/ExpensesTable"
@@ -60,4 +62,22 @@ const props = defineProps({
 })
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+
+useBreadcrumbs([
+  {
+    text: "Manage Travel Requests",
+    to: {
+      name: "ManageTravelRequests",
+    },
+  },
+  {
+    text: "Expenses",
+    to: {
+      name: "manage-travel-requests/ManageTravelRequestExpensesPage",
+      params: {
+        travelAuthorizationId: travelAuthorizationIdAsNumber,
+      },
+    },
+  },
+])
 </script>
