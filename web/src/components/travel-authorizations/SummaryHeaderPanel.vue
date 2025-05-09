@@ -59,7 +59,7 @@ import { toRefs } from "vue"
 
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useCurrentUser from "@/use/use-current-user"
-import useMyTravelRequestWizardSummary from "@/use/wizards/use-my-travel-request-wizard-summary"
+import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import UserChip from "@/components/users/UserChip.vue"
@@ -83,7 +83,7 @@ const {
   userId,
   isLoading,
   refresh,
-} = useMyTravelRequestWizardSummary(travelAuthorizationId)
+} = useTravelAuthorizationSummary(travelAuthorizationId)
 
 const { currentUser } = useCurrentUser()
 const { mdAndUp } = useVuetify2()

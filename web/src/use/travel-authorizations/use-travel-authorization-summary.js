@@ -14,7 +14,7 @@ export { STATUSES, TRIP_TYPES }
 /**
  * This stores a global user state per id.
  *
- * @callback UseMyTravelRequestWizardSummary
+ * @callback UseTravelAuthorizationSummary
  * @param {Ref<string | number>} [travelAuthorizationId]
  * @returns {{
  *   travelPurposeId: Ref<number | null>,
@@ -39,8 +39,8 @@ const state = reactive({
   isErrored: false,
 })
 
-/** @type {UseMyTravelRequestWizardSummary} */
-export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
+/** @type {UseTravelAuthorizationSummary} */
+export function useTravelAuthorizationSummary(travelAuthorizationId) {
   async function fetch(params = {}) {
     const staticId = unref(travelAuthorizationId)
     if (isNil(staticId)) {
@@ -127,4 +127,4 @@ export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
   }
 }
 
-export default useMyTravelRequestWizardSummary
+export default useTravelAuthorizationSummary
