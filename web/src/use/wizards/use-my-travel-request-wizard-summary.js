@@ -21,6 +21,7 @@ export { STATUSES, TRIP_TYPES }
  *   finalDestinationLocationId: Ref<number | null>,
  *   departureDate: Ref<string | null>,
  *   returnDate: Ref<string | null>,
+ *   userId: Ref<number | null>,
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
  *   fetch: () => Promise<TravelAuthorization>,
@@ -33,6 +34,7 @@ const state = reactive({
   finalDestinationLocationId: null,
   departureDate: null,
   returnDate: null,
+  userId: null,
   isLoading: false,
   isErrored: false,
 })
@@ -63,7 +65,7 @@ export function useMyTravelRequestWizardSummary(travelAuthorizationId) {
       state.departureDate = _determineDepartureDate(travelSegments)
       state.returnDate =
         travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
-
+      state.userId = travelAuthorization.userId
       return travelAuthorization
     } catch (error) {
       console.error("Failed to fetch travel authorization:", error)

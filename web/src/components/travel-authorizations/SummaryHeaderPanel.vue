@@ -44,7 +44,10 @@
           class="d-flex align-center justify-center justify-md-start"
           :cols="mdAndUp ? undefined : 12"
         >
-          <UserChip :user-id="currentUser.id" />
+          <UserChip
+            :loading="isLoading"
+            :user-id="userId ?? currentUser.id"
+          />
         </v-col>
       </v-row>
     </v-card-text>
@@ -72,8 +75,15 @@ const props = defineProps({
 
 const { travelAuthorizationId } = toRefs(props)
 
-const { travelPurposeId, finalDestinationLocationId, departureDate, returnDate, refresh } =
-  useMyTravelRequestWizardSummary(travelAuthorizationId)
+const {
+  travelPurposeId,
+  finalDestinationLocationId,
+  departureDate,
+  returnDate,
+  userId,
+  isLoading,
+  refresh,
+} = useMyTravelRequestWizardSummary(travelAuthorizationId)
 
 const { currentUser } = useCurrentUser()
 const { mdAndUp } = useVuetify2()
