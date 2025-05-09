@@ -27,12 +27,26 @@
               :travel-authorization-id="travelAuthorizationIdAsNumber"
               :step-title="currentStep.title"
               :step-subtitle="currentStep.subtitle"
-              @update:travelPurposeId="updateTravelAuthorizationSummary('travelPurposeId', $event)"
-              @update:finalDestinationLocationId="
-                updateTravelAuthorizationSummary('finalDestinationLocationId', $event)
+              @update:travelPurposeId="
+                updateTravelAuthorizationSummary({
+                  travelPurposeId: $event,
+                })
               "
-              @update:departureDate="updateTravelAuthorizationSummary('departureDate', $event)"
-              @update:returnDate="updateTravelAuthorizationSummary('returnDate', $event)"
+              @update:finalDestinationLocationId="
+                updateTravelAuthorizationSummary({
+                  finalDestinationLocationId: $event,
+                })
+              "
+              @update:departureDate="
+                updateTravelAuthorizationSummary({
+                  departureDate: $event,
+                })
+              "
+              @update:returnDate="
+                updateTravelAuthorizationSummary({
+                  returnDate: $event,
+                })
+              "
               @updated="refreshHeaderAndLocalState"
             />
 
@@ -173,12 +187,7 @@ async function continueAndGoToNextStep() {
   }
 }
 
-const travelAuthorizationSummary = useTravelAuthorizationSummary()
-
-function updateTravelAuthorizationSummary(attribute, value) {
-  const attributeRef = travelAuthorizationSummary[attribute]
-  attributeRef.value = value
-}
+const { update: updateTravelAuthorizationSummary } = useTravelAuthorizationSummary()
 
 /** @type {import('vue').Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
 const summaryHeaderPanel = ref(null)

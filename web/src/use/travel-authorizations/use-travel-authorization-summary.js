@@ -9,19 +9,28 @@ export { STATUSES, TRIP_TYPES }
  * @template [T=any]
  * @typedef {import('vue').Ref<T>} Ref
  */
+/**
+ * @template [T=any]
+ * @typedef {import('vue').ToRefs<T>} ToRefs
+ */
 /** @typedef {import('@/api/travel-authorizations-api.js').TravelAuthorization} TravelAuthorization */
+
+/**
+ * @typedef {{
+ *   travelPurposeId: number | null,
+ *   finalDestinationLocationId: number | null,
+ *   departureDate: string | null,
+ *   returnDate: string | null,
+ *   userId: number | null,
+ * }} TravelAuthorizationSummary
+ */
 
 /**
  * This stores a global user state per id.
  *
  * @callback UseTravelAuthorizationSummary
  * @param {Ref<string | number>} [travelAuthorizationId]
- * @returns {{
- *   travelPurposeId: Ref<number | null>,
- *   finalDestinationLocationId: Ref<number | null>,
- *   departureDate: Ref<string | null>,
- *   returnDate: Ref<string | null>,
- *   userId: Ref<number | null>,
+ * @returns {ToRefs<TravelAuthorizationSummary> & {
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
  *   fetch: () => Promise<TravelAuthorization>,
@@ -77,6 +86,16 @@ export function useTravelAuthorizationSummary(travelAuthorizationId) {
   }
 
   /**
+   * @param {Partial<TravelAuthorizationSummary>} attributes
+   */
+  function update(attributes) {
+    Object.entries(attributes).forEach(([key, value]) => {
+      state[key] = value
+    })
+    return state
+  }
+
+  /**
    * @param {TRIP_TYPES} tripType
    * @param {TravelSegment[]} travelSegments
    * @returns {number | null}
@@ -124,6 +143,7 @@ export function useTravelAuthorizationSummary(travelAuthorizationId) {
     // methods
     fetch,
     refresh: fetch,
+    update,
   }
 }
 
