@@ -44,8 +44,8 @@ import { isEmpty } from "lodash"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import ApproveTravelRequestDialogButton from "./ApproveTravelRequestDialogButton.vue"
-import DenyTravelRequestDialogButton from "./DenyTravelRequestDialogButton.vue"
+import ApproveTravelRequestDialogButton from "@/modules/travel-authorizations/components/manage-travel-authorization-details-page/ApproveTravelRequestDialogButton.vue"
+import DenyTravelRequestDialogButton from "@/modules/travel-authorizations/components/manage-travel-authorization-details-page/DenyTravelRequestDialogButton.vue"
 import ReAssignButtonDialog from "@/components/travel-authorizations/manage/ReAssignButtonDialog.vue"
 
 const props = defineProps({
