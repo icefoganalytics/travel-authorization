@@ -4,7 +4,7 @@
     <v-card-text>
       <!-- TODO: add support for re-assignment to another supervisor -->
       <v-row>
-        <v-col class="d-flex justify-end">
+        <v-col class="d-flex flex-column flex-md-row">
           <v-skeleton-loader
             v-if="isLoading"
             type="button"
@@ -20,14 +20,20 @@
           <DenyTravelRequestDialogButton
             :travel-authorization-id="travelAuthorizationId"
             :is-disabled="isDisabled"
-            button-classes="ml-2"
+            button-classes="ml-md-2"
             @denied="refreshAndEmit('denied')"
           />
           <ReAssignButtonDialog
             :travel-authorization-id="travelAuthorizationId"
             :is-disabled="isDisabled"
-            button-classes="ml-2"
+            button-classes="ml-md-2"
           />
+          <v-spacer />
+          <v-btn
+            color="secondary"
+            :to="{ name: 'ManageTravelRequests' }"
+            >Back</v-btn
+          >
         </v-col>
       </v-row>
     </v-card-text>

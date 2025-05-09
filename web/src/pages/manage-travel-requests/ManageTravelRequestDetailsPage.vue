@@ -72,14 +72,6 @@
         />
       </v-col>
     </v-row>
-    <div class="d-flex justify-end">
-      <v-btn
-        class="ml-3"
-        color="secondary"
-        :to="{ name: 'ManageTravelRequests' }"
-        >Back</v-btn
-      >
-    </div>
   </div>
 </template>
 
