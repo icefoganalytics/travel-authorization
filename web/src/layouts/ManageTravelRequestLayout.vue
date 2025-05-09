@@ -35,6 +35,14 @@
     </v-tabs>
 
     <router-view></router-view>
+
+    <v-row class="mt-md-10 mt-5">
+      <v-col>
+        <TravelAuthorizationActionLogsTable
+          :travel-authorization-id="travelAuthorizationIdAsNumber"
+        />
+      </v-col>
+    </v-row>
   </div>
 </template>
 
@@ -50,6 +58,8 @@ import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeader
 import DetailsTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/DetailsTab.vue"
 import EstimateTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/EstimateTab.vue"
 import ExpenseTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/ExpenseTab.vue"
+
+import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

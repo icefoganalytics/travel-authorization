@@ -45,7 +45,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import PurposeCard from "@/components/travel-authorizations/PurposeCard.vue"
 import DetailsCard from "@/components/travel-authorizations/DetailsCard.vue"
-import ApprovalsCard from "@/modules/travel-authorizations/components/read-travel-authorization-details-page/ApprovalsCard.vue"
+import ApprovalsCard from "@/components/travel-authorizations/ApprovalsCard.vue"
 
 import ManagementCard from "@/modules/travel-authorizations/components/manage-travel-authorization-details-page/ManagementCard.vue"
 
