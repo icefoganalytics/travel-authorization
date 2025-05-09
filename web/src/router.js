@@ -93,6 +93,15 @@ const routes = [
                 props: true,
               },
               {
+                path: "details/edit-approvals",
+                name: "manage-travel-requests/ManageTravelRequestDetailsEditApprovalsPage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditApprovalsPage.vue"
+                  ),
+                props: true,
+              },
+              {
                 path: "estimate",
                 name: "manage-travel-requests/ManageTravelRequestEstimatesPage",
                 component: () =>
