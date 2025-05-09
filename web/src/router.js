@@ -59,6 +59,38 @@ const routes = [
             component: () => import("@/pages/ManageTravelRequestsPage.vue"),
           },
           {
+            path: "manage-travel-requests/:travelAuthorizationId",
+            component: () => import("@/layouts/ManageTravelRequestLayout.vue"),
+            props: true,
+            children: [
+              {
+                path: "",
+                redirect: "details",
+              },
+              {
+                path: "details",
+                name: "manage-travel-requests/ManageTravelRequestDetailsPage",
+                component: () =>
+                  import("@/pages/manage-travel-requests/ManageTravelRequestDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "estimate",
+                name: "manage-travel-requests/ManageTravelRequestEstimatesPage",
+                component: () =>
+                  import("@/pages/manage-travel-requests/ManageTravelRequestEstimatesPage.vue"),
+                props: true,
+              },
+              {
+                path: "expense",
+                name: "manage-travel-requests/ManageTravelRequestExpensesPage",
+                component: () =>
+                  import("@/pages/manage-travel-requests/ManageTravelRequestExpensesPage.vue"),
+                props: true,
+              },
+            ],
+          },
+          {
             path: "travel-pre-approvals",
             component: () => import("@/pages/TravelPreApprovalsPage.vue"),
             children: [

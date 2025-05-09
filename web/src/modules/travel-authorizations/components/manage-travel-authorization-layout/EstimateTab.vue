@@ -1,7 +1,7 @@
 <template>
   <v-tab
     :to="{
-      name: 'ManageTravelAuthorizationEstimatePage',
+      name: 'manage-travel-requests/ManageTravelRequestEstimatesPage',
       params: { travelAuthorizationId },
     }"
     >Estimate</v-tab

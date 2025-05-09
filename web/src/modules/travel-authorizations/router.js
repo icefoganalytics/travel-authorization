@@ -2,11 +2,11 @@ import { cast } from "@/utils/vue-router-utils"
 
 const routes = [
   {
-    path: "/travel-requests",
+    path: "",
     component: () => import("@/layouts/DefaultLayout.vue"),
     children: [
       {
-        path: ":travelAuthorizationId",
+        path: "/travel-requests/:travelAuthorizationId",
         component: () => import("@/layouts/travel-authorizations/TravelAuthorizationLayout.vue"),
         props: true,
         children: [
@@ -38,45 +38,6 @@ const routes = [
             component: () =>
               import(
                 "@/modules/travel-authorizations/pages/EditTravelAuthorizationExpensePage.vue"
-              ),
-            props: cast("travelAuthorizationId", parseInt),
-          },
-        ],
-      },
-      {
-        path: ":travelAuthorizationId",
-        component: () =>
-          import("@/layouts/travel-authorizations/TravelAuthorizationManageLayout.vue"),
-        props: true,
-        children: [
-          {
-            path: "",
-            redirect: "details/manage",
-          },
-          {
-            name: "ManageTravelAuthorizationDetailsPage",
-            path: "details/manage",
-            component: () =>
-              import(
-                "@/modules/travel-authorizations/pages/ManageTravelAuthorizationDetailsPage.vue"
-              ),
-            props: cast("travelAuthorizationId", parseInt),
-          },
-          {
-            path: "estimate/manage",
-            name: "ManageTravelAuthorizationEstimatePage",
-            component: () =>
-              import(
-                "@/modules/travel-authorizations/pages/ManageTravelAuthorizationEstimatePage.vue"
-              ),
-            props: cast("travelAuthorizationId", parseInt),
-          },
-          {
-            path: "expense/manage",
-            name: "ManageTravelAuthorizationExpensePage",
-            component: () =>
-              import(
-                "@/modules/travel-authorizations/pages/ManageTravelAuthorizationExpensePage.vue"
               ),
             props: cast("travelAuthorizationId", parseInt),
           },

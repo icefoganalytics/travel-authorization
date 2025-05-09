@@ -2,26 +2,26 @@
   <div class="mt-4">
     <v-row>
       <v-col>
-        <PurposeCard :travel-authorization-id="travelAuthorizationId" />
+        <PurposeCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <DetailsCard :travel-authorization-id="travelAuthorizationId" />
+        <DetailsCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
         <ApprovalsCard
           ref="approvalsCard"
-          :travel-authorization-id="travelAuthorizationId"
+          :travel-authorization-id="travelAuthorizationIdAsNumber"
         />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
         <ManagementCard
-          :travel-authorization-id="travelAuthorizationId"
+          :travel-authorization-id="travelAuthorizationIdAsNumber"
           @approved="refresh"
           @denied="refresh"
         />
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed, ref } from "vue"
 
 import PurposeCard from "@/components/travel-authorizations/PurposeCard.vue"
 import DetailsCard from "@/components/travel-authorizations/DetailsCard.vue"
@@ -47,12 +47,14 @@ import ApprovalsCard from "@/modules/travel-authorizations/components/read-trave
 
 import ManagementCard from "@/modules/travel-authorizations/components/manage-travel-authorization-details-page/ManagementCard.vue"
 
-defineProps({
+const props = defineProps({
   travelAuthorizationId: {
-    type: Number,
+    type: String,
     required: true,
   },
 })
+
+const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 
 /** @type {import('vue').Ref<InstanceType<typeof ApprovalsCard> | null>} */
 const approvalsCard = ref(null)

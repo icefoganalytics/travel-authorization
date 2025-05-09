@@ -1,7 +1,5 @@
 <template>
   <div>
-    <Breadcrumbs />
-
     <SummaryHeaderPanel :travel-authorization-id="travelAuthorizationIdAsNumber" />
 
     <v-tabs>
@@ -46,7 +44,6 @@ import { useRouter } from "vue2-helpers/vue-router"
 
 import useCurrentUser from "@/use/use-current-user"
 
-import Breadcrumbs from "@/components/Breadcrumbs.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 
 import DetailsTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/DetailsTab.vue"
