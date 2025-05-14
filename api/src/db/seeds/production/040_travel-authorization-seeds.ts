@@ -4,10 +4,10 @@ import { Knex } from "knex"
 
 import {
   Location,
-  Stop,
   TravelAuthorization,
   TravelAuthorizationPreApprovalProfile,
   TravelPurpose,
+  TravelSegment,
   User,
 } from "@/models"
 import { Users } from "@/services"
@@ -231,68 +231,51 @@ export async function seed(_knex: Knex): Promise<void> {
     },
     rejectOnEmpty: true,
   })
-  const stopsAttributes = [
+  const travelSegmentsAttributes: CreationAttributes<TravelSegment>[] = [
     {
       travelAuthorizationId: travelAuthorizations[0].id,
-      locationId: whitehorse.id,
-      departureDate: new Date("2023-05-12"),
-      departureTime: "12:00:00",
-      transport: "Plane",
       isActual: false,
-    },
-    {
-      travelAuthorizationId: travelAuthorizations[0].id,
-      locationId: vancouver.id,
-      departureDate: new Date("2019-05-15"),
+      segmentNumber: 1,
+      departureLocationId: whitehorse.id,
+      arrivalLocationId: vancouver.id,
+      departureOn: new Date("2023-05-12"),
       departureTime: "12:00:00",
-      transport: "Plane",
-      isActual: false,
+      modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
     },
     {
       travelAuthorizationId: travelAuthorizations[1].id,
-      locationId: airdrie.id,
-      departureDate: new Date("2023-05-12"),
-      departureTime: "12:00:00",
-      transport: "Plane",
       isActual: false,
-    },
-    {
-      travelAuthorizationId: travelAuthorizations[1].id,
-      locationId: grandePrairie.id,
-      departureDate: new Date("2019-05-15"),
+      segmentNumber: 1,
+      departureLocationId: airdrie.id,
+      arrivalLocationId: grandePrairie.id,
+      departureOn: new Date("2023-05-12"),
       departureTime: "12:00:00",
-      transport: "Plane",
-      isActual: false,
+      modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
     },
     {
       travelAuthorizationId: travelAuthorizations[2].id,
-      locationId: redDeer.id,
-      departureDate: new Date("2023-05-12"),
-      departureTime: "12:00:00",
-      transport: "Plane",
       isActual: false,
-    },
-    {
-      travelAuthorizationId: travelAuthorizations[2].id,
-      locationId: beaumont.id,
-      departureDate: new Date("2019-05-15"),
+      segmentNumber: 1,
+      departureLocationId: redDeer.id,
+      arrivalLocationId: beaumont.id,
+      departureOn: new Date("2023-05-12"),
       departureTime: "12:00:00",
-      transport: "Plane",
-      isActual: false,
+      modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
     },
   ]
-  for (const stopAttributes of stopsAttributes) {
-    const stop = await Stop.findOne({
+  for (const travelSegmentAttributes of travelSegmentsAttributes) {
+    const travelSegment = await TravelSegment.findOne({
       where: {
-        travelAuthorizationId: stopAttributes.travelAuthorizationId,
-        locationId: stopAttributes.locationId,
-        transport: stopAttributes.transport,
+        travelAuthorizationId: travelSegmentAttributes.travelAuthorizationId,
+        departureLocationId: travelSegmentAttributes.departureLocationId,
+        arrivalLocationId: travelSegmentAttributes.arrivalLocationId,
+        modeOfTransport: travelSegmentAttributes.modeOfTransport,
       },
     })
-    if (isNil(stop)) {
-      await Stop.create(stopAttributes)
+    if (isNil(travelSegment)) {
+      await TravelSegment.create(travelSegmentAttributes)
     } else {
-      await stop.update(stopAttributes)
+      await travelSegment.update(travelSegmentAttributes)
     }
   }
 }
