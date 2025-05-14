@@ -95,8 +95,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
         "tripTypeActual",
         "wizardStepName",
         {
-          travelSegmentActualsAttributes:
-            this.travelSegmentsPolicy.permittedAttributesForCreate(),
+          travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
         },
       ]
     }
@@ -105,38 +104,16 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   }
 
   permittedAttributesForCreate(): Path[] {
-    const permittedAttributes = [
-      ...this.permittedAttributes(),
-      "slug",
-      // TODO: use permitedAttributes from relevant policies once they exist
-      {
-        stopsAttributes: [
-          "travelAuthorizationId",
-          "locationId",
-          "departureDate",
-          "departureTime",
-          "transport",
-          "accommodationType",
-        ],
-        expensesAttributes: [
-          "travelAuthorizationId",
-          "type",
-          "expenseType",
-          "description",
-          "date",
-          "cost",
-          "currency",
-          "receiptImage",
-          "fileName",
-        ],
-      },
-    ]
+    const permittedAttributes: Path[] = ["slug"]
 
     if (this.user.isAdmin) {
-      permittedAttributes.push("userId", {
+      permittedAttributes.push("userId")
+      permittedAttributes.push({
         userAttributes: this.userPolicy.permittedAttributesForCreate(),
       })
     }
+
+    permittedAttributes.push(...this.permittedAttributes())
 
     return permittedAttributes
   }
