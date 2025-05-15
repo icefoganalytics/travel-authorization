@@ -1,11 +1,14 @@
 <template>
   <v-chip outlined>
     <v-progress-circular
-      v-if="isNil(location)"
+      v-if="isLoading"
       size="20"
       width="2"
       indeterminate
     />
+    <template v-else-if="isNil(location)">
+      <em>unset</em>
+    </template>
     <template v-else>
       {{ locationText }}
     </template>
@@ -26,7 +29,7 @@ const props = defineProps({
 })
 
 const { locationId } = toRefs(props)
-const { location } = useLocation(locationId)
+const { location, isLoading } = useLocation(locationId)
 
 const locationText = computed(() => {
   if (isNil(location.value)) return ""
