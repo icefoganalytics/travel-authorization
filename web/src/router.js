@@ -155,29 +155,29 @@ const routes = [
                 props: true,
               },
               {
-                path: "details/edit-trip-details-redirect-by-state",
-                name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsRedirectByStatePage",
+                path: "edit-trip-details-redirect-by-state",
+                name: "manage-travel-requests/ManageTravelRequestEditTripDetailsRedirectByStatePage",
                 component: () =>
                   import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsRedirectByStatePage.vue"
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsRedirectByStatePage.vue"
                   ),
                 props: true,
               },
               {
-                path: "details/edit-trip-details-estimates",
-                name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage",
+                path: "edit-trip-details-estimates",
+                name: "manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage",
                 component: () =>
                   import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage.vue"
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage.vue"
                   ),
                 props: true,
               },
               {
-                path: "details/edit-trip-details-actuals",
-                name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsActualsPage",
+                path: "edit-trip-details-actuals",
+                name: "manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage",
                 component: () =>
                   import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsActualsPage.vue"
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage.vue"
                   ),
                 props: true,
               },

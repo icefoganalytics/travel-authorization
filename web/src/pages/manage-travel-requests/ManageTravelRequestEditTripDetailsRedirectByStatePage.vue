@@ -27,7 +27,7 @@ onMounted(async () => {
   const { isApproved } = travelAuthorization
   if (!isApproved) {
     return router.replace({
-      name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage",
+      name: "manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage",
       params: {
         travelAuthorizationId: props.travelAuthorizationId,
       },
@@ -45,7 +45,7 @@ onMounted(async () => {
   const firstTravelSegment = travelSegments.at(0)
   if (isNil(firstTravelSegment)) {
     return router.replace({
-      name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage",
+      name: "manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage",
       params: {
         travelAuthorizationId: props.travelAuthorizationId,
       },
@@ -56,14 +56,14 @@ onMounted(async () => {
   const isBeforeTravelStartDate = new Date(departureOn) > new Date()
   if (isBeforeTravelStartDate) {
     return router.replace({
-      name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsEstimatesPage",
+      name: "manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage",
       params: {
         travelAuthorizationId: props.travelAuthorizationId,
       },
     })
   } else {
     return router.replace({
-      name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsActualsPage",
+      name: "manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage",
       params: {
         travelAuthorizationId: props.travelAuthorizationId,
       },

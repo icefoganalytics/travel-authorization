@@ -28,7 +28,7 @@
               class="my-0"
               color="primary"
               :to="{
-                name: 'manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsRedirectByStatePage',
+                name: 'manage-travel-requests/ManageTravelRequestEditTripDetailsRedirectByStatePage',
                 params: {
                   travelAuthorizationId,
                 },

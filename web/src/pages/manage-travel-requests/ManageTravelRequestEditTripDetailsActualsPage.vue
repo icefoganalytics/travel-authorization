@@ -104,7 +104,7 @@ useBreadcrumbs([
   {
     text: "Edit Trip Details (Actuals)",
     to: {
-      name: "manage-travel-requests/ManageTravelRequestDetailsEditTripDetailsActualsPage",
+      name: "manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage",
       params: {
         travelAuthorizationId: props.travelAuthorizationId,
       },
