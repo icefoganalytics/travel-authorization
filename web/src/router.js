@@ -105,16 +105,6 @@ const routes = [
                 props: true,
               },
               {
-                // TODO: remove!!
-                path: "details/edit",
-                name: "EditTravelAuthorizationDetailsPage",
-                component: () =>
-                  import(
-                    "@/modules/travel-authorizations/pages/EditTravelAuthorizationDetailsPage.vue"
-                  ),
-                props: true,
-              },
-              {
                 path: "estimate/edit",
                 name: "EditTravelAuthorizationEstimatePage",
                 component: () =>
