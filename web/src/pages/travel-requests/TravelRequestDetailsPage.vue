@@ -52,7 +52,7 @@
               class="my-0"
               color="primary"
               :to="{
-                name: 'manage-travel-requests/ManageTravelRequestDetailsEditApprovalsPage',
+                name: 'travel-requests/TravelRequestEditApprovalDetailsPage',
                 params: {
                   travelAuthorizationId,
                 },

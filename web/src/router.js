@@ -98,6 +98,14 @@ const routes = [
                 props: true,
               },
               {
+                path: "edit-approval-details",
+                name: "travel-requests/TravelRequestEditApprovalDetailsPage",
+                component: () =>
+                  import("@/pages/travel-requests/TravelRequestEditApprovalDetailsPage.vue"),
+                props: true,
+              },
+              {
+                // TODO: remove!!
                 path: "details/edit",
                 name: "EditTravelAuthorizationDetailsPage",
                 component: () =>
