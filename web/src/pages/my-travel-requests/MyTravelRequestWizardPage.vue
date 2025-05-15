@@ -96,7 +96,7 @@ import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-trave
 
 import StateStepper from "@/components/common/wizards/StateStepper.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
-import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable.vue"
+import TravelAuthorizationActionLogsTable from "@/components/travel-authorization-action-logs/TravelAuthorizationActionLogsTable.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

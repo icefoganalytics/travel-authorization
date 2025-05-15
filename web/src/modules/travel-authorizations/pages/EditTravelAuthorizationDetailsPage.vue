@@ -66,7 +66,7 @@ import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditF
 import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/TripDetailsEstimatesEditForm.vue"
 import TripDetailsActualsEditForm from "@/components/travel-authorizations/TripDetailsActualsEditForm.vue"
 import ApprovalsEditFormCard from "@/components/travel-authorizations/ApprovalsEditFormCard.vue"
-import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable.vue"
+import TravelAuthorizationActionLogsTable from "@/components/travel-authorization-action-logs/TravelAuthorizationActionLogsTable.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
