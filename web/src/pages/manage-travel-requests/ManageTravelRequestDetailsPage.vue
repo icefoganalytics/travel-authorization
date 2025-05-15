@@ -24,7 +24,6 @@
       <v-col>
         <DetailsCard :travel-authorization-id="travelAuthorizationIdAsNumber">
           <template #header-actions>
-            <!-- TODO: figured out how to handle "actuls" form here as well, maybe a situational route name? -->
             <v-btn
               class="my-0"
               color="primary"
