@@ -6,9 +6,35 @@
     />
 
     <v-tabs>
-      <DetailsTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
-      <EstimateTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
-      <ExpenseTab :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <v-tab
+        :to="{
+          name: 'manage-travel-requests/ManageTravelRequestDetailsPage',
+          params: {
+            travelAuthorizationId,
+          },
+        }"
+      >
+        Details
+      </v-tab>
+      <v-tab
+        :to="{
+          name: 'manage-travel-requests/ManageTravelRequestEstimatesPage',
+          params: {
+            travelAuthorizationId,
+          },
+        }"
+        >Estimate</v-tab
+      >
+      <v-tab
+        :to="{
+          name: 'manage-travel-requests/ManageTravelRequestExpensesPage',
+          params: {
+            travelAuthorizationId,
+          },
+        }"
+      >
+        Expense
+      </v-tab>
       <!-- TODO: add in any tabs that you can normally see in manage mode -->
     </v-tabs>
 
@@ -30,11 +56,6 @@ import { computed, ref } from "vue"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
-
-import DetailsTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/DetailsTab.vue"
-import EstimateTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/EstimateTab.vue"
-import ExpenseTab from "@/modules/travel-authorizations/components/manage-travel-authorization-layout/ExpenseTab.vue"
-
 import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable.vue"
 
 const props = defineProps({
