@@ -11,7 +11,7 @@
         :loading="isLoading"
         @click="validateSaveAndReturn"
       >
-        Save
+        Submit
       </v-btn>
       <v-btn
         color="primary"
