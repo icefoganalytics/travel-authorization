@@ -125,7 +125,6 @@ async function createAndGoToFormDetails() {
       name: "manage-travel-requests/ManageTravelRequestDetailsEditPurposePage",
       params: { travelAuthorizationId: travelAuthorization.id },
     })
-    close()
     return
   } catch (error) {
     console.error(`Error creating travel authorization: ${error}`, { error })
