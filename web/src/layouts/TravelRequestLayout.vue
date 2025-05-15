@@ -8,7 +8,7 @@
     <v-tabs>
       <v-tab
         :to="{
-          name: 'EditTravelAuthorizationDetailsPage',
+          name: 'travel-requests/TravelRequestDetailsPage',
           params: {
             travelAuthorizationId,
           },

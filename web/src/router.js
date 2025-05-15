@@ -5,7 +5,6 @@ import { authGuard } from "@/utils/auth-guard"
 import useRouteHistory from "@/use/use-route-history"
 
 import travelDeskRouter from "@/modules/travelDesk/router"
-import travelAuthorizationsRouter from "@/modules/travel-authorizations/router"
 import reportsRouter from "@/modules/reports/router"
 
 Vue.use(VueRouter)
@@ -52,6 +51,57 @@ const routes = [
             name: "my-travel-requests/MyTravelRequestWizardPage",
             component: () => import("@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"),
             props: true,
+          },
+          {
+            path: "travel-requests/:travelAuthorizationId",
+            component: () => import("@/layouts/TravelRequestLayout.vue"),
+            props: true,
+            children: [
+              {
+                path: "",
+                redirect: "details",
+              },
+              {
+                path: "details",
+                name: "travel-requests/TravelRequestDetailsPage",
+                component: () => import("@/pages/travel-requests/TravelRequestDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "edit-purpose-details",
+                name: "travel-requests/TravelRequestEditPurposeDetailsPage",
+                component: () =>
+                  import("@/pages/travel-requests/TravelRequestEditPurposeDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "details/edit",
+                name: "EditTravelAuthorizationDetailsPage",
+                component: () =>
+                  import(
+                    "@/modules/travel-authorizations/pages/EditTravelAuthorizationDetailsPage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "estimate/edit",
+                name: "EditTravelAuthorizationEstimatePage",
+                component: () =>
+                  import(
+                    "@/modules/travel-authorizations/pages/EditTravelAuthorizationEstimatePage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "expense/edit",
+                name: "EditTravelAuthorizationExpensePage",
+                component: () =>
+                  import(
+                    "@/modules/travel-authorizations/pages/EditTravelAuthorizationExpensePage.vue"
+                  ),
+                props: true,
+              },
+            ],
           },
           {
             name: "ManageTravelRequests",
@@ -323,7 +373,6 @@ const routes = [
   },
 
   ...travelDeskRouter,
-  ...travelAuthorizationsRouter,
   ...reportsRouter,
 
   {
