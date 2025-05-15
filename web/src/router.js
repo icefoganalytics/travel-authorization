@@ -146,11 +146,11 @@ const routes = [
                 props: true,
               },
               {
-                path: "details/edit-purpose",
-                name: "manage-travel-requests/ManageTravelRequestDetailsEditPurposePage",
+                path: "edit-purpose-details",
+                name: "manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage",
                 component: () =>
                   import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditPurposePage.vue"
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage.vue"
                   ),
                 props: true,
               },

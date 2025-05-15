@@ -122,7 +122,7 @@ async function createAndGoToFormDetails() {
     })
     snack.success("Travel authorization created.")
     router.push({
-      name: "manage-travel-requests/ManageTravelRequestDetailsEditPurposePage",
+      name: "manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage",
       params: { travelAuthorizationId: travelAuthorization.id },
     })
     return

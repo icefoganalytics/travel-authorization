@@ -8,7 +8,7 @@
               class="my-0"
               color="primary"
               :to="{
-                name: 'manage-travel-requests/ManageTravelRequestDetailsEditPurposePage',
+                name: 'manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage',
                 params: {
                   travelAuthorizationId,
                 },
