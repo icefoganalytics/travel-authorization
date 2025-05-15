@@ -180,12 +180,11 @@ function locationIdOrNullIfOverlapping(location1, location2) {
   return location1
 }
 
-function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
-  const staticFinalDestinationLocationId = determineFinalDestinationLocationId(
-    tripType,
-    newTravelSegments
-  )
-
+function buildTravelSegmentEstimatesAttributes(
+  staticFinalDestinationLocationId,
+  tripType,
+  newTravelSegments
+) {
   if (isNil(tripType) || isNil(newTravelSegments) || isEmpty(newTravelSegments)) {
     return [
       {
@@ -274,6 +273,7 @@ async function saveWrapper() {
   if (!headerActionsFormCard.value.validate()) return
 
   const travelSegmentEstimatesAttributes = buildTravelSegmentEstimatesAttributes(
+    finalDestinationLocationId.value,
     tripType.value,
     travelSegments.value
   )
