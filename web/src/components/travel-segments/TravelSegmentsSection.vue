@@ -27,9 +27,7 @@
         >
           <DescriptionElement
             label="Date / Time (24h)"
-            :value="
-              travelSegments[index].departureOn + ' at ' + travelSegments[index].departureTime
-            "
+            :value="buildTravelSegmentDateTime(travelSegments[index])"
             vertical
           />
         </v-col>
@@ -89,6 +87,12 @@ const travelSegmentsQuery = computed(() => {
   }
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
+
+function buildTravelSegmentDateTime(travelSegment) {
+  const { departureOn, departureTime } = travelSegment
+
+  return [departureOn, departureTime].filter(Boolean).join(" at ")
+}
 
 function buildModeOfTransport(travelSegment) {
   const { modeOfTransport, modeOfTransportOther } = travelSegment
