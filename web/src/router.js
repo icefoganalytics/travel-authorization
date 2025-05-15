@@ -182,11 +182,11 @@ const routes = [
                 props: true,
               },
               {
-                path: "details/edit-approvals",
-                name: "manage-travel-requests/ManageTravelRequestDetailsEditApprovalsPage",
+                path: "edit-approval-details",
+                name: "manage-travel-requests/ManageTravelRequestEditApprovalDetailsPage",
                 component: () =>
                   import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestDetailsEditApprovalsPage.vue"
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditApprovalDetailsPage.vue"
                   ),
                 props: true,
               },
