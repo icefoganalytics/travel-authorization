@@ -40,7 +40,7 @@ import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditF
 
 const props = defineProps({
   travelAuthorizationId: {
-    type: String,
+    type: [String, Number],
     required: true,
   },
 })
