@@ -9,7 +9,7 @@
       <v-btn
         color="primary"
         :loading="isLoading"
-        @click="validateSaveAndReturn"
+        @click="validateSubmitAndReturn"
       >
         Submit
       </v-btn>
@@ -56,7 +56,7 @@ const approvalsEditFormCard = ref(null)
 const snack = useSnack()
 const router = useRouter()
 
-async function validateSaveAndReturn() {
+async function validateSubmitAndReturn() {
   if (isNil(approvalsEditFormCard.value)) return
   if (!approvalsEditFormCard.value.validate()) {
     snack.error("Please fill in all required fields.")
@@ -65,8 +65,8 @@ async function validateSaveAndReturn() {
 
   isLoading.value = true
   try {
-    await approvalsEditFormCard.value.save()
-    snack.success("Travel request saved.")
+    await approvalsEditFormCard.value.submit()
+    snack.success("Travel request submitted.")
     emit("updated", props.travelAuthorizationId)
     return router.push({
       name: "manage-travel-requests/ManageTravelRequestDetailsPage",
@@ -75,8 +75,8 @@ async function validateSaveAndReturn() {
       },
     })
   } catch (error) {
-    console.error(`Failed to save travel request: ${error}`, { error })
-    snack.error(`Failed to save travel request: ${error}`)
+    console.error(`Failed to submit travel request: ${error}`, { error })
+    snack.error(`Failed to submit travel request: ${error}`)
   } finally {
     isLoading.value = false
   }
