@@ -75,6 +75,29 @@ const routes = [
                 props: true,
               },
               {
+                path: "edit-trip-details-redirect-by-state",
+                name: "travel-requests/TravelRequestEditTripDetailsRedirectByStatePage",
+                component: () =>
+                  import(
+                    "@/pages/travel-requests/TravelRequestEditTripDetailsRedirectByStatePage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "edit-trip-details-estimates",
+                name: "travel-requests/TravelRequestEditTripDetailsEstimatesPage",
+                component: () =>
+                  import("@/pages/travel-requests/TravelRequestEditTripDetailsEstimatesPage.vue"),
+                props: true,
+              },
+              {
+                path: "edit-trip-details-actuals",
+                name: "travel-requests/TravelRequestEditTripDetailsActualsPage",
+                component: () =>
+                  import("@/pages/travel-requests/TravelRequestEditTripDetailsActualsPage.vue"),
+                props: true,
+              },
+              {
                 path: "details/edit",
                 name: "EditTravelAuthorizationDetailsPage",
                 component: () =>
