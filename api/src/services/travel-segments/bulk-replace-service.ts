@@ -21,19 +21,28 @@ export class BulkReplaceService extends BaseService {
   async perform(): Promise<TravelSegment[]> {
     if (
       this.travelSegmentsAttributes.some(
-        (travelSegmentAttributes) =>
-          travelSegmentAttributes.travelAuthorizationId !== this.travelAuthorizationId
+        ({ travelAuthorizationId }) => travelAuthorizationId !== this.travelAuthorizationId
       )
     ) {
       throw new Error("All travel segments must belong to the same travel authorization.")
     }
 
+    if (this.travelSegmentsAttributes.some(({ isActual }) => isActual !== this.isActual)) {
+      throw new Error("All travel segments must have the same isActual value.")
+    }
+
     if (
       this.travelSegmentsAttributes.some(
-        (travelSegmentAttributes) => travelSegmentAttributes.isActual !== this.isActual
+        ({ departureLocationId, arrivalLocationId }) =>
+          !isNil(departureLocationId) &&
+          !isNil(arrivalLocationId) &&
+          departureLocationId === arrivalLocationId
       )
     ) {
-      throw new Error("All travel segments must have the same isActual value.")
+      const prettyTravelSegmentsAttributes = JSON.stringify(this.travelSegmentsAttributes)
+      throw new Error(
+        `Departure location and arrival location must be different for each travel segment: ${prettyTravelSegmentsAttributes}`
+      )
     }
 
     return transaction(async () => {

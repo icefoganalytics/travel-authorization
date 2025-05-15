@@ -1,11 +1,14 @@
 <template>
   <v-chip outlined>
     <v-progress-circular
-      v-if="isNil(travelPurpose)"
+      v-if="isLoading"
       size="20"
       width="2"
       indeterminate
     />
+    <template v-else-if="isNil(travelPurpose)">
+      <em>unset</em>
+    </template>
     <template v-else>
       {{ travelPurpose.purpose }}
     </template>
@@ -26,5 +29,5 @@ const props = defineProps({
 })
 
 const { travelPurposeId } = toRefs(props)
-const { travelPurpose } = useTravelPurpose(travelPurposeId)
+const { travelPurpose, isLoading } = useTravelPurpose(travelPurposeId)
 </script>

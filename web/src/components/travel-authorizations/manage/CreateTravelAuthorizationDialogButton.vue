@@ -81,11 +81,12 @@ import { computed, ref, watch } from "vue"
 import { useRoute, useRouter } from "vue2-helpers/vue-router"
 import { isEmpty } from "lodash"
 
-import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
+import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/travel-segments-api"
 
-import { useSnack } from "@/plugins/snack-plugin"
-import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/stops-api"
-import { useTravelAuthorization } from "@/use/use-travel-authorization"
+import useSnack from "@/use/use-snack"
+import useTravelAuthorization from "@/use/use-travel-authorization"
+
+import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const snack = useSnack()
 const route = useRoute()
@@ -104,26 +105,30 @@ async function createAndGoToFormDetails() {
       userAttributes: {
         email: travelerEmail.value,
       },
-      stopsAttributes: [
+      travelSegmentEstimatesAttributes: [
         {
+          isActual: false,
+          segmentNumber: 1,
+          modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
           accommodationType: ACCOMMODATION_TYPES.HOTEL,
-          transport: TRAVEL_METHODS.AIRCRAFT,
         },
         {
-          transport: TRAVEL_METHODS.AIRCRAFT,
+          isActual: false,
+          segmentNumber: 2,
+          modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
           accommodationType: null,
         },
       ],
     })
-    snack("Travel authorization created.", { color: "success" })
+    snack.success("Travel authorization created.")
     router.push({
-      name: "EditTravelAuthorizationDetailsPage",
+      name: "manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage",
       params: { travelAuthorizationId: travelAuthorization.id },
     })
-    close()
     return
   } catch (error) {
-    snack(error.message, { color: "error" })
+    console.error(`Error creating travel authorization: ${error}`, { error })
+    snack.error(`Error creating travel authorization: ${error}`)
   }
 }
 

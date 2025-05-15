@@ -1,11 +1,11 @@
-import { CreationAttributes } from "sequelize"
+import { Attributes } from "sequelize"
 
 import { isNil } from "lodash"
 
 import { TravelSegment, User } from "@/models"
 import BaseService from "@/services/base-service"
 
-type TravelSegmentCreationAttributes = Partial<CreationAttributes<TravelSegment>>
+export type TravelSegmentCreationAttributes = Partial<Attributes<TravelSegment>>
 
 export class CreateService extends BaseService {
   constructor(

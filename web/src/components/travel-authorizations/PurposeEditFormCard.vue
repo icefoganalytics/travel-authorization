@@ -55,7 +55,7 @@
         xl="4"
       >
         <LocationsAutocomplete
-          v-model="finalDestinationLocationId"
+          :value="finalDestinationLocationId"
           :in-territory="travelAuthorization.allTravelWithinTerritory"
           :rules="[required]"
           clearable
@@ -65,7 +65,7 @@
           persistent-hint
           required
           validate-on-blur
-          @input="emit('update:finalDestinationLocationId', $event)"
+          @input="updateFinalDestinationLocationId"
         />
       </v-col>
     </v-row>
@@ -93,6 +93,8 @@
         />
       </v-col>
     </v-row>
+
+    <template #actions><slot name="actions"></slot></template>
   </HeaderActionsFormCard>
 </template>
 
@@ -127,8 +129,6 @@ const tripType = computed(() => {
   return travelAuthorization.value.tripTypeEstimate || TRIP_TYPES.ROUND_TRIP
 })
 
-const finalDestinationLocationId = ref(null)
-
 const travelSegmentsQuery = computed(() => {
   return {
     where: {
@@ -139,24 +139,52 @@ const travelSegmentsQuery = computed(() => {
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
 
-function updateFinalDestinationLocationId(tripType, newTravelSegments) {
+const finalDestinationLocationId = ref(null)
+
+function updateFinalDestinationLocationId(locationId) {
+  finalDestinationLocationId.value = locationId
+  emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
+}
+
+watch(
+  () => [tripType.value, cloneDeep(travelSegments.value)],
+  ([tripType, newTravelSegments]) => {
+    if (!isNil(finalDestinationLocationId.value)) return
+
+    const newFinalDestinationLocationId = determineFinalDestinationLocationId(
+      tripType,
+      newTravelSegments
+    )
+    updateFinalDestinationLocationId(newFinalDestinationLocationId)
+  },
+  {
+    deep: true,
+    immediate: true,
+  }
+)
+
+function determineFinalDestinationLocationId(tripType, newTravelSegments) {
   if (isNil(tripType)) return null
   if (isNil(newTravelSegments) || isEmpty(newTravelSegments)) return null
 
   if (tripType === TRIP_TYPES.ROUND_TRIP) {
-    finalDestinationLocationId.value = newTravelSegments.at(-2)?.arrivalLocationId
+    return newTravelSegments.at(-2)?.arrivalLocationId
   } else {
-    finalDestinationLocationId.value = newTravelSegments.at(-1)?.arrivalLocationId
+    return newTravelSegments.at(-1)?.arrivalLocationId
   }
 }
 
-function locationIdOrNullIfOverlapping(departureLocationId, arrivalLocationId) {
-  if (departureLocationId === arrivalLocationId) return null
+function locationIdOrNullIfOverlapping(location1, location2) {
+  if (location1 === location2) return null
 
-  return departureLocationId
+  return location1
 }
 
-function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
+function buildTravelSegmentEstimatesAttributes(
+  staticFinalDestinationLocationId,
+  tripType,
+  newTravelSegments
+) {
   if (isNil(tripType) || isNil(newTravelSegments) || isEmpty(newTravelSegments)) {
     return [
       {
@@ -164,14 +192,14 @@ function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
         isActual: false,
         segmentNumber: 1,
         departureLocationId: null,
-        arrivalLocationId: finalDestinationLocationId.value,
+        arrivalLocationId: staticFinalDestinationLocationId,
         modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
       },
       {
         travelAuthorizationId: props.travelAuthorizationId,
         isActual: false,
         segmentNumber: 2,
-        departureLocationId: finalDestinationLocationId.value,
+        departureLocationId: staticFinalDestinationLocationId,
         arrivalLocationId: null,
         modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
       },
@@ -179,17 +207,18 @@ function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
   }
 
   if (tripType === TRIP_TYPES.ROUND_TRIP) {
+    const firstTravelSegment = newTravelSegments.at(0)
     const lastTravelSegment = newTravelSegments.at(-1)
-    const secondToLastTravelSegment = newTravelSegments.at(-2)
-
-    const destinationLocationId = finalDestinationLocationId.value
+    const destinationLocationId = staticFinalDestinationLocationId
+    const initialOriginLocationId =
+      firstTravelSegment.departureLocationId || lastTravelSegment.arrivalLocationId
     const originLocationId = locationIdOrNullIfOverlapping(
-      destinationLocationId,
-      lastTravelSegment.arrivalLocationId
+      initialOriginLocationId,
+      destinationLocationId
     )
     return [
       {
-        ...pick(secondToLastTravelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
+        ...pick(firstTravelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
         travelAuthorizationId: props.travelAuthorizationId,
         isActual: false,
         segmentNumber: 1,
@@ -219,7 +248,7 @@ function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
     const numberOfSegments = newTravelSegments.length
     const isLastSegment = index === numberOfSegments - 1
     if (isLastSegment) {
-      const arrivalLocationId = finalDestinationLocationId.value
+      const arrivalLocationId = staticFinalDestinationLocationId
       const departureLocationId = locationIdOrNullIfOverlapping(
         newTravelSegmentAttributes.departureLocationId,
         arrivalLocationId
@@ -235,16 +264,6 @@ function buildTravelSegmentEstimatesAttributes(tripType, newTravelSegments) {
   })
 }
 
-watch(
-  () => cloneDeep(travelSegments.value),
-  (newTravelSegments) => {
-    updateFinalDestinationLocationId(tripType.value, newTravelSegments)
-  },
-  {
-    immediate: true,
-  }
-)
-
 /** @type {import('vue').Ref<InstanceType<typeof HeaderActionsFormCard> | null>} */
 const headerActionsFormCard = ref(null)
 const isSaving = ref(false)
@@ -254,6 +273,7 @@ async function saveWrapper() {
   if (!headerActionsFormCard.value.validate()) return
 
   const travelSegmentEstimatesAttributes = buildTravelSegmentEstimatesAttributes(
+    finalDestinationLocationId.value,
     tripType.value,
     travelSegments.value
   )

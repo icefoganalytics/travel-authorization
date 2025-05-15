@@ -1,24 +1,24 @@
 import { CreationAttributes } from "sequelize"
-import { isEmpty } from "lodash"
+import { isUndefined } from "lodash"
 import { v4 as uuid } from "uuid"
 
 import db from "@/db/db-client"
 
-import BaseService from "@/services/base-service"
-import { Stops, StopsService, ExpensesService, Users } from "@/services"
-import { AuditService } from "@/services/audit-service"
-import { UserCreationAttributes } from "@/services/users/create-service"
-import { Expense, Stop, TravelAuthorization, User } from "@/models"
+import { TravelAuthorization, User } from "@/models"
 
-type StopsCreationAttributes = CreationAttributes<Stop>[]
+import BaseService from "@/services/base-service"
+import { TravelSegments, Users } from "@/services"
+import { AuditService } from "@/services/audit-service"
+import { type UserCreationAttributes } from "@/services/users/create-service"
+import { type TravelSegmentCreationAttributes } from "@/services/travel-segments/create-service"
+
 type TravelAuthorizationCreationAttributes = Omit<
   CreationAttributes<TravelAuthorization>,
   "slug"
 > & {
   slug?: TravelAuthorization["slug"]
 } & {
-  stopsAttributes?: StopsCreationAttributes
-  expensesAttributes?: CreationAttributes<Expense>[]
+  travelSegmentEstimatesAttributes?: TravelSegmentCreationAttributes[]
   userAttributes?: UserCreationAttributes
 }
 
@@ -26,44 +26,31 @@ type TravelAuthorizationCreationAttributes = Omit<
 const auditService = new AuditService()
 
 export class CreateService extends BaseService {
-  private stopsAttributes: StopsCreationAttributes
-  private expensesAttributes: CreationAttributes<Expense>[]
-  private attributes: TravelAuthorizationCreationAttributes
-  private userAttributes?: UserCreationAttributes
-  private currentUser: User
-
   constructor(
-    {
-      userAttributes,
-      stopsAttributes = [],
-      expensesAttributes = [],
-      ...attributes
-    }: TravelAuthorizationCreationAttributes,
-    currentUser: User
+    protected attributes: TravelAuthorizationCreationAttributes,
+    protected currentUser: User
   ) {
     super()
-    this.attributes = attributes
-    this.userAttributes = userAttributes
-    this.stopsAttributes = stopsAttributes
-    this.expensesAttributes = expensesAttributes
-    this.currentUser = currentUser
   }
 
   async perform(): Promise<TravelAuthorization> {
     return db
       .transaction(async () => {
+        const tripTypeEstimateWithDefault =
+          this.attributes.tripTypeEstimate || TravelAuthorization.TripTypes.ROUND_TRIP
         const secureAttributes = {
           ...this.attributes,
-          tripTypeEstimate: this.attributes.tripTypeEstimate || TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeEstimate: tripTypeEstimateWithDefault,
           status: TravelAuthorization.Statuses.DRAFT,
           slug: this.attributes.slug || uuid(),
           createdBy: this.currentUser.id,
         }
 
+        const { userAttributes } = this.attributes
         secureAttributes.userId = await this.determineSecureUserId(
           this.currentUser,
           this.attributes.userId,
-          this.userAttributes
+          userAttributes
         )
 
         const travelAuthorization = await TravelAuthorization.create(secureAttributes).catch(
@@ -72,20 +59,21 @@ export class CreateService extends BaseService {
           }
         )
 
-        const travelAuthorizationId = travelAuthorization.id
-        await this.createStops(travelAuthorization, this.stopsAttributes)
-        // TODO: remove this once travel segments fully replace stops
-        await Stops.BulkConvertStopsToTravelSegmentsService.perform(travelAuthorization)
-
-        if (!isEmpty(this.expensesAttributes)) {
-          await ExpensesService.bulkCreate(travelAuthorizationId, this.expensesAttributes)
+        const { travelSegmentEstimatesAttributes } = this.attributes
+        if (!isUndefined(travelSegmentEstimatesAttributes)) {
+          this.ensureTravelAuthorizationId(travelAuthorization.id, travelSegmentEstimatesAttributes)
+          await TravelSegments.BulkReplaceService.perform(
+            travelAuthorization.id,
+            travelSegmentEstimatesAttributes,
+            false
+          )
         }
 
         await auditService.log(
           this.currentUser.id,
           travelAuthorization.id,
-          "Submit",
-          "TravelAuthorization submitted successfully."
+          "Create",
+          "TravelAuthorization created successfully."
         )
 
         return travelAuthorization.reload({
@@ -96,8 +84,8 @@ export class CreateService extends BaseService {
         auditService.log(
           this.currentUser.id,
           -1,
-          "Submit",
-          "TravelAuthorization did not submit successfully."
+          "Create",
+          "TravelAuthorization did not create successfully."
         )
         throw error
       })
@@ -129,102 +117,13 @@ export class CreateService extends BaseService {
     }
   }
 
-  private async createStops(
-    travelAuthorization: TravelAuthorization,
-    stopsAttributes: StopsCreationAttributes
-  ) {
-    const minimalStopsAttributesWithDefaults = this.ensureMinimalDefaultStopsAttributes(
-      travelAuthorization,
-      stopsAttributes
-    )
-
-    return StopsService.bulkCreate(travelAuthorization.id, minimalStopsAttributesWithDefaults)
-  }
-
-  // TODO: might want to make this a validator against updates as well?
-  private ensureMinimalDefaultStopsAttributes(
-    travelAuthorization: TravelAuthorization,
-    stopsAttributes: StopsCreationAttributes
-  ): StopsCreationAttributes {
-    if (travelAuthorization.tripTypeEstimate === TravelAuthorization.TripTypes.MULTI_CITY) {
-      return this.ensureMinimalDefaultMultiDestinationStopsAttributes(
-        travelAuthorization.id,
-        stopsAttributes
-      )
-    } else if (travelAuthorization.tripTypeEstimate === TravelAuthorization.TripTypes.ONE_WAY) {
-      return this.ensureMinimalDefaultOneWayStopsAttributes(travelAuthorization.id, stopsAttributes)
-    } else {
-      return this.ensureMinimalDefaultRoundTripStopsAttributes(
-        travelAuthorization.id,
-        stopsAttributes
-      )
+  private ensureTravelAuthorizationId(
+    travelAuthorizationId: number,
+    travelSegmentEstimatesAttributes: TravelSegmentCreationAttributes[]
+  ): void {
+    for (const travelSegmentEstimateAttributes of travelSegmentEstimatesAttributes) {
+      travelSegmentEstimateAttributes.travelAuthorizationId = travelAuthorizationId
     }
-  }
-
-  private ensureMinimalDefaultMultiDestinationStopsAttributes(
-    travelAuthorizationId: number,
-    stopsAttributes: StopsCreationAttributes
-  ): StopsCreationAttributes {
-    return [
-      {
-        travelAuthorizationId,
-        accommodationType: Stop.AccommodationTypes.HOTEL,
-        transport: Stop.TravelMethods.AIRCRAFT,
-        ...stopsAttributes[0],
-      },
-      {
-        travelAuthorizationId,
-        accommodationType: null,
-        transport: Stop.TravelMethods.AIRCRAFT,
-        ...stopsAttributes[1],
-      },
-      {
-        travelAuthorizationId,
-        accommodationType: null,
-        transport: null,
-        ...stopsAttributes[2],
-      },
-    ]
-  }
-
-  private ensureMinimalDefaultOneWayStopsAttributes(
-    travelAuthorizationId: number,
-    stopsAttributes: StopsCreationAttributes
-  ): StopsCreationAttributes {
-    return [
-      {
-        travelAuthorizationId,
-        accommodationType: null,
-        transport: Stop.TravelMethods.AIRCRAFT,
-        ...stopsAttributes[0],
-      },
-      {
-        travelAuthorizationId,
-        accommodationType: null,
-        transport: null,
-        ...stopsAttributes[1],
-      },
-    ]
-  }
-
-  private ensureMinimalDefaultRoundTripStopsAttributes(
-    travelAuthorizationId: number,
-    stopsAttributes: StopsCreationAttributes
-  ): StopsCreationAttributes {
-    return [
-      {
-        travelAuthorizationId,
-        accommodationType: Stop.AccommodationTypes.HOTEL,
-        transport: Stop.TravelMethods.AIRCRAFT,
-        ...stopsAttributes[0],
-      },
-      {
-        travelAuthorizationId,
-        accommodationType: null,
-        transport: Stop.TravelMethods.AIRCRAFT,
-        ...stopsAttributes[1],
-      },
-    ]
   }
 }
 

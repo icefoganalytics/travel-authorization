@@ -56,6 +56,8 @@
         />
       </v-col>
     </v-row>
+
+    <template #actions><slot name="actions"></slot></template>
   </HeaderActionsFormCard>
 </template>
 
@@ -81,7 +83,7 @@ const props = defineProps({
 })
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, submit } = useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, save, submit } = useTravelAuthorization(travelAuthorizationId)
 
 const { currentUser } = useCurrentUser()
 const travelAuthorizationPreApprovalProfileWhere = computed(() => {
@@ -114,6 +116,20 @@ onMounted(async () => {
   await headerActionsFormCard.value?.resetValidation()
 })
 
+async function saveWrapper() {
+  if (isNil(headerActionsFormCard.value)) return
+  if (!headerActionsFormCard.value.validate()) return
+  if (isNil(travelAuthorization.value)) return
+
+  await save({
+    travelAdvanceInCents: travelAuthorization.value.travelAdvanceInCents,
+    preApprovalProfileId: travelAuthorization.value.preApprovalProfileId,
+    supervisorEmail: travelAuthorization.value.supervisorEmail,
+  })
+}
+
+// TODO: consider separating form into submission and edit forms.
+// Maybe figure out some better pattern for this?
 async function submitWrapper() {
   if (isNil(headerActionsFormCard.value)) return
   if (!headerActionsFormCard.value.validate()) return
@@ -127,7 +143,8 @@ async function submitWrapper() {
 }
 
 defineExpose({
-  save: submitWrapper,
+  save: saveWrapper,
+  submit: submitWrapper,
   validate: () => headerActionsFormCard.value?.validate(),
 })
 </script>

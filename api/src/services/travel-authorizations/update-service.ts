@@ -1,12 +1,11 @@
 import { Attributes } from "sequelize"
-import { isNil, isUndefined } from "lodash"
+import { isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
 import { Expense, Stop, TravelAuthorization, TravelSegment, User } from "@/models"
-import { TripTypes as TravelAuthorizationTripTypes } from "@/models/travel-authorization"
-import { StopsService, Expenses, Stops, TravelSegments } from "@/services"
+import { Expenses, TravelSegments } from "@/services"
 
 export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAuthorization>> & {
   stops?: Partial<Attributes<Stop>>[]
@@ -49,17 +48,6 @@ export class UpdateService extends BaseService {
         )
       }
 
-      const { tripTypeEstimate, stops } = this.attributes
-      if (!isUndefined(stops) && !isNil(tripTypeEstimate)) {
-        if (!this.isValidStopCount(tripTypeEstimate, stops)) {
-          throw new Error("Stop count is not valid for trip type.")
-        }
-
-        await StopsService.bulkReplace(travelAuthorizationId, stops)
-        // TODO: remove this once travel segments fully replace stops
-        await Stops.BulkConvertStopsToTravelSegmentsService.perform(this.travelAuthorization)
-      }
-
       // TODO: might need to tweak this, or any updates to a travel authorization will
       // blow away all estimates and expenses.
       const { expenses } = this.attributes
@@ -78,16 +66,6 @@ export class UpdateService extends BaseService {
         ],
       })
     })
-  }
-
-  isValidStopCount(tripType: TravelAuthorizationTripTypes, stops: Partial<Stop>[]): boolean {
-    if (tripType === TravelAuthorization.TripTypes.ONE_WAY) {
-      return stops.length === 2
-    } else if (tripType === TravelAuthorization.TripTypes.MULTI_CITY) {
-      return stops.length >= 3
-    } else {
-      return stops.length === 2
-    }
   }
 }
 

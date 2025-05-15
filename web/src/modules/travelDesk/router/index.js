@@ -1,10 +1,10 @@
 const routes = [
   {
-    path: "/travel-request",
+    path: "/travel-requests",
     component: () => import("@/layouts/DefaultLayout.vue"),
     children: [
       {
-        name: "TravelRequest",
+        name: "TravelRequests",
         path: "",
         component: () => import("@/modules/travelDesk/views/TravelRequest.vue"),
       },
