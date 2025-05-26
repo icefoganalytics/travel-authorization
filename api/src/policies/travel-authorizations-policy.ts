@@ -1,21 +1,22 @@
 import { Attributes, FindOptions, Op } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
-import { User, TravelAuthorization } from "@/models"
+import { User, TravelAuthorization, TravelSegment } from "@/models"
 import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
+import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
 import UsersPolicy from "@/policies/users-policy"
 
 export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.userId === this.user.id) return true
 
     return false
   }
 
   show(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
     if (this.record.userId === this.user.id) return true
 
@@ -23,7 +24,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   }
 
   update(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
     if (this.record.userId === this.user.id) return true
 
@@ -33,7 +34,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   // Currently the same as the update policy, but this is likely to change in the future
   // so opted for duplication over premature abstraction.
   destroy(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
     if (
       this.record.userId === this.user.id &&
@@ -49,7 +50,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   permittedAttributes(): Path[] {
     if (
       this.record.status === TravelAuthorization.Statuses.DRAFT ||
-      this.user.roles.includes(User.Roles.ADMIN) ||
+      this.user.isAdmin ||
       this.record.supervisorEmail === this.user.email
     ) {
       return [
@@ -64,9 +65,9 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
         "unit",
         "email",
         "mailcode",
-        "daysOffTravelStatus",
-        "dateBackToWork",
-        "travelDuration",
+        "daysOffTravelStatusEstimate",
+        "dateBackToWorkEstimate",
+        "travelDurationEstimate",
         "travelAdvance",
         "eventName",
         "summary",
@@ -75,48 +76,26 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
         "approved",
         "requestChange",
         "denialReason",
-        "tripType",
+        "tripTypeEstimate",
         "travelAdvanceInCents",
         "allTravelWithinTerritory",
+        {
+          travelSegmentEstimatesAttributes:
+            this.travelSegmentsPolicy.permittedAttributesForCreate(),
+        },
+      ]
+    }
 
-        // TODO: use permitedAttributes from relevant policies once they exist
-        // Note that these nested attributes are "create" attributes, not "update" attributes
-        // as a full replace is occuring.
+    // TODO: consider moving state based check to the service layer since its business logic?
+    if (this.record.status === TravelAuthorization.Statuses.APPROVED) {
+      return [
+        "daysOffTravelStatusActual",
+        "dateBackToWorkActual",
+        "travelDurationActual",
+        "tripTypeActual",
+        "wizardStepName",
         {
-          stops: [
-            "travelAuthorizationId",
-            "locationId",
-            "departureDate",
-            "departureTime",
-            "transport",
-            "accommodationType",
-          ],
-        },
-        {
-          expenses: [
-            "travelAuthorizationId",
-            "type",
-            "expenseType",
-            "description",
-            "date",
-            "cost",
-            "currency",
-            "receiptImage",
-            "fileName",
-          ],
-        },
-        {
-          estimates: [
-            "travelAuthorizationId",
-            "type",
-            "expenseType",
-            "description",
-            "date",
-            "cost",
-            "currency",
-            "receiptImage",
-            "fileName",
-          ],
+          travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
         },
       ]
     }
@@ -125,46 +104,22 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   }
 
   permittedAttributesForCreate(): Path[] {
-    const permittedAttributes = [
-      ...this.permittedAttributes(),
-      "slug",
-      // TODO: use permitedAttributes from relevant policies once they exist
-      {
-        stopsAttributes: [
-          "travelAuthorizationId",
-          "locationId",
-          "departureDate",
-          "departureTime",
-          "transport",
-          "accommodationType",
-        ],
-        expensesAttributes: [
-          "travelAuthorizationId",
-          "type",
-          "expenseType",
-          "description",
-          "date",
-          "cost",
-          "currency",
-          "receiptImage",
-          "fileName",
-        ],
-      },
-    ]
+    const permittedAttributes: Path[] = ["slug"]
 
-    if (this.user.roles.includes(User.Roles.ADMIN)) {
-      permittedAttributes.push("userId", {
+    if (this.user.isAdmin) {
+      permittedAttributes.push("userId")
+      permittedAttributes.push({
         userAttributes: this.userPolicy.permittedAttributesForCreate(),
       })
     }
+
+    permittedAttributes.push(...this.permittedAttributes())
 
     return permittedAttributes
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorization>> {
-    if (user.roles.includes(User.Roles.ADMIN)) {
-      return ALL_RECORDS_SCOPE
-    }
+    if (user.isAdmin) return ALL_RECORDS_SCOPE
 
     return {
       where: {
@@ -180,6 +135,10 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
 
   private get userPolicy(): UsersPolicy {
     return new UsersPolicy(this.user, User.build())
+  }
+
+  private get travelSegmentsPolicy(): TravelSegmentsPolicy {
+    return new TravelSegmentsPolicy(this.user, TravelSegment.build())
   }
 }
 

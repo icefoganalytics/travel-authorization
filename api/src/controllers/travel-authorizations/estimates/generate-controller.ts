@@ -11,21 +11,25 @@ export class GenerateController extends BaseController {
     try {
       const travelAuthorization = await this.loadTravelAuthorization()
       if (isNil(travelAuthorization)) {
-        return this.response.status(404).json({ message: "Travel authorization not found." })
+        return this.response.status(404).json({
+          message: "Travel authorization not found.",
+        })
       }
 
       const expense = await this.buildExpense(travelAuthorization)
       const policy = this.buildPolicy(expense)
       if (!policy.create()) {
-        return this.response
-          .status(403)
-          .json({ message: "You are not authorized to create this expense." })
+        return this.response.status(403).json({
+          message: "You are not authorized to create this expense.",
+        })
       }
 
-      const travelSegments = travelAuthorization.travelSegments || []
-      const estimates = await BulkGenerateService.perform(travelAuthorization.id, travelSegments, {
-        daysOffTravelStatus: travelAuthorization.daysOffTravelStatus || 0,
-      })
+      const { travelSegmentEstimates = [], daysOffTravelStatusEstimate } = travelAuthorization
+      const estimates = await BulkGenerateService.perform(
+        travelAuthorization.id,
+        travelSegmentEstimates,
+        daysOffTravelStatusEstimate || 0
+      )
       return this.response.status(201).json({
         estimates,
         message: "Generated estimates",
@@ -42,11 +46,11 @@ export class GenerateController extends BaseController {
     return TravelAuthorization.findByPk(this.params.travelAuthorizationId, {
       include: [
         {
-          association: "travelSegments",
+          association: "travelSegmentEstimates",
           include: ["departureLocation", "arrivalLocation"],
         },
       ],
-      order: [["travelSegments", "segmentNumber", "ASC"]],
+      order: [["travelSegmentEstimates", "segmentNumber", "ASC"]],
     })
   }
 

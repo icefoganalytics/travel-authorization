@@ -29,13 +29,8 @@ export class SubmitService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorization> {
-    if (
-      isNil(this.travelAuthorization.status) ||
-      ![TravelAuthorization.Statuses.DRAFT, TravelAuthorization.Statuses.SUBMITTED].includes(
-        this.travelAuthorization.status
-      )
-    ) {
-      throw new Error("Travel authorization must be in draft or submitted state to submit.")
+    if (this.travelAuthorization.status !== TravelAuthorization.Statuses.DRAFT) {
+      throw new Error("Travel authorization must be in draft state to submit.")
     }
 
     const { supervisorEmail, travelAuthorizationActionLogAttributes } = this.attributes

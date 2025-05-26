@@ -45,6 +45,7 @@ export const travelSegmentFactory = Factory.define<TravelSegment, TransientParam
       modeOfTransport,
       modeOfTransportOther:
         modeOfTransport === TravelSegment.TravelMethods.OTHER ? faker.hacker.ingverb() : null,
+      isActual: false,
     })
 
     travelSegment.travelAuthorization =

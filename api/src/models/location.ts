@@ -4,9 +4,11 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  Op,
 } from "sequelize"
 
 import sequelize from "@/db/db-client"
+import arrayWrap from "@/utils/array-wrap"
 
 export class Location extends Model<InferAttributes<Location>, InferCreationAttributes<Location>> {
   declare id: CreationOptional<number>
@@ -53,6 +55,16 @@ Location.init(
         return {
           where: {
             province,
+          },
+        }
+      },
+      excludeById(idOrIds: number | number[]) {
+        const ids = arrayWrap(idOrIds)
+        return {
+          where: {
+            id: {
+              [Op.notIn]: ids,
+            },
           },
         }
       },

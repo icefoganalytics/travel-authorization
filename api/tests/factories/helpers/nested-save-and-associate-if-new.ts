@@ -39,7 +39,7 @@ import { Model } from "sequelize"
  * // The TravelSegment is updated with the travelAuthorizationId before it is saved.
  *  const travelAuthorization = await travelAuthorizationFactory
  *    .create({
- *      tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+ *      tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
  *    })
  *  const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
  *  const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })

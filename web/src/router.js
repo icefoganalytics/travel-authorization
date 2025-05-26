@@ -5,7 +5,6 @@ import { authGuard } from "@/utils/auth-guard"
 import useRouteHistory from "@/use/use-route-history"
 
 import travelDeskRouter from "@/modules/travelDesk/router"
-import travelAuthorizationsRouter from "@/modules/travel-authorizations/router"
 import reportsRouter from "@/modules/reports/router"
 
 Vue.use(VueRouter)
@@ -54,9 +53,158 @@ const routes = [
             props: true,
           },
           {
+            path: "travel-requests/:travelAuthorizationId",
+            component: () => import("@/layouts/TravelRequestLayout.vue"),
+            props: true,
+            children: [
+              {
+                path: "",
+                redirect: "details",
+              },
+              {
+                path: "details",
+                name: "travel-requests/TravelRequestDetailsPage",
+                component: () => import("@/pages/travel-requests/TravelRequestDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "edit-purpose-details",
+                name: "travel-requests/TravelRequestEditPurposeDetailsPage",
+                component: () =>
+                  import("@/pages/travel-requests/TravelRequestEditPurposeDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "edit-trip-details-redirect-by-state",
+                name: "travel-requests/TravelRequestEditTripDetailsRedirectByStatePage",
+                component: () =>
+                  import(
+                    "@/pages/travel-requests/TravelRequestEditTripDetailsRedirectByStatePage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "edit-trip-details-estimates",
+                name: "travel-requests/TravelRequestEditTripDetailsEstimatesPage",
+                component: () =>
+                  import("@/pages/travel-requests/TravelRequestEditTripDetailsEstimatesPage.vue"),
+                props: true,
+              },
+              {
+                path: "edit-trip-details-actuals",
+                name: "travel-requests/TravelRequestEditTripDetailsActualsPage",
+                component: () =>
+                  import("@/pages/travel-requests/TravelRequestEditTripDetailsActualsPage.vue"),
+                props: true,
+              },
+              {
+                path: "edit-approval-details",
+                name: "travel-requests/TravelRequestEditApprovalDetailsPage",
+                component: () =>
+                  import("@/pages/travel-requests/TravelRequestEditApprovalDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "estimate/edit",
+                name: "EditTravelAuthorizationEstimatePage",
+                component: () =>
+                  import(
+                    "@/modules/travel-authorizations/pages/EditTravelAuthorizationEstimatePage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "expense/edit",
+                name: "EditTravelAuthorizationExpensePage",
+                component: () =>
+                  import(
+                    "@/modules/travel-authorizations/pages/EditTravelAuthorizationExpensePage.vue"
+                  ),
+                props: true,
+              },
+            ],
+          },
+          {
             name: "ManageTravelRequests",
             path: "manage-travel-requests",
             component: () => import("@/pages/ManageTravelRequestsPage.vue"),
+          },
+          {
+            path: "manage-travel-requests/:travelAuthorizationId",
+            component: () => import("@/layouts/ManageTravelRequestLayout.vue"),
+            props: true,
+            children: [
+              {
+                path: "",
+                redirect: "details",
+              },
+              {
+                path: "details",
+                name: "manage-travel-requests/ManageTravelRequestDetailsPage",
+                component: () =>
+                  import("@/pages/manage-travel-requests/ManageTravelRequestDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "edit-purpose-details",
+                name: "manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "edit-trip-details-redirect-by-state",
+                name: "manage-travel-requests/ManageTravelRequestEditTripDetailsRedirectByStatePage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsRedirectByStatePage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "edit-trip-details-estimates",
+                name: "manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "edit-trip-details-actuals",
+                name: "manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "edit-approval-details",
+                name: "manage-travel-requests/ManageTravelRequestEditApprovalDetailsPage",
+                component: () =>
+                  import(
+                    "@/pages/manage-travel-requests/ManageTravelRequestEditApprovalDetailsPage.vue"
+                  ),
+                props: true,
+              },
+              {
+                path: "estimate",
+                name: "manage-travel-requests/ManageTravelRequestEstimatesPage",
+                component: () =>
+                  import("@/pages/manage-travel-requests/ManageTravelRequestEstimatesPage.vue"),
+                props: true,
+              },
+              {
+                path: "expense",
+                name: "manage-travel-requests/ManageTravelRequestExpensesPage",
+                component: () =>
+                  import("@/pages/manage-travel-requests/ManageTravelRequestExpensesPage.vue"),
+                props: true,
+              },
+            ],
           },
           {
             path: "travel-pre-approvals",
@@ -246,7 +394,6 @@ const routes = [
   },
 
   ...travelDeskRouter,
-  ...travelAuthorizationsRouter,
   ...reportsRouter,
 
   {

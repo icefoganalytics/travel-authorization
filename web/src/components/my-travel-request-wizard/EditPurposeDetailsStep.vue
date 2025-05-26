@@ -8,6 +8,7 @@
 
 <script setup>
 import { ref } from "vue"
+import { isNil } from "lodash"
 
 import { useSnack } from "@/plugins/snack-plugin"
 
@@ -28,19 +29,22 @@ const purposeEditFormCard = ref(null)
 const snack = useSnack()
 
 async function validateAndSave() {
+  if (isNil(purposeEditFormCard.value)) return false
+  if (!purposeEditFormCard.value.validate()) {
+    snack.error("Please fill in all required fields.")
+    return false
+  }
+
   isLoading.value = true
   try {
-    if (purposeEditFormCard.value.validate() === false) {
-      snack.error("Please fill in all required fields.")
-      return false
-    }
-
     await purposeEditFormCard.value.save()
     snack.success("Travel request saved.")
     emit("updated", props.travelAuthorizationId)
     return true
   } catch (error) {
-    snack.error(error.message)
+    console.error(`Failed to save travel request: ${error}`, { error })
+    snack.error(`Failed to save travel request: ${error}`)
+    return false
   } finally {
     isLoading.value = false
   }

@@ -26,14 +26,8 @@
         <v-card-text :loading="isLoading">
           <p>
             Approve travel of {{ requestorDisplayName }} to
-            <v-progress-circular
-              v-if="isLoadingLocation"
-              indeterminate
-              size="10"
-              width="1"
-              class="mx-2"
-            /><span v-else>{{ locationName }}</span
-            >?
+            <LocationChip :location-id="travelLocationId" />
+            ?
           </p>
         </v-card-text>
 
@@ -60,12 +54,13 @@
 </template>
 
 <script setup>
-import { computed, ref, nextTick, watch } from "vue"
+import { ref, nextTick, watch } from "vue"
 import { useRoute, useRouter } from "vue2-helpers/vue-router"
 
-import { useSnack } from "@/plugins/snack-plugin"
-import { useTravelAuthorization } from "@/use/use-travel-authorization"
-import { useLocation } from "@/use/use-location"
+import useSnack from "@/use/use-snack"
+import useTravelAuthorization from "@/use/use-travel-authorization"
+
+import LocationChip from "@/components/locations/LocationChip.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -96,12 +91,6 @@ const route = useRoute()
 const router = useRouter()
 const snack = useSnack()
 const { isLoading, approve } = useTravelAuthorization(props.travelAuthorizationId)
-const { location, isLoading: isLoadingLocation } = useLocation(props.travelLocationId)
-
-const locationName = computed(() => {
-  const { city, province } = location.value
-  return `${city} (${province})`
-})
 
 const form = ref(null)
 const showDialog = ref(route.query.showApprove === "true")

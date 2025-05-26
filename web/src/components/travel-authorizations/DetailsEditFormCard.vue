@@ -9,7 +9,7 @@
         <v-row>
           <v-col cols="12">
             <v-radio-group
-              :value="travelAuthorization.tripType"
+              :value="travelAuthorization.tripTypeEstimate"
               :row="mdAndUp"
               @change="updateTripType"
             >
@@ -38,14 +38,14 @@
           class="mt-3"
           @input="replaceStops"
         />
-        <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
+        <div v-else>Trip type {{ travelAuthorization.tripTypeEstimate }} not implemented!</div>
         <v-row>
           <v-col
             cols="12"
             md="2"
           >
             <TravelDurationTextField
-              v-model="travelAuthorization.travelDuration"
+              v-model="travelAuthorization.travelDurationEstimate"
               :stops="travelAuthorization.stops"
             />
           </v-col>
@@ -54,14 +54,14 @@
             md="3"
           >
             <v-text-field
-              v-model.number="travelAuthorization.daysOffTravelStatus"
+              v-model.number="travelAuthorization.daysOffTravelStatusEstimate"
               label="Days on non-travel status"
               :min="0"
-              :max="travelAuthorization.travelDuration - 1"
+              :max="travelAuthorization.travelDurationEstimate - 1"
               :rules="[
                 isInteger,
                 greaterThanOrEqualTo(0),
-                lessThan(travelAuthorization.travelDuration, {
+                lessThan(travelAuthorization.travelDurationEstimate, {
                   referenceFieldLabel: 'the number of travel days',
                 }),
               ]"
@@ -76,7 +76,7 @@
             md="3"
           >
             <DatePicker
-              v-model="travelAuthorization.dateBackToWork"
+              v-model="travelAuthorization.dateBackToWorkEstimate"
               :min="lastDepartureDate"
               :rules="[required]"
               label="Expected Date return to work"
@@ -153,7 +153,7 @@ watch(
 )
 
 const lastDepartureDate = computed(() => {
-  if (travelAuthorization.value.tripType === TRIP_TYPES.ONE_WAY) {
+  if (travelAuthorization.value.tripTypeEstimate === TRIP_TYPES.ONE_WAY) {
     const lastDepartureStop = firstStop.value
     return lastDepartureStop.departureDate
   } else {
@@ -167,19 +167,19 @@ watch(
   (newLastDepartureDate) => {
     if (isNil(newLastDepartureDate)) return
     if (
-      !isNil(travelAuthorization.value.dateBackToWork) &&
-      newLastDepartureDate < travelAuthorization.value.dateBackToWork
+      !isNil(travelAuthorization.value.dateBackToWorkEstimate) &&
+      newLastDepartureDate < travelAuthorization.value.dateBackToWorkEstimate
     ) {
       return
     }
 
-    travelAuthorization.value.dateBackToWork = newLastDepartureDate
+    travelAuthorization.value.dateBackToWorkEstimate = newLastDepartureDate
     emit("update:returnDate", newLastDepartureDate)
   }
 )
 
 const tripTypeComponent = computed(() => {
-  switch (travelAuthorization.value.tripType) {
+  switch (travelAuthorization.value.tripTypeEstimate) {
     case TRIP_TYPES.ROUND_TRIP:
       return () =>
         import(
@@ -199,7 +199,7 @@ const tripTypeComponent = computed(() => {
 })
 
 const hasEnoughStops = computed(() => {
-  switch (travelAuthorization.value.tripType) {
+  switch (travelAuthorization.value.tripTypeEstimate) {
     case TRIP_TYPES.ROUND_TRIP:
       return stops.value.length === 2
     case TRIP_TYPES.ONE_WAY:
@@ -216,8 +216,8 @@ const hasEnoughStops = computed(() => {
 const form = ref(null)
 
 onMounted(async () => {
-  if (isNil(travelAuthorization.value.tripType)) {
-    travelAuthorization.value.tripType = TRIP_TYPES.ROUND_TRIP
+  if (isNil(travelAuthorization.value.tripTypeEstimate)) {
+    travelAuthorization.value.tripTypeEstimate = TRIP_TYPES.ROUND_TRIP
   }
 
   await nextTick()
@@ -225,7 +225,7 @@ onMounted(async () => {
 })
 
 async function updateTripType(value) {
-  travelAuthorization.value.tripType = value
+  travelAuthorization.value.tripTypeEstimate = value
 
   await ensureMinimalDefaultStops(value)
 

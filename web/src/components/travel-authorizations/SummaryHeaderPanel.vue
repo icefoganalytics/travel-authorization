@@ -44,7 +44,10 @@
           class="d-flex align-center justify-center justify-md-start"
           :cols="mdAndUp ? undefined : 12"
         >
-          <UserChip :user-id="currentUser.id" />
+          <UserChip
+            :loading="isLoading"
+            :user-id="userId ?? currentUser.id"
+          />
         </v-col>
       </v-row>
     </v-card-text>
@@ -56,7 +59,7 @@ import { toRefs } from "vue"
 
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useCurrentUser from "@/use/use-current-user"
-import useMyTravelRequestWizardSummary from "@/use/wizards/use-my-travel-request-wizard-summary"
+import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import UserChip from "@/components/users/UserChip.vue"
@@ -72,8 +75,15 @@ const props = defineProps({
 
 const { travelAuthorizationId } = toRefs(props)
 
-const { travelPurposeId, finalDestinationLocationId, departureDate, returnDate, refresh } =
-  useMyTravelRequestWizardSummary(travelAuthorizationId)
+const {
+  travelPurposeId,
+  finalDestinationLocationId,
+  departureDate,
+  returnDate,
+  userId,
+  isLoading,
+  refresh,
+} = useTravelAuthorizationSummary(travelAuthorizationId)
 
 const { currentUser } = useCurrentUser()
 const { mdAndUp } = useVuetify2()

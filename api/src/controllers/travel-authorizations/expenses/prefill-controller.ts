@@ -25,8 +25,12 @@ export class PrefillController extends BaseController {
         })
       }
 
-      const estimates = travelAuthorization.estimates || []
-      const expenses = await PrefillService.perform(travelAuthorization.id, estimates)
+      const { travelSegmentActuals = [], daysOffTravelStatusActual } = travelAuthorization
+      const expenses = await PrefillService.perform(
+        travelAuthorization.id,
+        travelSegmentActuals,
+        daysOffTravelStatusActual || 0
+      )
       return this.response.status(201).json({
         expenses,
       })
@@ -42,14 +46,11 @@ export class PrefillController extends BaseController {
     return TravelAuthorization.findByPk(this.params.travelAuthorizationId, {
       include: [
         {
-          association: "expenses",
-          where: {
-            type: Expense.Types.ESTIMATE,
-          },
-          required: false,
+          association: "travelSegmentActuals",
+          include: ["departureLocation", "arrivalLocation"],
         },
       ],
-      order: [["expenses", "date", "ASC"]],
+      order: [["travelSegmentActuals", "segmentNumber", "ASC"]],
     })
   }
 

@@ -25,14 +25,28 @@
               v-else
               ref="currentStepComponent"
               :travel-authorization-id="travelAuthorizationIdAsNumber"
+              :step-title="currentStep.title"
+              :step-subtitle="currentStep.subtitle"
               @update:travelPurposeId="
-                updateMyTravelRequestWizardSummary('travelPurposeId', $event)
+                updateTravelAuthorizationSummary({
+                  travelPurposeId: $event,
+                })
               "
               @update:finalDestinationLocationId="
-                updateMyTravelRequestWizardSummary('finalDestinationLocationId', $event)
+                updateTravelAuthorizationSummary({
+                  finalDestinationLocationId: $event,
+                })
               "
-              @update:departureDate="updateMyTravelRequestWizardSummary('departureDate', $event)"
-              @update:returnDate="updateMyTravelRequestWizardSummary('returnDate', $event)"
+              @update:departureDate="
+                updateTravelAuthorizationSummary({
+                  departureDate: $event,
+                })
+              "
+              @update:returnDate="
+                updateTravelAuthorizationSummary({
+                  returnDate: $event,
+                })
+              "
               @updated="refreshHeaderAndLocalState"
             />
 
@@ -78,11 +92,11 @@ import { isNil, isEmpty, isString } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useMyTravelRequestWizard from "@/use/wizards/use-my-travel-request-wizard"
-import useMyTravelRequestWizardSummary from "@/use/wizards/use-my-travel-request-wizard-summary"
+import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 import StateStepper from "@/components/common/wizards/StateStepper.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
-import TravelAuthorizationActionLogsTable from "@/modules/travel-authorizations/components/TravelAuthorizationActionLogsTable.vue"
+import TravelAuthorizationActionLogsTable from "@/components/travel-authorization-action-logs/TravelAuthorizationActionLogsTable.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -173,12 +187,7 @@ async function continueAndGoToNextStep() {
   }
 }
 
-const myTravelRequestWizardSummary = useMyTravelRequestWizardSummary()
-
-function updateMyTravelRequestWizardSummary(attribute, value) {
-  const attributeRef = myTravelRequestWizardSummary[attribute]
-  attributeRef.value = value
-}
+const { update: updateTravelAuthorizationSummary } = useTravelAuthorizationSummary()
 
 /** @type {import('vue').Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
 const summaryHeaderPanel = ref(null)

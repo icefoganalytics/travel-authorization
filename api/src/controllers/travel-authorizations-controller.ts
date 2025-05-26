@@ -37,7 +37,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
           "user",
         ],
         order: [
-          ["updatedAt", "ASC"],
+          ["updatedAt", "DESC"],
           ["stops", "departureDate", "ASC"],
           ["stops", "departureTime", "ASC"],
         ],

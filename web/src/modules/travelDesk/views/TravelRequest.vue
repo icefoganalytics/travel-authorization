@@ -20,7 +20,7 @@
         flat
       >
         <v-toolbar-title>
-          <b>Travel Status </b>
+          <b>Travel Requests </b>
           <b
             v-if="admin && department"
             class="mt-4 blue--text"

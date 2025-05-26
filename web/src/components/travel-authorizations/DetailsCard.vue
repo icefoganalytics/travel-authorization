@@ -1,23 +1,22 @@
 <template>
   <HeaderActionsCard title="Details">
+    <template #header-actions><slot name="header-actions"></slot></template>
+
     <v-row>
       <v-col cols="12">
         <DescriptionElement label="Trip Type">
           <TravelAuthorizationTripTypeChip
-            v-if="travelAuthorization.tripType"
-            :value="travelAuthorization.tripType"
+            v-if="travelAuthorization.tripTypeEstimate"
+            :value="travelAuthorization.tripTypeEstimate"
           />
         </DescriptionElement>
       </v-col>
     </v-row>
 
-    <component
-      :is="tripTypeComponent"
-      v-if="tripTypeComponent"
+    <TravelSegmentsSection
       :travel-authorization-id="travelAuthorizationId"
       class="mb-6"
     />
-    <div v-else>Trip type {{ travelAuthorization.tripType }} not implemented!</div>
 
     <v-row>
       <v-col
@@ -25,7 +24,7 @@
         md="2"
       >
         <DescriptionElement
-          :value="travelAuthorization.travelDuration"
+          :value="travelAuthorization.travelDurationEstimate"
           label="Travel Days"
           vertical
         />
@@ -35,7 +34,7 @@
         md="4"
       >
         <DescriptionElement
-          :value="travelAuthorization.daysOffTravelStatus || '0'"
+          :value="travelAuthorization.daysOffTravelStatusEstimate || '0'"
           label="Days on non-travel status"
           vertical
         />
@@ -45,7 +44,7 @@
         md="4"
       >
         <DescriptionElement
-          :value="travelAuthorization.dateBackToWork"
+          :value="travelAuthorization.dateBackToWorkEstimate"
           label="Expected Date return to work"
           vertical
         />
@@ -55,13 +54,14 @@
 </template>
 
 <script setup>
-import { computed, toRefs } from "vue"
+import { toRefs } from "vue"
 
-import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import TravelAuthorizationTripTypeChip from "@/components/travel-authorizations/TravelAuthorizationTripTypeChip.vue"
+import TravelSegmentsSection from "@/components/travel-segments/TravelSegmentsSection.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -72,19 +72,4 @@ const props = defineProps({
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
-
-const tripTypeComponent = computed(() => {
-  switch (travelAuthorization.value.tripType) {
-    case TRIP_TYPES.ROUND_TRIP:
-      return () =>
-        import("@/components/travel-authorizations/details-card/RoundTripStopsSection.vue")
-    case TRIP_TYPES.ONE_WAY:
-      return () => import("@/components/travel-authorizations/details-card/OneWayStopsSection.vue")
-    case TRIP_TYPES.MULTI_CITY:
-      return () =>
-        import("@/components/travel-authorizations/details-card/MultiDestinationStopsSection.vue")
-    default:
-      return null
-  }
-})
 </script>

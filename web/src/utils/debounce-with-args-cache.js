@@ -1,9 +1,14 @@
 import { debounce } from "lodash"
 
+/** @typedef {Parameters<typeof debounce>["0"]} DebounceableFunction */
+
 /**
- * @param {Function} fn
- * @param {number} wait
- * @param {number} cacheSize
+ * @param {DebounceableFunction} fn
+ * @param {Object} [options={}]
+ * @param {number}  [options.wait=300] - [300]
+ * @param {boolean} [options.leading=true] - [true]
+ * @param {boolean} [options.trailing=true] - [true]
+ * @param {number}  [options.cacheSize=10] - [10]
  *
  * @example
  * ```
@@ -23,7 +28,10 @@ import { debounce } from "lodash"
  * setTimeout(() => usersApi.get(1, { role: "admin" }), 400)
  * ```
  */
-export function debounceWithArgsCache(fn, wait = 300, cacheSize = 10) {
+export function debounceWithArgsCache(
+  fn,
+  { wait = 300, leading = true, trailing = true, cacheSize = 10 } = {}
+) {
   const invocationCache = new Map()
 
   return (...args) => {
@@ -40,7 +48,7 @@ export function debounceWithArgsCache(fn, wait = 300, cacheSize = 10) {
       invocationCache.delete(oldestInvocation)
     }
 
-    const debouncedFn = debounce(fn, wait, { leading: true, trailing: true })
+    const debouncedFn = debounce(fn, wait, { leading, trailing })
     invocationCache.set(argsKey, debouncedFn)
 
     const result = debouncedFn(...args)

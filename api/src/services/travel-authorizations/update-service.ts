@@ -1,55 +1,58 @@
-import { CreationAttributes } from "sequelize"
-import { isEmpty, isUndefined } from "lodash"
+import { Attributes } from "sequelize"
+import { isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
-import { Expense, Stop, TravelAuthorization, User } from "@/models"
-import { StopsService, ExpensesService, Stops } from "@/services"
+import { Expense, Stop, TravelAuthorization, TravelSegment, User } from "@/models"
+import { Expenses, TravelSegments } from "@/services"
 
-type StopsCreationAttributes = CreationAttributes<Stop>[]
+export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAuthorization>> & {
+  stops?: Partial<Attributes<Stop>>[]
+  expenses?: Partial<Attributes<Expense>>[]
+  travelSegmentEstimatesAttributes?: Partial<Attributes<TravelSegment>>[]
+  travelSegmentActualsAttributes?: Partial<Attributes<TravelSegment>>[]
+}
 
 export class UpdateService extends BaseService {
-  private travelAuthorization: TravelAuthorization
-  private stops: StopsCreationAttributes
-  private expenses: CreationAttributes<Expense>[]
-  private attributes: Partial<TravelAuthorization>
-  private currentUser: User
-
   constructor(
-    travelAuthorization: TravelAuthorization,
-    { stops = [], expenses = [], ...attributes }: Partial<TravelAuthorization>,
-    currentUser: User
+    protected travelAuthorization: TravelAuthorization,
+    protected attributes: TravelAuthorizationUpdateAttributes,
+    protected currentUser: User
   ) {
     super()
-    this.travelAuthorization = travelAuthorization
-    this.attributes = attributes
-    this.stops = stops
-    this.expenses = expenses
-    this.currentUser = currentUser
   }
 
   async perform(): Promise<TravelAuthorization> {
-    if (!this.isValidStopCount(this.attributes, this.stops)) {
-      throw new Error("Stop count is not valid for trip type.")
-    }
-
     return db.transaction(async () => {
       await this.travelAuthorization.update(this.attributes).catch((error) => {
         throw new Error(`Could not update TravelAuthorization: ${error}`)
       })
 
       const travelAuthorizationId = this.travelAuthorization.id
-      if (!isEmpty(this.stops)) {
-        await StopsService.bulkReplace(travelAuthorizationId, this.stops)
-        // TODO: remove this once travel segments fully replace stops
-        await Stops.BulkConvertStopsToTravelSegmentsService.perform(this.travelAuthorization)
+      const { travelSegmentEstimatesAttributes } = this.attributes
+      if (!isUndefined(travelSegmentEstimatesAttributes)) {
+        await TravelSegments.BulkReplaceService.perform(
+          travelAuthorizationId,
+          travelSegmentEstimatesAttributes,
+          false
+        )
+      }
+
+      const { travelSegmentActualsAttributes } = this.attributes
+      if (!isUndefined(travelSegmentActualsAttributes)) {
+        await TravelSegments.BulkReplaceService.perform(
+          travelAuthorizationId,
+          travelSegmentActualsAttributes,
+          true
+        )
       }
 
       // TODO: might need to tweak this, or any updates to a travel authorization will
       // blow away all estimates and expenses.
-      if (!isEmpty(this.expenses)) {
-        await ExpensesService.bulkReplace(travelAuthorizationId, this.expenses)
+      const { expenses } = this.attributes
+      if (!isUndefined(expenses)) {
+        await Expenses.BulkReplaceService.perform(travelAuthorizationId, expenses)
       }
 
       return this.travelAuthorization.reload({
@@ -63,20 +66,6 @@ export class UpdateService extends BaseService {
         ],
       })
     })
-  }
-
-  isValidStopCount(attributes: Partial<TravelAuthorization>, stops: Partial<Stop>[]): boolean {
-    if (isUndefined(attributes.tripType) && isEmpty(stops)) {
-      return true
-    }
-
-    if (attributes.tripType === TravelAuthorization.TripTypes.ONE_WAY) {
-      return stops.length === 2
-    } else if (attributes.tripType === TravelAuthorization.TripTypes.MULTI_CITY) {
-      return stops.length >= 3
-    } else {
-      return stops.length === 2
-    }
   }
 }
 

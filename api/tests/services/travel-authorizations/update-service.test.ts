@@ -1,37 +1,44 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
 import { UpdateService } from "@/services/travel-authorizations"
-import { locationFactory, stopFactory, travelAuthorizationFactory, userFactory } from "@/factories"
+import { locationFactory, travelAuthorizationFactory, userFactory } from "@/factories"
 
 describe("api/src/services/travel-authorizations/update-service.ts", () => {
   describe("UpdateService", () => {
     describe(".perform", () => {
-      test("when has 2 stops, and is a round trip, builds the correct travel segment", async () => {
+      test("when update request includes two stops, and is a round trip, builds the correct travel segment", async () => {
+        // Arrange
+        const user = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
-          tripType: TravelAuthorization.TripTypes.ROUND_TRIP,
+          userId: user.id,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const location1 = await locationFactory.create()
-        const stop1 = stopFactory.build({
+        const stop1Attributes = {
           travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
           locationId: location1.id,
           departureDate: new Date("2023-11-29"),
           transport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-        })
+        }
         const location2 = await locationFactory.create()
-        const stop2 = stopFactory.build({
+        const stop2Attributes = {
           travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
           locationId: location2.id,
           departureDate: new Date("2023-11-30"),
           transport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: null,
-        })
+        }
         const attributes = {
-          stops: [stop1.dataValues, stop2.dataValues],
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          stops: [stop1Attributes, stop2Attributes],
         } as Partial<TravelAuthorization>
-        const user = await userFactory.create()
 
+        // Act
         await UpdateService.perform(travelAuthorization, attributes, user)
 
+        // Assert
         expect.assertions(1)
         expect(
           await TravelSegment.findAll({
@@ -43,22 +50,86 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
           expect.objectContaining({
             departureLocationId: location1.id,
             arrivalLocationId: location2.id,
-            segmentNumber: 0,
+            segmentNumber: 1,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-            departureOn: stop1.departureDate,
-            departureTime: stop1.departureTime,
+            departureOn: "2023-11-29",
+            departureTime: null,
           }),
           expect.objectContaining({
             departureLocationId: location2.id,
             arrivalLocationId: location1.id,
-            segmentNumber: 1,
+            segmentNumber: 2,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
             accommodationType: null,
-            departureOn: stop2.departureDate,
-            departureTime: stop2.departureTime,
+            departureOn: "2023-11-30",
+            departureTime: null,
           }),
         ])
+      })
+
+      test("when update request includes three stops, and is a round trip, it errors informatively", async () => {
+        // Arrange
+        const user = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          userId: user.id,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+        })
+        const stop1Attributes = {
+          travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
+          transport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: TravelSegment.AccommodationTypes.HOTEL,
+        }
+        const stop2Attributes = {
+          travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
+          transport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: null,
+        }
+        const stop3Attributes = {
+          travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
+          transport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: null,
+        }
+        const attributes = {
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          stops: [stop1Attributes, stop2Attributes, stop3Attributes],
+        } as Partial<TravelAuthorization>
+
+        // Assert
+        expect.assertions(1)
+        await expect(
+          // Act
+          UpdateService.perform(travelAuthorization, attributes, user)
+        ).rejects.toThrowError(/Stop count is not valid for trip type./)
+      })
+
+      test("when stops are not supplied, travel authorization is updated normally", async () => {
+        // Arrange
+        const user = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          userId: user.id,
+        })
+        const attributes = {
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          travelDurationEstimate: 3,
+          daysOffTravelStatusEstimate: 0,
+          dateBackToWorkEstimate: "2025-05-03",
+        }
+
+        // Act
+        await UpdateService.perform(travelAuthorization, attributes, user)
+
+        // Assert
+        expect.assertions(1)
+        await expect(travelAuthorization.reload()).resolves.toMatchObject({
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          travelDurationEstimate: 3,
+          daysOffTravelStatusEstimate: 0,
+          dateBackToWorkEstimate: "2025-05-03",
+        })
       })
     })
   })
