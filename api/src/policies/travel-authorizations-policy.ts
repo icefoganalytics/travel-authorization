@@ -4,6 +4,7 @@ import { Path } from "@/utils/deep-pick"
 import { User, TravelAuthorization, TravelSegment } from "@/models"
 import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
+import DraftPolicy from "@/policies/travel-authorizations/draft-policy"
 import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
 import UsersPolicy from "@/policies/users-policy"
 
@@ -48,21 +49,21 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
 
   // TODO: disperse this complexity into per-state policies
   permittedAttributes(): Path[] {
-    const permittedAttributes: Path[] = ["wizardStepName"]
+    const attributes: Path[] = ["wizardStepName"]
 
     switch (this.record.status) {
       case TravelAuthorization.Statuses.DRAFT:
-        return [...permittedAttributes, ...this.permittedAttributesForBaseUpdate()]
+        return this.draftTravelAuthorizationPolicy.permittedAttributes()
       case TravelAuthorization.Statuses.SUBMITTED:
         if (this.user.isAdmin || this.record.supervisorEmail === this.user.email) {
-          permittedAttributes.push(...this.permittedAttributesForBaseUpdate())
+          attributes.push(...this.permittedAttributesForBaseUpdate())
         }
 
-        return permittedAttributes
+        return attributes
       case TravelAuthorization.Statuses.APPROVED:
-        return [...permittedAttributes, ...this.permittedAttributesForApprovedUpdate()]
+        return ["wizardStepName", ...this.permittedAttributesForApprovedUpdate()]
       default:
-        return permittedAttributes
+        return ["wizardStepName"]
     }
   }
 
@@ -148,6 +149,10 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
 
   protected get travelSegmentsPolicy(): TravelSegmentsPolicy {
     return new TravelSegmentsPolicy(this.user, TravelSegment.build())
+  }
+
+  protected get draftTravelAuthorizationPolicy(): DraftPolicy {
+    return new DraftPolicy(this.user, this.record)
   }
 }
 
