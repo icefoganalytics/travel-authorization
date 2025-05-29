@@ -1,19 +1,17 @@
 import { Attributes, FindOptions, Op } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
-import { User, TravelAuthorization, TravelSegment } from "@/models"
-import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
+import { User, TravelAuthorization } from "@/models"
+import BasePolicy, { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
+import ApprovePolicy from "@/policies/travel-authorizations/approve-policy"
 import DraftPolicy from "@/policies/travel-authorizations/draft-policy"
-import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
+import SubmitPolicy from "@/policies/travel-authorizations/submit-policy"
 import UsersPolicy from "@/policies/users-policy"
 
 export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
-    if (this.user.isAdmin) return true
-    if (this.record.userId === this.user.id) return true
-
-    return false
+    return this.policyByState.create()
   }
 
   show(): boolean {
@@ -32,100 +30,16 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
     return false
   }
 
-  // Currently the same as the update policy, but this is likely to change in the future
-  // so opted for duplication over premature abstraction.
   destroy(): boolean {
-    if (this.user.isAdmin) return true
-    if (this.record.supervisorEmail === this.user.email) return true
-    if (
-      this.record.userId === this.user.id &&
-      this.record.status === TravelAuthorization.Statuses.DRAFT
-    ) {
-      return true
-    }
-
-    return false
+    return this.policyByState.destroy()
   }
 
-  // TODO: disperse this complexity into per-state policies
   permittedAttributes(): Path[] {
-    const attributes: Path[] = ["wizardStepName"]
-
-    switch (this.record.status) {
-      case TravelAuthorization.Statuses.DRAFT:
-        return this.draftTravelAuthorizationPolicy.permittedAttributes()
-      case TravelAuthorization.Statuses.SUBMITTED:
-        if (this.user.isAdmin || this.record.supervisorEmail === this.user.email) {
-          attributes.push(...this.permittedAttributesForBaseUpdate())
-        }
-
-        return attributes
-      case TravelAuthorization.Statuses.APPROVED:
-        return ["wizardStepName", ...this.permittedAttributesForApprovedUpdate()]
-      default:
-        return ["wizardStepName"]
-    }
-  }
-
-  private permittedAttributesForBaseUpdate(): Path[] {
-    return [
-      "preApprovalProfileId",
-      "purposeId",
-      "firstName",
-      "lastName",
-      "department",
-      "division",
-      "branch",
-      "unit",
-      "email",
-      "mailcode",
-      "daysOffTravelStatusEstimate",
-      "dateBackToWorkEstimate",
-      "travelDurationEstimate",
-      "travelAdvance",
-      "eventName",
-      "summary",
-      "benefits",
-      "supervisorEmail",
-      "approved",
-      "requestChange",
-      "denialReason",
-      "tripTypeEstimate",
-      "travelAdvanceInCents",
-      "allTravelWithinTerritory",
-      {
-        travelSegmentEstimatesAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
-      },
-    ]
-  }
-
-  private permittedAttributesForApprovedUpdate(): Path[] {
-    return [
-      "daysOffTravelStatusActual",
-      "dateBackToWorkActual",
-      "travelDurationActual",
-      "tripTypeActual",
-      {
-        travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
-      },
-    ]
+    return this.policyByState.permittedAttributes()
   }
 
   permittedAttributesForCreate(): Path[] {
-    const permittedAttributes: Path[] = ["slug", ...this.permittedAttributes()]
-
-    if (this.user.isAdmin) {
-      permittedAttributes.push(
-        ...[
-          "userId",
-          {
-            userAttributes: this.userPolicy.permittedAttributesForCreate(),
-          },
-        ]
-      )
-    }
-
-    return permittedAttributes
+    return this.policyByState.permittedAttributesForCreate()
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorization>> {
@@ -143,16 +57,25 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
     }
   }
 
+  protected get policyByState(): BasePolicy<TravelAuthorization> {
+    switch (this.record.status) {
+      case TravelAuthorization.Statuses.DRAFT:
+        return new DraftPolicy(this.user, this.record)
+      case TravelAuthorization.Statuses.SUBMITTED:
+        return new SubmitPolicy(this.user, this.record)
+      case TravelAuthorization.Statuses.APPROVED:
+        return new ApprovePolicy(this.user, this.record)
+      default:
+        return new BasePolicy(this.user, this.record)
+    }
+  }
+
+  protected get draftPolicy(): DraftPolicy {
+    return new DraftPolicy(this.user, this.record)
+  }
+
   protected get userPolicy(): UsersPolicy {
     return new UsersPolicy(this.user, User.build())
-  }
-
-  protected get travelSegmentsPolicy(): TravelSegmentsPolicy {
-    return new TravelSegmentsPolicy(this.user, TravelSegment.build())
-  }
-
-  protected get draftTravelAuthorizationPolicy(): DraftPolicy {
-    return new DraftPolicy(this.user, this.record)
   }
 }
 
