@@ -1,10 +1,9 @@
-import BasePolicy from "@/policies/base-policy"
+import { TravelAuthorization } from "@/models"
+import PolicyFactory from "@/policies/policy-factory"
 
-import { User, TravelAuthorization } from "@/models"
-
-export class DenyPolicy extends BasePolicy<TravelAuthorization> {
+export class DenyPolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
 
     return false
