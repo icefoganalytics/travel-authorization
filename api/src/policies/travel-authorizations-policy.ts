@@ -46,74 +46,83 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
     return false
   }
 
-  // NOTE: userId is always restricted after creation.
+  // TODO: disperse this complexity into per-state policies
   permittedAttributes(): Path[] {
-    if (
-      this.record.status === TravelAuthorization.Statuses.DRAFT ||
-      this.user.isAdmin ||
-      this.record.supervisorEmail === this.user.email
-    ) {
-      return [
-        "preApprovalProfileId",
-        "purposeId",
-        "wizardStepName",
-        "firstName",
-        "lastName",
-        "department",
-        "division",
-        "branch",
-        "unit",
-        "email",
-        "mailcode",
-        "daysOffTravelStatusEstimate",
-        "dateBackToWorkEstimate",
-        "travelDurationEstimate",
-        "travelAdvance",
-        "eventName",
-        "summary",
-        "benefits",
-        "supervisorEmail",
-        "approved",
-        "requestChange",
-        "denialReason",
-        "tripTypeEstimate",
-        "travelAdvanceInCents",
-        "allTravelWithinTerritory",
-        {
-          travelSegmentEstimatesAttributes:
-            this.travelSegmentsPolicy.permittedAttributesForCreate(),
-        },
-      ]
-    }
+    const permittedAttributes: Path[] = ["wizardStepName"]
 
-    // TODO: consider moving state based check to the service layer since its business logic?
-    if (this.record.status === TravelAuthorization.Statuses.APPROVED) {
-      return [
-        "daysOffTravelStatusActual",
-        "dateBackToWorkActual",
-        "travelDurationActual",
-        "tripTypeActual",
-        "wizardStepName",
-        {
-          travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
-        },
-      ]
-    }
+    switch (this.record.status) {
+      case TravelAuthorization.Statuses.DRAFT:
+        return [...permittedAttributes, ...this.permittedAttributesForBaseUpdate()]
+      case TravelAuthorization.Statuses.SUBMITTED:
+        if (this.user.isAdmin || this.record.supervisorEmail === this.user.email) {
+          permittedAttributes.push(...this.permittedAttributesForBaseUpdate())
+        }
 
-    return ["wizardStepName"]
+        return permittedAttributes
+      case TravelAuthorization.Statuses.APPROVED:
+        return [...permittedAttributes, ...this.permittedAttributesForApprovedUpdate()]
+      default:
+        return permittedAttributes
+    }
+  }
+
+  private permittedAttributesForBaseUpdate(): Path[] {
+    return [
+      "preApprovalProfileId",
+      "purposeId",
+      "firstName",
+      "lastName",
+      "department",
+      "division",
+      "branch",
+      "unit",
+      "email",
+      "mailcode",
+      "daysOffTravelStatusEstimate",
+      "dateBackToWorkEstimate",
+      "travelDurationEstimate",
+      "travelAdvance",
+      "eventName",
+      "summary",
+      "benefits",
+      "supervisorEmail",
+      "approved",
+      "requestChange",
+      "denialReason",
+      "tripTypeEstimate",
+      "travelAdvanceInCents",
+      "allTravelWithinTerritory",
+      {
+        travelSegmentEstimatesAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
+      },
+    ]
+  }
+
+  private permittedAttributesForApprovedUpdate(): Path[] {
+    return [
+      "daysOffTravelStatusActual",
+      "dateBackToWorkActual",
+      "travelDurationActual",
+      "tripTypeActual",
+      {
+        travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
+      },
+    ]
   }
 
   permittedAttributesForCreate(): Path[] {
-    const permittedAttributes: Path[] = ["slug"]
+    const permittedAttributes: Path[] = ["slug", ...this.permittedAttributes()]
 
     if (this.user.isAdmin) {
-      permittedAttributes.push("userId")
-      permittedAttributes.push({
-        userAttributes: this.userPolicy.permittedAttributesForCreate(),
-      })
+      permittedAttributes.push(
+        ...[
+          "userId",
+          {
+            userAttributes: this.userPolicy.permittedAttributesForCreate(),
+          },
+        ]
+      )
     }
-
-    permittedAttributes.push(...this.permittedAttributes())
 
     return permittedAttributes
   }
@@ -133,11 +142,11 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
     }
   }
 
-  private get userPolicy(): UsersPolicy {
+  protected get userPolicy(): UsersPolicy {
     return new UsersPolicy(this.user, User.build())
   }
 
-  private get travelSegmentsPolicy(): TravelSegmentsPolicy {
+  protected get travelSegmentsPolicy(): TravelSegmentsPolicy {
     return new TravelSegmentsPolicy(this.user, TravelSegment.build())
   }
 }
