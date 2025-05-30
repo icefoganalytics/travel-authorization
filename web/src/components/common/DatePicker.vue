@@ -1,13 +1,13 @@
 <template>
   <v-menu
+    v-model="menu"
     :close-on-content-click="false"
     :nudge-right="40"
     transition="scale-transition"
     offset-y
     min-width="auto"
-    v-model="menu"
   >
-    <template v-slot:activator="{ on, attrs }">
+    <template #activator="{ on, attrs }">
       <v-text-field
         :value="value || ''"
         :label="label || text"
@@ -36,7 +36,10 @@ import { required } from "@/utils/validators"
 export default {
   inheritAttrs: false,
   props: {
-    value: String,
+    value: {
+      type: String,
+      default: undefined,
+    },
     text: {
       type: String,
       default: undefined,
@@ -47,7 +50,10 @@ export default {
         return true
       },
     },
-    label: String,
+    label: {
+      type: String,
+      default: undefined,
+    },
     rules: {
       type: Array,
       default: () => [required],
