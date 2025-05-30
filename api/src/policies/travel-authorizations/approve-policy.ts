@@ -1,13 +1,18 @@
-import BasePolicy from "@/policies/base-policy"
+import { Path } from "@/utils/deep-pick"
 
-import { User, TravelAuthorization } from "@/models"
+import { TravelAuthorization } from "@/models"
+import PolicyFactory from "@/policies/policy-factory"
 
-export class ApprovePolicy extends BasePolicy<TravelAuthorization> {
+export class ApprovePolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
 
     return false
+  }
+
+  permittedAttributesForCreate(): Path[] {
+    return []
   }
 }
 

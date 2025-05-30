@@ -142,6 +142,8 @@ async function initialize(context) {
 }
 
 // TODO: split submission step into its own page
+// Submit should not become enabled until there are more than zero "Coding" rows,
+// and all expenses have an associated upload/receipt.
 defineExpose({
   initialize,
   continue: () => requestApprovalForm.value?.submit(),
