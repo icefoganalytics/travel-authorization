@@ -27,7 +27,7 @@ export class SubmitController extends BaseController {
         })
       }
 
-      const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
+      const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
 
       await SubmitService.perform(travelAuthorization, permittedAttributes, this.currentUser)
 

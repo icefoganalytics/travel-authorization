@@ -1,21 +1,37 @@
-import BasePolicy from "@/policies/base-policy"
-
 import { Path } from "@/utils/deep-pick"
-import { User, TravelAuthorization } from "@/models"
-import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
-export class SubmitPolicy extends BasePolicy<TravelAuthorization> {
+import { TravelAuthorization, TravelSegment } from "@/models"
+import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
+import DraftStatePolicy from "@/policies/travel-authorizations/draft-state-policy"
+import PolicyFactory from "@/policies/policy-factory"
+
+export class SubmitPolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
     if (this.record.userId === this.user.id) return true
 
     return false
   }
 
-  permittedAttributes(): Path[] {
-    const policy = new TravelAuthorizationsPolicy(this.user, this.record)
-    return [...policy.permittedAttributes(), { travelAuthorizationActionLogAttributes: ["note"] }]
+  permittedAttributesForCreate(): Path[] {
+    const attributes = this.draftStatePolicy.permittedAttributes()
+
+    if (this.user.isAdmin || this.record.supervisorEmail === this.user.email) {
+      attributes.push({
+        travelAuthorizationActionLogAttributes: ["note"],
+      })
+    }
+
+    return attributes
+  }
+
+  protected get draftStatePolicy(): DraftStatePolicy {
+    return new DraftStatePolicy(this.user, this.record)
+  }
+
+  protected get travelSegmentsPolicy(): TravelSegmentsPolicy {
+    return new TravelSegmentsPolicy(this.user, TravelSegment.build())
   }
 }
 

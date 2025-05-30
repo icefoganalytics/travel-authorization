@@ -1,20 +1,16 @@
 import { Attributes, FindOptions, Op } from "sequelize"
 
 import { Path } from "@/utils/deep-pick"
-import { User, TravelAuthorization, TravelSegment } from "@/models"
-import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
+import { User, TravelAuthorization } from "@/models"
+import BasePolicy, { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
-import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
+import ApproveStatePolicy from "@/policies/travel-authorizations/approve-state-policy"
+import DraftStatePolicy from "@/policies/travel-authorizations/draft-state-policy"
+import GenericStatePolicy from "@/policies/travel-authorizations/generic-state-policy"
+import SubmitStatePolicy from "@/policies/travel-authorizations/submit-state-policy"
 import UsersPolicy from "@/policies/users-policy"
 
 export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorization) {
-  create(): boolean {
-    if (this.user.isAdmin) return true
-    if (this.record.userId === this.user.id) return true
-
-    return false
-  }
-
   show(): boolean {
     if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
@@ -23,97 +19,33 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
     return false
   }
 
-  update(): boolean {
+  create(): boolean {
     if (this.user.isAdmin) return true
-    if (this.record.supervisorEmail === this.user.email) return true
     if (this.record.userId === this.user.id) return true
 
     return false
   }
 
-  // Currently the same as the update policy, but this is likely to change in the future
-  // so opted for duplication over premature abstraction.
-  destroy(): boolean {
-    if (this.user.isAdmin) return true
-    if (this.record.supervisorEmail === this.user.email) return true
-    if (
-      this.record.userId === this.user.id &&
-      this.record.status === TravelAuthorization.Statuses.DRAFT
-    ) {
-      return true
-    }
-
-    return false
+  update(): boolean {
+    return this.policyByState.update()
   }
 
-  // NOTE: userId is always restricted after creation.
+  destroy(): boolean {
+    return this.policyByState.destroy()
+  }
+
   permittedAttributes(): Path[] {
-    if (
-      this.record.status === TravelAuthorization.Statuses.DRAFT ||
-      this.user.isAdmin ||
-      this.record.supervisorEmail === this.user.email
-    ) {
-      return [
-        "preApprovalProfileId",
-        "purposeId",
-        "wizardStepName",
-        "firstName",
-        "lastName",
-        "department",
-        "division",
-        "branch",
-        "unit",
-        "email",
-        "mailcode",
-        "daysOffTravelStatusEstimate",
-        "dateBackToWorkEstimate",
-        "travelDurationEstimate",
-        "travelAdvance",
-        "eventName",
-        "summary",
-        "benefits",
-        "supervisorEmail",
-        "approved",
-        "requestChange",
-        "denialReason",
-        "tripTypeEstimate",
-        "travelAdvanceInCents",
-        "allTravelWithinTerritory",
-        {
-          travelSegmentEstimatesAttributes:
-            this.travelSegmentsPolicy.permittedAttributesForCreate(),
-        },
-      ]
-    }
-
-    // TODO: consider moving state based check to the service layer since its business logic?
-    if (this.record.status === TravelAuthorization.Statuses.APPROVED) {
-      return [
-        "daysOffTravelStatusActual",
-        "dateBackToWorkActual",
-        "travelDurationActual",
-        "tripTypeActual",
-        "wizardStepName",
-        {
-          travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
-        },
-      ]
-    }
-
-    return ["wizardStepName"]
+    return this.policyByState.permittedAttributes()
   }
 
   permittedAttributesForCreate(): Path[] {
-    const permittedAttributes: Path[] = ["slug"]
+    const permittedAttributes: Path[] = ["slug", ...this.permittedAttributes()]
 
     if (this.user.isAdmin) {
-      permittedAttributes.push("userId")
-      permittedAttributes.push({
+      permittedAttributes.push("userId", {
         userAttributes: this.userPolicy.permittedAttributesForCreate(),
       })
     }
-
-    permittedAttributes.push(...this.permittedAttributes())
 
     return permittedAttributes
   }
@@ -133,12 +65,21 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
     }
   }
 
-  private get userPolicy(): UsersPolicy {
-    return new UsersPolicy(this.user, User.build())
+  protected get policyByState(): BasePolicy<TravelAuthorization> {
+    switch (this.record.status) {
+      case TravelAuthorization.Statuses.DRAFT:
+        return new DraftStatePolicy(this.user, this.record)
+      case TravelAuthorization.Statuses.SUBMITTED:
+        return new SubmitStatePolicy(this.user, this.record)
+      case TravelAuthorization.Statuses.APPROVED:
+        return new ApproveStatePolicy(this.user, this.record)
+      default:
+        return new GenericStatePolicy(this.user, this.record)
+    }
   }
 
-  private get travelSegmentsPolicy(): TravelSegmentsPolicy {
-    return new TravelSegmentsPolicy(this.user, TravelSegment.build())
+  protected get userPolicy(): UsersPolicy {
+    return new UsersPolicy(this.user, User.build())
   }
 }
 
