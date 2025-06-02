@@ -1,5 +1,6 @@
 <template>
   <v-dialog
+    v-if="!isNil(expense)"
     v-model="showDialog"
     max-width="500px"
   >
@@ -12,11 +13,11 @@
           <span class="text-h5">Edit Estimate</span>
         </v-card-title>
 
-        <v-card-text :loading="loading">
+        <v-card-text :loading="isLoading">
           <v-row>
             <v-col>
               <ExpenseTypeSelect
-                v-model="estimate.expenseType"
+                v-model="expense.expenseType"
                 :rules="[required]"
                 label="Expense Type"
                 required
@@ -26,7 +27,7 @@
           <v-row>
             <v-col>
               <v-text-field
-                v-model="estimate.description"
+                v-model="expense.description"
                 :rules="[required]"
                 label="Description"
                 required
@@ -36,7 +37,7 @@
           <v-row>
             <v-col>
               <DatePicker
-                v-model="estimate.date"
+                v-model="expense.date"
                 :rules="[required]"
                 label="Date"
                 required
@@ -46,7 +47,7 @@
           <v-row>
             <v-col>
               <CurrencyTextField
-                v-model="estimate.cost"
+                v-model="expense.cost"
                 :rules="[required]"
                 label="Amount"
                 required
@@ -58,14 +59,14 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            :loading="loading"
+            :loading="isLoading"
             color="error"
             @click="close"
           >
             Cancel
           </v-btn>
           <v-btn
-            :loading="loading"
+            :loading="isLoading"
             type="submit"
             color="primary"
           >
@@ -77,73 +78,59 @@
   </v-dialog>
 </template>
 
-<script>
-import { cloneDeep } from "lodash"
+<script setup>
+import { ref } from "vue"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useSnack from "@/use/use-snack"
+import useExpense from "@/use/use-expense"
+
 import CurrencyTextField from "@/components/Utils/CurrencyTextField"
 import DatePicker from "@/components/common/DatePicker.vue"
+
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect"
 
-import expensesApi from "@/api/expenses-api"
+const emit = defineEmits(["updated"])
 
-export default {
-  name: "EstimateEditDialog",
-  components: {
-    CurrencyTextField,
-    DatePicker,
-    ExpenseTypeSelect,
-  },
-  data: () => ({
-    estimate: {},
-    showDialog: false,
-    loading: false,
-  }),
-  computed: {
-    estimateId() {
-      return this.estimate.id
-    },
-  },
-  watch: {
-    showDialog(value) {
-      if (value) {
-        if (this.$route.query.showEdit === this.estimate.id.toString()) return
+const showDialog = ref(false)
 
-        this.$router.push({ query: { showEdit: this.estimate.id } })
-      } else {
-        this.$router.push({ query: { showEdit: undefined } })
-      }
-    },
-  },
-  methods: {
-    required,
-    show(estimate) {
-      this.estimate = cloneDeep(estimate)
-      this.showDialog = true
-    },
-    close() {
-      this.showDialog = false
-      this.$nextTick(() => {
-        this.estimate = {}
-        this.$refs.form.resetValidation()
-      })
-    },
-    updateAndClose() {
-      this.loading = true
-      return expensesApi
-        .update(this.estimateId, this.estimate)
-        .then(() => {
-          this.$emit("saved")
-          this.close()
-        })
-        .catch((error) => {
-          this.$snack(error.message, { color: "error" })
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-  },
+const estimateId = useRouteQuery("editEstimateId", null, {
+  transform: integerTransformer,
+})
+
+const { expense, isLoading, save } = useExpense(estimateId)
+
+//const { departureDate, returnDate } = useTravelAuthorizationSummary(props.travelAuthorizationId)
+
+function show(newEstimateId) {
+  estimateId.value = newEstimateId
+  showDialog.value = true
 }
+
+function close() {
+  estimateId.value = null
+  showDialog.value = false
+}
+
+const snack = useSnack()
+
+async function updateAndClose() {
+  try {
+    await save()
+    emit("updated")
+    close()
+    snack.success("Estimate updated")
+  } catch (error) {
+    console.error(error)
+    snack.error("Failed to update estimate")
+  }
+}
+
+defineExpose({
+  show,
+  close,
+})
 </script>

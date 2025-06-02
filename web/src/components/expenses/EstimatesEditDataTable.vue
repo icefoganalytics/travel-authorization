@@ -19,7 +19,7 @@
       >
         <EstimateEditDialog
           ref="editDialog"
-          @saved="refreshAndEmitUpdated"
+          @updated="refreshAndEmitUpdated"
         />
         <EstimateDeleteDialog
           ref="deleteDialog"
@@ -184,7 +184,6 @@ async function refreshAndEmitUpdated() {
 }
 
 onMounted(() => {
-  showEditDialogForRouteQuery()
   showDeleteDialogForRouteQuery()
 })
 
@@ -193,21 +192,10 @@ const editDialog = ref(null)
 
 // TODO: update dialog so it accepts an id instead of an item
 function showEditDialog(item) {
-  editDialog.value?.show(item)
+  editDialog.value?.show(item.id)
 }
 
 const route = useRoute()
-
-// TODO: move logic inside of dialog, and load based on id
-function showEditDialogForRouteQuery() {
-  const estimateId = parseInt(route.query.showEdit)
-  if (isNaN(estimateId)) return
-
-  const estimate = estimates.value.find((estimate) => estimate.id === estimateId)
-  if (!estimate) return
-
-  showEditDialog(estimate)
-}
 
 /** @type {import("vue").Ref<InstanceType<typeof EstimateDeleteDialog> | null>} */
 const deleteDialog = ref(null)
