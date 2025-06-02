@@ -190,7 +190,6 @@ onMounted(() => {
 /** @type {import("vue").Ref<InstanceType<typeof EstimateEditDialog> | null>} */
 const editDialog = ref(null)
 
-// TODO: update dialog so it accepts an id instead of an item
 function showEditDialog(item) {
   editDialog.value?.show(item.id)
 }
