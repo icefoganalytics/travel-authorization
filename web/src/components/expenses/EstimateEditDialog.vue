@@ -39,6 +39,8 @@
               <DatePicker
                 v-model="expense.date"
                 :rules="[required]"
+                :min="departureDate"
+                :max="returnDate"
                 label="Date"
                 required
               />
@@ -87,6 +89,7 @@ import { required } from "@/utils/validators"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 import useExpense from "@/use/use-expense"
+import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 import CurrencyTextField from "@/components/Utils/CurrencyTextField"
 import DatePicker from "@/components/common/DatePicker.vue"
@@ -94,6 +97,13 @@ import DatePicker from "@/components/common/DatePicker.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect"
 
 const emit = defineEmits(["updated"])
+
+const props = defineProps({
+  travelAuthorizationId: {
+    type: Number,
+    required: true,
+  },
+})
 
 const showDialog = ref(false)
 
@@ -103,7 +113,7 @@ const estimateId = useRouteQuery("editEstimateId", null, {
 
 const { expense, isLoading, save } = useExpense(estimateId)
 
-//const { departureDate, returnDate } = useTravelAuthorizationSummary(props.travelAuthorizationId)
+const { departureDate, returnDate } = useTravelAuthorizationSummary(props.travelAuthorizationId)
 
 function show(newEstimateId) {
   estimateId.value = newEstimateId

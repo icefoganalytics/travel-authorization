@@ -18,7 +18,14 @@
     <EstimatesEditDataTable
       ref="estimatesTable"
       :where="estimatesWhere"
-      @updated="refresh"
+      @updated="expensesRefresh"
+      @click:estimate-edit="clickedEditEstimateCallback"
+    />
+
+    <EstimateEditDialog
+      ref="estimateEditDialog"
+      :travel-authorization-id="travelAuthorizationId"
+      @updated="refreshEstimatesAndTable"
     />
   </div>
 </template>
@@ -32,6 +39,7 @@ import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
 import EstimateCreateDialog from "@/components/expenses/EstimateCreateDialog.vue"
 import EstimateGenerateDialog from "@/components/expenses/EstimateGenerateDialog.vue"
 import EstimatesEditDataTable from "@/components/expenses/EstimatesEditDataTable.vue"
+import EstimateEditDialog from "@/components/expenses/EstimateEditDialog.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -51,14 +59,14 @@ const expensesQuery = computed(() => ({
   },
   perPage: 1, // only need 1 estimate to determine if there are any
 }))
-const { totalCount, isLoading, refresh } = useExpenses(expensesQuery)
+const { totalCount, isLoading, refresh: expensesRefresh } = useExpenses(expensesQuery)
 const hasEstimates = computed(() => totalCount.value > 0)
 
 /** @type {import("vue").Ref<InstanceType<typeof EstimatesEditDataTable> | null>} */
 const estimatesTable = ref(null)
 
 async function refreshEstimatesAndTable() {
-  await Promise.all([refresh(), estimatesTable.value?.refresh()])
+  await Promise.all([expensesRefresh(), estimatesTable.value?.refresh()])
 }
 
 async function initialize(context) {
@@ -74,6 +82,13 @@ async function validate() {
   }
 
   return true
+}
+
+/** @type {import("vue").Ref<InstanceType<typeof EstimateEditDialog> | null>} */
+const estimateEditDialog = ref(null)
+
+function clickedEditEstimateCallback(estimateId) {
+  estimateEditDialog.value?.show(estimateId)
 }
 
 defineExpose({
