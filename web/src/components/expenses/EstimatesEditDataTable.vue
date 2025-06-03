@@ -17,10 +17,6 @@
         name="top"
         v-bind="slotProps"
       >
-        <EstimateEditDialog
-          ref="editDialog"
-          @updated="refreshAndEmitUpdated"
-        />
         <EstimateDeleteDialog
           ref="deleteDialog"
           @deleted="refreshAndEmitUpdated"
@@ -82,7 +78,6 @@ import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-b
 import useExpenses, { TYPES } from "@/use/use-expenses"
 
 import EstimateDeleteDialog from "@/components/expenses/EstimateDeleteDialog.vue"
-import EstimateEditDialog from "@/components/expenses/EstimateEditDialog.vue"
 
 const props = defineProps({
   where: {
@@ -99,7 +94,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["updated"])
+const emit = defineEmits(["updated", "click:estimate-edit"])
 
 const headers = ref([
   {
@@ -187,11 +182,8 @@ onMounted(() => {
   showDeleteDialogForRouteQuery()
 })
 
-/** @type {import("vue").Ref<InstanceType<typeof EstimateEditDialog> | null>} */
-const editDialog = ref(null)
-
 function showEditDialog(item) {
-  editDialog.value?.show(item.id)
+  emit("click:estimate-edit", item.id)
 }
 
 const route = useRoute()
