@@ -38,7 +38,7 @@ export default {
   props: {
     value: {
       type: String,
-      default: undefined,
+      default: "Pick a Date",
     },
     text: {
       type: String,
