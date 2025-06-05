@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, toRefs } from "vue"
 
 import { required } from "@/utils/validators"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
@@ -118,9 +118,9 @@ const props = defineProps({
 
 const estimate = ref(newEstimate())
 
-const { isLoading, departureDate, returnDate } = useTravelAuthorizationSummary(
-  props.travelAuthorizationId
-)
+const { travelAuthorizationId } = toRefs(props)
+const { isLoading, departureDate, returnDate } =
+  useTravelAuthorizationSummary(travelAuthorizationId)
 
 /** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
 const formRef = ref(null)

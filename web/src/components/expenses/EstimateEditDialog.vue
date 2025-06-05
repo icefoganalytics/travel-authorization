@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
@@ -113,7 +113,8 @@ const estimateId = useRouteQuery("editEstimateId", null, {
 
 const { expense, isLoading, save } = useExpense(estimateId)
 
-const { departureDate, returnDate } = useTravelAuthorizationSummary(props.travelAuthorizationId)
+const { travelAuthorizationId } = toRefs(props)
+const { departureDate, returnDate } = useTravelAuthorizationSummary(travelAuthorizationId)
 
 function show(newEstimateId) {
   estimateId.value = newEstimateId
