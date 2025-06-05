@@ -31,7 +31,7 @@
                 :rules="[required]"
                 label="Description"
                 required
-              ></v-text-field>
+              />
             </v-col>
           </v-row>
           <v-row>
@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, toRefs } from "vue"
+import { ref, computed } from "vue"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
@@ -98,13 +98,6 @@ import ExpenseTypeSelect from "@/modules/travel-authorizations/components/Expens
 
 const emit = defineEmits(["updated"])
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
-
 const showDialog = ref(false)
 
 const estimateId = useRouteQuery("editEstimateId", null, {
@@ -113,7 +106,11 @@ const estimateId = useRouteQuery("editEstimateId", null, {
 
 const { expense, isLoading, save } = useExpense(estimateId)
 
-const { travelAuthorizationId } = toRefs(props)
+const travelAuthorizationId = computed(() => {
+  if (isNil(expense.value)) return null
+  return expense.value.travelAuthorizationId
+})
+
 const { departureDate, returnDate } = useTravelAuthorizationSummary(travelAuthorizationId)
 
 function show(newEstimateId) {
