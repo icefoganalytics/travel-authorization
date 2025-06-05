@@ -26,8 +26,6 @@ export { STATUSES, TRIP_TYPES }
  */
 
 /**
- * This stores a global user state per id.
- *
  * @callback UseTravelAuthorizationSummary
  * @param {Ref<string | number>} [travelAuthorizationId]
  * @returns {ToRefs<TravelAuthorizationSummary> & {
@@ -35,21 +33,22 @@ export { STATUSES, TRIP_TYPES }
  *   isErrored: Ref<boolean>,
  *   fetch: () => Promise<TravelAuthorization>,
  *   refresh: () => Promise<TravelAuthorization>,
+ *   update: (attributes: Partial<TravelAuthorizationSummary>) => void,
  * }}
  */
 
-const state = reactive({
-  travelPurposeId: null,
-  finalDestinationLocationId: null,
-  departureDate: null,
-  returnDate: null,
-  userId: null,
-  isLoading: false,
-  isErrored: false,
-})
-
 /** @type {UseTravelAuthorizationSummary} */
 export function useTravelAuthorizationSummary(travelAuthorizationId) {
+  const state = reactive({
+    travelPurposeId: null,
+    finalDestinationLocationId: null,
+    departureDate: null,
+    returnDate: null,
+    userId: null,
+    isLoading: false,
+    isErrored: false,
+  })
+
   async function fetch(params = {}) {
     const staticId = unref(travelAuthorizationId)
     if (isNil(staticId)) {

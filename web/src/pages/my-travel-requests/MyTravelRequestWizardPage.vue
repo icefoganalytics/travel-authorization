@@ -92,7 +92,6 @@ import { isNil, isEmpty, isString } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useMyTravelRequestWizard from "@/use/wizards/use-my-travel-request-wizard"
-import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 import StateStepper from "@/components/common/wizards/StateStepper.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
@@ -187,13 +186,15 @@ async function continueAndGoToNextStep() {
   }
 }
 
-const { update: updateTravelAuthorizationSummary } = useTravelAuthorizationSummary()
-
 /** @type {import('vue').Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
 const summaryHeaderPanel = ref(null)
 
 async function refreshHeaderAndLocalState() {
   await Promise.all([summaryHeaderPanel.value?.refresh(), refresh()])
+}
+
+function updateTravelAuthorizationSummary(attributes) {
+  summaryHeaderPanel.value?.update(attributes)
 }
 
 const breadcrumbs = computed(() => [

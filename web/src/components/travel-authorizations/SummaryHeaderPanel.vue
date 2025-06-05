@@ -83,6 +83,7 @@ const {
   userId,
   isLoading,
   refresh,
+  update,
 } = useTravelAuthorizationSummary(travelAuthorizationId)
 
 const { currentUser } = useCurrentUser()
@@ -90,5 +91,6 @@ const { mdAndUp } = useVuetify2()
 
 defineExpose({
   refresh,
+  update,
 })
 </script>
