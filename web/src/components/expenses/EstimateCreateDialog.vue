@@ -140,6 +140,11 @@ function newEstimate() {
 const snack = useSnack()
 
 async function createAndClose() {
+  if (formRef.value === null) return
+
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
+
   try {
     await expensesApi.create(estimate.value)
     emit("created")

@@ -5,7 +5,7 @@
     max-width="500px"
   >
     <v-form
-      ref="form"
+      ref="formRef"
       @submit.prevent="updateAndClose"
     >
       <v-card>
@@ -125,7 +125,15 @@ function close() {
 
 const snack = useSnack()
 
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+const formRef = ref(null)
+
 async function updateAndClose() {
+  if (formRef.value === null) return
+
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
+
   try {
     await save()
     emit("updated")
