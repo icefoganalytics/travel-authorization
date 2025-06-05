@@ -185,11 +185,11 @@ import { computed } from "vue"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
-import DatePicker from "@/components/common/DatePicker"
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete"
-import TimePicker from "@/components/Utils/TimePicker"
-import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect"
-import TravelMethodSelect from "@/modules/travel-authorizations/components/TravelMethodSelect"
+import DatePicker from "@/components/common/DatePicker.vue"
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+import TimePicker from "@/components/Utils/TimePicker.vue"
+import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect.vue"
+import TravelMethodSelect from "@/modules/travel-authorizations/components/TravelMethodSelect.vue"
 
 const props = defineProps({
   value: {
