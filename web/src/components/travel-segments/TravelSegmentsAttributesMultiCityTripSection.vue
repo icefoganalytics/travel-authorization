@@ -56,7 +56,10 @@
         <TimePicker
           v-model="firstTravelSegmentAttributes.departureTime"
           label="Time (24 hour)"
-          persistent-hint
+          :field-options="{
+            clearable: true,
+            persistentHint: true,
+          }"
         />
       </v-col>
     </v-row>
@@ -204,7 +207,10 @@
           <TimePicker
             v-model="travelSegmentsAttributes[index].departureTime"
             label="Time (24 hour)"
-            persistent-hint
+            :field-options="{
+              clearable: true,
+              persistentHint: true,
+            }"
           />
         </v-col>
       </v-row>

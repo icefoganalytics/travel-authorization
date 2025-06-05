@@ -55,7 +55,10 @@
         <TimePicker
           v-model="departTravelSegmentAttributes.departureTime"
           label="Time (24 hour)"
-          persistent-hint
+          :field-options="{
+            clearable: true,
+            persistentHint: true,
+          }"
         />
       </v-col>
     </v-row>

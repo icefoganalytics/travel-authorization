@@ -55,7 +55,10 @@
         <TimePicker
           :value="firstStop.departureTime"
           label="Time (24 hour)"
-          persistent-hint
+          :field-options="{
+            clearable: true,
+            persistentHint: true,
+          }"
           @input="updateStop(0, 'departureTime', $event)"
         />
       </v-col>
@@ -145,7 +148,10 @@
         <TimePicker
           :value="lastStop.departureTime"
           label="Time (24 hour)"
-          persistent-hint
+          :field-options="{
+            clearable: true,
+            persistentHint: true,
+          }"
           @input="updateStop(1, 'departureTime', $event)"
         />
       </v-col>
