@@ -55,7 +55,7 @@
       >
         <TimePicker
           v-model="firstTravelSegmentAttributes.departureTime"
-          label="Time (24h)"
+          label="Time (24 hour)"
           persistent-hint
         />
       </v-col>
@@ -203,7 +203,7 @@
         >
           <TimePicker
             v-model="travelSegmentsAttributes[index].departureTime"
-            label="Time (24h)"
+            label="Time (24 hour)"
             persistent-hint
           />
         </v-col>

@@ -11,14 +11,12 @@
       <v-text-field
         dense
         :value="value"
-        :label="label || text"
+        :label="label"
         prepend-icon="mdi-clock"
         background-color="white"
         outlined
         readonly
-        :disabled="review"
-        :rules="requiredRules"
-        v-bind="attrs"
+        v-bind="merge(attrs, fieldOptions)"
         v-on="on"
       >
       </v-text-field>
@@ -27,7 +25,7 @@
       format="24hr"
       scrollable
       :value="value"
-      :rules="requiredRules"
+      v-bind="dateOptions"
       @input="input"
     >
     </v-time-picker>
@@ -36,6 +34,7 @@
 
 <script setup>
 import { ref } from "vue"
+import { merge } from "lodash"
 
 defineProps({
   value: {
@@ -44,30 +43,21 @@ defineProps({
   },
   label: {
     type: String,
-    default: "Time (24h)",
+    default: "Time (24 hour)",
   },
-  text: {
-    type: String,
-    default: undefined,
-    validator(value) {
-      if (value !== undefined) {
-        console.warn('The "text" prop is deprecated; prefer using "label" instead.')
-      }
-      return true
-    },
+  dateOptions: {
+    type: Object,
+    default: () => ({}),
   },
-  // TODO: remove this field
-  review: {
-    type: Boolean,
-    default: false,
+  fieldOptions: {
+    type: Object,
+    default: () => ({}),
   },
 })
 
 const emit = defineEmits(["input"])
 
 const menu = ref(false)
-
-const requiredRules = [(v) => !!v || "This field is required"]
 
 function input(value) {
   menu.value = false
