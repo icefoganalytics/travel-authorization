@@ -19,7 +19,7 @@
       >
         <EstimateEditDialog
           ref="editDialog"
-          @saved="refreshAndEmitUpdated"
+          @updated="refreshAndEmitUpdated"
         />
         <EstimateDeleteDialog
           ref="deleteDialog"
@@ -81,8 +81,8 @@ import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useExpenses, { TYPES } from "@/use/use-expenses"
 
-import EstimateDeleteDialog from "@/components/expenses/EstimateDeleteDialog.vue"
 import EstimateEditDialog from "@/components/expenses/EstimateEditDialog.vue"
+import EstimateDeleteDialog from "@/components/expenses/EstimateDeleteDialog.vue"
 
 const props = defineProps({
   where: {
@@ -99,7 +99,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["updated"])
+const emit = defineEmits(["updated", "click:estimate-edit"])
 
 const headers = ref([
   {
@@ -184,30 +184,17 @@ async function refreshAndEmitUpdated() {
 }
 
 onMounted(() => {
-  showEditDialogForRouteQuery()
   showDeleteDialogForRouteQuery()
 })
 
 /** @type {import("vue").Ref<InstanceType<typeof EstimateEditDialog> | null>} */
 const editDialog = ref(null)
 
-// TODO: update dialog so it accepts an id instead of an item
 function showEditDialog(item) {
-  editDialog.value?.show(item)
+  editDialog.value?.show(item.id)
 }
 
 const route = useRoute()
-
-// TODO: move logic inside of dialog, and load based on id
-function showEditDialogForRouteQuery() {
-  const estimateId = parseInt(route.query.showEdit)
-  if (isNaN(estimateId)) return
-
-  const estimate = estimates.value.find((estimate) => estimate.id === estimateId)
-  if (!estimate) return
-
-  showEditDialog(estimate)
-}
 
 /** @type {import("vue").Ref<InstanceType<typeof EstimateDeleteDialog> | null>} */
 const deleteDialog = ref(null)
