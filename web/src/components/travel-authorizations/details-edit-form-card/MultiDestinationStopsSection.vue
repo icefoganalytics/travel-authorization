@@ -308,10 +308,10 @@ import { first, nth } from "lodash"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
+import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import TimePicker from "@/components/Utils/TimePicker.vue"
-import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect.vue"
+import TimePicker from "@/components/common/TimePicker.vue"
 import TravelMethodSelect from "@/modules/travel-authorizations/components/TravelMethodSelect.vue"
 
 const props = defineProps({

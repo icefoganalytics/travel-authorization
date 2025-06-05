@@ -134,10 +134,10 @@ import {
   PERMITTED_ATTRIBUTES_FOR_CLONE,
 } from "@/api/travel-segments-api"
 
-import TimePicker from "@/components/Utils/TimePicker.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+import TimePicker from "@/components/common/TimePicker.vue"
 import AccommodationTypeSelect from "@/components/travel-segments/AccommodationTypeSelect.vue"
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TravelMethodSelect from "@/components/travel-segments/TravelMethodSelect.vue"
 
 const props = defineProps({
