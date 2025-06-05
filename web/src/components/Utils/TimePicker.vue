@@ -1,13 +1,13 @@
 <template>
   <v-menu
+    v-model="menu"
     :close-on-content-click="false"
     :nudge-right="40"
     transition="scale-transition"
     offset-y
     min-width="auto"
-    v-model="menu"
   >
-    <template v-slot:activator="{ on, attrs }">
+    <template #activator="{ on, attrs }">
       <v-text-field
         dense
         :value="value"
@@ -16,10 +16,10 @@
         background-color="white"
         outlined
         readonly
-        v-bind="attrs"
-        v-on="on"
         :disabled="review"
         :rules="requiredRules"
+        v-bind="attrs"
+        v-on="on"
       >
       </v-text-field>
     </template>
@@ -33,37 +33,44 @@
     </v-time-picker>
   </v-menu>
 </template>
-<script>
-export default {
-  props: {
-    value: String,
-    text: {
-      type: String,
-      default: undefined,
-      validator(value) {
-        if (value !== undefined) {
-          console.warn('The "text" prop is deprecated; prefer using "label" instead.')
-        }
-        return true
-      },
-    },
-    label: String,
-    review: {
-      type: Boolean,
-      default: false,
-    },
+
+<script setup>
+import { ref } from "vue"
+
+defineProps({
+  value: {
+    type: String,
+    default: undefined,
   },
-  data() {
-    return {
-      menu: false,
-      requiredRules: [(v) => !!v || "This field is required"],
-    }
+  label: {
+    type: String,
+    default: "Time (24h)",
   },
-  methods: {
-    input(value) {
-      this.menu = false
-      this.$emit("input", value)
+  text: {
+    type: String,
+    default: undefined,
+    validator(value) {
+      if (value !== undefined) {
+        console.warn('The "text" prop is deprecated; prefer using "label" instead.')
+      }
+      return true
     },
   },
+  // TODO: remove this field
+  review: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+const emit = defineEmits(["input"])
+
+const menu = ref(false)
+
+const requiredRules = [(v) => !!v || "This field is required"]
+
+function input(value) {
+  menu.value = false
+  emit("input", value)
 }
 </script>
