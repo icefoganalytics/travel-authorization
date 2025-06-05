@@ -5,6 +5,12 @@ import GenericStatePolicy from "@/policies/travel-authorizations/generic-state-p
 import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
 
 export class DraftStatePolicy extends GenericStatePolicy {
+  destroy(): boolean {
+    if (this.record.userId === this.user.id) return true
+
+    return false
+  }
+
   permittedAttributes(): Path[] {
     return [
       ...super.permittedAttributes(),
