@@ -83,8 +83,6 @@
             Save
           </v-btn>
         </v-card-actions>
-        {{ departureDate }}
-        {{ returnDate }}
       </v-card>
     </v-form>
   </v-dialog>
