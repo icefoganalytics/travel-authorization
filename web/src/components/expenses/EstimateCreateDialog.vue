@@ -142,7 +142,6 @@ const snack = useSnack()
 async function createAndClose() {
   try {
     await expensesApi.create(estimate.value)
-    showDialog.value = false
     emit("created")
     close()
     snack.success("Estimate created")
