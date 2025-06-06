@@ -18,6 +18,7 @@
         readonly
         v-bind="merge(attrs, fieldOptions)"
         v-on="on"
+        @click:clear="updateInput(null)"
       >
       </v-text-field>
     </template>
@@ -26,7 +27,7 @@
       scrollable
       :value="value"
       v-bind="dateOptions"
-      @input="input"
+      @input="updateInput"
     >
     </v-time-picker>
   </v-menu>
@@ -59,7 +60,7 @@ const emit = defineEmits(["input"])
 
 const menu = ref(false)
 
-function input(value) {
+function updateInput(value) {
   menu.value = false
   emit("input", value)
 }
