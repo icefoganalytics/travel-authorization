@@ -65,7 +65,6 @@
       >
         <UnsetDepartmentAlert />
         <router-view></router-view>
-        <RequestAlert />
       </v-container>
     </v-main>
   </v-app>
@@ -78,7 +77,6 @@ import useSessionStorage from "@/use/utils/use-session-storage"
 import useVuetify2 from "@/use/utils/use-vuetify2"
 import useCurrentUser from "@/use/use-current-user"
 
-import RequestAlert from "@/components/RequestAlert.vue"
 import KebabMenu from "@/components/default-layout/KebabMenu.vue"
 import UnsetDepartmentAlert from "@/components/default-layout/UnsetDepartmentAlert.vue"
 import LeftSidebarNavigationDrawer from "@/components/default-layout/LeftSidebarNavigationDrawer.vue"
