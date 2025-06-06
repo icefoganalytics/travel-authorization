@@ -1,4 +1,4 @@
-import store from "../store/index";
+import useSnack from "@/use/use-snack";
 import axios from "axios";
 import { API_BASE_URL } from "../config";
 
@@ -27,24 +27,22 @@ const apiP = axios.create({
 
 function createInterceptor(instance) {
   instance.interceptors.response.use(
-    response => {
+    (response) => {
       let { config } = response;
       if (config.method != "get") {
-        store.commit("alerts/setText", "Done!");
-        store.commit("alerts/setType", "success");
-        store.commit("alerts/setTimeout", 2000);
-        store.commit("alerts/setAlert", true);
+        const snack = useSnack();
+        snack.success("Done!", { timeout: 2000 });
       }
       return response;
     },
-    error => {
+    (error) => {
       let { response } = error;
       if (response.status != 409) {
-        //console.log("test", error);
-        store.commit("alerts/setText", "A problem has ocurred, please check your internet connection!");
-        store.commit("alerts/setType", "warning");
-        store.commit("alerts/setTimeout", 5000);
-        store.commit("alerts/setAlert", true);
+        const snack = useSnack();
+        snack.warning(
+          "A problem has ocurred, please check your internet connection!",
+          { timeout: 5000 }
+        );
       }
 
       return Promise.reject(error);
