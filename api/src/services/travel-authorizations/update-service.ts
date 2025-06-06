@@ -4,11 +4,10 @@ import { isUndefined } from "lodash"
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
-import { Expense, Stop, TravelAuthorization, TravelSegment, User } from "@/models"
+import { Expense, TravelAuthorization, TravelSegment, User } from "@/models"
 import { Expenses, TravelSegments } from "@/services"
 
 export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAuthorization>> & {
-  stops?: Partial<Attributes<Stop>>[]
   expenses?: Partial<Attributes<Expense>>[]
   travelSegmentEstimatesAttributes?: Partial<Attributes<TravelSegment>>[]
   travelSegmentActualsAttributes?: Partial<Attributes<TravelSegment>>[]
