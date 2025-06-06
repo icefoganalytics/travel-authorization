@@ -17,6 +17,8 @@
 <script setup>
 import { ref } from "vue"
 
+import generateApi from "@/api/travel-authorizations/estimates/generate-api"
+
 import useSnack from "@/use/use-snack"
 import { capitalize } from "@/utils/formatters"
 
@@ -48,7 +50,7 @@ const isLoading = ref(false)
 const tripDetailsEstimatesEditForm = ref(null)
 const snack = useSnack()
 
-async function validateAndSave() {
+async function validateSaveAndGenerateEstimates() {
   isLoading.value = true
   try {
     if (tripDetailsEstimatesEditForm.value.validate() === false) {
@@ -57,6 +59,7 @@ async function validateAndSave() {
     }
 
     await tripDetailsEstimatesEditForm.value.save()
+    await generateApi.create(props.travelAuthorizationId)
     snack.success("Travel request saved.")
     emit("updated", props.travelAuthorizationId)
     return true
@@ -71,6 +74,6 @@ async function validateAndSave() {
 
 defineExpose({
   initialize,
-  continue: validateAndSave,
+  continue: validateSaveAndGenerateEstimates,
 })
 </script>
