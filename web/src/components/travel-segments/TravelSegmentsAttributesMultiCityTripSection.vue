@@ -55,8 +55,11 @@
       >
         <TimePicker
           v-model="firstTravelSegmentAttributes.departureTime"
-          label="Time (24h)"
-          persistent-hint
+          label="Time (24 hour)"
+          :field-options="{
+            clearable: true,
+            persistentHint: true,
+          }"
         />
       </v-col>
     </v-row>
@@ -203,8 +206,11 @@
         >
           <TimePicker
             v-model="travelSegmentsAttributes[index].departureTime"
-            label="Time (24h)"
-            persistent-hint
+            label="Time (24 hour)"
+            :field-options="{
+              clearable: true,
+              persistentHint: true,
+            }"
           />
         </v-col>
       </v-row>
@@ -294,8 +300,8 @@ import {
   PERMITTED_ATTRIBUTES_FOR_CLONE,
 } from "@/api/travel-segments-api"
 
-import TimePicker from "@/components/Utils/TimePicker.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
+import TimePicker from "@/components/common/TimePicker.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import AccommodationTypeSelect from "@/components/travel-segments/AccommodationTypeSelect.vue"
 import TravelMethodSelect from "@/components/travel-segments/TravelMethodSelect.vue"

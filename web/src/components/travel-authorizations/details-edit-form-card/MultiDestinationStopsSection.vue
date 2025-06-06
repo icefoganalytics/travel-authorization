@@ -55,8 +55,11 @@
       >
         <TimePicker
           :value="firstStop.departureTime"
-          label="Time (24h)"
-          persistent-hint
+          label="Time (24 hour)"
+          :field-options="{
+            clearable: true,
+            persistentHint: true,
+          }"
           @input="updateStop(0, 'departureTime', $event)"
         />
       </v-col>
@@ -150,7 +153,10 @@
         <TimePicker
           :value="secondStop.departureTime"
           label="Time (24 hour)"
-          persistent-hint
+          :field-options="{
+            clearable: true,
+            persistentHint: true,
+          }"
           @input="updateStop(1, 'departureTime', $event)"
         />
       </v-col>
@@ -258,7 +264,10 @@
           <TimePicker
             :value="stops[index + 2].departureTime"
             label="Time (24 hour)"
-            persistent-hint
+            :field-options="{
+              clearable: true,
+              persistentHint: true,
+            }"
             @input="updateStop(index + 2, 'departureTime', $event)"
           />
         </v-col>
@@ -308,11 +317,11 @@ import { first, nth } from "lodash"
 
 import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 
-import DatePicker from "@/components/common/DatePicker"
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete"
-import TimePicker from "@/components/Utils/TimePicker"
-import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect"
-import TravelMethodSelect from "@/modules/travel-authorizations/components/TravelMethodSelect"
+import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect.vue"
+import DatePicker from "@/components/common/DatePicker.vue"
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+import TimePicker from "@/components/common/TimePicker.vue"
+import TravelMethodSelect from "@/modules/travel-authorizations/components/TravelMethodSelect.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
