@@ -14,8 +14,10 @@ import { useRouter } from "vue2-helpers/vue-router"
 
 import { useSnack } from "@/plugins/snack-plugin"
 
-import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/stops-api"
-import travelAuthorizationsApi from "@/api/travel-authorizations-api"
+import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/travel-segments-api"
+import travelAuthorizationsApi, {
+  STATUSES as TRAVEL_AUTHORIZATION_STATUSES,
+} from "@/api/travel-authorizations-api"
 
 import useCurrentUser from "@/use/use-current-user"
 import { FIRST_STEP_ID } from "@/use/wizards/my-travel-request-wizard-steps"
@@ -39,13 +41,18 @@ async function createAndGoToEditPage() {
     const { travelAuthorization } = await travelAuthorizationsApi.create({
       userId: currentUser.value.id,
       wizardStepName: FIRST_STEP_ID,
-      stopsAttributes: [
+      status: TRAVEL_AUTHORIZATION_STATUSES.DRAFT,
+      travelSegmentEstimatesAttributes: [
         {
+          isActual: false,
+          segmentNumber: 1,
+          modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
           accommodationType: ACCOMMODATION_TYPES.HOTEL,
-          transport: TRAVEL_METHODS.AIRCRAFT,
         },
         {
-          transport: TRAVEL_METHODS.AIRCRAFT,
+          isActual: false,
+          segmentNumber: 2,
+          modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
           accommodationType: null,
         },
       ],
