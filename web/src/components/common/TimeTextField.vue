@@ -39,12 +39,18 @@ const props = defineProps({
 
 const emit = defineEmits(["input"])
 
-const time = ref(props.value)
+function stripSeconds(hhmmss) {
+  if (isNil(hhmmss)) return null
+
+  return hhmmss.split(":").slice(0, 2).join(":")
+}
+
+const time = ref(stripSeconds(props.value))
 
 watch(
   () => props.value,
   (newValue) => {
-    time.value = newValue
+    time.value = stripSeconds(newValue)
   }
 )
 
