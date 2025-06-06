@@ -44,7 +44,7 @@ async function initialize(context) {
 }
 
 const isLoading = ref(false)
-/** @type {import('vue').Ref<InstanceType<typeof DetailsEditFormCard> | null>} */
+/** @type {import('vue').Ref<InstanceType<typeof TripDetailsEstimatesEditForm> | null>} */
 const tripDetailsEstimatesEditForm = ref(null)
 const snack = useSnack()
 
