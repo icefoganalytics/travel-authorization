@@ -83,9 +83,9 @@ import { cloneDeep } from "lodash"
 
 import { required } from "@/utils/validators"
 
-import CurrencyTextField from "@/components/Utils/CurrencyTextField"
+import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
-import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect"
+import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
 import expensesApi, { EXPENSE_TYPES } from "@/api/expenses-api"
 

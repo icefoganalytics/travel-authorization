@@ -99,9 +99,9 @@ import expensesApi from "@/api/expenses-api"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
-import CurrencyTextField from "@/components/Utils/CurrencyTextField"
+import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
-import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect"
+import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
 const emit = defineEmits(["created"])
 

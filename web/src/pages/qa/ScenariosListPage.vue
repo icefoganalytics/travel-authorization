@@ -64,7 +64,7 @@ import ygEmployeesApi from "@/api/yg-employees-api"
 import ygEmployeeGroupsApi from "@/api/yg-employee-groups-api"
 import useSnack from "@/use/use-snack"
 
-import Breadcrumbs from "@/components/Breadcrumbs"
+import Breadcrumbs from "@/components/Breadcrumbs.vue"
 
 const scenarios = ref([])
 const isLoading = ref(true)

@@ -9,7 +9,7 @@ import { computed } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import EstimatesTable from "@/modules/travel-authorizations/components/read-travel-authorization-estimate-page/EstimatesTable"
+import EstimatesTable from "@/modules/travel-authorizations/components/read-travel-authorization-estimate-page/EstimatesTable.vue"
 
 const props = defineProps({
   travelAuthorizationId: {
