@@ -6,8 +6,6 @@ import auth from "./auth"
 import current from "./current"
 import expenses from "@/store/expenses"
 import reports from "./reports"
-import travelAuthorization from "@/store/travel-authorization"
-import travelAuthorizations from "@/store/travel-authorizations"
 import traveldesk from "./traveldesk"
 import travelPurposes from "@/store/travel-purposes"
 
@@ -62,8 +60,6 @@ export default new Vuex.Store({
     current,
     expenses,
     reports,
-    travelAuthorization,
-    travelAuthorizations,
     traveldesk,
     travelPurposes,
   },
