@@ -1,8 +1,9 @@
 <template>
   <v-card>
     <v-card-title>
-      <h2>Awaiting Approval</h2>
+      <h3>{{ capitalize(stepTitle) }}</h3>
     </v-card-title>
+    <v-card-subtitle>{{ stepSubtitle }}</v-card-subtitle>
 
     <v-card-text>
       <p>You have submitted a travel request and it is awaiting approval from your supervisor.</p>
@@ -13,6 +14,7 @@
 <script setup>
 import { computed, nextTick, toRefs } from "vue"
 
+import { capitalize } from "@/utils/formatters"
 import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { STATUSES } from "@/use/use-travel-authorization"
@@ -20,6 +22,14 @@ import useTravelAuthorization, { STATUSES } from "@/use/use-travel-authorization
 const props = defineProps({
   travelAuthorizationId: {
     type: Number,
+    required: true,
+  },
+  stepTitle: {
+    type: String,
+    required: true,
+  },
+  stepSubtitle: {
+    type: String,
     required: true,
   },
 })
