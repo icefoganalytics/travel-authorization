@@ -1,13 +1,22 @@
 <template>
   <v-snackbar
     v-model="showSnackbar"
-    v-bind="{ multiLine: true, timeout: defaultTimeout, ...options }"
+    v-bind="{
+      multiLine: true,
+      timeout: defaultTimeout,
+      ...options,
+    }"
   >
     <span :class="`text-${constrastingColor}`">
       {{ message }}
     </span>
     <template #action="{ attrs }">
-      <v-btn :color="constrastingColor" text v-bind="attrs" @click="close">
+      <v-btn
+        :color="constrastingColor"
+        text
+        v-bind="attrs"
+        @click="close"
+      >
         Close
       </v-btn>
     </template>
