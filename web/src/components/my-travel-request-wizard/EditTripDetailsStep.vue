@@ -17,11 +17,10 @@
 <script setup>
 import { computed, ref } from "vue"
 
-import generateApi from "@/api/travel-authorizations/estimates/generate-api"
-
+import { capitalize } from "@/utils/formatters"
+import travelAuthorizationEstimatesGenerateApi from "@/api/travel-authorizations/estimates/generate-api"
 import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
 import useSnack from "@/use/use-snack"
-import { capitalize } from "@/utils/formatters"
 
 import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/TripDetailsEstimatesEditForm.vue"
 
@@ -73,7 +72,7 @@ async function validateSaveAndGenerateEstimatesIfNoneExist() {
 
     await isReadyExpenses()
     if (totalCountExpenses.value === 0) {
-      await generateApi.create(props.travelAuthorizationId)
+      await travelAuthorizationEstimatesGenerateApi.create(props.travelAuthorizationId)
     }
     snack.success("Travel request saved.")
     emit("updated", props.travelAuthorizationId)
