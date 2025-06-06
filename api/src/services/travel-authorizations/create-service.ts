@@ -36,28 +36,25 @@ export class CreateService extends BaseService {
   async perform(): Promise<TravelAuthorization> {
     return db
       .transaction(async () => {
-        const tripTypeEstimateWithDefault =
-          this.attributes.tripTypeEstimate || TravelAuthorization.TripTypes.ROUND_TRIP
-        const secureAttributes = {
-          ...this.attributes,
-          tripTypeEstimate: tripTypeEstimateWithDefault,
-          status: TravelAuthorization.Statuses.DRAFT,
-          slug: this.attributes.slug || uuid(),
-          createdBy: this.currentUser.id,
-        }
+        const { userId, tripTypeEstimate, slug, status, userAttributes, ...optionalAttributes } =
+          this.attributes
 
-        const { userAttributes } = this.attributes
-        secureAttributes.userId = await this.determineSecureUserId(
+        const secureUserId = await this.determineSecureUserId(
           this.currentUser,
-          this.attributes.userId,
+          userId,
           userAttributes
         )
 
-        const travelAuthorization = await TravelAuthorization.create(secureAttributes).catch(
-          (error) => {
-            throw new Error(`Could not create TravelAuthorization: ${error}`)
-          }
-        )
+        const travelAuthorization = await TravelAuthorization.create({
+          ...optionalAttributes,
+          userId: secureUserId,
+          tripTypeEstimate: tripTypeEstimate || TravelAuthorization.TripTypes.ROUND_TRIP,
+          slug: slug || uuid(),
+          status: status || TravelAuthorization.Statuses.DRAFT,
+          createdBy: this.currentUser.id,
+        }).catch((error) => {
+          throw new Error(`Could not create TravelAuthorization: ${error}`)
+        })
 
         const { travelSegmentEstimatesAttributes } = this.attributes
         if (!isUndefined(travelSegmentEstimatesAttributes)) {

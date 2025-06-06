@@ -75,29 +75,16 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       continueButtonText: "Submit to Supervisor",
     },
     {
-      id: "review-trip-details",
-      title: "Details",
-      subtitle: "Review submitted trip details",
-      component: () => import("@/components/my-travel-request-wizard/ReviewTripDetailsStep.vue"),
-      backButtonText: "Revert to Draft",
-      backButtonProps: {
-        color: "warning",
-      },
-    },
-    {
-      id: "review-submitted-estimate",
-      title: "Estimate",
-      subtitle: "Review submitted estimate",
-      component: () =>
-        import("@/components/my-travel-request-wizard/ReviewSubmittedEstimateStep.vue"),
-    },
-    {
       id: "awaiting-supervisor-approval",
       title: "Waiting for Approval",
       subtitle: "Travel request is submitted to supervisor and waiting for approval.",
       component: () =>
         import("@/components/my-travel-request-wizard/AwaitingSupervisorApprovalStep.vue"),
       continueButtonText: "Check status?",
+      backButtonText: "Revert to Draft",
+      backButtonProps: {
+        color: "warning",
+      },
     },
 
     {

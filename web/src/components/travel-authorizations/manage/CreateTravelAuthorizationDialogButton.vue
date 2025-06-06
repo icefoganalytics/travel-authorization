@@ -82,29 +82,33 @@ import { useRoute, useRouter } from "vue2-helpers/vue-router"
 import { isEmpty } from "lodash"
 
 import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/travel-segments-api"
+import travelAuthorizationsApi, {
+  STATUSES as TRAVEL_AUTHORIZATION_STATUSES,
+} from "@/api/travel-authorizations-api"
 
 import useSnack from "@/use/use-snack"
-import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const snack = useSnack()
 const route = useRoute()
 const router = useRouter()
-const { create, isLoading } = useTravelAuthorization()
 
 const form = ref(null)
 const showDialog = ref(route.query.showCreate === "true")
 const travelerEmail = ref(null)
 
 const isDisabled = computed(() => isEmpty(travelerEmail.value))
+const isLoading = ref(false)
 
 async function createAndGoToFormDetails() {
+  isLoading.value = true
   try {
-    const travelAuthorization = await create({
+    const { travelAuthorization } = await travelAuthorizationsApi.create({
       userAttributes: {
         email: travelerEmail.value,
       },
+      status: TRAVEL_AUTHORIZATION_STATUSES.DRAFT,
       travelSegmentEstimatesAttributes: [
         {
           isActual: false,
@@ -121,14 +125,17 @@ async function createAndGoToFormDetails() {
       ],
     })
     snack.success("Travel authorization created.")
-    router.push({
+    return router.push({
       name: "manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage",
-      params: { travelAuthorizationId: travelAuthorization.id },
+      params: {
+        travelAuthorizationId: travelAuthorization.id,
+      },
     })
-    return
   } catch (error) {
     console.error(`Error creating travel authorization: ${error}`, { error })
     snack.error(`Error creating travel authorization: ${error}`)
+  } finally {
+    isLoading.value = false
   }
 }
 
