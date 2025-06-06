@@ -13,6 +13,7 @@
 <script setup>
 import { computed, nextTick, toRefs } from "vue"
 
+import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { STATUSES } from "@/use/use-travel-authorization"
 
@@ -24,12 +25,12 @@ const props = defineProps({
 })
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
 const isApproved = computed(() => travelAuthorization.value.status === STATUSES.APPROVED)
 const isTravellingByAir = computed(() => travelAuthorization.value.isTravellingByAir)
 
 async function initialize(context) {
-  context.setEditableSteps(["review-trip-details", "review-submitted-estimate"])
+  context.setEditableSteps([])
 }
 
 const snack = useSnack()
@@ -59,8 +60,24 @@ async function checkForApproval() {
   }
 }
 
+async function revertToDraft() {
+  isLoading.value = true
+  try {
+    await travelAuthorizationApi.revertToDraft(props.travelAuthorizationId)
+    snack.success("Travel request reverted to draft.")
+    return true
+  } catch (error) {
+    console.error(error)
+    snack.error(`Failed to revert to draft: ${error}`)
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
 defineExpose({
   initialize,
   continue: checkForApproval,
+  back: revertToDraft,
 })
 </script>
