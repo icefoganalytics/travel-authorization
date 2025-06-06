@@ -1,11 +1,15 @@
 <template>
   <v-snackbar
     v-model="showSnackbar"
-    v-bind="{
-      multiLine: true,
-      timeout: defaultTimeout,
-      ...options,
-    }"
+    v-bind="
+      merge(
+        {
+          multiLine: true,
+          timeout: defaultTimeout,
+        },
+        options
+      )
+    "
   >
     <span :class="`text-${constrastingColor}`">
       {{ message }}
@@ -25,7 +29,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { isEmpty } from "lodash"
+import { isEmpty, merge } from "lodash"
 import { useSnack } from "@/use/use-snack"
 
 const { message, options, reset } = useSnack()
