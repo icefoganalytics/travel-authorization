@@ -165,7 +165,7 @@ import { v4 as uuidv4 } from "uuid"
 import http from "@/api/http-client"
 import { FORM_URL } from "@/urls"
 
-import DatePicker from "@/components/common/DatePicker"
+import DatePicker from "@/components/common/DatePicker.vue"
 import TimePicker from "@/components/common/TimePicker.vue"
 import UploadReceipts from "@/components/Utils/UploadReceipts.vue"
 

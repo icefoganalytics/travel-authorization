@@ -101,7 +101,7 @@ import { required, isGeneralLedgerCode } from "@/utils/validators"
 
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 
-import CurrencyTextField from "@/components/Utils/CurrencyTextField"
+import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

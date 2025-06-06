@@ -73,8 +73,8 @@ import { useRoute } from "vue2-helpers/vue-router"
 
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 
-import GeneralLedgerCodingDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingDeleteDialog"
-import GeneralLedgerCodingEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingEditDialog"
+import GeneralLedgerCodingDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingDeleteDialog.vue"
+import GeneralLedgerCodingEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingEditDialog.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

@@ -130,7 +130,7 @@ import { useSnack } from "@/plugins/snack-plugin"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
-import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete"
+import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
 
 export default {
   name: "UserEditPage",
