@@ -1,10 +1,11 @@
 import { Attributes } from "sequelize"
-import { isUndefined } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
 import { Expense, TravelAuthorization, TravelSegment, User } from "@/models"
+import { TripTypes as TravelAuthorizationTripTypes } from "@/models/travel-authorization"
 import { Expenses, TravelSegments } from "@/services"
 
 export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAuthorization>> & {
@@ -28,22 +29,23 @@ export class UpdateService extends BaseService {
         throw new Error(`Could not update TravelAuthorization: ${error}`)
       })
 
-      const travelAuthorizationId = this.travelAuthorization.id
       const { travelSegmentEstimatesAttributes } = this.attributes
       if (!isUndefined(travelSegmentEstimatesAttributes)) {
-        await TravelSegments.BulkReplaceService.perform(
-          travelAuthorizationId,
+        await this.createdNestedTravelSegments(
+          this.travelAuthorization.id,
+          this.travelAuthorization.tripTypeEstimate,
           travelSegmentEstimatesAttributes,
-          false
+          { isActual: false }
         )
       }
 
       const { travelSegmentActualsAttributes } = this.attributes
       if (!isUndefined(travelSegmentActualsAttributes)) {
-        await TravelSegments.BulkReplaceService.perform(
-          travelAuthorizationId,
+        await this.createdNestedTravelSegments(
+          this.travelAuthorization.id,
+          this.travelAuthorization.tripTypeActual,
           travelSegmentActualsAttributes,
-          true
+          { isActual: true }
         )
       }
 
@@ -51,7 +53,7 @@ export class UpdateService extends BaseService {
       // blow away all estimates and expenses.
       const { expenses } = this.attributes
       if (!isUndefined(expenses)) {
-        await Expenses.BulkReplaceService.perform(travelAuthorizationId, expenses)
+        await Expenses.BulkReplaceService.perform(this.travelAuthorization.id, expenses)
       }
 
       return this.travelAuthorization.reload({
@@ -65,6 +67,36 @@ export class UpdateService extends BaseService {
         ],
       })
     })
+  }
+
+  private async createdNestedTravelSegments(
+    travelAuthorizationId: number,
+    tripType: TravelAuthorizationTripTypes | null,
+    travelSegmentAttributes: Partial<Attributes<TravelSegment>>[],
+    {
+      isActual,
+    }: {
+      isActual: boolean
+    }
+  ) {
+    if (isNil(tripType)) {
+      throw new Error("Trip type is required to create travel segments.")
+    }
+
+    const travelSegmentCount = travelSegmentAttributes.length
+    if (tripType === TravelAuthorization.TripTypes.ONE_WAY && travelSegmentCount !== 1) {
+      throw new Error("One way trip must have exactly one travel segment.")
+    } else if (tripType === TravelAuthorization.TripTypes.ROUND_TRIP && travelSegmentCount !== 2) {
+      throw new Error("Round trip must have exactly two travel segments.")
+    } else if (tripType === TravelAuthorization.TripTypes.MULTI_CITY && travelSegmentCount < 2) {
+      throw new Error("Multi-city trip must have at least two travel segments.")
+    }
+
+    await TravelSegments.BulkReplaceService.perform(
+      travelAuthorizationId,
+      travelSegmentAttributes,
+      isActual
+    )
   }
 }
 

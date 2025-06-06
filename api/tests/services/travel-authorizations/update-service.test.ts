@@ -114,7 +114,7 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         await expect(
           // Act
           UpdateService.perform(travelAuthorization, attributes, user)
-        ).rejects.toThrowError(/Segment count is not valid for trip type./)
+        ).rejects.toThrowError(/Round trip must have exactly two travel segments./)
       })
 
       test("when travel segments are not supplied, travel authorization is updated normally", async () => {
