@@ -8,7 +8,10 @@ const state = reactive({
 export function useSnack(defaultOptions = {}) {
   const notify = (message, options = {}) => {
     state.message = message
-    state.options = { ...defaultOptions, ...options }
+    state.options = {
+      ...defaultOptions,
+      ...options,
+    }
   }
 
   notify.message = toRef(state, "message")
