@@ -52,7 +52,7 @@
         cols="12"
         md="2"
       >
-        <TimePicker
+        <TimePickerLegacy
           :value="firstStop.departureTime"
           label="Time (24 hour)"
           :field-options="{
@@ -99,7 +99,7 @@ import { computed } from "vue"
 import { required } from "@/utils/validators"
 
 import DatePicker from "@/components/common/DatePicker.vue"
-import TimePicker from "@/components/common/TimePicker.vue"
+import TimePickerLegacy from "@/components/common/TimePickerLegacy.vue"
 import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TravelMethodSelect from "@/modules/travel-authorizations/components/TravelMethodSelect.vue"

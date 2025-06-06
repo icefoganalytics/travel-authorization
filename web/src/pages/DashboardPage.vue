@@ -27,7 +27,7 @@
                     ></DatePicker>
                   </v-col>
                   <v-col>
-                    <TimePicker label="Start Time"></TimePicker>
+                    <TimePickerLegacy label="Start Time"></TimePickerLegacy>
                   </v-col>
                 </v-row>
                 <v-row>
@@ -38,7 +38,7 @@
                     ></DatePicker>
                   </v-col>
                   <v-col>
-                    <TimePicker label="End Date"></TimePicker>
+                    <TimePickerLegacy label="End Date"></TimePickerLegacy>
                   </v-col>
                 </v-row>
                 <v-row>
@@ -166,7 +166,7 @@ import http from "@/api/http-client"
 import { FORM_URL } from "@/urls"
 
 import DatePicker from "@/components/common/DatePicker.vue"
-import TimePicker from "@/components/common/TimePicker.vue"
+import TimePickerLegacy from "@/components/common/TimePickerLegacy.vue"
 import UploadReceipts from "@/components/Utils/UploadReceipts.vue"
 
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
@@ -176,7 +176,7 @@ export default {
   components: {
     CreateTravelAuthorizationButton,
     DatePicker,
-    TimePicker,
+    TimePickerLegacy,
     UploadReceipts,
   },
   data: () => ({
