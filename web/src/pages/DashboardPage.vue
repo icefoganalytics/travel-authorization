@@ -27,7 +27,10 @@
                     ></DatePicker>
                   </v-col>
                   <v-col>
-                    <TimePicker label="Start Time"></TimePicker>
+                    <TimeTextField
+                      label="Start Time (24 hour)"
+                      dense
+                    />
                   </v-col>
                 </v-row>
                 <v-row>
@@ -38,7 +41,10 @@
                     ></DatePicker>
                   </v-col>
                   <v-col>
-                    <TimePicker label="End Date"></TimePicker>
+                    <TimeTextField
+                      label="End Time (24 hour)"
+                      dense
+                    />
                   </v-col>
                 </v-row>
                 <v-row>
@@ -166,7 +172,7 @@ import http from "@/api/http-client"
 import { FORM_URL } from "@/urls"
 
 import DatePicker from "@/components/common/DatePicker.vue"
-import TimePicker from "@/components/common/TimePicker.vue"
+import TimeTextField from "@/components/common/TimeTextField.vue"
 import UploadReceipts from "@/components/Utils/UploadReceipts.vue"
 
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
@@ -176,7 +182,7 @@ export default {
   components: {
     CreateTravelAuthorizationButton,
     DatePicker,
-    TimePicker,
+    TimeTextField,
     UploadReceipts,
   },
   data: () => ({

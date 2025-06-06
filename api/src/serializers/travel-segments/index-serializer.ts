@@ -3,7 +3,7 @@ import { isNil, pick } from "lodash"
 import { TravelSegment, User } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelSegmentShowView = Pick<
+export type TravelSegmentIndexView = Pick<
   TravelSegment,
   | "id"
   | "travelAuthorizationId"
@@ -21,7 +21,7 @@ export type TravelSegmentShowView = Pick<
   | "updatedAt"
 >
 
-export class ShowSerializer extends BaseSerializer<TravelSegment> {
+export class IndexSerializer extends BaseSerializer<TravelSegment> {
   constructor(
     protected record: TravelSegment,
     protected currentUser: User
@@ -29,7 +29,7 @@ export class ShowSerializer extends BaseSerializer<TravelSegment> {
     super(record)
   }
 
-  perform(): TravelSegmentShowView {
+  perform(): TravelSegmentIndexView {
     const departureTime = this.stripSeconds(this.record.departureTime)
     return {
       ...pick(this.record, [
@@ -58,4 +58,4 @@ export class ShowSerializer extends BaseSerializer<TravelSegment> {
   }
 }
 
-export default ShowSerializer
+export default IndexSerializer
