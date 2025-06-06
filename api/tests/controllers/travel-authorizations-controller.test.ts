@@ -1,4 +1,4 @@
-import { Stop, User } from "@/models"
+import { TravelAuthorization, TravelSegment, User } from "@/models"
 import { travelAuthorizationFactory, userFactory } from "@/factories"
 
 import { mockCurrentUser, request } from "@/support"
@@ -21,14 +21,19 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           ...travelAuthorizationFactory.attributesFor({
             userId: user.id,
             wizardStepName: "edit-purpose-details",
+            status: TravelAuthorization.Statuses.DRAFT,
           }),
-          stopsAttributes: [
+          travelSegmentEstimatesAttributes: [
             {
-              accommodationType: Stop.AccommodationTypes.HOTEL,
-              transport: Stop.TravelMethods.AIRCRAFT,
+              isActual: false,
+              segmentNumber: 1,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+              accommodationType: TravelSegment.AccommodationTypes.HOTEL,
             },
             {
-              transport: Stop.TravelMethods.AIRCRAFT,
+              isActual: false,
+              segmentNumber: 2,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
               accommodationType: null,
             },
           ],
@@ -45,13 +50,17 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           travelAuthorization: expect.objectContaining({
             userId: user.id,
             wizardStepName: "edit-purpose-details",
-            stops: expect.arrayContaining([
+            travelSegments: expect.arrayContaining([
               expect.objectContaining({
-                accommodationType: "Hotel",
-                transport: "Aircraft",
+                isActual: false,
+                segmentNumber: 1,
+                modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+                accommodationType: TravelSegment.AccommodationTypes.HOTEL,
               }),
               expect.objectContaining({
-                transport: "Aircraft",
+                isActual: false,
+                segmentNumber: 2,
+                modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
                 accommodationType: null,
               }),
             ]),
