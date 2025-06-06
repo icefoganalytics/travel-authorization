@@ -53,13 +53,11 @@
         cols="12"
         md="2"
       >
-        <TimePickerLegacy
+        <TimeTextField
           :value="firstStop.departureTime"
           label="Time (24 hour)"
-          :field-options="{
-            clearable: true,
-            persistentHint: true,
-          }"
+          clearable
+          persistent-hint
           @input="updateStop(0, 'departureTime', $event)"
         />
       </v-col>
@@ -150,13 +148,11 @@
         cols="12"
         md="2"
       >
-        <TimePickerLegacy
+        <TimeTextField
           :value="secondStop.departureTime"
           label="Time (24 hour)"
-          :field-options="{
-            clearable: true,
-            persistentHint: true,
-          }"
+          clearable
+          persistent-hint
           @input="updateStop(1, 'departureTime', $event)"
         />
       </v-col>
@@ -261,13 +257,11 @@
           cols="12"
           md="2"
         >
-          <TimePickerLegacy
+          <TimeTextField
             :value="stops[index + 2].departureTime"
             label="Time (24 hour)"
-            :field-options="{
-              clearable: true,
-              persistentHint: true,
-            }"
+            clearable
+            persistent-hint
             @input="updateStop(index + 2, 'departureTime', $event)"
           />
         </v-col>
@@ -320,7 +314,7 @@ import { required, greaterThanOrEqualToDate } from "@/utils/validators"
 import AccommodationTypeSelect from "@/modules/travel-authorizations/components/AccommodationTypeSelect.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import TimePickerLegacy from "@/components/common/TimePickerLegacy.vue"
+import TimeTextField from "@/components/common/TimeTextField.vue"
 import TravelMethodSelect from "@/modules/travel-authorizations/components/TravelMethodSelect.vue"
 
 const props = defineProps({
