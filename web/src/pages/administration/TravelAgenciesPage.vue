@@ -58,7 +58,7 @@
 import { computed, ref } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import travelDeskTravelAgenciesApi from "@/api/travel-desk-travel-agencies-api"
 import useTravelDeskTravelAgencies from "@/use/use-travel-desk-travel-agencies"
 import useBreadcrumbs from "@/use/use-breadcrumbs"

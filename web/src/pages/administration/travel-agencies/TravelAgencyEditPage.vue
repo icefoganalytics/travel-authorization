@@ -113,7 +113,7 @@
 import { ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import { required, isEmail, isPhoneNumber } from "@/utils/validators"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useTravelDeskTravelAgency from "@/use/use-travel-desk-travel-agency"

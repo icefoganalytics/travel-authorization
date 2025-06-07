@@ -79,7 +79,7 @@ import { useRouter } from "vue2-helpers/vue-router"
 
 import { required } from "@/utils/validators"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useRouteQuery from "@/use/utils/use-route-query"
 

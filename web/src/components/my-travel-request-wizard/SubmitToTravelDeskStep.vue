@@ -14,7 +14,7 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 
 import travelDeskTravelRequestsApi from "@/api/travel-desk-travel-requests-api"
 

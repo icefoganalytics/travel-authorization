@@ -86,7 +86,7 @@ import { computed, nextTick, watch, ref } from "vue"
 import { cloneDeep } from "lodash"
 import { useRoute, useRouter } from "vue2-helpers/vue-router"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 import { required, isGeneralLedgerCode } from "@/utils/validators"

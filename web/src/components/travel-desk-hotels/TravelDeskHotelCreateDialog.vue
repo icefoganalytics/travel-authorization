@@ -148,7 +148,7 @@ import { ref, nextTick, watchEffect } from "vue"
 import { merge } from "lodash"
 
 import { required } from "@/utils/validators"
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import travelDeskHotelsApi from "@/api/travel-desk-hotels-api"
 

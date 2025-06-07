@@ -126,7 +126,7 @@ import { pick } from "lodash"
 
 import { USERS_URL, LOOKUP_URL } from "@/urls"
 import http from "@/api/http-client"
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 

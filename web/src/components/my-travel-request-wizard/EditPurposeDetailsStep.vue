@@ -10,7 +10,7 @@
 import { ref } from "vue"
 import { isNil } from "lodash"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 
 import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
 
