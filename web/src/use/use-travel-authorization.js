@@ -27,7 +27,6 @@ export { STATUSES, TRIP_TYPES }
  *   refresh: () => Promise<TravelAuthorization>,
  *   save: () => Promise<TravelAuthorization>, // save that triggers loading state
  *   saveSilently: () => Promise<TravelAuthorization>, // save that does not trigger loading state
- *   create: (attributes: Partial<TravelAuthorization>) => Promise<TravelAuthorization>,
  *   newBlankStop: (attributes: Partial<Stop>) => Stop,
  *   replaceStops: (stops: Stop[]) => Stop[],
  *   approve: () => Promise<TravelAuthorization>,
@@ -95,24 +94,6 @@ export function useTravelAuthorization(travelAuthorizationId) {
       console.error("Failed to update travel authorization:", error)
       state.isErrored = true
       throw error
-    }
-  }
-
-  // TODO: consider having a different use function for creating a new travel authorization
-  // e.g. buildTravelAuthorization() which returns { travelAuthorization, isLoading, isErrored, create }
-  async function create(attributes) {
-    state.isLoading = true
-    try {
-      const { travelAuthorization } = await travelAuthorizationsApi.create(attributes)
-      state.isErrored = false
-      state.travelAuthorization = travelAuthorization
-      return travelAuthorization
-    } catch (error) {
-      console.error("Failed to create travel authorization:", error)
-      state.isErrored = true
-      throw error
-    } finally {
-      state.isLoading = false
     }
   }
 
@@ -244,7 +225,6 @@ export function useTravelAuthorization(travelAuthorizationId) {
     refresh: fetch,
     save,
     saveSilently,
-    create,
     newBlankStop,
     replaceStops,
     // stateful action

@@ -27,7 +27,7 @@
 import { useSnack } from "@/plugins/snack-plugin"
 import travelAuthorizationApi from "@/api/travel-authorizations-api"
 
-import ReassignApprovalForm from "@/modules/travel-authorizations/components/manage-travel-authorization-expense-page/ReassignApprovalForm"
+import ReassignApprovalForm from "@/modules/travel-authorizations/components/manage-travel-authorization-expense-page/ReassignApprovalForm.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

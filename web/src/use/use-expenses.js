@@ -22,8 +22,10 @@ export { TYPES, EXPENSE_TYPES }
  *   totalCount: Ref<number>,
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
+ *   isInitialized: Ref<boolean>,
  *   fetch: () => Promise<Expense[]>,
  *   refresh: () => Promise<Expense[]>
+ *   isReady: () => Promise<boolean>,
  * }}
  */
 export function useExpenses(options = ref({}), { skipWatchIf = () => false } = {}) {
@@ -32,6 +34,7 @@ export function useExpenses(options = ref({}), { skipWatchIf = () => false } = {
     totalCount: 0,
     isLoading: false,
     isErrored: false,
+    isInitialized: false,
   })
 
   async function fetch() {
@@ -57,9 +60,28 @@ export function useExpenses(options = ref({}), { skipWatchIf = () => false } = {
       if (skip) return
 
       await fetch()
+      state.isInitialized = true
     },
     { deep: true, immediate: true }
   )
+
+  async function isReady() {
+    return new Promise((resolve) => {
+      if (state.isInitialized) {
+        resolve(true)
+      } else {
+        const interval = setInterval(() => {
+          if (state.isErrored) {
+            clearInterval(interval)
+            return resolve(false)
+          } else if (state.isInitialized && !state.isLoading) {
+            clearInterval(interval)
+            return resolve(true)
+          }
+        }, 10)
+      }
+    })
+  }
 
   return {
     TYPES,
@@ -67,6 +89,7 @@ export function useExpenses(options = ref({}), { skipWatchIf = () => false } = {
     ...toRefs(state),
     fetch,
     refresh: fetch,
+    isReady,
   }
 }
 

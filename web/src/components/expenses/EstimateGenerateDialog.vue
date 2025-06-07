@@ -10,6 +10,7 @@
         :color="buttonColor"
         v-bind="attrs"
         v-on="on"
+        @click="show"
       >
         Generate Estimates
       </v-btn>
@@ -50,63 +51,63 @@
   </v-dialog>
 </template>
 
-<script>
-import { required } from "@/utils/validators"
+<script setup>
+import { ref } from "vue"
 
 import generateApi from "@/api/travel-authorizations/estimates/generate-api"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+import useSnack from "@/use/use-snack"
 
-export default {
-  name: "EstimateGenerateDialog",
-  components: {},
-  props: {
-    travelAuthorizationId: {
-      type: Number,
-      required: true,
-    },
-    buttonClasses: {
-      type: [String, Array, Object],
-      default: () => "mb-2",
-    },
-    buttonColor: {
-      type: String,
-      default: "primary",
-    },
+const props = defineProps({
+  travelAuthorizationId: {
+    type: Number,
+    required: true,
   },
-  data() {
-    return {
-      showDialog: this.$route.query.showGenerate === "true",
-      loading: false,
-    }
+  buttonClasses: {
+    type: [String, Array, Object],
+    default: () => "mb-2",
   },
-  watch: {
-    showDialog(value) {
-      if (value) {
-        this.$router.push({ query: { showGenerate: value } })
-      } else {
-        this.$router.push({ query: { showGenerate: undefined } })
-      }
-    },
+  buttonColor: {
+    type: String,
+    default: "primary",
   },
-  methods: {
-    required,
-    close() {
-      this.showDialog = false
-    },
-    createAndClose() {
-      this.loading = true
-      return generateApi
-        .create(this.travelAuthorizationId)
-        .then(() => {
-          this.$emit("created")
-          this.close()
-        })
-        .catch((error) => {
-          this.$snack(error.message, { color: "error" })
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-  },
+})
+
+const emit = defineEmits(["created"])
+
+const showDialog = useRouteQuery("showEstimateGenerate", false, {
+  transform: booleanTransformer,
+})
+
+const loading = ref(false)
+
+function show() {
+  showDialog.value = true
 }
+
+function close() {
+  showDialog.value = false
+}
+
+const snack = useSnack()
+
+async function createAndClose() {
+  loading.value = true
+  try {
+    await generateApi.create(props.travelAuthorizationId)
+    emit("created")
+    close()
+  } catch (error) {
+    console.error(error)
+    snack.error(error.message)
+  } finally {
+    loading.value = false
+  }
+}
+
+defineExpose({
+  show,
+  close,
+  createAndClose,
+})
 </script>

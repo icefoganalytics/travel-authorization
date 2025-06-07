@@ -1,8 +1,9 @@
 <template>
   <v-card>
     <v-card-title>
-      <h2>Awaiting Approval</h2>
+      <h3>{{ capitalize(stepTitle) }}</h3>
     </v-card-title>
+    <v-card-subtitle>{{ stepSubtitle }}</v-card-subtitle>
 
     <v-card-text>
       <p>You have submitted a travel request and it is awaiting approval from your supervisor.</p>
@@ -13,6 +14,8 @@
 <script setup>
 import { computed, nextTick, toRefs } from "vue"
 
+import { capitalize } from "@/utils/formatters"
+import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { STATUSES } from "@/use/use-travel-authorization"
 
@@ -21,15 +24,23 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  stepTitle: {
+    type: String,
+    required: true,
+  },
+  stepSubtitle: {
+    type: String,
+    required: true,
+  },
 })
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
 const isApproved = computed(() => travelAuthorization.value.status === STATUSES.APPROVED)
 const isTravellingByAir = computed(() => travelAuthorization.value.isTravellingByAir)
 
 async function initialize(context) {
-  context.setEditableSteps(["review-trip-details", "review-submitted-estimate"])
+  context.setEditableSteps([])
 }
 
 const snack = useSnack()
@@ -59,8 +70,24 @@ async function checkForApproval() {
   }
 }
 
+async function revertToDraft() {
+  isLoading.value = true
+  try {
+    await travelAuthorizationApi.revertToDraft(props.travelAuthorizationId)
+    snack.success("Travel request reverted to draft.")
+    return true
+  } catch (error) {
+    console.error(error)
+    snack.error(`Failed to revert to draft: ${error}`)
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
 defineExpose({
   initialize,
   continue: checkForApproval,
+  back: revertToDraft,
 })
 </script>

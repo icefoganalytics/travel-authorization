@@ -5,7 +5,7 @@ import logger from "@/utils/logger"
 import { TravelAuthorization, TravelSegment } from "@/models"
 import { TravelSegmentsPolicy } from "@/policies"
 import { CreateService, DestroyService, UpdateService } from "@/services/travel-segments"
-import { ShowSerializer } from "@/serializers/travel-segments"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-segments"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelSegmentsController extends BaseController<TravelSegment> {
@@ -24,8 +24,9 @@ export class TravelSegmentsController extends BaseController<TravelSegment> {
         offset: this.pagination.offset,
         order,
       })
+      const serializedTravelSegments = IndexSerializer.perform(travelSegments, this.currentUser)
       return this.response.json({
-        travelSegments,
+        travelSegments: serializedTravelSegments,
         totalCount,
       })
     } catch (error) {

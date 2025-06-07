@@ -30,7 +30,7 @@ import { ref } from "vue"
 import { useBreadcrumbs } from "@/use/use-breadcrumbs"
 
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
-import MyTravelAuthorizationsTable from "@/modules/travel-authorizations/components/MyTravelAuthorizationsTable"
+import MyTravelAuthorizationsTable from "@/modules/travel-authorizations/components/MyTravelAuthorizationsTable.vue"
 
 const myTravelAuthorizationsTable = ref(null)
 

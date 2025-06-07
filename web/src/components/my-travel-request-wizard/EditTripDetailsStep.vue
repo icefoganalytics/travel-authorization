@@ -15,10 +15,12 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed, ref } from "vue"
 
-import useSnack from "@/use/use-snack"
 import { capitalize } from "@/utils/formatters"
+import travelAuthorizationEstimatesGenerateApi from "@/api/travel-authorizations/estimates/generate-api"
+import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
+import useSnack from "@/use/use-snack"
 
 import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/TripDetailsEstimatesEditForm.vue"
 
@@ -44,11 +46,21 @@ async function initialize(context) {
 }
 
 const isLoading = ref(false)
-/** @type {import('vue').Ref<InstanceType<typeof DetailsEditFormCard> | null>} */
+/** @type {import('vue').Ref<InstanceType<typeof TripDetailsEstimatesEditForm> | null>} */
 const tripDetailsEstimatesEditForm = ref(null)
+
+const expensesQuery = computed(() => ({
+  where: {
+    travelAuthorizationId: props.travelAuthorizationId,
+    type: EXPENSE_TYPES.ESTIMATE,
+  },
+  perPage: 1, // only need 1 estimate to determine if there are any
+}))
+const { totalCount: totalCountExpenses, isReady: isReadyExpenses } = useExpenses(expensesQuery)
+
 const snack = useSnack()
 
-async function validateAndSave() {
+async function validateSaveAndGenerateEstimatesIfNoneExist() {
   isLoading.value = true
   try {
     if (tripDetailsEstimatesEditForm.value.validate() === false) {
@@ -57,6 +69,11 @@ async function validateAndSave() {
     }
 
     await tripDetailsEstimatesEditForm.value.save()
+
+    await isReadyExpenses()
+    if (totalCountExpenses.value === 0) {
+      await travelAuthorizationEstimatesGenerateApi.create(props.travelAuthorizationId)
+    }
     snack.success("Travel request saved.")
     emit("updated", props.travelAuthorizationId)
     return true
@@ -71,6 +88,6 @@ async function validateAndSave() {
 
 defineExpose({
   initialize,
-  continue: validateAndSave,
+  continue: validateSaveAndGenerateEstimatesIfNoneExist,
 })
 </script>
