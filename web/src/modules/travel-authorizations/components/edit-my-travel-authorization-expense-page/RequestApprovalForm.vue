@@ -27,7 +27,7 @@ import { onMounted, ref, computed } from "vue"
 
 import { required } from "@/utils/validators"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import { useTravelAuthorization } from "@/use/use-travel-authorization"
 import { useGeneralLedgerCodings } from "@/use/use-general-ledger-codings"
 import { useExpenses, TYPES, EXPENSE_TYPES } from "@/use/use-expenses"

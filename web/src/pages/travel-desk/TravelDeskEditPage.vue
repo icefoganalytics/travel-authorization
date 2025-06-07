@@ -219,7 +219,7 @@ import { useRouter } from "vue2-helpers/vue-router"
 import { cloneDeep, isNil } from "lodash"
 
 import { TRAVEL_DESK_URL } from "@/urls"
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import http from "@/api/http-client"
 import travelDeskTravelRequestsApi, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,

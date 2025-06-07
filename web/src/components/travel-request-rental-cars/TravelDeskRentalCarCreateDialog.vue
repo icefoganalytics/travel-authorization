@@ -247,7 +247,7 @@ import { useRoute, useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import travelDeskRentalCarsApi, {
   LOCATION_TYPES,
   VEHICLE_TYPES,
