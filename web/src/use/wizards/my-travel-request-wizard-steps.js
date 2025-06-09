@@ -101,20 +101,14 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       continueButtonText: "Submit",
     },
     {
-      id: "review-request-details",
-      title: "Request",
-      subtitle: "Review request details",
-      component: () => import("@/components/my-travel-request-wizard/ReviewRequestDetailsStep.vue"),
-      backButtonProps: {
-        disabled: true,
-      },
-    },
-    {
       id: "awaiting-flight-options",
       title: "Awaiting Flight Options",
       subtitle: "Awaiting flight options from travel desk",
       component: () =>
         import("@/components/my-travel-request-wizard/AwaitingFlightOptionsStep.vue"),
+      backButtonProps: {
+        disabled: true,
+      },
       continueButtonText: "Check status?",
     },
     {
