@@ -132,6 +132,10 @@ export class TravelAuthorization extends Model<
     return this.dateBackToWorkActual
   }
 
+  get tripType(): NonAttribute<TravelAuthorizationTripTypes | null> {
+    return this.tripTypeActual ?? this.tripTypeEstimate
+  }
+
   // Associations
   declare preApprovalProfile?: NonAttribute<TravelAuthorizationPreApprovalProfile>
   declare purpose?: NonAttribute<TravelPurpose>
@@ -212,7 +216,10 @@ export class TravelAuthorization extends Model<
       throw new Error("Must have at least 2 stops to build a travel segments")
     }
 
-    if (this.tripTypeEstimate === TravelAuthorizationTripTypes.MULTI_CITY && this.stops.length < 3) {
+    if (
+      this.tripTypeEstimate === TravelAuthorizationTripTypes.MULTI_CITY &&
+      this.stops.length < 3
+    ) {
       throw new Error("Must have at least 3 stops to build a multi-stop travel segments")
     }
 
