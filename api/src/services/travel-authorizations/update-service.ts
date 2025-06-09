@@ -5,7 +5,7 @@ import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 
 import { Expense, TravelAuthorization, TravelSegment, User } from "@/models"
-import { TripTypes as TravelAuthorizationTripTypes } from "@/models/travel-authorization"
+import { TravelAuthorizationTripTypes } from "@/models/travel-authorization"
 import { Expenses, TravelSegments } from "@/services"
 
 export type TravelAuthorizationUpdateAttributes = Partial<Attributes<TravelAuthorization>> & {

@@ -1,9 +1,8 @@
-import { isEmpty, isNil, last, first, pick } from "lodash"
+import { isEmpty, isNil, last, first, pick, isUndefined } from "lodash"
 
 import {
   Expense,
   Location,
-  Stop,
   TravelAuthorization,
   TravelDeskTravelRequest,
   TravelSegment,
@@ -44,6 +43,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
 
   perform(): TravelAuthorizationIndexView {
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record, this.currentUser)
+    const finalDestinationLocation = this.buildFinalDestinationLocation()
 
     return {
       ...pick(this.record, [
@@ -57,11 +57,9 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       ]),
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
-      finalDestination:
-        this.lastStop?.location &&
-        pick(this.lastStop?.location, ["id", "city", "province", "createdAt", "updatedAt"]),
-      departingAt: this.firstStop?.departureAt?.toISOString(),
-      returningAt: this.lastStop?.departureAt?.toISOString(),
+      finalDestination: finalDestinationLocation,
+      departingAt: this.firstTravelSegment?.departureAt?.toISOString(),
+      returningAt: this.lastTravelSegment?.departureAt?.toISOString(),
       phase: this.determinePhase(),
       action: this.determineAction(),
       firstName: this.traveller.firstName,
@@ -71,6 +69,19 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       isTravelling: this.isTravelling(),
       ...stateFlagsAttributes,
     }
+  }
+
+  private buildFinalDestinationLocation() {
+    if (isNil(this.lastTravelSegment)) return undefined
+
+    const { departureLocation, arrivalLocation } = this.lastTravelSegment
+    const finalDestinationLocation =
+      this.record.tripType === TravelAuthorization.TripTypes.ROUND_TRIP
+        ? departureLocation
+        : arrivalLocation
+    if (isNil(finalDestinationLocation)) return undefined
+
+    return pick(finalDestinationLocation, ["id", "city", "province", "createdAt", "updatedAt"])
   }
 
   // TODO: double check the order of these conditions
@@ -126,11 +137,11 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private beforeTravelling() {
-    if (isNil(this.firstStop) || isNil(this.firstStop.departureAt)) {
+    if (isNil(this.firstTravelSegment) || isNil(this.firstTravelSegment.departureAt)) {
       return false
     }
 
-    if (this.currentDate < this.firstStop.departureAt) {
+    if (this.currentDate < this.firstTravelSegment.departureAt) {
       return true
     }
 
@@ -140,17 +151,17 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   private isTravelling() {
     if (!this.isApproved()) return false
     if (
-      isNil(this.firstStop) ||
-      isNil(this.lastStop) ||
-      isNil(this.firstStop.departureAt) ||
-      isNil(this.lastStop.departureAt)
+      isNil(this.firstTravelSegment) ||
+      isNil(this.lastTravelSegment) ||
+      isNil(this.firstTravelSegment.departureAt) ||
+      isNil(this.lastTravelSegment.departureAt)
     ) {
       return false
     }
 
     if (
-      this.firstStop.departureAt <= this.currentDate &&
-      this.currentDate <= this.lastStop.departureAt
+      this.firstTravelSegment.departureAt <= this.currentDate &&
+      this.currentDate <= this.lastTravelSegment.departureAt
     ) {
       return true
     }
@@ -171,11 +182,11 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private legacyTravellingComplete() {
-    if (isNil(this.lastStop) || isNil(this.lastStop.departureAt)) {
+    if (isNil(this.lastTravelSegment) || isNil(this.lastTravelSegment.departureAt)) {
       return false
     }
 
-    if (this.currentDate > this.lastStop.departureAt) {
+    if (this.currentDate > this.lastTravelSegment.departureAt) {
       return true
     }
 
@@ -190,11 +201,15 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private isTravellingByAir() {
-    return this.record.stops?.some((stop) => stop.transport === Stop.TravelMethods.AIRCRAFT)
+    return this.travelSegments.some(
+      (travelSegment) => travelSegment.modeOfTransport === TravelSegment.TravelMethods.AIRCRAFT
+    )
   }
 
   private anyTransportTypeIsPoolVehicle() {
-    return this.record.stops?.some((stop) => stop.transport === Stop.TravelMethods.POOL_VEHICLE)
+    return this.travelSegments.some(
+      (travelSegment) => travelSegment.modeOfTransport === TravelSegment.TravelMethods.POOL_VEHICLE
+    )
   }
 
   private isBooked() {
@@ -218,30 +233,25 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private travelDeskIsDraft() {
-    return this.record.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.DRAFT
+    return this.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.DRAFT
   }
 
   private travelDeskIsOptionsProvided() {
     return (
-      this.record.travelDeskTravelRequest?.status ===
-      TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
+      this.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
     )
   }
 
   private travelDeskIsComplete() {
-    return this.record.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.COMPLETE
+    return this.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.COMPLETE
   }
 
-  private get firstStop(): Stop | undefined {
-    return first(this.record.stops)
-  }
-
-  private get lastStop(): Stop | undefined {
-    return last(this.record.stops)
+  private get firstTravelSegment(): TravelSegment | undefined {
+    return first(this.travelSegments)
   }
 
   private get lastTravelSegment(): TravelSegment | undefined {
-    return last(this.record.travelSegments)
+    return last(this.travelSegments)
   }
 
   private get currentDate(): Date {
@@ -249,11 +259,33 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private get traveller(): User {
-    if (isNil(this.record.user)) {
-      throw new Error("TravelAuthorization must include an associated User")
+    const { user } = this.record
+
+    if (isUndefined(user)) {
+      throw new Error("Expected user association to be pre-loaded")
     }
 
-    return this.record.user
+    return user
+  }
+
+  private get travelDeskTravelRequest(): TravelDeskTravelRequest | null {
+    const { travelDeskTravelRequest } = this.record
+
+    if (isUndefined(travelDeskTravelRequest)) {
+      throw new Error("Expected travelDeskTravelRequest asssociation to be pre-loaded")
+    }
+
+    return travelDeskTravelRequest
+  }
+
+  private get travelSegments(): TravelSegment[] {
+    const { travelSegments } = this.record
+
+    if (isUndefined(travelSegments)) {
+      throw new Error("Expected travelSegments association to be pre-loaded")
+    }
+
+    return travelSegments
   }
 }
 

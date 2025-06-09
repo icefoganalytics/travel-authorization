@@ -30,7 +30,7 @@ import {
 // TODO: state management is going to be a bit deal for this project
 // we should do some aggressive data modeling an engineering before this becomes unmagable
 // Statuses are sorted by presumed order of progression
-export enum Statuses {
+export enum TravelAuthorizationStatuses {
   // TODO: might want replace DELETED status with `deleted_at` field from Sequelize paranoid feature.
   // See https://sequelize.org/docs/v6/core-concepts/paranoid/
   DRAFT = "draft",
@@ -47,18 +47,36 @@ export enum Statuses {
   DELETED = "deleted",
 }
 
-export enum TripTypes {
+export enum TravelAuthorizationTripTypes {
   ROUND_TRIP = "round_trip",
   ONE_WAY = "one_way",
   MULTI_CITY = "multi_city",
+}
+
+export enum TravelAuthorizationWizardStepNames {
+  EDIT_PURPOSE_DETAILS = "edit-purpose-details",
+  EDIT_TRIP_DETAILS = "edit-trip-details",
+  GENERATE_ESTIMATE = "generate-estimate",
+  SUBMIT_TO_SUPERVISOR = "submit-to-supervisor",
+  AWAITING_SUPERVISOR_APPROVAL = "awaiting-supervisor-approval",
+  EDIT_TRAVELLER_DETAILS = "edit-traveller-details",
+  SUBMIT_TO_TRAVEL_DESK = "submit-to-travel-desk",
+  AWAITING_FLIGHT_OPTIONS = "awaiting-flight-options",
+  RANK_FLIGHT_OPTIONS = "rank-flight-options",
+  AWAITING_BOOKING_CONFIRMATION = "awaiting-booking-confirmation",
+  AWAITING_TRAVEL_START = "awaiting-travel-start",
+  CONFIRM_ACTUAL_TRAVEL_DETAILS = "confirm-actual-travel-details",
+  SUBMIT_EXPENSES = "submit-expenses",
+  REVIEW_EXPENSES = "review-expenses",
 }
 
 export class TravelAuthorization extends Model<
   InferAttributes<TravelAuthorization>,
   InferCreationAttributes<TravelAuthorization>
 > {
-  static Statuses = Statuses
-  static TripTypes = TripTypes
+  static readonly Statuses = TravelAuthorizationStatuses
+  static readonly TripTypes = TravelAuthorizationTripTypes
+  static readonly WizardStepNames = TravelAuthorizationWizardStepNames
 
   declare id: CreationOptional<number>
   declare slug: string
@@ -83,14 +101,14 @@ export class TravelAuthorization extends Model<
   declare eventName: string | null
   declare summary: string | null
   declare benefits: string | null
-  declare status: Statuses | null
+  declare status: TravelAuthorizationStatuses | null
   declare wizardStepName: string | null
   // TODO: consider making this supervisorId?
   declare supervisorEmail: string | null
   declare requestChange: string | null
   declare denialReason: string | null
-  declare tripTypeEstimate: TripTypes | null
-  declare tripTypeActual: TripTypes | null
+  declare tripTypeEstimate: TravelAuthorizationTripTypes | null
+  declare tripTypeActual: TravelAuthorizationTripTypes | null
   declare createdBy: number | null
   declare travelAdvanceInCents: number | null
   declare allTravelWithinTerritory: boolean | null
@@ -112,6 +130,10 @@ export class TravelAuthorization extends Model<
     }
 
     return this.dateBackToWorkActual
+  }
+
+  get tripType(): NonAttribute<TravelAuthorizationTripTypes | null> {
+    return this.tripTypeActual ?? this.tripTypeEstimate
   }
 
   // Associations
@@ -194,11 +216,14 @@ export class TravelAuthorization extends Model<
       throw new Error("Must have at least 2 stops to build a travel segments")
     }
 
-    if (this.tripTypeEstimate === TripTypes.MULTI_CITY && this.stops.length < 3) {
+    if (
+      this.tripTypeEstimate === TravelAuthorizationTripTypes.MULTI_CITY &&
+      this.stops.length < 3
+    ) {
       throw new Error("Must have at least 3 stops to build a multi-stop travel segments")
     }
 
-    if (this.tripTypeEstimate === TripTypes.ROUND_TRIP) {
+    if (this.tripTypeEstimate === TravelAuthorizationTripTypes.ROUND_TRIP) {
       return this.stops.reduce((travelSegments: TravelSegment[], stop, index, stops) => {
         const isLastStop = index === stops.length - 1
         const arrivalStop = isLastStop ? stops[0] : stops[index + 1]
@@ -356,8 +381,8 @@ TravelAuthorization.init(
       allowNull: true, // TODO: make this non-nullable in the database then update here.
       validate: {
         isIn: {
-          args: [Object.values(Statuses)],
-          msg: `Status must be one of: ${Object.values(Statuses).join(", ")}`,
+          args: [Object.values(TravelAuthorizationStatuses)],
+          msg: `Status must be one of: ${Object.values(TravelAuthorizationStatuses).join(", ")}`,
         },
       },
     },
@@ -389,8 +414,8 @@ TravelAuthorization.init(
       allowNull: true,
       validate: {
         isIn: {
-          args: [Object.values(TripTypes)],
-          msg: `Trip Type must be one of: ${Object.values(TripTypes).join(", ")}`,
+          args: [Object.values(TravelAuthorizationTripTypes)],
+          msg: `Trip Type must be one of: ${Object.values(TravelAuthorizationTripTypes).join(", ")}`,
         },
       },
     },
@@ -399,8 +424,8 @@ TravelAuthorization.init(
       allowNull: true,
       validate: {
         isIn: {
-          args: [Object.values(TripTypes)],
-          msg: `Trip Type must be one of: ${Object.values(TripTypes).join(", ")}`,
+          args: [Object.values(TravelAuthorizationTripTypes)],
+          msg: `Trip Type must be one of: ${Object.values(TravelAuthorizationTripTypes).join(", ")}`,
         },
       },
     },

@@ -17,7 +17,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             travelSegments: [travelSegment],
           })
           .transient({
-            include: ["user", "travelSegments"],
+            include: ["user", "travelDeskTravelRequest", "travelSegments"],
           })
           .create({
             status: TravelAuthorization.Statuses.SUBMITTED,
@@ -43,7 +43,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             travelSegments: [travelSegment],
           })
           .transient({
-            include: ["user", "travelSegments"],
+            include: ["user", "travelDeskTravelRequest", "travelSegments"],
           })
           .create({
             status: TravelAuthorization.Statuses.APPROVED,
