@@ -74,9 +74,11 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
+import { isNil } from "lodash"
 
 import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
+import useTravelSegments from "@/use/use-travel-segments"
 
 import ExpenseCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseCreateDialog.vue"
 import ExpensePrefillDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpensePrefillDialog.vue"
@@ -137,8 +139,34 @@ async function refreshCodingsChangedDependencies() {
   await requestApprovalForm.value?.refresh()
 }
 
+const travelSegmentsQuery = computed(() => ({
+  where: {
+    travelAuthorizationId: props.travelAuthorizationId,
+    isActual: true,
+  },
+}))
+const { travelSegments } = useTravelSegments(travelSegmentsQuery)
+const isAfterTravelEndDate = computed(() => {
+  const lastTravelSegment = travelSegments.value.at(-1)
+  if (isNil(lastTravelSegment)) return false
+
+  return new Date(lastTravelSegment.departureOn) < new Date()
+})
+
 async function initialize(context) {
   context.setEditableSteps([])
+
+  watch(
+    () => isAfterTravelEndDate.value,
+    (newIsAfterTravelEndDate) => {
+      if (newIsAfterTravelEndDate) {
+        context.setContinueButtonProps({
+          enabled: true,
+        })
+      }
+    },
+    { immediate: true }
+  )
 }
 
 // TODO: split submission step into its own page
