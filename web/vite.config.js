@@ -1,16 +1,38 @@
 /// <reference types="vitest" />
-import path from "path"
+
+import { fileURLToPath, URL } from "node:url"
+import { defineConfig } from "vite"
+import vue2 from "@vitejs/plugin-vue2"
+import Components from "unplugin-vue-components/vite"
+import { VuetifyResolver } from "unplugin-vue-components/resolvers"
 
 // Add @vitejs/plugin-vue2 if you want to test vue files.
-export default {
+export default defineConfig({
+  plugins: [
+    vue2(),
+
+    // Auto-import Vuetify 2 components/directives (optional)
+    Components({
+      resolvers: [VuetifyResolver()],
+      dts: false, // set to 'src/components.d.ts' once you start TS
+      version: 2.7,
+    }),
+  ],
+  build: {
+    outDir: "./dist",
+    emptyOutDir: true,
+  },
   resolve: {
     alias: {
-      "@/support": path.resolve(__dirname, "tests/support"),
-      "@": path.resolve(__dirname, "src"),
+      "@/tests/support": fileURLToPath(new URL("./tests/support", import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
-    extensions: [".js", ".json", ".mjs", ".vue"],
+    extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
+  },
+  server: {
+    port: 8080,
   },
   test: {
     globals: true, // https://vitest.dev/config/#globals
   },
-}
+})
