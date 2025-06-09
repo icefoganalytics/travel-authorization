@@ -47,7 +47,7 @@ export enum TravelAuthorizationStatuses {
   DELETED = "deleted",
 }
 
-export enum TripTypes {
+export enum TravelAuthorizationTripTypes {
   ROUND_TRIP = "round_trip",
   ONE_WAY = "one_way",
   MULTI_CITY = "multi_city",
@@ -58,7 +58,7 @@ export class TravelAuthorization extends Model<
   InferCreationAttributes<TravelAuthorization>
 > {
   static readonly Statuses = TravelAuthorizationStatuses
-  static TripTypes = TripTypes
+  static readonly TripTypes = TravelAuthorizationTripTypes
 
   declare id: CreationOptional<number>
   declare slug: string
@@ -89,8 +89,8 @@ export class TravelAuthorization extends Model<
   declare supervisorEmail: string | null
   declare requestChange: string | null
   declare denialReason: string | null
-  declare tripTypeEstimate: TripTypes | null
-  declare tripTypeActual: TripTypes | null
+  declare tripTypeEstimate: TravelAuthorizationTripTypes | null
+  declare tripTypeActual: TravelAuthorizationTripTypes | null
   declare createdBy: number | null
   declare travelAdvanceInCents: number | null
   declare allTravelWithinTerritory: boolean | null
@@ -194,11 +194,11 @@ export class TravelAuthorization extends Model<
       throw new Error("Must have at least 2 stops to build a travel segments")
     }
 
-    if (this.tripTypeEstimate === TripTypes.MULTI_CITY && this.stops.length < 3) {
+    if (this.tripTypeEstimate === TravelAuthorizationTripTypes.MULTI_CITY && this.stops.length < 3) {
       throw new Error("Must have at least 3 stops to build a multi-stop travel segments")
     }
 
-    if (this.tripTypeEstimate === TripTypes.ROUND_TRIP) {
+    if (this.tripTypeEstimate === TravelAuthorizationTripTypes.ROUND_TRIP) {
       return this.stops.reduce((travelSegments: TravelSegment[], stop, index, stops) => {
         const isLastStop = index === stops.length - 1
         const arrivalStop = isLastStop ? stops[0] : stops[index + 1]
@@ -389,8 +389,8 @@ TravelAuthorization.init(
       allowNull: true,
       validate: {
         isIn: {
-          args: [Object.values(TripTypes)],
-          msg: `Trip Type must be one of: ${Object.values(TripTypes).join(", ")}`,
+          args: [Object.values(TravelAuthorizationTripTypes)],
+          msg: `Trip Type must be one of: ${Object.values(TravelAuthorizationTripTypes).join(", ")}`,
         },
       },
     },
@@ -399,8 +399,8 @@ TravelAuthorization.init(
       allowNull: true,
       validate: {
         isIn: {
-          args: [Object.values(TripTypes)],
-          msg: `Trip Type must be one of: ${Object.values(TripTypes).join(", ")}`,
+          args: [Object.values(TravelAuthorizationTripTypes)],
+          msg: `Trip Type must be one of: ${Object.values(TravelAuthorizationTripTypes).join(", ")}`,
         },
       },
     },
