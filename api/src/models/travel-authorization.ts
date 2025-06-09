@@ -53,12 +53,30 @@ export enum TravelAuthorizationTripTypes {
   MULTI_CITY = "multi_city",
 }
 
+export enum TravelAuthorizationWizardStepNames {
+  EDIT_PURPOSE_DETAILS = "edit-purpose-details",
+  EDIT_TRIP_DETAILS = "edit-trip-details",
+  GENERATE_ESTIMATE = "generate-estimate",
+  SUBMIT_TO_SUPERVISOR = "submit-to-supervisor",
+  AWAITING_SUPERVISOR_APPROVAL = "awaiting-supervisor-approval",
+  EDIT_TRAVELLER_DETAILS = "edit-traveller-details",
+  SUBMIT_TO_TRAVEL_DESK = "submit-to-travel-desk",
+  AWAITING_FLIGHT_OPTIONS = "awaiting-flight-options",
+  RANK_FLIGHT_OPTIONS = "rank-flight-options",
+  AWAITING_BOOKING_CONFIRMATION = "awaiting-booking-confirmation",
+  AWAITING_TRAVEL_START = "awaiting-travel-start",
+  CONFIRM_ACTUAL_TRAVEL_DETAILS = "confirm-actual-travel-details",
+  SUBMIT_EXPENSES = "submit-expenses",
+  REVIEW_EXPENSES = "review-expenses",
+}
+
 export class TravelAuthorization extends Model<
   InferAttributes<TravelAuthorization>,
   InferCreationAttributes<TravelAuthorization>
 > {
   static readonly Statuses = TravelAuthorizationStatuses
   static readonly TripTypes = TravelAuthorizationTripTypes
+  static readonly WizardStepNames = TravelAuthorizationWizardStepNames
 
   declare id: CreationOptional<number>
   declare slug: string
