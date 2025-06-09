@@ -1,5 +1,4 @@
-import Vue from "vue"
-import Vuetify from "vuetify"
+import { createVuetify } from "@logue/vue2-helpers/vuetify"
 
 import "vuetify/dist/vuetify.min.css"
 
@@ -7,9 +6,7 @@ import "@/assets/yk-style.css"
 import "@/assets/yhsi.css"
 import "@/assets/vuetify2-extensions.css"
 
-Vue.use(Vuetify)
-
-export default new Vuetify({
+export default createVuetify({
   theme: {
     themes: {
       light: {
