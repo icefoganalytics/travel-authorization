@@ -1,4 +1,6 @@
-import db, { TravelDeskTravelRequest, User } from "@/models"
+import { isUndefined } from "lodash"
+
+import db, { TravelAuthorization, TravelDeskTravelRequest, User } from "@/models"
 
 import BaseService from "@/services/base-service"
 
@@ -24,6 +26,15 @@ export class BookService extends BaseService {
       await this.travelDeskTravelRequest.update({
         ...this.attributes,
         status: TravelDeskTravelRequest.Statuses.BOOKED,
+      })
+
+      const { travelAuthorization } = this.travelDeskTravelRequest
+      if (isUndefined(travelAuthorization)) {
+        throw new Error("Expected travelAuthorization association to be pre-loaded.")
+      }
+
+      await travelAuthorization.update({
+        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_TRAVEL_START,
       })
 
       return this.travelDeskTravelRequest.reload({
