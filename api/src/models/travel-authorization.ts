@@ -30,7 +30,7 @@ import {
 // TODO: state management is going to be a bit deal for this project
 // we should do some aggressive data modeling an engineering before this becomes unmagable
 // Statuses are sorted by presumed order of progression
-export enum Statuses {
+export enum TravelAuthorizationStatuses {
   // TODO: might want replace DELETED status with `deleted_at` field from Sequelize paranoid feature.
   // See https://sequelize.org/docs/v6/core-concepts/paranoid/
   DRAFT = "draft",
@@ -57,7 +57,7 @@ export class TravelAuthorization extends Model<
   InferAttributes<TravelAuthorization>,
   InferCreationAttributes<TravelAuthorization>
 > {
-  static Statuses = Statuses
+  static readonly Statuses = TravelAuthorizationStatuses
   static TripTypes = TripTypes
 
   declare id: CreationOptional<number>
@@ -83,7 +83,7 @@ export class TravelAuthorization extends Model<
   declare eventName: string | null
   declare summary: string | null
   declare benefits: string | null
-  declare status: Statuses | null
+  declare status: TravelAuthorizationStatuses | null
   declare wizardStepName: string | null
   // TODO: consider making this supervisorId?
   declare supervisorEmail: string | null
@@ -356,8 +356,8 @@ TravelAuthorization.init(
       allowNull: true, // TODO: make this non-nullable in the database then update here.
       validate: {
         isIn: {
-          args: [Object.values(Statuses)],
-          msg: `Status must be one of: ${Object.values(Statuses).join(", ")}`,
+          args: [Object.values(TravelAuthorizationStatuses)],
+          msg: `Status must be one of: ${Object.values(TravelAuthorizationStatuses).join(", ")}`,
         },
       },
     },

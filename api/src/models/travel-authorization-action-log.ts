@@ -15,7 +15,7 @@ import {
 import sequelize from "@/db/db-client"
 
 import User from "./user"
-import TravelAuthorization, { Statuses as Actions } from "./travel-authorization"
+import TravelAuthorization, { TravelAuthorizationStatuses as Actions } from "./travel-authorization"
 
 export { Actions }
 
