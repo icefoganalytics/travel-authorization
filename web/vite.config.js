@@ -32,6 +32,34 @@ export default defineConfig({
   server: {
     port: 8080,
   },
+  css: {
+    postcss: {
+      plugins: [
+        // Fix vite build includes @charset problem
+        // https://github.com/vitejs/vite/issues/5655
+        {
+          postcssPlugin: "internal:charset-removal",
+          AtRule: {
+            charset: (atRule) => {
+              if (atRule.name === "charset") {
+                atRule.remove()
+              }
+            },
+          },
+        },
+      ],
+    },
+    // https://vitejs.dev/config/#css-preprocessoroptions
+    // preprocessorOptions: {
+    //   sass: {
+    //     additionalData: [
+    //       // vuetify variable overrides
+    //       // '@import "@/styles/variables.scss"',
+    //       "",
+    //     ].join("\n"),
+    //   },
+    // },
+  },
   test: {
     globals: true, // https://vitest.dev/config/#globals
   },
