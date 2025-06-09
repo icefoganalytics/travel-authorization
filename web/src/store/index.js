@@ -1,7 +1,6 @@
 import Vue from "vue"
 import Vuex from "vuex"
 
-import alerts from "./alerts"
 import auth from "./auth"
 import current from "./current"
 import expenses from "@/store/expenses"
@@ -55,7 +54,6 @@ export default new Vuex.Store({
     showAppSidebar: (state) => state.showAppSidebar,
   },
   modules: {
-    alerts,
     auth,
     current,
     expenses,

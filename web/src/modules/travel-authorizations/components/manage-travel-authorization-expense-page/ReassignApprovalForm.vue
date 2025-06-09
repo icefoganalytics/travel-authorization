@@ -40,7 +40,7 @@ import { useRouter } from "vue2-helpers/vue-router"
 
 import { required } from "@/utils/validators"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"

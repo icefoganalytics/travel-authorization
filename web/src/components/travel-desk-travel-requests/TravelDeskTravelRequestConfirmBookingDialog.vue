@@ -39,7 +39,7 @@
 import { ref, watch } from "vue"
 import { isNil } from "lodash"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import travelDeskTravelRequestsApi from "@/api/travel-desk-travel-requests-api"
 import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
 
