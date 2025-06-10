@@ -1,4 +1,5 @@
 import { computed, reactive, toRefs, unref, watch } from "vue"
+import { isNil } from "lodash"
 
 import { TYPES as EXPENSE_TYPES } from "@/api/expenses-api"
 import travelAuthorizationsApi, { STATUSES, TRIP_TYPES } from "@/api/travel-authorizations-api"
@@ -31,7 +32,6 @@ export { STATUSES, TRIP_TYPES }
  *   replaceStops: (stops: Stop[]) => Stop[],
  *   approve: () => Promise<TravelAuthorization>,
  *   deny: ({ denialReason: string } = {}) => Promise<TravelAuthorization>,
- *   expenseClaim: (attributes) => Promise<TravelAuthorization>,
  * }}
  */
 
@@ -156,29 +156,10 @@ export function useTravelAuthorization(travelAuthorizationId) {
     }
   }
 
-  async function expenseClaim(attributes) {
-    state.isLoading = true
-    try {
-      const { travelAuthorization } = await travelAuthorizationsApi.expenseClaim(
-        unref(travelAuthorizationId),
-        attributes
-      )
-      state.isErrored = false
-      state.travelAuthorization = travelAuthorization
-      return travelAuthorization
-    } catch (error) {
-      console.error("Failed to submit expense claim for travel authorization:", error)
-      state.isErrored = true
-      throw error
-    } finally {
-      state.isLoading = false
-    }
-  }
-
   watch(
     () => unref(travelAuthorizationId),
     async (newTravelAuthorizationId) => {
-      if ([undefined, null].includes(newTravelAuthorizationId)) return
+      if (isNil(newTravelAuthorizationId)) return
       // TODO: add some tests and check whether I should abort on loading
       // to avoid infinite loops
       // if (state.isLoading === true) return
@@ -231,7 +212,6 @@ export function useTravelAuthorization(travelAuthorizationId) {
     submit,
     approve,
     deny,
-    expenseClaim,
   }
 }
 
