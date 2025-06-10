@@ -132,6 +132,7 @@ watch(
     if (newStepComponent.initialize) {
       newStepComponent.initialize({
         setEditableSteps,
+        goToNextStep,
       })
     }
 
