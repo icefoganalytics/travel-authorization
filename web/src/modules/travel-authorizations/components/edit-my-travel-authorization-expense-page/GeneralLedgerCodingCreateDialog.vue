@@ -118,14 +118,14 @@ const snack = useSnack()
 
 const form = ref(null)
 const generalLedgerCoding = ref(build())
-const showDialog = ref(route.query.showCreate === "true")
+const showDialog = ref(route.query.showCreateGLCoding === "true")
 const isLoading = ref(false)
 
 watch(showDialog, (value) => {
   if (value) {
-    router.push({ query: { showCreate: value } })
+    router.push({ query: { showCreateGLCoding: value } })
   } else {
-    router.push({ query: { showCreate: undefined } })
+    router.push({ query: { showCreateGLCoding: undefined } })
   }
 })
 

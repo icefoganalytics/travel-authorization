@@ -44,7 +44,9 @@ export class ExpenseClaimController extends BaseController {
   }
 
   private loadTravelAuthorization(): Promise<TravelAuthorization | null> {
-    return TravelAuthorization.findByPk(this.params.travelAuthorizationId)
+    return TravelAuthorization.findByPk(this.params.travelAuthorizationId, {
+      include: ["travelSegments"],
+    })
   }
 
   private buildPolicy(record: TravelAuthorization): ExpenseClaimPolicy {

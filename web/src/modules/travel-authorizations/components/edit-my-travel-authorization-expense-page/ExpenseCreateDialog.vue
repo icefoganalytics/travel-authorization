@@ -115,16 +115,16 @@ export default {
     return {
       expenseTypes: [EXPENSE_TYPES.ACCOMMODATIONS, EXPENSE_TYPES.TRANSPORTATION],
       expense: this.newExpense(),
-      showDialog: this.$route.query.showCreate === "true",
+      showDialog: this.$route.query.showCreateExpense === "true",
       loading: false,
     }
   },
   watch: {
     showDialog(value) {
       if (value) {
-        this.$router.push({ query: { showCreate: value } })
+        this.$router.push({ query: { showCreateExpense: value } })
       } else {
-        this.$router.push({ query: { showCreate: undefined } })
+        this.$router.push({ query: { showCreateExpense: undefined } })
       }
     },
   },

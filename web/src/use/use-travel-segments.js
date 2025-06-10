@@ -22,8 +22,10 @@ export { TRAVEL_METHODS, ACCOMMODATION_TYPES }
  *   totalCount: Ref<number>,
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
+ *   isInitialized: Ref<boolean>,
  *   fetch: () => Promise<TravelSegment[]>,
- *   refresh: () => Promise<TravelSegment[]>
+ *   refresh: () => Promise<TravelSegment[]>,
+ *   isReady: () => Promise<boolean>,
  * }}
  */
 export function useTravelSegments(options = ref({}), { skipWatchIf = () => false } = {}) {
@@ -32,6 +34,7 @@ export function useTravelSegments(options = ref({}), { skipWatchIf = () => false
     totalCount: 0,
     isLoading: false,
     isErrored: false,
+    isInitialized: false,
   })
 
   async function fetch() {
@@ -57,14 +60,34 @@ export function useTravelSegments(options = ref({}), { skipWatchIf = () => false
       if (skip) return
 
       await fetch()
+      state.isInitialized = true
     },
     { deep: true, immediate: true }
   )
+
+  async function isReady() {
+    return new Promise((resolve) => {
+      if (state.isInitialized) {
+        resolve(true)
+      } else {
+        const interval = setInterval(() => {
+          if (state.isErrored) {
+            clearInterval(interval)
+            return resolve(false)
+          } else if (state.isInitialized && !state.isLoading) {
+            clearInterval(interval)
+            return resolve(true)
+          }
+        }, 10)
+      }
+    })
+  }
 
   return {
     ...toRefs(state),
     fetch,
     refresh: fetch,
+    isReady,
   }
 }
 

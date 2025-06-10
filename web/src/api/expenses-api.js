@@ -72,7 +72,10 @@ export const expensesApi = {
   /**
    *
    * @param {ExpenseQueryOptions} [params={}]
-   * @returns
+   * @returns {Promise<{
+   *   expenses: Expense[];
+   *   totalCount: number;
+   * }>}
    */
   async list(params = {}) {
     const { data } = await http.get("/api/expenses", { params })

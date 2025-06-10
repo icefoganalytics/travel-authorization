@@ -163,6 +163,10 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
         disabled: true,
       },
       continueButtonText: "Submit to Supervisor",
+      continueButtonProps: {
+        disabled: true,
+        tooltipText: "Cannot submit expenses until travel is completed",
+      },
     },
     {
       id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.REVIEW_EXPENSES,
