@@ -33,7 +33,7 @@ export class ExpenseClaimService extends BaseService {
       throw new Error("Supervisor email is required for expense claim submission.")
     }
 
-    if (this.isAfterTravelEndDate()) {
+    if (!this.isAfterTravelEndDate()) {
       throw new Error("Can not submit an expense claim before travel is completed.")
     }
 
@@ -71,10 +71,18 @@ export class ExpenseClaimService extends BaseService {
     }
 
     const lastTravelSegment = travelSegments.at(-1)
-    if (isNil(lastTravelSegment)) return false
+    if (isNil(lastTravelSegment)) {
+      throw new Error(
+        "Cannot check if travel authorization is after travel end date without at least one travel segment."
+      )
+    }
 
     const { departureOn } = lastTravelSegment
-    if (isNil(departureOn)) return false
+    if (isNil(departureOn)) {
+      throw new Error(
+        "Cannot check if travel authorization is after travel end date without a departure date."
+      )
+    }
 
     return new Date(departureOn) < new Date()
   }
