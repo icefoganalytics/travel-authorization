@@ -22,14 +22,10 @@ export { STATUSES, TRIP_TYPES }
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
  *   stops: Ref<Stop[]>,
- *   firstStop: Ref<Stop>,
- *   lastStop: Ref<Stop>,
  *   fetch: () => Promise<TravelAuthorization>,
  *   refresh: () => Promise<TravelAuthorization>,
  *   save: () => Promise<TravelAuthorization>, // save that triggers loading state
  *   saveSilently: () => Promise<TravelAuthorization>, // save that does not trigger loading state
- *   newBlankStop: (attributes: Partial<Stop>) => Stop,
- *   replaceStops: (stops: Stop[]) => Stop[],
  *   approve: () => Promise<TravelAuthorization>,
  *   deny: ({ denialReason: string } = {}) => Promise<TravelAuthorization>,
  * }}
@@ -97,6 +93,7 @@ export function useTravelAuthorization(travelAuthorizationId) {
     }
   }
 
+  // DEPRECATED: prefer inline api calls for state changes.
   // Stateful actions
   async function submit(attributes = state.travelAuthorization) {
     state.isLoading = true
@@ -173,25 +170,6 @@ export function useTravelAuthorization(travelAuthorizationId) {
     state.travelAuthorization.expenses?.filter((expense) => expense.type === EXPENSE_TYPES.ESTIMATE)
   )
   const stops = computed(() => state.travelAuthorization.stops)
-  const firstStop = computed(() => stops.value[0] || {})
-  const lastStop = computed(() => stops.value[stops.value.length - 1] || {})
-
-  function newBlankStop(attributes) {
-    return {
-      travelAuthorizationId: state.travelAuthorization.id,
-      ...attributes,
-    }
-  }
-
-  // In the future it might make sense to directly update stops in the back-end
-  function replaceStops(stops) {
-    state.travelAuthorization = {
-      ...state.travelAuthorization,
-      stops,
-    }
-
-    return stops
-  }
 
   return {
     STATUSES,
@@ -199,15 +177,11 @@ export function useTravelAuthorization(travelAuthorizationId) {
     // computed attributes
     estimates,
     stops,
-    firstStop,
-    lastStop,
     // methods
     fetch,
     refresh: fetch,
     save,
     saveSilently,
-    newBlankStop,
-    replaceStops,
     // stateful action
     submit,
     approve,
