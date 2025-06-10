@@ -137,6 +137,7 @@ watch(
 
     if (newStepComponent.initialize) {
       newStepComponent.initialize({
+        goToNextStep,
         setEditableSteps,
         setBackButtonProps,
         setContinueButtonProps,
