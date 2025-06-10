@@ -110,12 +110,9 @@ async function requestApprovalForExpenseClaim() {
 
   isLoadingTravelAuthorization.isLoading = true
   try {
-    const { travelAuthorization } = await travelAuthorizationsApi.expenseClaim(
-      props.travelAuthorizationId,
-      {
-        supervisorEmail: travelAuthorization.value.supervisorEmail,
-      }
-    )
+    await travelAuthorizationsApi.expenseClaim(props.travelAuthorizationId, {
+      supervisorEmail: travelAuthorization.value.supervisorEmail,
+    })
     isLoadingTravelAuthorization.value = false
     snack.success("Expense claim submitted for approval.")
     return true
