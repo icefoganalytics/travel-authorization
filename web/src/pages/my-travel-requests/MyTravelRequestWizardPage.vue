@@ -67,7 +67,7 @@
                 class="ml-0 ml-md-3"
                 v-bind="{
                   color: 'secondary',
-                  tooltipText: 'Back',
+                  tooltipText: 'Not available',
                   ...currentStep.backButtonProps,
                 }"
                 @click="backAndGoToPreviousStep"

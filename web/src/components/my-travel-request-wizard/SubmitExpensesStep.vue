@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue"
+import { computed, ref } from "vue"
 import { isNil } from "lodash"
 
 import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
@@ -145,28 +145,21 @@ const travelSegmentsQuery = computed(() => ({
     isActual: true,
   },
 }))
-const { travelSegments } = useTravelSegments(travelSegmentsQuery)
-const isAfterTravelEndDate = computed(() => {
-  const lastTravelSegment = travelSegments.value.at(-1)
-  if (isNil(lastTravelSegment)) return false
-
-  return new Date(lastTravelSegment.departureOn) < new Date()
-})
+const { travelSegments, isReady: isReadyTravelSegments } = useTravelSegments(travelSegmentsQuery)
 
 async function initialize(context) {
   context.setEditableSteps([])
 
-  watch(
-    () => isAfterTravelEndDate.value,
-    (newIsAfterTravelEndDate) => {
-      if (newIsAfterTravelEndDate) {
-        context.setContinueButtonProps({
-          enabled: true,
-        })
-      }
-    },
-    { immediate: true }
-  )
+  await isReadyTravelSegments()
+  const lastTravelSegment = travelSegments.value.at(-1)
+  if (isNil(lastTravelSegment)) return
+
+  const isAfterTravelEndDate = new Date(lastTravelSegment.departureOn) < new Date()
+  if (isAfterTravelEndDate) {
+    context.setContinueButtonProps({
+      enabled: true,
+    })
+  }
 }
 
 // TODO: split submission step into its own page
