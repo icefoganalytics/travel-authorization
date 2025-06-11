@@ -4,8 +4,8 @@
       <StateStepper
         class="flex-shrink-0"
         :steps="steps"
-        :current-wizard-step-name="currentWizardStepName"
-        @update:currentWizardStepName="goToStep"
+        :step-name="stepName"
+        @update:stepName="goToStep"
       />
       <div class="ml-md-2 flex-grow-1">
         <v-card class="default">
@@ -90,8 +90,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { computed, ref, toRefs, watch } from "vue"
 import { isNil, isEmpty, isString } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -109,14 +108,14 @@ const props = defineProps({
   },
   stepName: {
     type: String,
-    default: null,
+    required: true,
   },
 })
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+const { stepName } = toRefs(props)
 
 const {
-  currentWizardStepName,
   steps,
   currentStep,
   isLoading,
@@ -127,29 +126,7 @@ const {
   setEditableSteps,
   setBackButtonProps,
   setContinueButtonProps,
-} = useMyTravelRequestWizard(travelAuthorizationIdAsNumber)
-
-const router = useRouter()
-
-watch(
-  () => currentWizardStepName.value,
-  (newCurrentWizardStepName) => {
-    if (newCurrentWizardStepName === props.stepName) return
-
-    router
-      .replace({
-        name: "my-travel-requests/MyTravelRequestWizardPage",
-        params: {
-          travelAuthorizationId: travelAuthorizationIdAsNumber.value,
-          stepName: newCurrentWizardStepName,
-        },
-      })
-      .catch((error) => {
-        // TODO: avoid double navigation rather than suppressing duplicate navigation errors.
-        console.warn(error)
-      })
-  }
-)
+} = useMyTravelRequestWizard(travelAuthorizationIdAsNumber, stepName)
 
 const currentStepComponent = ref(null)
 

@@ -6,7 +6,7 @@ import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import MY_TRAVEL_REQUEST_WIZARD_STEPS from "@/use/wizards/my-travel-request-wizard-steps"
 
-export function useMyTravelRequestWizard(travelAuthorizationId) {
+export function useMyTravelRequestWizard(travelAuthorizationId, stepName) {
   const state = reactive({
     steps: cloneDeep(MY_TRAVEL_REQUEST_WIZARD_STEPS),
     isReady: false,
@@ -26,10 +26,8 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
     }
   )
 
-  const currentWizardStepName = computed(() => travelAuthorization.value.wizardStepName || null)
-
   const currentStep = computed(() => {
-    const currentStep = state.steps.find((step) => step.id === currentWizardStepName.value)
+    const currentStep = state.steps.find((step) => step.id === stepName.value)
     if (isNil(currentStep)) {
       return {
         continueButtonText: "Continue",
@@ -40,7 +38,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
   })
 
   const currentStepIndex = computed(() =>
-    state.steps.findIndex((step) => step.id === currentWizardStepName.value)
+    state.steps.findIndex((step) => step.id === stepName.value)
   )
 
   const previousStep = computed(() => {
@@ -103,7 +101,7 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
   }
 
   async function goToStep(stepName) {
-    if (stepName === currentWizardStepName.value) return
+    if (stepName === stepName.value) return
 
     const step = state.steps.find((step) => step.id === stepName)
     if (isNil(step)) return
@@ -140,7 +138,6 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
 
   return {
     ...toRefs(state),
-    currentWizardStepName,
     currentStep,
     previousStep,
     nextStep,
