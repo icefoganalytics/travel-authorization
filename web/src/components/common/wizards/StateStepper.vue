@@ -27,7 +27,7 @@ import { computed } from "vue"
 import md5 from "md5"
 
 const props = defineProps({
-  currentWizardStepName: {
+  stepName: {
     type: String,
     default: null,
   },
@@ -37,17 +37,17 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["update:currentWizardStepName"])
+const emit = defineEmits(["update:stepName"])
 
 const stepsHash = computed(() => md5(JSON.stringify(props.steps)))
 
 const currentStepNumber = computed(() => {
-  return props.steps.findIndex((step) => step.id === props.currentWizardStepName) + 1
+  return props.steps.findIndex((step) => step.id === props.stepName) + 1
 })
 
 function updateCurrentWizardStepName(wizardStepName, editable) {
   if (editable) {
-    emit("update:currentWizardStepName", wizardStepName)
+    emit("update:stepName", wizardStepName)
   }
 }
 </script>
