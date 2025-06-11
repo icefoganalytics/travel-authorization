@@ -1,4 +1,5 @@
 import { computed, reactive, toRefs, unref, watch } from "vue"
+import { isNil } from "lodash"
 
 import { TYPES as EXPENSE_TYPES } from "@/api/expenses-api"
 import travelAuthorizationsApi, { STATUSES, TRIP_TYPES } from "@/api/travel-authorizations-api"
@@ -20,11 +21,13 @@ export { STATUSES, TRIP_TYPES }
  *   travelAuthorization: Ref<TravelAuthorization>,
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
+ *   isInitialized: Ref<boolean>,
  *   stops: Ref<Stop[]>,
  *   firstStop: Ref<Stop>,
  *   lastStop: Ref<Stop>,
  *   fetch: () => Promise<TravelAuthorization>,
  *   refresh: () => Promise<TravelAuthorization>,
+ *   isReady: () => Promise<boolean>,
  *   save: () => Promise<TravelAuthorization>, // save that triggers loading state
  *   saveSilently: () => Promise<TravelAuthorization>, // save that does not trigger loading state
  *   newBlankStop: (attributes: Partial<Stop>) => Stop,
@@ -48,6 +51,7 @@ export function useTravelAuthorization(travelAuthorizationId) {
     policy: null,
     isLoading: false,
     isErrored: false,
+    isInitialized: false,
   })
 
   async function fetch(params = {}) {
@@ -178,15 +182,31 @@ export function useTravelAuthorization(travelAuthorizationId) {
   watch(
     () => unref(travelAuthorizationId),
     async (newTravelAuthorizationId) => {
-      if ([undefined, null].includes(newTravelAuthorizationId)) return
-      // TODO: add some tests and check whether I should abort on loading
-      // to avoid infinite loops
-      // if (state.isLoading === true) return
+      if (isNil(newTravelAuthorizationId)) return
 
       await fetch()
+      state.isInitialized = true
     },
     { immediate: true }
   )
+
+  async function isReady() {
+    return new Promise((resolve) => {
+      if (state.isInitialized) {
+        resolve(true)
+      } else {
+        const interval = setInterval(() => {
+          if (state.isErrored) {
+            clearInterval(interval)
+            resolve(false)
+          } else if (state.isInitialized && !state.isLoading) {
+            clearInterval(interval)
+            resolve(true)
+          }
+        }, 10)
+      }
+    })
+  }
 
   const estimates = computed(() =>
     state.travelAuthorization.expenses?.filter((expense) => expense.type === EXPENSE_TYPES.ESTIMATE)
@@ -227,6 +247,7 @@ export function useTravelAuthorization(travelAuthorizationId) {
     saveSilently,
     newBlankStop,
     replaceStops,
+    isReady,
     // stateful action
     submit,
     approve,

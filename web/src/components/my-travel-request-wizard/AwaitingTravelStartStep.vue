@@ -24,8 +24,14 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(["updated"])
+
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizationId)
+const {
+  travelAuthorization,
+  refresh,
+  isReady: isReadyTravelAuthorization,
+} = useTravelAuthorization(travelAuthorizationId)
 
 const isBeforeTravelStartDate = computed(() => {
   const firstTravelSegment = travelAuthorization.value?.travelSegments?.[0]
@@ -40,6 +46,13 @@ const canContinue = computed(() => {
 
 async function initialize(context) {
   context.setEditableSteps([])
+
+  await isReadyTravelAuthorization()
+  await nextTick()
+  if (canContinue.value) {
+    context.goToNextStep()
+    emit("updated", props.travelAuthorizationId)
+  }
 }
 
 const snack = useSnack()
