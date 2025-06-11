@@ -136,13 +136,18 @@ watch(
   (newCurrentWizardStepName) => {
     if (newCurrentWizardStepName === props.stepName) return
 
-    router.replace({
-      name: "my-travel-requests/MyTravelRequestWizardPage",
-      params: {
-        travelAuthorizationId: travelAuthorizationIdAsNumber.value,
-        stepName: newCurrentWizardStepName,
-      },
-    })
+    router
+      .replace({
+        name: "my-travel-requests/MyTravelRequestWizardPage",
+        params: {
+          travelAuthorizationId: travelAuthorizationIdAsNumber.value,
+          stepName: newCurrentWizardStepName,
+        },
+      })
+      .catch((error) => {
+        // TODO: avoid double navigation rather than suppressing duplicate navigation errors.
+        console.warn(error)
+      })
   }
 )
 
