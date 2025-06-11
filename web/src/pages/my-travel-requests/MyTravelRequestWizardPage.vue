@@ -88,6 +88,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
+import { useRouter } from "vue2-helpers/vue-router"
 import { isNil, isEmpty, isString } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -121,6 +122,23 @@ const {
   goToPreviousStep,
   setEditableSteps,
 } = useMyTravelRequestWizard(travelAuthorizationIdAsNumber)
+
+const router = useRouter()
+
+watch(
+  () => currentWizardStepName.value,
+  (newCurrentWizardStepName) => {
+    if (newCurrentWizardStepName === props.stepName) return
+
+    router.replace({
+      name: "my-travel-requests/MyTravelRequestWizardPage",
+      params: {
+        travelAuthorizationId: travelAuthorizationIdAsNumber.value,
+        stepName: newCurrentWizardStepName,
+      },
+    })
+  }
+)
 
 const currentStepComponent = ref(null)
 
