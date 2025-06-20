@@ -141,9 +141,7 @@ const snack = useSnack()
 
 async function createAndClose() {
   if (formRef.value === null) return
-
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+  if (!formRef.value.validate()) return
 
   try {
     await expensesApi.create(estimate.value)
