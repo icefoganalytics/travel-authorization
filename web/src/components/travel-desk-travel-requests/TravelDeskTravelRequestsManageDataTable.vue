@@ -173,14 +173,6 @@ const perPage = useRouteQuery("perPage", "15", { transform: integerTransformerLe
 
 const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
   {
-    key: "isBooked",
-    order: "asc",
-  },
-  {
-    key: "isAssignedToCurrentUser",
-    order: "desc",
-  },
-  {
     key: "travelStartDate",
     order: "asc",
   },
