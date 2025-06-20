@@ -1,7 +1,7 @@
 export const APPLICATION_NAME = "Travel Authorization"
-export const ENVIRONMENT = process.env.NODE_ENV
-export const RELEASE_TAG = process.env.VUE_APP_RELEASE_TAG
-export const GIT_COMMIT_HASH = process.env.VUE_APP_GIT_COMMIT_HASH
+export const ENVIRONMENT = import.meta.env.MODE
+export const RELEASE_TAG = import.meta.env.VUE_APP_RELEASE_TAG
+export const GIT_COMMIT_HASH = import.meta.env.VUE_APP_GIT_COMMIT_HASH
 
 const dynamicConfigs = {
   development: {
