@@ -4,8 +4,8 @@
       <StateStepper
         class="flex-shrink-0"
         :steps="steps"
-        :current-wizard-step-name="currentWizardStepName"
-        @update:currentWizardStepName="goToStep"
+        :step-name="stepName"
+        @update:stepName="goToStep"
       />
       <div class="ml-md-2 flex-grow-1">
         <v-card class="default">
@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue"
+import { computed, ref, toRefs, watch } from "vue"
 import { isNil, isEmpty, isString } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -108,14 +108,14 @@ const props = defineProps({
   },
   stepName: {
     type: String,
-    default: null,
+    required: true,
   },
 })
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+const { stepName } = toRefs(props)
 
 const {
-  currentWizardStepName,
   steps,
   currentStep,
   isLoading,
@@ -126,7 +126,7 @@ const {
   setEditableSteps,
   setBackButtonProps,
   setContinueButtonProps,
-} = useMyTravelRequestWizard(travelAuthorizationIdAsNumber)
+} = useMyTravelRequestWizard(travelAuthorizationIdAsNumber, stepName)
 
 const currentStepComponent = ref(null)
 
@@ -137,6 +137,7 @@ watch(
 
     if (newStepComponent.initialize) {
       newStepComponent.initialize({
+        goToNextStep,
         setEditableSteps,
         setBackButtonProps,
         setContinueButtonProps,

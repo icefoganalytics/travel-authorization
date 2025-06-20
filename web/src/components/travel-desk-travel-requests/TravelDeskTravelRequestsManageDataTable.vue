@@ -152,6 +152,7 @@ import ExportToCsvButton from "@/components/travel-desk-travel-requests/ExportTo
 import PrintTravelDeskReport from "@/modules/travelDesk/views/Common/PrintTravelDeskReport.vue"
 
 const headers = ref([
+  { text: "TA #", value: "travelAuthorizationId" },
   { text: "Submit Date", value: "createdAt" },
   { text: "Name", value: "userDisplayName", sortable: false },
   { text: "Department", value: "department", sortable: false },
@@ -171,14 +172,6 @@ const page = useRouteQuery("page", "1", { transform: integerTransformerLegacy })
 const perPage = useRouteQuery("perPage", "15", { transform: integerTransformerLegacy })
 
 const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
-  {
-    key: "isBooked",
-    order: "asc",
-  },
-  {
-    key: "isAssignedToCurrentUser",
-    order: "desc",
-  },
   {
     key: "travelStartDate",
     order: "asc",
