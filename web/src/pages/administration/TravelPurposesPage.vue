@@ -4,7 +4,7 @@
 
     <h1>Travel Purposes</h1>
     <v-card>
-      <v-text> Admin table for travel purpose </v-text>
+      <v-card-text> Admin table for travel purpose </v-card-text>
     </v-card>
   </div>
 </template>
