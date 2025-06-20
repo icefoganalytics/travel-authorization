@@ -3,7 +3,14 @@
     <v-card-title>
       <h3>Invoice</h3>
     </v-card-title>
-    <v-card-text class="d-flex justify-space-between align-center">
+    <v-skeleton-loader
+      v-if="isLoading"
+      type="card"
+    />
+    <v-card-text
+      v-else
+      class="d-flex justify-space-between align-center"
+    >
       <span class="primary--text body-1">
         Invoice Number: {{ travelDeskTravelRequest.invoiceNumber }}
       </span>
