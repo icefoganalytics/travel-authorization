@@ -181,6 +181,16 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       },
       continueButtonText: "Check status?",
     },
+    {
+      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.REVIEW_EXPENSES,
+      title: "Review Expenses",
+      subtitle: "Review submitted expenses",
+      component: () => import("@/components/my-travel-request-wizard/ReviewExpensesStep.vue"),
+      backButtonProps: {
+        disabled: true,
+      },
+      continueButtonText: "Return to My Travel Requests",
+    },
   ].map(buildStep)
 )
 

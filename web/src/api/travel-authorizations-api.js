@@ -38,6 +38,7 @@ export const TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES = Object.freeze({
   CONFIRM_ACTUAL_TRAVEL_DETAILS: "confirm-actual-travel-details",
   SUBMIT_EXPENSES: "submit-expenses",
   AWAITING_EXPENSE_CLAIM_APPROVAL_AND_PROCESSING: "awaiting-expense-claim-approval-and-processing",
+  REVIEW_EXPENSES: "review-expenses",
 })
 
 /** @typedef {STATUSES[keyof STATUSES]} Statuses */
