@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 
 import { NODE_ENV } from "@/config"
-import dbLegacy from "@/db/db-client-legacy"
+import dbLegacy from "@/db/db-migration-client"
 import db from "@/db/db-client"
 import logger from "@/utils/logger"
 
