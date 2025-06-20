@@ -1,8 +1,13 @@
-import knex from "knex"
+import knex, { type Knex } from "knex"
+import { cloneDeep, merge } from "lodash"
 
 import { DB_CONFIG, NODE_ENV } from "@/config"
 
-export const db = knex(DB_CONFIG)
+export function buildKnexConfig(options?: Knex.Config): Knex.Config {
+  return merge(cloneDeep(DB_CONFIG), options)
+}
+
+export const db = knex(buildKnexConfig())
 
 // TODO: double check this is something we want in production.
 db.on("query", (query) => {
