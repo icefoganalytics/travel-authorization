@@ -1,4 +1,4 @@
-import dbLegacy from "@/db/db-client-legacy"
+import dbLegacy from "@/db/db-migration-client"
 import logger from "@/utils/logger"
 
 export class AuditService {
