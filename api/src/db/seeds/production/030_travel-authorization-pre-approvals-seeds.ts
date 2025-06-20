@@ -1,11 +1,23 @@
 import { Knex } from "knex"
 import { isNil } from "lodash"
 
-import { TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile } from "@/models"
+import {
+  TravelAuthorizationPreApproval,
+  TravelAuthorizationPreApprovalProfile,
+  User,
+} from "@/models"
 
 export async function seed(_knex: Knex): Promise<void> {
+  const systemUser = await User.findOne({
+    where: {
+      email: "system.user@travel-auth.com",
+    },
+    rejectOnEmpty: true,
+  })
+
   const travelAuthorizationPreApprovalsAttributes = [
     {
+      creatorId: systemUser.id,
       estimatedCost: 1500,
       location: "Whitehorse",
       // Department and branch are taken from YgDepartments table.
@@ -24,6 +36,7 @@ export async function seed(_knex: Knex): Promise<void> {
       status: TravelAuthorizationPreApproval.Statuses.APPROVED,
     },
     {
+      creatorId: systemUser.id,
       estimatedCost: 800,
       location: "Dawson",
       department: "Economic Development",
@@ -40,6 +53,7 @@ export async function seed(_knex: Knex): Promise<void> {
       status: TravelAuthorizationPreApproval.Statuses.APPROVED,
     },
     {
+      creatorId: systemUser.id,
       estimatedCost: 1200,
       location: "Watson Lake",
       department: "Economic Development",
