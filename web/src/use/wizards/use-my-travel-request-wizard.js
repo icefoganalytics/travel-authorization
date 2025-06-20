@@ -130,6 +130,14 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
     })
   }
 
+  function setBackButtonProps(props) {
+    currentStep.value.backButtonProps = props
+  }
+
+  function setContinueButtonProps(props) {
+    currentStep.value.continueButtonProps = props
+  }
+
   return {
     ...toRefs(state),
     currentWizardStepName,
@@ -142,6 +150,8 @@ export function useMyTravelRequestWizard(travelAuthorizationId) {
     goToPreviousStep,
     goToNextStep,
     setEditableSteps,
+    setBackButtonProps,
+    setContinueButtonProps,
   }
 }
 

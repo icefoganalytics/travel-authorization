@@ -1,29 +1,29 @@
+import { FindOptions, Attributes, Op } from "sequelize"
+import { isUndefined } from "lodash"
+
 import { GeneralLedgerCoding, User } from "@/models"
 
-import BasePolicy from "@/policies/base-policy"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
+import PolicyFactory from "@/policies/policy-factory"
+import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
-export class GeneralLedgerCodingsPolicy extends BasePolicy<GeneralLedgerCoding> {
-  private travelAuthorization: GeneralLedgerCoding["travelAuthorization"]
-
-  constructor(user: User, record: GeneralLedgerCoding) {
-    super(user, record)
-    this.travelAuthorization = record.travelAuthorization
-  }
-
+export class GeneralLedgerCodingsPolicy extends PolicyFactory(GeneralLedgerCoding) {
   create(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
-    if (this.travelAuthorization?.supervisorEmail === this.user.email) return true
-    if (this.travelAuthorization?.userId === this.user.id) return true
+    if (this.travelAuthorizationPolicy.update()) return true
 
     return false
   }
 
   update(): boolean {
-    return this.create()
+    if (this.travelAuthorizationPolicy.update()) return true
+
+    return false
   }
 
   destroy(): boolean {
-    return this.create()
+    if (this.travelAuthorizationPolicy.update()) return true
+
+    return false
   }
 
   permittedAttributes(): string[] {
@@ -32,6 +32,39 @@ export class GeneralLedgerCodingsPolicy extends BasePolicy<GeneralLedgerCoding> 
 
   permittedAttributesForCreate(): string[] {
     return ["travelAuthorizationId", ...this.permittedAttributes()]
+  }
+
+  static policyScope(user: User): FindOptions<Attributes<GeneralLedgerCoding>> {
+    if (user.isAdmin) {
+      return ALL_RECORDS_SCOPE
+    }
+
+    return {
+      include: [
+        {
+          association: "travelAuthorization",
+          where: {
+            [Op.or]: [
+              {
+                supervisorEmail: user.email,
+              },
+              {
+                userId: user.id,
+              },
+            ],
+          },
+        },
+      ],
+    }
+  }
+
+  private get travelAuthorizationPolicy(): TravelAuthorizationsPolicy {
+    const { travelAuthorization } = this.record
+    if (isUndefined(travelAuthorization)) {
+      throw new Error("Expected record to have pre-loaded travelAuthorization association")
+    }
+
+    return new TravelAuthorizationsPolicy(this.user, travelAuthorization)
   }
 }
 

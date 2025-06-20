@@ -113,7 +113,7 @@
         <ItineraryModal
           v-if="hasInvoiceNumber"
           class="ml-auto mr-3"
-          :invoice-number="hasInvoiceNumber"
+          :invoice-number="invoiceNumber"
         />
         <UploadPnrModal
           :travel-request="travelDeskTravelRequest"
@@ -280,9 +280,10 @@ const isBookedState = computed(
 const isCompleteState = computed(
   () => travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.COMPLETE
 )
-const hasInvoiceNumber = computed(
-  () => !isNil(travelDeskTravelRequest.value?.travelDeskPassengerNameRecordDocument?.invoiceNumber)
+const invoiceNumber = computed(
+  () => travelDeskTravelRequest.value?.travelDeskPassengerNameRecordDocument?.invoiceNumber
 )
+const hasInvoiceNumber = computed(() => !isNil(invoiceNumber.value))
 
 const savingData = ref(false)
 

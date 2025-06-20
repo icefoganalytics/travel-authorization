@@ -23,14 +23,15 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from "vue"
+import { ref, computed } from "vue"
 
 import { required } from "@/utils/validators"
 
+import travelAuthorizationsApi from "@/api/travel-authorizations-api"
+import useExpenses, { TYPES, EXPENSE_TYPES } from "@/use/use-expenses"
+import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 import useSnack from "@/use/use-snack"
-import { useTravelAuthorization } from "@/use/use-travel-authorization"
-import { useGeneralLedgerCodings } from "@/use/use-general-ledger-codings"
-import { useExpenses, TYPES, EXPENSE_TYPES } from "@/use/use-expenses"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
@@ -47,8 +48,7 @@ const snack = useSnack()
 const {
   travelAuthorization,
   isLoading: isLoadingTravelAuthorization,
-  fetch: fetchTravelAuthorization,
-  expenseClaim,
+  refresh: refreshTravelAuthorization,
 } = useTravelAuthorization(props.travelAuthorizationId)
 
 const generalLedgerCodingOptions = computed(() => ({
@@ -59,7 +59,7 @@ const generalLedgerCodingOptions = computed(() => ({
 const {
   generalLedgerCodings,
   isLoading: isLoadingGeneralLedgerCodings,
-  fetch: fetchGeneralLedgerCodings,
+  refresh: refreshGeneralLedgerCodings,
 } = useGeneralLedgerCodings(generalLedgerCodingOptions)
 
 const expenseOptions = computed(() => ({
@@ -68,7 +68,11 @@ const expenseOptions = computed(() => ({
     type: TYPES.EXPENSE,
   },
 }))
-const { expenses, isLoading: isLoadingExpenses, fetch: fetchExpenses } = useExpenses(expenseOptions)
+const {
+  expenses,
+  isLoading: isLoadingExpenses,
+  refresh: refreshExpenses,
+} = useExpenses(expenseOptions)
 
 const isLoading = computed(
   () =>
@@ -88,15 +92,11 @@ const isReadyToSubmit = computed(
   () => hasGeneralLedgerCodings.value && allRelevantExpensesHaveReceipts.value
 )
 
-onMounted(async () => {
-  await refresh()
-})
-
 async function refresh() {
   await Promise.all([
-    await fetchTravelAuthorization(),
-    await fetchGeneralLedgerCodings(),
-    await fetchExpenses(),
+    await refreshTravelAuthorization(),
+    await refreshGeneralLedgerCodings(),
+    await refreshExpenses(),
   ])
 }
 
@@ -108,15 +108,20 @@ async function requestApprovalForExpenseClaim() {
     return false
   }
 
+  isLoadingTravelAuthorization.isLoading = true
   try {
-    await expenseClaim({
+    await travelAuthorizationsApi.expenseClaim(props.travelAuthorizationId, {
       supervisorEmail: travelAuthorization.value.supervisorEmail,
     })
+    isLoadingTravelAuthorization.value = false
     snack.success("Expense claim submitted for approval.")
     return true
   } catch (error) {
+    console.error(`Failed to submit expense claim for travel authorization: ${error}`, { error })
     snack.error(`Failed to submit expense claim: ${error}`)
     return false
+  } finally {
+    isLoadingTravelAuthorization.isLoading = false
   }
 }
 
