@@ -1,4 +1,4 @@
-import { isEmpty, isNil } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 
@@ -33,6 +33,10 @@ export class ExpenseClaimService extends BaseService {
       throw new Error("Supervisor email is required for expense claim submission.")
     }
 
+    if (!this.isAfterTravelEndDate()) {
+      throw new Error("Can not submit an expense claim before travel is completed.")
+    }
+
     await db.transaction(async () => {
       const supervisor = await Users.EnsureService.perform(
         {
@@ -58,6 +62,29 @@ export class ExpenseClaimService extends BaseService {
     return this.travelAuthorization.reload({
       include: ["expenses", "stops", "purpose", "user", "travelSegments"],
     })
+  }
+
+  private isAfterTravelEndDate(): boolean {
+    const { travelSegments } = this.travelAuthorization
+    if (isUndefined(travelSegments)) {
+      throw new Error("Expected travelSegments association to be pre-loaded.")
+    }
+
+    const lastTravelSegment = travelSegments.at(-1)
+    if (isNil(lastTravelSegment)) {
+      throw new Error(
+        "Cannot check if travel authorization is after travel end date without at least one travel segment."
+      )
+    }
+
+    const { departureOn } = lastTravelSegment
+    if (isNil(departureOn)) {
+      throw new Error(
+        "Cannot check if travel authorization is after travel end date without a departure date."
+      )
+    }
+
+    return new Date(departureOn) < new Date()
   }
 }
 

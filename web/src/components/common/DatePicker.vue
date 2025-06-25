@@ -38,7 +38,7 @@ export default {
   props: {
     value: {
       type: String,
-      default: "Pick a Date",
+      default: undefined,
     },
     text: {
       type: String,
@@ -52,7 +52,7 @@ export default {
     },
     label: {
       type: String,
-      default: undefined,
+      default: "Pick a Date",
     },
     rules: {
       type: Array,

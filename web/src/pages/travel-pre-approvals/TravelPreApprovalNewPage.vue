@@ -314,9 +314,7 @@ const router = useRouter()
 
 async function createTravelAuthorizationPreApproval() {
   if (headerActionsFormCard.value === null) return
-
-  const valid = await headerActionsFormCard.value.validate()
-  if (!valid) return
+  if (!headerActionsFormCard.value.validate()) return
 
   isLoading.value = true
 

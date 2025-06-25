@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import { useTravelAuthorization } from "@/use/use-travel-authorization"
 
 const props = defineProps({

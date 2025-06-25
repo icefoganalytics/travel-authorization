@@ -96,7 +96,7 @@
 import { ref, watch, nextTick } from "vue"
 import { useRoute, useRouter } from "vue2-helpers/vue-router"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import { required, isGeneralLedgerCode } from "@/utils/validators"
 
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
@@ -118,14 +118,14 @@ const snack = useSnack()
 
 const form = ref(null)
 const generalLedgerCoding = ref(build())
-const showDialog = ref(route.query.showCreate === "true")
+const showDialog = ref(route.query.showCreateGLCoding === "true")
 const isLoading = ref(false)
 
 watch(showDialog, (value) => {
   if (value) {
-    router.push({ query: { showCreate: value } })
+    router.push({ query: { showCreateGLCoding: value } })
   } else {
-    router.push({ query: { showCreate: undefined } })
+    router.push({ query: { showCreateGLCoding: undefined } })
   }
 })
 

@@ -130,9 +130,7 @@ const formRef = ref(null)
 
 async function updateAndClose() {
   if (formRef.value === null) return
-
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+  if (!formRef.value.validate()) return
 
   try {
     await save()

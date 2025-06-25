@@ -42,6 +42,7 @@ export class ApproveService extends BaseService {
     await db.transaction(async () => {
       await this.travelAuthorization.update({
         status: TravelAuthorization.Statuses.APPROVED,
+        wizardStepName: TravelAuthorization.WizardStepNames.EDIT_TRAVELLER_DETAILS,
       })
 
       if (this.isTravellingByAir(travelSegments)) {

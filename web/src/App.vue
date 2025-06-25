@@ -17,6 +17,7 @@
       v-else
       message="Initializing app ..."
     />
+    <AppSnackbar />
   </v-app>
 </template>
 
@@ -27,6 +28,7 @@ import { useRoute, useRouter } from "vue2-helpers/vue-router"
 import { useAuth0 } from "@/plugins/auth0-plugin"
 import useCurrentUser from "@/use/use-current-user"
 import PageLoader from "@/components/PageLoader.vue"
+import AppSnackbar from "@/components/AppSnackbar.vue"
 
 const route = useRoute()
 const isUnauthenticatedRoute = computed(() => route.meta.requiresAuth === false)

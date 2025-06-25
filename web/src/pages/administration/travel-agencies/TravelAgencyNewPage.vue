@@ -106,7 +106,7 @@
 import { ref } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import { required, isEmail, isPhoneNumber } from "@/utils/validators"
 import travelDeskTravelAgenciesApi from "@/api/travel-desk-travel-agencies-api"
 import useBreadcrumbs from "@/use/use-breadcrumbs"

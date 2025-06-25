@@ -146,7 +146,7 @@ import { ref, nextTick, watch } from "vue"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import travelDeskHotelsApi from "@/api/travel-desk-hotels-api"
 import useTravelDeskHotel from "@/use/use-travel-desk-hotel"

@@ -33,7 +33,7 @@
 <script setup>
 import { computed, ref } from "vue"
 
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
 
 import EstimateCreateDialog from "@/components/expenses/EstimateCreateDialog.vue"

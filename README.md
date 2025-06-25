@@ -104,6 +104,22 @@ You can also run migrations and seeding manually after login in to the web UI by
 
 You can also skip seeding if database is not empty by setting the `SKIP_SEEDING_UNLESS_EMPTY=true` environment variable.
 
+### Design (a.k.a. plantuml service)
+
+1. Boot only the plantuml service using:
+
+   ```bash
+   COMPOSE_PROFILES=design dev up
+
+   # or
+
+   docker compose -f docker-compose.development.yml --profile design up
+   ```
+
+   > You can also do `export COMPOSE_PROFILES=design` in your `.envrc` file if you always want to boot the plantuml service.
+
+2. Access the plantuml service at http://localhost:9999
+
 ### Troubleshooting
 
 If you are getting a bunch of "Login required" errors in the console, make sure that you have disabled any kind of enhanced tracking protection.

@@ -23,8 +23,27 @@ export const TRIP_TYPES = Object.freeze({
   MULTI_CITY: "multi_city",
 })
 
+export const TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES = Object.freeze({
+  EDIT_PURPOSE_DETAILS: "edit-purpose-details",
+  EDIT_TRIP_DETAILS: "edit-trip-details",
+  GENERATE_ESTIMATE: "generate-estimate",
+  SUBMIT_TO_SUPERVISOR: "submit-to-supervisor",
+  AWAITING_SUPERVISOR_APPROVAL: "awaiting-supervisor-approval",
+  EDIT_TRAVELLER_DETAILS: "edit-traveller-details",
+  SUBMIT_TO_TRAVEL_DESK: "submit-to-travel-desk",
+  AWAITING_FLIGHT_OPTIONS: "awaiting-flight-options",
+  RANK_FLIGHT_OPTIONS: "rank-flight-options",
+  AWAITING_BOOKING_CONFIRMATION: "awaiting-booking-confirmation",
+  AWAITING_TRAVEL_START: "awaiting-travel-start",
+  CONFIRM_ACTUAL_TRAVEL_DETAILS: "confirm-actual-travel-details",
+  SUBMIT_EXPENSES: "submit-expenses",
+  AWAITING_EXPENSE_CLAIM_APPROVAL_AND_PROCESSING: "awaiting-expense-claim-approval-and-processing",
+  REVIEW_EXPENSES: "review-expenses",
+})
+
 /** @typedef {STATUSES[keyof STATUSES]} Statuses */
 /** @typedef {TRIP_TYPES[keyof TRIP_TYPES]} TripTypes */
+/** @typedef {TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES[keyof TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES]} TravelAuthorizationWizardStepNames */
 
 /**
  * @typedef {{
@@ -53,7 +72,7 @@ export const TRIP_TYPES = Object.freeze({
  *   summary: string | null;
  *   benefits: string | null;
  *   status: Statuses;
- *   wizardStepName: string | null;
+ *   wizardStepName: TravelAuthorizationWizardStepNames | null;
  *   supervisorEmail: string | null;
  *   requestChange: string | null;
  *   denialReason: string | null;
@@ -83,7 +102,7 @@ export const TRIP_TYPES = Object.freeze({
  *   email?: string;
  *   mailcode?: string;
  *   status?: Statuses;
- *   wizardStepName?: string;
+ *   wizardStepName?: TravelAuthorizationWizardStepNames;
  *   supervisorEmail?: string;
  *   tripTypeEstimate?: TripTypes;
  *   tripTypeActual?: TripTypes;
@@ -109,6 +128,8 @@ export const TRIP_TYPES = Object.freeze({
 export const travelAuthorizationsApi = {
   STATUSES,
   TRIP_TYPES,
+  WIZARD_STEP_NAMES: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES,
+
   /**
    * @param {TravelAuthorizationsQueryOptions} [params={}]
    * @returns {Promise<{

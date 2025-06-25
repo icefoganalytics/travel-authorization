@@ -239,7 +239,7 @@ import { isNil, cloneDeep } from "lodash"
 import { DateTime } from "luxon"
 
 import { required } from "@/utils/validators"
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import travelDeskRentalCarsApi, {
   LOCATION_TYPES,
   VEHICLE_TYPES,

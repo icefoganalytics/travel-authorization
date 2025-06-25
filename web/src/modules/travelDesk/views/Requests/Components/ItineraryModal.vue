@@ -164,7 +164,7 @@ export default {
   },
   props: {
     invoiceNumber: {
-      type: Number,
+      type: [String, Number],
       required: true,
     },
   },

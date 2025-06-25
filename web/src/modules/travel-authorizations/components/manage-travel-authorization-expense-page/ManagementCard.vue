@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { useSnack } from "@/plugins/snack-plugin"
+import useSnack from "@/use/use-snack"
 import travelAuthorizationApi from "@/api/travel-authorizations-api"
 
 import ReassignApprovalForm from "@/modules/travel-authorizations/components/manage-travel-authorization-expense-page/ReassignApprovalForm.vue"
