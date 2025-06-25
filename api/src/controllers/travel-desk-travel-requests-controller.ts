@@ -1,3 +1,4 @@
+import { col } from "sequelize"
 import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
@@ -17,7 +18,10 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
         "includeTravelStartDateAttribute",
         { method: ["includeIsAssignedToCurrentUserAttribute", this.currentUser.displayName] },
       ])
-      const order = this.buildOrder()
+      const order = this.buildOrder([
+        [col("isBooked"), "asc"],
+        [col("isAssignedToCurrentUser"), "desc"],
+      ])
       const scopedTravelDeskTravelRequests = TravelDeskTravelRequestsPolicy.applyScope(
         scopes,
         this.currentUser
