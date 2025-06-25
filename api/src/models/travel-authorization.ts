@@ -67,6 +67,7 @@ export enum TravelAuthorizationWizardStepNames {
   AWAITING_TRAVEL_START = "awaiting-travel-start",
   CONFIRM_ACTUAL_TRAVEL_DETAILS = "confirm-actual-travel-details",
   SUBMIT_EXPENSES = "submit-expenses",
+  AWAITING_EXPENSE_CLAIM_APPROVAL_AND_PROCESSING = "awaiting-expense-claim-approval-and-processing",
   REVIEW_EXPENSES = "review-expenses",
 }
 
