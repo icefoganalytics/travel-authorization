@@ -41,13 +41,13 @@ Vue.component("apexchart", VueApexCharts)
 axios.defaults.withCredentials = true
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*"
 
-new Vue({
+const vue = new Vue({
   router,
   store,
   vuetify,
   i18n,
   render: (h) => h(App),
-}).$mount("#app")
+})
 
 console.log("App is running", {
   environment: ENVIRONMENT,
@@ -55,3 +55,5 @@ console.log("App is running", {
   releaseTag: RELEASE_TAG,
   gitCommitHash: GIT_COMMIT_HASH,
 })
+
+vue.$mount("#app")
