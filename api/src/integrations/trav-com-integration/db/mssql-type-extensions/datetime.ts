@@ -1,4 +1,4 @@
-import { Utils } from "sequelize"
+import { Utils } from "@sequelize/core"
 import { DateTime } from "luxon"
 
 import ABSTRACT from "@/integrations/trav-com-integration/db/mssql-type-extensions/abstract"

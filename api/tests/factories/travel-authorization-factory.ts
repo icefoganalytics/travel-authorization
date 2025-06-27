@@ -1,4 +1,4 @@
-import { Includeable } from "sequelize"
+import { Includeable } from "@sequelize/core"
 import { faker } from "@faker-js/faker"
 
 import { TravelAuthorization } from "@/models"

@@ -16,7 +16,7 @@
  * See: https://vitest.dev/api/vi#vi-mock
  */
 
-import { QueryTypes } from "sequelize"
+import { QueryTypes } from "@sequelize/core"
 import { isNil } from "lodash"
 
 import db from "@/db/db-client"

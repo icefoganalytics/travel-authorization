@@ -7,7 +7,7 @@ import {
   ModelStatic,
   ScopeOptions,
   WhereAttributeHash,
-} from "sequelize"
+} from "@sequelize/core"
 
 import { type AttributeNames } from "@/utils/utility-types"
 import searchFieldsByTermsFactory from "@/utils/search-fields-by-terms-factory"

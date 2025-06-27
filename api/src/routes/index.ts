@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction, ErrorRequestHandler } from "express"
-import { DatabaseError } from "sequelize"
+import { DatabaseError } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 import { GIT_COMMIT_HASH, RELEASE_TAG } from "@/config"

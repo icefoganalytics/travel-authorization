@@ -1,6 +1,6 @@
 import { isNil, isNull, minBy } from "lodash"
 import express, { Request, Response } from "express"
-import { CreationAttributes, Op, WhereOptions } from "sequelize"
+import { CreationAttributes, Op, WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"

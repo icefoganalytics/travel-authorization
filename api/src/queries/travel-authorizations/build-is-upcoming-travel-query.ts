@@ -1,4 +1,4 @@
-import { literal } from "sequelize"
+import { literal } from "@sequelize/core"
 import { type Literal } from "sequelize/lib/utils"
 
 export function buildIsUpcomingTravelQuery(): Literal {

@@ -8,7 +8,7 @@ import {
   literal,
   NonAttribute,
   Op,
-} from "sequelize"
+} from "@sequelize/core"
 import { sortBy } from "lodash"
 
 import BaseModel from "@/models/base-model"

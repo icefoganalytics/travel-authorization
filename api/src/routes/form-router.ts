@@ -1,5 +1,5 @@
 import { isNull, minBy } from "lodash"
-import { Op } from "sequelize"
+import { Op } from "@sequelize/core"
 import express, { Request, Response } from "express"
 
 import { ReturnValidationErrors } from "@/middleware"

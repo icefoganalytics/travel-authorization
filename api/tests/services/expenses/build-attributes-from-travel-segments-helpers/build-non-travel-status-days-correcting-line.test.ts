@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 import { faker } from "@faker-js/faker"
 
 import { expenseFactory } from "@/factories"

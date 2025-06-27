@@ -1,4 +1,4 @@
-import { ModelStatic, Op } from "sequelize"
+import { ModelStatic, Op } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"

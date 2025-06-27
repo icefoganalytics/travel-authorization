@@ -1,4 +1,4 @@
-import { WhereOptions } from "sequelize"
+import { WhereOptions } from "@sequelize/core"
 import { isNil } from "lodash"
 
 import { TravelDeskOtherTransportation, TravelDeskTravelRequest } from "@/models"

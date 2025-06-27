@@ -11,7 +11,7 @@ import {
   InferCreationAttributes,
   Model,
   NonAttribute,
-} from "sequelize"
+} from "@sequelize/core"
 
 import sequelize from "@/db/db-client"
 

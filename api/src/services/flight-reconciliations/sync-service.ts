@@ -1,4 +1,4 @@
-import { Attributes, WhereOptions } from "sequelize"
+import { Attributes, WhereOptions } from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
 import { TravComIntegration } from "@/integrations"

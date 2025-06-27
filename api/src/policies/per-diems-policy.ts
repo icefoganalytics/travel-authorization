@@ -1,4 +1,4 @@
-import { Attributes, FindOptions } from "sequelize"
+import { Attributes, FindOptions } from "@sequelize/core"
 
 import { Path } from "@/utils/deep-pick"
 import { User, PerDiem } from "@/models"

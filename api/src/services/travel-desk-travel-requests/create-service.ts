@@ -1,5 +1,5 @@
 import { isEmpty, isNil } from "lodash"
-import { Attributes } from "sequelize"
+import { Attributes } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 import { yukonGovernmentIntegration } from "@/integrations"

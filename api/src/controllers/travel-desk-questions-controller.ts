@@ -1,4 +1,4 @@
-import { literal } from "sequelize"
+import { literal } from "@sequelize/core"
 import { Literal } from "sequelize/lib/utils"
 import { isNil } from "lodash"
 

@@ -7,7 +7,7 @@ import {
   type InferCreationAttributes,
   type NonAttribute,
   Op,
-} from "sequelize"
+} from "@sequelize/core"
 
 import sequelize from "@/db/db-client"
 

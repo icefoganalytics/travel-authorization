@@ -1,4 +1,4 @@
-import { col } from "sequelize"
+import { col } from "@sequelize/core"
 import { isNil } from "lodash"
 
 import logger from "@/utils/logger"

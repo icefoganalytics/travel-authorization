@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 import { sortBy, reverse } from "lodash"
 
 import { Expense } from "@/models"

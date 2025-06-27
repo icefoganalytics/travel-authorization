@@ -1,5 +1,5 @@
 import { BuildOptions, DeepPartial, Factory } from "fishery"
-import { Model } from "sequelize"
+import { Model } from "@sequelize/core"
 
 // Must keep type signature in sync with fishery's Factory type
 // See api/node_modules/fishery/dist/factory.d.ts

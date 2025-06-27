@@ -5,7 +5,7 @@ import {
   DataTypes,
   NonAttribute,
   Association,
-} from "sequelize"
+} from "@sequelize/core"
 
 import sequelize from "@/integrations/trav-com-integration/db/db-client"
 

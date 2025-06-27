@@ -1,6 +1,6 @@
 import { Factory } from "fishery"
 import { faker } from "@faker-js/faker"
-import { Includeable } from "sequelize"
+import { Includeable } from "@sequelize/core"
 
 import { TravelSegment } from "@/models"
 import { locationFactory, travelAuthorizationFactory } from "@/factories"
