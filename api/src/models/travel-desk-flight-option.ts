@@ -7,7 +7,7 @@ import {
   InferCreationAttributes,
   Model,
   NonAttribute,
-} from "sequelize"
+} from "@sequelize/core"
 import { isEmpty } from "lodash"
 
 import sequelize from "@/db/db-client"

@@ -10,7 +10,7 @@ import {
   BelongsToSetAssociationMixin,
   NonAttribute,
   DataTypes,
-} from "sequelize"
+} from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
 import sequelize from "@/db/db-client"

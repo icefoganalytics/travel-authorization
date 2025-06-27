@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { Attributes, col, Model, Order, WhereOptions } from "sequelize"
+import { Attributes, col, Model, Order, WhereOptions } from "@sequelize/core"
 import { type Col } from "sequelize/lib/utils"
 import { isEmpty, isNil } from "lodash"
 

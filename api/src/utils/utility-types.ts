@@ -1,4 +1,4 @@
-import { Attributes, Model } from "sequelize"
+import { Attributes, Model } from "@sequelize/core"
 
 export type SnakeCase<S extends string> = S extends `${infer T}${infer U}`
   ? U extends Uncapitalize<U>

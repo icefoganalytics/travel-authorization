@@ -5,7 +5,7 @@ import {
   InferCreationAttributes,
   literal,
   Model,
-} from "sequelize"
+} from "@sequelize/core"
 
 import sequelize from "@/db/db-client"
 

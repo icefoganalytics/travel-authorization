@@ -7,7 +7,7 @@ import {
   InferCreationAttributes,
   Model,
   NonAttribute,
-} from "sequelize"
+} from "@sequelize/core"
 
 import sequelize, { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
 

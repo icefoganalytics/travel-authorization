@@ -8,7 +8,7 @@ import {
   Model,
   NonAttribute,
   Op,
-} from "sequelize"
+} from "@sequelize/core"
 import { DateTime } from "luxon"
 
 import sequelize from "@/db/db-client"

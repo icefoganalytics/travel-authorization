@@ -5,7 +5,7 @@ import {
   InferCreationAttributes,
   Model,
   Op,
-} from "sequelize"
+} from "@sequelize/core"
 
 import sequelize from "@/db/db-client"
 import arrayWrap from "@/utils/array-wrap"

@@ -1,4 +1,4 @@
-import { Model } from "sequelize"
+import { Model } from "@sequelize/core"
 import { isPromise } from "util/types"
 
 type RemainingConstructorParameters<C extends new (...args: any[]) => any> = C extends new (

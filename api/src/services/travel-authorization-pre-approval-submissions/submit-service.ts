@@ -1,4 +1,4 @@
-import { Attributes } from "sequelize"
+import { Attributes } from "@sequelize/core"
 
 import { TravelAuthorizationPreApprovalSubmission, User } from "@/models"
 

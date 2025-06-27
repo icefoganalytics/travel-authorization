@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 import { isUndefined } from "lodash"
 import { v4 as uuid } from "uuid"
 

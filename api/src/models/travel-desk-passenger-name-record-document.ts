@@ -10,7 +10,7 @@ import {
   InferCreationAttributes,
   Model,
   NonAttribute,
-} from "sequelize"
+} from "@sequelize/core"
 
 import TravelDeskTravelRequest from "./travel-desk-travel-request"
 

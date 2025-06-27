@@ -7,7 +7,7 @@ import {
   Model,
   NonAttribute,
   Op,
-} from "sequelize"
+} from "@sequelize/core"
 import { isNil } from "lodash"
 import moment from "moment"
 

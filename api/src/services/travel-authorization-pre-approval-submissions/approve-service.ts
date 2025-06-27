@@ -1,4 +1,4 @@
-import { Attributes } from "sequelize"
+import { Attributes } from "@sequelize/core"
 import { isNil, isEmpty } from "lodash"
 
 import db, {

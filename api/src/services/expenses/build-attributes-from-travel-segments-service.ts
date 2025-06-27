@@ -1,5 +1,5 @@
 import { clone, isEmpty, isNil, min, startCase, times, toLower } from "lodash"
-import { CreationAttributes, Op } from "sequelize"
+import { CreationAttributes, Op } from "@sequelize/core"
 
 import {
   DistanceMatrix,
