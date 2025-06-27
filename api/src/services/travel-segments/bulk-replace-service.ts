@@ -1,10 +1,9 @@
 import { Attributes } from "sequelize"
 import { isNil } from "lodash"
 
-import { transaction } from "@/utils/transaction"
 import { type WithRequired } from "@/utils/utility-types"
 
-import { TravelSegment } from "@/models"
+import db, { TravelSegment } from "@/models"
 import BaseService from "@/services/base-service"
 
 export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
@@ -45,7 +44,7 @@ export class BulkReplaceService extends BaseService {
       )
     }
 
-    return transaction(async () => {
+    return db.transaction(async () => {
       await TravelSegment.destroy({
         where: {
           travelAuthorizationId: this.travelAuthorizationId,
