@@ -1,17 +1,23 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
   InferAttributes,
   InferCreationAttributes,
-  literal,
   Model,
-  NonAttribute,
   Op,
+  sql,
+  type CreationOptional,
+  type NonAttribute,
 } from "@sequelize/core"
-
-import sequelize from "@/db/db-client"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  HasMany,
+  NotNull,
+  PrimaryKey,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 
 import TravelDeskFlightOption from "@/models/travel-desk-flight-option"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
@@ -45,131 +51,104 @@ export class TravelDeskFlightRequest extends Model<
   static readonly SeatPreferencesTypes = TravelDeskFlightRequestSeatPreferencesTypes
   static readonly TimePreferences = TravelDeskFlightRequestTimePreferences
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare travelRequestId: ForeignKey<TravelDeskTravelRequest["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelRequestId: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare departLocation: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare arriveLocation: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
   declare datePreference: Date
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskFlightRequestTimePreferences)],
+      msg: `Time preference must be one of: ${Object.values(
+        TravelDeskFlightRequestTimePreferences
+      ).join(", ")}`,
+    },
+  })
   declare timePreference: TravelDeskFlightRequestTimePreferences
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskFlightRequestSeatPreferencesTypes)],
+      msg: `Seat preference must be one of: ${Object.values(
+        TravelDeskFlightRequestSeatPreferencesTypes
+      ).join(", ")}`,
+    },
+  })
   declare seatPreference: TravelDeskFlightRequestSeatPreferencesTypes
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
   declare deletedAt: CreationOptional<Date | null>
 
   // Associations
+  @BelongsTo(() => TravelDeskTravelRequest, {
+    foreignKey: "travelRequestId",
+    inverse: {
+      as: "flightRequests",
+      type: "hasMany",
+    },
+  })
   declare travelRequest: NonAttribute<TravelDeskTravelRequest>
 
-  declare static associations: {
-    travelRequest: Association<TravelDeskFlightRequest, TravelDeskTravelRequest>
-  }
+  @HasMany(() => TravelDeskFlightOption, {
+    foreignKey: "flightRequestId",
+    inverse: "flightRequest",
+  })
+  declare flightOptions: NonAttribute<TravelDeskFlightOption[]>
 
-  static establishAssociations() {
-    this.belongsTo(TravelDeskTravelRequest, {
-      as: "travelRequest",
-      foreignKey: "travelRequestId",
-    })
-    this.hasMany(TravelDeskFlightOption, {
-      as: "flightOptions",
-      foreignKey: "flightRequestId",
+  static establishScopes(): void {
+    this.addScope("familyOf", (flightRequestId: number) => {
+      const travelRequestIdQuery = sql`
+        (
+          SELECT
+            "travel_request_id"
+          FROM
+            "travel_desk_flight_requests"
+          WHERE
+            "id" = :flightRequestId
+        )
+      `
+      return {
+        where: {
+          travelRequestId: {
+            [Op.eq]: travelRequestIdQuery,
+          },
+        },
+        replacements: {
+          flightRequestId,
+        },
+      }
     })
   }
 }
-
-TravelDeskFlightRequest.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false,
-    },
-    travelRequestId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelDeskTravelRequest,
-        key: "id",
-      },
-    },
-    departLocation: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    arriveLocation: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    datePreference: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    timePreference: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelDeskFlightRequestTimePreferences)],
-          msg: `Time preference must be one of: ${Object.values(
-            TravelDeskFlightRequestTimePreferences
-          ).join(", ")}`,
-        },
-      },
-    },
-    seatPreference: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelDeskFlightRequestSeatPreferencesTypes)],
-          msg: `Seat preference must be one of: ${Object.values(
-            TravelDeskFlightRequestSeatPreferencesTypes
-          ).join(", ")}`,
-        },
-      },
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: null,
-    },
-  },
-  {
-    sequelize,
-    scopes: {
-      familyOf(flightRequestId: number) {
-        const travelRequestIdQuery = /* sql */ `
-          (
-            SELECT
-              "travel_request_id"
-            FROM
-              "travel_desk_flight_requests"
-            WHERE
-              "id" = :flightRequestId
-          )
-        `
-        return {
-          where: {
-            travelRequestId: {
-              [Op.eq]: literal(travelRequestIdQuery),
-            },
-          },
-          replacements: {
-            flightRequestId,
-          },
-        }
-      },
-    },
-  }
-)
 
 export default TravelDeskFlightRequest
