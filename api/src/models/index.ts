@@ -39,6 +39,7 @@ db.addModels([
   Location,
   PerDiem,
   Role,
+  Stop,
 ])
 
 DistanceMatrix.establishScopes()
@@ -47,8 +48,8 @@ FlightReconciliation.establishScopes()
 GeneralLedgerCoding.establishScopes()
 Location.establishScopes()
 PerDiem.establishScopes()
+Stop.establishScopes()
 
-Stop.establishAssociations()
 TravelAuthorization.establishAssociations()
 TravelAuthorizationActionLog.establishAssociations()
 TravelAuthorizationPreApproval.establishAssociations()
