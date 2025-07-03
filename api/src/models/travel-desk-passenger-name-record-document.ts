@@ -1,100 +1,71 @@
 import {
-  Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
-  InferAttributes,
-  InferCreationAttributes,
   Model,
-  NonAttribute,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
 } from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  NotNull,
+  PrimaryKey,
+  Table,
+} from "@sequelize/core/decorators-legacy"
 
-import TravelDeskTravelRequest from "./travel-desk-travel-request"
+import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
-import sequelize from "@/db/db-client"
-
+@Table({
+  tableName: "travel_desk_passenger_name_record_documents",
+  paranoid: false,
+})
 export class TravelDeskPassengerNameRecordDocument extends Model<
   InferAttributes<TravelDeskPassengerNameRecordDocument>,
   InferCreationAttributes<TravelDeskPassengerNameRecordDocument>
 > {
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare travelDeskTravelRequestId: ForeignKey<TravelDeskTravelRequest["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelDeskTravelRequestId: number
+
+  @Attribute(DataTypes.BLOB)
   declare pnrDocument: Buffer | null
+
+  @Attribute(DataTypes.STRING(255))
   declare invoiceNumber: string | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
-  declare getTravelDeskTravelRequest: BelongsToGetAssociationMixin<TravelDeskTravelRequest>
-  declare setTravelDeskTravelRequest: BelongsToSetAssociationMixin<
-    TravelDeskTravelRequest,
-    TravelDeskTravelRequest["id"]
-  >
-  declare createTravelDeskTravelRequest: BelongsToCreateAssociationMixin<TravelDeskTravelRequest>
-
-  declare travelDeskTravelRequest?: NonAttribute<TravelDeskTravelRequest>
-
-  declare static associations: {
-    travelDeskTravelRequest: Association<
-      TravelDeskPassengerNameRecordDocument,
-      TravelDeskTravelRequest
-    >
-  }
-
-  static establishAssociations() {
-    this.belongsTo(TravelDeskTravelRequest, {
-      as: "travelDeskTravelRequest",
-      targetKey: "id",
-      foreignKey: "travelDeskTravelRequestId",
-    })
-  }
-}
-
-TravelDeskPassengerNameRecordDocument.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    travelDeskTravelRequestId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      unique: true,
-      references: {
-        model: "travel_desk_travel_requests", // using real table name here
-        key: "id", // using real column name here
-      },
+  @BelongsTo(() => TravelDeskTravelRequest, {
+    foreignKey: {
+      name: "travelDeskTravelRequestId",
       onDelete: "CASCADE",
     },
-    pnrDocument: {
-      type: DataTypes.BLOB,
-      allowNull: true,
+    inverse: {
+      as: "passengerNameRecordDocuments",
+      type: "hasMany",
     },
-    invoiceNumber: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    modelName: "TravelDeskPassengerNameRecordDocument",
-    tableName: "travel_desk_passenger_name_record_documents",
-    paranoid: false,
+  })
+  declare travelDeskTravelRequest?: NonAttribute<TravelDeskTravelRequest>
+
+  static establishScopes(): void {
+    // add as needed
   }
-)
+}
 
 export default TravelDeskPassengerNameRecordDocument
