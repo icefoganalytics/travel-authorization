@@ -41,6 +41,7 @@ db.addModels([
   Role,
   Stop,
   TravelAllowance,
+  TravelAuthorization,
   TravelAuthorizationActionLog,
   TravelAuthorizationPreApproval,
   TravelAuthorizationPreApprovalDocument,
@@ -56,13 +57,13 @@ Location.establishScopes()
 PerDiem.establishScopes()
 Stop.establishScopes()
 TravelAllowance.establishScopes()
+TravelAuthorization.establishScopes()
 TravelAuthorizationActionLog.establishScopes()
 TravelAuthorizationPreApproval.establishScopes()
 TravelAuthorizationPreApprovalDocument.establishScopes()
 TravelAuthorizationPreApprovalProfile.establishScopes()
 TravelAuthorizationPreApprovalSubmission.establishScopes()
 
-TravelAuthorization.establishAssociations()
 TravelDeskFlightOption.establishAssociations()
 TravelDeskFlightRequest.establishAssociations()
 TravelDeskFlightSegment.establishAssociations()

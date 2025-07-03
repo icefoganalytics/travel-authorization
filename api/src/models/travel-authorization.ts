@@ -1,17 +1,26 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
   InferAttributes,
   InferCreationAttributes,
   Model,
-  NonAttribute,
   Op,
+  type CreationOptional,
+  type NonAttribute,
 } from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  HasMany,
+  HasOne,
+  NotNull,
+  PrimaryKey,
+  Table,
+  Unique,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 import { DateTime } from "luxon"
-
-import sequelize from "@/db/db-client"
 
 import Expense from "@/models/expense"
 import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization-pre-approval-profile"
@@ -71,6 +80,9 @@ export enum TravelAuthorizationWizardStepNames {
   REVIEW_EXPENSES = "review-expenses",
 }
 
+@Table({
+  paranoid: false,
+})
 export class TravelAuthorization extends Model<
   InferAttributes<TravelAuthorization>,
   InferCreationAttributes<TravelAuthorization>
@@ -79,41 +91,151 @@ export class TravelAuthorization extends Model<
   static readonly TripTypes = TravelAuthorizationTripTypes
   static readonly WizardStepNames = TravelAuthorizationWizardStepNames
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
+  @Unique
   declare slug: string
-  declare userId: ForeignKey<User["id"]>
-  declare preApprovalProfileId: ForeignKey<TravelAuthorizationPreApprovalProfile["id"]> | null
-  declare purposeId: ForeignKey<TravelPurpose["id"]> | null
+
+  // TODO: consider renaming this to requestorId?
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare userId: number
+
+  @Attribute(DataTypes.INTEGER)
+  declare preApprovalProfileId: number | null
+
+  @Attribute(DataTypes.INTEGER)
+  declare purposeId: number | null
+
+  @Attribute(DataTypes.STRING(255))
   declare firstName: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare lastName: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare department: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare division: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare branch: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare unit: string | null
+
+  @Attribute({
+    type: DataTypes.STRING(255),
+    set(value: string | null) {
+      if (typeof value === "string") {
+        this.setDataValue("email", value.toLowerCase())
+      } else {
+        this.setDataValue("email", null)
+      }
+    },
+  })
   declare email: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare mailcode: string | null
+
+  @Attribute(DataTypes.INTEGER)
   declare daysOffTravelStatusEstimate: number | null
+
+  @Attribute(DataTypes.INTEGER)
   declare daysOffTravelStatusActual: number | null
+
+  @Attribute(DataTypes.DATEONLY)
   declare dateBackToWorkEstimate: Date | string | null // DATEONLY accepts Date or string, but returns string
+
+  @Attribute(DataTypes.DATEONLY)
   declare dateBackToWorkActual: Date | string | null // DATEONLY accepts Date or string, but returns string
+
+  @Attribute(DataTypes.INTEGER)
   declare travelDurationEstimate: number | null
+
+  @Attribute(DataTypes.INTEGER)
   declare travelDurationActual: number | null
+
+  @Attribute(DataTypes.INTEGER)
   declare travelAdvance: number | null
+
+  @Attribute(DataTypes.STRING(255))
   declare eventName: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare summary: string | null
+
+  @Attribute(DataTypes.STRING(2000))
   declare benefits: string | null
+
+  // TODO: make this non-nullable in the database then update here.
+  @Attribute(DataTypes.STRING(255))
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelAuthorizationStatuses)],
+      msg: `Status must be one of: ${Object.values(TravelAuthorizationStatuses).join(", ")}`,
+    },
+  })
   declare status: TravelAuthorizationStatuses | null
+
+  @Attribute(DataTypes.STRING(255))
   declare wizardStepName: string | null
+
   // TODO: consider making this supervisorId?
+  @Attribute(DataTypes.STRING(255))
   declare supervisorEmail: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare requestChange: string | null
+
+  @Attribute(DataTypes.STRING(2000))
   declare denialReason: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelAuthorizationTripTypes)],
+      msg: `Trip type must be one of: ${Object.values(TravelAuthorizationTripTypes).join(", ")}`,
+    },
+  })
   declare tripTypeEstimate: TravelAuthorizationTripTypes | null
+
+  @Attribute(DataTypes.STRING(255))
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelAuthorizationTripTypes)],
+      msg: `Trip type must be one of: ${Object.values(TravelAuthorizationTripTypes).join(", ")}`,
+    },
+  })
   declare tripTypeActual: TravelAuthorizationTripTypes | null
+
+  // TODO: make this a foreign key to the users table
+  // also non-nullable,
+  // maybe rename to creatorId
+  @Attribute(DataTypes.INTEGER)
   declare createdBy: number | null
+
+  @Attribute(DataTypes.INTEGER)
   declare travelAdvanceInCents: number | null
+
+  @Attribute(DataTypes.BOOLEAN)
   declare allTravelWithinTerritory: boolean | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
   // Magic methods
@@ -138,78 +260,74 @@ export class TravelAuthorization extends Model<
   }
 
   // Associations
+  @BelongsTo(() => TravelAuthorizationPreApprovalProfile, {
+    foreignKey: "preApprovalProfileId",
+    inverse: {
+      as: "travelAuthorizations",
+      type: "hasMany",
+    },
+  })
   declare preApprovalProfile?: NonAttribute<TravelAuthorizationPreApprovalProfile>
+
+  @BelongsTo(() => TravelPurpose, {
+    foreignKey: "purposeId",
+    inverse: {
+      as: "travelAuthorizations",
+      type: "hasMany",
+    },
+  })
   declare purpose?: NonAttribute<TravelPurpose>
-  declare travelDeskTravelRequest?: NonAttribute<TravelDeskTravelRequest>
+
+  @BelongsTo(() => User, {
+    foreignKey: "userId",
+    inverse: {
+      as: "travelAuthorizations",
+      type: "hasMany",
+    },
+  })
   declare user?: NonAttribute<User>
+
+  @HasOne(() => TravelDeskTravelRequest, {
+    foreignKey: "travelAuthorizationId",
+    inverse: "travelAuthorization",
+  })
+  declare travelDeskTravelRequest?: NonAttribute<TravelDeskTravelRequest>
+
+  @HasMany(() => Expense, {
+    foreignKey: "travelAuthorizationId",
+    inverse: "travelAuthorization",
+  })
   declare expenses?: NonAttribute<Expense[]>
+
+  @HasMany(() => Stop, {
+    foreignKey: "travelAuthorizationId",
+    inverse: "travelAuthorization",
+  })
   declare stops?: NonAttribute<Stop[]>
+
+  @HasMany(() => TravelSegment, {
+    foreignKey: "travelAuthorizationId",
+    inverse: "travelAuthorization",
+  })
   declare travelSegments?: NonAttribute<TravelSegment[]>
+
+  @HasMany(() => TravelSegment, {
+    foreignKey: "travelAuthorizationId",
+    inverse: "travelAuthorization",
+    scope: {
+      isActual: true,
+    },
+  })
   declare travelSegmentActuals?: NonAttribute<TravelSegment[]>
+
+  @HasMany(() => TravelSegment, {
+    foreignKey: "travelAuthorizationId",
+    inverse: "travelAuthorization",
+    scope: {
+      isActual: false,
+    },
+  })
   declare travelSegmentEstimates?: NonAttribute<TravelSegment[]>
-
-  declare static associations: {
-    expenses: Association<TravelAuthorization, Expense>
-    preApprovalProfile: Association<TravelAuthorization, TravelAuthorizationPreApprovalProfile>
-    purpose: Association<TravelAuthorization, TravelPurpose>
-    stops: Association<TravelAuthorization, Stop>
-    travelDeskTravelRequest: Association<TravelAuthorization, TravelDeskTravelRequest>
-    travelSegments: Association<TravelAuthorization, TravelSegment>
-    travelSegmentActuals: Association<TravelAuthorization, TravelSegment>
-    travelSegmentEstimates: Association<TravelAuthorization, TravelSegment>
-    user: Association<TravelAuthorization, User>
-  }
-
-  static establishAssociations() {
-    this.belongsTo(TravelAuthorizationPreApprovalProfile, {
-      as: "preApprovalProfile",
-      foreignKey: "preApprovalProfileId",
-    })
-    this.belongsTo(TravelPurpose, {
-      as: "purpose",
-      foreignKey: "purposeId",
-    })
-    this.belongsTo(User, {
-      as: "user",
-      foreignKey: "userId",
-    })
-    this.hasOne(TravelDeskTravelRequest, {
-      as: "travelDeskTravelRequest",
-      sourceKey: "id",
-      foreignKey: "travelAuthorizationId",
-    })
-    this.hasMany(Expense, {
-      as: "expenses",
-      sourceKey: "id",
-      foreignKey: "travelAuthorizationId",
-    })
-    this.hasMany(Stop, {
-      as: "stops",
-      sourceKey: "id",
-      foreignKey: "travelAuthorizationId",
-    })
-    this.hasMany(TravelSegment, {
-      as: "travelSegments",
-      sourceKey: "id",
-      foreignKey: "travelAuthorizationId",
-    })
-    this.hasMany(TravelSegment, {
-      as: "travelSegmentActuals",
-      sourceKey: "id",
-      foreignKey: "travelAuthorizationId",
-      scope: {
-        isActual: true,
-      },
-    })
-    this.hasMany(TravelSegment, {
-      as: "travelSegmentEstimates",
-      sourceKey: "id",
-      foreignKey: "travelAuthorizationId",
-      scope: {
-        isActual: false,
-      },
-    })
-  }
 
   // Shim until Stop model is fully removed
   buildTravelSegmentsFromStops(): TravelSegment[] {
@@ -258,250 +376,49 @@ export class TravelAuthorization extends Model<
   get estimates(): NonAttribute<Expense[] | undefined> {
     return this.expenses?.filter((expense) => expense.type === Expense.Types.ESTIMATE)
   }
-}
 
-TravelAuthorization.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    slug: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: true,
-    },
-    preApprovalProfileId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: TravelAuthorizationPreApprovalProfile,
-        key: "id",
-      },
-    },
-    purposeId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: TravelPurpose,
-        key: "id",
-      },
-    },
-    // TODO: consider renaming this to requestorId?
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
-    firstName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    lastName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    department: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    division: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    branch: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    unit: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      set(value: string | null) {
-        if (typeof value === "string") {
-          this.setDataValue("email", value.toLowerCase())
-        } else {
-          this.setDataValue("email", null)
-        }
-      },
-    },
-    mailcode: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    daysOffTravelStatusEstimate: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    daysOffTravelStatusActual: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    dateBackToWorkEstimate: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
-    dateBackToWorkActual: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
-    travelDurationEstimate: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    travelDurationActual: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    travelAdvance: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    eventName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    summary: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    benefits: {
-      type: DataTypes.STRING(2000),
-      allowNull: true,
-    },
-    status: {
-      type: DataTypes.STRING(255),
-      allowNull: true, // TODO: make this non-nullable in the database then update here.
-      validate: {
-        isIn: {
-          args: [Object.values(TravelAuthorizationStatuses)],
-          msg: `Status must be one of: ${Object.values(TravelAuthorizationStatuses).join(", ")}`,
+  static establishScopes(): void {
+    this.addScope("isTravelling", () => {
+      const currentDate = new Date().toISOString()
+      return {
+        where: {
+          id: {
+            [Op.in]: buildIsTravellingQuery(),
+          },
         },
-      },
-    },
-    wizardStepName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    supervisorEmail: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      set(value: string | null) {
-        if (typeof value === "string") {
-          this.setDataValue("supervisorEmail", value.toLowerCase())
-        } else {
-          this.setDataValue("supervisorEmail", null)
-        }
-      },
-    },
-    requestChange: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    denialReason: {
-      type: DataTypes.STRING(2000),
-      allowNull: true,
-    },
-    tripTypeEstimate: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelAuthorizationTripTypes)],
-          msg: `Trip Type must be one of: ${Object.values(TravelAuthorizationTripTypes).join(", ")}`,
+        replacements: {
+          currentDate,
         },
-      },
-    },
-    tripTypeActual: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelAuthorizationTripTypes)],
-          msg: `Trip Type must be one of: ${Object.values(TravelAuthorizationTripTypes).join(", ")}`,
+      }
+    })
+    this.addScope("isUpcomingTravel", () => {
+      const currentDate = new Date().toISOString()
+      return {
+        where: {
+          id: {
+            [Op.in]: buildIsUpcomingTravelQuery(),
+          },
         },
-      },
-    },
-    // TODO: make this a foreign key to the users table
-    // also non-nullable,
-    // maybe rename to creatorId
-    createdBy: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    travelAdvanceInCents: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    allTravelWithinTerritory: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    paranoid: false,
-    scopes: {
-      isTravelling() {
-        const currentDate = new Date().toISOString()
-        return {
-          where: {
-            id: {
-              [Op.in]: buildIsTravellingQuery(),
-            },
+        replacements: {
+          currentDate,
+        },
+      }
+    })
+    // TODO: consider if I should send the current date from the front-end?
+    this.addScope("isBeforeTripEnd", () => {
+      const currentDate = new Date().toISOString()
+      return {
+        where: {
+          id: {
+            [Op.in]: buildIsBeforeTripEndQuery(),
           },
-          replacements: {
-            currentDate,
-          },
-        }
-      },
-      isUpcomingTravel() {
-        const currentDate = new Date().toISOString()
-        return {
-          where: {
-            id: {
-              [Op.in]: buildIsUpcomingTravelQuery(),
-            },
-          },
-          replacements: {
-            currentDate,
-          },
-        }
-      },
-      // TODO: consider if I should send the current date from the front-end?
-      isBeforeTripEnd() {
-        const currentDate = new Date().toISOString()
-        return {
-          where: {
-            id: {
-              [Op.in]: buildIsBeforeTripEndQuery(),
-            },
-          },
-          replacements: {
-            currentDate,
-          },
-        }
-      },
-    },
+        },
+        replacements: {
+          currentDate,
+        },
+      }
+    })
   }
-)
+}
 
 export default TravelAuthorization
