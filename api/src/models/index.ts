@@ -31,17 +31,13 @@ import User from "./user"
 import YgEmployee from "./yg-employee"
 import YgEmployeeGroup from "./yg-employee-groups"
 
-db.addModels([
-  DistanceMatrix,
-  Expense,
-  FlightReconciliation,
-])
+db.addModels([DistanceMatrix, Expense, FlightReconciliation, GeneralLedgerCoding])
 
 DistanceMatrix.establishScopes()
 Expense.establishScopes()
 FlightReconciliation.establishScopes()
+GeneralLedgerCoding.establishScopes()
 
-GeneralLedgerCoding.establishAssociations()
 Stop.establishAssociations()
 TravelAuthorization.establishAssociations()
 TravelAuthorizationActionLog.establishAssociations()
