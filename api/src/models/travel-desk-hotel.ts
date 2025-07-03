@@ -1,19 +1,22 @@
 import {
-  Model,
+  DataTypes,
   InferAttributes,
   InferCreationAttributes,
-  CreationOptional,
-  ForeignKey,
-  Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  NonAttribute,
-  DataTypes,
+  Model,
+  type CreationOptional,
+  type NonAttribute,
 } from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  ModelValidator,
+  NotNull,
+  PrimaryKey,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 import { isEmpty, isNil } from "lodash"
-
-import sequelize from "@/db/db-client"
 
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
@@ -33,151 +36,108 @@ export class TravelDeskHotel extends Model<
 > {
   static readonly Statuses = TravelDeskHotelStatuses
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare travelRequestId: ForeignKey<TravelDeskTravelRequest["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelRequestId: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare city: string
+
+  @Attribute(DataTypes.BOOLEAN)
+  @NotNull
   declare isDedicatedConferenceHotelAvailable: boolean
+
+  @Attribute(DataTypes.STRING(255))
   declare conferenceName: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare conferenceHotelName: string | null
+
+  @Attribute(DataTypes.DATEONLY)
   declare checkIn: Date | string // DATEONLY accepts Date or string, but returns string
+
+  @Attribute(DataTypes.DATEONLY)
   declare checkOut: Date | string // DATEONLY accepts Date or string, but returns string
-  declare additionalInformation: CreationOptional<string | null>
+
+  @Attribute(DataTypes.STRING(255))
+  declare additionalInformation: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskHotelStatuses)],
+      msg: `Status must be one of the following: ${Object.values(TravelDeskHotelStatuses).join(
+        ", "
+      )}`,
+    },
+  })
   declare status: string
-  declare reservedHotelInfo: CreationOptional<string | null>
-  declare booking: CreationOptional<string | null>
+
+  @Attribute(DataTypes.STRING(255))
+  declare reservedHotelInfo: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  declare booking: string | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date | null>
+
+  @Attribute(DataTypes.DATE)
+  declare deletedAt: Date | null
+
+  // Validators
+  @ModelValidator
+  isDedicatedConferenceHotelAvailableAndConferenceNameAndHotelNameContinuity() {
+    if (
+      this.isDedicatedConferenceHotelAvailable &&
+      (isNil(this.conferenceName) ||
+        isEmpty(this.conferenceName) ||
+        isNil(this.conferenceHotelName) ||
+        isEmpty(this.conferenceHotelName))
+    ) {
+      throw new Error(
+        "if isDedicatedConferenceHotelAvailable is true, then conferenceName and conferenceHotelName must be provided"
+      )
+    } else if (
+      this.isDedicatedConferenceHotelAvailable === false &&
+      (!isNil(this.conferenceName) ||
+        !isEmpty(this.conferenceName) ||
+        !isNil(this.conferenceHotelName) ||
+        !isEmpty(this.conferenceHotelName))
+    ) {
+      throw new Error(
+        "if isDedicatedConferenceHotelAvailable is false, then conferenceName and conferenceHotelName must not be provided"
+      )
+    }
+  }
 
   // Associations
-  declare getTravelRequest: BelongsToGetAssociationMixin<TravelDeskTravelRequest>
-  declare setTravelRequest: BelongsToSetAssociationMixin<
-    TravelDeskTravelRequest,
-    TravelDeskTravelRequest["id"]
-  >
-  declare createTravelRequest: BelongsToCreateAssociationMixin<TravelDeskTravelRequest>
-
+  @BelongsTo(() => TravelDeskTravelRequest, {
+    foreignKey: "travelRequestId",
+    inverse: {
+      as: "hotels",
+      type: "hasMany",
+    },
+  })
   declare travelRequest: NonAttribute<TravelDeskTravelRequest>
 
-  declare static associations: {
-    travelRequest: Association<TravelDeskHotel, TravelDeskTravelRequest>
-  }
-
-  static establishAssociations() {
-    this.belongsTo(TravelDeskTravelRequest, {
-      as: "travelRequest",
-      foreignKey: "travelRequestId",
-    })
+  static establishScopes(): void {
+    // add as needed
   }
 }
-
-TravelDeskHotel.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false,
-    },
-    travelRequestId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelDeskTravelRequest,
-        key: "id",
-      },
-    },
-    city: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    isDedicatedConferenceHotelAvailable: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-    },
-    conferenceName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    conferenceHotelName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    checkIn: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    checkOut: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    additionalInformation: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    status: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelDeskHotelStatuses)],
-          msg: `Status must be one of the following: ${Object.values(TravelDeskHotelStatuses).join(
-            ", "
-          )}`,
-        },
-      },
-    },
-    reservedHotelInfo: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    booking: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    validate: {
-      isDedicatedConferenceHotelAvailableAndConferenceNameAndHotelNameContinuity() {
-        if (
-          this.isDedicatedConferenceHotelAvailable &&
-          (isNil(this.conferenceName) ||
-            isEmpty(this.conferenceName) ||
-            isNil(this.conferenceHotelName) ||
-            isEmpty(this.conferenceHotelName))
-        ) {
-          throw new Error(
-            "if isDedicatedConferenceHotelAvailable is true, then conferenceName and conferenceHotelName must be provided"
-          )
-        } else if (
-          this.isDedicatedConferenceHotelAvailable === false &&
-          (!isNil(this.conferenceName) ||
-            !isEmpty(this.conferenceName) ||
-            !isNil(this.conferenceHotelName) ||
-            !isEmpty(this.conferenceHotelName))
-        ) {
-          throw new Error(
-            "if isDedicatedConferenceHotelAvailable is false, then conferenceName and conferenceHotelName must not be provided"
-          )
-        }
-      },
-    },
-  }
-)
 
 export default TravelDeskHotel
