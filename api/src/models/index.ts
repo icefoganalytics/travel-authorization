@@ -32,10 +32,13 @@ import YgEmployee from "./yg-employee"
 import YgEmployeeGroup from "./yg-employee-groups"
 
 db.addModels([
+  DistanceMatrix,
   Expense,
 ])
 
+DistanceMatrix.establishScopes()
 Expense.establishScopes()
+
 FlightReconciliation.establishAssociations()
 GeneralLedgerCoding.establishAssociations()
 Stop.establishAssociations()
