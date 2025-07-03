@@ -41,6 +41,7 @@ db.addModels([
   Role,
   Stop,
   TravelAllowance,
+  TravelAuthorizationActionLog,
 ])
 
 DistanceMatrix.establishScopes()
@@ -51,9 +52,9 @@ Location.establishScopes()
 PerDiem.establishScopes()
 Stop.establishScopes()
 TravelAllowance.establishScopes()
+TravelAuthorizationActionLog.establishScopes()
 
 TravelAuthorization.establishAssociations()
-TravelAuthorizationActionLog.establishAssociations()
 TravelAuthorizationPreApproval.establishAssociations()
 TravelAuthorizationPreApprovalDocument.establishAssociations()
 TravelAuthorizationPreApprovalProfile.establishAssociations()
