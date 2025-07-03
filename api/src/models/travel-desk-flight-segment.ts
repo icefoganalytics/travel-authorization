@@ -1,143 +1,116 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
   InferAttributes,
   InferCreationAttributes,
   Model,
-  NonAttribute,
+  type CreationOptional,
+  type NonAttribute,
 } from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  NotNull,
+  PrimaryKey,
+} from "@sequelize/core/decorators-legacy"
 
-import sequelize from "@/db/db-client"
 import TravelDeskFlightOption from "@/models/travel-desk-flight-option"
 
 class TravelDeskFlightSegment extends Model<
   InferAttributes<TravelDeskFlightSegment>,
   InferCreationAttributes<TravelDeskFlightSegment>
 > {
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare flightOptionId: ForeignKey<TravelDeskFlightOption["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare flightOptionId: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare flightNumber: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
   declare departAt: Date
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare departLocation: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
   declare arriveAt: Date
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare arriveLocation: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare duration: string
+
+  // TODO: find out if status should be an enum?
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare status: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare class: string
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  @Default(1)
   declare sortOrder: CreationOptional<number>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
 
   // Associations
+  @BelongsTo(() => TravelDeskFlightOption, {
+    foreignKey: "flightOptionId",
+    inverse: {
+      as: "flightSegments",
+      type: "hasMany",
+    },
+  })
   declare flightOption?: NonAttribute<TravelDeskFlightOption>
 
-  declare static associations: {
-    flightOption: Association<TravelDeskFlightSegment, TravelDeskFlightOption>
-  }
-
-  static establishAssociations() {
-    this.belongsTo(TravelDeskFlightOption, {
-      as: "flightOption",
-      foreignKey: "flightOptionId",
+  static establishScopes(): void {
+    this.addScope("forTravelRequest", (travelRequestId: number) => {
+      return {
+        include: [
+          {
+            association: "flightOption",
+            include: [
+              {
+                association: "flightRequest",
+                where: {
+                  travelRequestId,
+                },
+              },
+            ],
+            required: true,
+          },
+        ],
+      }
     })
   }
 }
-
-TravelDeskFlightSegment.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    flightOptionId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelDeskFlightOption,
-        key: "id",
-      },
-    },
-    flightNumber: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    departAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    departLocation: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    arriveAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    arriveLocation: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    duration: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    // TODO: find out if status should be an enum?
-    status: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    class: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    sortOrder: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 1,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    scopes: {
-      forTravelRequest(travelRequestId: number) {
-        return {
-          include: [
-            {
-              association: "flightOption",
-              include: [
-                {
-                  association: "flightRequest",
-                  where: {
-                    travelRequestId,
-                  },
-                },
-              ],
-              required: true,
-            },
-          ],
-        }
-      },
-    },
-  }
-)
 
 export default TravelDeskFlightSegment
