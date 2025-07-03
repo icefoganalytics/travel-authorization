@@ -1,15 +1,22 @@
 import {
   DataTypes,
   Model,
-  type Association,
   type CreationOptional,
-  type ForeignKey,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
 } from "@sequelize/core"
-
-import sequelize from "@/db/db-client"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  HasMany,
+  Index,
+  NotNull,
+  PrimaryKey,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 
 import TravelAuthorizationPreApprovalSubmission from "@/models/travel-authorization-pre-approval-submission"
 import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization-pre-approval-profile"
@@ -33,184 +40,129 @@ export class TravelAuthorizationPreApproval extends Model<
 > {
   static readonly Statuses = TravelAuthorizationPreApprovalStatuses
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare creatorId: ForeignKey<User["id"]>
-  declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["id"]> | null
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare creatorId: number
+
+  @Attribute(DataTypes.INTEGER)
+  @Index({
+    unique: true,
+    name: "travel_authorization_pre_approvals_submission_id_unique",
+    where: {
+      submissionId: null,
+      deletedAt: null,
+    },
+  })
+  declare submissionId: number | null
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
   declare estimatedCost: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare location: string
+
+  @Attribute(DataTypes.STRING(255))
   declare department: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare branch: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare purpose: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare reason: string | null
+
+  @Attribute(DataTypes.DATE)
   declare startDate: Date | null
+
+  @Attribute(DataTypes.DATE)
   declare endDate: Date | null
+
+  @Attribute(DataTypes.BOOLEAN)
+  @NotNull
+  @Default(false)
   declare isOpenForAnyDate: CreationOptional<boolean>
+
+  @Attribute(DataTypes.STRING(255))
   declare month: string | null
+
+  @Attribute(DataTypes.BOOLEAN)
+  @NotNull
+  @Default(false)
   declare isOpenForAnyTraveler: CreationOptional<boolean>
+
+  @Attribute(DataTypes.INTEGER)
   declare numberTravelers: number | null
+
+  @Attribute(DataTypes.STRING(255))
   declare travelerNotes: string | null
-  declare status: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelAuthorizationPreApprovalStatuses)],
+      msg: `Status must be one of: ${Object.values(TravelAuthorizationPreApprovalStatuses).join(", ")}`,
+    },
+  })
+  declare status: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
 
   // Assocations
+  @BelongsTo(() => User, {
+    foreignKey: "creatorId",
+    inverse: {
+      as: "createdTravelAuthorizationPreApprovals",
+      type: "hasMany",
+    },
+  })
   declare creator?: NonAttribute<User>
-  declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
+
+  @BelongsTo(() => TravelAuthorizationPreApprovalSubmission, {
+    foreignKey: "submissionId",
+    inverse: {
+      as: "preApprovals",
+      type: "hasMany",
+    },
+  })
   declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
 
-  declare static associations: {
-    creator: Association<TravelAuthorizationPreApproval, User>
-    profiles: Association<TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile>
-    submission: Association<
-      TravelAuthorizationPreApproval,
-      TravelAuthorizationPreApprovalSubmission
-    >
-  }
+  @HasMany(() => TravelAuthorizationPreApprovalProfile, {
+    foreignKey: "preApprovalId",
+    inverse: "preApproval",
+  })
+  declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
 
-  static establishAssociations() {
-    this.hasMany(TravelAuthorizationPreApprovalProfile, {
-      as: "profiles",
-      foreignKey: "preApprovalId",
-    })
-    this.belongsTo(TravelAuthorizationPreApprovalSubmission, {
-      as: "submission",
-      foreignKey: "submissionId",
-    })
-    this.belongsTo(User, {
-      as: "creator",
-      foreignKey: "creatorId",
+  static establishScopes(): void {
+    this.addScope("availableForSubmission", () => {
+      return {
+        where: {
+          submissionId: null,
+          status: TravelAuthorizationPreApproval.Statuses.DRAFT,
+        },
+      }
     })
   }
 }
-
-TravelAuthorizationPreApproval.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    creatorId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
-    submissionId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: TravelAuthorizationPreApprovalSubmission,
-        key: "id",
-      },
-    },
-    estimatedCost: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    location: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    department: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    branch: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    purpose: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    reason: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    startDate: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    endDate: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    isOpenForAnyDate: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-    month: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    isOpenForAnyTraveler: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-    numberTravelers: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    travelerNotes: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    status: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelAuthorizationPreApprovalStatuses)],
-          msg: `Status must be one of: ${Object.values(TravelAuthorizationPreApprovalStatuses).join(", ")}`,
-        },
-      },
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    indexes: [
-      {
-        unique: true,
-        fields: ["submission_id"],
-        name: "travel_authorization_pre_approvals_submission_id_unique",
-        where: {
-          submissionId: null,
-          deletedAt: null,
-        },
-      },
-    ],
-    scopes: {
-      availableForSubmission() {
-        return {
-          where: {
-            submissionId: null,
-            status: TravelAuthorizationPreApproval.Statuses.DRAFT,
-          },
-        }
-      },
-    },
-  }
-)
 
 export default TravelAuthorizationPreApproval
