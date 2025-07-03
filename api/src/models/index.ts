@@ -47,6 +47,7 @@ db.addModels([
   TravelAuthorizationPreApprovalDocument,
   TravelAuthorizationPreApprovalProfile,
   TravelAuthorizationPreApprovalSubmission,
+  TravelDeskFlightOption,
 ])
 
 DistanceMatrix.establishScopes()
@@ -63,8 +64,8 @@ TravelAuthorizationPreApproval.establishScopes()
 TravelAuthorizationPreApprovalDocument.establishScopes()
 TravelAuthorizationPreApprovalProfile.establishScopes()
 TravelAuthorizationPreApprovalSubmission.establishScopes()
+TravelDeskFlightOption.establishScopes()
 
-TravelDeskFlightOption.establishAssociations()
 TravelDeskFlightRequest.establishAssociations()
 TravelDeskFlightSegment.establishAssociations()
 TravelDeskHotel.establishAssociations()

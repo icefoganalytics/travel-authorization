@@ -1,16 +1,24 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
   InferAttributes,
   InferCreationAttributes,
   Model,
-  NonAttribute,
+  type CreationOptional,
+  type NonAttribute,
 } from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  HasMany,
+  ModelValidator,
+  NotNull,
+  PrimaryKey,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 import { isEmpty } from "lodash"
 
-import sequelize from "@/db/db-client"
 import TravelDeskFlightRequest from "@/models/travel-desk-flight-request"
 import TravelDeskFlightSegment from "@/models/travel-desk-flight-segment"
 import User from "@/models/user"
@@ -21,137 +29,108 @@ class TravelDeskFlightOption extends Model<
   InferAttributes<TravelDeskFlightOption>,
   InferCreationAttributes<TravelDeskFlightOption>
 > {
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare flightRequestId: ForeignKey<TravelDeskFlightRequest["id"]>
-  declare travelerId: ForeignKey<User["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare flightRequestId: number
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelerId: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare cost: string
+
+  @Attribute(DataTypes.STRING(255))
+  @ValidateAttribute({
+    min: {
+      args: [DOES_NOT_WORK],
+      msg: "Invalid flight preference order",
+    },
+  })
   declare flightPreferenceOrder: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare leg: string // TODO: validate if "leg" is being used?
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare duration: string
+
+  @Attribute(DataTypes.TEXT)
   declare additionalInformation: string | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date>
 
-  // Associations
-  declare flightRequest?: NonAttribute<TravelDeskFlightRequest>
-  declare traveler?: NonAttribute<User>
-  declare flightSegments?: NonAttribute<TravelDeskFlightSegment[]>
+  @Attribute(DataTypes.DATE)
+  declare deletedAt: Date | null
 
-  declare static associations: {
-    flightRequest: Association<TravelDeskFlightOption, TravelDeskFlightRequest>
-    traveler: Association<TravelDeskFlightOption, User>
-    flightSegments: Association<TravelDeskFlightOption, TravelDeskFlightSegment>
+  // Validators
+  @ModelValidator
+  flightPreferenceOrderAndAdditionalInformationConsistency() {
+    if (
+      this.flightPreferenceOrder === DOES_NOT_WORK.toString() &&
+      isEmpty(this.additionalInformation)
+    ) {
+      throw new Error(
+        "Additional information is required when flight preference order is 'Does not work'"
+      )
+    }
   }
 
-  static establishAssociations() {
-    this.belongsTo(TravelDeskFlightRequest, {
-      as: "flightRequest",
-      foreignKey: "flightRequestId",
-    })
-    this.belongsTo(User, {
-      as: "traveler",
-      foreignKey: "travelerId",
-    })
-    this.hasMany(TravelDeskFlightSegment, {
-      as: "flightSegments",
-      foreignKey: "flightOptionId",
+  // Associations
+  @BelongsTo(() => TravelDeskFlightRequest, {
+    foreignKey: "flightRequestId",
+    inverse: {
+      as: "flightOptions",
+      type: "hasMany",
+    },
+  })
+  declare flightRequest?: NonAttribute<TravelDeskFlightRequest>
+
+  @BelongsTo(() => User, {
+    foreignKey: "travelerId",
+    inverse: {
+      as: "flightOptions",
+      type: "hasMany",
+    },
+  })
+  declare traveler?: NonAttribute<User>
+
+  @HasMany(() => TravelDeskFlightSegment, {
+    foreignKey: "flightOptionId",
+    inverse: "flightOption",
+  })
+  declare flightSegments?: NonAttribute<TravelDeskFlightSegment[]>
+
+  static establishScopes(): void {
+    this.addScope("forTravelRequest", (travelDeskTravelRequestId: number) => {
+      return {
+        include: [
+          {
+            association: "flightRequest",
+            where: {
+              travelRequestId: travelDeskTravelRequestId,
+            },
+          },
+        ],
+      }
     })
   }
 }
-
-TravelDeskFlightOption.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    flightRequestId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelDeskFlightRequest,
-        key: "id",
-      },
-    },
-    travelerId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
-    cost: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    flightPreferenceOrder: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      validate: {
-        min: {
-          args: [DOES_NOT_WORK],
-          msg: "Invalid flight preference order",
-        },
-      },
-    },
-    // TODO: validate if "leg" is being used?
-    leg: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    duration: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    additionalInformation: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    scopes: {
-      forTravelRequest(travelDeskTravelRequestId) {
-        return {
-          include: [
-            {
-              association: "flightRequest",
-              where: {
-                travelRequestId: travelDeskTravelRequestId,
-              },
-            },
-          ],
-        }
-      },
-    },
-    validate: {
-      flightPreferenceOrderAndAdditionalInformationConsistency() {
-        if (this.flightPreferenceOrder === DOES_NOT_WORK && isEmpty(this.additionalInformation)) {
-          throw new Error(
-            "Additional information is required when flight preference order is 'Does not work'"
-          )
-        }
-      },
-    },
-  }
-)
 
 export default TravelDeskFlightOption
