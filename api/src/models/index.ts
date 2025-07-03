@@ -31,7 +31,11 @@ import User from "./user"
 import YgEmployee from "./yg-employee"
 import YgEmployeeGroup from "./yg-employee-groups"
 
-Expense.establishAssociations()
+db.addModels([
+  Expense,
+])
+
+Expense.establishScopes()
 FlightReconciliation.establishAssociations()
 GeneralLedgerCoding.establishAssociations()
 Stop.establishAssociations()
