@@ -1,127 +1,101 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
-  InferAttributes,
-  InferCreationAttributes,
   Model,
-  NonAttribute,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
 } from "@sequelize/core"
-
-import sequelize from "@/db/db-client"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  NotNull,
+  PrimaryKey,
+  Table,
+} from "@sequelize/core/decorators-legacy"
 
 import TravelAuthorizationPreApprovalSubmission from "@/models/travel-authorization-pre-approval-submission"
 
+@Table({
+  defaultScope: {
+    attributes: {
+      exclude: ["approvalDocument"],
+    },
+  },
+})
 export class TravelAuthorizationPreApprovalDocument extends Model<
   InferAttributes<TravelAuthorizationPreApprovalDocument>,
   InferCreationAttributes<TravelAuthorizationPreApprovalDocument>
 > {
+  @PrimaryKey
+  @AutoIncrement
+  @Attribute(DataTypes.INTEGER)
   declare id: CreationOptional<number>
-  declare submissionId: ForeignKey<TravelAuthorizationPreApprovalSubmission["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare submissionId: number
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare name: string
+
+  @Attribute(DataTypes.BLOB)
+  @NotNull
   declare approvalDocument: Buffer
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare approvalDocumentApproverName: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
   declare approvalDocumentApprovedOn: Date
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
   declare sizeInBytes: number
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare mimeType: string
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare md5: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
 
   // Associations
+  @BelongsTo(() => TravelAuthorizationPreApprovalSubmission, {
+    foreignKey: "submissionId",
+    inverse: {
+      as: "documents",
+      type: "hasMany",
+    },
+  })
   declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
 
-  declare static associations: {
-    submission: Association<
-      TravelAuthorizationPreApprovalDocument,
-      TravelAuthorizationPreApprovalSubmission
-    >
-  }
-
-  static establishAssociations() {
-    this.belongsTo(TravelAuthorizationPreApprovalSubmission, {
-      as: "submission",
-      foreignKey: "submissionId",
+  static establishScopes(): void {
+    this.addScope("withDocument", {
+      attributes: {
+        include: ["approvalDocument"],
+      },
     })
   }
 }
-
-TravelAuthorizationPreApprovalDocument.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    submissionId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelAuthorizationPreApprovalSubmission,
-        key: "id",
-      },
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    approvalDocument: {
-      type: DataTypes.BLOB,
-      allowNull: false,
-    },
-    approvalDocumentApproverName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    approvalDocumentApprovedOn: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    sizeInBytes: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    mimeType: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    md5: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    defaultScope: {
-      attributes: {
-        exclude: ["approvalDocument"],
-      },
-    },
-    scopes: {
-      withDocument: {
-        attributes: {
-          include: ["approvalDocument"],
-        },
-      },
-    },
-  }
-)
 
 export default TravelAuthorizationPreApprovalDocument
