@@ -1,12 +1,20 @@
 import {
-  CreationOptional,
   DataTypes,
   InferAttributes,
   InferCreationAttributes,
   Model,
+  type CreationOptional,
 } from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  Default,
+  NotNull,
+  PrimaryKey,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 
-import sequelize from "@/db/db-client"
+import { TravelAllowancesAllowanceTypeCurrencyUniqueIndex } from "@/models/indexes"
 
 export enum AllowanceTypes {
   MAXIUM_AIRCRAFT_ALLOWANCE = "maxium_aircraft_allowance",
@@ -27,52 +35,47 @@ export class TravelAllowance extends Model<
   static AllowanceTypes = AllowanceTypes
   static CurrencyTypes = CurrencyTypes
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare allowanceType: AllowanceTypes
-  declare amount: number
-  declare currency: CurrencyTypes
-}
 
-TravelAllowance.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @TravelAllowancesAllowanceTypeCurrencyUniqueIndex
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(AllowanceTypes)],
+      msg: `Allowance Type must be one of: ${Object.values(AllowanceTypes).join(", ")}`,
     },
-    allowanceType: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(AllowanceTypes)],
-          msg: `Allowance Type must be one of: ${Object.values(AllowanceTypes).join(", ")}`,
-        },
-      },
-    },
-    amount: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    currency: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-  },
-  {
-    sequelize,
-    indexes: [
-      {
-        unique: true,
-        fields: ["allowanceType", "currency"],
-        name: "travel_allowances_allowance_type_currency_unique",
-        where: {
-          deletedAt: null,
-        },
-      },
-    ],
+  })
+  declare allowanceType: AllowanceTypes
+
+  @Attribute(DataTypes.FLOAT)
+  @NotNull
+  declare amount: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @TravelAllowancesAllowanceTypeCurrencyUniqueIndex
+  declare currency: CurrencyTypes
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
+  declare createdAt: Date
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
+  declare updatedAt: Date
+
+  @Attribute(DataTypes.DATE)
+  declare deletedAt: Date | null
+
+  static establishScopes(): void {
+    // Scopes can be added here if needed
   }
-)
+}
 
 export default TravelAllowance
