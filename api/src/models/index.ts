@@ -38,6 +38,7 @@ db.addModels([
   GeneralLedgerCoding,
   Location,
   PerDiem,
+  Role,
 ])
 
 DistanceMatrix.establishScopes()
