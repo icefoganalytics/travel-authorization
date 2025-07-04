@@ -57,6 +57,7 @@ db.addModels([
   TravelDeskRentalCar,
   TravelDeskTravelAgency,
   TravelDeskTravelRequest,
+  TravelPurpose,
 ])
 
 DistanceMatrix.establishScopes()
@@ -83,6 +84,7 @@ TravelDeskQuestion.establishScopes()
 TravelDeskRentalCar.establishScopes()
 TravelDeskTravelAgency.establishScopes()
 TravelDeskTravelRequest.establishScopes()
+TravelPurpose.establishScopes()
 
 TravelSegment.establishAssociations()
 User.establishAssociations()
