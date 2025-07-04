@@ -25,7 +25,7 @@ describe("api/src/policies/expenses-policy.ts", () => {
           userId: user.id,
         })
         const expense = expenseFactory.build({
-          travelAuthorization,
+          travelAuthorizationId: travelAuthorization.id,
           type: Expense.Types.EXPENSE,
         })
 
@@ -45,7 +45,7 @@ describe("api/src/policies/expenses-policy.ts", () => {
           userId: user.id,
         })
         const expense = expenseFactory.build({
-          travelAuthorization,
+          travelAuthorizationId: travelAuthorization.id,
           type: Expense.Types.EXPENSE,
         })
 
