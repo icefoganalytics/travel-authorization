@@ -46,14 +46,14 @@ class TravelDeskFlightOption extends Model<
   @NotNull
   declare cost: string
 
-  @Attribute(DataTypes.STRING(255))
+  @Attribute(DataTypes.INTEGER)
   @ValidateAttribute({
     min: {
       args: [DOES_NOT_WORK],
       msg: "Invalid flight preference order",
     },
   })
-  declare flightPreferenceOrder: string | null
+  declare flightPreferenceOrder: number | null
 
   @Attribute(DataTypes.STRING(255))
   @NotNull
@@ -83,7 +83,7 @@ class TravelDeskFlightOption extends Model<
   @ModelValidator
   flightPreferenceOrderAndAdditionalInformationConsistency() {
     if (
-      this.flightPreferenceOrder === DOES_NOT_WORK.toString() &&
+      this.flightPreferenceOrder === DOES_NOT_WORK &&
       isEmpty(this.additionalInformation)
     ) {
       throw new Error(
