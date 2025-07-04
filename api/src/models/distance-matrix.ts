@@ -8,8 +8,6 @@ import {
 import {
   Attribute,
   AutoIncrement,
-  Default,
-  NotNull,
   PrimaryKey,
   Table,
 } from "@sequelize/core/decorators-legacy"
@@ -41,16 +39,6 @@ export class DistanceMatrix extends Model<
 
   @Attribute(DataTypes.FLOAT)
   declare kilometers: number | null
-
-  @Attribute(DataTypes.DATE)
-  @NotNull
-  @Default(DataTypes.NOW)
-  declare createdAt: CreationOptional<Date>
-
-  @Attribute(DataTypes.DATE)
-  @NotNull
-  @Default(DataTypes.NOW)
-  declare updatedAt: CreationOptional<Date>
 
   static establishScopes(): void {
     // add as needed
