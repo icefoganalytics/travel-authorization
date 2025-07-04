@@ -35,12 +35,21 @@ export const travelSegmentFactory = Factory.define<TravelSegment, TransientParam
       }
     })
 
+    const travelAuthorization =
+      associations.travelAuthorization ?? travelAuthorizationFactory.build({ id: undefined })
+    const departureLocation =
+      associations.departureLocation ?? locationFactory.build({ id: undefined })
+    const arrivalLocation = associations.arrivalLocation ?? locationFactory.build({ id: undefined })
+
     const modeOfTransport = presence(
       params.modeOfTransport,
       faker.helpers.enumValue(TravelSegment.TravelMethods)
     )
 
     const travelSegment = TravelSegment.build({
+      travelAuthorizationId: travelAuthorization.id,
+      departureLocationId: departureLocation.id,
+      arrivalLocationId: arrivalLocation.id,
       segmentNumber: faker.number.int({ min: 0, max: 100 }),
       modeOfTransport,
       modeOfTransportOther:
@@ -48,10 +57,9 @@ export const travelSegmentFactory = Factory.define<TravelSegment, TransientParam
       isActual: false,
     })
 
-    travelSegment.travelAuthorization =
-      associations.travelAuthorization ?? travelAuthorizationFactory.build()
-    travelSegment.departureLocation = associations.departureLocation ?? locationFactory.build()
-    travelSegment.arrivalLocation = associations.arrivalLocation ?? locationFactory.build()
+    travelSegment.travelAuthorization = travelAuthorization
+    travelSegment.departureLocation = departureLocation
+    travelSegment.arrivalLocation = arrivalLocation
 
     return travelSegment
   }

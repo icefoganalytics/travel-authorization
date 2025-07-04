@@ -47,7 +47,14 @@ export const expenseFactory = ExpenseFactory.define(({ associations, onCreate })
     }
   })
 
+  const travelAuthorization =
+    associations.travelAuthorization ??
+    travelAuthorizationFactory.build({
+      id: undefined,
+    })
+
   const expense = Expense.build({
+    travelAuthorizationId: travelAuthorization.id,
     type: faker.helpers.enumValue(Expense.Types),
     currency: Expense.CurrencyTypes.CAD,
     expenseType: faker.helpers.enumValue(Expense.ExpenseTypes),
@@ -56,8 +63,7 @@ export const expenseFactory = ExpenseFactory.define(({ associations, onCreate })
     date: faker.date.soon({ days: 30 }),
   })
 
-  expense.travelAuthorization =
-    associations.travelAuthorization ?? travelAuthorizationFactory.build()
+  expense.travelAuthorization = travelAuthorization
 
   return expense
 })
