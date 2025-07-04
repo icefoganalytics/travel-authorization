@@ -517,14 +517,14 @@ formRouter.get(
           travelAuthorizationId: travelAuthorization.id,
           type: Expense.Types.ESTIMATE,
         },
-      }).then((result) => result.toFixed(2))
+      }).then((result) => result?.toFixed(2) || "0")
 
       const expensesFloat = await Expense.sum("cost", {
         where: {
           travelAuthorizationId: travelAuthorization.id,
           type: Expense.Types.EXPENSE,
         },
-      }).then((result) => result.toFixed(2))
+      }).then((result) => result?.toFixed(2) || "0")
 
       const result = {
         estimates: estimatesFloat,
