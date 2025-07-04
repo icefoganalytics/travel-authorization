@@ -27,7 +27,7 @@ export class SyncService extends BaseService {
   async perform(): Promise<void> {
     const scopes = this.buildFilterScopes()
     const scopedAccountsReceivableInvoiceDetails =
-      TravComIntegration.Models.AccountsReceivableInvoiceDetail.scope(scopes)
+      TravComIntegration.Models.AccountsReceivableInvoiceDetail.withScope(scopes)
 
     const { where } = this.query
     const order = this.buildOrder()
