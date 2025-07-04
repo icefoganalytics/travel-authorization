@@ -78,7 +78,7 @@ export class CreateService extends BaseService {
     }
 
     const { departLocation, arriveLocation, datePreference } = flightRequest
-    const formattedDate = formatDate(datePreference)
+    const formattedDate = formatDate(new Date(datePreference))
     return `${departLocation} -> ${arriveLocation} @ ${formattedDate}`
   }
 
