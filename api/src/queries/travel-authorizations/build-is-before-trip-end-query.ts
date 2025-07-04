@@ -1,8 +1,7 @@
-import { literal } from "@sequelize/core"
-import { type Literal } from "sequelize/lib/utils"
+import { sql, type Literal } from "@sequelize/core"
 
 export function buildIsBeforeTripEndQuery(): Literal {
-  const isBeforeTripEndQuery = /* sql */ `
+  const isBeforeTripEndQuery = sql`
     (
       SELECT
         travel_authorization_id
@@ -30,7 +29,7 @@ export function buildIsBeforeTripEndQuery(): Literal {
         :currentDate < travel_periods.returning_at
     )
   `
-  return literal(isBeforeTripEndQuery)
+  return isBeforeTripEndQuery
 }
 
 export default buildIsBeforeTripEndQuery
