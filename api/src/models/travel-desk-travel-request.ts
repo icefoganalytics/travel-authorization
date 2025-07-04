@@ -224,7 +224,7 @@ export class TravelDeskTravelRequest extends Model<
     foreignKey: "travelDeskTravelRequestId",
     inverse: "travelDeskTravelRequest",
   })
-  declare travelDeskPassengerNameRecordDocument?: NonAttribute<TravelDeskPassengerNameRecordDocument>
+  declare passengerNameRecordDocument?: NonAttribute<TravelDeskPassengerNameRecordDocument>
 
   @HasMany(() => TravelDeskFlightRequest, {
     foreignKey: "travelRequestId",

@@ -281,7 +281,7 @@ const isCompleteState = computed(
   () => travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.COMPLETE
 )
 const invoiceNumber = computed(
-  () => travelDeskTravelRequest.value?.travelDeskPassengerNameRecordDocument?.invoiceNumber
+  () => travelDeskTravelRequest.value?.passengerNameRecordDocument?.invoiceNumber
 )
 const hasInvoiceNumber = computed(() => !isNil(invoiceNumber.value))
 
