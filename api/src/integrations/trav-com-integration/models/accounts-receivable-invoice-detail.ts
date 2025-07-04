@@ -263,7 +263,7 @@ export class AccountsReceivableInvoiceDetail extends BaseModel<
       }
     })
     this.addScope("includeAgentNameAttribute", () => {
-      const parentTableAlias = AccountsReceivableInvoiceDetail.name
+      const parentTableAlias = sql.identifier(AccountsReceivableInvoiceDetail.name)
       const agentNameQuery = sql`
         COALESCE(
           (
