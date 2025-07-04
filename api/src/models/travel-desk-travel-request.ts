@@ -266,8 +266,8 @@ export class TravelDeskTravelRequest extends Model<
     this.addScope("includeIsBookedAttribute", () => {
       const isBookedQuery = sql`
         CASE
-          WHEN "TravelDeskTravelRequest"."status" = '${TravelDeskTravelRequest.Statuses
-          .BOOKED}' THEN 1
+          WHEN "TravelDeskTravelRequest"."status" = ${TravelDeskTravelRequest.Statuses
+          .BOOKED} THEN 1
           ELSE 0
         END
       `
@@ -281,7 +281,7 @@ export class TravelDeskTravelRequest extends Model<
     this.addScope("includeIsAssignedToCurrentUserAttribute", (currentUserDisplayName: string) => {
       const isAssignedToCurrentUserQuery = sql`
         CASE
-          WHEN "travel_desk_officer" = '${currentUserDisplayName}' THEN 1
+          WHEN "travel_desk_officer" = ${currentUserDisplayName} THEN 1
           ELSE 0
         END
       `
