@@ -72,7 +72,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record, this.currentUser)
 
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "slug",
         "userId",

@@ -72,7 +72,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskTravelRequest> {
     const requestedOptions = this.determineRequestedOptions(this.record)
 
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "travelAuthorizationId",
         "travelAgencyId",
