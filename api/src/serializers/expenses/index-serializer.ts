@@ -28,7 +28,7 @@ export class IndexSerializer extends BaseSerializer<Expense> {
 
   perform(): ExpenseIndexView {
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "expenseType",
         "description",
