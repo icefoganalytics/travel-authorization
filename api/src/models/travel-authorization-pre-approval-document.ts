@@ -90,11 +90,11 @@ export class TravelAuthorizationPreApprovalDocument extends Model<
   declare submission?: NonAttribute<TravelAuthorizationPreApprovalSubmission>
 
   static establishScopes(): void {
-    this.addScope("withDocument", {
+    this.addScope("withDocument", () => ({
       attributes: {
         include: ["approvalDocument"],
       },
-    })
+    }))
   }
 }
 

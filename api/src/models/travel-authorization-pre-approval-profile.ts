@@ -75,7 +75,7 @@ export class TravelAuthorizationPreApprovalProfile extends BaseModel<
   static establishScopes(): void {
     // TODO: add better search!
     this.addSearchScope(["profile_name"])
-    this.addScope("approved", {
+    this.addScope("approved", () => ({
       include: [
         {
           association: "preApproval",
@@ -84,8 +84,8 @@ export class TravelAuthorizationPreApprovalProfile extends BaseModel<
           },
         },
       ],
-    })
-    this.addScope("openDateOrBeforeStartDate", {
+    }))
+    this.addScope("openDateOrBeforeStartDate", () => ({
       include: [
         {
           association: "preApproval",
@@ -103,7 +103,7 @@ export class TravelAuthorizationPreApprovalProfile extends BaseModel<
           },
         },
       ],
-    })
+    }))
   }
 }
 export default TravelAuthorizationPreApprovalProfile

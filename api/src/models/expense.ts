@@ -151,9 +151,9 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   declare travelAuthorization?: NonAttribute<TravelAuthorization>
 
   static establishScopes(): void {
-    this.addScope("withReceiptImage", {
+    this.addScope("withReceiptImage", () => ({
       attributes: { include: ["receiptImage"] },
-    })
+    }))
   }
 }
 
