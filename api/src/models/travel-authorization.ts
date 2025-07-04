@@ -309,13 +309,19 @@ export class TravelAuthorization extends Model<
   declare stops?: NonAttribute<Stop[]>
 
   @HasMany(() => TravelSegment, {
-    foreignKey: "travelAuthorizationId",
+    foreignKey: {
+      name: "travelAuthorizationId",
+      onDelete: "CASCADE",
+    },
     inverse: "travelAuthorization",
   })
   declare travelSegments?: NonAttribute<TravelSegment[]>
 
   @HasMany(() => TravelSegment, {
-    foreignKey: "travelAuthorizationId",
+    foreignKey: {
+      name: "travelAuthorizationId",
+      onDelete: "CASCADE",
+    },
     inverse: "travelAuthorization",
     scope: {
       isActual: true,
@@ -324,7 +330,10 @@ export class TravelAuthorization extends Model<
   declare travelSegmentActuals?: NonAttribute<TravelSegment[]>
 
   @HasMany(() => TravelSegment, {
-    foreignKey: "travelAuthorizationId",
+    foreignKey: {
+      name: "travelAuthorizationId",
+      onDelete: "CASCADE",
+    },
     inverse: "travelAuthorization",
     scope: {
       isActual: false,
