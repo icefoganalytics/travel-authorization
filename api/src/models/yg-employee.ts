@@ -1,194 +1,138 @@
 import {
-  type CreationOptional,
   DataTypes,
+  Op,
+  type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
-  Op,
-} from "sequelize"
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  Default,
+  NotNull,
+  PrimaryKey,
+} from "@sequelize/core/decorators-legacy"
 
-import sequelize from "@/db/db-client"
 import BaseModel from "@/models/base-model"
 
 export class YgEmployee extends BaseModel<
   InferAttributes<YgEmployee>,
   InferCreationAttributes<YgEmployee>
 > {
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
   declare id: CreationOptional<number>
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare email: string
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare username: string
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare fullName: string
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare firstName: string
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare lastName: string
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare department: string
+
+  @Attribute(DataTypes.STRING)
   declare division: string | null
+
+  @Attribute(DataTypes.STRING)
   declare branch: string | null
+
+  @Attribute(DataTypes.STRING)
   declare unit: string | null
+
+  @Attribute(DataTypes.STRING)
   declare organization: string | null
+
+  @Attribute(DataTypes.STRING)
   declare title: string | null
+
+  @Attribute(DataTypes.STRING)
   declare suite: string | null
+
+  @Attribute(DataTypes.STRING)
   declare phoneOffice: string | null
+
+  @Attribute(DataTypes.STRING)
   declare faxOffice: string | null
+
+  @Attribute(DataTypes.STRING)
   declare mobile: string | null
+
+  @Attribute(DataTypes.STRING)
   declare office: string | null
+
+  @Attribute(DataTypes.STRING)
   declare address: string | null
+
+  @Attribute(DataTypes.STRING)
   declare poBox: string | null
+
+  @Attribute(DataTypes.STRING)
   declare community: string | null
+
+  @Attribute(DataTypes.STRING)
   declare postalCode: string | null
+
+  @Attribute(DataTypes.STRING)
   declare latitude: string | null
+
+  @Attribute(DataTypes.STRING)
   declare longitude: string | null
+
+  @Attribute(DataTypes.STRING)
   declare mailcode: string | null
+
+  @Attribute(DataTypes.STRING)
   declare manager: string | null
+
+  @Attribute(DataTypes.DATE)
   declare lastSyncSuccessAt: Date | null
+
+  @Attribute(DataTypes.DATE)
   declare lastSyncFailureAt: Date | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
-}
 
-YgEmployee.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    fullName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    department: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    division: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    branch: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    unit: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    organization: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    suite: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    phoneOffice: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    faxOffice: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    mobile: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    office: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    address: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    poBox: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    community: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    postalCode: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    latitude: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    longitude: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    mailcode: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    manager: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    lastSyncSuccessAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    lastSyncFailureAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    scopes: {
-      excludingByFullNames(fullNames: string[]) {
-        return {
-          where: {
-            fullName: {
-              [Op.notIn]: fullNames,
-            },
+  static establishScopes(): void {
+    this.addSearchScope(["email", "username", "full_name", "first_name", "last_name", "title"])
+    this.addScope("excludingByFullNames", (fullNames: string[]) => {
+      return {
+        where: {
+          fullName: {
+            [Op.notIn]: fullNames,
           },
-        }
-      },
-    },
+        },
+      }
+    })
   }
-)
-
-YgEmployee.addSearchScope(["email", "username", "full_name", "first_name", "last_name", "title"])
+}
 
 export default YgEmployee

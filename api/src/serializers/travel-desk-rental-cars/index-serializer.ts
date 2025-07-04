@@ -35,7 +35,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskRentalCar> {
 
   perform(): TravelDeskRentalCarTableView {
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "travelRequestId",
         "pickUpCity",

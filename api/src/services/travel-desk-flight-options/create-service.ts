@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 import { isNil } from "lodash"
 
 import formatDate from "@/utils/format-date"
@@ -78,7 +78,7 @@ export class CreateService extends BaseService {
     }
 
     const { departLocation, arriveLocation, datePreference } = flightRequest
-    const formattedDate = formatDate(datePreference)
+    const formattedDate = formatDate(new Date(datePreference))
     return `${departLocation} -> ${arriveLocation} @ ${formattedDate}`
   }
 

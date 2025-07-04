@@ -29,7 +29,7 @@ export class IndexSerializer extends BaseSerializer<YgEmployee> {
 
   perform(): YgEmployeeIndexView {
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "firstName",
         "lastName",

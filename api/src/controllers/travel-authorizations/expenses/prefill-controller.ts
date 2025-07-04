@@ -56,6 +56,7 @@ export class PrefillController extends BaseController {
 
   private async buildExpense(travelAuthorization: TravelAuthorization) {
     const expense = Expense.build({
+      travelAuthorizationId: travelAuthorization.id,
       type: Expense.Types.EXPENSE,
       description: "Generated expense",
       cost: 0,

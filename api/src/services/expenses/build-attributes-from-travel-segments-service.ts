@@ -1,5 +1,5 @@
 import { clone, isEmpty, isNil, min, startCase, times, toLower } from "lodash"
-import { CreationAttributes, Op } from "sequelize"
+import { CreationAttributes, Op } from "@sequelize/core"
 
 import {
   DistanceMatrix,
@@ -281,12 +281,15 @@ export class BuildAttributesFromTravelSegmentsService extends BaseService {
   private async determinePerDiemCost(province: string, claimTypes: ClaimTypes[]): Promise<number> {
     const travelRegion = this.determineTravelRegionFromProvince(province)
 
-    return PerDiem.sum("amount", {
+    const sum = await PerDiem.sum("amount", {
       where: {
         claimType: { [Op.in]: claimTypes },
         travelRegion,
       },
     })
+    if (isNil(sum)) return 0
+
+    return sum
   }
 
   private determineTravelRegionFromProvince(province: string): TravelRegions {

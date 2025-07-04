@@ -1,13 +1,11 @@
 import {
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
   DataTypes,
-  NonAttribute,
-  Association,
-} from "sequelize"
-
-import sequelize from "@/integrations/trav-com-integration/db/db-client"
+  Model,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
+} from "@sequelize/core"
+import { Attribute, HasMany, Table } from "@sequelize/core/decorators-legacy"
 
 import AccountsReceivableInvoiceDetail from "@/integrations/trav-com-integration/models/accounts-receivable-invoice-detail"
 import Segment from "@/integrations/trav-com-integration/models/segment"
@@ -35,148 +33,151 @@ export type CityRaw = {
  * Note table does not have a primary key.
  * Only recognizably unique field, CityCode, is nullable.
  */
+@Table({
+  tableName: "Cities",
+  underscored: false,
+  timestamps: false,
+  paranoid: false,
+  noPrimaryKey: true,
+})
 export class City extends Model<InferAttributes<City>, InferCreationAttributes<City>> {
+  @Attribute({
+    type: DataTypes.TINYINT,
+    columnName: "CityType",
+    allowNull: false,
+  })
   declare cityType: number
+
+  @Attribute({
+    type: DataTypes.STRING(5),
+    columnName: "CityCode",
+    allowNull: true,
+  })
   declare cityCode: string | null
+
+  @Attribute({
+    type: DataTypes.STRING,
+    columnName: "CityName",
+    allowNull: false,
+  })
   declare cityName: string
+
+  @Attribute({
+    type: DataTypes.STRING,
+    columnName: "Country",
+    allowNull: true,
+  })
   declare country: string | null
+
+  @Attribute({
+    type: DataTypes.STRING,
+    columnName: "CountryAbbr",
+    allowNull: true,
+  })
   declare countryAbbreviation: string | null
+
+  @Attribute({
+    type: DataTypes.STRING,
+    columnName: "State",
+    allowNull: true,
+  })
   declare state: string | null
+
+  @Attribute({
+    type: DataTypes.STRING,
+    columnName: "Region1",
+    allowNull: true,
+  })
   declare region1: string | null
+
+  @Attribute({
+    type: DataTypes.STRING,
+    columnName: "Region2",
+    allowNull: true,
+  })
   declare region2: string | null
+
+  @Attribute({
+    type: DataTypes.TINYINT,
+    columnName: "LatDeg",
+    allowNull: false,
+  })
   declare latitudeDegrees: number
+
+  @Attribute({
+    type: DataTypes.TINYINT,
+    columnName: "LatMin",
+    allowNull: false,
+  })
   declare latitudeMinutes: number
+
+  @Attribute({
+    type: DataTypes.TINYINT,
+    columnName: "LatSec",
+    allowNull: false,
+  })
   declare latitudeSeconds: number
+
+  @Attribute({
+    type: DataTypes.STRING,
+    columnName: "LatDir",
+    allowNull: true,
+  })
   declare latitudeDirection: string | null
+
+  @Attribute({
+    type: DataTypes.TINYINT,
+    columnName: "LonDeg",
+    allowNull: false,
+  })
   declare longitudeDegrees: number
+
+  @Attribute({
+    type: DataTypes.TINYINT,
+    columnName: "LonMin",
+    allowNull: false,
+  })
   declare longitudeMinutes: number
+
+  @Attribute({
+    type: DataTypes.TINYINT,
+    columnName: "LonSec",
+    allowNull: false,
+  })
   declare longitudeSeconds: number
+
+  @Attribute({
+    type: DataTypes.STRING,
+    columnName: "LonDir",
+    allowNull: true,
+  })
   declare longitudeDirection: string | null
 
   // Associations
+  @HasMany(() => AccountsReceivableInvoiceDetail, {
+    foreignKey: "cityCode",
+    sourceKey: "cityCode",
+    inverse: "city",
+  })
   declare accountsReceivableInvoiceDetails?: NonAttribute<AccountsReceivableInvoiceDetail[]>
+
+  @HasMany(() => Segment, {
+    foreignKey: "departureCityCode",
+    sourceKey: "cityCode",
+    inverse: "departureCity",
+  })
   declare segmentsAsDepartureCity?: NonAttribute<Segment[]>
+
+  @HasMany(() => Segment, {
+    foreignKey: "arrivalCityCode",
+    sourceKey: "cityCode",
+    inverse: "arrivalCity",
+  })
   declare segmentsAsArrivalCity?: NonAttribute<Segment[]>
 
-  declare static associations: {
-    accountsReceivableInvoiceDetails: Association<City, AccountsReceivableInvoiceDetail>
-    segmentsAsDepartureCity: Association<City, Segment>
-    segmentsAsArrivalCity: Association<City, Segment>
-  }
-
-  static establishAssociations() {
-    this.hasMany(AccountsReceivableInvoiceDetail, {
-      as: "accountsReceivableInvoiceDetails",
-      foreignKey: "cityCode",
-      sourceKey: "cityCode",
-    })
-    this.hasMany(Segment, {
-      as: "segmentsAsDepartureCity",
-      foreignKey: "departureCityCode",
-      sourceKey: "cityCode",
-    })
-    this.hasMany(Segment, {
-      as: "segmentsAsArrivalCity",
-      foreignKey: "arrivalCityCode",
-      sourceKey: "cityCode",
-    })
+  static establishScopes(): void {
+    // add as needed
   }
 }
-
-City.init(
-  {
-    cityType: {
-      type: DataTypes.NUMBER,
-      allowNull: false,
-      field: "CityType",
-    },
-    cityCode: {
-      type: DataTypes.STRING(5),
-      allowNull: true,
-      field: "CityCode",
-    },
-    cityName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: "CityName",
-    },
-    country: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "Country",
-    },
-    countryAbbreviation: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "CountryAbbr",
-    },
-    state: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "State",
-    },
-    region1: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "Region1",
-    },
-    region2: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "Region2",
-    },
-    latitudeDegrees: {
-      type: DataTypes.NUMBER,
-      allowNull: false,
-      field: "LatDeg",
-    },
-    latitudeMinutes: {
-      type: DataTypes.NUMBER,
-      allowNull: false,
-      field: "LatMin",
-    },
-    latitudeSeconds: {
-      type: DataTypes.NUMBER,
-      allowNull: false,
-      field: "LatSec",
-    },
-    latitudeDirection: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "LatDir",
-    },
-    longitudeDegrees: {
-      type: DataTypes.NUMBER,
-      allowNull: false,
-      field: "LonDeg",
-    },
-    longitudeMinutes: {
-      type: DataTypes.NUMBER,
-      allowNull: false,
-      field: "LonMin",
-    },
-    longitudeSeconds: {
-      type: DataTypes.NUMBER,
-      allowNull: false,
-      field: "LonSec",
-    },
-    longitudeDirection: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "LonDir",
-    },
-  },
-  {
-    sequelize,
-    tableName: "Cities",
-    underscored: false,
-    timestamps: false,
-    paranoid: false,
-  }
-)
-
-// Workaround to tell Sequelize there is no primary key
-// See https://sequelize.org/docs/v6/other-topics/legacy/#primary-keys
-City.removeAttribute("id")
 
 export default City

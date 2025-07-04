@@ -1,6 +1,8 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 import { isUndefined } from "lodash"
 import { v4 as uuid } from "uuid"
+
+import { type WithOptional } from "@/utils/utility-types"
 
 import db from "@/db/db-client"
 
@@ -12,12 +14,10 @@ import { AuditService } from "@/services/audit-service"
 import { type UserCreationAttributes } from "@/services/users/create-service"
 import { type TravelSegmentCreationAttributes } from "@/services/travel-segments/create-service"
 
-type TravelAuthorizationCreationAttributes = Omit<
+type TravelAuthorizationCreationAttributes = WithOptional<
   CreationAttributes<TravelAuthorization>,
-  "slug"
+  "userId" | "slug"
 > & {
-  slug?: TravelAuthorization["slug"]
-} & {
   travelSegmentEstimatesAttributes?: TravelSegmentCreationAttributes[]
   userAttributes?: UserCreationAttributes
 }

@@ -1,74 +1,69 @@
 import {
-  CreationOptional,
   DataTypes,
   InferAttributes,
   InferCreationAttributes,
   Model,
+  type CreationOptional,
   Op,
-} from "sequelize"
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  Default,
+  NotNull,
+  PrimaryKey,
+  Table,
+} from "@sequelize/core/decorators-legacy"
 
-import sequelize from "@/db/db-client"
 import arrayWrap from "@/utils/array-wrap"
 
+@Table({
+  tableName: "locations",
+  paranoid: false,
+})
 export class Location extends Model<InferAttributes<Location>, InferCreationAttributes<Location>> {
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare province: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare city: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
+
+  static establishScopes(): void {
+    this.addScope("byProvince", (province: string) => {
+      return {
+        where: {
+          province,
+        },
+      }
+    })
+    this.addScope("excludeById", (idOrIds: number | number[]) => {
+      const ids = arrayWrap(idOrIds)
+      return {
+        where: {
+          id: {
+            [Op.notIn]: ids,
+          },
+        },
+      }
+    })
+  }
 }
 
-Location.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    province: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    city: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    modelName: "Location",
-    tableName: "locations",
-    paranoid: false,
-    scopes: {
-      byProvince(province: string) {
-        return {
-          where: {
-            province,
-          },
-        }
-      },
-      excludeById(idOrIds: number | number[]) {
-        const ids = arrayWrap(idOrIds)
-        return {
-          where: {
-            id: {
-              [Op.notIn]: ids,
-            },
-          },
-        }
-      },
-    },
-  }
-)
 export default Location

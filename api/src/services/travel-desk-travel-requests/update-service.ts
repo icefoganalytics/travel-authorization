@@ -37,7 +37,7 @@ export class UpdateService extends BaseService {
             ],
           },
           {
-            association: "travelDeskPassengerNameRecordDocument",
+            association: "passengerNameRecordDocument",
             attributes: {
               exclude: ["pnrDocument"],
             },

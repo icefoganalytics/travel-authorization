@@ -12,7 +12,27 @@ import router from "@/routes"
 
 const app = express()
 
+app.set("query parser", enhancedQsDecoder)
+// for parsing application/json
+app.use(express.json())
+// for parsing application/x-www-form-urlencoded
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+)
+// Adds FormData support
+app.use(
+  fileUpload({
+    // 2 GB, capped by estimated memory size, because current uploads run entirely in memory.
+    // See https://github.com/icefoganalytics/internal-data-portal/issues/95
+    // for how to handle larger files.
+    limits: { fileSize: 2 * 1024 * 1024 * 1024 },
+  })
+)
+app.use(betterFormDataBodyParserMiddleware)
 app.use(requestLoggerMiddleware)
+
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
@@ -39,26 +59,6 @@ app.use(
     exposedHeaders: "Content-Disposition",
   })
 )
-
-app.set("query parser", enhancedQsDecoder)
-// for parsing application/json
-app.use(express.json())
-// for parsing application/x-www-form-urlencoded
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-)
-// Adds FormData support
-app.use(
-  fileUpload({
-    // 2 GB, capped by estimated memory size, because current uploads run entirely in memory.
-    // See https://github.com/icefoganalytics/internal-data-portal/issues/95
-    // for how to handle larger files.
-    limits: { fileSize: 2 * 1024 * 1024 * 1024 },
-  })
-)
-app.use(betterFormDataBodyParserMiddleware)
 
 if (NODE_ENV !== "test") {
   logger.info(`host: ${DB_HOST}`)

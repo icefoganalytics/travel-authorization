@@ -1,4 +1,4 @@
-import { Includeable } from "sequelize"
+import { Includeable } from "@sequelize/core"
 import { faker } from "@faker-js/faker"
 
 import { TravelAuthorization } from "@/models"
@@ -37,12 +37,17 @@ export const travelAuthorizationFactory = TravelAuthorizationFactory.define(
       }
     })
 
+    const user = associations.user ?? userFactory.build({ id: undefined })
+    const purpose = associations.purpose ?? travelPurposeFactory.build({ id: undefined })
+
     const travelAuthorization = TravelAuthorization.build({
+      userId: user.id,
+      purposeId: purpose.id,
       slug: faker.string.uuid(),
     })
 
-    travelAuthorization.purpose = associations.purpose ?? travelPurposeFactory.build()
-    travelAuthorization.user = associations.user ?? userFactory.build()
+    travelAuthorization.purpose = purpose
+    travelAuthorization.user = user
 
     return travelAuthorization
   }

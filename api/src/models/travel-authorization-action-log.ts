@@ -1,141 +1,109 @@
 import {
   Model,
   DataTypes,
-  CreationOptional,
-  InferAttributes,
-  InferCreationAttributes,
-  ForeignKey,
-  Association,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  BelongsToCreateAssociationMixin,
-  NonAttribute,
-} from "sequelize"
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  NotNull,
+  PrimaryKey,
+  Table,
+} from "@sequelize/core/decorators-legacy"
 
-import sequelize from "@/db/db-client"
-
-import User from "./user"
-import TravelAuthorization, { TravelAuthorizationStatuses as Actions } from "./travel-authorization"
+import User from "@/models/user"
+import TravelAuthorization, {
+  TravelAuthorizationStatuses as Actions,
+} from "@/models/travel-authorization"
 
 export { Actions }
 
+@Table({
+  paranoid: false,
+})
 export class TravelAuthorizationActionLog extends Model<
   InferAttributes<TravelAuthorizationActionLog>,
   InferCreationAttributes<TravelAuthorizationActionLog>
 > {
   static Actions = Actions
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare travelAuthorizationId: ForeignKey<TravelAuthorization["id"]>
-  declare actorId: ForeignKey<User["id"]>
-  declare assigneeId: ForeignKey<User["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelAuthorizationId: number
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare actorId: number
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare assigneeId: number
+
+  @Attribute(DataTypes.STRING)
+  @NotNull
   declare action: string
+
+  @Attribute(DataTypes.STRING)
   declare note: string | null
+
+  @Attribute(DataTypes.DATE)
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
-  // https://sequelize.org/docs/v6/other-topics/typescript/#usage
-  // https://sequelize.org/docs/v6/core-concepts/assocs/#special-methodsmixins-added-to-instances
-  // https://sequelize.org/api/v7/types/_sequelize_core.index.belongstocreateassociationmixin
-  declare getTravelAuthorization: BelongsToGetAssociationMixin<TravelAuthorization>
-  declare setTravelAuthorization: BelongsToSetAssociationMixin<
-    TravelAuthorization,
-    TravelAuthorization["id"]
-  >
-  declare createTravelAuthorization: BelongsToCreateAssociationMixin<TravelAuthorization>
-
-  declare getActor: BelongsToGetAssociationMixin<User>
-  declare setActor: BelongsToSetAssociationMixin<User, User["id"]>
-  declare createActor: BelongsToCreateAssociationMixin<User>
-
-  declare getAssignee: BelongsToGetAssociationMixin<User>
-  declare setAssignee: BelongsToSetAssociationMixin<User, User["id"]>
-  declare createAssignee: BelongsToCreateAssociationMixin<User>
-
-  declare travelAuthorization?: NonAttribute<TravelAuthorization>
-  declare actor?: NonAttribute<User>
-  declare assignee?: NonAttribute<User>
-
-  declare static associations: {
-    travelAuthorization: Association<TravelAuthorizationActionLog, TravelAuthorization>
-    actor: Association<TravelAuthorizationActionLog, User>
-    assignee: Association<TravelAuthorizationActionLog, User>
-  }
-
-  static establishAssociations() {
-    this.belongsTo(TravelAuthorization, {
-      as: "travelAuthorization",
-      foreignKey: "travelAuthorizationId",
-    })
-    this.belongsTo(User, {
-      as: "actor",
-      foreignKey: "actorId",
-    })
-    this.belongsTo(User, {
-      as: "assignee",
-      foreignKey: "assigneeId",
-    })
-  }
-}
-
-TravelAuthorizationActionLog.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    travelAuthorizationId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "travel_authorizations", // using real table name here
-        key: "id", // using real column name here
-      },
+  // Associations
+  @BelongsTo(() => TravelAuthorization, {
+    foreignKey: {
+      name: "travelAuthorizationId",
       onDelete: "CASCADE",
     },
-    actorId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "users", // using real table name here
-        key: "id", // using real column name here
-      },
+    inverse: {
+      as: "actionLogs",
+      type: "hasMany",
+    },
+  })
+  declare travelAuthorization?: NonAttribute<TravelAuthorization>
+
+  @BelongsTo(() => User, {
+    foreignKey: {
+      name: "actorId",
       onDelete: "RESTRICT",
     },
-    assigneeId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "users", // using real table name here
-        key: "id", // using real column name here
-      },
+    inverse: {
+      as: "travelAuthorizationActionLogs",
+      type: "hasMany",
+    },
+  })
+  declare actor?: NonAttribute<User>
+
+  @BelongsTo(() => User, {
+    foreignKey: {
+      name: "assigneeId",
       onDelete: "RESTRICT",
     },
-    action: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    inverse: {
+      as: "assignedTravelAuthorizationActionLogs",
+      type: "hasMany",
     },
-    note: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    paranoid: false,
+  })
+  declare assignee?: NonAttribute<User>
+
+  static establishScopes(): void {
+    // Scopes can be added here if needed
   }
-)
+}
 
 export default TravelAuthorizationActionLog

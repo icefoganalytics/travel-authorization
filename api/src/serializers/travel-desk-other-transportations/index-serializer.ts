@@ -26,7 +26,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskOtherTransportatio
 
   perform(): TravelDeskOtherTransportationIndexView {
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "travelRequestId",
         "depart",

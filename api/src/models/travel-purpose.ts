@@ -1,52 +1,49 @@
 import {
-  Model,
   DataTypes,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-} from "sequelize"
+  Model,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  Default,
+  NotNull,
+  PrimaryKey,
+  Table,
+} from "@sequelize/core/decorators-legacy"
 
-import sequelize from "@/db/db-client"
-
+@Table({
+  tableName: "travel_purposes",
+  paranoid: false,
+})
 export class TravelPurpose extends Model<
   InferAttributes<TravelPurpose>,
   InferCreationAttributes<TravelPurpose>
 > {
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
   declare id: CreationOptional<number>
-  declare purpose: string
-  declare createdAt: CreationOptional<Date>
-  declare updatedAt: CreationOptional<Date>
-}
 
-TravelPurpose.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    purpose: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    tableName: "travel_purposes",
-    modelName: "TravelPurpose",
-    paranoid: false,
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  declare purpose: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
+  declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
+  declare updatedAt: CreationOptional<Date>
+
+  static establishScopes(): void {
+    // add as needed
   }
-)
+}
 
 export default TravelPurpose

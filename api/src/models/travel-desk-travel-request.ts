@@ -1,17 +1,27 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
-  InferAttributes,
-  InferCreationAttributes,
-  literal,
   Model,
-  NonAttribute,
-} from "sequelize"
+  sql,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  HasMany,
+  HasOne,
+  Index,
+  ModelValidator,
+  NotNull,
+  PrimaryKey,
+  Table,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 import { isNil } from "lodash"
-
-import sequelize from "@/db/db-client"
 
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelDeskFlightRequest from "@/models/travel-desk-flight-request"
@@ -32,322 +42,273 @@ export enum TravelDeskTravelRequestStatuses {
   SUBMITTED = "submitted",
 }
 
+@Table({
+  tableName: "travel_desk_travel_requests",
+  paranoid: false,
+})
 export class TravelDeskTravelRequest extends Model<
   InferAttributes<TravelDeskTravelRequest>,
   InferCreationAttributes<TravelDeskTravelRequest>
 > {
   static Statuses = TravelDeskTravelRequestStatuses
 
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
   declare id: CreationOptional<number>
-  declare travelAuthorizationId: ForeignKey<TravelAuthorization["id"]>
-  declare travelAgencyId: ForeignKey<TravelDeskTravelAgency["id"]> | null
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  @Index({
+    name: "travel_desk_travel_requests_travel_authorization_id_unique",
+    unique: true,
+  })
+  declare travelAuthorizationId: number
+
+  @Attribute(DataTypes.INTEGER)
+  declare travelAgencyId: number | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare legalFirstName: string
+
+  @Attribute(DataTypes.STRING(255))
   declare legalMiddleName: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare legalLastName: string
+
+  @Attribute(DataTypes.STRING(255))
   declare birthDate: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare strAddress: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare city: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare province: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare postalCode: string
+
+  @Attribute(DataTypes.BOOLEAN)
+  @NotNull
+  @Default(false)
   declare isInternationalTravel: CreationOptional<boolean>
+
+  @Attribute(DataTypes.STRING(255))
   declare passportCountry: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare passportNum: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare travelPurpose: string
+
+  @Attribute(DataTypes.STRING(255))
   declare travelLocation: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare travelNotes: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare busPhone: string
+
+  @Attribute({
+    type: DataTypes.STRING(255),
+    set(value: string) {
+      this.setDataValue("busEmail", value.toLowerCase())
+    },
+  })
+  @NotNull
   declare busEmail: string
+
+  @Attribute(DataTypes.BOOLEAN)
   declare travelContact: boolean | null
+
+  @Attribute(DataTypes.STRING(255))
   declare travelPhone: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare travelEmail: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare additionalInformation: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskTravelRequestStatuses)],
+      msg: "Invalid status value",
+    },
+  })
   declare status: string
+
+  @Attribute(DataTypes.STRING(255))
   declare travelDeskOfficer: string | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
-  // Associations
-  declare travelAuthorization?: NonAttribute<TravelAuthorization>
-  declare travelDeskPassengerNameRecordDocument?: NonAttribute<TravelDeskPassengerNameRecordDocument>
-  declare travelAgency?: NonAttribute<TravelDeskTravelAgency>
-  declare flightRequests?: NonAttribute<TravelDeskFlightRequest[]>
-  declare hotels?: NonAttribute<TravelDeskHotel[]>
-  declare otherTransportations?: NonAttribute<TravelDeskOtherTransportation[]>
-  declare questions?: NonAttribute<TravelDeskQuestion[]>
-  declare rentalCars?: NonAttribute<TravelDeskRentalCar[]>
-
-  declare static associations: {
-    flightRequests: Association<TravelDeskTravelRequest, TravelDeskFlightRequest>
-    hotels: Association<TravelDeskTravelRequest, TravelDeskHotel>
-    rentalCars: Association<TravelDeskTravelRequest, TravelDeskRentalCar>
-    travelAuthorization: Association<TravelDeskTravelRequest, TravelAuthorization>
-    otherTransportations: Association<TravelDeskTravelRequest, TravelDeskOtherTransportation>
-    travelDeskPassengerNameRecordDocument: Association<
-      TravelDeskTravelRequest,
-      TravelDeskPassengerNameRecordDocument
-    >
-    questions: Association<TravelDeskTravelRequest, TravelDeskQuestion>
-    travelAgency: Association<TravelDeskTravelRequest, TravelDeskTravelAgency>
+  // Validators
+  @ModelValidator
+  allInternationalTravelFieldsOrNone() {
+    if (
+      this.isInternationalTravel === true &&
+      (isNil(this.passportCountry) || isNil(this.passportNum))
+    ) {
+      throw new Error("Passport country and number are required for international travel")
+    } else if (
+      this.isInternationalTravel === false &&
+      (!isNil(this.passportCountry) || !isNil(this.passportNum))
+    ) {
+      throw new Error("Passport country and number are only permitted for international travel")
+    }
   }
 
-  static establishAssociations() {
-    this.hasOne(TravelDeskPassengerNameRecordDocument, {
-      as: "travelDeskPassengerNameRecordDocument",
-      sourceKey: "id",
-      foreignKey: "travelDeskTravelRequestId",
+  @ModelValidator
+  allTravelContactFieldsOrNone() {
+    if (this.travelContact === true && (isNil(this.travelPhone) || isNil(this.travelEmail))) {
+      throw new Error("Travel phone and email are required if travel contact is true")
+    } else if (
+      this.travelContact === false &&
+      (!isNil(this.travelPhone) || !isNil(this.travelEmail))
+    ) {
+      throw new Error("Travel phone and email are only permitted if travel contact is true")
+    }
+  }
+
+  // Associations
+  @BelongsTo(() => TravelAuthorization, {
+    foreignKey: {
+      name: "travelAuthorizationId",
+      onDelete: "CASCADE",
+    },
+    inverse: {
+      as: "travelDeskTravelRequest",
+      type: "hasOne",
+    },
+  })
+  declare travelAuthorization?: NonAttribute<TravelAuthorization>
+
+  @BelongsTo(() => TravelDeskTravelAgency, {
+    foreignKey: {
+      name: "travelAgencyId",
+      onDelete: "RESTRICT",
+    },
+    inverse: {
+      as: "travelDeskTravelRequest",
+      type: "hasOne",
+    },
+  })
+  declare travelAgency?: NonAttribute<TravelDeskTravelAgency>
+
+  @HasOne(() => TravelDeskPassengerNameRecordDocument, {
+    foreignKey: {
+      name: "travelDeskTravelRequestId",
+      onDelete: "CASCADE",
+    },
+    inverse: "travelDeskTravelRequest",
+  })
+  declare passengerNameRecordDocument?: NonAttribute<TravelDeskPassengerNameRecordDocument>
+
+  @HasMany(() => TravelDeskFlightRequest, {
+    foreignKey: "travelRequestId",
+    inverse: "travelRequest",
+  })
+  declare flightRequests?: NonAttribute<TravelDeskFlightRequest[]>
+
+  @HasMany(() => TravelDeskHotel, {
+    foreignKey: "travelRequestId",
+    inverse: "travelRequest",
+  })
+  declare hotels?: NonAttribute<TravelDeskHotel[]>
+
+  @HasMany(() => TravelDeskOtherTransportation, {
+    foreignKey: "travelRequestId",
+    inverse: "travelRequest",
+  })
+  declare otherTransportations?: NonAttribute<TravelDeskOtherTransportation[]>
+
+  @HasMany(() => TravelDeskQuestion, {
+    foreignKey: {
+      name: "travelRequestId",
+      onDelete: "CASCADE",
+    },
+    inverse: "travelRequest",
+  })
+  declare questions?: NonAttribute<TravelDeskQuestion[]>
+
+  @HasMany(() => TravelDeskRentalCar, {
+    foreignKey: "travelRequestId",
+    inverse: "travelRequest",
+  })
+  declare rentalCars?: NonAttribute<TravelDeskRentalCar[]>
+
+  static establishScopes(): void {
+    this.addScope("includeIsBookedAttribute", () => {
+      const isBookedQuery = sql`
+        CASE
+          WHEN "TravelDeskTravelRequest"."status" = ${TravelDeskTravelRequest.Statuses
+          .BOOKED} THEN 1
+          ELSE 0
+        END
+      `
+      return {
+        attributes: {
+          include: [[isBookedQuery, "isBooked"]],
+        },
+      }
     })
-    this.belongsTo(TravelAuthorization, {
-      as: "travelAuthorization",
-      foreignKey: "travelAuthorizationId",
+    // TODO: rewrite with ids once data model supports it
+    this.addScope("includeIsAssignedToCurrentUserAttribute", (currentUserDisplayName: string) => {
+      const isAssignedToCurrentUserQuery = sql`
+        CASE
+          WHEN "travel_desk_officer" = ${currentUserDisplayName} THEN 1
+          ELSE 0
+        END
+      `
+      return {
+        attributes: {
+          include: [[isAssignedToCurrentUserQuery, "isAssignedToCurrentUser"]],
+        },
+      }
     })
-    this.belongsTo(TravelDeskTravelAgency, {
-      as: "travelAgency",
-      foreignKey: "travelAgencyId",
-    })
-    this.hasMany(TravelDeskFlightRequest, {
-      as: "flightRequests",
-      foreignKey: "travelRequestId",
-    })
-    this.hasMany(TravelDeskHotel, {
-      as: "hotels",
-      foreignKey: "travelRequestId",
-    })
-    this.hasMany(TravelDeskOtherTransportation, {
-      as: "otherTransportations",
-      foreignKey: "travelRequestId",
-    })
-    this.hasMany(TravelDeskQuestion, {
-      as: "questions",
-      foreignKey: "travelRequestId",
-    })
-    this.hasMany(TravelDeskRentalCar, {
-      as: "rentalCars",
-      foreignKey: "travelRequestId",
+    this.addScope("includeTravelStartDateAttribute", () => {
+      const travelStartDateQuery = sql`
+        (
+          SELECT
+            MIN("departure_on")
+          FROM
+            "travel_segments"
+          WHERE
+            "travel_segments"."travel_authorization_id" = "TravelDeskTravelRequest"."travel_authorization_id"
+        )
+      `
+      return {
+        attributes: {
+          include: [[travelStartDateQuery, "travelStartDate"]],
+        },
+      }
     })
   }
 }
-
-TravelDeskTravelRequest.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false,
-    },
-    travelAuthorizationId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      unique: true,
-      references: {
-        model: TravelAuthorization,
-        key: "id",
-      },
-      onDelete: "CASCADE",
-    },
-    travelAgencyId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: TravelDeskTravelAgency,
-        key: "id",
-      },
-      onDelete: "RESTRICT",
-    },
-    legalFirstName: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    legalLastName: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    strAddress: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    city: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    province: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    postalCode: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    legalMiddleName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    travelPurpose: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    busPhone: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    busEmail: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      set(value: string) {
-        this.setDataValue("busEmail", value.toLowerCase())
-      },
-    },
-    status: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelDeskTravelRequestStatuses)],
-          msg: "Invalid status value",
-        },
-      },
-    },
-    birthDate: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    isInternationalTravel: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-    passportCountry: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    passportNum: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    travelLocation: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    travelNotes: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    travelContact: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    travelPhone: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    travelEmail: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    additionalInformation: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    travelDeskOfficer: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    modelName: "TravelDeskTravelRequest",
-    tableName: "travel_desk_travel_requests",
-    paranoid: false,
-    indexes: [
-      {
-        fields: ["travel_authorization_id"],
-        name: "travel_desk_travel_requests_travel_authorization_id_unique",
-        unique: true,
-      },
-    ],
-    validate: {
-      allInternationalTravelFieldsOrNone() {
-        if (
-          this.isInternationalTravel === true &&
-          (isNil(this.passportCountry) || isNil(this.passportNum))
-        ) {
-          throw new Error("Passport country and number are required for international travel")
-        } else if (
-          this.isInternationalTravel === false &&
-          (!isNil(this.passportCountry) || !isNil(this.passportNum))
-        ) {
-          throw new Error("Passport country and number are only permitted for international travel")
-        }
-      },
-      allTravelContactFieldsOrNone() {
-        if (this.travelContact === true && (isNil(this.travelPhone) || isNil(this.travelEmail))) {
-          throw new Error("Travel phone and email are required if travel contact is true")
-        } else if (
-          this.travelContact === false &&
-          (!isNil(this.travelPhone) || !isNil(this.travelEmail))
-        ) {
-          throw new Error("Travel phone and email are only permitted if travel contact is true")
-        }
-      },
-    },
-    scopes: {
-      includeIsBookedAttribute() {
-        const isBookedQuery = /* sql */ `
-          CASE
-            WHEN "TravelDeskTravelRequest"."status" = '${TravelDeskTravelRequest.Statuses
-            .BOOKED}' THEN 1
-            ELSE 0
-          END
-        `
-        return {
-          attributes: {
-            include: [[literal(isBookedQuery), "isBooked"]],
-          },
-        }
-      },
-      // TODO: rewrite with ids once data model supports it
-      includeIsAssignedToCurrentUserAttribute(currentUserDisplayName: string) {
-        const isAssignedToCurrentUserQuery = /* sql */ `
-          CASE
-            WHEN "travel_desk_officer" = '${currentUserDisplayName}' THEN 1
-            ELSE 0
-          END
-        `
-        return {
-          attributes: {
-            include: [[literal(isAssignedToCurrentUserQuery), "isAssignedToCurrentUser"]],
-          },
-        }
-      },
-      includeTravelStartDateAttribute() {
-        const travelStartDateQuery = /* sql */ `
-          (
-            SELECT
-              MIN("departure_on")
-            FROM
-              "travel_segments"
-            WHERE
-              "travel_segments"."travel_authorization_id" = "TravelDeskTravelRequest"."travel_authorization_id"
-          )
-        `
-        return {
-          attributes: {
-            include: [[literal(travelStartDateQuery), "travelStartDate"]],
-          },
-        }
-      },
-    },
-  }
-)
 
 export default TravelDeskTravelRequest

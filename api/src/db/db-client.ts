@@ -1,11 +1,8 @@
-import { Sequelize, Options } from "sequelize"
-import { createNamespace } from "cls-hooked"
+import { Sequelize, Options } from "@sequelize/core"
+import { PostgresDialect } from "@sequelize/postgres"
 import minify from "pg-minify"
 
 import { DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER, NODE_ENV } from "@/config"
-
-export const transactionManager = createNamespace("transaction-manager")
-Sequelize.useCLS(transactionManager)
 
 if (DB_NAME === undefined) throw new Error("database name is unset.")
 if (DB_USER === undefined) throw new Error("database username is unset.")
@@ -17,13 +14,15 @@ function sqlLogger(query: string) {
   console.log(minify(query))
 }
 
-export const SEQUELIZE_CONFIG: Options = {
-  username: DB_USER,
-  password: DB_PASS,
+export const SEQUELIZE_CONFIG: Options<PostgresDialect> = {
+  dialect: PostgresDialect,
   database: DB_NAME,
-  dialect: "postgres",
+  user: DB_USER,
+  password: DB_PASS,
   host: DB_HOST,
   port: DB_PORT,
+  ssl: false,
+  clientMinMessages: "notice",
   schema: "public",
   logging: NODE_ENV === "development" ? sqlLogger : false,
   // Non-standard tables must now declare their customizations
@@ -32,7 +31,6 @@ export const SEQUELIZE_CONFIG: Options = {
     underscored: true,
     timestamps: true, // This is actually the default, but making it explicit for clarity.
     paranoid: true,
-    whereMergeStrategy: "and", // where fields will be merged using the and operator (instead of overwriting each other)
   },
 }
 

@@ -34,7 +34,7 @@ export class ShowSerializer extends BaseSerializer<YgEmployee> {
 
   perform(): YgEmployeeShowView {
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "firstName",
         "lastName",

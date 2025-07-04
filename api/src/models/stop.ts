@@ -1,80 +1,83 @@
 import { isNil } from "lodash"
 import {
-  Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
   InferAttributes,
   InferCreationAttributes,
   Model,
-  NonAttribute,
-} from "sequelize"
-
-import sequelize from "@/db/db-client"
+  type CreationOptional,
+  type NonAttribute,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  NotNull,
+  PrimaryKey,
+  Table,
+} from "@sequelize/core/decorators-legacy"
 
 import Location from "@/models/location"
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelSegment from "@/models/travel-segment"
 
-/*
-DEPRECATED: Whenever you use this model, try and figure out how to migrate
-the functionality to the TravelSegment model instead.
-It was too large a project to migrate to the TravelSegment model all at once,
-so we're doing it piecemeal.
-*/
+/**
+ * @deprecated Whenever you use this model, try and figure out how to migrate
+ * the functionality to the TravelSegment model instead.
+ * It was too large a project to migrate to the TravelSegment model all at once,
+ * so we're doing it piecemeal.
+ */
+@Table({
+  modelName: "Stop",
+  tableName: "stops",
+  paranoid: false,
+})
 export class Stop extends Model<InferAttributes<Stop>, InferCreationAttributes<Stop>> {
   static TravelMethods = TravelSegment.TravelMethods
   static AccommodationTypes = TravelSegment.AccommodationTypes
   static BEGINNING_OF_DAY = TravelSegment.FallbackTimes.BEGINNING_OF_DAY
   static END_OF_DAY = TravelSegment.FallbackTimes.END_OF_DAY
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare travelAuthorizationId: ForeignKey<TravelAuthorization["id"]>
-  declare locationId: ForeignKey<Location["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelAuthorizationId: number
+
+  @Attribute(DataTypes.INTEGER)
+  declare locationId: number | null
+
+  @Attribute(DataTypes.DATEONLY)
   declare departureDate: Date | string | null // DATEONLY accepts Date or string, but returns string
+
+  @Attribute(DataTypes.TIME)
   declare departureTime: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare transport: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare accommodationType: string | null
+
+  @Attribute(DataTypes.BOOLEAN)
+  @NotNull
+  @Default(false)
   declare isActual: CreationOptional<boolean>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
-  // https://sequelize.org/docs/v6/other-topics/typescript/#usage
-  // https://sequelize.org/docs/v6/core-concepts/assocs/#special-methodsmixins-added-to-instances
-  // https://sequelize.org/api/v7/types/_sequelize_core.index.belongstocreateassociationmixin
-  declare getTravelAuthorization: BelongsToGetAssociationMixin<TravelAuthorization>
-  declare setTravelAuthorization: BelongsToSetAssociationMixin<
-    TravelAuthorization,
-    TravelAuthorization["id"]
-  >
-  declare createTravelAuthorization: BelongsToCreateAssociationMixin<TravelAuthorization>
-
-  declare getLocation: BelongsToGetAssociationMixin<Location>
-  declare setLocation: BelongsToSetAssociationMixin<Location, Location["id"]>
-  declare createLocation: BelongsToCreateAssociationMixin<Location>
-
-  declare travelAuthorization?: NonAttribute<TravelAuthorization>
-  declare location?: NonAttribute<Location>
-
-  declare static associations: {
-    travelAuthorization: Association<Stop, TravelAuthorization>
-    location: Association<Stop, Location>
-  }
-
-  static establishAssociations() {
-    this.belongsTo(Location, {
-      as: "location",
-      foreignKey: "locationId",
-    })
-    this.belongsTo(TravelAuthorization, {
-      as: "travelAuthorization",
-      foreignKey: "travelAuthorizationId",
-    })
-  }
-
+  // Magic Attributes
   get departureAt(): NonAttribute<Date | null> {
     const departureDate = this.departureDate
     if (isNil(departureDate)) return null
@@ -83,70 +86,29 @@ export class Stop extends Model<InferAttributes<Stop>, InferCreationAttributes<S
     const departureDateTime = new Date(`${departureDate}T${timePart}`)
     return departureDateTime
   }
-}
 
-Stop.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
+  // Associations
+  @BelongsTo(() => TravelAuthorization, {
+    foreignKey: "travelAuthorizationId",
+    inverse: {
+      as: "stops",
+      type: "hasMany",
     },
-    travelAuthorizationId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "travel_authorizations", // using real table name here
-        key: "id", // using real column name here
-      },
+  })
+  declare travelAuthorization?: NonAttribute<TravelAuthorization>
+
+  @BelongsTo(() => Location, {
+    foreignKey: "locationId",
+    inverse: {
+      as: "stops",
+      type: "hasMany",
     },
-    locationId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "locations", // using real table name here
-        key: "id", // using real column name here
-      },
-    },
-    departureDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
-    departureTime: {
-      type: DataTypes.TIME,
-      allowNull: true,
-    },
-    transport: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    accommodationType: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    isActual: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    modelName: "Stop",
-    tableName: "stops",
-    paranoid: false,
+  })
+  declare location?: NonAttribute<Location>
+
+  static establishScopes(): void {
+    // Scopes can be added here if needed
   }
-)
+}
 
 export default Stop

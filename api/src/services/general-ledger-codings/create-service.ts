@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 
 import { GeneralLedgerCoding, User } from "@/models"
 import BaseService from "@/services/base-service"

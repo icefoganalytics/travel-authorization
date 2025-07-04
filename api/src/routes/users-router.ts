@@ -1,5 +1,5 @@
 import { isNull, pick } from "lodash"
-import { Op } from "sequelize"
+import { Op } from "@sequelize/core"
 import express, { Request, Response } from "express"
 
 import logger from "@/utils/logger"

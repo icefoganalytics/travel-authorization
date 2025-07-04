@@ -1,20 +1,24 @@
 import {
-  Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
-  InferAttributes,
-  InferCreationAttributes,
   Model,
-  NonAttribute,
-} from "sequelize"
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  ModelValidator,
+  NotNull,
+  PrimaryKey,
+  Table,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 import { isNil } from "lodash"
 import { DateTime } from "luxon"
-
-import sequelize from "@/db/db-client"
 
 import Location from "@/models/location"
 import Stop from "@/models/stop"
@@ -46,6 +50,9 @@ export enum AccommodationTypes {
   OTHER = "Other", // value stored in accommodationTypeOther
 }
 
+@Table({
+  paranoid: false,
+})
 export class TravelSegment extends Model<
   InferAttributes<TravelSegment>,
   InferCreationAttributes<TravelSegment>
@@ -54,19 +61,83 @@ export class TravelSegment extends Model<
   static AccommodationTypes = AccommodationTypes
   static FallbackTimes = FallbackTimes
 
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
   declare id: CreationOptional<number>
-  declare travelAuthorizationId: ForeignKey<TravelAuthorization["id"]>
-  declare departureLocationId: ForeignKey<Location["id"]> | null
-  declare arrivalLocationId: ForeignKey<Location["id"]> | null
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelAuthorizationId: number
+
+  @Attribute(DataTypes.INTEGER)
+  declare departureLocationId: number | null
+
+  @Attribute(DataTypes.INTEGER)
+  declare arrivalLocationId: number | null
+
+  @Attribute(DataTypes.INTEGER)
   declare segmentNumber: number
+
+  @Attribute(DataTypes.DATEONLY)
   declare departureOn: Date | string | null // DATEONLY accepts Date or string, but returns string
+
+  @Attribute(DataTypes.TIME)
   declare departureTime: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelMethods)],
+      msg: "Invalid travel method value",
+    },
+  })
   declare modeOfTransport: string
+
+  @Attribute(DataTypes.STRING(255))
   declare modeOfTransportOther: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(AccommodationTypes)],
+      msg: "Invalid accommodation type value",
+    },
+    accommodationTypeOtherIsNull(value: string) {
+      if (!isNil(this.accommodationTypeOther) && value !== AccommodationTypes.OTHER) {
+        throw new Error(
+          `accommodationType must be ${AccommodationTypes.OTHER} when accommodationTypeOther is set`
+        )
+      }
+    },
+  })
   declare accommodationType: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @ValidateAttribute({
+    accommodationTypeIsOther(value: string | null) {
+      if (!isNil(value) && this.accommodationType !== AccommodationTypes.OTHER) {
+        throw new Error(
+          `accommodationTypeOther can only have a value if accommodationType is ${AccommodationTypes.OTHER}`
+        )
+      }
+    },
+  })
   declare accommodationTypeOther: string | null
+
+  @Attribute(DataTypes.BOOLEAN)
+  @NotNull
+  @Default(false)
   declare isActual: CreationOptional<boolean>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
   // Magic methods
@@ -78,50 +149,97 @@ export class TravelSegment extends Model<
     return this.departureOn
   }
 
-  // https://sequelize.org/docs/v6/other-topics/typescript/#usage
-  // https://sequelize.org/docs/v6/core-concepts/assocs/#special-methodsmixins-added-to-instances
-  // https://sequelize.org/api/v7/types/_sequelize_core.index.belongstocreateassociationmixin
-  declare getTravelAuthorization: BelongsToGetAssociationMixin<TravelAuthorization>
-  declare setTravelAuthorization: BelongsToSetAssociationMixin<
-    TravelAuthorization,
-    TravelAuthorization["id"]
-  >
-  declare createTravelAuthorization: BelongsToCreateAssociationMixin<TravelAuthorization>
-
-  declare getDepartureLocation: BelongsToGetAssociationMixin<Location>
-  declare setDepartureLocation: BelongsToSetAssociationMixin<Location, Location["id"]>
-  declare createDepartureLocation: BelongsToCreateAssociationMixin<Location>
-
-  declare getArrivalLocation: BelongsToGetAssociationMixin<Location>
-  declare setArrivalLocation: BelongsToSetAssociationMixin<Location, Location["id"]>
-  declare createArrivalLocation: BelongsToCreateAssociationMixin<Location>
-
-  declare travelAuthorization?: NonAttribute<TravelAuthorization>
-  declare departureLocation?: NonAttribute<Location>
-  declare arrivalLocation?: NonAttribute<Location>
-
-  declare static associations: {
-    travelAuthorization: Association<TravelSegment, TravelAuthorization>
-    departureLocation: Association<TravelSegment, Location>
-    arrivalLocation: Association<TravelSegment, Location>
+  get departureAt(): NonAttribute<Date | null> {
+    return this.departureAtWithTimeFallback(FallbackTimes.BEGINNING_OF_DAY)
   }
 
-  static establishAssociations() {
-    this.belongsTo(TravelAuthorization, {
-      as: "travelAuthorization",
-      foreignKey: "travelAuthorizationId",
+  departureAtWithTimeFallback(fallbackTime: FallbackTimes): NonAttribute<Date | null> {
+    const departureOn = this.departureOn
+    if (isNil(departureOn)) return null
+
+    const timePart = this.departureTime || fallbackTime
+    return new Date(`${departureOn}T${timePart}`)
+  }
+
+  // Validators
+  @ModelValidator
+  modeOfTransportOtherConsistency() {
+    if (!isNil(this.modeOfTransportOther) && this.modeOfTransport !== TravelMethods.OTHER) {
+      throw new Error(
+        `modeOfTransport must be ${TravelMethods.OTHER} when modeOfTransportOther is set`
+      )
+    } else if (this.modeOfTransport === TravelMethods.OTHER && isNil(this.modeOfTransportOther)) {
+      throw new Error(
+        `modeOfTransportOther can only have a value if modeOfTransport is ${TravelMethods.OTHER}`
+      )
+    }
+  }
+
+  @ModelValidator
+  accommodationTypeOtherConsistency() {
+    if (
+      !isNil(this.accommodationTypeOther) &&
+      this.accommodationType !== AccommodationTypes.OTHER
+    ) {
+      throw new Error(
+        `accommodationType must be ${AccommodationTypes.OTHER} when accommodationTypeOther is set`
+      )
+    } else if (
+      this.accommodationType === AccommodationTypes.OTHER &&
+      isNil(this.accommodationTypeOther)
+    ) {
+      throw new Error(
+        `accommodationTypeOther can only have a value if accommodationType is ${AccommodationTypes.OTHER}`
+      )
+    }
+  }
+
+  @ModelValidator
+  departureLocationIdAndArrivalLocationIdConsistency() {
+    if (this.departureLocationId === this.arrivalLocationId) {
+      throw new Error("departureLocationId and arrivalLocationId must be different")
+    }
+  }
+
+  // Associations
+  @BelongsTo(() => TravelAuthorization, {
+    foreignKey: {
+      name: "travelAuthorizationId",
       onDelete: "CASCADE",
-    })
-    this.belongsTo(Location, {
-      as: "departureLocation",
-      foreignKey: "departureLocationId",
+    },
+    inverse: {
+      as: "travelSegments",
+      type: "hasMany",
+    },
+  })
+  declare travelAuthorization?: NonAttribute<TravelAuthorization>
+
+  @BelongsTo(() => Location, {
+    foreignKey: {
+      name: "departureLocationId",
       onDelete: "RESTRICT",
-    })
-    this.belongsTo(Location, {
-      as: "arrivalLocation",
-      foreignKey: "arrivalLocationId",
+    },
+    inverse: {
+      as: "departureTravelSegments",
+      type: "hasMany",
+    },
+  })
+  declare departureLocation?: NonAttribute<Location>
+
+  @BelongsTo(() => Location, {
+    foreignKey: {
+      name: "arrivalLocationId",
       onDelete: "RESTRICT",
-    })
+    },
+    inverse: {
+      as: "arrivalTravelSegments",
+      type: "hasMany",
+    },
+  })
+  declare arrivalLocation?: NonAttribute<Location>
+
+  static establishScopes(): void {
+    // add as needed
   }
 
   // Shim until Stop model is fully removed
@@ -174,154 +292,6 @@ export class TravelSegment extends Model<
       isActual: departureStop.isActual,
     })
   }
-
-  get departureAt(): NonAttribute<Date | null> {
-    return this.departureAtWithTimeFallback(FallbackTimes.BEGINNING_OF_DAY)
-  }
-
-  departureAtWithTimeFallback(fallbackTime: FallbackTimes): NonAttribute<Date | null> {
-    const departureOn = this.departureOn
-    if (isNil(departureOn)) return null
-
-    const timePart = this.departureTime || fallbackTime
-    return new Date(`${departureOn}T${timePart}`)
-  }
 }
-
-TravelSegment.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    travelAuthorizationId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    departureLocationId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    arrivalLocationId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    segmentNumber: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    departureOn: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
-    departureTime: {
-      type: DataTypes.TIME,
-      allowNull: true,
-    },
-    modeOfTransport: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelMethods)],
-          msg: "Invalid travel method value",
-        },
-      },
-    },
-    modeOfTransportOther: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    accommodationType: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      validate: {
-        isIn: {
-          args: [Object.values(AccommodationTypes)],
-          msg: "Invalid accommodation type value",
-        },
-        accommodationTypeOtherIsNull(value: string) {
-          if (!isNil(this.accommodationTypeOther) && value !== AccommodationTypes.OTHER) {
-            throw new Error(
-              `accommodationType must be ${AccommodationTypes.OTHER} when accommodationTypeOther is set`
-            )
-          }
-        },
-      },
-    },
-    accommodationTypeOther: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      validate: {
-        accommodationTypeIsOther(value: string | null) {
-          if (!isNil(value) && this.accommodationType !== AccommodationTypes.OTHER) {
-            throw new Error(
-              `accommodationTypeOther can only have a value if accommodationType is ${AccommodationTypes.OTHER}`
-            )
-          }
-        },
-      },
-    },
-    isActual: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    paranoid: false,
-    validate: {
-      modeOfTransportOtherConsistency() {
-        if (!isNil(this.modeOfTransportOther) && this.modeOfTransport !== TravelMethods.OTHER) {
-          throw new Error(
-            `modeOfTransport must be ${TravelMethods.OTHER} when modeOfTransportOther is set`
-          )
-        } else if (
-          this.modeOfTransport === TravelMethods.OTHER &&
-          isNil(this.modeOfTransportOther)
-        ) {
-          throw new Error(
-            `modeOfTransportOther can only have a value if modeOfTransport is ${TravelMethods.OTHER}`
-          )
-        }
-      },
-      accommodationTypeOtherConsistency() {
-        if (
-          !isNil(this.accommodationTypeOther) &&
-          this.accommodationType !== AccommodationTypes.OTHER
-        ) {
-          throw new Error(
-            `accommodationType must be ${AccommodationTypes.OTHER} when accommodationTypeOther is set`
-          )
-        } else if (
-          this.accommodationType === AccommodationTypes.OTHER &&
-          isNil(this.accommodationTypeOther)
-        ) {
-          throw new Error(
-            `accommodationTypeOther can only have a value if accommodationType is ${AccommodationTypes.OTHER}`
-          )
-        }
-      },
-      departureLocationIdAndArrivalLocationIdConsistency() {
-        if (this.departureLocationId === this.arrivalLocationId) {
-          throw new Error("departureLocationId and arrivalLocationId must be different")
-        }
-      },
-    },
-  }
-)
 
 export default TravelSegment

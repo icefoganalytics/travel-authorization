@@ -7,7 +7,7 @@ import {
   type FindOptions,
   type WhereOptions,
   where,
-} from "sequelize"
+} from "@sequelize/core"
 
 import arrayWrap from "@/utils/array-wrap"
 import { type AttributeNames } from "@/utils/utility-types"

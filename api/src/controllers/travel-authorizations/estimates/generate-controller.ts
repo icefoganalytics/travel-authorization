@@ -56,6 +56,7 @@ export class GenerateController extends BaseController {
 
   private async buildExpense(travelAuthorization: TravelAuthorization) {
     const expense = Expense.build({
+      travelAuthorizationId: travelAuthorization.id,
       type: Expense.Types.ESTIMATE,
       description: "Generated estimate",
       cost: 0,
