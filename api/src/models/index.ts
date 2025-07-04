@@ -43,6 +43,7 @@ db.addModels([
   TravelAllowance,
   TravelAuthorizationActionLog,
   TravelAuthorizationPreApprovalDocument,
+  TravelAuthorizationPreApprovalProfile,
 ])
 
 DistanceMatrix.establishScopes()
@@ -55,10 +56,10 @@ Stop.establishScopes()
 TravelAllowance.establishScopes()
 TravelAuthorizationActionLog.establishScopes()
 TravelAuthorizationPreApprovalDocument.establishScopes()
+TravelAuthorizationPreApprovalProfile.establishScopes()
 
 TravelAuthorization.establishAssociations()
 TravelAuthorizationPreApproval.establishAssociations()
-TravelAuthorizationPreApprovalProfile.establishAssociations()
 TravelAuthorizationPreApprovalSubmission.establishAssociations()
 TravelDeskFlightOption.establishAssociations()
 TravelDeskFlightRequest.establishAssociations()
