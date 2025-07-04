@@ -22,7 +22,8 @@ describe("api/src/models/user.ts", () => {
 
           const users = await User.withScope("isTravelDeskUser").findAll()
 
-          expect(users).toEqual([user])
+          const userIds = users.map((user) => user.id)
+          expect(userIds).toEqual([user.id])
         })
       })
     })
