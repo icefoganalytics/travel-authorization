@@ -1,90 +1,118 @@
 import {
-  type CreationOptional,
   DataTypes,
+  Op,
+  type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
-  Op,
 } from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  Default,
+  NotNull,
+  PrimaryKey,
+} from "@sequelize/core/decorators-legacy"
 
-import sequelize from "@/db/db-client"
+import { YgEmployeeGroupsDepartmentDivisionBranchUnitUniqueIndex } from "@/models/indexes"
+
 import BaseModel from "@/models/base-model"
 
 export class YgEmployeeGroup extends BaseModel<
   InferAttributes<YgEmployeeGroup>,
   InferCreationAttributes<YgEmployeeGroup>
 > {
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
   declare id: CreationOptional<number>
-  declare department: string
-  declare division: string | null
-  declare branch: string | null
-  declare unit: string | null
-  declare order: number
-  declare lastSyncSuccessAt: Date | null
-  declare lastSyncFailureAt: Date | null
-  declare createdAt: CreationOptional<Date>
-  declare updatedAt: CreationOptional<Date>
-  declare deletedAt: Date | null
-}
 
-YgEmployeeGroup.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    department: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    division: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    branch: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    unit: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    order: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 100,
-    },
-    lastSyncSuccessAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    lastSyncFailureAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    indexes: [
-      {
-        name: "yg_employee_groups_department_division_branch_unit_unique",
-        unique: true,
-        fields: ["department", "division", "branch", "unit"],
+  @Attribute(DataTypes.STRING)
+  @NotNull
+  @YgEmployeeGroupsDepartmentDivisionBranchUnitUniqueIndex
+  declare department: string
+
+  @Attribute(DataTypes.STRING)
+  @YgEmployeeGroupsDepartmentDivisionBranchUnitUniqueIndex
+  declare division: string | null
+
+  @Attribute(DataTypes.STRING)
+  @YgEmployeeGroupsDepartmentDivisionBranchUnitUniqueIndex
+  declare branch: string | null
+
+  @Attribute(DataTypes.STRING)
+  @YgEmployeeGroupsDepartmentDivisionBranchUnitUniqueIndex
+  declare unit: string | null
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  @Default(100)
+  declare order: CreationOptional<number>
+
+  @Attribute(DataTypes.DATE)
+  declare lastSyncSuccessAt: Date | null
+
+  @Attribute(DataTypes.DATE)
+  declare lastSyncFailureAt: Date | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
+  declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
+  declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  declare deletedAt: Date | null
+
+  static establishScopes(): void {
+    this.addSearchScope(["department", "division", "branch", "unit"])
+    this.addScope("isDepartment", () => {
+      return {
+        where: {
+          department: {
+            [Op.not]: null,
+          },
+          division: null,
+          branch: null,
+          unit: null,
+        },
+      }
+    })
+    this.addScope("isDivision", () => {
+      return {
+        where: {
+          department: {
+            [Op.not]: null,
+          },
+          division: {
+            [Op.not]: null,
+          },
+          branch: null,
+          unit: null,
+        },
+      }
+    })
+    this.addScope("isBranch", () => {
+      return {
+        where: {
+          department: {
+            [Op.not]: null,
+          },
+          division: {
+            [Op.not]: null,
+          },
+          branch: {
+            [Op.not]: null,
+          },
+          unit: null,
+        },
+      }
+    })
+    this.addScope("isUnit", () => {
+      return {
         where: {
           department: {
             [Op.not]: null,
@@ -98,77 +126,10 @@ YgEmployeeGroup.init(
           unit: {
             [Op.not]: null,
           },
-          deletedAt: {
-            [Op.is]: null,
-          },
         },
-      },
-    ],
-    scopes: {
-      isDepartment() {
-        return {
-          where: {
-            department: {
-              [Op.not]: null,
-            },
-            division: null,
-            branch: null,
-            unit: null,
-          },
-        }
-      },
-      isDivision() {
-        return {
-          where: {
-            department: {
-              [Op.not]: null,
-            },
-            division: {
-              [Op.not]: null,
-            },
-            branch: null,
-            unit: null,
-          },
-        }
-      },
-      isBranch() {
-        return {
-          where: {
-            department: {
-              [Op.not]: null,
-            },
-            division: {
-              [Op.not]: null,
-            },
-            branch: {
-              [Op.not]: null,
-            },
-            unit: null,
-          },
-        }
-      },
-      isUnit() {
-        return {
-          where: {
-            department: {
-              [Op.not]: null,
-            },
-            division: {
-              [Op.not]: null,
-            },
-            branch: {
-              [Op.not]: null,
-            },
-            unit: {
-              [Op.not]: null,
-            },
-          },
-        }
-      },
-    },
+      }
+    })
   }
-)
-
-YgEmployeeGroup.addSearchScope(["department", "division", "branch", "unit"])
+}
 
 export default YgEmployeeGroup
