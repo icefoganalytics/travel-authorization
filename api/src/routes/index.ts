@@ -382,9 +382,6 @@ router
 // QA testing scenarios
 router.route("/api/qa/scenarios").get(Qa.ScenariosController.index)
 router
-  .route(`/api/qa/scenarios/${Qa.ScenarioTypes.MY_TRAVEL_REQUESTS}`)
-  .post(Qa.Scenarios.MyTravelRequestsController.create)
-router
   .route(`/api/qa/scenarios/${Qa.ScenarioTypes.BECOME_ADMIN_ROLE}`)
   .post(Qa.Scenarios.BecomeAdminRoleController.create)
 router
