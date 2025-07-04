@@ -51,14 +51,15 @@ export class TravelDeskPassengerNameRecordDocument extends Model<
   @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
+  // TODO: simplify this to travelRequest and update foreign key to match othe models.
   @BelongsTo(() => TravelDeskTravelRequest, {
     foreignKey: {
       name: "travelDeskTravelRequestId",
       onDelete: "CASCADE",
     },
     inverse: {
-      as: "passengerNameRecordDocuments",
-      type: "hasMany",
+      as: "passengerNameRecordDocument",
+      type: "hasOne",
     },
   })
   declare travelDeskTravelRequest?: NonAttribute<TravelDeskTravelRequest>

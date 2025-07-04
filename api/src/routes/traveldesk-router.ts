@@ -51,7 +51,7 @@ travelDeskRouter.get("/", RequiresAuth, async function (_req: Request, res: Resp
         ],
       },
       {
-        association: "travelDeskPassengerNameRecordDocument",
+        association: "passengerNameRecordDocument",
         attributes: ["invoiceNumber"],
       },
     ],
@@ -66,7 +66,7 @@ travelDeskRouter.get("/", RequiresAuth, async function (_req: Request, res: Resp
     // @ts-expect-error - not worth fixing at this time, belongs in a serializer
     travelRequest.invoiceNumber =
       // @ts-expect-error - not worth fixing at this time, belongs in a serializer
-      travelRequest.travelDeskPassengerNameRecordDocument?.invoiceNumber || ""
+      travelRequest.passengerNameRecordDocument?.invoiceNumber || ""
   }
 
   res.status(200).json(travelRequestsJson)
@@ -494,7 +494,7 @@ travelDeskRouter.get(
           ],
         },
         {
-          association: "travelDeskPassengerNameRecordDocument",
+          association: "passengerNameRecordDocument",
           attributes: ["invoiceNumber"],
         },
       ],
@@ -542,7 +542,7 @@ travelDeskRouter.get(
     // @ts-expect-error - not worth fixing at this time
     travelRequestJson.invoiceNumber =
       // @ts-expect-error - not worth fixing at this time
-      travelRequestJson.travelDeskPassengerNameRecordDocument?.invoiceNumber || ""
+      travelRequestJson.passengerNameRecordDocument?.invoiceNumber || ""
 
     res.status(200).json(travelRequestJson)
   }
