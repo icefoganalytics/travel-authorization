@@ -60,6 +60,7 @@ db.addModels([
   TravelPurpose,
   TravelSegment,
   User,
+  YgEmployee,
   YgEmployeeGroup,
 ])
 
@@ -90,6 +91,7 @@ TravelDeskTravelRequest.establishScopes()
 TravelPurpose.establishScopes()
 TravelSegment.establishScopes()
 User.establishScopes()
+YgEmployee.establishScopes()
 YgEmployeeGroup.establishScopes()
 
 export {
