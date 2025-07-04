@@ -1,7 +1,7 @@
 import {
   DataTypes,
   Model,
-  Op,
+  sql,
   type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
@@ -15,9 +15,8 @@ import {
   NotNull,
   PrimaryKey,
   Table,
-  ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 import moment from "moment"
 
 import { isRole, RoleNames } from "@/models/role"
@@ -65,23 +64,32 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   @Attribute(DataTypes.STRING(255))
   declare lastName: string | null
 
-  @Attribute(DataTypes.ARRAY(DataTypes.STRING))
-  @NotNull
-  @Default([])
-  @ValidateAttribute({
-    isValidRole(roles: string[] | string) {
-      if (isNil(roles)) return
-      if (!Array.isArray(roles)) {
-        throw new Error("roles must be an array")
-      }
+  @Attribute({
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    defaultValue: "",
+    get() {
+      const roles = this.getDataValue("roles")
+      if (isEmpty(roles)) return []
 
-      roles.forEach((role: string) => {
-        if (isRole(role)) return
+      return roles.split(",")
+    },
+    set(value: string[]) {
+      this.setDataValue("roles", value.join(","))
+    },
+    validate: {
+      isValidRole(roles: string) {
+        if (isNil(roles) || isEmpty(roles)) return
 
-        throw new Error(
-          `Invalid role: ${role}. Allowed roles are: ${Object.values(RoleNames).join(", ")}`
-        )
-      })
+        const rolesArray = roles.split(",")
+        rolesArray.forEach((role: string) => {
+          if (isRole(role)) return
+
+          throw new Error(
+            `Invalid role: ${role}. Allowed roles are: ${Object.values(RoleNames).join(", ")}`
+          )
+        })
+      },
     },
   })
   declare roles: CreationOptional<string[]>
@@ -171,13 +179,14 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare travelDeskFlightOptions?: NonAttribute<TravelDeskFlightOption[]>
 
   static establishScopes(): void {
-    this.addScope("isTravelDeskUser", () => ({
-      where: {
-        roles: {
-          [Op.contains]: [RoleNames.TRAVEL_DESK_USER],
-        },
-      },
-    }))
+    this.addScope("isTravelDeskUser", () => {
+      const roleInRolesQuery = sql`
+        string_to_array(roles, ',') @> ARRAY[${RoleNames.TRAVEL_DESK_USER}]::text[]
+      `
+      return {
+        where: roleInRolesQuery,
+      }
+    })
   }
 }
 
