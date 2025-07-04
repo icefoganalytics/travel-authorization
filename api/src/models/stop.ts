@@ -65,17 +65,17 @@ export class Stop extends Model<InferAttributes<Stop>, InferCreationAttributes<S
   @Attribute(DataTypes.BOOLEAN)
   @NotNull
   @Default(false)
-  declare isActual: boolean
+  declare isActual: CreationOptional<boolean>
 
   @Attribute(DataTypes.DATE)
   @NotNull
   @Default(DataTypes.NOW)
-  declare createdAt: Date
+  declare createdAt: CreationOptional<Date>
 
   @Attribute(DataTypes.DATE)
   @NotNull
   @Default(DataTypes.NOW)
-  declare updatedAt: Date
+  declare updatedAt: CreationOptional<Date>
 
   // Magic Attributes
   get departureAt(): NonAttribute<Date | null> {
