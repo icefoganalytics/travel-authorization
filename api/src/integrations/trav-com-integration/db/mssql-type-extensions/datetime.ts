@@ -1,9 +1,7 @@
-import { Utils } from "@sequelize/core"
+import { DataTypes } from "@sequelize/core"
 import { DateTime } from "luxon"
 
-import ABSTRACT from "@/integrations/trav-com-integration/db/mssql-type-extensions/abstract"
-
-class MSSQL_DATETIME extends ABSTRACT {
+export class DATETIME extends DataTypes.ABSTRACT<Date> {
   toSql() {
     return "DATETIME"
   }
@@ -21,8 +19,5 @@ class MSSQL_DATETIME extends ABSTRACT {
     return datetime.toFormat("yyyy-MM-dd HH:mm:ss")
   }
 }
-
-// Wrap it on `Utils.classToInvokable` to be able to use this datatype directly without having to call `new` on it.
-export const DATETIME = Utils.classToInvokable(MSSQL_DATETIME)
 
 export default DATETIME
