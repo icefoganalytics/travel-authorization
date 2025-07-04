@@ -43,112 +43,112 @@ export type CityRaw = {
 export class City extends Model<InferAttributes<City>, InferCreationAttributes<City>> {
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "CityType",
+    columnName: "CityType",
     allowNull: false,
   })
   declare cityType: number
 
   @Attribute({
     type: DataTypes.STRING(5),
-    field: "CityCode",
+    columnName: "CityCode",
     allowNull: true,
   })
   declare cityCode: string | null
 
   @Attribute({
     type: DataTypes.STRING,
-    field: "CityName",
+    columnName: "CityName",
     allowNull: false,
   })
   declare cityName: string
 
   @Attribute({
     type: DataTypes.STRING,
-    field: "Country",
+    columnName: "Country",
     allowNull: true,
   })
   declare country: string | null
 
   @Attribute({
     type: DataTypes.STRING,
-    field: "CountryAbbr",
+    columnName: "CountryAbbr",
     allowNull: true,
   })
   declare countryAbbreviation: string | null
 
   @Attribute({
     type: DataTypes.STRING,
-    field: "State",
+    columnName: "State",
     allowNull: true,
   })
   declare state: string | null
 
   @Attribute({
     type: DataTypes.STRING,
-    field: "Region1",
+    columnName: "Region1",
     allowNull: true,
   })
   declare region1: string | null
 
   @Attribute({
     type: DataTypes.STRING,
-    field: "Region2",
+    columnName: "Region2",
     allowNull: true,
   })
   declare region2: string | null
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "LatDeg",
+    columnName: "LatDeg",
     allowNull: false,
   })
   declare latitudeDegrees: number
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "LatMin",
+    columnName: "LatMin",
     allowNull: false,
   })
   declare latitudeMinutes: number
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "LatSec",
+    columnName: "LatSec",
     allowNull: false,
   })
   declare latitudeSeconds: number
 
   @Attribute({
     type: DataTypes.STRING,
-    field: "LatDir",
+    columnName: "LatDir",
     allowNull: true,
   })
   declare latitudeDirection: string | null
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "LonDeg",
+    columnName: "LonDeg",
     allowNull: false,
   })
   declare longitudeDegrees: number
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "LonMin",
+    columnName: "LonMin",
     allowNull: false,
   })
   declare longitudeMinutes: number
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "LonSec",
+    columnName: "LonSec",
     allowNull: false,
   })
   declare longitudeSeconds: number
 
   @Attribute({
     type: DataTypes.STRING,
-    field: "LonDir",
+    columnName: "LonDir",
     allowNull: true,
   })
   declare longitudeDirection: string | null
