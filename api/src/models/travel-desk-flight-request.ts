@@ -68,9 +68,9 @@ export class TravelDeskFlightRequest extends Model<
   @NotNull
   declare arriveLocation: string
 
-  @Attribute(DataTypes.DATE)
+  @Attribute(DataTypes.DATEONLY)
   @NotNull
-  declare datePreference: Date
+  declare datePreference: Date | string // DATEONLY accepts Date or string, but returns string
 
   @Attribute(DataTypes.STRING(255))
   @NotNull
