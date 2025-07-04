@@ -214,8 +214,8 @@ export class TravelDeskTravelRequest extends Model<
       onDelete: "RESTRICT",
     },
     inverse: {
-      as: "travelDeskTravelRequests",
-      type: "hasMany",
+      as: "travelDeskTravelRequest",
+      type: "hasOne",
     },
   })
   declare travelAgency?: NonAttribute<TravelDeskTravelAgency>

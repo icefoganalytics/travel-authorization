@@ -48,7 +48,10 @@ export class TravelDeskTravelAgency extends Model<
 
   // Associations
   @HasOne(() => TravelDeskTravelRequest, {
-    foreignKey: "travelAgencyId",
+    foreignKey: {
+      name: "travelAgencyId",
+      onDelete: "RESTRICT",
+    },
     inverse: "travelAgency",
   })
   declare travelRequest?: NonAttribute<TravelDeskTravelRequest>
