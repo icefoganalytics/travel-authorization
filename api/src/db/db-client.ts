@@ -21,7 +21,7 @@ export const SEQUELIZE_CONFIG: Options<PostgresDialect> = {
   password: DB_PASS,
   host: DB_HOST,
   port: DB_PORT,
-  ssl: true,
+  ssl: false,
   clientMinMessages: "notice",
   schema: "public",
   logging: NODE_ENV === "development" ? sqlLogger : false,
