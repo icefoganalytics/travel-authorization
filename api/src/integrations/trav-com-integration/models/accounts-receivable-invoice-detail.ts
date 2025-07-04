@@ -1,19 +1,18 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
-  InferAttributes,
-  InferCreationAttributes,
-  literal,
-  NonAttribute,
   Op,
+  sql,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
 } from "@sequelize/core"
+import { Attribute, BelongsTo, HasMany, Table } from "@sequelize/core/decorators-legacy"
 import { sortBy } from "lodash"
 
 import BaseModel from "@/models/base-model"
 import { FlightReconciliation } from "@/models"
-import sequelize, { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
+import { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
 
 import AccountsReceivableInvoice from "@/integrations/trav-com-integration/models/accounts-receivable-invoice"
 import City from "@/integrations/trav-com-integration/models/city"
@@ -45,237 +44,249 @@ export type ArInvoiceDetailNoHealthRaw = {
   AddedBy: number
 }
 
+@Table({
+  tableName: "ARInvoiceDetailsNoHealth",
+  underscored: false,
+  timestamps: false,
+  paranoid: false,
+})
 export class AccountsReceivableInvoiceDetail extends BaseModel<
   InferAttributes<AccountsReceivableInvoiceDetail>,
   InferCreationAttributes<AccountsReceivableInvoiceDetail>
 > {
+  @Attribute({
+    type: DataTypes.DECIMAL(18, 0),
+    field: "InvoiceDetailID",
+    primaryKey: true,
+    allowNull: false,
+  })
   declare id: CreationOptional<number>
-  declare invoiceId: ForeignKey<AccountsReceivableInvoice["id"]>
+
+  @Attribute({
+    type: DataTypes.DECIMAL(18, 0),
+    field: "InvoiceID",
+    allowNull: false,
+  })
+  declare invoiceId: number
+
+  @Attribute({
+    type: DataTypes.TINYINT,
+    field: "TransactionType",
+    allowNull: false,
+  })
   declare transactionType: number
+
+  @Attribute({
+    type: DataTypes.STRING(8),
+    field: "VendorNumber",
+    allowNull: false,
+  })
   declare vendorNumber: string
+
+  @Attribute({
+    type: DataTypes.STRING(50),
+    field: "VendorName",
+    allowNull: false,
+  })
   declare vendorName: string
+
+  @Attribute({
+    type: DataTypes.TINYINT,
+    field: "ProductCode",
+    allowNull: false,
+  })
   declare productCode: number
+
+  @Attribute({
+    type: DataTypes.STRING(50),
+    field: "PassengerName",
+    allowNull: false,
+  })
   declare passengerName: string
+
+  @Attribute({
+    type: DataTypes.STRING(20),
+    field: "TicketNumber",
+    allowNull: false,
+  })
   declare ticketNumber: string
+
+  @Attribute({
+    type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
+    field: "PublishedFare",
+    allowNull: false,
+  })
   declare publishedFare: number
+
+  @Attribute({
+    type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
+    field: "SellingFare",
+    allowNull: false,
+  })
   declare sellingFare: number
+
+  @Attribute({
+    type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
+    field: "ReferenceFare",
+    allowNull: false,
+  })
   declare referenceFare: number
+
+  @Attribute({
+    type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
+    field: "LowFare",
+    allowNull: false,
+  })
   declare lowFare: number
+
+  @Attribute({
+    type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
+    field: "Tax1",
+    allowNull: false,
+  })
   declare tax1: number
+
+  @Attribute({
+    type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
+    field: "GrossAmount",
+    allowNull: false,
+  })
   declare grossAmount: number
+
+  @Attribute({
+    type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
+    field: "CommissionAmount",
+    allowNull: false,
+  })
   declare commissionAmount: number
+
+  @Attribute({
+    type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
+    field: "VatOnCommission",
+    allowNull: false,
+  })
   declare vatOnCommission: number
+
+  @Attribute({
+    type: DataTypes.TEXT,
+    field: "FreeFieldA",
+    allowNull: true,
+  })
   declare freeFieldA: string | null
+
+  @Attribute({
+    type: MssqlTypeExtensions.DATETIME,
+    field: "TravelDate",
+    allowNull: true,
+  })
   declare travelDate: string | null
+
+  @Attribute({
+    type: MssqlTypeExtensions.DATETIME,
+    field: "ReturnDate",
+    allowNull: true,
+  })
   declare returnDate: string | null
+
+  @Attribute({
+    type: DataTypes.SMALLINT,
+    field: "NumberOfDays",
+    allowNull: true,
+  })
   declare numberOfDays: number | null
+
+  @Attribute({
+    type: DataTypes.STRING(5),
+    field: "CityCode",
+    allowNull: true,
+  })
   declare cityCode: string | null
+
+  @Attribute({
+    type: DataTypes.STRING(10),
+    field: "ProfileNumber",
+    allowNull: true,
+  })
   declare profileNumber: string | null
+
+  // Probably should be a foreign key to a "users" table.
+  @Attribute({
+    type: DataTypes.DECIMAL(18, 0),
+    field: "AddedBy",
+    allowNull: false,
+  })
   declare addedBy: number
 
-  // associations
+  // Associations
+  @BelongsTo(() => City, {
+    foreignKey: "cityCode",
+    targetKey: "cityCode",
+    inverse: {
+      as: "accountsReceivableInvoiceDetails",
+      type: "hasMany",
+    },
+  })
   declare city?: NonAttribute<City>
+
+  @BelongsTo(() => AccountsReceivableInvoice, {
+    foreignKey: "invoiceId",
+    inverse: {
+      as: "details",
+      type: "hasMany",
+    },
+  })
   declare invoice?: NonAttribute<AccountsReceivableInvoice>
+
+  @HasMany(() => Segment, {
+    foreignKey: "invoiceDetailId",
+    inverse: "invoiceDetail",
+  })
   declare segments?: NonAttribute<Segment[]>
 
-  // external association, you cannot eager load this
+  // External association, you cannot eager load this
   declare flightReconciliation?: NonAttribute<FlightReconciliation>
 
-  declare static associations: {
-    city: Association<AccountsReceivableInvoiceDetail, City>
-    invoice: Association<AccountsReceivableInvoiceDetail, AccountsReceivableInvoice>
-    segments: Association<AccountsReceivableInvoiceDetail, Segment>
-  }
+  static establishScopes(): void {
+    this.addScope("invoiceBookingDateBetween", ([date1, date2]: [string, string]) => {
+      const [startDate, endDate] = sortBy([date1, date2])
 
-  static establishAssociations() {
-    this.belongsTo(City, {
-      as: "city",
-      foreignKey: "cityCode",
-      targetKey: "cityCode",
+      return {
+        include: {
+          association: "invoice",
+          where: {
+            bookingDate: {
+              [Op.gte]: startDate,
+              [Op.lte]: endDate,
+            },
+          },
+        },
+      }
     })
-    this.belongsTo(AccountsReceivableInvoice, {
-      as: "invoice",
-      foreignKey: "invoiceId",
-    })
-    this.hasMany(Segment, {
-      as: "segments",
-      foreignKey: "invoiceDetailId",
+    this.addScope("includeAgentNameAttribute", () => {
+      const parentTableAlias = AccountsReceivableInvoiceDetail.name
+      const agentNameQuery = sql`
+        COALESCE(
+          (
+            SELECT
+              TOP 1 VendorName
+            FROM
+              ARInvoiceDetailsNoHealth as agent_name_query
+            WHERE
+              agent_name_query.InvoiceID = ${parentTableAlias}.InvoiceID
+              AND agent_name_query.ProductCode = 18
+            ORDER BY
+              agent_name_query.InvoiceDetailID ASC
+          ),
+          ${parentTableAlias}.VendorName
+        )
+      `
+      return {
+        attributes: {
+          include: [[agentNameQuery, "agentName"]],
+        },
+      }
     })
   }
 }
-
-AccountsReceivableInvoiceDetail.init(
-  {
-    id: {
-      type: DataTypes.DECIMAL(18, 0),
-      field: "InvoiceDetailID",
-      primaryKey: true,
-      allowNull: false,
-    },
-    invoiceId: {
-      type: DataTypes.DECIMAL(18, 0),
-      field: "InvoiceID",
-      allowNull: false,
-      references: {
-        model: AccountsReceivableInvoice,
-        key: "id",
-      },
-    },
-    transactionType: {
-      type: DataTypes.TINYINT,
-      field: "TransactionType",
-      allowNull: false,
-    },
-    vendorNumber: {
-      type: DataTypes.STRING(8),
-      field: "VendorNumber",
-      allowNull: false,
-    },
-    vendorName: {
-      type: DataTypes.STRING(50),
-      field: "VendorName",
-      allowNull: false,
-    },
-    productCode: {
-      type: DataTypes.TINYINT,
-      field: "ProductCode",
-      allowNull: false,
-    },
-    passengerName: {
-      type: DataTypes.STRING(50),
-      field: "PassengerName",
-      allowNull: false,
-    },
-    ticketNumber: {
-      type: DataTypes.STRING(20),
-      field: "TicketNumber",
-      allowNull: false,
-    },
-    publishedFare: {
-      type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-      field: "PublishedFare",
-      allowNull: false,
-    },
-    sellingFare: {
-      type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-      field: "SellingFare",
-      allowNull: false,
-    },
-    referenceFare: {
-      type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-      field: "ReferenceFare",
-      allowNull: false,
-    },
-    lowFare: {
-      type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-      field: "LowFare",
-      allowNull: false,
-    },
-    tax1: {
-      type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-      field: "Tax1",
-      allowNull: false,
-    },
-    grossAmount: {
-      type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-      field: "GrossAmount",
-      allowNull: false,
-    },
-    commissionAmount: {
-      type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-      field: "CommissionAmount",
-      allowNull: false,
-    },
-    vatOnCommission: {
-      type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-      field: "VatOnCommission",
-      allowNull: false,
-    },
-    freeFieldA: {
-      type: DataTypes.TEXT,
-      field: "FreeFieldA",
-      allowNull: true,
-    },
-    travelDate: {
-      type: MssqlTypeExtensions.DATETIME,
-      field: "TravelDate",
-      allowNull: true,
-    },
-    returnDate: {
-      type: MssqlTypeExtensions.DATETIME,
-      field: "ReturnDate",
-      allowNull: true,
-    },
-    numberOfDays: {
-      type: DataTypes.SMALLINT,
-      field: "NumberOfDays",
-      allowNull: true,
-    },
-    cityCode: {
-      type: DataTypes.STRING(5),
-      field: "CityCode",
-      allowNull: true,
-    },
-    profileNumber: {
-      type: DataTypes.STRING(10),
-      field: "ProfileNumber",
-      allowNull: true,
-    },
-    addedBy: {
-      // Probably should be a foreign key to a "users" table.
-      type: DataTypes.DECIMAL(18, 0),
-      field: "AddedBy",
-      allowNull: false,
-    },
-  },
-  {
-    sequelize,
-    tableName: "ARInvoiceDetailsNoHealth",
-    underscored: false,
-    timestamps: false,
-    paranoid: false,
-    scopes: {
-      invoiceBookingDateBetween([date1, date2]: [string, string]) {
-        const [startDate, endDate] = sortBy([date1, date2])
-
-        return {
-          include: {
-            association: "invoice",
-            where: {
-              bookingDate: {
-                [Op.gte]: startDate,
-                [Op.lte]: endDate,
-              },
-            },
-          },
-        }
-      },
-      includeAgentNameAttribute() {
-        const parentTableAlias = AccountsReceivableInvoiceDetail.name
-        const agentNameQuery = /* sql */ `
-          COALESCE(
-            (
-              SELECT
-                TOP 1 VendorName
-              FROM
-                ARInvoiceDetailsNoHealth as agent_name_query
-              WHERE
-                agent_name_query.InvoiceID = ${parentTableAlias}.InvoiceID
-                AND agent_name_query.ProductCode = 18
-              ORDER BY
-                agent_name_query.InvoiceDetailID ASC
-            ),
-            ${parentTableAlias}.VendorName
-          )
-        `
-        return {
-          attributes: {
-            include: [[literal(agentNameQuery), "agentName"]],
-          },
-        }
-      },
-    },
-  }
-)
 
 export default AccountsReceivableInvoiceDetail
