@@ -248,7 +248,10 @@ export class TravelDeskTravelRequest extends Model<
   declare otherTransportations?: NonAttribute<TravelDeskOtherTransportation[]>
 
   @HasMany(() => TravelDeskQuestion, {
-    foreignKey: "travelRequestId",
+    foreignKey: {
+      name: "travelRequestId",
+      onDelete: "CASCADE",
+    },
     inverse: "travelRequest",
   })
   declare questions?: NonAttribute<TravelDeskQuestion[]>
