@@ -14,8 +14,6 @@ import {
   Default,
   NotNull,
   PrimaryKey,
-  Table,
-  DeletedAt,
   Index,
 } from "@sequelize/core/decorators-legacy"
 import { range, sortBy } from "lodash"
@@ -24,11 +22,6 @@ import User from "@/models/user"
 
 export const FlightReconciliationReconcilePeriods = Object.freeze(range(1, 13).concat(14)) // 1-12, 14
 
-@Table({
-  tableName: "flightReconciliations",
-  paranoid: true,
-  underscored: false,
-})
 export class FlightReconciliation extends Model<
   InferAttributes<FlightReconciliation>,
   InferCreationAttributes<FlightReconciliation>
@@ -119,7 +112,6 @@ export class FlightReconciliation extends Model<
   declare updatedAt: CreationOptional<Date>
 
   @Attribute(DataTypes.DATE)
-  @DeletedAt
   declare deletedAt: Date | null
 
   // Associations
