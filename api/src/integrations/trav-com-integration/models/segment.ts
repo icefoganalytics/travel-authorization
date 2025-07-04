@@ -38,7 +38,7 @@ export type SegmentNoHealthRaw = {
 export class Segment extends Model<InferAttributes<Segment>, InferCreationAttributes<Segment>> {
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
-    field: "segmentID",
+    columnName: "segmentID",
     allowNull: false,
     primaryKey: true,
   })
@@ -46,77 +46,77 @@ export class Segment extends Model<InferAttributes<Segment>, InferCreationAttrib
 
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
-    field: "invoiceID",
+    columnName: "invoiceID",
     allowNull: false,
   })
   declare invoiceId: number
 
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
-    field: "invoiceDetailID",
+    columnName: "invoiceDetailID",
     allowNull: false,
   })
   declare invoiceDetailId: number
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "LegNumber",
+    columnName: "LegNumber",
     allowNull: false,
   })
   declare legNumber: number
 
   @Attribute({
     type: DataTypes.STRING(5),
-    field: "DepartureCityCode",
+    columnName: "DepartureCityCode",
     allowNull: true,
   })
   declare departureCityCode: string | null
 
   @Attribute({
     type: MssqlTypeExtensions.DATETIME,
-    field: "DepartureInfo",
+    columnName: "DepartureInfo",
     allowNull: true,
   })
   declare departureInfo: string | null
 
   @Attribute({
     type: DataTypes.STRING(5),
-    field: "ArrivalCityCode",
+    columnName: "ArrivalCityCode",
     allowNull: true,
   })
   declare arrivalCityCode: string | null
 
   @Attribute({
     type: MssqlTypeExtensions.DATETIME,
-    field: "ArrivalInfo",
+    columnName: "ArrivalInfo",
     allowNull: true,
   })
   declare arrivalInfo: string | null
 
   @Attribute({
     type: DataTypes.STRING(3),
-    field: "AirlineCode",
+    columnName: "AirlineCode",
     allowNull: true,
   })
   declare airlineCode: string | null
 
   @Attribute({
     type: DataTypes.STRING(5),
-    field: "FlightNumber",
+    columnName: "FlightNumber",
     allowNull: true,
   })
   declare flightNumber: string | null
 
   @Attribute({
     type: DataTypes.STRING(2),
-    field: "ClassOfService",
+    columnName: "ClassOfService",
     allowNull: true,
   })
   declare classOfService: string | null
 
   @Attribute({
     type: DataTypes.STRING(15),
-    field: "FareBasis",
+    columnName: "FareBasis",
     allowNull: true,
   })
   declare fareBasis: string | null

@@ -38,7 +38,7 @@ export class AccountsReceivableInvoice extends Model<
 > {
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
-    field: "InvoiceID",
+    columnName: "InvoiceID",
     allowNull: false,
     primaryKey: true,
   })
@@ -46,56 +46,56 @@ export class AccountsReceivableInvoice extends Model<
 
   @Attribute({
     type: DataTypes.STRING(10),
-    field: "InvoiceNumber",
+    columnName: "InvoiceNumber",
     allowNull: false,
   })
   declare invoiceNumber: string
 
   @Attribute({
     type: DataTypes.STRING(10),
-    field: "ProfileNumber",
+    columnName: "ProfileNumber",
     allowNull: true,
   })
   declare profileNumber: string | null
 
   @Attribute({
     type: DataTypes.STRING(50),
-    field: "ProfileName",
+    columnName: "ProfileName",
     allowNull: true,
   })
   declare profileName: string | null
 
   @Attribute({
     type: DataTypes.STRING(30),
-    field: "Department",
+    columnName: "Department",
     allowNull: true,
   })
   declare department: string | null
 
   @Attribute({
     type: MssqlTypeExtensions.DATETIME,
-    field: "BookingDate",
+    columnName: "BookingDate",
     allowNull: true,
   })
   declare bookingDate: Date | null
 
   @Attribute({
     type: MssqlTypeExtensions.DATETIME,
-    field: "SystemDate",
+    columnName: "SystemDate",
     allowNull: true,
   })
   declare systemDate: Date | null
 
   @Attribute({
     type: DataTypes.STRING(50),
-    field: "Description",
+    columnName: "Description",
     allowNull: true,
   })
   declare description: string | null
 
   @Attribute({
     type: DataTypes.TEXT,
-    field: "InvoiceRemarks",
+    columnName: "InvoiceRemarks",
     allowNull: true,
   })
   declare invoiceRemarks: string | null

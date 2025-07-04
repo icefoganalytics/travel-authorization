@@ -56,7 +56,7 @@ export class AccountsReceivableInvoiceDetail extends BaseModel<
 > {
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
-    field: "InvoiceDetailID",
+    columnName: "InvoiceDetailID",
     primaryKey: true,
     allowNull: false,
   })
@@ -64,147 +64,147 @@ export class AccountsReceivableInvoiceDetail extends BaseModel<
 
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
-    field: "InvoiceID",
+    columnName: "InvoiceID",
     allowNull: false,
   })
   declare invoiceId: number
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "TransactionType",
+    columnName: "TransactionType",
     allowNull: false,
   })
   declare transactionType: number
 
   @Attribute({
     type: DataTypes.STRING(8),
-    field: "VendorNumber",
+    columnName: "VendorNumber",
     allowNull: false,
   })
   declare vendorNumber: string
 
   @Attribute({
     type: DataTypes.STRING(50),
-    field: "VendorName",
+    columnName: "VendorName",
     allowNull: false,
   })
   declare vendorName: string
 
   @Attribute({
     type: DataTypes.TINYINT,
-    field: "ProductCode",
+    columnName: "ProductCode",
     allowNull: false,
   })
   declare productCode: number
 
   @Attribute({
     type: DataTypes.STRING(50),
-    field: "PassengerName",
+    columnName: "PassengerName",
     allowNull: false,
   })
   declare passengerName: string
 
   @Attribute({
     type: DataTypes.STRING(20),
-    field: "TicketNumber",
+    columnName: "TicketNumber",
     allowNull: false,
   })
   declare ticketNumber: string
 
   @Attribute({
     type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-    field: "PublishedFare",
+    columnName: "PublishedFare",
     allowNull: false,
   })
   declare publishedFare: number
 
   @Attribute({
     type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-    field: "SellingFare",
+    columnName: "SellingFare",
     allowNull: false,
   })
   declare sellingFare: number
 
   @Attribute({
     type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-    field: "ReferenceFare",
+    columnName: "ReferenceFare",
     allowNull: false,
   })
   declare referenceFare: number
 
   @Attribute({
     type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-    field: "LowFare",
+    columnName: "LowFare",
     allowNull: false,
   })
   declare lowFare: number
 
   @Attribute({
     type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-    field: "Tax1",
+    columnName: "Tax1",
     allowNull: false,
   })
   declare tax1: number
 
   @Attribute({
     type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-    field: "GrossAmount",
+    columnName: "GrossAmount",
     allowNull: false,
   })
   declare grossAmount: number
 
   @Attribute({
     type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-    field: "CommissionAmount",
+    columnName: "CommissionAmount",
     allowNull: false,
   })
   declare commissionAmount: number
 
   @Attribute({
     type: DataTypes.DECIMAL(19, 4), // equivalent of type MONEY
-    field: "VatOnCommission",
+    columnName: "VatOnCommission",
     allowNull: false,
   })
   declare vatOnCommission: number
 
   @Attribute({
     type: DataTypes.TEXT,
-    field: "FreeFieldA",
+    columnName: "FreeFieldA",
     allowNull: true,
   })
   declare freeFieldA: string | null
 
   @Attribute({
     type: MssqlTypeExtensions.DATETIME,
-    field: "TravelDate",
+    columnName: "TravelDate",
     allowNull: true,
   })
   declare travelDate: string | null
 
   @Attribute({
     type: MssqlTypeExtensions.DATETIME,
-    field: "ReturnDate",
+    columnName: "ReturnDate",
     allowNull: true,
   })
   declare returnDate: string | null
 
   @Attribute({
     type: DataTypes.SMALLINT,
-    field: "NumberOfDays",
+    columnName: "NumberOfDays",
     allowNull: true,
   })
   declare numberOfDays: number | null
 
   @Attribute({
     type: DataTypes.STRING(5),
-    field: "CityCode",
+    columnName: "CityCode",
     allowNull: true,
   })
   declare cityCode: string | null
 
   @Attribute({
     type: DataTypes.STRING(10),
-    field: "ProfileNumber",
+    columnName: "ProfileNumber",
     allowNull: true,
   })
   declare profileNumber: string | null
@@ -212,7 +212,7 @@ export class AccountsReceivableInvoiceDetail extends BaseModel<
   // Probably should be a foreign key to a "users" table.
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
-    field: "AddedBy",
+    columnName: "AddedBy",
     allowNull: false,
   })
   declare addedBy: number
