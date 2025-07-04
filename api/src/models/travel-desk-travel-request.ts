@@ -221,7 +221,10 @@ export class TravelDeskTravelRequest extends Model<
   declare travelAgency?: NonAttribute<TravelDeskTravelAgency>
 
   @HasOne(() => TravelDeskPassengerNameRecordDocument, {
-    foreignKey: "travelDeskTravelRequestId",
+    foreignKey: {
+      name: "travelDeskTravelRequestId",
+      onDelete: "CASCADE",
+    },
     inverse: "travelDeskTravelRequest",
   })
   declare passengerNameRecordDocument?: NonAttribute<TravelDeskPassengerNameRecordDocument>
