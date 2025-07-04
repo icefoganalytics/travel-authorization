@@ -10,12 +10,12 @@ import AccountsReceivableInvoiceDetail from "./accounts-receivable-invoice-detai
 import City from "./city"
 import Segment from "./segment"
 
-db.addModels([AccountsReceivableInvoice, AccountsReceivableInvoiceDetail])
+db.addModels([AccountsReceivableInvoice, AccountsReceivableInvoiceDetail, City])
 
 AccountsReceivableInvoice.establishScopes()
 AccountsReceivableInvoiceDetail.establishScopes()
+City.establishScopes()
 
-City.establishAssociations()
 Segment.establishAssociations()
 
 export {
