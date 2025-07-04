@@ -1,15 +1,15 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  InferAttributes,
-  InferCreationAttributes,
   Model,
-  NonAttribute,
   Op,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
 } from "@sequelize/core"
+import { Attribute, HasMany, Table } from "@sequelize/core/decorators-legacy"
 
-import sequelize, { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
+import { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
 
 import AccountsReceivableInvoiceDetail from "@/integrations/trav-com-integration/models/accounts-receivable-invoice-detail"
 import Segment from "@/integrations/trav-com-integration/models/segment"
@@ -26,108 +26,104 @@ export type ArInvoiceNoHealthRaw = {
   InvoiceRemarks: string | null
 }
 
+@Table({
+  tableName: "ARInvoicesNoHealth",
+  underscored: false,
+  timestamps: false,
+  paranoid: false,
+})
 export class AccountsReceivableInvoice extends Model<
   InferAttributes<AccountsReceivableInvoice>,
   InferCreationAttributes<AccountsReceivableInvoice>
 > {
+  @Attribute({
+    type: DataTypes.DECIMAL(18, 0),
+    field: "InvoiceID",
+    allowNull: false,
+    primaryKey: true,
+  })
   declare id: CreationOptional<number>
+
+  @Attribute({
+    type: DataTypes.STRING(10),
+    field: "InvoiceNumber",
+    allowNull: false,
+  })
   declare invoiceNumber: string
+
+  @Attribute({
+    type: DataTypes.STRING(10),
+    field: "ProfileNumber",
+    allowNull: true,
+  })
   declare profileNumber: string | null
+
+  @Attribute({
+    type: DataTypes.STRING(50),
+    field: "ProfileName",
+    allowNull: true,
+  })
   declare profileName: string | null
+
+  @Attribute({
+    type: DataTypes.STRING(30),
+    field: "Department",
+    allowNull: true,
+  })
   declare department: string | null
+
+  @Attribute({
+    type: MssqlTypeExtensions.DATETIME,
+    field: "BookingDate",
+    allowNull: true,
+  })
   declare bookingDate: Date | null
+
+  @Attribute({
+    type: MssqlTypeExtensions.DATETIME,
+    field: "SystemDate",
+    allowNull: true,
+  })
   declare systemDate: Date | null
+
+  @Attribute({
+    type: DataTypes.STRING(50),
+    field: "Description",
+    allowNull: true,
+  })
   declare description: string | null
+
+  @Attribute({
+    type: DataTypes.TEXT,
+    field: "InvoiceRemarks",
+    allowNull: true,
+  })
   declare invoiceRemarks: string | null
 
-  // associations
+  // Associations
+  @HasMany(() => AccountsReceivableInvoiceDetail, {
+    foreignKey: "invoiceId",
+    inverse: "invoice",
+  })
   declare details?: NonAttribute<AccountsReceivableInvoiceDetail[]>
+
+  @HasMany(() => Segment, {
+    foreignKey: "invoiceId",
+    inverse: "invoice",
+  })
   declare segments?: NonAttribute<Segment[]>
 
-  declare static associations: {
-    details: Association<AccountsReceivableInvoice, AccountsReceivableInvoiceDetail>
-    segments: Association<AccountsReceivableInvoice, Segment>
-  }
-
-  static establishAssociations() {
-    this.hasMany(AccountsReceivableInvoiceDetail, {
-      as: "details",
-      foreignKey: "invoiceId",
-    })
-    this.hasMany(Segment, {
-      as: "segments",
-      foreignKey: "invoiceId",
+  static establishScopes(): void {
+    this.addScope("bookingDateBetween", ([startDate, endDate]: [string, string]) => {
+      return {
+        where: {
+          bookingDate: {
+            [Op.between]: [startDate, endDate],
+          },
+        },
+      }
     })
   }
 }
-
-AccountsReceivableInvoice.init(
-  {
-    id: {
-      type: DataTypes.DECIMAL(18, 0),
-      allowNull: false,
-      field: "InvoiceID",
-      primaryKey: true,
-    },
-    invoiceNumber: {
-      type: DataTypes.STRING(10),
-      allowNull: false,
-      field: "InvoiceNumber",
-    },
-    profileNumber: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-      field: "ProfileNumber",
-    },
-    profileName: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      field: "ProfileName",
-    },
-    department: {
-      type: DataTypes.STRING(30),
-      allowNull: true,
-      field: "Department",
-    },
-    bookingDate: {
-      type: MssqlTypeExtensions.DATETIME,
-      allowNull: true,
-      field: "BookingDate",
-    },
-    systemDate: {
-      type: MssqlTypeExtensions.DATETIME,
-      allowNull: true,
-      field: "SystemDate",
-    },
-    description: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      field: "Description",
-    },
-    invoiceRemarks: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      field: "InvoiceRemarks",
-    },
-  },
-  {
-    sequelize,
-    tableName: "ARInvoicesNoHealth",
-    underscored: false,
-    timestamps: false,
-    paranoid: false,
-    scopes: {
-      bookingDateBetween([startDate, endDate]: [string, string]) {
-        return {
-          where: {
-            bookingDate: {
-              [Op.between]: [startDate, endDate],
-            },
-          },
-        }
-      },
-    },
-  }
-)
 
 export default AccountsReceivableInvoice
