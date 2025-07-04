@@ -63,12 +63,12 @@ export class TravelAllowance extends Model<
   @Attribute(DataTypes.DATE)
   @NotNull
   @Default(DataTypes.NOW)
-  declare createdAt: Date
+  declare createdAt: CreationOptional<Date>
 
   @Attribute(DataTypes.DATE)
   @NotNull
   @Default(DataTypes.NOW)
-  declare updatedAt: Date
+  declare updatedAt: CreationOptional<Date>
 
   @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
