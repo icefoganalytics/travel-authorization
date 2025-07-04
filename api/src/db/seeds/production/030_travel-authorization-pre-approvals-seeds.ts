@@ -10,7 +10,7 @@ import {
 export async function seed(_knex: Knex): Promise<void> {
   const systemUser = await User.findOne({
     where: {
-      email: "system.user@travel-auth.com",
+      email: "system.user@yukon.com",
     },
     rejectOnEmpty: true,
   })
