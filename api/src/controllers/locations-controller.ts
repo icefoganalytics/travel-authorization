@@ -15,7 +15,7 @@ export class LocationsController extends BaseController<Location> {
         ["province", "ASC"],
       ])
 
-      const scopedLocations = Location.scope(scopes)
+      const scopedLocations = Location.withScope(scopes)
 
       const totalCount = await scopedLocations.count({ where })
       const locations = await scopedLocations.findAll({

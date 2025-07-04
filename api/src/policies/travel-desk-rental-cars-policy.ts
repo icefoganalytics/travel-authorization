@@ -28,7 +28,7 @@ export class TravelDeskRentalCarsPolicy extends BasePolicy<TravelDeskRentalCar> 
       return modelClass
     }
 
-    return modelClass.scope({
+    return modelClass.withScope({
       // @ts-expect-error - Bad types in sequelize, all FindOptions are valid.
       include: [
         {

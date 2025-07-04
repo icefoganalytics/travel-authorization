@@ -22,12 +22,11 @@ export abstract class BaseModel<
   // eslint-disable-next-line @typescript-eslint/ban-types
   TCreationAttributes extends {} = TModelAttributes,
 > extends Model<TModelAttributes, TCreationAttributes> {
-  // TODO: update to non-deprecated .withScope
-  public static scope<M extends BaseModel>(
+  public static withScope<M extends BaseModel>(
     this: ModelStatic<M>,
-    scopes?: AllowReadonlyArray<string | ScopeOptions> | WhereOptions<Attributes<M>> | Nullish,
+    scopes?: AllowReadonlyArray<string | ScopeOptions> | WhereOptions<Attributes<M>> | Nullish
   ): BaseModelStatic<M> {
-    return super.scope(scopes) as BaseModelStatic<M>
+    return super.withScope(scopes) as BaseModelStatic<M>
   }
 
   static addSearchScope<M extends BaseModel>(this: ModelStatic<M>, fields: AttributeNames<M>[]) {

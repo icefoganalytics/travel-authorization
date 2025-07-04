@@ -21,7 +21,7 @@ export function PolicyFactory<M extends Model, T extends Model = M>(modelClass: 
     ): ModelStatic<M> {
       this.ensurePolicyScope()
 
-      return modelClass.scope([
+      return modelClass.withScope([
         ...scopes,
         { method: [POLICY_SCOPE_NAME, user, ...extraPolicyScopeArgs] },
       ])

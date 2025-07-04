@@ -45,7 +45,7 @@ export class TravelAuthorizationPreApprovalDocumentsController extends BaseContr
   }
 
   private async loadTravelAuthorizationPreApprovalDocument() {
-    return TravelAuthorizationPreApprovalDocument.scope(["withDocument"]).findByPk(
+    return TravelAuthorizationPreApprovalDocument.withScope(["withDocument"]).findByPk(
       this.params.travelAuthorizationPreApprovalDocumentId,
       {
         include: ["submission"],

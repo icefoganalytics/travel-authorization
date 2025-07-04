@@ -12,7 +12,7 @@ export class TravelPurposesController extends BaseController<TravelPurpose> {
       const scopes = this.buildFilterScopes()
       const order = this.buildOrder([["purpose", "ASC"]])
 
-      const scopedTravelPurposes = TravelPurpose.scope(scopes)
+      const scopedTravelPurposes = TravelPurpose.withScope(scopes)
 
       const totalCount = await scopedTravelPurposes.count({ where })
       const travelPurposes = await scopedTravelPurposes.findAll({

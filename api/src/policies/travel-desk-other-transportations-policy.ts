@@ -28,7 +28,7 @@ export class TravelDeskOtherTransportationsPolicy extends BasePolicy<TravelDeskO
       return modelClass
     }
 
-    return modelClass.scope({
+    return modelClass.withScope({
       // @ts-expect-error - Bad types in sequelize, all FindOptions are valid.
       include: [
         {
