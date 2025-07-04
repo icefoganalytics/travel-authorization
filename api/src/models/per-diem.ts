@@ -101,12 +101,12 @@ export class PerDiem extends Model<InferAttributes<PerDiem>, InferCreationAttrib
     this.addScope("travelRegionDistanceOrder", () => {
       const customRegionBasedOrder = sql`
         CASE
-          WHEN travel_region = '${TravelRegions.YUKON}' THEN 1
-          WHEN travel_region = '${TravelRegions.ALASKA}' THEN 2
-          WHEN travel_region = '${TravelRegions.NWT}' THEN 3
-          WHEN travel_region = '${TravelRegions.NUNAVUT}' THEN 4
-          WHEN travel_region = '${TravelRegions.CANADA}' THEN 5
-          WHEN travel_region = '${TravelRegions.US}' THEN 6
+          WHEN travel_region = ${TravelRegions.YUKON} THEN 1
+          WHEN travel_region = ${TravelRegions.ALASKA} THEN 2
+          WHEN travel_region = ${TravelRegions.NWT} THEN 3
+          WHEN travel_region = ${TravelRegions.NUNAVUT} THEN 4
+          WHEN travel_region = ${TravelRegions.CANADA} THEN 5
+          WHEN travel_region = ${TravelRegions.US} THEN 6
           ELSE 7
         END
       `
@@ -119,9 +119,9 @@ export class PerDiem extends Model<InferAttributes<PerDiem>, InferCreationAttrib
     this.addScope("claimTypeTimeOrder", () => {
       const customTimeBasedOrder = sql`
         CASE
-          WHEN claim_type = '${ClaimTypes.BREAKFAST}' THEN 1
-          WHEN claim_type = '${ClaimTypes.LUNCH}' THEN 2
-          WHEN claim_type = '${ClaimTypes.DINNER}' THEN 3
+          WHEN claim_type = ${ClaimTypes.BREAKFAST} THEN 1
+          WHEN claim_type = ${ClaimTypes.LUNCH} THEN 2
+          WHEN claim_type = ${ClaimTypes.DINNER} THEN 3
           ELSE 4
         END
       `
