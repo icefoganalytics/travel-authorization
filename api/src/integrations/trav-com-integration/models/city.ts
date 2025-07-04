@@ -180,9 +180,4 @@ export class City extends Model<InferAttributes<City>, InferCreationAttributes<C
   }
 }
 
-// Workaround to tell Sequelize there is no primary key
-// See https://sequelize.org/docs/v6/other-topics/legacy/#primary-keys
-// May no longer be necessary, see https://sequelize.org/docs/v7/models/advanced/#prevent-creating-a-default-pk-attribute
-City.removeAttribute("id")
-
 export default City
