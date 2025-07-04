@@ -171,13 +171,13 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare travelDeskFlightOptions?: NonAttribute<TravelDeskFlightOption[]>
 
   static establishScopes(): void {
-    this.addScope("isTravelDeskUser", {
+    this.addScope("isTravelDeskUser", () => ({
       where: {
         roles: {
           [Op.contains]: [RoleNames.TRAVEL_DESK_USER],
         },
       },
-    })
+    }))
   }
 }
 
