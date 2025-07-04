@@ -181,7 +181,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   static establishScopes(): void {
     this.addScope("isTravelDeskUser", () => {
       const roleInRolesQuery = sql`
-        string_to_array(roles, ',') @> ARRAY[${RoleNames.TRAVEL_DESK_USER}]::text[]
+        ${RoleNames.TRAVEL_DESK_USER} = ANY(string_to_array(roles, ','))
       `
       return {
         where: roleInRolesQuery,

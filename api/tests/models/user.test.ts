@@ -19,6 +19,9 @@ describe("api/src/models/user.ts", () => {
           const user = await userFactory.create({
             roles: [User.Roles.TRAVEL_DESK_USER],
           })
+          await userFactory.create({
+            roles: [User.Roles.ADMIN],
+          })
 
           const users = await User.withScope("isTravelDeskUser").findAll()
 
