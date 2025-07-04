@@ -47,9 +47,20 @@ export class BulkReplaceService extends BaseService {
     expensesAttributes: ExpenseAttributes[]
   ): asserts expensesAttributes is WithRequired<
     ExpenseAttributes,
-    "description" | "cost" | "currency" | "type" | "expenseType"
+    "travelAuthorizationId" | "description" | "cost" | "currency" | "type" | "expenseType"
   >[] {
-    for (const { description, cost, currency, type, expenseType } of expensesAttributes) {
+    for (const {
+      travelAuthorizationId,
+      description,
+      cost,
+      currency,
+      type,
+      expenseType,
+    } of expensesAttributes) {
+      if (isNil(travelAuthorizationId)) {
+        throw new Error("Travel authorization ID is required.")
+      }
+
       if (isNil(description)) {
         throw new Error("Description is required.")
       }
