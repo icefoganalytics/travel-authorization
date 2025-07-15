@@ -19,3 +19,10 @@ export function isNetworkFailure(error: unknown) {
       error.message.includes("getaddrinfo EAI_AGAIN"))
   )
 }
+
+export function isDatabaseDoesNotExistFailure(error: unknown) {
+  return (
+    error instanceof Error &&
+    ((has(error, "code") && error.code === "3D000") || error.message.includes("does not exist"))
+  )
+}

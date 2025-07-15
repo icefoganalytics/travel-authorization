@@ -8,7 +8,12 @@ import {
 } from "@/config"
 import logger from "@/utils/logger"
 import sleep from "@/utils/sleep"
-import { isCredentialFailure, isNetworkFailure, isSocketFailure } from "@/utils/db-error-helpers"
+import {
+  isCredentialFailure,
+  isDatabaseDoesNotExistFailure,
+  isNetworkFailure,
+  isSocketFailure,
+} from "@/utils/db-error-helpers"
 import { buildKnexConfig } from "@/db/db-migration-client"
 
 function checkHealth(dbMigrationClient: Knex, timeoutSeconds: number) {
@@ -59,10 +64,24 @@ export async function waitForDatabase({
           logger.error(`Database connection failed due to invalid credentials: ${error}`, { error })
           throw error
         } else {
+          logger.info("Falling back to default postgres connection (after credentials failure)...")
+          const serverLevelConfig = buildKnexConfig({ connection: { database: "postgres" } })
+          dbMigrationClient = knex(serverLevelConfig)
+          i -= 1
+          isDatabaseSocketReady = true
+          continue
+        }
+      } else if (isDatabaseDoesNotExistFailure(error)) {
+        if (isDatabaseSocketReady) {
+          logger.error(`Database connection failed because database does not exist): ${error}`, {
+            error,
+          })
+          throw error
+        } else {
           logger.info(
-            "Falling back to database server-level connection (database might not exist)..."
+            "Falling back to default postgres connection (after database does not exist failure)..."
           )
-          const serverLevelConfig = buildKnexConfig({ connection: { database: "" } })
+          const serverLevelConfig = buildKnexConfig({ connection: { database: "postgres" } })
           dbMigrationClient = knex(serverLevelConfig)
           i -= 1
           isDatabaseSocketReady = true
