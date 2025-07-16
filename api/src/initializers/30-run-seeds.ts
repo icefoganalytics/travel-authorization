@@ -1,4 +1,4 @@
-import knex from "@/db/db-client-legacy"
+import knex from "@/db/db-migration-client"
 import { TravelAuthorization } from "@/models"
 import logger from "@/utils/logger"
 

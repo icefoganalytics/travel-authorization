@@ -9,7 +9,7 @@ import logger from "@/utils/logger"
 import { FormService, AuditService } from "@/services"
 import { Expense, TravelAuthorization } from "@/models"
 
-import dbLegacy from "@/db/db-client-legacy"
+import dbLegacy from "@/db/db-migration-client"
 import db from "@/db/db-client"
 
 export const formRouter = express.Router()

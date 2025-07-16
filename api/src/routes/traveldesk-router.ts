@@ -21,7 +21,7 @@ import {
 } from "@/models"
 
 import db from "@/db/db-client"
-import dbLegacy from "@/db/db-client-legacy"
+import dbLegacy from "@/db/db-migration-client"
 
 /** @deprecated - prefer using controller pattern with per-model CRUD actions */
 export const travelDeskRouter = express.Router()
