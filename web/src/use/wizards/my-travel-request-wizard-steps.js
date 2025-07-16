@@ -159,9 +159,6 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       title: "Submit Expenses",
       subtitle: "Submit trip expenses and receipts to your supervisor",
       component: () => import("@/components/my-travel-request-wizard/SubmitExpensesStep.vue"),
-      backButtonProps: {
-        disabled: true,
-      },
       continueButtonText: "Submit to Supervisor",
       continueButtonProps: {
         disabled: true,
