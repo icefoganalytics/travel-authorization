@@ -77,6 +77,8 @@
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 
+import { TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES } from "@/api/travel-authorizations-api"
+
 import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
 import useTravelSegments from "@/use/use-travel-segments"
 
@@ -148,7 +150,7 @@ const travelSegmentsQuery = computed(() => ({
 const { travelSegments, isReady: isReadyTravelSegments } = useTravelSegments(travelSegmentsQuery)
 
 async function initialize(context) {
-  context.setEditableSteps([])
+  context.setEditableSteps([TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.CONFIRM_ACTUAL_TRAVEL_DETAILS])
 
   await isReadyTravelSegments()
   const lastTravelSegment = travelSegments.value.at(-1)
