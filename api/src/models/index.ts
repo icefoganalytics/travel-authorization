@@ -31,28 +31,68 @@ import User from "./user"
 import YgEmployee from "./yg-employee"
 import YgEmployeeGroup from "./yg-employee-groups"
 
-Expense.establishAssociations()
-FlightReconciliation.establishAssociations()
-GeneralLedgerCoding.establishAssociations()
-Stop.establishAssociations()
-TravelAuthorization.establishAssociations()
-TravelAuthorizationActionLog.establishAssociations()
-TravelAuthorizationPreApproval.establishAssociations()
-TravelAuthorizationPreApprovalDocument.establishAssociations()
-TravelAuthorizationPreApprovalProfile.establishAssociations()
-TravelAuthorizationPreApprovalSubmission.establishAssociations()
-TravelDeskFlightOption.establishAssociations()
-TravelDeskFlightRequest.establishAssociations()
-TravelDeskFlightSegment.establishAssociations()
-TravelDeskHotel.establishAssociations()
-TravelDeskOtherTransportation.establishAssociations()
-TravelDeskPassengerNameRecordDocument.establishAssociations()
-TravelDeskQuestion.establishAssociations()
-TravelDeskRentalCar.establishAssociations()
-TravelDeskTravelAgency.establishAssociations()
-TravelDeskTravelRequest.establishAssociations()
-TravelSegment.establishAssociations()
-User.establishAssociations()
+db.addModels([
+  DistanceMatrix,
+  Expense,
+  FlightReconciliation,
+  GeneralLedgerCoding,
+  Location,
+  PerDiem,
+  Role,
+  Stop,
+  TravelAllowance,
+  TravelAuthorization,
+  TravelAuthorizationActionLog,
+  TravelAuthorizationPreApproval,
+  TravelAuthorizationPreApprovalDocument,
+  TravelAuthorizationPreApprovalProfile,
+  TravelAuthorizationPreApprovalSubmission,
+  TravelDeskFlightOption,
+  TravelDeskFlightRequest,
+  TravelDeskFlightSegment,
+  TravelDeskHotel,
+  TravelDeskOtherTransportation,
+  TravelDeskPassengerNameRecordDocument,
+  TravelDeskQuestion,
+  TravelDeskRentalCar,
+  TravelDeskTravelAgency,
+  TravelDeskTravelRequest,
+  TravelPurpose,
+  TravelSegment,
+  User,
+  YgEmployee,
+  YgEmployeeGroup,
+])
+
+DistanceMatrix.establishScopes()
+Expense.establishScopes()
+FlightReconciliation.establishScopes()
+GeneralLedgerCoding.establishScopes()
+Location.establishScopes()
+PerDiem.establishScopes()
+Stop.establishScopes()
+TravelAllowance.establishScopes()
+TravelAuthorization.establishScopes()
+TravelAuthorizationActionLog.establishScopes()
+TravelAuthorizationPreApproval.establishScopes()
+TravelAuthorizationPreApprovalDocument.establishScopes()
+TravelAuthorizationPreApprovalProfile.establishScopes()
+TravelAuthorizationPreApprovalSubmission.establishScopes()
+TravelDeskFlightOption.establishScopes()
+TravelDeskFlightRequest.establishScopes()
+TravelDeskFlightSegment.establishScopes()
+TravelDeskHotel.establishScopes()
+TravelDeskOtherTransportation.establishScopes()
+TravelDeskPassengerNameRecordDocument.establishScopes()
+TravelDeskQuestion.establishScopes()
+TravelDeskRentalCar.establishScopes()
+TravelDeskTravelAgency.establishScopes()
+TravelDeskTravelRequest.establishScopes()
+TravelPurpose.establishScopes()
+TravelSegment.establishScopes()
+User.establishScopes()
+YgEmployee.establishScopes()
+YgEmployeeGroup.establishScopes()
 
 export {
   DistanceMatrix,

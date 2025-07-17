@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { Attributes, col, Model, Order, WhereOptions } from "sequelize"
-import { type Col } from "sequelize/lib/utils"
+import { Attributes, Col, col, Model, Order, WhereOptions } from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
 import { AuthorizedRequest } from "@/middleware/authorization-middleware"

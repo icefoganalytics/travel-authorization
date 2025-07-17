@@ -14,7 +14,7 @@ export class UsersSerializer extends BaseSerializer<User> {
   asDetailed(): UserDetailedView {
     // Note that "sub" (Auth0 subject attribute) is a restricted field.
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "email",
         "status",

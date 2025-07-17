@@ -104,7 +104,7 @@ export class ApproveService extends BaseService {
     }
 
     return {
-      ...pick(newestPreviousTravelDeskTravelRequestForUser.dataValues, [
+      ...pick(newestPreviousTravelDeskTravelRequestForUser, [
         "birthDate",
         "strAddress",
         "city",

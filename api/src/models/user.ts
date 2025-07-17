@@ -1,17 +1,24 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  InferAttributes,
-  InferCreationAttributes,
   Model,
-  NonAttribute,
-  Op,
-} from "sequelize"
-import { isNil } from "lodash"
+  sql,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  Default,
+  HasMany,
+  NotNull,
+  PrimaryKey,
+  Table,
+} from "@sequelize/core/decorators-legacy"
+import { isEmpty, isNil } from "lodash"
 import moment from "moment"
 
-import sequelize from "@/db/db-client"
 import { isRole, RoleNames } from "@/models/role"
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelDeskFlightOption from "@/models/travel-desk-flight-option"
@@ -21,29 +28,107 @@ export enum Statuses {
   INACTIVE = "inactive",
 }
 
+@Table({
+  tableName: "users",
+  paranoid: false,
+})
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   static Roles = RoleNames
   static Statuses = Statuses
 
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
   declare id: CreationOptional<number>
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare sub: string // Auth0 subject attribute
+
+  @Attribute({
+    type: DataTypes.STRING(255),
+    set(value: string) {
+      this.setDataValue("email", value.toLowerCase())
+    },
+  })
+  @NotNull
   declare email: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare status: string
+
+  @Attribute(DataTypes.STRING(255))
   declare firstName: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare lastName: string | null
-  declare roles: string[]
+
+  @Attribute({
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    defaultValue: "",
+    get() {
+      const roles = this.getDataValue("roles")
+      if (isEmpty(roles)) return []
+
+      return roles.split(",")
+    },
+    set(value: string[]) {
+      this.setDataValue("roles", value.join(","))
+    },
+    validate: {
+      isValidRole(roles: string) {
+        if (isNil(roles) || isEmpty(roles)) return
+
+        const rolesArray = roles.split(",")
+        rolesArray.forEach((role: string) => {
+          if (isRole(role)) return
+
+          throw new Error(
+            `Invalid role: ${role}. Allowed roles are: ${Object.values(RoleNames).join(", ")}`
+          )
+        })
+      },
+    },
+  })
+  declare roles: CreationOptional<string[]>
+
+  @Attribute(DataTypes.STRING(255))
   declare department: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare division: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare branch: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare unit: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare mailcode: string | null
+
+  @Attribute(DataTypes.STRING(255))
   declare manager: string | null
+
+  @Attribute(DataTypes.DATE)
   declare lastSyncSuccessAt: Date | null
+
+  @Attribute(DataTypes.DATE)
   declare lastSyncFailureAt: Date | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
-  // Special attributes
+  // Magic attributes
   get isAdmin(): NonAttribute<boolean> {
     return this.roles.includes(RoleNames.ADMIN)
   }
@@ -58,26 +143,6 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 
   get isUser(): NonAttribute<boolean> {
     return this.roles.includes(RoleNames.USER)
-  }
-
-  // Associations
-  declare travelAuthorizations?: NonAttribute<TravelAuthorization[]>
-  declare travelDeskFlightOptions?: NonAttribute<TravelDeskFlightOption[]>
-
-  declare static associations: {
-    travelAuthorizations: Association<User, TravelAuthorization>
-    travelDeskFlightOptions: Association<User, TravelDeskFlightOption>
-  }
-
-  static establishAssociations() {
-    this.hasMany(TravelAuthorization, {
-      as: "travelAuthorizations",
-      foreignKey: "userId",
-    })
-    this.hasMany(TravelDeskFlightOption, {
-      as: "travelDeskFlightOptions",
-      foreignKey: "travelerId",
-    })
   }
 
   // TODO: push this into a serializer, once its no longer in legacy code
@@ -99,122 +164,30 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 
     return !current.isSame(lastSyncDate, "day")
   }
-}
 
-User.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    // Auth0 subject attribute
-    sub: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      set(value: string) {
-        this.setDataValue("email", value.toLowerCase())
-      },
-    },
-    status: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      defaultValue: Statuses.INACTIVE,
-    },
-    firstName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    lastName: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    roles: {
-      type: DataTypes.ARRAY(DataTypes.STRING(255)),
-      allowNull: false,
-      defaultValue: [],
-      validate: {
-        isValidRole(roles: string[] | string) {
-          if (isNil(roles)) return
-          if (!Array.isArray(roles)) {
-            throw new Error("roles must be an array")
-          }
+  // Associations
+  @HasMany(() => TravelAuthorization, {
+    foreignKey: "userId",
+    inverse: "user",
+  })
+  declare travelAuthorizations?: NonAttribute<TravelAuthorization[]>
 
-          roles.forEach((role: string) => {
-            if (isRole(role)) return
+  @HasMany(() => TravelDeskFlightOption, {
+    foreignKey: "travelerId",
+    inverse: "traveler",
+  })
+  declare travelDeskFlightOptions?: NonAttribute<TravelDeskFlightOption[]>
 
-            throw new Error(
-              `Invalid role: ${role}. Allowed roles are: ${Object.values(RoleNames).join(", ")}`
-            )
-          })
-        },
-      },
-    },
-    department: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    division: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    branch: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    unit: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    mailcode: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    manager: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    lastSyncSuccessAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    lastSyncFailureAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    sequelize,
-    modelName: "User",
-    tableName: "users",
-    paranoid: false,
-    scopes: {
-      isTravelDeskUser() {
-        return {
-          where: {
-            roles: {
-              [Op.contains]: [RoleNames.TRAVEL_DESK_USER],
-            },
-          },
-        }
-      },
-    },
+  static establishScopes(): void {
+    this.addScope("isTravelDeskUser", () => {
+      const roleInRolesQuery = sql`
+        ${RoleNames.TRAVEL_DESK_USER} = ANY(string_to_array(roles, ','))
+      `
+      return {
+        where: roleInRolesQuery,
+      }
+    })
   }
-)
+}
 
 export default User

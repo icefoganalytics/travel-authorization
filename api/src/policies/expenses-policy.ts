@@ -1,4 +1,4 @@
-import { FindOptions, Attributes, Op } from "sequelize"
+import { FindOptions, Attributes, Op } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Expense, User } from "@/models"

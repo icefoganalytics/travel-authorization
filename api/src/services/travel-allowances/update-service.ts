@@ -1,4 +1,4 @@
-import { Attributes } from "sequelize"
+import { Attributes } from "@sequelize/core"
 
 import { TravelAllowance, User } from "@/models"
 import BaseService from "@/services/base-service"

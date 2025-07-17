@@ -1,5 +1,5 @@
 import { Knex } from "knex"
-import { QueryTypes, QueryOptionsWithType } from "sequelize"
+import { QueryTypes, QueryOptionsWithType } from "@sequelize/core"
 
 import db from "@/db/db-client"
 

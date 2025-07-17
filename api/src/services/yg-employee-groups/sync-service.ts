@@ -1,4 +1,4 @@
-import { type CreationAttributes } from "sequelize"
+import { type CreationAttributes } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 import db, { User, YgEmployeeGroup } from "@/models"

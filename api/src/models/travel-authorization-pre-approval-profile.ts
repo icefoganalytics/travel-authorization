@@ -1,15 +1,20 @@
 import {
-  type Association,
-  type CreationOptional,
   DataTypes,
-  type ForeignKey,
+  Op,
+  type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
-  Op,
-} from "sequelize"
-
-import sequelize from "@/db/db-client"
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  HasMany,
+  NotNull,
+  PrimaryKey,
+} from "@sequelize/core/decorators-legacy"
 
 import BaseModel from "@/models/base-model"
 import TravelAuthorization from "@/models/travel-authorization"
@@ -19,120 +24,86 @@ export class TravelAuthorizationPreApprovalProfile extends BaseModel<
   InferAttributes<TravelAuthorizationPreApprovalProfile>,
   InferCreationAttributes<TravelAuthorizationPreApprovalProfile>
 > {
+  @PrimaryKey
+  @AutoIncrement
+  @Attribute(DataTypes.INTEGER)
   declare id: CreationOptional<number>
-  declare preApprovalId: ForeignKey<TravelAuthorizationPreApproval["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare preApprovalId: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare profileName: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare department: string
+
+  @Attribute(DataTypes.STRING(255))
   declare branch: string | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
 
-  // Associations
-  preApproval?: NonAttribute<TravelAuthorizationPreApproval>
-  travelAuthorizations?: NonAttribute<TravelAuthorization[]>
+  @BelongsTo(() => TravelAuthorizationPreApproval, {
+    foreignKey: "preApprovalId",
+    inverse: {
+      as: "profiles",
+      type: "hasMany",
+    },
+  })
+  declare preApproval?: NonAttribute<TravelAuthorizationPreApproval>
 
-  declare static associations: {
-    preApproval: Association<TravelAuthorizationPreApprovalProfile, TravelAuthorizationPreApproval>
-    travelAuthorizations: Association<TravelAuthorizationPreApprovalProfile, TravelAuthorization>
-  }
+  @HasMany(() => TravelAuthorization, {
+    foreignKey: "preApprovalProfileId",
+    inverse: "preApprovalProfile",
+  })
+  declare travelAuthorizations?: NonAttribute<TravelAuthorization[]>
 
-  static establishAssociations() {
-    this.belongsTo(TravelAuthorizationPreApproval, {
-      as: "preApproval",
-      foreignKey: "preApprovalId",
-    })
-    this.hasMany(TravelAuthorization, {
-      as: "travelAuthorizations",
-      foreignKey: "preApprovalProfileId",
-    })
+  static establishScopes(): void {
+    // TODO: add better search!
+    this.addSearchScope(["profile_name"])
+    this.addScope("approved", () => ({
+      include: [
+        {
+          association: "preApproval",
+          where: {
+            status: TravelAuthorizationPreApproval.Statuses.APPROVED,
+          },
+        },
+      ],
+    }))
+    this.addScope("openDateOrBeforeStartDate", () => ({
+      include: [
+        {
+          association: "preApproval",
+          where: {
+            [Op.or]: [
+              {
+                startDate: {
+                  [Op.gte]: new Date().toISOString(),
+                },
+              },
+              {
+                isOpenForAnyDate: true,
+              },
+            ],
+          },
+        },
+      ],
+    }))
   }
 }
-
-TravelAuthorizationPreApprovalProfile.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    preApprovalId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelAuthorizationPreApproval,
-        key: "id",
-      },
-    },
-    profileName: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    department: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    branch: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    scopes: {
-      approved() {
-        return {
-          include: [
-            {
-              association: "preApproval",
-              where: {
-                status: TravelAuthorizationPreApproval.Statuses.APPROVED,
-              },
-            },
-          ],
-        }
-      },
-      openDateOrBeforeStartDate() {
-        return {
-          include: [
-            {
-              association: "preApproval",
-              where: {
-                [Op.or]: [
-                  {
-                    startDate: {
-                      [Op.gte]: new Date().toISOString(),
-                    },
-                  },
-                  {
-                    isOpenForAnyDate: true,
-                  },
-                ],
-              },
-            },
-          ],
-        }
-      },
-    },
-  }
-)
-
-// TODO: add better search!
-TravelAuthorizationPreApprovalProfile.addSearchScope(["profile_name"])
-
 export default TravelAuthorizationPreApprovalProfile

@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction, ErrorRequestHandler } from "express"
-import { DatabaseError } from "sequelize"
+import { DatabaseError } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 import { GIT_COMMIT_HASH, RELEASE_TAG } from "@/config"
@@ -381,9 +381,6 @@ router
 
 // QA testing scenarios
 router.route("/api/qa/scenarios").get(Qa.ScenariosController.index)
-router
-  .route(`/api/qa/scenarios/${Qa.ScenarioTypes.MY_TRAVEL_REQUESTS}`)
-  .post(Qa.Scenarios.MyTravelRequestsController.create)
 router
   .route(`/api/qa/scenarios/${Qa.ScenarioTypes.BECOME_ADMIN_ROLE}`)
   .post(Qa.Scenarios.BecomeAdminRoleController.create)

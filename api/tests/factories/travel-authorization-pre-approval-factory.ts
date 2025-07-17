@@ -2,9 +2,10 @@ import { Factory } from "fishery"
 import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { TravelAuthorizationPreApproval } from "@/models"
+import { userFactory } from "@/factories"
 
 export const travelAuthorizationPreApprovalFactory = Factory.define<TravelAuthorizationPreApproval>(
-  ({ onCreate }) => {
+  ({ associations, onCreate }) => {
     onCreate((travelAuthorizationPreApproval) => {
       try {
         return travelAuthorizationPreApproval.save()
@@ -20,7 +21,10 @@ export const travelAuthorizationPreApprovalFactory = Factory.define<TravelAuthor
       }
     })
 
-    return TravelAuthorizationPreApproval.build({
+    const creator = associations.creator ?? userFactory.build({ id: undefined })
+
+    const travelAuthorizationPreApproval = TravelAuthorizationPreApproval.build({
+      creatorId: creator.id,
       estimatedCost: faker.number.int({ min: 500, max: 2000 }),
       location: faker.helpers.arrayElement(["Whitehorse", "Dawson", "Watson Lake"]),
       department: "Economic Development",
@@ -40,6 +44,10 @@ export const travelAuthorizationPreApprovalFactory = Factory.define<TravelAuthor
       travelerNotes: faker.lorem.sentence(),
       status: faker.helpers.enumValue(TravelAuthorizationPreApproval.Statuses),
     })
+
+    travelAuthorizationPreApproval.creator = creator
+
+    return travelAuthorizationPreApproval
   }
 )
 

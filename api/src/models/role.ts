@@ -1,12 +1,19 @@
 import {
-  CreationOptional,
   DataTypes,
   InferAttributes,
   InferCreationAttributes,
   Model,
-} from "sequelize"
-
-import sequelize from "@/db/db-client"
+  type CreationOptional,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  Default,
+  Index,
+  NotNull,
+  PrimaryKey,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 
 export enum RoleNames {
   ADMIN = "admin",
@@ -24,11 +31,39 @@ export function isRole(role: string): role is RoleNames {
 export class Role extends Model<InferAttributes<Role>, InferCreationAttributes<Role>> {
   static Names = RoleNames
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @Index({
+    unique: true,
+    where: {
+      deletedAt: null,
+    },
+  })
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(RoleNames)],
+      msg: `Role must be one of: ${Object.values(RoleNames).join(", ")}`,
+    },
+  })
   declare name: string
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  declare deletedAt: Date | null
 
   // Associations
   /*
@@ -39,52 +74,5 @@ export class Role extends Model<InferAttributes<Role>, InferCreationAttributes<R
   */
 }
 
-Role.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    name: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: true,
-      validate: {
-        isIn: {
-          args: [Object.values(RoleNames)],
-          msg: `Role must be one of: ${Object.values(RoleNames).join(", ")}`,
-        },
-      },
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    indexes: [
-      {
-        unique: true,
-        fields: ["name"],
-        where: {
-          deletedAt: null,
-        },
-      },
-    ],
-  }
-)
-
+/** @deprecated - users now store roles in a users.roles -> string[] column */
 export default Role

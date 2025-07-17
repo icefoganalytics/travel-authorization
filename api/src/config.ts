@@ -65,6 +65,8 @@ export const TRAVCOM_DB_USER = process.env.TRAVCOM_DB_USER || ""
 export const TRAVCOM_DB_PASS = process.env.TRAVCOM_DB_PASS || ""
 export const TRAVCOM_DB_HOST = process.env.TRAVCOM_DB_HOST || ""
 export const TRAVCOM_DB_PORT = parseInt(process.env.TRAVCOM_DB_PORT || "1433")
+export const TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED =
+  process.env.TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED === "true"
 
 export const TRAVCOM_DB_CONFIG = {
   client: "mssql",

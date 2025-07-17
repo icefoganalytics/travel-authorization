@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 
 import { Expense } from "@/models"
 import { BulkGenerateService } from "@/services/estimates"

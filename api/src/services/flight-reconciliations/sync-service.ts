@@ -1,4 +1,4 @@
-import { Attributes, WhereOptions } from "sequelize"
+import { Attributes, WhereOptions } from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
 import { TravComIntegration } from "@/integrations"
@@ -27,7 +27,7 @@ export class SyncService extends BaseService {
   async perform(): Promise<void> {
     const scopes = this.buildFilterScopes()
     const scopedAccountsReceivableInvoiceDetails =
-      TravComIntegration.Models.AccountsReceivableInvoiceDetail.scope(scopes)
+      TravComIntegration.Models.AccountsReceivableInvoiceDetail.withScope(scopes)
 
     const { where } = this.query
     const order = this.buildOrder()

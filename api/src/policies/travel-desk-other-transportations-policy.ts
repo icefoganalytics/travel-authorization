@@ -1,4 +1,4 @@
-import { ModelStatic, Op } from "sequelize"
+import { ModelStatic, Op } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
@@ -28,7 +28,7 @@ export class TravelDeskOtherTransportationsPolicy extends BasePolicy<TravelDeskO
       return modelClass
     }
 
-    return modelClass.scope({
+    return modelClass.withScope({
       // @ts-expect-error - Bad types in sequelize, all FindOptions are valid.
       include: [
         {

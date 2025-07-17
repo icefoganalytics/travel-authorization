@@ -1,4 +1,4 @@
-import { Attributes, FindOptions } from "sequelize"
+import { Attributes, FindOptions } from "@sequelize/core"
 import { isNil, isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"

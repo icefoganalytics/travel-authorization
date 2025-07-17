@@ -55,7 +55,7 @@ describe("api/src/services/yg-employee-groups/sync-service.ts", () => {
         await SyncService.perform()
 
         // Assert
-        const departmentCount = await YgEmployeeGroup.scope("isDepartment").count()
+        const departmentCount = await YgEmployeeGroup.withScope("isDepartment").count()
         expect(departmentCount).toBe(26)
       })
 
@@ -73,7 +73,7 @@ describe("api/src/services/yg-employee-groups/sync-service.ts", () => {
         await SyncService.perform()
 
         // Assert
-        const divisionCount = await YgEmployeeGroup.scope("isDivision").count()
+        const divisionCount = await YgEmployeeGroup.withScope("isDivision").count()
         expect(divisionCount).toBe(102)
       })
 
@@ -91,7 +91,7 @@ describe("api/src/services/yg-employee-groups/sync-service.ts", () => {
         await SyncService.perform()
 
         // Assert
-        const branchCount = await YgEmployeeGroup.scope("isBranch").count()
+        const branchCount = await YgEmployeeGroup.withScope("isBranch").count()
         expect(branchCount).toBe(264)
       })
 
@@ -109,7 +109,7 @@ describe("api/src/services/yg-employee-groups/sync-service.ts", () => {
         await SyncService.perform()
 
         // Assert
-        const unitCount = await YgEmployeeGroup.scope("isUnit").count()
+        const unitCount = await YgEmployeeGroup.withScope("isUnit").count()
         expect(unitCount).toBe(317)
       })
 
