@@ -38,7 +38,7 @@
             :expense-id="item.id"
             @uploaded="emitChangedAndRefresh"
           />
-          <ViewRecieptLink
+          <DownloadReceiptButton
             v-else
             :expense-id="item.id"
           />
@@ -82,10 +82,10 @@ import { DateTime } from "luxon"
 
 import { TYPES, EXPENSE_TYPES } from "@/api/expenses-api"
 
-import AddReceiptButton from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/AddReceiptButton.vue"
-import ExpenseDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseDeleteDialog.vue"
-import ExpenseEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseEditDialog.vue"
-import ViewRecieptLink from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ViewRecieptLink.vue"
+import AddReceiptButton from "@/components/expenses/edit-data-table/AddReceiptButton.vue"
+import ExpenseDeleteDialog from "@/components/expenses/ExpenseDeleteDialog.vue"
+import ExpenseEditDialog from "@/components/expenses/ExpenseEditDialog.vue"
+import DownloadReceiptButton from "@/components/expenses/DownloadReceiptButton.vue"
 
 export default {
   name: "ExpensesTable",
@@ -93,7 +93,7 @@ export default {
     AddReceiptButton,
     ExpenseDeleteDialog,
     ExpenseEditDialog,
-    ViewRecieptLink,
+    DownloadReceiptButton,
   },
   props: {
     travelAuthorizationId: {

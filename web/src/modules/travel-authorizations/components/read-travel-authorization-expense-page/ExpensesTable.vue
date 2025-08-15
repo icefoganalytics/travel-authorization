@@ -13,7 +13,7 @@
       {{ formatCurrency(value) }}
     </template>
     <template #item.actions="{ item }">
-      <ViewRecieptLink
+      <DownloadReceiptButton
         v-if="item.fileSize"
         :expense-id="item.id"
       />
@@ -49,7 +49,7 @@ import { computed, ref } from "vue"
 
 import useExpenses, { TYPES, EXPENSE_TYPES } from "@/use/use-expenses"
 
-import ViewRecieptLink from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ViewRecieptLink.vue"
+import DownloadReceiptButton from "@/components/expenses/DownloadReceiptButton.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

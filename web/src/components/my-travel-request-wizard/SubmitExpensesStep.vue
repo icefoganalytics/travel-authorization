@@ -17,7 +17,7 @@
           />
         </div>
 
-        <ExpensesTable
+        <ExpensesEditDataTable
           ref="expensesTable"
           :travel-authorization-id="travelAuthorizationId"
           @changed="refreshExpenseChangedDependencies"
@@ -84,7 +84,7 @@ import useTravelSegments from "@/use/use-travel-segments"
 
 import ExpenseCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseCreateDialog.vue"
 import ExpensePrefillDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpensePrefillDialog.vue"
-import ExpensesTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpensesTable.vue"
+import ExpensesEditDataTable from "@/components/expenses/ExpensesEditDataTable.vue"
 import GeneralLedgerCodingCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingCreateDialog.vue"
 import GeneralLedgerCodingsTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingsTable.vue"
 import MealsAndIncidentalsTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/MealsAndIncidentalsTable.vue"
@@ -108,7 +108,7 @@ const { expenses, isLoading, refresh } = useExpenses(expenseOptions)
 
 const hasExpenses = computed(() => isLoading.value === false && expenses.value.length > 0)
 
-/** @type {import("vue").Ref<InstanceType<typeof ExpensesTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof ExpensesEditDataTable> | null>} */
 const expensesTable = ref(null)
 /** @type {import("vue").Ref<InstanceType<typeof MealsAndIncidentalsTable> | null>} */
 const mealsAndIncidentalsTable = ref(null)
