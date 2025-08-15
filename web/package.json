@@ -38,12 +38,13 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.22.15",
-    "@rushstack/eslint-patch": "^1.5.1",
     "@types/lodash": "^4.17.20",
     "@types/luxon": "^3.4.2",
     "@types/md5": "^2.3.5",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
     "@vitejs/plugin-vue2": "^2.3.3",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-vitest-globals": "^1.5.0",
