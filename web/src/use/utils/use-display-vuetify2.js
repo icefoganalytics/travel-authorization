@@ -4,7 +4,7 @@ import { getCurrentInstance } from "vue"
 /**
  * Shim for Vuetify 2 usage in script setup until we upgrade to Vuetify 3
  */
-export function useVuetify2() {
+export function useDisplayVuetify2() {
   const { proxy } = getCurrentInstance()
 
   return {
@@ -33,4 +33,4 @@ export function useVuetify2() {
   }
 }
 
-export default useVuetify2
+export default useDisplayVuetify2

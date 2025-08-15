@@ -74,7 +74,7 @@
 import { APPLICATION_NAME } from "@/config"
 
 import useSessionStorage from "@/use/utils/use-session-storage"
-import useVuetify2 from "@/use/utils/use-vuetify2"
+import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useCurrentUser from "@/use/use-current-user"
 
 import KebabMenu from "@/components/default-layout/KebabMenu.vue"
@@ -83,7 +83,7 @@ import LeftSidebarNavigationDrawer from "@/components/default-layout/LeftSidebar
 
 const { fullName } = useCurrentUser()
 
-const { lgAndUp } = useVuetify2()
+const { lgAndUp } = useDisplayVuetify2()
 
 const showLeftSidebarNav = useSessionStorage("showLeftSidebarNav", lgAndUp.value)
 
