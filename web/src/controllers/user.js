@@ -1,4 +1,4 @@
-import { api } from "./config";
+import { api } from "@/controllers/config";
 
 export default {
   async get(page, limit, textToMatch, sortBy, sort) {

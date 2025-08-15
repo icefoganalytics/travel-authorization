@@ -7,7 +7,7 @@ import SnackPlugin from "@/plugins/snack-plugin"
 import createI18n from "@/plugins/vue-i18n-plugin"
 import Auth0Plugin from "@/plugins/auth0-plugin"
 
-import App from "@/App"
+import App from "@/App.vue"
 import router from "@/router"
 import store from "@/store"
 import "@/filters"

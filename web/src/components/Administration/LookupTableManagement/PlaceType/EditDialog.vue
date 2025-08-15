@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import catalogs from "../../../../controllers/catalogs";
+import catalogs from "@/controllers/catalogs";
 export default {
   props: ["dialog", "data"],
   data: () => ({
