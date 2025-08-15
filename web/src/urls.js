@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./config"
+import { API_BASE_URL } from "@/config"
 
 // TODO: refactor these into apis/xxx-api.js files
 // The base url can be handled by the axios config.

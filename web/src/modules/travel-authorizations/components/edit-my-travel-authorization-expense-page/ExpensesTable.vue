@@ -82,10 +82,10 @@ import { DateTime } from "luxon"
 
 import { TYPES, EXPENSE_TYPES } from "@/api/expenses-api"
 
-import AddReceiptButton from "./AddReceiptButton"
-import ExpenseDeleteDialog from "./ExpenseDeleteDialog"
-import ExpenseEditDialog from "./ExpenseEditDialog"
-import ViewRecieptLink from "./ViewRecieptLink"
+import AddReceiptButton from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/AddReceiptButton.vue"
+import ExpenseDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseDeleteDialog.vue"
+import ExpenseEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseEditDialog.vue"
+import ViewRecieptLink from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ViewRecieptLink.vue"
 
 export default {
   name: "ExpensesTable",

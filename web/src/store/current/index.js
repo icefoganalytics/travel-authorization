@@ -1,4 +1,4 @@
-import user from "./user"
+import user from "@/store/current/user"
 
 export default {
   namespaced: true,

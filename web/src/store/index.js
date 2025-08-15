@@ -1,11 +1,11 @@
 import Vue from "vue"
 import Vuex from "vuex"
 
-import auth from "./auth"
-import current from "./current"
+import auth from "@/store/auth"
+import current from "@/store/current"
 import expenses from "@/store/expenses"
-import reports from "./reports"
-import traveldesk from "./traveldesk"
+import reports from "@/store/reports"
+import traveldesk from "@/store/traveldesk"
 import travelPurposes from "@/store/travel-purposes"
 
 Vue.use(Vuex)
