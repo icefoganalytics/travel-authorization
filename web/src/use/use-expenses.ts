@@ -1,13 +1,27 @@
-import { ref, reactive, toRefs, unref, watch } from "vue"
+import { type Ref, ref, reactive, toRefs, unref, watch } from "vue"
 
-import expensesApi, { TYPES, EXPENSE_TYPES } from "@/api/expenses-api"
+import expensesApi, {
+  type Expense,
+  type ExpenseWhereOptions,
+  type ExpenseFiltersOptions,
+  type ExpenseQueryOptions,
+  TYPES,
+  EXPENSE_TYPES,
+  Types,
+  ExpenseTypes,
+} from "@/api/expenses-api"
 
-export { TYPES, EXPENSE_TYPES }
+export {
+  type Expense,
+  type ExpenseWhereOptions,
+  type ExpenseFiltersOptions,
+  type ExpenseQueryOptions,
+  TYPES,
+  EXPENSE_TYPES,
+  Types,
+  ExpenseTypes,
+}
 
-/**
- * @template [T=any]
- * @typedef {import('vue').Ref<T>} Ref
- */
 /** @typedef {import('@/api/expenses-api.js').Expense} Expense */
 /** @typedef {import('@/api/expenses-api.js').ExpenseQueryOptions} ExpenseQueryOptions */
 
@@ -28,8 +42,17 @@ export { TYPES, EXPENSE_TYPES }
  *   isReady: () => Promise<boolean>,
  * }}
  */
-export function useExpenses(options = ref({}), { skipWatchIf = () => false } = {}) {
-  const state = reactive({
+export function useExpenses(
+  options: Ref<ExpenseQueryOptions> = ref({}),
+  { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
+) {
+  const state = reactive<{
+    expenses: Expense[]
+    totalCount: number
+    isLoading: boolean
+    isErrored: boolean
+    isInitialized: boolean
+  }>({
     expenses: [],
     totalCount: 0,
     isLoading: false,
@@ -37,7 +60,7 @@ export function useExpenses(options = ref({}), { skipWatchIf = () => false } = {
     isInitialized: false,
   })
 
-  async function fetch() {
+  async function fetch(): Promise<Expense[]> {
     state.isLoading = true
     try {
       const { expenses, totalCount } = await expensesApi.list(unref(options))
@@ -65,7 +88,7 @@ export function useExpenses(options = ref({}), { skipWatchIf = () => false } = {
     { deep: true, immediate: true }
   )
 
-  async function isReady() {
+  async function isReady(): Promise<boolean> {
     return new Promise((resolve) => {
       if (state.isInitialized) {
         resolve(true)

@@ -1,18 +1,18 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="items"
+    :items="expenses"
     :items-per-page="10"
     :loading="isLoading"
     class="elevation-2"
   >
     <template #top>
       <ExpenseEditDialog
-        ref="editDialog"
+        ref="editDialogRef"
         @saved="emitChangedAndRefresh"
       />
       <ExpenseDeleteDialog
-        ref="deleteDialog"
+        ref="deleteDialogRef"
         @deleted="emitChangedAndRefresh"
       />
     </template>
@@ -75,109 +75,121 @@
   </v-data-table>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue"
 import { sumBy } from "lodash"
-import { mapActions, mapGetters } from "vuex"
 import { DateTime } from "luxon"
+import { useRoute } from "vue2-helpers/vue-router"
 
-import { TYPES, EXPENSE_TYPES } from "@/api/expenses-api"
+import { MAX_PER_PAGE } from "@/api/base-api"
+import useExpenses, { type Expense, Types, ExpenseTypes } from "@/use/use-expenses"
 
 import AddReceiptButton from "@/components/expenses/edit-data-table/AddReceiptButton.vue"
 import ExpenseDeleteDialog from "@/components/expenses/ExpenseDeleteDialog.vue"
 import ExpenseEditDialog from "@/components/expenses/ExpenseEditDialog.vue"
 import DownloadReceiptButton from "@/components/expenses/DownloadReceiptButton.vue"
 
-export default {
-  name: "ExpensesTable",
-  components: {
-    AddReceiptButton,
-    ExpenseDeleteDialog,
-    ExpenseEditDialog,
-    DownloadReceiptButton,
-  },
-  props: {
-    travelAuthorizationId: {
-      type: Number,
-      required: true,
-    },
-  },
-  data: () => ({
-    headers: [
-      { text: "Expense Type", value: "expenseType" },
-      { text: "Description", value: "description" },
-      { text: "Date", value: "date" },
-      { text: "Amount", value: "cost" },
-      { text: "", value: "actions" },
-    ],
-    totalRowClasses: "text-start font-weight-bold text-uppercase",
-  }),
-  computed: {
-    ...mapGetters("expenses", ["items", "isLoading"]),
-    // Will need to be calculated in the back-end if data is multi-page.
-    totalAmount() {
-      return sumBy(this.items, "cost")
-    },
-  },
-  async mounted() {
-    await this.ensure({
-      where: {
-        travelAuthorizationId: this.travelAuthorizationId,
-        type: TYPES.EXPENSE,
-        expenseType: [EXPENSE_TYPES.ACCOMMODATIONS, EXPENSE_TYPES.TRANSPORTATION],
-      },
-    })
-    this.showEditDialogForRouteQuery()
-    this.showDeleteDialogForRouteQuery()
-  },
-  methods: {
-    ...mapActions("expenses", ["ensure", "fetch"]),
-    formatDate(date) {
-      return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
-    },
-    formatCurrency(amount) {
-      const formatter = new Intl.NumberFormat("en-CA", {
-        style: "currency",
-        currency: "CAD",
-      })
-      return formatter.format(amount)
-    },
-    refresh() {
-      return this.fetch({
-        where: {
-          travelAuthorizationId: this.travelAuthorizationId,
-          type: TYPES.EXPENSE,
-          expenseType: [EXPENSE_TYPES.ACCOMMODATIONS, EXPENSE_TYPES.TRANSPORTATION],
-        },
-      })
-    },
-    emitChangedAndRefresh() {
-      this.$emit("changed")
-      return this.refresh()
-    },
-    showDeleteDialog(item) {
-      this.$refs.deleteDialog.show(item)
-    },
-    showEditDialog(item) {
-      this.$refs.editDialog.show(item)
-    },
-    showEditDialogForRouteQuery() {
-      const expenseId = parseInt(this.$route.query.showEdit)
-      if (isNaN(expenseId)) return
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-      const expense = this.items.find((expense) => expense.id === expenseId)
-      if (!expense) return
+const emit = defineEmits<{
+  // TODO: switch to `changed: [void]` syntax in vue 3
+  (event: "changed"): void
+}>()
 
-      this.showEditDialog(expense)
-    },
-    showDeleteDialogForRouteQuery() {
-      const expenseId = parseInt(this.$route.query.showDelete)
-      if (isNaN(expenseId)) return
-
-      const expense = this.items.find((expense) => expense.id === expenseId)
-      if (!expense) return
-
-      this.showDeleteDialog(expense)
-    },
+const headers = ref([
+  {
+    text: "Expense Type",
+    value: "expenseType",
   },
+  {
+    text: "Description",
+    value: "description",
+  },
+  {
+    text: "Date",
+    value: "date",
+  },
+  {
+    text: "Amount",
+    value: "cost",
+  },
+  {
+    text: "",
+    value: "actions",
+  },
+])
+
+const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
+
+const expensesQuery = computed(() => ({
+  where: {
+    travelAuthorizationId: props.travelAuthorizationId,
+    type: Types.EXPENSE,
+    expenseType: [ExpenseTypes.ACCOMMODATIONS, ExpenseTypes.TRANSPORTATION],
+  },
+  // TODO: add pagination
+  perPage: MAX_PER_PAGE,
+}))
+
+const { expenses, isLoading, refresh } = useExpenses(expensesQuery)
+
+// Will need to be calculated in the back-end if data is multi-page.
+const totalAmount = computed(() => sumBy(expenses.value, "cost"))
+
+onMounted(() => {
+  showEditDialogForRouteQuery()
+  showDeleteDialogForRouteQuery()
+})
+
+function emitChangedAndRefresh() {
+  emit("changed")
+  return refresh()
+}
+
+const deleteDialogRef = ref<InstanceType<typeof ExpenseDeleteDialog> | null>(null)
+const editDialogRef = ref<InstanceType<typeof ExpenseEditDialog> | null>(null)
+
+function showDeleteDialog(item: Expense) {
+  deleteDialogRef.value?.show(item)
+}
+
+function showEditDialog(item: Expense) {
+  editDialogRef.value?.show(item)
+}
+
+const route = useRoute()
+
+function showEditDialogForRouteQuery() {
+  const expenseId = parseInt(route.query.showEdit as string)
+  if (isNaN(expenseId)) return
+
+  const expense = expenses.value.find((expense) => expense.id === expenseId)
+  if (!expense) return
+
+  showEditDialog(expense)
+}
+
+function showDeleteDialogForRouteQuery() {
+  const expenseId = parseInt(route.query.showDelete as string)
+  if (isNaN(expenseId)) return
+
+  const expense = expenses.value.find((expense) => expense.id === expenseId)
+  if (!expense) return
+
+  showDeleteDialog(expense)
+}
+
+function formatDate(date: string) {
+  return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
+}
+
+function formatCurrency(amount: number) {
+  const formatter = new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency: "CAD",
+  })
+  return formatter.format(amount)
 }
 </script>
