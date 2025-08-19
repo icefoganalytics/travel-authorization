@@ -32,7 +32,7 @@
           <v-btn
             v-if="actions.includes('edit')"
             color="secondary"
-            @click="showEditDialog(item)"
+            @click="showEditDialog(item.id)"
             >Edit</v-btn
           >
         </v-col>
@@ -182,7 +182,6 @@ const totalAmount = computed(() => sumBy(expenses.value, "cost"))
 
 onMounted(() => {
   // TODO: show dialog code inside of dialog
-  showEditDialogForRouteQuery()
   showDeleteDialogForRouteQuery()
 })
 
@@ -198,21 +197,11 @@ function showDeleteDialog(item: Expense) {
   deleteDialogRef.value?.show(item)
 }
 
-function showEditDialog(item: Expense) {
-  editDialogRef.value?.show(item)
+function showEditDialog(expenseId: number) {
+  editDialogRef.value?.show(expenseId)
 }
 
 const route = useRoute()
-
-function showEditDialogForRouteQuery() {
-  const expenseId = parseInt(route.query.showEdit as string)
-  if (isNaN(expenseId)) return
-
-  const expense = expenses.value.find((expense) => expense.id === expenseId)
-  if (!expense) return
-
-  showEditDialog(expense)
-}
 
 function showDeleteDialogForRouteQuery() {
   const expenseId = parseInt(route.query.showDelete as string)

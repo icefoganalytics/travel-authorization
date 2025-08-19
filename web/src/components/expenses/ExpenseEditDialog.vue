@@ -2,9 +2,11 @@
   <v-dialog
     v-model="showDialog"
     max-width="500px"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
   >
     <v-form
-      ref="form"
+      ref="formRef"
       @submit.prevent="updateAndClose"
     >
       <v-card>
@@ -12,7 +14,11 @@
           <span class="text-h5">Edit Expense</span>
         </v-card-title>
 
-        <v-card-text :loading="loading">
+        <v-skeleton-loader
+          v-if="isNil(expenseId) || isNil(expense)"
+          type="card"
+        />
+        <v-card-text v-else>
           <v-row>
             <v-col>
               <ExpenseTypeSelect
@@ -59,14 +65,14 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            :loading="loading"
+            :loading="isLoading"
             color="error"
-            @click="close"
+            @click="hide"
           >
             Cancel
           </v-btn>
           <v-btn
-            :loading="loading"
+            :loading="isLoading"
             type="submit"
             color="primary"
           >
@@ -78,74 +84,91 @@
   </v-dialog>
 </template>
 
-<script>
-import { cloneDeep } from "lodash"
+<script setup lang="ts">
+import { nextTick, ref, watch } from "vue"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+
+import { ExpenseTypes } from "@/api/expenses-api"
+import useSnack from "@/use/use-snack"
+import useExpense from "@/use/use-expense"
 
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
-import expensesApi, { EXPENSE_TYPES } from "@/api/expenses-api"
+// TODO: consider if this should be a prop?
+const expenseTypes = [ExpenseTypes.ACCOMMODATIONS, ExpenseTypes.TRANSPORTATION]
 
-export default {
-  name: "ExpenseEditDialog",
-  components: {
-    CurrencyTextField,
-    DatePicker,
-    ExpenseTypeSelect,
-  },
-  data: () => ({
-    expenseTypes: [EXPENSE_TYPES.ACCOMMODATIONS, EXPENSE_TYPES.TRANSPORTATION],
-    expense: {},
-    showDialog: false,
-    loading: false,
-  }),
-  computed: {
-    expenseId() {
-      return this.expense.id
-    },
-  },
-  watch: {
-    showDialog(value) {
-      if (value) {
-        if (this.$route.query.showEdit === this.expense.id.toString()) return
+const emit = defineEmits(["saved"])
 
-        this.$router.push({ query: { showEdit: this.expense.id } })
-      } else {
-        this.$router.push({ query: { showEdit: undefined } })
-      }
-    },
-  },
-  methods: {
-    required,
-    show(expense) {
-      this.expense = cloneDeep(expense)
-      this.showDialog = true
-    },
-    close() {
-      this.showDialog = false
-      this.$nextTick(() => {
-        this.expense = {}
-        this.$refs.form.resetValidation()
-      })
-    },
-    updateAndClose() {
-      this.loading = true
-      return expensesApi
-        .update(this.expenseId, this.expense)
-        .then(() => {
-          this.$emit("saved")
-          this.close()
-        })
-        .catch((error) => {
-          this.$snack(error.message, { color: "error" })
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-  },
+const expenseId = useRouteQuery("showExpenseEdit", undefined, {
+  transform: integerTransformer,
+})
+
+const { expense, isLoading, save } = useExpense(expenseId)
+
+const showDialog = ref(false)
+const formRef = ref<InstanceType<typeof HTMLFormElement> | null>(null)
+const snack = useSnack()
+
+async function updateAndClose() {
+  if (isNil(formRef.value)) return
+
+  if (!formRef.value.validate()) {
+    snack.error("Please fill in all required fields")
+    return
+  }
+
+  isLoading.value = true
+  try {
+    await save()
+    hide()
+
+    await nextTick()
+    emit("saved")
+    snack.success("Expense saved successfully")
+  } catch (error) {
+    console.error(`Failed to save expense: ${error}`, { error })
+    snack.error(`Failed to save expense: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
 }
+
+watch(
+  expenseId,
+  (newExpenseId) => {
+    if (isNil(newExpenseId)) {
+      showDialog.value = false
+      expense.value = null
+      formRef.value?.resetValidation()
+    } else {
+      showDialog.value = true
+    }
+  },
+  {
+    immediate: true,
+  }
+)
+
+function show(newExpenseId: number) {
+  expenseId.value = newExpenseId
+}
+
+function hide() {
+  expenseId.value = undefined
+}
+
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
+
+  hide()
+}
+
+defineExpose({
+  show,
+})
 </script>
