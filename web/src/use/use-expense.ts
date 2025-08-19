@@ -1,36 +1,25 @@
-import { reactive, toRefs, unref, watch } from "vue"
+import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { isNil } from "lodash"
 
-import expensesApi from "@/api/expenses-api"
+import { Policy } from "@/api/base-api"
+import expensesApi, { type Expense } from "@/api/expenses-api"
 
-/**
- * @template [T=any]
- * @typedef {import('vue').Ref<T>} Ref
- */
-/** @typedef {import('@/api/expenses-api.js').Expense} Expense */
+export { type Expense }
 
-/**
- * @callback UseExpense
- * @param {Ref<number>} id
- * @returns {{
- *   expense: Ref<Expense | null | undefined>,
- *   isLoading: Ref<boolean>,
- *   isErrored: Ref<boolean>,
- *   fetch: () => Promise<Expense>,
- *   refresh: () => Promise<Expense>,
- *   save: () => Promise<Expense>,
- * }}
- */
-
-/** @type {UseExpense} */
-export function useExpense(id) {
-  const state = reactive({
+export function useExpense(id: Ref<number | null | undefined>) {
+  const state = reactive<{
+    expense: Expense | null
+    policy: Policy | null
+    isLoading: boolean
+    isErrored: boolean
+  }>({
     expense: null,
+    policy: null,
     isLoading: false,
     isErrored: false,
   })
 
-  async function fetch() {
+  async function fetch(): Promise<Expense> {
     const staticId = unref(id)
     if (isNil(staticId)) {
       throw new Error("id is required")
@@ -38,12 +27,13 @@ export function useExpense(id) {
 
     state.isLoading = true
     try {
-      const { expense } = await expensesApi.get(staticId)
+      const { expense, policy } = await expensesApi.get(staticId)
       state.isErrored = false
       state.expense = expense
+      state.policy = policy
       return expense
     } catch (error) {
-      console.error("Failed to fetch expense:", error)
+      console.error(`Failed to fetch expense: ${error}`, { error })
       state.isErrored = true
       throw error
     } finally {
@@ -51,7 +41,7 @@ export function useExpense(id) {
     }
   }
 
-  async function save() {
+  async function save(): Promise<Expense> {
     const staticId = unref(id)
     if (isNil(staticId)) {
       throw new Error("id is required")
@@ -63,12 +53,13 @@ export function useExpense(id) {
 
     state.isLoading = true
     try {
-      const { expense } = await expensesApi.update(staticId, state.expense)
+      const { expense, policy } = await expensesApi.update(staticId, state.expense)
       state.isErrored = false
       state.expense = expense
+      state.policy = policy
       return expense
     } catch (error) {
-      console.error("Failed to save expense:", error)
+      console.error(`Failed to save expense: ${error}`, { error })
       state.isErrored = true
       throw error
     } finally {
