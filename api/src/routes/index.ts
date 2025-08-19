@@ -106,6 +106,9 @@ router
     "/api/downloads/travel-authorization-pre-approval-documents/:travelAuthorizationPreApprovalDocumentId"
   )
   .post(Downloads.TravelAuthorizationPreApprovalDocumentsController.create)
+router
+  .route("/api/downloads/expenses/:expenseId/receipt-image")
+  .post(Downloads.Expenses.ReceiptImageController.create)
 
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router
