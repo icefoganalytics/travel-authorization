@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     v-model="showDialog"
-    max-width="500px"
+    width="600"
     @keydown.esc="hide"
     @input="hideIfFalse"
   >
@@ -10,11 +10,12 @@
         <h2 class="text-h5">Preview Receipt</h2>
       </v-card-title>
 
-      <v-card-text>
-        <img
-          :src="receiptImageSrc"
-          alt="Receipt Image"
-        />
+      <v-skeleton-loader
+        v-if="isNil(expenseId) || isNil(receiptImageBlob)"
+        type="image"
+      />
+      <v-card-text v-else>
+        <ImageViewer :image-blob="receiptImageBlob" />
       </v-card-text>
 
       <v-card-actions>
@@ -42,8 +43,10 @@ import { isNil } from "lodash"
 
 import { API_BASE_URL } from "@/config"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import expensesApi from "@/api/expenses-api"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
+import ImageViewer from "@/components/common/ImageViewer.vue"
 
 const showDialog = ref(false)
 
@@ -56,7 +59,7 @@ const downloadUrl = computed(() => {
   return `${API_BASE_URL}/api/downloads/expenses/${expenseId.value}/receipt-image`
 })
 
-const receiptImageSrc = ref<string>("")
+const receiptImageBlob = ref<Blob | null>(null)
 
 watch(
   expenseId,
@@ -65,12 +68,18 @@ watch(
       showDialog.value = false
     } else {
       showDialog.value = true
+      loadReceiptImage(newExpenseId)
     }
   },
   {
     immediate: true,
   }
 )
+
+async function loadReceiptImage(expenseId: number) {
+  const { expense } = await expensesApi.download(expenseId)
+  receiptImageBlob.value = expense.receiptImage
+}
 
 function show(newExpenseId: number) {
   expenseId.value = newExpenseId
