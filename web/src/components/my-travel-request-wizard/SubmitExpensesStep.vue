@@ -19,7 +19,8 @@
 
         <ExpensesEditDataTable
           ref="expensesTable"
-          :travel-authorization-id="travelAuthorizationId"
+          :where="expenseWhere"
+          route-query-suffix="Expenses"
           @changed="refreshExpenseChangedDependencies"
         />
         * Meals and Incidentals will be calculated by the system; do not add these expenses.
@@ -79,7 +80,7 @@ import { isNil } from "lodash"
 
 import { TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES } from "@/api/travel-authorizations-api"
 
-import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
+import useExpenses, { Types, ExpenseTypes } from "@/use/use-expenses"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import ExpenseCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseCreateDialog.vue"
@@ -98,15 +99,20 @@ const props = defineProps({
   },
 })
 
+const expenseWhere = computed(() => ({
+  travelAuthorizationId: props.travelAuthorizationId,
+  expenseType: [ExpenseTypes.ACCOMMODATIONS, ExpenseTypes.TRANSPORTATION],
+}))
+
 const expenseOptions = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
-    type: EXPENSE_TYPES.EXPENSE,
+    type: Types.EXPENSE,
   },
+  perPage: 1, // only 1 record to get total count
 }))
-const { expenses, isLoading, refresh } = useExpenses(expenseOptions)
-
-const hasExpenses = computed(() => isLoading.value === false && expenses.value.length > 0)
+const { totalCount, isLoading, refresh } = useExpenses(expenseOptions)
+const hasExpenses = computed(() => isLoading.value === false && totalCount.value > 0)
 
 /** @type {import("vue").Ref<InstanceType<typeof ExpensesEditDataTable> | null>} */
 const expensesTable = ref(null)

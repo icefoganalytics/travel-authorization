@@ -1,9 +1,13 @@
 <template>
   <v-data-table
+    :page.sync="page"
+    :items-per-page.sync="perPage"
+    :sort-by.sync="vuetify2SortBy"
+    :sort-desc.sync="vuetify2SortDesc"
     :headers="headers"
     :items="expenses"
-    :items-per-page="10"
     :loading="isLoading"
+    :server-items-length="totalCount"
     class="elevation-2"
   >
     <template #top>
@@ -81,20 +85,38 @@ import { sumBy } from "lodash"
 import { DateTime } from "luxon"
 import { useRoute } from "vue2-helpers/vue-router"
 
-import { MAX_PER_PAGE } from "@/api/base-api"
-import useExpenses, { type Expense, Types, ExpenseTypes } from "@/use/use-expenses"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+
+import useExpenses, {
+  type Expense,
+  type ExpenseFiltersOptions,
+  type ExpenseWhereOptions,
+  Types,
+} from "@/use/use-expenses"
 
 import AddReceiptButton from "@/components/expenses/edit-data-table/AddReceiptButton.vue"
 import ExpenseDeleteDialog from "@/components/expenses/ExpenseDeleteDialog.vue"
 import ExpenseEditDialog from "@/components/expenses/ExpenseEditDialog.vue"
 import DownloadReceiptButton from "@/components/expenses/DownloadReceiptButton.vue"
 
-const props = defineProps<{
-  travelAuthorizationId: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    where?: ExpenseWhereOptions
+    filters?: ExpenseFiltersOptions
+    routeQuerySuffix?: string
+  }>(),
+  {
+    where: () => ({}),
+    filters: () => ({}),
+    routeQuerySuffix: "",
+  }
+)
 
+// TODO: switch to `changed: [void]` syntax in vue 3
 const emit = defineEmits<{
-  // TODO: switch to `changed: [void]` syntax in vue 3
   (event: "changed"): void
 }>()
 
@@ -123,22 +145,43 @@ const headers = ref([
 
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 
+const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
+})
+const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "10", {
+  transform: integerTransformer,
+})
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  {
+    key: "date",
+    order: "asc",
+  },
+  {
+    key: "expenseType",
+    order: "asc",
+  },
+])
+const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
+
 const expensesQuery = computed(() => ({
   where: {
-    travelAuthorizationId: props.travelAuthorizationId,
+    ...props.where,
     type: Types.EXPENSE,
-    expenseType: [ExpenseTypes.ACCOMMODATIONS, ExpenseTypes.TRANSPORTATION],
   },
-  // TODO: add pagination
-  perPage: MAX_PER_PAGE,
+  filters: props.filters,
+  order: order.value,
+  perPage: perPage.value,
+  page: page.value,
 }))
 
-const { expenses, isLoading, refresh } = useExpenses(expensesQuery)
+const { expenses, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
 
 // Will need to be calculated in the back-end if data is multi-page.
 const totalAmount = computed(() => sumBy(expenses.value, "cost"))
 
 onMounted(() => {
+  // TODO: show dialog code inside of dialog
   showEditDialogForRouteQuery()
   showDeleteDialogForRouteQuery()
 })
@@ -192,4 +235,8 @@ function formatCurrency(amount: number) {
   })
   return formatter.format(amount)
 }
+
+defineExpose({
+  refresh,
+})
 </script>
