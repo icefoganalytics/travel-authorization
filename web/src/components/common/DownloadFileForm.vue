@@ -13,7 +13,7 @@
     />
     <v-btn
       :block="smAndDown"
-      color="primary"
+      :color="color"
       :prepend-icon="prependIcon"
       type="submit"
     >
@@ -37,10 +37,12 @@ withDefaults(
     text?: string
     downloadUrl: string
     prependIcon?: string
+    color?: string
   }>(),
   {
     text: "Download File",
     prependIcon: "mdi-download",
+    color: "primary",
   }
 )
 

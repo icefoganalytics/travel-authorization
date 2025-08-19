@@ -19,6 +19,7 @@
         ref="deleteDialogRef"
         @deleted="emitChangedAndRefresh"
       />
+      <ReceiptImagePreviewDialog ref="receiptImagePreviewDialogRef" />
     </template>
     <template #item.date="{ value }">
       {{ formatDate(value) }}
@@ -42,10 +43,13 @@
             :expense-id="item.id"
             @uploaded="emitChangedAndRefresh"
           />
-          <DownloadReceiptButton
+          <v-btn
             v-else
-            :expense-id="item.id"
-          />
+            color="secondary"
+            @click="showReceiptImagePreviewDialog(item.id)"
+          >
+            View Receipt
+          </v-btn>
 
           <v-btn
             v-if="actions.includes('delete')"
@@ -99,7 +103,7 @@ import useExpenses, {
 import AddReceiptButton from "@/components/expenses/edit-data-table/AddReceiptButton.vue"
 import ExpenseDeleteDialog from "@/components/expenses/ExpenseDeleteDialog.vue"
 import ExpenseEditDialog from "@/components/expenses/ExpenseEditDialog.vue"
-import DownloadReceiptButton from "@/components/expenses/DownloadReceiptButton.vue"
+import ReceiptImagePreviewDialog from "@/components/expenses/receipt-images/ReceiptImagePreviewDialog.vue"
 
 const props = withDefaults(
   defineProps<{
@@ -185,14 +189,23 @@ function emitChangedAndRefresh() {
 }
 
 const deleteDialogRef = ref<InstanceType<typeof ExpenseDeleteDialog> | null>(null)
-const editDialogRef = ref<InstanceType<typeof ExpenseEditDialog> | null>(null)
 
 function showDeleteDialog(expenseId: number) {
   deleteDialogRef.value?.show(expenseId)
 }
 
+const editDialogRef = ref<InstanceType<typeof ExpenseEditDialog> | null>(null)
+
 function showEditDialog(expenseId: number) {
   editDialogRef.value?.show(expenseId)
+}
+
+const receiptImagePreviewDialogRef = ref<InstanceType<typeof ReceiptImagePreviewDialog> | null>(
+  null
+)
+
+function showReceiptImagePreviewDialog(expenseId: number) {
+  receiptImagePreviewDialogRef.value?.show(expenseId)
 }
 
 function formatDate(date: string) {
