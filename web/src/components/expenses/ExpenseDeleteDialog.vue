@@ -2,13 +2,19 @@
   <v-dialog
     v-model="showDialog"
     max-width="500px"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
   >
     <v-card>
       <v-card-title class="text-h5">
         Are you sure you want to delete the following expense?
       </v-card-title>
-      <v-card-text>
-        <div v-if="hasExpense">
+      <v-skeleton-loader
+        v-if="isNil(expenseId) || isNil(expense)"
+        type="card"
+      />
+      <v-card-text v-else>
+        <div>
           <v-row no-gutters>
             <v-col class="text-center">
               {{ expense.expenseType }}
@@ -35,14 +41,14 @@
         <v-spacer></v-spacer>
         <v-btn
           color="secondary"
-          :loading="loading"
-          @click="close"
+          :loading="isLoading"
+          @click="hide"
           >Cancel</v-btn
         >
         <v-btn
           color="error"
-          :loading="loading"
-          @click="deleteAndClose"
+          :loading="isLoading"
+          @click="deleteAndHide"
           >OK</v-btn
         >
         <v-spacer></v-spacer>
@@ -51,71 +57,83 @@
   </v-dialog>
 </template>
 
-<script>
-import { isEmpty } from "lodash"
+<script setup lang="ts">
+import { nextTick, ref, watch } from "vue"
+import { isNil } from "lodash"
 import { DateTime } from "luxon"
 
+import { formatCurrency } from "@/utils/formatters"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+
 import expensesApi from "@/api/expenses-api"
+import useExpense from "@/use/use-expense"
+import useSnack from "@/use/use-snack"
 
-export default {
-  name: "ExpenseDeleteDialog",
-  data: () => ({
-    expense: {},
-    showDialog: false,
-    loading: false,
-  }),
-  computed: {
-    expenseId() {
-      return this.expense.id
-    },
-    hasExpense() {
-      return !isEmpty(this.expense)
-    },
-  },
-  watch: {
-    showDialog(value) {
-      if (value) {
-        if (this.$route.query.showDelete === this.expense.id.toString()) return
+const emit = defineEmits<{
+  (event: "deleted"): void
+}>()
 
-        this.$router.push({ query: { showDelete: this.expense.id } })
-      } else {
-        this.$router.push({ query: { showDelete: undefined } })
-      }
-    },
-  },
-  methods: {
-    show(expense) {
-      this.expense = expense
-      this.showDialog = true
-    },
-    close() {
-      this.showDialog = false
-    },
-    deleteAndClose() {
-      this.loading = true
-      return expensesApi
-        .delete(this.expenseId)
-        .then(() => {
-          this.$emit("deleted")
-          this.close()
-        })
-        .catch((error) => {
-          this.$snack(error.message, { color: "error" })
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-    formatDate(date) {
-      return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
-    },
-    formatCurrency(amount) {
-      const formatter = new Intl.NumberFormat("en-CA", {
-        style: "currency",
-        currency: "CAD",
-      })
-      return formatter.format(amount)
-    },
-  },
+const expenseId = useRouteQuery("showExpenseDelete", undefined, {
+  transform: integerTransformer,
+})
+const { expense, isLoading } = useExpense(expenseId)
+
+const showDialog = ref(false)
+const snack = useSnack()
+
+async function deleteAndHide() {
+  isLoading.value = true
+  try {
+    await expensesApi.delete(expenseId.value)
+    hide()
+
+    await nextTick()
+    emit("deleted")
+    snack.success("Expense deleted successfully")
+  } catch (error) {
+    console.error(`Failed to delete expense: ${error}`, { error })
+    snack.error(`Failed to delete expense: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
 }
+
+watch(
+  expenseId,
+  (newExpenseId) => {
+    if (isNil(newExpenseId)) {
+      showDialog.value = false
+      expense.value = null
+    } else {
+      showDialog.value = true
+    }
+  },
+  {
+    immediate: true,
+  }
+)
+
+function show(newExpenseId: number) {
+  expenseId.value = newExpenseId
+}
+
+function hide() {
+  expenseId.value = undefined
+}
+
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
+
+  hide()
+}
+
+function formatDate(date: string | null) {
+  if (isNil(date)) return ""
+
+  return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
+}
+
+defineExpose({
+  show,
+})
 </script>

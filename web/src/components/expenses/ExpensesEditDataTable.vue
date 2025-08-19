@@ -53,7 +53,7 @@
             class="ml-2"
             color="error"
             title="Delete"
-            @click="showDeleteDialog(item)"
+            @click="showDeleteDialog(item.id)"
           >
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -80,18 +80,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue"
+import { computed, ref } from "vue"
 import { sumBy } from "lodash"
 import { DateTime } from "luxon"
-import { useRoute } from "vue2-helpers/vue-router"
 
+import { formatCurrency } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import useExpenses, {
-  type Expense,
   type ExpenseFiltersOptions,
   type ExpenseWhereOptions,
   Types,
@@ -180,11 +179,6 @@ const { expenses, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
 // Will need to be calculated in the back-end if data is multi-page.
 const totalAmount = computed(() => sumBy(expenses.value, "cost"))
 
-onMounted(() => {
-  // TODO: show dialog code inside of dialog
-  showDeleteDialogForRouteQuery()
-})
-
 function emitChangedAndRefresh() {
   emit("changed")
   return refresh()
@@ -193,36 +187,16 @@ function emitChangedAndRefresh() {
 const deleteDialogRef = ref<InstanceType<typeof ExpenseDeleteDialog> | null>(null)
 const editDialogRef = ref<InstanceType<typeof ExpenseEditDialog> | null>(null)
 
-function showDeleteDialog(item: Expense) {
-  deleteDialogRef.value?.show(item)
+function showDeleteDialog(expenseId: number) {
+  deleteDialogRef.value?.show(expenseId)
 }
 
 function showEditDialog(expenseId: number) {
   editDialogRef.value?.show(expenseId)
 }
 
-const route = useRoute()
-
-function showDeleteDialogForRouteQuery() {
-  const expenseId = parseInt(route.query.showDelete as string)
-  if (isNaN(expenseId)) return
-
-  const expense = expenses.value.find((expense) => expense.id === expenseId)
-  if (!expense) return
-
-  showDeleteDialog(expense)
-}
-
 function formatDate(date: string) {
   return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
-}
-
-function formatCurrency(amount: number) {
-  const formatter = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  })
-  return formatter.format(amount)
 }
 
 defineExpose({
