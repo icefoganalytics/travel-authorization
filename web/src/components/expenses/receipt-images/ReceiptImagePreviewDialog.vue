@@ -22,6 +22,7 @@
           :download-url="downloadUrl"
           color="secondary"
           text="Download Receipt"
+          @downloaded="hide"
         />
         <v-btn
           class="ml-2"

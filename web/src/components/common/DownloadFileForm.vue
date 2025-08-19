@@ -46,6 +46,10 @@ withDefaults(
   }
 )
 
+const emit = defineEmits<{
+  (event: "downloaded"): void
+}>()
+
 const { getAccessTokenSilently } = useAuth0()
 
 const formRef = ref<InstanceType<typeof HTMLFormElement> | null>(null)
@@ -64,6 +68,9 @@ async function getAccessTokenAndSubmit() {
 
     // TODO: update to formRef.value.submit() when using Vuetify 3
     formRef.value.$el.submit()
+
+    await nextTick()
+    emit("downloaded")
   } catch (error) {
     console.error(`Error fetching new access token: ${error}`, { error })
     throw error
