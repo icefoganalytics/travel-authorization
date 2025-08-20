@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { isNil } from "lodash"
 
 import Viewer from "viewerjs"
@@ -14,6 +14,10 @@ import "viewerjs/dist/viewer.css"
 
 const props = defineProps<{
   imageBlob: Blob
+}>()
+
+const emit = defineEmits<{
+  (event: "update:fullscreen", value: boolean): void
 }>()
 
 const activeObjectUrl = computed<string>(() => URL.createObjectURL(props.imageBlob))
@@ -37,7 +41,7 @@ async function initializeViewer(newImgRef: HTMLImageElement) {
     inline: true,
     url: () => activeObjectUrl.value,
     viewed() {
-      viewer.value?.zoomTo(0.33)
+      viewer.value?.zoomTo(1)
     },
     navbar: false,
     toolbar: {
@@ -57,6 +61,12 @@ async function initializeViewer(newImgRef: HTMLImageElement) {
     scalable: false,
   })
 }
+
+const isFullscreen = computed(() => (viewer.value as unknown as { fulled: boolean })?.fulled)
+
+watch(isFullscreen, (newIsFullscreen) => {
+  emit("update:fullscreen", newIsFullscreen)
+})
 
 function destroyViewer() {
   if (viewer.value) {

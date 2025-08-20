@@ -2,7 +2,8 @@
   <v-dialog
     v-model="showDialog"
     width="600"
-    @keydown.esc="hide"
+    persistent
+    @keydown.esc="hideIfNotFullscreen"
     @input="hideIfFalse"
   >
     <v-card>
@@ -15,7 +16,10 @@
         type="image"
       />
       <v-card-text v-else>
-        <ImageViewer :image-blob="receiptImageBlob" />
+        <ImageViewer
+          :image-blob="receiptImageBlob"
+          @update:fullscreen="updateFullScreen"
+        />
       </v-card-text>
 
       <v-card-actions>
@@ -79,6 +83,18 @@ watch(
 async function loadReceiptImage(expenseId: number) {
   const { expense } = await expensesApi.download(expenseId)
   receiptImageBlob.value = expense.receiptImage
+}
+
+const isFullscreen = ref(false)
+
+function updateFullScreen(value: boolean) {
+  isFullscreen.value = value
+}
+
+function hideIfNotFullscreen() {
+  if (isFullscreen.value) return
+
+  hide()
 }
 
 function show(newExpenseId: number) {
