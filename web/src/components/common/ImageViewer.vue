@@ -38,7 +38,7 @@ async function initializeViewer(newImgRef: HTMLImageElement) {
     inline: true,
     url: () => props.src,
     viewed() {
-      viewer.value?.zoomTo(1)
+      viewer.value?.zoomTo(0.5)
     },
     navbar: false,
     toolbar: {
@@ -58,6 +58,15 @@ async function initializeViewer(newImgRef: HTMLImageElement) {
     scalable: false,
   })
 }
+
+watch(
+  () => props.src,
+  () => {
+    if (isNil(viewer.value)) return
+
+    viewer.value.update()
+  }
+)
 
 const isFullscreen = computed(() => (viewer.value as unknown as { fulled: boolean })?.fulled)
 
