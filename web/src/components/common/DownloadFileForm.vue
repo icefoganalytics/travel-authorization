@@ -28,6 +28,8 @@
 import { isNil } from "lodash"
 import { ref, nextTick } from "vue"
 
+import { type VForm } from "vuetify/lib/components"
+
 import { useAuth0 } from "@/plugins/auth0-plugin"
 
 import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
@@ -52,7 +54,7 @@ const emit = defineEmits<{
 
 const { getAccessTokenSilently } = useAuth0()
 
-const formRef = ref<InstanceType<typeof HTMLFormElement> | null>(null)
+const formRef = ref<InstanceType<typeof VForm> | null>(null)
 const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
 

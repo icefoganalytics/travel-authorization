@@ -88,6 +88,8 @@
 import { nextTick, ref, watch } from "vue"
 import { isNil } from "lodash"
 
+import { type VForm } from "vuetify/lib/components"
+
 import { required } from "@/utils/validators"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 
@@ -111,7 +113,7 @@ const expenseId = useRouteQuery("showExpenseEdit", undefined, {
 const { expense, isLoading, save } = useExpense(expenseId)
 
 const showDialog = ref(false)
-const formRef = ref<InstanceType<typeof HTMLFormElement> | null>(null)
+const formRef = ref<InstanceType<typeof VForm> | null>(null)
 const snack = useSnack()
 
 async function updateAndClose() {

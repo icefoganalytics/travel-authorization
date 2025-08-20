@@ -11,6 +11,8 @@ import { computed } from "vue"
 
 import { API_BASE_URL } from "@/config"
 
+import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
+
 const props = defineProps<{
   expenseId: number
 }>()
