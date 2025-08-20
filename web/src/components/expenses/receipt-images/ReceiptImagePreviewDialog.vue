@@ -17,6 +17,7 @@
       />
       <v-card-text v-else>
         <ImageViewer
+          ref="imageViewerRef"
           :src="receiptImageObjectUrl"
           @update:fullscreen="updateFullScreen"
         />
@@ -35,6 +36,15 @@
           @click="hide"
         >
           Close
+        </v-btn>
+        <v-spacer />
+        <v-btn
+          class="ml-2"
+          color="secondary"
+          @click="showFullscreenImage"
+        >
+          Fullscreen
+          <v-icon>mdi-fullscreen</v-icon>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -64,6 +74,11 @@ const downloadUrl = computed(() => {
 })
 
 const receiptImageObjectUrl = ref<string | null>(null)
+const imageViewerRef = ref<InstanceType<typeof ImageViewer> | null>(null)
+
+function showFullscreenImage() {
+  imageViewerRef.value?.show()
+}
 
 watch(
   expenseId,
