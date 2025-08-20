@@ -4,6 +4,7 @@
       ref="fileInputRef"
       class="d-none"
       type="file"
+      accept="image/*"
       @change="uploadFileAndEmit"
     />
     <v-btn
