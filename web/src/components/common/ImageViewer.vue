@@ -13,14 +13,12 @@ import Viewer from "viewerjs"
 import "viewerjs/dist/viewer.css"
 
 const props = defineProps<{
-  imageBlob: Blob
+  src: string
 }>()
 
 const emit = defineEmits<{
   (event: "update:fullscreen", value: boolean): void
 }>()
-
-const activeObjectUrl = computed<string>(() => URL.createObjectURL(props.imageBlob))
 
 const viewer = ref<Viewer | null>(null)
 const imgRef = ref<HTMLImageElement | null>(null)
@@ -33,13 +31,12 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   destroyViewer()
-  revokeBlob()
 })
 
 async function initializeViewer(newImgRef: HTMLImageElement) {
   viewer.value = new Viewer(newImgRef, {
     inline: true,
-    url: () => activeObjectUrl.value,
+    url: () => props.src,
     viewed() {
       viewer.value?.zoomTo(1)
     },
@@ -73,10 +70,6 @@ function destroyViewer() {
     viewer.value.destroy()
     viewer.value = null
   }
-}
-
-function revokeBlob() {
-  URL.revokeObjectURL(activeObjectUrl.value)
 }
 
 defineExpose({

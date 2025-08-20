@@ -12,12 +12,12 @@
       </v-card-title>
 
       <v-skeleton-loader
-        v-if="isNil(expenseId) || isNil(receiptImageBlob)"
+        v-if="isNil(expenseId) || isNil(receiptImageObjectUrl)"
         type="image"
       />
       <v-card-text v-else>
         <ImageViewer
-          :image-blob="receiptImageBlob"
+          :src="receiptImageObjectUrl"
           @update:fullscreen="updateFullScreen"
         />
       </v-card-text>
@@ -63,16 +63,17 @@ const downloadUrl = computed(() => {
   return `${API_BASE_URL}/api/downloads/expenses/${expenseId.value}/receipt-image`
 })
 
-const receiptImageBlob = ref<Blob | null>(null)
+const receiptImageObjectUrl = ref<string | null>(null)
 
 watch(
   expenseId,
   (newExpenseId) => {
     if (isNil(newExpenseId)) {
       showDialog.value = false
+      revokeImageObjectUrl()
     } else {
       showDialog.value = true
-      loadReceiptImage(newExpenseId)
+      loadReceiptImageObjectUrl(newExpenseId)
     }
   },
   {
@@ -80,9 +81,17 @@ watch(
   }
 )
 
-async function loadReceiptImage(expenseId: number) {
+async function loadReceiptImageObjectUrl(expenseId: number) {
   const { expense } = await expensesApi.download(expenseId)
-  receiptImageBlob.value = expense.receiptImage
+  const { receiptImage } = expense
+  receiptImageObjectUrl.value = URL.createObjectURL(receiptImage)
+}
+
+function revokeImageObjectUrl() {
+  if (isNil(receiptImageObjectUrl.value)) return
+
+  URL.revokeObjectURL(receiptImageObjectUrl.value)
+  receiptImageObjectUrl.value = null
 }
 
 const isFullscreen = ref(false)
