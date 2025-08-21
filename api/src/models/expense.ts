@@ -137,9 +137,7 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   declare receipt?: NonAttribute<Attachment>
 
   static establishScopes(): void {
-    this.addScope("withReceiptImage", () => ({
-      include: ["receipt"],
-    }))
+    // add as needed
   }
 }
 

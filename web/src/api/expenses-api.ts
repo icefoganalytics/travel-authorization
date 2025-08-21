@@ -56,7 +56,7 @@ export type ExpenseWhereOptions = WhereOptions<
 >
 
 export type ExpenseFiltersOptions = FiltersOptions<{
-  withReceiptImage: boolean
+  // add as needed
 }>
 
 export type ExpenseQueryOptions = QueryOptions<ExpenseWhereOptions, ExpenseFiltersOptions>

@@ -50,8 +50,9 @@ export class ReceiptImageController extends BaseController<Expense> {
   }
 
   private async loadExpense() {
-    return Expense.withScope(["withReceiptImage"]).findByPk(this.params.expenseId, {
+    return Expense.findByPk(this.params.expenseId, {
       include: [
+        "receipt",
         {
           association: "travelAuthorization",
           include: ["travelSegments"],
