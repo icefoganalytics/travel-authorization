@@ -104,30 +104,6 @@ export const expensesApi = {
     const { data } = await http.delete(`/api/expenses/${expenseId}`)
     return data
   },
-  /**
-   * TODO: switch this to use more traditional download pattern
-   */
-  async download(expenseId: number): Promise<{
-    expense: {
-      id: number
-      receiptImage: Blob
-      fileName: string
-    }
-  }> {
-    const response = await http.get(`/api/expenses/${expenseId}/upload`, {
-      responseType: "blob",
-    })
-    // NOTE: requires exposing Content-Disposition header in api response or CORS config.
-    // Matches format set in api/src/controllers/expenses/upload-controller.ts
-    const fileName = response.headers["content-disposition"].split("filename=")[1]
-    return {
-      expense: {
-        id: expenseId,
-        receiptImage: response.data,
-        fileName,
-      },
-    }
-  },
 }
 
 export default expensesApi

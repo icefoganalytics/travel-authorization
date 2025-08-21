@@ -1,1 +1,1 @@
-export { ReceiptImageController } from "./receipt-image-controller"
+export { ReceiptController } from "./receipt-controller"

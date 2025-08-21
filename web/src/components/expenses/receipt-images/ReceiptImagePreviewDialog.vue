@@ -55,9 +55,8 @@
 import { ref, computed, watch } from "vue"
 import { isNil } from "lodash"
 
-import { API_BASE_URL } from "@/config"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
-import expensesApi from "@/api/expenses-api"
+import { receiptApi } from "@/api/downloads/expenses"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import ImageViewer from "@/components/common/ImageViewer.vue"
@@ -70,7 +69,7 @@ const expenseId = useRouteQuery("previewReceiptImage", undefined, {
 const downloadUrl = computed(() => {
   if (isNil(expenseId.value)) return ""
 
-  return `${API_BASE_URL}/api/downloads/expenses/${expenseId.value}/receipt-image`
+  return receiptApi.downloadPath(expenseId.value)
 })
 
 const receiptImageObjectUrl = ref<string | null>(null)
@@ -97,8 +96,7 @@ watch(
 )
 
 async function loadReceiptImageObjectUrl(expenseId: number) {
-  const { expense } = await expensesApi.download(expenseId)
-  const { receiptImage } = expense
+  const receiptImage = await receiptApi.get(expenseId)
   receiptImageObjectUrl.value = URL.createObjectURL(receiptImage)
 }
 
