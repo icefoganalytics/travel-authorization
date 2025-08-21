@@ -144,8 +144,10 @@ const headers = ref([
     value: "cost",
   },
   {
-    text: "",
+    text: "Actions",
     value: "actions",
+    sortable: false,
+    align: "center",
   },
 ])
 
