@@ -4,7 +4,6 @@
       ref="fileInputRef"
       class="d-none"
       type="file"
-      accept="image/*"
       :rules="[required]"
       required
       @change="uploadFileAndEmit"

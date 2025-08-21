@@ -20,6 +20,7 @@
         @deleted="emitChangedAndRefresh"
       />
       <ReceiptImagePreviewDialog ref="receiptImagePreviewDialogRef" />
+      <ReceiptGenericPreviewDialog ref="receiptGenericPreviewDialogRef" />
     </template>
     <template #item.date="{ value }">
       {{ formatDate(value) }}
@@ -47,7 +48,7 @@
           <v-btn
             v-else
             color="secondary"
-            @click="showReceiptImagePreviewDialog(item.id)"
+            @click="showReceiptPreviewDialog(item.receipt.mimeType, item.id)"
           >
             View Receipt
           </v-btn>
@@ -104,6 +105,7 @@ import useExpenses, {
 import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
 import ExpenseDeleteDialog from "@/components/expenses/ExpenseDeleteDialog.vue"
 import ExpenseEditDialog from "@/components/expenses/ExpenseEditDialog.vue"
+import ReceiptGenericPreviewDialog from "@/components/expenses/receipt/ReceiptGenericPreviewDialog.vue"
 import ReceiptImagePreviewDialog from "@/components/expenses/receipt/ReceiptImagePreviewDialog.vue"
 
 const props = withDefaults(
@@ -201,12 +203,24 @@ function showEditDialog(expenseId: number) {
   editDialogRef.value?.show(expenseId)
 }
 
+const receiptGenericPreviewDialogRef = ref<InstanceType<typeof ReceiptGenericPreviewDialog> | null>(
+  null
+)
 const receiptImagePreviewDialogRef = ref<InstanceType<typeof ReceiptImagePreviewDialog> | null>(
   null
 )
 
-function showReceiptImagePreviewDialog(expenseId: number) {
-  receiptImagePreviewDialogRef.value?.show(expenseId)
+function showReceiptPreviewDialog(mimeType: string | undefined, expenseId: number) {
+  switch (mimeType) {
+    case "image/jpeg":
+    case "image/png":
+    case "image/gif":
+      receiptImagePreviewDialogRef.value?.show(expenseId)
+      break
+    default:
+      receiptGenericPreviewDialogRef.value?.show(expenseId)
+      break
+  }
 }
 
 function formatDate(date: string) {
