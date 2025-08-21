@@ -61,9 +61,8 @@ export type ExpenseWhereOptions = WhereOptions<
   "id" | "travelAuthorizationId" | "date" | "currency" | "type" | "expenseType"
 >
 
-export type ExpenseFiltersOptions = FiltersOptions<{
-  // add as needed
-}>
+/** add as needed, must match model scopes */
+export type ExpenseFiltersOptions = FiltersOptions<Record<never, never>>
 
 export type ExpenseQueryOptions = QueryOptions<ExpenseWhereOptions, ExpenseFiltersOptions>
 
