@@ -11,6 +11,7 @@ import {
   AutoIncrement,
   BelongsTo,
   Default,
+  HasOne,
   NotNull,
   PrimaryKey,
   Table,
@@ -18,6 +19,7 @@ import {
 } from "@sequelize/core/decorators-legacy"
 
 import TravelAuthorization from "@/models/travel-authorization"
+import Attachment, { AttachmentTargetTypes } from "@/models/attachment"
 
 // Keep in sync with web/src/modules/travel-authorizations/components/ExpenseTypeSelect.vue
 export enum ExpenseTypes {
@@ -43,12 +45,6 @@ export enum Types {
 
 @Table({
   tableName: "expenses",
-  paranoid: false,
-  // TODO: consider whether it would be better to use a separate table for uploads
-  // e.g. Rails https://guides.rubyonrails.org/active_storage_overview.html
-  defaultScope: {
-    attributes: { exclude: ["receiptImage"] },
-  },
 })
 export class Expense extends Model<InferAttributes<Expense>, InferCreationAttributes<Expense>> {
   static readonly Types = Types
@@ -95,31 +91,6 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   })
   declare type: Types
 
-  @Attribute(DataTypes.BLOB)
-  @ValidateAttribute({
-    // NOTE: docs at https://sequelize.org/docs/v7/models/validations-and-constraints/#attribute-validators
-    // are wrong; this is the correct signature at the moment
-    hasFileSize(value: Buffer | null) {
-      if (value !== null && this.fileSize === null) {
-        throw new Error("fileSize must be set when receiptImage is set")
-      }
-    },
-  })
-  declare receiptImage: Buffer | null
-
-  @Attribute(DataTypes.INTEGER)
-  @ValidateAttribute({
-    hasReceiptImage(value: number | null) {
-      if (value !== null && this.receiptImage === null) {
-        throw new Error("receiptImage must be set when fileSize is set")
-      }
-    },
-  })
-  declare fileSize: number | null
-
-  @Attribute(DataTypes.STRING(255))
-  declare fileName: string | null
-
   @Attribute(DataTypes.STRING(255))
   @NotNull
   @ValidateAttribute({
@@ -140,6 +111,9 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
 
+  @Attribute(DataTypes.DATE)
+  declare deletedAt: Date | null
+
   // Associations
   @BelongsTo(() => TravelAuthorization, {
     foreignKey: "travelAuthorizationId",
@@ -150,9 +124,21 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   })
   declare travelAuthorization?: NonAttribute<TravelAuthorization>
 
+  @HasOne(() => Attachment, {
+    foreignKey: {
+      name: "targetId",
+      allowNull: true,
+    },
+    inverse: "expense",
+    scope: {
+      targetType: AttachmentTargetTypes.Expense,
+    },
+  })
+  declare receipt?: NonAttribute<Attachment>
+
   static establishScopes(): void {
     this.addScope("withReceiptImage", () => ({
-      attributes: { include: ["receiptImage"] },
+      include: ["receipt"],
     }))
   }
 }
