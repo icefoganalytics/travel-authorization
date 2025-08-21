@@ -14,7 +14,7 @@ export type Attachment = {
   targetType: string
   name: string
   size: number
-  content: string
+  // content: Blob // excluded by default
   mimeType: string
   createdAt: string
   updatedAt: string
@@ -28,7 +28,7 @@ export type AttachmentWhereOptions = WhereOptions<
 >
 
 export type AttachmentFiltersOptions = FiltersOptions<{
-  withoutContent: boolean
+  withContent: boolean
 }>
 
 export type AttachmentQueryOptions = QueryOptions<AttachmentWhereOptions, AttachmentFiltersOptions>

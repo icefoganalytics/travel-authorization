@@ -37,7 +37,7 @@ export class ReceiptImageController extends BaseController<Expense> {
       const formattedFileName = await this.buildFileName(name)
       return this.response
         .status(201)
-        .header("Content-Type", "application/octet-stream")
+        .type("application/octet-stream")
         .attachment(formattedFileName)
         .send(content)
     } catch (error) {
@@ -53,7 +53,12 @@ export class ReceiptImageController extends BaseController<Expense> {
   private async loadExpense() {
     return Expense.findByPk(this.params.expenseId, {
       include: [
-        "receipt",
+        {
+          association: "receipt",
+          attributes: {
+            include: ["content"],
+          },
+        },
         {
           association: "travelAuthorization",
           include: ["travelSegments"],

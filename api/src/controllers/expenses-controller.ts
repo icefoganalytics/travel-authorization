@@ -23,14 +23,7 @@ export class ExpensesController extends BaseController<Expense> {
       const totalCount = await scopedExpenses.count({ where })
       const expenses = await scopedExpenses.findAll({
         where,
-        include: [
-          {
-            association: "receipt",
-            attributes: {
-              exclude: ["content"],
-            },
-          },
-        ],
+        include: ["receipt"],
         limit: this.pagination.limit,
         offset: this.pagination.offset,
         order,
@@ -183,12 +176,7 @@ export class ExpensesController extends BaseController<Expense> {
   private loadExpense(): Promise<Expense | null> {
     return Expense.findByPk(this.params.expenseId, {
       include: [
-        {
-          association: "receipt",
-          attributes: {
-            exclude: ["content"],
-          },
-        },
+        "receipt",
         {
           association: "travelAuthorization",
           include: ["travelSegments"],

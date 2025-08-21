@@ -12,6 +12,7 @@ import {
   Default,
   NotNull,
   PrimaryKey,
+  Table,
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
@@ -21,6 +22,13 @@ export enum AttachmentTargetTypes {
   Expense = "Expense",
 }
 
+@Table({
+  defaultScope: {
+    attributes: {
+      exclude: ["content"],
+    },
+  },
+})
 export class Attachment extends Model<
   InferAttributes<Attachment>,
   InferCreationAttributes<Attachment>
@@ -102,9 +110,9 @@ export class Attachment extends Model<
   }
 
   static establishScopes(): void {
-    this.addScope("withoutContent", () => ({
+    this.addScope("withContent", () => ({
       attributes: {
-        exclude: ["content"],
+        include: ["content"],
       },
     }))
   }
