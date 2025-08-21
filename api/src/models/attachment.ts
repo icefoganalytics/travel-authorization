@@ -76,7 +76,20 @@ export class Attachment extends Model<
   declare deletedAt: Date | null
 
   // Associations
-  /** Defined by {@link Expense#receipt} */
+  /**
+   * Defined by {@link Expense#receipt}
+   *
+   * NOTE: lookup must include targetType or result will return a random model
+   * @example
+   * ```ts
+   * const attachment = await Attachment.findOne({
+   *   where: {
+   *     targetType: Attachment.TargetTypes.Expense,
+   *   },
+   *   include: ["expense"],
+   * })
+   * ```
+   */
   declare expense?: NonAttribute<Expense>
 
   get target(): NonAttribute<Expense | undefined> {
