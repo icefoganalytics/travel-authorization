@@ -52,6 +52,10 @@ export type ExpenseAsIndex = Expense & {
   receipt: AttachmentAsReference | null
 }
 
+export type ExpenseAsShow = Expense & {
+  receipt: AttachmentAsReference | null
+}
+
 export type ExpenseWhereOptions = WhereOptions<
   Expense,
   "id" | "travelAuthorizationId" | "date" | "currency" | "type" | "expenseType"
@@ -75,7 +79,7 @@ export const expensesApi = {
     return data
   },
   async get(expenseId: number): Promise<{
-    expense: Expense
+    expense: ExpenseAsShow
     policy: Policy
   }> {
     const { data } = await http.get(`/api/expenses/${expenseId}`)
@@ -89,9 +93,9 @@ export const expensesApi = {
   },
   async update(
     expenseId: number,
-    attributes: Partial<Expense>
+    attributes: Partial<ExpenseAsShow>
   ): Promise<{
-    expense: Expense
+    expense: ExpenseAsShow
     policy: Policy
   }> {
     const { data } = await http.patch(`/api/expenses/${expenseId}`, attributes)

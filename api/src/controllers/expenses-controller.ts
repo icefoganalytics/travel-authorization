@@ -184,6 +184,12 @@ export class ExpensesController extends BaseController<Expense> {
     return Expense.findByPk(this.params.expenseId, {
       include: [
         {
+          association: "receipt",
+          attributes: {
+            exclude: ["content"],
+          },
+        },
+        {
           association: "travelAuthorization",
           include: ["travelSegments"],
           order: [["travelSegments", "segmentNumber", "ASC"]],

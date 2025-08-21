@@ -1,7 +1,10 @@
-import { pick } from "lodash"
+import { isUndefined, pick } from "lodash"
 
-import { Expense, User } from "@/models"
+import { Attachment, Expense, User } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
+import AttachmentsReferenceSerializer, {
+  AttachmentReferenceView,
+} from "@/serializers/attachments/reference-serializer"
 
 export type ExpenseShowView = Pick<
   Expense,
@@ -12,12 +15,12 @@ export type ExpenseShowView = Pick<
   | "cost"
   | "currency"
   | "type"
-  | "fileSize"
-  | "fileName"
   | "expenseType"
   | "createdAt"
   | "updatedAt"
->
+> & {
+  receipt: AttachmentReferenceView | null
+}
 
 export class ShowSerializer extends BaseSerializer<Expense> {
   constructor(
@@ -28,20 +31,32 @@ export class ShowSerializer extends BaseSerializer<Expense> {
   }
 
   perform(): ExpenseShowView {
-    return pick(this.record, [
-      "id",
-      "travelAuthorizationId",
-      "description",
-      "date",
-      "cost",
-      "currency",
-      "type",
-      "fileSize",
-      "fileName",
-      "expenseType",
-      "createdAt",
-      "updatedAt"
-    ])
+    const { receipt } = this.record
+    if (isUndefined(receipt)) {
+      throw new Error("Expected receipt association to be pre-loaded")
+    }
+
+    const serializedReceipt = this.serializeReceipt(receipt)
+
+    return {
+      ...pick(this.record, [
+        "id",
+        "travelAuthorizationId",
+        "description",
+        "date",
+        "cost",
+        "currency",
+        "type",
+        "expenseType",
+        "createdAt",
+        "updatedAt",
+      ]),
+      receipt: serializedReceipt,
+    }
+  }
+
+  private serializeReceipt(receipt: Attachment): AttachmentReferenceView {
+    return AttachmentsReferenceSerializer.perform(receipt, this.currentUser)
   }
 }
 
