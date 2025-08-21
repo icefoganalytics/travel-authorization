@@ -104,7 +104,7 @@ import useExpenses, {
 import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
 import ExpenseDeleteDialog from "@/components/expenses/ExpenseDeleteDialog.vue"
 import ExpenseEditDialog from "@/components/expenses/ExpenseEditDialog.vue"
-import ReceiptImagePreviewDialog from "@/components/expenses/receipt-images/ReceiptImagePreviewDialog.vue"
+import ReceiptImagePreviewDialog from "@/components/expenses/receipt/ReceiptImagePreviewDialog.vue"
 
 const props = withDefaults(
   defineProps<{
