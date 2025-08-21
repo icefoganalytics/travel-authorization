@@ -1,8 +1,7 @@
 import { readFileSync } from "fs"
-import path from "path"
 
 import { CreationAttributes } from "@sequelize/core"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 import { DateTime } from "luxon"
 
 import db, { Attachment, Expense } from "@/models"
@@ -18,8 +17,8 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<Attachment> {
-    const name = this.buildFileName(this.filePath, this.expense.expenseType)
-    const mimeType = await this.determineMimeType(this.filePath)
+    const { mimeType, extension } = await this.determineMimeTypeAndExtension(this.filePath)
+    const name = this.buildFileName(this.expense.expenseType, extension)
     const content = readFileSync(this.filePath)
     const size = content.length
 
@@ -38,21 +37,32 @@ export class CreateService extends BaseService {
     })
   }
 
-  private buildFileName(filePath: string, expenseType: string): string {
+  private buildFileName(expenseType: string, extension: string): string {
     const date = DateTime.now().toFormat("yyyy-MM-dd")
-    const extension = path.extname(filePath) || ".bin"
-    return `Receipt, ${expenseType}, ${date}${extension}`
+    if (isEmpty(extension)) {
+      return `Receipt, ${expenseType}, ${date}`
+    }
+
+    return `Receipt, ${expenseType}, ${date}.${extension}`
   }
 
-  private async determineMimeType(filePath: string): Promise<string> {
+  private async determineMimeTypeAndExtension(
+    filePath: string
+  ): Promise<{ mimeType: string; extension: string }> {
     const { fileTypeFromFile } = await import("file-type")
 
     const fileTypeResult = await fileTypeFromFile(filePath)
     if (isNil(fileTypeResult)) {
-      return "application/octet-stream"
+      return {
+        mimeType: "application/octet-stream",
+        extension: "",
+      }
     }
 
-    return fileTypeResult.mime
+    return {
+      mimeType: fileTypeResult.mime,
+      extension: fileTypeResult.ext,
+    }
   }
 
   private async ensureExpenseReceipt(
