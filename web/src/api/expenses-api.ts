@@ -104,21 +104,6 @@ export const expensesApi = {
     const { data } = await http.delete(`/api/expenses/${expenseId}`)
     return data
   },
-  async upload(
-    expenseId: number,
-    file: File
-  ): Promise<{
-    expense: Expense
-  }> {
-    const formData = new FormData()
-    formData.append("receipt", file)
-    const { data } = await http.post(`/api/expenses/${expenseId}/upload`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    return data
-  },
   /**
    * TODO: switch this to use more traditional download pattern
    */

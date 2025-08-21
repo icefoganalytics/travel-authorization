@@ -117,9 +117,8 @@ router
   .patch(ExpensesController.update)
   .delete(ExpensesController.destroy)
 router
-  .route("/api/expenses/:expenseId/upload")
-  .get(Expenses.UploadController.show)
-  .post(Expenses.UploadController.create)
+  .route("/api/expenses/:expenseId/receipt")
+  .post(Expenses.ReceiptController.create)
 
 router.route("/api/flight-reconciliations").get(FlightReconciliationsController.index)
 router.route("/api/flight-reconciliations/sync").post(FlightReconciliations.SyncController.create)

@@ -1,10 +1,12 @@
 <template>
-  <span class="ml-2">
+  <v-form ref="formRef">
     <input
       ref="fileInputRef"
       class="d-none"
       type="file"
       accept="image/*"
+      :rules="[required]"
+      required
       @change="uploadFileAndEmit"
     />
     <v-btn
@@ -14,14 +16,17 @@
     >
       Add Receipt
     </v-btn>
-  </span>
+  </v-form>
 </template>
 
 <script setup lang="ts">
 import { isEmpty, isNil } from "lodash"
 import { ref } from "vue"
 
-import expensesApi from "@/api/expenses-api"
+import { type VForm } from "vuetify/lib/components"
+
+import { required } from "@/utils/validators"
+import { expenses } from "@/api"
 import useSnack from "@/use/use-snack"
 
 const props = defineProps<{
@@ -33,6 +38,7 @@ const emit = defineEmits<{
   (event: "uploaded"): void
 }>()
 
+const formRef = ref<InstanceType<typeof VForm> | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const isLoading = ref(false)
 
@@ -43,6 +49,9 @@ function triggerFileInput() {
 const snack = useSnack()
 
 async function uploadFileAndEmit(event: Event) {
+  if (isNil(formRef.value)) return
+  if (!formRef.value.validate()) return
+
   const target = event.target as HTMLInputElement
   const { files } = target
   if (isNil(files) || isEmpty(files)) return
@@ -51,7 +60,7 @@ async function uploadFileAndEmit(event: Event) {
 
   isLoading.value = true
   try {
-    await expensesApi.upload(props.expenseId, file)
+    await expenses.receiptApi.create(props.expenseId, file)
 
     emit("uploaded")
     snack.success("Receipt uploaded!")

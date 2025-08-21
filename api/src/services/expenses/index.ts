@@ -7,3 +7,4 @@ export { BuildAttributesFromTravelSegmentsService } from "./build-attributes-fro
 
 // Bundled services
 export * as BuildAttributesFromTravelSegmentsHelpers from "./build-attributes-from-travel-segments-helpers"
+export * as Receipt from "./receipt"

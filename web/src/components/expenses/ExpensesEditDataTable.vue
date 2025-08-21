@@ -38,8 +38,9 @@
           >
         </v-col>
         <v-col class="d-flex justify-end">
-          <AddReceiptButton
+          <AddReceiptButtonForm
             v-if="isNil(item.receipt)"
+            class="ml-2"
             :expense-id="item.id"
             @uploaded="emitChangedAndRefresh"
           />
@@ -100,7 +101,7 @@ import useExpenses, {
   Types,
 } from "@/use/use-expenses"
 
-import AddReceiptButton from "@/components/expenses/edit-data-table/AddReceiptButton.vue"
+import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
 import ExpenseDeleteDialog from "@/components/expenses/ExpenseDeleteDialog.vue"
 import ExpenseEditDialog from "@/components/expenses/ExpenseEditDialog.vue"
 import ReceiptImagePreviewDialog from "@/components/expenses/receipt-images/ReceiptImagePreviewDialog.vue"

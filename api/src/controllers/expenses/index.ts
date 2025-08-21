@@ -1,1 +1,1 @@
-export { UploadController } from "./upload-controller"
+export { ReceiptController } from "./receipt-controller"
