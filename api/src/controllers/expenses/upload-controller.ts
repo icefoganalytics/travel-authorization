@@ -1,74 +1,95 @@
 import { isNil } from "lodash"
 import { UploadedFile } from "express-fileupload"
 
-import BaseController from "@/controllers/base-controller"
+import logger from "@/utils/logger"
 
 import { Expense } from "@/models"
 import { ExpensesPolicy } from "@/policies"
 import { UploadService } from "@/services/expenses/upload-service"
+import BaseController from "@/controllers/base-controller"
 
 export class UploadController extends BaseController {
   async show() {
-    const expense = await this.loadExpense()
-    if (isNil(expense)) return this.response.status(404).json({ message: "Expense not found." })
+    try {
+      const expense = await this.loadExpense()
+      if (isNil(expense))
+        return this.response.status(404).json({
+          message: "Expense not found.",
+        })
 
-    const policy = this.buildPolicy(expense)
-    if (!policy.show()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to view receipts on this expense." })
+      const policy = this.buildPolicy(expense)
+      if (!policy.show()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to view receipts on this expense.",
+        })
+      }
+
+      const { receipt } = expense
+      if (isNil(receipt)) {
+        return this.response.status(404).json({
+          message: "This expense does not have an associated receipt.",
+        })
+      }
+
+      const { name, content, mimeType } = receipt
+
+      return this.response.attachment(name).type(mimeType).send(content)
+    } catch (error) {
+      logger.error(`Error downloading expense receipt: ${error}`, {
+        error,
+      })
+      return this.response.status(400).json({
+        message: `Receipt retrieval failed: ${error}`,
+      })
     }
-
-    if (isNil(expense.fileSize)) {
-      return this.response
-        .status(404)
-        .json({ message: "This expense does not have an associated receipt." })
-    }
-
-    return expense
-      .reload({
-        attributes: ["receiptImage", "fileName"],
-      })
-      .then(({ receiptImage: fileContents, fileName }) => {
-        this.response.setHeader("Content-Disposition", "attachment; filename=" + fileName)
-        this.response.setHeader("Content-Type", "application/octet-stream")
-
-        return this.response.send(fileContents)
-      })
-      .catch((error) => {
-        return this.response.status(400).json({ message: `Receipt retrieval failed: ${error}` })
-      })
   }
 
   async create() {
-    const expense = await this.loadExpense()
-    if (isNil(expense)) return this.response.status(404).json({ message: "Expense not found." })
+    try {
+      const expense = await this.loadExpense()
+      if (isNil(expense))
+        return this.response.status(404).json({
+          message: "Expense not found.",
+        })
 
-    const policy = this.buildPolicy(expense)
-    if (!policy.update()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to upload receipts to this expense." })
-    }
+      const policy = this.buildPolicy(expense)
+      if (!policy.update()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to upload receipts to this expense.",
+        })
+      }
 
-    // must match field name in web/src/api/expenses-api.js#upload
-    const file = this.request.files?.["receipt"] as UploadedFile | undefined
-    if (isNil(file)) {
-      return this.response.status(422).json({ message: "No receipt was uploaded." })
-    }
+      // must match field name in web/src/api/expenses-api.ts#upload
+      const file = this.request.files?.["receipt"] as UploadedFile | undefined
+      if (isNil(file)) {
+        return this.response.status(422).json({
+          message: "No receipt was uploaded.",
+        })
+      }
 
-    return UploadService.perform(expense, file)
-      .then((expense) => {
-        return this.response.json({ expense })
+      await UploadService.perform(expense, file)
+      return this.response.status(201).json({
+        expense,
       })
-      .catch((error) => {
-        return this.response.status(422).json({ message: `Receipt upload failed: ${error}` })
+    } catch (error) {
+      logger.error(`Error uploading expense receipt: ${error}`, {
+        error,
       })
+      return this.response.status(422).json({
+        message: `Receipt upload failed: ${error}`,
+      })
+    }
   }
 
   private loadExpense(): Promise<Expense | null> {
     return Expense.findByPk(this.params.expenseId, {
       include: [
+        {
+          association: "receipt",
+          attributes: {
+            exclude: ["content"],
+          },
+        },
         {
           association: "travelAuthorization",
           include: ["travelSegments"],

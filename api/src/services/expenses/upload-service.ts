@@ -1,6 +1,8 @@
-import { Expense } from "@/models"
+import db, { Attachment, Expense } from "@/models"
 
 import BaseService from "@/services/base-service"
+import { CreationAttributes } from "@sequelize/core"
+import { isNil } from "lodash"
 
 type ExpressFileUpload = {
   name: string // "car.jpg"
@@ -38,13 +40,59 @@ export class UploadService extends BaseService {
   }
 
   async perform(): Promise<Expense> {
-    const { name, size, data } = this.file
-    await this.expense.update({
-      fileName: name,
-      fileSize: size,
-      receiptImage: data,
-    })
+    const { name, size, data, tempFilePath } = this.file
+    const mimeType = await this.determineMimeType(tempFilePath)
 
-    return this.expense.reload()
+    const receiptAttributes: CreationAttributes<Attachment> = {
+      targetId: this.expense.id,
+      targetType: Attachment.TargetTypes.Expense,
+      name,
+      size,
+      mimeType,
+      content: data,
+    }
+
+    return db.transaction(async () => {
+      await this.ensureExpenseReceipt(receiptAttributes)
+      return this.expense.reload({
+        include: [
+          {
+            association: "receipt",
+            attributes: {
+              exclude: ["content"],
+            },
+          },
+        ],
+      })
+    })
+  }
+
+  private async determineMimeType(filePath: string): Promise<string> {
+    const { fileTypeFromFile } = await import("file-type")
+
+    const fileTypeResult = await fileTypeFromFile(filePath)
+    if (isNil(fileTypeResult)) {
+      return "application/octet-stream"
+    }
+
+    return fileTypeResult.mime
+  }
+
+  private async ensureExpenseReceipt(
+    attachmentAttributes: CreationAttributes<Attachment>
+  ): Promise<Attachment> {
+    const { targetId, targetType } = attachmentAttributes
+
+    const attachment = await Attachment.findOne({
+      where: {
+        targetId,
+        targetType,
+      },
+    })
+    if (!isNil(attachment)) {
+      return attachment.update(attachmentAttributes)
+    }
+
+    return Attachment.create(attachmentAttributes)
   }
 }
