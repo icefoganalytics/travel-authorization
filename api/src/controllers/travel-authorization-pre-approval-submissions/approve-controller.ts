@@ -1,3 +1,5 @@
+import { readFileSync } from "fs"
+
 import { isNil, isEmpty, isArray, merge } from "lodash"
 import { type UploadedFile } from "express-fileupload"
 
@@ -43,7 +45,7 @@ export class ApproveController extends BaseController<TravelAuthorizationPreAppr
         })
       }
 
-      const documentsAttributes = this.buildDocumentsAttributes(approvalDocument)
+      const documentsAttributes = await this.buildDocumentsAttributes(approvalDocument)
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
       const permittedAttributesWithFile = merge({}, permittedAttributes, { documentsAttributes })
 
@@ -77,14 +79,18 @@ export class ApproveController extends BaseController<TravelAuthorizationPreAppr
     )
   }
 
-  private buildDocumentsAttributes(
+  private async buildDocumentsAttributes(
     file: UploadedFile
-  ): TravelAuthorizationPreApprovalDocumentAttributes[] {
-    const { name, data, size, md5 } = file
+  ): Promise<TravelAuthorizationPreApprovalDocumentAttributes[]> {
+    const { name, md5, tempFilePath } = file
+
+    const approvalDocument = readFileSync(tempFilePath)
+    const size = approvalDocument.length
+
     const documentsAttributes: TravelAuthorizationPreApprovalDocumentAttributes[] = [
       {
         name,
-        approvalDocument: data,
+        approvalDocument,
         sizeInBytes: size,
         md5,
       },
