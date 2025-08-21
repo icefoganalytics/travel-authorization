@@ -1,7 +1,7 @@
 import { type Ref, ref, reactive, toRefs, unref, watch } from "vue"
 
 import expensesApi, {
-  type Expense,
+  type ExpenseAsIndex,
   type ExpenseWhereOptions,
   type ExpenseFiltersOptions,
   type ExpenseQueryOptions,
@@ -12,7 +12,7 @@ import expensesApi, {
 } from "@/api/expenses-api"
 
 export {
-  type Expense,
+  type ExpenseAsIndex,
   type ExpenseWhereOptions,
   type ExpenseFiltersOptions,
   type ExpenseQueryOptions,
@@ -22,32 +22,15 @@ export {
   ExpenseTypes,
 }
 
-/** @typedef {import('@/api/expenses-api.js').Expense} Expense */
-/** @typedef {import('@/api/expenses-api.js').ExpenseQueryOptions} ExpenseQueryOptions */
-
 /**
  * Fetches and manages expenses data based on the provided options.
- *
- * @param {ExpenseQueryOptions} [options={}] - The configuration options for fetching expenses.
- * @param {Object} [{ skipWatchIf = () => false }={}] - Configuration to conditionally skip API calls.
- * @param {Function} [skipWatchIf] - Function that returns a boolean to determine if fetching should be skipped.
- * @returns {{
- *   expenses: Ref<Expense[]>,
- *   totalCount: Ref<number>,
- *   isLoading: Ref<boolean>,
- *   isErrored: Ref<boolean>,
- *   isInitialized: Ref<boolean>,
- *   fetch: () => Promise<Expense[]>,
- *   refresh: () => Promise<Expense[]>
- *   isReady: () => Promise<boolean>,
- * }}
  */
 export function useExpenses(
   options: Ref<ExpenseQueryOptions> = ref({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
 ) {
   const state = reactive<{
-    expenses: Expense[]
+    expenses: ExpenseAsIndex[]
     totalCount: number
     isLoading: boolean
     isErrored: boolean
@@ -60,7 +43,7 @@ export function useExpenses(
     isInitialized: false,
   })
 
-  async function fetch(): Promise<Expense[]> {
+  async function fetch(): Promise<ExpenseAsIndex[]> {
     state.isLoading = true
     try {
       const { expenses, totalCount } = await expensesApi.list(unref(options))

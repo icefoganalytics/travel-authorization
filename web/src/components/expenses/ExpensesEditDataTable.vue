@@ -39,7 +39,7 @@
         </v-col>
         <v-col class="d-flex justify-end">
           <AddReceiptButton
-            v-if="item.fileSize === null"
+            v-if="isNil(item.receipt)"
             :expense-id="item.id"
             @uploaded="emitChangedAndRefresh"
           />
@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { sumBy } from "lodash"
+import { isNil, sumBy } from "lodash"
 import { DateTime } from "luxon"
 
 import { formatCurrency } from "@/utils/formatters"

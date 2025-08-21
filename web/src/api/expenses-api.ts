@@ -6,6 +6,7 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
+import { type AttachmentAsReference } from "@/api/attachments-api"
 
 /** @deprecated - prefer enum equivalent `Types` */
 export const TYPES = Object.freeze({
@@ -42,12 +43,13 @@ export type Expense = {
   cost: number
   currency: string
   type: Types
-  receiptImage: Blob | null
-  fileSize: number | null
-  fileName: string | null
   expenseType: ExpenseTypes
   createdAt: string
   updatedAt: string
+}
+
+export type ExpenseAsIndex = Expense & {
+  receipt: AttachmentAsReference | null
 }
 
 export type ExpenseWhereOptions = WhereOptions<
@@ -66,7 +68,7 @@ export const expensesApi = {
   EXPENSE_TYPES,
 
   async list(params: ExpenseQueryOptions = {}): Promise<{
-    expenses: Expense[]
+    expenses: ExpenseAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/expenses", { params })
