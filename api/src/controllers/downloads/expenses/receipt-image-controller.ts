@@ -26,19 +26,20 @@ export class ReceiptImageController extends BaseController<Expense> {
         })
       }
 
-      const { fileName, receiptImage } = expense
-      if (isNil(receiptImage)) {
+      const { receipt } = expense
+      if (isNil(receipt)) {
         return this.response.status(404).json({
           message: "This expense does not have an associated receipt.",
         })
       }
 
-      const formattedFileName = await this.buildFileName(fileName)
+      const { name, content } = receipt
+      const formattedFileName = await this.buildFileName(name)
       return this.response
         .status(201)
         .header("Content-Type", "application/octet-stream")
         .attachment(formattedFileName)
-        .send(receiptImage)
+        .send(content)
     } catch (error) {
       logger.error(`Error downloading expense receipt: ${error}`, {
         error,
