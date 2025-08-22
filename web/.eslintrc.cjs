@@ -1,30 +1,48 @@
+/* eslint-env node */
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+require("@rushstack/eslint-patch/modern-module-resolution")
+
 // https://github.com/typescript-eslint/typescript-eslint/issues/251
 module.exports = {
   root: true,
+
   env: {
     browser: true,
     es2021: true,
     node: true,
+    "vitest-globals/env": true,
+    "vue/setup-compiler-macros": true,
   },
+
   extends: [
     "eslint:recommended",
-    "plugin:vue/vue2-recommended",
+    "plugin:vitest-globals/recommended",
+    "plugin:vue/recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier",
+    "plugin:prettier/recommended",
   ],
-  overrides: [],
+
+  plugins: ["vue", "@typescript-eslint"],
+
+  // Parse .vue SFCs and delegate <script lang="ts"> to TS parser
   parser: "vue-eslint-parser",
   parserOptions: {
-    ecmaVersion: "latest",
-    extraFileExtensions: [".vue"],
     parser: "@typescript-eslint/parser",
-    tsconfigRootDir: __dirname,
-    project: ["./tsconfig.node.json", "./tsconfig.json"],
+    ecmaVersion: "latest",
     sourceType: "module",
+    extraFileExtensions: [".vue"],
+    tsconfigRootDir: __dirname,
+    project: ["./tsconfig.json", "./tsconfig.node.json", "./tests/tsconfig.json"],
   },
-  plugins: ["vue", "@typescript-eslint"],
+
+  settings: {
+    // Helps some vue rules behave correctly on 2.7
+    vue: { version: "2.7.0" },
+  },
+
+  ignorePatterns: ["dist/", "coverage/"],
+
   rules: {
-    // Override/add rules' settings here
     "vue/valid-v-slot": [
       "error",
       {
@@ -37,6 +55,7 @@ module.exports = {
         ignorePattern: "^_",
       },
     ],
+
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
