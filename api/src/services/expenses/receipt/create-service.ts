@@ -1,9 +1,10 @@
 import { readFileSync } from "fs"
 
 import { CreationAttributes } from "@sequelize/core"
-import { isEmpty, isNil } from "lodash"
+import { isEmpty, isNil, truncate } from "lodash"
 import { DateTime } from "luxon"
 
+import sanitizeForFileName from "@/utils/sanitize-for-file-name"
 import db, { Attachment, Expense } from "@/models"
 
 import BaseService from "@/services/base-service"
@@ -18,7 +19,8 @@ export class CreateService extends BaseService {
 
   async perform(): Promise<Attachment> {
     const { mimeType, extension } = await this.determineMimeTypeAndExtension(this.filePath)
-    const name = this.buildFileName(this.expense.expenseType, extension)
+    const { expenseType, description } = this.expense
+    const name = this.buildFileName(expenseType, description, extension)
     const content = readFileSync(this.filePath)
     const size = content.length
 
@@ -37,13 +39,19 @@ export class CreateService extends BaseService {
     })
   }
 
-  private buildFileName(expenseType: string, extension: string): string {
+  private buildFileName(expenseType: string, description: string, extension: string): string {
+    const safeDescription = truncate(sanitizeForFileName(description), {
+      length: 60,
+      separator: /,? +/,
+      omission: "",
+    })
+
     const date = DateTime.now().toFormat("yyyy-MM-dd")
     if (isEmpty(extension)) {
-      return `Receipt, ${expenseType}, ${date}`
+      return `Receipt, ${expenseType} - ${safeDescription}, ${date}`
     }
 
-    return `Receipt, ${expenseType}, ${date}.${extension}`
+    return `Receipt, ${expenseType} - ${safeDescription}, ${date}.${extension}`
   }
 
   private async determineMimeTypeAndExtension(
