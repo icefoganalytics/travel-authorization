@@ -16,12 +16,10 @@
         type="image"
       />
       <v-card-text v-else>
-        <iframe
-          ref="iframeRef"
-          title="Receipt PDF"
-          :src="receiptObjectUrl"
-          style="width: 100%; height: 100%; min-height: 480px; border: 0"
-        ></iframe>
+        <PdfViewer
+          ref="pdfViewerRef"
+          :source="receiptObjectUrl"
+        />
       </v-card-text>
 
       <v-card-actions>
@@ -46,7 +44,7 @@
           :button-props="{
             color: 'secondary',
           }"
-          @click="showFullscreenPdf"
+          @click="showFullscreen"
         >
           Fullscreen
           <v-icon>mdi-fullscreen</v-icon>
@@ -57,14 +55,15 @@
 </template>
 
 <script setup lang="ts">
+import { isNil } from "lodash"
 import { ref, computed, watch } from "vue"
-import { isNil, isUndefined } from "lodash"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import { receiptApi } from "@/api/downloads/expenses"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
+import PdfViewer from "@/components/common/PdfViewer.vue"
 
 const showDialog = ref(false)
 
@@ -107,20 +106,18 @@ function revokeImageObjectUrl() {
   receiptObjectUrl.value = null
 }
 
-const iframeRef = ref<HTMLIFrameElement | null>(null)
+const pdfViewerRef = ref<InstanceType<typeof PdfViewer> | null>(null)
 
 const isFullscreenSupported = computed(() => {
-  if (isNil(iframeRef.value)) return false
+  if (isNil(pdfViewerRef.value)) return false
 
-  return !isUndefined(iframeRef.value.requestFullscreen)
+  return pdfViewerRef.value.isFullscreenSupported
 })
 
-async function showFullscreenPdf() {
-  if (isNil(iframeRef.value)) return
+async function showFullscreen() {
+  if (isNil(pdfViewerRef.value)) return
 
-  if (iframeRef.value.requestFullscreen) {
-    await iframeRef.value.requestFullscreen()
-  }
+  await pdfViewerRef.value.showFullscreen()
 }
 
 function show(newExpenseId: number) {
