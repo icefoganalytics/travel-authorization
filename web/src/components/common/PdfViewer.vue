@@ -40,20 +40,11 @@ import { supportsPDFs } from "pdfobject"
 // Using import from dist/vue2-pdf-embed for Vue 2 compatibility, remove once we migrate to Vue 3.
 import VuePdfEmbed from "vue-pdf-embed/dist/vue2-pdf-embed"
 
-const props = withDefaults(
-  defineProps<{
-    source: string
-    page?: number
-  }>(),
-  {
-    page: 1,
-  }
-)
-
-const emit = defineEmits<{
-  (event: "update:page", value: number): void
+defineProps<{
+  source: string
 }>()
 
+const page = ref(1)
 const isLoading = ref(true)
 const pageCount = ref(1)
 
@@ -65,8 +56,8 @@ async function updateState(doc: PDFDocumentProxy) {
   isLoading.value = false
 
   pageCount.value = doc.numPages
-  if (props.page > pageCount.value) {
-    emit("update:page", pageCount.value)
+  if (page.value > pageCount.value) {
+    page.value = pageCount.value
   }
 }
 
