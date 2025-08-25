@@ -27,7 +27,10 @@
         ref="receiptImagePreviewDialogRef"
         @deleted="emitChangedAndRefresh"
       />
-      <ReceiptPdfPreviewDialog ref="receiptPdfPreviewDialogRef" />
+      <ReceiptPdfPreviewDialog
+        ref="receiptPdfPreviewDialogRef"
+        @deleted="emitChangedAndRefresh"
+      />
     </template>
     <template #item.date="{ value }">
       {{ formatDate(value) }}
