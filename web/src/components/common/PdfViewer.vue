@@ -100,8 +100,7 @@ async function onFullscreenChange() {
   if (isNil(document.fullscreenElement)) {
     isFullscreen.value = false
   } else {
-    // document.fullscreenElement === fullscreenDivRef.value ??
-    isFullscreen.value = true
+    isFullscreen.value = document.fullscreenElement === fullscreenDivRef.value
   }
 }
 
