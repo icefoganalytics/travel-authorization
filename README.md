@@ -254,6 +254,9 @@ Files:
    AWS_LOGGING_REGION="ca-central-1"
    AWS_LOGGING_ACCESS_ID="some-id"
    AWS_LOGGING_ACCESS_KEY="some-key"
+
+   AZURE_KEY="some-key"
+   YUKON_GOVERNMENT_FINANCE_API_KEY="some-key"
    ```
 
    - [ ] TODO: investigate if additional custom environment variables are needed

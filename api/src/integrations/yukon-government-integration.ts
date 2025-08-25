@@ -3,6 +3,8 @@ import { isEmpty, pick } from "lodash"
 
 import { AZURE_KEY } from "@/config"
 
+import financeIntegration from "@/integrations/yukon-government-integrations/finance-integration"
+
 // TODO: once the API Gateway is fixed, use optimized direct URL for production, and the slow open API Gateway URL for development.
 // const baseURL = NODE_ENV === "production" ? "https://directory-api-prd.ynet.gov.yk.ca" : "https://api.gov.yk.ca"
 const baseURL = "https://api.gov.yk.ca"
@@ -98,6 +100,8 @@ export const yukonGovernmentIntegration = {
     })
     return data
   },
+
+  finance: financeIntegration,
 }
 
 export default yukonGovernmentIntegration
