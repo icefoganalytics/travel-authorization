@@ -1,6 +1,7 @@
 import { CreationAttributes } from "@sequelize/core"
 import { isNil } from "lodash"
 
+import { yukonGovernmentIntegration } from "@/integrations"
 import { GeneralLedgerCoding, User } from "@/models"
 import BaseService from "@/services/base-service"
 
@@ -23,6 +24,7 @@ export class CreateService extends BaseService {
     if (isNil(code)) {
       throw new Error("Code is required.")
     }
+    await this.assertCodeIsValidInYgFinancialSystem(code)
 
     if (isNil(amount)) {
       throw new Error("Amount is required.")
@@ -37,6 +39,15 @@ export class CreateService extends BaseService {
     // TODO: log that the current user performed this action
 
     return generalLedgerCoding
+  }
+
+  private async assertCodeIsValidInYgFinancialSystem(code: string): Promise<void> {
+    const account = await yukonGovernmentIntegration.finance.api.v1.fetchAccountInformation(
+      code
+    )
+    if (isNil(account)) {
+      throw new Error(`Account ${code} not found in Yukon Government financial system.`)
+    }
   }
 }
 
