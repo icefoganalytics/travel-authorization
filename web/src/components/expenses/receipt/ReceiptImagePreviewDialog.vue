@@ -99,6 +99,8 @@ function showFullscreenImage() {
 watch(
   expenseId,
   (newExpenseId) => {
+    isFullscreen.value = false
+
     if (isNil(newExpenseId)) {
       showDialog.value = false
       revokeImageObjectUrl()
@@ -124,12 +126,6 @@ function revokeImageObjectUrl() {
   receiptImageObjectUrl.value = null
 }
 
-const isFullscreen = ref(false)
-
-function updateFullScreen(value: boolean) {
-  isFullscreen.value = value
-}
-
 const { expense, isLoading } = useExpense(expenseId)
 
 async function deleteReceipt() {
@@ -149,6 +145,12 @@ async function deleteReceipt() {
   } finally {
     isLoading.value = false
   }
+}
+
+const isFullscreen = ref(false)
+
+function updateFullScreen(value: boolean) {
+  isFullscreen.value = value
 }
 
 function hideIfNotFullscreen() {
