@@ -98,8 +98,6 @@ function showFullscreenImage() {
 watch(
   expenseId,
   (newExpenseId) => {
-    isFullscreen.value = false
-
     if (isNil(newExpenseId)) {
       showDialog.value = false
       revokeImageObjectUrl()
