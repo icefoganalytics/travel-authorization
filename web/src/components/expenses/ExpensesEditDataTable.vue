@@ -19,7 +19,10 @@
         ref="deleteDialogRef"
         @deleted="emitChangedAndRefresh"
       />
-      <ReceiptGenericPreviewDialog ref="receiptGenericPreviewDialogRef" />
+      <ReceiptGenericPreviewDialog
+        ref="receiptGenericPreviewDialogRef"
+        @deleted="emitChangedAndRefresh"
+      />
       <ReceiptImagePreviewDialog ref="receiptImagePreviewDialogRef" />
       <ReceiptPdfPreviewDialog ref="receiptPdfPreviewDialogRef" />
     </template>
