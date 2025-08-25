@@ -3,7 +3,7 @@
     v-model="showDialog"
     width="600"
     persistent
-    @keydown.esc="hideIfNotFullscreen"
+    @keydown.esc="hide"
     @input="hideIfFalse"
   >
     <v-card>
@@ -12,14 +12,13 @@
       </v-card-title>
 
       <v-skeleton-loader
-        v-if="isNil(expenseId) || isNil(receiptImageObjectUrl)"
+        v-if="isNil(expenseId) || isNil(receiptObjectUrl)"
         type="image"
       />
       <v-card-text v-else>
-        <ImageViewer
-          ref="imageViewerRef"
-          :src="receiptImageObjectUrl"
-          @update:fullscreen="updateFullScreen"
+        <PdfViewer
+          ref="pdfViewerRef"
+          :source="receiptObjectUrl"
         />
       </v-card-text>
 
@@ -38,32 +37,37 @@
           Close
         </v-btn>
         <v-spacer />
-        <v-btn
+        <ConditionalTooltipButton
           class="ml-2"
-          color="secondary"
-          @click="showFullscreenImage"
+          :disabled="!isFullscreenSupported"
+          tooltip-text="Fullscreen is not supported on this browser"
+          :button-props="{
+            color: 'secondary',
+          }"
+          @click="showFullscreen"
         >
           Fullscreen
           <v-icon>mdi-fullscreen</v-icon>
-        </v-btn>
+        </ConditionalTooltipButton>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
 import { isNil } from "lodash"
+import { ref, computed, watch } from "vue"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import { receiptApi } from "@/api/downloads/expenses"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
-import ImageViewer from "@/components/common/ImageViewer.vue"
+import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
+import PdfViewer from "@/components/common/PdfViewer.vue"
 
 const showDialog = ref(false)
 
-const expenseId = useRouteQuery("previewReceiptImage", undefined, {
+const expenseId = useRouteQuery("previewReceiptPdf", undefined, {
   transform: integerTransformer,
 })
 const downloadUrl = computed(() => {
@@ -72,12 +76,7 @@ const downloadUrl = computed(() => {
   return receiptApi.downloadPath(expenseId.value)
 })
 
-const receiptImageObjectUrl = ref<string | null>(null)
-const imageViewerRef = ref<InstanceType<typeof ImageViewer> | null>(null)
-
-function showFullscreenImage() {
-  imageViewerRef.value?.show()
-}
+const receiptObjectUrl = ref<string | null>(null)
 
 watch(
   expenseId,
@@ -97,26 +96,28 @@ watch(
 
 async function loadReceiptImageObjectUrl(expenseId: number) {
   const receiptImage = await receiptApi.get(expenseId)
-  receiptImageObjectUrl.value = URL.createObjectURL(receiptImage)
+  receiptObjectUrl.value = URL.createObjectURL(receiptImage)
 }
 
 function revokeImageObjectUrl() {
-  if (isNil(receiptImageObjectUrl.value)) return
+  if (isNil(receiptObjectUrl.value)) return
 
-  URL.revokeObjectURL(receiptImageObjectUrl.value)
-  receiptImageObjectUrl.value = null
+  URL.revokeObjectURL(receiptObjectUrl.value)
+  receiptObjectUrl.value = null
 }
 
-const isFullscreen = ref(false)
+const pdfViewerRef = ref<InstanceType<typeof PdfViewer> | null>(null)
 
-function updateFullScreen(value: boolean) {
-  isFullscreen.value = value
-}
+const isFullscreenSupported = computed(() => {
+  if (isNil(pdfViewerRef.value)) return false
 
-function hideIfNotFullscreen() {
-  if (isFullscreen.value) return
+  return pdfViewerRef.value.isFullscreenSupported
+})
 
-  hide()
+async function showFullscreen() {
+  if (isNil(pdfViewerRef.value)) return
+
+  await pdfViewerRef.value.showFullscreen()
 }
 
 function show(newExpenseId: number) {

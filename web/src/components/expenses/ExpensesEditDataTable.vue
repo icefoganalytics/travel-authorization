@@ -19,8 +19,9 @@
         ref="deleteDialogRef"
         @deleted="emitChangedAndRefresh"
       />
-      <ReceiptImagePreviewDialog ref="receiptImagePreviewDialogRef" />
       <ReceiptGenericPreviewDialog ref="receiptGenericPreviewDialogRef" />
+      <ReceiptImagePreviewDialog ref="receiptImagePreviewDialogRef" />
+      <ReceiptPdfPreviewDialog ref="receiptPdfPreviewDialogRef" />
     </template>
     <template #item.date="{ value }">
       {{ formatDate(value) }}
@@ -107,6 +108,7 @@ import ExpenseDeleteDialog from "@/components/expenses/ExpenseDeleteDialog.vue"
 import ExpenseEditDialog from "@/components/expenses/ExpenseEditDialog.vue"
 import ReceiptGenericPreviewDialog from "@/components/expenses/receipt/ReceiptGenericPreviewDialog.vue"
 import ReceiptImagePreviewDialog from "@/components/expenses/receipt/ReceiptImagePreviewDialog.vue"
+import ReceiptPdfPreviewDialog from "@/components/expenses/receipt/ReceiptPdfPreviewDialog.vue"
 
 const props = withDefaults(
   defineProps<{
@@ -211,6 +213,7 @@ const receiptGenericPreviewDialogRef = ref<InstanceType<typeof ReceiptGenericPre
 const receiptImagePreviewDialogRef = ref<InstanceType<typeof ReceiptImagePreviewDialog> | null>(
   null
 )
+const receiptPdfPreviewDialogRef = ref<InstanceType<typeof ReceiptPdfPreviewDialog> | null>(null)
 
 function showReceiptPreviewDialog(mimeType: string | undefined, expenseId: number) {
   switch (mimeType) {
@@ -218,6 +221,9 @@ function showReceiptPreviewDialog(mimeType: string | undefined, expenseId: numbe
     case "image/png":
     case "image/gif":
       receiptImagePreviewDialogRef.value?.show(expenseId)
+      break
+    case "application/pdf":
+      receiptPdfPreviewDialogRef.value?.show(expenseId)
       break
     default:
       receiptGenericPreviewDialogRef.value?.show(expenseId)
