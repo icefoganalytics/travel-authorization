@@ -2,7 +2,7 @@ import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
-import { Expense } from "@/models"
+import { Attachment, Expense } from "@/models"
 import { ExpensesPolicy } from "@/policies"
 import { CreateService } from "@/services/expenses/receipt"
 import BaseController from "@/controllers/base-controller"
@@ -61,6 +61,39 @@ export class ReceiptController extends BaseController {
     }
   }
 
+  async destroy() {
+    try {
+      const expense = await this.loadExpense()
+      if (isNil(expense)) {
+        return this.response.status(404).json({
+          message: "Expense not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(expense)
+      if (!policy.destroy()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to delete receipt from this expense.",
+        })
+      }
+
+      const receipt = await this.loadReceipt()
+      if (isNil(receipt)) {
+        return this.response.status(404).json({
+          message: "Receipt not found.",
+        })
+      }
+
+      await receipt.destroy()
+      return this.response.status(204).send()
+    } catch (error) {
+      logger.error(`Error deleting receipt: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Failed to delete receipt: ${error}`,
+      })
+    }
+  }
+
   private loadExpense(): Promise<Expense | null> {
     return Expense.findByPk(this.params.expenseId, {
       include: [
@@ -70,6 +103,15 @@ export class ReceiptController extends BaseController {
           order: [["travelSegments", "segmentNumber", "ASC"]],
         },
       ],
+    })
+  }
+
+  private loadReceipt(): Promise<Attachment | null> {
+    return Attachment.findOne({
+      where: {
+        targetId: this.params.expenseId,
+        targetType: Attachment.TargetTypes.Expense,
+      },
     })
   }
 
