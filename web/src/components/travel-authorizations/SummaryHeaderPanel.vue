@@ -57,7 +57,7 @@
 <script setup>
 import { toRefs } from "vue"
 
-import useVuetify2 from "@/use/utils/use-vuetify2"
+import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useCurrentUser from "@/use/use-current-user"
 import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
@@ -87,7 +87,7 @@ const {
 } = useTravelAuthorizationSummary(travelAuthorizationId)
 
 const { currentUser } = useCurrentUser()
-const { mdAndUp } = useVuetify2()
+const { mdAndUp } = useDisplayVuetify2()
 
 defineExpose({
   refresh,

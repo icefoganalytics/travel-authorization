@@ -67,7 +67,7 @@
 import { computed, ref } from "vue"
 import { isEmpty } from "lodash"
 
-import useVuetify2 from "@/use/utils/use-vuetify2"
+import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
@@ -78,7 +78,7 @@ import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-author
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
 
-const { smAndDown } = useVuetify2()
+const { smAndDown } = useDisplayVuetify2()
 
 const selectedItems = ref([])
 

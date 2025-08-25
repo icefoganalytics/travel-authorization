@@ -10,7 +10,7 @@
     <template #activator="{ on, attrs }">
       <v-text-field
         :value="value || ''"
-        :label="label || text"
+        :label="label"
         :rules="rules"
         background-color="white"
         prepend-icon="mdi-calendar"
@@ -23,55 +23,42 @@
     <v-date-picker
       v-bind="$attrs"
       :value="value"
-      @input="input"
+      @input="closeAndEmitInput"
     ></v-date-picker>
   </v-menu>
 </template>
 
-<script>
-import { isEmpty } from "lodash"
-
-import { required } from "@/utils/validators"
-
+<script lang="ts">
 export default {
   inheritAttrs: false,
-  props: {
-    value: {
-      type: String,
-      default: undefined,
-    },
-    text: {
-      type: String,
-      default: undefined,
-      validator(value) {
-        if (value !== undefined) {
-          console.warn('The "text" prop is deprecated; prefer using "label" instead.')
-        }
-        return true
-      },
-    },
-    label: {
-      type: String,
-      default: "Pick a Date",
-    },
-    rules: {
-      type: Array,
-      default: () => [required],
-    },
-  },
-  data: () => ({
-    menu: false,
-  }),
-  mounted() {
-    if (!isEmpty(this.text) && !isEmpty(this.label)) {
-      console.warn("DEPRECATION: text is deprecated, prefer label")
-    }
-  },
-  methods: {
-    input(value) {
-      this.menu = false
-      this.$emit("input", value)
-    },
-  },
+}
+</script>
+
+<script setup lang="ts">
+import { required } from "@/utils/validators"
+import { ref } from "vue"
+
+const props = withDefaults(
+  defineProps<{
+    value?: string | null
+    label?: string
+    rules?: ((value: unknown) => boolean | string)[]
+  }>(),
+  {
+    value: undefined,
+    label: "Pick a Date",
+    rules: () => [required],
+  }
+)
+
+const emit = defineEmits<{
+  (event: "input", value: string): void
+}>()
+
+const menu = ref(false)
+
+function closeAndEmitInput(value: string) {
+  menu.value = false
+  emit("input", value)
 }
 </script>

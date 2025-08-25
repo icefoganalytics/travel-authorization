@@ -1,4 +1,4 @@
-export { booleanTransformer } from "./boolean-transformer.js"
-export { integerTransformer } from "./integer-transformer.js"
-export { integerTransformerLegacy } from "./integer-transformer-legacy.js"
-export { jsonTransformer } from "./json-transformer.js"
+export { booleanTransformer } from "./boolean-transformer"
+export { integerTransformer } from "./integer-transformer"
+export { integerTransformerLegacy } from "./integer-transformer-legacy"
+export { jsonTransformer } from "./json-transformer"
