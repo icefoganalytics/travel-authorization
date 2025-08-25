@@ -107,8 +107,9 @@ router
   )
   .post(Downloads.TravelAuthorizationPreApprovalDocumentsController.create)
 router
-  .route("/api/downloads/expenses/:expenseId/receipt-image")
-  .post(Downloads.Expenses.ReceiptImageController.create)
+  .route("/api/downloads/expenses/:expenseId/receipt")
+  .get(Downloads.Expenses.ReceiptController.show)
+  .post(Downloads.Expenses.ReceiptController.create)
 
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router
@@ -117,9 +118,8 @@ router
   .patch(ExpensesController.update)
   .delete(ExpensesController.destroy)
 router
-  .route("/api/expenses/:expenseId/upload")
-  .get(Expenses.UploadController.show)
-  .post(Expenses.UploadController.create)
+  .route("/api/expenses/:expenseId/receipt")
+  .post(Expenses.ReceiptController.create)
 
 router.route("/api/flight-reconciliations").get(FlightReconciliationsController.index)
 router.route("/api/flight-reconciliations/sync").post(FlightReconciliations.SyncController.create)

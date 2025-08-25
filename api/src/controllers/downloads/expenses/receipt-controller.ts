@@ -1,16 +1,17 @@
-import path from "path"
-
 import { isNil } from "lodash"
-import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 
-import { Expense } from "@/models"
+import { Attachment, Expense } from "@/models"
 import { ExpensesPolicy } from "@/policies"
 import BaseController from "@/controllers/base-controller"
 
-export class ReceiptImageController extends BaseController<Expense> {
+export class ReceiptController extends BaseController<Expense> {
   async create() {
+    return this.show()
+  }
+
+  async show() {
     try {
       const expense = await this.loadExpense()
       if (isNil(expense)) {
@@ -26,19 +27,15 @@ export class ReceiptImageController extends BaseController<Expense> {
         })
       }
 
-      const { fileName, receiptImage } = expense
-      if (isNil(receiptImage)) {
+      const receipt = await this.loadReceipt()
+      if (isNil(receipt)) {
         return this.response.status(404).json({
           message: "This expense does not have an associated receipt.",
         })
       }
 
-      const formattedFileName = await this.buildFileName(fileName)
-      return this.response
-        .status(201)
-        .header("Content-Type", "application/octet-stream")
-        .attachment(formattedFileName)
-        .send(receiptImage)
+      const { name, content, mimeType } = receipt
+      return this.response.status(200).type(mimeType).attachment(name).send(content)
     } catch (error) {
       logger.error(`Error downloading expense receipt: ${error}`, {
         error,
@@ -50,7 +47,7 @@ export class ReceiptImageController extends BaseController<Expense> {
   }
 
   private async loadExpense() {
-    return Expense.withScope(["withReceiptImage"]).findByPk(this.params.expenseId, {
+    return Expense.findByPk(this.params.expenseId, {
       include: [
         {
           association: "travelAuthorization",
@@ -61,19 +58,18 @@ export class ReceiptImageController extends BaseController<Expense> {
     })
   }
 
+  private async loadReceipt() {
+    return Attachment.withScope("withContent").findOne({
+      where: {
+        targetId: this.params.expenseId,
+        targetType: Attachment.TargetTypes.Expense,
+      },
+    })
+  }
+
   private buildPolicy(expense: Expense) {
     return new ExpensesPolicy(this.currentUser, expense)
   }
-
-  private async buildFileName(documentName: string | null) {
-    const date = DateTime.now().toFormat("yyyy-MM-dd")
-    if (isNil(documentName)) {
-      return `Receipt, ${date}.bin`
-    }
-    const extension = path.extname(documentName) || ".bin"
-    const baseName = path.basename(documentName, extension)
-    return `Receipt, ${baseName}, ${date}${extension}`
-  }
 }
 
-export default ReceiptImageController
+export default ReceiptController

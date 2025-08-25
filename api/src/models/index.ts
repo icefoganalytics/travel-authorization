@@ -1,5 +1,6 @@
 import db from "@/db/db-client"
 
+import Attachment from "./attachment"
 import DistanceMatrix from "./distance-matrix"
 import Expense from "./expense"
 import FlightReconciliation from "./flight-reconciliation"
@@ -32,6 +33,7 @@ import YgEmployee from "./yg-employee"
 import YgEmployeeGroup from "./yg-employee-groups"
 
 db.addModels([
+  Attachment,
   DistanceMatrix,
   Expense,
   FlightReconciliation,
@@ -64,6 +66,7 @@ db.addModels([
   YgEmployeeGroup,
 ])
 
+Attachment.establishScopes()
 DistanceMatrix.establishScopes()
 Expense.establishScopes()
 FlightReconciliation.establishScopes()
@@ -95,6 +98,7 @@ YgEmployee.establishScopes()
 YgEmployeeGroup.establishScopes()
 
 export {
+  Attachment,
   DistanceMatrix,
   Expense,
   FlightReconciliation,

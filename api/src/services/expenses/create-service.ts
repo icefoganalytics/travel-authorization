@@ -53,7 +53,7 @@ export class CreateService extends BaseService {
 
     const currencyOrDefault = currency ?? Expense.CurrencyTypes.CAD
 
-    return Expense.create({
+    const expense = await Expense.create({
       ...optionalAttributes,
       travelAuthorizationId,
       description,
@@ -61,6 +61,9 @@ export class CreateService extends BaseService {
       currency: currencyOrDefault,
       type,
       expenseType,
+    })
+    return expense.reload({
+      include: ["receipt"],
     })
   }
 

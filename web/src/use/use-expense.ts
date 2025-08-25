@@ -2,13 +2,13 @@ import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { isNil } from "lodash"
 
 import { Policy } from "@/api/base-api"
-import expensesApi, { type Expense } from "@/api/expenses-api"
+import expensesApi, { type ExpenseAsShow } from "@/api/expenses-api"
 
-export { type Expense }
+export { type ExpenseAsShow }
 
 export function useExpense(id: Ref<number | null | undefined>) {
   const state = reactive<{
-    expense: Expense | null
+    expense: ExpenseAsShow | null
     policy: Policy | null
     isLoading: boolean
     isErrored: boolean
@@ -19,7 +19,7 @@ export function useExpense(id: Ref<number | null | undefined>) {
     isErrored: false,
   })
 
-  async function fetch(): Promise<Expense> {
+  async function fetch(): Promise<ExpenseAsShow> {
     const staticId = unref(id)
     if (isNil(staticId)) {
       throw new Error("id is required")
@@ -41,7 +41,7 @@ export function useExpense(id: Ref<number | null | undefined>) {
     }
   }
 
-  async function save(): Promise<Expense> {
+  async function save(): Promise<ExpenseAsShow> {
     const staticId = unref(id)
     if (isNil(staticId)) {
       throw new Error("id is required")

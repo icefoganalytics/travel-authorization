@@ -24,7 +24,10 @@ app.use(
 // Adds FormData support
 app.use(
   fileUpload({
-    // 2 GB, capped by estimated memory size, because current uploads run entirely in memory.
+    tempFileDir: "/tmp",
+    useTempFiles: true,
+    safeFileNames: true,
+    // 2 GB, capped by estimated memory size, because current uploads must, at some point, be loaded into memory.
     // See https://github.com/icefoganalytics/internal-data-portal/issues/95
     // for how to handle larger files.
     limits: { fileSize: 2 * 1024 * 1024 * 1024 },

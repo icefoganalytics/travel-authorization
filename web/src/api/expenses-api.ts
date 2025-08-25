@@ -6,6 +6,7 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
+import { type AttachmentAsReference } from "@/api/attachments-api"
 
 /** @deprecated - prefer enum equivalent `Types` */
 export const TYPES = Object.freeze({
@@ -42,12 +43,17 @@ export type Expense = {
   cost: number
   currency: string
   type: Types
-  receiptImage: Blob | null
-  fileSize: number | null
-  fileName: string | null
   expenseType: ExpenseTypes
   createdAt: string
   updatedAt: string
+}
+
+export type ExpenseAsIndex = Expense & {
+  receipt: AttachmentAsReference | null
+}
+
+export type ExpenseAsShow = Expense & {
+  receipt: AttachmentAsReference | null
 }
 
 export type ExpenseWhereOptions = WhereOptions<
@@ -55,9 +61,8 @@ export type ExpenseWhereOptions = WhereOptions<
   "id" | "travelAuthorizationId" | "date" | "currency" | "type" | "expenseType"
 >
 
-export type ExpenseFiltersOptions = FiltersOptions<{
-  withReceiptImage: boolean
-}>
+/** add as needed, must match model scopes */
+export type ExpenseFiltersOptions = FiltersOptions<Record<never, never>>
 
 export type ExpenseQueryOptions = QueryOptions<ExpenseWhereOptions, ExpenseFiltersOptions>
 
@@ -66,14 +71,14 @@ export const expensesApi = {
   EXPENSE_TYPES,
 
   async list(params: ExpenseQueryOptions = {}): Promise<{
-    expenses: Expense[]
+    expenses: ExpenseAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/expenses", { params })
     return data
   },
   async get(expenseId: number): Promise<{
-    expense: Expense
+    expense: ExpenseAsShow
     policy: Policy
   }> {
     const { data } = await http.get(`/api/expenses/${expenseId}`)
@@ -87,9 +92,9 @@ export const expensesApi = {
   },
   async update(
     expenseId: number,
-    attributes: Partial<Expense>
+    attributes: Partial<ExpenseAsShow>
   ): Promise<{
-    expense: Expense
+    expense: ExpenseAsShow
     policy: Policy
   }> {
     const { data } = await http.patch(`/api/expenses/${expenseId}`, attributes)
@@ -98,45 +103,6 @@ export const expensesApi = {
   async delete(expenseId: number): Promise<void> {
     const { data } = await http.delete(`/api/expenses/${expenseId}`)
     return data
-  },
-  async upload(
-    expenseId: number,
-    file: File
-  ): Promise<{
-    expense: Expense
-  }> {
-    const formData = new FormData()
-    formData.append("receipt", file)
-    const { data } = await http.post(`/api/expenses/${expenseId}/upload`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    return data
-  },
-  /**
-   * TODO: switch this to use more traditional download pattern
-   */
-  async download(expenseId: number): Promise<{
-    expense: {
-      id: number
-      receiptImage: Blob
-      fileName: string
-    }
-  }> {
-    const response = await http.get(`/api/expenses/${expenseId}/upload`, {
-      responseType: "blob",
-    })
-    // NOTE: requires exposing Content-Disposition header in api response or CORS config.
-    // Matches format set in api/src/controllers/expenses/upload-controller.ts
-    const fileName = response.headers["content-disposition"].split("filename=")[1]
-    return {
-      expense: {
-        id: expenseId,
-        receiptImage: response.data,
-        fileName,
-      },
-    }
   },
 }
 

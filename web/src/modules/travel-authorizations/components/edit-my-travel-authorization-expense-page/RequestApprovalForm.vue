@@ -85,7 +85,7 @@ const hasGeneralLedgerCodings = computed(() => generalLedgerCodings.value.length
 const allRelevantExpensesHaveReceipts = computed(() =>
   expenses.value
     .filter((expense) => expense.expenseType !== EXPENSE_TYPES.MEALS_AND_INCIDENTALS)
-    .every((expense) => expense.fileSize > 0)
+    .every((expense) => !isNil(expense.receipt))
 )
 // TODO: instead of multiple checks here, consider using 1 page per check
 const isReadyToSubmit = computed(

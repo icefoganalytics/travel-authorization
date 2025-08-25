@@ -14,7 +14,7 @@
     </template>
     <template #item.actions="{ item }">
       <DownloadReceiptButton
-        v-if="item.fileSize"
+        v-if="!isNil(item.receipt)"
         :expense-id="item.id"
       />
       <span
@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { sumBy } from "lodash"
+import { isNil, sumBy } from "lodash"
 import { DateTime } from "luxon"
 import { computed, ref } from "vue"
 
