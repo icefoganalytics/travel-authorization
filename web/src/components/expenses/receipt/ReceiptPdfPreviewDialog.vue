@@ -3,7 +3,7 @@
     v-model="showDialog"
     width="600"
     persistent
-    @keydown.esc="hide"
+    @keydown.esc="hideIfNotFullscreen"
     @input="hideIfFalse"
   >
     <v-card>
@@ -33,6 +33,7 @@
         <PdfViewer
           ref="pdfViewerRef"
           :source="receiptObjectUrl"
+          @update:fullscreen="updateFullScreen"
         />
       </v-card-text>
 
@@ -156,6 +157,18 @@ async function deleteReceipt() {
   } finally {
     isLoading.value = false
   }
+}
+
+const isFullscreen = ref(false)
+
+function updateFullScreen(value: boolean) {
+  isFullscreen.value = value
+}
+
+function hideIfNotFullscreen() {
+  if (isFullscreen.value) return
+
+  hide()
 }
 
 function show(newExpenseId: number) {

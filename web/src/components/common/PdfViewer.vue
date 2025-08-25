@@ -44,6 +44,11 @@ defineProps<{
   source: string
 }>()
 
+// TODO: switch to `update:fullscreen: [boolean]` syntax in vue 3
+const emit = defineEmits<{
+  (event: "update:fullscreen", value: boolean): void
+}>()
+
 const page = ref(1)
 const isLoading = ref(true)
 const pageCount = ref(1)
@@ -99,8 +104,10 @@ async function onFullscreenChange() {
 
   if (isNil(document.fullscreenElement)) {
     isFullscreen.value = false
+    emit("update:fullscreen", isFullscreen.value)
   } else {
     isFullscreen.value = document.fullscreenElement === fullscreenDivRef.value
+    emit("update:fullscreen", isFullscreen.value)
   }
 }
 
