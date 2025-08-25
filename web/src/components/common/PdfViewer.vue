@@ -1,31 +1,41 @@
 <template>
   <v-sheet>
-    <div
+    <iframe
+      v-if="supportsPDFs"
       ref="fullscreenDivRef"
-      :class="isFullscreen ? 'pdf-container-fullscreen' : 'pdf-container'"
-    >
-      <PageLoader v-if="isLoading" />
-      <!-- NOTE: don't use v-else or the pdf will never render -->
-      <VuePdfEmbed
-        :source="source"
-        :page="isFullscreen ? null : page"
-        :height="isFullscreen ? height : null"
-        @loaded="updateState"
-      />
-    </div>
-    <div class="text-center mt-3">
-      <v-pagination
-        v-model="page"
-        :length="pageCount"
-        :total-visible="7"
-      />
-    </div>
+      title="Receipt PDF"
+      :src="source"
+      style="width: 100%; height: 100%; min-height: 480px; border: 0"
+    ></iframe>
+    <template v-else>
+      <div
+        ref="fullscreenDivRef"
+        :class="isFullscreen ? 'pdf-container-fullscreen' : 'pdf-container'"
+      >
+        <PageLoader v-if="isLoading" />
+        <!-- NOTE: don't use v-else or the pdf will never render -->
+        <VuePdfEmbed
+          :source="source"
+          :page="isFullscreen ? null : page"
+          :height="isFullscreen ? height : null"
+          @loaded="updateState"
+        />
+      </div>
+      <div class="text-center mt-3">
+        <v-pagination
+          v-model="page"
+          :length="pageCount"
+          :total-visible="7"
+        />
+      </div>
+    </template>
   </v-sheet>
 </template>
 
 <script setup lang="ts">
 import { isNil, isUndefined } from "lodash"
 import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+import { supportsPDFs } from "pdfobject"
 
 // Using import from dist/vue2-pdf-embed for Vue 2 compatibility, remove once we migrate to Vue 3.
 import VuePdfEmbed from "vue-pdf-embed/dist/vue2-pdf-embed"
@@ -64,7 +74,7 @@ const fullscreenDivRef = ref<InstanceType<typeof HTMLDivElement> | null>(null)
 const height = computed(() => {
   if (isNil(fullscreenDivRef.value)) return null
 
-  return fullscreenDivRef.value.clientHeight - 350
+  return fullscreenDivRef.value.clientHeight - fullscreenDivRef.value.clientHeight / 10
 })
 
 const isFullscreenSupported = computed(() => {

@@ -23,7 +23,7 @@
         />
       </v-card-text>
 
-      <v-card-actions>
+      <v-card-actions class="d-flex flex-column flex-md-row">
         <DownloadFileForm
           :download-url="downloadUrl"
           color="secondary"
