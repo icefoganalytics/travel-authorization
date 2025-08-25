@@ -23,7 +23,10 @@
         ref="receiptGenericPreviewDialogRef"
         @deleted="emitChangedAndRefresh"
       />
-      <ReceiptImagePreviewDialog ref="receiptImagePreviewDialogRef" />
+      <ReceiptImagePreviewDialog
+        ref="receiptImagePreviewDialogRef"
+        @deleted="emitChangedAndRefresh"
+      />
       <ReceiptPdfPreviewDialog ref="receiptPdfPreviewDialogRef" />
     </template>
     <template #item.date="{ value }">
