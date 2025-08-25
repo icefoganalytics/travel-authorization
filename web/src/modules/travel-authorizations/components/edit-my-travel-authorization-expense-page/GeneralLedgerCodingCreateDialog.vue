@@ -136,7 +136,7 @@ async function createAndClose() {
   isLoading.value = true
   try {
     await generalLedgerCodingsApi.create(generalLedgerCoding.value)
-    close()
+    hide()
 
     await nextTick()
     emit("created")
