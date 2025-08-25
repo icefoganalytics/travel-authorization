@@ -107,7 +107,7 @@ export class ReceiptController extends BaseController {
   }
 
   private loadReceipt(): Promise<Attachment | null> {
-    return Attachment.findByPk(this.params.receiptId, {
+    return Attachment.findOne({
       where: {
         targetId: this.params.expenseId,
         targetType: Attachment.TargetTypes.Expense,

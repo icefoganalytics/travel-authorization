@@ -73,7 +73,6 @@ import { isNil } from "lodash"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import { downloads, expenses } from "@/api"
-import useExpense from "@/use/use-expense"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
@@ -138,18 +137,15 @@ async function showFullscreen() {
   await pdfViewerRef.value.showFullscreen()
 }
 
-const { expense, isLoading } = useExpense(expenseId)
+const isLoading = ref(false)
 
 async function deleteReceipt() {
   const staticExpenseId = expenseId.value
   if (isNil(staticExpenseId)) return
 
-  const staticReceiptId = expense.value?.receipt?.id
-  if (isNil(staticReceiptId)) return
-
   isLoading.value = true
   try {
-    await expenses.receiptApi.delete(staticExpenseId, staticReceiptId)
+    await expenses.receiptApi.delete(staticExpenseId)
 
     await nextTick()
     hide()

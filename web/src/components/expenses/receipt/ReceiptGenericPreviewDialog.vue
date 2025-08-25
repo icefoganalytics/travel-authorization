@@ -151,12 +151,9 @@ async function deleteReceipt() {
   const staticExpenseId = expenseId.value
   if (isNil(staticExpenseId)) return
 
-  const staticReceiptId = receipt.value?.id
-  if (isNil(staticReceiptId)) return
-
   isLoading.value = true
   try {
-    await expenses.receiptApi.delete(staticExpenseId, staticReceiptId)
+    await expenses.receiptApi.delete(staticExpenseId)
 
     await nextTick()
     hide()
