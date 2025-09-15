@@ -45,40 +45,55 @@
       <v-card-actions>
         <DownloadFileForm
           :download-url="downloadUrl"
+          :loading="isLoading"
           color="secondary"
           text="Download Receipt"
           @downloaded="hide"
         />
         <v-btn
           class="ml-2"
+          :loading="isLoading"
           color="warning"
           @click="hide"
           >Close</v-btn
         >
         <v-spacer />
+        <v-btn
+          :loading="isLoading"
+          color="error"
+          @click="deleteReceipt"
+        >
+          <v-icon>mdi-delete</v-icon>
+          Delete
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
+import { ref, computed, nextTick, watch } from "vue"
 import { isNil } from "lodash"
 
 import { formatBytes } from "@/utils/formatters"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
-import { receiptApi } from "@/api/downloads/expenses"
+import { downloads, expenses } from "@/api"
 import useExpense from "@/use/use-expense"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
+
+// TODO: switch to `deleted: [void]` syntax in vue 3
+const emit = defineEmits<{
+  (event: "deleted"): void
+}>()
 
 const showDialog = ref(false)
 
 const expenseId = useRouteQuery("previewReceiptGeneric", undefined, {
   transform: integerTransformer,
 })
-const { expense } = useExpense(expenseId)
+const { expense, isLoading } = useExpense(expenseId)
 
 const receipt = computed(() => expense.value?.receipt ?? null)
 
@@ -114,7 +129,7 @@ const iconName = computed(() => {
 const downloadUrl = computed(() => {
   if (isNil(expenseId.value)) return ""
 
-  return receiptApi.downloadPath(expenseId.value)
+  return downloads.expenses.receiptApi.downloadPath(expenseId.value)
 })
 
 watch(
@@ -131,6 +146,22 @@ watch(
     immediate: true,
   }
 )
+
+async function deleteReceipt() {
+  const staticExpenseId = expenseId.value
+  if (isNil(staticExpenseId)) return
+
+  isLoading.value = true
+  try {
+    await expenses.receiptApi.delete(staticExpenseId)
+
+    await nextTick()
+    hide()
+    emit("deleted")
+  } finally {
+    isLoading.value = false
+  }
+}
 
 function show(newExpenseId: number) {
   expenseId.value = newExpenseId

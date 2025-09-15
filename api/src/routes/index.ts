@@ -120,6 +120,7 @@ router
 router
   .route("/api/expenses/:expenseId/receipt")
   .post(Expenses.ReceiptController.create)
+  .delete(Expenses.ReceiptController.destroy)
 
 router.route("/api/flight-reconciliations").get(FlightReconciliationsController.index)
 router.route("/api/flight-reconciliations/sync").post(FlightReconciliations.SyncController.create)

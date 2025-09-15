@@ -19,9 +19,18 @@
         ref="deleteDialogRef"
         @deleted="emitChangedAndRefresh"
       />
-      <ReceiptGenericPreviewDialog ref="receiptGenericPreviewDialogRef" />
-      <ReceiptImagePreviewDialog ref="receiptImagePreviewDialogRef" />
-      <ReceiptPdfPreviewDialog ref="receiptPdfPreviewDialogRef" />
+      <ReceiptGenericPreviewDialog
+        ref="receiptGenericPreviewDialogRef"
+        @deleted="emitChangedAndRefresh"
+      />
+      <ReceiptImagePreviewDialog
+        ref="receiptImagePreviewDialogRef"
+        @deleted="emitChangedAndRefresh"
+      />
+      <ReceiptPdfPreviewDialog
+        ref="receiptPdfPreviewDialogRef"
+        @deleted="emitChangedAndRefresh"
+      />
     </template>
     <template #item.date="{ value }">
       {{ formatDate(value) }}

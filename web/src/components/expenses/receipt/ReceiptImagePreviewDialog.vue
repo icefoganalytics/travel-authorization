@@ -8,7 +8,16 @@
   >
     <v-card>
       <v-card-title>
-        <h2 class="text-h5">Preview Receipt</h2>
+        <h2 class="text-h5 mb-0">Preview Receipt</h2>
+        <v-spacer />
+        <v-btn
+          class="my-0"
+          color="secondary"
+          @click="showFullscreenImage"
+        >
+          Fullscreen
+          <v-icon>mdi-fullscreen</v-icon>
+        </v-btn>
       </v-card-title>
 
       <v-skeleton-loader
@@ -26,12 +35,14 @@
       <v-card-actions class="d-flex flex-column flex-md-row">
         <DownloadFileForm
           :download-url="downloadUrl"
+          :loading="isLoading"
           color="secondary"
           text="Download Receipt"
           @downloaded="hide"
         />
         <v-btn
           class="ml-2"
+          :loading="isLoading"
           color="warning"
           @click="hide"
         >
@@ -39,12 +50,12 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          class="ml-2"
-          color="secondary"
-          @click="showFullscreenImage"
+          :loading="isLoading"
+          color="error"
+          @click="deleteReceipt"
         >
-          Fullscreen
-          <v-icon>mdi-fullscreen</v-icon>
+          <v-icon>mdi-delete</v-icon>
+          Delete
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -52,14 +63,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
+import { computed, nextTick, ref, watch } from "vue"
 import { isNil } from "lodash"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
-import { receiptApi } from "@/api/downloads/expenses"
+import { downloads, expenses } from "@/api"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import ImageViewer from "@/components/common/ImageViewer.vue"
+
+// TODO: switch to `deleted: [void]` syntax in vue 3
+const emit = defineEmits<{
+  (event: "deleted"): void
+}>()
 
 const showDialog = ref(false)
 
@@ -69,7 +85,7 @@ const expenseId = useRouteQuery("previewReceiptImage", undefined, {
 const downloadUrl = computed(() => {
   if (isNil(expenseId.value)) return ""
 
-  return receiptApi.downloadPath(expenseId.value)
+  return downloads.expenses.receiptApi.downloadPath(expenseId.value)
 })
 
 const receiptImageObjectUrl = ref<string | null>(null)
@@ -96,7 +112,7 @@ watch(
 )
 
 async function loadReceiptImageObjectUrl(expenseId: number) {
-  const receiptImage = await receiptApi.get(expenseId)
+  const receiptImage = await downloads.expenses.receiptApi.get(expenseId)
   receiptImageObjectUrl.value = URL.createObjectURL(receiptImage)
 }
 
@@ -105,6 +121,24 @@ function revokeImageObjectUrl() {
 
   URL.revokeObjectURL(receiptImageObjectUrl.value)
   receiptImageObjectUrl.value = null
+}
+
+const isLoading = ref(false)
+
+async function deleteReceipt() {
+  const staticExpenseId = expenseId.value
+  if (isNil(staticExpenseId)) return
+
+  isLoading.value = true
+  try {
+    await expenses.receiptApi.delete(staticExpenseId)
+
+    await nextTick()
+    hide()
+    emit("deleted")
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const isFullscreen = ref(false)

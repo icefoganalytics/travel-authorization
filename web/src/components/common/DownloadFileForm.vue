@@ -15,6 +15,7 @@
       :block="smAndDown"
       :color="color"
       :prepend-icon="prependIcon"
+      :loading="loading"
       type="submit"
     >
       <template #default>
@@ -40,11 +41,13 @@ withDefaults(
     downloadUrl: string
     prependIcon?: string
     color?: string
+    loading?: boolean
   }>(),
   {
     text: "Download File",
     prependIcon: "mdi-download",
     color: "primary",
+    loading: false,
   }
 )
 
