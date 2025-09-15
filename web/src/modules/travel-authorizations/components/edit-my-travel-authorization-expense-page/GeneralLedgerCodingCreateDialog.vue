@@ -3,7 +3,8 @@
     v-model="showDialog"
     max-width="500px"
     persistent
-    @keydown.esc="close"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
   >
     <template #activator="{ on, attrs }">
       <v-btn
@@ -16,6 +17,7 @@
         Add Coding
       </v-btn>
     </template>
+
     <v-form
       ref="form"
       @submit.prevent="createAndClose"
@@ -75,7 +77,7 @@
           <v-btn
             :loading="isLoading"
             color="error"
-            @click="close"
+            @click="hide"
           >
             Cancel
           </v-btn>
@@ -92,72 +94,98 @@
   </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, nextTick } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
 
-import useSnack from "@/use/use-snack"
+import { type VForm } from "vuetify/lib/components"
+
 import { required, isGeneralLedgerCode } from "@/utils/validators"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
+import useSnack from "@/use/use-snack"
 
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
+
+// TODO: switch to `created: [void]` syntax in vue 3
+const emit = defineEmits<{
+  (event: "created"): void
+}>()
+
+const showDialog = useRouteQuery("showCreateGLCoding", "false", {
+  transform: booleanTransformer,
 })
 
-const emit = defineEmits(["created"])
+const generalLedgerCoding = ref({
+  travelAuthorizationId: props.travelAuthorizationId,
+  code: "",
+  amount: 0.0,
+})
 
-const route = useRoute()
-const router = useRouter()
+const form = ref<InstanceType<typeof VForm> | null>(null)
 const snack = useSnack()
-
-const form = ref(null)
-const generalLedgerCoding = ref(build())
-const showDialog = ref(route.query.showCreateGLCoding === "true")
 const isLoading = ref(false)
 
-watch(showDialog, (value) => {
-  if (value) {
-    router.push({ query: { showCreateGLCoding: value } })
-  } else {
-    router.push({ query: { showCreateGLCoding: undefined } })
-  }
-})
+async function createAndClose() {
+  if (!form.value?.validate()) return
 
-function build() {
-  return {
+  isLoading.value = true
+  try {
+    await generalLedgerCodingsApi.create(generalLedgerCoding.value)
+    hide()
+
+    await nextTick()
+    emit("created")
+  } catch (error) {
+    console.error(`Failed to create general ledger coding: ${error}`, { error })
+    snack.error(`Failed to create general ledger coding: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+watch(
+  () => showDialog.value,
+  () => {
+    reset()
+  }
+)
+
+watch(
+  () => props.travelAuthorizationId,
+  () => {
+    reset()
+  }
+)
+
+function reset() {
+  form.value?.resetValidation()
+  generalLedgerCoding.value = {
     travelAuthorizationId: props.travelAuthorizationId,
     code: "",
     amount: 0.0,
   }
 }
 
-function close() {
+function show() {
+  showDialog.value = true
+}
+
+function hide() {
   showDialog.value = false
-  generalLedgerCoding.value = build()
-  form.value.resetValidation()
 }
 
-async function createAndClose() {
-  if (!form.value.validate()) return
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
 
-  isLoading.value = true
-  try {
-    await generalLedgerCodingsApi.create(generalLedgerCoding.value)
-    close()
-    nextTick(() => {
-      emit("created")
-    })
-  } catch (error) {
-    console.error(error)
-    snack(error.message, { color: "error" })
-  } finally {
-    isLoading.value = false
-  }
+  hide()
 }
+
+defineExpose({
+  show,
+})
 </script>
