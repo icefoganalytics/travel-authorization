@@ -12,7 +12,30 @@ import router from "@/routes"
 
 const app = express()
 
+app.set("query parser", enhancedQsDecoder)
+// for parsing application/json
+app.use(express.json())
+// for parsing application/x-www-form-urlencoded
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+)
+// Adds FormData support
+app.use(
+  fileUpload({
+    tempFileDir: "/tmp",
+    useTempFiles: true,
+    safeFileNames: true,
+    // 2 GB, capped by estimated memory size, because current uploads must, at some point, be loaded into memory.
+    // See https://github.com/icefoganalytics/internal-data-portal/issues/95
+    // for how to handle larger files.
+    limits: { fileSize: 2 * 1024 * 1024 * 1024 },
+  })
+)
+app.use(betterFormDataBodyParserMiddleware)
 app.use(requestLoggerMiddleware)
+
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
@@ -21,7 +44,8 @@ app.use(
       "block-all-mixed-content": [],
       "font-src": ["'self'", "https:", "data:"],
       "frame-ancestors": ["'self'"],
-      "img-src": ["'self'", "data:", "https:"],
+      "frame-src": ["'self'", "blob:"],
+      "img-src": ["'self'", "data:", "blob:", "https:"],
       "object-src": ["'none'"],
       "script-src": ["'self'", "https://js.arcgis.com", "'unsafe-eval'"], // added https to accomodate esri components?
       "script-src-attr": ["'none'"],
@@ -39,26 +63,6 @@ app.use(
     exposedHeaders: "Content-Disposition",
   })
 )
-
-app.set("query parser", enhancedQsDecoder)
-// for parsing application/json
-app.use(express.json())
-// for parsing application/x-www-form-urlencoded
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-)
-// Adds FormData support
-app.use(
-  fileUpload({
-    // 2 GB, capped by estimated memory size, because current uploads run entirely in memory.
-    // See https://github.com/icefoganalytics/internal-data-portal/issues/95
-    // for how to handle larger files.
-    limits: { fileSize: 2 * 1024 * 1024 * 1024 },
-  })
-)
-app.use(betterFormDataBodyParserMiddleware)
 
 if (NODE_ENV !== "test") {
   logger.info(`host: ${DB_HOST}`)

@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction, ErrorRequestHandler } from "express"
-import { DatabaseError } from "sequelize"
+import { DatabaseError } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 import { GIT_COMMIT_HASH, RELEASE_TAG } from "@/config"
@@ -106,6 +106,10 @@ router
     "/api/downloads/travel-authorization-pre-approval-documents/:travelAuthorizationPreApprovalDocumentId"
   )
   .post(Downloads.TravelAuthorizationPreApprovalDocumentsController.create)
+router
+  .route("/api/downloads/expenses/:expenseId/receipt")
+  .get(Downloads.Expenses.ReceiptController.show)
+  .post(Downloads.Expenses.ReceiptController.create)
 
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router
@@ -114,9 +118,9 @@ router
   .patch(ExpensesController.update)
   .delete(ExpensesController.destroy)
 router
-  .route("/api/expenses/:expenseId/upload")
-  .get(Expenses.UploadController.show)
-  .post(Expenses.UploadController.create)
+  .route("/api/expenses/:expenseId/receipt")
+  .post(Expenses.ReceiptController.create)
+  .delete(Expenses.ReceiptController.destroy)
 
 router.route("/api/flight-reconciliations").get(FlightReconciliationsController.index)
 router.route("/api/flight-reconciliations/sync").post(FlightReconciliations.SyncController.create)
@@ -381,9 +385,6 @@ router
 
 // QA testing scenarios
 router.route("/api/qa/scenarios").get(Qa.ScenariosController.index)
-router
-  .route(`/api/qa/scenarios/${Qa.ScenarioTypes.MY_TRAVEL_REQUESTS}`)
-  .post(Qa.Scenarios.MyTravelRequestsController.create)
 router
   .route(`/api/qa/scenarios/${Qa.ScenarioTypes.BECOME_ADMIN_ROLE}`)
   .post(Qa.Scenarios.BecomeAdminRoleController.create)

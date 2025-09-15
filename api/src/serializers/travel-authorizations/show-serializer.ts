@@ -9,7 +9,7 @@ import UsersSerializer, { UserDetailedView } from "@/serializers/users-serialize
 import StateFlagsSerializer, {
   type TravelAuthorizationStateFlagsView,
 } from "@/serializers/travel-authorizations/state-flags-serializer"
-import { type ExpenseShowView } from "@/serializers/expenses/show-serializer"
+import { type ExpenseReferenceView } from "@/serializers/expenses/reference-serializer"
 import { type TravelDeskTravelRequestShowView } from "@/serializers/travel-desk-travel-requests/show-serializer"
 import { type TravelPurposeShowView } from "@/serializers/travel-purposes/show-serializer"
 import { type TravelSegmentShowView } from "@/serializers/travel-segments/show-serializer"
@@ -52,7 +52,7 @@ export type TravelAuthorizationShowView = Pick<
   | "createdAt"
   | "updatedAt"
 > & {
-  expenses: ExpenseShowView[] // TODO: return undefined once expenses use standard serializer
+  expenses: ExpenseReferenceView[] // TODO: return undefined once expenses use standard serializer
   purpose?: TravelPurposeShowView
   stops: StopDetailedView[] // TODO: return undefined once stops use standard serializer
   travelDeskTravelRequest?: TravelDeskTravelRequestShowView
@@ -72,7 +72,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record, this.currentUser)
 
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "slug",
         "userId",
@@ -129,12 +129,12 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     return this.record.user
   }
 
-  private serializeExpensesAttributes(): ExpenseShowView[] {
+  private serializeExpensesAttributes(): ExpenseReferenceView[] {
     if (isNil(this.record.expenses)) {
       return []
     }
 
-    return Expenses.ShowSerializer.perform(this.record.expenses, this.currentUser)
+    return Expenses.ReferenceSerializer.perform(this.record.expenses, this.currentUser)
   }
 
   private serializeTravelPurposeAttributes(): TravelPurposeShowView | undefined {

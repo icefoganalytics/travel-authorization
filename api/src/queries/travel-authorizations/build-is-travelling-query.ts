@@ -1,8 +1,7 @@
-import { literal } from "sequelize"
-import { type Literal } from "sequelize/lib/utils"
+import { sql, type Literal } from "@sequelize/core"
 
 export function buildIsTravellingQuery(): Literal {
-  const isTravellingQuery = /* sql */ `
+  const isTravellingQuery = sql`
     (
       SELECT
         travel_authorization_id
@@ -36,7 +35,7 @@ export function buildIsTravellingQuery(): Literal {
         :currentDate BETWEEN travel_periods.departing_at AND travel_periods.returning_at
     )
   `
-  return literal(isTravellingQuery)
+  return isTravellingQuery
 }
 
 export default buildIsTravellingQuery

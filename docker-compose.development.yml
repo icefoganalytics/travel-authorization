@@ -17,6 +17,7 @@ x-default-environment: &default-environment
   TRAVCOM_DB_PASS: &default-trav-com-db-password "DevPwd99!"
   TRAVCOM_DB_NAME: trav_com_development
   TRAVCOM_DB_PORT: 1433
+  TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
   RELEASE_TAG: "${RELEASE_TAG:-development}"
   GIT_COMMIT_HASH: "${GIT_COMMIT_HASH:-not-set}"
 

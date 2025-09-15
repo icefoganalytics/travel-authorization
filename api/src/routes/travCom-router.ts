@@ -7,7 +7,7 @@ import { airports } from "@/json/airportCodes"
 import { TRAVCOM_DB_CONFIG } from "@/config"
 import { Location } from "@/models"
 
-import dbLegacy from "@/db/db-client-legacy"
+import dbLegacy from "@/db/db-migration-client"
 
 const db = knex(TRAVCOM_DB_CONFIG)
 

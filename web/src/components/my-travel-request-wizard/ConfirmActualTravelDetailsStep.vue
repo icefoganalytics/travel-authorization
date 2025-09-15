@@ -20,6 +20,8 @@ import { ref } from "vue"
 import useSnack from "@/use/use-snack"
 import { capitalize } from "@/utils/formatters"
 
+import { TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES } from "@/api/travel-authorizations-api"
+
 import TripDetailsActualsEditForm from "@/components/travel-authorizations/TripDetailsActualsEditForm.vue"
 
 const props = defineProps({
@@ -40,7 +42,7 @@ const props = defineProps({
 const emit = defineEmits(["updated"])
 
 async function initialize(context) {
-  context.setEditableSteps([])
+  context.setEditableSteps([TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.SUBMIT_EXPENSES])
 }
 
 const isLoading = ref(false)

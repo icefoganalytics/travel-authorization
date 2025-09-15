@@ -1,5 +1,4 @@
-import { literal } from "sequelize"
-import { Literal } from "sequelize/lib/utils"
+import { sql, type Literal } from "@sequelize/core"
 import { isNil } from "lodash"
 
 import { TravelDeskQuestion, TravelDeskTravelRequest } from "@/models"
@@ -18,7 +17,7 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         this.currentUser
       )
 
-      const nullResponsesFirstOrder: [Literal, string] = [literal("response IS NULL"), "DESC"]
+      const nullResponsesFirstOrder: [Literal, string] = [sql`response IS NULL`, "DESC"]
 
       const totalCount = await scopedTravelDeskQuestions.count({ where })
       const travelDeskQuestions = await scopedTravelDeskQuestions.findAll({

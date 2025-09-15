@@ -240,7 +240,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.scope("isTravelling").findAll()
+          const result = await TravelAuthorization.withScope("isTravelling").findAll()
 
           expect(result).toEqual([
             expect.objectContaining({
@@ -267,7 +267,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.scope("isTravelling").findAll()
+          const result = await TravelAuthorization.withScope("isTravelling").findAll()
 
           expect(result).toEqual([
             expect.objectContaining({
@@ -294,7 +294,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.scope("isTravelling").findAll()
+          const result = await TravelAuthorization.withScope("isTravelling").findAll()
 
           expect(result).toEqual([])
         })
@@ -365,7 +365,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.scope("isUpcomingTravel").findAll()
+          const result = await TravelAuthorization.withScope("isUpcomingTravel").findAll()
 
           expect(result).toEqual([
             expect.objectContaining({
@@ -392,7 +392,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.scope("isUpcomingTravel").findAll()
+          const result = await TravelAuthorization.withScope("isUpcomingTravel").findAll()
 
           expect(result).toEqual([
             expect.objectContaining({
@@ -419,7 +419,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.scope("isUpcomingTravel").findAll()
+          const result = await TravelAuthorization.withScope("isUpcomingTravel").findAll()
 
           expect(result).toEqual([])
         })
@@ -490,7 +490,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.scope("isBeforeTripEnd").findAll()
+          const result = await TravelAuthorization.withScope("isBeforeTripEnd").findAll()
 
           expect(result).toEqual([
             expect.objectContaining({

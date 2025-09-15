@@ -82,10 +82,10 @@
 </template>
 
 <script>
-import catalogs from "../../../../controllers/catalogs"
-import Breadcrumbs from "../../../Breadcrumbs"
-import EditDialog from "./EditDialog"
-import AddDialog from "./AddDialog"
+import catalogs from "@/controllers/catalogs"
+import Breadcrumbs from "@/components/Breadcrumbs.vue"
+import EditDialog from "@/components/Administration/LookupTableManagement/PlaceType/EditDialog.vue"
+import AddDialog from "@/components/Administration/LookupTableManagement/PlaceType/AddDialog.vue"
 import _ from "lodash"
 export default {
   name: "placetypegrid",

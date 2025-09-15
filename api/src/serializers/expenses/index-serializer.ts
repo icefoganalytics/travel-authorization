@@ -1,20 +1,16 @@
-import { pick } from "lodash"
+import { isNil, isUndefined, pick } from "lodash"
 
-import { Expense, User } from "@/models"
+import { Attachment, Expense, User } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
+import AttachmentsReferenceSerializer, {
+  type AttachmentReferenceView,
+} from "@/serializers/attachments/reference-serializer"
 
 export type ExpenseIndexView = Pick<
   Expense,
-  | "id"
-  | "expenseType"
-  | "description"
-  | "date"
-  | "cost"
-  | "fileSize"
-  | "fileName"
-  | "createdAt"
-  | "updatedAt"
+  "id" | "expenseType" | "description" | "date" | "cost" | "createdAt" | "updatedAt"
 > & {
+  receipt: AttachmentReferenceView | null
   actions: ["delete"] | ["edit", "delete"]
 }
 
@@ -27,20 +23,32 @@ export class IndexSerializer extends BaseSerializer<Expense> {
   }
 
   perform(): ExpenseIndexView {
+    const { receipt } = this.record
+    if (isUndefined(receipt)) {
+      throw new Error("Expected receipt association to be pre-loaded")
+    }
+
+    const serializedReceipt = this.serializeReceipt(receipt)
+
     return {
-      ...pick(this.record.dataValues, [
+      ...pick(this.record, [
         "id",
         "expenseType",
         "description",
         "date",
         "cost",
-        "fileSize",
-        "fileName",
         "createdAt",
         "updatedAt",
       ]),
+      receipt: serializedReceipt,
       actions: this.actions(),
     }
+  }
+
+  private serializeReceipt(receipt: Attachment | null) {
+    if (isNil(receipt)) return null
+
+    return AttachmentsReferenceSerializer.perform(receipt, this.currentUser)
   }
 
   // TODO: investigate whether these should depend on a policy check

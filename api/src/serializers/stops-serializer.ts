@@ -1,8 +1,8 @@
-import { isNil } from "lodash"
+import { isNil, pick } from "lodash"
 
 import { Stop } from "@/models"
 
-import BaseSerializer from "./base-serializer"
+import BaseSerializer from "@/serializers/base-serializer"
 
 export type StopDetailedView = Partial<Stop>
 
@@ -14,7 +14,17 @@ export class StopsSerializer extends BaseSerializer<Stop> {
 
   asDetailed(): StopDetailedView {
     return {
-      ...this.record.dataValues,
+      ...pick(this.record, [
+        "id",
+        "travelAuthorizationId",
+        "locationId",
+        "departureDate",
+        "transport",
+        "accommodationType",
+        "isActual",
+        "createdAt",
+        "updatedAt",
+      ]),
       departureTime: this.formatTimeToHHmm(),
     }
   }

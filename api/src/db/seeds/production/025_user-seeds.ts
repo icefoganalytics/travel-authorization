@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 import { isNil } from "lodash"
 import { Knex } from "knex"
 
@@ -7,10 +7,10 @@ import { User } from "@/models"
 export async function seed(_knex: Knex): Promise<void> {
   const usersAttributes: CreationAttributes<User>[] = [
     {
-      email: "system.user@travel-auth.com",
-      sub: "NO_LOGIN_system.user@travel-auth.com",
       firstName: "System",
       lastName: "User",
+      email: "system.user@yukon.com",
+      sub: "NO_LOGIN_system.user@yukon.com",
       department: "System Users",
       roles: [User.Roles.ADMIN],
       status: User.Statuses.ACTIVE,

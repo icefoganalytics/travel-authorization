@@ -1,5 +1,5 @@
 import { TravelDeskTravelRequest } from "@/models"
-import { ValidationError } from "sequelize"
+import { ValidationError } from "@sequelize/core"
 
 describe("api/src/models/travel-desk-travel-request.ts", () => {
   describe("TravelDeskTravelRequest", () => {

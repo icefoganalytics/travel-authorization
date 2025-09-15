@@ -1,15 +1,21 @@
 import {
-  Association,
-  CreationOptional,
   DataTypes,
-  ForeignKey,
-  InferAttributes,
-  InferCreationAttributes,
   Model,
-  NonAttribute,
-} from "sequelize"
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+  type NonAttribute,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  NotNull,
+  PrimaryKey,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 
-import sequelize from "@/db/db-client"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
 /** Keep in sync with web/src/api/travel-desk-questions-api.js */
@@ -26,83 +32,61 @@ export class TravelDeskQuestion extends Model<
 > {
   static readonly RequestTypes = TravelDeskQuestionRequestTypes
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare travelRequestId: ForeignKey<TravelDeskTravelRequest["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelRequestId: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskQuestionRequestTypes)],
+      msg: `Request type must be one of ${Object.values(TravelDeskQuestionRequestTypes).join(", ")}`,
+    },
+  })
   declare requestType: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare question: string
+
+  @Attribute(DataTypes.STRING(255))
   declare response: string | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
   declare deletedAt: CreationOptional<Date | null>
 
   // Associations
-  declare travelRequest?: NonAttribute<TravelDeskTravelRequest>
-
-  declare static associations: {
-    travelRequest: Association<TravelDeskQuestion, TravelDeskTravelRequest>
-  }
-
-  static establishAssociations() {
-    this.belongsTo(TravelDeskTravelRequest, {
-      foreignKey: "travelRequestId",
-      as: "travelRequest",
-    })
-  }
-}
-
-TravelDeskQuestion.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false,
-    },
-    travelRequestId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelDeskTravelRequest,
-        key: "id",
-      },
+  @BelongsTo(() => TravelDeskTravelRequest, {
+    foreignKey: {
+      name: "travelRequestId",
       onDelete: "CASCADE",
     },
-    requestType: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelDeskQuestionRequestTypes)],
-          msg: `Request type must be one of ${Object.values(TravelDeskQuestionRequestTypes).join(", ")}`,
-        },
-      },
+    inverse: {
+      as: "questions",
+      type: "hasMany",
     },
-    question: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    response: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
+  })
+  declare travelRequest?: NonAttribute<TravelDeskTravelRequest>
+
+  static establishScopes() {
+    // add as needed
   }
-)
+}
 
 export default TravelDeskQuestion

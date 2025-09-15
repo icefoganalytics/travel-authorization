@@ -35,6 +35,7 @@ export const DB_HOST = process.env.DB_HOST || ""
 export const DB_PORT = parseInt(process.env.DB_PORT || "1433")
 
 export const AZURE_KEY = process.env.AZURE_KEY || ""
+export const YUKON_GOVERNMENT_FINANCE_API_KEY = process.env.YUKON_GOVERNMENT_FINANCE_API_KEY || ""
 
 export const DB_CONFIG = {
   client: "postgres",
@@ -65,6 +66,8 @@ export const TRAVCOM_DB_USER = process.env.TRAVCOM_DB_USER || ""
 export const TRAVCOM_DB_PASS = process.env.TRAVCOM_DB_PASS || ""
 export const TRAVCOM_DB_HOST = process.env.TRAVCOM_DB_HOST || ""
 export const TRAVCOM_DB_PORT = parseInt(process.env.TRAVCOM_DB_PORT || "1433")
+export const TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED =
+  process.env.TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED === "true"
 
 export const TRAVCOM_DB_CONFIG = {
   client: "mssql",

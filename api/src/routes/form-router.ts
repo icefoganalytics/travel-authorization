@@ -1,5 +1,5 @@
 import { isNull, minBy } from "lodash"
-import { Op } from "sequelize"
+import { Op } from "@sequelize/core"
 import express, { Request, Response } from "express"
 
 import { ReturnValidationErrors } from "@/middleware"
@@ -9,7 +9,7 @@ import logger from "@/utils/logger"
 import { FormService, AuditService } from "@/services"
 import { Expense, TravelAuthorization } from "@/models"
 
-import dbLegacy from "@/db/db-client-legacy"
+import dbLegacy from "@/db/db-migration-client"
 import db from "@/db/db-client"
 
 export const formRouter = express.Router()
@@ -517,14 +517,14 @@ formRouter.get(
           travelAuthorizationId: travelAuthorization.id,
           type: Expense.Types.ESTIMATE,
         },
-      }).then((result) => result.toFixed(2))
+      }).then((result) => result?.toFixed(2) || "0")
 
       const expensesFloat = await Expense.sum("cost", {
         where: {
           travelAuthorizationId: travelAuthorization.id,
           type: Expense.Types.EXPENSE,
         },
-      }).then((result) => result.toFixed(2))
+      }).then((result) => result?.toFixed(2) || "0")
 
       const result = {
         estimates: estimatesFloat,

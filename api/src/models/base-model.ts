@@ -6,8 +6,9 @@ import {
   Model,
   ModelStatic,
   ScopeOptions,
-  WhereAttributeHash,
-} from "sequelize"
+  WhereOptions,
+} from "@sequelize/core"
+import { AllowReadonlyArray, Nullish } from "@sequelize/utils"
 
 import { type AttributeNames } from "@/utils/utility-types"
 import searchFieldsByTermsFactory from "@/utils/search-fields-by-terms-factory"
@@ -21,11 +22,11 @@ export abstract class BaseModel<
   // eslint-disable-next-line @typescript-eslint/ban-types
   TCreationAttributes extends {} = TModelAttributes,
 > extends Model<TModelAttributes, TCreationAttributes> {
-  public static scope<M extends BaseModel>(
+  public static withScope<M extends BaseModel>(
     this: ModelStatic<M>,
-    options?: string | ScopeOptions | readonly (string | ScopeOptions)[] | WhereAttributeHash<M>
+    scopes?: AllowReadonlyArray<string | ScopeOptions> | WhereOptions<Attributes<M>> | Nullish
   ): BaseModelStatic<M> {
-    return super.scope(options) as BaseModelStatic<M>
+    return super.withScope(scopes) as BaseModelStatic<M>
   }
 
   static addSearchScope<M extends BaseModel>(this: ModelStatic<M>, fields: AttributeNames<M>[]) {
@@ -33,7 +34,7 @@ export abstract class BaseModel<
     this.addScope("search", searchScopeFunction)
   }
 
-  // static findByPk<M extends Model, R = Attributes<M>>
+  // static findByPk<M extends Model, R = Attributes<M>>(
   //   this: ModelStatic<M>,
   //   identifier: unknown,
   //   options: FindByPkOptions<M> & { raw: true; rejectOnEmpty?: false },

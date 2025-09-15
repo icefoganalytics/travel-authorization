@@ -13,8 +13,8 @@
       {{ formatCurrency(value) }}
     </template>
     <template #item.actions="{ item }">
-      <ViewRecieptLink
-        v-if="item.fileSize"
+      <DownloadReceiptButton
+        v-if="!isNil(item.receipt)"
         :expense-id="item.id"
       />
       <span
@@ -43,13 +43,13 @@
 </template>
 
 <script setup>
-import { sumBy } from "lodash"
+import { isNil, sumBy } from "lodash"
 import { DateTime } from "luxon"
 import { computed, ref } from "vue"
 
 import useExpenses, { TYPES, EXPENSE_TYPES } from "@/use/use-expenses"
 
-import ViewRecieptLink from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ViewRecieptLink.vue"
+import DownloadReceiptButton from "@/components/expenses/DownloadReceiptButton.vue"
 
 const props = defineProps({
   travelAuthorizationId: {

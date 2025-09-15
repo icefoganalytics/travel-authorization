@@ -1,4 +1,4 @@
-import { reactive, toRefs, unref, watch } from "vue"
+import { reactive, toRefs, unref, ref, watch } from "vue"
 
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 
@@ -35,7 +35,9 @@ export function useGeneralLedgerCodings(options = ref({}), { skipWatchIf = () =>
   async function fetch() {
     state.isLoading = true
     try {
-      const { generalLedgerCodings, totalCount } = await generalLedgerCodingsApi.list(unref(options))
+      const { generalLedgerCodings, totalCount } = await generalLedgerCodingsApi.list(
+        unref(options)
+      )
       state.generalLedgerCodings = generalLedgerCodings
       state.totalCount = totalCount
       state.isErrored = false

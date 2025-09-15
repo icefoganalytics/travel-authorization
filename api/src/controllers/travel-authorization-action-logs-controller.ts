@@ -1,4 +1,4 @@
-import { WhereOptions } from "sequelize"
+import { WhereOptions } from "@sequelize/core"
 
 import { TravelAuthorizationActionLog } from "@/models"
 import { TravelAuthorizationActionLogsSerializer } from "@/serializers"

@@ -1,10 +1,9 @@
-import { Attributes } from "sequelize"
+import { Attributes } from "@sequelize/core"
 import { isNil } from "lodash"
 
-import { transaction } from "@/utils/transaction"
 import { type WithRequired } from "@/utils/utility-types"
 
-import { TravelSegment } from "@/models"
+import db, { TravelSegment } from "@/models"
 import BaseService from "@/services/base-service"
 
 export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
@@ -45,7 +44,7 @@ export class BulkReplaceService extends BaseService {
       )
     }
 
-    return transaction(async () => {
+    return db.transaction(async () => {
       await TravelSegment.destroy({
         where: {
           travelAuthorizationId: this.travelAuthorizationId,
@@ -62,9 +61,13 @@ export class BulkReplaceService extends BaseService {
     travelSegmentsAttributes: TravelSegmentAttributes[]
   ): asserts travelSegmentsAttributes is WithRequired<
     TravelSegmentAttributes,
-    "segmentNumber" | "modeOfTransport"
+    "travelAuthorizationId" | "segmentNumber" | "modeOfTransport"
   >[] {
-    for (const { segmentNumber, modeOfTransport } of travelSegmentsAttributes) {
+    for (const { travelAuthorizationId, segmentNumber, modeOfTransport } of travelSegmentsAttributes) {
+      if (isNil(travelAuthorizationId)) {
+        throw new Error("Travel authorization ID is required.")
+      }
+
       if (isNil(segmentNumber)) {
         throw new Error("Segment number is required.")
       }

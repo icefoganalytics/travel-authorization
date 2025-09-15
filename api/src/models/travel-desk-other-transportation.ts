@@ -1,18 +1,20 @@
 import {
-  Model,
+  DataTypes,
   InferAttributes,
   InferCreationAttributes,
-  CreationOptional,
-  ForeignKey,
-  Association,
-  BelongsToCreateAssociationMixin,
-  BelongsToGetAssociationMixin,
-  BelongsToSetAssociationMixin,
-  NonAttribute,
-  DataTypes,
-} from "sequelize"
-
-import sequelize from "@/db/db-client"
+  Model,
+  type CreationOptional,
+  type NonAttribute,
+} from "@sequelize/core"
+import {
+  Attribute,
+  AutoIncrement,
+  BelongsTo,
+  Default,
+  NotNull,
+  PrimaryKey,
+  ValidateAttribute,
+} from "@sequelize/core/decorators-legacy"
 
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
@@ -42,123 +44,87 @@ export class TravelDeskOtherTransportation extends Model<
   static readonly Statuses = TravelDeskOtherTransportationStatuses
   static readonly TransportationTypes = TransportationTypes
 
+  @Attribute(DataTypes.INTEGER)
+  @PrimaryKey
+  @AutoIncrement
   declare id: CreationOptional<number>
-  declare travelRequestId: ForeignKey<TravelDeskTravelRequest["id"]>
+
+  @Attribute(DataTypes.INTEGER)
+  @NotNull
+  declare travelRequestId: number
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare depart: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
   declare arrive: string
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TransportationTypes)],
+      msg: `Transportation type must be one of the following: ${Object.values(
+        TransportationTypes
+      ).join(", ")}`,
+    },
+  })
   declare transportationType: string
+
+  @Attribute(DataTypes.DATEONLY)
+  @NotNull
   declare date: Date | string // DATEONLY accepts Date or string, but returns string
-  declare additionalNotes: CreationOptional<string | null>
+
+  @Attribute(DataTypes.STRING(255))
+  declare additionalNotes: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskOtherTransportationStatuses)],
+      msg: `Status must be one of the following: ${Object.values(
+        TravelDeskOtherTransportationStatuses
+      ).join(", ")}`,
+    },
+  })
   declare status: string
+
   // NOTE: reserved_transportation_info, and booking do not appear to be used in the codebase.
-  declare reservedTransportationInfo: CreationOptional<string | null>
-  declare booking: CreationOptional<string | null>
+  @Attribute(DataTypes.STRING(255))
+  declare reservedTransportationInfo: string | null
+
+  @Attribute(DataTypes.STRING(255))
+  declare booking: string | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
   declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date | null>
+
+  @Attribute(DataTypes.DATE)
+  declare deletedAt: Date | null
 
   // Associations
-  declare getTravelRequest: BelongsToGetAssociationMixin<TravelDeskTravelRequest>
-  declare setTravelRequest: BelongsToSetAssociationMixin<
-    TravelDeskTravelRequest,
-    TravelDeskTravelRequest["id"]
-  >
-  declare createTravelRequest: BelongsToCreateAssociationMixin<TravelDeskTravelRequest>
-
+  @BelongsTo(() => TravelDeskTravelRequest, {
+    foreignKey: "travelRequestId",
+    inverse: {
+      as: "otherTransportations",
+      type: "hasMany",
+    },
+  })
   declare travelRequest: NonAttribute<TravelDeskTravelRequest>
 
-  declare static associations: {
-    travelRequest: Association<TravelDeskOtherTransportation, TravelDeskTravelRequest>
-  }
-
-  static establishAssociations() {
-    this.belongsTo(TravelDeskTravelRequest, {
-      as: "travelRequest",
-      foreignKey: "travelRequestId",
-    })
+  static establishScopes() {
+    // add as needed
   }
 }
-
-TravelDeskOtherTransportation.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false,
-    },
-    travelRequestId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: TravelDeskTravelRequest,
-        key: "id",
-      },
-    },
-    depart: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    arrive: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    transportationType: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TransportationTypes)],
-          msg: `Transportation type must be one of the following: ${Object.values(
-            TransportationTypes
-          ).join(", ")}`,
-        },
-      },
-    },
-    date: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    additionalNotes: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    status: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [Object.values(TravelDeskOtherTransportationStatuses)],
-          msg: `Status must be one of the following: ${Object.values(
-            TravelDeskOtherTransportationStatuses
-          ).join(", ")}`,
-        },
-      },
-    },
-    reservedTransportationInfo: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    booking: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-  }
-)
 
 export default TravelDeskOtherTransportation

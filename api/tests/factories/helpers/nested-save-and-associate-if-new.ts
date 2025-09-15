@@ -1,4 +1,4 @@
-import { Model } from "sequelize"
+import { Model } from "@sequelize/core"
 
 /**
  * Recursively saves a Sequelize model instance along with its associated models if they are new (unsaved).

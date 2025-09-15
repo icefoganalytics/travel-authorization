@@ -230,7 +230,7 @@ import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-a
 
 import { required } from "@/utils/validators"
 
-import useVuetify2 from "@/use/utils/use-vuetify2"
+import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 import useSnack from "@/use/use-snack"
@@ -246,7 +246,7 @@ import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/componen
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
 
-const { smAndDown } = useVuetify2()
+const { smAndDown } = useDisplayVuetify2()
 
 /** @type {Partial<TravelAuthorizationPreApproval>} */
 const travelAuthorizationPreApprovalAttributes = ref({

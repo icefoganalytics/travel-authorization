@@ -38,7 +38,7 @@
 <script>
 import Vue from "vue";
 import { ExportToCsv } from 'export-to-csv';
-import PrintReport from "./Common/PrintReport.vue";
+import PrintReport from "@/modules/reports/views/Common/PrintReport.vue";
 
 export default {
 	components: {		

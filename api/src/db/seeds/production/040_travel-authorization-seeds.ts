@@ -1,4 +1,4 @@
-import { CreationAttributes } from "sequelize"
+import { CreationAttributes } from "@sequelize/core"
 import { isNil } from "lodash"
 import { Knex } from "knex"
 
@@ -24,24 +24,12 @@ export async function seed(_knex: Knex): Promise<void> {
     throw new Error("Could not find IT travel purpose.")
   }
 
-  const systemUserAttributes = {
-    firstName: "System",
-    lastName: "User",
-    email: "system.user@yukon.com",
-    sub: "UNSET",
-    roles: [User.Roles.ADMIN],
-    status: User.Statuses.ACTIVE,
-  }
-  let systemUser = await User.findOne({
+  const systemUser = await User.findOne({
     where: {
-      email: systemUserAttributes.email,
+      email: "system.user@yukon.com",
     },
+    rejectOnEmpty: true,
   })
-  if (isNil(systemUser)) {
-    systemUser = await User.create(systemUserAttributes)
-  } else {
-    await systemUser.update(systemUserAttributes)
-  }
 
   const usersAttributes = [
     {
