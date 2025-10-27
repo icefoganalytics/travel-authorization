@@ -1,5 +1,5 @@
 import Vue from "vue"
-import VueRouter from "vue-router"
+import VueRouter, { type RouteConfig } from "vue-router"
 
 import { authGuard } from "@/utils/auth-guard"
 import useRouteHistory from "@/use/use-route-history"
@@ -9,7 +9,7 @@ import reportsRouter from "@/modules/reports/router"
 
 Vue.use(VueRouter)
 
-const routes = [
+const routes: RouteConfig[] = [
   {
     path: "/",
     component: () => import("@/layouts/DefaultLayout.vue"),
@@ -424,7 +424,7 @@ const router = new VueRouter({
 const { add } = useRouteHistory()
 
 router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth === false) {
+  if (to.meta?.requiresAuth === false) {
     add(from)
     return next()
   }
