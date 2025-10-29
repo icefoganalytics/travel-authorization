@@ -1,6 +1,5 @@
 import {
   DataTypes,
-  Model,
   sql,
   type CreationOptional,
   type InferAttributes,
@@ -19,6 +18,7 @@ import {
 import { isEmpty, isNil } from "lodash"
 import moment from "moment"
 
+import BaseModel from "@/models/base-model"
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelDeskFlightOption from "@/models/travel-desk-flight-option"
 
@@ -41,7 +41,7 @@ const USER_ROLES = Object.values<string>(UserRoles)
   tableName: "users",
   paranoid: false,
 })
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+export class User extends BaseModel<InferAttributes<User>, InferCreationAttributes<User>> {
   static Roles = UserRoles
   static Statuses = Statuses
 
@@ -188,6 +188,8 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare travelDeskFlightOptions?: NonAttribute<TravelDeskFlightOption[]>
 
   static establishScopes(): void {
+    this.addSearchScope(["firstName", "lastName", "email"])
+
     this.addScope("isTravelDeskUser", () => {
       const roleInRolesQuery = sql`
         ${UserRoles.TRAVEL_DESK_USER} = ANY (string_to_array(roles, ','))

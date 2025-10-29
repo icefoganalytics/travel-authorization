@@ -76,6 +76,7 @@ export type UserWhereOptions = WhereOptions<
 
 /** add as needed, must match model scopes */
 export type UserFiltersOptions = FiltersOptions<{
+  search: string | string[]
   isTravelDeskUser: boolean
 }>
 
