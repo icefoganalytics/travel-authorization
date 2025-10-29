@@ -30,6 +30,7 @@ export enum Statuses {
 export enum UserRoles {
   ADMIN = "admin",
   DEPARTMENT_ADMIN = "department_admin",
+  FINANCE_USER = "finance_user",
   PRE_APPROVED_TRAVEL_ADMIN = "pre_approved_travel_admin",
   TRAVEL_DESK_USER = "travel_desk_user",
   USER = "user",
