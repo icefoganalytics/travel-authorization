@@ -1,27 +1,42 @@
 import { isNil } from "lodash"
 
-import BaseController from "../base-controller"
+import logger from "@/utils/logger"
+
 import { User } from "@/models"
+import { UsersPolicy } from "@/policies"
 import { YkGovernmentDirectorySyncService } from "@/services"
 import { UsersSerializer } from "@/serializers"
-import { UsersPolicy } from "@/policies"
+import BaseController from "@/controllers/base-controller"
 
 export class YgGovernmentDirectorySyncController extends BaseController {
   async create() {
-    const user = await this.loadUser()
-    if (isNil(user)) return this.response.status(404).json({ message: "User not found." })
+    try {
+      const user = await this.loadUser()
+      if (isNil(user)) {
+        return this.response.status(404).json({
+          message: "User not found.",
+        })
+      }
 
-    const policy = this.buildPolicy(user)
-    if (!policy.update()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to sync this user." })
+      const policy = this.buildPolicy(user)
+      if (!policy.update()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to sync this user.",
+        })
+      }
+
+      const updatedUser = await YkGovernmentDirectorySyncService.perform(this.currentUser)
+      const serializedUser = UsersSerializer.asDetailed(updatedUser)
+      return this.response.status(200).json({
+        user: serializedUser,
+        policy,
+      })
+    } catch (error) {
+      logger.error(`Error syncing user: ${error}`, { error })
+      return this.response.status(400).json({
+        message: `Failed to sync user: ${error}`,
+      })
     }
-
-    return YkGovernmentDirectorySyncService.perform(this.currentUser).then((user) => {
-      const serializedUser = UsersSerializer.asDetailed(user)
-      return this.response.status(200).json({ user: serializedUser })
-    })
   }
 
   private loadUser(): Promise<User | null> {

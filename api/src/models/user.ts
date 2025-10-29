@@ -29,10 +29,10 @@ export enum Statuses {
 
 export enum UserRoles {
   ADMIN = "admin",
-  USER = "user",
-  PRE_APPROVED_TRAVEL_ADMIN = "pre_approved_travel_admin",
   DEPARTMENT_ADMIN = "department_admin",
+  PRE_APPROVED_TRAVEL_ADMIN = "pre_approved_travel_admin",
   TRAVEL_DESK_USER = "travel_desk_user",
+  USER = "user",
 }
 
 const USER_ROLES = Object.values<string>(UserRoles)
