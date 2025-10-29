@@ -7,10 +7,11 @@ import {
   type FindOptions,
   type WhereOptions,
   where,
+  AttributeNames,
 } from "@sequelize/core"
+import { isEmpty } from "lodash"
 
 import arrayWrap from "@/utils/array-wrap"
-import { type AttributeNames } from "@/utils/utility-types"
 
 /**
  * Generates a search scope for Sequelize models that allows for custom SQL conditions per term.
@@ -19,7 +20,7 @@ export function searchFieldsByTermsFactory<M extends Model>(
   fields: AttributeNames<M>[]
 ): (termOrTerms: string | string[]) => FindOptions<Attributes<M>> {
   return (termOrTerms: string | string[]): FindOptions<Attributes<M>> => {
-    const terms = arrayWrap(termOrTerms)
+    const terms = arrayWrap(termOrTerms).filter((term) => !isEmpty(term))
     if (terms.length === 0) {
       return {}
     }
