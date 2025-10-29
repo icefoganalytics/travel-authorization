@@ -124,10 +124,13 @@
 <script>
 import { pick } from "lodash"
 
+import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { required } from "@/utils/validators"
 
-import { USERS_URL, LOOKUP_URL } from "@/urls"
+import { USERS_URL } from "@/urls"
 import http from "@/api/http-client"
+import { USER_ROLES } from "@/api/users-api"
+
 import useSnack from "@/use/use-snack"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
@@ -146,6 +149,12 @@ export default {
     },
   },
   setup(props) {
+    const { t } = useI18n()
+    const roles = Object.values(USER_ROLES).map((role) => ({
+      value: role,
+      text: t(`role.name.${role}`, { $default: role }),
+    }))
+
     useBreadcrumbs([
       {
         text: "Administration",
@@ -174,12 +183,12 @@ export default {
 
     return {
       currentUser,
+      roles,
       snack,
       refreshCurrentUser,
     }
   },
   data: () => ({
-    roles: [],
     user: {
       firstName: "",
       lastName: "",
@@ -193,7 +202,6 @@ export default {
   }),
   async mounted() {
     try {
-      await this.loadRoles()
       await this.loadUser(this.userId)
     } finally {
       this.isLoading = false
@@ -223,14 +231,6 @@ export default {
     async loadUser(id) {
       await http.get(`${USERS_URL}/${id}`).then((resp) => {
         this.user = resp.data
-      })
-    },
-    async loadRoles() {
-      return http.get(`${LOOKUP_URL}/roles`).then(({ data }) => {
-        this.roles = data.map(({ name }) => ({
-          value: name,
-          text: this.$t(`role.name.${name}`, { $default: name }),
-        }))
       })
     },
   },

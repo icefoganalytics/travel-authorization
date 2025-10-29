@@ -19,7 +19,6 @@ import {
 import { isEmpty, isNil } from "lodash"
 import moment from "moment"
 
-import { isRole, RoleNames } from "@/models/role"
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelDeskFlightOption from "@/models/travel-desk-flight-option"
 
@@ -28,12 +27,22 @@ export enum Statuses {
   INACTIVE = "inactive",
 }
 
+export enum UserRoles {
+  ADMIN = "admin",
+  USER = "user",
+  PRE_APPROVED_TRAVEL_ADMIN = "pre_approved_travel_admin",
+  DEPARTMENT_ADMIN = "department_admin",
+  TRAVEL_DESK_USER = "travel_desk_user",
+}
+
+const USER_ROLES = Object.values<string>(UserRoles)
+
 @Table({
   tableName: "users",
   paranoid: false,
 })
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-  static Roles = RoleNames
+  static Roles = UserRoles
   static Statuses = Statuses
 
   @Attribute(DataTypes.INTEGER)
@@ -83,10 +92,10 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 
         const rolesArray = roles.split(",")
         rolesArray.forEach((role: string) => {
-          if (isRole(role)) return
+          if (USER_ROLES.includes(role)) return
 
           throw new Error(
-            `Invalid role: ${role}. Allowed roles are: ${Object.values(RoleNames).join(", ")}`
+            `Invalid role: ${role}. Allowed roles are: ${Object.values(UserRoles).join(", ")}`
           )
         })
       },
@@ -130,19 +139,19 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 
   // Magic attributes
   get isAdmin(): NonAttribute<boolean> {
-    return this.roles.includes(RoleNames.ADMIN)
+    return this.roles.includes(UserRoles.ADMIN)
   }
 
   get isTravelDeskUser(): NonAttribute<boolean> {
-    return this.roles.includes(RoleNames.TRAVEL_DESK_USER)
+    return this.roles.includes(UserRoles.TRAVEL_DESK_USER)
   }
 
   get isPreApprovedTravelAdmin(): NonAttribute<boolean> {
-    return this.roles.includes(RoleNames.PRE_APPROVED_TRAVEL_ADMIN)
+    return this.roles.includes(UserRoles.PRE_APPROVED_TRAVEL_ADMIN)
   }
 
   get isUser(): NonAttribute<boolean> {
-    return this.roles.includes(RoleNames.USER)
+    return this.roles.includes(UserRoles.USER)
   }
 
   // TODO: push this into a serializer, once its no longer in legacy code
@@ -181,7 +190,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   static establishScopes(): void {
     this.addScope("isTravelDeskUser", () => {
       const roleInRolesQuery = sql`
-        ${RoleNames.TRAVEL_DESK_USER} = ANY(string_to_array(roles, ','))
+        ${UserRoles.TRAVEL_DESK_USER} = ANY (string_to_array(roles, ','))
       `
       return {
         where: roleInRolesQuery,
