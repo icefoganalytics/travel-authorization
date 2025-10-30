@@ -46,11 +46,14 @@ export class FlightReconciliationsPolicy extends PolicyFactory(FlightReconciliat
       return ALL_RECORDS_SCOPE
     }
 
-    const { department } = user
-    if (user.isFinanceUser && !isNil(department) && !isEmpty(department)) {
+    const { mailcode } = user
+    if (user.isFinanceUser && !isNil(mailcode) && !isEmpty(mailcode)) {
+      // TODO: Update TravCom database `ARInvoicesNoHealth` table so that `Department` has a deparment value
+      // and not a mailcode value.
+      // This requires access to the TravCom database, and updating the seed files in this app.
       return {
         where: {
-          invoiceDepartment: department,
+          invoiceDepartment: mailcode,
         },
       }
     }
@@ -59,7 +62,10 @@ export class FlightReconciliationsPolicy extends PolicyFactory(FlightReconciliat
   }
 
   get isFinanceUserWithMatchingDepartment(): boolean {
-    return this.user.isFinanceUser && this.record.invoiceDepartment === this.user.department
+    // TODO: Update TravCom database `ARInvoicesNoHealth` table so that `Department` has a deparment value
+    // and not a mailcode value.
+    // This requires access to the TravCom database, and updating the seed files in this app.
+    return this.user.isFinanceUser && this.record.invoiceDepartment === this.user.mailcode
   }
 }
 
