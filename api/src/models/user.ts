@@ -143,12 +143,16 @@ export class User extends BaseModel<InferAttributes<User>, InferCreationAttribut
     return this.roles.includes(UserRoles.ADMIN)
   }
 
-  get isTravelDeskUser(): NonAttribute<boolean> {
-    return this.roles.includes(UserRoles.TRAVEL_DESK_USER)
+  get isFinanceUser(): NonAttribute<boolean> {
+    return this.roles.includes(UserRoles.FINANCE_USER)
   }
 
   get isPreApprovedTravelAdmin(): NonAttribute<boolean> {
     return this.roles.includes(UserRoles.PRE_APPROVED_TRAVEL_ADMIN)
+  }
+
+  get isTravelDeskUser(): NonAttribute<boolean> {
+    return this.roles.includes(UserRoles.TRAVEL_DESK_USER)
   }
 
   get isUser(): NonAttribute<boolean> {
