@@ -48,10 +48,11 @@ export default {
   role: {
     name: {
       admin: "Admin",
-      user: "User",
-      pre_approved_travel_admin: "Pre-Approved Travel Admin",
       department_admin: "Department Admin",
+      finance_user: "Finance User",
+      pre_approved_travel_admin: "Pre-Approved Travel Admin",
       travel_desk_user: "Travel Desk User",
+      user: "User",
     },
   },
   travel_allowance: {
