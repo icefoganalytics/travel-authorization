@@ -22,6 +22,7 @@ export class FlightReconciliationsPolicy extends PolicyFactory(FlightReconciliat
 
   update(): boolean {
     if (this.user.isTravelDeskUser || this.user.isAdmin) return true
+    if (this.isFinanceUserWithMatchingDepartment) return true
 
     return false
   }
