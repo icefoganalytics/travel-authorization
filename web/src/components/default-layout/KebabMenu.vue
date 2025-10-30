@@ -58,10 +58,10 @@ import { RELEASE_TAG } from "@/config"
 import { auth0 } from "@/plugins/auth0-plugin"
 import useCurrentUser from "@/use/use-current-user"
 
-const { isAdmin, unset: unsetCurrentUser } = useCurrentUser()
+const { isAdmin, reset: resetCurrentUser } = useCurrentUser()
 
 function signOut() {
-  unsetCurrentUser()
+  resetCurrentUser()
 
   const returnTo = encodeURI(window.location.origin + "/sign-in")
   return auth0.logout({

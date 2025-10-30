@@ -10,16 +10,6 @@ import {
   type WhereOptions,
 } from "@/api/base-api"
 
-// Must match role names in api/src/models/role.ts
-/** @deprecated - prefer enum equivalent `UserRoles` */
-export const USER_ROLES = Object.freeze({
-  ADMIN: "admin",
-  USER: "user",
-  PRE_APPROVED_TRAVEL_ADMIN: "pre_approved_travel_admin",
-  DEPARTMENT_ADMIN: "department_admin",
-  TRAVEL_DESK_USER: "travel_desk_user",
-})
-
 export enum UserRoles {
   ADMIN = "admin",
   DEPARTMENT_ADMIN = "department_admin",
@@ -84,8 +74,6 @@ export type UserFiltersOptions = FiltersOptions<{
 export type UserQueryOptions = QueryOptions<UserWhereOptions, UserFiltersOptions>
 
 export const usersApi = {
-  ROLES: USER_ROLES,
-
   async list(params: UserQueryOptions = {}): Promise<{
     users: User[]
     totalCount: number

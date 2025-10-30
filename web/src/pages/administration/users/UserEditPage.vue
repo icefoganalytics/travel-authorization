@@ -129,7 +129,7 @@ import { required } from "@/utils/validators"
 
 import { USERS_URL } from "@/urls"
 import http from "@/api/http-client"
-import { USER_ROLES } from "@/api/users-api"
+import { UserRoles } from "@/api/users-api"
 
 import useSnack from "@/use/use-snack"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -150,7 +150,7 @@ export default {
   },
   setup(props) {
     const { t } = useI18n()
-    const roles = Object.values(USER_ROLES).map((role) => ({
+    const roles = Object.values(UserRoles).map((role) => ({
       value: role,
       text: t(`role.name.${role}`, { $default: role }),
     }))
