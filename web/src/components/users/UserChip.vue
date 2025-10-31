@@ -7,16 +7,23 @@
     outlined
   >
     <v-progress-circular
-      v-if="isLoading"
+      v-if="isNil(user)"
       size="20"
       width="2"
       indeterminate
-    ></v-progress-circular>
+    />
     <template v-else>
       {{ user.firstName }} {{ user.lastName }}
       <v-icon right>mdi-menu-down</v-icon>
     </template>
+    <v-progress-circular
+      v-if="isNil(user)"
+      size="20"
+      width="2"
+      indeterminate
+    />
     <v-menu
+      v-else
       :activator="chip?.$el"
       :close-on-content-click="false"
       offset-y
@@ -67,32 +74,41 @@
   </v-chip>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, toRefs } from "vue"
 import md5 from "md5"
 import { isNil } from "lodash"
 
-import useCurrentUser from "@/use/use-current-user"
-import useUser from "@/use/use-user"
+import { type VChip } from "vuetify/lib/components"
 
-const props = defineProps({
-  userId: {
-    type: Number,
-    default: () => null,
-  },
-})
+import useCurrentUser from "@/use/use-current-user"
+import useUser, { type User } from "@/use/use-user"
+
+const props = withDefaults(
+  defineProps<{
+    userId?: number | null
+  }>(),
+  {
+    userId: null,
+  }
+)
 
 const { userId } = toRefs(props)
-const { user, isLoading } = useUser(userId)
+const { user } = useUser(userId)
 
-/** @typedef {import('vuetify/lib/components').VChip} VChip */
-/** @type {import('vue').Ref<InstanceType<typeof VChip> | null>} */
-const chip = ref(null)
+const chip = ref<InstanceType<typeof VChip> | null>(null)
 
-const fields = ref(["manager", "mailcode", "department", "division", "branch", "unit"])
+const fields = ref<(keyof User)[]>([
+  "manager",
+  "mailcode",
+  "department",
+  "division",
+  "branch",
+  "unit",
+])
 
 const gravatarUrl = computed(() => {
-  if (isNil(user.value.email)) {
+  if (isNil(user.value?.email)) {
     return ""
   }
 
