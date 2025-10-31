@@ -34,77 +34,57 @@
   </v-autocomplete>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import { debounce, isEmpty, isNil } from "lodash"
 
-import useYgEmployeeGroups from "@/use/use-yg-employee-groups"
+import useYgEmployeeGroups, {
+  type YgEmployeeGroupFiltersOptions,
+  type YgEmployeeGroupWhereOptions,
+} from "@/use/use-yg-employee-groups"
 
-const props = defineProps({
-  value: {
-    type: [Number, String],
-    default: null,
-  },
-  where: {
-    type: Object,
-    default: () => ({}),
-  },
-  filters: {
-    type: Object,
-    default: () => ({}),
-  },
-  label: {
-    type: String,
-    default: "Department",
-  },
-  hint: {
-    type: String,
-    default: "Search for a department.",
-  },
-  autoSelectFirst: {
-    type: Boolean,
-    default: true,
-  },
-  chips: {
-    type: Boolean,
-    default: true,
-  },
-  clearable: {
-    type: Boolean,
-    default: true,
-  },
-  hideNoData: {
-    type: Boolean,
-    default: true,
-  },
-  hideSelected: {
-    type: Boolean,
-    default: true,
-  },
-  noFilter: {
-    type: Boolean,
-    default: true,
-  },
-  persistentHint: {
-    type: Boolean,
-    default: true,
-  },
-  smallChips: {
-    type: Boolean,
-    default: true,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    value: number | string | null | undefined
+    where?: YgEmployeeGroupWhereOptions
+    filters?: YgEmployeeGroupFiltersOptions
+    label?: string
+    hint?: string
+    autoSelectFirst?: boolean
+    chips?: boolean
+    clearable?: boolean
+    hideNoData?: boolean
+    hideSelected?: boolean
+    noFilter?: boolean
+    persistentHint?: boolean
+    smallChips?: boolean
+  }>(),
+  {
+    where: () => ({}),
+    filters: () => ({}),
+    label: "Department",
+    hint: "Search for a department.",
+    autoSelectFirst: true,
+    chips: true,
+    clearable: true,
+    hideNoData: true,
+    hideSelected: true,
+    noFilter: true,
+    persistentHint: true,
+    smallChips: true,
+  }
+)
 
 const emit = defineEmits(["input"])
 
-function emitInputAndReset(value) {
+function emitInputAndReset(value: string) {
   emit("input", value)
   reset()
 }
 
 const searchToken = ref("")
 
-function updateSearchToken(value) {
+function updateSearchToken(value: string) {
   if (value === props.value) return
 
   searchToken.value = value
@@ -117,7 +97,7 @@ const searchFilter = computed(() => {
   if (isNil(searchToken.value) || isEmpty(searchToken.value)) return {}
 
   return {
-    search: searchToken.value,
+    search: searchToken.value.trim().split(" "),
   }
 })
 
