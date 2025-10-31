@@ -15,7 +15,7 @@ import {
   PrimaryKey,
   Table,
 } from "@sequelize/core/decorators-legacy"
-import { isEmpty, isNil } from "lodash"
+import { isEmpty, isNil, isString } from "lodash"
 import moment from "moment"
 
 import BaseModel from "@/models/base-model"
@@ -116,7 +116,16 @@ export class User extends BaseModel<InferAttributes<User>, InferCreationAttribut
   @Attribute(DataTypes.STRING(255))
   declare unit: string | null
 
-  @Attribute(DataTypes.STRING(255))
+  @Attribute({
+    type: DataTypes.STRING(255),
+    set(value: string | null) {
+      if (isString(value) && isEmpty(value?.trim())) {
+        this.setDataValue("mailcode", null)
+      } else {
+        this.setDataValue("mailcode", value)
+      }
+    },
+  })
   declare mailcode: string | null
 
   @Attribute(DataTypes.STRING(255))
