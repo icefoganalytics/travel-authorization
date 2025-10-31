@@ -99,7 +99,7 @@ const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthor
 const approvalsCard = ref(null)
 
 function refresh() {
-  approvalsCard.value.refresh()
+  approvalsCard.value?.refresh()
 }
 
 useBreadcrumbs([

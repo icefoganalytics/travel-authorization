@@ -1,23 +1,9 @@
 import { Knex } from "knex"
 import { isNil } from "lodash"
 
-import { Role, TravelPurpose } from "@/models"
+import { TravelPurpose } from "@/models"
 
 export async function seed(knex: Knex): Promise<void> {
-  const rolesAttributes = Object.values(Role.Names).map((role) => ({ name: role }))
-  for (const roleAttributes of rolesAttributes) {
-    const role = await Role.findOne({
-      where: {
-        name: roleAttributes.name,
-      },
-    })
-    if (isNil(role)) {
-      await Role.create(roleAttributes)
-    } else {
-      await role.update(roleAttributes)
-    }
-  }
-
   const travelPurposesAttributes = [
     {
       purpose: "Maintenance",

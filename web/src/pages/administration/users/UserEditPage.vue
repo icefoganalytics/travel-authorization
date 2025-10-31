@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>
+  <v-container v-if="!isNil(user)">
+    <h2>
       User Editor:
       <small
         >{{ user.firstName }}
@@ -8,21 +8,13 @@
 
         <small>({{ user.status }})</small>
       </small>
-    </h1>
+    </h2>
 
     <v-row>
       <v-col
         cols="12"
         md="12"
       >
-        <v-alert
-          v-if="alertMsg"
-          :color="alertType + ' accent-4'"
-          dense
-          dark
-          dismissible
-          >{{ alertMsg }}</v-alert
-        >
         <v-card
           class="default"
           :loading="isLoading"
@@ -59,7 +51,10 @@
                     hide-details
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
+                <v-col
+                  cols="12"
+                  md="8"
+                >
                   <v-text-field
                     v-model="user.email"
                     label="Email"
@@ -68,7 +63,21 @@
                     background-color="white"
                     required
                     hide-details
-                  ></v-text-field>
+                  />
+                </v-col>
+                <v-col
+                  cols="12"
+                  md="4"
+                >
+                  <v-text-field
+                    v-model="user.mailcode"
+                    label="Mailcode"
+                    dense
+                    outlined
+                    background-color="white"
+                    required
+                    hide-details
+                  />
                 </v-col>
                 <v-col cols="12">
                   <DepartmentAutocomplete
@@ -94,8 +103,7 @@
                     background-color="white"
                     clearable
                     hide-details
-                    @change="alertMsg = ''"
-                  ></v-select>
+                  />
                 </v-col>
               </v-row>
             </v-form>
@@ -108,7 +116,7 @@
                 <v-btn
                   color="primary"
                   class="mr-5 mt-0"
-                  @click="saveUser"
+                  @click="saveWrapper"
                 >
                   Save user
                 </v-btn>
@@ -118,121 +126,80 @@
         </v-card>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
+  <PageLoader v-else />
 </template>
 
-<script>
-import { pick } from "lodash"
+<script setup lang="ts">
+import { computed } from "vue"
+import { isNil } from "lodash"
 
+import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { required } from "@/utils/validators"
 
-import { USERS_URL, LOOKUP_URL } from "@/urls"
-import http from "@/api/http-client"
+import { UserRoles } from "@/api/users-api"
+
 import useSnack from "@/use/use-snack"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
+import useUser from "@/use/use-user"
 
+import PageLoader from "@/components/PageLoader.vue"
 import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
 
-export default {
-  name: "UserEditPage",
-  components: {
-    DepartmentAutocomplete,
-  },
-  props: {
-    userId: {
-      type: [String, Number],
-      required: true,
-    },
-  },
-  setup(props) {
-    useBreadcrumbs([
-      {
-        text: "Administration",
-        to: {
-          name: "AdministrationPage",
-        },
-      },
-      {
-        text: "User Management",
-        to: {
-          name: "administration/UsersPage",
-        },
-      },
-      {
-        text: "User Editor",
-        to: {
-          name: "administration/users/UserEditPage",
-          params: { userId: props.userId },
-        },
-      },
-    ])
+const props = defineProps<{
+  userId: string
+}>()
 
-    const { currentUser, refresh: refreshCurrentUser } = useCurrentUser()
+const userIdAsNumber = computed(() => Number(props.userId))
+const { user, isLoading, save } = useUser(userIdAsNumber)
 
-    const snack = useSnack()
+const { t } = useI18n()
+const roles = Object.values(UserRoles).map((role) => ({
+  value: role,
+  text: t(`role.name.${role}`, { $default: role }),
+}))
 
-    return {
-      currentUser,
-      snack,
-      refreshCurrentUser,
+const { currentUser, refresh: refreshCurrentUser } = useCurrentUser<true>()
+const snack = useSnack()
+
+async function saveWrapper() {
+  try {
+    await save()
+    snack.success("User saved successfully!")
+
+    if (props.userId === currentUser.value.id.toString()) {
+      await refreshCurrentUser()
+      snack.info("Page refreshed because current user was edited.")
     }
-  },
-  data: () => ({
-    roles: [],
-    user: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      roles: [],
-    },
-    alertMsg: "",
-    alertType: "",
-    isLoading: true,
-    required,
-  }),
-  async mounted() {
-    try {
-      await this.loadRoles()
-      await this.loadUser(this.userId)
-    } finally {
-      this.isLoading = false
-    }
-  },
-
-  methods: {
-    async saveUser() {
-      this.alertMsg = ""
-      this.alertType = "red"
-      const userAttributes = pick(this.user, ["firstName", "lastName", "department", "roles"])
-      await http
-        .put(`${USERS_URL}/${this.userId}/permissions`, userAttributes)
-        .then(() => {
-          this.alertMsg = "User Saved Successfully."
-          this.alertType = "teal"
-        })
-        .catch((e) => (this.alertMsg = e.response.data))
-
-      if (this.userId.toString() === this.currentUser.id.toString()) {
-        await this.refreshCurrentUser()
-        this.snack("Page refreshed because current user was edited.", {
-          color: "info",
-        })
-      }
-    },
-    async loadUser(id) {
-      await http.get(`${USERS_URL}/${id}`).then((resp) => {
-        this.user = resp.data
-      })
-    },
-    async loadRoles() {
-      return http.get(`${LOOKUP_URL}/roles`).then(({ data }) => {
-        this.roles = data.map(({ name }) => ({
-          value: name,
-          text: this.$t(`role.name.${name}`, { $default: name }),
-        }))
-      })
-    },
-  },
+  } catch (error) {
+    console.error(`Failed to save user: ${error}`, { error })
+    snack.error(`Failed to save user: ${error}`)
+  }
 }
+
+const breadcrumbs = computed(() => [
+  {
+    text: "Administration",
+    to: {
+      name: "AdministrationPage",
+    },
+  },
+  {
+    text: "User Management",
+    to: {
+      name: "administration/UsersPage",
+    },
+  },
+  {
+    text: "User Editor",
+    to: {
+      name: "administration/users/UserEditPage",
+      params: {
+        userId: props.userId,
+      },
+    },
+  },
+])
+useBreadcrumbs(breadcrumbs)
 </script>

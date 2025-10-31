@@ -1,6 +1,5 @@
 import {
   DataTypes,
-  Model,
   sql,
   type CreationOptional,
   type InferAttributes,
@@ -16,10 +15,10 @@ import {
   PrimaryKey,
   Table,
 } from "@sequelize/core/decorators-legacy"
-import { isEmpty, isNil } from "lodash"
+import { isEmpty, isNil, isString } from "lodash"
 import moment from "moment"
 
-import { isRole, RoleNames } from "@/models/role"
+import BaseModel from "@/models/base-model"
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelDeskFlightOption from "@/models/travel-desk-flight-option"
 
@@ -28,12 +27,23 @@ export enum Statuses {
   INACTIVE = "inactive",
 }
 
+export enum UserRoles {
+  ADMIN = "admin",
+  DEPARTMENT_ADMIN = "department_admin",
+  FINANCE_USER = "finance_user",
+  PRE_APPROVED_TRAVEL_ADMIN = "pre_approved_travel_admin",
+  TRAVEL_DESK_USER = "travel_desk_user",
+  USER = "user",
+}
+
+const USER_ROLES = Object.values<string>(UserRoles)
+
 @Table({
   tableName: "users",
   paranoid: false,
 })
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-  static Roles = RoleNames
+export class User extends BaseModel<InferAttributes<User>, InferCreationAttributes<User>> {
+  static Roles = UserRoles
   static Statuses = Statuses
 
   @Attribute(DataTypes.INTEGER)
@@ -83,10 +93,10 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 
         const rolesArray = roles.split(",")
         rolesArray.forEach((role: string) => {
-          if (isRole(role)) return
+          if (USER_ROLES.includes(role)) return
 
           throw new Error(
-            `Invalid role: ${role}. Allowed roles are: ${Object.values(RoleNames).join(", ")}`
+            `Invalid role: ${role}. Allowed roles are: ${Object.values(UserRoles).join(", ")}`
           )
         })
       },
@@ -106,7 +116,16 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   @Attribute(DataTypes.STRING(255))
   declare unit: string | null
 
-  @Attribute(DataTypes.STRING(255))
+  @Attribute({
+    type: DataTypes.STRING(255),
+    set(value: string | null) {
+      if (isString(value) && isEmpty(value?.trim())) {
+        this.setDataValue("mailcode", null)
+      } else {
+        this.setDataValue("mailcode", value)
+      }
+    },
+  })
   declare mailcode: string | null
 
   @Attribute(DataTypes.STRING(255))
@@ -130,19 +149,23 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
 
   // Magic attributes
   get isAdmin(): NonAttribute<boolean> {
-    return this.roles.includes(RoleNames.ADMIN)
+    return this.roles.includes(UserRoles.ADMIN)
   }
 
-  get isTravelDeskUser(): NonAttribute<boolean> {
-    return this.roles.includes(RoleNames.TRAVEL_DESK_USER)
+  get isFinanceUser(): NonAttribute<boolean> {
+    return this.roles.includes(UserRoles.FINANCE_USER)
   }
 
   get isPreApprovedTravelAdmin(): NonAttribute<boolean> {
-    return this.roles.includes(RoleNames.PRE_APPROVED_TRAVEL_ADMIN)
+    return this.roles.includes(UserRoles.PRE_APPROVED_TRAVEL_ADMIN)
+  }
+
+  get isTravelDeskUser(): NonAttribute<boolean> {
+    return this.roles.includes(UserRoles.TRAVEL_DESK_USER)
   }
 
   get isUser(): NonAttribute<boolean> {
-    return this.roles.includes(RoleNames.USER)
+    return this.roles.includes(UserRoles.USER)
   }
 
   // TODO: push this into a serializer, once its no longer in legacy code
@@ -179,9 +202,11 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare travelDeskFlightOptions?: NonAttribute<TravelDeskFlightOption[]>
 
   static establishScopes(): void {
+    this.addSearchScope(["firstName", "lastName", "email"])
+
     this.addScope("isTravelDeskUser", () => {
       const roleInRolesQuery = sql`
-        ${RoleNames.TRAVEL_DESK_USER} = ANY(string_to_array(roles, ','))
+        ${UserRoles.TRAVEL_DESK_USER} = ANY (string_to_array(roles, ','))
       `
       return {
         where: roleInRolesQuery,

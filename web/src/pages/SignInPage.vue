@@ -86,12 +86,12 @@ import { APPLICATION_NAME } from "@/config"
 import { auth0 } from "@/plugins/auth0-plugin"
 import useCurrentUser from "@/use/use-current-user"
 
-const { unset: unsetCurrentUser } = useCurrentUser({ eager: false })
+const { reset: resetCurrentUser } = useCurrentUser()
 
 const title = APPLICATION_NAME
 
 onMounted(() => {
-  unsetCurrentUser()
+  resetCurrentUser()
 })
 
 function login() {

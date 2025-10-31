@@ -37,7 +37,7 @@
               ref="travelAuthorizationPreApprovalsPrintDialog"
             />
           </v-btn>
-          <ExportToCsvButton
+          <TravelAuthorizationPreApprovalsExportToCsvButton
             v-if="canAdminTravelPreApprovals"
             class="ml-md-5"
             color="primary"
@@ -45,7 +45,7 @@
             :block="smAndDown"
           >
             Export To Excel
-          </ExportToCsvButton>
+          </TravelAuthorizationPreApprovalsExportToCsvButton>
           <v-btn
             class="ml-md-5"
             color="primary"
@@ -73,7 +73,7 @@ import useCurrentUser from "@/use/use-current-user"
 
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 
-import ExportToCsvButton from "@/components/travel-authorization-pre-approvals/ExportToCsvButton.vue"
+import TravelAuthorizationPreApprovalsExportToCsvButton from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsExportToCsvButton.vue"
 import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"

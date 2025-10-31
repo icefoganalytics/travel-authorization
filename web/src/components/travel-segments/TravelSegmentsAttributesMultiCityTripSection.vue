@@ -479,6 +479,7 @@ watch(
   },
   {
     deep: true,
+    immediate: true,
   }
 )
 </script>

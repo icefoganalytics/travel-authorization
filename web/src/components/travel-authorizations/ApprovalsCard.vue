@@ -83,7 +83,7 @@ const props = defineProps({
 })
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, isLoading } = useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
 
 const travelAuthorizationPreApprovalProfileId = computed(() => {
   return travelAuthorization.value?.preApprovalProfileId
@@ -93,4 +93,8 @@ const travelAdvanceInDollars = computed(() =>
   Math.ceil(travelAuthorization.value.travelAdvanceInCents / 100.0)
 )
 const formattedTravelAdvanceInDollars = computed(() => formatCurrency(travelAdvanceInDollars.value))
+
+defineExpose({
+  refresh,
+})
 </script>

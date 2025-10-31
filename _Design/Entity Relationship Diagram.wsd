@@ -130,17 +130,6 @@ entity "per_diems" {
   UNIQUE(claim_type, travel_region, currency) WHERE deleted_at IS NULL
 }
 
-entity "roles" {
-  * id : serial4
-  --
-  * name : varchar(255)
-  * created_at : timestamptz
-  * updated_at : timestamptz
-  deleted_at : timestamptz
-  --
-  UNIQUE(name) WHERE deleted_at IS NULL
-}
-
 entity "StatisticsProgress" {
   * id : serial4
   --
@@ -662,7 +651,6 @@ travel_segments::departure_location_id |o--o{ locations::id
 travel_segments::travel_authorization_id ||--o{ travel_authorizations::id
 users::id }o--|| travel_authorizations::user_id
 users::id }o--|| travel_desk_flight_options::traveler_id
-users::roles }o..o{ roles::name
 
 flight_reconciliations::external_trav_com_identifier ||..o{ external.ARInvoicesNoHealth::InvoiceNumber
 @enduml
