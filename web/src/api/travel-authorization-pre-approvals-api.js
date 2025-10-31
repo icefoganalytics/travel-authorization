@@ -3,6 +3,7 @@ import http from "@/api/http-client"
 /** @typedef {import('@/api/base-api.js').Policy} Policy */
 /** @typedef {import("@/api/base-api").ModelOrder} ModelOrder */
 
+/** @typedef {import('@/api/travel-authorization-pre-approval-profiles-api.js').TravelAuthorizationPreApprovalProfile} TravelAuthorizationPreApprovalProfile */
 /** @typedef {import('@/api/travel-authorization-pre-approval-submissions-api.js').TravelAuthorizationPreApprovalSubmission} TravelAuthorizationPreApprovalSubmission */
 
 /** Keep in sync with api/src/models/travel-authorization-pre-approval.ts */
@@ -85,7 +86,7 @@ export const travelAuthorizationPreApprovalsApi = {
   /**
    * @param {TravelAuthorizationPreApprovalsQueryOptions} [params={}]
    * @returns {Promise<{
-   *   travelAuthorizationPreApprovals: TravelAuthorizationPreApproval[],
+   *   travelAuthorizationPreApprovals: TravelAuthorizationPreApproval[]
    *   totalCount: number,
    * }>}
    */
@@ -111,7 +112,9 @@ export const travelAuthorizationPreApprovalsApi = {
   },
 
   /**
-   * @param {Partial<TravelAuthorizationPreApproval>} attributes
+   * @param {Partial<TravelAuthorizationPreApproval> & {
+   *   profilesAttributes: Partial<TravelAuthorizationPreApprovalProfile>[],
+   * }} attributes
    * @returns {Promise<{
    *   travelAuthorizationPreApproval: TravelAuthorizationPreApproval,
    * }>}

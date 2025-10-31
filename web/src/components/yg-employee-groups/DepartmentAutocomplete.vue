@@ -45,7 +45,7 @@ import useYgEmployeeGroups, {
 
 const props = withDefaults(
   defineProps<{
-    value: number | string | null | undefined
+    value?: string | null
     where?: YgEmployeeGroupWhereOptions
     filters?: YgEmployeeGroupFiltersOptions
     label?: string
@@ -75,7 +75,9 @@ const props = withDefaults(
   }
 )
 
-const emit = defineEmits(["input"])
+const emit = defineEmits<{
+  (event: "input", value: string): void
+}>()
 
 function emitInputAndReset(value: string) {
   emit("input", value)
