@@ -48,7 +48,7 @@
               'items-per-page-options': [10, 30, 100],
             }"
             class="clickable-row"
-            @click:row="handleClick"
+            @click:row="goToUserEditPage"
           >
           </v-data-table
         ></v-card-text>
@@ -139,10 +139,12 @@ export default {
   methods: {
     ...mapActions("users", ["loadUsers"]),
 
-    handleClick(value) {
+    goToUserEditPage(user) {
       this.$router.push({
         name: "administration/users/UserEditPage",
-        params: { userId: value.id },
+        params: {
+          userId: user.id.toString(),
+        },
       })
     },
     laodUsers() {
