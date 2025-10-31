@@ -52,7 +52,7 @@
           :rules="[
             isInteger,
             greaterThanOrEqualTo(0),
-            lessThan(travelAuthorization.travelDurationActual, {
+            lessThanOrEqualTo(travelAuthorization.travelDurationActual, {
               referenceFieldLabel: 'the number of travel days',
             }),
           ]"
@@ -85,7 +85,7 @@
 import { computed, defineAsyncComponent, nextTick, ref, toRefs } from "vue"
 import { max, isNil } from "lodash"
 
-import { required, isInteger, greaterThanOrEqualTo, lessThan } from "@/utils/validators"
+import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
 import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
