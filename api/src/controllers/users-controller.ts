@@ -5,7 +5,7 @@ import logger from "@/utils/logger"
 import { User } from "@/models"
 import { UsersPolicy } from "@/policies"
 import { UsersSerializer } from "@/serializers"
-import { CreateService } from "@/services/users"
+import { CreateService, UpdateService } from "@/services/users"
 import BaseController from "@/controllers/base-controller"
 
 export class UsersController extends BaseController<User> {
@@ -35,6 +35,28 @@ export class UsersController extends BaseController<User> {
     }
   }
 
+  async show() {
+    const user = await this.loadUser()
+    if (isNil(user)) {
+      return this.response.status(404).json({
+        message: "User not found.",
+      })
+    }
+
+    const policy = this.buildPolicy(user)
+    if (!policy.show()) {
+      return this.response.status(403).json({
+        message: "You are not authorized to view this user.",
+      })
+    }
+
+    const serializedUser = UsersSerializer.asDetailed(user)
+    return this.response.status(200).json({
+      user: serializedUser,
+      policy,
+    })
+  }
+
   async create() {
     try {
       const newUser = await this.buildUser()
@@ -58,26 +80,35 @@ export class UsersController extends BaseController<User> {
     }
   }
 
-  async show() {
-    const user = await this.loadUser()
-    if (isNil(user)) {
-      return this.response.status(404).json({
-        message: "User not found.",
+  async update() {
+    try {
+      const user = await this.loadUser()
+      if (isNil(user)) {
+        return this.response.status(404).json({
+          message: "User not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(user)
+      if (!policy.update()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to update this user.",
+        })
+      }
+
+      const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
+      const updatedUser = await UpdateService.perform(user, permittedAttributes, this.currentUser)
+      const serializedUser = UsersSerializer.asDetailed(updatedUser)
+      return this.response.status(200).json({
+        user: serializedUser,
+        policy,
+      })
+    } catch (error) {
+      logger.error(`Error updating user: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Failed to update user: ${error}`,
       })
     }
-
-    const policy = this.buildPolicy(user)
-    if (!policy.show()) {
-      return this.response.status(403).json({
-        message: "You are not authorized to view this user.",
-      })
-    }
-
-    const serializedUser = UsersSerializer.asDetailed(user)
-    return this.response.status(200).json({
-      user: serializedUser,
-      policy,
-    })
   }
 
   private async buildUser() {

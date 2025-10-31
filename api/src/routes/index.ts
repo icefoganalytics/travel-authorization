@@ -348,7 +348,7 @@ router
   .delete(TravelSegmentsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
-router.route("/api/users/:userId").get(UsersController.show)
+router.route("/api/users/:userId").get(UsersController.show).patch(UsersController.update)
 router
   .route("/api/users/:userId/yg-government-directory-sync")
   .post(Users.YgGovernmentDirectorySyncController.create)

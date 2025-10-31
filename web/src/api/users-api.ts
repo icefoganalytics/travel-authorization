@@ -90,6 +90,17 @@ export const usersApi = {
     return data
   },
 
+  async update(
+    userId: number,
+    attributes: Partial<User>
+  ): Promise<{
+    user: UserDetailedView
+    policy: Policy
+  }> {
+    const { data } = await http.patch(`/api/users/${userId}`, attributes)
+    return data
+  },
+
   /** @deprecated - prefer web/src/api/current-user-api.js */
   async me(): Promise<{
     user: UserDetailedView
