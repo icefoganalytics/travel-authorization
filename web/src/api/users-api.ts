@@ -120,13 +120,13 @@ export const usersApi = {
       email?: string
       [key: string]: unknown
     } = {}
-  ): Promise<{ emails: string[] } | []> {
+  ): Promise<{ emails: string[] }> {
     const { email, ...otherParams } = params
     if (isString(email) && email.length >= 3) {
       const { data } = await http.get("/api/lookup/emailList", { params: { email, otherParams } })
       return { emails: data }
     } else {
-      return Promise.resolve([])
+      return Promise.resolve({ emails: [] })
     }
   },
 
