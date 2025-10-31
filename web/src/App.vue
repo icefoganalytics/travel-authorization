@@ -21,7 +21,7 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import { useRoute, useRouter } from "vue2-helpers/vue-router"
 
@@ -31,7 +31,7 @@ import PageLoader from "@/components/PageLoader.vue"
 import AppSnackbar from "@/components/AppSnackbar.vue"
 
 const route = useRoute()
-const isUnauthenticatedRoute = computed(() => route.meta.requiresAuth === false)
+const isUnauthenticatedRoute = computed(() => route.meta?.requiresAuth === false)
 
 const { isAuthenticated, isLoading: isLoadingAuth0 } = useAuth0()
 const isReadyAuth0 = computed(() => !isLoadingAuth0.value && isAuthenticated.value)
