@@ -5,13 +5,6 @@
     en
     class="px-5 pb-15"
   >
-    <v-alert
-      v-if="alertMsg"
-      class="mt-5"
-      type="warning"
-      >{{ alertMsg }}</v-alert
-    >
-
     <div
       v-if="loadingData"
       class="mt-10"
@@ -100,7 +93,6 @@ export default {
       flightReport: [],
       allFlightReports: [],
       loadingData: false,
-      alertMsg: "",
       updateGraph: 0,
       filters: { departments: [], locations: [] },
     }
