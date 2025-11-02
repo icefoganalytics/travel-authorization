@@ -1,18 +1,14 @@
 <template>
   <v-card
-    :loading="loadingData"
-    :disabled="loadingData"
+    :loading="isLoading"
+    :disabled="isLoading"
     en
     class="px-5 pb-15"
   >
-    <div
-      v-if="loadingData"
-      class="mt-10"
-      style="text-align: center"
-    >
-      loading ...
-    </div>
-
+    <v-skeleton-loader
+      v-if="isLoading"
+      type="card"
+    />
     <div v-else>
       <v-card
         class="mt-5"
@@ -22,14 +18,14 @@
 
         <v-card-actions class="mx-8">
           <v-btn
-            :color="views.filters ? 'primary' : 'secondary'"
-            @click="switchFilterView(views.filters)"
+            :color="showFilters ? 'primary' : 'secondary'"
+            @click="showFilters = !showFilters"
             >Filters
           </v-btn>
           <v-btn
             class="ml-4"
-            :color="views.graphs ? 'primary' : 'secondary'"
-            @click="switchGraphView(views.graphs)"
+            :color="showGraphs ? 'primary' : 'secondary'"
+            @click="showGraphs = !showGraphs"
             >Graph
           </v-btn>
           <UpdateProgressModal class="ml-auto" />
@@ -37,7 +33,7 @@
       </v-card>
 
       <v-card
-        v-if="views.filters"
+        v-if="showFilters"
         class="mt-5"
         flat
       >
@@ -48,13 +44,13 @@
       </v-card>
 
       <v-card
-        v-if="views.graphs"
+        v-if="showGraphs"
         class="mt-5"
         flat
       >
         <Graphs
           :update-graph="updateGraph"
-          :filters-applied="views.filters"
+          :filters-applied="showFilters"
           :filtered-flight-report="flightReport"
           :all-flight-reports="allFlightReports"
         />
@@ -98,14 +94,13 @@ import UpdateProgressModal from "@/modules/reports/views/Common/UpdateProgressMo
 
 const flightReport = ref<TFlightReport[]>([])
 const allFlightReports = ref<TFlightReport[]>([])
-const loadingData = ref(false)
+const isLoading = ref(false)
 
 const updateGraph = ref(0)
 
-const views = ref({
-  filters: false,
-  graphs: false,
-})
+const showFilters = ref(false)
+const showGraphs = ref(false)
+
 const filters = ref<{
   departments: string[]
   locations: LocationsByRegion
@@ -119,22 +114,20 @@ const filters = ref<{
 })
 
 onMounted(async () => {
-  loadingData.value = true
+  isLoading.value = true
   try {
-    initViews()
-    await getFlights()
+    reset()
+    await fetchFlights()
   } catch (error) {
     console.error(`Failed to initialize reports page: ${error}`, { error })
   } finally {
-    loadingData.value = false
+    isLoading.value = false
   }
 })
 
-function initViews() {
-  views.value = {
-    filters: false,
-    graphs: false,
-  }
+function reset() {
+  showFilters.value = false
+  showGraphs.value = false
 }
 
 function updateFilters(departments: string[], locations: LocationsByRegion) {
@@ -142,32 +135,25 @@ function updateFilters(departments: string[], locations: LocationsByRegion) {
     departments,
     locations,
   }
-  flightReport.value = applyFilters(allFlightReports.value)
+  flightReport.value = applyFrontEndFiltering(allFlightReports.value)
   updateGraph.value++
 }
 
-async function getFlights() {
-  loadingData.value = true
+async function fetchFlights() {
+  isLoading.value = true
   try {
     const { data } = await http.get(`${TRAVEL_COM_URL}/statistics`)
     allFlightReports.value = data
-    flightReport.value = applyFilters(allFlightReports.value)
+    flightReport.value = applyFrontEndFiltering(allFlightReports.value)
   } catch (error) {
     console.error(`Failed to fetch flights: ${error}`, { error })
   } finally {
-    loadingData.value = false
+    isLoading.value = false
   }
 }
 
-function switchFilterView(display: boolean) {
-  views.value.filters = !display
-}
-
-function switchGraphView(display: boolean) {
-  views.value.graphs = !display
-}
-
-function applyFilters(allFlightReports: TFlightReport[]) {
+// TODO: move to backend
+function applyFrontEndFiltering(allFlightReports: TFlightReport[]) {
   let flightReport = cloneDeep(allFlightReports)
   if (filters.value.departments?.length > 0) {
     flightReport = flightReport.filter((flight) => filters.value.departments.includes(flight.dept))
