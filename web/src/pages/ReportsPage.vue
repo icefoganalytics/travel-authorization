@@ -87,7 +87,7 @@ import Graphs from "@/modules/reports/views/Graphs/Graphs.vue"
 import UpdateProgressModal from "@/modules/reports/views/Common/UpdateProgressModal.vue"
 
 export default {
-  name: "Reports",
+  name: "ReportsPage",
   components: {
     FlightReport,
     Filters,

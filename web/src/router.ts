@@ -5,7 +5,6 @@ import { authGuard } from "@/utils/auth-guard"
 import useRouteHistory from "@/use/use-route-history"
 
 import travelDeskRouter from "@/modules/travelDesk/router"
-import reportsRouter from "@/modules/reports/router"
 
 Vue.use(VueRouter)
 
@@ -310,6 +309,11 @@ const routes: RouteConfig[] = [
               },
             ],
           },
+          {
+            path: "reports",
+            name: "ReportsPage",
+            component: () => import("@/pages/ReportsPage.vue"),
+          },
           // End of Main Content Pages
           // Start of Administration pages
           {
@@ -394,7 +398,6 @@ const routes: RouteConfig[] = [
   },
 
   ...travelDeskRouter,
-  ...reportsRouter,
 
   {
     name: "SignInPage",
