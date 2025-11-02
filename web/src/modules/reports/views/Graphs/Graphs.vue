@@ -36,12 +36,12 @@
             >
               No data available
             </div>
-            <apexchart
+            <ApexCharts
               type="pie"
               height="550"
               :options="chartOptions"
               :series="series"
-            ></apexchart>
+            ></ApexCharts>
           </div>
 
           <div
@@ -49,15 +49,15 @@
             id="chart"
             :key="barId"
           >
-            <apexchart
+            <ApexCharts
               type="bar"
               :options="chartOptions"
               :series="series"
-            ></apexchart>
+            ></ApexCharts>
           </div>
 
           <!-- <div v-else-if="tabs == 2" id="chart" :key="lineId">
-                        <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
+                        <ApexCharts type="line" :options="chartOptions" :series="series"></ApexCharts>
                     </div> -->
         </v-col>
         <v-col cols="4">
@@ -224,8 +224,13 @@
 <script>
 import Vue from "vue"
 
+import ApexCharts from "vue-apexcharts"
+
 export default {
   name: "Graphs",
+  components: {
+    ApexCharts,
+  },
   props: {
     filtersApplied: {
       type: Boolean,

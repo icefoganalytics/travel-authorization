@@ -32,8 +32,6 @@ Vue.directive("yk-btn", {
   },
 })
 
-Vue.component("apexchart", VueApexCharts)
-
 axios.defaults.withCredentials = true
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*"
 
