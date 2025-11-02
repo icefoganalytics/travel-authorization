@@ -18,6 +18,8 @@ import {
   ExpensesController,
   FlightReconciliations,
   FlightReconciliationsController,
+  FlightStatistics,
+  FlightStatisticsController,
   GeneralLedgerCodingsController,
   LocationsController,
   PerDiemsController,
@@ -129,6 +131,10 @@ router
   .get(FlightReconciliationsController.show)
   .patch(FlightReconciliationsController.update)
   .delete(FlightReconciliationsController.destroy)
+
+router.route("/api/flight-statistics").get(FlightStatisticsController.index)
+router.route("/api/flight-statistics/sync").post(FlightStatistics.SyncController.create)
+router.route("/api/flight-statistics/:flightStatisticId").get(FlightStatisticsController.show)
 
 router.route("/api/per-diems").get(PerDiemsController.index)
 router

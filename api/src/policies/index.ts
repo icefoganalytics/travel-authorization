@@ -1,6 +1,7 @@
 export { type BaseScopeOptions } from "./policy-factory"
 export { ExpensesPolicy } from "./expenses-policy"
 export { FlightReconciliationsPolicy } from "./flight-reconciliations-policy"
+export { FlightStatisticsPolicy } from "./flight-statistics-policy"
 export { GeneralLedgerCodingsPolicy } from "./general-ledger-codings-policy"
 export { PerDiemsPolicy } from "./per-diems-policy"
 export { TravelAllowancesPolicy } from "./travel-allowances-policy"
