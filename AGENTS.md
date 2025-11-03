@@ -109,6 +109,15 @@ This file follows the format from https://agents.md/ for AI agent documentation.
   - Example: config imports, blank line, middleware imports, blank line, controller imports
   - Within each section, alphabetical ordering is strongly encouraged
 
+## Environment-specific TypeScript patterns
+
+- **Browser vs Node.js setTimeout types:** In browser Vue components, use `number` type for `setTimeout` return values, not `NodeJS.Timeout`
+  - Browser: `const timer = ref<number | undefined>(undefined)` and `timer.value = setTimeout(callback, 1000)`
+  - Node.js (API): `const timer = ref<NodeJS.Timeout | undefined>(undefined)` 
+  - This prevents ESLint `'NodeJS' is not defined` errors in browser environments
+  - Browser `setTimeout` is actually `window.setTimeout` and returns a numeric timer ID
+  - Node.js `setTimeout` returns a `NodeJS.Timeout` object for additional functionality
+
 ## Architecture patterns
 
 - **Service pattern:** Business logic in services with static `.perform()` methods
