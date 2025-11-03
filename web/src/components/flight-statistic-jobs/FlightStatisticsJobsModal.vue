@@ -89,71 +89,68 @@
   </div>
 </template>
 
-<script>
-import { flightStatisticsJobsApi } from "@/api"
+<script setup lang="ts">
+import { onUnmounted, ref } from "vue"
 import { isEmpty } from "lodash"
 
-export default {
-  name: "UpdateProgressModal",
-  components: {},
-  props: {},
-  data() {
-    return {
-      updateDialog: false,
-      loadingData: false,
-      lastUpdate: "",
-      progress: 0,
-      runningUpdates: false,
-      timeHandle: null,
-    }
-  },
-  mounted() {},
-  beforeDestroy() {
-    clearTimeout(this.timeHandle)
-  },
-  methods: {
-    async initUpdate() {
-      await this.getProgress()
-    },
-    async getProgress() {
-      this.loadingData = true
-      try {
-        const { flightStatisticJobs } = await flightStatisticsJobsApi.list()
-        if (isEmpty(flightStatisticJobs)) return
+import flightStatisticsJobsApi from "@/api/flight-statistics-jobs-api"
 
-        const firstFlightStatisticJob = flightStatisticJobs[0]
-        this.progress = firstFlightStatisticJob.progress
-        const updateTime = new Date()
-        updateTime.setMinutes(updateTime.getMinutes() - 1)
-        const lastUpdate = new Date(firstFlightStatisticJob.updatedAt)
-        this.runningUpdates = updateTime < lastUpdate
-        this.lastUpdate = lastUpdate.toLocaleString()
-        this.timeHandle = setTimeout(() => {
-          this.getProgress()
-        }, 30000)
-      } catch (error) {
-        console.error(`Failed to get flight statistic jobs: ${error}`, { error })
-      } finally {
-        this.loadingData = false
-      }
-    },
-    closeDialog() {
-      clearTimeout(this.timeHandle)
-      this.updateDialog = false
-    },
-    async startUpdate() {
-      this.loadingData = true
-      try {
-        await flightStatisticsJobsApi.create()
-      } catch (error) {
-        console.error(`Failed to create flight statistics job: ${error}`, { error })
-      } finally {
-        this.runningUpdates = true
-        this.progress = 0
-        this.loadingData = false
-      }
-    },
-  },
+const updateDialog = ref(false)
+const loadingData = ref(false)
+const lastUpdate = ref("")
+const progress = ref(0)
+const runningUpdates = ref(false)
+const timeHandle = ref<number | undefined>(undefined)
+
+onUnmounted(() => {
+  clearTimeout(timeHandle.value)
+})
+
+async function initUpdate() {
+  await getProgress()
+}
+
+// TODO: update implementation to something more readable
+async function getProgress() {
+  loadingData.value = true
+  try {
+    const { flightStatisticJobs } = await flightStatisticsJobsApi.list()
+    if (isEmpty(flightStatisticJobs)) return
+
+    const firstFlightStatisticJob = flightStatisticJobs[0]
+    progress.value = firstFlightStatisticJob.progress
+    const updateTime = new Date()
+    updateTime.setMinutes(updateTime.getMinutes() - 1)
+    const lastUpdateDate = new Date(firstFlightStatisticJob.updatedAt)
+    runningUpdates.value = updateTime < lastUpdateDate
+    lastUpdate.value = lastUpdateDate.toLocaleString()
+    timeHandle.value = window.setTimeout(() => {
+      getProgress()
+    }, 30000)
+  } catch (error) {
+    console.error(`Failed to get flight statistic jobs: ${error}`, { error })
+  } finally {
+    loadingData.value = false
+  }
+}
+
+function closeDialog() {
+  clearTimeout(timeHandle.value)
+  updateDialog.value = false
+}
+
+// TODO: keep track of job id, so it can be used to get progress
+async function startUpdate() {
+  loadingData.value = true
+  try {
+    await flightStatisticsJobsApi.create()
+  } catch (error) {
+    console.error(`Failed to create flight statistics job: ${error}`, { error })
+  } finally {
+    runningUpdates.value = true
+    progress.value = 0
+    loadingData.value = false
+  }
 }
 </script>
 

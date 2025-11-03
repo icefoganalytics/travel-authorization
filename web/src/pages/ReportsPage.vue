@@ -28,7 +28,7 @@
             @click="showGraphs = !showGraphs"
             >Graph
           </v-btn>
-          <UpdateProgressModal class="ml-auto" />
+          <FlightStatisticsJobsModal class="ml-auto" />
         </v-card-actions>
       </v-card>
 
@@ -83,7 +83,7 @@ import useFlightStatistics from "@/use/use-flight-statistics"
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
 import Filters from "@/modules/reports/views/Filters/Filters.vue"
 import Graphs from "@/modules/reports/views/Graphs/Graphs.vue"
-import UpdateProgressModal from "@/modules/reports/views/Common/UpdateProgressModal.vue"
+import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 
 const { flightStatistics, isLoading } = useFlightStatistics()
 
