@@ -5,6 +5,7 @@ import DistanceMatrix from "./distance-matrix"
 import Expense from "./expense"
 import FlightReconciliation from "./flight-reconciliation"
 import FlightStatistic from "./flight-statistic"
+import FlightStatisticJob from "./flight-statistic-job"
 import GeneralLedgerCoding from "./general-ledger-coding"
 import Location from "./location"
 import PerDiem from "./per-diem"
@@ -38,6 +39,7 @@ db.addModels([
   Expense,
   FlightReconciliation,
   FlightStatistic,
+  FlightStatisticJob,
   GeneralLedgerCoding,
   Location,
   PerDiem,
@@ -71,6 +73,7 @@ DistanceMatrix.establishScopes()
 Expense.establishScopes()
 FlightReconciliation.establishScopes()
 FlightStatistic.establishScopes()
+FlightStatisticJob.establishScopes()
 GeneralLedgerCoding.establishScopes()
 Location.establishScopes()
 PerDiem.establishScopes()
@@ -104,6 +107,7 @@ export {
   Expense,
   FlightReconciliation,
   FlightStatistic,
+  FlightStatisticJob,
   GeneralLedgerCoding,
   Location,
   PerDiem,
