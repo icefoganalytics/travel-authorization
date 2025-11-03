@@ -90,9 +90,8 @@
 </template>
 
 <script>
-import { TRAVEL_COM_URL } from "@/urls"
-import http from "@/api/http-client"
-import flightStatisticsApi from "@/api/flight-statistics-api"
+import { flightStatisticsJobsApi } from "@/api"
+import { isEmpty } from "lodash"
 
 export default {
   name: "UpdateProgressModal",
@@ -118,26 +117,25 @@ export default {
     },
     async getProgress() {
       this.loadingData = true
-      return http
-        .get(`${TRAVEL_COM_URL}/statistics-update-progress`)
-        .then(async (resp) => {
-          if (resp.data.length > 0) {
-            this.progress = resp.data[0].progress
-            const updateTime = new Date()
-            updateTime.setMinutes(updateTime.getMinutes() - 1)
-            const lastUpdate = new Date(resp.data[0].last_update)
-            this.runningUpdates = updateTime < lastUpdate
-            this.lastUpdate = lastUpdate.toLocaleString()
-            this.timeHandle = setTimeout(() => {
-              this.getProgress()
-            }, 30000)
-          }
-          this.loadingData = false
-        })
-        .catch((e) => {
-          console.log(e)
-          this.loadingData = false
-        })
+      try {
+        const { flightStatisticJobs } = await flightStatisticsJobsApi.list()
+        if (isEmpty(flightStatisticJobs)) return
+
+        const firstFlightStatisticJob = flightStatisticJobs[0]
+        this.progress = firstFlightStatisticJob.progress
+        const updateTime = new Date()
+        updateTime.setMinutes(updateTime.getMinutes() - 1)
+        const lastUpdate = new Date(firstFlightStatisticJob.updatedAt)
+        this.runningUpdates = updateTime < lastUpdate
+        this.lastUpdate = lastUpdate.toLocaleString()
+        this.timeHandle = setTimeout(() => {
+          this.getProgress()
+        }, 30000)
+      } catch (error) {
+        console.error(`Failed to get flight statistic jobs: ${error}`, { error })
+      } finally {
+        this.loadingData = false
+      }
     },
     closeDialog() {
       clearTimeout(this.timeHandle)
@@ -146,9 +144,9 @@ export default {
     async startUpdate() {
       this.loadingData = true
       try {
-        await flightStatisticsApi.sync()
+        await flightStatisticsJobsApi.create()
       } catch (error) {
-        console.error(`Failed to sync flight statistics: ${error}`, { error })
+        console.error(`Failed to create flight statistics job: ${error}`, { error })
       } finally {
         this.runningUpdates = true
         this.progress = 0

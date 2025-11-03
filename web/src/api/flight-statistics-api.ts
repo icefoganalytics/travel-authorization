@@ -92,12 +92,6 @@ export const flightStatisticsApi = {
     const { data } = await http.get(`/api/flight-statistics/${flightStatisticId}`)
     return data
   },
-  async sync(): Promise<{
-    message: string
-  }> {
-    const { data } = await http.post("/api/flight-statistics/sync")
-    return data
-  },
 }
 
 export default flightStatisticsApi
