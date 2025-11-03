@@ -1,5 +1,6 @@
 import { CreationAttributes } from "@sequelize/core"
 import isEmpty, { cloneDeep, first, has, isNil, isUndefined, last, sumBy } from "lodash"
+import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 
@@ -178,10 +179,15 @@ export class SyncService extends BaseService {
   }
 
   private calculateDays(departureDate: string, lastLegDate: string): number {
-    const start = new Date(departureDate)
-    const end = new Date(lastLegDate)
-    const differenceTimeMilliseconds = Math.abs(end.getTime() - start.getTime())
-    const differenceDays = Math.ceil(differenceTimeMilliseconds / (1000 * 60 * 60 * 24))
+    const startDate = DateTime.fromISO(departureDate)
+    const endDate = DateTime.fromISO(lastLegDate)
+
+    if (!startDate.isValid || !endDate.isValid) {
+      return 0
+    }
+
+    const differenceDays = Math.ceil(Math.abs(endDate.diff(startDate).as("days")))
+
     return differenceDays
   }
 
