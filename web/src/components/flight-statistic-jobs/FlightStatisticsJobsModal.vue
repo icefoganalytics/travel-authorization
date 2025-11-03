@@ -1,93 +1,91 @@
 <template>
-  <div>
-    <v-dialog
-      v-model="showDialog"
-      persistent
-      max-width="500px"
-      @keydown.esc="closeDialog"
-    >
-      <template #activator="{ on, attrs }">
-        <v-btn
-          class="ml-2"
-          color="secondary"
-          v-bind="attrs"
-          v-on="on"
-          @click="checkProgress"
-        >
-          Update Reports
-        </v-btn>
-      </template>
+  <v-dialog
+    v-model="showDialog"
+    persistent
+    max-width="500px"
+    @keydown.esc="close"
+  >
+    <template #activator="{ on, attrs }">
+      <v-btn
+        class="ml-2"
+        color="secondary"
+        v-bind="attrs"
+        v-on="on"
+        @click="checkProgress"
+      >
+        Update Reports
+      </v-btn>
+    </template>
 
-      <v-card>
-        <v-card-title class="text-h5 primary">Report Updates</v-card-title>
-        <v-card-text>
-          <v-row
-            class="mt-3"
-            style="font-size: 13pt"
+    <v-card>
+      <v-card-title class="text-h5 primary">Report Updates</v-card-title>
+      <v-card-text>
+        <v-row
+          class="mt-3"
+          style="font-size: 13pt"
+        >
+          <v-col cols="9"
+            ><b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i></v-col
           >
-            <v-col cols="9"
-              ><b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i></v-col
+          <v-col
+            v-if="isRunningJob"
+            cols="3"
+            class="my-3 blink text-center"
+            >Running</v-col
+          >
+        </v-row>
+        <v-row
+          class="mt-3"
+          style="font-size: 13pt"
+        >
+          <v-col>
+            <b>Progress:</b>
+            <v-progress-linear
+              v-model="progressPercent"
+              color="amber"
+              height="25"
+              @change="checkProgress"
             >
-            <v-col
-              v-if="isRunningJob"
-              cols="3"
-              class="my-3 blink text-center"
-              >Running</v-col
-            >
-          </v-row>
-          <v-row
-            class="mt-3"
-            style="font-size: 13pt"
+              <template #default="{ value }">
+                <strong>{{ Math.ceil(value) }}%</strong>
+              </template>
+            </v-progress-linear>
+          </v-col>
+        </v-row>
+        <v-row
+          v-if="!isRunningJob"
+          class="mx-1 mt-7 mb-n7 red--text"
+        >
+          <span
+            ><b>Warning:</b> Updating the Reports takes about <b>15-30 Minutes</b>. Please make sure
+            you need to update them in the DB based on the date shown above.</span
           >
-            <v-col>
-              <b>Progress:</b>
-              <v-progress-linear
-                v-model="progressPercent"
-                color="amber"
-                height="25"
-                @change="checkProgress"
-              >
-                <template #default="{ value }">
-                  <strong>{{ Math.ceil(value) }}%</strong>
-                </template>
-              </v-progress-linear>
-            </v-col>
-          </v-row>
-          <v-row
-            v-if="!isRunningJob"
-            class="mx-1 mt-7 mb-n7 red--text"
-          >
-            <span
-              ><b>Warning:</b> Updating the Reports takes about <b>15-30 Minutes</b>. Please make
-              sure you need to update them in the DB based on the date shown above.</span
-            >
-          </v-row>
-          <v-row
-            v-if="isRunningJob && isLoading"
-            class="mx-1 mt-7 mb-n9 red--text"
-          >
-            Please Wait!
-          </v-row>
-        </v-card-text>
-        <v-card-actions class="mx-2">
-          <v-btn
-            :loading="isLoading"
-            color="secondary"
-            @click="closeDialog"
-            >Close
-          </v-btn>
-          <v-btn
-            :disabled="isRunningJob"
-            :loading="isLoading"
-            class="ml-auto"
-            color="primary"
-            @click="startUpdate"
-            >Start Update
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+        </v-row>
+        <v-row
+          v-if="isRunningJob && isLoading"
+          class="mx-1 mt-7 mb-n9 red--text"
+        >
+          Please Wait!
+        </v-row>
+      </v-card-text>
+      <v-card-actions class="mx-2">
+        <v-btn
+          :loading="isLoading"
+          color="secondary"
+          @click="close"
+          >Close
+        </v-btn>
+        <v-btn
+          :disabled="isRunningJob"
+          :loading="isLoading"
+          class="ml-auto"
+          color="primary"
+          @click="startUpdate"
+          >Start Update
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -164,7 +162,7 @@ async function checkProgress() {
   }
 }
 
-function closeDialog() {
+function close() {
   clearTimeout(progressTimer.value)
   showDialog.value = false
 }
