@@ -92,6 +92,7 @@
 <script>
 import { TRAVEL_COM_URL } from "@/urls"
 import http from "@/api/http-client"
+import flightStatisticsApi from "@/api/flight-statistics-api"
 
 export default {
   name: "UpdateProgressModal",
@@ -144,19 +145,15 @@ export default {
     },
     async startUpdate() {
       this.loadingData = true
-      return http
-        .get(`${TRAVEL_COM_URL}/update-statistics`, 1000)
-        .then(async () => {
-          this.loadingData = false
-        })
-        .catch((e) => {
-          if (e.response?.status == 500) console.log(e)
-          else {
-            this.runningUpdates = true
-            this.progress = 0
-          }
-          this.loadingData = false
-        })
+      try {
+        await flightStatisticsApi.sync()
+      } catch (error) {
+        console.error(`Failed to sync flight statistics: ${error}`, { error })
+      } finally {
+        this.runningUpdates = true
+        this.progress = 0
+        this.loadingData = false
+      }
     },
   },
 }
