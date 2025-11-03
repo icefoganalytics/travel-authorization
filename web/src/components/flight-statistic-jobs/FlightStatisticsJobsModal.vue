@@ -76,16 +76,18 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, ref } from "vue"
+import { onUnmounted, ref, watchEffect } from "vue"
 import { isEmpty } from "lodash"
 
 import flightStatisticsJobsApi from "@/api/flight-statistics-jobs-api"
 
 import useSnack from "@/use/use-snack"
+import useRouteQuery from "@/use/utils/use-route-query"
+
+const showDialog = useRouteQuery("showReportProgress", false)
 
 const PROGRESS_POLL_INTERVAL_IN_MILLISECONDS = 30 * 1000
 
-const showDialog = ref(false)
 const isLoading = ref(false)
 const isRunningJob = ref(false)
 
@@ -95,13 +97,12 @@ const progressTimer = ref<number | undefined>(undefined)
 
 const snack = useSnack()
 
-// TODO: keep track of job id, so it can be used to get progress
+// TODO: consider using job id, so it can be used to get progress
 async function startUpdate() {
   isLoading.value = true
   try {
     await flightStatisticsJobsApi.create()
-    progressPercent.value = 0
-    isRunningJob.value = true
+    await checkProgress()
 
     snack.success("Update reports job started successfully")
   } catch (error) {
@@ -114,6 +115,8 @@ async function startUpdate() {
 
 async function checkProgress() {
   isLoading.value = true
+  progressPercent.value = 0
+  isRunningJob.value = true
   try {
     const { flightStatisticJobs } = await flightStatisticsJobsApi.list({
       order: [["updatedAt", "DESC"]],
@@ -121,26 +124,21 @@ async function checkProgress() {
     })
     if (isEmpty(flightStatisticJobs)) {
       isRunningJob.value = false
+      lastUpdatedAt.value = "Never"
       clearTimeout(progressTimer.value)
       return
     }
 
     const latestFlightStatisticJob = flightStatisticJobs[0]
-
     const { progress, updatedAt } = latestFlightStatisticJob
-    progressPercent.value = progress
+    lastUpdatedAt.value = updatedAt.toLocaleString()
+
     if (progress === 100) {
       isRunningJob.value = false
+      progressPercent.value = progress
       clearTimeout(progressTimer.value)
       return
     }
-
-    const updateTime = new Date()
-    updateTime.setMinutes(updateTime.getMinutes() - 1)
-    const lastUpdateDate = new Date(updatedAt)
-    lastUpdatedAt.value = lastUpdateDate.toLocaleString()
-
-    isRunningJob.value = updateTime < lastUpdateDate
 
     progressTimer.value = window.setTimeout(() => {
       checkProgress()
@@ -153,13 +151,19 @@ async function checkProgress() {
   }
 }
 
+watchEffect(() => {
+  if (showDialog.value) {
+    checkProgress()
+  } else {
+    clearTimeout(progressTimer.value)
+  }
+})
+
 function open() {
   showDialog.value = true
-  checkProgress()
 }
 
 function close() {
-  clearTimeout(progressTimer.value)
   showDialog.value = false
 }
 
