@@ -1,5 +1,10 @@
+import { Op } from "@sequelize/core"
+
+import logger from "@/utils/logger"
+
 import { FlightStatisticJob, User } from "@/models"
 import BaseService from "@/services/base-service"
+import SyncService from "@/services/flight-statistics-jobs/sync-service"
 
 export class CreateService extends BaseService {
   constructor(protected currentUser: User) {
@@ -7,18 +12,40 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<FlightStatisticJob> {
-    // TODO: Move the sync logic from api/src/routes/travCom-router.ts lines 96-240 here
-    // This should:
-    // 1. Create/update FlightStatisticJob record to track progress and prevent concurrent syncs
-    // 2. Fetch data from TravCom database (ARInvoicesNoHealth, ARInvoiceDetailsNoHealth, segmentsNoHealth)
-    // 3. Process and aggregate statistics by department + destination
-    // 4. Delete existing flight_statistics records
-    // 5. Insert new aggregated statistics
-    // 6. Update job progress to 100%
+    if (await this.jobAlreadyInProgress()) {
+      throw new Error(
+        "A flight statistics sync job is already in progress. Please wait for it to complete before starting a new sync."
+      )
+    }
 
-    throw new Error(
-      "not yet implemented - logic needs to be moved from travCom-router.ts"
-    )
+    const job = await FlightStatisticJob.create({
+      progress: 0,
+    })
+
+    // TODO: pull in background job architecture and use that instead
+    this.performSyncInBackground(job)
+
+    return job
+  }
+
+  private async jobAlreadyInProgress(): Promise<boolean> {
+    const inProgressJobsCount = await FlightStatisticJob.count({
+      where: {
+        progress: {
+          [Op.lt]: 100,
+        },
+      },
+    })
+    return inProgressJobsCount > 0
+  }
+
+  private async performSyncInBackground(job: FlightStatisticJob): Promise<void> {
+    try {
+      await SyncService.perform(job)
+    } catch (error) {
+      logger.error("Failed to sync flight statistics", { error })
+      throw error
+    }
   }
 }
 
