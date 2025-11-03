@@ -27,6 +27,8 @@ TravelAuth is a full-stack travel authorization and approval system for the Yuko
 
 This file follows the format from https://agents.md/ for AI agent documentation.
 
+**Documentation philosophy:** This file focuses on patterns, conventions, and architecture rather than documenting specific features or domain models. When providing examples, use them to illustrate patterns rather than to exhaustively document every feature.
+
 ## Dev environment tips
 
 - Start all services: `dev up` (or `docker compose -f docker-compose.development.yml up`)
@@ -146,6 +148,10 @@ This file follows the format from https://agents.md/ for AI agent documentation.
   - Re-export types, enums, and constants from API module for convenience in both forms
 - **Factory pattern:** Use Fishery factories for test data creation
 - **Policy pattern:** Authorization scoping via policy classes
+  - Policy checks via `this.buildPolicy()` in controllers for authorization
+  - Use `Policy.applyScope()` for query scoping in `index()` methods
+  - **Role checks:** Use `user.isAdmin` property (not `user.roles.includes(User.Roles.ADMIN)`)
+  - Example: `if (this.user.isAdmin) return true`
 - **Access control:** Direct user, position-based, team-based, position-team access patterns
 - **Delegations:** Workflow/step player delegation with automatic cleanup
 - **Soft deletes:** Models support `deletedAt` timestamp
