@@ -5,6 +5,7 @@ TravelAuth is a full-stack travel authorization and approval system for the Yuko
 ## Technology Stack
 
 ### Backend (API)
+
 - Node.js + Express + TypeScript
 - PostgreSQL database
 - Knex.js for database migrations
@@ -12,11 +13,13 @@ TravelAuth is a full-stack travel authorization and approval system for the Yuko
 - Docker Compose for containerization
 
 ### Frontend (Web)
+
 - Vue 2 + Vuetify 2 (migrating to Vue 3 + Vuetify 3)
 - Axios for API communication
 - TypeScript for type safety
 
 ### Testing
+
 - Vitest for test framework
 - Well-structured test files mirroring source structure
 - Database cleanup between tests
@@ -44,6 +47,7 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 ## Testing instructions
 
 **Running tests:**
+
 - Run all API tests: `dev test_api` (from project root)
 - Run specific test file: `dev test api/tests/services/example.test.ts -- --run` (from project root)
 - Run specific test file (alternative): `npm test -- tests/services/example.test.ts --run` (from `/api`)
@@ -52,6 +56,7 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 - Test specific pattern: `npm test -- --grep "creates a delegation"` (from `/api`)
 
 **Test structure:**
+
 - Test files mirror source structure: `api/src/services/example.ts` → `api/tests/services/example.test.ts`
 - Use Fishery factories from `@/factories` for all test data (e.g., `userFactory.create()`)
 - Tests automatically clean database before each test via `setup.ts` - no manual cleanup needed
@@ -61,11 +66,13 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 - Test files use nested describe blocks: file path → class name → method name (`.perform`)
 
 **Test variable naming:**
+
 - Use numbered entities: `user1`, `user2`, `position1`, `position2` (not `existingUser`, `newUser`, `currentUser`)
 - Use most specific, descriptive variable names: `workflowStepPlayersAttributes` not `playersAttributes`
 - Always create `userOrganization` relationships after creating users and organizations: `await userOrganizationFactory.create({ userId: user1.id, organizationId: organization.id })`
 
 **Test assertions:**
+
 - In service tests, use `findAll()` without where clauses to assert database state (test isolation handles cleanup)
 - Focus assertions on database state, not service return values (unless specifically testing return values)
 - For arrays of objects: `expect(result).toEqual([expect.objectContaining({ id: workflow.id })])`
@@ -109,6 +116,12 @@ This file follows the format from https://agents.md/ for AI agent documentation.
   - The static `perform()` method handles instantiation internally and ensures proper type inference
   - Example correct: `await EnsureForWorkflowStepPlayerService.perform(workflowId, playerId)`
   - Example incorrect: `await new EnsureForWorkflowStepPlayerService(workflowId, playerId).perform()`
+- **Controller pattern:** RESTful controllers extending BaseController
+  - Standard CRUD methods: `index()`, `show()`, `create()`, `update()`, `destroy()`
+  - Routes follow pattern: `GET /api/resources`, `GET /api/resources/:resourceId`, `POST /api/resources`, `PATCH /api/resources/:resourceId`, `DELETE /api/resources/:resourceId`
+  - Policy checks via `this.buildPolicy()` for authorization; use `Policy.applyScope()` for query scoping
+  - Serializers format output (IndexSerializer, ShowSerializer)
+  - Nested controllers in subfolder for resource related actions: `controllers/resource/action-controller.ts`
 - **Factory pattern:** Use Fishery factories for test data creation
 - **Policy pattern:** Authorization scoping via policy classes
 - **Access control:** Direct user, position-based, team-based, position-team access patterns
@@ -141,29 +154,34 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 Always include a "Testing Instructions" section in PRs with numbered UI steps:
 
 1. Start with standard setup steps:
+
    - `1. Run the test suite via 'dev test' (or 'dev test_api')`
    - `2. Boot the app via 'dev up'`
    - `3. Log in to the app at http://localhost:8080`
 
 2. Navigation steps should reference specific UI elements:
+
    - Use exact button names: **Add User**, **Activate Position**, **Create Delegation**
    - Reference menu locations: "top right dropdown nav", "left sidebar nav"
    - Reference tabs by name: **Users** tab, **Positions** tab
    - Use navigation arrows: **Administration** → **Positions** → **Users** tab
 
 3. Organize complex testing into test cases:
+
    - Use `## Test Case N: Description` subheadings for multiple scenarios
    - Number steps sequentially across all test cases (don't restart at 1)
    - Include expected outcomes: "Verify success message: 'X created!'"
    - Test both success and failure paths when relevant
 
 4. Verification steps should be explicit:
+
    - "Verify the table displays **Column Name** column"
    - "Verify dates are formatted correctly"
    - "Verify error message contains: 'exact error text'"
    - "Verify you are redirected to the X page"
 
 5. Include specific test data when helpful:
+
    - Example values: "Select '2025-10-15'" or "Enter 'Alice Smith'"
    - Specific URLs: `http://localhost:8080/administration/users/2/positions`
 
@@ -173,6 +191,7 @@ Always include a "Testing Instructions" section in PRs with numbered UI steps:
    - Break complex forms into bullet lists with field names
 
 Example pattern:
+
 ```markdown
 ## Testing Instructions
 
@@ -195,11 +214,13 @@ Example pattern:
 ## Configuration
 
 Environment files (not committed):
+
 - `.env.development` - Development config
 - `.env.production` - Production config
 - `.env.test` - Test config
 
 **Minimal required variables** (most configuration is in docker-compose.development.yml):
+
 - `NODE_ENV` - Environment (development, test, production)
 - `API_PORT` - API server port (default: `3000`)
 - `FRONTEND_URL` - Frontend URL (e.g., `http://localhost:8080`)
@@ -209,9 +230,10 @@ Environment files (not committed):
 - `YUKON_GOVERNMENT_FINANCE_API_KEY` - Finance API key
 
 **Database configuration** (for local development outside Docker):
+
 - `DB_HOST` - PostgreSQL host
 - `DB_NAME` - Database name
-- `DB_USER` - Database user  
+- `DB_USER` - Database user
 - `DB_PASS` - Database password
 - `DB_PORT` - Database port (default: `5432`)
 
@@ -220,6 +242,7 @@ See `/api/src/config.ts` for complete configuration details.
 ## Common factories
 
 Import from `@/factories`:
+
 - `userFactory` - User entities
 - `travelAuthorizationFactory` - Travel authorization records
 - `travelAuthorizationPreApprovalFactory` - Pre-approval records
@@ -234,6 +257,7 @@ Import from `@/factories`:
 - `distanceMatrixFactory` - Distance matrix data
 
 Example usage:
+
 ```typescript
 import { userFactory, travelAuthorizationFactory } from "@/factories"
 
