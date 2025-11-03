@@ -96,6 +96,8 @@ import { isEmpty } from "lodash"
 
 import flightStatisticsJobsApi from "@/api/flight-statistics-jobs-api"
 
+import useSnack from "@/use/use-snack"
+
 const showDialog = ref(false)
 const isLoading = ref(false)
 const isRunningJob = ref(false)
@@ -108,6 +110,8 @@ onUnmounted(() => {
   clearTimeout(progressTimer.value)
 })
 
+const snack = useSnack()
+
 // TODO: keep track of job id, so it can be used to get progress
 async function startUpdate() {
   isLoading.value = true
@@ -115,8 +119,11 @@ async function startUpdate() {
     await flightStatisticsJobsApi.create()
     progressPercent.value = 0
     isRunningJob.value = true
+
+    snack.success("Update reports job started successfully")
   } catch (error) {
     console.error(`Failed to create flight statistics job: ${error}`, { error })
+    snack.error(`Failed to start update reports job: ${error}`)
   } finally {
     isLoading.value = false
   }
@@ -151,6 +158,7 @@ async function checkProgress() {
     }, 30000)
   } catch (error) {
     console.error(`Failed to get flight statistic jobs: ${error}`, { error })
+    snack.error(`Failed to get flight statistic jobs: ${error}`)
   } finally {
     isLoading.value = false
   }
