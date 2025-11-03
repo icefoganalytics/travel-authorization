@@ -1,6 +1,5 @@
 import {
   DataTypes,
-  Model,
   Op,
   type CreationOptional,
   type InferAttributes,
@@ -11,6 +10,7 @@ import { Attribute, HasMany, Table } from "@sequelize/core/decorators-legacy"
 
 import { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
 
+import BaseModel from "@/integrations/trav-com-integration/models/base-model"
 import AccountsReceivableInvoiceDetail from "@/integrations/trav-com-integration/models/accounts-receivable-invoice-detail"
 import Segment from "@/integrations/trav-com-integration/models/segment"
 
@@ -32,7 +32,7 @@ export type ArInvoiceNoHealthRaw = {
   timestamps: false,
   paranoid: false,
 })
-export class AccountsReceivableInvoice extends Model<
+export class AccountsReceivableInvoice extends BaseModel<
   InferAttributes<AccountsReceivableInvoice>,
   InferCreationAttributes<AccountsReceivableInvoice>
 > {
