@@ -29,10 +29,9 @@
           <v-col>
             <b>Progress:</b>
             <v-progress-linear
-              v-model="progressPercent"
+              :value="progressPercent"
               color="amber"
               height="25"
-              @change="checkProgress"
             >
               <template #default="{ value }">
                 <strong>{{ Math.ceil(value) }}%</strong>
@@ -83,6 +82,8 @@ import { isEmpty } from "lodash"
 import flightStatisticsJobsApi from "@/api/flight-statistics-jobs-api"
 
 import useSnack from "@/use/use-snack"
+
+const PROGRESS_POLL_INTERVAL_IN_MILLISECONDS = 30 * 1000
 
 const showDialog = ref(false)
 const isLoading = ref(false)
@@ -143,7 +144,7 @@ async function checkProgress() {
 
     progressTimer.value = window.setTimeout(() => {
       checkProgress()
-    }, 30000)
+    }, PROGRESS_POLL_INTERVAL_IN_MILLISECONDS)
   } catch (error) {
     console.error(`Failed to get flight statistic jobs: ${error}`, { error })
     snack.error(`Failed to get flight statistic jobs: ${error}`)
