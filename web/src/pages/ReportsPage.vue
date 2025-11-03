@@ -28,7 +28,13 @@
             @click="showGraphs = !showGraphs"
             >Graph
           </v-btn>
-          <FlightStatisticsJobsModal class="ml-auto" />
+          <v-btn
+            class="ml-auto"
+            color="secondary"
+            @click="openFlightStatisticsJobsModal"
+          >
+            Update Reports
+          </v-btn>
         </v-card-actions>
       </v-card>
 
@@ -63,6 +69,8 @@
         <FlightReport :flight-report="frontEndFilteredFlightStatistics" />
       </v-card>
     </div>
+
+    <FlightStatisticsJobsModal ref="flightStatisticsJobsModal" />
   </v-card>
 </template>
 
@@ -156,4 +164,10 @@ const frontEndFilteredFlightStatistics = computed(() => {
 
   return localFlightStatistics
 })
+
+const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsModal>>()
+
+function openFlightStatisticsJobsModal() {
+  flightStatisticsJobsModal.value?.open()
+}
 </script>

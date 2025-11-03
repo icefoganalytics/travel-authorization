@@ -5,18 +5,6 @@
     max-width="500px"
     @keydown.esc="close"
   >
-    <template #activator="{ on, attrs }">
-      <v-btn
-        class="ml-2"
-        color="secondary"
-        v-bind="attrs"
-        v-on="on"
-        @click="checkProgress"
-      >
-        Update Reports
-      </v-btn>
-    </template>
-
     <v-card>
       <v-card-title class="text-h5 primary">Report Updates</v-card-title>
       <v-card-text>
@@ -104,10 +92,6 @@ const lastUpdatedAt = ref("")
 const progressPercent = ref(0)
 const progressTimer = ref<number | undefined>(undefined)
 
-onUnmounted(() => {
-  clearTimeout(progressTimer.value)
-})
-
 const snack = useSnack()
 
 // TODO: keep track of job id, so it can be used to get progress
@@ -136,6 +120,7 @@ async function checkProgress() {
     })
     if (isEmpty(flightStatisticJobs)) {
       isRunningJob.value = false
+      clearTimeout(progressTimer.value)
       return
     }
 
@@ -143,6 +128,11 @@ async function checkProgress() {
 
     const { progress, updatedAt } = latestFlightStatisticJob
     progressPercent.value = progress
+    if (progress === 100) {
+      isRunningJob.value = false
+      clearTimeout(progressTimer.value)
+      return
+    }
 
     const updateTime = new Date()
     updateTime.setMinutes(updateTime.getMinutes() - 1)
@@ -162,10 +152,24 @@ async function checkProgress() {
   }
 }
 
+function open() {
+  showDialog.value = true
+  checkProgress()
+}
+
 function close() {
   clearTimeout(progressTimer.value)
   showDialog.value = false
 }
+
+onUnmounted(() => {
+  clearTimeout(progressTimer.value)
+})
+
+defineExpose({
+  open,
+  close,
+})
 </script>
 
 <style scoped>
