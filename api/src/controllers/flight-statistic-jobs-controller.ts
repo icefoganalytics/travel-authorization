@@ -10,7 +10,7 @@ export class FlightStatisticJobsController extends BaseController<FlightStatisti
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
-      const order = this.buildOrder([["updatedAt", "DESC"]])
+      const order = this.buildOrder()
       const scopedFlightStatisticJobs = FlightStatisticsJobsPolicy.applyScope(
         scopes,
         this.currentUser
