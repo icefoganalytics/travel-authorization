@@ -1,13 +1,11 @@
 import { CreationAttributes } from "@sequelize/core"
-import isEmpty, { cloneDeep, first, isNil, isUndefined, last, sumBy } from "lodash"
+import isEmpty, { cloneDeep, first, has, isNil, isUndefined, last, sumBy } from "lodash"
 
 import logger from "@/utils/logger"
 
-import { airports } from "@/json/airportCodes"
-
 import { TravComIntegration } from "@/integrations"
 
-import { FlightStatistic, FlightStatisticJob, Location } from "@/models"
+import { FlightStatistic, FlightStatisticJob } from "@/models"
 import BaseService from "@/services/base-service"
 
 export class SyncService extends BaseService {
@@ -22,14 +20,23 @@ export class SyncService extends BaseService {
     logger.info(`Processing ${totalInvoices} invoices`)
 
     let numberOfInvoicesProcessed = 0
-    let flightStatisticsAttributes: Record<string, CreationAttributes<FlightStatistic>> = {}
+    let flightStatisticsAttributesMap: Record<string, CreationAttributes<FlightStatistic>> = {}
 
     await TravComIntegration.Models.AccountsReceivableInvoice.findEach(
       {
-        include: ["details", "segments"],
+        include: [
+          "details",
+          {
+            association: "segments",
+            include: ["arrivalCity"],
+          },
+        ],
       },
       async (invoice: TravComIntegration.Models.AccountsReceivableInvoice) => {
-        flightStatisticsAttributes = await this.processInvoice(invoice, flightStatisticsAttributes)
+        flightStatisticsAttributesMap = await this.processInvoice(
+          invoice,
+          flightStatisticsAttributesMap
+        )
         numberOfInvoicesProcessed = await this.updateJobProgress(
           numberOfInvoicesProcessed,
           totalInvoices
@@ -37,9 +44,12 @@ export class SyncService extends BaseService {
       }
     )
 
+    const flightStatisticsAttributes = Object.values(flightStatisticsAttributesMap)
     await this.bulkReplaceFlightStatistics(flightStatisticsAttributes)
+    await this.job.update({ progress: 100 })
   }
 
+  // TODO: see if I can break the process invoice method out into it's own job.
   private async processInvoice(
     invoice: TravComIntegration.Models.AccountsReceivableInvoice,
     flightStatisticsAttributes: Record<string, CreationAttributes<FlightStatistic>>
@@ -66,10 +76,8 @@ export class SyncService extends BaseService {
     const lastSegment = last(segmentsSorted)
     if (isNil(lastSegment)) return cloneDeep(flightStatisticsAttributes)
 
-    const departureCityCode = firstSegment.departureCityCode
-    const arrivalCityCode = lastSegment.arrivalCityCode
-    const departureDate = firstSegment.departureInfo
-    const arrivalDate = lastSegment.arrivalInfo
+    const { departureCityCode, departureInfo: departureDate } = firstSegment
+    const { arrivalCityCode, arrivalInfo: arrivalDate } = lastSegment
 
     if (
       isNil(departureCityCode) ||
@@ -84,6 +92,22 @@ export class SyncService extends BaseService {
       return cloneDeep(flightStatisticsAttributes)
     }
 
+    const { arrivalCity } = lastSegment
+    if (isUndefined(arrivalCity)) {
+      throw new Error("Expect arrivalCity association to be preloaded")
+    }
+
+    const { cityName, state } = arrivalCity
+    if (
+      isNil(arrivalCity) ||
+      isNil(cityName) ||
+      isEmpty(cityName) ||
+      isNil(state) ||
+      isEmpty(state)
+    ) {
+      return cloneDeep(flightStatisticsAttributes)
+    }
+
     const totalExpenses = sumBy(details, (detail) => Number(detail.sellingFare))
 
     const totalFlightCost = sumBy(details, (detail) => {
@@ -93,16 +117,22 @@ export class SyncService extends BaseService {
       return 0
     })
 
+    // TODO: department is actually mail code.
+    // Update code so that it converts mail code to department.
+    const { department } = invoice
+    if (isNil(department) || isEmpty(department)) {
+      return cloneDeep(flightStatisticsAttributes)
+    }
+
     const statisticsClone = cloneDeep(flightStatisticsAttributes)
-    const department = invoice.department || "Unknown"
     const statisticsKey = `${department}/${arrivalCityCode}`
 
-    if (!statisticsClone[statisticsKey]) {
+    if (!has(statisticsClone, statisticsKey)) {
       const flightStatisticAttributes: CreationAttributes<FlightStatistic> = {
         department,
         destinationAirportCode: arrivalCityCode,
-        destinationCity: "",
-        destinationProvince: "",
+        destinationCity: cityName,
+        destinationProvince: state,
         totalExpenses: 0,
         totalFlightCost: 0,
         totalDays: 0,
@@ -116,73 +146,35 @@ export class SyncService extends BaseService {
       statisticsClone[statisticsKey] = flightStatisticAttributes
     }
 
-    statisticsClone[statisticsKey].totalExpenses += totalExpenses
-    statisticsClone[statisticsKey].totalFlightCost += totalFlightCost
+    const statisticAttributes = statisticsClone[statisticsKey]
+    statisticAttributes.totalExpenses += totalExpenses
+    statisticAttributes.totalFlightCost += totalFlightCost
 
     const days = this.calculateDays(departureDate, arrivalDate)
-    statisticsClone[statisticsKey].totalDays += days
+    statisticAttributes.totalDays += days
+    statisticAttributes.averageExpensesPerDay =
+      statisticAttributes.totalExpenses / statisticAttributes.totalDays
 
-    statisticsClone[statisticsKey].totalTrips += 1
+    statisticAttributes.totalTrips += 1
+    statisticAttributes.averageDurationDays =
+      statisticAttributes.totalDays / statisticAttributes.totalTrips
 
     const isRoundTrip = departureCityCode === arrivalCityCode
     if (isRoundTrip) {
-      statisticsClone[statisticsKey].totalRoundTrips += 1
-      statisticsClone[statisticsKey].totalRoundTripCost += totalFlightCost
+      statisticAttributes.totalRoundTrips += 1
+      statisticAttributes.totalRoundTripCost += totalFlightCost
+      statisticAttributes.averageRoundTripFlightCost =
+        statisticAttributes.totalRoundTripCost / statisticAttributes.totalRoundTrips
     }
 
     return statisticsClone
   }
 
   private async bulkReplaceFlightStatistics(
-    flightStatisticsAttributes: Record<string, CreationAttributes<FlightStatistic>>
+    flightStatisticsAttributes: CreationAttributes<FlightStatistic>[]
   ): Promise<void> {
     await FlightStatistic.destroy({ where: {} })
-
-    const locations = await Location.findAll({ attributes: ["province", "city"] })
-
-    for (const key of Object.keys(flightStatisticsAttributes)) {
-      const record = flightStatisticsAttributes[key]
-
-      const matchingAirport = airports.find(
-        (airport) => airport.iata_code === record.destinationAirportCode
-      )
-      const destinationCity = matchingAirport?.municipality || ""
-
-      const matchingLocation = locations.find(
-        (location) => location.city.toLowerCase().trim() === destinationCity.toLowerCase().trim()
-      )
-      const destinationProvince = matchingLocation?.province || matchingAirport?.iso_country || ""
-
-      const averageDurationDays = record.totalDays / record.totalTrips
-      const averageExpensesPerDay = record.totalExpenses / record.totalDays
-      const averageRoundTripFlightCost = record.totalRoundTripCost / (record.totalRoundTrips || 1)
-
-      try {
-        await FlightStatistic.create({
-          department: record.department,
-          destinationAirportCode: record.destinationAirportCode,
-          destinationCity,
-          destinationProvince,
-          totalTrips: record.totalTrips,
-          totalRoundTrips: record.totalRoundTrips,
-          totalDays: record.totalDays,
-          totalExpenses: record.totalExpenses,
-          totalFlightCost: record.totalFlightCost,
-          totalRoundTripCost: record.totalRoundTripCost,
-          averageDurationDays,
-          averageExpensesPerDay,
-          averageRoundTripFlightCost,
-        })
-      } catch (error) {
-        logger.info("Failed to create flight statistic record", { error, record })
-      }
-    }
-
-    try {
-      await this.job.update({ progress: 100 })
-    } catch (error) {
-      logger.info("Failed to update job progress to 100%", { error })
-    }
+    await FlightStatistic.bulkCreateBatched(flightStatisticsAttributes)
   }
 
   private calculateDays(departureDate: string, lastLegDate: string): number {
@@ -201,11 +193,7 @@ export class SyncService extends BaseService {
       const progress = Math.floor((100 * numberOfInvoicesProcessed) / totalInvoices)
       logger.info(`${numberOfInvoicesProcessed} => ${progress}%`)
 
-      try {
-        await this.job.update({ progress })
-      } catch (error) {
-        logger.info("Failed to update job progress", { error })
-      }
+      await this.job.update({ progress })
     }
 
     return numberOfInvoicesProcessed + 1
