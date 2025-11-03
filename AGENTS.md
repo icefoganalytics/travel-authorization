@@ -122,6 +122,28 @@ This file follows the format from https://agents.md/ for AI agent documentation.
   - Policy checks via `this.buildPolicy()` for authorization; use `Policy.applyScope()` for query scoping
   - Serializers format output (IndexSerializer, ShowSerializer)
   - Nested controllers in subfolder for resource related actions: `controllers/resource/action-controller.ts`
+- **Frontend API module pattern:** Type-safe API clients in `web/src/api/*-api.ts`
+  - Export TypeScript types matching backend models and serializers
+  - Export `WhereOptions`, `FiltersOptions`, and `QueryOptions` types for query parameters
+  - Export API object with async methods: `list()`, `get()`, `create()`, `update()`, `delete()`
+  - Methods return typed promises with data destructured from axios response
+  - Import `Policy` type from `base-api` for endpoints that return policies
+  - Example: `flightStatisticsApi.list(params)` → `Promise<{ flightStatistics: FlightStatisticAsIndex[], totalCount: number }>`
+- **Frontend composable pattern:** Reactive data fetching in `web/src/use/use-*.ts`
+  - **Plural form** (`useResources`) for list/collection endpoints:
+    - Accept `options` ref with query parameters and optional `skipWatchIf` function
+    - Return array state: `resources`, `totalCount`, `isLoading`, `isErrored`
+    - Provide `fetch()` and `refresh` (alias) methods
+    - Watch options with `deep: true, immediate: true` for auto-fetching
+    - Example: `const { expenses, totalCount, isLoading, fetch } = useExpenses()`
+  - **Singular form** (`useResource`) for single item endpoints:
+    - Accept `id` ref (can be `number | null | undefined`)
+    - Return single item state: `resource`, `policy`, `isLoading`, `isErrored`
+    - Provide `fetch()` and `refresh` (alias) methods; optionally `save()` for editable resources
+    - Watch id with `immediate: true`, skip fetch if id is nil (use `isNil()` check)
+    - Policy type is generic `Policy` from base-api
+    - Example: `const { expense, policy, isLoading, save } = useExpense(expenseId)`
+  - Re-export types, enums, and constants from API module for convenience in both forms
 - **Factory pattern:** Use Fishery factories for test data creation
 - **Policy pattern:** Authorization scoping via policy classes
 - **Access control:** Direct user, position-based, team-based, position-team access patterns
