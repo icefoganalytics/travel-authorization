@@ -38,7 +38,7 @@
         flat
       >
         <Filters
-          :flight-report="allFlightReports"
+          :flight-report="flightStatistics"
           @updateFilters="updateFilters"
         />
       </v-card>
@@ -51,8 +51,8 @@
         <Graphs
           :update-graph="updateGraph"
           :filters-applied="showFilters"
-          :filtered-flight-report="flightReport"
-          :all-flight-reports="allFlightReports"
+          :filtered-flight-report="frontEndFilteredFlightStatistics"
+          :all-flight-reports="flightStatistics"
         />
       </v-card>
 
@@ -60,19 +60,13 @@
         class="mt-5"
         flat
       >
-        <FlightReport :flight-report="flightReport" />
+        <FlightReport :flight-report="frontEndFilteredFlightStatistics" />
       </v-card>
     </div>
   </v-card>
 </template>
 
 <script lang="ts">
-export type TFlightReport = {
-  dept: string
-  finalDestinationCity: string
-  finalDestinationProvince: string
-}
-
 export type LocationsByRegion = {
   Canada: string[]
   Yukon: string[]
@@ -81,25 +75,21 @@ export type LocationsByRegion = {
 </script>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { cloneDeep } from "lodash"
 
-import { TRAVEL_COM_URL } from "@/urls"
-import http from "@/api/http-client"
+import useFlightStatistics from "@/use/use-flight-statistics"
 
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
 import Filters from "@/modules/reports/views/Filters/Filters.vue"
 import Graphs from "@/modules/reports/views/Graphs/Graphs.vue"
 import UpdateProgressModal from "@/modules/reports/views/Common/UpdateProgressModal.vue"
 
-const flightReport = ref<TFlightReport[]>([])
-const allFlightReports = ref<TFlightReport[]>([])
-const isLoading = ref(false)
-
-const updateGraph = ref(0)
+const { flightStatistics, isLoading } = useFlightStatistics()
 
 const showFilters = ref(false)
 const showGraphs = ref(false)
+const updateGraph = ref(0)
 
 const filters = ref<{
   departments: string[]
@@ -114,20 +104,21 @@ const filters = ref<{
 })
 
 onMounted(async () => {
-  isLoading.value = true
-  try {
-    reset()
-    await fetchFlights()
-  } catch (error) {
-    console.error(`Failed to initialize reports page: ${error}`, { error })
-  } finally {
-    isLoading.value = false
-  }
+  reset()
 })
 
 function reset() {
   showFilters.value = false
   showGraphs.value = false
+  updateGraph.value = 0
+  filters.value = {
+    departments: [],
+    locations: {
+      Canada: [],
+      Yukon: [],
+      International: [],
+    },
+  }
 }
 
 function updateFilters(departments: string[], locations: LocationsByRegion) {
@@ -135,28 +126,16 @@ function updateFilters(departments: string[], locations: LocationsByRegion) {
     departments,
     locations,
   }
-  flightReport.value = applyFrontEndFiltering(allFlightReports.value)
   updateGraph.value++
 }
 
-async function fetchFlights() {
-  isLoading.value = true
-  try {
-    const { data } = await http.get(`${TRAVEL_COM_URL}/statistics`)
-    allFlightReports.value = data
-    flightReport.value = applyFrontEndFiltering(allFlightReports.value)
-  } catch (error) {
-    console.error(`Failed to fetch flights: ${error}`, { error })
-  } finally {
-    isLoading.value = false
-  }
-}
-
 // TODO: move to backend
-function applyFrontEndFiltering(allFlightReports: TFlightReport[]) {
-  let flightReport = cloneDeep(allFlightReports)
+const frontEndFilteredFlightStatistics = computed(() => {
+  let localFlightStatistics = cloneDeep(flightStatistics.value)
   if (filters.value.departments?.length > 0) {
-    flightReport = flightReport.filter((flight) => filters.value.departments.includes(flight.dept))
+    localFlightStatistics = localFlightStatistics.filter(({ department }) =>
+      filters.value.departments.includes(department)
+    )
   }
 
   if (
@@ -164,15 +143,17 @@ function applyFrontEndFiltering(allFlightReports: TFlightReport[]) {
     filters.value.locations.Yukon?.length > 0 ||
     filters.value.locations.International?.length > 0
   ) {
-    flightReport = flightReport.filter((flight) => {
-      return (
-        filters.value.locations.Yukon?.includes(flight.finalDestinationCity) ||
-        filters.value.locations.Canada?.includes(flight.finalDestinationProvince) ||
-        filters.value.locations.International?.includes(flight.finalDestinationProvince)
-      )
-    })
+    localFlightStatistics = localFlightStatistics.filter(
+      ({ destinationCity, destinationProvince }) => {
+        return (
+          filters.value.locations.Yukon?.includes(destinationCity) ||
+          filters.value.locations.Canada?.includes(destinationProvince) ||
+          filters.value.locations.International?.includes(destinationProvince)
+        )
+      }
+    )
   }
 
-  return flightReport
-}
+  return localFlightStatistics
+})
 </script>
