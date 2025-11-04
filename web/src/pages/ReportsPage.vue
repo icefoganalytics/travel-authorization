@@ -70,14 +70,6 @@
   </v-card>
 </template>
 
-<script lang="ts">
-export type LocationsByRegion = {
-  Canada: string[]
-  Yukon: string[]
-  International: string[]
-}
-</script>
-
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
 import { cloneDeep } from "lodash"
@@ -87,7 +79,9 @@ import useFlightStatistics from "@/use/use-flight-statistics"
 
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
 import Graphs from "@/modules/reports/views/Graphs/Graphs.vue"
-import FlightStatisticsFiltersCard from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
+import FlightStatisticsFiltersCard, {
+  type LocationsByRegion,
+} from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 
 const { flightStatistics, isLoading } = useFlightStatistics()

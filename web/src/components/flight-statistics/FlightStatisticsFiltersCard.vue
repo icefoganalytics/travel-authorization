@@ -68,104 +68,110 @@
   </v-card>
 </template>
 
-<script>
-import Vue from "vue"
+<script lang="ts">
+export type LocationCategory = "Yukon" | "Canada" | "International"
 
-export default {
-  name: "FlightStatisticsFiltersCard",
-  props: {
-    flightReport: {
-      type: Array,
-      default: () => [],
-    },
+export type LocationsByRegion = Record<LocationCategory, string[]>
+</script>
+
+<script setup lang="ts">
+import { nextTick, onMounted, ref } from "vue"
+
+import { type FlightStatisticAsIndex } from "@/api/flight-statistics-api"
+
+const props = defineProps<{
+  flightReport: FlightStatisticAsIndex[]
+}>()
+
+const emit = defineEmits<{
+  (event: "updateFilters", departments: string[], subCategories: LocationsByRegion): void
+}>()
+
+const location = ref<{
+  categories: LocationCategory[]
+  subCategories: Record<LocationCategory, string[]>
+}>({
+  categories: ["Yukon", "Canada", "International"],
+  subCategories: {
+    Yukon: [],
+    Canada: [],
+    International: [],
   },
+})
 
-  data() {
-    return {
-      location: {
-        categories: ["Yukon", "Canada", "International"],
-        subCategories: {
-          Yukon: [],
-          Canada: [],
-          International: [],
-        },
-      },
-      selectedCategories: [],
-      selectedSubCategories: { Yukon: [], Canada: [], International: [] },
-      loadingData: false,
-      alertMsg: "",
-      departmentList: [],
-      selectedDepartments: [],
-      numberOfDeptRows: 0,
-    }
-  },
-  mounted() {
-    this.initDepartments()
-    this.initLocations()
-    this.initFilters()
-  },
-  methods: {
-    initFilters() {
-      this.selectedCategories = []
-      this.selectedSubCategories = {
-        Yukon: [],
-        Canada: [],
-        International: [],
-      }
-      this.selectedDepartments = []
-      this.updateFilters()
-    },
+const selectedCategories = ref<LocationCategory[]>([])
+const selectedSubCategories = ref<Record<LocationCategory, string[]>>({
+  Yukon: [],
+  Canada: [],
+  International: [],
+})
 
-    initDepartments() {
-      const existingDepartments = this.flightReport.map((flight) => flight.department)
-      this.departmentList = [...new Set(existingDepartments)]
-      this.numberOfDeptRows = Math.ceil(this.departmentList.length / 4)
-    },
+const departmentList = ref<string[]>([])
+const selectedDepartments = ref<string[]>([])
+const numberOfDeptRows = ref(0)
 
-    initLocations() {
-      const CanadianProvinces = [
-        "BC",
-        "ON",
-        "QC",
-        "AB",
-        "SK",
-        "MB",
-        "NL",
-        "PE",
-        "NS",
-        "NB",
-        "YT",
-        "NT",
-        "NU",
-      ]
-      const existingProvinces = this.flightReport.map((flight) => flight.destinationProvince)
-      const provinces = [...new Set(existingProvinces)]
+onMounted(() => {
+  initDepartments()
+  initLocations()
+  initFilters()
+})
 
-      const yukonFlights = this.flightReport.filter((flight) => flight.destinationProvince == "YT")
-      const existingYukonCities = yukonFlights.map((flight) => flight.destinationCity)
+async function initFilters() {
+  selectedCategories.value = []
+  selectedSubCategories.value = {
+    Yukon: [],
+    Canada: [],
+    International: [],
+  }
+  selectedDepartments.value = []
+  updateFilters()
+}
 
-      this.location.subCategories.Yukon = [...new Set(existingYukonCities)]
-      this.location.subCategories.Canada = provinces.filter((prv) =>
-        CanadianProvinces.includes(prv)
-      )
-      this.location.subCategories.International = provinces.filter(
-        (prv) => !CanadianProvinces.includes(prv)
-      )
-    },
+async function updateFilters() {
+  await nextTick()
+  emit("updateFilters", selectedDepartments.value, selectedSubCategories.value)
+}
 
-    selectCategory($event, locationCategory) {
-      if (!$event.includes(locationCategory)) {
-        this.selectedSubCategories[locationCategory] = []
-      }
-      this.updateFilters()
-    },
+async function initDepartments() {
+  const existingDepartments = props.flightReport.map((flight) => flight.department)
+  departmentList.value = [...new Set(existingDepartments)]
+  numberOfDeptRows.value = Math.ceil(departmentList.value.length / 4)
+}
 
-    updateFilters() {
-      Vue.nextTick(() => {
-        this.$emit("updateFilters", this.selectedDepartments, this.selectedSubCategories)
-      })
-    },
-  },
+async function initLocations() {
+  const CanadianProvinces = [
+    "BC",
+    "ON",
+    "QC",
+    "AB",
+    "SK",
+    "MB",
+    "NL",
+    "PE",
+    "NS",
+    "NB",
+    "YT",
+    "NT",
+    "NU",
+  ]
+  const existingProvinces = props.flightReport.map((flight) => flight.destinationProvince)
+  const provinces = [...new Set(existingProvinces)]
+
+  const yukonFlights = props.flightReport.filter((flight) => flight.destinationProvince == "YT")
+  const existingYukonCities = yukonFlights.map((flight) => flight.destinationCity)
+
+  location.value.subCategories.Yukon = [...new Set(existingYukonCities)]
+  location.value.subCategories.Canada = provinces.filter((prv) => CanadianProvinces.includes(prv))
+  location.value.subCategories.International = provinces.filter(
+    (prv) => !CanadianProvinces.includes(prv)
+  )
+}
+
+async function selectCategory($event: string[], locationCategory: LocationCategory) {
+  if (!$event.includes(locationCategory)) {
+    selectedSubCategories.value[locationCategory] = []
+  }
+  updateFilters()
 }
 </script>
 
