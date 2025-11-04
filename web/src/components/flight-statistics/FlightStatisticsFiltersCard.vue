@@ -79,7 +79,7 @@ export type LocationsByRegion = Record<LocationCategory, string[]>
 
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from "vue"
-import { range } from "lodash"
+import { map, range, uniq } from "lodash"
 
 import { type FlightStatisticAsIndex } from "@/api/flight-statistics-api"
 
@@ -91,6 +91,7 @@ const emit = defineEmits<{
   (event: "updateFilters", departments: string[], subCategories: LocationsByRegion): void
 }>()
 
+const YUKON_ACRONYM = "YT"
 const CANADIAN_PROVINCE_ACRONYMS = Object.freeze([
   "BC",
   "ON",
@@ -153,19 +154,17 @@ async function updateFilters() {
 }
 
 async function initDepartments() {
-  const existingDepartments = props.flightStatistics.map((flight) => flight.department)
-  departments.value = [...new Set(existingDepartments)]
+  departments.value = uniq(map(props.flightStatistics, "department"))
   numberOfDepartmentRows.value = Math.ceil(departments.value.length / 4)
 }
 
 async function initLocations() {
-  const existingProvinces = props.flightStatistics.map((flight) => flight.destinationProvince)
-  const provinces = [...new Set(existingProvinces)]
+  const provinces = uniq(map(props.flightStatistics, "destinationProvince"))
 
-  const yukonFlights = props.flightStatistics.filter((flight) => flight.destinationProvince == "YT")
-  const existingYukonCities = yukonFlights.map((flight) => flight.destinationCity)
-
-  location.value.subCategories.Yukon = [...new Set(existingYukonCities)]
+  const yukonFlights = props.flightStatistics.filter(
+    (flight) => flight.destinationProvince === YUKON_ACRONYM
+  )
+  location.value.subCategories.Yukon = uniq(map(yukonFlights, "destinationCity"))
   location.value.subCategories.Canada = provinces.filter((province) =>
     CANADIAN_PROVINCE_ACRONYMS.includes(province)
   )
