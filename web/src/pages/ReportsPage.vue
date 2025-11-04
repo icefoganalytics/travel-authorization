@@ -82,6 +82,7 @@ export type LocationsByRegion = {
 import { computed, onMounted, ref } from "vue"
 import { cloneDeep } from "lodash"
 
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useFlightStatistics from "@/use/use-flight-statistics"
 
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
@@ -91,7 +92,10 @@ import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/Flight
 
 const { flightStatistics, isLoading } = useFlightStatistics()
 
-const showFilters = ref(false)
+const showFilters = useRouteQuery("showFilters", "false", {
+  transform: booleanTransformer,
+})
+
 const showGraphs = ref(false)
 const updateGraph = ref(0)
 
@@ -112,7 +116,6 @@ onMounted(async () => {
 })
 
 function reset() {
-  showFilters.value = false
   showGraphs.value = false
   updateGraph.value = 0
   filters.value = {
