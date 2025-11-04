@@ -134,9 +134,11 @@ import { isEmpty } from "lodash"
 import flightStatisticsJobsApi from "@/api/flight-statistics-jobs-api"
 
 import useSnack from "@/use/use-snack"
-import useRouteQuery from "@/use/utils/use-route-query"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 
-const showDialog = useRouteQuery("showReportProgress", false)
+const showDialog = useRouteQuery("showReportProgress", "false", {
+  transform: booleanTransformer,
+})
 
 const PROGRESS_POLL_INTERVAL_IN_MILLISECONDS = 5 * 1000
 
