@@ -12,13 +12,15 @@ import BaseService from "@/services/base-service"
 export class SyncService extends BaseService {
   private static readonly PROGRESS_UPDATE_INTERVAL = 300
 
-  constructor(protected job: FlightStatisticJob) {
+  constructor(protected flightStatisticsJob: FlightStatisticJob) {
     super()
   }
 
   async perform(): Promise<void> {
     const totalInvoices = await TravComIntegration.Models.AccountsReceivableInvoice.count()
-    logger.info(`Processing ${totalInvoices} invoices`)
+    logger.info(
+      `FlightStatisticsJob#${this.flightStatisticsJobId}: processing ${totalInvoices} invoices`
+    )
 
     let numberOfInvoicesProcessed = 0
     let flightStatisticsAttributesMap: Record<string, CreationAttributes<FlightStatistic>> = {}
@@ -47,7 +49,7 @@ export class SyncService extends BaseService {
 
     const flightStatisticsAttributes = Object.values(flightStatisticsAttributesMap)
     await this.bulkReplaceFlightStatistics(flightStatisticsAttributes)
-    await this.job.update({ progress: 100 })
+    await this.flightStatisticsJob.update({ progress: 100 })
   }
 
   // TODO: see if I can break the process invoice method out into it's own job.
@@ -197,12 +199,18 @@ export class SyncService extends BaseService {
   ): Promise<number> {
     if (numberOfInvoicesProcessed % SyncService.PROGRESS_UPDATE_INTERVAL === 0) {
       const progress = Math.floor((100 * numberOfInvoicesProcessed) / totalInvoices)
-      logger.info(`${numberOfInvoicesProcessed} => ${progress}%`)
+      logger.info(
+        `FlightStatisticsJob#${this.flightStatisticsJobId}: processed ${numberOfInvoicesProcessed} of ${totalInvoices} invoices (${progress}% complete)`
+      )
 
-      await this.job.update({ progress })
+      await this.flightStatisticsJob.update({ progress })
     }
 
     return numberOfInvoicesProcessed + 1
+  }
+
+  get flightStatisticsJobId(): number {
+    return this.flightStatisticsJob.id
   }
 }
 
