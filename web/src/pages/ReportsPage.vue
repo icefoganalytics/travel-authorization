@@ -43,7 +43,7 @@
         class="mt-5"
         flat
       >
-        <Filters
+        <FlightStatisticsFiltersCard
           :flight-report="flightStatistics"
           @updateFilters="updateFilters"
         />
@@ -89,8 +89,8 @@ import { cloneDeep } from "lodash"
 import useFlightStatistics from "@/use/use-flight-statistics"
 
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
-import Filters from "@/modules/reports/views/Filters/Filters.vue"
 import Graphs from "@/modules/reports/views/Graphs/Graphs.vue"
+import FlightStatisticsFiltersCard from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 
 const { flightStatistics, isLoading } = useFlightStatistics()

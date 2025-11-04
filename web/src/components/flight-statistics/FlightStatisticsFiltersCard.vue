@@ -104,7 +104,7 @@ import Vue from "vue"
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 
 export default {
-  name: "Filters",
+  name: "FlightStatisticsFiltersCard",
   components: {
     TitleCard,
   },
@@ -152,7 +152,7 @@ export default {
     },
 
     initDepartments() {
-      const existingDepartments = this.flightReport.map((flight) => flight.dept)
+      const existingDepartments = this.flightReport.map((flight) => flight.department)
       this.departmentList = [...new Set(existingDepartments)]
       this.numberOfDeptRows = Math.ceil(this.departmentList.length / 4)
     },
@@ -173,13 +173,13 @@ export default {
         "NT",
         "NU",
       ]
-      const existingProvinces = this.flightReport.map((flight) => flight.finalDestinationProvince)
+      const existingProvinces = this.flightReport.map((flight) => flight.destinationProvince)
       const provinces = [...new Set(existingProvinces)]
 
       const yukonFlights = this.flightReport.filter(
-        (flight) => flight.finalDestinationProvince == "YT"
+        (flight) => flight.destinationProvince == "YT"
       )
-      const existingYukonCities = yukonFlights.map((flight) => flight.finalDestinationCity)
+      const existingYukonCities = yukonFlights.map((flight) => flight.destinationCity)
 
       this.location.subCategories.Yukon = [...new Set(existingYukonCities)]
       this.location.subCategories.Canada = provinces.filter((prv) =>
