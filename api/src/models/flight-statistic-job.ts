@@ -28,6 +28,11 @@ export class FlightStatisticJob extends BaseModel<
   @Default(0)
   declare progress: CreationOptional<number>
 
+  @Attribute(DataTypes.BOOLEAN)
+  @NotNull
+  @Default(false)
+  declare failed: CreationOptional<boolean>
+
   @Attribute(DataTypes.DATE)
   @NotNull
   @Default(DataTypes.NOW)

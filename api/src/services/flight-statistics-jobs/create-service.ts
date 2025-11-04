@@ -42,8 +42,10 @@ export class CreateService extends BaseService {
   private async performSyncInBackground(job: FlightStatisticJob): Promise<void> {
     try {
       await SyncService.perform(job)
+      await job.update({ progress: 100, failed: false })
     } catch (error) {
       logger.error("Failed to sync flight statistics", { error })
+      await job.update({ progress: 100, failed: true })
       throw error
     }
   }
