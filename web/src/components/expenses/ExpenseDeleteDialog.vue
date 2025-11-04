@@ -82,6 +82,8 @@ const showDialog = ref(false)
 const snack = useSnack()
 
 async function deleteAndHide() {
+  if (isNil(expenseId.value)) return
+
   isLoading.value = true
   try {
     await expensesApi.delete(expenseId.value)
