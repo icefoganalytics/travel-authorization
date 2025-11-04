@@ -5,22 +5,55 @@
     max-width="500px"
     @keydown.esc="close"
   >
-    <v-card>
+    <!-- Ready State Card -->
+    <v-card v-if="state === 'ready'">
       <v-card-title class="text-h5 primary">Report Updates</v-card-title>
       <v-card-text>
         <v-row
           class="mt-3"
           style="font-size: 13pt"
         >
-          <v-col cols="9"
-            ><b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i></v-col
-          >
-          <v-col
-            v-if="isRunningJob"
-            cols="3"
-            class="my-3 blink text-center"
-            >Running</v-col
-          >
+          <v-col>
+            <b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i>
+          </v-col>
+        </v-row>
+        <v-row class="mx-1 mt-7 mb-n7 red--text">
+          <span>
+            <b>Warning:</b> Updating the Reports takes about <b>15-30 Minutes</b>. Please make sure
+            you need to update them in the DB based on the date shown above.
+          </span>
+        </v-row>
+      </v-card-text>
+      <v-card-actions class="mx-2">
+        <v-btn
+          :loading="isLoading"
+          color="secondary"
+          @click="close"
+        >
+          Close
+        </v-btn>
+        <v-btn
+          :loading="isLoading"
+          class="ml-auto"
+          color="primary"
+          @click="startSycnJob"
+        >
+          Start Update
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+
+    <!-- Running State Card -->
+    <v-card v-else-if="state === 'running'">
+      <v-card-title class="text-h5 primary">Report Updates</v-card-title>
+      <v-card-text>
+        <v-row
+          class="mt-3"
+          style="font-size: 13pt"
+        >
+          <v-col>
+            <b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i>
+          </v-col>
         </v-row>
         <v-row
           class="mt-3"
@@ -39,20 +72,11 @@
             </v-progress-linear>
           </v-col>
         </v-row>
-        <v-row
-          v-if="!isRunningJob"
-          class="mx-1 mt-7 mb-n7 red--text"
-        >
-          <span
-            ><b>Warning:</b> Updating the Reports takes about <b>15-30 Minutes</b>. Please make sure
-            you need to update them in the DB based on the date shown above.</span
-          >
-        </v-row>
-        <v-row
-          v-if="isRunningJob && isLoading"
-          class="mx-1 mt-7 mb-n9 red--text"
-        >
-          Please Wait!
+        <v-row class="mx-1 mt-7 mb-n9 amber--text text--darken-3">
+          <span>
+            <b>Processing:</b> The job is currently running. This may take 15-30 minutes to
+            complete.
+          </span>
         </v-row>
       </v-card-text>
       <v-card-actions class="mx-2">
@@ -60,15 +84,50 @@
           :loading="isLoading"
           color="secondary"
           @click="close"
-          >Close
+        >
+          Close
         </v-btn>
         <v-btn
-          :disabled="isRunningJob"
           :loading="isLoading"
           class="ml-auto"
-          color="primary"
-          @click="startUpdate"
-          >Start Update
+          color="amber"
+          disabled
+        >
+          Running...
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+
+    <!-- Completed State Card -->
+    <v-card v-else-if="state === 'completed'">
+      <v-card-title class="text-h5 primary">Report Updates</v-card-title>
+      <v-card-text>
+        <v-row
+          class="mt-3"
+          style="font-size: 13pt"
+        >
+          <v-col>
+            <b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i>
+          </v-col>
+        </v-row>
+        <v-row class="mx-1 mt-7 mb-n9 green--text text--darken-2">
+          <span> <b>Success:</b> The report update has completed successfully. </span>
+        </v-row>
+      </v-card-text>
+      <v-card-actions class="mx-2">
+        <v-btn
+          :loading="isLoading"
+          color="secondary"
+          @click="close"
+        >
+          Close
+        </v-btn>
+        <v-btn
+          class="ml-auto"
+          color="green"
+          @click="startSycnJob"
+        >
+          Start New Update
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -76,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, ref, watchEffect } from "vue"
+import { computed, onUnmounted, ref, watchEffect } from "vue"
 import { isEmpty } from "lodash"
 
 import flightStatisticsJobsApi from "@/api/flight-statistics-jobs-api"
@@ -90,6 +149,7 @@ const PROGRESS_POLL_INTERVAL_IN_MILLISECONDS = 30 * 1000
 
 const isLoading = ref(false)
 const isRunningJob = ref(false)
+const justCompleted = ref(false)
 
 const lastUpdatedAt = ref("")
 const progressPercent = ref(0)
@@ -97,8 +157,25 @@ const progressTimer = ref<number | undefined>(undefined)
 
 const snack = useSnack()
 
+type State = "ready" | "running" | "completed"
+
+const state = computed<State>(() => {
+  if (isRunningJob.value) {
+    return "running"
+  }
+  if (justCompleted.value) {
+    return "completed"
+  }
+  return "ready"
+})
+
 // TODO: consider using job id, so it can be used to get progress
-async function startUpdate() {
+async function startSycnJob() {
+  progressPercent.value = 0
+  isRunningJob.value = false
+  justCompleted.value = false
+  clearTimeout(progressTimer.value)
+
   isLoading.value = true
   try {
     await flightStatisticsJobsApi.create()
@@ -115,8 +192,6 @@ async function startUpdate() {
 
 async function checkProgress() {
   isLoading.value = true
-  progressPercent.value = 0
-  isRunningJob.value = true
   try {
     const { flightStatisticJobs } = await flightStatisticsJobsApi.list({
       order: [["updatedAt", "DESC"]],
@@ -125,6 +200,7 @@ async function checkProgress() {
     if (isEmpty(flightStatisticJobs)) {
       isRunningJob.value = false
       lastUpdatedAt.value = "Never"
+      progressPercent.value = 0
       clearTimeout(progressTimer.value)
       return
     }
@@ -132,14 +208,19 @@ async function checkProgress() {
     const latestFlightStatisticJob = flightStatisticJobs[0]
     const { progress, updatedAt } = latestFlightStatisticJob
     lastUpdatedAt.value = updatedAt.toLocaleString()
+    progressPercent.value = progress
 
     if (progress === 100) {
+      if (isRunningJob.value) {
+        justCompleted.value = true
+      }
+
       isRunningJob.value = false
-      progressPercent.value = progress
       clearTimeout(progressTimer.value)
       return
     }
 
+    isRunningJob.value = true
     progressTimer.value = window.setTimeout(() => {
       checkProgress()
     }, PROGRESS_POLL_INTERVAL_IN_MILLISECONDS)
