@@ -138,7 +138,7 @@ import useRouteQuery from "@/use/utils/use-route-query"
 
 const showDialog = useRouteQuery("showReportProgress", false)
 
-const PROGRESS_POLL_INTERVAL_IN_MILLISECONDS = 30 * 1000
+const PROGRESS_POLL_INTERVAL_IN_MILLISECONDS = 5 * 1000
 
 const isLoading = ref(false)
 const isRunningJob = ref(false)
