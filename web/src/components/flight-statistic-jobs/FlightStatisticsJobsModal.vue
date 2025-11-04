@@ -34,7 +34,7 @@
           :loading="isLoading"
           class="ml-auto"
           color="primary"
-          @click="startSycnJob"
+          @click="startSyncJob"
         >
           Start Update
         </v-btn>
@@ -118,9 +118,44 @@
         <v-btn
           class="ml-auto"
           color="green"
-          @click="startSycnJob"
+          @click="startSyncJob"
         >
           Start New Update
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+
+    <!-- Failed State Card -->
+    <v-card v-else-if="state === 'failed'">
+      <v-card-title class="text-h5">Report Updates</v-card-title>
+      <v-card-text>
+        <div class="info-row">
+          <strong>Last Update:</strong> <span class="last-updated">{{ lastUpdatedAt }}</span>
+        </div>
+
+        <v-alert
+          type="error"
+          outlined
+          class="mt-5"
+        >
+          The report update has failed. Please try again or contact support if the issue persists.
+        </v-alert>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn
+          :loading="isLoading"
+          color="secondary"
+          @click="close"
+        >
+          Close
+        </v-btn>
+        <v-btn
+          :loading="isLoading"
+          class="ml-auto"
+          color="error"
+          @click="startSyncJob"
+        >
+          Retry Update
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -145,6 +180,7 @@ const PROGRESS_POLL_INTERVAL_IN_MILLISECONDS = 5 * 1000
 const isLoading = ref(false)
 const isRunningJob = ref(false)
 const justCompleted = ref(false)
+const hasFailed = ref(false)
 
 const lastUpdatedAt = ref("")
 const progressPercent = ref(0)
@@ -152,11 +188,14 @@ const progressTimer = ref<number | undefined>(undefined)
 
 const snack = useSnack()
 
-type State = "ready" | "running" | "completed"
+type State = "ready" | "running" | "completed" | "failed"
 
 const state = computed<State>(() => {
   if (isRunningJob.value) {
     return "running"
+  }
+  if (hasFailed.value) {
+    return "failed"
   }
   if (justCompleted.value) {
     return "completed"
@@ -165,10 +204,11 @@ const state = computed<State>(() => {
 })
 
 // TODO: consider using job id, so it can be used to get progress
-async function startSycnJob() {
+async function startSyncJob() {
   progressPercent.value = 0
   isRunningJob.value = false
   justCompleted.value = false
+  hasFailed.value = false
   clearTimeout(progressTimer.value)
 
   isLoading.value = true
@@ -201,12 +241,14 @@ async function checkProgress() {
     }
 
     const latestFlightStatisticJob = flightStatisticJobs[0]
-    const { progress, updatedAt } = latestFlightStatisticJob
+    const { progress, updatedAt, failed } = latestFlightStatisticJob
     lastUpdatedAt.value = updatedAt.toLocaleString()
     progressPercent.value = progress
 
     if (progress === 100) {
-      if (isRunningJob.value) {
+      if (failed) {
+        hasFailed.value = true
+      } else if (isRunningJob.value) {
         justCompleted.value = true
       }
 
