@@ -41,13 +41,16 @@
       <v-card-title> Department </v-card-title>
       <v-card-text>
         <v-row
-          v-for="rowIndex of [...Array(numberOfDeptRows).keys()]"
+          v-for="rowIndex of range(numberOfDepartmentRows)"
           :key="rowIndex"
           style=""
           class="mx-3 my-0"
         >
           <v-col
-            v-for="(department, departmentIndex) in departmentList.slice(rowIndex * 4, rowIndex * 4 + 4)"
+            v-for="(department, departmentIndex) in departments.slice(
+              rowIndex * 4,
+              rowIndex * 4 + 4
+            )"
             :key="departmentIndex"
             style="margin: 0; padding: 0"
             cols="3"
@@ -76,16 +79,33 @@ export type LocationsByRegion = Record<LocationCategory, string[]>
 
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from "vue"
+import { range } from "lodash"
 
 import { type FlightStatisticAsIndex } from "@/api/flight-statistics-api"
 
 const props = defineProps<{
-  flightReport: FlightStatisticAsIndex[]
+  flightStatistics: FlightStatisticAsIndex[]
 }>()
 
 const emit = defineEmits<{
   (event: "updateFilters", departments: string[], subCategories: LocationsByRegion): void
 }>()
+
+const CANADIAN_PROVINCE_ACRONYMS = Object.freeze([
+  "BC",
+  "ON",
+  "QC",
+  "AB",
+  "SK",
+  "MB",
+  "NL",
+  "PE",
+  "NS",
+  "NB",
+  "YT",
+  "NT",
+  "NU",
+])
 
 const location = ref<{
   categories: LocationCategory[]
@@ -106,9 +126,9 @@ const selectedSubCategories = ref<Record<LocationCategory, string[]>>({
   International: [],
 })
 
-const departmentList = ref<string[]>([])
+const departments = ref<string[]>([])
 const selectedDepartments = ref<string[]>([])
-const numberOfDeptRows = ref(0)
+const numberOfDepartmentRows = ref(0)
 
 onMounted(() => {
   initDepartments()
@@ -133,37 +153,24 @@ async function updateFilters() {
 }
 
 async function initDepartments() {
-  const existingDepartments = props.flightReport.map((flight) => flight.department)
-  departmentList.value = [...new Set(existingDepartments)]
-  numberOfDeptRows.value = Math.ceil(departmentList.value.length / 4)
+  const existingDepartments = props.flightStatistics.map((flight) => flight.department)
+  departments.value = [...new Set(existingDepartments)]
+  numberOfDepartmentRows.value = Math.ceil(departments.value.length / 4)
 }
 
 async function initLocations() {
-  const canadianProvinces = [
-    "BC",
-    "ON",
-    "QC",
-    "AB",
-    "SK",
-    "MB",
-    "NL",
-    "PE",
-    "NS",
-    "NB",
-    "YT",
-    "NT",
-    "NU",
-  ]
-  const existingProvinces = props.flightReport.map((flight) => flight.destinationProvince)
+  const existingProvinces = props.flightStatistics.map((flight) => flight.destinationProvince)
   const provinces = [...new Set(existingProvinces)]
 
-  const yukonFlights = props.flightReport.filter((flight) => flight.destinationProvince == "YT")
+  const yukonFlights = props.flightStatistics.filter((flight) => flight.destinationProvince == "YT")
   const existingYukonCities = yukonFlights.map((flight) => flight.destinationCity)
 
   location.value.subCategories.Yukon = [...new Set(existingYukonCities)]
-  location.value.subCategories.Canada = provinces.filter((province) => canadianProvinces.includes(province))
+  location.value.subCategories.Canada = provinces.filter((province) =>
+    CANADIAN_PROVINCE_ACRONYMS.includes(province)
+  )
   location.value.subCategories.International = provinces.filter(
-    (province) => !canadianProvinces.includes(province)
+    (province) => !CANADIAN_PROVINCE_ACRONYMS.includes(province)
   )
 }
 
