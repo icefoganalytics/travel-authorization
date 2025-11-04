@@ -7,24 +7,22 @@
   >
     <!-- Ready State Card -->
     <v-card v-if="state === 'ready'">
-      <v-card-title class="text-h5 primary">Report Updates</v-card-title>
+      <v-card-title class="text-h5">Report Updates</v-card-title>
       <v-card-text>
-        <v-row
-          class="mt-3"
-          style="font-size: 13pt"
+        <div class="info-row">
+          <strong>Last Update:</strong> <span class="last-updated">{{ lastUpdatedAt }}</span>
+        </div>
+
+        <v-alert
+          type="warning"
+          outlined
+          class="mt-5"
         >
-          <v-col>
-            <b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i>
-          </v-col>
-        </v-row>
-        <v-row class="mx-1 mt-7 mb-n7 red--text">
-          <span>
-            <b>Warning:</b> Updating the Reports takes about <b>15-30 Minutes</b>. Please make sure
-            you need to update them in the DB based on the date shown above.
-          </span>
-        </v-row>
+          Updating the Reports takes about <strong>15-30 Minutes</strong>. Please make sure you need
+          to update them in the DB based on the date shown above.
+        </v-alert>
       </v-card-text>
-      <v-card-actions class="mx-2">
+      <v-card-actions>
         <v-btn
           :loading="isLoading"
           color="secondary"
@@ -45,41 +43,36 @@
 
     <!-- Running State Card -->
     <v-card v-else-if="state === 'running'">
-      <v-card-title class="text-h5 primary">Report Updates</v-card-title>
+      <v-card-title class="text-h5">Report Updates</v-card-title>
       <v-card-text>
-        <v-row
-          class="mt-3"
-          style="font-size: 13pt"
+        <div class="info-row">
+          <strong>Last Update:</strong> <span class="last-updated">{{ lastUpdatedAt }}</span>
+        </div>
+
+        <div class="progress-section">
+          <strong>Progress:</strong>
+          <v-progress-linear
+            :value="progressPercent"
+            color="amber"
+            height="25"
+            class="mt-2"
+          >
+            <template #default="{ value }">
+              <strong>{{ Math.ceil(value) }}%</strong>
+            </template>
+          </v-progress-linear>
+        </div>
+
+        <v-alert
+          type="info"
+          outlined
+          color="amber darken-2"
+          class="mt-5"
         >
-          <v-col>
-            <b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i>
-          </v-col>
-        </v-row>
-        <v-row
-          class="mt-3"
-          style="font-size: 13pt"
-        >
-          <v-col>
-            <b>Progress:</b>
-            <v-progress-linear
-              :value="progressPercent"
-              color="amber"
-              height="25"
-            >
-              <template #default="{ value }">
-                <strong>{{ Math.ceil(value) }}%</strong>
-              </template>
-            </v-progress-linear>
-          </v-col>
-        </v-row>
-        <v-row class="mx-1 mt-7 mb-n9 amber--text text--darken-3">
-          <span>
-            <b>Processing:</b> The job is currently running. This may take 15-30 minutes to
-            complete.
-          </span>
-        </v-row>
+          The job is currently running. This may take 15-30 minutes to complete.
+        </v-alert>
       </v-card-text>
-      <v-card-actions class="mx-2">
+      <v-card-actions>
         <v-btn
           :loading="isLoading"
           color="secondary"
@@ -100,21 +93,21 @@
 
     <!-- Completed State Card -->
     <v-card v-else-if="state === 'completed'">
-      <v-card-title class="text-h5 primary">Report Updates</v-card-title>
+      <v-card-title class="text-h5">Report Updates</v-card-title>
       <v-card-text>
-        <v-row
-          class="mt-3"
-          style="font-size: 13pt"
+        <div class="info-row">
+          <strong>Last Update:</strong> <span class="last-updated">{{ lastUpdatedAt }}</span>
+        </div>
+
+        <v-alert
+          type="success"
+          outlined
+          class="mt-5"
         >
-          <v-col>
-            <b>Last Update:</b> <i class="blue--text">{{ lastUpdatedAt }}</i>
-          </v-col>
-        </v-row>
-        <v-row class="mx-1 mt-7 mb-n9 green--text text--darken-2">
-          <span> <b>Success:</b> The report update has completed successfully. </span>
-        </v-row>
+          The report update has completed successfully.
+        </v-alert>
       </v-card-text>
-      <v-card-actions class="mx-2">
+      <v-card-actions>
         <v-btn
           :loading="isLoading"
           color="secondary"
@@ -259,24 +252,18 @@ defineExpose({
 </script>
 
 <style scoped>
-.blink {
-  animation: blinking ease-out 2s 100000;
-  border-radius: 5px;
-  font-size: 11pt;
-  font-weight: 600;
-  padding: 0;
-  color: #030303;
+.info-row {
+  margin-top: 1rem;
+  font-size: 13pt;
 }
 
-@keyframes blinking {
-  0% {
-    color: #f60808;
-  }
-  50% {
-    color: #ffffff;
-  }
-  100% {
-    color: #fa1515;
-  }
+.last-updated {
+  color: #1976d2;
+  font-style: italic;
+}
+
+.progress-section {
+  margin-top: 1.5rem;
+  font-size: 13pt;
 }
 </style>
