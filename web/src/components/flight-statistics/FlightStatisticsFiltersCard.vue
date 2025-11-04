@@ -5,11 +5,11 @@
       <v-card-text>
         <v-row class="mx-0">
           <v-col
-            v-for="(locationCategory, categoryInx) in location.categories"
-            :key="categoryInx"
+            v-for="(locationCategory, categoryIndex) in location.categories"
+            :key="categoryIndex"
           >
             <v-checkbox
-              v-model="selectedCategories"
+              :input-value="selectedCategories"
               multiple
               dense
               :value="locationCategory"
@@ -22,9 +22,9 @@
               class="ml-5"
             >
               <v-checkbox
-                v-for="(locationSubCategory, inx) in location.subCategories[locationCategory]"
-                :key="inx"
-                v-model="selectedSubCategories[locationCategory]"
+                v-for="(locationSubCategory, index) in location.subCategories[locationCategory]"
+                :key="index"
+                :input-value="selectedSubCategories[locationCategory]"
                 multiple
                 dense
                 :value="locationSubCategory"
@@ -41,24 +41,24 @@
       <v-card-title> Department </v-card-title>
       <v-card-text>
         <v-row
-          v-for="rowInx of [...Array(numberOfDeptRows).keys()]"
-          :key="rowInx"
+          v-for="rowIndex of [...Array(numberOfDeptRows).keys()]"
+          :key="rowIndex"
           style=""
           class="mx-3 my-0"
         >
           <v-col
-            v-for="(dept, deptInx) in departmentList.slice(rowInx * 4, rowInx * 4 + 4)"
-            :key="deptInx"
+            v-for="(department, departmentIndex) in departmentList.slice(rowIndex * 4, rowIndex * 4 + 4)"
+            :key="departmentIndex"
             style="margin: 0; padding: 0"
             cols="3"
           >
             <v-checkbox
-              v-model="selectedDepartments"
+              :input-value="selectedDepartments"
               multiple
               style="font-size: 12px"
               dense
-              :value="dept"
-              :label="dept"
+              :value="department"
+              :label="department"
               @change="updateFilters"
             />
           </v-col>
@@ -139,7 +139,7 @@ async function initDepartments() {
 }
 
 async function initLocations() {
-  const CanadianProvinces = [
+  const canadianProvinces = [
     "BC",
     "ON",
     "QC",
@@ -161,14 +161,14 @@ async function initLocations() {
   const existingYukonCities = yukonFlights.map((flight) => flight.destinationCity)
 
   location.value.subCategories.Yukon = [...new Set(existingYukonCities)]
-  location.value.subCategories.Canada = provinces.filter((prv) => CanadianProvinces.includes(prv))
+  location.value.subCategories.Canada = provinces.filter((province) => canadianProvinces.includes(province))
   location.value.subCategories.International = provinces.filter(
-    (prv) => !CanadianProvinces.includes(prv)
+    (province) => !canadianProvinces.includes(province)
   )
 }
 
-async function selectCategory($event: string[], locationCategory: LocationCategory) {
-  if (!$event.includes(locationCategory)) {
+async function selectCategory(selectedCategories: string[], locationCategory: LocationCategory) {
+  if (!selectedCategories.includes(locationCategory)) {
     selectedSubCategories.value[locationCategory] = []
   }
   updateFilters()
