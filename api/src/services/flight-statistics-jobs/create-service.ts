@@ -40,13 +40,14 @@ export class CreateService extends BaseService {
   }
 
   private async performSyncInBackground(job: FlightStatisticJob): Promise<void> {
+    let failed = false
     try {
       await SyncService.perform(job)
-      await job.update({ progress: 100, failed: false })
     } catch (error) {
       logger.error("Failed to sync flight statistics", { error })
-      await job.update({ progress: 100, failed: true })
-      throw error
+      failed = true
+    } finally {
+      await job.update({ progress: 100, failed })
     }
   }
 }
