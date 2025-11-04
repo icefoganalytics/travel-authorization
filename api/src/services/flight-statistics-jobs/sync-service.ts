@@ -1,5 +1,5 @@
 import { CreationAttributes } from "@sequelize/core"
-import isEmpty, { cloneDeep, first, has, isNil, isUndefined, last, sumBy } from "lodash"
+import isEmpty, { cloneDeep, first, has, isNil, isUndefined, last, sortBy, sumBy } from "lodash"
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
@@ -66,11 +66,7 @@ export class SyncService extends BaseService {
       throw new Error("Expect segments association to be preloaded")
     }
 
-    const segmentsSorted = unsortedSegments.sort((segmentA, segmentB) => {
-      const departureInfoA = segmentA.departureInfo || ""
-      const departureInfoB = segmentB.departureInfo || ""
-      return departureInfoA >= departureInfoB ? 1 : -1
-    })
+    const segmentsSorted = sortBy(unsortedSegments, (segment) => segment.departureInfo || "")
     if (isEmpty(segmentsSorted)) return cloneDeep(flightStatisticsAttributes)
 
     const firstSegment = first(segmentsSorted)
