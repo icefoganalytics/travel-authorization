@@ -38,16 +38,12 @@
         </v-card-actions>
       </v-card>
 
-      <v-card
+      <FlightStatisticsFiltersCard
         v-if="showFilters"
         class="mt-5"
-        flat
-      >
-        <FlightStatisticsFiltersCard
-          :flight-report="flightStatistics"
-          @updateFilters="updateFilters"
-        />
-      </v-card>
+        :flight-report="flightStatistics"
+        @updateFilters="updateFilters"
+      />
 
       <v-card
         v-if="showGraphs"

@@ -1,113 +1,78 @@
 <template>
-  <v-card
-    :loading="loadingData"
-    :disabled="loadingData"
-    en
-    class="px-5 pb-15"
-  >
-    <div
-      v-if="loadingData"
-      class="mt-10"
-      style="text-align: center"
-    >
-      loading ...
-    </div>
-    <v-alert
-      v-if="alertMsg"
-      class="mt-5"
-      type="warning"
-      >{{ alertMsg }}</v-alert
-    >
-
-    <div v-if="!loadingData">
-      <title-card
-        class="mt-10"
-        title-width="5.5rem"
-      >
-        <template #title>
-          <div>Location</div>
-        </template>
-        <template #body>
-          <v-row class="mx-0">
-            <v-col
-              v-for="(locationCategory, categoryInx) in location.categories"
-              :key="categoryInx"
-            >
-              <v-checkbox
-                v-model="selectedCategories"
-                multiple
-                dense
-                :value="locationCategory"
-                :label="locationCategory"
-                @change="selectCategory($event, locationCategory)"
-              />
-
-              <div
-                v-if="selectedCategories.includes(locationCategory)"
-                class="ml-5"
-              >
-                <v-checkbox
-                  v-for="(locationSubCategory, inx) in location.subCategories[locationCategory]"
-                  :key="inx"
-                  v-model="selectedSubCategories[locationCategory]"
-                  multiple
-                  dense
-                  :value="locationSubCategory"
-                  :label="locationSubCategory"
-                  @change="updateFilters"
-                />
-              </div>
-            </v-col>
-          </v-row>
-        </template>
-      </title-card>
-
-      <title-card
-        class="mt-10"
-        title-width="7.5rem"
-      >
-        <template #title>
-          <div>Department</div>
-        </template>
-        <template #body>
-          <v-row
-            v-for="rowInx of [...Array(numberOfDeptRows).keys()]"
-            :key="rowInx"
-            style=""
-            class="mx-3 my-0"
+  <v-card class="borderless-card">
+    <v-card>
+      <v-card-title> Location </v-card-title>
+      <v-card-text>
+        <v-row class="mx-0">
+          <v-col
+            v-for="(locationCategory, categoryInx) in location.categories"
+            :key="categoryInx"
           >
-            <v-col
-              v-for="(dept, deptInx) in departmentList.slice(rowInx * 4, rowInx * 4 + 4)"
-              :key="deptInx"
-              style="margin: 0; padding: 0"
-              cols="3"
+            <v-checkbox
+              v-model="selectedCategories"
+              multiple
+              dense
+              :value="locationCategory"
+              :label="locationCategory"
+              @change="selectCategory($event, locationCategory)"
+            />
+
+            <div
+              v-if="selectedCategories.includes(locationCategory)"
+              class="ml-5"
             >
               <v-checkbox
-                v-model="selectedDepartments"
+                v-for="(locationSubCategory, inx) in location.subCategories[locationCategory]"
+                :key="inx"
+                v-model="selectedSubCategories[locationCategory]"
                 multiple
-                style="font-size: 12px"
                 dense
-                :value="dept"
-                :label="dept"
+                :value="locationSubCategory"
+                :label="locationSubCategory"
                 @change="updateFilters"
               />
-            </v-col>
-          </v-row>
-        </template>
-      </title-card>
-    </div>
+            </div>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+
+    <v-card class="mt-5">
+      <v-card-title> Department </v-card-title>
+      <v-card-text>
+        <v-row
+          v-for="rowInx of [...Array(numberOfDeptRows).keys()]"
+          :key="rowInx"
+          style=""
+          class="mx-3 my-0"
+        >
+          <v-col
+            v-for="(dept, deptInx) in departmentList.slice(rowInx * 4, rowInx * 4 + 4)"
+            :key="deptInx"
+            style="margin: 0; padding: 0"
+            cols="3"
+          >
+            <v-checkbox
+              v-model="selectedDepartments"
+              multiple
+              style="font-size: 12px"
+              dense
+              :value="dept"
+              :label="dept"
+              @change="updateFilters"
+            />
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
   </v-card>
 </template>
 
 <script>
 import Vue from "vue"
-import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 
 export default {
   name: "FlightStatisticsFiltersCard",
-  components: {
-    TitleCard,
-  },
   props: {
     flightReport: {
       type: Array,
@@ -176,9 +141,7 @@ export default {
       const existingProvinces = this.flightReport.map((flight) => flight.destinationProvince)
       const provinces = [...new Set(existingProvinces)]
 
-      const yukonFlights = this.flightReport.filter(
-        (flight) => flight.destinationProvince == "YT"
-      )
+      const yukonFlights = this.flightReport.filter((flight) => flight.destinationProvince == "YT")
       const existingYukonCities = yukonFlights.map((flight) => flight.destinationCity)
 
       this.location.subCategories.Yukon = [...new Set(existingYukonCities)]
@@ -205,3 +168,10 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.v-card.borderless-card {
+  border: none !important;
+  box-shadow: none !important;
+}
+</style>
