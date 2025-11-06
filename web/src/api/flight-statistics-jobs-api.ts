@@ -6,6 +6,7 @@ import { type FiltersOptions, type QueryOptions, type WhereOptions } from "@/api
 export type FlightStatisticJob = {
   id: number
   progress: number
+  failed: boolean
   updatedAt: string
   createdAt: string
 }
