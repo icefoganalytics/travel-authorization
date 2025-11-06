@@ -75,6 +75,7 @@ import { computed, onMounted, ref } from "vue"
 import { cloneDeep } from "lodash"
 
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useFlightStatistics from "@/use/use-flight-statistics"
 
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
@@ -163,4 +164,14 @@ const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsMo
 function openFlightStatisticsJobsModal() {
   flightStatisticsJobsModal.value?.open()
 }
+
+const breadcrumbs = ref([
+  {
+    text: "Reports",
+    to: {
+      name: "ReportsPage",
+    },
+  },
+])
+useBreadcrumbs(breadcrumbs)
 </script>
