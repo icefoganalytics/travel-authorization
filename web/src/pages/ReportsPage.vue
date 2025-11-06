@@ -50,7 +50,7 @@
         class="mt-5"
         flat
       >
-        <Graphs
+        <FlightStatisticsGraphsCard
           :update-graph="updateGraph"
           :filters-applied="showFilters"
           :filtered-flight-report="frontEndFilteredFlightStatistics"
@@ -79,7 +79,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useFlightStatistics from "@/use/use-flight-statistics"
 
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
-import Graphs from "@/modules/reports/views/Graphs/Graphs.vue"
+import FlightStatisticsGraphsCard from "@/components/flight-statistics/FlightStatisticsGraphsCard.vue"
 import FlightStatisticsFiltersCard, {
   type LocationsByRegion,
 } from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"

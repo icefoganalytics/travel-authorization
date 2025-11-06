@@ -56,9 +56,17 @@
             ></ApexCharts>
           </div>
 
-          <!-- <div v-else-if="tabs == 2" id="chart" :key="lineId">
-                        <ApexCharts type="line" :options="chartOptions" :series="series"></ApexCharts>
-                    </div> -->
+          <!-- <div
+            v-else-if="tabs == 2"
+            id="chart"
+            :key="lineId"
+          >
+            <ApexCharts
+              type="line"
+              :options="chartOptions"
+              :series="series"
+            ></ApexCharts>
+          </div> -->
         </v-col>
         <v-col cols="4">
           <v-card style="border: 0px solid white !important">
@@ -185,34 +193,54 @@
                 </v-card>
               </v-tab-item>
               <!-- <v-tab-item>
+                <v-checkbox
+                  v-if="filtersApplied"
+                  v-model="filteredData"
+                  label="Use Filtered Data"
+                  class="ml-4"
+                  value="true"
+                  hide-details
+                />
+                <div class="my-3 ml-4">Group By</div>
 
-                                <v-checkbox v-if="filtersApplied" v-model="filteredData" label="Use Filtered Data"
-                                    class="ml-4"
-                                    value="true"
-                                    hide-details/>
-                                <div class="my-3 ml-4">Group By</div>
+                <v-card
+                  style="padding: 1.5rem"
+                  class="mt-2 mx-4"
+                  flat
+                >
+                  <v-radio-group
+                    v-for="(lineGroup, lineGroupInx) in chartsFilter.groupBy"
+                    :key="lineGroupInx"
+                    v-model="lineChartSelectedGroupBy"
+                  >
+                    <v-radio
+                      :value="lineGroup"
+                      :label="lineGroup"
+                      @change="selectLineOption"
+                    />
+                  </v-radio-group>
+                </v-card>
 
-                                <v-card style="padding: 1.5rem;" class="mt-2 mx-4" flat>
-                                    <v-radio-group
-                                        v-model="lineChartSelectedGroupBy"
-                                        v-for="(lineGroup, lineGroupInx) in chartsFilter.groupBy"
-                                        :key="lineGroupInx">
-                                        <v-radio @change="selectLineOption" :value="lineGroup" :label="lineGroup"/>
-                                    </v-radio-group>
-                                </v-card>
+                <div class="my-3 ml-4">Show</div>
 
-                                <div class="my-3 ml-4">Show</div>
-
-                                <v-card style="padding: 1.5rem;" class="mt-2 mx-4" flat>
-                                    <v-radio-group
-                                        v-model="lineChartSelectedDisplayFields"
-                                        v-for="(lineShow, lineShowInx) in chartsFilter.show"
-                                        :key="lineShowInx">
-                                        <v-radio @change="selectLineOption" :value="lineShow" :label="lineShow"/>
-                                    </v-radio-group>
-                                </v-card>
-
-                            </v-tab-item> -->
+                <v-card
+                  style="padding: 1.5rem"
+                  class="mt-2 mx-4"
+                  flat
+                >
+                  <v-radio-group
+                    v-for="(lineShow, lineShowInx) in chartsFilter.show"
+                    :key="lineShowInx"
+                    v-model="lineChartSelectedDisplayFields"
+                  >
+                    <v-radio
+                      :value="lineShow"
+                      :label="lineShow"
+                      @change="selectLineOption"
+                    />
+                  </v-radio-group>
+                </v-card>
+              </v-tab-item> -->
             </v-tabs-items>
           </v-card>
         </v-col>
@@ -227,7 +255,7 @@ import Vue from "vue"
 import ApexCharts from "vue-apexcharts"
 
 export default {
-  name: "Graphs",
+  name: "FlightStatisticsGraphsCard",
   components: {
     ApexCharts,
   },
@@ -356,11 +384,11 @@ export default {
 
     extractData(labelGroup, displayFields) {
       if (labelGroup == "Destination City") {
-        this.setupValues("finalDestinationCity", displayFields)
+        this.setupValues("destinationCity", displayFields)
       } else if (labelGroup == "Province") {
-        this.setupValues("finalDestinationProvince", displayFields)
+        this.setupValues("destinationProvince", displayFields)
       } else if (labelGroup == "Department") {
-        this.setupValues("dept", displayFields)
+        this.setupValues("department", displayFields)
       }
     },
 
