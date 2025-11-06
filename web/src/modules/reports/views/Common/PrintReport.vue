@@ -5,21 +5,21 @@
       persistent
       max-width="950px"
     >
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
-          @click="initPrint()"
           class="ml-2"
           color="secondary"
           v-bind="attrs"
           v-on="on"
+          @click="initPrint()"
         >
           Print Data
         </v-btn>
       </template>
 
       <v-card
-        class="px-10 py-5"
         v-if="!loadingData"
+        class="px-10 py-5"
       >
         <v-row
           class="mb-3"
@@ -82,31 +82,31 @@
               class="elevation-1"
               hide-default-footer
             >
-              <template v-slot:[`item.finalDestinationProvince`]="{ item }">
-                <div class="text-center">{{ item.finalDestinationProvince }}</div>
+              <template #item.destinationProvince="{ item }">
+                <div class="text-center">{{ item.destinationProvince }}</div>
               </template>
-              <template v-slot:[`item.totalTrips`]="{ item }">
+              <template #item.totalTrips="{ item }">
                 <div class="text-center">{{ item.totalTrips }}</div>
               </template>
-              <template v-slot:[`item.averageDurationDays`]="{ item }">
+              <template #item.averageDurationDays="{ item }">
                 <div class="text-center">{{ item.averageDurationDays }}</div>
               </template>
-              <template v-slot:[`item.totalExpenses`]="{ item }">
+              <template #item.totalExpenses="{ item }">
                 <span v-if="item.totalExpenses > 0"
                   >${{ Number(item.totalExpenses).toFixed(2) | currency }}</span
                 >
               </template>
-              <template v-slot:[`item.totalFlightCost`]="{ item }">
+              <template #item.totalFlightCost="{ item }">
                 <span v-if="item.totalFlightCost > 0"
                   >${{ Number(item.totalFlightCost).toFixed(2) | currency }}</span
                 >
               </template>
-              <template v-slot:[`item.averageExpensesPerDay`]="{ item }">
+              <template #item.averageExpensesPerDay="{ item }">
                 <span v-if="item.averageExpensesPerDay > 0"
                   >${{ Number(item.averageExpensesPerDay).toFixed(2) | currency }}</span
                 >
               </template>
-              <template v-slot:[`item.averageRoundTripFlightCost`]="{ item }">
+              <template #item.averageRoundTripFlightCost="{ item }">
                 <span v-if="item.averageRoundTripFlightCost > 0"
                   >${{ Number(item.averageRoundTripFlightCost).toFixed(2) | currency }}</span
                 >
@@ -138,11 +138,12 @@ import Vue from "vue"
 import { Printd } from "printd"
 
 export default {
-  components: {},
   name: "PrintReport",
+  components: {},
   props: {
     flightReport: {
-      type: [],
+      type: Array,
+      default: () => [],
     },
     id: {
       type: Number,
@@ -154,18 +155,18 @@ export default {
       headers: [
         {
           text: "Department",
-          value: "dept",
+          value: "department",
           class: "m-0 p-0",
           width: "8.5rem",
         },
         {
           text: "Final Destination City",
-          value: "finalDestinationCity",
+          value: "destinationCity",
           class: "",
         },
         {
           text: "Final Destination Province",
-          value: "finalDestinationProvince",
+          value: "destinationProvince",
           class: "",
         },
         {
@@ -226,35 +227,47 @@ export default {
     },
     print() {
       const styles = [
-        `@media print {
-								@page {
-									size: letter landscape !important;                        
-								}
-								div.form-footer {
-								position: fixed;
-								bottom: 0;
-								width:100%; 
-								display:inline-block;
-								}
-								.new-page{
-									page-break-before: always;
-									position: relative; top: 8em;
-								}
-								.text-center {
-									text-align: center !important;
-								}
-								
-							}`,
+        /* css */ `
+          @media print {
+            @page {
+              size: letter landscape !important;
+            }
+            div.form-footer {
+              position: fixed;
+              bottom: 0;
+              width: 100%;
+              display: inline-block;
+            }
+            .new-page {
+              page-break-before: always;
+              position: relative;
+              top: 8em;
+            }
+            .text-center {
+              text-align: center !important;
+            }
+          }
+        `,
         `https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css`,
-        `thead th {
-								font-size: 11pt !important;
-								color: #111111 !important;                     
-								text-align: center !important;
-								border:  1px solid #333334 !important;
-								border-bottom: 2px solid #333334 !important; 
-							}`,
-        `tbody td { border:  1px solid #666666 !important;}`,
-        `table {border: 2px solid #333334;}`,
+        /* css */ `
+          thead th {
+            font-size: 11pt !important;
+            color: #111111 !important;
+            text-align: center !important;
+            border: 1px solid #333334 !important;
+            border-bottom: 2px solid #333334 !important;
+          }
+        `,
+        /* css */ `
+          tbody td {
+            border: 1px solid #666666 !important;
+          }
+        `,
+        /* css */ `
+          table {
+            border: 2px solid #333334;
+          }
+        `,
       ]
 
       const pdf_id = "pdf-page-" + this.id
