@@ -6,19 +6,19 @@ import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
 
 export class FlightStatisticsPolicy extends PolicyFactory(FlightStatistic) {
   show(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
 
     return false
   }
 
   create(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
 
     return false
   }
 
   update(): boolean {
-    if (this.user.roles.includes(User.Roles.ADMIN)) return true
+    if (this.user.isAdmin) return true
 
     return false
   }
@@ -28,7 +28,7 @@ export class FlightStatisticsPolicy extends PolicyFactory(FlightStatistic) {
   }
 
   static policyScope(user: User): FindOptions<Attributes<FlightStatistic>> {
-    if (user.roles.includes(User.Roles.ADMIN)) {
+    if (user.isAdmin) {
       return ALL_RECORDS_SCOPE
     }
 
