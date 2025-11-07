@@ -1,4 +1,5 @@
 export { cleanDatabase } from "./clean-database"
+export { cleanTravComDatabase } from "./clean-trav-com-database"
 export { loadTestData } from "./load-test-data"
 export { mockCurrentUser } from "./mock-current-user"
 export { mockedAxios } from "./mock-axios"

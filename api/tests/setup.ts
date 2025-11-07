@@ -18,10 +18,12 @@
 
 // Global Mocks
 import cleanDatabase from "@/support/clean-database"
+import cleanTravComDatabase from "@/support/clean-trav-com-database"
 import mockedAxios from "@/support/mock-axios"
 
 beforeEach(async () => {
   await cleanDatabase()
+  await cleanTravComDatabase()
 })
 
 afterEach(() => {
