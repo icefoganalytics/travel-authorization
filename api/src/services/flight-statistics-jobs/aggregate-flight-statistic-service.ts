@@ -43,9 +43,7 @@ export class AggregateFlightStatisticService extends BaseService {
       isNil(arrivalCityCode) ||
       isEmpty(arrivalCityCode) ||
       isNil(departureDate) ||
-      isEmpty(departureDate) ||
-      isNil(arrivalDate) ||
-      isEmpty(arrivalDate)
+      isNil(arrivalDate)
     ) {
       return null
     }
