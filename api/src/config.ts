@@ -85,7 +85,7 @@ export const TRAVCOM_DB_CONFIG = {
     directory: path.resolve(__dirname, "./integrations/trav-com-integration/db/migrations"),
   },
   seeds: {
-    directory: path.resolve(__dirname, "./integrations/trav-com-integration/db/seeds"),
+    directory: path.resolve(__dirname, `./integrations/trav-com-integration/db/seeds/${NODE_ENV}`),
   },
 }
 
