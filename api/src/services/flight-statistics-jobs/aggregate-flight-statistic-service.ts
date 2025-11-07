@@ -142,9 +142,9 @@ export class AggregateFlightStatisticService extends BaseService {
     return flightStatistic.save()
   }
 
-  private calculateDays(departureDate: string, arrivalDate: string): number {
-    const start = DateTime.fromISO(departureDate)
-    const end = DateTime.fromISO(arrivalDate)
+  private calculateDays(departureDate: Date, arrivalDate: Date): number {
+    const start = DateTime.fromJSDate(departureDate)
+    const end = DateTime.fromJSDate(arrivalDate)
     if (!start.isValid || !end.isValid) return 0
     return Math.ceil(Math.abs(end.diff(start, "days").days))
   }

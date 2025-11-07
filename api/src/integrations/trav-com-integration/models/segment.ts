@@ -77,7 +77,7 @@ export class Segment extends Model<InferAttributes<Segment>, InferCreationAttrib
     columnName: "DepartureInfo",
     allowNull: true,
   })
-  declare departureInfo: string | null
+  declare departureInfo: Date | null
 
   @Attribute({
     type: DataTypes.STRING(5),
@@ -91,7 +91,7 @@ export class Segment extends Model<InferAttributes<Segment>, InferCreationAttrib
     columnName: "ArrivalInfo",
     allowNull: true,
   })
-  declare arrivalInfo: string | null
+  declare arrivalInfo: Date | null
 
   @Attribute({
     type: DataTypes.STRING(3),

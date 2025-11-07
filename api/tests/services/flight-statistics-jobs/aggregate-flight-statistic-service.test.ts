@@ -1,5 +1,4 @@
 import { TravComIntegration } from "@/integrations"
-import { FlightStatistic } from "@/models"
 
 import AggregateFlightStatisticService from "@/services/flight-statistics-jobs/aggregate-flight-statistic-service"
 
@@ -88,9 +87,9 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
             invoiceDetailId: accountsReceivableInvoiceDetails[0].id,
             legNumber: 1,
             departureCityCode: departureCity.cityCode,
-            departureInfo: "2025-01-01T10:00:00Z",
+            departureInfo: new Date("2025-01-01T10:00:00Z"),
             arrivalCityCode: arrivalCity.cityCode,
-            arrivalInfo: "2025-01-05T15:00:00Z",
+            arrivalInfo: new Date("2025-01-05T15:00:00Z"),
           },
         ])
 
@@ -111,18 +110,25 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
         })
 
         // Act
-        const flightStatistic = await AggregateFlightStatisticService.perform(accountsReceivableInvoice)
+        const flightStatistic =
+          await AggregateFlightStatisticService.perform(accountsReceivableInvoice)
 
         // Assert
         expect(flightStatistic).toMatchObject({
+          id: 1,
           department: "TEST-DEPT",
           destinationAirportCode: "YVR",
           destinationCity: "VANCOUVER INTL",
           destinationProvince: "BC",
-          totalTrips: 1,
-          totalDays: 5,
           totalExpenses: 150,
           totalFlightCost: 150,
+          totalDays: 5,
+          totalTrips: 1,
+          totalRoundTrips: 0,
+          totalRoundTripCost: 0,
+          averageDurationDays: 5,
+          averageExpensesPerDay: 30,
+          averageRoundTripFlightCost: 0,
         })
       })
     })
