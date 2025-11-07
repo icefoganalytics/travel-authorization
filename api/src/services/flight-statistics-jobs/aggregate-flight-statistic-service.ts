@@ -9,12 +9,14 @@ import BaseService from "@/services/base-service"
 export const INVOIDE_DETAIL_COST_PRODUCT_CODES = [4, 7, 12]
 
 export class AggregateFlightStatisticService extends BaseService {
-  constructor(protected invoice: TravComIntegration.Models.AccountsReceivableInvoice) {
+  constructor(
+    protected accountsReceivableInvoice: TravComIntegration.Models.AccountsReceivableInvoice
+  ) {
     super()
   }
 
   async perform(): Promise<CreationAttributes<FlightStatistic> | null> {
-    const { details, segments: unsortedSegments } = this.invoice
+    const { details, segments: unsortedSegments } = this.accountsReceivableInvoice
     if (isUndefined(details)) {
       throw new Error("Expect details association to be preloaded")
     }
@@ -66,7 +68,7 @@ export class AggregateFlightStatisticService extends BaseService {
 
     // TODO: department is actually mail code.
     // Update code so that it converts mail code to department.
-    const { department } = this.invoice
+    const { department } = this.accountsReceivableInvoice
     if (isNil(department) || isEmpty(department)) {
       return null
     }

@@ -34,8 +34,8 @@ export class SyncService extends BaseService {
             },
           ],
         },
-        async (invoice: TravComIntegration.Models.AccountsReceivableInvoice) => {
-          await AggregateFlightStatisticService.perform(invoice)
+        async (accountsReceivableInvoice: TravComIntegration.Models.AccountsReceivableInvoice) => {
+          await AggregateFlightStatisticService.perform(accountsReceivableInvoice)
 
           numberOfInvoicesProcessed = await this.updateJobProgress(
             numberOfInvoicesProcessed,
