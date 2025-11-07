@@ -69,17 +69,17 @@ export default {
       headers: [
         {
           text: "Department",
-          value: "dept",
+          value: "department",
           class: "blue-grey lighten-4",
         },
         {
           text: "Final Destination City",
-          value: "finalDestinationCity",
+          value: "destinationCity",
           class: "blue-grey lighten-4",
         },
         {
           text: "Final Destination Province",
-          value: "finalDestinationProvince",
+          value: "destinationProvince",
           class: "blue-grey lighten-4",
         },
         {
@@ -130,10 +130,10 @@ export default {
     exportToExcel() {
       const csvInfo = this.flightReport.map((flight) => {
         return {
-          department: flight.dept ? flight.dept : "",
-          finalDestinationCity: flight.finalDestinationCity ? flight.finalDestinationCity : "",
-          finalDestinationProvince: flight.finalDestinationProvince
-            ? flight.finalDestinationProvince
+          department: flight.department ? flight.department : "",
+          finalDestinationCity: flight.destinationCity ? flight.destinationCity : "",
+          finalDestinationProvince: flight.destinationProvince
+            ? flight.destinationProvince
             : "",
           totalTrips: flight.totalTrips ? flight.totalTrips : "",
           totalExpenses: flight.totalExpenses ? "$ " + Number(flight.totalExpenses).toFixed(2) : "",
