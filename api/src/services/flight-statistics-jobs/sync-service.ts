@@ -14,13 +14,13 @@ export class SyncService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    db.transaction(async () => {
-      await FlightStatistic.destroy({ where: {} })
-
+    await db.transaction(async () => {
       const totalInvoices = await TravComIntegration.Models.AccountsReceivableInvoice.count()
       logger.info(
         `FlightStatisticsJob#${this.flightStatisticsJobId}: processing ${totalInvoices} invoices`
       )
+
+      await FlightStatistic.destroy({ where: {} })
 
       let numberOfInvoicesProcessed = 0
 
@@ -43,9 +43,16 @@ export class SyncService extends BaseService {
           )
         }
       )
-
-      await this.flightStatisticsJob.update({ progress: 100 })
     })
+
+    await this.flightStatisticsJob.update(
+      {
+        progress: 100,
+      },
+      {
+        transaction: null,
+      }
+    )
   }
 
   private async updateJobProgress(
@@ -58,7 +65,14 @@ export class SyncService extends BaseService {
         `FlightStatisticsJob#${this.flightStatisticsJobId}: processed ${numberOfInvoicesProcessed} of ${totalInvoices} invoices (${progress}% complete)`
       )
 
-      await this.flightStatisticsJob.update({ progress })
+      await this.flightStatisticsJob.update(
+        {
+          progress,
+        },
+        {
+          transaction: null,
+        }
+      )
     }
 
     return numberOfInvoicesProcessed + 1
