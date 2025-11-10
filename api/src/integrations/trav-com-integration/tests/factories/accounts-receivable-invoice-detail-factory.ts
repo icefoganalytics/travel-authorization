@@ -17,7 +17,7 @@ class AccountsReceivableInvoiceDetailFactory extends BaseFactory<
 > {}
 
 export const accountsReceivableInvoiceDetailFactory = AccountsReceivableInvoiceDetailFactory.define(
-  ({ onCreate, associations, params, transientParams }) => {
+  ({ onCreate, associations, params, sequence, transientParams }) => {
     onCreate(async (detail) => {
       try {
         await nestedSaveAndAssociateIfNew(detail)
@@ -44,6 +44,7 @@ export const accountsReceivableInvoiceDetailFactory = AccountsReceivableInvoiceD
       })
 
     const detail = TravComIntegration.Models.AccountsReceivableInvoiceDetail.build({
+      id: sequence,
       invoiceId: invoice.id,
       transactionType: faker.number.int({ min: 1, max: 10 }),
       vendorNumber: faker.string.numeric(3),

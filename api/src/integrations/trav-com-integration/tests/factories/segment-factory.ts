@@ -15,7 +15,7 @@ type TransientParam = {
 class SegmentFactory extends BaseFactory<TravComIntegration.Models.Segment, TransientParam> {}
 
 export const segmentFactory = SegmentFactory.define(
-  ({ onCreate, associations, params, transientParams }) => {
+  ({ onCreate, associations, params, sequence, transientParams }) => {
     onCreate(async (segment) => {
       try {
         await nestedSaveAndAssociateIfNew(segment)
@@ -42,6 +42,7 @@ export const segmentFactory = SegmentFactory.define(
       accountsReceivableInvoiceDetailFactory.build({ id: params.invoiceDetailId })
 
     const segment = TravComIntegration.Models.Segment.build({
+      id: sequence,
       invoiceId: invoice.id,
       invoiceDetailId: invoiceDetail.id,
       legNumber: faker.number.int({ min: 1, max: 10 }),

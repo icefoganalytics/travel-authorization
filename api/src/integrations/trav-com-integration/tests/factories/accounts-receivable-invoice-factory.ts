@@ -39,11 +39,9 @@ export const accountsReceivableInvoiceFactory = AccountsReceivableInvoiceFactory
       }
     })
 
-    const formattedSequence = sequence.toString().padStart(5, "0")
-    const invoiceNumber = `INVOICE-${formattedSequence}`
-
     return TravComIntegration.Models.AccountsReceivableInvoice.build({
-      invoiceNumber,
+      id: sequence,
+      invoiceNumber: sequence.toString().padStart(10, "0"),
     })
   }
 )
