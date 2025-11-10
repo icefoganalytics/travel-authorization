@@ -1,5 +1,12 @@
 <template>
-  <v-card class="borderless-card">
+  <v-skeleton-loader
+    v-if="isLoading"
+    type="card"
+  />
+  <v-card
+    v-else
+    class="borderless-card"
+  >
     <v-card>
       <v-card-title> Location </v-card-title>
       <v-card-text>
@@ -41,33 +48,21 @@
 
     <v-card class="mt-5">
       <v-card-title> Department </v-card-title>
-      <v-skeleton-loader
-        v-if="isLoading"
-        type="card"
-      />
-      <v-card-text v-else>
-        <v-row
-          v-for="rowIndex of range(numberOfDepartmentRows)"
-          :key="rowIndex"
-          class="mx-3 my-0"
-        >
+      <v-card-text>
+        <v-row>
           <v-col
-            v-for="(department, departmentIndex) in departments.slice(
-              rowIndex * 4,
-              rowIndex * 4 + 4
-            )"
+            v-for="(department, departmentIndex) in departments"
             :key="departmentIndex"
-            style="margin: 0; padding: 0"
-            cols="3"
+            cols="12"
+            md="3"
           >
             <v-checkbox
               :input-value="selectedDepartments"
               multiple
-              style="font-size: 12px"
               dense
               :value="department"
               :label="department"
-              @change="emitFilterUpdate"
+              @change="selectDepartment"
             />
           </v-col>
         </v-row>
@@ -83,7 +78,7 @@ export type LocationCategory = keyof LocationsByRegion
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from "vue"
-import { map, range, uniq } from "lodash"
+import { map, uniq } from "lodash"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
 import useFlightStatistics from "@/use/use-flight-statistics"
@@ -122,11 +117,10 @@ const selectedLocationSubCategories = ref<Record<LocationCategory, string[]>>({
   International: [],
 })
 
-// NOTE: departments are currently mailcodes do to bad data.
+// NOTE: departments are currently mailcodes due to bad data.
 // I'm not sure how to fix this yet.
 const departments = computed<string[]>(() => uniq(map(flightStatistics.value, "department")))
 const selectedDepartments = ref<string[]>([])
-const numberOfDepartmentRows = computed<number>(() => Math.ceil(departments.value.length / 4))
 
 const yukonFlights = computed(() =>
   uniq(
@@ -180,6 +174,12 @@ async function selectLocationSubCategory(
   newLocationSubCategories: string[]
 ) {
   selectedLocationSubCategories.value[locationCategory] = newLocationSubCategories
+
+  emitFilterUpdate()
+}
+
+async function selectDepartment(newDepartments: string[]) {
+  selectedDepartments.value = newDepartments
 
   emitFilterUpdate()
 }
