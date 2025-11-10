@@ -20,7 +20,14 @@
           <v-btn
             :color="showFilters ? 'primary' : 'secondary'"
             @click="showFilters = !showFilters"
-            >Filters
+          >
+            <v-badge
+              color="warning"
+              :content="totalActiveFilters"
+              :value="totalActiveFilters"
+            >
+              Filters
+            </v-badge>
           </v-btn>
           <v-btn
             class="ml-4"
@@ -40,8 +47,9 @@
 
       <FlightStatisticsFiltersCard
         v-if="showFilters"
+        v-model="filters"
         class="mt-5"
-        @updateFilters="updateFilters"
+        @input="updateGraphs"
       />
 
       <v-card
@@ -71,7 +79,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
-import { cloneDeep } from "lodash"
+import { cloneDeep, sumBy } from "lodash"
 
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -80,6 +88,7 @@ import useFlightStatistics from "@/use/use-flight-statistics"
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
 import FlightStatisticsGraphsCard from "@/components/flight-statistics/FlightStatisticsGraphsCard.vue"
 import FlightStatisticsFiltersCard, {
+  type LocationCategory,
   type LocationsByRegion,
 } from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
@@ -95,25 +104,34 @@ const updateGraph = ref(0)
 
 const filters = ref<{
   departments: string[]
-  locations: LocationsByRegion
+  locationCategories: LocationCategory[]
+  locationSubCategories: LocationsByRegion
 }>({
   departments: [],
-  locations: {
-    Canada: [],
+  locationCategories: [],
+  locationSubCategories: {
     Yukon: [],
+    Canada: [],
     International: [],
   },
 })
 
-function updateFilters(departments: string[], locations: LocationsByRegion) {
-  filters.value = {
-    departments,
-    locations,
-  }
+function updateGraphs() {
   updateGraph.value++
 }
 
-// TODO: move to backend
+const totalActiveFilters = computed(() => {
+  return sumBy(
+    [
+      filters.value.departments,
+      filters.value.locationSubCategories.Canada,
+      filters.value.locationSubCategories.Yukon,
+      filters.value.locationSubCategories.International,
+    ],
+    (filter) => filter.length
+  )
+})
+
 const frontEndFilteredFlightStatistics = computed(() => {
   let localFlightStatistics = cloneDeep(flightStatistics.value)
   if (filters.value.departments?.length > 0) {
@@ -123,16 +141,16 @@ const frontEndFilteredFlightStatistics = computed(() => {
   }
 
   if (
-    filters.value.locations.Canada?.length > 0 ||
-    filters.value.locations.Yukon?.length > 0 ||
-    filters.value.locations.International?.length > 0
+    filters.value.locationSubCategories.Canada?.length > 0 ||
+    filters.value.locationSubCategories.Yukon?.length > 0 ||
+    filters.value.locationSubCategories.International?.length > 0
   ) {
     localFlightStatistics = localFlightStatistics.filter(
       ({ destinationCity, destinationProvince }) => {
         return (
-          filters.value.locations.Yukon?.includes(destinationCity) ||
-          filters.value.locations.Canada?.includes(destinationProvince) ||
-          filters.value.locations.International?.includes(destinationProvince)
+          filters.value.locationSubCategories.Yukon?.includes(destinationCity) ||
+          filters.value.locationSubCategories.Canada?.includes(destinationProvince) ||
+          filters.value.locationSubCategories.International?.includes(destinationProvince)
         )
       }
     )
@@ -160,7 +178,8 @@ function reset() {
 function resetFilters() {
   filters.value = {
     departments: [],
-    locations: {
+    locationCategories: [],
+    locationSubCategories: {
       Canada: [],
       Yukon: [],
       International: [],
