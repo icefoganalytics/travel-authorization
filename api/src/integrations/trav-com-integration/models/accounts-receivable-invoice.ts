@@ -1,7 +1,6 @@
 import {
   DataTypes,
   Op,
-  type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
@@ -42,7 +41,7 @@ export class AccountsReceivableInvoice extends BaseModel<
     allowNull: false,
     primaryKey: true,
   })
-  declare id: CreationOptional<number>
+  declare id: number
 
   @Attribute({
     type: DataTypes.STRING(10),

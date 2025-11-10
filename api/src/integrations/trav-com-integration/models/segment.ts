@@ -1,7 +1,6 @@
 import {
   DataTypes,
   Model,
-  type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
@@ -42,7 +41,7 @@ export class Segment extends Model<InferAttributes<Segment>, InferCreationAttrib
     allowNull: false,
     primaryKey: true,
   })
-  declare id: CreationOptional<number>
+  declare id: number
 
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
