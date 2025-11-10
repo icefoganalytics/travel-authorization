@@ -1,22 +1,16 @@
 import { DataTypes } from "@sequelize/core"
 import { DateTime } from "luxon"
 
+/**
+ * See https://sequelize.org/docs/v7/other-topics/extending-data-types/
+ */
 export class DATETIME extends DataTypes.ABSTRACT<Date> {
   toSql() {
     return "DATETIME"
   }
 
-  stringify(value: Date | string | number): string {
-    if (typeof value === "string") {
-      return value
-    } else if (typeof value === "number") {
-      const date = new Date(value)
-      const datetime = DateTime.fromJSDate(date)
-      return datetime.toFormat("yyyy-MM-dd HH:mm:ss")
-    }
-
-    const datetime = DateTime.fromJSDate(value)
-    return datetime.toFormat("yyyy-MM-dd HH:mm:ss")
+  toBindableValue(value: Date): string {
+    return DateTime.fromJSDate(value).toFormat("yyyy-MM-dd HH:mm:ss")
   }
 }
 
