@@ -396,7 +396,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
         expect(result).toBeNull()
       })
 
-      test("when details association is not preloaded, throws error", async () => {
+      test("when details association is not preloaded, errors informatively", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
           department: "TEST-DEPT",
@@ -409,7 +409,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
         ).rejects.toThrow("Expect details association to be preloaded")
       })
 
-      test("when segments association is not preloaded, throws error", async () => {
+      test("when segments association is not preloaded, errors informatively", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
           department: "TEST-DEPT",
@@ -430,7 +430,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
         ).rejects.toThrow("Expect segments association to be preloaded")
       })
 
-      test("when arrivalCity association is not preloaded, throws error", async () => {
+      test("when arrivalCity association is not preloaded, errors informatively", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
           department: "TEST-DEPT",
