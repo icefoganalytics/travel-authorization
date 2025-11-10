@@ -3,35 +3,37 @@
     <v-card>
       <v-card-title> Location </v-card-title>
       <v-card-text>
-        <v-row class="mx-0">
+        <v-row>
           <v-col
-            v-for="(locationCategory, categoryIndex) in location.categories"
+            v-for="(locationCategory, categoryIndex) in locationCategories"
             :key="categoryIndex"
+            cols="12"
+            md="4"
           >
             <v-checkbox
-              :input-value="selectedCategories"
+              :input-value="selectedLocationCategories"
               multiple
               dense
               :value="locationCategory"
               :label="locationCategory"
-              @change="selectCategory($event, locationCategory)"
+              @change="selectLocationCategory"
             />
 
-            <div
-              v-if="selectedCategories.includes(locationCategory)"
-              class="ml-5"
-            >
-              <v-checkbox
-                v-for="(locationSubCategory, index) in location.subCategories[locationCategory]"
+            <template v-if="selectedLocationCategories.includes(locationCategory)">
+              <v-col
+                v-for="(locationSubCategory, index) in locations[locationCategory]"
                 :key="index"
-                :input-value="selectedSubCategories[locationCategory]"
-                multiple
-                dense
-                :value="locationSubCategory"
-                :label="locationSubCategory"
-                @change="updateFilters"
-              />
-            </div>
+              >
+                <v-checkbox
+                  :input-value="selectedLocationSubCategories[locationCategory]"
+                  multiple
+                  dense
+                  :value="locationSubCategory"
+                  :label="locationSubCategory"
+                  @change="selectLocationSubCategory(locationCategory, $event)"
+                />
+              </v-col>
+            </template>
           </v-col>
         </v-row>
       </v-card-text>
@@ -39,11 +41,14 @@
 
     <v-card class="mt-5">
       <v-card-title> Department </v-card-title>
-      <v-card-text>
+      <v-skeleton-loader
+        v-if="isLoading"
+        type="card"
+      />
+      <v-card-text v-else>
         <v-row
           v-for="rowIndex of range(numberOfDepartmentRows)"
           :key="rowIndex"
-          style=""
           class="mx-3 my-0"
         >
           <v-col
@@ -62,7 +67,7 @@
               dense
               :value="department"
               :label="department"
-              @change="updateFilters"
+              @change="emitFilterUpdate"
             />
           </v-col>
         </v-row>
@@ -72,24 +77,26 @@
 </template>
 
 <script lang="ts">
-export type LocationCategory = "Yukon" | "Canada" | "International"
-
-export type LocationsByRegion = Record<LocationCategory, string[]>
+export type LocationsByRegion = Record<"Yukon" | "Canada" | "International", string[]>
+export type LocationCategory = keyof LocationsByRegion
 </script>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from "vue"
+import { computed, nextTick, onMounted, ref } from "vue"
 import { map, range, uniq } from "lodash"
 
-import { type FlightStatisticAsIndex } from "@/api/flight-statistics-api"
+import { MAX_PER_PAGE } from "@/api/base-api"
+import useFlightStatistics from "@/use/use-flight-statistics"
 
-const props = defineProps<{
-  flightStatistics: FlightStatisticAsIndex[]
-}>()
-
+// TODO: switch to v-model for filters.
 const emit = defineEmits<{
   (event: "updateFilters", departments: string[], subCategories: LocationsByRegion): void
 }>()
+
+const flightStatisticsQuery = computed(() => ({
+  perPage: MAX_PER_PAGE, // TODO: push filter generation to back-end
+}))
+const { flightStatistics, isLoading } = useFlightStatistics(flightStatisticsQuery)
 
 const YUKON_ACRONYM = "YT"
 const CANADIAN_PROVINCE_ACRONYMS = Object.freeze([
@@ -108,76 +115,89 @@ const CANADIAN_PROVINCE_ACRONYMS = Object.freeze([
   "NU",
 ])
 
-const location = ref<{
-  categories: LocationCategory[]
-  subCategories: Record<LocationCategory, string[]>
-}>({
-  categories: ["Yukon", "Canada", "International"],
-  subCategories: {
-    Yukon: [],
-    Canada: [],
-    International: [],
-  },
-})
-
-const selectedCategories = ref<LocationCategory[]>([])
-const selectedSubCategories = ref<Record<LocationCategory, string[]>>({
+const selectedLocationCategories = ref<LocationCategory[]>([])
+const selectedLocationSubCategories = ref<Record<LocationCategory, string[]>>({
   Yukon: [],
   Canada: [],
   International: [],
 })
 
-const departments = ref<string[]>([])
+// NOTE: departments are currently mailcodes do to bad data.
+// I'm not sure how to fix this yet.
+const departments = computed<string[]>(() => uniq(map(flightStatistics.value, "department")))
 const selectedDepartments = ref<string[]>([])
-const numberOfDepartmentRows = ref(0)
+const numberOfDepartmentRows = computed<number>(() => Math.ceil(departments.value.length / 4))
+
+const yukonFlights = computed(() =>
+  uniq(
+    flightStatistics.value
+      .filter((flight) => flight.destinationProvince === YUKON_ACRONYM)
+      .map((flight) => flight.destinationCity)
+  )
+)
+const canadianFlights = computed(() =>
+  uniq(
+    flightStatistics.value
+      .filter((flight) => CANADIAN_PROVINCE_ACRONYMS.includes(flight.destinationProvince))
+      .map((flight) => flight.destinationProvince)
+  )
+)
+const internationalFlights = computed(() =>
+  uniq(
+    flightStatistics.value
+      .filter((flight) => !CANADIAN_PROVINCE_ACRONYMS.includes(flight.destinationProvince))
+      .map((flightStatistic) => flightStatistic.destinationProvince)
+  )
+)
+const locations = computed<LocationsByRegion>(() => ({
+  Yukon: yukonFlights.value,
+  Canada: canadianFlights.value,
+  International: internationalFlights.value,
+}))
+const locationCategories = computed<LocationCategory[]>(
+  () => Object.keys(locations.value) as (keyof LocationsByRegion)[]
+)
+
+async function emitFilterUpdate() {
+  await nextTick()
+  emit("updateFilters", selectedDepartments.value, selectedLocationSubCategories.value)
+}
+
+async function selectLocationCategory(newLocationCategories: LocationCategory[]) {
+  selectedLocationCategories.value = newLocationCategories
+
+  locationCategories.value.forEach((category) => {
+    if (!selectedLocationCategories.value.includes(category)) {
+      selectedLocationSubCategories.value[category] = []
+    }
+  })
+
+  emitFilterUpdate()
+}
+
+async function selectLocationSubCategory(
+  locationCategory: LocationCategory,
+  newLocationSubCategories: string[]
+) {
+  selectedLocationSubCategories.value[locationCategory] = newLocationSubCategories
+
+  emitFilterUpdate()
+}
 
 onMounted(() => {
-  initDepartments()
-  initLocations()
-  initFilters()
+  resetFilters()
 })
 
-async function initFilters() {
-  selectedCategories.value = []
-  selectedSubCategories.value = {
+async function resetFilters() {
+  selectedLocationCategories.value = []
+  selectedLocationSubCategories.value = {
     Yukon: [],
     Canada: [],
     International: [],
   }
   selectedDepartments.value = []
-  updateFilters()
-}
 
-async function updateFilters() {
-  await nextTick()
-  emit("updateFilters", selectedDepartments.value, selectedSubCategories.value)
-}
-
-async function initDepartments() {
-  departments.value = uniq(map(props.flightStatistics, "department"))
-  numberOfDepartmentRows.value = Math.ceil(departments.value.length / 4)
-}
-
-async function initLocations() {
-  const provinces = uniq(map(props.flightStatistics, "destinationProvince"))
-
-  const yukonFlights = props.flightStatistics.filter(
-    (flight) => flight.destinationProvince === YUKON_ACRONYM
-  )
-  location.value.subCategories.Yukon = uniq(map(yukonFlights, "destinationCity"))
-  location.value.subCategories.Canada = provinces.filter((province) =>
-    CANADIAN_PROVINCE_ACRONYMS.includes(province)
-  )
-  location.value.subCategories.International = provinces.filter(
-    (province) => !CANADIAN_PROVINCE_ACRONYMS.includes(province)
-  )
-}
-
-async function selectCategory(selectedCategories: string[], locationCategory: LocationCategory) {
-  if (!selectedCategories.includes(locationCategory)) {
-    selectedSubCategories.value[locationCategory] = []
-  }
-  updateFilters()
+  emitFilterUpdate()
 }
 </script>
 

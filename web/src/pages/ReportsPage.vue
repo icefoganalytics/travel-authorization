@@ -41,7 +41,6 @@
       <FlightStatisticsFiltersCard
         v-if="showFilters"
         class="mt-5"
-        :flight-statistics="flightStatistics"
         @updateFilters="updateFilters"
       />
 
