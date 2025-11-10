@@ -102,6 +102,7 @@ const showFilters = useRouteQuery("showFilters", "false", {
 const showGraphs = ref(false)
 const updateGraph = ref(0)
 
+// TODO: Store state with useRouteQuery.
 const filters = ref<{
   departments: string[]
   locationCategories: LocationCategory[]
