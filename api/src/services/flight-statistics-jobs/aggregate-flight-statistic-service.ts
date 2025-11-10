@@ -146,7 +146,10 @@ export class AggregateFlightStatisticService extends BaseService {
     const start = DateTime.fromJSDate(departureDate)
     const end = DateTime.fromJSDate(arrivalDate)
     if (!start.isValid || !end.isValid) return 0
-    return Math.ceil(Math.abs(end.diff(start, "days").days))
+
+    const differenceInDays = start.diff(end, "days").days
+    const absoluteDifferenceInDays = Math.abs(differenceInDays)
+    return Math.ceil(absoluteDifferenceInDays)
   }
 }
 

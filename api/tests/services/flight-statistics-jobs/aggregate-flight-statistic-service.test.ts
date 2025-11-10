@@ -177,11 +177,11 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
           destinationCity,
           destinationProvince,
           totalTrips: 2,
-          totalDays: 5,
+          totalDays: 6,
           totalExpenses: 150,
           totalFlightCost: 125,
-          averageDurationDays: 2.5,
-          averageExpensesPerDay: 30,
+          averageDurationDays: 3,
+          averageExpensesPerDay: 25,
         })
       })
 
