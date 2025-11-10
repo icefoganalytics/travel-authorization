@@ -105,23 +105,6 @@ const filters = ref<{
   },
 })
 
-onMounted(async () => {
-  reset()
-})
-
-function reset() {
-  showGraphs.value = false
-  updateGraph.value = 0
-  filters.value = {
-    departments: [],
-    locations: {
-      Canada: [],
-      Yukon: [],
-      International: [],
-    },
-  }
-}
-
 function updateFilters(departments: string[], locations: LocationsByRegion) {
   filters.value = {
     departments,
@@ -162,6 +145,27 @@ const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsMo
 
 function openFlightStatisticsJobsModal() {
   flightStatisticsJobsModal.value?.open()
+}
+
+onMounted(async () => {
+  reset()
+})
+
+function reset() {
+  showGraphs.value = false
+  updateGraph.value = 0
+  resetFilters()
+}
+
+function resetFilters() {
+  filters.value = {
+    departments: [],
+    locations: {
+      Canada: [],
+      Yukon: [],
+      International: [],
+    },
+  }
 }
 
 const breadcrumbs = ref([
