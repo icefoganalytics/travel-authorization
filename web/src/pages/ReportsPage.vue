@@ -18,7 +18,8 @@
 
         <v-card-actions class="mx-8">
           <v-btn
-            :color="showFilters ? 'primary' : 'secondary'"
+            color="primary"
+            outlined
             @click="showFilters = !showFilters"
           >
             <v-badge
@@ -27,13 +28,17 @@
               :value="totalActiveFilters"
             >
               Filters
+              <v-icon right> {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
             </v-badge>
           </v-btn>
           <v-btn
             class="ml-4"
-            :color="showGraphs ? 'primary' : 'secondary'"
+            color="primary"
+            outlined
             @click="showGraphs = !showGraphs"
-            >Graph
+          >
+            Graph
+            <v-icon right> {{ showGraphs ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
           </v-btn>
           <v-btn
             class="ml-auto"
