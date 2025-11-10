@@ -3,71 +3,65 @@
     v-if="isLoading"
     type="card"
   />
-  <v-card
-    v-else
-    class="borderless-card"
-  >
-    <v-card>
-      <v-card-title> Location </v-card-title>
-      <v-card-text>
-        <v-row>
-          <v-col
+  <v-card v-else>
+    <v-card-title>Filters</v-card-title>
+    <v-card-text>
+      <v-row>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <v-autocomplete
+            :value="selectedLocationCategories"
+            :items="locationCategories"
+            label="Locations"
+            chips
+            clearable
+            deletable-chips
+            multiple
+            outlined
+            @input="selectLocationCategory"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <div
             v-for="(locationCategory, categoryIndex) in locationCategories"
             :key="categoryIndex"
-            cols="12"
-            md="4"
           >
-            <v-checkbox
-              :input-value="selectedLocationCategories"
+            <v-autocomplete
+              v-if="selectedLocationCategories.includes(locationCategory)"
+              :value="selectedLocationSubCategories[locationCategory]"
+              :items="locations[locationCategory]"
+              :label="`Locations (${locationCategory})`"
+              chips
+              clearable
+              deletable-chips
               multiple
-              dense
-              :value="locationCategory"
-              :label="locationCategory"
-              @change="selectLocationCategory"
+              outlined
+              @input="selectLocationSubCategory(locationCategory, $event)"
             />
-
-            <template v-if="selectedLocationCategories.includes(locationCategory)">
-              <v-col
-                v-for="(locationSubCategory, index) in locations[locationCategory]"
-                :key="index"
-              >
-                <v-checkbox
-                  :input-value="selectedLocationSubCategories[locationCategory]"
-                  multiple
-                  dense
-                  :value="locationSubCategory"
-                  :label="locationSubCategory"
-                  @change="selectLocationSubCategory(locationCategory, $event)"
-                />
-              </v-col>
-            </template>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
-
-    <v-card class="mt-5">
-      <v-card-title> Department </v-card-title>
-      <v-card-text>
-        <v-row>
-          <v-col
-            v-for="(department, departmentIndex) in departments"
-            :key="departmentIndex"
-            cols="12"
-            md="3"
-          >
-            <v-checkbox
-              :input-value="selectedDepartments"
-              multiple
-              dense
-              :value="department"
-              :label="department"
-              @change="selectDepartment"
-            />
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
+          </div>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-autocomplete
+            :value="selectedDepartments"
+            :items="departments"
+            label="Departments"
+            chips
+            clearable
+            deletable-chips
+            multiple
+            outlined
+            @input="selectDepartment"
+          />
+        </v-col>
+      </v-row>
+    </v-card-text>
   </v-card>
 </template>
 
