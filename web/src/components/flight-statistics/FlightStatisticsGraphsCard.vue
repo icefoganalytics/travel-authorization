@@ -1,25 +1,13 @@
 <template>
+  <v-skeleton-loader
+    v-if="loadingData"
+    type="card"
+  />
   <v-card
-    :loading="loadingData"
-    :disabled="loadingData"
-    en
+    v-else
     class="px-5 pb-15"
   >
-    <div
-      v-if="loadingData"
-      class="mt-10"
-      style="text-align: center"
-    >
-      loading ...
-    </div>
-    <v-alert
-      v-if="alertMsg"
-      class="mt-5"
-      type="warning"
-      >{{ alertMsg }}</v-alert
-    >
-
-    <div v-if="!loadingData">
+    <div>
       <v-row>
         <v-col
           style="margin: 5rem 0"
@@ -41,7 +29,7 @@
               height="550"
               :options="chartOptions"
               :series="series"
-            ></ApexCharts>
+            />
           </div>
 
           <div
@@ -53,7 +41,7 @@
               type="bar"
               :options="chartOptions"
               :series="series"
-            ></ApexCharts>
+            />
           </div>
 
           <!-- <div
@@ -65,7 +53,7 @@
               type="line"
               :options="chartOptions"
               :series="series"
-            ></ApexCharts>
+            />
           </div> -->
         </v-col>
         <v-col cols="4">
@@ -249,229 +237,234 @@
   </v-card>
 </template>
 
-<script>
-import Vue from "vue"
+<script lang="ts">
+type ChartSeries = number[] | { name: string; data: number[] }[]
+</script>
+
+<script setup lang="ts">
+import { nextTick, onMounted, ref, watch } from "vue"
+import { cloneDeep } from "lodash"
 
 import ApexCharts from "vue-apexcharts"
+import { type ApexOptions } from "apexcharts"
 
-export default {
-  name: "FlightStatisticsGraphsCard",
-  components: {
-    ApexCharts,
-  },
-  props: {
-    filtersApplied: {
-      type: Boolean,
-    },
-    allFlightReports: {
-      type: Array,
-      default: () => [],
-    },
-    filteredFlightReport: {
-      type: Array,
-      default: () => [],
-    },
-    updateGraph: {
-      type: Number,
-      default: 0,
-    },
-  },
-  data() {
-    return {
-      tabs: 0,
-      series: [],
-      chartOptions: {},
-      flightReport: [],
-      filteredData: false,
+import { type FlightStatisticAsIndex } from "@/api/flight-statistics-api"
 
-      chartsFilter: {
-        groupBy: ["Destination City", "Province", "Department"],
-        show: ["Total Trips", "Total Expences", "Total Flight Cost", "Average Duration"],
-      },
+const props = withDefaults(
+  defineProps<{
+    filtersApplied: boolean
+    allFlightReports: FlightStatisticAsIndex[]
+    filteredFlightReport: FlightStatisticAsIndex[]
+    updateGraph: number
+  }>(),
+  {
+    allFlightReports: () => [],
+    filteredFlightReport: () => [],
+    updateGraph: 0,
+  }
+)
 
-      pieChartSelectedGroupBy: null,
-      pieChartSelectedDisplayFields: null,
+const tabs = ref(0)
+const series = ref<ChartSeries>([])
+const chartOptions = ref<ApexOptions>({})
+const flightReport = ref<FlightStatisticAsIndex[]>([])
+const filteredData = ref(false)
 
-      lineChartSelectedGroupBy: null,
-      lineChartSelectedDisplayFields: null,
+const chartsFilter = ref({
+  groupBy: ["Destination City", "Province", "Department"],
+  show: ["Total Trips", "Total Expences", "Total Flight Cost", "Average Duration"],
+})
 
-      barChartSelectedGroupBy: null,
-      barChartSelectedDisplayFields: null,
+const pieChartSelectedGroupBy = ref<string | null>(null)
+const pieChartSelectedDisplayFields = ref<string | null>(null)
 
-      pieId: 0,
-      barId: 0,
-      lineId: 0,
+const lineChartSelectedGroupBy = ref<string | null>(null)
+const lineChartSelectedDisplayFields = ref<string | null>(null)
 
-      loadingData: false,
-      alertMsg: "",
+const barChartSelectedGroupBy = ref<string | null>(null)
+const barChartSelectedDisplayFields = ref<string | null>(null)
+
+const pieId = ref(0)
+const barId = ref(0)
+const lineId = ref(0)
+
+const loadingData = ref(false)
+
+watch(
+  () => props.updateGraph,
+  async () => {
+    await getData()
+  }
+)
+
+onMounted(async () => {
+  await initFilters()
+})
+
+async function initFilters() {
+  pieChartSelectedGroupBy.value = null
+  pieChartSelectedDisplayFields.value = null
+
+  barChartSelectedGroupBy.value = null
+  barChartSelectedDisplayFields.value = null
+
+  lineChartSelectedGroupBy.value = null
+  lineChartSelectedDisplayFields.value = null
+
+  getData()
+}
+
+async function getData() {
+  loadingData.value = true
+  if (filteredData.value) {
+    flightReport.value = cloneDeep(props.filteredFlightReport)
+  } else {
+    flightReport.value = cloneDeep(props.allFlightReports)
+  }
+  selectTab()
+
+  await nextTick()
+  loadingData.value = false
+}
+
+async function selectTab() {
+  if (tabs.value == 0) {
+    pieChartSelectedGroupBy.value = "Destination City"
+    pieChartSelectedDisplayFields.value = "Total Trips"
+    await selectPieOption()
+  } else if (tabs.value == 1) {
+    barChartSelectedGroupBy.value = "Destination City"
+    barChartSelectedDisplayFields.value = "Total Trips"
+    await selectBarOption()
+  } else if (tabs.value == 2) {
+    lineChartSelectedGroupBy.value = "Destination City"
+    lineChartSelectedDisplayFields.value = "Total Trips"
+    await selectLineOption()
+  }
+}
+
+async function selectPieOption() {
+  await nextTick()
+
+  if (pieChartSelectedGroupBy.value && pieChartSelectedDisplayFields.value) {
+    extractData(pieChartSelectedGroupBy.value, pieChartSelectedDisplayFields.value)
+  }
+  pieId.value++
+}
+
+async function selectBarOption() {
+  await nextTick()
+
+  if (barChartSelectedGroupBy.value && barChartSelectedDisplayFields.value) {
+    extractData(barChartSelectedGroupBy.value, barChartSelectedDisplayFields.value)
+  }
+  barId.value++
+}
+
+async function selectLineOption() {
+  await nextTick()
+
+  if (lineChartSelectedGroupBy.value && lineChartSelectedDisplayFields.value) {
+    extractData(lineChartSelectedGroupBy.value, lineChartSelectedDisplayFields.value)
+  }
+  lineId.value++
+}
+
+async function extractData(labelGroup: string, displayFields: string) {
+  if (labelGroup == "Destination City") {
+    setupValues("destinationCity", displayFields)
+  } else if (labelGroup == "Province") {
+    setupValues("destinationProvince", displayFields)
+  } else if (labelGroup == "Department") {
+    setupValues("department", displayFields)
+  }
+}
+
+function setupValues(labelField: keyof FlightStatisticAsIndex, displayFields: string) {
+  const values = []
+  let categories: string[] = []
+
+  // TODO: figure out what this code is supposed to be.
+  // It's clearly returning values not categories here, so making it unique doesn't make sense
+  const existingCategories = flightReport.value.map((flight) => flight[labelField].toString())
+  categories = [...new Set(existingCategories)]
+
+  if (displayFields == "Total Trips") {
+    for (const label of categories) {
+      const labelData = flightReport.value.filter((flight) => flight[labelField] == label)
+      const totalTripsArray = labelData.map((flight) => flight.totalTrips)
+      const sum = totalTripsArray.reduce(function (a, b) {
+        return Number(a) + Number(b)
+      }, 0)
+      values.push(sum)
     }
-  },
-  watch: {
-    updateGraph() {
-      this.getData()
-    },
-  },
-  mounted() {
-    this.initFilters()
-  },
-  methods: {
-    initFilters() {
-      this.pieChartSelectedGroupBy = null
-      this.pieChartSelectedDisplayFields = null
+  } else if (displayFields == "Total Expences") {
+    for (const label of categories) {
+      const labelData = flightReport.value.filter((flight) => flight[labelField] == label)
+      const totalExpensesArray = labelData.map((flight) => flight.totalExpenses)
+      const sum = totalExpensesArray.reduce(function (a, b) {
+        return Number(a) + Number(b)
+      }, 0)
+      values.push(sum)
+    }
+  } else if (displayFields == "Total Flight Cost") {
+    for (const label of categories) {
+      const labelData = flightReport.value.filter((flight) => flight[labelField] == label)
+      const totalFlightCostArray = labelData.map((flight) => flight.totalFlightCost)
+      const sum = totalFlightCostArray.reduce(function (a, b) {
+        return Number(a) + Number(b)
+      }, 0)
+      values.push(sum)
+    }
+  } else if (displayFields == "Average Duration") {
+    for (const label of categories) {
+      const labelData = flightReport.value.filter((flight) => flight[labelField] == label)
+      const averageDurationDaysArray = labelData.map((flight) => flight.averageDurationDays)
+      const sum = averageDurationDaysArray.reduce(function (a, b) {
+        return Number(a) + Number(b)
+      }, 0)
+      values.push(sum)
+    }
+  }
 
-      this.barChartSelectedGroupBy = null
-      this.barChartSelectedDisplayFields = null
-
-      this.lineChartSelectedGroupBy = null
-      this.lineChartSelectedDisplayFields = null
-
-      this.getData()
-    },
-
-    getData() {
-      this.loadingData = true
-      if (this.filteredData) {
-        this.flightReport = JSON.parse(JSON.stringify(this.filteredFlightReport))
-      } else {
-        this.flightReport = JSON.parse(JSON.stringify(this.allFlightReports))
-      }
-      this.selectTab()
-      Vue.nextTick(() => (this.loadingData = false))
-    },
-
-    selectTab() {
-      if (this.tabs == 0) {
-        this.pieChartSelectedGroupBy = "Destination City"
-        this.pieChartSelectedDisplayFields = "Total Trips"
-        this.selectPieOption()
-      } else if (this.tabs == 1) {
-        this.barChartSelectedGroupBy = "Destination City"
-        this.barChartSelectedDisplayFields = "Total Trips"
-        this.selectBarOption()
-      } else if (this.tabs == 2) {
-        this.lineChartSelectedGroupBy = "Destination City"
-        this.lineChartSelectedDisplayFields = "Total Trips"
-        this.selectLineOption()
-      }
-    },
-
-    selectPieOption() {
-      Vue.nextTick(() => {
-        if (this.pieChartSelectedGroupBy && this.pieChartSelectedDisplayFields) {
-          this.extractData(this.pieChartSelectedGroupBy, this.pieChartSelectedDisplayFields)
-        }
-        this.pieId++
-      })
-    },
-
-    selectBarOption() {
-      Vue.nextTick(() => {
-        if (this.barChartSelectedGroupBy && this.barChartSelectedDisplayFields) {
-          this.extractData(this.barChartSelectedGroupBy, this.barChartSelectedDisplayFields)
-        }
-        this.barId++
-      })
-    },
-
-    selectLineOption() {
-      Vue.nextTick(() => {
-        if (this.lineChartSelectedGroupBy && this.lineChartSelectedDisplayFields) {
-          this.extractData(this.lineChartSelectedGroupBy, this.lineChartSelectedDisplayFields)
-        }
-        this.lineId++
-      })
-    },
-
-    extractData(labelGroup, displayFields) {
-      if (labelGroup == "Destination City") {
-        this.setupValues("destinationCity", displayFields)
-      } else if (labelGroup == "Province") {
-        this.setupValues("destinationProvince", displayFields)
-      } else if (labelGroup == "Department") {
-        this.setupValues("department", displayFields)
-      }
-    },
-
-    setupValues(labelField, displayFields) {
-      const values = []
-      let categories = []
-
-      const existingCategories = this.flightReport.map((flight) => flight[labelField])
-      categories = [...new Set(existingCategories)]
-
-      if (displayFields == "Total Trips") {
-        for (const label of categories) {
-          const labelData = this.flightReport.filter((flight) => flight[labelField] == label)
-          const totalTripsArray = labelData.map((flight) => flight.totalTrips)
-          const sum = totalTripsArray.reduce(function (a, b) {
-            return Number(a) + Number(b)
-          }, 0)
-          values.push(sum)
-        }
-      } else if (displayFields == "Total Expences") {
-        for (const label of categories) {
-          const labelData = this.flightReport.filter((flight) => flight[labelField] == label)
-          const totalExpensesArray = labelData.map((flight) => flight.totalExpenses)
-          const sum = totalExpensesArray.reduce(function (a, b) {
-            return Number(a) + Number(b)
-          }, 0)
-          values.push(sum)
-        }
-      } else if (displayFields == "Total Flight Cost") {
-        for (const label of categories) {
-          const labelData = this.flightReport.filter((flight) => flight[labelField] == label)
-          const totalFlightCostArray = labelData.map((flight) => flight.totalFlightCost)
-          const sum = totalFlightCostArray.reduce(function (a, b) {
-            return Number(a) + Number(b)
-          }, 0)
-          values.push(sum)
-        }
-      } else if (displayFields == "Average Duration") {
-        for (const label of categories) {
-          const labelData = this.flightReport.filter((flight) => flight[labelField] == label)
-          const averageDurationDaysArray = labelData.map((flight) => flight.averageDurationDays)
-          const sum = averageDurationDaysArray.reduce(function (a, b) {
-            return Number(a) + Number(b)
-          }, 0)
-          values.push(sum)
-        }
-      }
-
-      if (this.tabs == 0) {
-        this.series = values
-        this.chartOptions = { labels: categories }
-      } else {
-        this.series = [{ name: displayFields, data: values }]
-        this.chartOptions = {
-          chart: {
-            height: 350,
-            type: "line",
-            zoom: {
-              enabled: false,
-            },
-          },
-          dataLabels: {
-            enabled: false,
-          },
-          stroke: {
-            curve: "straight",
-          },
-          title: {
-            text: "",
-            align: "left",
-          },
-          grid: {
-            row: {
-              colors: ["#f3f3f3", "transparent"],
-              opacity: 0.5,
-            },
-          },
-          xaxis: {
-            categories: categories,
-          },
-        }
-      }
-    },
-  },
+  if (tabs.value == 0) {
+    series.value = values
+    chartOptions.value = { labels: categories }
+  } else {
+    series.value = [
+      {
+        name: displayFields,
+        data: values,
+      },
+    ]
+    chartOptions.value = {
+      chart: {
+        height: 350,
+        type: "line",
+        zoom: {
+          enabled: false,
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        curve: "straight",
+      },
+      title: {
+        text: "",
+        align: "left",
+      },
+      grid: {
+        row: {
+          colors: ["#f3f3f3", "transparent"],
+          opacity: 0.5,
+        },
+      },
+      xaxis: {
+        categories: categories,
+      },
+    }
+  }
 }
 </script>

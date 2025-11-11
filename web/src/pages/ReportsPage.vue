@@ -57,18 +57,14 @@
         @input="updateGraphs"
       />
 
-      <v-card
+      <FlightStatisticsGraphsCard
         v-if="showGraphs"
         class="mt-5"
-        flat
-      >
-        <FlightStatisticsGraphsCard
-          :update-graph="updateGraph"
-          :filters-applied="showFilters"
-          :filtered-flight-report="frontEndFilteredFlightStatistics"
-          :all-flight-reports="flightStatistics"
-        />
-      </v-card>
+        :update-graph="updateGraph"
+        :filters-applied="showFilters"
+        :filtered-flight-report="frontEndFilteredFlightStatistics"
+        :all-flight-reports="flightStatistics"
+      />
 
       <v-card
         class="mt-5"
@@ -88,7 +84,7 @@ import { cloneDeep, sumBy } from "lodash"
 
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
-import useFlightStatistics from "@/use/use-flight-statistics"
+import useFlightStatistics, { type FlightStatisticAsIndex } from "@/use/use-flight-statistics"
 
 import FlightReport from "@/modules/reports/views/FlightReport.vue"
 import FlightStatisticsGraphsCard from "@/components/flight-statistics/FlightStatisticsGraphsCard.vue"
@@ -138,7 +134,7 @@ const totalActiveFilters = computed(() => {
   )
 })
 
-const frontEndFilteredFlightStatistics = computed(() => {
+const frontEndFilteredFlightStatistics = computed<FlightStatisticAsIndex[]>(() => {
   let localFlightStatistics = cloneDeep(flightStatistics.value)
   if (filters.value.departments?.length > 0) {
     localFlightStatistics = localFlightStatistics.filter(({ department }) =>
