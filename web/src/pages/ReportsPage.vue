@@ -171,7 +171,6 @@ onMounted(async () => {
 })
 
 function reset() {
-  showGraphs.value = false
   updateGraph.value = 0
   resetFilters()
 }

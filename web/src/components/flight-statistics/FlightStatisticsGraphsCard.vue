@@ -7,155 +7,78 @@
     v-else
     class="px-5 pb-15"
   >
-    <div>
-      <v-row>
-        <v-col
-          style="margin: 5rem 0"
-          cols="8"
+    <v-row>
+      <v-col cols="8" />
+      <v-col cols="4">
+        <v-btn-toggle
+          v-model="selectedChart"
+          mandatory
+          color="primary"
+          @change="resetIntefaceAndAggregateData"
         >
-          <div
-            v-if="selectedTab === 0"
-            id="chart"
-            :key="pieId"
-          >
-            <div
-              v-if="series.length === 0"
-              class="text-h5"
-            >
-              No data available
-            </div>
-            <ApexCharts
-              type="pie"
-              height="550"
-              :options="chartOptions"
-              :series="series"
-            />
-          </div>
-
-          <div
-            v-else-if="selectedTab === 1"
-            id="chart"
-            :key="barId"
-          >
-            <ApexCharts
-              type="bar"
-              :options="chartOptions"
-              :series="series"
-            />
-          </div>
-        </v-col>
-        <v-col cols="4">
-          <v-card style="border: 0px solid white !important">
-            <v-toolbar
-              height="20px"
-              flat
-            >
-              <template #extension>
-                <v-tabs
-                  v-model="selectedTab"
-                  active-class="primary--text teal lighten-5"
-                  @change="resetIntefaceAndAggregateData"
-                >
-                  <v-tab>Pie</v-tab>
-                  <v-tab>Bar</v-tab>
-                </v-tabs>
-              </template>
-            </v-toolbar>
-
-            <v-tabs-items v-model="selectedTab">
-              <v-tab-item>
-                <div class="my-3 ml-4">Group By</div>
-
-                <v-card
-                  style="padding: 1.5rem"
-                  class="mt-2 mx-4"
-                  flat
-                >
-                  <v-radio-group
-                    v-for="(dataGroup, dataGroupInx) in dataGroups"
-                    :key="dataGroupInx"
-                    v-model="selectedDataGroup"
-                  >
-                    <v-radio
-                      :value="dataGroup"
-                      :label="dataGroup"
-                      @change="aggregateAndDisplayData"
-                    />
-                  </v-radio-group>
-                </v-card>
-
-                <div class="my-3 ml-4">Show</div>
-
-                <v-card
-                  style="padding: 1.5rem"
-                  class="mt-2 mx-4"
-                  flat
-                >
-                  <v-radio-group
-                    v-for="(dataFilter, dataFilterInx) in dataFilters"
-                    :key="dataFilterInx"
-                    v-model="selectedDataFilter"
-                  >
-                    <v-radio
-                      :value="dataFilter"
-                      :label="dataFilter"
-                      @change="aggregateAndDisplayData"
-                    />
-                  </v-radio-group>
-                </v-card>
-              </v-tab-item>
-              <v-tab-item>
-                <div class="my-3 ml-4">Group By</div>
-
-                <v-card
-                  style="padding: 1.5rem"
-                  class="mt-2 mx-4"
-                  flat
-                >
-                  <v-radio-group
-                    v-for="(dataGroup, dataGroupInx) in dataGroups"
-                    :key="dataGroupInx"
-                    v-model="selectedDataGroup"
-                  >
-                    <v-radio
-                      :value="dataGroup"
-                      :label="dataGroup"
-                      @change="aggregateAndDisplayData"
-                    />
-                  </v-radio-group>
-                </v-card>
-
-                <div class="my-3 ml-4">Show</div>
-
-                <v-card
-                  style="padding: 1.5rem"
-                  class="mt-2 mx-4"
-                  flat
-                >
-                  <v-radio-group
-                    v-for="(dataFilter, dataFilterInx) in dataFilters"
-                    :key="dataFilterInx"
-                    v-model="selectedDataFilter"
-                  >
-                    <v-radio
-                      :value="dataFilter"
-                      :label="dataFilter"
-                      @change="aggregateAndDisplayData"
-                    />
-                  </v-radio-group>
-                </v-card>
-              </v-tab-item>
-            </v-tabs-items>
+          <v-btn :value="ChartType.PIE"> Pie </v-btn>
+          <v-btn :value="ChartType.BAR"> Bar </v-btn>
+        </v-btn-toggle>
+      </v-col>
+    </v-row>
+    <v-row class="mt-0">
+      <v-col cols="8">
+        <ApexCharts
+          v-if="selectedChart === ChartType.PIE"
+          type="pie"
+          height="550"
+          :options="chartOptions"
+          :series="series"
+        />
+        <ApexCharts
+          v-else-if="selectedChart === ChartType.BAR"
+          type="bar"
+          :options="chartOptions"
+          :series="series"
+        />
+      </v-col>
+      <v-col cols="4">
+        <v-sheet>
+          <v-card>
+            <v-card-title>Group By</v-card-title>
+            <v-card-text>
+              <v-radio-group
+                v-for="(dataGroup, dataGroupInx) in dataGroups"
+                :key="dataGroupInx"
+                v-model="selectedDataGroup"
+              >
+                <v-radio
+                  :value="dataGroup"
+                  :label="dataGroup"
+                  @change="aggregateAndDisplayData"
+                />
+              </v-radio-group>
+            </v-card-text>
           </v-card>
-        </v-col>
-      </v-row>
-    </div>
+
+          <v-card class="mt-4">
+            <v-card-title>Show</v-card-title>
+            <v-card-text>
+              <v-radio-group
+                v-for="(dataFilter, dataFilterInx) in dataFilters"
+                :key="dataFilterInx"
+                v-model="selectedDataFilter"
+              >
+                <v-radio
+                  :value="dataFilter"
+                  :label="dataFilter"
+                  @change="aggregateAndDisplayData"
+                />
+              </v-radio-group>
+            </v-card-text>
+          </v-card>
+        </v-sheet>
+      </v-col>
+    </v-row>
   </v-card>
 </template>
 
 <script lang="ts">
-type ChartSeries = number[] | { name: string; data: number[] }[]
-
 enum FlightStatisticsDataGroups {
   DESTINATION_CITY = "Destination City",
   PROVINCE = "Province",
@@ -168,6 +91,13 @@ enum FlightStatisticsDataFilters {
   TOTAL_FLIGHT_COST = "Total Flight Cost",
   AVERAGE_DURATION = "Average Duration",
 }
+
+enum ChartType {
+  PIE = "pie",
+  BAR = "bar",
+}
+
+type ChartSeries = number[] | { name: string; data: number[] }[]
 </script>
 
 <script setup lang="ts">
@@ -200,18 +130,15 @@ const flightStatisticsQuery = computed(() => ({
 }))
 const { flightStatistics, isLoading } = useFlightStatistics(flightStatisticsQuery)
 
-const selectedTab = ref(0)
-const series = ref<ChartSeries>([])
-const chartOptions = ref<ApexOptions>({})
+const selectedChart = ref(ChartType.PIE)
 
 const dataGroups = computed(() => Object.values(FlightStatisticsDataGroups))
 const dataFilters = computed(() => Object.values(FlightStatisticsDataFilters))
-
 const selectedDataGroup = ref<string>(FlightStatisticsDataGroups.DESTINATION_CITY)
 const selectedDataFilter = ref<string>(FlightStatisticsDataFilters.TOTAL_TRIPS)
 
-const pieId = ref(0)
-const barId = ref(0)
+const series = ref<ChartSeries>([])
+const chartOptions = ref<ApexOptions>({})
 
 async function resetIntefaceAndAggregateData() {
   resetInterface()
@@ -226,15 +153,7 @@ async function resetInterface() {
 async function aggregateAndDisplayData() {
   await nextTick()
 
-  if (selectedDataGroup.value && selectedDataFilter.value) {
-    extractData(selectedDataGroup.value, selectedDataFilter.value)
-  }
-
-  if (selectedTab.value === 0) {
-    pieId.value++
-  } else if (selectedTab.value === 1) {
-    barId.value++
-  }
+  extractData(selectedDataGroup.value, selectedDataFilter.value)
 }
 
 async function extractData(dataGroup: string, dataFilter: string) {
@@ -253,10 +172,9 @@ function setupValues(groupByField: keyof FlightStatisticAsIndex, dataFilter: str
     calculateTotalMetricForCategory(label, groupByField, dataFilter)
   )
 
-  const isPieChartSelected = selectedTab.value === 0
-  if (isPieChartSelected) {
+  if (selectedChart.value === ChartType.PIE) {
     configurePieChart(categoryLabels, metricTotalsPerCategory)
-  } else {
+  } else if (selectedChart.value === ChartType.BAR) {
     configureBarOrLineChart(categoryLabels, metricTotalsPerCategory, dataFilter)
   }
 }
