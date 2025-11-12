@@ -1,6 +1,6 @@
 <template>
   <v-skeleton-loader
-    v-if="loadingData"
+    v-if="isLoading"
     type="card"
   />
   <v-card
@@ -14,12 +14,12 @@
           cols="8"
         >
           <div
-            v-if="tabs == 0"
+            v-if="selectedTab === 0"
             id="chart"
             :key="pieId"
           >
             <div
-              v-if="series.length == 0"
+              v-if="series.length === 0"
               class="text-h5"
             >
               No data available
@@ -33,7 +33,7 @@
           </div>
 
           <div
-            v-else-if="tabs == 1"
+            v-else-if="selectedTab === 1"
             id="chart"
             :key="barId"
           >
@@ -43,53 +43,32 @@
               :series="series"
             />
           </div>
-
-          <!-- <div
-            v-else-if="tabs == 2"
-            id="chart"
-            :key="lineId"
-          >
-            <ApexCharts
-              type="line"
-              :options="chartOptions"
-              :series="series"
-            />
-          </div> -->
         </v-col>
         <v-col cols="4">
           <v-card style="border: 0px solid white !important">
             <v-toolbar
-              v-if="!loadingData"
+              v-if="!isLoading"
               class=""
               height="20px"
               flat
             >
               <template #extension>
                 <v-tabs
-                  v-model="tabs"
+                  v-model="selectedTab"
                   active-class="primary--text teal lighten-5"
-                  @change="selectTab()"
+                  @change="resetIntefaceAndAggregateData"
                 >
                   <v-tab>Pie</v-tab>
                   <v-tab>Bar</v-tab>
-                  <!-- <v-tab>Line</v-tab> -->
                 </v-tabs>
               </template>
             </v-toolbar>
 
             <v-tabs-items
-              v-if="!loadingData"
-              v-model="tabs"
+              v-if="!isLoading"
+              v-model="selectedTab"
             >
               <v-tab-item>
-                <v-checkbox
-                  v-if="filtersApplied"
-                  v-model="filteredData"
-                  label="Use Filtered Data"
-                  class="ml-4"
-                  hide-details
-                  @change="getData()"
-                />
                 <div class="my-3 ml-4">Group By</div>
 
                 <v-card
@@ -120,7 +99,7 @@
                   <v-radio-group
                     v-for="(pieShow, pieShowInx) in chartsFilter.show"
                     :key="pieShowInx"
-                    v-model="pieChartSelectedDisplayFields"
+                    v-model="pieChartSelectedDisplayField"
                   >
                     <v-radio
                       :value="pieShow"
@@ -131,15 +110,6 @@
                 </v-card>
               </v-tab-item>
               <v-tab-item>
-                <v-checkbox
-                  v-if="filtersApplied"
-                  v-model="filteredData"
-                  label="Use Filtered Data"
-                  class="ml-4"
-                  hide-details
-                  @change="getData()"
-                />
-
                 <div class="my-3 ml-4">Group By</div>
 
                 <v-card
@@ -170,7 +140,7 @@
                   <v-radio-group
                     v-for="(barShow, barShowInx) in chartsFilter.show"
                     :key="barShowInx"
-                    v-model="barChartSelectedDisplayFields"
+                    v-model="barChartSelectedDisplayField"
                   >
                     <v-radio
                       :value="barShow"
@@ -180,55 +150,6 @@
                   </v-radio-group>
                 </v-card>
               </v-tab-item>
-              <!-- <v-tab-item>
-                <v-checkbox
-                  v-if="filtersApplied"
-                  v-model="filteredData"
-                  label="Use Filtered Data"
-                  class="ml-4"
-                  value="true"
-                  hide-details
-                />
-                <div class="my-3 ml-4">Group By</div>
-
-                <v-card
-                  style="padding: 1.5rem"
-                  class="mt-2 mx-4"
-                  flat
-                >
-                  <v-radio-group
-                    v-for="(lineGroup, lineGroupInx) in chartsFilter.groupBy"
-                    :key="lineGroupInx"
-                    v-model="lineChartSelectedGroupBy"
-                  >
-                    <v-radio
-                      :value="lineGroup"
-                      :label="lineGroup"
-                      @change="selectLineOption"
-                    />
-                  </v-radio-group>
-                </v-card>
-
-                <div class="my-3 ml-4">Show</div>
-
-                <v-card
-                  style="padding: 1.5rem"
-                  class="mt-2 mx-4"
-                  flat
-                >
-                  <v-radio-group
-                    v-for="(lineShow, lineShowInx) in chartsFilter.show"
-                    :key="lineShowInx"
-                    v-model="lineChartSelectedDisplayFields"
-                  >
-                    <v-radio
-                      :value="lineShow"
-                      :label="lineShow"
-                      @change="selectLineOption"
-                    />
-                  </v-radio-group>
-                </v-card>
-              </v-tab-item> -->
             </v-tabs-items>
           </v-card>
         </v-col>
@@ -239,115 +160,92 @@
 
 <script lang="ts">
 type ChartSeries = number[] | { name: string; data: number[] }[]
+
+enum FlightStatisticsDataGroups {
+  DESTINATION_CITY = "Destination City",
+  PROVINCE = "Province",
+  DEPARTMENT = "Department",
+}
+
+enum FlightStatisticsDataFilters {
+  TOTAL_TRIPS = "Total Trips",
+  TOTAL_EXPENSES = "Total Expenses",
+  TOTAL_FLIGHT_COST = "Total Flight Cost",
+  AVERAGE_DURATION = "Average Duration",
+}
 </script>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from "vue"
-import { cloneDeep, compact, uniq } from "lodash"
+import { computed, nextTick, ref } from "vue"
+import { compact, map, uniq } from "lodash"
 
 import ApexCharts from "vue-apexcharts"
 import { type ApexOptions } from "apexcharts"
 
-import { type FlightStatisticAsIndex } from "@/api/flight-statistics-api"
+import { MAX_PER_PAGE } from "@/api/base-api"
+import useFlightStatistics, {
+  type FlightStatisticAsIndex,
+  type FlightStatisticFiltersOptions,
+} from "@/use/use-flight-statistics"
 
 const props = withDefaults(
   defineProps<{
-    filtersApplied: boolean
-    allFlightReports: FlightStatisticAsIndex[]
-    filteredFlightReport: FlightStatisticAsIndex[]
+    filters: FlightStatisticFiltersOptions
     updateGraph: number
   }>(),
   {
-    allFlightReports: () => [],
-    filteredFlightReport: () => [],
+    filters: () => ({}),
     updateGraph: 0,
   }
 )
 
-const tabs = ref(0)
+const flightStatisticsQuery = computed(() => ({
+  filters: props.filters,
+  perPage: MAX_PER_PAGE, // TODO: aggregate data in back-end to avoid overflow and performance issues.
+}))
+const { flightStatistics, isLoading } = useFlightStatistics(flightStatisticsQuery)
+
+const selectedTab = ref(0)
 const series = ref<ChartSeries>([])
 const chartOptions = ref<ApexOptions>({})
-const flightReport = ref<FlightStatisticAsIndex[]>([])
-const filteredData = ref(false)
 
 const chartsFilter = ref({
-  groupBy: ["Destination City", "Province", "Department"],
-  show: ["Total Trips", "Total Expences", "Total Flight Cost", "Average Duration"],
+  groupBy: Object.values(FlightStatisticsDataGroups),
+  show: Object.values(FlightStatisticsDataFilters),
 })
 
-const pieChartSelectedGroupBy = ref<string | null>(null)
-const pieChartSelectedDisplayFields = ref<string | null>(null)
+const pieChartSelectedGroupBy = ref<string>(FlightStatisticsDataGroups.DESTINATION_CITY)
+const pieChartSelectedDisplayField = ref<string>(FlightStatisticsDataFilters.TOTAL_TRIPS)
 
-const lineChartSelectedGroupBy = ref<string | null>(null)
-const lineChartSelectedDisplayFields = ref<string | null>(null)
-
-const barChartSelectedGroupBy = ref<string | null>(null)
-const barChartSelectedDisplayFields = ref<string | null>(null)
+const barChartSelectedGroupBy = ref<string>(FlightStatisticsDataGroups.DESTINATION_CITY)
+const barChartSelectedDisplayField = ref<string>(FlightStatisticsDataFilters.TOTAL_TRIPS)
 
 const pieId = ref(0)
 const barId = ref(0)
-const lineId = ref(0)
 
-const loadingData = ref(false)
+async function resetIntefaceAndAggregateData() {
+  resetInterface()
 
-watch(
-  () => props.updateGraph,
-  async () => {
-    await getData()
-  }
-)
-
-onMounted(async () => {
-  await initFilters()
-})
-
-async function initFilters() {
-  pieChartSelectedGroupBy.value = null
-  pieChartSelectedDisplayFields.value = null
-
-  barChartSelectedGroupBy.value = null
-  barChartSelectedDisplayFields.value = null
-
-  lineChartSelectedGroupBy.value = null
-  lineChartSelectedDisplayFields.value = null
-
-  getData()
-}
-
-async function getData() {
-  loadingData.value = true
-  if (filteredData.value) {
-    flightReport.value = cloneDeep(props.filteredFlightReport)
-  } else {
-    flightReport.value = cloneDeep(props.allFlightReports)
-  }
-  selectTab()
-
-  await nextTick()
-  loadingData.value = false
-}
-
-async function selectTab() {
-  if (tabs.value == 0) {
-    pieChartSelectedGroupBy.value = "Destination City"
-    pieChartSelectedDisplayFields.value = "Total Trips"
+  if (selectedTab.value === 0) {
     await selectPieOption()
-  } else if (tabs.value == 1) {
-    barChartSelectedGroupBy.value = "Destination City"
-    barChartSelectedDisplayFields.value = "Total Trips"
+  } else if (selectedTab.value === 1) {
     await selectBarOption()
-  } else if (tabs.value == 2) {
-    lineChartSelectedGroupBy.value = "Destination City"
-    lineChartSelectedDisplayFields.value = "Total Trips"
-    await selectLineOption()
   }
+}
+
+async function resetInterface() {
+  pieChartSelectedGroupBy.value = FlightStatisticsDataGroups.DESTINATION_CITY
+  pieChartSelectedDisplayField.value = FlightStatisticsDataFilters.TOTAL_TRIPS
+
+  barChartSelectedGroupBy.value = FlightStatisticsDataGroups.DESTINATION_CITY
+  barChartSelectedDisplayField.value = FlightStatisticsDataFilters.TOTAL_TRIPS
 }
 
 async function selectPieOption() {
   await nextTick()
 
-  if (pieChartSelectedGroupBy.value && pieChartSelectedDisplayFields.value) {
-    extractData(pieChartSelectedGroupBy.value, pieChartSelectedDisplayFields.value)
+  if (pieChartSelectedGroupBy.value && pieChartSelectedDisplayField.value) {
+    extractData(pieChartSelectedGroupBy.value, pieChartSelectedDisplayField.value)
   }
   pieId.value++
 }
@@ -355,27 +253,18 @@ async function selectPieOption() {
 async function selectBarOption() {
   await nextTick()
 
-  if (barChartSelectedGroupBy.value && barChartSelectedDisplayFields.value) {
-    extractData(barChartSelectedGroupBy.value, barChartSelectedDisplayFields.value)
+  if (barChartSelectedGroupBy.value && barChartSelectedDisplayField.value) {
+    extractData(barChartSelectedGroupBy.value, barChartSelectedDisplayField.value)
   }
   barId.value++
 }
 
-async function selectLineOption() {
-  await nextTick()
-
-  if (lineChartSelectedGroupBy.value && lineChartSelectedDisplayFields.value) {
-    extractData(lineChartSelectedGroupBy.value, lineChartSelectedDisplayFields.value)
-  }
-  lineId.value++
-}
-
 async function extractData(labelGroup: string, displayFields: string) {
-  if (labelGroup == "Destination City") {
+  if (labelGroup === FlightStatisticsDataGroups.DESTINATION_CITY) {
     setupValues("destinationCity", displayFields)
-  } else if (labelGroup == "Province") {
+  } else if (labelGroup === FlightStatisticsDataGroups.PROVINCE) {
     setupValues("destinationProvince", displayFields)
-  } else if (labelGroup == "Department") {
+  } else if (labelGroup === FlightStatisticsDataGroups.DEPARTMENT) {
     setupValues("department", displayFields)
   }
 }
@@ -386,7 +275,7 @@ function setupValues(groupByField: keyof FlightStatisticAsIndex, displayFields: 
     calculateTotalMetricForCategory(label, groupByField, displayFields)
   )
 
-  const isPieChartSelected = tabs.value === 0
+  const isPieChartSelected = selectedTab.value === 0
   if (isPieChartSelected) {
     configurePieChart(categoryLabels, metricTotalsPerCategory)
   } else {
@@ -395,7 +284,9 @@ function setupValues(groupByField: keyof FlightStatisticAsIndex, displayFields: 
 }
 
 function extractUniqueCategoriesFrom(field: keyof FlightStatisticAsIndex): string[] {
-  return uniq(compact(flightReport.value.map((flight) => flight[field]?.toString())))
+  return uniq(
+    compact(flightStatistics.value.map((flightStatistic) => flightStatistic[field]?.toString()))
+  )
 }
 
 function configurePieChart(labels: string[], values: number[]) {
@@ -440,18 +331,20 @@ function calculateTotalMetricForCategory(
   groupByField: keyof FlightStatisticAsIndex,
   metricName: string
 ): number {
-  const flightsInCategory = flightReport.value.filter((flight) => flight[groupByField] == category)
+  const flightStatiticsInCategory = flightStatistics.value.filter(
+    (flightStatitic) => flightStatitic[groupByField] === category
+  )
 
   let metricValues: number[]
 
-  if (metricName == "Total Trips") {
-    metricValues = flightsInCategory.map((flight) => flight.totalTrips)
-  } else if (metricName == "Total Expences") {
-    metricValues = flightsInCategory.map((flight) => flight.totalExpenses)
-  } else if (metricName == "Total Flight Cost") {
-    metricValues = flightsInCategory.map((flight) => flight.totalFlightCost)
-  } else if (metricName == "Average Duration") {
-    metricValues = flightsInCategory.map((flight) => flight.averageDurationDays)
+  if (metricName === FlightStatisticsDataFilters.TOTAL_TRIPS) {
+    metricValues = map(flightStatiticsInCategory, "totalTrips")
+  } else if (metricName === FlightStatisticsDataFilters.TOTAL_EXPENSES) {
+    metricValues = map(flightStatiticsInCategory, "totalExpenses")
+  } else if (metricName === FlightStatisticsDataFilters.TOTAL_FLIGHT_COST) {
+    metricValues = map(flightStatiticsInCategory, "totalFlightCost")
+  } else if (metricName === FlightStatisticsDataFilters.AVERAGE_DURATION) {
+    metricValues = map(flightStatiticsInCategory, "averageDurationDays")
   } else {
     metricValues = []
   }

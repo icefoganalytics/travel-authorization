@@ -61,9 +61,6 @@
         v-if="showGraphs"
         class="mt-5"
         :update-graph="updateGraph"
-        :filters-applied="showFilters"
-        :filtered-flight-report="frontEndFilteredFlightStatistics"
-        :all-flight-reports="flightStatistics"
       />
 
       <v-card
@@ -99,8 +96,10 @@ const { flightStatistics, isLoading } = useFlightStatistics()
 const showFilters = useRouteQuery("showFilters", "false", {
   transform: booleanTransformer,
 })
+const showGraphs = useRouteQuery("showGraphs", "false", {
+  transform: booleanTransformer,
+})
 
-const showGraphs = ref(false)
 const updateGraph = ref(0)
 
 // TODO: Store state with useRouteQuery.
