@@ -37,6 +37,7 @@ export type FlightStatisticAsIndex = Pick<
   | "totalTrips"
   | "totalExpenses"
   | "totalFlightCost"
+  | "totalDays"
   | "averageDurationDays"
   | "averageExpensesPerDay"
   | "createdAt"

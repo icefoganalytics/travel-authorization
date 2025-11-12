@@ -91,7 +91,7 @@ enum FlightStatisticsDataFilters {
   TOTAL_TRIPS = "Total Trips",
   TOTAL_EXPENSES = "Total Expenses",
   TOTAL_FLIGHT_COST = "Total Flight Cost",
-  AVERAGE_DURATION = "Average Duration",
+  TOTAL_DAYS = "Total Days",
 }
 
 enum ChartType {
@@ -150,7 +150,7 @@ const DATA_FILTER_TO_PROPERTY_MAP = Object.freeze(
     [FlightStatisticsDataFilters.TOTAL_TRIPS, "totalTrips"],
     [FlightStatisticsDataFilters.TOTAL_EXPENSES, "totalExpenses"],
     [FlightStatisticsDataFilters.TOTAL_FLIGHT_COST, "totalFlightCost"],
-    [FlightStatisticsDataFilters.AVERAGE_DURATION, "averageDurationDays"],
+    [FlightStatisticsDataFilters.TOTAL_DAYS, "totalDays"],
   ])
 )
 
@@ -171,6 +171,10 @@ const valueFormatter = computed(() => {
     ].includes(selectedDataFilter.value)
   ) {
     return (value: number) => formatCurrency(value)
+  }
+
+  if (selectedDataFilter.value === FlightStatisticsDataFilters.TOTAL_DAYS) {
+    return (value: number) => value.toFixed(0)
   }
 
   return (value: number) => value.toFixed(1)
