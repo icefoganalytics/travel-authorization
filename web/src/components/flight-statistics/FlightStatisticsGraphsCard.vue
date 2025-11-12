@@ -243,7 +243,7 @@ type ChartSeries = number[] | { name: string; data: number[] }[]
 
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch } from "vue"
-import { cloneDeep } from "lodash"
+import { cloneDeep, compact, uniq } from "lodash"
 
 import ApexCharts from "vue-apexcharts"
 import { type ApexOptions } from "apexcharts"
@@ -380,91 +380,82 @@ async function extractData(labelGroup: string, displayFields: string) {
   }
 }
 
-function setupValues(labelField: keyof FlightStatisticAsIndex, displayFields: string) {
-  const values = []
-  let categories: string[] = []
+function setupValues(groupByField: keyof FlightStatisticAsIndex, displayFields: string) {
+  const categoryLabels = extractUniqueCategoriesFrom(groupByField)
+  const metricTotalsPerCategory = categoryLabels.map((label) =>
+    calculateTotalMetricForCategory(label, groupByField, displayFields)
+  )
 
-  // TODO: figure out what this code is supposed to be.
-  // It's clearly returning values not categories here, so making it unique doesn't make sense
-  const existingCategories = flightReport.value.map((flight) => flight[labelField].toString())
-  categories = [...new Set(existingCategories)]
-
-  if (displayFields == "Total Trips") {
-    for (const label of categories) {
-      const labelData = flightReport.value.filter((flight) => flight[labelField] == label)
-      const totalTripsArray = labelData.map((flight) => flight.totalTrips)
-      const sum = totalTripsArray.reduce(function (a, b) {
-        return Number(a) + Number(b)
-      }, 0)
-      values.push(sum)
-    }
-  } else if (displayFields == "Total Expences") {
-    for (const label of categories) {
-      const labelData = flightReport.value.filter((flight) => flight[labelField] == label)
-      const totalExpensesArray = labelData.map((flight) => flight.totalExpenses)
-      const sum = totalExpensesArray.reduce(function (a, b) {
-        return Number(a) + Number(b)
-      }, 0)
-      values.push(sum)
-    }
-  } else if (displayFields == "Total Flight Cost") {
-    for (const label of categories) {
-      const labelData = flightReport.value.filter((flight) => flight[labelField] == label)
-      const totalFlightCostArray = labelData.map((flight) => flight.totalFlightCost)
-      const sum = totalFlightCostArray.reduce(function (a, b) {
-        return Number(a) + Number(b)
-      }, 0)
-      values.push(sum)
-    }
-  } else if (displayFields == "Average Duration") {
-    for (const label of categories) {
-      const labelData = flightReport.value.filter((flight) => flight[labelField] == label)
-      const averageDurationDaysArray = labelData.map((flight) => flight.averageDurationDays)
-      const sum = averageDurationDaysArray.reduce(function (a, b) {
-        return Number(a) + Number(b)
-      }, 0)
-      values.push(sum)
-    }
-  }
-
-  if (tabs.value == 0) {
-    series.value = values
-    chartOptions.value = { labels: categories }
+  const isPieChartSelected = tabs.value === 0
+  if (isPieChartSelected) {
+    configurePieChart(categoryLabels, metricTotalsPerCategory)
   } else {
-    series.value = [
-      {
-        name: displayFields,
-        data: values,
-      },
-    ]
-    chartOptions.value = {
-      chart: {
-        height: 350,
-        type: "line",
-        zoom: {
-          enabled: false,
-        },
-      },
-      dataLabels: {
+    configureBarOrLineChart(categoryLabels, metricTotalsPerCategory, displayFields)
+  }
+}
+
+function extractUniqueCategoriesFrom(field: keyof FlightStatisticAsIndex): string[] {
+  return uniq(compact(flightReport.value.map((flight) => flight[field]?.toString())))
+}
+
+function configurePieChart(labels: string[], values: number[]) {
+  series.value = values
+  chartOptions.value = { labels }
+}
+
+function configureBarOrLineChart(labels: string[], values: number[], metricName: string) {
+  series.value = [{ name: metricName, data: values }]
+  chartOptions.value = {
+    chart: {
+      height: 350,
+      type: "line",
+      zoom: {
         enabled: false,
       },
-      stroke: {
-        curve: "straight",
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: "straight",
+    },
+    title: {
+      text: "",
+      align: "left",
+    },
+    grid: {
+      row: {
+        colors: ["#f3f3f3", "transparent"],
+        opacity: 0.5,
       },
-      title: {
-        text: "",
-        align: "left",
-      },
-      grid: {
-        row: {
-          colors: ["#f3f3f3", "transparent"],
-          opacity: 0.5,
-        },
-      },
-      xaxis: {
-        categories: categories,
-      },
-    }
+    },
+    xaxis: {
+      categories: labels,
+    },
   }
+}
+
+function calculateTotalMetricForCategory(
+  category: string,
+  groupByField: keyof FlightStatisticAsIndex,
+  metricName: string
+): number {
+  const flightsInCategory = flightReport.value.filter((flight) => flight[groupByField] == category)
+
+  let metricValues: number[]
+
+  if (metricName == "Total Trips") {
+    metricValues = flightsInCategory.map((flight) => flight.totalTrips)
+  } else if (metricName == "Total Expences") {
+    metricValues = flightsInCategory.map((flight) => flight.totalExpenses)
+  } else if (metricName == "Total Flight Cost") {
+    metricValues = flightsInCategory.map((flight) => flight.totalFlightCost)
+  } else if (metricName == "Average Duration") {
+    metricValues = flightsInCategory.map((flight) => flight.averageDurationDays)
+  } else {
+    metricValues = []
+  }
+
+  return metricValues.reduce((sum, value) => sum + Number(value), 0)
 }
 </script>
