@@ -23,18 +23,16 @@
     </v-row>
     <v-row class="mt-0">
       <v-col cols="8">
-        <ApexCharts
+        <FlightStatisticsPieChart
           v-if="selectedChart === ChartType.PIE"
-          type="pie"
-          height="550"
-          :options="chartOptions"
-          :series="series"
+          :category-labels="categoryLabels"
+          :metric-totals="metricTotalsPerCategory"
         />
-        <ApexCharts
+        <FlightStatisticsBarChart
           v-else-if="selectedChart === ChartType.BAR"
-          type="bar"
-          :options="chartOptions"
-          :series="series"
+          :category-labels="categoryLabels"
+          :metric-totals="metricTotalsPerCategory"
+          :metric-name="selectedDataFilter"
         />
       </v-col>
       <v-col cols="4">
@@ -96,22 +94,22 @@ enum ChartType {
   PIE = "pie",
   BAR = "bar",
 }
-
-type ChartSeries = number[] | { name: string; data: number[] }[]
 </script>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue"
+import { computed, nextTick } from "vue"
 import { compact, isNil, map, uniq } from "lodash"
 
-import ApexCharts from "vue-apexcharts"
-import { type ApexOptions } from "apexcharts"
+import useRouteQuery from "@/use/utils/use-route-query"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
 import useFlightStatistics, {
   type FlightStatisticAsIndex,
   type FlightStatisticFiltersOptions,
 } from "@/use/use-flight-statistics"
+
+import FlightStatisticsBarChart from "@/components/flight-statistics/FlightStatisticsBarChart.vue"
+import FlightStatisticsPieChart from "@/components/flight-statistics/FlightStatisticsPieChart.vue"
 
 const props = withDefaults(
   defineProps<{
@@ -122,6 +120,16 @@ const props = withDefaults(
     filters: () => ({}),
     updateGraph: 0,
   }
+)
+
+const selectedChart = useRouteQuery("selectedChart", ChartType.PIE)
+const selectedDataGroup = useRouteQuery(
+  "selectedDataGroup",
+  FlightStatisticsDataGroups.DESTINATION_CITY
+)
+const selectedDataFilter = useRouteQuery(
+  "selectedDataFilter",
+  FlightStatisticsDataFilters.TOTAL_TRIPS
 )
 
 const dataGroupToFieldMap = Object.freeze(
@@ -147,14 +155,8 @@ const flightStatisticsQuery = computed(() => ({
 }))
 const { flightStatistics, isLoading } = useFlightStatistics(flightStatisticsQuery)
 
-const selectedChart = ref(ChartType.PIE)
-
 const dataGroups = computed(() => Object.values(FlightStatisticsDataGroups))
 const dataFilters = computed(() => Object.values(FlightStatisticsDataFilters))
-const selectedDataGroup = ref<FlightStatisticsDataGroups>(
-  FlightStatisticsDataGroups.DESTINATION_CITY
-)
-const selectedDataFilter = ref<FlightStatisticsDataFilters>(FlightStatisticsDataFilters.TOTAL_TRIPS)
 
 const groupByField = computed<keyof FlightStatisticAsIndex>(() => {
   const fieldName = dataGroupToFieldMap.get(selectedDataGroup.value)
@@ -194,7 +196,7 @@ const flightStatisticsByCategory = computed(() => {
   return categoryMap
 })
 
-const metricProperty = computed(() => dataFilterToPropertyMap.get(selectedDataFilter.value)!)
+const metricProperty = computed(() => dataFilterToPropertyMap.get(selectedDataFilter.value))
 
 const metricTotalsPerCategory = computed(() =>
   categoryLabels.value.map((category) => {
@@ -203,49 +205,6 @@ const metricTotalsPerCategory = computed(() =>
     return metricValues.reduce<number>((sum, value) => sum + Number(value), 0)
   })
 )
-
-const series = computed<ChartSeries>(() => {
-  if (selectedChart.value === ChartType.PIE) {
-    return metricTotalsPerCategory.value
-  } else {
-    return [{ name: selectedDataFilter.value, data: metricTotalsPerCategory.value }]
-  }
-})
-
-const chartOptions = computed<ApexOptions>(() => {
-  if (selectedChart.value === ChartType.PIE) {
-    return { labels: categoryLabels.value }
-  } else {
-    return {
-      chart: {
-        height: 350,
-        type: "line",
-        zoom: {
-          enabled: false,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        curve: "straight",
-      },
-      title: {
-        text: "",
-        align: "left",
-      },
-      grid: {
-        row: {
-          colors: ["#f3f3f3", "transparent"],
-          opacity: 0.5,
-        },
-      },
-      xaxis: {
-        categories: categoryLabels.value,
-      },
-    }
-  }
-})
 
 async function resetIntefaceAndAggregateData() {
   await resetInterface()
