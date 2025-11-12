@@ -102,7 +102,7 @@ type ChartSeries = number[] | { name: string; data: number[] }[]
 
 <script setup lang="ts">
 import { computed, nextTick, ref } from "vue"
-import { compact, map, uniq } from "lodash"
+import { compact, isNil, map, uniq } from "lodash"
 
 import ApexCharts from "vue-apexcharts"
 import { type ApexOptions } from "apexcharts"
@@ -124,6 +124,23 @@ const props = withDefaults(
   }
 )
 
+const dataGroupToFieldMap = Object.freeze(
+  new Map<FlightStatisticsDataGroups, keyof FlightStatisticAsIndex>([
+    [FlightStatisticsDataGroups.DESTINATION_CITY, "destinationCity"],
+    [FlightStatisticsDataGroups.PROVINCE, "destinationProvince"],
+    [FlightStatisticsDataGroups.DEPARTMENT, "department"],
+  ])
+)
+
+const dataFilterToPropertyMap = Object.freeze(
+  new Map<FlightStatisticsDataFilters, keyof FlightStatisticAsIndex>([
+    [FlightStatisticsDataFilters.TOTAL_TRIPS, "totalTrips"],
+    [FlightStatisticsDataFilters.TOTAL_EXPENSES, "totalExpenses"],
+    [FlightStatisticsDataFilters.TOTAL_FLIGHT_COST, "totalFlightCost"],
+    [FlightStatisticsDataFilters.AVERAGE_DURATION, "averageDurationDays"],
+  ])
+)
+
 const flightStatisticsQuery = computed(() => ({
   filters: props.filters,
   perPage: MAX_PER_PAGE, // TODO: aggregate data in back-end to avoid overflow and performance issues.
@@ -134,15 +151,104 @@ const selectedChart = ref(ChartType.PIE)
 
 const dataGroups = computed(() => Object.values(FlightStatisticsDataGroups))
 const dataFilters = computed(() => Object.values(FlightStatisticsDataFilters))
-const selectedDataGroup = ref<string>(FlightStatisticsDataGroups.DESTINATION_CITY)
-const selectedDataFilter = ref<string>(FlightStatisticsDataFilters.TOTAL_TRIPS)
+const selectedDataGroup = ref<FlightStatisticsDataGroups>(
+  FlightStatisticsDataGroups.DESTINATION_CITY
+)
+const selectedDataFilter = ref<FlightStatisticsDataFilters>(FlightStatisticsDataFilters.TOTAL_TRIPS)
 
-const series = ref<ChartSeries>([])
-const chartOptions = ref<ApexOptions>({})
+const groupByField = computed<keyof FlightStatisticAsIndex>(() => {
+  const fieldName = dataGroupToFieldMap.get(selectedDataGroup.value)
+  if (!isNil(fieldName)) return fieldName
+
+  const validGroups = Array.from(dataGroupToFieldMap.keys()).join(", ")
+  throw new Error(
+    `No field mapping found for data group '${selectedDataGroup.value}'. Valid data groups are: ${validGroups}`
+  )
+})
+
+const categoryLabels = computed(() => {
+  return uniq(
+    compact(
+      flightStatistics.value.map((flightStatistic) =>
+        flightStatistic[groupByField.value]?.toString()
+      )
+    )
+  )
+})
+
+const flightStatisticsByCategory = computed(() => {
+  const categoryMap = new Map<string, FlightStatisticAsIndex[]>()
+
+  for (const flightStatistic of flightStatistics.value) {
+    const category = flightStatistic[groupByField.value]?.toString()
+    if (isNil(category)) continue
+
+    let statisticsByCategory = categoryMap.get(category)
+    if (isNil(statisticsByCategory)) {
+      statisticsByCategory = []
+      categoryMap.set(category, statisticsByCategory)
+    }
+    statisticsByCategory.push(flightStatistic)
+  }
+
+  return categoryMap
+})
+
+const metricProperty = computed(() => dataFilterToPropertyMap.get(selectedDataFilter.value)!)
+
+const metricTotalsPerCategory = computed(() =>
+  categoryLabels.value.map((category) => {
+    const flightStatiticsInCategory = flightStatisticsByCategory.value.get(category) ?? []
+    const metricValues = map(flightStatiticsInCategory, metricProperty.value)
+    return metricValues.reduce<number>((sum, value) => sum + Number(value), 0)
+  })
+)
+
+const series = computed<ChartSeries>(() => {
+  if (selectedChart.value === ChartType.PIE) {
+    return metricTotalsPerCategory.value
+  } else {
+    return [{ name: selectedDataFilter.value, data: metricTotalsPerCategory.value }]
+  }
+})
+
+const chartOptions = computed<ApexOptions>(() => {
+  if (selectedChart.value === ChartType.PIE) {
+    return { labels: categoryLabels.value }
+  } else {
+    return {
+      chart: {
+        height: 350,
+        type: "line",
+        zoom: {
+          enabled: false,
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        curve: "straight",
+      },
+      title: {
+        text: "",
+        align: "left",
+      },
+      grid: {
+        row: {
+          colors: ["#f3f3f3", "transparent"],
+          opacity: 0.5,
+        },
+      },
+      xaxis: {
+        categories: categoryLabels.value,
+      },
+    }
+  }
+})
 
 async function resetIntefaceAndAggregateData() {
-  resetInterface()
-  await aggregateAndDisplayData()
+  await resetInterface()
 }
 
 async function resetInterface() {
@@ -152,99 +258,5 @@ async function resetInterface() {
 
 async function aggregateAndDisplayData() {
   await nextTick()
-
-  extractData(selectedDataGroup.value, selectedDataFilter.value)
-}
-
-async function extractData(dataGroup: string, dataFilter: string) {
-  if (dataGroup === FlightStatisticsDataGroups.DESTINATION_CITY) {
-    setupValues("destinationCity", dataFilter)
-  } else if (dataGroup === FlightStatisticsDataGroups.PROVINCE) {
-    setupValues("destinationProvince", dataFilter)
-  } else if (dataGroup === FlightStatisticsDataGroups.DEPARTMENT) {
-    setupValues("department", dataFilter)
-  }
-}
-
-function setupValues(groupByField: keyof FlightStatisticAsIndex, dataFilter: string) {
-  const categoryLabels = extractUniqueCategoriesFrom(groupByField)
-  const metricTotalsPerCategory = categoryLabels.map((label) =>
-    calculateTotalMetricForCategory(label, groupByField, dataFilter)
-  )
-
-  if (selectedChart.value === ChartType.PIE) {
-    configurePieChart(categoryLabels, metricTotalsPerCategory)
-  } else if (selectedChart.value === ChartType.BAR) {
-    configureBarOrLineChart(categoryLabels, metricTotalsPerCategory, dataFilter)
-  }
-}
-
-function extractUniqueCategoriesFrom(field: keyof FlightStatisticAsIndex): string[] {
-  return uniq(
-    compact(flightStatistics.value.map((flightStatistic) => flightStatistic[field]?.toString()))
-  )
-}
-
-function configurePieChart(labels: string[], values: number[]) {
-  series.value = values
-  chartOptions.value = { labels }
-}
-
-function configureBarOrLineChart(labels: string[], values: number[], dataFilter: string) {
-  series.value = [{ name: dataFilter, data: values }]
-  chartOptions.value = {
-    chart: {
-      height: 350,
-      type: "line",
-      zoom: {
-        enabled: false,
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      curve: "straight",
-    },
-    title: {
-      text: "",
-      align: "left",
-    },
-    grid: {
-      row: {
-        colors: ["#f3f3f3", "transparent"],
-        opacity: 0.5,
-      },
-    },
-    xaxis: {
-      categories: labels,
-    },
-  }
-}
-
-function calculateTotalMetricForCategory(
-  category: string,
-  groupByField: keyof FlightStatisticAsIndex,
-  dataFilter: string
-): number {
-  const flightStatiticsInCategory = flightStatistics.value.filter(
-    (flightStatitic) => flightStatitic[groupByField] === category
-  )
-
-  let metricValues: number[]
-
-  if (dataFilter === FlightStatisticsDataFilters.TOTAL_TRIPS) {
-    metricValues = map(flightStatiticsInCategory, "totalTrips")
-  } else if (dataFilter === FlightStatisticsDataFilters.TOTAL_EXPENSES) {
-    metricValues = map(flightStatiticsInCategory, "totalExpenses")
-  } else if (dataFilter === FlightStatisticsDataFilters.TOTAL_FLIGHT_COST) {
-    metricValues = map(flightStatiticsInCategory, "totalFlightCost")
-  } else if (dataFilter === FlightStatisticsDataFilters.AVERAGE_DURATION) {
-    metricValues = map(flightStatiticsInCategory, "averageDurationDays")
-  } else {
-    metricValues = []
-  }
-
-  return metricValues.reduce((sum, value) => sum + Number(value), 0)
 }
 </script>
