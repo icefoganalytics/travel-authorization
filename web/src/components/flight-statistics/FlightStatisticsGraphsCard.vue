@@ -14,7 +14,7 @@
           v-model="selectedChart"
           mandatory
           color="primary"
-          @change="resetIntefaceAndAggregateData"
+          @change="resetInterface"
         >
           <v-btn :value="ChartType.PIE"> Pie </v-btn>
           <v-btn :value="ChartType.BAR"> Bar </v-btn>
@@ -25,11 +25,13 @@
       <v-col cols="8">
         <FlightStatisticsPieChart
           v-if="selectedChart === ChartType.PIE"
+          :key="chartStateBusterKey"
           :category-labels="categoryLabels"
           :metric-totals="metricTotalsPerCategory"
         />
         <FlightStatisticsBarChart
           v-else-if="selectedChart === ChartType.BAR"
+          :key="chartStateBusterKey"
           :category-labels="categoryLabels"
           :metric-totals="metricTotalsPerCategory"
           :metric-name="selectedDataFilter"
@@ -44,11 +46,11 @@
                 v-for="(dataGroup, dataGroupInx) in dataGroups"
                 :key="dataGroupInx"
                 v-model="selectedDataGroup"
+                @change="chartStateBusterKey++"
               >
                 <v-radio
                   :value="dataGroup"
                   :label="dataGroup"
-                  @change="aggregateAndDisplayData"
                 />
               </v-radio-group>
             </v-card-text>
@@ -61,11 +63,11 @@
                 v-for="(dataFilter, dataFilterInx) in dataFilters"
                 :key="dataFilterInx"
                 v-model="selectedDataFilter"
+                @change="chartStateBusterKey++"
               >
                 <v-radio
                   :value="dataFilter"
                   :label="dataFilter"
-                  @change="aggregateAndDisplayData"
                 />
               </v-radio-group>
             </v-card-text>
@@ -97,7 +99,7 @@ enum ChartType {
 </script>
 
 <script setup lang="ts">
-import { computed, nextTick } from "vue"
+import { computed, ref } from "vue"
 import { compact, isNil, map, uniq } from "lodash"
 
 import useRouteQuery from "@/use/utils/use-route-query"
@@ -114,11 +116,9 @@ import FlightStatisticsPieChart from "@/components/flight-statistics/FlightStati
 const props = withDefaults(
   defineProps<{
     filters: FlightStatisticFiltersOptions
-    updateGraph: number
   }>(),
   {
     filters: () => ({}),
-    updateGraph: 0,
   }
 )
 
@@ -131,6 +131,8 @@ const selectedDataFilter = useRouteQuery(
   "selectedDataFilter",
   FlightStatisticsDataFilters.TOTAL_TRIPS
 )
+
+const chartStateBusterKey = ref(0)
 
 const dataGroupToFieldMap = Object.freeze(
   new Map<FlightStatisticsDataGroups, keyof FlightStatisticAsIndex>([
@@ -153,7 +155,7 @@ const flightStatisticsQuery = computed(() => ({
   filters: props.filters,
   perPage: MAX_PER_PAGE, // TODO: aggregate data in back-end to avoid overflow and performance issues.
 }))
-const { flightStatistics, isLoading } = useFlightStatistics(flightStatisticsQuery)
+const { flightStatistics, isLoading, refresh } = useFlightStatistics(flightStatisticsQuery)
 
 const dataGroups = computed(() => Object.values(FlightStatisticsDataGroups))
 const dataFilters = computed(() => Object.values(FlightStatisticsDataFilters))
@@ -206,16 +208,18 @@ const metricTotalsPerCategory = computed(() =>
   })
 )
 
-async function resetIntefaceAndAggregateData() {
-  await resetInterface()
-}
-
 async function resetInterface() {
   selectedDataGroup.value = FlightStatisticsDataGroups.DESTINATION_CITY
   selectedDataFilter.value = FlightStatisticsDataFilters.TOTAL_TRIPS
+  chartStateBusterKey.value++
 }
 
-async function aggregateAndDisplayData() {
-  await nextTick()
+async function refreshAndBustState() {
+  await refresh()
+  chartStateBusterKey.value++
 }
+
+defineExpose({
+  refresh: refreshAndBustState,
+})
 </script>

@@ -54,13 +54,13 @@
         v-if="showFilters"
         v-model="filters"
         class="mt-5"
-        @input="updateGraphs"
+        @input="refreshGraphs"
       />
 
       <FlightStatisticsGraphsCard
         v-if="showGraphs"
+        ref="flightStatisticsGraphsCardRef"
         class="mt-5"
-        :update-graph="updateGraph"
       />
 
       <v-card
@@ -100,8 +100,6 @@ const showGraphs = useRouteQuery("showGraphs", "false", {
   transform: booleanTransformer,
 })
 
-const updateGraph = ref(0)
-
 // TODO: Store state with useRouteQuery.
 const filters = ref<{
   departments: string[]
@@ -117,8 +115,12 @@ const filters = ref<{
   },
 })
 
-function updateGraphs() {
-  updateGraph.value++
+const flightStatisticsGraphsCardRef = ref<InstanceType<typeof FlightStatisticsGraphsCard> | null>(
+  null
+)
+
+function refreshGraphs() {
+  flightStatisticsGraphsCardRef.value?.refresh()
 }
 
 const totalActiveFilters = computed(() => {
@@ -166,12 +168,12 @@ function openFlightStatisticsJobsModal() {
   flightStatisticsJobsModal.value?.open()
 }
 
+// TODO: store state in route query, only reset if filters are removed
 onMounted(async () => {
   reset()
 })
 
 function reset() {
-  updateGraph.value = 0
   resetFilters()
 }
 
