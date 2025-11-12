@@ -45,7 +45,7 @@
             <v-card-title>Group By</v-card-title>
             <v-card-text>
               <v-radio-group
-                v-for="(dataGroup, dataGroupInx) in dataGroups"
+                v-for="(dataGroup, dataGroupInx) in DATA_GROUPS"
                 :key="dataGroupInx"
                 v-model="selectedDataGroup"
                 @change="chartStateBusterKey++"
@@ -62,7 +62,7 @@
             <v-card-title>Show</v-card-title>
             <v-card-text>
               <v-radio-group
-                v-for="(dataFilter, dataFilterInx) in dataFilters"
+                v-for="(dataFilter, dataFilterInx) in DATA_FILTERS"
                 :key="dataFilterInx"
                 v-model="selectedDataFilter"
                 @change="chartStateBusterKey++"
@@ -137,7 +137,7 @@ const selectedDataFilter = useRouteQuery<FlightStatisticsDataFilters>(
 
 const chartStateBusterKey = ref(0)
 
-const dataGroupToFieldMap = Object.freeze(
+const DATA_GROUP_TO_FIELD_MAP = Object.freeze(
   new Map<FlightStatisticsDataGroups, keyof FlightStatisticAsIndex>([
     [FlightStatisticsDataGroups.DESTINATION_CITY, "destinationCity"],
     [FlightStatisticsDataGroups.PROVINCE, "destinationProvince"],
@@ -145,7 +145,7 @@ const dataGroupToFieldMap = Object.freeze(
   ])
 )
 
-const dataFilterToPropertyMap = Object.freeze(
+const DATA_FILTER_TO_PROPERTY_MAP = Object.freeze(
   new Map<FlightStatisticsDataFilters, keyof FlightStatisticAsIndex>([
     [FlightStatisticsDataFilters.TOTAL_TRIPS, "totalTrips"],
     [FlightStatisticsDataFilters.TOTAL_EXPENSES, "totalExpenses"],
@@ -154,14 +154,14 @@ const dataFilterToPropertyMap = Object.freeze(
   ])
 )
 
+const DATA_GROUPS = Object.freeze(Object.values(FlightStatisticsDataGroups))
+const DATA_FILTERS = Object.freeze(Object.values(FlightStatisticsDataFilters))
+
 const flightStatisticsQuery = computed(() => ({
   filters: props.filters,
   perPage: MAX_PER_PAGE, // TODO: aggregate data in back-end to avoid overflow and performance issues.
 }))
 const { flightStatistics, isLoading, refresh } = useFlightStatistics(flightStatisticsQuery)
-
-const dataGroups = computed(() => Object.values(FlightStatisticsDataGroups))
-const dataFilters = computed(() => Object.values(FlightStatisticsDataFilters))
 
 const valueFormatter = computed(() => {
   if (
@@ -177,10 +177,10 @@ const valueFormatter = computed(() => {
 })
 
 const groupByField = computed<keyof FlightStatisticAsIndex>(() => {
-  const fieldName = dataGroupToFieldMap.get(selectedDataGroup.value)
+  const fieldName = DATA_GROUP_TO_FIELD_MAP.get(selectedDataGroup.value)
   if (!isNil(fieldName)) return fieldName
 
-  const validGroups = Array.from(dataGroupToFieldMap.keys()).join(", ")
+  const validGroups = DATA_GROUPS.join(", ")
   throw new Error(
     `No field mapping found for data group '${selectedDataGroup.value}'. Valid data groups are: ${validGroups}`
   )
@@ -214,7 +214,7 @@ const flightStatisticsByCategory = computed(() => {
   return categoryMap
 })
 
-const metricProperty = computed(() => dataFilterToPropertyMap.get(selectedDataFilter.value))
+const metricProperty = computed(() => DATA_FILTER_TO_PROPERTY_MAP.get(selectedDataFilter.value))
 
 const metricTotalsPerCategory = computed(() =>
   categoryLabels.value.map((category) => {
