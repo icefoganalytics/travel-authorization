@@ -16,6 +16,7 @@ const props = defineProps<{
   categoryLabels: string[]
   metricTotals: number[]
   metricName: string
+  yFormatterFunction: (value: number) => string
 }>()
 
 const series = computed(() => [{ name: props.metricName, data: props.metricTotals }])
@@ -46,6 +47,16 @@ const chartOptions = computed<ApexOptions>(() => ({
   },
   xaxis: {
     categories: props.categoryLabels,
+  },
+  yaxis: {
+    labels: {
+      formatter: props.yFormatterFunction,
+    },
+  },
+  tooltip: {
+    y: {
+      formatter: props.yFormatterFunction,
+    },
   },
 }))
 </script>

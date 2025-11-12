@@ -16,11 +16,20 @@ import { type ApexOptions } from "apexcharts"
 const props = defineProps<{
   categoryLabels: string[]
   metricTotals: number[]
+  yFormatterFunction: (value: number) => string
 }>()
 
 const series = computed(() => props.metricTotals)
 
 const chartOptions = computed<ApexOptions>(() => ({
   labels: props.categoryLabels,
+  tooltip: {
+    y: {
+      formatter: props.yFormatterFunction,
+    },
+  },
+  dataLabels: {
+    formatter: props.yFormatterFunction,
+  },
 }))
 </script>

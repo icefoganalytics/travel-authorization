@@ -28,6 +28,7 @@
           :key="chartStateBusterKey"
           :category-labels="categoryLabels"
           :metric-totals="metricTotalsPerCategory"
+          :y-formatter-function="valueFormatter"
         />
         <FlightStatisticsBarChart
           v-else-if="selectedChart === ChartType.BAR"
@@ -35,6 +36,7 @@
           :category-labels="categoryLabels"
           :metric-totals="metricTotalsPerCategory"
           :metric-name="selectedDataFilter"
+          :y-formatter-function="valueFormatter"
         />
       </v-col>
       <v-col cols="4">
@@ -109,6 +111,7 @@ import useFlightStatistics, {
   type FlightStatisticAsIndex,
   type FlightStatisticFiltersOptions,
 } from "@/use/use-flight-statistics"
+import { formatCurrency } from "@/utils/formatters"
 
 import FlightStatisticsBarChart from "@/components/flight-statistics/FlightStatisticsBarChart.vue"
 import FlightStatisticsPieChart from "@/components/flight-statistics/FlightStatisticsPieChart.vue"
@@ -122,12 +125,12 @@ const props = withDefaults(
   }
 )
 
-const selectedChart = useRouteQuery("selectedChart", ChartType.PIE)
-const selectedDataGroup = useRouteQuery(
+const selectedChart = useRouteQuery<ChartType>("selectedChart", ChartType.PIE)
+const selectedDataGroup = useRouteQuery<FlightStatisticsDataGroups>(
   "selectedDataGroup",
   FlightStatisticsDataGroups.DESTINATION_CITY
 )
-const selectedDataFilter = useRouteQuery(
+const selectedDataFilter = useRouteQuery<FlightStatisticsDataFilters>(
   "selectedDataFilter",
   FlightStatisticsDataFilters.TOTAL_TRIPS
 )
@@ -159,6 +162,19 @@ const { flightStatistics, isLoading, refresh } = useFlightStatistics(flightStati
 
 const dataGroups = computed(() => Object.values(FlightStatisticsDataGroups))
 const dataFilters = computed(() => Object.values(FlightStatisticsDataFilters))
+
+const valueFormatter = computed(() => {
+  if (
+    [
+      FlightStatisticsDataFilters.TOTAL_EXPENSES,
+      FlightStatisticsDataFilters.TOTAL_FLIGHT_COST,
+    ].includes(selectedDataFilter.value)
+  ) {
+    return (value: number) => formatCurrency(value)
+  }
+
+  return (value: number) => value.toFixed(1)
+})
 
 const groupByField = computed<keyof FlightStatisticAsIndex>(() => {
   const fieldName = dataGroupToFieldMap.get(selectedDataGroup.value)
