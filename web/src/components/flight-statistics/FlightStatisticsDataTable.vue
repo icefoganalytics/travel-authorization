@@ -15,12 +15,12 @@
       #top
     >
       <div class="d-flex justify-end">
-        <v-btn
-          color="secondary"
-          @click="exportToExcel"
-        >
-          Download Data
-        </v-btn>
+        <FlightStatisticsExportToCsvButton
+          :filters="filters"
+          :where="where"
+          color="primary"
+          outlined
+        />
 
         <PrintReport :flight-report="flightStatistics" />
         <v-btn
@@ -51,7 +51,6 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { ExportToCsv } from "export-to-csv"
 
 import { formatCurrency } from "@/utils/formatters"
 
@@ -62,6 +61,7 @@ import {
 import useCurrentUser from "@/use/use-current-user"
 
 import PrintReport from "@/modules/reports/views/Common/PrintReport.vue"
+import FlightStatisticsExportToCsvButton from "@/components/flight-statistics/FlightStatisticsExportToCsvButton.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
@@ -163,48 +163,6 @@ const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsMo
 
 function openFlightStatisticsJobsModal() {
   flightStatisticsJobsModal.value?.open()
-}
-
-// TODO: push to own component to regain ability to export more than one page at a time.
-async function exportToExcel() {
-  const csvInfo = flightStatistics.value.map((flightStatistic) => {
-    return {
-      department: flightStatistic.department || "",
-      finalDestinationCity: flightStatistic.destinationCity || "",
-      finalDestinationProvince: flightStatistic.destinationProvince || "",
-      totalTrips: flightStatistic.totalTrips || "",
-      totalExpenses: formatCurrency(flightStatistic.totalExpenses),
-      totalFlightCost: formatCurrency(flightStatistic.totalFlightCost),
-      averageDurationDays: flightStatistic.averageDurationDays || "",
-      averageExpensesPerDay: formatCurrency(flightStatistic.averageExpensesPerDay),
-      averageRoundTripFlightCost: formatCurrency(flightStatistic.averageRoundTripFlightCost),
-    }
-  })
-  const options = {
-    fieldSeparator: ",",
-    quoteStrings: '"',
-    decimalSeparator: ".",
-    showLabels: true,
-    showTitle: false,
-    title: "",
-    filename: "Flights",
-    useTextFile: false,
-    useBom: true,
-    useKeysAsHeaders: false,
-    headers: [
-      "Department",
-      "Final Destination City",
-      "Final Destination Province",
-      "Total Trips",
-      "Total Expenses",
-      "Total Flight Cost",
-      "Average Duration (days)",
-      "Average Expenses per Day",
-      "Average Round Trip Flight Cost",
-    ],
-  }
-  const csvExporter = new ExportToCsv(options)
-  csvExporter.generateCsv(csvInfo)
 }
 
 defineExpose({
