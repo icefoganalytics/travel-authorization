@@ -31,7 +31,8 @@
           Print Report
           <FlightStatisticsPrintDialog
             ref="flightStatisticsPrintDialog"
-            :flight-report="flightStatistics"
+            :filters="filters"
+            :where="where"
           />
         </v-btn>
         <v-btn

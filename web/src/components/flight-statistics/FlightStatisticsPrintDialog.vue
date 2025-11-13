@@ -3,42 +3,14 @@
     v-model="showDialog"
     persistent
     max-width="950px"
+    @keydown.esc="close"
+    @input="closeIfFalse"
   >
-    <v-card
-      v-if="!loadingData"
-      class="px-10 py-5"
+    <HeaderActionsFormCard
+      ref="headerActionsFormCard"
+      title="Flight Statistics"
+      @submit.prevent="print"
     >
-      <v-row
-        class="mb-3"
-        justify="space-around"
-      >
-        <v-col cols="5" />
-        <v-col cols="2">
-          <v-btn
-            color="secondary"
-            @click="print"
-          >
-            Print
-            <v-icon
-              class="ml-2"
-              color="primary darken-2"
-              >mdi-printer</v-icon
-            >
-          </v-btn>
-        </v-col>
-        <v-col cols="3" />
-        <v-col
-          cols="2"
-          align="right"
-        >
-          <v-btn
-            color="grey"
-            @click="closeModal()"
-            >Close</v-btn
-          >
-        </v-col>
-      </v-row>
-
       <div :id="PDF_SCOPE_ID">
         <v-app-bar
           color="#fff"
@@ -52,19 +24,19 @@
             height="44"
           />
           <div style="margin: 0 auto !important; font-size: 14pt !important">
-            <b>Travel Summary</b>
+            <b>Flight Statistics</b>
           </div>
         </v-app-bar>
         <div
-          v-for="(page, inx) in pages"
-          :key="'pdfpage-' + page + '-' + inx + '-' + PDF_SCOPE_ID"
+          v-for="(page, index) in pages"
+          :key="`pdf-page-${page}-${index}-${PDF_SCOPE_ID}`"
         >
           <v-data-table
             style="margin: 1rem 0"
             dense
             :headers="headers"
-            :items="printRequests"
-            :items-per-page="15"
+            :items="flightStatistics"
+            :items-per-page="PAGE_SIZE"
             :page="page"
             class="elevation-1"
             hide-default-footer
@@ -95,7 +67,10 @@
           <div style="font-size: 7pt; text-align: right">
             <i>Page {{ page }} of {{ pages.length }}</i>
           </div>
-          <div class="new-page" />
+          <div
+            v-if="page < pages.length"
+            class="new-page"
+          ></div>
         </div>
 
         <div
@@ -106,50 +81,90 @@
         </div>
       </div>
 
-      <div class="mt-10" />
-    </v-card>
+      <template #actions>
+        <v-btn
+          color="primary"
+          type="submit"
+        >
+          Print
+          <v-icon start>mdi-printer</v-icon>
+        </v-btn>
+        <v-btn
+          color="secondary"
+          @click="close"
+        >
+          Close
+        </v-btn>
+      </template>
+    </HeaderActionsFormCard>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue"
-import { uniqueId } from "lodash"
+import { computed, ref, watch } from "vue"
+import { uniqueId, range } from "lodash"
 import { Printd } from "printd"
+import { DateTime } from "luxon"
 
-import { FlightStatisticAsIndex } from "@/api/flight-statistics-api"
 import { formatCurrency } from "@/utils/formatters"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+
+import { MAX_PER_PAGE } from "@/api/base-api"
+import {
+  type FlightStatisticFiltersOptions,
+  type FlightStatisticWhereOptions,
+} from "@/api/flight-statistics-api"
+import useFlightStatistics from "@/use/use-flight-statistics"
+
+import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
 const PDF_SCOPE_ID = uniqueId("pdf-scope-")
+const PAGE_SIZE = 13
 
-const props = defineProps<{
-  flightReport: FlightStatisticAsIndex[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    where?: FlightStatisticWhereOptions
+    filters?: FlightStatisticFiltersOptions
+  }>(),
+  {
+    where: () => ({}),
+    filters: () => ({}),
+  }
+)
 
-const emit = defineEmits<{
-  (event: "close"): void
-}>()
+const showDialog = useRouteQuery("showFlightStatisticsPrintDialog", "false", {
+  transform: booleanTransformer,
+})
 
-const headers = [
+const flightStatisticsQuery = computed(() => {
+  return {
+    where: props.where,
+    filters: props.filters,
+    perPage: MAX_PER_PAGE, // TODO: switch to back-end rendering for performance and scaling benefits
+  }
+})
+const { flightStatistics, totalCount } = useFlightStatistics(flightStatisticsQuery, {
+  skipWatchIf: () => showDialog.value !== true,
+})
+
+const pages = computed(() => range(1, Math.ceil(totalCount.value / PAGE_SIZE) + 1))
+
+const headers = ref([
   {
     text: "Department",
     value: "department",
-    class: "m-0 p-0",
-    width: "8.5rem",
   },
   {
     text: "Final Destination City",
     value: "destinationCity",
-    class: "",
   },
   {
     text: "Final Destination Province",
     value: "destinationProvince",
-    class: "",
   },
   {
     text: "Total Trips",
     value: "totalTrips",
-    class: "",
   },
   {
     text: "Total Expenses",
@@ -160,61 +175,34 @@ const headers = [
   {
     text: "Total Flight Cost",
     value: "totalFlightCost",
-    class: "",
   },
   {
     text: "Average Duration (days)",
     value: "averageDurationDays",
-    class: "",
   },
   {
     text: "Average Expenses per Day",
     value: "averageExpensesPerDay",
-    class: "",
   },
   {
     text: "Average Round Trip Flight Cost",
     value: "averageRoundTripFlightCost",
-    class: "",
   },
-]
+])
 
-const showDialog = ref(false)
-const printRequests = ref<FlightStatisticAsIndex[]>([])
 const currentDate = ref("")
-const pages = ref<number[]>([])
-const loadingData = ref(false)
 
-watch(showDialog, (newShowDialog) => {
-  if (newShowDialog === true) {
-    initPrint()
-  }
-})
+watch(
+  () => showDialog.value,
+  (newShowDialog) => {
+    if (newShowDialog === true) {
+      currentDate.value = DateTime.now().toFormat("MMMM d, yyyy")
+    }
+  },
+  { immediate: true }
+)
 
-async function initPrint() {
-  loadingData.value = true
-  currentDate.value = new Date().toDateString()
-
-  printRequests.value = JSON.parse(JSON.stringify(props.flightReport))
-
-  for (let index = 1; index < printRequests.value.length / 15 + 1; index++) {
-    pages.value.push(index)
-  }
-
-  await nextTick()
-  loadingData.value = false
-}
-
-function open() {
-  showDialog.value = true
-}
-
-function closeModal() {
-  emit("close")
-  showDialog.value = false
-}
-
-async function print() {
+function print() {
   const styles = [
     /* css */ `
       @media print {
@@ -263,13 +251,42 @@ async function print() {
 
   if (pageToPrint) {
     const pdf = new Printd()
+    setPdfTitle(pdf)
     pdf.print(pageToPrint, styles)
-    closeModal()
+    close()
   }
+}
+
+function setPdfTitle(pdf: Printd) {
+  const iframe = pdf.getIFrame()
+
+  iframe.addEventListener("load", () => {
+    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document
+
+    if (!iframeDocument) return
+
+    const timestamp = DateTime.now().toFormat("yyyy-MM-dd_HHmm")
+    iframeDocument.title = `Report, Flight Statistics, ${timestamp}`
+  })
+}
+
+function open() {
+  showDialog.value = true
+}
+
+function close() {
+  showDialog.value = false
+}
+
+function closeIfFalse(value: boolean) {
+  if (value !== false) return
+
+  close()
 }
 
 defineExpose({
   open,
+  close,
 })
 </script>
 
