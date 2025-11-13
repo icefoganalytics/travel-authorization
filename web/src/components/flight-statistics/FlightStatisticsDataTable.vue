@@ -47,16 +47,16 @@
     </template>
 
     <template #item.totalExpenses="{ item }">
-      <span>{{ formatCurrency(item.totalExpenses) }}</span>
+      {{ formatCurrency(item.totalExpenses) }}
     </template>
     <template #item.totalFlightCost="{ item }">
-      <span>{{ formatCurrency(item.totalFlightCost) }}</span>
+      {{ formatCurrency(item.totalFlightCost) }}
     </template>
     <template #item.averageExpensesPerDay="{ item }">
-      <span>{{ formatCurrency(item.averageExpensesPerDay) }}</span>
+      {{ formatCurrency(item.averageExpensesPerDay) }}
     </template>
     <template #item.averageRoundTripFlightCost="{ item }">
-      <span>{{ formatCurrency(item.averageRoundTripFlightCost) }}</span>
+      {{ formatCurrency(item.averageRoundTripFlightCost) }}
     </template>
   </v-data-table>
 </template>
@@ -65,21 +65,21 @@
 import { computed, ref } from "vue"
 
 import { formatCurrency } from "@/utils/formatters"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import {
   type FlightStatisticFiltersOptions,
   type FlightStatisticWhereOptions,
 } from "@/api/flight-statistics-api"
 import useCurrentUser from "@/use/use-current-user"
+import useFlightStatistics from "@/use/use-flight-statistics"
 
-import FlightStatisticsPrintDialog from "@/components/flight-statistics/FlightStatisticsPrintDialog.vue"
 import FlightStatisticsExportToCsvButton from "@/components/flight-statistics/FlightStatisticsExportToCsvButton.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
-import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
-import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
-import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
-import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
-import useFlightStatistics from "@/use/use-flight-statistics"
+import FlightStatisticsPrintDialog from "@/components/flight-statistics/FlightStatisticsPrintDialog.vue"
 
 const props = withDefaults(
   defineProps<{
