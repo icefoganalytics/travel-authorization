@@ -111,6 +111,7 @@ const flightStatisticsQuery = computed(() => ({
 const { flightStatistics, isLoading } = useFlightStatistics(flightStatisticsQuery)
 
 const YUKON_ACRONYM = "YT"
+// TODO: consider if Canadian provinces should exclude YT since it's a separate filter?
 const CANADIAN_PROVINCE_ACRONYMS = Object.freeze([
   "BC",
   "ON",
@@ -122,7 +123,7 @@ const CANADIAN_PROVINCE_ACRONYMS = Object.freeze([
   "PE",
   "NS",
   "NB",
-  "YT",
+  YUKON_ACRONYM,
   "NT",
   "NU",
 ])
