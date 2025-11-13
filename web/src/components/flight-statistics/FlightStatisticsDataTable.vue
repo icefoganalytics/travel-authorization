@@ -5,6 +5,7 @@
     :items-per-page="15"
     :loading="isLoading"
   >
+    <!-- TODO: consider moving to parent component -->
     <template
       v-if="isAdmin"
       #top
@@ -18,6 +19,14 @@
         </v-btn>
 
         <PrintReport :flight-report="flightStatistics" />
+        <v-btn
+          color="secondary"
+          class="ml-2"
+          @click="openFlightStatisticsJobsModal"
+        >
+          Update Reports
+          <FlightStatisticsJobsModal ref="flightStatisticsJobsModal" />
+        </v-btn>
       </div>
     </template>
 
@@ -46,6 +55,7 @@ import { type FlightStatisticAsIndex } from "@/api/flight-statistics-api"
 import useCurrentUser from "@/use/use-current-user"
 
 import PrintReport from "@/modules/reports/views/Common/PrintReport.vue"
+import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 
 const props = withDefaults(
   defineProps<{
@@ -97,6 +107,12 @@ const headers = [
 
 const isLoading = ref(false)
 const { isAdmin } = useCurrentUser<true>()
+
+const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsModal>>()
+
+function openFlightStatisticsJobsModal() {
+  flightStatisticsJobsModal.value?.open()
+}
 
 async function exportToExcel() {
   const csvInfo = props.flightStatistics.map((flightStatistic) => {

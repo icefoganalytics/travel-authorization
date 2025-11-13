@@ -1,74 +1,65 @@
 <template>
-  <v-card
-    :loading="isLoading"
-    :disabled="isLoading"
-    en
-    class="px-5 pb-15"
-  >
-    <v-skeleton-loader
-      v-if="isLoading"
-      type="card"
-    />
-    <v-card
-      class="mt-5"
-      flat
-      v-else
-    >
-      <v-card-title class="text-h5 mx-5">Travel Summary</v-card-title>
-
-      <v-card-actions class="mx-8">
-        <v-btn
-          color="primary"
-          outlined
-          @click="showFilters = !showFilters"
-        >
-          <v-badge
-            color="warning"
-            :content="totalActiveFilters"
-            :value="totalActiveFilters"
-          >
-            Filters
-            <v-icon right> {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
-          </v-badge>
-        </v-btn>
-        <v-btn
-          class="ml-4"
-          color="primary"
-          outlined
-          @click="showGraphs = !showGraphs"
-        >
-          Graph
-          <v-icon right> {{ showGraphs ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
-        </v-btn>
-        <v-btn
-          class="ml-auto"
-          color="secondary"
-          @click="openFlightStatisticsJobsModal"
-        >
-          Update Reports
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-
-    <FlightStatisticsFiltersCard
-      v-if="showFilters"
-      v-model="filters"
-      class="mt-5"
-      @input="refreshGraphs"
-    />
-
-    <FlightStatisticsGraphsCard
-      v-if="showGraphs"
-      ref="flightStatisticsGraphsCardRef"
-      class="mt-5"
-      :filters="filtersAsBackendFilters"
-    />
+  <v-card>
+    <v-card-title>
+      <h2>Reports</h2>
+    </v-card-title>
 
     <v-card-text>
-      <FlightStatisticsDataTable :flightStatistics="frontEndFilteredFlightStatistics" />
-    </v-card-text>
+      <v-row
+        :class="{
+          '-mb-[79px]': !showGraphs && !showFilters,
+        }"
+      >
+        <v-col class="d-flex justify-space-between">
+          <div>
+            <v-btn
+              color="primary"
+              outlined
+              @click="showGraphs = !showGraphs"
+            >
+              Graph
+              <v-icon right> {{ showGraphs ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
+            </v-btn>
+            <v-btn
+              color="primary"
+              class="ml-2"
+              outlined
+              @click="showFilters = !showFilters"
+            >
+              <v-badge
+                color="warning"
+                :content="totalActiveFilters"
+                :value="totalActiveFilters"
+              >
+                Filters
+                <v-icon right>
+                  {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }}
+                </v-icon>
+              </v-badge>
+            </v-btn>
+          </div>
+        </v-col>
+      </v-row>
 
-    <FlightStatisticsJobsModal ref="flightStatisticsJobsModal" />
+      <FlightStatisticsFiltersCard
+        v-if="showFilters"
+        v-model="filters"
+        @input="refreshGraphs"
+      />
+
+      <FlightStatisticsGraphsCard
+        v-if="showGraphs"
+        ref="flightStatisticsGraphsCardRef"
+        :class="{
+          'mt-4': showFilters,
+        }"
+        :filters="filtersAsBackendFilters"
+      />
+      <FlightStatisticsDataTable
+        v-else
+        :flight-statistics="frontEndFilteredFlightStatistics"
+      />
+    </v-card-text>
   </v-card>
 </template>
 
@@ -86,9 +77,8 @@ import FlightStatisticsFiltersCard, {
   type LocationCategory,
   type LocationsByRegion,
 } from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
-import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 
-const { flightStatistics, isLoading } = useFlightStatistics()
+const { flightStatistics } = useFlightStatistics()
 
 const showFilters = useRouteQuery("showFilters", "false", {
   transform: booleanTransformer,
@@ -188,12 +178,6 @@ const frontEndFilteredFlightStatistics = computed<FlightStatisticAsIndex[]>(() =
   return localFlightStatistics
 })
 
-const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsModal>>()
-
-function openFlightStatisticsJobsModal() {
-  flightStatisticsJobsModal.value?.open()
-}
-
 // TODO: store state in route query, only reset if filters are removed
 onMounted(async () => {
   reset()
@@ -225,3 +209,9 @@ const breadcrumbs = ref([
 ])
 useBreadcrumbs(breadcrumbs)
 </script>
+
+<style scoped>
+.-mb-\[79px\] {
+  margin-bottom: -79px;
+}
+</style>
