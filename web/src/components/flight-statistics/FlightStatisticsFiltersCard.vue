@@ -41,7 +41,7 @@
         >
           <v-autocomplete
             v-if="selectedLocationCategories.includes(LocationCategory.Yukon)"
-            v-model="selectedYukonDestinations"
+            :value="byYukonDestinationCities"
             :items="yukonLocationCategories"
             label="Locations (Yukon)"
             chips
@@ -53,7 +53,7 @@
           />
           <v-autocomplete
             v-if="selectedLocationCategories.includes(LocationCategory.Canada)"
-            v-model="selectedCanadaDestinations"
+            :value="byCanadianDestinationProvinces"
             :items="canadianLocationCategories"
             label="Locations (Canada)"
             chips
@@ -65,7 +65,7 @@
           />
           <v-autocomplete
             v-if="selectedLocationCategories.includes(LocationCategory.International)"
-            v-model="selectedInternationalDestinations"
+            :value="byInternationalDestinationProvinces"
             :items="internationalLocationCategories"
             label="Locations (International)"
             chips
@@ -80,7 +80,7 @@
       <v-row>
         <v-col>
           <v-autocomplete
-            v-model="selectedDepartments"
+            :value="byDepartments"
             :items="departments"
             label="Departments"
             chips
@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue"
-import { isEmpty, map, merge, uniq } from "lodash"
+import { cloneDeep, isEmpty, map, uniq } from "lodash"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
 import useFlightStatistics, {
@@ -119,6 +119,13 @@ const props = withDefaults(
 const emit = defineEmits<{
   (event: "input", value: FlightStatisticFiltersOptions): void
 }>()
+
+const byYukonDestinationCities = computed(() => props.value.byYukonDestinationCities)
+const byCanadianDestinationProvinces = computed(() => props.value.byCanadianDestinationProvinces)
+const byInternationalDestinationProvinces = computed(
+  () => props.value.byInternationalDestinationProvinces
+)
+const byDepartments = computed(() => props.value.byDepartments)
 
 const flightStatisticsQuery = computed(() => ({
   perPage: MAX_PER_PAGE, // TODO: push filter generation to back-end
@@ -150,28 +157,7 @@ enum LocationCategory {
 }
 
 const locationCategoryOptions = Object.values(LocationCategory)
-
 const selectedLocationCategories = ref<LocationCategory[]>([])
-const selectedYukonDestinations = ref<string[]>([])
-const selectedCanadaDestinations = ref<string[]>([])
-const selectedInternationalDestinations = ref<string[]>([])
-const selectedDepartments = ref<string[]>([])
-
-watchEffect(() => {
-  selectedYukonDestinations.value = props.value.byYukonDestinationCities ?? []
-})
-
-watchEffect(() => {
-  selectedCanadaDestinations.value = props.value.byCanadianDestinationProvinces ?? []
-})
-
-watchEffect(() => {
-  selectedInternationalDestinations.value = props.value.byInternationalDestinationProvinces ?? []
-})
-
-watchEffect(() => {
-  selectedDepartments.value = props.value.byDepartments ?? []
-})
 
 watchEffect(() => {
   const categories: LocationCategory[] = []
@@ -214,7 +200,7 @@ const internationalLocationCategories = computed(() =>
 )
 
 function selectLocationCategories(categories: LocationCategory[]) {
-  const filters = merge({}, props.value)
+  const filters = cloneDeep(props.value)
 
   if (categories.includes(LocationCategory.Yukon)) {
     filters.byYukonDestinationCities = yukonLocationCategories.value
@@ -238,30 +224,50 @@ function selectLocationCategories(categories: LocationCategory[]) {
 }
 
 function updateYukonDestinations(destinations: string[]) {
-  const filters = merge({}, props.value, {
-    byYukonDestinationCities: isEmpty(destinations) ? undefined : destinations,
-  })
+  const filters = cloneDeep(props.value)
+
+  if (!isEmpty(destinations)) {
+    filters.byYukonDestinationCities = destinations
+  } else {
+    filters.byYukonDestinationCities = undefined
+  }
+
   emit("input", filters)
 }
 
 function updateCanadaDestinations(destinations: string[]) {
-  const filters = merge({}, props.value, {
-    byCanadianDestinationProvinces: isEmpty(destinations) ? undefined : destinations,
-  })
+  const filters = cloneDeep(props.value)
+
+  if (!isEmpty(destinations)) {
+    filters.byCanadianDestinationProvinces = destinations
+  } else {
+    filters.byCanadianDestinationProvinces = undefined
+  }
+
   emit("input", filters)
 }
 
 function updateInternationalDestinations(destinations: string[]) {
-  const filters = merge({}, props.value, {
-    byInternationalDestinationProvinces: isEmpty(destinations) ? undefined : destinations,
-  })
+  const filters = cloneDeep(props.value)
+
+  if (!isEmpty(destinations)) {
+    filters.byInternationalDestinationProvinces = destinations
+  } else {
+    filters.byInternationalDestinationProvinces = undefined
+  }
+
   emit("input", filters)
 }
 
 function updateDepartments(departments: string[]) {
-  const filters = merge({}, props.value, {
-    byDepartments: isEmpty(departments) ? undefined : departments,
-  })
+  const filters = cloneDeep(props.value)
+
+  if (!isEmpty(departments)) {
+    filters.byDepartments = departments
+  } else {
+    filters.byDepartments = undefined
+  }
+
   emit("input", filters)
 }
 
