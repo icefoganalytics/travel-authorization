@@ -5,20 +5,30 @@
     </v-card-title>
 
     <v-card-text>
-      <v-row>
+      <v-tabs show-arrows>
+        <v-tab
+          :to="{
+            name: 'reports/ReportsTablePage',
+            query: route.query,
+          }"
+        >
+          Table
+        </v-tab>
+        <v-tab
+          :to="{
+            name: 'reports/ReportsGraphPage',
+            query: route.query,
+          }"
+        >
+          Graph
+        </v-tab>
+      </v-tabs>
+
+      <v-row class="mt-4">
         <v-col class="d-flex justify-space-between">
           <div>
             <v-btn
               color="primary"
-              outlined
-              @click="showGraphs = !showGraphs"
-            >
-              Graph
-              <v-icon right> {{ showGraphs ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
-            </v-btn>
-            <v-btn
-              color="primary"
-              class="ml-2"
               outlined
               @click="showFilters = !showFilters"
             >
@@ -72,17 +82,9 @@
       <FlightStatisticsFiltersCard
         v-if="showFilters"
         v-model="filters"
-        @input="refreshGraphs"
       />
 
-      <FlightStatisticsGraphsCard
-        v-if="showGraphs"
-        ref="flightStatisticsGraphsCardRef"
-        class="mt-4"
-        :filters="filters"
-      />
-      <FlightStatisticsDataTable
-        v-else
+      <router-view
         class="mt-4"
         :filters="filters"
       />
@@ -91,8 +93,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue"
+import { computed, ref } from "vue"
 import { sumBy } from "lodash"
+import { useRoute } from "vue2-helpers/vue-router"
 
 import useRouteQuery, { booleanTransformer, jsonTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -100,16 +103,10 @@ import useCurrentUser from "@/use/use-current-user"
 
 import { type FlightStatisticFiltersOptions } from "@/api/flight-statistics-api"
 
-import FlightStatisticsDataTable from "@/components/flight-statistics/FlightStatisticsDataTable.vue"
-import FlightStatisticsGraphsCard from "@/components/flight-statistics/FlightStatisticsGraphsCard.vue"
 import FlightStatisticsFiltersCard from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
 import FlightStatisticsExportToCsvButton from "@/components/flight-statistics/FlightStatisticsExportToCsvButton.vue"
 import FlightStatisticsPrintDialog from "@/components/flight-statistics/FlightStatisticsPrintDialog.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
-
-const showGraphs = useRouteQuery("showGraphs", "false", {
-  transform: booleanTransformer,
-})
 
 const showFilters = useRouteQuery("showFilters", "false", {
   transform: booleanTransformer,
@@ -118,15 +115,9 @@ const filters = useRouteQuery<string, FlightStatisticFiltersOptions>("filters", 
   transform: jsonTransformer,
 })
 
+const route = useRoute()
+
 const { isAdmin } = useCurrentUser<true>()
-
-const flightStatisticsGraphsCardRef = ref<InstanceType<typeof FlightStatisticsGraphsCard> | null>(
-  null
-)
-
-function refreshGraphs() {
-  flightStatisticsGraphsCardRef.value?.refresh()
-}
 
 const flightStatisticsPrintDialog = ref<InstanceType<typeof FlightStatisticsPrintDialog> | null>(
   null
@@ -154,19 +145,30 @@ const totalActiveFilters = computed(() => {
   )
 })
 
-const breadcrumbs = ref([
-  {
-    text: "Reports",
-    to: {
-      name: "ReportsPage",
+const breadcrumbs = computed(() => {
+  const crumbs = [
+    {
+      text: "Reports",
+      to: { name: "reports/ReportsTablePage" },
     },
-  },
-])
+  ]
+
+  if (route.name === "reports/ReportsGraphPage") {
+    crumbs.push({
+      text: "Graph",
+      to: { name: "reports/ReportsGraphPage" },
+    })
+  } else if (route.name === "reports/ReportsTablePage") {
+    crumbs.push({
+      text: "Table",
+      to: { name: "reports/ReportsTablePage" },
+    })
+  }
+
+  return crumbs
+})
+
 useBreadcrumbs(breadcrumbs)
 </script>
 
-<style scoped>
-.-mb-\[79px\] {
-  margin-bottom: -79px;
-}
-</style>
+<style scoped></style>

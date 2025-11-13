@@ -311,8 +311,25 @@ const routes: RouteConfig[] = [
           },
           {
             path: "reports",
-            name: "ReportsPage",
-            component: () => import("@/pages/ReportsPage.vue"),
+            component: () => import("@/layouts/ReportsLayout.vue"),
+            children: [
+              {
+                path: "",
+                redirect: {
+                  name: "reports/ReportsTablePage",
+                },
+              },
+              {
+                path: "table",
+                name: "reports/ReportsTablePage",
+                component: () => import("@/pages/reports/ReportsTablePage.vue"),
+              },
+              {
+                path: "graph",
+                name: "reports/ReportsGraphPage",
+                component: () => import("@/pages/reports/ReportsGraphPage.vue"),
+              },
+            ],
           },
           // End of Main Content Pages
           // Start of Administration pages

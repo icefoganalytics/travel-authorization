@@ -66,7 +66,7 @@
 
       <v-list-item
         :to="{
-          name: 'ReportsPage',
+          name: 'reports/ReportsTablePage',
         }"
       >
         <v-list-item-icon>
