@@ -94,7 +94,7 @@
 import { computed, onMounted, ref } from "vue"
 import { sumBy } from "lodash"
 
-import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+import useRouteQuery, { booleanTransformer, jsonTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
@@ -107,15 +107,16 @@ import FlightStatisticsExportToCsvButton from "@/components/flight-statistics/Fl
 import FlightStatisticsPrintDialog from "@/components/flight-statistics/FlightStatisticsPrintDialog.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 
-const showFilters = useRouteQuery("showFilters", "false", {
-  transform: booleanTransformer,
-})
 const showGraphs = useRouteQuery("showGraphs", "false", {
   transform: booleanTransformer,
 })
 
-// TODO: Store state with useRouteQuery.
-const filters = ref<FlightStatisticFiltersOptions>({})
+const showFilters = useRouteQuery("showFilters", "false", {
+  transform: booleanTransformer,
+})
+const filters = useRouteQuery<string, FlightStatisticFiltersOptions>("filters", "{}", {
+  transform: jsonTransformer,
+})
 
 const { isAdmin } = useCurrentUser<true>()
 
