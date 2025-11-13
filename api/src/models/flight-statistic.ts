@@ -1,5 +1,6 @@
 import {
   DataTypes,
+  Op,
   type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
@@ -14,6 +15,23 @@ import {
 
 import BaseModel from "@/models/base-model"
 
+const YUKON_ACRONYM = "YT"
+const CANADIAN_PROVINCE_ACRONYMS = Object.freeze([
+  "AB",
+  "BC",
+  "MB",
+  "NB",
+  "NL",
+  "NS",
+  "NT",
+  "NU",
+  "ON",
+  "PE",
+  "QC",
+  "SK",
+  YUKON_ACRONYM,
+])
+
 export class FlightStatistic extends BaseModel<
   InferAttributes<FlightStatistic>,
   InferCreationAttributes<FlightStatistic>
@@ -23,6 +41,7 @@ export class FlightStatistic extends BaseModel<
   @AutoIncrement
   declare id: CreationOptional<number>
 
+  /** NOTE: department is currently mailcode due to bad data */
   @Attribute(DataTypes.STRING(255))
   @NotNull
   declare department: string
@@ -89,7 +108,55 @@ export class FlightStatistic extends BaseModel<
   declare deletedAt: Date | null
 
   static establishScopes(): void {
-    // Add scopes here if needed in the future
+    /** NOTE: department is currently mailcode due to bad data */
+    this.addScope("byDepartments", (departments: string[]) => {
+      return {
+        where: {
+          department: departments,
+        },
+      }
+    })
+
+    this.addScope("byYukonDestinationCities", (cities: string[]) => {
+      return {
+        where: {
+          destinationCity: cities,
+          destinationProvince: YUKON_ACRONYM,
+        },
+      }
+    })
+
+    this.addScope("byCanadianDestinationProvinces", (provinces: string[]) => {
+      return {
+        where: {
+          [Op.and]: [
+            {
+              destinationProvince: provinces,
+            },
+            {
+              destinationProvince: CANADIAN_PROVINCE_ACRONYMS,
+            },
+          ],
+        },
+      }
+    })
+
+    this.addScope("byInternationalDestinationProvinces", (provinces: string[]) => {
+      return {
+        where: {
+          [Op.and]: [
+            {
+              destinationProvince: provinces,
+            },
+            {
+              destinationProvince: {
+                [Op.notIn]: CANADIAN_PROVINCE_ACRONYMS,
+              },
+            },
+          ],
+        },
+      }
+    })
   }
 }
 

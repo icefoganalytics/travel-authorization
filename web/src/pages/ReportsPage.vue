@@ -61,6 +61,7 @@
         v-if="showGraphs"
         ref="flightStatisticsGraphsCardRef"
         class="mt-5"
+        :filters="filtersAsBackendFilters"
       />
 
       <v-card
@@ -77,7 +78,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
-import { cloneDeep, sumBy } from "lodash"
+import { cloneDeep, isEmpty, sumBy } from "lodash"
 
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -113,6 +114,35 @@ const filters = ref<{
     Canada: [],
     International: [],
   },
+})
+
+// TODO: replace front-end filters with these, and rename to "filters"
+const filtersAsBackendFilters = computed(() => {
+  const backendFilters: {
+    byDepartments?: string[]
+    byYukonDestinationCities?: string[]
+    byCanadianDestinationProvinces?: string[]
+    byInternationalDestinationProvinces?: string[]
+  } = {}
+
+  if (!isEmpty(filters.value.departments)) {
+    backendFilters.byDepartments = filters.value.departments
+  }
+
+  if (!isEmpty(filters.value.locationSubCategories.Yukon)) {
+    backendFilters.byYukonDestinationCities = filters.value.locationSubCategories.Yukon
+  }
+
+  if (!isEmpty(filters.value.locationSubCategories.Canada)) {
+    backendFilters.byCanadianDestinationProvinces = filters.value.locationSubCategories.Canada
+  }
+
+  if (!isEmpty(filters.value.locationSubCategories.International)) {
+    backendFilters.byInternationalDestinationProvinces =
+      filters.value.locationSubCategories.International
+  }
+
+  return backendFilters
 })
 
 const flightStatisticsGraphsCardRef = ref<InstanceType<typeof FlightStatisticsGraphsCard> | null>(
