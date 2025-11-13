@@ -1,8 +1,12 @@
 <template>
   <v-data-table
+    :page.sync="page"
+    :items-per-page.sync="perPage"
+    :sort-by.sync="vuetify2SortBy"
+    :sort-desc.sync="vuetify2SortDesc"
     :headers="headers"
     :items="flightStatistics"
-    :items-per-page="15"
+    :server-items-length="totalCount"
     :loading="isLoading"
   >
     <!-- TODO: consider moving to parent component -->
@@ -46,23 +50,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { ExportToCsv } from "export-to-csv"
 
 import { formatCurrency } from "@/utils/formatters"
 
-import { type FlightStatisticAsIndex } from "@/api/flight-statistics-api"
+import {
+  type FlightStatisticFiltersOptions,
+  type FlightStatisticWhereOptions,
+} from "@/api/flight-statistics-api"
 import useCurrentUser from "@/use/use-current-user"
 
 import PrintReport from "@/modules/reports/views/Common/PrintReport.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+import useFlightStatistics from "@/use/use-flight-statistics"
 
 const props = withDefaults(
   defineProps<{
-    flightStatistics: FlightStatisticAsIndex[]
+    filters?: FlightStatisticFiltersOptions
+    where?: FlightStatisticWhereOptions
+    routeQuerySuffix?: string
   }>(),
   {
-    flightStatistics: () => [],
+    filters: () => ({}),
+    where: () => ({}),
+    routeQuerySuffix: "",
   }
 )
 
@@ -105,7 +121,42 @@ const headers = [
   },
 ]
 
-const isLoading = ref(false)
+const page = useRouteQuery<string | undefined, number | undefined>(
+  `page${props.routeQuerySuffix}`,
+  "1",
+  {
+    transform: integerTransformer,
+  }
+)
+const perPage = useRouteQuery<string | undefined, number | undefined>(
+  `perPage${props.routeQuerySuffix}`,
+  "10",
+  {
+    transform: integerTransformer,
+  }
+)
+
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  {
+    key: "department",
+    order: "asc",
+  },
+])
+const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
+
+const flightStatisticsQuery = computed(() => {
+  return {
+    filters: props.filters,
+    where: props.where,
+    order: order.value,
+    page: page.value,
+    perPage: perPage.value,
+  }
+})
+const { flightStatistics, totalCount, isLoading, refresh } =
+  useFlightStatistics(flightStatisticsQuery)
+
 const { isAdmin } = useCurrentUser<true>()
 
 const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsModal>>()
@@ -114,8 +165,9 @@ function openFlightStatisticsJobsModal() {
   flightStatisticsJobsModal.value?.open()
 }
 
+// TODO: push to own component to regain ability to export more than one page at a time.
 async function exportToExcel() {
-  const csvInfo = props.flightStatistics.map((flightStatistic) => {
+  const csvInfo = flightStatistics.value.map((flightStatistic) => {
     return {
       department: flightStatistic.department || "",
       finalDestinationCity: flightStatistic.destinationCity || "",
@@ -154,6 +206,10 @@ async function exportToExcel() {
   const csvExporter = new ExportToCsv(options)
   csvExporter.generateCsv(csvInfo)
 }
+
+defineExpose({
+  refresh,
+})
 </script>
 
 <style scoped>

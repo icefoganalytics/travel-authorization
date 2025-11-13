@@ -5,6 +5,7 @@
     </v-card-title>
 
     <v-card-text>
+      <!-- TODO: rework component placement so negative margin is not required -->
       <v-row
         :class="{
           '-mb-[79px]': !showGraphs && !showFilters,
@@ -57,7 +58,7 @@
       />
       <FlightStatisticsDataTable
         v-else
-        :flight-statistics="frontEndFilteredFlightStatistics"
+        :filters="filtersAsBackendFilters"
       />
     </v-card-text>
   </v-card>
@@ -65,11 +66,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
-import { cloneDeep, isEmpty, sumBy } from "lodash"
+import { isEmpty, sumBy } from "lodash"
 
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
-import useFlightStatistics, { type FlightStatisticAsIndex } from "@/use/use-flight-statistics"
 
 import FlightStatisticsDataTable from "@/components/flight-statistics/FlightStatisticsDataTable.vue"
 import FlightStatisticsGraphsCard from "@/components/flight-statistics/FlightStatisticsGraphsCard.vue"
@@ -77,8 +77,6 @@ import FlightStatisticsFiltersCard, {
   type LocationCategory,
   type LocationsByRegion,
 } from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
-
-const { flightStatistics } = useFlightStatistics()
 
 const showFilters = useRouteQuery("showFilters", "false", {
   transform: booleanTransformer,
@@ -149,33 +147,6 @@ const totalActiveFilters = computed(() => {
     ],
     (filter) => filter.length
   )
-})
-
-const frontEndFilteredFlightStatistics = computed<FlightStatisticAsIndex[]>(() => {
-  let localFlightStatistics = cloneDeep(flightStatistics.value)
-  if (filters.value.departments?.length > 0) {
-    localFlightStatistics = localFlightStatistics.filter(({ department }) =>
-      filters.value.departments.includes(department)
-    )
-  }
-
-  if (
-    filters.value.locationSubCategories.Canada?.length > 0 ||
-    filters.value.locationSubCategories.Yukon?.length > 0 ||
-    filters.value.locationSubCategories.International?.length > 0
-  ) {
-    localFlightStatistics = localFlightStatistics.filter(
-      ({ destinationCity, destinationProvince }) => {
-        return (
-          filters.value.locationSubCategories.Yukon?.includes(destinationCity) ||
-          filters.value.locationSubCategories.Canada?.includes(destinationProvince) ||
-          filters.value.locationSubCategories.International?.includes(destinationProvince)
-        )
-      }
-    )
-  }
-
-  return localFlightStatistics
 })
 
 // TODO: store state in route query, only reset if filters are removed
