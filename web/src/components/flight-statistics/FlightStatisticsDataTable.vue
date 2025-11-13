@@ -9,44 +9,6 @@
     :server-items-length="totalCount"
     :loading="isLoading"
   >
-    <!-- TODO: consider moving to parent component -->
-    <template
-      v-if="isAdmin"
-      #top
-    >
-      <div class="d-flex justify-end">
-        <FlightStatisticsExportToCsvButton
-          :filters="filters"
-          :where="where"
-          color="primary"
-          outlined
-        />
-
-        <v-btn
-          class="ml-2"
-          color="primary"
-          outlined
-          @click="openFlightStatisticsPrintDialog"
-        >
-          Print Report
-          <FlightStatisticsPrintDialog
-            ref="flightStatisticsPrintDialog"
-            :filters="filters"
-            :where="where"
-          />
-        </v-btn>
-        <v-btn
-          class="ml-2"
-          color="primary"
-          outlined
-          @click="openFlightStatisticsJobsModal"
-        >
-          Update Reports
-          <FlightStatisticsJobsModal ref="flightStatisticsJobsModal" />
-        </v-btn>
-      </div>
-    </template>
-
     <template #item.totalExpenses="{ item }">
       {{ formatCurrency(item.totalExpenses) }}
     </template>
@@ -63,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 
 import { formatCurrency } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
@@ -75,12 +37,7 @@ import {
   type FlightStatisticFiltersOptions,
   type FlightStatisticWhereOptions,
 } from "@/api/flight-statistics-api"
-import useCurrentUser from "@/use/use-current-user"
 import useFlightStatistics from "@/use/use-flight-statistics"
-
-import FlightStatisticsExportToCsvButton from "@/components/flight-statistics/FlightStatisticsExportToCsvButton.vue"
-import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
-import FlightStatisticsPrintDialog from "@/components/flight-statistics/FlightStatisticsPrintDialog.vue"
 
 const props = withDefaults(
   defineProps<{
@@ -169,22 +126,6 @@ const flightStatisticsQuery = computed(() => {
 })
 const { flightStatistics, totalCount, isLoading, refresh } =
   useFlightStatistics(flightStatisticsQuery)
-
-const { isAdmin } = useCurrentUser<true>()
-
-const flightStatisticsPrintDialog = ref<InstanceType<typeof FlightStatisticsPrintDialog> | null>(
-  null
-)
-
-function openFlightStatisticsPrintDialog() {
-  flightStatisticsPrintDialog.value?.open()
-}
-
-const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsModal>>()
-
-function openFlightStatisticsJobsModal() {
-  flightStatisticsJobsModal.value?.open()
-}
 
 defineExpose({
   refresh,

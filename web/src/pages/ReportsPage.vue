@@ -5,12 +5,7 @@
     </v-card-title>
 
     <v-card-text>
-      <!-- TODO: rework component placement so negative margin is not required -->
-      <v-row
-        :class="{
-          '-mb-[79px]': !showGraphs && !showFilters,
-        }"
-      >
+      <v-row>
         <v-col class="d-flex justify-space-between">
           <div>
             <v-btn
@@ -39,6 +34,38 @@
               </v-badge>
             </v-btn>
           </div>
+          <div
+            v-if="isAdmin"
+            class="d-flex justify-end"
+          >
+            <FlightStatisticsExportToCsvButton
+              :filters="filtersAsBackendFilters"
+              color="primary"
+              outlined
+            />
+
+            <v-btn
+              class="ml-2"
+              color="primary"
+              outlined
+              @click="openFlightStatisticsPrintDialog"
+            >
+              Print Report
+              <FlightStatisticsPrintDialog
+                ref="flightStatisticsPrintDialog"
+                :filters="filtersAsBackendFilters"
+              />
+            </v-btn>
+            <v-btn
+              class="ml-2"
+              color="primary"
+              outlined
+              @click="openFlightStatisticsJobsModal"
+            >
+              Update Reports
+              <FlightStatisticsJobsModal ref="flightStatisticsJobsModal" />
+            </v-btn>
+          </div>
         </v-col>
       </v-row>
 
@@ -51,13 +78,12 @@
       <FlightStatisticsGraphsCard
         v-if="showGraphs"
         ref="flightStatisticsGraphsCardRef"
-        :class="{
-          'mt-4': showFilters,
-        }"
+        class="mt-4"
         :filters="filtersAsBackendFilters"
       />
       <FlightStatisticsDataTable
         v-else
+        class="mt-4"
         :filters="filtersAsBackendFilters"
       />
     </v-card-text>
@@ -70,6 +96,7 @@ import { isEmpty, sumBy } from "lodash"
 
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useCurrentUser from "@/use/use-current-user"
 
 import FlightStatisticsDataTable from "@/components/flight-statistics/FlightStatisticsDataTable.vue"
 import FlightStatisticsGraphsCard from "@/components/flight-statistics/FlightStatisticsGraphsCard.vue"
@@ -77,6 +104,9 @@ import FlightStatisticsFiltersCard, {
   type LocationCategory,
   type LocationsByRegion,
 } from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
+import FlightStatisticsExportToCsvButton from "@/components/flight-statistics/FlightStatisticsExportToCsvButton.vue"
+import FlightStatisticsPrintDialog from "@/components/flight-statistics/FlightStatisticsPrintDialog.vue"
+import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 
 const showFilters = useRouteQuery("showFilters", "false", {
   transform: booleanTransformer,
@@ -129,12 +159,28 @@ const filtersAsBackendFilters = computed(() => {
   return backendFilters
 })
 
+const { isAdmin } = useCurrentUser<true>()
+
 const flightStatisticsGraphsCardRef = ref<InstanceType<typeof FlightStatisticsGraphsCard> | null>(
   null
 )
 
 function refreshGraphs() {
   flightStatisticsGraphsCardRef.value?.refresh()
+}
+
+const flightStatisticsPrintDialog = ref<InstanceType<typeof FlightStatisticsPrintDialog> | null>(
+  null
+)
+
+function openFlightStatisticsPrintDialog() {
+  flightStatisticsPrintDialog.value?.open()
+}
+
+const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsModal>>()
+
+function openFlightStatisticsJobsModal() {
+  flightStatisticsJobsModal.value?.open()
 }
 
 const totalActiveFilters = computed(() => {
