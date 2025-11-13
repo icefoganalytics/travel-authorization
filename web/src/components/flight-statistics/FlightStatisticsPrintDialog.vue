@@ -40,6 +40,7 @@
             :page="page"
             class="elevation-1"
             hide-default-footer
+            disable-sort
           >
             <template #item.destinationProvince="{ item }">
               <div class="text-center">{{ item.destinationProvince }}</div>
