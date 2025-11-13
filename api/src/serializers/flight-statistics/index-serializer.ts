@@ -15,6 +15,7 @@ export type FlightStatisticAsIndex = Pick<
   | "totalDays"
   | "averageDurationDays"
   | "averageExpensesPerDay"
+  | "averageRoundTripFlightCost"
   | "createdAt"
   | "updatedAt"
 >
@@ -39,6 +40,7 @@ export class IndexSerializer extends BaseSerializer<FlightStatistic> {
       "totalDays",
       "averageDurationDays",
       "averageExpensesPerDay",
+      "averageRoundTripFlightCost",
       "createdAt",
       "updatedAt",
     ])

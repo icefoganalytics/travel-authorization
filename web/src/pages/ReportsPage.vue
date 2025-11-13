@@ -9,68 +9,64 @@
       v-if="isLoading"
       type="card"
     />
-    <div v-else>
-      <v-card
-        class="mt-5"
-        flat
-      >
-        <v-card-title class="text-h5 mx-5">Travel Summary</v-card-title>
+    <v-card
+      class="mt-5"
+      flat
+      v-else
+    >
+      <v-card-title class="text-h5 mx-5">Travel Summary</v-card-title>
 
-        <v-card-actions class="mx-8">
-          <v-btn
-            color="primary"
-            outlined
-            @click="showFilters = !showFilters"
+      <v-card-actions class="mx-8">
+        <v-btn
+          color="primary"
+          outlined
+          @click="showFilters = !showFilters"
+        >
+          <v-badge
+            color="warning"
+            :content="totalActiveFilters"
+            :value="totalActiveFilters"
           >
-            <v-badge
-              color="warning"
-              :content="totalActiveFilters"
-              :value="totalActiveFilters"
-            >
-              Filters
-              <v-icon right> {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
-            </v-badge>
-          </v-btn>
-          <v-btn
-            class="ml-4"
-            color="primary"
-            outlined
-            @click="showGraphs = !showGraphs"
-          >
-            Graph
-            <v-icon right> {{ showGraphs ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
-          </v-btn>
-          <v-btn
-            class="ml-auto"
-            color="secondary"
-            @click="openFlightStatisticsJobsModal"
-          >
-            Update Reports
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+            Filters
+            <v-icon right> {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
+          </v-badge>
+        </v-btn>
+        <v-btn
+          class="ml-4"
+          color="primary"
+          outlined
+          @click="showGraphs = !showGraphs"
+        >
+          Graph
+          <v-icon right> {{ showGraphs ? "mdi-chevron-down" : "mdi-chevron-right" }} </v-icon>
+        </v-btn>
+        <v-btn
+          class="ml-auto"
+          color="secondary"
+          @click="openFlightStatisticsJobsModal"
+        >
+          Update Reports
+        </v-btn>
+      </v-card-actions>
+    </v-card>
 
-      <FlightStatisticsFiltersCard
-        v-if="showFilters"
-        v-model="filters"
-        class="mt-5"
-        @input="refreshGraphs"
-      />
+    <FlightStatisticsFiltersCard
+      v-if="showFilters"
+      v-model="filters"
+      class="mt-5"
+      @input="refreshGraphs"
+    />
 
-      <FlightStatisticsGraphsCard
-        v-if="showGraphs"
-        ref="flightStatisticsGraphsCardRef"
-        class="mt-5"
-        :filters="filtersAsBackendFilters"
-      />
+    <FlightStatisticsGraphsCard
+      v-if="showGraphs"
+      ref="flightStatisticsGraphsCardRef"
+      class="mt-5"
+      :filters="filtersAsBackendFilters"
+    />
 
-      <v-card
-        class="mt-5"
-        flat
-      >
-        <FlightStatisticsDataTable :flight-report="frontEndFilteredFlightStatistics" />
-      </v-card>
-    </div>
+    <v-card-text>
+      <FlightStatisticsDataTable :flightStatistics="frontEndFilteredFlightStatistics" />
+    </v-card-text>
 
     <FlightStatisticsJobsModal ref="flightStatisticsJobsModal" />
   </v-card>
