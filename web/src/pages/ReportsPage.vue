@@ -39,7 +39,7 @@
             class="d-flex justify-end"
           >
             <FlightStatisticsExportToCsvButton
-              :filters="filtersAsBackendFilters"
+              :filters="filters"
               color="primary"
               outlined
             />
@@ -53,7 +53,7 @@
               Print Report
               <FlightStatisticsPrintDialog
                 ref="flightStatisticsPrintDialog"
-                :filters="filtersAsBackendFilters"
+                :filters="filters"
               />
             </v-btn>
             <v-btn
@@ -79,12 +79,12 @@
         v-if="showGraphs"
         ref="flightStatisticsGraphsCardRef"
         class="mt-4"
-        :filters="filtersAsBackendFilters"
+        :filters="filters"
       />
       <FlightStatisticsDataTable
         v-else
         class="mt-4"
-        :filters="filtersAsBackendFilters"
+        :filters="filters"
       />
     </v-card-text>
   </v-card>
@@ -92,18 +92,17 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
-import { isEmpty, sumBy } from "lodash"
+import { sumBy } from "lodash"
 
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
+import { type FlightStatisticFiltersOptions } from "@/api/flight-statistics-api"
+
 import FlightStatisticsDataTable from "@/components/flight-statistics/FlightStatisticsDataTable.vue"
 import FlightStatisticsGraphsCard from "@/components/flight-statistics/FlightStatisticsGraphsCard.vue"
-import FlightStatisticsFiltersCard, {
-  type LocationCategory,
-  type LocationsByRegion,
-} from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
+import FlightStatisticsFiltersCard from "@/components/flight-statistics/FlightStatisticsFiltersCard.vue"
 import FlightStatisticsExportToCsvButton from "@/components/flight-statistics/FlightStatisticsExportToCsvButton.vue"
 import FlightStatisticsPrintDialog from "@/components/flight-statistics/FlightStatisticsPrintDialog.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
@@ -116,48 +115,7 @@ const showGraphs = useRouteQuery("showGraphs", "false", {
 })
 
 // TODO: Store state with useRouteQuery.
-const filters = ref<{
-  departments: string[]
-  locationCategories: LocationCategory[]
-  locationSubCategories: LocationsByRegion
-}>({
-  departments: [],
-  locationCategories: [],
-  locationSubCategories: {
-    Yukon: [],
-    Canada: [],
-    International: [],
-  },
-})
-
-// TODO: replace front-end filters with these, and rename to "filters"
-const filtersAsBackendFilters = computed(() => {
-  const backendFilters: {
-    byDepartments?: string[]
-    byYukonDestinationCities?: string[]
-    byCanadianDestinationProvinces?: string[]
-    byInternationalDestinationProvinces?: string[]
-  } = {}
-
-  if (!isEmpty(filters.value.departments)) {
-    backendFilters.byDepartments = filters.value.departments
-  }
-
-  if (!isEmpty(filters.value.locationSubCategories.Yukon)) {
-    backendFilters.byYukonDestinationCities = filters.value.locationSubCategories.Yukon
-  }
-
-  if (!isEmpty(filters.value.locationSubCategories.Canada)) {
-    backendFilters.byCanadianDestinationProvinces = filters.value.locationSubCategories.Canada
-  }
-
-  if (!isEmpty(filters.value.locationSubCategories.International)) {
-    backendFilters.byInternationalDestinationProvinces =
-      filters.value.locationSubCategories.International
-  }
-
-  return backendFilters
-})
+const filters = ref<FlightStatisticFiltersOptions>({})
 
 const { isAdmin } = useCurrentUser<true>()
 
@@ -186,35 +144,14 @@ function openFlightStatisticsJobsModal() {
 const totalActiveFilters = computed(() => {
   return sumBy(
     [
-      filters.value.departments,
-      filters.value.locationSubCategories.Canada,
-      filters.value.locationSubCategories.Yukon,
-      filters.value.locationSubCategories.International,
+      filters.value.byDepartments,
+      filters.value.byYukonDestinationCities,
+      filters.value.byCanadianDestinationProvinces,
+      filters.value.byInternationalDestinationProvinces,
     ],
-    (filter) => filter.length
+    (filter) => filter?.length ?? 0
   )
 })
-
-// TODO: store state in route query, only reset if filters are removed
-onMounted(async () => {
-  reset()
-})
-
-function reset() {
-  resetFilters()
-}
-
-function resetFilters() {
-  filters.value = {
-    departments: [],
-    locationCategories: [],
-    locationSubCategories: {
-      Canada: [],
-      Yukon: [],
-      International: [],
-    },
-  }
-}
 
 const breadcrumbs = ref([
   {

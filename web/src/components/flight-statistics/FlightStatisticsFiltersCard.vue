@@ -24,44 +24,63 @@
           md="6"
         >
           <v-autocomplete
-            :value="selectedLocationCategories"
-            :items="locationCategories"
+            v-model="selectedLocationCategories"
+            :items="locationCategoryOptions"
             label="Locations"
             chips
             clearable
             deletable-chips
             multiple
             outlined
-            @input="selectLocationCategory"
+            @input="selectLocationCategories"
           />
         </v-col>
         <v-col
           cols="12"
           md="6"
         >
-          <div
-            v-for="(locationCategory, categoryIndex) in locationCategories"
-            :key="categoryIndex"
-          >
-            <v-autocomplete
-              v-if="selectedLocationCategories.includes(locationCategory)"
-              :value="selectedLocationSubCategories[locationCategory]"
-              :items="locationSubCategories[locationCategory]"
-              :label="`Locations (${locationCategory})`"
-              chips
-              clearable
-              deletable-chips
-              multiple
-              outlined
-              @input="selectLocationSubCategory(locationCategory, $event)"
-            />
-          </div>
+          <v-autocomplete
+            v-if="selectedLocationCategories.includes(LocationCategory.Yukon)"
+            v-model="selectedYukonDestinations"
+            :items="yukonLocationCategories"
+            label="Locations (Yukon)"
+            chips
+            clearable
+            deletable-chips
+            multiple
+            outlined
+            @input="updateYukonDestinations"
+          />
+          <v-autocomplete
+            v-if="selectedLocationCategories.includes(LocationCategory.Canada)"
+            v-model="selectedCanadaDestinations"
+            :items="canadianLocationCategories"
+            label="Locations (Canada)"
+            chips
+            clearable
+            deletable-chips
+            multiple
+            outlined
+            @input="updateCanadaDestinations"
+          />
+          <v-autocomplete
+            v-if="selectedLocationCategories.includes(LocationCategory.International)"
+            v-model="selectedInternationalDestinations"
+            :items="internationalLocationCategories"
+            label="Locations (International)"
+            chips
+            clearable
+            deletable-chips
+            multiple
+            outlined
+            @input="updateInternationalDestinations"
+          />
         </v-col>
       </v-row>
       <v-row>
         <v-col>
           <v-autocomplete
-            :value="selectedDepartments"
+            v-model="selectedDepartments"
             :items="departments"
             label="Departments"
             chips
@@ -69,7 +88,7 @@
             deletable-chips
             multiple
             outlined
-            @input="selectDepartment"
+            @input="updateDepartments"
           />
         </v-col>
       </v-row>
@@ -77,32 +96,28 @@
   </HeaderActionsCard>
 </template>
 
-<script lang="ts">
-export type LocationsByRegion = Record<"Yukon" | "Canada" | "International", string[]>
-export type LocationCategory = keyof LocationsByRegion
-
-export type FlightStatisticFilters = {
-  departments: string[]
-  locationCategories: LocationCategory[]
-  locationSubCategories: Record<LocationCategory, string[]>
-}
-</script>
-
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue"
-import { map, uniq } from "lodash"
+import { computed, ref, watchEffect } from "vue"
+import { isEmpty, map, merge, uniq } from "lodash"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
-import useFlightStatistics from "@/use/use-flight-statistics"
+import useFlightStatistics, {
+  type FlightStatisticFiltersOptions,
+} from "@/use/use-flight-statistics"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
-const props = defineProps<{
-  value: FlightStatisticFilters
-}>()
+const props = withDefaults(
+  defineProps<{
+    value: FlightStatisticFiltersOptions
+  }>(),
+  {
+    value: () => ({}),
+  }
+)
 
 const emit = defineEmits<{
-  (event: "input", value: FlightStatisticFilters): void
+  (event: "input", value: FlightStatisticFiltersOptions): void
 }>()
 
 const flightStatisticsQuery = computed(() => ({
@@ -128,15 +143,53 @@ const CANADIAN_PROVINCE_ACRONYMS = Object.freeze([
   "NU",
 ])
 
-const selectedLocationCategories = ref<LocationCategory[]>(props.value.locationCategories)
-const selectedLocationSubCategories = ref<Record<LocationCategory, string[]>>(
-  props.value.locationSubCategories
-)
+enum LocationCategory {
+  Yukon = "Yukon",
+  Canada = "Canada",
+  International = "International",
+}
+
+const locationCategoryOptions = Object.values(LocationCategory)
+
+const selectedLocationCategories = ref<LocationCategory[]>([])
+const selectedYukonDestinations = ref<string[]>([])
+const selectedCanadaDestinations = ref<string[]>([])
+const selectedInternationalDestinations = ref<string[]>([])
+const selectedDepartments = ref<string[]>([])
+
+watchEffect(() => {
+  selectedYukonDestinations.value = props.value.byYukonDestinationCities ?? []
+})
+
+watchEffect(() => {
+  selectedCanadaDestinations.value = props.value.byCanadianDestinationProvinces ?? []
+})
+
+watchEffect(() => {
+  selectedInternationalDestinations.value = props.value.byInternationalDestinationProvinces ?? []
+})
+
+watchEffect(() => {
+  selectedDepartments.value = props.value.byDepartments ?? []
+})
+
+watchEffect(() => {
+  const categories: LocationCategory[] = []
+  if (!isEmpty(props.value.byYukonDestinationCities)) {
+    categories.push(LocationCategory.Yukon)
+  }
+  if (!isEmpty(props.value.byCanadianDestinationProvinces)) {
+    categories.push(LocationCategory.Canada)
+  }
+  if (!isEmpty(props.value.byInternationalDestinationProvinces)) {
+    categories.push(LocationCategory.International)
+  }
+  selectedLocationCategories.value = categories
+})
 
 // NOTE: departments are currently mailcodes due to bad data.
 // I'm not sure how to fix this yet.
 const departments = computed<string[]>(() => uniq(map(flightStatistics.value, "department")))
-const selectedDepartments = ref<string[]>(props.value.departments)
 
 const yukonLocationCategories = computed(() =>
   uniq(
@@ -159,75 +212,62 @@ const internationalLocationCategories = computed(() =>
       .map((flightStatistic) => flightStatistic.destinationProvince)
   )
 )
-const locationSubCategories = computed<LocationsByRegion>(() => ({
-  Yukon: yukonLocationCategories.value,
-  Canada: canadianLocationCategories.value,
-  International: internationalLocationCategories.value,
-}))
-const locationCategories = computed<LocationCategory[]>(
-  () => Object.keys(locationSubCategories.value) as (keyof LocationsByRegion)[]
-)
 
-async function selectLocationCategory(newLocationCategories: LocationCategory[]) {
-  selectedLocationCategories.value = newLocationCategories
+function selectLocationCategories(categories: LocationCategory[]) {
+  const filters = merge({}, props.value)
 
-  locationCategories.value.forEach((category) => {
-    if (!selectedLocationCategories.value.includes(category)) {
-      selectedLocationSubCategories.value[category] = []
-    } else {
-      selectedLocationSubCategories.value[category] = locationSubCategories.value[category]
-    }
-  })
-
-  emitFilterUpdate()
-}
-
-async function selectLocationSubCategory(
-  locationCategory: LocationCategory,
-  newLocationSubCategories: string[]
-) {
-  selectedLocationSubCategories.value[locationCategory] = newLocationSubCategories
-
-  if (newLocationSubCategories.length === 0) {
-    selectedLocationCategories.value = selectedLocationCategories.value.filter(
-      (category) => category !== locationCategory
-    )
+  if (categories.includes(LocationCategory.Yukon)) {
+    filters.byYukonDestinationCities = yukonLocationCategories.value
+  } else {
+    filters.byYukonDestinationCities = undefined
   }
 
-  emitFilterUpdate()
-}
-
-async function selectDepartment(newDepartments: string[]) {
-  selectedDepartments.value = newDepartments
-
-  emitFilterUpdate()
-}
-
-async function resetFilters() {
-  selectedLocationCategories.value = []
-  selectedLocationSubCategories.value = {
-    Yukon: [],
-    Canada: [],
-    International: [],
+  if (categories.includes(LocationCategory.Canada)) {
+    filters.byCanadianDestinationProvinces = canadianLocationCategories.value
+  } else {
+    filters.byCanadianDestinationProvinces = undefined
   }
-  selectedDepartments.value = []
 
-  emitFilterUpdate()
+  if (categories.includes(LocationCategory.International)) {
+    filters.byInternationalDestinationProvinces = internationalLocationCategories.value
+  } else {
+    filters.byInternationalDestinationProvinces = undefined
+  }
+
+  emit("input", filters)
 }
 
-async function emitFilterUpdate() {
-  await nextTick()
-  emit("input", {
-    departments: selectedDepartments.value,
-    locationCategories: selectedLocationCategories.value,
-    locationSubCategories: selectedLocationSubCategories.value,
+function updateYukonDestinations(destinations: string[]) {
+  const filters = merge({}, props.value, {
+    byYukonDestinationCities: isEmpty(destinations) ? undefined : destinations,
   })
+  emit("input", filters)
+}
+
+function updateCanadaDestinations(destinations: string[]) {
+  const filters = merge({}, props.value, {
+    byCanadianDestinationProvinces: isEmpty(destinations) ? undefined : destinations,
+  })
+  emit("input", filters)
+}
+
+function updateInternationalDestinations(destinations: string[]) {
+  const filters = merge({}, props.value, {
+    byInternationalDestinationProvinces: isEmpty(destinations) ? undefined : destinations,
+  })
+  emit("input", filters)
+}
+
+function updateDepartments(departments: string[]) {
+  const filters = merge({}, props.value, {
+    byDepartments: isEmpty(departments) ? undefined : departments,
+  })
+  emit("input", filters)
+}
+
+function resetFilters() {
+  emit("input", {})
 }
 </script>
 
-<style scoped>
-.v-card.borderless-card {
-  border: none !important;
-  box-shadow: none !important;
-}
-</style>
+<style scoped></style>
