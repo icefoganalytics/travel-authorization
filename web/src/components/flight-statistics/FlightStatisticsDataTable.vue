@@ -54,7 +54,7 @@ import { ExportToCsv } from "export-to-csv"
 import PrintReport from "@/modules/reports/views/Common/PrintReport.vue"
 
 export default {
-  name: "FlightReport",
+  name: "FlightStatisticsDataTable",
   components: {
     PrintReport,
   },
@@ -132,9 +132,7 @@ export default {
         return {
           department: flight.department ? flight.department : "",
           finalDestinationCity: flight.destinationCity ? flight.destinationCity : "",
-          finalDestinationProvince: flight.destinationProvince
-            ? flight.destinationProvince
-            : "",
+          finalDestinationProvince: flight.destinationProvince ? flight.destinationProvince : "",
           totalTrips: flight.totalTrips ? flight.totalTrips : "",
           totalExpenses: flight.totalExpenses ? "$ " + Number(flight.totalExpenses).toFixed(2) : "",
           totalFlightCost: flight.totalFlightCost

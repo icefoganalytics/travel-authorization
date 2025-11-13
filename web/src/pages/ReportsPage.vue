@@ -68,7 +68,7 @@
         class="mt-5"
         flat
       >
-        <FlightReport :flight-report="frontEndFilteredFlightStatistics" />
+        <FlightStatisticsDataTable :flight-report="frontEndFilteredFlightStatistics" />
       </v-card>
     </div>
 
@@ -84,7 +84,7 @@ import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useFlightStatistics, { type FlightStatisticAsIndex } from "@/use/use-flight-statistics"
 
-import FlightReport from "@/modules/reports/views/FlightReport.vue"
+import FlightStatisticsDataTable from "@/components/flight-statistics/FlightStatisticsDataTable.vue"
 import FlightStatisticsGraphsCard from "@/components/flight-statistics/FlightStatisticsGraphsCard.vue"
 import FlightStatisticsFiltersCard, {
   type LocationCategory,
