@@ -22,10 +22,22 @@
           outlined
         />
 
-        <PrintReport :flight-report="flightStatistics" />
         <v-btn
-          color="secondary"
           class="ml-2"
+          color="primary"
+          outlined
+          @click="openFlightStatisticsPrintDialog"
+        >
+          Print Report
+          <FlightStatisticsPrintDialog
+            ref="flightStatisticsPrintDialog"
+            :flight-report="flightStatistics"
+          />
+        </v-btn>
+        <v-btn
+          class="ml-2"
+          color="primary"
+          outlined
           @click="openFlightStatisticsJobsModal"
         >
           Update Reports
@@ -60,7 +72,7 @@ import {
 } from "@/api/flight-statistics-api"
 import useCurrentUser from "@/use/use-current-user"
 
-import PrintReport from "@/modules/reports/views/Common/PrintReport.vue"
+import FlightStatisticsPrintDialog from "@/components/flight-statistics/FlightStatisticsPrintDialog.vue"
 import FlightStatisticsExportToCsvButton from "@/components/flight-statistics/FlightStatisticsExportToCsvButton.vue"
 import FlightStatisticsJobsModal from "@/components/flight-statistic-jobs/FlightStatisticsJobsModal.vue"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
@@ -158,6 +170,14 @@ const { flightStatistics, totalCount, isLoading, refresh } =
   useFlightStatistics(flightStatisticsQuery)
 
 const { isAdmin } = useCurrentUser<true>()
+
+const flightStatisticsPrintDialog = ref<InstanceType<typeof FlightStatisticsPrintDialog> | null>(
+  null
+)
+
+function openFlightStatisticsPrintDialog() {
+  flightStatisticsPrintDialog.value?.open()
+}
 
 const flightStatisticsJobsModal = ref<InstanceType<typeof FlightStatisticsJobsModal>>()
 
