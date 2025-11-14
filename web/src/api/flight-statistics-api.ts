@@ -74,9 +74,11 @@ export type FlightStatisticWhereOptions = WhereOptions<
 /** add as needed, must match model scopes */
 export type FlightStatisticFiltersOptions = FiltersOptions<{
   byDepartments?: string[]
-  byYukonDestinationCities?: string[]
-  byCanadianDestinationProvinces?: string[]
-  byInternationalDestinationProvinces?: string[]
+  byLocations?: {
+    byYukonDestinationCities?: string[]
+    byCanadianDestinationProvinces?: string[]
+    byInternationalDestinationProvinces?: string[]
+  }
 }>
 
 export type FlightStatisticQueryOptions = QueryOptions<

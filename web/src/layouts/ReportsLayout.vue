@@ -139,9 +139,9 @@ const totalActiveFilters = computed(() => {
   return sumBy(
     [
       filters.value.byDepartments,
-      filters.value.byYukonDestinationCities,
-      filters.value.byCanadianDestinationProvinces,
-      filters.value.byInternationalDestinationProvinces,
+      filters.value.byLocations?.byYukonDestinationCities,
+      filters.value.byLocations?.byCanadianDestinationProvinces,
+      filters.value.byLocations?.byInternationalDestinationProvinces,
     ],
     (filter) => filter?.length ?? 0
   )

@@ -24,7 +24,7 @@
           md="6"
         >
           <v-autocomplete
-            v-model="selectedLocationCategories"
+            :value="selectedLocationCategories"
             :items="locationCategoryOptions"
             label="Locations"
             chips
@@ -120,10 +120,12 @@ const emit = defineEmits<{
   (event: "input", value: FlightStatisticFiltersOptions): void
 }>()
 
-const byYukonDestinationCities = computed(() => props.value.byYukonDestinationCities)
-const byCanadianDestinationProvinces = computed(() => props.value.byCanadianDestinationProvinces)
+const byYukonDestinationCities = computed(() => props.value.byLocations?.byYukonDestinationCities)
+const byCanadianDestinationProvinces = computed(
+  () => props.value.byLocations?.byCanadianDestinationProvinces
+)
 const byInternationalDestinationProvinces = computed(
-  () => props.value.byInternationalDestinationProvinces
+  () => props.value.byLocations?.byInternationalDestinationProvinces
 )
 const byDepartments = computed(() => props.value.byDepartments)
 
@@ -161,13 +163,13 @@ const selectedLocationCategories = ref<LocationCategory[]>([])
 
 watchEffect(() => {
   const categories: LocationCategory[] = []
-  if (!isEmpty(props.value.byYukonDestinationCities)) {
+  if (!isEmpty(byYukonDestinationCities.value)) {
     categories.push(LocationCategory.Yukon)
   }
-  if (!isEmpty(props.value.byCanadianDestinationProvinces)) {
+  if (!isEmpty(byCanadianDestinationProvinces.value)) {
     categories.push(LocationCategory.Canada)
   }
-  if (!isEmpty(props.value.byInternationalDestinationProvinces)) {
+  if (!isEmpty(byInternationalDestinationProvinces.value)) {
     categories.push(LocationCategory.International)
   }
   selectedLocationCategories.value = categories
@@ -201,23 +203,46 @@ const internationalLocationCategories = computed(() =>
 
 function selectLocationCategories(categories: LocationCategory[]) {
   const filters = cloneDeep(props.value)
+  filters.byLocations ??= {}
 
-  if (categories.includes(LocationCategory.Yukon)) {
-    filters.byYukonDestinationCities = yukonLocationCategories.value
-  } else {
-    filters.byYukonDestinationCities = undefined
+  if (
+    categories.includes(LocationCategory.Yukon) &&
+    !selectedLocationCategories.value.includes(LocationCategory.Yukon)
+  ) {
+    filters.byLocations.byYukonDestinationCities = yukonLocationCategories.value
+  } else if (
+    !categories.includes(LocationCategory.Yukon) &&
+    selectedLocationCategories.value.includes(LocationCategory.Yukon)
+  ) {
+    delete filters.byLocations.byYukonDestinationCities
   }
 
-  if (categories.includes(LocationCategory.Canada)) {
-    filters.byCanadianDestinationProvinces = canadianLocationCategories.value
-  } else {
-    filters.byCanadianDestinationProvinces = undefined
+  if (
+    categories.includes(LocationCategory.Canada) &&
+    !selectedLocationCategories.value.includes(LocationCategory.Canada)
+  ) {
+    filters.byLocations.byCanadianDestinationProvinces = canadianLocationCategories.value
+  } else if (
+    !categories.includes(LocationCategory.Canada) &&
+    selectedLocationCategories.value.includes(LocationCategory.Canada)
+  ) {
+    delete filters.byLocations.byCanadianDestinationProvinces
   }
 
-  if (categories.includes(LocationCategory.International)) {
-    filters.byInternationalDestinationProvinces = internationalLocationCategories.value
-  } else {
-    filters.byInternationalDestinationProvinces = undefined
+  if (
+    categories.includes(LocationCategory.International) &&
+    !selectedLocationCategories.value.includes(LocationCategory.International)
+  ) {
+    filters.byLocations.byInternationalDestinationProvinces = internationalLocationCategories.value
+  } else if (
+    !categories.includes(LocationCategory.International) &&
+    selectedLocationCategories.value.includes(LocationCategory.International)
+  ) {
+    delete filters.byLocations.byInternationalDestinationProvinces
+  }
+
+  if (isEmpty(filters.byLocations)) {
+    delete filters.byLocations
   }
 
   emit("input", filters)
@@ -227,9 +252,13 @@ function updateYukonDestinations(destinations: string[]) {
   const filters = cloneDeep(props.value)
 
   if (!isEmpty(destinations)) {
-    filters.byYukonDestinationCities = destinations
-  } else {
-    filters.byYukonDestinationCities = undefined
+    filters.byLocations ??= {}
+    filters.byLocations.byYukonDestinationCities = destinations
+  } else if (filters.byLocations) {
+    delete filters.byLocations.byYukonDestinationCities
+    if (isEmpty(filters.byLocations)) {
+      delete filters.byLocations
+    }
   }
 
   emit("input", filters)
@@ -239,9 +268,13 @@ function updateCanadaDestinations(destinations: string[]) {
   const filters = cloneDeep(props.value)
 
   if (!isEmpty(destinations)) {
-    filters.byCanadianDestinationProvinces = destinations
-  } else {
-    filters.byCanadianDestinationProvinces = undefined
+    filters.byLocations ??= {}
+    filters.byLocations.byCanadianDestinationProvinces = destinations
+  } else if (filters.byLocations) {
+    delete filters.byLocations.byCanadianDestinationProvinces
+    if (isEmpty(filters.byLocations)) {
+      delete filters.byLocations
+    }
   }
 
   emit("input", filters)
@@ -251,9 +284,13 @@ function updateInternationalDestinations(destinations: string[]) {
   const filters = cloneDeep(props.value)
 
   if (!isEmpty(destinations)) {
-    filters.byInternationalDestinationProvinces = destinations
-  } else {
-    filters.byInternationalDestinationProvinces = undefined
+    filters.byLocations ??= {}
+    filters.byLocations.byInternationalDestinationProvinces = destinations
+  } else if (filters.byLocations) {
+    delete filters.byLocations.byInternationalDestinationProvinces
+    if (isEmpty(filters.byLocations)) {
+      delete filters.byLocations
+    }
   }
 
   emit("input", filters)

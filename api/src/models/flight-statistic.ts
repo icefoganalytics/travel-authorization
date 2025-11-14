@@ -4,6 +4,7 @@ import {
   type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
+  type WhereOptions,
 } from "@sequelize/core"
 import {
   Attribute,
@@ -12,6 +13,7 @@ import {
   NotNull,
   PrimaryKey,
 } from "@sequelize/core/decorators-legacy"
+import { isEmpty } from "lodash"
 
 import BaseModel from "@/models/base-model"
 
@@ -157,6 +159,67 @@ export class FlightStatistic extends BaseModel<
         },
       }
     })
+
+    this.addScope(
+      "byLocations",
+      (options: {
+        byYukonDestinationCities?: string[]
+        byCanadianDestinationProvinces?: string[]
+        byInternationalDestinationProvinces?: string[]
+      }) => {
+        const conditions: WhereOptions<FlightStatistic>[] = []
+
+        const {
+          byYukonDestinationCities,
+          byCanadianDestinationProvinces,
+          byInternationalDestinationProvinces,
+        } = options
+        if (!isEmpty(byYukonDestinationCities)) {
+          conditions.push({
+            destinationCity: byYukonDestinationCities,
+            destinationProvince: YUKON_ACRONYM,
+          })
+        }
+
+        if (!isEmpty(byCanadianDestinationProvinces)) {
+          conditions.push({
+            [Op.and]: [
+              {
+                destinationProvince: byCanadianDestinationProvinces,
+              },
+              {
+                destinationProvince: CANADIAN_PROVINCE_ACRONYMS,
+              },
+            ],
+          })
+        }
+
+        if (!isEmpty(byInternationalDestinationProvinces)) {
+          conditions.push({
+            [Op.and]: [
+              {
+                destinationProvince: byInternationalDestinationProvinces,
+              },
+              {
+                destinationProvince: {
+                  [Op.notIn]: CANADIAN_PROVINCE_ACRONYMS,
+                },
+              },
+            ],
+          })
+        }
+
+        if (isEmpty(conditions)) {
+          throw new Error("At least one condition is required")
+        }
+
+        return {
+          where: {
+            [Op.or]: conditions,
+          },
+        }
+      }
+    )
   }
 }
 
