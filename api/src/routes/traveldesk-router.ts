@@ -1,4 +1,4 @@
-import { isNil, isNull, minBy } from "lodash"
+import { isNil, isNull } from "lodash"
 import express, { Request, Response } from "express"
 import { CreationAttributes, Op, WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
@@ -71,62 +71,6 @@ travelDeskRouter.get("/", RequiresAuth, async function (_req: Request, res: Resp
 
   res.status(200).json(travelRequestsJson)
 })
-
-travelDeskRouter.get(
-  "/authorized-travels/",
-  RequiresAuth,
-  async function (req: Request, res: Response) {
-    const adminScoping: WhereOptions<TravelAuthorization> = {}
-    if ((req as AuthorizedRequest).user?.roles?.includes(User.Roles.ADMIN)) {
-      // No additional conditions for Admin, selects all records
-    } else if ((req as AuthorizedRequest).user?.roles?.includes(User.Roles.DEPARTMENT_ADMIN)) {
-      adminScoping.department = (req as AuthorizedRequest).user.department
-    } else {
-      adminScoping.userId = (req as AuthorizedRequest).user.id
-    }
-
-    try {
-      const forms = await TravelAuthorization.findAll({
-        where: adminScoping,
-        include: ["stops", "travelDeskTravelRequest"],
-      })
-      const formsJson = forms.map((form) => form.toJSON())
-
-      // TODO: move this code to a serializer
-      for (const form of formsJson) {
-        // @ts-expect-error - this code is deprecated so not worth fixing the type issues
-        const stops = form.stops
-        const earliestStop = minBy(stops, (stop) => {
-          // @ts-expect-error - this code is deprecated so not worth fixing the type issues
-          return `${stop.departureDate} ${stop.departureTime}`
-        })
-        // @ts-expect-error - this code is deprecated so not worth fixing the type issues
-        form.departureDate = earliestStop?.departureDate || "Unknown"
-        // @ts-expect-error - this code is deprecated so not worth fixing the type issues
-        form.departureTime = earliestStop?.departureTime || "Unknown"
-
-        // @ts-expect-error - isn't worth fixing at this time
-        form.travelRequest = form.travelDeskTravelRequest
-
-        // @ts-expect-error - isn't worth fixing at this time
-        const travelDeskTravelRequestId = form.travelRequest?.id
-        if (travelDeskTravelRequestId) {
-          const travelDeskPnrDocument = await TravelDeskPassengerNameRecordDocument.findOne({
-            attributes: ["invoiceNumber"],
-            where: { travelDeskTravelRequestId },
-          })
-
-          // @ts-expect-error - isn't worth fixing at this time
-          form.travelRequest.invoiceNumber = travelDeskPnrDocument?.invoiceNumber || ""
-        }
-      }
-      res.status(200).json(formsJson)
-    } catch (error: unknown) {
-      logger.info(error)
-      res.status(500).json("Internal Server Error")
-    }
-  }
-)
 
 travelDeskRouter.get(
   "/flight-options/:flightRequestId",

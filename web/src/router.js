@@ -4,7 +4,6 @@ import VueRouter from "vue-router"
 import { authGuard } from "@/utils/auth-guard"
 import useRouteHistory from "@/use/use-route-history"
 
-import travelDeskRouter from "@/modules/travelDesk/router"
 import reportsRouter from "@/modules/reports/router"
 
 Vue.use(VueRouter)
@@ -393,7 +392,6 @@ const routes = [
     ],
   },
 
-  ...travelDeskRouter,
   ...reportsRouter,
 
   {
