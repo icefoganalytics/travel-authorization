@@ -100,7 +100,7 @@ import { sumBy } from "lodash"
 import { useRoute } from "vue2-helpers/vue-router"
 
 import useRouteQuery, { booleanTransformer, jsonTransformer } from "@/use/utils/use-route-query"
-import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useBreadcrumbs, { type BreadcrumbItem } from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
 import { type FlightStatisticFiltersOptions } from "@/api/flight-statistics-api"
@@ -148,22 +148,30 @@ const totalActiveFilters = computed(() => {
 })
 
 const breadcrumbs = computed(() => {
-  const crumbs = [
+  const crumbs: BreadcrumbItem[] = [
     {
       text: "Reports",
-      to: { name: "reports/ReportsTablePage" },
+      to: {
+        name: "reports/ReportsTablePage",
+      },
     },
   ]
 
   if (route.name === "reports/ReportsGraphPage") {
     crumbs.push({
       text: "Graph",
-      to: { name: "reports/ReportsGraphPage" },
+      to: {
+        name: "reports/ReportsGraphPage",
+      },
+      exact: false,
     })
   } else if (route.name === "reports/ReportsTablePage") {
     crumbs.push({
       text: "Table",
-      to: { name: "reports/ReportsTablePage" },
+      to: {
+        name: "reports/ReportsTablePage",
+      },
+      exact: false,
     })
   }
 

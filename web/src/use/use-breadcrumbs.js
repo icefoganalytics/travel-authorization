@@ -14,6 +14,7 @@ import { isUndefined } from "lodash"
  *     name: string;
  *     params?: Record<string, unknown>;
  *   };
+ *   exact?: boolean;
  * }} BreadcrumbItem
  */
 
