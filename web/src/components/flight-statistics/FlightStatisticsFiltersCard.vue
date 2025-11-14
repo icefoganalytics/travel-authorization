@@ -40,7 +40,7 @@
           md="6"
         >
           <v-autocomplete
-            v-if="selectedLocationCategories.includes(LocationCategory.Yukon)"
+            v-show="selectedLocationCategories.includes(LocationCategory.Yukon)"
             :value="byYukonDestinationCities"
             :items="yukonLocationCategories"
             label="Locations (Yukon)"
@@ -52,7 +52,7 @@
             @input="updateYukonDestinations"
           />
           <v-autocomplete
-            v-if="selectedLocationCategories.includes(LocationCategory.Canada)"
+            v-show="selectedLocationCategories.includes(LocationCategory.Canada)"
             :value="byCanadianDestinationProvinces"
             :items="canadianLocationCategories"
             label="Locations (Canada)"
@@ -64,7 +64,7 @@
             @input="updateCanadaDestinations"
           />
           <v-autocomplete
-            v-if="selectedLocationCategories.includes(LocationCategory.International)"
+            v-show="selectedLocationCategories.includes(LocationCategory.International)"
             :value="byInternationalDestinationProvinces"
             :items="internationalLocationCategories"
             label="Locations (International)"
