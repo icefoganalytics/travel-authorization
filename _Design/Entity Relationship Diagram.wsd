@@ -4,7 +4,7 @@ top to bottom direction
 note as Disclaimer
 Diagram generated with the assistance of Cascade AI coding assistant - may contain errors
 PlantUML URL: https://plantuml.com/ie-diagram
-Last Updated: 2025-03-19
+Last Updated: 2025-11-03
 This diagram should be verified against the current database schema for accuracy.
 end note
 
@@ -82,6 +82,41 @@ entity "flight_reconciliations" {
   Relates to external TravCom database table ARInvoiceDetailsNoHealth -> InvoiceDetailID
 }
 
+entity "flight_statistics" {
+  * id : serial4 <<PK>>
+  --
+  * department : varchar(255)
+  * destination_airport_code : varchar(255)
+  * destination_city : varchar(255)
+  * destination_province : varchar(255)
+  * total_trips : int4
+  * total_round_trips : int4
+  * total_days : int4
+  * total_expenses : float4
+  * total_flight_cost : float4
+  * total_round_trip_cost : float4
+  * average_duration_days : float4
+  * average_expenses_per_day : float4
+  * average_round_trip_flight_cost : float4
+  --
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
+  --
+  Aggregated flight statistics by department and destination, derived from TravCom database.
+}
+
+entity "flight_statistic_jobs" {
+  * id : serial4 <<PK>>
+  --
+  * progress : int4 : default 0
+  * created_at : timestamptz : default CURRENT_TIMESTAMP
+  * updated_at : timestamptz : default CURRENT_TIMESTAMP
+  deleted_at : timestamptz
+  --
+  Tracks progress of flight statistics sync/aggregation jobs
+}
+
 entity "general_ledger_codings" {
   * id : serial4
   --
@@ -128,31 +163,6 @@ entity "per_diems" {
   deleted_at : timestamptz
   --
   UNIQUE(claim_type, travel_region, currency) WHERE deleted_at IS NULL
-}
-
-entity "StatisticsProgress" {
-  * id : serial4
-  --
-  last_update : timestamptz
-  progress : int4
-}
-
-entity "StatisticsRecord" {
-  * id : serial4
-  --
-  dept : varchar(255)
-  arrAirport : varchar(255)
-  totalExpenses : float4
-  totalFlightCost : float4
-  days : int4
-  totalTrips : int4
-  totalRoundTrips : int4
-  roundTripCost : float4
-  finalDestinationCity : varchar(255)
-  finalDestinationProvince : varchar(255)
-  averageDurationDays : float4
-  averageExpensesPerDay : float4
-  averageRoundTripFlightCost : float4
 }
 
 entity "stops" {
@@ -653,4 +663,6 @@ users::id }o--|| travel_authorizations::user_id
 users::id }o--|| travel_desk_flight_options::traveler_id
 
 flight_reconciliations::external_trav_com_identifier ||..o{ external.ARInvoicesNoHealth::InvoiceNumber
+flight_statistics .. external.ARInvoicesNoHealth : aggregated by department and destination
+flight_statistic_jobs .. flight_statistics : tracks sync/aggregation progress
 @enduml

@@ -99,6 +99,7 @@ const props = defineProps({
   },
 })
 
+// NOTE: invoiceDepartment field contains mail codes, not department names
 const headers = computed(() => {
   const baseHeaders = [
     {

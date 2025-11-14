@@ -18,15 +18,15 @@
       ></v-text-field>
     </template>
     <v-date-picker
-      :value="value"
+      v-model="selectedDateRange"
       range
-      @input="closeMenuAndEmitInput"
+      @change="emitInput"
     ></v-date-picker>
   </v-menu>
 </template>
 
 <script setup>
-import { computed, ref } from "vue"
+import { computed, ref, watchEffect } from "vue"
 
 const props = defineProps({
   value: {
@@ -49,7 +49,13 @@ const showMenu = ref(false)
 
 const dateRangeText = computed(() => props.value.join(" ~ "))
 
-function closeMenuAndEmitInput(value) {
+const selectedDateRange = ref(props.value)
+
+watchEffect(() => {
+  selectedDateRange.value = props.value
+})
+
+function emitInput(value) {
   emit("input", value)
 }
 </script>

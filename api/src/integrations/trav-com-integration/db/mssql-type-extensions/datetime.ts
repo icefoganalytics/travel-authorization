@@ -1,22 +1,26 @@
 import { DataTypes } from "@sequelize/core"
 import { DateTime } from "luxon"
 
+/**
+ * See https://sequelize.org/docs/v7/other-topics/extending-data-types/
+ */
 export class DATETIME extends DataTypes.ABSTRACT<Date> {
   toSql() {
     return "DATETIME"
   }
 
-  stringify(value: Date | string | number): string {
+  toBindableValue(value: Date | string | number): string {
     if (typeof value === "string") {
-      return value
+      return DateTime.fromISO(value).toFormat("yyyy-MM-dd HH:mm:ss")
     } else if (typeof value === "number") {
-      const date = new Date(value)
-      const datetime = DateTime.fromJSDate(date)
-      return datetime.toFormat("yyyy-MM-dd HH:mm:ss")
+      return DateTime.fromMillis(value).toFormat("yyyy-MM-dd HH:mm:ss")
+    } else if (value instanceof Date) {
+      return DateTime.fromJSDate(value).toFormat("yyyy-MM-dd HH:mm:ss")
     }
 
-    const datetime = DateTime.fromJSDate(value)
-    return datetime.toFormat("yyyy-MM-dd HH:mm:ss")
+    throw new Error(
+      `Unsupported value type: ${value} -> ${typeof value} -> ${JSON.stringify(value)}`
+    )
   }
 }
 

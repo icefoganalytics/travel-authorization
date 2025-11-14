@@ -4,7 +4,6 @@ import Vuex from "vuex"
 import auth from "@/store/auth"
 import current from "@/store/current"
 import expenses from "@/store/expenses"
-import reports from "@/store/reports"
 import traveldesk from "@/store/traveldesk"
 import travelPurposes from "@/store/travel-purposes"
 
@@ -57,7 +56,6 @@ export default new Vuex.Store({
     auth,
     current,
     expenses,
-    reports,
     traveldesk,
     travelPurposes,
   },
