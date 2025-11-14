@@ -81,6 +81,7 @@
 </template>
 
 <script lang="ts">
+// NOTE: department field contains mail codes, not department names
 enum FlightStatisticsDataGroups {
   DESTINATION_CITY = "Destination City",
   PROVINCE = "Province",

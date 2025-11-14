@@ -175,8 +175,8 @@ watchEffect(() => {
   selectedLocationCategories.value = categories
 })
 
-// NOTE: departments are currently mailcodes due to bad data.
-// I'm not sure how to fix this yet.
+// NOTE: department field contains mail codes, not department names.
+// Multiple mail codes may map to the same department.
 const departments = computed<string[]>(() => uniq(map(flightStatistics.value, "department")))
 
 const yukonLocationCategories = computed(() =>

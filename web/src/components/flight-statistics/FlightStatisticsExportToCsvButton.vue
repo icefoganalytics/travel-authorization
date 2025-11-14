@@ -45,6 +45,7 @@ const { flightStatistics, isLoading, fetch } = useFlightStatistics(flightStatist
 // fast-csv, see https://github.com/icefoganalytics/internal-data-portal/blob/0eb01fff60c6b5d72b060f89e92cf15336225531/api/src/controllers/download/datasets-controller.ts#L28
 async function exportToCsv() {
   await fetch()
+  // NOTE: department field contains mail codes, not department names
   const csvInfo = flightStatistics.value.map((flightStatistic) => {
     return {
       ["Department"]: flightStatistic.department ?? "",

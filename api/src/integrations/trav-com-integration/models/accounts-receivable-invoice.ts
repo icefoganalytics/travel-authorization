@@ -18,6 +18,7 @@ export type ArInvoiceNoHealthRaw = {
   InvoiceNumber: string
   ProfileNumber: string | null
   ProfileName: string | null
+  /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
   Department: string | null
   BookingDate: string | null
   SystemDate: string | null
@@ -64,6 +65,7 @@ export class AccountsReceivableInvoice extends BaseModel<
   })
   declare profileName: string | null
 
+  /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
   @Attribute({
     type: DataTypes.STRING(30),
     columnName: "Department",

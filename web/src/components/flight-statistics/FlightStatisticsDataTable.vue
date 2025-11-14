@@ -52,6 +52,7 @@ const props = withDefaults(
   }
 )
 
+// NOTE: department field contains mail codes, not department names
 const headers = [
   {
     text: "Department",

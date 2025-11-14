@@ -10,6 +10,7 @@ import {
 /** Keep in sync with api/src/models/flight-statistic.ts */
 export type FlightStatistic = {
   id: number
+  /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
   department: string
   destinationAirportCode: string
   destinationCity: string

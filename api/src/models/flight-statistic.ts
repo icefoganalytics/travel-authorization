@@ -43,7 +43,7 @@ export class FlightStatistic extends BaseModel<
   @AutoIncrement
   declare id: CreationOptional<number>
 
-  /** NOTE: department is currently mailcode due to bad data */
+  /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
   @Attribute(DataTypes.STRING(255))
   @NotNull
   declare department: string
@@ -110,7 +110,7 @@ export class FlightStatistic extends BaseModel<
   declare deletedAt: Date | null
 
   static establishScopes(): void {
-    /** NOTE: department is currently mailcode due to bad data */
+    /** NOTE: department field contains mail codes, not department names */
     this.addScope("byDepartments", (departments: string[]) => {
       return {
         where: {

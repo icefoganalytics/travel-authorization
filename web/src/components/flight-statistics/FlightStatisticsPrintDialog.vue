@@ -150,6 +150,7 @@ const { flightStatistics, totalCount } = useFlightStatistics(flightStatisticsQue
 
 const pages = computed(() => range(1, Math.ceil(totalCount.value / PAGE_SIZE) + 1))
 
+// NOTE: department field contains mail codes, not department names
 const headers = ref([
   {
     text: "Department",
