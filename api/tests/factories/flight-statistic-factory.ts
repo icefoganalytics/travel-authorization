@@ -16,7 +16,7 @@ export const flightStatisticFactory = Factory.define<FlightStatistic>(({ onCreat
   })
 
   return FlightStatistic.build({
-    department: faker.string.alphanumeric(10).toUpperCase(),
+    departmentMailcode: faker.string.alphanumeric(10).toUpperCase(),
     destinationAirportCode: faker.string.alpha(3).toUpperCase(),
     destinationCity: faker.location.city().toUpperCase(),
     destinationProvince: faker.location.state({ abbreviated: true }),
