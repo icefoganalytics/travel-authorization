@@ -41,7 +41,7 @@ export type AccountsReceivableInvoiceDetailIndexView = Pick<
   travelerLastName: string
   invoiceBookingDate: Date | null
   /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
-  invoiceMailcode: string | null
+  invoiceDepartmentMailcode: string | null
 }
 
 export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDetail> {
@@ -61,7 +61,7 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
     const [travelerFirstName, travelerLastName] = this.buildTravelerFirstAndLastName(this.record)
 
     // NOTE: invoice.departmentMailcode contains mail codes, not department names
-    const invoiceMailcode = invoice.departmentMailcode
+    const invoiceDepartmentMailcode = invoice.departmentMailcode
     const invoiceBookingDate = invoice.bookingDate
 
     return {
@@ -97,7 +97,7 @@ export class IndexSerializer extends BaseSerializer<AccountsReceivableInvoiceDet
       travelerFirstName,
       travelerLastName,
       invoiceBookingDate,
-      invoiceMailcode,
+      invoiceDepartmentMailcode,
     }
   }
 
