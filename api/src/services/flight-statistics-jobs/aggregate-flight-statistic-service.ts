@@ -64,8 +64,7 @@ export class AggregateFlightStatisticService extends BaseService {
       return null
     }
 
-    // TODO: departmentMailcode field contains mail codes, not department names.
-    // Multiple mail codes may map to the same department.
+    // TODO: Multiple mail codes may map to the same department.
     // Update code to map mail codes to department names.
     const { departmentMailcode } = this.accountsReceivableInvoice
     if (isNil(departmentMailcode) || isEmpty(departmentMailcode)) {

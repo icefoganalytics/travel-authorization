@@ -53,7 +53,7 @@ export class FlightReconciliation extends Model<
   @Attribute(DataTypes.DATE)
   declare invoiceBookingDate: Date | null
 
-  /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
+  /** Multiple mail codes may map to the same department. */
   @Attribute(DataTypes.STRING(255))
   declare invoiceDepartmentMailcode: string | null
 
