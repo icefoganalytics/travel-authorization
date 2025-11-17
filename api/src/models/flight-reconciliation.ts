@@ -55,7 +55,7 @@ export class FlightReconciliation extends Model<
 
   /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
   @Attribute(DataTypes.STRING(255))
-  declare invoiceMailcode: string | null
+  declare invoiceDepartmentMailcode: string | null
 
   @Attribute(DataTypes.DECIMAL(19, 4))
   @NotNull
