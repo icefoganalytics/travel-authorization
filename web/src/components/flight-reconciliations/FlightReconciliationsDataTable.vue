@@ -99,7 +99,7 @@ const props = defineProps({
   },
 })
 
-// NOTE: invoiceMailcode field contains mail codes, not department names
+// NOTE: invoiceDepartmentMailcode field contains mail codes, not department names
 const headers = computed(() => {
   const baseHeaders = [
     {
@@ -132,8 +132,8 @@ const headers = computed(() => {
       width: "10rem",
     },
     {
-      text: "Department",
-      value: "invoiceMailcode",
+      text: "Department Mailcode",
+      value: "invoiceDepartmentMailcode",
     },
     {
       text: "Traveler First Name",
