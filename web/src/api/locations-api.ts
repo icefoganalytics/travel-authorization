@@ -1,10 +1,7 @@
 import http from "@/api/http-client"
+import { type FiltersOptions, type QueryOptions, type WhereOptions } from "@/api/base-api"
+
 import debounceWithArgsCache from "@/utils/debounce-with-args-cache"
-import {
-  type FiltersOptions,
-  type QueryOptions,
-  type WhereOptions,
-} from "@/api/base-api"
 
 export type Location = {
   id: number
@@ -31,7 +28,9 @@ export const locationsApi = {
     return data
   },
 
-  async fetch(locationId: number): Promise<Location> {
+  async get(locationId: number): Promise<{
+    location: Location
+  }> {
     const { data } = await http.get(`/api/locations/${locationId}`)
     return data
   },
