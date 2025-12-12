@@ -70,7 +70,7 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { APPLICATION_NAME } from "@/config"
 
 import useSessionStorage from "@/use/utils/use-session-storage"

@@ -164,12 +164,20 @@ const headers = ref([
 
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
-  transform: integerTransformer,
-})
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "10", {
-  transform: integerTransformer,
-})
+const page = useRouteQuery<string | undefined, number | undefined>(
+  `page${props.routeQuerySuffix}`,
+  "1",
+  {
+    transform: integerTransformer,
+  }
+)
+const perPage = useRouteQuery<string | undefined, number | undefined>(
+  `perPage${props.routeQuerySuffix}`,
+  "10",
+  {
+    transform: integerTransformer,
+  }
+)
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   {
     key: "date",

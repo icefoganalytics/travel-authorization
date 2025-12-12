@@ -18,6 +18,8 @@ import {
   ExpensesController,
   FlightReconciliations,
   FlightReconciliationsController,
+  FlightStatisticJobsController,
+  FlightStatisticsController,
   GeneralLedgerCodingsController,
   LocationsController,
   PerDiemsController,
@@ -129,6 +131,13 @@ router
   .get(FlightReconciliationsController.show)
   .patch(FlightReconciliationsController.update)
   .delete(FlightReconciliationsController.destroy)
+
+router.route("/api/flight-statistics").get(FlightStatisticsController.index)
+router.route("/api/flight-statistics/:flightStatisticId").get(FlightStatisticsController.show)
+router
+  .route("/api/flight-statistics-jobs")
+  .get(FlightStatisticJobsController.index)
+  .post(FlightStatisticJobsController.create)
 
 router.route("/api/per-diems").get(PerDiemsController.index)
 router
@@ -348,7 +357,7 @@ router
   .delete(TravelSegmentsController.destroy)
 
 router.route("/api/users").get(UsersController.index).post(UsersController.create)
-router.route("/api/users/:userId").get(UsersController.show)
+router.route("/api/users/:userId").get(UsersController.show).patch(UsersController.update)
 router
   .route("/api/users/:userId/yg-government-directory-sync")
   .post(Users.YgGovernmentDirectorySyncController.create)

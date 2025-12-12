@@ -11,8 +11,6 @@ import App from "@/App.vue"
 import router from "@/router"
 import store from "@/store"
 import "@/filters"
-import Notifications from "@/components/Notifications.vue"
-import MapDialog from "@/components/MapDialog.vue"
 
 import { ENVIRONMENT, API_BASE_URL, RELEASE_TAG, GIT_COMMIT_HASH } from "@/config"
 
@@ -33,10 +31,6 @@ Vue.directive("yk-btn", {
     el.style.borderRadius = "0"
   },
 })
-
-Vue.component("notifier", Notifications)
-Vue.component("map-dialog", MapDialog)
-Vue.component("apexchart", VueApexCharts)
 
 axios.defaults.withCredentials = true
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*"

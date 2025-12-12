@@ -221,7 +221,7 @@
   </HeaderActionsFormCard>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue2-helpers/vue-router"
@@ -269,7 +269,7 @@ const travelAuthorizationPreApprovalProfilesAttributes = ref([])
 
 const exactTravelDateKnown = ref(true)
 
-function toggleExactTravelDateKnown(value) {
+function toggleExactTravelDateKnown(value: boolean) {
   exactTravelDateKnown.value = value
 
   travelAuthorizationPreApprovalAttributes.value.isOpenForAnyDate = !value
@@ -278,7 +278,7 @@ function toggleExactTravelDateKnown(value) {
   travelAuthorizationPreApprovalAttributes.value.month = undefined
 }
 
-const { currentUser, isAdmin } = useCurrentUser()
+const { currentUser, isAdmin } = useCurrentUser<true>()
 
 const departmentWhere = computed(() => {
   if (isAdmin.value) {
@@ -286,7 +286,7 @@ const departmentWhere = computed(() => {
   }
 
   return {
-    department: currentUser.value.department,
+    department: currentUser.value.department ?? "DEPARTMENT_MISSING",
   }
 })
 const branchWhere = computed(() => ({
@@ -306,8 +306,7 @@ function resetDependentFieldsBranch() {
   travelAuthorizationPreApprovalProfilesAttributes.value = []
 }
 
-/** @type {import('vue').Ref<InstanceType<typeof HeaderActionsFormCard> | null>} */
-const headerActionsFormCard = ref(null)
+const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isLoading = ref(false)
 const snack = useSnack()
 const router = useRouter()
@@ -335,7 +334,7 @@ async function createTravelAuthorizationPreApproval() {
   }
 }
 
-useBreadcrumbs([
+const breadcrumbs = computed(() => [
   {
     text: "Travel Pre-Approvals",
     to: {
@@ -349,6 +348,7 @@ useBreadcrumbs([
     },
   },
 ])
+useBreadcrumbs(breadcrumbs)
 </script>
 
 <style scoped>

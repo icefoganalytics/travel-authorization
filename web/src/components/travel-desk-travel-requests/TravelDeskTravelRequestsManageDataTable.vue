@@ -24,14 +24,14 @@
             disabled: isNil(selectedRequests) || isEmpty(selectedRequests),
           }"
         />
-        <ExportToCsvButton
+        <TravelDeskTravelRequestsExportToCsvButton
           :travel-desk-travel-request-ids="selectedRequests.map((request) => request.id)"
           :disabled="isNil(selectedRequests) || isEmpty(selectedRequests)"
           class="my-0"
           color="primary"
         >
           Export To Excel
-        </ExportToCsvButton>
+        </TravelDeskTravelRequestsExportToCsvButton>
       </div>
     </template>
     <template #item.createdAt="{ value }">
@@ -148,7 +148,7 @@ import useTravelDeskTravelRequests, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
 } from "@/use/use-travel-desk-travel-requests"
 
-import ExportToCsvButton from "@/components/travel-desk-travel-requests/ExportToCsvButton.vue"
+import TravelDeskTravelRequestsExportToCsvButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsExportToCsvButton.vue"
 import PrintTravelDeskReport from "@/modules/travelDesk/views/Common/PrintTravelDeskReport.vue"
 
 const headers = ref([

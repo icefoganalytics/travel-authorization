@@ -1,7 +1,6 @@
 import {
   DataTypes,
   Model,
-  type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
@@ -42,7 +41,7 @@ export class Segment extends Model<InferAttributes<Segment>, InferCreationAttrib
     allowNull: false,
     primaryKey: true,
   })
-  declare id: CreationOptional<number>
+  declare id: number
 
   @Attribute({
     type: DataTypes.DECIMAL(18, 0),
@@ -77,7 +76,7 @@ export class Segment extends Model<InferAttributes<Segment>, InferCreationAttrib
     columnName: "DepartureInfo",
     allowNull: true,
   })
-  declare departureInfo: string | null
+  declare departureInfo: Date | null
 
   @Attribute({
     type: DataTypes.STRING(5),
@@ -91,7 +90,7 @@ export class Segment extends Model<InferAttributes<Segment>, InferCreationAttrib
     columnName: "ArrivalInfo",
     allowNull: true,
   })
-  declare arrivalInfo: string | null
+  declare arrivalInfo: Date | null
 
   @Attribute({
     type: DataTypes.STRING(3),

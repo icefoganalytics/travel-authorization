@@ -131,8 +131,8 @@ const headers = computed(() => {
       width: "10rem",
     },
     {
-      text: "Department",
-      value: "invoiceDepartment",
+      text: "Department Mailcode",
+      value: "invoiceDepartmentMailcode",
     },
     {
       text: "Traveler First Name",

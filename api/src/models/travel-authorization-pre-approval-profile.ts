@@ -74,7 +74,7 @@ export class TravelAuthorizationPreApprovalProfile extends BaseModel<
 
   static establishScopes(): void {
     // TODO: add better search!
-    this.addSearchScope(["profile_name"])
+    this.addSearchScope(["profileName"])
     this.addScope("approved", () => ({
       include: [
         {

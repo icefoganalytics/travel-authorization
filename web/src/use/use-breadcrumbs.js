@@ -9,11 +9,12 @@ import { isUndefined } from "lodash"
 /**
  * TODO: add other fields
  * @typedef {{
- *   title: string;
+ *   text: string;
  *   to: {
  *     name: string;
- *     params?: Object;
+ *     params?: Record<string, unknown>;
  *   };
+ *   exact?: boolean;
  * }} BreadcrumbItem
  */
 

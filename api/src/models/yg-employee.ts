@@ -122,7 +122,7 @@ export class YgEmployee extends BaseModel<
   declare deletedAt: Date | null
 
   static establishScopes(): void {
-    this.addSearchScope(["email", "username", "full_name", "first_name", "last_name", "title"])
+    this.addSearchScope(["email", "username", "fullName", "firstName", "lastName", "title"])
     this.addScope("excludingByFullNames", (fullNames: string[]) => {
       return {
         where: {

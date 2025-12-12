@@ -32,7 +32,7 @@ module.exports = {
     sourceType: "module",
     extraFileExtensions: [".vue"],
     tsconfigRootDir: __dirname,
-    project: ["./tsconfig.json", "./tsconfig.node.json", "./tests/tsconfig.json"],
+    project: ["./tsconfig.node.json", "./tsconfig.json", "./tests/tsconfig.json"],
   },
 
   settings: {

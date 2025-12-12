@@ -1,0 +1,50 @@
+import { pick } from "lodash"
+
+import { FlightStatistic, User } from "@/models"
+import BaseSerializer from "@/serializers/base-serializer"
+
+export type FlightStatisticAsIndex = Pick<
+  FlightStatistic,
+  | "id"
+  | "departmentMailcode"
+  | "destinationCity"
+  | "destinationProvince"
+  | "totalTrips"
+  | "totalExpenses"
+  | "totalFlightCost"
+  | "totalDays"
+  | "averageDurationDays"
+  | "averageExpensesPerDay"
+  | "averageRoundTripFlightCost"
+  | "createdAt"
+  | "updatedAt"
+>
+
+export class IndexSerializer extends BaseSerializer<FlightStatistic> {
+  constructor(
+    protected record: FlightStatistic,
+    protected currentUser: User
+  ) {
+    super(record)
+  }
+
+  perform(): FlightStatisticAsIndex {
+    return pick(this.record, [
+      "id",
+      "departmentMailcode",
+      "destinationCity",
+      "destinationProvince",
+      "totalTrips",
+      "totalExpenses",
+      "totalFlightCost",
+      "totalDays",
+      "averageDurationDays",
+      "averageExpensesPerDay",
+      "averageRoundTripFlightCost",
+      "createdAt",
+      "updatedAt",
+    ])
+  }
+}
+
+export default IndexSerializer

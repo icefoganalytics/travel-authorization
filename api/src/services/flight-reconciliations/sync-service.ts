@@ -51,7 +51,7 @@ export class SyncService extends BaseService {
 
         const flightReconciliationAttributes = {
           invoiceBookingDate: serializedInvoiceDetail.invoiceBookingDate,
-          invoiceDepartment: serializedInvoiceDetail.invoiceDepartment,
+          invoiceDepartmentMailcode: serializedInvoiceDetail.invoiceDepartmentMailcode,
           invoiceDetailSellingFare: serializedInvoiceDetail.sellingFare,
           invoiceDetailComputedAgentName: serializedInvoiceDetail.agentName,
           invoiceDetailVendorName: serializedInvoiceDetail.vendorName,

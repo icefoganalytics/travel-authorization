@@ -1,8 +1,6 @@
 import {
   DataTypes,
-  Model,
   Op,
-  type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
@@ -11,6 +9,7 @@ import { Attribute, HasMany, Table } from "@sequelize/core/decorators-legacy"
 
 import { MssqlTypeExtensions } from "@/integrations/trav-com-integration/db/db-client"
 
+import BaseModel from "@/integrations/trav-com-integration/models/base-model"
 import AccountsReceivableInvoiceDetail from "@/integrations/trav-com-integration/models/accounts-receivable-invoice-detail"
 import Segment from "@/integrations/trav-com-integration/models/segment"
 
@@ -19,6 +18,10 @@ export type ArInvoiceNoHealthRaw = {
   InvoiceNumber: string
   ProfileNumber: string | null
   ProfileName: string | null
+  /**
+   * NOTE: This field contains mail codes, not department names.
+   * Multiple mail codes may map to the same department.
+   */
   Department: string | null
   BookingDate: string | null
   SystemDate: string | null
@@ -32,7 +35,7 @@ export type ArInvoiceNoHealthRaw = {
   timestamps: false,
   paranoid: false,
 })
-export class AccountsReceivableInvoice extends Model<
+export class AccountsReceivableInvoice extends BaseModel<
   InferAttributes<AccountsReceivableInvoice>,
   InferCreationAttributes<AccountsReceivableInvoice>
 > {
@@ -42,7 +45,7 @@ export class AccountsReceivableInvoice extends Model<
     allowNull: false,
     primaryKey: true,
   })
-  declare id: CreationOptional<number>
+  declare id: number
 
   @Attribute({
     type: DataTypes.STRING(10),
@@ -65,12 +68,17 @@ export class AccountsReceivableInvoice extends Model<
   })
   declare profileName: string | null
 
+  /**
+   * Maps to the external TravCom database column "Department".
+   * We use departmentMailcode as the property name to clarify this field contains mailcodes.
+   * Multiple mail codes may map to the same department.
+   */
   @Attribute({
     type: DataTypes.STRING(30),
     columnName: "Department",
     allowNull: true,
   })
-  declare department: string | null
+  declare departmentMailcode: string | null
 
   @Attribute({
     type: MssqlTypeExtensions.DATETIME,

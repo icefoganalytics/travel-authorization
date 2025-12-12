@@ -1,6 +1,4 @@
-require "net/http"
-require "json"
-require "uri"
+require "open3"
 
 ##
 # Supports building a branch name from a Github issue URL
@@ -9,16 +7,9 @@ require "uri"
 # If issue is from a replated repo (presumably the upstream one), the branch name will be in the format:
 #   <issue_owner>-issue-<issue_number>/<issue_title>
 class GithubApi
-  GITHUB_TOKEN = ENV["GITHUB_TOKEN"]
   GITHUB_REPO = "icefoganalytics/travel-authorization" # Format: 'owner/repo'
-  GITHUB_API_BASE = "https://api.github.com"
 
   def self.build_branch_name(github_issue_url)
-    if GITHUB_TOKEN.nil?
-      puts "Please set GITHUB_TOKEN environment variable"
-      return
-    end
-
     issue_repo = extract_issue_repo(github_issue_url)
     issue_number = extract_issue_number(github_issue_url)
     issue_title = fetch_issue_title(issue_repo, issue_number)
@@ -54,15 +45,16 @@ class GithubApi
   end
 
   def self.fetch_issue_title(repo, issue_number)
-    uri = URI("#{GITHUB_API_BASE}/repos/#{repo}/issues/#{issue_number}")
-    request = Net::HTTP::Get.new(uri)
-    request["Authorization"] = "token #{GITHUB_TOKEN}"
+    command = "gh issue view #{issue_number} --repo #{repo} --json title --jq .title"
+    puts "running: #{command}"
+    stdout, stderr, status = Open3.capture3(command)
 
-    response =
-      Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
-
-    data = JSON.parse(response.body)
-    data["title"]
+    if status.success?
+      stdout.strip
+    else
+      puts "Error fetching issue title: #{stderr}"
+      exit(1)
+    end
   end
 
   def self.format_branch_name(issue_repo, issue_number, issue_title)
