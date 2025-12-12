@@ -1,9 +1,5 @@
 import http from "@/api/http-client"
-import {
-  type FiltersOptions,
-  type QueryOptions,
-  type WhereOptions,
-} from "@/api/base-api"
+import { type FiltersOptions, type QueryOptions, type WhereOptions } from "@/api/base-api"
 
 export type TravelPurpose = {
   id: number
