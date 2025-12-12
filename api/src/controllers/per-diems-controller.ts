@@ -6,11 +6,16 @@ import { UpdateService } from "@/services/per-diems"
 
 import BaseController from "@/controllers/base-controller"
 
-export class PerDiemsController extends BaseController {
+export class PerDiemsController extends BaseController<PerDiem> {
   async index() {
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes(["claimTypeTimeOrder", "travelRegionDistanceOrder"])
+      const order = this.buildOrder([
+        ["claimTypeTimeOrder", "ASC"],
+        ["claimType", "ASC"],
+        ["travelRegionDistanceOrder", "ASC"],
+      ])
       const scopedPerDiems = PerDiemsPolicy.applyScope(scopes, this.currentUser)
 
       const totalCount = await scopedPerDiems.count({ where })
@@ -18,11 +23,7 @@ export class PerDiemsController extends BaseController {
         where,
         limit: this.pagination.limit,
         offset: this.pagination.offset,
-        order: [
-          ["claimTypeTimeOrder", "ASC"],
-          ["claimType", "ASC"],
-          ["travelRegionDistanceOrder", "ASC"],
-        ],
+        order,
       })
       return this.response.status(200).json({
         perDiems,
@@ -86,6 +87,7 @@ export class PerDiemsController extends BaseController {
       )
       return this.response.status(200).json({
         perDiem: updatedPerDiem,
+        policy,
       })
     } catch (error) {
       return this.response.status(422).json({

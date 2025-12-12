@@ -34,7 +34,7 @@ export function useLocation(locationId) {
   async function fetch() {
     state.isLoading = true
     try {
-      const { location } = await locationsApi.fetch(unref(locationId))
+      const { location } = await locationsApi.get(unref(locationId))
       state.isErrored = false
       state.location = location
       return location
