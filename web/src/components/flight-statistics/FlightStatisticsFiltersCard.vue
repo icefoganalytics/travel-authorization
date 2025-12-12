@@ -80,15 +80,15 @@
       <v-row>
         <v-col>
           <v-autocomplete
-            :value="byDepartments"
-            :items="departments"
-            label="Departments"
+            :value="byDepartmentMailcodes"
+            :items="departmentMailcodes"
+            label="Department Mailcodes"
             chips
             clearable
             deletable-chips
             multiple
             outlined
-            @input="updateDepartments"
+            @input="updateDepartmentMailcodes"
           />
         </v-col>
       </v-row>
@@ -127,7 +127,7 @@ const byCanadianDestinationProvinces = computed(
 const byInternationalDestinationProvinces = computed(
   () => props.value.byLocations?.byInternationalDestinationProvinces
 )
-const byDepartments = computed(() => props.value.byDepartments)
+const byDepartmentMailcodes = computed(() => props.value.byDepartmentMailcodes)
 
 const flightStatisticsQuery = computed(() => ({
   perPage: MAX_PER_PAGE, // TODO: push filter generation to back-end
@@ -177,7 +177,9 @@ watchEffect(() => {
 
 // NOTE: department field contains mail codes, not department names.
 // Multiple mail codes may map to the same department.
-const departments = computed<string[]>(() => uniq(map(flightStatistics.value, "department")))
+const departmentMailcodes = computed<string[]>(() =>
+  uniq(map(flightStatistics.value, "departmentMailcode"))
+)
 
 const yukonLocationCategories = computed(() =>
   uniq(
@@ -296,13 +298,13 @@ function updateInternationalDestinations(destinations: string[]) {
   emit("input", filters)
 }
 
-function updateDepartments(departments: string[]) {
+function updateDepartmentMailcodes(departmentMailcodes: string[]) {
   const filters = cloneDeep(props.value)
 
-  if (!isEmpty(departments)) {
-    filters.byDepartments = departments
+  if (!isEmpty(departmentMailcodes)) {
+    filters.byDepartmentMailcodes = departmentMailcodes
   } else {
-    filters.byDepartments = undefined
+    filters.byDepartmentMailcodes = undefined
   }
 
   emit("input", filters)

@@ -138,7 +138,7 @@ function openFlightStatisticsJobsModal() {
 const totalActiveFilters = computed(() => {
   return sumBy(
     [
-      filters.value.byDepartments,
+      filters.value.byDepartmentMailcodes,
       filters.value.byLocations?.byYukonDestinationCities,
       filters.value.byLocations?.byCanadianDestinationProvinces,
       filters.value.byLocations?.byInternationalDestinationProvinces,

@@ -48,7 +48,7 @@ async function exportToCsv() {
   // NOTE: department field contains mail codes, not department names
   const csvInfo = flightStatistics.value.map((flightStatistic) => {
     return {
-      ["Department"]: flightStatistic.department ?? "",
+      ["Department Mailcode"]: flightStatistic.departmentMailcode ?? "",
       ["Final Destination City"]: flightStatistic.destinationCity ?? "",
       ["Final Destination Province"]: flightStatistic.destinationProvince ?? "",
       ["Total Trips"]: flightStatistic.totalTrips ?? "",

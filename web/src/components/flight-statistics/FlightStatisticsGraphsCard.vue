@@ -81,11 +81,10 @@
 </template>
 
 <script lang="ts">
-// NOTE: department field contains mail codes, not department names
 enum FlightStatisticsDataGroups {
   DESTINATION_CITY = "Destination City",
   PROVINCE = "Province",
-  DEPARTMENT = "Department",
+  DEPARTMENT_MAILCODE = "Department Mailcode",
 }
 
 enum FlightStatisticsDataFilters {
@@ -142,7 +141,7 @@ const DATA_GROUP_TO_FIELD_MAP = Object.freeze(
   new Map<FlightStatisticsDataGroups, keyof FlightStatisticAsIndex>([
     [FlightStatisticsDataGroups.DESTINATION_CITY, "destinationCity"],
     [FlightStatisticsDataGroups.PROVINCE, "destinationProvince"],
-    [FlightStatisticsDataGroups.DEPARTMENT, "department"],
+    [FlightStatisticsDataGroups.DEPARTMENT_MAILCODE, "departmentMailcode"],
   ])
 )
 

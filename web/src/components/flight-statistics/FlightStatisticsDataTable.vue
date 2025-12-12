@@ -52,11 +52,10 @@ const props = withDefaults(
   }
 )
 
-// NOTE: department field contains mail codes, not department names
 const headers = [
   {
-    text: "Department",
-    value: "department",
+    text: "Department Mailcode",
+    value: "departmentMailcode",
   },
   {
     text: "Final Destination City",
@@ -109,7 +108,7 @@ const perPage = useRouteQuery<string | undefined, number | undefined>(
 
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   {
-    key: "department",
+    key: "departmentMailcode",
     order: "asc",
   },
 ])
