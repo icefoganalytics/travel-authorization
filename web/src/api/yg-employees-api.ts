@@ -1,7 +1,7 @@
 import http from "@/api/http-client"
 import {
   type FiltersOptions,
-  type ModelOrder,
+  type Policy,
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
@@ -96,7 +96,10 @@ export const ygEmployeesApi = {
     return data
   },
 
-  async fetch(ygEmployeeId: number): Promise<YgEmployeeAsShow> {
+  async get(ygEmployeeId: number): Promise<{
+    ygEmployee: YgEmployeeAsShow
+    policy: Policy
+  }> {
     const { data } = await http.get(`/api/yg-employees/${ygEmployeeId}`)
     return data
   },
