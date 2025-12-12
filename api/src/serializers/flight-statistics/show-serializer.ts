@@ -6,7 +6,7 @@ import BaseSerializer from "@/serializers/base-serializer"
 export type FlightStatisticAsShow = Pick<
   FlightStatistic,
   | "id"
-  | "department"
+  | "departmentMailcode"
   | "destinationAirportCode"
   | "destinationCity"
   | "destinationProvince"
@@ -34,7 +34,7 @@ export class ShowSerializer extends BaseSerializer<FlightStatistic> {
   perform(): FlightStatisticAsShow {
     return pick(this.record, [
       "id",
-      "department",
+      "departmentMailcode",
       "destinationAirportCode",
       "destinationCity",
       "destinationProvince",

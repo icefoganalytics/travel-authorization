@@ -64,11 +64,10 @@ export class AggregateFlightStatisticService extends BaseService {
       return null
     }
 
-    // TODO: department field contains mail codes, not department names.
-    // Multiple mail codes may map to the same department.
+    // TODO: Multiple mail codes may map to the same department.
     // Update code to map mail codes to department names.
-    const { department } = this.accountsReceivableInvoice
-    if (isNil(department) || isEmpty(department)) {
+    const { departmentMailcode } = this.accountsReceivableInvoice
+    if (isNil(departmentMailcode) || isEmpty(departmentMailcode)) {
       return null
     }
 
@@ -85,7 +84,7 @@ export class AggregateFlightStatisticService extends BaseService {
 
     let flightStatistic = await FlightStatistic.findOne({
       where: {
-        department,
+        departmentMailcode,
         destinationAirportCode: arrivalCityCode,
         destinationCity: cityName,
         destinationProvince: state,
@@ -125,7 +124,7 @@ export class AggregateFlightStatisticService extends BaseService {
     }
 
     flightStatistic = FlightStatistic.build({
-      department,
+      departmentMailcode,
       destinationAirportCode: arrivalCityCode,
       destinationCity: cityName,
       destinationProvince: state,

@@ -14,7 +14,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
       test("when invoice has appropriate data, creates a new flight statistic", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department: "TEST-DEPT",
+          departmentMailcode: "C-19",
         })
 
         const accountsReceivableInvoiceDetails1 =
@@ -77,7 +77,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
 
         // Assert
         expect(flightStatistic).toMatchObject({
-          department: "TEST-DEPT",
+          departmentMailcode: "C-19",
           destinationAirportCode: "YVR",
           destinationCity: "VANCOUVER INTL",
           destinationProvince: "BC",
@@ -95,13 +95,13 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
 
       test("when invoice has existing flight statistic, updates the totals", async () => {
         // Arrange
-        const department = "EXISTING-DEPT"
+        const departmentMailcode = "W-17"
         const destinationAirportCode = "YVR"
         const destinationCity = "VANCOUVER INTL"
         const destinationProvince = "BC"
 
         await flightStatisticFactory.create({
-          department,
+          departmentMailcode,
           destinationAirportCode,
           destinationCity,
           destinationProvince,
@@ -117,7 +117,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
         })
 
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department,
+          departmentMailcode,
         })
 
         const accountsReceivableInvoiceDetails1 =
@@ -172,7 +172,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
         // Assert
         expect(result).toBeDefined()
         expect(result).toMatchObject({
-          department,
+          departmentMailcode,
           destinationAirportCode,
           destinationCity,
           destinationProvince,
@@ -188,7 +188,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
       test("when invoice is a round trip, calculates round trip statistics", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department: "RT-DEPT",
+          departmentMailcode: "K-6",
         })
 
         const accountsReceivableInvoiceDetails1 =
@@ -252,7 +252,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
         // Assert
         expect(result).toBeDefined()
         expect(result).toMatchObject({
-          department: "RT-DEPT",
+          departmentMailcode: "K-6",
           totalRoundTrips: 1,
           totalRoundTripCost: 200,
           averageRoundTripFlightCost: 200,
@@ -262,7 +262,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
       test("when invoice has no segments, returns null", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department: "TEST-DEPT",
+          departmentMailcode: "J-11",
         })
 
         await accountsReceivableInvoice.reload({
@@ -283,10 +283,10 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
         expect(result).toBeNull()
       })
 
-      test("when invoice has missing department, returns null", async () => {
+      test("when invoice has missing department mailcode, returns null", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department: null,
+          departmentMailcode: null,
         })
 
         const accountsReceivableInvoiceDetails1 =
@@ -345,7 +345,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
       test("when invoice has missing city codes, returns null", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department: "TEST-DEPT",
+          departmentMailcode: "CM-4",
         })
 
         const accountsReceivableInvoiceDetails1 =
@@ -399,7 +399,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
       test("when details association is not preloaded, errors informatively", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department: "TEST-DEPT",
+          departmentMailcode: "A-9",
         })
 
         // Assert
@@ -412,7 +412,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
       test("when segments association is not preloaded, errors informatively", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department: "TEST-DEPT",
+          departmentMailcode: "V-5",
         })
 
         await accountsReceivableInvoice.reload({
@@ -433,7 +433,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
       test("when arrivalCity association is not preloaded, errors informatively", async () => {
         // Arrange
         const accountsReceivableInvoice = await accountsReceivableInvoiceFactory.create({
-          department: "TEST-DEPT",
+          departmentMailcode: "H-10",
         })
 
         const accountsReceivableInvoiceDetails1 =

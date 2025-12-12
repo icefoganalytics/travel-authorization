@@ -46,7 +46,6 @@ const { flightReconciliations, isLoading } = useFlightReconciliations(flightReco
 // TODO: switch to back-end rendering at a dedicated endpoint via
 // fast-csv, see https://github.com/icefoganalytics/internal-data-portal/blob/0eb01fff60c6b5d72b060f89e92cf15336225531/api/src/controllers/download/datasets-controller.ts#L28
 async function exportToCsv() {
-  // NOTE: invoiceDepartment field contains mail codes, not department names
   const csvInfo = flightReconciliations.value.map((flightReconciliation) => {
     const {
       invoiceBookingDate,
@@ -55,7 +54,7 @@ async function exportToCsv() {
       invoiceDetailVendorName,
       segmentsComputedFlightInfo,
       segmentsComputedFinalDestination,
-      invoiceDepartment,
+      invoiceDepartmentMailcode,
       invoiceDetailComputedTravelerFirstName,
       invoiceDetailComputedTravelerLastName,
       reconciled,
@@ -77,7 +76,7 @@ async function exportToCsv() {
       ["Airline"]: airline,
       ["Flight Info"]: flightInfo,
       ["Final Destination"]: segmentsComputedFinalDestination,
-      ["Department"]: invoiceDepartment,
+      ["Department Mailcode"]: invoiceDepartmentMailcode,
       ["Traveler First Name"]: invoiceDetailComputedTravelerFirstName,
       ["Traveler Last Name"]: invoiceDetailComputedTravelerLastName,
       ["Reconciled"]: formattedReconciled,

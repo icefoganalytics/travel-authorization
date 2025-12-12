@@ -10,8 +10,8 @@ import {
 /** Keep in sync with api/src/models/flight-statistic.ts */
 export type FlightStatistic = {
   id: number
-  /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
-  department: string
+  /** NOTE: Multiple mail codes may map to the same department. */
+  departmentMailcode: string
   destinationAirportCode: string
   destinationCity: string
   destinationProvince: string
@@ -32,7 +32,7 @@ export type FlightStatistic = {
 export type FlightStatisticAsIndex = Pick<
   FlightStatistic,
   | "id"
-  | "department"
+  | "departmentMailcode"
   | "destinationCity"
   | "destinationProvince"
   | "totalTrips"
@@ -50,7 +50,7 @@ export type FlightStatisticAsIndex = Pick<
 export type FlightStatisticAsShow = Pick<
   FlightStatistic,
   | "id"
-  | "department"
+  | "departmentMailcode"
   | "destinationAirportCode"
   | "destinationCity"
   | "destinationProvince"
@@ -69,12 +69,12 @@ export type FlightStatisticAsShow = Pick<
 
 export type FlightStatisticWhereOptions = WhereOptions<
   FlightStatistic,
-  "id" | "department" | "destinationAirportCode" | "destinationCity" | "destinationProvince"
+  "id" | "departmentMailcode" | "destinationAirportCode" | "destinationCity" | "destinationProvince"
 >
 
 /** add as needed, must match model scopes */
 export type FlightStatisticFiltersOptions = FiltersOptions<{
-  byDepartments?: string[]
+  byDepartmentMailcodes?: string[]
   byYukonDestinationCities?: string[]
   byCanadianDestinationProvinces?: string[]
   byInternationalDestinationProvinces?: string[]

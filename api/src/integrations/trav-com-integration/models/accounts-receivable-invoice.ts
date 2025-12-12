@@ -18,7 +18,10 @@ export type ArInvoiceNoHealthRaw = {
   InvoiceNumber: string
   ProfileNumber: string | null
   ProfileName: string | null
-  /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
+  /**
+   * NOTE: This field contains mail codes, not department names.
+   * Multiple mail codes may map to the same department.
+   */
   Department: string | null
   BookingDate: string | null
   SystemDate: string | null
@@ -65,13 +68,17 @@ export class AccountsReceivableInvoice extends BaseModel<
   })
   declare profileName: string | null
 
-  /** NOTE: This field contains mail codes, not department names. Multiple mail codes may map to the same department. */
+  /**
+   * Maps to the external TravCom database column "Department".
+   * We use departmentMailcode as the property name to clarify this field contains mailcodes.
+   * Multiple mail codes may map to the same department.
+   */
   @Attribute({
     type: DataTypes.STRING(30),
     columnName: "Department",
     allowNull: true,
   })
-  declare department: string | null
+  declare departmentMailcode: string | null
 
   @Attribute({
     type: MssqlTypeExtensions.DATETIME,

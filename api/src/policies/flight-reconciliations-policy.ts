@@ -53,7 +53,7 @@ export class FlightReconciliationsPolicy extends PolicyFactory(FlightReconciliat
       // This requires access to the TravCom database, and updating the seed files in this app.
       return {
         where: {
-          invoiceDepartment: mailcode,
+          invoiceDepartmentMailcode: mailcode,
         },
       }
     }
@@ -65,7 +65,7 @@ export class FlightReconciliationsPolicy extends PolicyFactory(FlightReconciliat
     // TODO: Update TravCom database `ARInvoicesNoHealth` table so that `Department` has a deparment value
     // and not a mailcode value.
     // This requires access to the TravCom database, and updating the seed files in this app.
-    return this.user.isFinanceUser && this.record.invoiceDepartment === this.user.mailcode
+    return this.user.isFinanceUser && this.record.invoiceDepartmentMailcode === this.user.mailcode
   }
 }
 

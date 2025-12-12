@@ -69,7 +69,7 @@ entity "flight_reconciliations" {
   * reconciled : bool : default false
   --
   invoice_booking_date timestamptz
-  invoice_department varchar(255)
+  invoice_department_mailcode varchar(255)
   invoice_detail_computed_agent_name varchar(255)
   segments_computed_flight_info text
   segments_computed_final_destination varchar(255)
@@ -85,7 +85,7 @@ entity "flight_reconciliations" {
 entity "flight_statistics" {
   * id : serial4 <<PK>>
   --
-  * department : varchar(255)
+  * department_mailcode : varchar(255)
   * destination_airport_code : varchar(255)
   * destination_city : varchar(255)
   * destination_province : varchar(255)
@@ -103,7 +103,7 @@ entity "flight_statistics" {
   * updated_at : timestamptz
   deleted_at : timestamptz
   --
-  Aggregated flight statistics by department and destination, derived from TravCom database.
+  Aggregated flight statistics by department mailcode and destination, derived from TravCom database.
 }
 
 entity "flight_statistic_jobs" {
@@ -663,6 +663,6 @@ users::id }o--|| travel_authorizations::user_id
 users::id }o--|| travel_desk_flight_options::traveler_id
 
 flight_reconciliations::external_trav_com_identifier ||..o{ external.ARInvoicesNoHealth::InvoiceNumber
-flight_statistics .. external.ARInvoicesNoHealth : aggregated by department and destination
+flight_statistics .. external.ARInvoicesNoHealth : aggregated by department mailcode and destination
 flight_statistic_jobs .. flight_statistics : tracks sync/aggregation progress
 @enduml
