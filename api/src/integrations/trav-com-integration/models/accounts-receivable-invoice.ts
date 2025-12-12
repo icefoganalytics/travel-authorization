@@ -18,7 +18,10 @@ export type ArInvoiceNoHealthRaw = {
   InvoiceNumber: string
   ProfileNumber: string | null
   ProfileName: string | null
-  /** Multiple mail codes may map to the same department. */
+  /**
+   * NOTE: This field contains mail codes, not department names.
+   * Multiple mail codes may map to the same department.
+   */
   Department: string | null
   BookingDate: string | null
   SystemDate: string | null

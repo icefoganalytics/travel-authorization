@@ -6,7 +6,7 @@ import BaseSerializer from "@/serializers/base-serializer"
 export type FlightStatisticAsIndex = Pick<
   FlightStatistic,
   | "id"
-  | "department"
+  | "departmentMailcode"
   | "destinationCity"
   | "destinationProvince"
   | "totalTrips"
@@ -31,7 +31,7 @@ export class IndexSerializer extends BaseSerializer<FlightStatistic> {
   perform(): FlightStatisticAsIndex {
     return pick(this.record, [
       "id",
-      "department",
+      "departmentMailcode",
       "destinationCity",
       "destinationProvince",
       "totalTrips",

@@ -13,7 +13,7 @@ export class FlightStatisticsController extends BaseController<FlightStatistic> 
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
       const order = this.buildOrder([
-        ["department", "ASC"],
+        ["departmentMailcode", "ASC"],
         ["destinationCity", "ASC"],
       ])
       const scopedFlightStatistics = FlightStatisticsPolicy.applyScope(scopes, this.currentUser)

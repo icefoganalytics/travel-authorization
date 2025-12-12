@@ -110,10 +110,10 @@ export class FlightStatistic extends BaseModel<
   declare deletedAt: Date | null
 
   static establishScopes(): void {
-    this.addScope("byDepartments", (departments: string[]) => {
+    this.addScope("byDepartmentMailcodes", (departmentMailcodes: string[]) => {
       return {
         where: {
-          departmentMailcode: departments,
+          departmentMailcode: departmentMailcodes,
         },
       }
     })
