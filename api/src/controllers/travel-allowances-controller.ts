@@ -6,11 +6,12 @@ import { UpdateService } from "@/services/travel-allowances"
 
 import BaseController from "@/controllers/base-controller"
 
-export class TravelAllowancesController extends BaseController {
+export class TravelAllowancesController extends BaseController<TravelAllowance> {
   async index() {
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
+      const order = this.buildOrder()
       const scopedTravelAllowances = TravelAllowancesPolicy.applyScope(scopes, this.currentUser)
 
       const totalCount = await scopedTravelAllowances.count({ where })
@@ -18,6 +19,7 @@ export class TravelAllowancesController extends BaseController {
         where,
         limit: this.pagination.limit,
         offset: this.pagination.offset,
+        order,
       })
       return this.response.status(200).json({
         travelAllowances,
@@ -81,6 +83,7 @@ export class TravelAllowancesController extends BaseController {
       )
       return this.response.status(200).json({
         travelAllowance: updatedTravelAllowance,
+        policy,
       })
     } catch (error) {
       return this.response.status(422).json({
