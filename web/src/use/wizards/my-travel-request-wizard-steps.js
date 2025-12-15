@@ -166,13 +166,22 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       },
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_EXPENSE_CLAIM_APPROVAL_AND_PROCESSING,
-      title: "Awaiting Expense Claim Approval and Processing",
+      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_EXPENSE_CLAIM_APPROVAL,
+      title: "Awaiting Supervisor Approval",
       subtitle: "Expense claim is submitted to supervisor and waiting for approval",
       component: () =>
-        import(
-          "@/components/my-travel-request-wizard/AwaitingExpenseClaimApprovalAndProcessing.vue"
-        ),
+        import("@/components/my-travel-request-wizard/AwaitingExpenseClaimApproval.vue"),
+      backButtonProps: {
+        disabled: true,
+      },
+      continueButtonText: "Check status?",
+    },
+    {
+      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
+      title: "Awaiting Finance Review and Processing",
+      subtitle: "Supervisor approved, waiting for finance to review and process",
+      component: () =>
+        import("@/components/my-travel-request-wizard/AwaitingFinanceReviewAndProcessing.vue"),
       backButtonProps: {
         disabled: true,
       },

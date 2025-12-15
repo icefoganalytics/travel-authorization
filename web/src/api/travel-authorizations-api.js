@@ -6,6 +6,7 @@ import http from "@/api/http-client"
 export const STATUSES = Object.freeze({
   APPROVED: "approved",
   AWAITING_DIRECTOR_APPROVAL: "awaiting_director_approval",
+  AWAITING_FINANCE_REVIEW_AND_PROCESSING: "awaiting_finance_review_and_processing",
   BOOKED: "booked",
   CHANGE_REQUESTED: "change_requested",
   DENIED: "denied",
@@ -37,7 +38,8 @@ export const TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES = Object.freeze({
   AWAITING_TRAVEL_START: "awaiting-travel-start",
   CONFIRM_ACTUAL_TRAVEL_DETAILS: "confirm-actual-travel-details",
   SUBMIT_EXPENSES: "submit-expenses",
-  AWAITING_EXPENSE_CLAIM_APPROVAL_AND_PROCESSING: "awaiting-expense-claim-approval-and-processing",
+  AWAITING_EXPENSE_CLAIM_APPROVAL: "awaiting-expense-claim-approval",
+  AWAITING_FINANCE_REVIEW_AND_PROCESSING: "awaiting-finance-review-and-processing",
   REVIEW_EXPENSES: "review-expenses",
 })
 
@@ -261,6 +263,18 @@ export const travelAuthorizationsApi = {
     const { data } = await http.post(
       `/api/travel-authorizations/${travelAuthorizationId}/expense-claim`,
       attributes
+    )
+    return data
+  },
+  /**
+   * @param {number} travelAuthorizationId
+   * @returns {Promise<{
+   *   travelAuthorization: TravelAuthorization;
+   * }>}
+   */
+  async financeReviewAndProcessing(travelAuthorizationId) {
+    const { data } = await http.post(
+      `/api/travel-authorizations/${travelAuthorizationId}/finance-review-and-processing`
     )
     return data
   },

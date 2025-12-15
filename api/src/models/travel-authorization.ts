@@ -51,6 +51,7 @@ export enum TravelAuthorizationStatuses {
   EXPENSE_CLAIM_SUBMITTED = "expense_claim_submitted",
   EXPENSE_CLAIM_APPROVED = "expense_claim_approved",
   EXPENSE_CLAIM_DENIED = "expense_claim_denied",
+  AWAITING_FINANCE_REVIEW_AND_PROCESSING = "awaiting_finance_review_and_processing",
   EXPENSED = "expensed",
   AWAITING_DIRECTOR_APPROVAL = "awaiting_director_approval",
   DELETED = "deleted",
@@ -76,7 +77,8 @@ export enum TravelAuthorizationWizardStepNames {
   AWAITING_TRAVEL_START = "awaiting-travel-start",
   CONFIRM_ACTUAL_TRAVEL_DETAILS = "confirm-actual-travel-details",
   SUBMIT_EXPENSES = "submit-expenses",
-  AWAITING_EXPENSE_CLAIM_APPROVAL_AND_PROCESSING = "awaiting-expense-claim-approval-and-processing",
+  AWAITING_EXPENSE_CLAIM_APPROVAL = "awaiting-expense-claim-approval",
+  AWAITING_FINANCE_REVIEW_AND_PROCESSING = "awaiting-finance-review-and-processing",
   REVIEW_EXPENSES = "review-expenses",
 }
 
