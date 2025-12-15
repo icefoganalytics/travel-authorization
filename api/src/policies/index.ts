@@ -25,6 +25,7 @@ export { UsersPolicy } from "./users-policy"
 export { YgEmployeeGroupsPolicy } from "./yg-employee-groups-policy"
 export { YgEmployeesPolicy } from "./yg-employees-policy"
 
-// Namespaced policies
+// Bundled exports
+export * as Expenses from "./expenses"
 export * as TravelAuthorizations from "./travel-authorizations"
 export * as TravelDeskTravelRequests from "./travel-desk-travel-requests"

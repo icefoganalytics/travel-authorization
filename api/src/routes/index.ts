@@ -123,6 +123,8 @@ router
   .route("/api/expenses/:expenseId/receipt")
   .post(Expenses.ReceiptController.create)
   .delete(Expenses.ReceiptController.destroy)
+router.route("/api/expenses/:expenseId/approve").post(Expenses.ApproveController.create)
+router.route("/api/expenses/:expenseId/reject").post(Expenses.RejectController.create)
 
 router.route("/api/flight-reconciliations").get(FlightReconciliationsController.index)
 router.route("/api/flight-reconciliations/sync").post(FlightReconciliations.SyncController.create)
