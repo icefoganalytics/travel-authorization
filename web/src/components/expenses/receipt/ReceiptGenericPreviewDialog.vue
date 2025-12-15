@@ -59,6 +59,7 @@
         >
         <v-spacer />
         <v-btn
+          v-if="policy?.destroy"
           :loading="isLoading"
           color="error"
           @click="deleteReceipt"
@@ -93,7 +94,7 @@ const showDialog = ref(false)
 const expenseId = useRouteQuery("previewReceiptGeneric", undefined, {
   transform: integerTransformer,
 })
-const { expense, isLoading } = useExpense(expenseId)
+const { expense, isLoading, policy } = useExpense(expenseId)
 
 const receipt = computed(() => expense.value?.receipt ?? null)
 
@@ -179,5 +180,6 @@ function hideIfFalse(value: boolean | null) {
 
 defineExpose({
   show,
+  hide,
 })
 </script>

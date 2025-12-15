@@ -5,7 +5,7 @@
     </div>
     <v-row>
       <v-col>
-        TODO: build expense processing page
+        <ExpensesFinanceProcessingCard class="default" />
       </v-col>
     </v-row>
   </div>
@@ -14,6 +14,7 @@
 <script setup>
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
+import ExpensesFinanceProcessingCard from "@/components/expenses/ExpensesFinanceProcessingCard.vue"
 useBreadcrumbs([
   {
     text: "Expense Processing",
