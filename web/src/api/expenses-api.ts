@@ -44,6 +44,11 @@ export type Expense = {
   currency: string
   type: Types
   expenseType: ExpenseTypes
+  approverId: number | null
+  approvedAt: string | null
+  rejectorId: number | null
+  rejectedAt: string | null
+  rejectionNote: string | null
   createdAt: string
   updatedAt: string
 }

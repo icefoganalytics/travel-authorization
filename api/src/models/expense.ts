@@ -18,8 +18,9 @@ import {
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
-import TravelAuthorization from "@/models/travel-authorization"
 import Attachment, { AttachmentTargetTypes } from "@/models/attachment"
+import TravelAuthorization from "@/models/travel-authorization"
+import User from "@/models/user"
 
 // Keep in sync with web/src/modules/travel-authorizations/components/ExpenseTypeSelect.vue
 export enum ExpenseTypes {
@@ -35,7 +36,7 @@ export enum ExpenseCurrencyTypes {
 }
 
 // TODO: replace this with a boolean of isEstimate or
-// move estimates to there own table.
+// move estimates to their own table.
 // It's also possible that this is a single table inheritance model,
 // and there should be two models, one for each "type".
 export enum Types {
@@ -114,7 +115,40 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
 
+  @Attribute(DataTypes.INTEGER)
+  declare approverId: number | null
+
+  @Attribute(DataTypes.DATE)
+  declare approvedAt: Date | null
+
+  @Attribute(DataTypes.INTEGER)
+  declare rejectorId: number | null
+
+  @Attribute(DataTypes.DATE)
+  declare rejectedAt: Date | null
+
+  @Attribute(DataTypes.TEXT)
+  declare rejectionNote: string | null
+
   // Associations
+  @BelongsTo(() => User, {
+    foreignKey: "approverId",
+    inverse: {
+      as: "approvedExpenses",
+      type: "hasMany",
+    },
+  })
+  declare approver?: NonAttribute<User>
+
+  @BelongsTo(() => User, {
+    foreignKey: "rejectorId",
+    inverse: {
+      as: "rejectedExpenses",
+      type: "hasMany",
+    },
+  })
+  declare rejector?: NonAttribute<User>
+
   @BelongsTo(() => TravelAuthorization, {
     foreignKey: "travelAuthorizationId",
     inverse: {
