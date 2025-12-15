@@ -12,11 +12,13 @@ import {
   BelongsTo,
   Default,
   HasOne,
+  ModelValidator,
   NotNull,
   PrimaryKey,
   Table,
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
+import { isNil } from "lodash"
 
 import Attachment, { AttachmentTargetTypes } from "@/models/attachment"
 import TravelAuthorization from "@/models/travel-authorization"
@@ -129,6 +131,36 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
 
   @Attribute(DataTypes.TEXT)
   declare rejectionNote: string | null
+
+  // Validators
+  @ModelValidator
+  ensureApproveRejectExclusivity() {
+    if (!isNil(this.approvedAt) && !isNil(this.rejectedAt)) {
+      throw new Error("An expense cannot be both approved and rejected.")
+    }
+  }
+
+  @ModelValidator
+  ensureApprovalFieldsSetTogether() {
+    const approvalFields = [this.approverId, this.approvedAt]
+    const allApprovalFieldsSet = approvalFields.every((field) => !isNil(field))
+    const allApprovalFieldsNull = approvalFields.every((field) => isNil(field))
+    if (!allApprovalFieldsSet && !allApprovalFieldsNull) {
+      throw new Error("Approval fields (approverId, approvedAt) must all be set or all be null.")
+    }
+  }
+
+  @ModelValidator
+  ensureRejectionFieldsSetTogether() {
+    const rejectionFields = [this.rejectorId, this.rejectedAt, this.rejectionNote]
+    const allRejectionFieldsSet = rejectionFields.every((field) => !isNil(field))
+    const allRejectionFieldsNull = rejectionFields.every((field) => isNil(field))
+    if (!allRejectionFieldsSet && !allRejectionFieldsNull) {
+      throw new Error(
+        "Rejection fields (rejectorId, rejectedAt, rejectionNote) must all be set or all be null."
+      )
+    }
+  }
 
   // Associations
   @BelongsTo(() => User, {
