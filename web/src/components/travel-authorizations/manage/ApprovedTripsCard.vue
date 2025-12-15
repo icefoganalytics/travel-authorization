@@ -40,8 +40,8 @@ import { ref } from "vue"
 
 import { STATUSES } from "@/api/travel-authorizations-api"
 
+import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import TravelAuthorizationsSupervisorDataTable from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTable.vue"
-import RefreshTableButton from "@/components/travel-authorizations/RefreshTableButton.vue"
 
 const whereClause = {
   status: STATUSES.APPROVED,
