@@ -40,8 +40,29 @@ export class ExpensesPolicy extends PolicyFactory(Expense) {
   }
 
   static policyScope(user: User): FindOptions<Attributes<Expense>> {
-    if (user.roles.includes(User.Roles.ADMIN)) {
-      return ALL_RECORDS_SCOPE
+    if (user.isAdmin || user.isFinanceUser) return ALL_RECORDS_SCOPE
+
+    if (user.isDepartmentAdmin) {
+      return {
+        include: [
+          {
+            association: "travelAuthorization",
+            where: {
+              [Op.or]: [
+                {
+                  department: user.department,
+                },
+                {
+                  supervisorEmail: user.email,
+                },
+                {
+                  userId: user.id,
+                },
+              ],
+            },
+          },
+        ],
+      }
     }
 
     return {
