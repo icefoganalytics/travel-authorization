@@ -124,6 +124,11 @@ const routes: RouteConfig[] = [
             ],
           },
           {
+            name: "ExpenseProcessingPage",
+            path: "expense-processing",
+            component: () => import("@/pages/ExpenseProcessingPage.vue"),
+          },
+          {
             name: "ManageTravelRequests",
             path: "manage-travel-requests",
             component: () => import("@/pages/ManageTravelRequestsPage.vue"),

@@ -53,13 +53,33 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorization>> {
     if (user.isAdmin) return ALL_RECORDS_SCOPE
 
+    if (user.isDepartmentAdmin) {
+      return {
+        where: {
+          [Op.or]: [
+            {
+              department: user.department,
+            },
+            {
+              supervisorEmail: user.email,
+            },
+            {
+              userId: user.id,
+            },
+          ],
+        },
+      }
+    }
+
     return {
       where: {
         [Op.or]: [
           {
             supervisorEmail: user.email,
           },
-          { userId: user.id },
+          {
+            userId: user.id,
+          },
         ],
       },
     }

@@ -1,130 +1,46 @@
 <template>
-  <v-navigation-drawer
-    :value="showDrawer"
+  <component
+    :is="RoleSpecificNavigationDrawerComponent"
+    :value="value"
     v-bind="$attrs"
     v-on="$listeners"
-    @input="emit('update', $event)"
-  >
-    <v-list>
-      <v-list-item to="/dashboard">
-        <v-list-item-icon>
-          <v-icon>mdi-view-dashboard</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Dashboard</v-list-item-title>
-      </v-list-item>
-
-      <v-list-item
-        :to="{
-          name: 'my-travel-requests/MyTravelRequestsPage',
-        }"
-      >
-        <v-list-item-icon>
-          <v-icon>mdi-airplane</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>My Travel Requests</v-list-item-title>
-      </v-list-item>
-
-      <v-list-item
-        :to="{
-          name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
-        }"
-      >
-        <v-list-item-icon>
-          <v-icon>mdi-check-circle</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Travel Pre-Approvals</v-list-item-title>
-      </v-list-item>
-
-      <v-list-item to="/travel-desk">
-        <v-list-item-icon>
-          <v-icon>mdi-desk-lamp</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Travel Desk</v-list-item-title>
-      </v-list-item>
-
-      <v-list-item
-        :to="{
-          name: 'TravelRequests',
-        }"
-      >
-        <v-list-item-icon>
-          <v-icon>mdi-file-document-edit</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Travel Requests</v-list-item-title>
-      </v-list-item>
-
-      <v-list-item
-        :to="{
-          name: 'flight-expenses/AllFlightExpensesPage',
-        }"
-      >
-        <v-list-item-icon>
-          <v-icon>mdi-cash</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Flight Expenses</v-list-item-title>
-      </v-list-item>
-
-      <v-list-item
-        :to="{
-          name: 'reports/ReportsTablePage',
-        }"
-      >
-        <v-list-item-icon>
-          <v-icon>mdi-chart-bar</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Reports</v-list-item-title>
-      </v-list-item>
-
-      <v-list-item
-        :to="{
-          name: 'ManageTravelRequests',
-        }"
-      >
-        <v-list-item-icon>
-          <v-icon>mdi-account-tie</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Manage Travel Requests</v-list-item-title>
-      </v-list-item>
-
-      <v-list-item
-        v-if="isInDevelopmentOrUserAcceptanceTesting"
-        :to="{ name: 'Qa-Scenarios' }"
-      >
-        <v-list-item-icon>
-          <v-icon>mdi-tools</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>QA Scenarios</v-list-item-title>
-      </v-list-item>
-    </v-list>
-  </v-navigation-drawer>
+    @update="emit('update', $event)"
+  />
 </template>
 
-<script>
-export default {
-  model: {
-    prop: "showDrawer",
-    event: "update",
-  },
-}
-</script>
-
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 
-import { ENVIRONMENT } from "@/config"
+import useCurrentUser from "@/use/use-current-user"
 
-defineProps({
-  showDrawer: {
-    type: Boolean,
-    default: false,
-  },
-})
+import AdminLeftSideNavigationDrawer from "@/components/default-layout/left-side-navigation-drawers/AdminLeftSideNavigationDrawer.vue"
+import FinanceUserLeftSideNavigationDrawer from "@/components/default-layout/left-side-navigation-drawers/FinanceUserLeftSideNavigationDrawer.vue"
+import PreApprovedTravelAdminLeftSideNavigationDrawer from "@/components/default-layout/left-side-navigation-drawers/PreApprovedTravelAdminLeftSideNavigationDrawer.vue"
+import TravelDeskUserLeftSideNavigationDrawer from "@/components/default-layout/left-side-navigation-drawers/TravelDeskUserLeftSideNavigationDrawer.vue"
+import UserLeftSideNavigationDrawer from "@/components/default-layout/left-side-navigation-drawers/UserLeftSideNavigationDrawer.vue"
 
-const emit = defineEmits(["update"])
+defineProps<{
+  value: boolean
+}>()
 
-const isInDevelopmentOrUserAcceptanceTesting = computed(() => {
-  return (
-    ENVIRONMENT === "development" || window.location.hostname === "travel-auth-dev.ynet.gov.yk.ca"
-  )
+const emit = defineEmits<{
+  (event: "update", value: boolean): void
+}>()
+
+const { isAdmin, isDepartmentAdmin, isFinanceUser, isPreApprovedTravelAdmin, isTravelDeskUser } =
+  useCurrentUser()
+
+const RoleSpecificNavigationDrawerComponent = computed(() => {
+  if (isAdmin.value || isDepartmentAdmin.value) {
+    return AdminLeftSideNavigationDrawer
+  } else if (isFinanceUser.value) {
+    return FinanceUserLeftSideNavigationDrawer
+  } else if (isPreApprovedTravelAdmin.value) {
+    return PreApprovedTravelAdminLeftSideNavigationDrawer
+  } else if (isTravelDeskUser.value) {
+    return TravelDeskUserLeftSideNavigationDrawer
+  } else {
+    return UserLeftSideNavigationDrawer
+  }
 })
 </script>

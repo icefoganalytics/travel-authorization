@@ -42,8 +42,15 @@ export function useCurrentUser<IsLoaded extends boolean = false>() {
     return [firstName, lastName].filter(Boolean).join(" ")
   })
   const isAdmin = computed(() => state.currentUser?.roles?.includes(UserRoles.ADMIN))
+  const isDepartmentAdmin = computed(() =>
+    state.currentUser?.roles?.includes(UserRoles.DEPARTMENT_ADMIN)
+  )
+  const isFinanceUser = computed(() => state.currentUser?.roles?.includes(UserRoles.FINANCE_USER))
   const isPreApprovedTravelAdmin = computed(() =>
     state.currentUser?.roles?.includes(UserRoles.PRE_APPROVED_TRAVEL_ADMIN)
+  )
+  const isTravelDeskUser = computed(() =>
+    state.currentUser?.roles?.includes(UserRoles.TRAVEL_DESK_USER)
   )
 
   async function fetch(): Promise<UserDetailedView> {
@@ -79,7 +86,10 @@ export function useCurrentUser<IsLoaded extends boolean = false>() {
     // helpers
     fullName,
     isAdmin,
+    isDepartmentAdmin,
+    isFinanceUser,
     isPreApprovedTravelAdmin,
+    isTravelDeskUser,
   }
 }
 

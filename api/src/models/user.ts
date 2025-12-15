@@ -152,6 +152,10 @@ export class User extends BaseModel<InferAttributes<User>, InferCreationAttribut
     return this.roles.includes(UserRoles.ADMIN)
   }
 
+  get isDepartmentAdmin(): NonAttribute<boolean> {
+    return this.roles.includes(UserRoles.DEPARTMENT_ADMIN)
+  }
+
   get isFinanceUser(): NonAttribute<boolean> {
     return this.roles.includes(UserRoles.FINANCE_USER)
   }
