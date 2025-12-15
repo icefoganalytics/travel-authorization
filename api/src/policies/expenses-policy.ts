@@ -8,7 +8,7 @@ import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 
 export class ExpensesPolicy extends PolicyFactory(Expense) {
   show(): boolean {
-    if (this.travelAuthorizationPolicy.show()) return true
+    if (this.user.isFinanceUser || this.travelAuthorizationPolicy.show()) return true
 
     return false
   }
