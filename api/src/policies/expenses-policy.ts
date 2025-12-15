@@ -1,14 +1,14 @@
 import { FindOptions, Attributes, Op } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
-import { Expense, User } from "@/models"
+import { Expense, TravelAuthorization, User } from "@/models"
 import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 import PolicyFactory from "@/policies/policy-factory"
 import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 
 export class ExpensesPolicy extends PolicyFactory(Expense) {
   show(): boolean {
-    if (this.user.isFinanceUser || this.travelAuthorizationPolicy.show()) return true
+    if (this.travelAuthorizationPolicy.show()) return true
 
     return false
   }
@@ -40,9 +40,9 @@ export class ExpensesPolicy extends PolicyFactory(Expense) {
   }
 
   static policyScope(user: User): FindOptions<Attributes<Expense>> {
-    if (user.isAdmin || user.isFinanceUser) return ALL_RECORDS_SCOPE
+    if (user.isAdmin) return ALL_RECORDS_SCOPE
 
-    if (user.isDepartmentAdmin) {
+    if (user.isFinanceUser) {
       return {
         include: [
           {
@@ -84,13 +84,17 @@ export class ExpensesPolicy extends PolicyFactory(Expense) {
     }
   }
 
-  private get travelAuthorizationPolicy(): TravelAuthorizationsPolicy {
+  private get travelAuthorization(): TravelAuthorization {
     const { travelAuthorization } = this.record
     if (isUndefined(travelAuthorization)) {
       throw new Error("Expected record to have pre-loaded travel authorization association")
     }
 
-    return new TravelAuthorizationsPolicy(this.user, travelAuthorization)
+    return travelAuthorization
+  }
+
+  private get travelAuthorizationPolicy(): TravelAuthorizationsPolicy {
+    return new TravelAuthorizationsPolicy(this.user, this.travelAuthorization)
   }
 }
 
