@@ -10,6 +10,10 @@
     v-on="$listeners"
   >
     <template #top>
+      <ExpenseRejectDialog
+        ref="expenseRejectDialogRef"
+        @rejected="emitRejected"
+      />
       <ReceiptAttributesPreviewDialog ref="receiptAttributesPreviewDialogRef" />
     </template>
 
@@ -80,7 +84,7 @@
           small
           color="error"
           :loading="isProcessingExpense(item.id)"
-          @click.stop="rejectExpense(item.id)"
+          @click.stop="openExpenseRejectDialog(item.id)"
         >
           <v-icon
             small
@@ -99,13 +103,16 @@
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 
+import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { formatDate, formatCurrency } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+
 import api from "@/api"
 import { type AttachmentAsReference } from "@/api/attachments-api"
 import useExpenses, { Types } from "@/use/use-expenses"
 import useSnack from "@/use/use-snack"
 
+import ExpenseRejectDialog from "@/components/expenses/ExpenseRejectDialog.vue"
 import ReceiptAttributesPreviewDialog from "@/components/expenses/receipt/ReceiptAttributesPreviewDialog.vue"
 
 const props = withDefaults(
@@ -188,6 +195,7 @@ const expensesQuery = computed(() => {
 
 const { expenses, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
 
+const expenseRejectDialogRef = ref<InstanceType<typeof ExpenseRejectDialog> | null>(null)
 const receiptAttributesPreviewDialogRef = ref<InstanceType<
   typeof ReceiptAttributesPreviewDialog
 > | null>(null)
@@ -200,6 +208,8 @@ const isProcessingExpenseMap = ref(new Map<number, boolean>())
 const snack = useSnack()
 
 async function approveExpense(expenseId: number): Promise<void> {
+  if (!blockedToTrueConfirm("Are you sure you want to approve this expense?")) return
+
   isProcessingExpenseMap.value.set(expenseId, true)
   try {
     await api.expenses.approveApi.create(expenseId)
@@ -210,17 +220,12 @@ async function approveExpense(expenseId: number): Promise<void> {
   }
 }
 
-async function rejectExpense(expenseId: number): Promise<void> {
-  isProcessingExpenseMap.value.set(expenseId, true)
-  try {
-    await api.expenses.rejectApi.create(expenseId, {
-      rejectionNote: "TODO: capture rejection note in modal",
-    })
-    snack.success("Expense rejected.")
-    emit("rejected", expenseId)
-  } finally {
-    isProcessingExpenseMap.value.set(expenseId, false)
-  }
+function openExpenseRejectDialog(expenseId: number): void {
+  expenseRejectDialogRef.value?.open(expenseId)
+}
+
+function emitRejected(expenseId: number): void {
+  emit("rejected", expenseId)
 }
 
 function isProcessingExpense(expenseId: number): boolean {
