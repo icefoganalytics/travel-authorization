@@ -1,83 +1,82 @@
 import { isNil } from "lodash"
+import { type AsyncComponent } from "vue"
 
-import { TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES } from "@/api/travel-authorizations-api"
+import { type VBtn } from "vuetify/lib/components"
 
-/**
- * @typedef {{
- *   id: string;
- *   title: string;
- *   subtitle: string;
- *   component: () => import("*.vue");
- *   continueButtonText?: string;
- *   continueButtonProps?: import("vuetify/lib/VBtn").VBtn;
- *   backButtonText?: string;
- *   backButtonProps?: import("vuetify/lib/VBtn").VBtn;
- *   editable: boolean;
- * }} WizardStep
- */
+import { TravelAuthorizationWizardStepNames } from "@/api/travel-authorizations-api"
 
-/**
- * @param {Partial<WizardStep>} options
- * @returns {WizardStep}
- */
-export function buildStep(options) {
-  if (isNil(options.id)) {
+export type WizardStep = {
+  id: TravelAuthorizationWizardStepNames
+  title: string
+  subtitle: string
+  component: AsyncComponent
+  continueButtonText?: string
+  continueButtonProps?: VBtn["props"]
+  backButtonText?: string
+  backButtonProps?: VBtn["props"]
+  editable: boolean
+}
+
+export function buildStep(wizardStepAttributes: Partial<WizardStep>): WizardStep {
+  const { id, title, subtitle, component, editable, ...optionalAttributes } = wizardStepAttributes
+
+  if (isNil(id)) {
     throw new Error("id is required")
   }
 
-  if (isNil(options.title)) {
+  if (isNil(title)) {
     throw new Error("title is required")
   }
 
-  if (isNil(options.subtitle)) {
+  if (isNil(subtitle)) {
     throw new Error("subtitle is required")
   }
 
-  if (isNil(options.component)) {
+  if (isNil(component)) {
     throw new Error("component is required")
   }
 
+  const editableOrDefault = editable ?? false
+
   return {
-    editable: false,
-    ...options,
+    ...optionalAttributes,
+    id,
+    title,
+    subtitle,
+    component,
+    editable: editableOrDefault,
   }
 }
 
-/**
- *
- * @returns {
- *   id: string
- * }
- */
 export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
   [
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.EDIT_PURPOSE_DETAILS,
+      id: TravelAuthorizationWizardStepNames.EDIT_PURPOSE_DETAILS,
       title: "Trip Purpose",
       subtitle: "Enter trip purpose",
       component: () => import("@/components/my-travel-request-wizard/EditPurposeDetailsStep.vue"),
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.EDIT_TRIP_DETAILS,
+      id: TravelAuthorizationWizardStepNames.EDIT_TRIP_DETAILS,
       title: "Trip Details",
       subtitle: "Enter trip details",
       component: () => import("@/components/my-travel-request-wizard/EditTripDetailsStep.vue"),
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.GENERATE_ESTIMATE,
+      id: TravelAuthorizationWizardStepNames.GENERATE_ESTIMATE,
       title: "Trip Estimates",
       subtitle: "Generate estimate",
       component: () => import("@/components/my-travel-request-wizard/GenerateEstimateStep.vue"),
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.SUBMIT_TO_SUPERVISOR,
+      id: TravelAuthorizationWizardStepNames.SUBMIT_TO_SUPERVISOR,
       title: "Submit Travel Request",
       subtitle: "Submit travel request",
       component: () => import("@/components/my-travel-request-wizard/SubmitToSupervisorStep.vue"),
       continueButtonText: "Submit to Supervisor",
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_SUPERVISOR_APPROVAL,
+      id: TravelAuthorizationWizardStepNames.AWAITING_SUPERVISOR_APPROVAL,
       title: "Waiting for Approval",
       subtitle: "Travel request is submitted to supervisor and waiting for approval",
       component: () =>
@@ -90,20 +89,20 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
     },
 
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.EDIT_TRAVELLER_DETAILS,
+      id: TravelAuthorizationWizardStepNames.EDIT_TRAVELLER_DETAILS,
       title: "Traveler Details",
       subtitle: "Enter traveller details",
       component: () => import("@/components/my-travel-request-wizard/EditTravellerDetailsStep.vue"),
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.SUBMIT_TO_TRAVEL_DESK,
+      id: TravelAuthorizationWizardStepNames.SUBMIT_TO_TRAVEL_DESK,
       title: "Submit to Travel Desk",
       subtitle: "Submit to travel desk",
       component: () => import("@/components/my-travel-request-wizard/SubmitToTravelDeskStep.vue"),
       continueButtonText: "Submit",
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_FLIGHT_OPTIONS,
+      id: TravelAuthorizationWizardStepNames.AWAITING_FLIGHT_OPTIONS,
       title: "Awaiting Flight Options",
       subtitle: "Awaiting flight options from travel desk",
       component: () =>
@@ -114,7 +113,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       continueButtonText: "Check status?",
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.RANK_FLIGHT_OPTIONS,
+      id: TravelAuthorizationWizardStepNames.RANK_FLIGHT_OPTIONS,
       title: "Rank options",
       subtitle: "Rank options provided",
       component: () => import("@/components/my-travel-request-wizard/RankFlightOptionsStep.vue"),
@@ -124,7 +123,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       },
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_BOOKING_CONFIRMATION,
+      id: TravelAuthorizationWizardStepNames.AWAITING_BOOKING_CONFIRMATION,
       title: "Waiting for Booking",
       subtitle: "Travel request flight options are ranked, waiting for booking confirmation",
       component: () =>
@@ -135,7 +134,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       continueButtonText: "Check status?",
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_TRAVEL_START,
+      id: TravelAuthorizationWizardStepNames.AWAITING_TRAVEL_START,
       title: "Awaiting Travel Start",
       subtitle: "Waiting for travel to start",
       component: () => import("@/components/my-travel-request-wizard/AwaitingTravelStartStep.vue"),
@@ -145,7 +144,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       continueButtonText: "Check status?",
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.CONFIRM_ACTUAL_TRAVEL_DETAILS,
+      id: TravelAuthorizationWizardStepNames.CONFIRM_ACTUAL_TRAVEL_DETAILS,
       title: "Confirm Actual Travel Details",
       subtitle: "Confirm actual travel details or record changes from estimate",
       component: () =>
@@ -155,7 +154,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       },
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.SUBMIT_EXPENSES,
+      id: TravelAuthorizationWizardStepNames.SUBMIT_EXPENSES,
       title: "Submit Expenses",
       subtitle: "Submit trip expenses and receipts to your supervisor",
       component: () => import("@/components/my-travel-request-wizard/SubmitExpensesStep.vue"),
@@ -166,7 +165,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       },
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_EXPENSE_CLAIM_APPROVAL,
+      id: TravelAuthorizationWizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
       title: "Awaiting Supervisor Approval",
       subtitle: "Expense claim is submitted to supervisor and waiting for approval",
       component: () =>
@@ -177,7 +176,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       continueButtonText: "Check status?",
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
+      id: TravelAuthorizationWizardStepNames.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
       title: "Awaiting Finance Review and Processing",
       subtitle: "Supervisor approved, waiting for finance to review and process",
       component: () =>
@@ -188,7 +187,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       continueButtonText: "Check status?",
     },
     {
-      id: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.REVIEW_EXPENSES,
+      id: TravelAuthorizationWizardStepNames.REVIEW_EXPENSES,
       title: "Review Expenses",
       subtitle: "Review submitted expenses",
       component: () => import("@/components/my-travel-request-wizard/ReviewExpensesStep.vue"),
