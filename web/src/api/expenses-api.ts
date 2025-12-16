@@ -61,6 +61,20 @@ export type ExpenseAsShow = Expense & {
   receipt: AttachmentAsReference | null
 }
 
+export type ExpenseAsReference = Pick<
+  Expense,
+  | "id"
+  | "travelAuthorizationId"
+  | "description"
+  | "date"
+  | "cost"
+  | "currency"
+  | "type"
+  | "expenseType"
+  | "createdAt"
+  | "updatedAt"
+>
+
 export type ExpensePolicy = Policy
 
 export type ExpenseWhereOptions = WhereOptions<

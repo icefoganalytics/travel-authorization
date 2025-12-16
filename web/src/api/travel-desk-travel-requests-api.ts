@@ -67,6 +67,37 @@ export type TravelDeskTravelRequestAsIndex = TravelDeskTravelRequest & {
   requestedOptions: string
 }
 
+export type TravelDeskTravelRequestAsReference = Pick<
+  TravelDeskTravelRequest,
+  | "id"
+  | "travelAuthorizationId"
+  | "travelAgencyId"
+  | "legalFirstName"
+  | "legalLastName"
+  | "strAddress"
+  | "city"
+  | "province"
+  | "postalCode"
+  | "legalMiddleName"
+  | "travelPurpose"
+  | "busPhone"
+  | "busEmail"
+  | "status"
+  | "birthDate"
+  | "isInternationalTravel"
+  | "passportCountry"
+  | "passportNum"
+  | "travelLocation"
+  | "travelNotes"
+  | "travelContact"
+  | "travelPhone"
+  | "travelEmail"
+  | "additionalInformation"
+  | "travelDeskOfficer"
+  | "createdAt"
+  | "updatedAt"
+>
+
 export type TravelDeskTravelRequestWhereOptions = WhereOptions<
   TravelDeskTravelRequest,
   | "id"

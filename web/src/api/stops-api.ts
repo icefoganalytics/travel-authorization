@@ -43,8 +43,24 @@ export type Stop = {
   departureDate: string | null
   departureTime: string | null
   transport: StopsTravelMethods | null
+  isActual: boolean
   createdAt: string
   updatedAt: string
+}
+
+export type StopAsReference = Pick<
+  Stop,
+  | "id"
+  | "travelAuthorizationId"
+  | "locationId"
+  | "departureDate"
+  | "transport"
+  | "accommodationType"
+  | "isActual"
+  | "createdAt"
+  | "updatedAt"
+> & {
+  departureTime: string | null
 }
 
 export type StopWhereOptions = WhereOptions<Stop, "id" | "travelAuthorizationId" | "locationId">

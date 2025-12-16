@@ -5,8 +5,14 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
+import { type ExpenseAsReference } from "@/api/expenses-api"
 import { type LocationAsReference } from "@/api/locations-api"
+import { type StopAsReference } from "@/api/stops-api"
 import { type TravelAuthorizationStateFlags } from "@/api/travel-authorizations-state-flags-api"
+import { type TravelDeskTravelRequestAsReference } from "@/api/travel-desk-travel-requests-api"
+import { type TravelPurposeAsReference } from "@/api/travel-purposes-api"
+import { type TravelSegmentAsReference } from "@/api/travel-segments-api"
+import { type UserAsReference } from "@/api/users-api"
 
 /** Keep in sync with api/src/models/travel-authorization.ts */
 export enum TravelAuthorizationStatuses {
@@ -150,6 +156,53 @@ export type TravelAuthorizationAsIndex = Pick<
   finalDestination?: LocationAsReference
 } & TravelAuthorizationStateFlags
 
+/** Keep in sync with api/src/serializers/travel-authorizations/show-serializer.ts */
+export type TravelAuthorizationAsShow = Pick<
+  TravelAuthorization,
+  | "id"
+  | "slug"
+  | "userId"
+  | "preApprovalProfileId"
+  | "purposeId"
+  | "firstName"
+  | "lastName"
+  | "department"
+  | "division"
+  | "branch"
+  | "unit"
+  | "email"
+  | "mailcode"
+  | "daysOffTravelStatusEstimate"
+  | "daysOffTravelStatusActual"
+  | "dateBackToWorkEstimate"
+  | "dateBackToWorkActual"
+  | "travelDurationEstimate"
+  | "travelDurationActual"
+  | "travelAdvance"
+  | "eventName"
+  | "summary"
+  | "benefits"
+  | "status"
+  | "wizardStepName"
+  | "supervisorEmail"
+  | "requestChange"
+  | "denialReason"
+  | "tripTypeEstimate"
+  | "tripTypeActual"
+  | "createdBy"
+  | "travelAdvanceInCents"
+  | "allTravelWithinTerritory"
+  | "createdAt"
+  | "updatedAt"
+> & {
+  expenses: ExpenseAsReference[]
+  purpose: TravelPurposeAsReference | null
+  stops: StopAsReference[]
+  travelDeskTravelRequest: TravelDeskTravelRequestAsReference | null
+  travelSegments: TravelSegmentAsReference[]
+  user: UserAsReference | null
+} & TravelAuthorizationStateFlags
+
 export type TravelAuthorizationWhereOptions = WhereOptions<
   TravelAuthorization,
   | "id"
@@ -202,9 +255,9 @@ export const travelAuthorizationsApi = {
   },
   async get(
     travelAuthorizationId: number,
-    params: Record<string, unknown> = {}
+    params: Partial<TravelAuthorization> = {}
   ): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
     policy: Policy
   }> {
     const { data } = await http.get(`/api/travel-authorizations/${travelAuthorizationId}`, {
@@ -213,7 +266,7 @@ export const travelAuthorizationsApi = {
     return data
   },
   async create(attributes: Partial<TravelAuthorization>): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post("/api/travel-authorizations", attributes)
     return data
@@ -222,7 +275,7 @@ export const travelAuthorizationsApi = {
     travelAuthorizationId: number,
     attributes: Partial<TravelAuthorization>
   ): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.patch(
       `/api/travel-authorizations/${travelAuthorizationId}`,
@@ -238,7 +291,7 @@ export const travelAuthorizationsApi = {
     travelAuthorizationId: number,
     attributes: Partial<TravelAuthorization>
   ): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-authorizations/${travelAuthorizationId}/submit`,
@@ -247,7 +300,7 @@ export const travelAuthorizationsApi = {
     return data
   },
   async revertToDraft(travelAuthorizationId: number): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-authorizations/${travelAuthorizationId}/revert-to-draft`
@@ -255,13 +308,13 @@ export const travelAuthorizationsApi = {
     return data
   },
   async approve(travelAuthorizationId: number): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(`/api/travel-authorizations/${travelAuthorizationId}/approve`)
     return data
   },
   async approveExpenseClaim(travelAuthorizationId: number): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-authorizations/${travelAuthorizationId}/approve-expense-claim`
@@ -272,7 +325,7 @@ export const travelAuthorizationsApi = {
     travelAuthorizationId: number,
     attributes: { denialReason?: string } = {}
   ): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-authorizations/${travelAuthorizationId}/deny`,
@@ -284,7 +337,7 @@ export const travelAuthorizationsApi = {
     travelAuthorizationId: number,
     attributes: Partial<TravelAuthorization>
   ): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-authorizations/${travelAuthorizationId}/expense-claim`,
@@ -292,14 +345,8 @@ export const travelAuthorizationsApi = {
     )
     return data
   },
-  /**
-   * @param {number} travelAuthorizationId
-   * @returns {Promise<{
-   *   travelAuthorization: TravelAuthorization;
-   * }>}
-   */
   async financeReviewAndProcessing(travelAuthorizationId: number): Promise<{
-    travelAuthorization: TravelAuthorization
+    travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-authorizations/${travelAuthorizationId}/finance-review-and-processing`
