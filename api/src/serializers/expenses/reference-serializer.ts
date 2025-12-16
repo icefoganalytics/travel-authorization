@@ -1,6 +1,6 @@
 import { pick } from "lodash"
 
-import { Expense, User } from "@/models"
+import { Expense } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
 export type ExpenseAsReference = Pick<
@@ -18,13 +18,6 @@ export type ExpenseAsReference = Pick<
 >
 
 export class ReferenceSerializer extends BaseSerializer<Expense> {
-  constructor(
-    protected record: Expense,
-    protected currentUser: User
-  ) {
-    super(record)
-  }
-
   perform(): ExpenseAsReference {
     return {
       ...pick(this.record, [

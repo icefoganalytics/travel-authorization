@@ -43,7 +43,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   perform(): TravelAuthorizationIndexView {
-    const stateFlagsAttributes = StateFlagsSerializer.perform(this.record, this.currentUser)
+    const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
     const finalDestinationLocation = this.buildFinalDestinationLocation()
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
 

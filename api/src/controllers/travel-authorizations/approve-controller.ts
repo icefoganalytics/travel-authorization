@@ -26,10 +26,7 @@ export class ApproveController extends BaseController {
 
     return TravelAuthorizations.ApproveService.perform(travelAuthorization, this.currentUser)
       .then((travelAuthorization) => {
-        const serializedTravelAuthorization = ShowSerializer.perform(
-          travelAuthorization,
-          this.currentUser
-        )
+        const serializedTravelAuthorization = ShowSerializer.perform(travelAuthorization)
 
         return this.response
           .status(200)

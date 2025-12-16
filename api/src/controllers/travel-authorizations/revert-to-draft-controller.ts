@@ -24,10 +24,7 @@ export class RevertToDraftController extends BaseController {
       }
 
       await RevertToDraftService.perform(travelAuthorization, this.currentUser)
-      const serializedTravelAuthorization = ShowSerializer.perform(
-        travelAuthorization,
-        this.currentUser
-      )
+      const serializedTravelAuthorization = ShowSerializer.perform(travelAuthorization)
       return this.response.status(200).json({
         travelAuthorization: serializedTravelAuthorization,
       })

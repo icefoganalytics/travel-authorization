@@ -76,10 +76,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
           .json({ message: "You are not authorized to view this travel authorization." })
       }
 
-      const serializedTravelAuthorization = ShowSerializer.perform(
-        travelAuthorization,
-        this.currentUser
-      )
+      const serializedTravelAuthorization = ShowSerializer.perform(travelAuthorization)
 
       return this.response.status(200).json({
         travelAuthorization: serializedTravelAuthorization,
@@ -108,10 +105,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelAuthorization = ShowSerializer.perform(
-        newTravelAuthorization,
-        this.currentUser
-      )
+      const serializedTravelAuthorization = ShowSerializer.perform(newTravelAuthorization)
       return this.response.status(201).json({
         travelAuthorization: serializedTravelAuthorization,
       })
@@ -145,10 +139,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelAuthorization = ShowSerializer.perform(
-        updatedTravelAuthorization,
-        this.currentUser
-      )
+      const serializedTravelAuthorization = ShowSerializer.perform(updatedTravelAuthorization)
       return this.response.json({
         travelAuthorization: serializedTravelAuthorization,
       })
