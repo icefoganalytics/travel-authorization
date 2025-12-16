@@ -3,9 +3,12 @@ import { pick } from "lodash"
 import { TravelPurpose, User } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelPurposeAsShow = Pick<TravelPurpose, "id" | "purpose" | "createdAt" | "updatedAt">
+export type TravelPurposeAsReference = Pick<
+  TravelPurpose,
+  "id" | "purpose" | "createdAt" | "updatedAt"
+>
 
-export class ShowSerializer extends BaseSerializer<TravelPurpose> {
+export class ReferenceSerializer extends BaseSerializer<TravelPurpose> {
   constructor(
     protected record: TravelPurpose,
     protected currentUser: User
@@ -13,9 +16,9 @@ export class ShowSerializer extends BaseSerializer<TravelPurpose> {
     super(record)
   }
 
-  perform(): TravelPurposeAsShow {
+  perform(): TravelPurposeAsReference {
     return pick(this.record, ["id", "purpose", "createdAt", "updatedAt"])
   }
 }
 
-export default ShowSerializer
+export default ReferenceSerializer

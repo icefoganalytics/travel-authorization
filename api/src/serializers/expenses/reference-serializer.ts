@@ -3,7 +3,7 @@ import { pick } from "lodash"
 import { Expense, User } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type ExpenseReferenceView = Pick<
+export type ExpenseAsReference = Pick<
   Expense,
   | "id"
   | "travelAuthorizationId"
@@ -25,7 +25,7 @@ export class ReferenceSerializer extends BaseSerializer<Expense> {
     super(record)
   }
 
-  perform(): ExpenseReferenceView {
+  perform(): ExpenseAsReference {
     return {
       ...pick(this.record, [
         "id",
