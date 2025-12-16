@@ -1,4 +1,4 @@
-import { isEmpty, isNil, last, first, pick, isUndefined } from "lodash"
+import { isEmpty, isNil, last, first, pick, isUndefined, sumBy } from "lodash"
 
 import {
   Expense,
@@ -31,6 +31,7 @@ export type TravelAuthorizationIndexView = Pick<
   department: string | null
   branch: string | null
   isTravelling: boolean
+  unprocessedExpenseCount: number
 } & TravelAuthorizationStateFlagsView
 
 export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
@@ -44,6 +45,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   perform(): TravelAuthorizationIndexView {
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record, this.currentUser)
     const finalDestinationLocation = this.buildFinalDestinationLocation()
+    const unprocessedExpenseCount = this.countUnprocessedExpenses()
 
     return {
       ...pick(this.record, [
@@ -67,6 +69,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       department: this.traveller.department,
       branch: this.traveller.branch,
       isTravelling: this.isTravelling(),
+      unprocessedExpenseCount,
       ...stateFlagsAttributes,
     }
   }
@@ -82,6 +85,22 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     if (isNil(finalDestinationLocation)) return undefined
 
     return pick(finalDestinationLocation, ["id", "city", "province", "createdAt", "updatedAt"])
+  }
+
+  private countUnprocessedExpenses(): number {
+    const { expenses } = this.record
+    if (isUndefined(expenses)) {
+      throw new Error("Expected expenses association to be pre-loaded.")
+    }
+
+    const unprocessedExpenseCount = sumBy(expenses, (expense) => {
+      if (expense.type !== Expense.Types.EXPENSE) return 0
+      if (!isNil(expense.approvedAt) || !isNil(expense.rejectedAt)) return 0
+
+      return 1
+    })
+
+    return unprocessedExpenseCount
   }
 
   // TODO: double check the order of these conditions

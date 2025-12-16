@@ -147,6 +147,7 @@ export type TravelAuthorizationAsIndex = Pick<
   department: string | null
   branch: string | null
   isTravelling: boolean
+  unprocessedExpenseCount: number
   // Associations
   finalDestination?: LocationAsReference
 } & TravelAuthorizationStateFlags
