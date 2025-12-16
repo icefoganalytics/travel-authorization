@@ -1,4 +1,4 @@
-import { isUndefined } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import { TravelAuthorization, TravelDeskTravelRequest, TravelSegment } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
@@ -123,27 +123,39 @@ export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   // Travel Desk Request States
-  private isTravelDeskDraft(travelDeskRequest: TravelDeskTravelRequest) {
+  private isTravelDeskDraft(travelDeskRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskRequest)) return false
+
     return travelDeskRequest.status === TravelDeskTravelRequest.Statuses.DRAFT
   }
 
-  private isTravelDeskSubmitted(travelDeskTravelRequest: TravelDeskTravelRequest) {
+  private isTravelDeskSubmitted(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
     return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.SUBMITTED
   }
 
-  private isTravelDeskOptionsProvided(travelDeskTravelRequest: TravelDeskTravelRequest) {
+  private isTravelDeskOptionsProvided(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
     return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
   }
 
-  private isTravelDeskOptionsRanked(travelDeskTravelRequest: TravelDeskTravelRequest) {
+  private isTravelDeskOptionsRanked(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
     return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.OPTIONS_RANKED
   }
 
-  private isTravelDeskBooked(travelDeskTravelRequest: TravelDeskTravelRequest) {
+  private isTravelDeskBooked(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
     return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.BOOKED
   }
 
-  private isTravelDeskComplete(travelDeskTravelRequest: TravelDeskTravelRequest) {
+  private isTravelDeskComplete(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
     return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.COMPLETE
   }
 
@@ -158,7 +170,9 @@ export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
     return this.isDeleted() || this.isDenied() || this.isExpenseClaimDenied() || this.isExpensed()
   }
 
-  private isInTravelDeskFlow(travelDeskTravelRequest: TravelDeskTravelRequest) {
+  private isInTravelDeskFlow(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
     return (
       this.isTravelDeskDraft(travelDeskTravelRequest) ||
       this.isTravelDeskSubmitted(travelDeskTravelRequest) ||

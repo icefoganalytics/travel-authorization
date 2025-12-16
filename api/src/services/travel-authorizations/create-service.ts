@@ -74,7 +74,14 @@ export class CreateService extends BaseService {
         )
 
         return travelAuthorization.reload({
-          include: ["expenses", "stops", "purpose", "user", "travelSegments"],
+          include: [
+            "expenses",
+            "purpose",
+            "stops",
+            "travelDeskTravelRequest",
+            "travelSegments",
+            "user",
+          ],
         })
       })
       .catch((error) => {
