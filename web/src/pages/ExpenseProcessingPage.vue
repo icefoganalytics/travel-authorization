@@ -3,7 +3,7 @@
     <div class="d-flex justify-space-between align-baseline">
       <h2>Expense Processing</h2>
     </div>
-    <v-row>
+    <v-row class="mt-2">
       <v-col>
         <ExpensesProcessingCard class="default" />
       </v-col>

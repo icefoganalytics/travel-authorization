@@ -1,7 +1,7 @@
 <template>
-  <v-card class="mt-5">
-    <v-card-title class="d-flex align-baseline">
-      <h3>Expenses</h3>
+  <v-card>
+    <v-card-title class="d-flex align-center">
+      <h3 class="mb-0">Expenses</h3>
 
       <v-spacer />
       <RefreshTableButton @click="refreshTable" />
