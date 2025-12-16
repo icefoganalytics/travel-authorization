@@ -42,6 +42,7 @@
       </span>
     </template>
 
+    <!-- TODO: consider if table should only every show pending expenses? -->
     <template #item.approvedAt="{ item }">
       <v-chip
         v-if="!isNil(item.approvedAt)"
@@ -124,7 +125,7 @@ const headers = ref([
   {
     text: "Date",
     value: "date",
-    sortable: true,
+    width: "6.5rem",
   },
   {
     text: "Description",
@@ -134,12 +135,10 @@ const headers = ref([
   {
     text: "Expense Type",
     value: "expenseType",
-    sortable: true,
   },
   {
     text: "Amount",
     value: "cost",
-    sortable: true,
   },
   {
     text: "Receipt",
@@ -150,14 +149,12 @@ const headers = ref([
   {
     text: "Status",
     value: "approvedAt",
-    sortable: true,
   },
   {
     text: "Actions",
     value: "actions",
     sortable: false,
     align: "center",
-    width: "220px",
   },
 ])
 
