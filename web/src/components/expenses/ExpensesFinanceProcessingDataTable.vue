@@ -28,8 +28,8 @@
     <template #item.receipt="{ item }">
       <v-btn
         v-if="!isNil(item.receipt)"
+        class="ma-0"
         color="secondary"
-        small
         @click.stop="showReceiptAttributesPreviewDialog(item.receipt)"
       >
         View Receipt
@@ -45,7 +45,6 @@
     <template #item.approvedAt="{ item }">
       <v-chip
         v-if="!isNil(item.approvedAt)"
-        small
         color="success"
         text-color="white"
       >
@@ -53,7 +52,6 @@
       </v-chip>
       <v-chip
         v-else
-        small
         color="warning"
         text-color="white"
       >
@@ -65,33 +63,22 @@
       <div class="d-flex align-center">
         <v-btn
           v-if="isNil(item.approvedAt)"
-          small
+          class="ma-0 mr-2"
           color="success"
-          class="mr-2"
           :loading="isProcessingExpense(item.id)"
           @click.stop="approveExpense(item.id)"
         >
-          <v-icon
-            small
-            left
-          >
-            mdi-check
-          </v-icon>
+          <v-icon left> mdi-check </v-icon>
           Approve
         </v-btn>
         <v-btn
           v-if="!item.approvedAt"
-          small
+          class="ma-0"
           color="error"
           :loading="isProcessingExpense(item.id)"
           @click.stop="openExpenseRejectDialog(item.id)"
         >
-          <v-icon
-            small
-            left
-          >
-            mdi-close
-          </v-icon>
+          <v-icon left> mdi-close </v-icon>
           Reject
         </v-btn>
       </div>
