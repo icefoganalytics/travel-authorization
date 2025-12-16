@@ -12,7 +12,6 @@ import { type TravelAuthorizationStateFlags } from "@/api/travel-authorizations-
 export enum TravelAuthorizationStatuses {
   APPROVED = "approved",
   AWAITING_DIRECTOR_APPROVAL = "awaiting_director_approval",
-  AWAITING_FINANCE_REVIEW_AND_PROCESSING = "awaiting_finance_review_and_processing",
   BOOKED = "booked",
   CHANGE_REQUESTED = "change_requested",
   DENIED = "denied",
@@ -28,7 +27,6 @@ export enum TravelAuthorizationStatuses {
 export const STATUSES = Object.freeze({
   APPROVED: "approved",
   AWAITING_DIRECTOR_APPROVAL: "awaiting_director_approval",
-  AWAITING_FINANCE_REVIEW_AND_PROCESSING: "awaiting_finance_review_and_processing",
   BOOKED: "booked",
   CHANGE_REQUESTED: "change_requested",
   DENIED: "denied",

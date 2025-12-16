@@ -51,7 +51,6 @@ export enum TravelAuthorizationStatuses {
   EXPENSE_CLAIM_SUBMITTED = "expense_claim_submitted",
   EXPENSE_CLAIM_APPROVED = "expense_claim_approved",
   EXPENSE_CLAIM_DENIED = "expense_claim_denied",
-  AWAITING_FINANCE_REVIEW_AND_PROCESSING = "awaiting_finance_review_and_processing",
   EXPENSED = "expensed",
   AWAITING_DIRECTOR_APPROVAL = "awaiting_director_approval",
   DELETED = "deleted",

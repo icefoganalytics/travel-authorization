@@ -17,7 +17,7 @@ import { computed, nextTick, toRefs } from "vue"
 import { capitalize } from "@/utils/formatters"
 
 import useSnack from "@/use/use-snack"
-import useTravelAuthorization, { STATUSES } from "@/use/use-travel-authorization"
+import useTravelAuthorization, { TravelAuthorizationStatuses } from "@/use/use-travel-authorization"
 
 const props = defineProps({
   travelAuthorizationId: {
@@ -37,7 +37,7 @@ const props = defineProps({
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizationId)
 const isAwaitingFinanceReview = computed(
-  () => travelAuthorization.value.status === STATUSES.AWAITING_FINANCE_REVIEW_AND_PROCESSING
+  () => travelAuthorization.value.status === TravelAuthorizationStatuses.EXPENSE_CLAIM_APPROVED
 )
 
 async function initialize(context) {

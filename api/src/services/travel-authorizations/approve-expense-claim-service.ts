@@ -21,13 +21,13 @@ export class ApproveExpenseClaimService extends BaseService {
 
     await db.transaction(async () => {
       await this.travelAuthorization.update({
-        status: TravelAuthorization.Statuses.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
+        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
         actorId: this.approver.id,
         assigneeId: this.travelAuthorization.userId,
-        action: TravelAuthorizationActionLog.Actions.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
+        action: TravelAuthorizationActionLog.Actions.EXPENSE_CLAIM_APPROVED,
       })
     })
 
