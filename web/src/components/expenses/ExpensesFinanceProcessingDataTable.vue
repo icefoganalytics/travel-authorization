@@ -101,6 +101,7 @@ import { isNil } from "lodash"
 
 import { formatDate, formatCurrency } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import api from "@/api"
 import { type AttachmentAsReference } from "@/api/attachments-api"
 import useExpenses, { Types } from "@/use/use-expenses"
 import useSnack from "@/use/use-snack"
@@ -198,22 +199,24 @@ function showReceiptAttributesPreviewDialog(receipt: AttachmentAsReference) {
 const isProcessingExpenseMap = ref(new Map<number, boolean>())
 const snack = useSnack()
 
-function approveExpense(expenseId: number): void {
+async function approveExpense(expenseId: number): Promise<void> {
   isProcessingExpenseMap.value.set(expenseId, true)
   try {
-    // TODO: Call API to approve expense
-    snack.success("TODO: Expense approved!")
+    await api.expenses.approveApi.create(expenseId)
+    snack.success("Expense approved!")
     emit("approved", expenseId)
   } finally {
     isProcessingExpenseMap.value.set(expenseId, false)
   }
 }
 
-function rejectExpense(expenseId: number): void {
+async function rejectExpense(expenseId: number): Promise<void> {
   isProcessingExpenseMap.value.set(expenseId, true)
   try {
-    // TODO: Call API to reject expense
-    snack.success("TODO: Expense rejected.")
+    await api.expenses.rejectApi.create(expenseId, {
+      rejectionNote: "TODO: capture rejection note in modal",
+    })
+    snack.success("Expense rejected.")
     emit("rejected", expenseId)
   } finally {
     isProcessingExpenseMap.value.set(expenseId, false)

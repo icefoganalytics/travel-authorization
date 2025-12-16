@@ -61,6 +61,8 @@ export type ExpenseAsShow = Expense & {
   receipt: AttachmentAsReference | null
 }
 
+export type ExpensePolicy = Policy
+
 export type ExpenseWhereOptions = WhereOptions<
   Expense,
   "id" | "travelAuthorizationId" | "date" | "currency" | "type" | "expenseType"

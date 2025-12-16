@@ -31,9 +31,9 @@ export class RejectController extends BaseController<Expense> {
         this.currentUser
       )
       const serializedExpense = ShowSerializer.perform(updatedExpense, this.currentUser)
-      return this.response.status(200).json({
+      return this.response.status(201).json({
         expense: serializedExpense,
-        message: "Expense rejected successfully.",
+        policy,
       })
     } catch (error) {
       logger.error(`Error rejecting expense: ${error}`, { error })

@@ -27,9 +27,9 @@ export class ApproveController extends BaseController<Expense> {
 
       const updatedExpense = await ApproveService.perform(expense, this.currentUser)
       const serializedExpense = ShowSerializer.perform(updatedExpense, this.currentUser)
-      return this.response.status(200).json({
+      return this.response.status(201).json({
         expense: serializedExpense,
-        message: "Expense approved successfully.",
+        policy,
       })
     } catch (error) {
       logger.error(`Error approving expense: ${error}`, { error })
