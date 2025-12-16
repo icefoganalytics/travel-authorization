@@ -1,48 +1,38 @@
-import { computed, reactive, toRefs, unref, watch } from "vue"
+import { computed, reactive, toRefs, unref, watch, type Ref } from "vue"
 import { isNil } from "lodash"
 
 import { TYPES as EXPENSE_TYPES } from "@/api/expenses-api"
-import travelAuthorizationsApi, { STATUSES, TRIP_TYPES } from "@/api/travel-authorizations-api"
 
-export { STATUSES, TRIP_TYPES }
+import travelAuthorizationsApi, {
+  type TravelAuthorizationAsShow,
+  TravelAuthorizationStatuses,
+  TripTypes,
+  TravelAuthorizationWizardStepNames,
+  STATUSES,
+  TRIP_TYPES,
+  TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES,
+} from "@/api/travel-authorizations-api"
+import type { Policy } from "@/api/base-api"
 
-/**
- * @template [T=any]
- * @typedef {import('vue').Ref<T>} Ref
- */
-/** @typedef {import('@/api/travel-authorizations-api.js').TravelAuthorization} TravelAuthorization */
+export {
+  type TravelAuthorizationAsShow,
+  TravelAuthorizationStatuses,
+  TripTypes,
+  TravelAuthorizationWizardStepNames,
+  STATUSES,
+  TRIP_TYPES,
+  TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES,
+}
 
-/**
- * Provides reactive state for a travel authorization.
- *
- * @callback UseTravelAuthorization
- * @param {Ref<string | number>} [travelAuthorizationId]
- * @returns {{
- *   travelAuthorization: Ref<TravelAuthorization>,
- *   isLoading: Ref<boolean>,
- *   isErrored: Ref<boolean>,
- *   isInitialized: Ref<boolean>,
- *   stops: Ref<Stop[]>,
- *   fetch: () => Promise<TravelAuthorization>,
- *   refresh: () => Promise<TravelAuthorization>,
- *   isReady: () => Promise<boolean>,
- *   save: () => Promise<TravelAuthorization>, // save that triggers loading state
- *   saveSilently: () => Promise<TravelAuthorization>, // save that does not trigger loading state
- *   approve: () => Promise<TravelAuthorization>,
- *   deny: ({ denialReason: string } = {}) => Promise<TravelAuthorization>,
- * }}
- */
-
-/** @type {UseTravelAuthorization} */
-export function useTravelAuthorization(travelAuthorizationId) {
-  const state = reactive({
-    travelAuthorization: {
-      expenses: [],
-      purpose: {},
-      stops: [],
-      travelSegments: [],
-      user: {},
-    },
+export function useTravelAuthorization(travelAuthorizationId: Ref<number | null | undefined>) {
+  const state = reactive<{
+    travelAuthorization: TravelAuthorizationAsShow | null
+    policy: Policy | null
+    isLoading: boolean
+    isErrored: boolean
+    isInitialized: boolean
+  }>({
+    travelAuthorization: null,
     policy: null,
     isLoading: false,
     isErrored: false,
@@ -50,10 +40,15 @@ export function useTravelAuthorization(travelAuthorizationId) {
   })
 
   async function fetch(params = {}) {
+    const staticTravelAuthorizationId = unref(travelAuthorizationId)
+    if (isNil(staticTravelAuthorizationId)) {
+      throw new Error("travelAuthorizationId is required")
+    }
+
     state.isLoading = true
     try {
       const { travelAuthorization, policy } = await travelAuthorizationsApi.get(
-        unref(travelAuthorizationId),
+        staticTravelAuthorizationId,
         params
       )
       state.policy = policy
@@ -61,7 +56,7 @@ export function useTravelAuthorization(travelAuthorizationId) {
       state.travelAuthorization = travelAuthorization
       return travelAuthorization
     } catch (error) {
-      console.error("Failed to fetch travel authorization:", error)
+      console.error(`Failed to fetch travel authorization: ${error}`, { error })
       state.isErrored = true
       throw error
     } finally {
@@ -79,9 +74,14 @@ export function useTravelAuthorization(travelAuthorizationId) {
   }
 
   async function saveSilently(attributes = state.travelAuthorization) {
+    const staticTravelAuthorizationId = unref(travelAuthorizationId)
+    if (isNil(staticTravelAuthorizationId)) {
+      throw new Error("travelAuthorizationId is required")
+    }
+
     try {
       const { travelAuthorization } = await travelAuthorizationsApi.update(
-        unref(travelAuthorizationId),
+        staticTravelAuthorizationId,
         {
           ...attributes,
         }
@@ -90,19 +90,24 @@ export function useTravelAuthorization(travelAuthorizationId) {
       state.travelAuthorization = travelAuthorization
       return travelAuthorization
     } catch (error) {
-      console.error("Failed to update travel authorization:", error)
+      console.error(`Failed to update travel authorization: ${error}`, { error })
       state.isErrored = true
       throw error
     }
   }
 
-  // DEPRECATED: prefer inline api calls for state changes.
   // Stateful actions
+  /** @deprecated - prefer inline api calls for state changes */
   async function submit(attributes = state.travelAuthorization) {
+    const staticTravelAuthorizationId = unref(travelAuthorizationId)
+    if (isNil(staticTravelAuthorizationId)) {
+      throw new Error("travelAuthorizationId is required")
+    }
+
     state.isLoading = true
     try {
       const { travelAuthorization } = await travelAuthorizationsApi.submit(
-        unref(travelAuthorizationId),
+        staticTravelAuthorizationId,
         {
           ...attributes,
         }
@@ -111,7 +116,7 @@ export function useTravelAuthorization(travelAuthorizationId) {
       state.travelAuthorization = travelAuthorization
       return travelAuthorization
     } catch (error) {
-      console.error("Failed to submit travel authorization:", error)
+      console.error(`Failed to submit travel authorization: ${error}`, { error })
       state.isErrored = true
       throw error
     } finally {
@@ -119,17 +124,23 @@ export function useTravelAuthorization(travelAuthorizationId) {
     }
   }
 
+  /** @deprecated - prefer inline api calls for state changes */
   async function approve() {
+    const staticTravelAuthorizationId = unref(travelAuthorizationId)
+    if (isNil(staticTravelAuthorizationId)) {
+      throw new Error("travelAuthorizationId is required")
+    }
+
     state.isLoading = true
     try {
       const { travelAuthorization } = await travelAuthorizationsApi.approve(
-        unref(travelAuthorizationId)
+        staticTravelAuthorizationId
       )
       state.isErrored = false
       state.travelAuthorization = travelAuthorization
       return travelAuthorization
     } catch (error) {
-      console.error("Failed to approve for travel authorization:", error)
+      console.error(`Failed to approve for travel authorization: ${error}`, { error })
       state.isErrored = true
       throw error
     } finally {
@@ -137,18 +148,26 @@ export function useTravelAuthorization(travelAuthorizationId) {
     }
   }
 
-  async function deny({ denialReason } = {}) {
+  /** @deprecated - prefer inline api calls for state changes */
+  async function deny({
+    denialReason,
+  }: { denialReason?: string } = {}): Promise<TravelAuthorizationAsShow> {
+    const staticTravelAuthorizationId = unref(travelAuthorizationId)
+    if (isNil(staticTravelAuthorizationId)) {
+      throw new Error("travelAuthorizationId is required")
+    }
+
     state.isLoading = true
     try {
       const { travelAuthorization } = await travelAuthorizationsApi.deny(
-        unref(travelAuthorizationId),
+        staticTravelAuthorizationId,
         { denialReason }
       )
       state.isErrored = false
       state.travelAuthorization = travelAuthorization
       return travelAuthorization
     } catch (error) {
-      console.error("Failed to deny for travel authorization:", error)
+      console.error(`Failed to deny for travel authorization: ${error}`, { error })
       state.isErrored = true
       throw error
     } finally {
@@ -186,9 +205,11 @@ export function useTravelAuthorization(travelAuthorizationId) {
   }
 
   const estimates = computed(() =>
-    state.travelAuthorization.expenses?.filter((expense) => expense.type === EXPENSE_TYPES.ESTIMATE)
+    state.travelAuthorization?.expenses?.filter(
+      (expense) => expense.type === EXPENSE_TYPES.ESTIMATE
+    )
   )
-  const stops = computed(() => state.travelAuthorization.stops)
+  const stops = computed(() => state.travelAuthorization?.stops)
 
   return {
     STATUSES,
