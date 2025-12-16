@@ -7,8 +7,8 @@
       <RefreshTableButton @click="refreshTable" />
     </v-card-title>
     <v-card-text>
-      <ExpensesFinanceProcessingDataTable
-        ref="expensesDataTable"
+      <ExpensesProcessingDataTable
+        ref="expensesProcessingDataTable"
         route-query-suffix="ExpenseProcessing"
       />
     </v-card-text>
@@ -19,11 +19,13 @@
 import { ref } from "vue"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import ExpensesFinanceProcessingDataTable from "@/components/expenses/ExpensesFinanceProcessingDataTable.vue"
+import ExpensesProcessingDataTable from "@/components/expenses/ExpensesProcessingDataTable.vue"
 
-const expensesDataTable = ref<InstanceType<typeof ExpensesFinanceProcessingDataTable> | null>(null)
+const expensesProcessingDataTable = ref<InstanceType<typeof ExpensesProcessingDataTable> | null>(
+  null
+)
 
 function refreshTable() {
-  expensesDataTable.value?.refresh()
+  expensesProcessingDataTable.value?.refresh()
 }
 </script>

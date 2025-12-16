@@ -5,7 +5,12 @@
     </div>
     <v-row>
       <v-col>
-        <ExpensesFinanceProcessingCard class="default" />
+        <ExpensesProcessingCard class="default" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <TravelAuthorizationsAwaitingFinanceReviewCard class="default mt-5" />
       </v-col>
     </v-row>
   </div>
@@ -14,7 +19,9 @@
 <script setup>
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import ExpensesFinanceProcessingCard from "@/components/expenses/ExpensesFinanceProcessingCard.vue"
+import ExpensesProcessingCard from "@/components/expenses/ExpensesProcessingCard.vue"
+import TravelAuthorizationsAwaitingFinanceReviewCard from "@/components/travel-authorizations/finance/TravelAuthorizationsAwaitingFinanceReviewCard.vue"
+
 useBreadcrumbs([
   {
     text: "Expense Processing",
