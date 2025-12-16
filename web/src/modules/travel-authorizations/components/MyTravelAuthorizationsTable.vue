@@ -70,16 +70,21 @@
   </v-data-table>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
 import { useRoute, useRouter } from "vue2-helpers/vue-router"
-import { isNil, isEmpty } from "lodash"
+import { isNil, isEmpty, isString } from "lodash"
 
 import { useI18n } from "@/plugins/vue-i18n-plugin"
 import formatDate from "@/utils/format-date"
-import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+
+import { type LocationAsReference } from "@/api/locations-api"
 import useCurrentUser from "@/use/use-current-user"
-import useTravelAuthorizations from "@/use/use-travel-authorizations"
+import useTravelAuthorizations, {
+  type TravelAuthorizationAsIndex,
+  TravelAuthorizationStatuses,
+} from "@/use/use-travel-authorizations"
 
 import AddExpenseButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/AddExpenseButton.vue"
 import DeleteTravelAuthorizationDialog from "@/modules/travel-authorizations/components/my-travel-authorizations-table/DeleteTravelAuthorizationDialog.vue"
@@ -120,15 +125,15 @@ const headers = ref([
   },
 ])
 
-const page = useRouteQuery("page", "1", {
-  transform: integerTransformerLegacy,
+const page = useRouteQuery<string, number>("page", "1", {
+  transform: integerTransformer,
 })
 
-const perPage = useRouteQuery("perPage", "10", {
-  transform: integerTransformerLegacy,
+const perPage = useRouteQuery<string, number>("perPage", "10", {
+  transform: integerTransformer,
 })
 
-const { currentUser } = useCurrentUser()
+const { currentUser } = useCurrentUser<true>()
 const currentUserId = computed(() => currentUser.value.id)
 
 const travelAuthorizationsQuery = computed(() => ({
@@ -141,23 +146,26 @@ const { travelAuthorizations, totalCount, isLoading, refresh } =
 
 const router = useRouter()
 
-async function goToMyTravelRequestWizardStep(travelAuthorization) {
+async function goToMyTravelRequestWizardStep(travelAuthorization: TravelAuthorizationAsIndex) {
+  const { wizardStepName } = travelAuthorization
+  if (isNil(wizardStepName)) return
+
   return router.push({
     name: "my-travel-requests/MyTravelRequestWizardPage",
     params: {
-      travelAuthorizationId: travelAuthorization.id,
-      stepName: travelAuthorization.wizardStepName,
+      travelAuthorizationId: travelAuthorization.id.toString(),
+      stepName: wizardStepName,
     },
   })
 }
 
-function formatDateWrapper(value) {
+function formatDateWrapper(value: string | number | null | undefined) {
   if (isNil(value)) return "Unknown"
 
   return formatDate(value, "dd-LLL-yyyy")
 }
 
-function formatLocation(value) {
+function formatLocation(value: LocationAsReference | null | undefined) {
   if (isNil(value) || isNil(value.city)) return "Unknown"
 
   return value.city
@@ -165,7 +173,10 @@ function formatLocation(value) {
 
 const { t } = useI18n()
 
-function formatStatus(value, travelAuthorization) {
+function formatStatus(
+  value: TravelAuthorizationStatuses,
+  travelAuthorization: TravelAuthorizationAsIndex
+) {
   if (travelAuthorization.isTravelling) {
     return t(`global.status.travelling`, { $default: "Unknown" })
   }
@@ -173,7 +184,7 @@ function formatStatus(value, travelAuthorization) {
   return t(`global.status.${value}`, { $default: "Unknown" })
 }
 
-function formatPhase(value) {
+function formatPhase(value: string) {
   return t(`global.phase.${value}`, { $default: "Unknown" })
 }
 
@@ -183,14 +194,15 @@ onMounted(() => {
 })
 
 const route = useRoute()
-/** @type {import("vue").Ref<InstanceType<typeof DeleteTravelAuthorizationDialog> | null>} */
-const deleteDialog = ref(null)
+const deleteDialog = ref<InstanceType<typeof DeleteTravelAuthorizationDialog> | null>(null)
 
-function showDeleteDialog(item) {
+function showDeleteDialog(item: TravelAuthorizationAsIndex) {
   deleteDialog.value?.show(item)
 }
 
 function showDeleteDialogForRouteQuery() {
+  if (!isString(route.query.showDelete)) return
+
   const itemId = parseInt(route.query.showDelete)
   if (isNaN(itemId)) return
 
