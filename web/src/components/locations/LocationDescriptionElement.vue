@@ -1,5 +1,6 @@
 <template>
   <DescriptionElement
+    :label="label"
     :value="locationText"
     v-bind="$attrs"
   />
@@ -15,6 +16,7 @@ import DescriptionElement from "@/components/common/DescriptionElement.vue"
 
 const props = defineProps<{
   locationId: number | null | undefined
+  label: string
 }>()
 
 const { locationId } = toRefs(props)
