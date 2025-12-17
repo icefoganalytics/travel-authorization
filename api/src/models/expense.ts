@@ -26,7 +26,7 @@ import User from "@/models/user"
 
 // Keep in sync with web/src/modules/travel-authorizations/components/ExpenseTypeSelect.vue
 // TODO: rename to ExpenseCategories to avoid confusion with Expense "Types"
-export enum ExpenseTypes {
+export enum ExpenseExpenseTypes {
   ACCOMMODATIONS = "Accommodations",
   TRANSPORTATION = "Transportation",
   MEALS_AND_INCIDENTALS = "Meals & Incidentals",
@@ -42,7 +42,7 @@ export enum ExpenseCurrencyTypes {
 // move estimates to their own table.
 // It's also possible that this is a single table inheritance model,
 // and there should be two models, one for each "type".
-export enum Types {
+export enum ExpenseTypes {
   ESTIMATE = "Estimate",
   EXPENSE = "Expense",
 }
@@ -51,8 +51,8 @@ export enum Types {
   tableName: "expenses",
 })
 export class Expense extends Model<InferAttributes<Expense>, InferCreationAttributes<Expense>> {
-  static readonly Types = Types
-  static readonly ExpenseTypes = ExpenseTypes
+  static readonly Types = ExpenseTypes
+  static readonly ExpenseTypes = ExpenseExpenseTypes
   static readonly CurrencyTypes = ExpenseCurrencyTypes
 
   @Attribute(DataTypes.INTEGER)
@@ -89,22 +89,22 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   @NotNull
   @ValidateAttribute({
     isIn: {
-      args: [Object.values(Types)],
-      msg: `Type must be one of: ${Object.values(Types).join(", ")}`,
+      args: [Object.values(ExpenseTypes)],
+      msg: `Type must be one of: ${Object.values(ExpenseTypes).join(", ")}`,
     },
   })
-  declare type: Types
+  declare type: ExpenseTypes
 
   // TODO: rename to ExpenseCategories to avoid confusion with Expense "Types"
   @Attribute(DataTypes.STRING(255))
   @NotNull
   @ValidateAttribute({
     isIn: {
-      args: [Object.values(ExpenseTypes)],
-      msg: `ExpenseType must be one of: ${Object.values(ExpenseTypes).join(", ")}`,
+      args: [Object.values(ExpenseExpenseTypes)],
+      msg: `ExpenseType must be one of: ${Object.values(ExpenseExpenseTypes).join(", ")}`,
     },
   })
-  declare expenseType: ExpenseTypes
+  declare expenseType: ExpenseExpenseTypes
 
   @Attribute(DataTypes.DATE)
   @NotNull

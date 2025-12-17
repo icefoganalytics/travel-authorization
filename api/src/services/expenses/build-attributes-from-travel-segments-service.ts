@@ -10,7 +10,7 @@ import {
   TravelAllowance,
   TravelSegment,
 } from "@/models"
-import { Types } from "@/models/expense"
+import { ExpenseTypes } from "@/models/expense"
 
 import BaseService from "@/services/base-service"
 import { BuildAttributesFromTravelSegmentsHelpers } from "@/services/expenses"
@@ -27,7 +27,7 @@ export class BuildAttributesFromTravelSegmentsService extends BaseService {
     protected travelAuthorizationId: number,
     protected travelSegments: TravelSegment[],
     protected daysOffTravelStatus: number,
-    protected type: Types
+    protected type: ExpenseTypes
   ) {
     super()
   }
@@ -113,7 +113,7 @@ export class BuildAttributesFromTravelSegmentsService extends BaseService {
     arrivalCity,
     departureAt,
   }: {
-    type: Types
+    type: ExpenseTypes
     modeOfTransport: string
     departureCity: string
     arrivalCity: string
@@ -141,7 +141,7 @@ export class BuildAttributesFromTravelSegmentsService extends BaseService {
     arrivalAt,
     departureAt,
   }: {
-    type: Types
+    type: ExpenseTypes
     location: Location
     accommodationType: string
     arrivalAt: Date
