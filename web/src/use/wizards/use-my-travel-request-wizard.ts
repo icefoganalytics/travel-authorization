@@ -5,6 +5,7 @@ import { cloneDeep, isNil } from "lodash"
 import type { VBtn } from "vuetify/lib/components"
 
 import useTravelAuthorization, {
+  type TravelAuthorizationAsShow,
   type TravelAuthorizationWizardStepNames,
 } from "@/use/use-travel-authorization"
 
@@ -13,19 +14,37 @@ import MY_TRAVEL_REQUEST_WIZARD_STEPS, {
 } from "@/use/wizards/my-travel-request-wizard-steps"
 import type { Route } from "vue-router"
 
-export type UseMyTravelRequestWizardReturnType = ReturnType<typeof useMyTravelRequestWizard>
+export type UseMyTravelRequestWizard = {
+  steps: Ref<WizardStep[]>
+  isReady: Ref<boolean>
+
+  currentStep: Ref<WizardStep | null>
+  previousStep: Ref<WizardStep | null>
+  nextStep: Ref<WizardStep | null>
+
+  isLoading: Ref<boolean>
+  refresh: () => Promise<TravelAuthorizationAsShow>
+
+  goToStep: (stepName: TravelAuthorizationWizardStepNames) => Promise<Route | undefined>
+  goToPreviousStep: () => Promise<Route>
+  goToNextStep: () => Promise<Route>
+
+  setEditableSteps: (stepNames: TravelAuthorizationWizardStepNames[]) => void
+  setBackButtonProps: (vBtnProps: VBtn["props"]) => void
+  setContinueButtonProps: (vBtnProps: VBtn["props"]) => void
+}
 
 export type WizardStepComponentContext = {
-  goToNextStep: UseMyTravelRequestWizardReturnType["goToNextStep"]
-  setEditableSteps: UseMyTravelRequestWizardReturnType["setEditableSteps"]
-  setBackButtonProps: UseMyTravelRequestWizardReturnType["setBackButtonProps"]
-  setContinueButtonProps: UseMyTravelRequestWizardReturnType["setContinueButtonProps"]
+  goToNextStep: UseMyTravelRequestWizard["goToNextStep"]
+  setEditableSteps: UseMyTravelRequestWizard["setEditableSteps"]
+  setBackButtonProps: UseMyTravelRequestWizard["setBackButtonProps"]
+  setContinueButtonProps: UseMyTravelRequestWizard["setContinueButtonProps"]
 }
 
 export function useMyTravelRequestWizard(
   travelAuthorizationIdRef: Ref<number | null | undefined>,
   wizardStepNameRef: Ref<string>
-) {
+): UseMyTravelRequestWizard {
   const state = reactive<{
     steps: WizardStep[]
     isReady: boolean
