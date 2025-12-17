@@ -12,7 +12,7 @@
         md="3"
       >
         <!-- TODO: update data model to store purpose id -->
-        <TravelPurposeSelect
+        <TravelPurposeTextSelect
           v-model="travelAuthorizationPreApprovalAttributes.purpose"
           label="Purpose *"
           item-value="purpose"
@@ -241,7 +241,7 @@ import MonthSelect from "@/components/common/MonthSelect.vue"
 import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
 import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomplete.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
+import TravelPurposeTextSelect from "@/components/travel-purposes/TravelPurposeTextSelect.vue"
 import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalTravelerAttributesFormCard.vue"
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
