@@ -1,35 +1,38 @@
 import { reactive, toRefs, ref, unref, watch } from "vue"
 
-import travelSegmentsApi, { TRAVEL_METHODS, ACCOMMODATION_TYPES } from "@/api/travel-segments-api"
+import travelSegmentsApi, {
+  TravelMethods,
+  AccommodationTypes,
+  TRAVEL_METHODS,
+  ACCOMMODATION_TYPES,
+  type TravelSegmentAsIndex,
+  type TravelSegmentWhereOptions,
+  type TravelSegmentFiltersOptions,
+  type TravelSegmentsQueryOptions,
+} from "@/api/travel-segments-api"
 
-export { TRAVEL_METHODS, ACCOMMODATION_TYPES }
+export {
+  TravelMethods,
+  AccommodationTypes,
+  ACCOMMODATION_TYPES,
+  TRAVEL_METHODS,
+  type TravelSegmentAsIndex,
+  type TravelSegmentFiltersOptions,
+  type TravelSegmentWhereOptions,
+  type TravelSegmentsQueryOptions,
+}
 
-/**
- * @template [T=any]
- * @typedef {import('vue').Ref<T>} Ref
- */
-/** @typedef {import('@/api/travel-segments-api.js').TravelSegment} TravelSegment */
-/** @typedef {import('@/api/travel-segments-api.js').TravelSegmentsQueryOptions} TravelSegmentsQueryOptions */
-
-/**
- * Provides reactive state management for travel segments with API integration.
- *
- * @param {TravelSegmentsQueryOptions} [options=ref({})] - Configuration options containing filters and pagination settings for fetching travel segments.
- * @param {Object} [{ skipWatchIf = () => false }={}] - Configuration to conditionally skip API calls.
- * @param {Function} [skipWatchIf] - Function that returns a boolean to determine if fetching should be skipped.
- * @returns {{
- *   travelSegments: Ref<TravelSegment[]>,
- *   totalCount: Ref<number>,
- *   isLoading: Ref<boolean>,
- *   isErrored: Ref<boolean>,
- *   isInitialized: Ref<boolean>,
- *   fetch: () => Promise<TravelSegment[]>,
- *   refresh: () => Promise<TravelSegment[]>,
- *   isReady: () => Promise<boolean>,
- * }}
- */
-export function useTravelSegments(options = ref({}), { skipWatchIf = () => false } = {}) {
-  const state = reactive({
+export function useTravelSegments(
+  options = ref<TravelSegmentsQueryOptions>({}),
+  { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
+) {
+  const state = reactive<{
+    travelSegments: TravelSegmentAsIndex[]
+    totalCount: number
+    isLoading: boolean
+    isErrored: boolean
+    isInitialized: boolean
+  }>({
     travelSegments: [],
     totalCount: 0,
     isLoading: false,
@@ -46,7 +49,7 @@ export function useTravelSegments(options = ref({}), { skipWatchIf = () => false
       state.totalCount = totalCount
       return travelSegments
     } catch (error) {
-      console.error("Failed to fetch travel segments:", error)
+      console.error(`Failed to fetch travel segments: ${error}`, { error })
       state.isErrored = true
       throw error
     } finally {

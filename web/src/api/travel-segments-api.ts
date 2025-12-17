@@ -69,6 +69,24 @@ export type TravelSegment = {
   updatedAt: string
 }
 
+export type TravelSegmentAsIndex = Pick<
+  TravelSegment,
+  | "id"
+  | "travelAuthorizationId"
+  | "isActual"
+  | "departureLocationId"
+  | "arrivalLocationId"
+  | "segmentNumber"
+  | "departureOn"
+  | "departureTime"
+  | "modeOfTransport"
+  | "modeOfTransportOther"
+  | "accommodationType"
+  | "accommodationTypeOther"
+  | "createdAt"
+  | "updatedAt"
+>
+
 export type TravelSegmentAsReference = Pick<
   TravelSegment,
   | "id"
