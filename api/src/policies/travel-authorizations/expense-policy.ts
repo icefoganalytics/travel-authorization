@@ -3,7 +3,7 @@ import { Path } from "@/utils/deep-pick"
 import { TravelAuthorization } from "@/models"
 import PolicyFactory from "@/policies/policy-factory"
 
-export class FinanceReviewAndProcessingPolicy extends PolicyFactory(TravelAuthorization) {
+export class ExpensePolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
     if (this.user.isAdmin) return true
     if (this.user.isFinanceUser && this.user.department === this.record.department) return true
@@ -16,4 +16,4 @@ export class FinanceReviewAndProcessingPolicy extends PolicyFactory(TravelAuthor
   }
 }
 
-export default FinanceReviewAndProcessingPolicy
+export default ExpensePolicy

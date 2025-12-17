@@ -184,6 +184,9 @@ router
 router
   .route("/api/travel-authorizations/:travelAuthorizationId/expense-claim")
   .post(TravelAuthorizations.ExpenseClaimController.create)
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/expense")
+  .post(TravelAuthorizations.ExpenseController.create)
 
 router
   .route("/api/travel-authorizations/:travelAuthorizationId/estimates/generate")

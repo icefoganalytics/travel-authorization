@@ -345,12 +345,10 @@ export const travelAuthorizationsApi = {
     )
     return data
   },
-  async financeReviewAndProcessing(travelAuthorizationId: number): Promise<{
+  async expense(travelAuthorizationId: number): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {
-    const { data } = await http.post(
-      `/api/travel-authorizations/${travelAuthorizationId}/finance-review-and-processing`
-    )
+    const { data } = await http.post(`/api/travel-authorizations/${travelAuthorizationId}/expense`)
     return data
   },
 }
