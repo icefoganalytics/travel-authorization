@@ -169,7 +169,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       title: "Awaiting Supervisor Approval",
       subtitle: "Expense claim is submitted to supervisor and waiting for approval",
       component: () =>
-        import("@/components/my-travel-request-wizard/AwaitingExpenseClaimApproval.vue"),
+        import("@/components/my-travel-request-wizard/AwaitingExpenseClaimApprovalStep.vue"),
       backButtonProps: {
         disabled: true,
       },
@@ -180,7 +180,7 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
       title: "Awaiting Finance Review and Processing",
       subtitle: "Supervisor approved, waiting for finance to review and process",
       component: () =>
-        import("@/components/my-travel-request-wizard/AwaitingFinanceReviewAndProcessing.vue"),
+        import("@/components/my-travel-request-wizard/AwaitingFinanceReviewAndProcessingStep.vue"),
       backButtonProps: {
         disabled: true,
       },

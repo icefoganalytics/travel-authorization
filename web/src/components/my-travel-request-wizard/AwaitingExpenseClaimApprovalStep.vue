@@ -11,35 +11,28 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, nextTick, toRefs } from "vue"
 
 import { capitalize } from "@/utils/formatters"
-import useSnack from "@/use/use-snack"
-import useTravelAuthorization, { STATUSES } from "@/use/use-travel-authorization"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-  stepTitle: {
-    type: String,
-    required: true,
-  },
-  stepSubtitle: {
-    type: String,
-    required: true,
-  },
-})
+import useSnack from "@/use/use-snack"
+import useTravelAuthorization, { TravelAuthorizationStatuses } from "@/use/use-travel-authorization"
+import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
+
+const props = defineProps<{
+  travelAuthorizationId: number
+  stepTitle: string
+  stepSubtitle: string
+}>()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizationId)
 const isApproved = computed(
-  () => travelAuthorization.value.status === STATUSES.EXPENSE_CLAIM_APPROVED
+  () => travelAuthorization.value?.status === TravelAuthorizationStatuses.EXPENSE_CLAIM_APPROVED
 )
 
-async function initialize(context) {
+async function initialize(context: WizardStepComponentContext) {
   context.setEditableSteps([])
 }
 
@@ -51,7 +44,7 @@ async function checkForApproval() {
 
     await nextTick()
     if (isApproved.value) {
-      snack.info("Expense claim approved!")
+      snack.info("Expense claim approved by supervisor! Awaiting finance review.")
 
       return true
     }
