@@ -4,6 +4,7 @@ import { isNil } from "lodash"
 import { TYPES as EXPENSE_TYPES } from "@/api/expenses-api"
 
 import travelAuthorizationsApi, {
+  type TravelAuthorization,
   type TravelAuthorizationAsShow,
   TravelAuthorizationStatuses,
   TripTypes,
@@ -64,7 +65,7 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
     }
   }
 
-  async function save(attributes = state.travelAuthorization) {
+  async function save(attributes: Partial<TravelAuthorization> | null = state.travelAuthorization) {
     state.isLoading = true
     try {
       return saveSilently(attributes)
@@ -73,7 +74,9 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
     }
   }
 
-  async function saveSilently(attributes = state.travelAuthorization) {
+  async function saveSilently(
+    attributes: Partial<TravelAuthorization> | null = state.travelAuthorization
+  ) {
     const staticTravelAuthorizationId = unref(travelAuthorizationId)
     if (isNil(staticTravelAuthorizationId)) {
       throw new Error("travelAuthorizationId is required")
