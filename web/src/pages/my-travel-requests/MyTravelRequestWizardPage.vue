@@ -104,6 +104,8 @@ export type WizardStepComponent = {
   back?: () => Promise<boolean>
   continue?: () => Promise<boolean | TravelAuthorizationWizardStepNames>
 }
+
+// this comment exist to prevent the above code block from breaking Vue 2 syntax highlighter
 </script>
 
 <script setup lang="ts">
