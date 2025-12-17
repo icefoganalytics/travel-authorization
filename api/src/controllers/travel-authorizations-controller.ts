@@ -13,7 +13,11 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
-
+      const order = this.buildOrder([
+        ["updatedAt", "DESC"],
+        ["stops", "departureDate", "ASC"],
+        ["stops", "departureTime", "ASC"],
+      ])
       const scopedTravelAuthorizations = TravelAuthorizationsPolicy.applyScope(
         scopes,
         this.currentUser
@@ -36,11 +40,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
           "travelDeskTravelRequest",
           "user",
         ],
-        order: [
-          ["updatedAt", "DESC"],
-          ["stops", "departureDate", "ASC"],
-          ["stops", "departureTime", "ASC"],
-        ],
+        order,
         limit: this.pagination.limit,
         offset: this.pagination.offset,
       })
