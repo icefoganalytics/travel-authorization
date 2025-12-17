@@ -101,7 +101,7 @@ import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-b
 
 const props = withDefaults(
   defineProps<{
-    routeQuerySuffix: string
+    routeQuerySuffix?: string
   }>(),
   {
     routeQuerySuffix: "",
