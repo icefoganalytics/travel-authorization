@@ -12,7 +12,7 @@ import travelPurposesApi from "@/api/travel-purposes-api"
 
 /**
  * @callback UseTravelPurpose
- * @param {Ref<number>} id
+ * @param {Ref<number | null | undefined>} id
  * @returns {{
  *   travelPurpose: Ref<TravelPurpose | null | undefined>,
  *   isLoading: Ref<boolean>,

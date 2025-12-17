@@ -11,7 +11,7 @@ import { type StopAsReference } from "@/api/stops-api"
 import { type TravelAuthorizationStateFlags } from "@/api/travel-authorizations-state-flags-api"
 import { type TravelDeskTravelRequestAsReference } from "@/api/travel-desk-travel-requests-api"
 import { type TravelPurposeAsReference } from "@/api/travel-purposes-api"
-import { type TravelSegmentAsReference } from "@/api/travel-segments-api"
+import { type TravelSegment, type TravelSegmentAsReference } from "@/api/travel-segments-api"
 import { type UserAsReference } from "@/api/users-api"
 
 /** Keep in sync with api/src/models/travel-authorization.ts */
@@ -45,7 +45,7 @@ export const STATUSES = Object.freeze({
 })
 
 /** Keep in sync with api/src/models/travel-authorization.ts */
-export enum TripTypes {
+export enum TravelAuthorizationTripTypes {
   ROUND_TRIP = "round_trip",
   ONE_WAY = "one_way",
   MULTI_CITY = "multi_city",
@@ -127,8 +127,8 @@ export type TravelAuthorization = {
   supervisorEmail: string | null
   requestChange: string | null
   denialReason: string | null
-  tripTypeEstimate: TripTypes | null
-  tripTypeActual: TripTypes | null
+  tripTypeEstimate: TravelAuthorizationTripTypes | null
+  tripTypeActual: TravelAuthorizationTripTypes | null
   travelAdvanceInCents: string | null
   allTravelWithinTerritory: boolean | null
   createdAt: string
@@ -239,6 +239,11 @@ export type TravelAuthorizationsQueryOptions = QueryOptions<
   TravelAuthorizationFiltersOptions
 >
 
+/** Keep in sync with TravelAuthorizationPolicy::permittedAttributes (e.g. api/src/policies/travel-authorizations/draft-state-policy.ts) */
+export type TravelAuthorizationCreationAttributes = Partial<TravelAuthorization> & {
+  travelSegmentEstimatesAttributes?: Partial<TravelSegment>[]
+}
+
 export const travelAuthorizationsApi = {
   STATUSES,
   TRIP_TYPES,
@@ -265,7 +270,7 @@ export const travelAuthorizationsApi = {
     })
     return data
   },
-  async create(attributes: Partial<TravelAuthorization>): Promise<{
+  async create(attributes: TravelAuthorizationCreationAttributes): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post("/api/travel-authorizations", attributes)
@@ -273,7 +278,7 @@ export const travelAuthorizationsApi = {
   },
   async update(
     travelAuthorizationId: number,
-    attributes: Partial<TravelAuthorization>
+    attributes: TravelAuthorizationCreationAttributes
   ): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {
@@ -289,7 +294,7 @@ export const travelAuthorizationsApi = {
   // State Management Actions
   async submit(
     travelAuthorizationId: number,
-    attributes: Partial<TravelAuthorization>
+    attributes: TravelAuthorizationCreationAttributes
   ): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {

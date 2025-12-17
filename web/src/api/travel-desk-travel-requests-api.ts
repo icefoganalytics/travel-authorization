@@ -157,7 +157,7 @@ export const travelDeskTravelRequestsApi = {
   // Stateful Actions
   async submit(
     travelDeskTravelRequestId: number,
-    attributes: Partial<TravelDeskTravelRequest>
+    attributes?: Partial<TravelDeskTravelRequest>
   ): Promise<{
     travelDeskTravelRequest: TravelDeskTravelRequest
   }> {

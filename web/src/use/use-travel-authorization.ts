@@ -1,24 +1,23 @@
 import { computed, reactive, toRefs, unref, watch, type Ref } from "vue"
 import { isNil } from "lodash"
 
-import { TYPES as EXPENSE_TYPES } from "@/api/expenses-api"
-
-import travelAuthorizationsApi, {
-  type TravelAuthorization,
-  type TravelAuthorizationAsShow,
-  TravelAuthorizationStatuses,
-  TripTypes,
-  TravelAuthorizationWizardStepNames,
-  STATUSES,
-  TRIP_TYPES,
-  TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES,
-} from "@/api/travel-authorizations-api"
 import type { Policy } from "@/api/base-api"
+import { ExpenseTypes } from "@/api/expenses-api"
+import travelAuthorizationsApi, {
+  STATUSES,
+  TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES,
+  TravelAuthorizationStatuses,
+  TravelAuthorizationTripTypes,
+  TravelAuthorizationWizardStepNames,
+  TRIP_TYPES,
+  type TravelAuthorizationAsShow,
+  type TravelAuthorizationCreationAttributes,
+} from "@/api/travel-authorizations-api"
 
 export {
   type TravelAuthorizationAsShow,
   TravelAuthorizationStatuses,
-  TripTypes,
+  TravelAuthorizationTripTypes,
   TravelAuthorizationWizardStepNames,
   STATUSES,
   TRIP_TYPES,
@@ -65,7 +64,9 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
     }
   }
 
-  async function save(attributes: Partial<TravelAuthorization> | null = state.travelAuthorization) {
+  async function save(
+    attributes: TravelAuthorizationCreationAttributes | null = state.travelAuthorization
+  ) {
     state.isLoading = true
     try {
       return saveSilently(attributes)
@@ -75,7 +76,7 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
   }
 
   async function saveSilently(
-    attributes: Partial<TravelAuthorization> | null = state.travelAuthorization
+    attributes: TravelAuthorizationCreationAttributes | null = state.travelAuthorization
   ) {
     const staticTravelAuthorizationId = unref(travelAuthorizationId)
     if (isNil(staticTravelAuthorizationId)) {
@@ -101,7 +102,9 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
 
   // Stateful actions
   /** @deprecated - prefer inline api calls for state changes */
-  async function submit(attributes = state.travelAuthorization) {
+  async function submit(
+    attributes: TravelAuthorizationCreationAttributes | null = state.travelAuthorization
+  ) {
     const staticTravelAuthorizationId = unref(travelAuthorizationId)
     if (isNil(staticTravelAuthorizationId)) {
       throw new Error("travelAuthorizationId is required")
@@ -208,9 +211,7 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
   }
 
   const estimates = computed(() =>
-    state.travelAuthorization?.expenses?.filter(
-      (expense) => expense.type === EXPENSE_TYPES.ESTIMATE
-    )
+    state.travelAuthorization?.expenses?.filter((expense) => expense.type === ExpenseTypes.ESTIMATE)
   )
   const stops = computed(() => state.travelAuthorization?.stops)
 

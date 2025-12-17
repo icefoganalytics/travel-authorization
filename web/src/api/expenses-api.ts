@@ -14,7 +14,7 @@ export const TYPES = Object.freeze({
   EXPENSE: "Expense",
 })
 
-export enum Types {
+export enum ExpenseTypes {
   ESTIMATE = "Estimate",
   EXPENSE = "Expense",
 }
@@ -27,7 +27,7 @@ export const EXPENSE_TYPES = Object.freeze({
   NON_TRAVEL_STATUS: "Non-Travel Status",
 })
 
-export enum ExpenseTypes {
+export enum ExpenseExpenseTypes {
   ACCOMMODATIONS = "Accommodations",
   TRANSPORTATION = "Transportation",
   MEALS_AND_INCIDENTALS = "Meals & Incidentals",
@@ -42,8 +42,8 @@ export type Expense = {
   date: string | null
   cost: number
   currency: string
-  type: Types
-  expenseType: ExpenseTypes
+  type: ExpenseTypes
+  expenseType: ExpenseExpenseTypes
   approverId: number | null
   approvedAt: string | null
   rejectorId: number | null

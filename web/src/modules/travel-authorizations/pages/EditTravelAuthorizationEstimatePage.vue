@@ -7,15 +7,15 @@
   </div>
 </template>
 
-<script setup>
-import { useTravelAuthorization } from "@/use/use-travel-authorization"
+<script setup lang="ts">
+import { computed } from "vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
-const { travelAuthorization } = useTravelAuthorization(props.travelAuthorizationId)
+const props = defineProps<{
+  travelAuthorizationId: string
+}>()
+
+const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+const { travelAuthorization } = useTravelAuthorization(travelAuthorizationIdAsNumber)
 </script>

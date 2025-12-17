@@ -6,7 +6,7 @@ import travelAuthorizationsApi, {
   type TravelAuthorizationFiltersOptions,
   type TravelAuthorizationsQueryOptions,
   TravelAuthorizationStatuses,
-  TripTypes,
+  TravelAuthorizationTripTypes,
   TravelAuthorizationWizardStepNames,
   STATUSES,
   TRIP_TYPES,
@@ -19,7 +19,7 @@ export {
   type TravelAuthorizationFiltersOptions,
   type TravelAuthorizationsQueryOptions,
   TravelAuthorizationStatuses,
-  TripTypes,
+  TravelAuthorizationTripTypes,
   TravelAuthorizationWizardStepNames,
   STATUSES,
   TRIP_TYPES,
@@ -76,7 +76,7 @@ export function useTravelAuthorizations(
 
   return {
     TravelAuthorizationStatuses,
-    TripTypes,
+    TravelAuthorizationTripTypes,
     TravelAuthorizationWizardStepNames,
     STATUSES,
     TRIP_TYPES,

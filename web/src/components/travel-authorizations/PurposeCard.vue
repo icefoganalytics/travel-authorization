@@ -1,5 +1,12 @@
 <template>
-  <HeaderActionsCard title="Purpose">
+  <v-skeleton-loader
+    v-if="isNil(travelAuthorization)"
+    type="card"
+  />
+  <HeaderActionsCard
+    v-else
+    title="Purpose"
+  >
     <template #header-actions><slot name="header-actions"></slot></template>
 
     <v-row>
@@ -63,7 +70,7 @@
   </HeaderActionsCard>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, toRefs } from "vue"
 import { isNil, isEmpty } from "lodash"
 

@@ -97,7 +97,7 @@ import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 
 import api from "@/api"
 import { type AttachmentAsReference } from "@/api/attachments-api"
-import useExpenses, { Types } from "@/use/use-expenses"
+import useExpenses, { ExpenseTypes } from "@/use/use-expenses"
 import useSnack from "@/use/use-snack"
 
 import ExpenseRejectDialog from "@/components/expenses/ExpenseRejectDialog.vue"
@@ -169,7 +169,7 @@ const expensesQuery = computed(() => {
   return {
     where: {
       ...props.where,
-      type: Types.EXPENSE,
+      type: ExpenseTypes.EXPENSE,
     },
     filters: props.filters,
     page: page.value,

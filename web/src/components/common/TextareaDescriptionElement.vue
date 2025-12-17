@@ -44,6 +44,7 @@ const props = defineProps({
    * The value to display. Not required if using slot content
    */
   value: {
+    /** @type {string | number | boolean | null} */
     type: [String, Number, Boolean],
     default: "",
   },

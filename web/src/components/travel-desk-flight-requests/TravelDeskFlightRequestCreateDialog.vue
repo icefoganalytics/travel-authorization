@@ -194,7 +194,8 @@ async function createAndHide() {
     emit("created", newTravelDeskFlightRequest.id)
     snack.success("Flight request created successfully")
   } catch (error) {
-    snack.error("Failed to create flight request")
+    console.error(`Failed to create flight request: ${error}`, { error })
+    snack.error(`Failed to create flight request: ${error}`)
   } finally {
     isLoading.value = false
   }

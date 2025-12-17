@@ -62,6 +62,7 @@ defineProps({
    * The value to display. Not required if using slot content
    */
   value: {
+    /** @type {string | number | boolean | null | undefined} */
     type: [String, Number, Boolean],
     default: "",
   },

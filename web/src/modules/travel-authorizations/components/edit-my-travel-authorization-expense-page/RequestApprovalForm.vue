@@ -1,5 +1,10 @@
 <template>
+  <v-skeleton-loader
+    v-if="isNil(travelAuthorization)"
+    type="card"
+  />
   <v-form
+    v-else
     ref="form"
     :loading="isLoading"
   >
@@ -22,35 +27,31 @@
   </v-form>
 </template>
 
-<script setup>
-import { ref, computed } from "vue"
+<script setup lang="ts">
+import { ref, computed, toRefs } from "vue"
 import { isNil } from "lodash"
+import { type VForm } from "vuetify/lib/components"
 
 import { required } from "@/utils/validators"
 
 import travelAuthorizationsApi from "@/api/travel-authorizations-api"
-import useExpenses, { TYPES, EXPENSE_TYPES } from "@/use/use-expenses"
+import useExpenses, { ExpenseExpenseTypes, ExpenseTypes } from "@/use/use-expenses"
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-const form = ref(null)
-const snack = useSnack()
-
+const { travelAuthorizationId } = toRefs(props)
 const {
   travelAuthorization,
   isLoading: isLoadingTravelAuthorization,
   refresh: refreshTravelAuthorization,
-} = useTravelAuthorization(props.travelAuthorizationId)
+} = useTravelAuthorization(travelAuthorizationId)
 
 const generalLedgerCodingOptions = computed(() => ({
   where: {
@@ -66,7 +67,7 @@ const {
 const expenseOptions = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
-    type: TYPES.EXPENSE,
+    type: ExpenseTypes.EXPENSE,
   },
 }))
 const {
@@ -85,7 +86,7 @@ const isLoading = computed(
 const hasGeneralLedgerCodings = computed(() => generalLedgerCodings.value.length > 0)
 const allRelevantExpensesHaveReceipts = computed(() =>
   expenses.value
-    .filter((expense) => expense.expenseType !== EXPENSE_TYPES.MEALS_AND_INCIDENTALS)
+    .filter((expense) => expense.expenseType !== ExpenseExpenseTypes.MEALS_AND_INCIDENTALS)
     .every((expense) => !isNil(expense.receipt))
 )
 // TODO: instead of multiple checks here, consider using 1 page per check
@@ -101,6 +102,9 @@ async function refresh() {
   ])
 }
 
+const form = ref<InstanceType<typeof VForm> | null>(null)
+const snack = useSnack()
+
 async function requestApprovalForExpenseClaim() {
   if (!isReadyToSubmit.value) {
     snack.error(
@@ -109,10 +113,12 @@ async function requestApprovalForExpenseClaim() {
     return false
   }
 
-  isLoadingTravelAuthorization.isLoading = true
+  if (!form.value?.validate()) return false
+
+  isLoadingTravelAuthorization.value = true
   try {
     await travelAuthorizationsApi.expenseClaim(props.travelAuthorizationId, {
-      supervisorEmail: travelAuthorization.value.supervisorEmail,
+      supervisorEmail: travelAuthorization.value?.supervisorEmail,
     })
     isLoadingTravelAuthorization.value = false
     snack.success("Expense claim submitted for approval.")
@@ -122,7 +128,7 @@ async function requestApprovalForExpenseClaim() {
     snack.error(`Failed to submit expense claim: ${error}`)
     return false
   } finally {
-    isLoadingTravelAuthorization.isLoading = false
+    isLoadingTravelAuthorization.value = false
   }
 }
 
