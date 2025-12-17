@@ -153,7 +153,7 @@ export type TravelAuthorizationAsIndex = Pick<
   isTravelling: boolean
   unprocessedExpenseCount: number
   // Associations
-  finalDestination?: LocationAsReference
+  finalDestination: LocationAsReference | null
 } & TravelAuthorizationStateFlags
 
 /** Keep in sync with api/src/serializers/travel-authorizations/show-serializer.ts */
