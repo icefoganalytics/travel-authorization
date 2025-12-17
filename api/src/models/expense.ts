@@ -25,6 +25,7 @@ import TravelAuthorization from "@/models/travel-authorization"
 import User from "@/models/user"
 
 // Keep in sync with web/src/modules/travel-authorizations/components/ExpenseTypeSelect.vue
+// TODO: rename to ExpenseCategories to avoid confusion with Expense "Types"
 export enum ExpenseTypes {
   ACCOMMODATIONS = "Accommodations",
   TRANSPORTATION = "Transportation",
@@ -94,6 +95,7 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   })
   declare type: Types
 
+  // TODO: rename to ExpenseCategories to avoid confusion with Expense "Types"
   @Attribute(DataTypes.STRING(255))
   @NotNull
   @ValidateAttribute({
