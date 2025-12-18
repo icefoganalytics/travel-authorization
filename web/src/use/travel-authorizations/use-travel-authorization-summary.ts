@@ -94,11 +94,17 @@ export function useTravelAuthorizationSummary(
   ): number | null {
     if (isNil(travelSegments) || isEmpty(travelSegments)) return null
 
-    let finalDestinationLocationId = null
+    let finalDestinationLocationId: number | null = null
     if (tripType === TravelAuthorizationTripTypes.ROUND_TRIP) {
-      finalDestinationLocationId = travelSegments.at(-2)?.arrivalLocationId ?? null
+      const finalDestinationSegment = travelSegments.at(-2)
+      if (isNil(finalDestinationSegment)) return null
+
+      finalDestinationLocationId = finalDestinationSegment.arrivalLocationId
     } else {
-      finalDestinationLocationId = travelSegments.at(-1)?.arrivalLocationId ?? null
+      const finalDestinationSegment = travelSegments.at(-1)
+      if (isNil(finalDestinationSegment)) return null
+
+      finalDestinationLocationId = finalDestinationSegment.arrivalLocationId
     }
 
     return finalDestinationLocationId
@@ -107,7 +113,10 @@ export function useTravelAuthorizationSummary(
   function _determineDepartureDate(travelSegments: TravelSegment[]): string | null {
     if (isNil(travelSegments) || isEmpty(travelSegments)) return null
 
-    const departureDate = travelSegments.at(0)?.departureOn ?? null
+    const initialSegment = travelSegments.at(0)
+    if (isNil(initialSegment)) return null
+
+    const departureDate = initialSegment.departureOn
     return departureDate
   }
 
