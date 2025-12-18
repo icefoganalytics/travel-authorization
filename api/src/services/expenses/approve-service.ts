@@ -26,7 +26,9 @@ export class ApproveService extends BaseService {
       approvedAt: new Date(),
     })
 
-    return this.expense
+    return this.expense.reload({
+      include: ["receipt"],
+    })
   }
 }
 

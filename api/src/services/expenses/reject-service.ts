@@ -35,7 +35,9 @@ export class RejectService extends BaseService {
       rejectionNote,
     })
 
-    return this.expense
+    return this.expense.reload({
+      include: ["receipt"],
+    })
   }
 }
 
