@@ -29,9 +29,13 @@ export class SubmitController extends BaseController {
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
 
-      await SubmitService.perform(travelAuthorization, permittedAttributes, this.currentUser)
+      const updatedTravelAuthorization = await SubmitService.perform(
+        travelAuthorization,
+        permittedAttributes,
+        this.currentUser
+      )
 
-      const serializedTravelAuthorization = ShowSerializer.perform(travelAuthorization)
+      const serializedTravelAuthorization = ShowSerializer.perform(updatedTravelAuthorization)
       return this.response.status(200).json({
         travelAuthorization: serializedTravelAuthorization,
       })

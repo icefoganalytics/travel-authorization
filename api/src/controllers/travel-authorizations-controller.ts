@@ -180,11 +180,11 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
     return TravelAuthorization.findByPk(this.params.travelAuthorizationId, {
       include: [
         "expenses",
-        "stops",
         "purpose",
-        "user",
-        "travelSegments",
+        "stops",
         "travelDeskTravelRequest",
+        "travelSegments",
+        "user",
       ],
     })
   }

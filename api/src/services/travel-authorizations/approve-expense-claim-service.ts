@@ -31,7 +31,16 @@ export class ApproveExpenseClaimService extends BaseService {
       })
     })
 
-    return this.travelAuthorization.reload({ include: ["expenses", "stops", "purpose", "user"] })
+    return this.travelAuthorization.reload({
+      include: [
+        "expenses",
+        "purpose",
+        "stops",
+        "travelDeskTravelRequest",
+        "travelSegments",
+        "user",
+      ],
+    })
   }
 }
 

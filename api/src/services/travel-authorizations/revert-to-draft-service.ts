@@ -33,7 +33,16 @@ export class RevertToDraftService extends BaseService {
       })
     })
 
-    return this.travelAuthorization
+    return this.travelAuthorization.reload({
+      include: [
+        "expenses",
+        "purpose",
+        "stops",
+        "travelDeskTravelRequest",
+        "travelSegments",
+        "user",
+      ],
+    })
   }
 }
 
