@@ -1,11 +1,12 @@
 <template>
   <v-data-table
-    v-bind="$attrs"
+    :page.sync="page"
+    :items-per-page.sync="perPage"
+    :sort-by.sync="vuetify2SortBy"
+    :sort-desc.sync="vuetify2SortDesc"
     :headers="headers"
     :items="expenses"
     :loading="isLoading"
-    :items-per-page.sync="perPage"
-    :page.sync="page"
     :server-items-length="totalCount"
     v-on="$listeners"
   >
@@ -94,6 +95,9 @@ import { isNil } from "lodash"
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { formatDate, formatCurrency } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import api from "@/api"
 import { type AttachmentAsReference } from "@/api/attachments-api"
@@ -125,7 +129,7 @@ const headers = ref([
   {
     text: "Date",
     value: "date",
-    width: "6.5rem",
+    width: "6.6rem",
   },
   {
     text: "Description",
@@ -165,6 +169,19 @@ const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`
   transform: integerTransformer,
 })
 
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  {
+    key: "date",
+    order: "asc",
+  },
+  {
+    key: "expenseType",
+    order: "asc",
+  },
+])
+const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
+
 const expensesQuery = computed(() => {
   return {
     where: {
@@ -172,6 +189,7 @@ const expensesQuery = computed(() => {
       type: ExpenseTypes.EXPENSE,
     },
     filters: props.filters,
+    order: order.value,
     page: page.value,
     perPage: perPage.value,
   }
