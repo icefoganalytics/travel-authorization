@@ -68,6 +68,7 @@ import formatDate from "@/utils/format-date"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 
 import { type LocationAsReference } from "@/api/locations-api"
+import travelAuthorizationsApi from "@/api/travel-authorizations-api"
 
 import useTravelAuthorizations, {
   TravelAuthorizationStatuses,
@@ -90,7 +91,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (event: "approved", travelAuthorizationId: number): void
+  (event: "expensed", travelAuthorizationId: number): void
 }>()
 
 const headers = ref([
@@ -163,17 +164,17 @@ const snack = useSnack()
 
 async function approveTravelAuthorization(travelAuthorizationId: number): Promise<void> {
   if (
-    !blockedToTrueConfirm("Are you sure you want to mark this travel authorization as complete?")
+    !blockedToTrueConfirm("Are you sure you want to mark this travel authorization as expensed?")
   ) {
     return
   }
 
   isProcessingTravelAuthorizationMap.value.set(travelAuthorizationId, true)
   try {
-    // TODO: implement travel authorization expense processing completion state endpoint
-    // await api.travelAuthorizations.approveApi.create(travelAuthorizationId)
-    snack.success("Travel authorization approved!")
-    emit("approved", travelAuthorizationId)
+    await travelAuthorizationsApi.expense(travelAuthorizationId)
+    snack.success("Travel authorization expensed!")
+    refresh()
+    emit("expensed", travelAuthorizationId)
   } finally {
     isProcessingTravelAuthorizationMap.value.set(travelAuthorizationId, false)
   }
