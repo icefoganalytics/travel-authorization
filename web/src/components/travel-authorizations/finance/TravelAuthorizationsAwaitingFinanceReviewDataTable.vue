@@ -78,9 +78,9 @@ import useSnack from "@/use/use-snack"
 
 const props = withDefaults(
   defineProps<{
-    where: TravelAuthorizationWhereOptions
-    filters: TravelAuthorizationFiltersOptions
-    routeQuerySuffix: string
+    where?: TravelAuthorizationWhereOptions
+    filters?: TravelAuthorizationFiltersOptions
+    routeQuerySuffix?: string
   }>(),
   {
     where: () => ({}),
