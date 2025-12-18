@@ -36,18 +36,13 @@ const props = defineProps({
   },
 })
 
-const { t } = useI18n()
-
 const options = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
   },
 }))
-const {
-  travelAuthorizationActionLogs,
-  isLoading,
-  fetch: refresh,
-} = useTravelAuthorizationActionLogs(options)
+const { travelAuthorizationActionLogs, isLoading, refresh } =
+  useTravelAuthorizationActionLogs(options)
 
 const headers = [
   {
@@ -71,6 +66,8 @@ const headers = [
     value: "note",
   },
 ]
+
+const { t } = useI18n()
 
 function formatAction(value) {
   const fallback = startCase(value.replace("_", " "))

@@ -27,13 +27,10 @@
     <v-row>
       <v-col>
         <h3>Management</h3>
-        <ManagementCard :travel-authorization-id="travelAuthorizationIdAsNumber" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <TravelAuthorizationActionLogsTable
+        <ManagementCard
           :travel-authorization-id="travelAuthorizationIdAsNumber"
+          @approved="emit('updated')"
+          @rejected="emit('updated')"
         />
       </v-col>
     </v-row>
@@ -45,8 +42,6 @@ import { computed } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import TravelAuthorizationActionLogsTable from "@/components/travel-authorization-action-logs/TravelAuthorizationActionLogsTable.vue"
-
 import ExpensesTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/ExpensesTable.vue"
 import GeneralLedgerCodingsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/GeneralLedgerCodingsTable.vue"
 import MealsAndIncidentalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/MealsAndIncidentalsTable.vue"
@@ -56,10 +51,12 @@ import ManagementCard from "@/modules/travel-authorizations/components/manage-tr
 
 const props = defineProps({
   travelAuthorizationId: {
-    type: Number,
+    type: String,
     required: true,
   },
 })
+
+const emit = defineEmits(["updated"])
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 
