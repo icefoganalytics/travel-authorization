@@ -9,7 +9,7 @@
     <v-card-text>
       <ExpensesProcessingDataTable
         ref="expensesProcessingDataTable"
-        route-query-suffix="ExpenseProcessing"
+        route-query-suffix="Expenses"
       />
     </v-card-text>
   </v-card>
