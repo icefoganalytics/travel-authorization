@@ -196,7 +196,10 @@ const expensesQuery = computed(() => {
       ...props.where,
       type: ExpenseTypes.EXPENSE,
     },
-    filters: props.filters,
+    filters: {
+      ...props.filters,
+      isExpenseClaimApproved: true,
+    },
     order: order.value,
     page: page.value,
     perPage: perPage.value,

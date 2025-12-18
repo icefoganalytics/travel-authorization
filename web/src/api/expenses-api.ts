@@ -83,7 +83,9 @@ export type ExpenseWhereOptions = WhereOptions<
 >
 
 /** add as needed, must match model scopes */
-export type ExpenseFiltersOptions = FiltersOptions<Record<never, never>>
+export type ExpenseFiltersOptions = FiltersOptions<{
+  isExpenseClaimApproved: boolean
+}>
 
 export type ExpenseQueryOptions = QueryOptions<ExpenseWhereOptions, ExpenseFiltersOptions>
 

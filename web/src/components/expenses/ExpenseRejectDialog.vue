@@ -35,7 +35,7 @@
       </dl>
       <v-textarea
         v-model="rejectionNote"
-        label="Rejection Note"
+        label="Rejection Note *"
         placeholder="Please provide a reason for rejecting this expense..."
         outlined
         rows="3"

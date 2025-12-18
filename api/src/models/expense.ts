@@ -205,7 +205,16 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   declare receipt?: NonAttribute<Attachment>
 
   static establishScopes(): void {
-    // add as needed
+    this.addScope("isExpenseClaimApproved", () => ({
+      include: [
+        {
+          association: "travelAuthorization",
+          where: {
+            status: TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED,
+          },
+        },
+      ],
+    }))
   }
 }
 
