@@ -60,6 +60,7 @@ const props = withDefaults(
     smallChips?: boolean
   }>(),
   {
+    value: null,
     where: () => ({}),
     filters: () => ({}),
     label: "Department",

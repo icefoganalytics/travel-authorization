@@ -14,10 +14,15 @@ import useLocation from "@/use/use-location"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 
-const props = defineProps<{
-  locationId: number | null | undefined
-  label: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    locationId?: number | null | undefined
+    label: string
+  }>(),
+  {
+    locationId: null,
+  }
+)
 
 const { locationId } = toRefs(props)
 const { location } = useLocation(locationId)

@@ -21,9 +21,14 @@ import { isNil } from "lodash"
 
 import useTravelPurpose from "@/use/use-travel-purpose"
 
-const props = defineProps<{
-  travelPurposeId: number | null | undefined
-}>()
+const props = withDefaults(
+  defineProps<{
+    travelPurposeId?: number | null | undefined
+  }>(),
+  {
+    travelPurposeId: null,
+  }
+)
 
 const { travelPurposeId } = toRefs(props)
 const { travelPurpose, isLoading } = useTravelPurpose(travelPurposeId)

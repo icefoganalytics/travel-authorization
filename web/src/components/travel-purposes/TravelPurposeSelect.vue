@@ -28,10 +28,11 @@ import useTravelPurposes from "@/use/use-travel-purposes"
 
 withDefaults(
   defineProps<{
-    value: number | null | undefined
+    value?: number | null | undefined
     label?: string
   }>(),
   {
+    value: null,
     label: "Travel Purpose",
   }
 )
