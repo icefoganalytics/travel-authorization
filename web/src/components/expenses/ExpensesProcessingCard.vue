@@ -34,4 +34,8 @@ const expensesProcessingDataTable = ref<InstanceType<typeof ExpensesProcessingDa
 function refreshTable() {
   expensesProcessingDataTable.value?.refresh()
 }
+
+defineExpose({
+  refresh: refreshTable,
+})
 </script>

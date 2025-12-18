@@ -10,18 +10,25 @@
       <TravelAuthorizationsExpenseClaimApprovedDataTable
         ref="travelAuthorizationsDataTable"
         route-query-suffix="TravelAuthorization"
+        @expensed="emit('updated')"
       />
     </v-card-text>
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import TravelAuthorizationsExpenseClaimApprovedDataTable from "@/components/travel-authorizations/finance/TravelAuthorizationsExpenseClaimApprovedDataTable.vue"
 
-const travelAuthorizationsDataTable = ref(null)
+const emit = defineEmits<{
+  (event: "updated"): void
+}>()
+
+const travelAuthorizationsDataTable = ref<InstanceType<
+  typeof TravelAuthorizationsExpenseClaimApprovedDataTable
+> | null>(null)
 
 function refreshTable() {
   travelAuthorizationsDataTable.value?.refresh()
