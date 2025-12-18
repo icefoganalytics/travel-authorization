@@ -18,7 +18,7 @@ export class ApproveService extends BaseService {
     }
 
     if (travelAuthorization.status !== TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED) {
-      throw new Error("This expense must be in the expense claim approved state to be approved.")
+      throw new Error("The parent travel authorization must be approved before expenses can be approved.")
     }
 
     if (!isNil(this.expense.approvedAt)) {

@@ -21,7 +21,7 @@ export class RejectService extends BaseService {
     }
 
     if (travelAuthorization.status !== TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED) {
-      throw new Error("This expense must be in the expense claim approved state to be rejected.")
+      throw new Error("The parent travel authorization must be approved before expenses can be rejected.")
     }
 
     if (!isNil(this.expense.rejectedAt)) {
