@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker"
 
 import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
-import { TravelAuthorization } from "@/models"
+import { TravelAuthorization, TravelSegment } from "@/models"
 import { IndexSerializer } from "@/serializers/travel-authorizations"
 
 describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => {
@@ -17,7 +17,14 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             travelSegments: [travelSegment],
           })
           .transient({
-            include: ["user", "travelDeskTravelRequest", "travelSegments"],
+            include: [
+              "expenses",
+              "purpose",
+              "stops",
+              "travelDeskTravelRequest",
+              "travelSegments",
+              "user",
+            ],
           })
           .create({
             status: TravelAuthorization.Statuses.SUBMITTED,
@@ -37,13 +44,21 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const currentUser = await userFactory.create()
         const travelSegment = travelSegmentFactory.build({
           departureOn: faker.date.past(),
+          modeOfTransport: TravelSegment.TravelMethods.POOL_VEHICLE,
         })
         const travelAuthorization = await travelAuthorizationFactory
           .associations({
             travelSegments: [travelSegment],
           })
           .transient({
-            include: ["user", "travelDeskTravelRequest", "travelSegments"],
+            include: [
+              "expenses",
+              "purpose",
+              "stops",
+              "travelDeskTravelRequest",
+              "travelSegments",
+              "user",
+            ],
           })
           .create({
             status: TravelAuthorization.Statuses.APPROVED,
