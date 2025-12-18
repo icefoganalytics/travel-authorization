@@ -1,4 +1,4 @@
-import { isUndefined } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import { Expense, TravelAuthorization, User } from "@/models"
 import BaseService from "@/services/base-service"
@@ -19,6 +19,10 @@ export class ApproveService extends BaseService {
 
     if (travelAuthorization.status !== TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED) {
       throw new Error("This expense must be in the expense claim approved state to be approved.")
+    }
+
+    if (!isNil(this.expense.approvedAt)) {
+      throw new Error("This expense has already been approved.")
     }
 
     await this.expense.update({

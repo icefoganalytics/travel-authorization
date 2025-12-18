@@ -24,6 +24,10 @@ export class RejectService extends BaseService {
       throw new Error("This expense must be in the expense claim approved state to be rejected.")
     }
 
+    if (!isNil(this.expense.rejectedAt)) {
+      throw new Error("This expense has already been rejected.")
+    }
+
     const { rejectionNote } = this.attributes
     if (isNil(rejectionNote) || isEmpty(rejectionNote)) {
       throw new Error("Rejection note is required.")
