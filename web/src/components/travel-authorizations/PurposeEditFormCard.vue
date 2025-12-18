@@ -232,9 +232,6 @@ function buildTravelSegmentEstimatesAttributes(
     const destinationLocationId = staticFinalDestinationLocationId
     const initialOriginLocationId =
       firstTravelSegment.departureLocationId || lastTravelSegment.arrivalLocationId
-    if (isNil(initialOriginLocationId)) {
-      throw new Error("Initial origin location is missing")
-    }
 
     const originLocationId = locationIdOrNullIfOverlapping(
       initialOriginLocationId,
