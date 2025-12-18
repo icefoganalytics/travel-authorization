@@ -8,7 +8,7 @@
     <template #activator="{ on, attrs }">
       <v-btn
         color="primary"
-        v-bind="attrs"
+        v-bind="merge({}, attrs, activatorProps)"
         v-on="on"
       >
         Add Flight
@@ -132,6 +132,7 @@
 
 <script setup>
 import { ref, nextTick } from "vue"
+import { merge } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -156,6 +157,10 @@ const props = defineProps({
   maxDate: {
     type: String,
     default: "",
+  },
+  activatorProps: {
+    type: Object,
+    default: () => ({}),
   },
 })
 
