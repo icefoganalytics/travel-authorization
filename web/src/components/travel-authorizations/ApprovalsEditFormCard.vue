@@ -27,7 +27,7 @@
         <v-text-field
           v-model="travelAdvanceInDollars"
           :rules="[required, isInteger]"
-          label="Travel Advance"
+          label="Travel Advance *"
           prefix="$"
           outlined
           required
