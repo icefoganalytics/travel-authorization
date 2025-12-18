@@ -107,7 +107,7 @@ import { cloneDeep, isNil, isEmpty, pick } from "lodash"
 
 import {
   PERMITTED_ATTRIBUTES_FOR_CLONE,
-  TravelMethods,
+  TravelSegmentTravelMethods,
   TravelSegment,
 } from "@/api/travel-segments-api"
 
@@ -205,7 +205,7 @@ function buildTravelSegmentEstimatesAttributes(
         segmentNumber: 1,
         departureLocationId: null,
         arrivalLocationId: staticFinalDestinationLocationId,
-        modeOfTransport: TravelMethods.AIRCRAFT,
+        modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
       },
       {
         travelAuthorizationId: props.travelAuthorizationId,
@@ -213,7 +213,7 @@ function buildTravelSegmentEstimatesAttributes(
         segmentNumber: 2,
         departureLocationId: staticFinalDestinationLocationId,
         arrivalLocationId: null,
-        modeOfTransport: TravelMethods.AIRCRAFT,
+        modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
       },
     ]
   }

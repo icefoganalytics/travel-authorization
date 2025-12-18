@@ -7,7 +7,7 @@ import {
 } from "@/api/base-api"
 
 /** Keep in sync with api/src/models/travel-segment.ts */
-export enum TravelMethods {
+export enum TravelSegmentTravelMethods {
   AIRCRAFT = "Aircraft",
   POOL_VEHICLE = "Pool Vehicle",
   PERSONAL_VEHICLE = "Personal Vehicle",
@@ -27,7 +27,7 @@ export const TRAVEL_METHODS = {
 }
 
 /** Keep in sync with api/src/models/stop.ts */
-export enum AccommodationTypes {
+export enum TravelSegmentAccommodationTypes {
   HOTEL = "Hotel",
   PRIVATE = "Private",
   OTHER = "Other",
@@ -60,9 +60,9 @@ export type TravelSegment = {
   segmentNumber: number
   departureOn: string | null
   departureTime: string | null
-  modeOfTransport: TravelMethods
+  modeOfTransport: TravelSegmentTravelMethods
   modeOfTransportOther: string | null
-  accommodationType: AccommodationTypes
+  accommodationType: TravelSegmentAccommodationTypes
   accommodationTypeOther: string | null
   isActual: boolean
   createdAt: string

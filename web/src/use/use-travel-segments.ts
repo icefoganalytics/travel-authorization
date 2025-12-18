@@ -1,8 +1,8 @@
 import { reactive, toRefs, ref, unref, watch } from "vue"
 
 import travelSegmentsApi, {
-  TravelMethods,
-  AccommodationTypes,
+  TravelSegmentTravelMethods,
+  TravelSegmentAccommodationTypes,
   TRAVEL_METHODS,
   ACCOMMODATION_TYPES,
   type TravelSegmentAsIndex,
@@ -12,8 +12,8 @@ import travelSegmentsApi, {
 } from "@/api/travel-segments-api"
 
 export {
-  TravelMethods,
-  AccommodationTypes,
+  TravelSegmentTravelMethods,
+  TravelSegmentAccommodationTypes,
   ACCOMMODATION_TYPES,
   TRAVEL_METHODS,
   type TravelSegmentAsIndex,
