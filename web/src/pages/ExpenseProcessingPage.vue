@@ -5,24 +5,40 @@
     </div>
     <v-row class="mt-2">
       <v-col>
-        <ExpensesProcessingCard class="default" />
+        <ExpensesProcessingCard
+          class="default"
+          @updated="refreshTravelAuthorizationsExpenseClaimApprovedCard"
+        />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <TravelAuthorizationsExpenseClaimApprovedCard class="default mt-5" />
+        <TravelAuthorizationsExpenseClaimApprovedCard
+          ref="travelAuthorizationsExpenseClaimApprovedCardRef"
+          class="default mt-5"
+        />
       </v-col>
     </v-row>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { computed, ref } from "vue"
+
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import ExpensesProcessingCard from "@/components/expenses/ExpensesProcessingCard.vue"
 import TravelAuthorizationsExpenseClaimApprovedCard from "@/components/travel-authorizations/finance/TravelAuthorizationsExpenseClaimApprovedCard.vue"
 
-useBreadcrumbs([
+const travelAuthorizationsExpenseClaimApprovedCardRef = ref<InstanceType<
+  typeof TravelAuthorizationsExpenseClaimApprovedCard
+> | null>(null)
+
+function refreshTravelAuthorizationsExpenseClaimApprovedCard() {
+  travelAuthorizationsExpenseClaimApprovedCardRef.value?.refresh()
+}
+
+const breadcrumbs = computed(() => [
   {
     text: "Expense Processing",
     to: {
@@ -30,4 +46,5 @@ useBreadcrumbs([
     },
   },
 ])
+useBreadcrumbs(breadcrumbs)
 </script>

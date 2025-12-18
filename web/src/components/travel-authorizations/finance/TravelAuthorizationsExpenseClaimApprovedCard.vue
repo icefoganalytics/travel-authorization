@@ -26,4 +26,8 @@ const travelAuthorizationsDataTable = ref(null)
 function refreshTable() {
   travelAuthorizationsDataTable.value?.refresh()
 }
+
+defineExpose({
+  refresh: refreshTable,
+})
 </script>

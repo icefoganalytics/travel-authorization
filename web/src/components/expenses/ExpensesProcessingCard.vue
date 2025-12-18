@@ -10,6 +10,8 @@
       <ExpensesProcessingDataTable
         ref="expensesProcessingDataTable"
         route-query-suffix="Expenses"
+        @approved="emit('updated')"
+        @rejected="emit('updated')"
       />
     </v-card-text>
   </v-card>
@@ -20,6 +22,10 @@ import { ref } from "vue"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import ExpensesProcessingDataTable from "@/components/expenses/ExpensesProcessingDataTable.vue"
+
+const emit = defineEmits<{
+  (event: "updated"): void
+}>()
 
 const expensesProcessingDataTable = ref<InstanceType<typeof ExpensesProcessingDataTable> | null>(
   null
