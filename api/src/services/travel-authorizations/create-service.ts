@@ -73,16 +73,7 @@ export class CreateService extends BaseService {
           "TravelAuthorization created successfully."
         )
 
-        return travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            "stops",
-            "travelDeskTravelRequest",
-            "travelSegments",
-            "user",
-          ],
-        })
+        return travelAuthorization.reloadWithScope("asShow")
       })
       .catch((error) => {
         auditService.log(

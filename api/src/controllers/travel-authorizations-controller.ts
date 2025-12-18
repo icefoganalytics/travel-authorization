@@ -177,16 +177,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
   }
 
   private loadTravelAuthorization(): Promise<TravelAuthorization | null> {
-    return TravelAuthorization.findByPk(this.params.travelAuthorizationId, {
-      include: [
-        "expenses",
-        "purpose",
-        "stops",
-        "travelDeskTravelRequest",
-        "travelSegments",
-        "user",
-      ],
-    })
+    return TravelAuthorization.withScope("asShow").findByPk(this.params.travelAuthorizationId)
   }
 
   private buildTravelAuthorization() {

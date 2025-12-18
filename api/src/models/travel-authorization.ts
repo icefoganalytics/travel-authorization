@@ -1,10 +1,9 @@
 import {
   DataTypes,
-  InferAttributes,
-  InferCreationAttributes,
-  Model,
   Op,
   type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
   type NonAttribute,
 } from "@sequelize/core"
 import {
@@ -22,9 +21,10 @@ import {
 } from "@sequelize/core/decorators-legacy"
 import { DateTime } from "luxon"
 
+import BaseModel from "@/models/base-model"
 import Expense from "@/models/expense"
-import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization-pre-approval-profile"
 import Stop from "@/models/stop"
+import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization-pre-approval-profile"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 import TravelPurpose from "@/models/travel-purpose"
 import TravelSegment from "@/models/travel-segment"
@@ -84,7 +84,7 @@ export enum TravelAuthorizationWizardStepNames {
 @Table({
   paranoid: false,
 })
-export class TravelAuthorization extends Model<
+export class TravelAuthorization extends BaseModel<
   InferAttributes<TravelAuthorization>,
   InferCreationAttributes<TravelAuthorization>
 > {
@@ -391,6 +391,16 @@ export class TravelAuthorization extends Model<
   }
 
   static establishScopes(): void {
+    this.addScope("asShow", {
+      include: [
+        "expenses",
+        "purpose",
+        "stops",
+        "travelDeskTravelRequest",
+        "travelSegments",
+        "user",
+      ],
+    })
     this.addScope("isTravelling", () => {
       const currentDate = new Date().toISOString()
       return {
