@@ -62,7 +62,7 @@ export type TravelSegment = {
   departureTime: string | null
   modeOfTransport: TravelSegmentTravelMethods
   modeOfTransportOther: string | null
-  accommodationType: TravelSegmentAccommodationTypes
+  accommodationType: TravelSegmentAccommodationTypes | null
   accommodationTypeOther: string | null
   isActual: boolean
   createdAt: string
