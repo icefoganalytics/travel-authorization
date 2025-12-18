@@ -13,7 +13,7 @@
     <template #top>
       <ExpenseRejectDialog
         ref="expenseRejectDialogRef"
-        @rejected="emitRejected"
+        @rejected="refreshAndEmitRejected"
       />
       <ReceiptAttributesPreviewDialog ref="receiptAttributesPreviewDialogRef" />
     </template>
@@ -216,6 +216,7 @@ async function approveExpense(expenseId: number): Promise<void> {
   try {
     await api.expenses.approveApi.create(expenseId)
     snack.success("Expense approved!")
+    refresh()
     emit("approved", expenseId)
   } finally {
     isProcessingExpenseMap.value.set(expenseId, false)
@@ -226,7 +227,8 @@ function openExpenseRejectDialog(expenseId: number): void {
   expenseRejectDialogRef.value?.open(expenseId)
 }
 
-function emitRejected(expenseId: number): void {
+function refreshAndEmitRejected(expenseId: number): void {
+  refresh()
   emit("rejected", expenseId)
 }
 
