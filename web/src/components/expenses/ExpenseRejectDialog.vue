@@ -13,6 +13,7 @@
       v-else
       ref="formCardRef"
       title="Reject Expense"
+      @submit.prevent="rejectAndClose"
     >
       <dl class="mb-4">
         <DescriptionElement
@@ -39,13 +40,14 @@
         outlined
         rows="3"
         :rules="[required]"
+        @keydown.ctrl.enter="rejectAndClose"
       />
 
       <template #actions>
         <v-btn
           color="error"
           :loading="isLoading"
-          @click="rejectAndClose"
+          type="submit"
         >
           Reject
         </v-btn>
