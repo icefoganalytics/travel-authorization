@@ -10,7 +10,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <TravelAuthorizationsAwaitingFinanceReviewCard class="default mt-5" />
+        <TravelAuthorizationsExpenseClaimApprovedCard class="default mt-5" />
       </v-col>
     </v-row>
   </div>
@@ -20,7 +20,7 @@
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import ExpensesProcessingCard from "@/components/expenses/ExpensesProcessingCard.vue"
-import TravelAuthorizationsAwaitingFinanceReviewCard from "@/components/travel-authorizations/finance/TravelAuthorizationsAwaitingFinanceReviewCard.vue"
+import TravelAuthorizationsExpenseClaimApprovedCard from "@/components/travel-authorizations/finance/TravelAuthorizationsExpenseClaimApprovedCard.vue"
 
 useBreadcrumbs([
   {

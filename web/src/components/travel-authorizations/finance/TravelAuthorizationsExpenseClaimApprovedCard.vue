@@ -7,9 +7,9 @@
       <RefreshTableButton @click="refreshTable" />
     </v-card-title>
     <v-card-text>
-      <TravelAuthorizationsAwaitingFinanceReviewDataTable
+      <TravelAuthorizationsExpenseClaimApprovedDataTable
         ref="travelAuthorizationsDataTable"
-        route-query-suffix="AwaitingFinanceReview"
+        route-query-suffix="TravelAuthorization"
       />
     </v-card-text>
   </v-card>
@@ -19,7 +19,7 @@
 import { ref } from "vue"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import TravelAuthorizationsAwaitingFinanceReviewDataTable from "@/components/travel-authorizations/finance/TravelAuthorizationsAwaitingFinanceReviewDataTable.vue"
+import TravelAuthorizationsExpenseClaimApprovedDataTable from "@/components/travel-authorizations/finance/TravelAuthorizationsExpenseClaimApprovedDataTable.vue"
 
 const travelAuthorizationsDataTable = ref(null)
 
