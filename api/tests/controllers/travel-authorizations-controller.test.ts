@@ -1,4 +1,4 @@
-import { TravelAuthorization, TravelSegment, User } from "@/models"
+import { TravelAuthorization, TravelDeskTravelRequest, TravelSegment, User } from "@/models"
 import {
   expenseFactory,
   travelAuthorizationFactory,
@@ -46,6 +46,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         })
         await travelDeskTravelRequestFactory.create({
           travelAuthorizationId: travelAuthorization2.id,
+          status: TravelDeskTravelRequest.Statuses.SUBMITTED,
         })
 
         // Act
