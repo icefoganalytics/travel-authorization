@@ -11,11 +11,11 @@
     v-on="$listeners"
   >
     <template #top>
+      <ReceiptAttributesPreviewDialog ref="receiptAttributesPreviewDialogRef" />
       <ExpenseRejectDialog
         ref="expenseRejectDialogRef"
         @rejected="refreshAndEmitRejected"
       />
-      <ReceiptAttributesPreviewDialog ref="receiptAttributesPreviewDialogRef" />
     </template>
 
     <template #item.date="{ value }">
@@ -53,6 +53,13 @@
         Approved
       </v-chip>
       <v-chip
+        v-else-if="!isNil(item.rejectedAt)"
+        color="error"
+        text-color="white"
+      >
+        Rejected
+      </v-chip>
+      <v-chip
         v-else
         color="warning"
         text-color="white"
@@ -62,9 +69,11 @@
     </template>
 
     <template #item.actions="{ item }">
-      <div class="d-flex align-center">
+      <div
+        v-if="isNil(item.approvedAt) && isNil(item.rejectedAt)"
+        class="d-flex align-center"
+      >
         <v-btn
-          v-if="isNil(item.approvedAt)"
           class="ma-0 mr-2"
           color="success"
           :loading="isProcessingExpense(item.id)"
@@ -74,7 +83,6 @@
           Approve
         </v-btn>
         <v-btn
-          v-if="!item.approvedAt"
           class="ma-0"
           color="error"
           :loading="isProcessingExpense(item.id)"
