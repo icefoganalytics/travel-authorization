@@ -106,19 +106,6 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   })
   declare expenseType: ExpenseExpenseTypes
 
-  @Attribute(DataTypes.DATE)
-  @NotNull
-  @Default(DataTypes.NOW)
-  declare createdAt: CreationOptional<Date>
-
-  @Attribute(DataTypes.DATE)
-  @NotNull
-  @Default(DataTypes.NOW)
-  declare updatedAt: CreationOptional<Date>
-
-  @Attribute(DataTypes.DATE)
-  declare deletedAt: Date | null
-
   @Attribute(DataTypes.INTEGER)
   declare approverId: number | null
 
@@ -133,6 +120,19 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
 
   @Attribute(DataTypes.TEXT)
   declare rejectionNote: string | null
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
+  declare createdAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  @NotNull
+  @Default(DataTypes.NOW)
+  declare updatedAt: CreationOptional<Date>
+
+  @Attribute(DataTypes.DATE)
+  declare deletedAt: Date | null
 
   // Validators
   @ModelValidator
