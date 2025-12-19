@@ -43,7 +43,6 @@
       </span>
     </template>
 
-    <!-- TODO: consider if table should only every show pending expenses? -->
     <template #item.approvedAt="{ item }">
       <v-chip
         v-if="!isNil(item.approvedAt)"
