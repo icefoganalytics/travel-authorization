@@ -52,6 +52,21 @@ export type TravelAuthorizationPreApprovalAsShow = TravelAuthorizationPreApprova
   submission?: TravelAuthorizationPreApprovalSubmission
 }
 
+export type TravelAuthorizationPreApprovalAsReference = Pick<
+  TravelAuthorizationPreApproval,
+  | "id"
+  | "estimatedCost"
+  | "location"
+  | "purpose"
+  | "startDate"
+  | "endDate"
+  | "isOpenForAnyDate"
+  | "month"
+  | "status"
+  | "createdAt"
+  | "updatedAt"
+>
+
 export type TravelAuthorizationPreApprovalWhereOptions = WhereOptions<
   TravelAuthorizationPreApproval,
   | "id"

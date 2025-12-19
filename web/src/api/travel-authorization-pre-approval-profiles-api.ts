@@ -5,6 +5,7 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
+import { type TravelAuthorizationPreApprovalAsReference } from "@/api/travel-authorization-pre-approvals-api"
 
 export type TravelAuthorizationPreApprovalProfile = {
   id: number
@@ -16,19 +17,12 @@ export type TravelAuthorizationPreApprovalProfile = {
   updatedAt: string
 }
 
-export type TravelAuthorizationPreApprovalProfileAsIndex = TravelAuthorizationPreApprovalProfile
+export type TravelAuthorizationPreApprovalProfileAsIndex = TravelAuthorizationPreApprovalProfile & {
+  preApproval: TravelAuthorizationPreApprovalAsReference
+}
 
 export type TravelAuthorizationPreApprovalProfileAsShow = TravelAuthorizationPreApprovalProfile & {
-  preApproval?: {
-    id: number
-    purpose: string
-    month: number
-    travelAdvance: number | null
-    eventName: string | null
-    summary: string | null
-    createdAt: string
-    updatedAt: string
-  }
+  preApproval: TravelAuthorizationPreApprovalAsReference
 }
 
 export type TravelAuthorizationPreApprovalProfileWhereOptions = WhereOptions<

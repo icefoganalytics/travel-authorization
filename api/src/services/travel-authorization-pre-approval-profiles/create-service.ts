@@ -40,7 +40,9 @@ export class CreateService extends BaseService {
         department,
       })
 
-    return travelAuthorizationPreApprovalProfile
+    return travelAuthorizationPreApprovalProfile.reload({
+      include: ["preApproval"],
+    })
   }
 }
 

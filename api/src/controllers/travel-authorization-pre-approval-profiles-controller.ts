@@ -3,7 +3,11 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 import { TravelAuthorizationPreApprovalProfile } from "@/models"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
-import { CreateService } from "@/services/travel-authorization-pre-approval-profiles"
+import {
+  CreateService,
+  UpdateService,
+} from "@/services/travel-authorization-pre-approval-profiles"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-authorization-pre-approval-profiles"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAuthorizationPreApprovalProfilesController extends BaseController<TravelAuthorizationPreApprovalProfile> {
@@ -25,8 +29,11 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
           order,
           include: ["preApproval"],
         })
+      const serializedTravelAuthorizationPreApprovalProfiles = IndexSerializer.perform(
+        travelAuthorizationPreApprovalProfiles
+      )
       return this.response.status(200).json({
-        travelAuthorizationPreApprovalProfiles,
+        travelAuthorizationPreApprovalProfiles: serializedTravelAuthorizationPreApprovalProfiles,
         totalCount,
       })
     } catch (error) {
@@ -53,8 +60,11 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
       })
     }
 
+    const serializedTravelAuthorizationPreApprovalProfile = ShowSerializer.perform(
+      travelAuthorizationPreApprovalProfile
+    )
     return this.response.status(200).json({
-      travelAuthorizationPreApprovalProfile,
+      travelAuthorizationPreApprovalProfile: serializedTravelAuthorizationPreApprovalProfile,
       policy,
     })
   }
@@ -69,12 +79,15 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const travelAuthorizationPreApprovalProfile = CreateService.perform(
+      const travelAuthorizationPreApprovalProfile = await CreateService.perform(
         permittedAttributes,
         this.currentUser
       )
-      return this.response.status(200).json({
-        travelAuthorizationPreApprovalProfile,
+      const serializedTravelAuthorizationPreApprovalProfile = ShowSerializer.perform(
+        travelAuthorizationPreApprovalProfile
+      )
+      return this.response.status(201).json({
+        travelAuthorizationPreApprovalProfile: serializedTravelAuthorizationPreApprovalProfile,
       })
     } catch (error) {
       logger.error(`Error creating travel authorization pre-approval profile: ${error}`, { error })
@@ -103,9 +116,16 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
       }
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-      await travelAuthorizationPreApprovalProfile.update(permittedAttributes)
-      return this.response.status(200).json({
+      const updatedTravelAuthorizationPreApprovalProfile = await UpdateService.perform(
         travelAuthorizationPreApprovalProfile,
+        permittedAttributes,
+        this.currentUser
+      )
+      const serializedTravelAuthorizationPreApprovalProfile = ShowSerializer.perform(
+        updatedTravelAuthorizationPreApprovalProfile
+      )
+      return this.response.status(200).json({
+        travelAuthorizationPreApprovalProfile: serializedTravelAuthorizationPreApprovalProfile,
         policy,
       })
     } catch (error) {
