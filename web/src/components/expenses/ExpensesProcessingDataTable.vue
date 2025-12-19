@@ -226,10 +226,10 @@ async function approveExpense(expenseId: number): Promise<void> {
   try {
     await api.expenses.approveApi.create(expenseId)
     snack.success("Expense approved!")
-    emit("approved", expenseId)
+    refresh()
 
     await nextTick()
-    refresh()
+    emit("approved", expenseId)
   } finally {
     isProcessingExpenseMap.value.set(expenseId, false)
   }
@@ -239,8 +239,10 @@ function openExpenseRejectDialog(expenseId: number): void {
   expenseRejectDialogRef.value?.open(expenseId)
 }
 
-function refreshAndEmitRejected(expenseId: number): void {
+async function refreshAndEmitRejected(expenseId: number): Promise<void> {
   refresh()
+
+  await nextTick()
   emit("rejected", expenseId)
 }
 

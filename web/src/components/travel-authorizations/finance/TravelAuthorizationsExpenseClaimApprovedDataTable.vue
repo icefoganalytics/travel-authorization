@@ -184,10 +184,10 @@ async function approveTravelAuthorization(travelAuthorizationId: number): Promis
   try {
     await travelAuthorizationsApi.expense(travelAuthorizationId)
     snack.success("Travel authorization expensed!")
-    emit("expensed", travelAuthorizationId)
+    refresh()
 
     await nextTick()
-    refresh()
+    emit("expensed", travelAuthorizationId)
   } finally {
     isProcessingTravelAuthorizationMap.value.set(travelAuthorizationId, false)
   }

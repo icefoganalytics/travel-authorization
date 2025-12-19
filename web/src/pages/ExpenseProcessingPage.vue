@@ -8,7 +8,7 @@
         <ExpensesProcessingCard
           ref="expensesProcessingCardRef"
           class="default"
-          @updated="refreshExpenseProcessingCard"
+          @updated="refreshTravelAuthorizationsExpenseClaimApprovedCard"
         />
       </v-col>
     </v-row>
@@ -17,7 +17,7 @@
         <TravelAuthorizationsExpenseClaimApprovedCard
           ref="travelAuthorizationsExpenseClaimApprovedCardRef"
           class="default mt-5"
-          @updated="refreshTravelAuthorizationsExpenseClaimApprovedCard"
+          @updated="refreshExpenseProcessingCard"
         />
       </v-col>
     </v-row>
