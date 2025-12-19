@@ -36,6 +36,8 @@ export type TravelDeskHotel = {
   updatedAt: string
 }
 
+export type TravelDeskHotelAsIndex = TravelDeskHotel
+
 export type TravelDeskHotelWhereOptions = WhereOptions<
   TravelDeskHotel,
   | "id"
@@ -60,7 +62,7 @@ export type TravelDeskHotelsQueryOptions = QueryOptions<
 
 export const travelDeskHotelsApi = {
   async list(params: TravelDeskHotelsQueryOptions = {}): Promise<{
-    travelDeskHotels: TravelDeskHotel[]
+    travelDeskHotels: TravelDeskHotelAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-desk-hotels", {
