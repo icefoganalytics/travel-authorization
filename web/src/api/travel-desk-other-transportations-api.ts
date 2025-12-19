@@ -48,6 +48,8 @@ export type TravelDeskOtherTransportation = {
   updatedAt: string
 }
 
+export type TravelDeskOtherTransportationAsIndex = TravelDeskOtherTransportation
+
 export type TravelDeskOtherTransportationWhereOptions = WhereOptions<
   TravelDeskOtherTransportation,
   | "id"
@@ -70,7 +72,7 @@ export type TravelDeskOtherTransportationsQueryOptions = QueryOptions<
 
 export const travelDeskOtherTransportationsApi = {
   async list(params: TravelDeskOtherTransportationsQueryOptions = {}): Promise<{
-    travelDeskOtherTransportations: TravelDeskOtherTransportation[]
+    travelDeskOtherTransportations: TravelDeskOtherTransportationAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-desk-other-transportations", {
