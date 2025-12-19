@@ -89,6 +89,8 @@ export type TravelDeskRentalCar = {
   updatedAt: string
 }
 
+export type TravelDeskRentalCarAsIndex = TravelDeskRentalCar
+
 export type TravelDeskRentalCarWhereOptions = WhereOptions<
   TravelDeskRentalCar,
   | "id"
@@ -116,7 +118,7 @@ export type TravelDeskRentalCarsQueryOptions = QueryOptions<
 
 export const travelDeskRentalCarsApi = {
   async list(params: TravelDeskRentalCarsQueryOptions = {}): Promise<{
-    travelDeskRentalCars: TravelDeskRentalCar[]
+    travelDeskRentalCars: TravelDeskRentalCarAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-desk-rental-cars", {
