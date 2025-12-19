@@ -1,11 +1,12 @@
 <template>
   <DescriptionElement
+    :label="label"
     :value="locationText"
     v-bind="$attrs"
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
@@ -13,12 +14,15 @@ import useLocation from "@/use/use-location"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 
-const props = defineProps({
-  locationId: {
-    type: Number,
-    default: null,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    locationId?: number | null | undefined
+    label: string
+  }>(),
+  {
+    locationId: null,
+  }
+)
 
 const { locationId } = toRefs(props)
 const { location } = useLocation(locationId)

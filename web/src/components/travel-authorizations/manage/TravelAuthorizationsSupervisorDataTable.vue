@@ -29,15 +29,19 @@
   </v-data-table>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue2-helpers/vue-router"
 
 import formatDate from "@/utils/format-date"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+
+import { type LocationAsReference } from "@/api/locations-api"
 import useCurrentUser from "@/use/use-current-user"
-import useTravelAuthorizations from "@/use/use-travel-authorizations"
+import useTravelAuthorizations, {
+  type TravelAuthorizationAsIndex,
+} from "@/use/use-travel-authorizations"
 
 const props = defineProps({
   where: {
@@ -87,14 +91,14 @@ const headers = ref([
   },
 ])
 
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, 1, {
+const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformer,
 })
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, 10, {
+const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`, "10", {
   transform: integerTransformer,
 })
 
-const { currentUser } = useCurrentUser()
+const { currentUser } = useCurrentUser<true>()
 
 const travelAuthorizationsQuery = computed(() => {
   return {
@@ -110,17 +114,17 @@ const travelAuthorizationsQuery = computed(() => {
 const { travelAuthorizations, totalCount, isLoading, refresh } =
   useTravelAuthorizations(travelAuthorizationsQuery)
 
-function formatFinalDestination(value) {
-  if (isNil(value)) return ""
+function formatFinalDestination(location: LocationAsReference | null) {
+  if (isNil(location)) return ""
 
-  const { city, province } = value
+  const { city, province } = location
   return `${city} (${province})`
 }
 
 const router = useRouter()
 
-function goToManageTravelAuthorization(travelAuthorization) {
-  const travelAuthorizationId = travelAuthorization.id
+function goToManageTravelAuthorization(travelAuthorization: TravelAuthorizationAsIndex) {
+  const travelAuthorizationId = travelAuthorization.id.toString()
   router.push({
     name: "manage-travel-requests/ManageTravelRequestDetailsPage",
     params: {

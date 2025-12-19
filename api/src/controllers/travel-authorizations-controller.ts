@@ -13,7 +13,11 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
-
+      const order = this.buildOrder([
+        ["updatedAt", "DESC"],
+        ["stops", "departureDate", "ASC"],
+        ["stops", "departureTime", "ASC"],
+      ])
       const scopedTravelAuthorizations = TravelAuthorizationsPolicy.applyScope(
         scopes,
         this.currentUser
@@ -36,11 +40,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
           "travelDeskTravelRequest",
           "user",
         ],
-        order: [
-          ["updatedAt", "DESC"],
-          ["stops", "departureDate", "ASC"],
-          ["stops", "departureTime", "ASC"],
-        ],
+        order,
         limit: this.pagination.limit,
         offset: this.pagination.offset,
       })
@@ -76,10 +76,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
           .json({ message: "You are not authorized to view this travel authorization." })
       }
 
-      const serializedTravelAuthorization = ShowSerializer.perform(
-        travelAuthorization,
-        this.currentUser
-      )
+      const serializedTravelAuthorization = ShowSerializer.perform(travelAuthorization)
 
       return this.response.status(200).json({
         travelAuthorization: serializedTravelAuthorization,
@@ -108,10 +105,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelAuthorization = ShowSerializer.perform(
-        newTravelAuthorization,
-        this.currentUser
-      )
+      const serializedTravelAuthorization = ShowSerializer.perform(newTravelAuthorization)
       return this.response.status(201).json({
         travelAuthorization: serializedTravelAuthorization,
       })
@@ -145,10 +139,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelAuthorization = ShowSerializer.perform(
-        updatedTravelAuthorization,
-        this.currentUser
-      )
+      const serializedTravelAuthorization = ShowSerializer.perform(updatedTravelAuthorization)
       return this.response.json({
         travelAuthorization: serializedTravelAuthorization,
       })
@@ -186,16 +177,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
   }
 
   private loadTravelAuthorization(): Promise<TravelAuthorization | null> {
-    return TravelAuthorization.findByPk(this.params.travelAuthorizationId, {
-      include: [
-        "expenses",
-        "stops",
-        "purpose",
-        "user",
-        "travelSegments",
-        "travelDeskTravelRequest",
-      ],
-    })
+    return TravelAuthorization.withScope("asShow").findByPk(this.params.travelAuthorizationId)
   }
 
   private buildTravelAuthorization() {

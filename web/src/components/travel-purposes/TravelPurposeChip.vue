@@ -15,18 +15,20 @@
   </v-chip>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { toRefs } from "vue"
 import { isNil } from "lodash"
 
 import useTravelPurpose from "@/use/use-travel-purpose"
 
-const props = defineProps({
-  travelPurposeId: {
-    type: Number,
-    default: () => null,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    travelPurposeId?: number | null | undefined
+  }>(),
+  {
+    travelPurposeId: null,
+  }
+)
 
 const { travelPurposeId } = toRefs(props)
 const { travelPurpose, isLoading } = useTravelPurpose(travelPurposeId)

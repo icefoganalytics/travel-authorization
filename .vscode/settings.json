@@ -18,5 +18,7 @@
   "plantuml.diagramsRoot": ".",
   "plantuml.exportSubFolder": false,
   "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "typescript.preferences.useAliasesForRenames": false,
   "javascript.preferences.importModuleSpecifier": "non-relative"
 }

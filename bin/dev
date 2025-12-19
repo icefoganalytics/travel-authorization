@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+require "shellwords"
+require "rdoc"
+
 require_relative "./github_api"
 require_relative "./pull-request-editor"
 
@@ -53,7 +56,7 @@ class DevHelper
   end
 
   def up(*args, **kwargs)
-    compose(*%w[up --remove-orphans], *args, **kwargs)
+    compose(*%w[up --remove-orphans --force-recreate], *args, **kwargs)
   end
 
   def down(*args, **kwargs)
@@ -73,6 +76,11 @@ class DevHelper
   end
 
   # Custom helpers
+
+  def sh(*args, **kwargs)
+    run(*%w[api sh], *args, **kwargs)
+  end
+
   def api(*args, **kwargs)
     run(*%w[api], *args, **kwargs)
   end
@@ -225,6 +233,45 @@ class DevHelper
     puts completions
   end
 
+  ##
+  # Generate help documentation.
+  def help(*args, **kwargs)
+    rdoc = RDoc::RDoc.new
+    rdoc_arguements = %w[--dry-run --quiet] + [__FILE__]
+    rdoc.document(rdoc_arguements)
+    rdoc_data_for_class = rdoc.store.classes_hash["DevHelper"]
+
+    puts <<~HELP.chomp
+      Development Helper.
+
+      Usage:
+        dev <command> [args]
+
+      Available commands:
+    HELP
+
+    all_public_methods = public_methods(false).sort
+    all_public_methods.delete(:call)
+    longest_command_length = all_public_methods.map(&:length).max
+
+    all_public_methods.each do |method_name|
+      method_doc = rdoc_data_for_class.find_method_named(method_name.to_s)
+      command = METHOD_TO_COMMAND.fetch(method_name, method_name)
+      comment = method_doc.comment
+
+      print "  #{command}"
+      unless comment.empty?
+        first_line_of_comment = comment.to_s.lines[0].strip
+        pad = "-" * (longest_command_length - command.length + 1)
+        print " #{pad} #{first_line_of_comment}"
+      end
+      print "\n"
+    end
+
+    command = compose_command("<args>")
+    puts "\nFallback for unknown commands is to run `#{command}`."
+  end
+
   private
 
   def wait_for_process_with_logging(command)
@@ -249,12 +296,38 @@ class DevHelper
   end
 
   def compose_command(*args, **kwargs)
-    environment = kwargs.fetch(:environment, "development")
-    "cd #{project_root} && docker compose -f docker-compose.#{environment}.yml #{args.join(" ")}"
+    environment = kwargs.delete(:environment) { "development" }
+    pipe_input = kwargs.delete(:pipe_input)
+
+    go_to_project_root = "cd #{project_root}"
+    bootstrap_docker = "docker compose -f docker-compose.#{environment}.yml #{args.join(' ')}"
+
+    if pipe_input
+      shell_safe_pipe_input = Shellwords.escape(pipe_input)
+      pipe_input_to_compose = "printf '%s\\n' #{shell_safe_pipe_input} |"
+
+      <<~BASH
+        #{go_to_project_root} && \
+        #{pipe_input_to_compose} #{dynamic_environment_variables} #{bootstrap_docker}
+      BASH
+    else
+      <<~BASH
+        #{go_to_project_root} && \
+        #{dynamic_environment_variables} #{bootstrap_docker}
+      BASH
+    end
   end
 
   def project_root
     @project_root ||= File.absolute_path("#{__dir__}/..")
+  end
+
+  def dynamic_environment_variables
+    if RUBY_PLATFORM =~ /linux/
+      %(HOST_USER_ID="#{user_id}" HOST_GROUP_ID="#{group_id}")
+    else
+      ""
+    end
   end
 
   def take_over_needed?(file_or_directory)

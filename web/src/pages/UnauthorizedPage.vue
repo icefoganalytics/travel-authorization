@@ -47,7 +47,7 @@
   </v-container>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue"
 
 import { auth0 } from "@/plugins/auth0-plugin"

@@ -74,6 +74,7 @@ import TravelAuthorizationPreApprovalProfileListItem from "@/components/travel-a
 
 const props = defineProps({
   value: {
+    /** @type {number | null | undefined} */
     type: Number,
     default: null,
   },

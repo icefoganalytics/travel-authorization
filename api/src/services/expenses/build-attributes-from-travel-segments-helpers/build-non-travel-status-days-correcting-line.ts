@@ -2,7 +2,7 @@ import { CreationAttributes } from "@sequelize/core"
 import { sortBy, reverse } from "lodash"
 
 import { Expense } from "@/models"
-import { type Types } from "@/models/expense"
+import { type ExpenseTypes } from "@/models/expense"
 
 export function buildNonTravelStatusDaysCorrectingLine({
   expensesAttributes,
@@ -15,7 +15,7 @@ export function buildNonTravelStatusDaysCorrectingLine({
   daysOffTravelStatus: number
   travelAuthorizationId: number
   travelEndAt: Date
-  type: Types
+  type: ExpenseTypes
 }): CreationAttributes<Expense> {
   const expensesByDateReversed = reverse(sortBy(expensesAttributes, "date"))
 

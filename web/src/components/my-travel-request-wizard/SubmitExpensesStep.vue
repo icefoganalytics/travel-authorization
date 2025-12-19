@@ -80,7 +80,7 @@ import { isNil } from "lodash"
 
 import { TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES } from "@/api/travel-authorizations-api"
 
-import useExpenses, { Types, ExpenseTypes } from "@/use/use-expenses"
+import useExpenses, { ExpenseTypes, ExpenseExpenseTypes } from "@/use/use-expenses"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import ExpenseCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseCreateDialog.vue"
@@ -101,13 +101,13 @@ const props = defineProps({
 
 const expenseWhere = computed(() => ({
   travelAuthorizationId: props.travelAuthorizationId,
-  expenseType: [ExpenseTypes.ACCOMMODATIONS, ExpenseTypes.TRANSPORTATION],
+  expenseType: [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION],
 }))
 
 const expenseOptions = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
-    type: Types.EXPENSE,
+    type: ExpenseTypes.EXPENSE,
   },
   perPage: 1, // only 1 record to get total count
 }))

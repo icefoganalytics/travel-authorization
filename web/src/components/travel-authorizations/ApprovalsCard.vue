@@ -1,5 +1,12 @@
 <template>
-  <HeaderActionsCard title="Approvals">
+  <v-skeleton-loader
+    v-if="isNil(travelAuthorization)"
+    type="card"
+  />
+  <HeaderActionsCard
+    v-else
+    title="Approvals"
+  >
     <template #header-actions><slot name="header-actions"></slot></template>
 
     <v-row>
@@ -63,8 +70,9 @@
   </HeaderActionsCard>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import { formatCurrency } from "@/utils/formatters"
 
@@ -75,12 +83,9 @@ import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import EstimatedCostDescriptionElement from "@/components/travel-authorizations/EstimatedCostDescriptionElement.vue"
 import TravelAuthorizationPreApprovalProfileChip from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileChip.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
@@ -89,9 +94,14 @@ const travelAuthorizationPreApprovalProfileId = computed(() => {
   return travelAuthorization.value?.preApprovalProfileId
 })
 
-const travelAdvanceInDollars = computed(() =>
-  Math.ceil(travelAuthorization.value.travelAdvanceInCents / 100.0)
-)
+const travelAdvanceInDollars = computed(() => {
+  if (isNil(travelAuthorization.value)) return 0
+
+  const { travelAdvanceInCents } = travelAuthorization.value
+  if (isNil(travelAdvanceInCents)) return 0
+
+  return Math.ceil(Number(travelAdvanceInCents) / 100.0)
+})
 const formattedTravelAdvanceInDollars = computed(() => formatCurrency(travelAdvanceInDollars.value))
 
 defineExpose({

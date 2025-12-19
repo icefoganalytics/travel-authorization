@@ -43,6 +43,7 @@
     <v-row class="mt-md-10 mt-5">
       <v-col>
         <TravelAuthorizationActionLogsTable
+          ref="travelAuthorizationActionLogsTable"
           :travel-authorization-id="travelAuthorizationIdAsNumber"
         />
       </v-col>
@@ -50,7 +51,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -58,23 +59,23 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 import TravelAuthorizationActionLogsTable from "@/components/travel-authorization-action-logs/TravelAuthorizationActionLogsTable.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: [String, Number],
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: string
+}>()
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 
-/** @type {import('vue').Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
-const summaryHeaderPanel = ref(null)
+const summaryHeaderPanel = ref<InstanceType<typeof SummaryHeaderPanel> | null>(null)
+const travelAuthorizationActionLogsTable = ref<InstanceType<
+  typeof TravelAuthorizationActionLogsTable
+> | null>(null)
 
 async function refresh() {
   await summaryHeaderPanel.value?.refresh()
+  await travelAuthorizationActionLogsTable.value?.refresh()
 }
 
-useBreadcrumbs([
+const breadcrumbs = ref([
   {
     text: "Manage Travel Requests",
     to: {
@@ -82,4 +83,5 @@ useBreadcrumbs([
     },
   },
 ])
+useBreadcrumbs(breadcrumbs)
 </script>

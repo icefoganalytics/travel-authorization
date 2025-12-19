@@ -19,6 +19,7 @@ import travelAuthorizationActionLogsApi from "@/api/travel-authorization-action-
  *   isLoading: import('vue').Ref<boolean>,
  *   isErrored: import('vue').Ref<boolean>,
  *   fetch: () => Promise<TravelAuthorizationActionLog[]>,
+ *   refresh: () => Promise<TravelAuthorizationActionLog[]>,
  * }}
  */
 export function useTravelAuthorizationActionLogs(options = {}) {
@@ -37,6 +38,8 @@ export function useTravelAuthorizationActionLogs(options = {}) {
       state.travelAuthorizationActionLogs = travelAuthorizationActionLogs
     } catch (error) {
       state.isErrored = true
+      console.error(`Failed to fetch travel authorization action logs: ${error}`, { error })
+      throw error
     } finally {
       state.isLoading = false
     }
@@ -56,5 +59,6 @@ export function useTravelAuthorizationActionLogs(options = {}) {
   return {
     ...toRefs(state),
     fetch,
+    refresh: fetch,
   }
 }

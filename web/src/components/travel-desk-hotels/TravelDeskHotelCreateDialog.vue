@@ -164,6 +164,7 @@ const props = defineProps({
     required: true,
   },
   conferenceName: {
+    /** @type {string | null} */
     type: String,
     default: null,
   },

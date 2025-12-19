@@ -54,7 +54,7 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { toRefs } from "vue"
 
 import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
@@ -66,12 +66,9 @@ import UserChip from "@/components/users/UserChip.vue"
 import LocationDescriptionElement from "@/components/locations/LocationDescriptionElement.vue"
 import TravelPurposeChip from "@/components/travel-purposes/TravelPurposeChip.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
 const { travelAuthorizationId } = toRefs(props)
 
@@ -86,7 +83,8 @@ const {
   update,
 } = useTravelAuthorizationSummary(travelAuthorizationId)
 
-const { currentUser } = useCurrentUser()
+const { currentUser } = useCurrentUser<true>()
+
 const { mdAndUp } = useDisplayVuetify2()
 
 defineExpose({

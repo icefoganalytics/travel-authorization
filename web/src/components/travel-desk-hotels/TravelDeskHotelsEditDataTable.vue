@@ -55,14 +55,17 @@ defineProps({
     default: () => ({}),
   },
   minDate: {
+    /** @type {string | null} */
     type: String,
     default: null,
   },
   maxDate: {
+    /** @type {string | null} */
     type: String,
     default: null,
   },
   earliestFlightDate: {
+    /** @type {string | null} */
     type: String,
     default: null,
   },

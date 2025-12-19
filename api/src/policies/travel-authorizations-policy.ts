@@ -13,6 +13,7 @@ import UsersPolicy from "@/policies/users-policy"
 export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorization) {
   show(): boolean {
     if (this.user.isAdmin) return true
+    if (this.user.isFinanceUser && this.record.department === this.user.department) return true
     if (this.record.supervisorEmail === this.user.email) return true
     if (this.record.userId === this.user.id) return true
 
@@ -53,13 +54,33 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorization>> {
     if (user.isAdmin) return ALL_RECORDS_SCOPE
 
+    if (user.isFinanceUser) {
+      return {
+        where: {
+          [Op.or]: [
+            {
+              department: user.department,
+            },
+            {
+              supervisorEmail: user.email,
+            },
+            {
+              userId: user.id,
+            },
+          ],
+        },
+      }
+    }
+
     return {
       where: {
         [Op.or]: [
           {
             supervisorEmail: user.email,
           },
-          { userId: user.id },
+          {
+            userId: user.id,
+          },
         ],
       },
     }

@@ -7,8 +7,8 @@ import expensesApi, {
   type ExpenseQueryOptions,
   TYPES,
   EXPENSE_TYPES,
-  Types,
   ExpenseTypes,
+  ExpenseExpenseTypes,
 } from "@/api/expenses-api"
 
 export {
@@ -18,8 +18,8 @@ export {
   type ExpenseQueryOptions,
   TYPES,
   EXPENSE_TYPES,
-  Types,
   ExpenseTypes,
+  ExpenseExpenseTypes,
 }
 
 /**

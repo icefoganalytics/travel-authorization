@@ -8,6 +8,11 @@ export type TravelPurpose = {
   updatedAt: string
 }
 
+export type TravelPurposeAsReference = Pick<
+  TravelPurpose,
+  "id" | "purpose" | "createdAt" | "updatedAt"
+>
+
 export type TravelPurposeWhereOptions = WhereOptions<TravelPurpose, "id" | "purpose">
 
 /** add as needed, must match model scopes */

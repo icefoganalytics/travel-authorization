@@ -11,6 +11,11 @@ export type Location = {
   updatedAt: string
 }
 
+export type LocationAsReference = Pick<
+  Location,
+  "id" | "city" | "province" | "createdAt" | "updatedAt"
+>
+
 export type LocationWhereOptions = WhereOptions<Location, "id" | "province" | "city">
 
 export type LocationFiltersOptions = FiltersOptions<{

@@ -1,19 +1,21 @@
 <template>
   <v-card>
-    <v-card-title>
-      <h3>Flight Requests</h3>
+    <v-card-title class="d-flex align-center">
+      <h3 class="mb-0">Flight Requests</h3>
+      <v-spacer />
+      <TravelDeskFlightRequestCreateDialog
+        :attributes="{
+          travelRequestId: travelDeskTravelRequestId,
+        }"
+        :activator-props="{
+          class: 'my-0',
+        }"
+        :min-date="minDate"
+        :max-date="maxDate"
+        @created="emitUpdatedAndRefresh"
+      />
     </v-card-title>
     <v-card-text>
-      <div class="d-flex justify-end">
-        <TravelDeskFlightRequestCreateDialog
-          :attributes="{
-            travelRequestId: travelDeskTravelRequestId,
-          }"
-          :min-date="minDate"
-          :max-date="maxDate"
-          @created="emitUpdatedAndRefresh"
-        />
-      </div>
       <TravelDeskFlightRequestsEditTable
         ref="travelDeskFlightRequestsEditTable"
         :where="{

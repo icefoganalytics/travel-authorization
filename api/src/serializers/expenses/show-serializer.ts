@@ -16,6 +16,11 @@ export type ExpenseShowView = Pick<
   | "currency"
   | "type"
   | "expenseType"
+  | "approverId"
+  | "approvedAt"
+  | "rejectorId"
+  | "rejectedAt"
+  | "rejectionNote"
   | "createdAt"
   | "updatedAt"
 > & {
@@ -48,6 +53,11 @@ export class ShowSerializer extends BaseSerializer<Expense> {
         "currency",
         "type",
         "expenseType",
+        "approverId",
+        "approvedAt",
+        "rejectorId",
+        "rejectedAt",
+        "rejectionNote",
         "createdAt",
         "updatedAt",
       ]),

@@ -1,5 +1,9 @@
 <template>
-  <v-card>
+  <v-skeleton-loader
+    v-if="isNil(travelAuthorization)"
+    type="card"
+  />
+  <v-card v-else>
     <v-card-title class="d-flex justify-space-between align-center">
       <h3>Hotel Requests</h3>
       <TravelDeskHotelCreateDialog
@@ -28,10 +32,12 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import useTravelAuthorization from "@/use/use-travel-authorization"
+import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
 
 import TravelDeskHotelCreateDialog from "@/components/travel-desk-hotels/TravelDeskHotelCreateDialog.vue"
@@ -54,6 +60,7 @@ const whereClause = computed(() => ({
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
+const { departureDate, returnDate } = useTravelAuthorizationSummary(travelAuthorizationId)
 
 const isConference = computed(() =>
   travelAuthorization.value?.purpose?.purpose?.toLowerCase().includes("conference")
@@ -64,8 +71,8 @@ const conferenceName = computed(() => {
   return travelAuthorization.value?.eventName
 })
 
-const minDate = computed(() => travelAuthorization.value?.startDate?.slice(0, 10))
-const maxDate = computed(() => travelAuthorization.value?.endDate?.slice(0, 10))
+const minDate = computed(() => departureDate.value)
+const maxDate = computed(() => returnDate.value)
 
 // TODO: maybe make an optimized query that returns the start/end dates?
 const travelDeskFlightRequestsQuery = computed(() => ({
@@ -80,8 +87,9 @@ const {
   refresh: refreshFlightRequests,
 } = useTravelDeskFlightRequests(travelDeskFlightRequestsQuery)
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskHotelsDataTable> | null>} */
-const travelDeskHotelsEditDataTable = ref(null)
+const travelDeskHotelsEditDataTable = ref<InstanceType<
+  typeof TravelDeskHotelsEditDataTable
+> | null>(null)
 
 async function refreshTravelDeskHotels() {
   return travelDeskHotelsEditDataTable.value?.refresh()
