@@ -6,6 +6,8 @@
     :loading="isLoading"
     :items-per-page.sync="perPage"
     :page.sync="page"
+    :sort-by.sync="vuetify2SortBy"
+    :sort-desc.sync="vuetify2SortDesc"
     :server-items-length="totalCount"
     v-on="$listeners"
   >
@@ -46,6 +48,7 @@
         </template>
         <span>{{ item.unprocessedExpenseCount }} expenses remaining to be processed.</span>
       </v-tooltip>
+      <!-- TODO: should this perform a different status effect if some expenses where rejected? -->
       <v-btn
         v-else
         class="ma-0 mr-2"
@@ -66,6 +69,9 @@ import { computed, ref } from "vue"
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import formatDate from "@/utils/format-date"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import { type LocationAsReference } from "@/api/locations-api"
 import travelAuthorizationsApi from "@/api/travel-authorizations-api"
@@ -98,7 +104,6 @@ const headers = ref([
   {
     text: "TA #",
     value: "id",
-    sortable: false,
   },
   {
     text: "Requestee",
@@ -108,7 +113,6 @@ const headers = ref([
   {
     text: "Department",
     value: "department",
-    sortable: false,
   },
   {
     text: "Final Destination",
@@ -118,17 +122,14 @@ const headers = ref([
   {
     text: "Type",
     value: "purposeText",
-    sortable: false,
   },
   {
     text: "Departure Date",
     value: "departingAt",
-    sortable: false,
   },
   {
     text: "Return Date",
     value: "returningAt",
-    sortable: false,
   },
   {
     text: "Actions",
@@ -145,6 +146,15 @@ const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`
   transform: integerTransformer,
 })
 
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  {
+    key: "id",
+    order: "asc",
+  },
+])
+const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
+
 const travelAuthorizationsQuery = computed(() => {
   return {
     where: {
@@ -152,6 +162,7 @@ const travelAuthorizationsQuery = computed(() => {
       status: TravelAuthorizationStatuses.EXPENSE_CLAIM_APPROVED,
     },
     filters: props.filters,
+    order: order.value,
     page: page.value,
     perPage: perPage.value,
   }
