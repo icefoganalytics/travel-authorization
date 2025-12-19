@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, nextTick, ref } from "vue"
 import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
@@ -227,8 +227,10 @@ async function approveExpense(expenseId: number): Promise<void> {
   try {
     await api.expenses.approveApi.create(expenseId)
     snack.success("Expense approved!")
-    refresh()
     emit("approved", expenseId)
+
+    await nextTick()
+    refresh()
   } finally {
     isProcessingExpenseMap.value.set(expenseId, false)
   }

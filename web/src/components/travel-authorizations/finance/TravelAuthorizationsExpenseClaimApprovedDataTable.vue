@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, nextTick, ref } from "vue"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import formatDate from "@/utils/format-date"
@@ -184,8 +184,10 @@ async function approveTravelAuthorization(travelAuthorizationId: number): Promis
   try {
     await travelAuthorizationsApi.expense(travelAuthorizationId)
     snack.success("Travel authorization expensed!")
-    refresh()
     emit("expensed", travelAuthorizationId)
+
+    await nextTick()
+    refresh()
   } finally {
     isProcessingTravelAuthorizationMap.value.set(travelAuthorizationId, false)
   }
