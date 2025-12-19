@@ -7,6 +7,7 @@
       <RefreshTableButton @click="refreshTable" />
     </v-card-title>
     <v-card-text>
+      <!-- TODO: add ability to filter by travel authorization -->
       <ExpensesProcessingDataTable
         ref="expensesProcessingDataTable"
         route-query-suffix="Expenses"
