@@ -4,7 +4,7 @@ import { TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile }
 import BaseSerializer from "@/serializers/base-serializer"
 import { TravelAuthorizationPreApprovals } from "@/serializers"
 
-export type TravelAuthorizationPreApprovalProfileShowView = Pick<
+export type TravelAuthorizationPreApprovalProfileAsShow = Pick<
   TravelAuthorizationPreApprovalProfile,
   "id" | "preApprovalId" | "profileName" | "department" | "branch" | "createdAt" | "updatedAt"
 > & {
@@ -12,7 +12,7 @@ export type TravelAuthorizationPreApprovalProfileShowView = Pick<
 }
 
 export class ShowSerializer extends BaseSerializer<TravelAuthorizationPreApprovalProfile> {
-  perform(): TravelAuthorizationPreApprovalProfileShowView {
+  perform(): TravelAuthorizationPreApprovalProfileAsShow {
     const { preApproval } = this.record
     if (isUndefined(preApproval)) {
       throw new Error("Expected preApproval association to be pre-loaded.")
