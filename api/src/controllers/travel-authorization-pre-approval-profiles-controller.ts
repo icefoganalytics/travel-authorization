@@ -3,11 +3,11 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 import { TravelAuthorizationPreApprovalProfile } from "@/models"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
+import { CreateService, UpdateService } from "@/services/travel-authorization-pre-approval-profiles"
 import {
-  CreateService,
-  UpdateService,
-} from "@/services/travel-authorization-pre-approval-profiles"
-import { IndexSerializer, ShowSerializer } from "@/serializers/travel-authorization-pre-approval-profiles"
+  IndexSerializer,
+  ShowSerializer,
+} from "@/serializers/travel-authorization-pre-approval-profiles"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAuthorizationPreApprovalProfilesController extends BaseController<TravelAuthorizationPreApprovalProfile> {
