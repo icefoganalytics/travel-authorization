@@ -14,7 +14,7 @@ export const TYPES = Object.freeze({
   EXPENSE: "Expense",
 })
 
-export enum Types {
+export enum ExpenseTypes {
   ESTIMATE = "Estimate",
   EXPENSE = "Expense",
 }
@@ -27,7 +27,7 @@ export const EXPENSE_TYPES = Object.freeze({
   NON_TRAVEL_STATUS: "Non-Travel Status",
 })
 
-export enum ExpenseTypes {
+export enum ExpenseExpenseTypes {
   ACCOMMODATIONS = "Accommodations",
   TRANSPORTATION = "Transportation",
   MEALS_AND_INCIDENTALS = "Meals & Incidentals",
@@ -42,8 +42,13 @@ export type Expense = {
   date: string | null
   cost: number
   currency: string
-  type: Types
-  expenseType: ExpenseTypes
+  type: ExpenseTypes
+  expenseType: ExpenseExpenseTypes
+  approverId: number | null
+  approvedAt: string | null
+  rejectorId: number | null
+  rejectedAt: string | null
+  rejectionNote: string | null
   createdAt: string
   updatedAt: string
 }
@@ -56,13 +61,31 @@ export type ExpenseAsShow = Expense & {
   receipt: AttachmentAsReference | null
 }
 
+export type ExpenseAsReference = Pick<
+  Expense,
+  | "id"
+  | "travelAuthorizationId"
+  | "description"
+  | "date"
+  | "cost"
+  | "currency"
+  | "type"
+  | "expenseType"
+  | "createdAt"
+  | "updatedAt"
+>
+
+export type ExpensePolicy = Policy
+
 export type ExpenseWhereOptions = WhereOptions<
   Expense,
   "id" | "travelAuthorizationId" | "date" | "currency" | "type" | "expenseType"
 >
 
 /** add as needed, must match model scopes */
-export type ExpenseFiltersOptions = FiltersOptions<Record<never, never>>
+export type ExpenseFiltersOptions = FiltersOptions<{
+  isExpenseClaimApproved: boolean
+}>
 
 export type ExpenseQueryOptions = QueryOptions<ExpenseWhereOptions, ExpenseFiltersOptions>
 

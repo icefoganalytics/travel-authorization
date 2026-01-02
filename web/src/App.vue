@@ -51,10 +51,11 @@ watch(
 
     if (newIsReadyAuth0 === true) {
       try {
+        await router.isReady()
         await fetch()
         isErrored.value = false
       } catch (error) {
-        console.error("Error fetching current user:", error)
+        console.error(`Error fetching current user: ${error}`, { error })
         isErrored.value = true
         await router.isReady()
         await router.push({ name: "UnauthorizedPage" })

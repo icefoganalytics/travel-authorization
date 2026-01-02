@@ -1,5 +1,10 @@
 <template>
+  <v-skeleton-loader
+    v-if="isNil(travelAuthorization)"
+    type="card"
+  />
   <HeaderActionsFormCard
+    v-else
     ref="headerActionsFormCard"
     title="Purpose"
     lazy-validation
@@ -13,8 +18,6 @@
           v-model="travelAuthorization.purposeId"
           :rules="[required]"
           dense
-          item-text="purpose"
-          item-value="id"
           label="Purpose *"
           outlined
           required
@@ -98,35 +101,41 @@
   </HeaderActionsFormCard>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, toRefs, watch } from "vue"
 import { cloneDeep, isNil, isEmpty, pick } from "lodash"
 
-import { PERMITTED_ATTRIBUTES_FOR_CLONE, TRAVEL_METHODS } from "@/api/travel-segments-api"
+import {
+  PERMITTED_ATTRIBUTES_FOR_CLONE,
+  TravelSegmentTravelMethods,
+  TravelSegment,
+} from "@/api/travel-segments-api"
 
 import { required } from "@/utils/validators"
-import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import useTravelAuthorization, {
+  TravelAuthorizationTripTypes,
+} from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-const emit = defineEmits(["update:travelPurposeId", "update:finalDestinationLocationId"])
+const emit = defineEmits<{
+  (event: "update:travelPurposeId", travelPurposeId: number): void
+  (event: "update:finalDestinationLocationId", finalDestinationLocationId: number | null): void
+}>()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 const tripType = computed(() => {
   if (isNil(travelAuthorization.value)) return null
 
-  return travelAuthorization.value.tripTypeEstimate || TRIP_TYPES.ROUND_TRIP
+  return travelAuthorization.value.tripTypeEstimate || TravelAuthorizationTripTypes.ROUND_TRIP
 })
 
 const travelSegmentsQuery = computed(() => {
@@ -139,14 +148,14 @@ const travelSegmentsQuery = computed(() => {
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
 
-const finalDestinationLocationId = ref(null)
+const finalDestinationLocationId = ref<number | null>(null)
 
-function updateFinalDestinationLocationId(locationId) {
+function updateFinalDestinationLocationId(locationId: number | null) {
   finalDestinationLocationId.value = locationId
   emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
 }
 
-watch(
+watch<[TravelAuthorizationTripTypes | null, TravelSegment[]], true>(
   () => [tripType.value, cloneDeep(travelSegments.value)],
   ([tripType, newTravelSegments]) => {
     if (!isNil(finalDestinationLocationId.value)) return
@@ -163,27 +172,30 @@ watch(
   }
 )
 
-function determineFinalDestinationLocationId(tripType, newTravelSegments) {
+function determineFinalDestinationLocationId(
+  tripType: TravelAuthorizationTripTypes | null,
+  newTravelSegments: TravelSegment[]
+): number | null {
   if (isNil(tripType)) return null
   if (isNil(newTravelSegments) || isEmpty(newTravelSegments)) return null
 
-  if (tripType === TRIP_TYPES.ROUND_TRIP) {
-    return newTravelSegments.at(-2)?.arrivalLocationId
+  if (tripType === TravelAuthorizationTripTypes.ROUND_TRIP) {
+    return newTravelSegments.at(-2)?.arrivalLocationId ?? null
   } else {
-    return newTravelSegments.at(-1)?.arrivalLocationId
+    return newTravelSegments.at(-1)?.arrivalLocationId ?? null
   }
 }
 
-function locationIdOrNullIfOverlapping(location1, location2) {
-  if (location1 === location2) return null
+function locationIdOrNullIfOverlapping(locationId1: number | null, locationId2: number | null) {
+  if (locationId1 === locationId2) return null
 
-  return location1
+  return locationId1
 }
 
 function buildTravelSegmentEstimatesAttributes(
-  staticFinalDestinationLocationId,
-  tripType,
-  newTravelSegments
+  staticFinalDestinationLocationId: number | null,
+  tripType: TravelAuthorizationTripTypes | null,
+  newTravelSegments: TravelSegment[]
 ) {
   if (isNil(tripType) || isNil(newTravelSegments) || isEmpty(newTravelSegments)) {
     return [
@@ -193,7 +205,7 @@ function buildTravelSegmentEstimatesAttributes(
         segmentNumber: 1,
         departureLocationId: null,
         arrivalLocationId: staticFinalDestinationLocationId,
-        modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
+        modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
       },
       {
         travelAuthorizationId: props.travelAuthorizationId,
@@ -201,17 +213,26 @@ function buildTravelSegmentEstimatesAttributes(
         segmentNumber: 2,
         departureLocationId: staticFinalDestinationLocationId,
         arrivalLocationId: null,
-        modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
+        modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
       },
     ]
   }
 
-  if (tripType === TRIP_TYPES.ROUND_TRIP) {
+  if (tripType === TravelAuthorizationTripTypes.ROUND_TRIP) {
     const firstTravelSegment = newTravelSegments.at(0)
+    if (isNil(firstTravelSegment)) {
+      throw new Error("First travel segment is missing")
+    }
+
     const lastTravelSegment = newTravelSegments.at(-1)
+    if (isNil(lastTravelSegment)) {
+      throw new Error("Last travel segment is missing")
+    }
+
     const destinationLocationId = staticFinalDestinationLocationId
     const initialOriginLocationId =
       firstTravelSegment.departureLocationId || lastTravelSegment.arrivalLocationId
+
     const originLocationId = locationIdOrNullIfOverlapping(
       initialOriginLocationId,
       destinationLocationId
@@ -264,11 +285,11 @@ function buildTravelSegmentEstimatesAttributes(
   })
 }
 
-/** @type {import('vue').Ref<InstanceType<typeof HeaderActionsFormCard> | null>} */
-const headerActionsFormCard = ref(null)
+const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isSaving = ref(false)
 
 async function saveWrapper() {
+  if (isNil(travelAuthorization.value)) return
   if (isNil(headerActionsFormCard.value)) return
   if (!headerActionsFormCard.value.validate()) return
 

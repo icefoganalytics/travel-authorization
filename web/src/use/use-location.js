@@ -4,18 +4,16 @@ import { isNil } from "lodash"
 import locationsApi from "@/api/locations-api"
 
 /**
- * TODO: add other fields
- * @typedef {Object} Location
- * @property {number} id
+ * @typedef {import('@/api/locations-api.js').Location} Location
  */
 
 /**
  * Provides reactive state for a location.
  *
  * @callback UseLocation
- * @param {import('vue').Ref<number>} locationId
+ * @param {import('vue').Ref<number | null | undefined>} locationId
  * @returns {{
- *   location: import('vue').Ref<Location> | null,
+ *   location: import('vue').Ref<Location | null>,
  *   isLoading: import('vue').Ref<boolean>,
  *   isErrored: import('vue').Ref<boolean>,
  *   fetch: () => Promise<Location>,
@@ -34,7 +32,7 @@ export function useLocation(locationId) {
   async function fetch() {
     state.isLoading = true
     try {
-      const { location } = await locationsApi.fetch(unref(locationId))
+      const { location } = await locationsApi.get(unref(locationId))
       state.isErrored = false
       state.location = location
       return location

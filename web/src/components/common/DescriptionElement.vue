@@ -42,37 +42,20 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  /**
-   * The label text to display
-   */
-  label: {
-    type: String,
-    required: true,
-  },
-  /**
-   * Optional icon name from Material Design Icons (e.g., 'mdi-account')
-   */
-  icon: {
-    type: String,
-    default: "",
-  },
-  /**
-   * The value to display. Not required if using slot content
-   */
-  value: {
-    type: [String, Number, Boolean],
-    default: "",
-  },
-  /**
-   * Whether to display label and value horizontally or vertically
-   */
-  vertical: {
-    type: Boolean,
-    default: false,
-  },
-})
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    label: string
+    icon?: string
+    value?: string | number | boolean | null | undefined
+    vertical?: boolean
+  }>(),
+  {
+    icon: "",
+    value: "",
+    vertical: false,
+  }
+)
 </script>
 
 <style scoped>

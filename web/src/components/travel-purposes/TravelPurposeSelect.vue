@@ -4,8 +4,8 @@
     :value="value"
     :items="travelPurposes"
     :loading="isLoading"
-    :item-text="itemText"
-    :item-value="itemValue"
+    item-value="id"
+    item-text="purpose"
     :label="label"
     v-bind="$attrs"
     v-on="$listeners"
@@ -20,32 +20,26 @@
   ></v-select>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
 import useTravelPurposes from "@/use/use-travel-purposes"
 
-defineProps({
-  value: {
-    type: [Number, String],
-    default: null,
-  },
-  itemText: {
-    type: [String, Array, Function], // See https://v2.vuetifyjs.com/en/api/v-select/#props-item-text
-    default: "purpose",
-  },
-  itemValue: {
-    type: [String, Array, Function],
-    default: "id",
-  },
-  label: {
-    type: String,
-    default: "Travel Purpose",
-  },
-})
+withDefaults(
+  defineProps<{
+    value?: number | null | undefined
+    label?: string
+  }>(),
+  {
+    value: null,
+    label: "Travel Purpose",
+  }
+)
 
-const emit = defineEmits(["input"])
+const emit = defineEmits<{
+  (event: "input", value: number): void
+}>()
 
 const travelPurposesQuery = computed(() => {
   return {

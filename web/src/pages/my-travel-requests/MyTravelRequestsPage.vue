@@ -1,19 +1,13 @@
 <template>
   <div>
-    <div class="d-flex justify-space-between align-baseline my-5">
-      <h1>
-        My Travel Requests
-        <v-btn
-          class="ma-0 ml-1"
-          icon
-          color="green"
-          title="Refresh Table"
-          @click="refresh"
-        >
-          <v-icon>mdi-cached</v-icon>
-        </v-btn>
-      </h1>
+    <div class="d-flex align-baseline my-5">
+      <h1 class="mb-0">My Travel Requests</h1>
+      <v-spacer />
       <CreateTravelAuthorizationButton class="my-0" />
+      <RefreshTableButton
+        class="ml-2"
+        @click="refreshTable"
+      />
     </div>
 
     <v-card class="default">
@@ -29,12 +23,13 @@ import { ref } from "vue"
 
 import { useBreadcrumbs } from "@/use/use-breadcrumbs"
 
+import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
 import MyTravelAuthorizationsTable from "@/modules/travel-authorizations/components/MyTravelAuthorizationsTable.vue"
 
 const myTravelAuthorizationsTable = ref(null)
 
-async function refresh() {
+async function refreshTable() {
   await myTravelAuthorizationsTable.value?.refresh()
 }
 

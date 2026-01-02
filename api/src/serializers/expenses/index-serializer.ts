@@ -8,7 +8,18 @@ import AttachmentsReferenceSerializer, {
 
 export type ExpenseIndexView = Pick<
   Expense,
-  "id" | "expenseType" | "description" | "date" | "cost" | "createdAt" | "updatedAt"
+  | "id"
+  | "expenseType"
+  | "description"
+  | "date"
+  | "cost"
+  | "approverId"
+  | "approvedAt"
+  | "rejectorId"
+  | "rejectedAt"
+  | "rejectionNote"
+  | "createdAt"
+  | "updatedAt"
 > & {
   receipt: AttachmentReferenceView | null
   actions: ["delete"] | ["edit", "delete"]
@@ -37,6 +48,11 @@ export class IndexSerializer extends BaseSerializer<Expense> {
         "description",
         "date",
         "cost",
+        "approverId",
+        "approvedAt",
+        "rejectorId",
+        "rejectedAt",
+        "rejectionNote",
         "createdAt",
         "updatedAt",
       ]),

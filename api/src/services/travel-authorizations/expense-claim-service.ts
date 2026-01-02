@@ -59,9 +59,7 @@ export class ExpenseClaimService extends BaseService {
       })
     })
 
-    return this.travelAuthorization.reload({
-      include: ["expenses", "stops", "purpose", "user", "travelSegments"],
-    })
+    return this.travelAuthorization.reloadWithScope("asShow")
   }
 
   private isAfterTravelEndDate(): boolean {

@@ -12,7 +12,7 @@ import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
 /**
  * Provides reactive state management for travelDeskFlightRequests with API integration.
  *
- * @param {TravelDeskFlightRequestsQueryOptions} [options=ref({})] - Configuration options containing filters and pagination settings for fetching travelDeskFlightRequests.
+ * @param {Ref<TravelDeskFlightRequestsQueryOptions>} [options=ref({})] - Configuration options containing filters and pagination settings for fetching travelDeskFlightRequests.
  * @param {Object} [{ skipWatchIf = () => false }={}] - Configuration to conditionally skip API calls.
  * @param {Function} [skipWatchIf] - Function that returns a boolean to determine if fetching should be skipped.
  * @returns {{
@@ -20,6 +20,8 @@ import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
  *   totalCount: Ref<number>,
  *   isLoading: Ref<boolean>,
  *   isErrored: Ref<boolean>,
+ *   earliestFlightDate: Ref<string | null>,
+ *   latestFlightDate: Ref<string | null>,
  *   fetch: () => Promise<TravelDeskFlightRequest[]>,
  *   refresh: () => Promise<TravelDeskFlightRequest[]>
  * }}

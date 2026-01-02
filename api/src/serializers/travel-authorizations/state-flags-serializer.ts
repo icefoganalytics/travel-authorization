@@ -1,6 +1,6 @@
-import { isNil } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
-import { TravelAuthorization, TravelDeskTravelRequest, TravelSegment, User } from "@/models"
+import { TravelAuthorization, TravelDeskTravelRequest, TravelSegment } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
 export type TravelAuthorizationStateFlagsView = {
@@ -29,14 +29,27 @@ export type TravelAuthorizationStateFlagsView = {
 }
 
 export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
-  constructor(
-    protected record: TravelAuthorization,
-    protected currentUser: User
-  ) {
-    super(record)
-  }
-
   perform(): TravelAuthorizationStateFlagsView {
+    const { travelDeskTravelRequest, travelSegments } = this.record
+
+    if (isUndefined(travelDeskTravelRequest)) {
+      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelSegments)) {
+      throw new Error("Expected travelSegments association to be pre-loaded.")
+    }
+
+    const isTravelDeskDraft = this.isTravelDeskDraft(travelDeskTravelRequest)
+    const isTravelDeskSubmitted = this.isTravelDeskSubmitted(travelDeskTravelRequest)
+    const isTravelDeskOptionsProvided = this.isTravelDeskOptionsProvided(travelDeskTravelRequest)
+    const isTravelDeskOptionsRanked = this.isTravelDeskOptionsRanked(travelDeskTravelRequest)
+    const isTravelDeskBooked = this.isTravelDeskBooked(travelDeskTravelRequest)
+    const isTravelDeskComplete = this.isTravelDeskComplete(travelDeskTravelRequest)
+
+    const isTravellingByAir = this.isTravellingByAir(travelSegments)
+    const isInTravelDeskFlow = this.isInTravelDeskFlow(travelDeskTravelRequest)
+
     return {
       isDraft: this.isDraft(),
       isDeleted: this.isDeleted(),
@@ -50,17 +63,17 @@ export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
       isExpenseClaimDenied: this.isExpenseClaimDenied(),
       isExpensed: this.isExpensed(),
       // Travel Desk states
-      isTravelDeskDraft: this.isTravelDeskDraft(),
-      isTravelDeskSubmitted: this.isTravelDeskSubmitted(),
-      isTravelDeskOptionsProvided: this.isTravelDeskOptionsProvided(),
-      isTravelDeskOptionsRanked: this.isTravelDeskOptionsRanked(),
-      isTravelDeskBooked: this.isTravelDeskBooked(),
-      isTravelDeskComplete: this.isTravelDeskComplete(),
+      isTravelDeskDraft,
+      isTravelDeskSubmitted,
+      isTravelDeskOptionsProvided,
+      isTravelDeskOptionsRanked,
+      isTravelDeskBooked,
+      isTravelDeskComplete,
 
       // Composite states
-      isTravellingByAir: this.isTravellingByAir(),
+      isTravellingByAir,
       isInFinalState: this.isInFinalState(),
-      isInTravelDeskFlow: this.isInTravelDeskFlow(),
+      isInTravelDeskFlow,
     }
   }
 
@@ -110,45 +123,45 @@ export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   // Travel Desk Request States
-  private isTravelDeskDraft() {
-    return this.record.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.DRAFT
+  private isTravelDeskDraft(travelDeskRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskRequest)) return false
+
+    return travelDeskRequest.status === TravelDeskTravelRequest.Statuses.DRAFT
   }
 
-  private isTravelDeskSubmitted() {
-    return (
-      this.record.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.SUBMITTED
-    )
+  private isTravelDeskSubmitted(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
+    return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.SUBMITTED
   }
 
-  private isTravelDeskOptionsProvided() {
-    return (
-      this.record.travelDeskTravelRequest?.status ===
-      TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
-    )
+  private isTravelDeskOptionsProvided(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
+    return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
   }
 
-  private isTravelDeskOptionsRanked() {
-    return (
-      this.record.travelDeskTravelRequest?.status ===
-      TravelDeskTravelRequest.Statuses.OPTIONS_RANKED
-    )
+  private isTravelDeskOptionsRanked(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
+    return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.OPTIONS_RANKED
   }
 
-  private isTravelDeskBooked() {
-    return this.record.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.BOOKED
+  private isTravelDeskBooked(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
+    return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.BOOKED
   }
 
-  private isTravelDeskComplete() {
-    return this.record.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.COMPLETE
+  private isTravelDeskComplete(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
+    return travelDeskTravelRequest.status === TravelDeskTravelRequest.Statuses.COMPLETE
   }
 
   // Composite States
-  private isTravellingByAir() {
-    if (isNil(this.record.travelSegments)) {
-      return false
-    }
-
-    return this.record.travelSegments.some(
+  private isTravellingByAir(travelSegments: TravelSegment[]) {
+    return travelSegments.some(
       (travelSegment) => travelSegment.modeOfTransport === TravelSegment.TravelMethods.AIRCRAFT
     )
   }
@@ -157,14 +170,16 @@ export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
     return this.isDeleted() || this.isDenied() || this.isExpenseClaimDenied() || this.isExpensed()
   }
 
-  private isInTravelDeskFlow() {
+  private isInTravelDeskFlow(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    if (isNil(travelDeskTravelRequest)) return false
+
     return (
-      this.isTravelDeskDraft() ||
-      this.isTravelDeskSubmitted() ||
-      this.isTravelDeskOptionsProvided() ||
-      this.isTravelDeskOptionsRanked() ||
-      this.isTravelDeskBooked() ||
-      this.isTravelDeskComplete()
+      this.isTravelDeskDraft(travelDeskTravelRequest) ||
+      this.isTravelDeskSubmitted(travelDeskTravelRequest) ||
+      this.isTravelDeskOptionsProvided(travelDeskTravelRequest) ||
+      this.isTravelDeskOptionsRanked(travelDeskTravelRequest) ||
+      this.isTravelDeskBooked(travelDeskTravelRequest) ||
+      this.isTravelDeskComplete(travelDeskTravelRequest)
     )
   }
 }

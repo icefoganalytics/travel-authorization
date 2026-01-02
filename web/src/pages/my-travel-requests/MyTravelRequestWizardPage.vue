@@ -17,7 +17,7 @@
             />
 
             <v-skeleton-loader
-              v-if="isNil(currentStep.component)"
+              v-if="isNil(currentStep)"
               type="card"
             />
             <component
@@ -50,7 +50,14 @@
               @updated="refreshHeaderAndLocalState"
             />
 
-            <div class="d-flex flex-column flex-md-row">
+            <v-skeleton-loader
+              v-if="isNil(currentStep)"
+              type="card"
+            />
+            <div
+              v-else
+              class="d-flex flex-column flex-md-row"
+            >
               <ConditionalTooltipButton
                 ref="continueButton"
                 v-bind="{
@@ -89,11 +96,26 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts">
+import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
+
+export type WizardStepComponent = {
+  initialize?: (context: WizardStepComponentContext) => void
+  back?: () => Promise<boolean>
+  continue?: () => Promise<boolean | TravelAuthorizationWizardStepNames>
+}
+
+// this comment exist to prevent the above code block from breaking Vue 2 syntax highlighter
+</script>
+
+<script setup lang="ts">
 import { computed, ref, toRefs, watch } from "vue"
 import { isNil, isEmpty, isString } from "lodash"
 
+import { TravelAuthorizationWizardStepNames } from "@/api/travel-authorizations-api"
+
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import { type TravelAuthorizationSummary } from "@/use/travel-authorizations/use-travel-authorization-summary"
 import useMyTravelRequestWizard from "@/use/wizards/use-my-travel-request-wizard"
 
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
@@ -101,16 +123,10 @@ import StateStepper from "@/components/common/wizards/StateStepper.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 import TravelAuthorizationActionLogsTable from "@/components/travel-authorization-action-logs/TravelAuthorizationActionLogsTable.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: [String, Number],
-    required: true,
-  },
-  stepName: {
-    type: String,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: string
+  stepName: string
+}>()
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 const { stepName } = toRefs(props)
@@ -128,7 +144,7 @@ const {
   setContinueButtonProps,
 } = useMyTravelRequestWizard(travelAuthorizationIdAsNumber, stepName)
 
-const currentStepComponent = ref(null)
+const currentStepComponent = ref<WizardStepComponent | null>(null)
 
 watch(
   () => currentStepComponent.value,
@@ -195,14 +211,13 @@ async function continueAndGoToNextStep() {
   }
 }
 
-/** @type {import('vue').Ref<InstanceType<typeof SummaryHeaderPanel> | null>} */
-const summaryHeaderPanel = ref(null)
+const summaryHeaderPanel = ref<InstanceType<typeof SummaryHeaderPanel> | null>(null)
 
 async function refreshHeaderAndLocalState() {
   await Promise.all([summaryHeaderPanel.value?.refresh(), refresh()])
 }
 
-function updateTravelAuthorizationSummary(attributes) {
+function updateTravelAuthorizationSummary(attributes: Partial<TravelAuthorizationSummary>) {
   summaryHeaderPanel.value?.update(attributes)
 }
 

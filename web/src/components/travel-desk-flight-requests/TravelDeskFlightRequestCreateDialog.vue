@@ -8,7 +8,7 @@
     <template #activator="{ on, attrs }">
       <v-btn
         color="primary"
-        v-bind="attrs"
+        v-bind="merge({}, attrs, activatorProps)"
         v-on="on"
       >
         Add Flight
@@ -132,6 +132,7 @@
 
 <script setup>
 import { ref, nextTick } from "vue"
+import { merge } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -156,6 +157,10 @@ const props = defineProps({
   maxDate: {
     type: String,
     default: "",
+  },
+  activatorProps: {
+    type: Object,
+    default: () => ({}),
   },
 })
 
@@ -194,7 +199,8 @@ async function createAndHide() {
     emit("created", newTravelDeskFlightRequest.id)
     snack.success("Flight request created successfully")
   } catch (error) {
-    snack.error("Failed to create flight request")
+    console.error(`Failed to create flight request: ${error}`, { error })
+    snack.error(`Failed to create flight request: ${error}`)
   } finally {
     isLoading.value = false
   }

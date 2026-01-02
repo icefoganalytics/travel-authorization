@@ -5,6 +5,7 @@ export { FlightStatisticsPolicy } from "./flight-statistics-policy"
 export { FlightStatisticsJobsPolicy } from "./flight-statistics-jobs-policy"
 export { GeneralLedgerCodingsPolicy } from "./general-ledger-codings-policy"
 export { PerDiemsPolicy } from "./per-diems-policy"
+export { StopPolicy } from "./stop-policy"
 export { TravelAllowancesPolicy } from "./travel-allowances-policy"
 export { TravelAuthorizationPreApprovalDocumentsPolicy } from "./travel-authorization-pre-approval-documents-policy"
 export { TravelAuthorizationPreApprovalProfilesPolicy } from "./travel-authorization-pre-approval-profiles-policy"
@@ -25,6 +26,7 @@ export { UsersPolicy } from "./users-policy"
 export { YgEmployeeGroupsPolicy } from "./yg-employee-groups-policy"
 export { YgEmployeesPolicy } from "./yg-employees-policy"
 
-// Namespaced policies
+// Bundled exports
+export * as Expenses from "./expenses"
 export * as TravelAuthorizations from "./travel-authorizations"
 export * as TravelDeskTravelRequests from "./travel-desk-travel-requests"

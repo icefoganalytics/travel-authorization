@@ -47,6 +47,25 @@ export type UserDetailedView = User & {
   displayName: string
 }
 
+export type UserAsReference = Pick<
+  User,
+  | "id"
+  | "email"
+  | "status"
+  | "firstName"
+  | "lastName"
+  | "roles"
+  | "department"
+  | "division"
+  | "branch"
+  | "unit"
+  | "mailcode"
+  | "manager"
+  | "lastSyncSuccessAt"
+  | "createdAt"
+  | "updatedAt"
+> & { displayName: string }
+
 /** Keep in sync with api/src/models/user.ts */
 export type UserWhereOptions = WhereOptions<
   User,

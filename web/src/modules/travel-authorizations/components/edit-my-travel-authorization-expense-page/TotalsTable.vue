@@ -45,37 +45,41 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { sumBy } from "lodash"
-import { computed, onMounted } from "vue"
+import { computed, onMounted, toRefs } from "vue"
 
-import useExpenses, { TYPES } from "@/use/use-expenses"
+import { formatCurrency } from "@/utils/formatters"
+
+import useExpenses, { ExpenseTypes } from "@/use/use-expenses"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-const expenseOptions = computed(() => ({
-  where: {
-    travelAuthorizationId: props.travelAuthorizationId,
-    type: TYPES.EXPENSE,
-  },
-}))
-const { expenses, isLoading: isLoadingExpenses, fetch: fetchExpenses } = useExpenses(expenseOptions)
+const { travelAuthorizationId } = toRefs(props)
 const {
   travelAuthorization,
   isLoading: isLoadingTravelAuthorization,
   fetch: fetchTravelAuthorization,
-} = useTravelAuthorization(props.travelAuthorizationId)
+} = useTravelAuthorization(travelAuthorizationId)
+
+const expenseOptions = computed(() => ({
+  where: {
+    travelAuthorizationId: travelAuthorizationId.value,
+    type: ExpenseTypes.EXPENSE,
+  },
+}))
+const { expenses, isLoading: isLoadingExpenses, fetch: fetchExpenses } = useExpenses(expenseOptions)
 
 const isLoading = computed(() => isLoadingExpenses.value || isLoadingTravelAuthorization.value)
 // Will need to be calculated in the back-end if data is multi-page.
 const subTotalClaim = computed(() => sumBy(expenses.value, "cost"))
-const travelAdvance = computed(() => travelAuthorization.value.travelAdvanceInCents / 100.0)
+const travelAdvance = computed(() => {
+  const travelAdvanceInCents = travelAuthorization.value?.travelAdvanceInCents ?? 0
+  return Number(travelAdvanceInCents) / 100.0
+})
 const totalClaim = computed(() => subTotalClaim.value - travelAdvance.value)
 
 onMounted(async () => {
@@ -84,14 +88,6 @@ onMounted(async () => {
 
 async function refresh() {
   await Promise.all([await fetchExpenses(), await fetchTravelAuthorization()])
-}
-
-function formatCurrency(amount) {
-  const formatter = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  })
-  return formatter.format(amount)
 }
 
 defineExpose({

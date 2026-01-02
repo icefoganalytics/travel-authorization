@@ -56,16 +56,7 @@ export class UpdateService extends BaseService {
         await Expenses.BulkReplaceService.perform(this.travelAuthorization.id, expenses)
       }
 
-      return this.travelAuthorization.reload({
-        include: [
-          "expenses",
-          "stops",
-          "purpose",
-          "user",
-          "travelSegments",
-          "travelDeskTravelRequest",
-        ],
-      })
+      return this.travelAuthorization.reloadWithScope("asShow")
     })
   }
 

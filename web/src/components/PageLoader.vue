@@ -13,13 +13,15 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-defineProps({
-  message: {
-    type: String,
-    default: "Loading ...",
-  },
-})
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    message?: string
+  }>(),
+  {
+    message: "Loading ...",
+  }
+)
 </script>
 
 <style scoped>

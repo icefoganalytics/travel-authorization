@@ -6,7 +6,7 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue"
 import { isNil } from "lodash"
 
@@ -14,18 +14,16 @@ import useSnack from "@/use/use-snack"
 
 import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-const emit = defineEmits(["updated"])
+const emit = defineEmits<{
+  (event: "updated", travelAuthorizationId: number): void
+}>()
 
 const isLoading = ref(false)
-/** @type {import('vue').Ref<InstanceType<typeof PurposeEditFormCard> | null>} */
-const purposeEditFormCard = ref(null)
+const purposeEditFormCard = ref<InstanceType<typeof PurposeEditFormCard> | null>(null)
 const snack = useSnack()
 
 async function validateAndSave() {

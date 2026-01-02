@@ -93,7 +93,7 @@ import { type VForm } from "vuetify/lib/components"
 import { required } from "@/utils/validators"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 
-import { ExpenseTypes } from "@/api/expenses-api"
+import { ExpenseExpenseTypes } from "@/api/expenses-api"
 import useSnack from "@/use/use-snack"
 import useExpense from "@/use/use-expense"
 
@@ -102,7 +102,7 @@ import DatePicker from "@/components/common/DatePicker.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
 // TODO: consider if this should be a prop?
-const expenseTypes = [ExpenseTypes.ACCOMMODATIONS, ExpenseTypes.TRANSPORTATION]
+const expenseTypes = [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION]
 
 const emit = defineEmits(["saved"])
 

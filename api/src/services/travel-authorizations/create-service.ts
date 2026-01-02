@@ -1,5 +1,5 @@
 import { CreationAttributes } from "@sequelize/core"
-import { isUndefined } from "lodash"
+import { isNil, isUndefined } from "lodash"
 import { v4 as uuid } from "uuid"
 
 import { type WithOptional } from "@/utils/utility-types"
@@ -44,6 +44,7 @@ export class CreateService extends BaseService {
           userId,
           userAttributes
         )
+        const department = await this.determineUserDepartment(secureUserId)
 
         const travelAuthorization = await TravelAuthorization.create({
           ...optionalAttributes,
@@ -51,6 +52,7 @@ export class CreateService extends BaseService {
           tripTypeEstimate: tripTypeEstimate || TravelAuthorization.TripTypes.ROUND_TRIP,
           slug: slug || uuid(),
           status: status || TravelAuthorization.Statuses.DRAFT,
+          department,
           createdBy: this.currentUser.id,
         }).catch((error) => {
           throw new Error(`Could not create TravelAuthorization: ${error}`)
@@ -73,9 +75,7 @@ export class CreateService extends BaseService {
           "TravelAuthorization created successfully."
         )
 
-        return travelAuthorization.reload({
-          include: ["expenses", "stops", "purpose", "user", "travelSegments"],
-        })
+        return travelAuthorization.reloadWithScope("asShow")
       })
       .catch((error) => {
         auditService.log(
@@ -96,7 +96,7 @@ export class CreateService extends BaseService {
     // This pattern is a bit off, but I can't think of a better place to put this logic.
     // If the user is not an admin, the userId must come from the current user.
     // TODO: consider putting this code in the policy?
-    if (!currentUser.roles.includes(User.Roles.ADMIN)) {
+    if (!currentUser.isAdmin) {
       return currentUser.id
     }
 
@@ -112,6 +112,16 @@ export class CreateService extends BaseService {
     } else {
       throw new Error("This should never be reached, but it makes TypeScript happy.")
     }
+  }
+
+  private async determineUserDepartment(userId: number): Promise<string> {
+    const user = await User.findByPk(userId, {
+      rejectOnEmpty: true,
+    })
+    const { department } = user
+    if (isNil(department)) return "UNKNOWN"
+
+    return department
   }
 
   private ensureTravelAuthorizationId(

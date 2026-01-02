@@ -23,11 +23,11 @@ export class RevertToDraftController extends BaseController {
           .json({ message: "You are not authorized to revert this travel authorization to draft." })
       }
 
-      await RevertToDraftService.perform(travelAuthorization, this.currentUser)
-      const serializedTravelAuthorization = ShowSerializer.perform(
+      const updatedTravelAuthorization = await RevertToDraftService.perform(
         travelAuthorization,
         this.currentUser
       )
+      const serializedTravelAuthorization = ShowSerializer.perform(updatedTravelAuthorization)
       return this.response.status(200).json({
         travelAuthorization: serializedTravelAuthorization,
       })

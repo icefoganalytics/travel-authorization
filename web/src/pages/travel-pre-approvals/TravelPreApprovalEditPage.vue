@@ -29,7 +29,7 @@
         md="3"
       >
         <!-- TODO: update data model to store purpose id -->
-        <TravelPurposeSelect
+        <TravelPurposeTextSelect
           v-model="travelAuthorizationPreApproval.purpose"
           label="Purpose *"
           item-value="purpose"
@@ -249,7 +249,7 @@ import BranchAutocomplete from "@/components/yg-employee-groups/BranchAutocomple
 import DepartmentAutocomplete from "@/components/yg-employee-groups/DepartmentAutocomplete.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TravelAuthorizationPreApprovalTravelerEditFormCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalTravelerEditFormCard.vue"
-import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
+import TravelPurposeTextSelect from "@/components/travel-purposes/TravelPurposeTextSelect.vue"
 
 const props = defineProps({
   travelAuthorizationPreApprovalId: {

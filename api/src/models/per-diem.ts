@@ -71,6 +71,7 @@ export class PerDiem extends Model<InferAttributes<PerDiem>, InferCreationAttrib
   })
   declare travelRegion: TravelRegions
 
+  // TODO: convert this type to DECIMAL(10, 4)
   @Attribute(DataTypes.FLOAT)
   @NotNull
   declare amount: number

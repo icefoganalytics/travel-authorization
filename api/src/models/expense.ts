@@ -12,17 +12,21 @@ import {
   BelongsTo,
   Default,
   HasOne,
+  ModelValidator,
   NotNull,
   PrimaryKey,
   Table,
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
+import { isNil } from "lodash"
 
-import TravelAuthorization from "@/models/travel-authorization"
 import Attachment, { AttachmentTargetTypes } from "@/models/attachment"
+import TravelAuthorization from "@/models/travel-authorization"
+import User from "@/models/user"
 
 // Keep in sync with web/src/modules/travel-authorizations/components/ExpenseTypeSelect.vue
-export enum ExpenseTypes {
+// TODO: rename to ExpenseCategories to avoid confusion with Expense "Types"
+export enum ExpenseExpenseTypes {
   ACCOMMODATIONS = "Accommodations",
   TRANSPORTATION = "Transportation",
   MEALS_AND_INCIDENTALS = "Meals & Incidentals",
@@ -35,10 +39,10 @@ export enum ExpenseCurrencyTypes {
 }
 
 // TODO: replace this with a boolean of isEstimate or
-// move estimates to there own table.
+// move estimates to their own table.
 // It's also possible that this is a single table inheritance model,
 // and there should be two models, one for each "type".
-export enum Types {
+export enum ExpenseTypes {
   ESTIMATE = "Estimate",
   EXPENSE = "Expense",
 }
@@ -47,8 +51,8 @@ export enum Types {
   tableName: "expenses",
 })
 export class Expense extends Model<InferAttributes<Expense>, InferCreationAttributes<Expense>> {
-  static readonly Types = Types
-  static readonly ExpenseTypes = ExpenseTypes
+  static readonly Types = ExpenseTypes
+  static readonly ExpenseTypes = ExpenseExpenseTypes
   static readonly CurrencyTypes = ExpenseCurrencyTypes
 
   @Attribute(DataTypes.INTEGER)
@@ -85,21 +89,37 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   @NotNull
   @ValidateAttribute({
     isIn: {
-      args: [Object.values(Types)],
-      msg: `Type must be one of: ${Object.values(Types).join(", ")}`,
+      args: [Object.values(ExpenseTypes)],
+      msg: `Type must be one of: ${Object.values(ExpenseTypes).join(", ")}`,
     },
   })
-  declare type: Types
+  declare type: ExpenseTypes
 
+  // TODO: rename to ExpenseCategories to avoid confusion with Expense "Types"
   @Attribute(DataTypes.STRING(255))
   @NotNull
   @ValidateAttribute({
     isIn: {
-      args: [Object.values(ExpenseTypes)],
-      msg: `ExpenseType must be one of: ${Object.values(ExpenseTypes).join(", ")}`,
+      args: [Object.values(ExpenseExpenseTypes)],
+      msg: `ExpenseType must be one of: ${Object.values(ExpenseExpenseTypes).join(", ")}`,
     },
   })
-  declare expenseType: ExpenseTypes
+  declare expenseType: ExpenseExpenseTypes
+
+  @Attribute(DataTypes.INTEGER)
+  declare approverId: number | null
+
+  @Attribute(DataTypes.DATE)
+  declare approvedAt: Date | null
+
+  @Attribute(DataTypes.INTEGER)
+  declare rejectorId: number | null
+
+  @Attribute(DataTypes.DATE)
+  declare rejectedAt: Date | null
+
+  @Attribute(DataTypes.TEXT)
+  declare rejectionNote: string | null
 
   @Attribute(DataTypes.DATE)
   @NotNull
@@ -114,7 +134,55 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
 
+  // Validators
+  @ModelValidator
+  ensureApproveRejectExclusivity() {
+    if (!isNil(this.approvedAt) && !isNil(this.rejectedAt)) {
+      throw new Error("An expense cannot be both approved and rejected.")
+    }
+  }
+
+  @ModelValidator
+  ensureApprovalFieldsSetTogether() {
+    const approvalFields = [this.approverId, this.approvedAt]
+    const allApprovalFieldsSet = approvalFields.every((field) => !isNil(field))
+    const allApprovalFieldsNull = approvalFields.every((field) => isNil(field))
+    if (!allApprovalFieldsSet && !allApprovalFieldsNull) {
+      throw new Error("Approval fields (approverId, approvedAt) must all be set or all be null.")
+    }
+  }
+
+  @ModelValidator
+  ensureRejectionFieldsSetTogether() {
+    const rejectionFields = [this.rejectorId, this.rejectedAt, this.rejectionNote]
+    const allRejectionFieldsSet = rejectionFields.every((field) => !isNil(field))
+    const allRejectionFieldsNull = rejectionFields.every((field) => isNil(field))
+    if (!allRejectionFieldsSet && !allRejectionFieldsNull) {
+      throw new Error(
+        "Rejection fields (rejectorId, rejectedAt, rejectionNote) must all be set or all be null."
+      )
+    }
+  }
+
   // Associations
+  @BelongsTo(() => User, {
+    foreignKey: "approverId",
+    inverse: {
+      as: "approvedExpenses",
+      type: "hasMany",
+    },
+  })
+  declare approver?: NonAttribute<User>
+
+  @BelongsTo(() => User, {
+    foreignKey: "rejectorId",
+    inverse: {
+      as: "rejectedExpenses",
+      type: "hasMany",
+    },
+  })
+  declare rejector?: NonAttribute<User>
+
   @BelongsTo(() => TravelAuthorization, {
     foreignKey: "travelAuthorizationId",
     inverse: {
@@ -137,7 +205,16 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
   declare receipt?: NonAttribute<Attachment>
 
   static establishScopes(): void {
-    // add as needed
+    this.addScope("isExpenseClaimApproved", () => ({
+      include: [
+        {
+          association: "travelAuthorization",
+          where: {
+            status: TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED,
+          },
+        },
+      ],
+    }))
   }
 }
 

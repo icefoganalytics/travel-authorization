@@ -66,7 +66,7 @@ export class SubmitService extends BaseService {
       })
     })
 
-    return this.travelAuthorization
+    return this.travelAuthorization.reloadWithScope("asShow")
   }
 }
 

@@ -19,6 +19,7 @@ import { isEmpty, isNil, isString } from "lodash"
 import moment from "moment"
 
 import BaseModel from "@/models/base-model"
+import Expense from "@/models/expense"
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelDeskFlightOption from "@/models/travel-desk-flight-option"
 
@@ -152,6 +153,10 @@ export class User extends BaseModel<InferAttributes<User>, InferCreationAttribut
     return this.roles.includes(UserRoles.ADMIN)
   }
 
+  get isDepartmentAdmin(): NonAttribute<boolean> {
+    return this.roles.includes(UserRoles.DEPARTMENT_ADMIN)
+  }
+
   get isFinanceUser(): NonAttribute<boolean> {
     return this.roles.includes(UserRoles.FINANCE_USER)
   }
@@ -189,6 +194,18 @@ export class User extends BaseModel<InferAttributes<User>, InferCreationAttribut
   }
 
   // Associations
+  @HasMany(() => Expense, {
+    foreignKey: "approverId",
+    inverse: "approver",
+  })
+  declare approvedExpenses?: NonAttribute<Expense[]>
+
+  @HasMany(() => Expense, {
+    foreignKey: "rejectorId",
+    inverse: "rejector",
+  })
+  declare rejectedExpenses?: NonAttribute<Expense[]>
+
   @HasMany(() => TravelAuthorization, {
     foreignKey: "userId",
     inverse: "user",

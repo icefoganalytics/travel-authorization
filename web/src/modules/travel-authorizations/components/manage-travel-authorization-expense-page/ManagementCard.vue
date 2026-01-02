@@ -36,26 +36,29 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(["approved", "denied"])
+
 const snack = useSnack()
 
-function approve() {
-  return travelAuthorizationApi
-    .approveExpenseClaim(props.travelAuthorizationId)
-    .then(() => {
-      snack("Travel authorization approved!", { color: "success" })
-    })
-    .catch((error) => {
-      snack(error.message, { color: "error" })
-    })
+async function approve() {
+  try {
+    await travelAuthorizationApi.approveExpenseClaim(props.travelAuthorizationId)
+    snack.success("Travel authorization approved!")
+    emit("approved", props.travelAuthorizationId)
+  } catch (error) {
+    console.error(`Failed to approve travel authorization: ${error}`, { error })
+    snack.error(`Failed to approve travel authorization: ${error}`)
+  }
 }
-function deny() {
-  return travelAuthorizationApi
-    .deny(props.travelAuthorizationId)
-    .then(() => {
-      snack("Travel authorization denied.", { color: "success" })
-    })
-    .catch((error) => {
-      snack(error.message, { color: "error" })
-    })
+
+async function deny() {
+  try {
+    await travelAuthorizationApi.deny(props.travelAuthorizationId)
+    snack.success("Travel authorization denied!")
+    emit("denied", props.travelAuthorizationId)
+  } catch (error) {
+    console.error(`Failed to deny travel authorization: ${error}`, { error })
+    snack.error(`Failed to deny travel authorization: ${error}`)
+  }
 }
 </script>

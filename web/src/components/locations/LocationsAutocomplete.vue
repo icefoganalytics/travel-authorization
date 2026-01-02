@@ -25,6 +25,7 @@ import useLocations from "@/use/use-locations"
 
 const props = defineProps({
   value: {
+    /** @type {number | string | null | undefined} */
     type: [Number, String],
     default: null,
   },

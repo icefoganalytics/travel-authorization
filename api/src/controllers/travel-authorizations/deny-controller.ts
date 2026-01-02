@@ -31,10 +31,7 @@ export class DenyController extends BaseController {
       this.currentUser
     )
       .then((travelAuthorization) => {
-        const serializedTravelAuthorization = ShowSerializer.perform(
-          travelAuthorization,
-          this.currentUser
-        )
+        const serializedTravelAuthorization = ShowSerializer.perform(travelAuthorization)
 
         return this.response
           .status(200)

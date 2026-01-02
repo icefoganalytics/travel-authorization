@@ -1,18 +1,28 @@
-import { isNil, pick } from "lodash"
+import { isNil, isUndefined, pick } from "lodash"
 
-import { TravelAuthorization, User } from "@/models"
+import {
+  Expense,
+  Stop,
+  TravelAuthorization,
+  TravelDeskTravelRequest,
+  TravelPurpose,
+  TravelSegment,
+  User,
+} from "@/models"
 
 import BaseSerializer from "@/serializers/base-serializer"
-import { Expenses, TravelDeskTravelRequests, TravelPurposes, TravelSegments } from "@/serializers"
-import StopsSerializer, { StopDetailedView } from "@/serializers/stops-serializer"
-import UsersSerializer, { UserDetailedView } from "@/serializers/users-serializer"
+import {
+  Expenses,
+  Stops,
+  TravelDeskTravelRequests,
+  TravelPurposes,
+  TravelSegments,
+  Users,
+} from "@/serializers"
 import StateFlagsSerializer, {
   type TravelAuthorizationStateFlagsView,
 } from "@/serializers/travel-authorizations/state-flags-serializer"
-import { type ExpenseReferenceView } from "@/serializers/expenses/reference-serializer"
-import { type TravelDeskTravelRequestShowView } from "@/serializers/travel-desk-travel-requests/show-serializer"
-import { type TravelPurposeShowView } from "@/serializers/travel-purposes/show-serializer"
-import { type TravelSegmentShowView } from "@/serializers/travel-segments/show-serializer"
+import { type ExpenseAsReference } from "@/serializers/expenses/reference-serializer"
 
 export type TravelAuthorizationShowView = Pick<
   TravelAuthorization,
@@ -52,24 +62,50 @@ export type TravelAuthorizationShowView = Pick<
   | "createdAt"
   | "updatedAt"
 > & {
-  expenses: ExpenseReferenceView[] // TODO: return undefined once expenses use standard serializer
-  purpose?: TravelPurposeShowView
-  stops: StopDetailedView[] // TODO: return undefined once stops use standard serializer
-  travelDeskTravelRequest?: TravelDeskTravelRequestShowView
-  travelSegments?: TravelSegmentShowView[]
-  user: UserDetailedView
+  expenses: ExpenseAsReference[]
+  purpose: TravelPurposes.AsReference | null
+  stops: Stops.AsReference[]
+  travelDeskTravelRequest: TravelDeskTravelRequests.AsReference | null
+  travelSegments: TravelSegments.AsReference[]
+  user: Users.AsReference
 } & TravelAuthorizationStateFlagsView
 
 export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
-  constructor(
-    protected record: TravelAuthorization,
-    protected currentUser: User
-  ) {
-    super(record)
-  }
-
   perform(): TravelAuthorizationShowView {
-    const stateFlagsAttributes = StateFlagsSerializer.perform(this.record, this.currentUser)
+    const { expenses, purpose, stops, travelDeskTravelRequest, travelSegments, user } = this.record
+    if (isUndefined(expenses)) {
+      throw new Error("Expected expenses association to be pre-loaded.")
+    }
+
+    if (isUndefined(purpose)) {
+      throw new Error("Expected purpose association to be pre-loaded.")
+    }
+
+    if (isUndefined(stops)) {
+      throw new Error("Expected stops association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelDeskTravelRequest)) {
+      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelSegments)) {
+      throw new Error("Expected travelSegments association to be pre-loaded.")
+    }
+
+    if (isUndefined(user)) {
+      throw new Error("Expected user association to be pre-loaded.")
+    }
+
+    const serializedExpenses = this.serializeExpenses(expenses)
+    const serializedTravelPurpose = this.serializeTravelPurpose(purpose)
+    const serializedStops = this.serializeStops(stops)
+    const serializedTravelDeskTravelRequest =
+      this.serializeTravelDeskTravelRequest(travelDeskTravelRequest)
+    const serializedTravelSegments = this.serializeTravelSegments(travelSegments)
+    const serializedUser = this.serializeUser(user)
+
+    const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
     return {
       ...pick(this.record, [
@@ -112,70 +148,43 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
       // computed fields
       ...stateFlagsAttributes,
       // associations
-      expenses: this.serializeExpensesAttributes(),
-      purpose: this.serializeTravelPurposeAttributes(),
-      stops: this.serializeStopsAttributes(),
-      travelDeskTravelRequest: this.serializeTravelDeskTravelRequestAttributes(),
-      travelSegments: this.serializeTravelSegmentsAttributes(),
-      user: this.serializeUserAttributes(),
+      expenses: serializedExpenses,
+      purpose: serializedTravelPurpose,
+      stops: serializedStops,
+      travelDeskTravelRequest: serializedTravelDeskTravelRequest,
+      travelSegments: serializedTravelSegments,
+      user: serializedUser,
     }
   }
 
-  private get traveller(): User {
-    if (isNil(this.record.user)) {
-      throw new Error("TravelAuthorization must include an associated User")
-    }
-
-    return this.record.user
+  private serializeExpenses(expenses: Expense[]): ExpenseAsReference[] {
+    return Expenses.ReferenceSerializer.perform(expenses)
   }
 
-  private serializeExpensesAttributes(): ExpenseReferenceView[] {
-    if (isNil(this.record.expenses)) {
-      return []
-    }
+  private serializeTravelPurpose(purpose: TravelPurpose | null): TravelPurposes.AsReference | null {
+    if (isNil(purpose)) return null
 
-    return Expenses.ReferenceSerializer.perform(this.record.expenses, this.currentUser)
+    return TravelPurposes.ReferenceSerializer.perform(purpose)
   }
 
-  private serializeTravelPurposeAttributes(): TravelPurposeShowView | undefined {
-    if (isNil(this.record.purpose)) {
-      return undefined
-    }
-
-    return TravelPurposes.ShowSerializer.perform(this.record.purpose, this.currentUser)
+  private serializeStops(stops: Stop[]): Stops.AsReference[] {
+    return Stops.ReferenceSerializer.perform(stops)
   }
 
-  private serializeStopsAttributes(): StopDetailedView[] {
-    if (isNil(this.record.stops)) {
-      return []
-    }
+  private serializeTravelDeskTravelRequest(
+    travelDeskTravelRequest: TravelDeskTravelRequest | null
+  ): TravelDeskTravelRequests.AsReference | null {
+    if (isNil(travelDeskTravelRequest)) return null
 
-    return this.record.stops.map(StopsSerializer.asDetailed)
+    return TravelDeskTravelRequests.ReferenceSerializer.perform(travelDeskTravelRequest)
   }
 
-  private serializeTravelDeskTravelRequestAttributes():
-    | TravelDeskTravelRequestShowView
-    | undefined {
-    if (isNil(this.record.travelDeskTravelRequest)) {
-      return undefined
-    }
-
-    return TravelDeskTravelRequests.ShowSerializer.perform(
-      this.record.travelDeskTravelRequest,
-      this.currentUser
-    )
+  private serializeTravelSegments(travelSegments: TravelSegment[]): TravelSegments.AsReference[] {
+    return TravelSegments.ReferenceSerializer.perform(travelSegments)
   }
 
-  private serializeTravelSegmentsAttributes(): TravelSegmentShowView[] | undefined {
-    if (isNil(this.record.travelSegments)) {
-      return undefined
-    }
-
-    return TravelSegments.ShowSerializer.perform(this.record.travelSegments, this.currentUser)
-  }
-
-  private serializeUserAttributes(): UserDetailedView {
-    return UsersSerializer.asDetailed(this.traveller)
+  private serializeUser(user: User): Users.AsReference {
+    return Users.ReferenceSerializer.perform(user)
   }
 }
 

@@ -1,6 +1,14 @@
 # Policies
 
 Policies are used to control access to data in a controller, before it is returned to the client.
+
+## Naming Convention
+
+Policy classes should use the **singular** model name (e.g., `StopPolicy`, `AccessGrantPolicy`, `TravelAuthorizationPolicy`), not the plural form.
+Why? There is _one_ policy for a given model.
+
+## Usage
+
 Polices can be used in the following ways:
 
 1. Build a policy instance and check the controller action matching boolean function.
@@ -9,28 +17,35 @@ Polices can be used in the following ways:
    ```ts
    export class AccessGrantsController extends BaseController {
      async update() {
-       const accessGrant = await this.loadAccessGrant()
-       if (isNil(accessGrant)) {
-         return this.response.status(404).json({ message: "Access grant not found." })
-       }
-
-       const policy = this.buildPolicy(accessGrant)
-       if (!policy.update()) {
-         return this.response
-           .status(403)
-           .json({ message: "You are not authorized to update access grants on this dataset." })
-       }
-
-       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
        try {
+         const accessGrant = await this.loadAccessGrant()
+         if (isNil(accessGrant)) {
+           return this.response.status(404).json({
+             message: "Access grant not found.",
+           })
+         }
+
+         const policy = this.buildPolicy(accessGrant)
+         if (!policy.update()) {
+           return this.response.status(403).json({
+             message: "You are not authorized to update access grants on this dataset.",
+           })
+         }
+
+         const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
          const updatedAccessGrant = await UpdateService.perform(
            accessGrant,
            permittedAttributes,
            this.currentUser
          )
-         return this.response.status(200).json({ accessGrant: updatedAccessGrant })
+         return this.response.status(200).json({
+           accessGrant: updatedAccessGrant,
+           policy,
+         })
        } catch (error) {
-         return this.response.status(422).json({ message: `Access grant update failed: ${error}` })
+         return this.response.status(422).json({
+           message: `Access grant update failed: ${error}`,
+         })
        }
      }
 
@@ -39,7 +54,7 @@ Polices can be used in the following ways:
      }
 
      private buildPolicy(accessGrant: AccessGrant) {
-       return new AccessGrantsPolicy(this.currentUser, accessGrant)
+       return new AccessGrantPolicy(this.currentUser, accessGrant)
      }
    }
    ```
@@ -47,7 +62,7 @@ Polices can be used in the following ways:
 2. The previous example also demostrates a second way of using policies. The "permitted attributes" pattern. A policy can also be used to provide an "allow list" of attributes that a user is allowed to submit for a given controller action.
 
    ```ts
-   export class AccessGrantsPolicy extends BasePolicy<AccessGrant> {
+   export class AccessGrantPolicy extends BasePolicy<AccessGrant> {
      permittedAttributes(): Path[] {
        return ["supportId", "grantLevel", "accessType", "isProjectDescriptionRequired"]
      }
@@ -60,18 +75,30 @@ Polices can be used in the following ways:
    ```ts
    export class AccessGrantsController extends BaseController<AccessGrant> {
      async index() {
-       const where = this.buildWhere()
-       const scopes = this.buildFilterScopes()
-       const scopedAccessGrants = AccessGrantsPolicy.applyScope(scopes, this.currentUser)
+       try {
+         const where = this.buildWhere()
+         const scopes = this.buildFilterScopes()
+         const order = this.buildOrder()
+         const scopedAccessGrants = AccessGrantPolicy.applyScope(scopes, this.currentUser)
 
-       const totalCount = await scopedAccessGrants.count({ where })
-       const accessGrants = await scopedAccessGrants.findAll({
-         where,
-         limit: this.pagination.limit,
-         offset: this.pagination.offset,
-       })
+         const totalCount = await scopedAccessGrants.count({ where })
+         const accessGrants = await scopedAccessGrants.findAll({
+           where,
+           order,
+           limit: this.pagination.limit,
+           offset: this.pagination.offset,
+         })
 
-       return this.response.json({ accessGrants, totalCount })
+         return this.response.json({
+           accessGrants,
+           totalCount,
+         })
+       } catch (error) {
+         logger.error(`Error fetching access grants: ${error}`, { error })
+         return this.response.status(400).json({
+           message: `Failed to retrieve access grants: ${error}`,
+         })
+       }
      }
    }
    ```
@@ -83,11 +110,9 @@ The `policyScope` method is used to add a scope to the given model. This scope i
 i.e.
 
 ```ts
-export class AccessRequestsPolicy extends PolicyFactory(AccessRequest) {
+export class AccessRequestPolicy extends PolicyFactory(AccessRequest) {
   static policyScope(user: User): FindOptions<Attributes<AccessRequest>> {
-    if (user.isSystemAdmin || user.isBusinessAnalyst) {
-      return {}
-    }
+    if (user.isSystemAdmin || user.isBusinessAnalyst) return ALL_RECORDS_SCOPE
 
     if (user.isDataOwner) {
       return {
@@ -115,9 +140,7 @@ can be considered equivalent to
 
 ```ts
 AccessReqeuest.addScope("policyScope", (user: User) => {
-  if (user.isSystemAdmin || user.isBusinessAnalyst) {
-    return {}
-  }
+  if (user.isSystemAdmin || user.isBusinessAnalyst) return ALL_RECORDS_SCOPE
 
   if (user.isDataOwner) {
     return {
@@ -148,65 +171,93 @@ The full cases might be more complex, but the "policy" pattern leaves space for 
 ```ts
 export class AccessGrantsController extends BaseController<AccessGrant> {
   async index() {
-    const where = this.buildWhere()
-    const scopes = this.buildFilterScopes()
-    const scopedAccessGrants = AccessGrantsPolicy.applyScope(scopes, this.currentUser)
+    try {
+      const where = this.buildWhere()
+      const scopes = this.buildFilterScopes()
+      const order = this.buildOrder()
+      const scopedAccessGrants = AccessGrantPolicy.applyScope(scopes, this.currentUser)
 
-    const totalCount = await scopedAccessGrants.count({ where })
-    const accessGrants = await scopedAccessGrants.findAll({
-      where,
-      limit: this.pagination.limit,
-      offset: this.pagination.offset,
-    })
+      const totalCount = await scopedAccessGrants.count({ where })
+      const accessGrants = await scopedAccessGrants.findAll({
+        where,
+        order,
+        limit: this.pagination.limit,
+        offset: this.pagination.offset,
+      })
 
-    return this.response.json({ accessGrants, totalCount })
+      return this.response.json({
+        accessGrants,
+        totalCount,
+      })
+    } catch (error) {
+      logger.error(`Error fetching access grants: ${error}`, { error })
+      return this.response.status(400).json({
+        message: `Failed to retrieve access grants: ${error}`,
+      })
+    }
   }
 
   async create() {
-    const accessGrant = await this.buildAccessGrant()
-    if (isNil(accessGrant)) {
-      return this.response.status(404).json({ message: "Dataset not found." })
-    }
-
-    const policy = this.buildPolicy(accessGrant)
-    if (!policy.create()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to add access grants for this dataset." })
-    }
-
-    const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
     try {
-      const accessGrant = await CreateService.perform(permittedAttributes, this.currentUser)
-      return this.response.status(201).json({ accessGrant })
+      const accessGrant = await this.buildAccessGrant()
+      if (isNil(accessGrant)) {
+        return this.response.status(404).json({
+          message: "Dataset not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(accessGrant)
+      if (!policy.create()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to add access grants for this dataset.",
+        })
+      }
+
+      const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
+      const newAccessGrant = await CreateService.perform(permittedAttributes, this.currentUser)
+      return this.response.status(201).json({
+        accessGrant: newAccessGrant,
+        policy,
+      })
     } catch (error) {
-      return this.response.status(422).json({ message: `Access grant creation failed: ${error}` })
+      logger.error(`Error creating access grant: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Access grant creation failed: ${error}`,
+      })
     }
   }
 
   async update() {
-    const accessGrant = await this.loadAccessGrant()
-    if (isNil(accessGrant)) {
-      return this.response.status(404).json({ message: "Access grant not found." })
-    }
-
-    const policy = this.buildPolicy(accessGrant)
-    if (!policy.update()) {
-      return this.response
-        .status(403)
-        .json({ message: "You are not authorized to update access grants on this dataset." })
-    }
-
-    const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
     try {
+      const accessGrant = await this.loadAccessGrant()
+      if (isNil(accessGrant)) {
+        return this.response.status(404).json({
+          message: "Access grant not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(accessGrant)
+      if (!policy.update()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to update access grants on this dataset.",
+        })
+      }
+
+      const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
       const updatedAccessGrant = await UpdateService.perform(
         accessGrant,
         permittedAttributes,
         this.currentUser
       )
-      return this.response.status(200).json({ accessGrant: updatedAccessGrant })
+      return this.response.status(200).json({
+        accessGrant: updatedAccessGrant,
+        policy,
+      })
     } catch (error) {
-      return this.response.status(422).json({ message: `Access grant update failed: ${error}` })
+      logger.error(`Error updating access grant: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Access grant update failed: ${error}`,
+      })
     }
   }
 
@@ -219,7 +270,7 @@ export class AccessGrantsController extends BaseController<AccessGrant> {
   }
 
   private buildPolicy(accessGrant: AccessGrant) {
-    return new AccessGrantsPolicy(this.currentUser, accessGrant)
+    return new AccessGrantPolicy(this.currentUser, accessGrant)
   }
 }
 ```
@@ -227,7 +278,7 @@ export class AccessGrantsController extends BaseController<AccessGrant> {
 and the policy
 
 ```ts
-export class AccessGrantsPolicy extends BasePolicy<AccessGrant> {
+export class AccessGrantPolicy extends BasePolicy<AccessGrant> {
   create(): boolean {
     // some code that might returns true
     return false

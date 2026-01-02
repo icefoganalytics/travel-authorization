@@ -1,5 +1,10 @@
 <template>
+  <v-skeleton-loader
+    v-if="isNil(travelAuthorization)"
+    type="card"
+  />
   <HeaderActionsFormCard
+    v-else
     ref="headerActionsFormCard"
     title="Approvals"
     lazy-validation
@@ -22,7 +27,7 @@
         <v-text-field
           v-model="travelAdvanceInDollars"
           :rules="[required, isInteger]"
-          label="Travel Advance"
+          label="Travel Advance *"
           prefix="$"
           outlined
           required
@@ -61,9 +66,11 @@
   </HeaderActionsFormCard>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, ref, toRefs } from "vue"
 import { isNil } from "lodash"
+
+import { type VForm } from "vuetify/lib/components"
 
 import { required, isInteger } from "@/utils/validators"
 
@@ -85,7 +92,7 @@ const props = defineProps({
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save, submit } = useTravelAuthorization(travelAuthorizationId)
 
-const { currentUser } = useCurrentUser()
+const { currentUser } = useCurrentUser<true>()
 const travelAuthorizationPreApprovalProfileWhere = computed(() => {
   const { department } = currentUser.value
   if (isNil(department)) return {}
@@ -102,15 +109,21 @@ const travelAuthorizationPreApprovalProfileFilters = computed(() => {
 })
 const travelAdvanceInDollars = computed({
   get() {
-    return Math.ceil(travelAuthorization.value.travelAdvanceInCents / 100.0) || 0
+    if (isNil(travelAuthorization.value)) return 0
+
+    const { travelAdvanceInCents } = travelAuthorization.value
+    if (isNil(travelAdvanceInCents)) return 0
+
+    return Math.ceil(Number(travelAdvanceInCents) / 100.0) || 0
   },
   set(value) {
-    travelAuthorization.value.travelAdvanceInCents = Math.ceil(value * 100)
+    if (isNil(travelAuthorization.value)) return
+
+    travelAuthorization.value.travelAdvanceInCents = Math.ceil(value * 100).toString()
   },
 })
 
-/** @type {import('vue').Ref<typeof import('vuetify/lib/components').VForm | null>} */
-const headerActionsFormCard = ref(null)
+const headerActionsFormCard = ref<InstanceType<typeof VForm> | null>(null)
 
 onMounted(async () => {
   await headerActionsFormCard.value?.resetValidation()

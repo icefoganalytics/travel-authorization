@@ -34,7 +34,7 @@ export function useYgEmployee(ygEmployeeId) {
   async function fetch() {
     state.isLoading = true
     try {
-      const { ygEmployee } = await ygEmployeesApi.fetch(unref(ygEmployeeId))
+      const { ygEmployee } = await ygEmployeesApi.get(unref(ygEmployeeId))
       state.isErrored = false
       state.ygEmployee = ygEmployee
       return ygEmployee

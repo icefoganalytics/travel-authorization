@@ -109,7 +109,7 @@ import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-b
 import useExpenses, {
   type ExpenseFiltersOptions,
   type ExpenseWhereOptions,
-  Types,
+  ExpenseTypes,
 } from "@/use/use-expenses"
 
 import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
@@ -194,7 +194,7 @@ const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 const expensesQuery = computed(() => ({
   where: {
     ...props.where,
-    type: Types.EXPENSE,
+    type: ExpenseTypes.EXPENSE,
   },
   filters: props.filters,
   order: order.value,

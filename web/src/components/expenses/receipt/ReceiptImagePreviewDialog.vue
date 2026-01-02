@@ -50,6 +50,7 @@
         </v-btn>
         <v-spacer />
         <v-btn
+          v-if="policy?.destroy"
           :loading="isLoading"
           color="error"
           @click="deleteReceipt"
@@ -68,6 +69,7 @@ import { isNil } from "lodash"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import { downloads, expenses } from "@/api"
+import useExpense from "@/use/use-expense"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import ImageViewer from "@/components/common/ImageViewer.vue"
@@ -82,6 +84,9 @@ const showDialog = ref(false)
 const expenseId = useRouteQuery("previewReceiptImage", undefined, {
   transform: integerTransformer,
 })
+
+const { isLoading, policy } = useExpense(expenseId)
+
 const downloadUrl = computed(() => {
   if (isNil(expenseId.value)) return ""
 
@@ -122,8 +127,6 @@ function revokeImageObjectUrl() {
   URL.revokeObjectURL(receiptImageObjectUrl.value)
   receiptImageObjectUrl.value = null
 }
-
-const isLoading = ref(false)
 
 async function deleteReceipt() {
   const staticExpenseId = expenseId.value
@@ -169,5 +172,6 @@ function hideIfFalse(value: boolean | null) {
 
 defineExpose({
   show,
+  hide,
 })
 </script>
