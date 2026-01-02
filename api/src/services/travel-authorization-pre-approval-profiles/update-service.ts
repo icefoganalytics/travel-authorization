@@ -2,12 +2,13 @@ import { TravelAuthorizationPreApprovalProfile, User } from "@/models"
 
 import BaseService from "@/services/base-service"
 
-type Attributes = Partial<TravelAuthorizationPreApprovalProfile>
+type TravelAuthorizationPreApprovalProfileUpdateAttributes =
+  Partial<TravelAuthorizationPreApprovalProfile>
 
 export class UpdateService extends BaseService {
   constructor(
     protected travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile,
-    protected attributes: Attributes,
+    protected attributes: TravelAuthorizationPreApprovalProfileUpdateAttributes,
     protected currentUser: User
   ) {
     super()
