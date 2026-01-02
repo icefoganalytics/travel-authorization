@@ -5,6 +5,23 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
+import type { TravelAuthorizationPreApprovalAsReference } from "@/api/travel-authorization-pre-approvals-api"
+import type { TravelAuthorizationPreApprovalProfile } from "@/api/travel-authorization-pre-approval-profiles-api"
+
+/** Keep in sync with api/src/models/travel-authorization-pre-approval-document.ts */
+export type TravelAuthorizationPreApprovalDocument = {
+  id: number
+  submissionId: number
+  name: string
+  approvalDocumentApproverName: string
+  approvalDocumentApprovedOn: string
+  sizeInBytes: number
+  mimeType: string
+  md5: string
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
 
 /** Keep in sync with api/src/models/travel-authorization-pre-approval-submission.ts */
 export enum TravelAuthorizationPreApprovalSubmissionStatuses {
@@ -36,6 +53,21 @@ export type TravelAuthorizationPreApprovalSubmission = {
   updatedAt: string
 }
 
+export type TravelAuthorizationPreApprovalSubmissionAsIndex =
+  TravelAuthorizationPreApprovalSubmission & {
+    preApprovals: (TravelAuthorizationPreApprovalAsReference & {
+      profiles: TravelAuthorizationPreApprovalProfile[]
+    })[]
+  }
+
+export type TravelAuthorizationPreApprovalSubmissionAsShow =
+  TravelAuthorizationPreApprovalSubmission & {
+    documents: TravelAuthorizationPreApprovalDocument[]
+    preApprovals: (TravelAuthorizationPreApprovalAsReference & {
+      profiles: TravelAuthorizationPreApprovalProfile[]
+    })[]
+  }
+
 export type TravelAuthorizationPreApprovalSubmissionWhereOptions = WhereOptions<
   TravelAuthorizationPreApprovalSubmission,
   "id" | "creatorId" | "approverId" | "status" | "department"
@@ -55,7 +87,7 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
   STATUSES: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
 
   async list(params: TravelAuthorizationPreApprovalSubmissionsQueryOptions = {}): Promise<{
-    travelAuthorizationPreApprovalSubmissions: TravelAuthorizationPreApprovalSubmission[]
+    travelAuthorizationPreApprovalSubmissions: TravelAuthorizationPreApprovalSubmissionAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-authorization-pre-approval-submissions", {
@@ -65,7 +97,7 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
   },
 
   async get(travelAuthorizationPreApprovalSubmissionId: number): Promise<{
-    travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmission
+    travelAuthorizationPreApprovalSubmission: TravelAuthorizationPreApprovalSubmissionAsShow
     policy: Policy
   }> {
     const { data } = await http.get(
