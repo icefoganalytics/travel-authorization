@@ -18,7 +18,8 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorizationPreApprova
       throw new Error("Expected preApproval association to be pre-loaded.")
     }
 
-    const serializedPreApproval = this.serializePreApproval(preApproval)
+    const serializedTravelAuthorizationPreApproval =
+      this.serializeTravelAuthorizationPreApproval(preApproval)
 
     return {
       ...pick(this.record, [
@@ -30,14 +31,16 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorizationPreApprova
         "createdAt",
         "updatedAt",
       ]),
-      preApproval: serializedPreApproval,
+      preApproval: serializedTravelAuthorizationPreApproval,
     }
   }
 
-  private serializePreApproval(
-    preApproval: TravelAuthorizationPreApproval
+  private serializeTravelAuthorizationPreApproval(
+    travelAuthorizationPreApproval: TravelAuthorizationPreApproval
   ): TravelAuthorizationPreApprovals.AsReference {
-    return TravelAuthorizationPreApprovals.ReferenceSerializer.perform(preApproval)
+    return TravelAuthorizationPreApprovals.ReferenceSerializer.perform(
+      travelAuthorizationPreApproval
+    )
   }
 }
 
