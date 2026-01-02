@@ -68,6 +68,10 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 - **Guard clauses:** Early returns with blank line after each guard
 - **Named constants:** Hoist magic numbers to named `const`
 - camelCase for variables/functions, PascalCase for classes/types
+- **Prettier formatting:** Let Prettier handle all formatting decisions (line wrapping, spacing, etc.)
+  - Don't manually break lines or add leading `|` in union types
+  - Prettier will automatically wrap based on line length configuration
+  - Example: `Pick<Model, "id" | "name" | "email">` stays single-line until it exceeds print width
 
 **Import ordering (PEP8-style):**
 
@@ -108,10 +112,10 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 
 **Running tests:**
 
-- All tests: `dev test_api`
-- Specific file: `npm test -- tests/services/example.test.ts --run` (from `/api`)
+- All tests: `dev test api`
+- Specific file: `dev test api -- tests/services/example.test.ts --run`
 - Watch mode: omit `--run`
-- Pattern: `npm test -- --grep "pattern"`
+- Pattern: `dev test api -- --grep "pattern"`
 
 **Test structure:**
 
@@ -226,8 +230,17 @@ See `/api/src/config.ts` for complete details.
 
 **Pre-submission:**
 
-- All tests pass: `npm test` from `/api`
-- No TypeScript errors or `@ts-ignore`
+- All tests pass:
+  - API: `./bin/dev api npm test` or `npm test` from `/api`
+  - Web: `./bin/dev web npm test` or `npm test` from `/web`
+- Type checking passes:
+  - API: `./bin/dev api npm run check-types`
+  - Web: `./bin/dev web npm run check-types`
+- Linting passes:
+  - API: `npm run lint` from `/api`
+  - Web: `npm run lint` from `/web`
+- Prettier formatting passes: `npx prettier --check .` from project root
+- No `@ts-ignore`, `@ts-expect-error`, or `any` types
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
@@ -309,6 +322,7 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 ### Release Workflow
 
 1. **Before tagging an upstream-aligned release**
+
    - Review `Unreleased` and group items into user-facing themes.
    - Remove overly detailed technical notes that only matter to developers.
    - Ensure breaking changes, migrations, and security improvements are clearly called out.
