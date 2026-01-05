@@ -5,6 +5,7 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
+import { type TravelDeskPassengerNameRecordDocumentAsReference } from "@/api/travel-desk-passenger-name-record-documents-api"
 
 /** Keep in sync with api/src/models/travel-desk-travel-request.ts */
 export enum TravelDeskTravelRequestStatuses {
@@ -65,6 +66,11 @@ export type TravelDeskTravelRequestAsIndex = TravelDeskTravelRequest & {
   travelEndDate: string
   locationsTraveled: string
   requestedOptions: string
+}
+
+export type TravelDeskTravelRequestAsShow = TravelDeskTravelRequest & {
+  // associations
+  passengerNameRecordDocument?: TravelDeskPassengerNameRecordDocumentAsReference
 }
 
 export type TravelDeskTravelRequestAsReference = Pick<
@@ -131,7 +137,7 @@ export const travelDeskTravelRequestsApi = {
     travelDeskTravelRequestId: number,
     params: Record<string, unknown> = {}
   ): Promise<{
-    travelDeskTravelRequest: TravelDeskTravelRequest
+    travelDeskTravelRequest: TravelDeskTravelRequestAsShow
     policy: Policy
   }> {
     const { data } = await http.get(
@@ -145,7 +151,7 @@ export const travelDeskTravelRequestsApi = {
     travelDeskTravelRequestId: number,
     attributes: Partial<TravelDeskTravelRequest>
   ): Promise<{
-    travelDeskTravelRequest: TravelDeskTravelRequest
+    travelDeskTravelRequest: TravelDeskTravelRequestAsShow
   }> {
     const { data } = await http.patch(
       `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}`,
@@ -159,7 +165,7 @@ export const travelDeskTravelRequestsApi = {
     travelDeskTravelRequestId: number,
     attributes?: Partial<TravelDeskTravelRequest>
   ): Promise<{
-    travelDeskTravelRequest: TravelDeskTravelRequest
+    travelDeskTravelRequest: TravelDeskTravelRequestAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/submit`,
@@ -172,7 +178,7 @@ export const travelDeskTravelRequestsApi = {
     travelDeskTravelRequestId: number,
     attributes: Partial<TravelDeskTravelRequest>
   ): Promise<{
-    travelDeskTravelRequest: TravelDeskTravelRequest
+    travelDeskTravelRequest: TravelDeskTravelRequestAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/options-provided`,
@@ -182,7 +188,7 @@ export const travelDeskTravelRequestsApi = {
   },
 
   async optionsRanked(travelDeskTravelRequestId: number): Promise<{
-    travelDeskTravelRequest: TravelDeskTravelRequest
+    travelDeskTravelRequest: TravelDeskTravelRequestAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/options-ranked`
@@ -194,7 +200,7 @@ export const travelDeskTravelRequestsApi = {
     travelDeskTravelRequestId: number,
     attributes: Partial<TravelDeskTravelRequest>
   ): Promise<{
-    travelDeskTravelRequest: TravelDeskTravelRequest
+    travelDeskTravelRequest: TravelDeskTravelRequestAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/book`,

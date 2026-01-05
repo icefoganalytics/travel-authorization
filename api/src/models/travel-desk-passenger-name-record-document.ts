@@ -18,6 +18,8 @@ import {
 
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
+// TODO: Consider if this model is needed, maybe we should be setting the invoiceNumber on the TravelDeskTravelRequest model.
+// And then this model could be replaced by a generic Attachment object.
 @Table({
   tableName: "travel_desk_passenger_name_record_documents",
   paranoid: false,

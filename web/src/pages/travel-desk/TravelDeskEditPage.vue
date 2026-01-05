@@ -110,11 +110,13 @@
         >
           <div>Back</div>
         </v-btn>
-        <ItineraryModal
+        <v-btn
           v-if="hasInvoiceNumber"
-          class="ml-auto mr-3"
-          :invoice-number="invoiceNumber"
-        />
+          class="ml-auto mr-3 px-3"
+          color="#005A65"
+          @click="openPrintItineraryDialog"
+          >View Itinerary</v-btn
+        >
         <UploadPnrModal
           :travel-request="travelDeskTravelRequest"
           :class="hasInvoiceNumber ? 'ml-1 mr-2' : 'ml-auto mr-2'"
@@ -209,6 +211,9 @@
         ref="confirmBookingDialog"
         @booked="returnToTravelDesk"
       />
+      <TravelDeskTravelRequestPrintItineraryDialog
+        ref="travelDeskTravelRequestPrintItineraryDialog"
+      />
     </v-card>
   </v-container>
 </template>
@@ -229,20 +234,21 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
-import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/TravelerDetailsFormCard.vue"
 import RentalCarRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/RentalCarRequestTable.vue"
 import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
 import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
-
 import UploadPnrModal from "@/modules/travelDesk/views/Desk/PnrDocument/UploadPnrModal.vue"
-import ItineraryModal from "@/modules/travelDesk/views/Requests/Components/ItineraryModal.vue"
+
+import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
+import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
+import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
+import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/TravelerDetailsFormCard.vue"
+
+import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
+import TravelDeskQuestionsManageCard from "@/components/travel-desk-questions/TravelDeskQuestionsManageCard.vue"
+import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
 import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
-import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
-import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
-import TravelDeskQuestionsManageCard from "@/components/travel-desk-questions/TravelDeskQuestionsManageCard.vue"
-import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
-import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
 
 const props = defineProps({
   travelDeskTravelRequestId: {
@@ -384,9 +390,14 @@ async function saveNewTravelRequest(saveType, { returnToTravelDeskPageAfter = fa
 }
 
 const confirmBookingDialog = ref(null)
+const travelDeskTravelRequestPrintItineraryDialog = ref(null)
 
 function openConfirmBookingDialog() {
   confirmBookingDialog.value.open(props.travelDeskTravelRequestId)
+}
+
+function openPrintItineraryDialog() {
+  travelDeskTravelRequestPrintItineraryDialog.value.open(props.travelDeskTravelRequestId)
 }
 
 useBreadcrumbs([
