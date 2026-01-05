@@ -199,6 +199,26 @@ _Singular form (`useResource`) for single items:_
 - Provide: `fetch()`, `refresh()`, optionally `save()`
 - Watch id with `immediate: true`, skip if nil
 
+_Chaining composables with computed IDs:_
+
+When you need to fetch a detail record based on a list lookup, chain composables using a computed ID:
+
+```typescript
+const resourcesQuery = computed(() => ({
+  where: {
+    name: props.name,
+  },
+}))
+const { resources } = useResources(resourcesQuery, {
+  skipWatchIf: () => !isReady.value,
+})
+const resourceId = computed(() => resources.value[0]?.id)
+
+const { resource } = useResource(resourceId)
+```
+
+This leverages Vue's reactivity - when `resources` updates, `resourceId` recomputes, triggering the singular composable to fetch automatically. Avoid manual watchers and imperative `fetch()` calls when reactive chaining suffices.
+
 Re-export types, enums, and constants from API module for convenience.
 
 ---
