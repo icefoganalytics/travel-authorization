@@ -65,7 +65,9 @@
         <!-- Removed for now see https://github.com/icefoganalytics/travel-authorization/issues/248#issuecomment-2787649358 -->
         <v-row v-if="false">
           <v-col>
-            <TravelDeskQuestionsCard :travel-desk-travel-request-id="travelDeskTravelRequest.id" />
+            <TravelDeskQuestionsCard
+              :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
+            />
           </v-col>
         </v-row>
 
@@ -78,20 +80,20 @@
               <v-divider />
               <v-card-text>
                 <TravelDeskFlightRequestsCard
-                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                   class="borderless-card"
                 />
                 <TravelDeskRentalCarsTable
                   class="borderless-card"
-                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
                 <TravelDeskHotelsTable
                   class="borderless-card"
-                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
                 <TravelDeskOtherTransportationsTable
                   class="borderless-card"
-                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
               </v-card-text>
             </v-card>
@@ -127,8 +129,8 @@
   </v-container>
 </template>
 
-<script setup>
-import { computed, ref, toRefs } from "vue"
+<script setup lang="ts">
+import { computed, ref } from "vue"
 import { isNil } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -149,27 +151,24 @@ import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/Trav
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
 import TravelerDetailsCard from "@/components/travel-desk-travel-requests/TravelerDetailsCard.vue"
 
-const props = defineProps({
-  travelDeskTravelRequestId: {
-    type: [Number, String],
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelDeskTravelRequestId: string
+}>()
 
-const { travelDeskTravelRequestId } = toRefs(props)
-const { travelDeskTravelRequest } = useTravelDeskTravelRequest(travelDeskTravelRequestId)
+const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
+const { travelDeskTravelRequest } = useTravelDeskTravelRequest(travelDeskTravelRequestIdAsNumber)
 
-const hasInvoiceNumber = computed(
-  () => !isNil(travelDeskTravelRequest.value?.passengerNameRecordDocument?.invoiceNumber)
-)
+const hasInvoiceNumber = computed(() => !isNil(travelDeskTravelRequest.value?.invoiceNumber))
 
-const travelDeskTravelRequestPrintItineraryDialog = ref(null)
+const travelDeskTravelRequestPrintItineraryDialog = ref<InstanceType<
+  typeof TravelDeskTravelRequestPrintItineraryDialog
+> | null>(null)
 
 function openPrintItineraryDialog() {
-  travelDeskTravelRequestPrintItineraryDialog.value.open(travelDeskTravelRequestId.value)
+  travelDeskTravelRequestPrintItineraryDialog.value?.open(travelDeskTravelRequestIdAsNumber.value)
 }
 
-useBreadcrumbs([
+const breadcrumbs = computed(() => [
   {
     text: "Travel Desk",
     to: {
@@ -180,10 +179,13 @@ useBreadcrumbs([
     text: "Request",
     to: {
       name: "TravelDeskReadPage",
-      params: { travelDeskTravelRequestId: props.travelDeskTravelRequestId },
+      params: {
+        travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+      },
     },
   },
 ])
+useBreadcrumbs(breadcrumbs)
 </script>
 
 <style scoped>
