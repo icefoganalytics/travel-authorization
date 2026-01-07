@@ -22,6 +22,7 @@ export class UpdateService extends BaseService {
           "flightRequests",
           "hotels",
           "otherTransportations",
+          "passengerNameRecordDocument",
           "rentalCars",
           {
             association: "travelAuthorization",
@@ -35,12 +36,6 @@ export class UpdateService extends BaseService {
                 include: ["departureLocation", "arrivalLocation"],
               },
             ],
-          },
-          {
-            association: "passengerNameRecordDocument",
-            attributes: {
-              exclude: ["pnrDocument"],
-            },
           },
         ],
       })

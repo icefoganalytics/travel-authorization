@@ -1,13 +1,14 @@
 import { first, isEmpty, isNil, isUndefined, last, pick } from "lodash"
 
-import { TravelAuthorization, TravelDeskTravelRequest, TravelSegment, User } from "@/models"
+import { TravelDeskTravelRequest, TravelSegment, User } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelDeskTravelRequestIndexView = Pick<
+export type TravelDeskTravelRequestAsIndex = Pick<
   TravelDeskTravelRequest,
   | "id"
   | "travelAuthorizationId"
   | "travelAgencyId"
+  | "invoiceNumber"
   | "legalFirstName"
   | "legalMiddleName"
   | "legalLastName"
@@ -42,6 +43,7 @@ export type TravelDeskTravelRequestIndexView = Pick<
   travelEndDate: string
   travelStartDate: string
   userDisplayName: string
+  hasPassengerNameRecordDocument: boolean
 }
 
 export class IndexSerializer extends BaseSerializer<TravelDeskTravelRequest> {
@@ -52,30 +54,52 @@ export class IndexSerializer extends BaseSerializer<TravelDeskTravelRequest> {
     super(record)
   }
 
-  perform(): TravelDeskTravelRequestIndexView {
-    const { firstName, lastName } = this.travelAuthorizationUser
+  perform(): TravelDeskTravelRequestAsIndex {
+    const { passengerNameRecordDocument, travelAuthorization } = this.record
+    if (isUndefined(passengerNameRecordDocument)) {
+      throw new Error("Expected passengerNameRecordDocument association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelAuthorization)) {
+      throw new Error("Expected travelAuthorization association to be pre-loaded.")
+    }
+
+    const { user: travelAuthorizationUser } = travelAuthorization
+    if (isUndefined(travelAuthorizationUser)) {
+      throw new Error("Expected travelAuthorization.user association to be pre-loaded.")
+    }
+
+    const { travelSegments } = travelAuthorization
+    if (isUndefined(travelSegments)) {
+      throw new Error("Expected travelAuthorization.travelSegments association to be pre-loaded.")
+    }
+
+    const { firstName, lastName } = travelAuthorizationUser
     const userDisplayName = [firstName, lastName].filter(Boolean).join(" ") || "Unknown"
 
-    const department = this.travelAuthorizationUser.department ?? ""
-    const branch = this.travelAuthorizationUser.branch ?? ""
+    const department = travelAuthorizationUser.department ?? ""
+    const branch = travelAuthorizationUser.branch ?? ""
 
     // TODO: rework this using ids, once data model permits
     const isAssignedToCurrentUser = this.record.travelDeskOfficer === this.currentUser.displayName
     const isBooked = this.record.status === TravelDeskTravelRequest.Statuses.BOOKED
 
-    const travelStartDate = this.determineStartDate(this.travelSegments)
+    const travelStartDate = this.determineStartDate(travelSegments)
     const travelEndDate = this.determineEndDate(
-      this.travelSegments,
-      this.travelAuthorization.dateBackToWorkEstimateAsString
+      travelSegments,
+      travelAuthorization.dateBackToWorkEstimateAsString
     )
-    const locationsTraveled = this.determineLocationsTraveled(this.travelSegments)
+    const locationsTraveled = this.determineLocationsTraveled(travelSegments)
     const requestedOptions = this.determineRequestedOptions(this.record)
+
+    const hasPassengerNameRecordDocument = !isNil(passengerNameRecordDocument)
 
     return {
       ...pick(this.record, [
         "id",
         "travelAuthorizationId",
         "travelAgencyId",
+        "invoiceNumber",
         "legalFirstName",
         "legalMiddleName",
         "legalLastName",
@@ -109,37 +133,8 @@ export class IndexSerializer extends BaseSerializer<TravelDeskTravelRequest> {
       travelStartDate,
       travelEndDate,
       userDisplayName,
+      hasPassengerNameRecordDocument,
     }
-  }
-
-  private get travelAuthorization(): TravelAuthorization {
-    if (isUndefined(this.record.travelAuthorization)) {
-      throw new Error("travelAuthorization association is missing")
-    }
-
-    const { travelAuthorization } = this.record
-
-    if (isUndefined(travelAuthorization.user)) {
-      throw new Error("travelAuthorization.user association is missing")
-    }
-
-    return this.record.travelAuthorization
-  }
-
-  private get travelSegments(): TravelSegment[] {
-    if (isUndefined(this.travelAuthorization.travelSegments)) {
-      throw new Error("travelAuthorization.travelSegments association is missing")
-    }
-
-    return this.travelAuthorization.travelSegments
-  }
-
-  private get travelAuthorizationUser(): User {
-    if (isUndefined(this.travelAuthorization.user)) {
-      throw new Error("travelAuthorization.user association is missing")
-    }
-
-    return this.travelAuthorization.user
   }
 
   private determineStartDate(travelSegments: TravelSegment[]): string {

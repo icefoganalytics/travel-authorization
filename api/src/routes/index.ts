@@ -109,6 +109,12 @@ router
   .route("/api/downloads/expenses/:expenseId/receipt")
   .get(Downloads.Expenses.ReceiptController.show)
   .post(Downloads.Expenses.ReceiptController.create)
+router
+  .route(
+    "/api/downloads/travel-desk-travel-requests/:travelDeskTravelRequestId/passenger-name-record-document"
+  )
+  .get(Downloads.TravelDeskTravelRequests.PassengerNameRecordDocumentController.show)
+  .post(Downloads.TravelDeskTravelRequests.PassengerNameRecordDocumentController.create)
 
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router
@@ -279,6 +285,7 @@ router
   .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId")
   .get(TravelDeskTravelRequestsController.show)
   .patch(TravelDeskTravelRequestsController.update)
+// Statefull Actions
 router
   .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/submit")
   .post(TravelDeskTravelRequests.SubmitController.create)
@@ -291,6 +298,12 @@ router
 router
   .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/options-ranked")
   .post(TravelDeskTravelRequests.OptionsRankedController.create)
+// Sub-resource Actions
+router
+  .route(
+    "/api/travel-desk-travel-requests/:travelDeskTravelRequestId/passenger-name-record-document"
+  )
+  .post(TravelDeskTravelRequests.PassengerNameRecordDocumentController.create)
 
 router.route("/api/locations").get(LocationsController.index)
 router.route("/api/locations/:locationId").get(LocationsController.show)

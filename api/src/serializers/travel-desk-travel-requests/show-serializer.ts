@@ -1,13 +1,14 @@
-import { pick } from "lodash"
+import { isNil, isUndefined, pick } from "lodash"
 
 import { TravelDeskTravelRequest, User } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelDeskTravelRequestShowView = Pick<
+export type TravelDeskTravelRequestAsShow = Pick<
   TravelDeskTravelRequest,
   | "id"
   | "travelAuthorizationId"
   | "travelAgencyId"
+  | "invoiceNumber"
   | "legalFirstName"
   | "legalLastName"
   | "strAddress"
@@ -32,7 +33,9 @@ export type TravelDeskTravelRequestShowView = Pick<
   | "travelDeskOfficer"
   | "createdAt"
   | "updatedAt"
->
+> & {
+  hasPassengerNameRecordDocument: boolean
+}
 
 export class ShowSerializer extends BaseSerializer<TravelDeskTravelRequest> {
   constructor(
@@ -42,36 +45,47 @@ export class ShowSerializer extends BaseSerializer<TravelDeskTravelRequest> {
     super(record)
   }
 
-  perform(): TravelDeskTravelRequestShowView {
-    return pick(this.record, [
-      "id",
-      "travelAuthorizationId",
-      "travelAgencyId",
-      "legalFirstName",
-      "legalLastName",
-      "strAddress",
-      "city",
-      "province",
-      "postalCode",
-      "legalMiddleName",
-      "travelPurpose",
-      "busPhone",
-      "busEmail",
-      "status",
-      "birthDate",
-      "isInternationalTravel",
-      "passportCountry",
-      "passportNum",
-      "travelLocation",
-      "travelNotes",
-      "travelContact",
-      "travelPhone",
-      "travelEmail",
-      "additionalInformation",
-      "travelDeskOfficer",
-      "createdAt",
-      "updatedAt",
-    ])
+  perform(): TravelDeskTravelRequestAsShow {
+    const { passengerNameRecordDocument } = this.record
+    if (isUndefined(passengerNameRecordDocument)) {
+      throw new Error("Expected passengerNameRecordDocument association to be pre-loaded.")
+    }
+
+    const hasPassengerNameRecordDocument = !isNil(passengerNameRecordDocument)
+
+    return {
+      ...pick(this.record, [
+        "id",
+        "travelAuthorizationId",
+        "travelAgencyId",
+        "invoiceNumber",
+        "legalFirstName",
+        "legalLastName",
+        "strAddress",
+        "city",
+        "province",
+        "postalCode",
+        "legalMiddleName",
+        "travelPurpose",
+        "busPhone",
+        "busEmail",
+        "status",
+        "birthDate",
+        "isInternationalTravel",
+        "passportCountry",
+        "passportNum",
+        "travelLocation",
+        "travelNotes",
+        "travelContact",
+        "travelPhone",
+        "travelEmail",
+        "additionalInformation",
+        "travelDeskOfficer",
+        "createdAt",
+        "updatedAt",
+      ]),
+      hasPassengerNameRecordDocument,
+    }
   }
 }
 
