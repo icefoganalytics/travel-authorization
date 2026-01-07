@@ -14,12 +14,9 @@
         v-if="isLoading"
         type="card"
       />
-      <v-card
-        v-else
-        class="mt-10"
-      >
+      <v-card v-else>
         <v-card-title><h3>Flight Details</h3></v-card-title>
-        <v-card-text>
+        <v-card-text v-if="!isEmpty(flightSegments)">
           <div :id="'pdf-page-' + travelDeskTravelRequestId">
             <div
               v-for="(flightSegment, index) in flightSegments"
@@ -95,6 +92,9 @@
             </div>
           </div>
         </v-card-text>
+        <v-card-text v-else>
+          <p>No flight segments found.</p>
+        </v-card-text>
       </v-card>
 
       <template #actions>
@@ -119,7 +119,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 import { Printd } from "printd"
 import { DateTime } from "luxon"
 
@@ -127,9 +127,10 @@ import { type SegmentAsReference } from "@/api/accounts-receivable-invoices-api"
 import { formatDate } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 
-import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
-import useAccountsReceivableInvoices from "@/use/use-accounts-receivable-invoices"
 import useAccountsReceivableInvoice from "@/use/use-accounts-receivable-invoice"
+import useAccountsReceivableInvoices from "@/use/use-accounts-receivable-invoices"
+import useSnack from "@/use/use-snack"
+import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
@@ -151,9 +152,7 @@ const showDialog = ref(false)
 const { travelDeskTravelRequest, isLoading: isLoadingTravelDeskTravelRequest } =
   useTravelDeskTravelRequest(travelDeskTravelRequestId)
 
-const invoiceNumber = computed(
-  () => travelDeskTravelRequest.value?.passengerNameRecordDocument?.invoiceNumber ?? undefined
-)
+const invoiceNumber = computed(() => travelDeskTravelRequest.value?.invoiceNumber ?? undefined)
 
 const accountsReceivableInvoicesQuery = computed(() => ({
   where: {
@@ -240,6 +239,8 @@ function buildLocation(cityCode: string | null, cityName: string | null): string
   return `(${formattedCityCode})`
 }
 
+const snack = useSnack()
+
 function print() {
   const styles = [
     /* css */ `
@@ -293,6 +294,8 @@ function print() {
     setPdfTitle(pdf)
     pdf.print(pageToPrint, styles)
     close()
+  } else {
+    snack.warning("Failed to print itinerary, no page found.")
   }
 }
 

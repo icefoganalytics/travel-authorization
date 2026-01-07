@@ -104,7 +104,7 @@
         :to="{
           name: 'TravelDeskReadPage',
           params: {
-            travelDeskTravelRequestId: item.id,
+            travelDeskTravelRequestId: item.id.toString(),
           },
         }"
       >
@@ -117,7 +117,7 @@
         :to="{
           name: 'TravelDeskEditPage',
           params: {
-            travelDeskTravelRequestId: item.id,
+            travelDeskTravelRequestId: item.id.toString(),
           },
         }"
       >

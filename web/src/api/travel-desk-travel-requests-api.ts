@@ -5,7 +5,6 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
-import { type TravelDeskPassengerNameRecordDocumentAsReference } from "@/api/travel-desk-passenger-name-record-documents-api"
 
 /** Keep in sync with api/src/models/travel-desk-travel-request.ts */
 export enum TravelDeskTravelRequestStatuses {
@@ -32,6 +31,7 @@ export type TravelDeskTravelRequest = {
   id: number
   travelAuthorizationId: number
   travelAgencyId: number | null
+  invoiceNumber: string | null // References the external TravCom invoice number
   legalFirstName: string
   legalMiddleName: string | null
   legalLastName: string
@@ -66,11 +66,11 @@ export type TravelDeskTravelRequestAsIndex = TravelDeskTravelRequest & {
   travelEndDate: string
   locationsTraveled: string
   requestedOptions: string
+  hasPassengerNameRecordDocument: boolean
 }
 
 export type TravelDeskTravelRequestAsShow = TravelDeskTravelRequest & {
-  // associations
-  passengerNameRecordDocument?: TravelDeskPassengerNameRecordDocumentAsReference
+  hasPassengerNameRecordDocument: boolean
 }
 
 export type TravelDeskTravelRequestAsReference = Pick<
