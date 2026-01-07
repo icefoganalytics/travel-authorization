@@ -29,6 +29,7 @@ export class TravelDeskTravelRequestsPolicy extends PolicyFactory(TravelDeskTrav
   permittedAttributes(): Path[] {
     return [
       "travelAgencyId",
+      "invoiceNumber",
       "legalFirstName",
       "legalLastName",
       "strAddress",
