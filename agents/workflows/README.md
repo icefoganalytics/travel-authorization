@@ -20,6 +20,25 @@ Complete workflow for converting JavaScript API client files to TypeScript.
 
 ---
 
+### [convert-js-singular-composable-to-typescript.md](convert-js-singular-composable-to-typescript.md)
+
+Complete workflow for converting singular use JavaScript composable files (use-resource.ts) to TypeScript.
+
+**Includes:**
+- Vue reactive state with explicit generic types
+- JSDoc removal and TypeScript parameter typing
+- Type re-exports for consumer convenience
+- fetch/save method patterns with proper return types
+- Error logging format standardization
+- Policy state integration
+
+**Reference Commits:**
+- `25c4f78b` - use-travel-purpose.ts conversion
+- `3491503a` - use-expense.ts conversion
+- `59226d49` - use-user.ts conversion
+
+---
+
 ## Using Workflows
 
 Workflows are designed to be used with AI coding assistants like Claude or Windsurf.
@@ -28,6 +47,11 @@ Workflows are designed to be used with AI coding assistants like Claude or Winds
 ```
 Follow the workflow in agents/workflows/convert-js-api-to-typescript.md
 to convert web/src/api/travel-desk-rental-cars-api.js to TypeScript.
+```
+
+```
+Follow the workflow in agents/workflows/convert-js-singular-composable-to-typescript.md
+to convert web/src/use/use-per-diem.js to TypeScript.
 ```
 
 See parent [agents/README.md](../README.md) for setup instructions.
