@@ -1,12 +1,12 @@
 import { ref, watch, type Ref } from "vue"
 import { isEqual } from "lodash"
 
-type JsonPrimitive = string | number | boolean | null
-type JsonArray = JsonValue[]
-type JsonObject = { [key: string]: JsonValue }
-type JsonValue = JsonPrimitive | JsonArray | JsonObject
-
-export function useSessionStorage<T extends JsonValue>(key: string, defaultValue: T): Ref<T> {
+/**
+ * Store and retrieve JSON-serializable values in session storage.
+ * Valid JSON types: string, number, boolean, null, arrays, and plain objects.
+ * Invalid: undefined, functions, symbols, bigint, circular references.
+ */
+export function useSessionStorage<T>(key: string, defaultValue: T): Ref<T> {
   const storedValue = sessionStorage.getItem(key)
   const data = ref<T>(storedValue ? JSON.parse(storedValue) : defaultValue)
 
@@ -22,7 +22,7 @@ export function useSessionStorage<T extends JsonValue>(key: string, defaultValue
     { deep: true }
   )
 
-  return data
+  return data as Ref<T>
 }
 
 export default useSessionStorage
