@@ -17,11 +17,15 @@ import {
 } from "@sequelize/core/decorators-legacy"
 
 import Expense from "@/models/expense"
+import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
 export enum AttachmentTargetTypes {
   Expense = "Expense",
+  TravelDeskTravelRequest = "TravelDeskTravelRequest",
 }
 
+// TODO: Consider adding md5 field to Attachment model for integrity checks
+// See: api/src/db/migrations/20250331154941_add-metadata-fields-to-travle-authorization-pre-approval-document.ts
 @Table({
   defaultScope: {
     attributes: {
@@ -100,10 +104,19 @@ export class Attachment extends Model<
    */
   declare expense?: NonAttribute<Expense>
 
-  get target(): NonAttribute<Expense | undefined> {
+  /**
+   * Defined by {@link TravelDeskTravelRequest#passengerNameRecordDocument}
+   *
+   * NOTE: lookup must include targetType or result will return a random model
+   */
+  declare travelDeskTravelRequest?: NonAttribute<TravelDeskTravelRequest>
+
+  get target(): NonAttribute<Expense | TravelDeskTravelRequest | undefined> {
     switch (this.targetType) {
       case AttachmentTargetTypes.Expense:
         return this.expense
+      case AttachmentTargetTypes.TravelDeskTravelRequest:
+        return this.travelDeskTravelRequest
       default:
         return undefined
     }

@@ -47,7 +47,7 @@
             color="primary"
             outlined
             :loading="isLoading"
-            :block="$vuetify.breakpoint.smAndDown"
+            :block="smAndDown"
             @click="saveTravelDeskTravelRequest"
             >Save Draft
           </v-btn>
@@ -60,13 +60,13 @@
         </v-row>
 
         <!-- Removed for now see https://github.com/icefoganalytics/travel-authorization/issues/248#issuecomment-2787649358 -->
-        <v-row v-if="false">
+        <!-- <v-row>
           <v-col>
             <TravelDeskQuestionsManageCard
               :travel-desk-travel-request-id="travelDeskTravelRequest.id"
             />
           </v-col>
-        </v-row>
+        </v-row> -->
 
         <v-row>
           <v-col>
@@ -83,16 +83,19 @@
                   :travel-authorization-id="travelDeskTravelRequest.travelAuthorizationId"
                   show-flight-options
                 />
+                <!-- TODO: rebuild RentalCarRequestTable component with newer patterns -->
                 <RentalCarRequestTable
-                  :flight-requests="travelDeskTravelRequest.flightRequests"
-                  :rental-cars="travelDeskTravelRequest.rentalCars"
+                  :flight-requests="travelDeskFlightRequests"
+                  :rental-cars="travelDeskRentalCars"
                 />
+                <!-- TODO: rebuild HotelRequestTable component with newer patterns -->
                 <HotelRequestTable
-                  :flight-requests="travelDeskTravelRequest.flightRequests"
-                  :hotels="travelDeskTravelRequest.hotels"
+                  :flight-requests="travelDeskFlightRequests"
+                  :hotels="travelDeskHotels"
                 />
+                <!-- TODO: rebuild TransportationRequestTable component with newer patterns -->
                 <TransportationRequestTable
-                  :other-transportations="travelDeskTravelRequest.otherTransportations"
+                  :other-transportations="travelDeskOtherTransportations"
                 />
               </v-card-text>
             </v-card>
@@ -106,20 +109,30 @@
           }"
           color="grey darken-5"
           class="px-5"
-          :block="$vuetify.breakpoint.smAndDown"
+          :block="smAndDown"
         >
           <div>Back</div>
         </v-btn>
-        <ItineraryModal
+        <v-btn
           v-if="hasInvoiceNumber"
-          class="ml-auto mr-3"
-          :invoice-number="invoiceNumber"
-        />
-        <UploadPnrModal
-          :travel-request="travelDeskTravelRequest"
+          class="ml-auto mr-3 px-3"
+          color="#005A65"
+          @click="openPrintItineraryDialog"
+          >View Itinerary</v-btn
+        >
+        <v-btn
+          size="x-small"
+          style="min-width: 0"
+          color="secondary"
           :class="hasInvoiceNumber ? 'ml-1 mr-2' : 'ml-auto mr-2'"
-          @saveData="saveNewTravelRequest('save')"
-          @close="refresh"
+          @click="uploadPassengerNameRecordDocumentDialogRef?.open()"
+        >
+          <div class="px-2">Upload PNR</div>
+        </v-btn>
+        <TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog
+          ref="uploadPassengerNameRecordDocumentDialogRef"
+          :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+          @uploaded="refresh"
         />
 
         <v-btn
@@ -127,7 +140,7 @@
           class="mr-2 px-5"
           color="primary"
           :loading="isLoading"
-          :block="$vuetify.breakpoint.smAndDown"
+          :block="smAndDown"
           @click="markTravelRequestAsSubmittedAndReturnToTravelDesk"
         >
           Submit for Traveler
@@ -137,7 +150,7 @@
           class="mr-2 px-5"
           color="primary"
           :loading="isLoading"
-          :block="$vuetify.breakpoint.smAndDown"
+          :block="smAndDown"
           @click="markTravelRequestAsOptionsProvidedAndReturnToTravelDesk"
         >
           Send to Traveler
@@ -155,7 +168,7 @@
                 class="mx-md-3"
                 :loading="isLoading"
                 disabled
-                :block="$vuetify.breakpoint.smAndDown"
+                :block="smAndDown"
               >
                 Booking Complete (?)
               </v-btn>
@@ -176,7 +189,7 @@
                 class="mx-md-3"
                 :loading="isLoading"
                 disabled
-                :block="$vuetify.breakpoint.smAndDown"
+                :block="smAndDown"
               >
                 Booking Complete (?)
               </v-btn>
@@ -189,7 +202,7 @@
           class="mx-md-3"
           color="primary"
           :loading="isLoading"
-          :block="$vuetify.breakpoint.smAndDown"
+          :block="smAndDown"
           @click="openConfirmBookingDialog"
         >
           Booking Complete
@@ -209,93 +222,137 @@
         ref="confirmBookingDialog"
         @booked="returnToTravelDesk"
       />
+      <TravelDeskTravelRequestPrintItineraryDialog
+        ref="travelDeskTravelRequestPrintItineraryDialog"
+      />
     </v-card>
   </v-container>
 </template>
 
-<script setup>
-import { computed, nextTick, ref, toRefs } from "vue"
+<script setup lang="ts">
+import { computed, nextTick, ref } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
-import { cloneDeep, isNil } from "lodash"
+import { isNil } from "lodash"
 
-import { TRAVEL_DESK_URL } from "@/urls"
-import useSnack from "@/use/use-snack"
-import http from "@/api/http-client"
+import { MAX_PER_PAGE } from "@/api/base-api"
 import travelDeskTravelRequestsApi, {
-  TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
+  TravelDeskTravelRequestStatuses,
 } from "@/api/travel-desk-travel-requests-api"
+
+import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
+import useSnack from "@/use/use-snack"
+import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
+import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
+import useTravelDeskOtherTransportations from "@/use/use-travel-desk-other-transportations"
+import useTravelDeskRentalCars from "@/use/use-travel-desk-rental-cars"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
-import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/TravelerDetailsFormCard.vue"
 import RentalCarRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/RentalCarRequestTable.vue"
 import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
 import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
+import TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog.vue"
 
-import UploadPnrModal from "@/modules/travelDesk/views/Desk/PnrDocument/UploadPnrModal.vue"
-import ItineraryModal from "@/modules/travelDesk/views/Requests/Components/ItineraryModal.vue"
+import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
+import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
+import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
+import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/TravelerDetailsFormCard.vue"
+
+import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
+import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
 import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
-import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
-import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
-import TravelDeskQuestionsManageCard from "@/components/travel-desk-questions/TravelDeskQuestionsManageCard.vue"
-import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
-import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
 
-const props = defineProps({
-  travelDeskTravelRequestId: {
-    type: [Number, String],
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelDeskTravelRequestId: string
+}>()
 
-const { currentUser } = useCurrentUser()
+const { smAndDown } = useDisplayVuetify2()
 
-const { travelDeskTravelRequestId } = toRefs(props)
+const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 const {
   travelDeskTravelRequest,
   isLoading,
   refresh: refreshTravelDeskTravelRequest,
   save: saveTravelDeskTravelRequest,
-} = useTravelDeskTravelRequest(travelDeskTravelRequestId)
+} = useTravelDeskTravelRequest(travelDeskTravelRequestIdAsNumber)
 
 const isDraftState = computed(
-  () => travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.DRAFT
+  () => travelDeskTravelRequest.value?.status === TravelDeskTravelRequestStatuses.DRAFT
 )
 const isSubmittedState = computed(
-  () => travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED
+  () => travelDeskTravelRequest.value?.status === TravelDeskTravelRequestStatuses.SUBMITTED
 )
 const isOptionsProvidedState = computed(
-  () =>
-    travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_PROVIDED
+  () => travelDeskTravelRequest.value?.status === TravelDeskTravelRequestStatuses.OPTIONS_PROVIDED
 )
 const isOptionsRankedState = computed(
-  () => travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_RANKED
+  () => travelDeskTravelRequest.value?.status === TravelDeskTravelRequestStatuses.OPTIONS_RANKED
 )
 const isBookedState = computed(
-  () => travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED
+  () => travelDeskTravelRequest.value?.status === TravelDeskTravelRequestStatuses.BOOKED
 )
 const isCompleteState = computed(
-  () => travelDeskTravelRequest.value?.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.COMPLETE
+  () => travelDeskTravelRequest.value?.status === TravelDeskTravelRequestStatuses.COMPLETE
 )
-const invoiceNumber = computed(
-  () => travelDeskTravelRequest.value?.passengerNameRecordDocument?.invoiceNumber
-)
+const invoiceNumber = computed(() => travelDeskTravelRequest.value?.invoiceNumber)
 const hasInvoiceNumber = computed(() => !isNil(invoiceNumber.value))
 
-const savingData = ref(false)
+// TODO: remove once RentalCarRequestTable component is rebuilt with newer patterns
+const travelDeskFlightRequestsQuery = computed(() => ({
+  where: {
+    travelRequestId: travelDeskTravelRequestIdAsNumber.value,
+  },
+  perPage: MAX_PER_PAGE,
+}))
+const { travelDeskFlightRequests } = useTravelDeskFlightRequests(travelDeskFlightRequestsQuery)
+
+// TODO: remove once RentalCarRequestTable component is rebuilt with newer patterns
+const travelDeskRentalCarsQuery = computed(() => ({
+  where: {
+    travelRequestId: travelDeskTravelRequestIdAsNumber.value,
+  },
+  perPage: MAX_PER_PAGE,
+}))
+const { travelDeskRentalCars } = useTravelDeskRentalCars(travelDeskRentalCarsQuery)
+
+// TODO: remove once HotelRequestTable component is rebuilt with newer patterns
+const travelDeskHotelsQuery = computed(() => ({
+  where: {
+    travelRequestId: travelDeskTravelRequestIdAsNumber.value,
+  },
+  perPage: MAX_PER_PAGE,
+}))
+const { travelDeskHotels } = useTravelDeskHotels(travelDeskHotelsQuery)
+
+// TODO: remove once TransportationRequestTable component is rebuilt with newer patterns
+const travelDeskOtherTransportationsQuery = computed(() => ({
+  where: {
+    travelRequestId: travelDeskTravelRequestIdAsNumber.value,
+  },
+  perPage: MAX_PER_PAGE,
+}))
+const { travelDeskOtherTransportations } = useTravelDeskOtherTransportations(
+  travelDeskOtherTransportationsQuery
+)
+
+const { currentUser } = useCurrentUser<true>()
 
 async function refresh() {
   await refreshTravelDeskTravelRequest()
   await nextTick()
-  if (isNil(travelDeskTravelRequest.value.travelDeskOfficer)) {
-    travelDeskTravelRequest.value.travelDeskOfficer = currentUser.value.displayName
+
+  if (isNil(travelDeskTravelRequest.value)) return
+
+  if (isNil(travelDeskTravelRequest.value?.travelDeskOfficer)) {
+    travelDeskTravelRequest.value.travelDeskOfficer = currentUser.value.displayName ?? null
   }
 
-  travelDeskTravelRequest.value.internationalTravel =
-    travelDeskTravelRequest.value.passportCountry || travelDeskTravelRequest.value.passportNum
+  travelDeskTravelRequest.value.isInternationalTravel =
+    !isNil(travelDeskTravelRequest.value.passportCountry) ||
+    !isNil(travelDeskTravelRequest.value.passportNum)
 }
 
 const router = useRouter()
@@ -311,7 +368,7 @@ const snack = useSnack()
 async function markTravelRequestAsSubmittedAndReturnToTravelDesk() {
   isLoading.value = true
   try {
-    await travelDeskTravelRequestsApi.submit(travelDeskTravelRequestId.value)
+    await travelDeskTravelRequestsApi.submit(travelDeskTravelRequestIdAsNumber.value)
     return router.push({
       name: "TravelDeskPage",
     })
@@ -325,10 +382,12 @@ async function markTravelRequestAsSubmittedAndReturnToTravelDesk() {
 }
 
 async function markTravelRequestAsOptionsProvidedAndReturnToTravelDesk() {
+  if (isNil(travelDeskTravelRequest.value)) return
+
   isLoading.value = true
   try {
     await travelDeskTravelRequestsApi.optionsProvided(
-      travelDeskTravelRequestId.value,
+      travelDeskTravelRequestIdAsNumber.value,
       travelDeskTravelRequest.value
     )
     return router.push({
@@ -342,54 +401,25 @@ async function markTravelRequestAsOptionsProvidedAndReturnToTravelDesk() {
   }
 }
 
-async function saveNewTravelRequest(saveType, { returnToTravelDeskPageAfter = false } = {}) {
-  const body = cloneDeep(travelDeskTravelRequest.value)
-  delete body.internationalTravel
-  delete body.differentTravelContact
-  delete body.office
-  delete body.department
-  delete body.fullName
-
-  // TODO: move status updates to state specific endpoints
-  if (saveType == "save") {
-    // no-op
-  } else if (saveType == "sendback") {
-    body.status = TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_PROVIDED
-  } else if (saveType == "booked") {
-    body.status = TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED
-  }
-
-  savingData.value = true
-  try {
-    await http.post(`${TRAVEL_DESK_URL}/travel-request/${props.travelDeskTravelRequestId}`, body)
-
-    snack.success("Travel request saved.", {
-      color: "success",
-    })
-    savingData.value = false
-
-    if (returnToTravelDeskPageAfter) {
-      return router.push({
-        name: "TravelDeskPage",
-      })
-    } else {
-      refresh()
-    }
-  } catch (error) {
-    console.error(error)
-    snack.error(`Failed to save travel request: ${error}`)
-  } finally {
-    savingData.value = false
-  }
-}
-
-const confirmBookingDialog = ref(null)
+const confirmBookingDialog = ref<InstanceType<
+  typeof TravelDeskTravelRequestConfirmBookingDialog
+> | null>(null)
+const travelDeskTravelRequestPrintItineraryDialog = ref<InstanceType<
+  typeof TravelDeskTravelRequestPrintItineraryDialog
+> | null>(null)
+const uploadPassengerNameRecordDocumentDialogRef = ref<InstanceType<
+  typeof TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog
+> | null>(null)
 
 function openConfirmBookingDialog() {
-  confirmBookingDialog.value.open(props.travelDeskTravelRequestId)
+  confirmBookingDialog.value?.open(props.travelDeskTravelRequestId)
 }
 
-useBreadcrumbs([
+function openPrintItineraryDialog() {
+  travelDeskTravelRequestPrintItineraryDialog.value?.open(travelDeskTravelRequestIdAsNumber.value)
+}
+
+const breadcrumbs = computed(() => [
   {
     text: "Travel Desk",
     to: {
@@ -400,17 +430,22 @@ useBreadcrumbs([
     text: "Request",
     to: {
       name: "TravelDeskReadPage",
-      params: { travelDeskTravelRequestId: props.travelDeskTravelRequestId },
+      params: {
+        travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+      },
     },
   },
   {
     text: "Edit",
     to: {
       name: "TravelDeskEditPage",
-      params: { travelDeskTravelRequestId: props.travelDeskTravelRequestId },
+      params: {
+        travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+      },
     },
   },
 ])
+useBreadcrumbs(breadcrumbs)
 </script>
 
 <style scoped></style>

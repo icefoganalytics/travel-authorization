@@ -20,7 +20,7 @@ import {
 } from "@sequelize/core/decorators-legacy"
 import { isNil } from "lodash"
 
-import Attachment, { AttachmentTargetTypes } from "@/models/attachment"
+import Attachment from "@/models/attachment"
 import TravelAuthorization from "@/models/travel-authorization"
 import User from "@/models/user"
 
@@ -197,9 +197,10 @@ export class Expense extends Model<InferAttributes<Expense>, InferCreationAttrib
       name: "targetId",
       allowNull: true,
     },
+    foreignKeyConstraints: false,
     inverse: "expense",
     scope: {
-      targetType: AttachmentTargetTypes.Expense,
+      targetType: Attachment.TargetTypes.Expense,
     },
   })
   declare receipt?: NonAttribute<Attachment>

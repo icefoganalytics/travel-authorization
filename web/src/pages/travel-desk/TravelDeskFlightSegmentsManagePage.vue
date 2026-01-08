@@ -60,45 +60,45 @@
   </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from "vue"
 
 import useSessionStorage from "@/use/utils/use-session-storage"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
+import { type TravelDeskFlightSegment } from "@/api/travel-desk-flight-segments-api"
+
 import TravelDeskFlightSegmentsImporterCard from "@/components/travel-desk-flight-segments/TravelDeskFlightSegmentsImporterCard.vue"
 import TravelDeskFlightSegmentsWorkspaceCard from "@/components/travel-desk-flight-segments/TravelDeskFlightSegmentsWorkspaceCard.vue"
 import TravelDeskFlightOptionsWorkspaceCard from "@/components/travel-desk-flight-options/TravelDeskFlightOptionsWorkspaceCard.vue"
 
-const props = defineProps({
-  travelDeskTravelRequestId: {
-    type: [String, Number],
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelDeskTravelRequestId: string
+}>()
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
-const travelDeskFlightSegmentsAttributes = useSessionStorage(
+const travelDeskFlightSegmentsAttributes = useSessionStorage<TravelDeskFlightSegment[]>(
   `travel-desk-travel-request-${props.travelDeskTravelRequestId}-travel-desk-flight-segments-attributes`,
   []
 )
 
-function appendFlightSegmentsAttributes(newFlightSegmentsAttributes) {
+function appendFlightSegmentsAttributes(newFlightSegmentsAttributes: TravelDeskFlightSegment[]) {
   travelDeskFlightSegmentsAttributes.value = [
     ...travelDeskFlightSegmentsAttributes.value,
     ...newFlightSegmentsAttributes,
   ]
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightOptionsWorkspaceCard> | null>} */
-const travelDeskFlightOptionsWorkspaceCard = ref(null)
+const travelDeskFlightOptionsWorkspaceCard = ref<InstanceType<
+  typeof TravelDeskFlightOptionsWorkspaceCard
+> | null>(null)
 
 function refreshFlightOptionsWorkspaceCard() {
-  travelDeskFlightOptionsWorkspaceCard.value.refresh()
+  travelDeskFlightOptionsWorkspaceCard.value?.refresh()
 }
 
-useBreadcrumbs([
+const breadcrumbs = computed(() => [
   {
     text: "Travel Desk",
     to: {
@@ -127,6 +127,7 @@ useBreadcrumbs([
     },
   },
 ])
+useBreadcrumbs(breadcrumbs)
 </script>
 
 <style scoped>

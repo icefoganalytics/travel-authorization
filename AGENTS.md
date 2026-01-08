@@ -150,6 +150,10 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Browser setTimeout:** Use `number` type, not `NodeJS.Timeout`
   - `const timer = ref<number | undefined>(undefined)`
   - `timer.value = setTimeout(callback, 1000)`
+- **Props definition:** Prefer TypeScript generic style `defineProps<{ prop: type }>()` over object-style with type arrays
+- **Loading states:** Use `isNil(data)` instead of boolean `isLoading` flags for more precise data presence checks
+- **Reactivity:** Use `toRefs(props)` when passing props to composables to maintain ref types and reactivity
+- **Optional chaining:** Only use `?.` when data might actually be null/undefined in rendered context, not when loading state ensures existence
 
 ### Component Naming Convention
 
@@ -181,6 +185,7 @@ Type-safe API clients in `web/src/api/*-api.ts`
 - Export API object with methods: `list()`, `get()`, `create()`, `update()`, `delete()`
 - Methods return typed promises
 - Example: `flightStatisticsApi.list(params)` → `Promise<{ flightStatistics: FlightStatisticAsIndex[], totalCount: number }>`
+- **Import style:** Use named imports for API modules: `import { apiName } from "@/path/to/api"`. Exception: when importing many APIs in the same file, use top-level import with dot lookups: `import api from "@/api"`
 
 **Composable Pattern:**
 Reactive data fetching in `web/src/use/use-*.ts`
@@ -198,6 +203,26 @@ _Singular form (`useResource`) for single items:_
 - Return: `resource`, `policy`, `isLoading`, `isErrored`
 - Provide: `fetch()`, `refresh()`, optionally `save()`
 - Watch id with `immediate: true`, skip if nil
+
+_Chaining composables with computed IDs:_
+
+When you need to fetch a detail record based on a list lookup, chain composables using a computed ID:
+
+```typescript
+const resourcesQuery = computed(() => ({
+  where: {
+    name: props.name,
+  },
+}))
+const { resources } = useResources(resourcesQuery, {
+  skipWatchIf: () => !isReady.value,
+})
+const resourceId = computed(() => resources.value[0]?.id)
+
+const { resource } = useResource(resourceId)
+```
+
+This leverages Vue's reactivity - when `resources` updates, `resourceId` recomputes, triggering the singular composable to fetch automatically. Avoid manual watchers and imperative `fetch()` calls when reactive chaining suffices.
 
 Re-export types, enums, and constants from API module for convenience.
 

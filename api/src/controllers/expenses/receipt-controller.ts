@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 
 import { Attachment, Expense } from "@/models"
 import { ExpensesPolicy } from "@/policies"
-import { CreateService } from "@/services/expenses/receipt"
+import { UpsertService } from "@/services/expenses/receipt"
 import BaseController from "@/controllers/base-controller"
 
 export class ReceiptController extends BaseController {
@@ -47,7 +47,7 @@ export class ReceiptController extends BaseController {
       }
 
       const { tempFilePath } = content
-      const receipt = await CreateService.perform(expense, tempFilePath)
+      const receipt = await UpsertService.perform(expense, tempFilePath)
       return this.response.status(201).json({
         receipt,
       })

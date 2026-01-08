@@ -10,41 +10,35 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
-import useUsers from "@/use/use-users"
+import useUsers, { type UserFiltersOptions, type UserWhereOptions } from "@/use/use-users"
 
-/** @typedef {import('@/api/users-api.js').UserWhereOptions} UserWhereOptions */
-/** @typedef {import('@/api/users-api.js').UserFiltersOptions} UserFiltersOptions */
-
-/**
- * Defines component props with descriptions and types using JSDoc.
- *
- * @type {{
- *   value: number | null,
- *   where?: UserWhereOptions,
- *   filters?: UserFiltersOptions
- * }}
- */
-defineProps({
-  value: {
-    type: String,
-    default: () => null,
-  },
-  label: {
-    type: String,
-    default: "Travel Desk Agent",
-  },
-})
+withDefaults(
+  defineProps<{
+    value?: string | null
+    label?: string
+    where?: UserWhereOptions
+    filters?: UserFiltersOptions
+  }>(),
+  {
+    value: null,
+    label: "Travel Desk Agent",
+    where: () => ({}),
+    filters: () => ({}),
+  }
+)
 
 /**
  * @type {{
  *   input: [userDisplayName: string | null]
  * }}
  */
-const emit = defineEmits(["input"])
+const emit = defineEmits<{
+  (event: "input", value: string | null): void
+}>()
 
 const usersQuery = computed(() => ({
   filters: {

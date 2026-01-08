@@ -56,7 +56,7 @@
             />
           </v-col>
         </v-row>
-        <v-row v-if="travelDeskTravelRequest.invoiceNumber">
+        <v-row v-if="hasInvoiceNumber">
           <v-col>
             <TravelDeskInvoiceCard :travel-desk-travel-request-id="travelDeskTravelRequest.id" />
           </v-col>
@@ -65,7 +65,9 @@
         <!-- Removed for now see https://github.com/icefoganalytics/travel-authorization/issues/248#issuecomment-2787649358 -->
         <v-row v-if="false">
           <v-col>
-            <TravelDeskQuestionsCard :travel-desk-travel-request-id="travelDeskTravelRequest.id" />
+            <TravelDeskQuestionsCard
+              :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
+            />
           </v-col>
         </v-row>
 
@@ -78,20 +80,20 @@
               <v-divider />
               <v-card-text>
                 <TravelDeskFlightRequestsCard
-                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                   class="borderless-card"
                 />
                 <TravelDeskRentalCarsTable
                   class="borderless-card"
-                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
                 <TravelDeskHotelsTable
                   class="borderless-card"
-                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
                 <TravelDeskOtherTransportationsTable
                   class="borderless-card"
-                  :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
               </v-card-text>
             </v-card>
@@ -111,18 +113,24 @@
         >
           <div>Back</div>
         </v-btn>
-        <ItineraryModal
-          v-if="travelDeskTravelRequest.invoiceNumber"
+        <v-btn
+          v-if="hasInvoiceNumber"
           class="ml-auto mr-3"
-          :invoice-number="travelDeskTravelRequest.invoiceNumber"
-        />
+          color="#005A65"
+          @click="openPrintItineraryDialog"
+          >View Itinerary</v-btn
+        >
       </v-card-actions>
+
+      <TravelDeskTravelRequestPrintItineraryDialog
+        ref="travelDeskTravelRequestPrintItineraryDialog"
+      />
     </v-card>
   </v-container>
 </template>
 
-<script setup>
-import { toRefs } from "vue"
+<script setup lang="ts">
+import { computed, ref } from "vue"
 import { isNil } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -130,30 +138,37 @@ import useTravelDeskTravelRequest, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
 } from "@/use/use-travel-desk-travel-request"
 
-import TravelerDetailsCard from "@/components/travel-desk-travel-requests/TravelerDetailsCard.vue"
-
-import ItineraryModal from "@/modules/travelDesk/views/Requests/Components/ItineraryModal.vue"
-
 import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
+
 import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
-import TravelDeskRentalCarsTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsTable.vue"
 import TravelDeskHotelsTable from "@/components/travel-desk-hotels/TravelDeskHotelsTable.vue"
-import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
 import TravelDeskOtherTransportationsTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationsTable.vue"
 import TravelDeskQuestionsCard from "@/components/travel-desk-questions/TravelDeskQuestionsCard.vue"
+import TravelDeskRentalCarsTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsTable.vue"
 import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
-const props = defineProps({
-  travelDeskTravelRequestId: {
-    type: [Number, String],
-    required: true,
-  },
-})
+import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
+import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
+import TravelerDetailsCard from "@/components/travel-desk-travel-requests/TravelerDetailsCard.vue"
 
-const { travelDeskTravelRequestId } = toRefs(props)
-const { travelDeskTravelRequest } = useTravelDeskTravelRequest(travelDeskTravelRequestId)
+const props = defineProps<{
+  travelDeskTravelRequestId: string
+}>()
 
-useBreadcrumbs([
+const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
+const { travelDeskTravelRequest } = useTravelDeskTravelRequest(travelDeskTravelRequestIdAsNumber)
+
+const hasInvoiceNumber = computed(() => !isNil(travelDeskTravelRequest.value?.invoiceNumber))
+
+const travelDeskTravelRequestPrintItineraryDialog = ref<InstanceType<
+  typeof TravelDeskTravelRequestPrintItineraryDialog
+> | null>(null)
+
+function openPrintItineraryDialog() {
+  travelDeskTravelRequestPrintItineraryDialog.value?.open(travelDeskTravelRequestIdAsNumber.value)
+}
+
+const breadcrumbs = computed(() => [
   {
     text: "Travel Desk",
     to: {
@@ -164,10 +179,13 @@ useBreadcrumbs([
     text: "Request",
     to: {
       name: "TravelDeskReadPage",
-      params: { travelDeskTravelRequestId: props.travelDeskTravelRequestId },
+      params: {
+        travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+      },
     },
   },
 ])
+useBreadcrumbs(breadcrumbs)
 </script>
 
 <style scoped>
