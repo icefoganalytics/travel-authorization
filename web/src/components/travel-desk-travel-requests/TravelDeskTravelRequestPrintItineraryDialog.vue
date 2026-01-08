@@ -123,7 +123,7 @@ import { isEmpty, isNil } from "lodash"
 import { Printd } from "printd"
 import { DateTime } from "luxon"
 
-import { type SegmentAsReference } from "@/api/accounts-receivable-invoices-api"
+import { type SegmentAsReference } from "@/api/trav-com/accounts-receivable-invoices-api"
 import { formatDate } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 

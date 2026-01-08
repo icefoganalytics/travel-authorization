@@ -4,7 +4,7 @@ import { isNil } from "lodash"
 import { type Policy } from "@/api/base-api"
 import accountsReceivableInvoicesApi, {
   type AccountsReceivableInvoiceAsShow,
-} from "@/api/accounts-receivable-invoices-api"
+} from "@/api/trav-com/accounts-receivable-invoices-api"
 
 export { type AccountsReceivableInvoiceAsShow }
 

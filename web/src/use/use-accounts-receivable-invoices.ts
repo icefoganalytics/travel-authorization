@@ -3,7 +3,7 @@ import { type Ref, ref, reactive, toRefs, unref, watch } from "vue"
 import accountsReceivableInvoicesApi, {
   type AccountsReceivableInvoiceAsIndex,
   type AccountsReceivableInvoiceQueryOptions,
-} from "@/api/accounts-receivable-invoices-api"
+} from "@/api/trav-com/accounts-receivable-invoices-api"
 
 export { type AccountsReceivableInvoiceAsIndex, type AccountsReceivableInvoiceQueryOptions }
 
