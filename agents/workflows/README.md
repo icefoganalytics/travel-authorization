@@ -39,6 +39,25 @@ Complete workflow for converting singular use JavaScript composable files (use-r
 
 ---
 
+### [convert-js-plural-composable-to-typescript.md](convert-js-plural-composable-to-typescript.md)
+
+Complete workflow for converting plural use JavaScript composable files (use-resources.ts) to TypeScript.
+
+**Includes:**
+- Array watch patterns with skipWatchIf parameter
+- Type re-exports for convenience (WhereOptions, FiltersOptions, QueryOptions)
+- Deprecated constants handling for backward compatibility
+- Computed properties as exceptions (not common patterns)
+- Error logging format standardization
+- Reactive state with explicit array typing
+
+**Reference Commits:**
+- `0d523407` - use-travel-segments.ts conversion
+- `82dfc15a` - use-travel-desk-flight-requests.ts conversion
+- `b9c61143` - use-travel-authorizations.ts conversion
+
+---
+
 ## Using Workflows
 
 Workflows are designed to be used with AI coding assistants like Claude or Windsurf.
