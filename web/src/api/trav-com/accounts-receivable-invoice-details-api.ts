@@ -29,6 +29,33 @@ export type AccountsReceivableInvoiceDetail = {
   addedBy: number
 }
 
+export type AccountsReceivableInvoiceDetailAsReference = Pick<
+  AccountsReceivableInvoiceDetail,
+  | "id"
+  | "invoiceId"
+  | "transactionType"
+  | "vendorNumber"
+  | "vendorName"
+  | "productCode"
+  | "passengerName"
+  | "ticketNumber"
+  | "publishedFare"
+  | "sellingFare"
+  | "referenceFare"
+  | "lowFare"
+  | "tax1"
+  | "grossAmount"
+  | "commissionAmount"
+  | "vatOnCommission"
+  | "freeFieldA"
+  | "travelDate"
+  | "returnDate"
+  | "numberOfDays"
+  | "cityCode"
+  | "profileNumber"
+  | "addedBy"
+>
+
 export type AccountsReceivableInvoiceDetailWhereOptions = WhereOptions<
   AccountsReceivableInvoiceDetail,
   | "id"
