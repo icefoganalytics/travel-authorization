@@ -1,13 +1,18 @@
-import { ModelStatic, Op } from "@sequelize/core"
+import { type FindOptions, type Attributes } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
-import { User, TravelDeskRentalCar, TravelDeskTravelRequest } from "@/models"
+import { User, TravelDeskRentalCar } from "@/models"
 import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
 
-import BasePolicy from "@/policies/base-policy"
+import PolicyFactory from "@/policies/policy-factory"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 
-export class TravelDeskRentalCarsPolicy extends BasePolicy<TravelDeskRentalCar> {
+export class TravelDeskRentalCarsPolicy extends PolicyFactory(TravelDeskRentalCar) {
+  show(): boolean {
+    return this.travelDeskTravelRequestsPolicy.show()
+  }
+
   create(): boolean {
     return this.travelDeskTravelRequestsPolicy.update()
   }
@@ -20,38 +25,7 @@ export class TravelDeskRentalCarsPolicy extends BasePolicy<TravelDeskRentalCar> 
     return this.travelDeskTravelRequestsPolicy.update()
   }
 
-  static applyScope(
-    modelClass: ModelStatic<TravelDeskRentalCar>,
-    currentUser: User
-  ): ModelStatic<TravelDeskRentalCar> {
-    if (currentUser.roles.includes(User.Roles.ADMIN)) {
-      return modelClass
-    }
-
-    return modelClass.withScope({
-      // @ts-expect-error - Bad types in sequelize, all FindOptions are valid.
-      include: [
-        {
-          association: "travelRequest",
-          include: [
-            {
-              association: "travelAuthorization",
-              where: {
-                [Op.or]: [
-                  {
-                    supervisorEmail: currentUser.email,
-                  },
-                  { userId: currentUser.id },
-                ],
-              },
-            },
-          ],
-        },
-      ],
-    })
-  }
-
-  permittedAttributesForUpdate(): Path[] {
+  permittedAttributes(): Path[] {
     return [
       "pickUpCity",
       "pickUpLocation",
@@ -73,20 +47,32 @@ export class TravelDeskRentalCarsPolicy extends BasePolicy<TravelDeskRentalCar> 
   }
 
   permittedAttributesForCreate(): Path[] {
-    return ["travelRequestId", ...this.permittedAttributesForUpdate()]
+    return ["travelRequestId", ...this.permittedAttributes()]
   }
 
-  private get travelDeskTravelRequest(): TravelDeskTravelRequest {
+  static policyScope(user: User): FindOptions<Attributes<TravelDeskRentalCar>> {
+    if (user.isAdmin) return ALL_RECORDS_SCOPE
+
+    const travelDeskTravelRequestsPolicyScope = TravelDeskTravelRequestsPolicy.policyScope(user)
+
+    return {
+      include: [
+        {
+          association: "travelRequest",
+          required: true,
+          ...travelDeskTravelRequestsPolicyScope,
+        },
+      ],
+    }
+  }
+
+  private get travelDeskTravelRequestsPolicy(): TravelDeskTravelRequestsPolicy {
     const { travelRequest } = this.record
     if (isUndefined(travelRequest)) {
       throw new Error("Travel request is required")
     }
 
-    return travelRequest
-  }
-
-  private get travelDeskTravelRequestsPolicy(): TravelDeskTravelRequestsPolicy {
-    return new TravelDeskTravelRequestsPolicy(this.user, this.travelDeskTravelRequest)
+    return new TravelDeskTravelRequestsPolicy(this.user, travelRequest)
   }
 }
 
