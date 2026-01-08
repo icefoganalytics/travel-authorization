@@ -98,10 +98,28 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 - Serializers format output (IndexSerializer, ShowSerializer)
 - Nested controllers in subfolders: `controllers/resource/action-controller.ts`
 
+**Serializer Naming Convention:**
+
+- Use `AsIndex` for index serializer types (not `TableView`)
+- Use `AsShow` for show serializer types
+- Follow pattern: `{Model}AsIndex`, `{Model}AsShow`
+
+**Response Patterns:**
+
+- Multi-line JSON responses with consistent formatting
+- Return policy information in create/update responses: `{ record, policy }`
+- Structured error logging: ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``
+- Consistent error message format: `"Failed to [action] [resource]: ${error}"`
+
 **Policy Pattern:**
 
-- Authorization scoping via policy classes
-- Role checks: Use `user.isAdmin` property directly
+- **Modern Pattern:** Use `PolicyFactory` with `policyScope()` method for new/updated policies
+- **Legacy Pattern:** Manual `applyScope()` method (being phased out)
+- **Policy Composition:** Compose scopes by storing parent policy scope in variable and spreading: `const parentScope = ParentPolicy.policyScope(user)` then `...parentScope` (use `required: true` for mandatory associations)
+- **Admin Handling:** Use `ALL_RECORDS_SCOPE` constant for admin users with early returns
+- **Method Naming:** Use `permittedAttributes()` instead of `permittedAttributesForUpdate()`
+- **Role checks:** Use `user.isAdmin` property directly
+- **Policy Inheritance:** Extend `PolicyFactory(ModelClass)` instead of `BasePolicy`
 
 **Database:**
 
@@ -130,9 +148,20 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 
 - Numbered entities: `user1`, `user2` (not `existingUser`, `newUser`)
 - Descriptive variable names: `workflowStepPlayersAttributes` not `playersAttributes`
+- Scoped query results: use `scoped{Model}` naming (e.g., `scopedTravelDeskTravelRequests`) to indicate policy-scoped results
 - Assert database state via `findAll()` without where clauses (test isolation handles cleanup)
 - Negative spy assertions: `expect(spy).not.toHaveBeenCalled()` (never use `not.toHaveBeenCalledWith`)
 - Controller tests: `mockCurrentUser(user)` and `request().get("/api/path")` from `@/support`
+- Single assertion per test: prefer `toEqual` with `expect.objectContaining` over multiple assertions
+  ```typescript
+  // Good
+  expect(scopedRecords).toEqual([
+    expect.objectContaining({ id: record1.id }),
+  ])
+  // Avoid
+  expect(result).toHaveLength(1)
+  expect(result[0].id).toEqual(record1.id)
+  ```
 
 **Common factories:**
 Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expenseFactory`, `travelSegmentFactory`, etc.
