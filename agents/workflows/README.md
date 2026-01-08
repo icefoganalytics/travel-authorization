@@ -1,10 +1,22 @@
 # Workflows
 
-This directory contains reusable AI workflows for the ELCC Data Management system.
+This directory contains reusable AI workflows for the Travel Authorization system.
 
 ## Available Workflows
 
-None yet; see https://github.com/icefoganalytics/elcc-data-management/blob/ea4dfeb76871632a960ca80eee4cb7105bf85893/agents/workflows/README.md for example.
+### [convert-js-api-to-typescript.md](convert-js-api-to-typescript.md)
+
+Complete workflow for converting JavaScript API client files to TypeScript.
+
+**Includes:**
+- Import updates with base-api types
+- Object.freeze to enum conversion
+- Type definitions from backend models
+- WhereOptions, FiltersOptions, QueryOptions setup
+- Method parameter and return type annotations
+- Backward compatibility patterns
+
+**Reference Files:** `travel-desk-flight-requests-api.ts`, `expenses-api.ts`, `per-diems-api.ts`
 
 ---
 
@@ -12,8 +24,14 @@ None yet; see https://github.com/icefoganalytics/elcc-data-management/blob/ea4df
 
 Workflows are designed to be used with AI coding assistants like Claude or Windsurf.
 
+**Example:**
+```
+Follow the workflow in agents/workflows/convert-js-api-to-typescript.md
+to convert web/src/api/travel-desk-rental-cars-api.js to TypeScript.
+```
+
 See parent [agents/README.md](../README.md) for setup instructions.
 
 ---
 
-**Last Updated:** 2025-12-09
+**Last Updated:** 2026-01-08
