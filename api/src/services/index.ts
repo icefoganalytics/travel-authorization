@@ -6,6 +6,7 @@ export { StopsService } from "./stops-service"
 export { YkGovernmentDirectorySyncService } from "./yk-government-directory-sync-service"
 
 // Namespaced services
+export * as Attachments from "./attachments"
 export * as Estimates from "./estimates"
 export * as Expenses from "./expenses"
 export * as GeneralLedgerCodings from "./general-ledger-codings"

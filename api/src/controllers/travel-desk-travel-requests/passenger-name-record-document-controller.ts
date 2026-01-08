@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequestsPolicy } from "@/policies"
-import { PassengerNameRecordDocument } from "@/services/travel-desk-travel-requests"
+import { UpsertService } from "@/services/travel-desk-travel-requests/passenger-name-record-document"
 import BaseController from "@/controllers/base-controller"
 
 export class PassengerNameRecordDocumentController extends BaseController {
@@ -50,7 +50,7 @@ export class PassengerNameRecordDocumentController extends BaseController {
 
       const { tempFilePath } = content
 
-      const passengerNameRecordDocument = await PassengerNameRecordDocument.CreateService.perform(
+      const passengerNameRecordDocument = await UpsertService.perform(
         travelDeskTravelRequest,
         tempFilePath
       )
