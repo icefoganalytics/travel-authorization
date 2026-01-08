@@ -36,7 +36,9 @@ export type TravelDeskFlightSegmentWhereOptions = WhereOptions<
 >
 
 /** must match model scopes */
-export type TravelDeskFlightSegmentFiltersOptions = FiltersOptions<Record<never, never>>
+export type TravelDeskFlightSegmentFiltersOptions = FiltersOptions<{
+  forTravelRequest: number
+}>
 
 export type TravelDeskFlightSegmentsQueryOptions = QueryOptions<
   TravelDeskFlightSegmentWhereOptions,
@@ -58,9 +60,7 @@ export const travelDeskFlightSegmentsApi = {
     travelDeskFlightSegment: TravelDeskFlightSegment
     policy: Policy
   }> {
-    const { data } = await http.get(
-      `/api/travel-desk-flight-segments/${travelDeskFlightSegmentId}`
-    )
+    const { data } = await http.get(`/api/travel-desk-flight-segments/${travelDeskFlightSegmentId}`)
     return data
   },
 
