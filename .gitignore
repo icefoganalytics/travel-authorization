@@ -114,3 +114,6 @@ dist
 
 # LibreOffice
 .~lock.*
+
+# Local agent play directory
+agents/tmp
