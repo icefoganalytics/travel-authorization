@@ -267,6 +267,7 @@ router
   .post(TravelDeskRentalCarsController.create)
 router
   .route("/api/travel-desk-rental-cars/:travelDeskRentalCarId")
+  .get(TravelDeskRentalCarsController.show)
   .patch(TravelDeskRentalCarsController.update)
   .delete(TravelDeskRentalCarsController.destroy)
 
