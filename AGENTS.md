@@ -150,6 +150,10 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Browser setTimeout:** Use `number` type, not `NodeJS.Timeout`
   - `const timer = ref<number | undefined>(undefined)`
   - `timer.value = setTimeout(callback, 1000)`
+- **Props definition:** Prefer TypeScript generic style `defineProps<{ prop: type }>()` over object-style with type arrays
+- **Loading states:** Use `isNil(data)` instead of boolean `isLoading` flags for more precise data presence checks
+- **Reactivity:** Use `toRefs(props)` when passing props to composables to maintain ref types and reactivity
+- **Optional chaining:** Only use `?.` when data might actually be null/undefined in rendered context, not when loading state ensures existence
 
 ### Component Naming Convention
 
@@ -181,6 +185,7 @@ Type-safe API clients in `web/src/api/*-api.ts`
 - Export API object with methods: `list()`, `get()`, `create()`, `update()`, `delete()`
 - Methods return typed promises
 - Example: `flightStatisticsApi.list(params)` → `Promise<{ flightStatistics: FlightStatisticAsIndex[], totalCount: number }>`
+- **Import style:** Use named imports for API modules: `import { apiName } from "@/path/to/api"`. Exception: when importing many APIs in the same file, use top-level import with dot lookups: `import api from "@/api"`
 
 **Composable Pattern:**
 Reactive data fetching in `web/src/use/use-*.ts`
