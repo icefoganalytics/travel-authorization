@@ -127,8 +127,8 @@ import { type SegmentAsReference } from "@/api/trav-com/segments-api"
 import { formatDate } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 
-import useAccountsReceivableInvoice from "@/use/use-accounts-receivable-invoice"
-import useAccountsReceivableInvoices from "@/use/use-accounts-receivable-invoices"
+import useAccountsReceivableInvoice from "@/use/trav-com/use-accounts-receivable-invoice"
+import useAccountsReceivableInvoices from "@/use/trav-com/use-accounts-receivable-invoices"
 import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
