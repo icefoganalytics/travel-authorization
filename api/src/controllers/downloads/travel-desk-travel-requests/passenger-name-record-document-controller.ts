@@ -48,7 +48,9 @@ export class PassengerNameRecordDocumentController extends BaseController<Travel
   }
 
   private async loadTravelDeskTravelRequest() {
-    return TravelDeskTravelRequest.findByPk(this.params.travelDeskTravelRequestId)
+    return TravelDeskTravelRequest.findByPk(this.params.travelDeskTravelRequestId, {
+      include: ["travelAuthorization"],
+    })
   }
 
   private async loadPassengerNameRecordDocument() {
