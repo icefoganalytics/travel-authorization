@@ -89,6 +89,8 @@ export type TravelDeskRentalCar = {
   updatedAt: string
 }
 
+export type TravelDeskRentalCarAsIndex = TravelDeskRentalCar
+
 export type TravelDeskRentalCarWhereOptions = WhereOptions<
   TravelDeskRentalCar,
   | "id"
