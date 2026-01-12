@@ -77,4 +77,24 @@ See parent [agents/README.md](../README.md) for setup instructions.
 
 ---
 
-**Last Updated:** 2026-01-08
+### [convert-dialog-table-to-page-pattern.md](convert-dialog-table-to-page-pattern.md)
+
+Complete workflow for converting legacy dialog-based request tables to modern page-based edit patterns.
+
+**Includes:**
+- EditTable component with server-side pagination and router-link edit buttons
+- EditCard wrapper component with "New" button navigation
+- NewPage component for creating new items
+- EditPage component for editing existing items
+- Route configuration
+- Breadcrumb setup
+
+**Reference Files:**
+- `TravelDeskFlightRequestsEditCard.vue` (EditCard pattern)
+- `TravelDeskFlightRequestsEditTable.vue` (EditTable pattern)
+- `TravelPreApprovalEditPage.vue` (EditPage pattern)
+- `TravelPreApprovalNewPage.vue` (NewPage pattern)
+
+---
+
+**Last Updated:** 2026-01-12
