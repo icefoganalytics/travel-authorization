@@ -14,10 +14,10 @@
         <v-card-title>1. Trip Schedule</v-card-title>
         <v-row>
           <v-col cols="6">
-            <v-text-field
+            <DatePicker
               v-model="pickUpDate"
               label="Pick-up date *"
-              type="date"
+              :picker-date="tripStartDate"
               :disabled="travelDeskRentalCarAttributes.matchFlightTimes"
               :min="tripStartDate"
               :max="tripEndDate"
@@ -27,10 +27,9 @@
             />
           </v-col>
           <v-col cols="6">
-            <v-text-field
+            <TimeTextField
               v-model="pickUpTime"
               label="Pick-up time *"
-              type="time"
               :rules="[required]"
               outlined
               required
@@ -39,11 +38,11 @@
         </v-row>
         <v-row>
           <v-col cols="6">
-            <v-text-field
+            <DatePicker
               v-model="dropOffDate"
               label="Drop-off date *"
-              type="date"
               :disabled="travelDeskRentalCarAttributes.matchFlightTimes"
+              :picker-date="tripStartDate"
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
@@ -52,10 +51,9 @@
             />
           </v-col>
           <v-col cols="6">
-            <v-text-field
+            <TimeTextField
               v-model="dropOffTime"
               label="Drop-off time *"
-              type="time"
               :rules="[required]"
               outlined
               required
@@ -238,7 +236,9 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
+import DatePicker from "@/components/common/DatePicker.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import TimeTextField from "@/components/common/TimeTextField.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 
 import TravelDeskRentalCarLocationTypeSelect from "@/components/travel-request-rental-cars/TravelDeskRentalCarLocationTypeSelect.vue"
