@@ -23,6 +23,8 @@ export type TravelDeskFlightSegment = {
   updatedAt: string
 }
 
+export type TravelDeskFlightSegmentAsIndex = TravelDeskFlightSegment
+
 export type TravelDeskFlightSegmentWhereOptions = WhereOptions<
   TravelDeskFlightSegment,
   | "id"
@@ -47,7 +49,7 @@ export type TravelDeskFlightSegmentsQueryOptions = QueryOptions<
 
 export const travelDeskFlightSegmentsApi = {
   async list(params: TravelDeskFlightSegmentsQueryOptions = {}): Promise<{
-    travelDeskFlightSegments: TravelDeskFlightSegment[]
+    travelDeskFlightSegments: TravelDeskFlightSegmentAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-desk-flight-segments", {
