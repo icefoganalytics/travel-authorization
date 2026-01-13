@@ -153,7 +153,7 @@
                 :rules="[required]"
                 outlined
                 required
-                @input="updateDropOffLocation"
+                @input="resetDropOffLocationOtherUnlessOther"
               />
               <v-text-field
                 v-if="
@@ -298,10 +298,12 @@ const travelDeskRentalCarAttributes = ref<Partial<TravelDeskRentalCar>>({
   additionalNotes: undefined,
 })
 
+const DEFAULT_TIME = "12:00"
+
 const pickUpDate = ref("")
-const pickUpTime = ref("12:00")
+const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
-const dropOffTime = ref("12:00")
+const dropOffTime = ref(DEFAULT_TIME)
 
 function resetPickUpLocationOtherUnlessOther(value: string) {
   if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
@@ -309,8 +311,7 @@ function resetPickUpLocationOtherUnlessOther(value: string) {
   }
 }
 
-function updateDropOffLocation(value: string) {
-  travelDeskRentalCarAttributes.value.dropOffLocation = value
+function resetDropOffLocationOtherUnlessOther(value: string) {
   if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCarAttributes.value.dropOffLocationOther = undefined
   }
@@ -334,8 +335,8 @@ function matchWithFlight(value: boolean) {
   if (value && flightStartDate.value && flightEndDate.value) {
     pickUpDate.value = flightStartDate.value
     dropOffDate.value = flightEndDate.value
-    pickUpTime.value = "12:00"
-    dropOffTime.value = "12:00"
+    pickUpTime.value = DEFAULT_TIME
+    dropOffTime.value = DEFAULT_TIME
   }
 }
 
