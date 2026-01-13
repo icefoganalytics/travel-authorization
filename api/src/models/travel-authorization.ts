@@ -441,6 +441,17 @@ export class TravelAuthorization extends BaseModel<
         },
       }
     })
+
+    this.addScope("forTravelDeskTravelRequest", (travelDeskTravelRequestId: string) => ({
+      include: [
+        {
+          association: "travelDeskTravelRequest",
+          where: {
+            id: travelDeskTravelRequestId,
+          },
+        },
+      ],
+    }))
   }
 }
 

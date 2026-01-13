@@ -17,7 +17,14 @@ import { Locations } from "@/serializers"
 
 export type TravelAuthorizationIndexView = Pick<
   TravelAuthorization,
-  "id" | "eventName" | "purposeId" | "wizardStepName" | "status" | "createdAt" | "updatedAt"
+  | "id"
+  | "eventName"
+  | "purposeId"
+  | "wizardStepName"
+  | "status"
+  | "dateBackToWorkEstimate"
+  | "createdAt"
+  | "updatedAt"
 > & {
   // Computed fields
   purposeText: string
@@ -62,6 +69,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
         "purposeId",
         "wizardStepName",
         "status",
+        "dateBackToWorkEstimate",
         "createdAt",
         "updatedAt",
       ]),
