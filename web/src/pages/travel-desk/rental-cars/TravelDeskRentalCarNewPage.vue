@@ -367,8 +367,8 @@ async function createAndReturn() {
       },
     })
   } catch (error) {
-    console.error(`Failed to create rental car: ${error}`, { error })
-    snack.error(`Failed to create rental car: ${error}`)
+    console.error(`Failed to create rental car request: ${error}`, { error })
+    snack.error(`Failed to create rental car request: ${error}`)
   } finally {
     isSaving.value = false
   }
@@ -400,7 +400,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "New Rental Car",
+    text: "New Rental Car Request",
     to: {
       name: "travel-desk/rental-cars/TravelDeskRentalCarNewPage",
       params: {
