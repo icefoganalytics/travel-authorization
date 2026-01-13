@@ -89,11 +89,8 @@
                     </template>
                   </title-card>
 
-                  <rental-car-request-table
-                    :authorized-travel="authorizedTravel"
-                    :readonly="false"
-                    :flight-requests="travelerDetails.flightRequests"
-                    :rental-cars="travelerDetails.rentalCars"
+                  <TravelDeskRentalCarsEditCard
+                    :travel-desk-travel-request-id="authorizedTravel.id"
                   />
                   <hotel-request-table
                     :authorized-travel="authorizedTravel"
@@ -171,7 +168,7 @@ import http from "@/api/http-client"
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 import TravelerDetails from "@/modules/travelDesk/views/Requests/Components/TravelerDetails.vue"
 import FlightRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/FlightRequestTable.vue"
-import RentalCarRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/RentalCarRequestTable.vue"
+import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
 import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
 import QuestionsTable from "@/modules/travelDesk/views/Desk/Components/QuestionsTable.vue"
@@ -182,7 +179,7 @@ export default {
     TitleCard,
     TravelerDetails,
     FlightRequestTable,
-    RentalCarRequestTable,
+    TravelDeskRentalCarsEditCard,
     TransportationRequestTable,
     HotelRequestTable,
     QuestionsTable,
