@@ -163,7 +163,6 @@
                 "
                 v-model="travelDeskRentalCarAttributes.dropOffLocationOther"
                 label="Other Drop-off Location *"
-                class="mt-n3"
                 :rules="[required]"
                 outlined
                 required
