@@ -55,6 +55,7 @@
         <TimeTextField
           v-model="departTravelSegmentAttributes.departureTime"
           label="Time (24 hour)"
+          dense
           clearable
           persistent-hint
         />

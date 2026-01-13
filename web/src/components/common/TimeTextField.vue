@@ -4,7 +4,6 @@
     :label="label"
     :rules="[...rules, timeValidator]"
     background-color="white"
-    :dense="dense"
     outlined
     placeholder="HH:MM"
     persistent-placeholder
@@ -29,13 +28,11 @@ const props = withDefaults(
     value?: string
     label?: string
     rules?: ValidationRules
-    dense?: boolean
   }>(),
   {
     value: undefined,
     label: "Time (24 hour)",
     rules: () => [],
-    dense: true,
   }
 )
 
