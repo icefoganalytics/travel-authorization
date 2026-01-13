@@ -91,6 +91,10 @@ export type TravelDeskRentalCar = {
 
 export type TravelDeskRentalCarAsIndex = TravelDeskRentalCar
 
+export type TravelDeskRentalCarAsShow = TravelDeskRentalCar
+
+export type TravelDeskRentalCarPolicy = Policy
+
 export type TravelDeskRentalCarWhereOptions = WhereOptions<
   TravelDeskRentalCar,
   | "id"
