@@ -350,6 +350,8 @@ async function createAndReturn() {
   // TODO: Notify the user, in the UI, that times are in UTC?
   // Or maybe make them local to city?
   // Oversight in original code so not fixing at this time.
+  // This could be fixed by adding timezone to locations, and making time save
+  // in location's timezone.
   travelDeskRentalCarAttributes.value.pickUpDate = `${pickUpDate.value}T${pickUpTime.value}:00.000Z`
   travelDeskRentalCarAttributes.value.dropOffDate = `${dropOffDate.value}T${dropOffTime.value}:00.000Z`
 
