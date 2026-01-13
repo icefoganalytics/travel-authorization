@@ -275,8 +275,8 @@ import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue
 import TimeTextField from "@/components/common/TimeTextField.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 
-import TravelDeskRentalCarLocationTypeSelect from "@/components/travel-request-rental-cars/TravelDeskRentalCarLocationTypeSelect.vue"
-import TravelDeskRentalCarVehicleTypeSelect from "@/components/travel-request-rental-cars/TravelDeskRentalCarVehicleTypeSelect.vue"
+import TravelDeskRentalCarLocationTypeSelect from "@/components/travel-desk-rental-cars/TravelDeskRentalCarLocationTypeSelect.vue"
+import TravelDeskRentalCarVehicleTypeSelect from "@/components/travel-desk-rental-cars/TravelDeskRentalCarVehicleTypeSelect.vue"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
