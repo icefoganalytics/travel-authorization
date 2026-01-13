@@ -115,7 +115,7 @@
         class="mr-4"
         color="primary"
         :to="{
-          name: 'TravelDeskEditPage',
+          name: 'travel-desk/TravelDeskEditPage',
           params: {
             travelDeskTravelRequestId: item.id.toString(),
           },

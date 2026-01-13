@@ -277,7 +277,7 @@ const routes: RouteConfig[] = [
             props: true,
           },
           {
-            name: "TravelDeskEditPage",
+            name: "travel-desk/TravelDeskEditPage",
             path: "travel-desk/:travelDeskTravelRequestId/edit",
             component: () => import("@/pages/travel-desk/TravelDeskEditPage.vue"),
             props: true,

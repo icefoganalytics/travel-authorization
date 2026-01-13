@@ -5,7 +5,7 @@
         <h2>Manage Groups/Flight Options</h2>
         <v-btn
           :to="{
-            name: 'TravelDeskEditPage',
+            name: 'travel-desk/TravelDeskEditPage',
             params: {
               travelDeskTravelRequestId,
             },
@@ -41,7 +41,7 @@
                   <v-spacer />
                   <v-btn
                     :to="{
-                      name: 'TravelDeskEditPage',
+                      name: 'travel-desk/TravelDeskEditPage',
                       params: {
                         travelDeskTravelRequestId,
                       },
@@ -115,7 +115,7 @@ const breadcrumbs = computed(() => [
   {
     text: "Edit",
     to: {
-      name: "TravelDeskEditPage",
+      name: "travel-desk/TravelDeskEditPage",
       params: { travelDeskTravelRequestId: props.travelDeskTravelRequestId },
     },
   },

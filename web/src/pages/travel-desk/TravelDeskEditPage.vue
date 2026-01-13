@@ -438,7 +438,7 @@ const breadcrumbs = computed(() => [
   {
     text: "Edit",
     to: {
-      name: "TravelDeskEditPage",
+      name: "travel-desk/TravelDeskEditPage",
       params: {
         travelDeskTravelRequestId: props.travelDeskTravelRequestId,
       },
