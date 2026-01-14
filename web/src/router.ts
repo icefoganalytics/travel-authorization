@@ -295,6 +295,12 @@ const routes: RouteConfig[] = [
             props: true,
           },
           {
+            name: "travel-desk/hotels/TravelDeskHotelEditPage",
+            path: "travel-desk/:travelDeskTravelRequestId/hotels/:travelDeskHotelId/edit",
+            component: () => import("@/pages/travel-desk/hotels/TravelDeskHotelEditPage.vue"),
+            props: true,
+          },
+          {
             name: "travel-desk/rental-cars/TravelDeskRentalCarNewPage",
             path: "travel-desk/:travelDeskTravelRequestId/rental-cars/new",
             component: () =>
