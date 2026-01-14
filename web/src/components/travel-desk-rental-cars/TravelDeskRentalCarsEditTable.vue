@@ -5,7 +5,7 @@
     :sort-by.sync="vuetify2SortBy"
     :sort-desc.sync="vuetify2SortDesc"
     :headers="headers"
-    :items="items"
+    :items="travelDeskRentalCars"
     :loading="isLoading"
     :server-items-length="totalCount"
     v-bind="$attrs"
@@ -194,12 +194,7 @@ const query = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const {
-  travelDeskRentalCars: items,
-  totalCount,
-  isLoading,
-  refresh,
-} = useTravelDeskRentalCars(query)
+const { travelDeskRentalCars, totalCount, isLoading, refresh } = useTravelDeskRentalCars(query)
 
 const router = useRouter()
 
