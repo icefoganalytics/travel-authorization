@@ -55,7 +55,9 @@
         <v-divider class="mb-7" />
         <v-row v-if="hasInvoiceNumber">
           <v-col>
-            <TravelDeskInvoiceCard :travel-desk-travel-request-id="travelDeskTravelRequest.id" />
+            <TravelDeskInvoiceCard
+              :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
+            />
           </v-col>
         </v-row>
 
@@ -63,7 +65,7 @@
         <!-- <v-row>
           <v-col>
             <TravelDeskQuestionsManageCard
-              :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+              :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
             />
           </v-col>
         </v-row> -->
@@ -79,13 +81,13 @@
               </v-card-title>
               <v-card-text class="px-0 px-md-4">
                 <TravelDeskFlightRequestsManageCard
-                  :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                   :travel-authorization-id="travelDeskTravelRequest.travelAuthorizationId"
                   show-flight-options
                 />
                 <TravelDeskRentalCarsEditCard
                   class="mt-6"
-                  :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                   :return-to="returnTo"
                 />
                 <TravelDeskHotelsEditCard
@@ -131,7 +133,7 @@
         </v-btn>
         <TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog
           ref="uploadPassengerNameRecordDocumentDialogRef"
-          :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+          :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
           @uploaded="refresh"
         />
 
