@@ -362,8 +362,8 @@ export default {
 
     checkFields() {
       this.state.firstNameErr = this.travelerDetails.legalFirstName ? false : true
-      ;(this.state.middleNameErr = false),
-        (this.state.lastNameErr = this.travelerDetails.legalLastName ? false : true)
+      this.state.middleNameErr = false
+      this.state.lastNameErr = this.travelerDetails.legalLastName ? false : true
       this.state.birthDateErr = this.travelerDetails.birthDate ? false : true
       this.state.travelAuthErr = false //this.travelerDetails.travelAuth? false:true; TODO: add this in backend
       this.state.addressErr = this.travelerDetails.strAddress ? false : true
