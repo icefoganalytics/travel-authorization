@@ -11,7 +11,7 @@ auto_execution_mode: 1
 
 **Reference Files:**
 - `TravelDeskFlightRequestsEditCard.vue` (EditTableCard pattern)
-- `TravelDeskFlightRequestsEditTable.vue` (EditTable pattern)
+- `TravelDeskFlightRequestsEditDataTable.vue` (EditDataTable pattern)
 - `TravelPreApprovalEditPage.vue` (EditPage pattern)
 - `TravelPreApprovalNewPage.vue` (NewPage pattern)
 
