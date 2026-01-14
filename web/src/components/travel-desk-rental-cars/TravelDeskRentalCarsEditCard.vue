@@ -20,8 +20,8 @@
       </v-btn>
     </v-card-title>
     <v-card-text>
-      <TravelDeskRentalCarsEditTable
-        ref="travelDeskRentalCarsEditTable"
+      <TravelDeskRentalCarsEditDataTable
+        ref="travelDeskRentalCarsEditDataTable"
         :where="travelDeskRentalCarsWhere"
         :return-to="returnTo"
         route-query-suffix="TravelDeskRentalCar"
@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 
-import TravelDeskRentalCarsEditTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditTable.vue"
+import TravelDeskRentalCarsEditDataTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditDataTable.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: number
@@ -50,12 +50,12 @@ const travelDeskRentalCarsWhere = computed(() => ({
   travelRequestId: props.travelDeskTravelRequestId,
 }))
 
-const travelDeskRentalCarsEditTable = ref<InstanceType<
-  typeof TravelDeskRentalCarsEditTable
+const travelDeskRentalCarsEditDataTable = ref<InstanceType<
+  typeof TravelDeskRentalCarsEditDataTable
 > | null>(null)
 
 async function refresh() {
-  await travelDeskRentalCarsEditTable.value?.refresh()
+  await travelDeskRentalCarsEditDataTable.value?.refresh()
 }
 
 defineExpose({
