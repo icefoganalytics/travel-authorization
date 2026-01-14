@@ -24,6 +24,7 @@ This file follows the format from https://agents.md/ for AI agent documentation.
   - [Security](#security)
   - [Configuration](#configuration)
   - [Pull Request Guidelines](#pull-request-guidelines)
+  - [Agent Workflow Patterns](#agent-workflow-patterns)
 - [Changelog Management](#changelog-management)
 
 ---
@@ -407,3 +408,55 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
   - Scan `git log` since the last upstream tag.
   - Group commits by emoji into provisional sections (`Added`, `Changed`, `Fixed`, and so on).
   - Output a **draft Unreleased block** that is then manually curated to remove noise and rephrase entries as user-focused bullets.
+
+---
+
+## Agent Workflow Patterns
+
+### Workflow Design Principles
+
+**Comprehensive Scoping:**
+- Name workflows for their complete lifecycle (e.g., "pull-request-management" not "pull-request-creation")
+- Cover all related activities: creation, editing, maintenance, and troubleshooting
+
+**Template/Workflow Separation:**
+- Keep GitHub templates minimal with just structure
+- Move detailed guidance, examples, and instructions to agent workflows
+- Template = what to fill out, Workflow = how to fill it out
+
+**Project-Specific Normalization:**
+- When copying workflows between projects, normalize ALL project-specific details:
+  - Commands: `dev test_api` vs generic test commands
+  - URLs: http://localhost:8080
+  - Navigation patterns: **Travel Authorizations** → **Create New**
+  - Naming conventions and code style
+
+**Practical Examples:**
+- Include real examples from the actual project, not theoretical patterns
+- Show before/after scenarios and common use cases
+- Use actual file names, component names, and patterns from the codebase
+
+**Lifecycle Coverage:**
+- Consider the full lifecycle of the activity, not just initial creation
+- Include editing, updating, and maintenance scenarios
+- Provide troubleshooting and common pitfall guidance
+
+### Available Workflows
+
+See `/agents/workflows/README.md` for the complete list of available workflows and their usage patterns.
+
+**Key Workflows:**
+- `pull-request-management.md` - Creating and editing well-structured PRs
+- `convert-js-api-to-typescript.md` - Converting JavaScript APIs to TypeScript
+- `convert-js-plural-composable-to-typescript.md` - Converting composables to TypeScript
+- `convert-dialog-table-to-page-pattern.md` - Modernizing legacy UI patterns
+
+### Workflow Usage
+
+**Example:**
+```
+Follow the workflow in agents/workflows/pull-request-management.md
+to create a comprehensive pull request following TravelAuth patterns.
+```
+
+Workflows are designed to be used with AI coding assistants and provide step-by-step guidance for complex, multi-step processes.
