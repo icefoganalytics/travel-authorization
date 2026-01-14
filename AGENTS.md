@@ -24,6 +24,7 @@ This file follows the format from https://agents.md/ for AI agent documentation.
   - [Security](#security)
   - [Configuration](#configuration)
   - [Pull Request Guidelines](#pull-request-guidelines)
+  - [Agent Workflow Patterns](#agent-workflow-patterns)
 - [Changelog Management](#changelog-management)
 
 ---
@@ -98,10 +99,28 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 - Serializers format output (IndexSerializer, ShowSerializer)
 - Nested controllers in subfolders: `controllers/resource/action-controller.ts`
 
+**Serializer Naming Convention:**
+
+- Use `AsIndex` for index serializer types (not `TableView`)
+- Use `AsShow` for show serializer types
+- Follow pattern: `{Model}AsIndex`, `{Model}AsShow`
+
+**Response Patterns:**
+
+- Multi-line JSON responses with consistent formatting
+- Return policy information in create/update responses: `{ record, policy }`
+- Structured error logging: ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``
+- Consistent error message format: `"Failed to [action] [resource]: ${error}"`
+
 **Policy Pattern:**
 
-- Authorization scoping via policy classes
-- Role checks: Use `user.isAdmin` property directly
+- **Modern Pattern:** Use `PolicyFactory` with `policyScope()` method for new/updated policies
+- **Legacy Pattern:** Manual `applyScope()` method (being phased out)
+- **Policy Composition:** Compose scopes by storing parent policy scope in variable and spreading: `const parentScope = ParentPolicy.policyScope(user)` then `...parentScope` (use `required: true` for mandatory associations)
+- **Admin Handling:** Use `ALL_RECORDS_SCOPE` constant for admin users with early returns
+- **Method Naming:** Use `permittedAttributes()` instead of `permittedAttributesForUpdate()`
+- **Role checks:** Use `user.isAdmin` property directly
+- **Policy Inheritance:** Extend `PolicyFactory(ModelClass)` instead of `BasePolicy`
 
 **Database:**
 
@@ -130,9 +149,20 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 
 - Numbered entities: `user1`, `user2` (not `existingUser`, `newUser`)
 - Descriptive variable names: `workflowStepPlayersAttributes` not `playersAttributes`
+- Scoped query results: use `scoped{Model}` naming (e.g., `scopedTravelDeskTravelRequests`) to indicate policy-scoped results
 - Assert database state via `findAll()` without where clauses (test isolation handles cleanup)
 - Negative spy assertions: `expect(spy).not.toHaveBeenCalled()` (never use `not.toHaveBeenCalledWith`)
 - Controller tests: `mockCurrentUser(user)` and `request().get("/api/path")` from `@/support`
+- Single assertion per test: prefer `toEqual` with `expect.objectContaining` over multiple assertions
+  ```typescript
+  // Good
+  expect(scopedRecords).toEqual([
+    expect.objectContaining({ id: record1.id }),
+  ])
+  // Avoid
+  expect(result).toHaveLength(1)
+  expect(result[0].id).toEqual(record1.id)
+  ```
 
 **Common factories:**
 Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expenseFactory`, `travelSegmentFactory`, etc.
@@ -378,3 +408,63 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
   - Scan `git log` since the last upstream tag.
   - Group commits by emoji into provisional sections (`Added`, `Changed`, `Fixed`, and so on).
   - Output a **draft Unreleased block** that is then manually curated to remove noise and rephrase entries as user-focused bullets.
+
+---
+
+## Agent Workflow Patterns
+
+### Workflow Design Principles
+
+**Comprehensive Scoping:**
+- Name workflows for their complete lifecycle (e.g., "pull-request-management" not "pull-request-creation")
+- Cover all related activities: creation, editing, maintenance, and troubleshooting
+
+**Template/Workflow Separation:**
+- Keep GitHub templates minimal with just structure
+- Move detailed guidance, examples, and instructions to agent workflows
+- Template = what to fill out, Workflow = how to fill it out
+
+**Project-Specific Normalization:**
+- When copying workflows between projects, normalize ALL project-specific details:
+  - Commands: `dev test_api` vs generic test commands
+  - URLs: http://localhost:8080
+  - Navigation patterns: **Travel Authorizations** → **Create New**
+  - Naming conventions and code style
+
+**Practical Examples:**
+- Include real examples from the actual project, not theoretical patterns
+- Show before/after scenarios and common use cases
+- Use actual file names, component names, and patterns from the codebase
+
+**Lifecycle Coverage:**
+- Consider the full lifecycle of the activity, not just initial creation
+- Include editing, updating, and maintenance scenarios
+- Provide troubleshooting and common pitfall guidance
+
+**QA Testing Instructions:**
+- Write for someone with zero project knowledge
+- Focus on UI interactions: "Click on", "Verify", "Fill out"
+- Use simple, sequential steps with specific verification points
+- Test complete user workflows: creation, editing, saving, navigation
+- Include browser behavior testing: back button, refresh, direct URLs
+- Minimal bolding - only for UI elements, avoid technical jargon
+
+### Available Workflows
+
+See `/agents/workflows/README.md` for the complete list of available workflows and their usage patterns.
+
+**Key Workflows:**
+- `pull-request-management.md` - Creating and editing well-structured PRs
+- `convert-js-api-to-typescript.md` - Converting JavaScript APIs to TypeScript
+- `convert-js-plural-composable-to-typescript.md` - Converting composables to TypeScript
+- `convert-dialog-table-to-page-pattern.md` - Modernizing legacy UI patterns
+
+### Workflow Usage
+
+**Example:**
+```
+Follow the workflow in agents/workflows/pull-request-management.md
+to create a comprehensive pull request following TravelAuth patterns.
+```
+
+Workflows are designed to be used with AI coding assistants and provide step-by-step guidance for complex, multi-step processes.

@@ -1,6 +1,6 @@
 <template>
   <v-skeleton-loader
-    v-if="isNil(travelDeskTravelRequest)"
+    v-if="isNil(travelDeskTravelRequest) || isNil(travelAuthorizationId)"
     type="card"
   />
   <v-card v-else>
@@ -13,10 +13,11 @@
         :travel-authorization-id="travelAuthorizationId"
         @updated="refreshTablesUsingFlightInfo"
       />
-      <TravelDeskRentalCarsEditTable
-        ref="travelDeskRentalCarsEditTable"
+      <TravelDeskRentalCarsEditCard
+        ref="travelDeskRentalCarsEditCard"
+        class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestId"
-        :travel-authorization-id="travelAuthorizationId"
+        :return-to="returnTo"
       />
       <TravelDeskHotelsEditCard
         ref="travelDeskHotelEditCard"
@@ -32,7 +33,7 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
@@ -41,27 +42,25 @@ import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 import TravelDeskFlightRequestsEditCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsEditCard.vue"
 import TravelDeskHotelsEditCard from "@/components/travel-desk-hotels/TravelDeskHotelsEditCard.vue"
 import TravelDeskOtherTransportationsEditTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationsEditTable.vue"
-import TravelDeskRentalCarsEditTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditTable.vue"
+import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 
-const props = defineProps({
-  travelDeskTravelRequestId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelDeskTravelRequestId: number
+  returnTo?: string
+}>()
 
 const { travelDeskTravelRequestId } = toRefs(props)
 const { travelDeskTravelRequest } = useTravelDeskTravelRequest(travelDeskTravelRequestId)
 
 const travelAuthorizationId = computed(() => travelDeskTravelRequest.value?.travelAuthorizationId)
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskRentalCarsEditTable> | null>} */
-const travelDeskRentalCarsEditTable = ref(null)
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskHotelsEditCard> | null>} */
-const travelDeskHotelEditCard = ref(null)
+const travelDeskRentalCarsEditCard = ref<InstanceType<typeof TravelDeskRentalCarsEditCard> | null>(
+  null
+)
+const travelDeskHotelEditCard = ref<InstanceType<typeof TravelDeskHotelsEditCard> | null>(null)
 
 function refreshTablesUsingFlightInfo() {
-  travelDeskRentalCarsEditTable.value?.refresh()
+  travelDeskRentalCarsEditCard.value?.refresh()
   travelDeskHotelEditCard.value?.refresh()
 }
 </script>

@@ -277,7 +277,7 @@ const routes: RouteConfig[] = [
             props: true,
           },
           {
-            name: "TravelDeskEditPage",
+            name: "travel-desk/TravelDeskEditPage",
             path: "travel-desk/:travelDeskTravelRequestId/edit",
             component: () => import("@/pages/travel-desk/TravelDeskEditPage.vue"),
             props: true,
@@ -286,6 +286,20 @@ const routes: RouteConfig[] = [
             name: "TravelDeskFlightSegmentsManagePage",
             path: "travel-desk/:travelDeskTravelRequestId/manage-flight-segments",
             component: () => import("@/pages/travel-desk/TravelDeskFlightSegmentsManagePage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/rental-cars/TravelDeskRentalCarNewPage",
+            path: "travel-desk/:travelDeskTravelRequestId/rental-cars/new",
+            component: () =>
+              import("@/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/rental-cars/TravelDeskRentalCarEditPage",
+            path: "travel-desk/:travelDeskTravelRequestId/rental-cars/:travelDeskRentalCarId/edit",
+            component: () =>
+              import("@/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"),
             props: true,
           },
           {

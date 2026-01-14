@@ -83,10 +83,10 @@
                   :travel-authorization-id="travelDeskTravelRequest.travelAuthorizationId"
                   show-flight-options
                 />
-                <!-- TODO: rebuild RentalCarRequestTable component with newer patterns -->
-                <RentalCarRequestTable
-                  :flight-requests="travelDeskFlightRequests"
-                  :rental-cars="travelDeskRentalCars"
+                <TravelDeskRentalCarsEditCard
+                  class="mt-6"
+                  :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+                  :return-to="returnTo"
                 />
                 <!-- TODO: rebuild HotelRequestTable component with newer patterns -->
                 <HotelRequestTable
@@ -247,20 +247,19 @@ import useSnack from "@/use/use-snack"
 import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
 import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
 import useTravelDeskOtherTransportations from "@/use/use-travel-desk-other-transportations"
-import useTravelDeskRentalCars from "@/use/use-travel-desk-rental-cars"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
-import RentalCarRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/RentalCarRequestTable.vue"
 import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
 import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
-import TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog.vue"
 
 import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
 import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
+import TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog.vue"
 import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/TravelerDetailsFormCard.vue"
 
 import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
+import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
 import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
@@ -300,7 +299,7 @@ const isCompleteState = computed(
 const invoiceNumber = computed(() => travelDeskTravelRequest.value?.invoiceNumber)
 const hasInvoiceNumber = computed(() => !isNil(invoiceNumber.value))
 
-// TODO: remove once RentalCarRequestTable component is rebuilt with newer patterns
+// TODO: remove once HotelRequestTable component is rebuilt with newer patterns
 const travelDeskFlightRequestsQuery = computed(() => ({
   where: {
     travelRequestId: travelDeskTravelRequestIdAsNumber.value,
@@ -308,15 +307,6 @@ const travelDeskFlightRequestsQuery = computed(() => ({
   perPage: MAX_PER_PAGE,
 }))
 const { travelDeskFlightRequests } = useTravelDeskFlightRequests(travelDeskFlightRequestsQuery)
-
-// TODO: remove once RentalCarRequestTable component is rebuilt with newer patterns
-const travelDeskRentalCarsQuery = computed(() => ({
-  where: {
-    travelRequestId: travelDeskTravelRequestIdAsNumber.value,
-  },
-  perPage: MAX_PER_PAGE,
-}))
-const { travelDeskRentalCars } = useTravelDeskRentalCars(travelDeskRentalCarsQuery)
 
 // TODO: remove once HotelRequestTable component is rebuilt with newer patterns
 const travelDeskHotelsQuery = computed(() => ({
@@ -356,6 +346,15 @@ async function refresh() {
 }
 
 const router = useRouter()
+const returnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "travel-desk/TravelDeskEditPage",
+    params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+    },
+  })
+  return routeLocation.href
+})
 
 async function returnToTravelDesk() {
   return router.push({
@@ -438,7 +437,7 @@ const breadcrumbs = computed(() => [
   {
     text: "Edit",
     to: {
-      name: "TravelDeskEditPage",
+      name: "travel-desk/TravelDeskEditPage",
       params: {
         travelDeskTravelRequestId: props.travelDeskTravelRequestId,
       },

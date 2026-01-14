@@ -89,11 +89,9 @@
                     </template>
                   </title-card>
 
-                  <rental-car-request-table
-                    :authorized-travel="authorizedTravel"
-                    :readonly="false"
-                    :flight-requests="travelerDetails.flightRequests"
-                    :rental-cars="travelerDetails.rentalCars"
+                  <TravelDeskRentalCarsEditCard
+                    :travel-desk-travel-request-id="authorizedTravel.id"
+                    :return-to="returnTo"
                   />
                   <hotel-request-table
                     :authorized-travel="authorizedTravel"
@@ -171,7 +169,7 @@ import http from "@/api/http-client"
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 import TravelerDetails from "@/modules/travelDesk/views/Requests/Components/TravelerDetails.vue"
 import FlightRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/FlightRequestTable.vue"
-import RentalCarRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/RentalCarRequestTable.vue"
+import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
 import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
 import QuestionsTable from "@/modules/travelDesk/views/Desk/Components/QuestionsTable.vue"
@@ -182,7 +180,7 @@ export default {
     TitleCard,
     TravelerDetails,
     FlightRequestTable,
-    RentalCarRequestTable,
+    TravelDeskRentalCarsEditCard,
     TransportationRequestTable,
     HotelRequestTable,
     QuestionsTable,
@@ -195,6 +193,10 @@ export default {
     authorizedTravel: {
       type: Object,
       required: true,
+    },
+    returnTo: {
+      type: String,
+      default: undefined,
     },
   },
   data() {
@@ -360,8 +362,8 @@ export default {
 
     checkFields() {
       this.state.firstNameErr = this.travelerDetails.legalFirstName ? false : true
-      ;(this.state.middleNameErr = false),
-        (this.state.lastNameErr = this.travelerDetails.legalLastName ? false : true)
+      this.state.middleNameErr = false
+      this.state.lastNameErr = this.travelerDetails.legalLastName ? false : true
       this.state.birthDateErr = this.travelerDetails.birthDate ? false : true
       this.state.travelAuthErr = false //this.travelerDetails.travelAuth? false:true; TODO: add this in backend
       this.state.addressErr = this.travelerDetails.strAddress ? false : true

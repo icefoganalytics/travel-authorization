@@ -53,6 +53,7 @@
             item.phase == 'Travel Approved' || item.phase == 'Request Draft' ? 'Submit' : 'Review'
           "
           :authorized-travel="item"
+          :return-to="returnTo"
           @updateTable="updateTable"
         />
         <v-btn
@@ -71,6 +72,7 @@
 
 <script>
 import Vue from "vue"
+
 import NewTravelDeskRequest from "@/modules/travelDesk/views/Requests/NewTravelDeskRequest.vue"
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
 
@@ -84,6 +86,10 @@ export default {
     authorizedTravels: {
       type: Array,
       default: () => [],
+    },
+    returnTo: {
+      type: String,
+      default: undefined,
     },
   },
   data() {

@@ -1,4 +1,4 @@
-import { Attributes, FindOptions, Op } from "@sequelize/core"
+import { Attributes, FindOptions } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
@@ -57,22 +57,16 @@ export class TravelDeskTravelRequestsPolicy extends PolicyFactory(TravelDeskTrav
 
   // CONSIDER: should draft records be hidden from non-creator?
   static policyScope(user: User): FindOptions<Attributes<TravelDeskTravelRequest>> {
-    if (user.isAdmin) {
-      return ALL_RECORDS_SCOPE
-    }
+    if (user.isAdmin) return ALL_RECORDS_SCOPE
+
+    const travelAuthorizationsPolicyScope = TravelAuthorizationsPolicy.policyScope(user)
 
     return {
       include: [
         {
           association: "travelAuthorization",
-          where: {
-            [Op.or]: [
-              {
-                supervisorEmail: user.email,
-              },
-              { userId: user.id },
-            ],
-          },
+          required: true,
+          ...travelAuthorizationsPolicyScope,
         },
       ],
     }

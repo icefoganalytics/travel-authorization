@@ -1,248 +1,245 @@
 <template>
-  <div>
-    <TitleCard class="mt-10">
-      <template #title>
-        <div>Rental Car Request</div>
-      </template>
-      <template #body>
-        <div class="d-flex justify-end pr-4">
-          <TravelDeskRentalCarCreateDialog
-            class="ml-auto mr-3"
-            :travel-desk-travel-request-id="travelDeskTravelRequestId"
-            :min-date="minDate"
-            :max-date="maxDate"
-            :flight-start="earliestFlightDate"
-            :flight-end="latestFlightDate"
-            @created="refresh"
-          />
-        </div>
-        <v-row class="mb-3 mx-3">
-          <v-col cols="12">
-            <v-data-table
-              :headers="headers"
-              :items="travelDeskRentalCars"
-              :loading="isLoading"
-              hide-default-footer
-              class="elevation-1"
-            >
-              <template #top>
-                <TravelDeskRentalCarEditDialog
-                  ref="editDialog"
-                  :min-date="minDate"
-                  :max-date="maxDate"
-                  :flight-start="earliestFlightDate"
-                  :flight-end="latestFlightDate"
-                  @saved="refresh"
-                />
-              </template>
-              <template #item.matchFlightTimes="{ item }">
-                {{ item.matchFlightTimes ? "Yes" : "No" }}
-              </template>
-              <template #item.pickUpLocation="{ item }">
-                <div v-if="item.pickUpLocation === LOCATION_TYPES.OTHER">
-                  {{ item.pickUpLocationOther }}
-                </div>
-                <div v-else>{{ item.pickUpLocation }}</div>
-              </template>
+  <v-data-table
+    :page.sync="page"
+    :items-per-page.sync="perPage"
+    :sort-by.sync="vuetify2SortBy"
+    :sort-desc.sync="vuetify2SortDesc"
+    :headers="headers"
+    :items="items"
+    :loading="isLoading"
+    :server-items-length="totalCount"
+    v-bind="$attrs"
+    v-on="$listeners"
+  >
+    <template #item.matchFlightTimes="{ item }">
+      {{ item.matchFlightTimes ? "Yes" : "No" }}
+    </template>
 
-              <template #item.dropOffLocation="{ item }">
-                <div
-                  v-if="item.sameDropOffLocation && item.pickUpLocation === LOCATION_TYPES.OTHER"
-                >
-                  {{ item.pickUpLocationOther }}
-                </div>
-                <div v-else-if="item.sameDropOffLocation">{{ item.pickUpLocation }}</div>
-                <div v-else>{{ item.dropOffLocation }}</div>
-              </template>
+    <template #item.pickUpLocation="{ item }">
+      <div v-if="item.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER">
+        {{ item.pickUpLocationOther }}
+      </div>
+      <div v-else>{{ item.pickUpLocation }}</div>
+    </template>
 
-              <template #item.pickUpDate="{ value }">
-                {{ formatDate(value) }}
-              </template>
-              <template #item.dropOffDate="{ value }">
-                {{ formatDate(value) }}
-              </template>
+    <template #item.dropOffLocation="{ item }">
+      <div
+        v-if="
+          item.sameDropOffLocation && item.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER
+        "
+      >
+        {{ item.pickUpLocationOther }}
+      </div>
+      <div v-else-if="item.sameDropOffLocation">{{ item.pickUpLocation }}</div>
+      <div v-else>{{ item.dropOffLocation }}</div>
+    </template>
 
-              <template #item.actions="{ item }">
-                <div class="d-flex justify-end">
-                  <v-btn
-                    title="Edit"
-                    icon
-                    color="blue"
-                    @click="showEditDialog(item)"
-                    ><v-icon>mdi-pencil</v-icon></v-btn
-                  >
-                  <v-btn
-                    :loading="isLoading"
-                    title="Delete"
-                    icon
-                    color="red"
-                    @click="deleteRentalCar(item)"
-                    ><v-icon>mdi-close</v-icon></v-btn
-                  >
-                </div>
-              </template>
-            </v-data-table>
-          </v-col>
-        </v-row>
-      </template>
-    </TitleCard>
-  </div>
+    <template #item.pickUpDate="{ value }">
+      {{ formatDate(value) }}
+    </template>
+
+    <template #item.dropOffDate="{ value }">
+      {{ formatDate(value) }}
+    </template>
+
+    <template #item.actions="{ item }">
+      <div class="d-flex">
+        <v-btn
+          title="Edit"
+          icon
+          color="blue"
+          @click.stop="goToTravelDeskRentalCarEditPage(item.id)"
+          ><v-icon>mdi-pencil</v-icon></v-btn
+        >
+        <v-btn
+          :loading="isDeleting"
+          title="Delete"
+          icon
+          color="red"
+          @click.stop="deleteItem(item.id)"
+          ><v-icon>mdi-close</v-icon></v-btn
+        >
+      </div>
+    </template>
+
+    <!-- Pass-through slots -->
+    <template
+      v-for="(_, slotName) in $scopedSlots"
+      #[slotName]="slotData"
+    >
+      <slot
+        :name="slotName"
+        v-bind="slotData"
+      ></slot>
+    </template>
+  </v-data-table>
 </template>
 
-<script setup>
-import { computed, ref, toRefs, watch } from "vue"
-import { DateTime } from "luxon"
-import { isNil } from "lodash"
-import { useRoute } from "vue2-helpers/vue-router"
+<script setup lang="ts">
+import { ref, computed } from "vue"
+import { useRouter } from "vue2-helpers/vue-router"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
-import travelDeskRentalCarsApi from "@/api/travel-desk-rental-cars-api"
-import useTravelAuthorization from "@/use/use-travel-authorization"
-import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
-import useTravelDeskRentalCars, { LOCATION_TYPES } from "@/use/use-travel-desk-rental-cars"
+import formatDate from "@/utils/format-date"
 
-import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
-import TravelDeskRentalCarCreateDialog from "@/components/travel-request-rental-cars/TravelDeskRentalCarCreateDialog.vue"
-import TravelDeskRentalCarEditDialog from "@/components/travel-request-rental-cars/TravelDeskRentalCarEditDialog.vue"
+import travelDeskRentalCarsApi, {
+  type TravelDeskRentalCarWhereOptions,
+  type TravelDeskRentalCarFiltersOptions,
+  TravelDeskRentalCarLocationTypes,
+} from "@/api/travel-desk-rental-cars-api"
 
-const props = defineProps({
-  travelDeskTravelRequestId: {
-    type: Number,
-    required: true,
-  },
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 
-const headers = ref([
+import useSnack from "@/use/use-snack"
+import useTravelDeskRentalCars from "@/use/use-travel-desk-rental-cars"
+
+const props = withDefaults(
+  defineProps<{
+    where?: TravelDeskRentalCarWhereOptions
+    filters?: TravelDeskRentalCarFiltersOptions
+    routeQuerySuffix?: string
+    returnTo?: string
+  }>(),
+  {
+    where: () => ({}),
+    filters: () => ({}),
+    routeQuerySuffix: "",
+    returnTo: undefined,
+  }
+)
+
+// TODO: switch to `updated: [void]` syntax in Vue 3
+const emit = defineEmits<{
+  (event: "updated"): void
+}>()
+
+const headers = [
   {
     text: "Match Flight Times",
     value: "matchFlightTimes",
-    class: "blue-grey lighten-4",
     sortable: false,
   },
   {
     text: "Pick-Up City",
     value: "pickUpCity",
-    class: "blue-grey lighten-4",
     sortable: false,
   },
   {
     text: "Pick-up Location",
     value: "pickUpLocation",
-    class: "blue-grey lighten-4",
     sortable: false,
   },
   {
     text: "Drop-off City",
     value: "dropOffCity",
-    class: "blue-grey lighten-4",
     sortable: false,
   },
   {
     text: "Drop-off Location",
     value: "dropOffLocation",
-    class: "blue-grey lighten-4",
     sortable: false,
   },
-  { text: "Pick-up Date", value: "pickUpDate", class: "blue-grey lighten-4" },
-  { text: "Drop-off Date", value: "dropOffDate", class: "blue-grey lighten-4" },
-
+  {
+    text: "Pick-up Date",
+    value: "pickUpDate",
+  },
+  {
+    text: "Drop-off Date",
+    value: "dropOffDate",
+  },
   {
     text: "Vehicle Type",
     value: "vehicleType",
-    class: "blue-grey lighten-4",
     sortable: false,
   },
   {
-    text: "Reason Change",
+    text: "Change Reason",
     value: "vehicleChangeRationale",
-    class: "blue-grey lighten-4",
     sortable: false,
   },
   {
     text: "Additional Notes",
     value: "additionalNotes",
-    class: "blue-grey lighten-4",
     sortable: false,
   },
-  { text: "", value: "actions", class: "blue-grey lighten-4", width: "4rem", sortable: false },
+  {
+    text: "Actions",
+    value: "actions",
+    sortable: false,
+  },
+]
+
+const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
+})
+const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`, "5", {
+  transform: integerTransformer,
+})
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  {
+    key: "pickUpDate",
+    order: "asc",
+  },
 ])
+const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
-const route = useRoute()
-
-const travelDeskRentalCarsQuery = computed(() => ({
-  where: {
-    travelRequestId: props.travelDeskTravelRequestId,
-  },
-}))
-const { travelDeskRentalCars, isLoading, refresh } =
-  useTravelDeskRentalCars(travelDeskRentalCarsQuery)
-
-const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
-
-const minDate = computed(() => travelAuthorization.value?.startDate?.slice(0, 10))
-const maxDate = computed(() => travelAuthorization.value?.endDate?.slice(0, 10))
-
-// TODO: maybe make an optimized query that returns the start/end dates?
-const travelDeskFlightRequestsQuery = computed(() => ({
-  where: {
-    travelRequestId: props.travelDeskTravelRequestId,
-  },
-  perPage: 1000,
+const query = computed(() => ({
+  where: props.where,
+  filters: props.filters,
+  order: order.value,
+  page: page.value,
+  perPage: perPage.value,
 }))
 const {
-  earliestFlightDate,
-  latestFlightDate,
-  refresh: refreshFlightRequests,
-} = useTravelDeskFlightRequests(travelDeskFlightRequestsQuery)
+  travelDeskRentalCars: items,
+  totalCount,
+  isLoading,
+  refresh,
+} = useTravelDeskRentalCars(query)
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskRentalCarEditDialog> | null>} */
-const editDialog = ref(null)
+const router = useRouter()
 
-function formatDate(date) {
-  return DateTime.fromISO(date, { zone: "utc" }).toFormat("MMM dd yyyy, HH:mm")
+function goToTravelDeskRentalCarEditPage(travelDeskRentalCarId: number) {
+  return router.push({
+    name: "travel-desk/rental-cars/TravelDeskRentalCarEditPage",
+    params: {
+      travelDeskRentalCarId: travelDeskRentalCarId.toString(),
+    },
+    query: {
+      returnTo: props.returnTo,
+    },
+  })
 }
 
-function showEditDialog(flightRequest) {
-  editDialog.value?.show(flightRequest)
-}
+const isDeleting = ref(false)
+const snack = useSnack()
 
-function showEditDialogForRouteQuery() {
-  const rentalCarId = parseInt(route.query.showRentalCarEdit)
-  if (isNaN(rentalCarId)) return
+async function deleteItem(itemId: number) {
+  if (!blockedToTrueConfirm("Are you sure you want to remove this item?")) return
 
-  const rentalCar = travelDeskRentalCars.value.find((rentalCar) => rentalCar.id === rentalCarId)
-  if (isNil(rentalCar)) return
-
-  showEditDialog(rentalCar)
-}
-
-watch(
-  () => travelDeskRentalCars.value,
-  (rentalCars) => {
-    if (rentalCars.length === 0) return
-
-    showEditDialogForRouteQuery()
-  }
-)
-
-async function deleteRentalCar(flightRequest) {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this rental car?")) return
-
+  isDeleting.value = true
   try {
-    await travelDeskRentalCarsApi.delete(flightRequest.id)
-    await refresh()
+    await travelDeskRentalCarsApi.delete(itemId)
+    snack.success("Item deleted successfully")
+    await emitUpdatedAndRefresh()
   } catch (error) {
     console.error(error)
+  } finally {
+    isDeleting.value = false
   }
+}
+
+async function emitUpdatedAndRefresh() {
+  emit("updated")
+  await refresh()
 }
 
 defineExpose({
-  refresh: refreshFlightRequests,
+  refresh,
 })
 </script>
 

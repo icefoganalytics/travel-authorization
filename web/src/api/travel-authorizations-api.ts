@@ -138,7 +138,7 @@ export type TravelAuthorization = {
 /** Keep in sync with api/src/serializers/travel-authorizations/index-serializer.ts */
 export type TravelAuthorizationAsIndex = Pick<
   TravelAuthorization,
-  "id" | "eventName" | "purposeId" | "wizardStepName" | "status"
+  "id" | "eventName" | "purposeId" | "wizardStepName" | "status" | "dateBackToWorkEstimate"
 > & {
   // Computed properties
   purposeText: string
@@ -232,6 +232,7 @@ export type TravelAuthorizationFiltersOptions = FiltersOptions<{
   isTravelling: void
   isUpcomingTravel: void
   isBeforeTripEnd: void
+  forTravelDeskTravelRequest: number | string
 }>
 
 export type TravelAuthorizationsQueryOptions = QueryOptions<
