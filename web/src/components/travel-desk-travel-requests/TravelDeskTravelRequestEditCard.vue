@@ -15,6 +15,7 @@
       />
       <TravelDeskRentalCarsEditCard
         ref="travelDeskRentalCarsEditCard"
+        class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestId"
       />
       <TravelDeskHotelsEditCard

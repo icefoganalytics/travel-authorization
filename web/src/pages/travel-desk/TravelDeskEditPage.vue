@@ -83,7 +83,8 @@
                   :travel-authorization-id="travelDeskTravelRequest.travelAuthorizationId"
                   show-flight-options
                 />
-                <RentalCarRequestEditCard
+                <TravelDeskRentalCarsEditCard
+                  class="mt-6"
                   :travel-desk-travel-request-id="travelDeskTravelRequest.id"
                 />
                 <!-- TODO: rebuild HotelRequestTable component with newer patterns -->
@@ -247,7 +248,6 @@ import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
 import useTravelDeskOtherTransportations from "@/use/use-travel-desk-other-transportations"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
-import RentalCarRequestEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
 import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
 
@@ -258,6 +258,7 @@ import TravelDeskTravelRequestUploadPassengerNameRecordDocumentDialog from "@/co
 import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/TravelerDetailsFormCard.vue"
 
 import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
+import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
 import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
