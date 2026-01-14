@@ -230,7 +230,7 @@
       </v-col>
     </v-row>
 
-    <v-divider />
+    <v-divider class="mt-md-10" />
 
     <template #actions>
       <v-btn
