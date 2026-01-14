@@ -4,6 +4,28 @@ This directory contains reusable AI workflows for the Travel Authorization syste
 
 ## Available Workflows
 
+### [pull-request-management.md](pull-request-management.md)
+
+Complete workflow for creating and editing well-structured pull requests following TravelAuth project patterns and conventions.
+
+**Includes:**
+- PR title patterns (TICKET-ID, Fix:, Action Verb + Noun)
+- Comprehensive PR body template with Context, Implementation, Screenshots, Testing Instructions
+- TravelAuth-specific testing commands and navigation patterns
+- Quality checklist and common pitfalls
+- Examples from actual TravelAuth pull requests
+- **NEW:** Complete guide for editing existing pull requests
+
+**Key Features:**
+- Draft PR creation process
+- Standardized testing instructions using `dev test_api`, `dev up`, http://localhost:8080
+- UI navigation patterns for TravelAuth
+- Code quality standards integration
+- **NEW:** Common editing scenarios and workflows
+- **NEW:** Step-by-step examples for updating PR content
+
+---
+
 ### [convert-js-api-to-typescript.md](convert-js-api-to-typescript.md)
 
 Complete workflow for converting JavaScript API client files to TypeScript.
@@ -97,4 +119,4 @@ Complete workflow for converting legacy dialog-based request tables to modern pa
 
 ---
 
-**Last Updated:** 2026-01-12
+**Last Updated:** 2026-01-14
