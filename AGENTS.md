@@ -441,6 +441,14 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 - Include editing, updating, and maintenance scenarios
 - Provide troubleshooting and common pitfall guidance
 
+**QA Testing Instructions:**
+- Write for someone with zero project knowledge
+- Focus on UI interactions: "Click on", "Verify", "Fill out"
+- Use simple, sequential steps with specific verification points
+- Test complete user workflows: creation, editing, saving, navigation
+- Include browser behavior testing: back button, refresh, direct URLs
+- Minimal bolding - only for UI elements, avoid technical jargon
+
 ### Available Workflows
 
 See `/agents/workflows/README.md` for the complete list of available workflows and their usage patterns.

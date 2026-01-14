@@ -187,6 +187,16 @@ Investigation revealed that the status calculation was not considering condition
 - Include verification: "Verify that..." or "Check that..."
 - Number steps sequentially
 
+**QA Testing Principles:**
+
+Write testing instructions for someone with zero project knowledge:
+
+- **User-focused**: Focus on UI interactions ("Click on", "Verify", "Fill out")
+- **Sequential steps**: Clear, numbered steps with specific verification points
+- **Complete workflows**: Test creation, editing, saving, and navigation
+- **Browser behavior**: Include back button, refresh, and direct URL testing
+- **Simple language**: Avoid technical jargon, minimal bolding
+
 **Example:**
 ```markdown
 4. Navigate to **Travel Authorizations** → **Create New**.
