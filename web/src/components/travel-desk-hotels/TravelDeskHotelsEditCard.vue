@@ -20,8 +20,8 @@
       </v-btn>
     </v-card-title>
     <v-card-text>
-      <TravelDeskHotelsEditTable
-        ref="travelDeskHotelsEditTable"
+      <TravelDeskHotelsEditDataTable
+        ref="travelDeskHotelsEditDataTable"
         :where="travelDeskHotelsWhere"
         :return-to="returnTo"
         route-query-suffix="TravelDeskHotel"
@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 
-import TravelDeskHotelsEditTable from "@/components/travel-desk-hotels/TravelDeskHotelsEditTable.vue"
+import TravelDeskHotelsEditDataTable from "@/components/travel-desk-hotels/TravelDeskHotelsEditDataTable.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: number
@@ -49,10 +49,12 @@ const travelDeskHotelsWhere = computed(() => ({
   travelRequestId: props.travelDeskTravelRequestId,
 }))
 
-const travelDeskHotelsEditTable = ref<InstanceType<typeof TravelDeskHotelsEditTable> | null>(null)
+const travelDeskHotelsEditDataTable = ref<InstanceType<
+  typeof TravelDeskHotelsEditDataTable
+> | null>(null)
 
 async function refresh() {
-  await travelDeskHotelsEditTable.value?.refresh()
+  await travelDeskHotelsEditDataTable.value?.refresh()
 }
 
 defineExpose({
