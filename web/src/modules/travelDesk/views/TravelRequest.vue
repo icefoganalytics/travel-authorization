@@ -31,6 +31,7 @@
       <v-card>
         <TravelerRequests
           :authorized-travels="authorizedTravels"
+          :return-to="returnTo"
           @updateTable="getAuthorizedTravels"
         />
       </v-card>
@@ -40,6 +41,8 @@
 
 <script>
 import Vue from "vue"
+import { computed } from "vue"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
 
 import { TRAVEL_DESK_URL, PROFILE_URL } from "@/urls"
@@ -56,7 +59,19 @@ export default {
   },
   setup() {
     const { t } = useI18n()
-    return { t }
+
+    const router = useRouter()
+    const returnTo = computed(() => {
+      const routeLocation = router.resolve({
+        name: "TravelRequests",
+      })
+      return routeLocation.href
+    })
+
+    return {
+      t,
+      returnTo,
+    }
   },
   data() {
     return {

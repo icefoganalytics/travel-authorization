@@ -101,11 +101,13 @@ const props = withDefaults(
     where?: TravelDeskRentalCarWhereOptions
     filters?: TravelDeskRentalCarFiltersOptions
     routeQuerySuffix?: string
+    returnTo?: string
   }>(),
   {
     where: () => ({}),
     filters: () => ({}),
     routeQuerySuffix: "",
+    returnTo: undefined,
   }
 )
 
@@ -206,6 +208,9 @@ function goToTravelDeskRentalCarEditPage(travelDeskRentalCarId: number) {
     name: "travel-desk/rental-cars/TravelDeskRentalCarEditPage",
     params: {
       travelDeskRentalCarId: travelDeskRentalCarId.toString(),
+    },
+    query: {
+      returnTo: props.returnTo,
     },
   })
 }

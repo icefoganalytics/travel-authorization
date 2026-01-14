@@ -86,6 +86,7 @@
                 <TravelDeskRentalCarsEditCard
                   class="mt-6"
                   :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+                  :return-to="returnTo"
                 />
                 <!-- TODO: rebuild HotelRequestTable component with newer patterns -->
                 <HotelRequestTable
@@ -345,6 +346,15 @@ async function refresh() {
 }
 
 const router = useRouter()
+const returnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "travel-desk/TravelDeskEditPage",
+    params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+    },
+  })
+  return routeLocation.href
+})
 
 async function returnToTravelDesk() {
   return router.push({

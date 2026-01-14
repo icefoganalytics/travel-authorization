@@ -11,6 +11,9 @@
           params: {
             travelDeskTravelRequestId: travelDeskTravelRequestId.toString(),
           },
+          query: {
+            returnTo,
+          },
         }"
       >
         New Rental Car
@@ -20,6 +23,7 @@
       <TravelDeskRentalCarsEditTable
         ref="travelDeskRentalCarsEditTable"
         :where="travelDeskRentalCarsWhere"
+        :return-to="returnTo"
         route-query-suffix="TravelDeskRentalCar"
         @updated="emit('updated')"
       />
@@ -34,6 +38,7 @@ import TravelDeskRentalCarsEditTable from "@/components/travel-desk-rental-cars/
 
 const props = defineProps<{
   travelDeskTravelRequestId: number
+  returnTo?: string
 }>()
 
 // TODO: switch to `updated: [void]` syntax in Vue 3

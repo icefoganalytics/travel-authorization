@@ -238,7 +238,7 @@
       </v-btn>
       <v-btn
         color="grey"
-        @click="returnToTravelDesk"
+        :to="returnTo"
       >
         Cancel
       </v-btn>
@@ -251,6 +251,7 @@ import { ref, computed } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 
 import { required } from "@/utils/validators"
+import useRouteQuery from "@/use/utils/use-route-query"
 
 import travelDeskRentalCarsApi, {
   type TravelDeskRentalCar,
@@ -277,6 +278,18 @@ const props = defineProps<{
 }>()
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
+
+const router = useRouter()
+const defaultReturnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "travel-desk/TravelDeskEditPage",
+    params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+    },
+  })
+  return routeLocation.href
+})
+const returnTo = useRouteQuery("returnTo", defaultReturnTo)
 
 const { tripStartDate, tripEndDate, flightStartDate, flightEndDate } = useTravelTimesSummary(
   travelDeskTravelRequestIdAsNumber
@@ -343,7 +356,6 @@ function matchWithFlight(value: boolean) {
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isSaving = ref(false)
 const snack = useSnack()
-const router = useRouter()
 
 async function createAndReturn() {
   if (!headerActionsFormCard.value?.validate()) return
@@ -361,27 +373,13 @@ async function createAndReturn() {
     await travelDeskRentalCarsApi.create(travelDeskRentalCarAttributes.value)
     snack.success("Rental car request created successfully!")
 
-    return router.push({
-      name: "travel-desk/TravelDeskEditPage",
-      params: {
-        travelDeskTravelRequestId: props.travelDeskTravelRequestId,
-      },
-    })
+    return router.push(returnTo.value)
   } catch (error) {
     console.error(`Failed to create rental car request: ${error}`, { error })
     snack.error(`Failed to create rental car request: ${error}`)
   } finally {
     isSaving.value = false
   }
-}
-
-function returnToTravelDesk() {
-  router.push({
-    name: "travel-desk/TravelDeskEditPage",
-    params: {
-      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
-    },
-  })
 }
 
 const breadcrumbs = computed(() => [

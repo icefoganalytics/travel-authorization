@@ -17,6 +17,7 @@
         ref="travelDeskRentalCarsEditCard"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestId"
+        :return-to="returnTo"
       />
       <TravelDeskHotelsEditCard
         ref="travelDeskHotelEditCard"
@@ -45,6 +46,7 @@ import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/T
 
 const props = defineProps<{
   travelDeskTravelRequestId: number
+  returnTo?: string
 }>()
 
 const { travelDeskTravelRequestId } = toRefs(props)

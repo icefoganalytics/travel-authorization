@@ -91,6 +91,7 @@
 
                   <TravelDeskRentalCarsEditCard
                     :travel-desk-travel-request-id="authorizedTravel.id"
+                    :return-to="returnTo"
                   />
                   <hotel-request-table
                     :authorized-travel="authorizedTravel"
@@ -192,6 +193,10 @@ export default {
     authorizedTravel: {
       type: Object,
       required: true,
+    },
+    returnTo: {
+      type: String,
+      default: undefined,
     },
   },
   data() {

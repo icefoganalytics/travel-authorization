@@ -7,6 +7,7 @@
     v-else
     ref="travelDeskTravelRequestEditCard"
     :travel-desk-travel-request-id="travelDeskTravelRequestId"
+    :return-to="returnTo"
   />
 </template>
 
@@ -27,6 +28,7 @@ import TravelDeskTravelRequestEditCard from "@/components/travel-desk-travel-req
 
 const props = defineProps<{
   travelAuthorizationId: number
+  returnTo?: string
 }>()
 
 const emit = defineEmits<{

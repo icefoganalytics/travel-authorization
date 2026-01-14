@@ -244,7 +244,7 @@
       <v-btn
         class="ml-0 ml-md-4"
         color="grey"
-        :to="cancelRoute"
+        :to="returnTo"
         :block="smAndDown"
       >
         Cancel
@@ -260,6 +260,7 @@ import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
+import useRouteQuery from "@/use/utils/use-route-query"
 
 import travelDeskRentalCarsApi, {
   TravelDeskRentalCarLocationTypes,
@@ -290,14 +291,20 @@ const travelDeskRentalCarIdAsNumber = computed(() => parseInt(props.travelDeskRe
 
 const { travelDeskRentalCar, refresh } = useTravelDeskRentalCar(travelDeskRentalCarIdAsNumber)
 
-const DEFAULT_TIME = "12:00"
+const router = useRouter()
+const defaultReturnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "travel-desk/TravelDeskEditPage",
+    params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+    },
+  })
 
-const cancelRoute = {
-  name: "travel-desk/TravelDeskEditPage",
-  params: {
-    travelDeskTravelRequestId: props.travelDeskTravelRequestId,
-  },
-}
+  return routeLocation.href
+})
+const returnTo = useRouteQuery("returnTo", defaultReturnTo)
+
+const DEFAULT_TIME = "12:00"
 
 const pickUpDate = ref("")
 const pickUpTime = ref(DEFAULT_TIME)
@@ -365,7 +372,6 @@ function resetVehicleChangeRationaleIfCompact(value: string) {
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isSaving = ref(false)
 const snack = useSnack()
-const router = useRouter()
 
 async function saveAndReturn() {
   if (isNil(travelDeskRentalCar.value)) return
@@ -383,7 +389,7 @@ async function saveAndReturn() {
     snack.success("Rental car request updated successfully!")
     await refresh()
 
-    return router.push(cancelRoute)
+    return router.push(returnTo.value)
   } catch (error) {
     console.error(`Failed to update rental car request: ${error}`, { error })
     snack.error(`Failed to update rental car request: ${error}`)
@@ -402,7 +408,7 @@ async function deleteAndReturn() {
     await travelDeskRentalCarsApi.delete(travelDeskRentalCarIdAsNumber.value)
     snack.success("Rental car request deleted successfully!")
 
-    return router.push(cancelRoute)
+    return router.push(returnTo.value)
   } catch (error) {
     console.error(`Failed to delete rental car request: ${error}`, { error })
     snack.error(`Failed to delete rental car request: ${error}`)
