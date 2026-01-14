@@ -23,7 +23,7 @@
         ref="travelDeskHotelEditCard"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestId"
-        :travel-authorization-id="travelAuthorizationId"
+        :return-to="returnTo"
       />
       <TravelDeskOtherTransportationsEditTable
         :travel-desk-travel-request-id="travelDeskTravelRequestId"
