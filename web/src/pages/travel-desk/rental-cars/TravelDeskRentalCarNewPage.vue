@@ -334,6 +334,7 @@ function matchWithFlight(value: boolean) {
   if (value && flightStartDate.value && flightEndDate.value) {
     pickUpDate.value = flightStartDate.value
     dropOffDate.value = flightEndDate.value
+    // TODO: consider if this should match flight times as well as dates?
     pickUpTime.value = DEFAULT_TIME
     dropOffTime.value = DEFAULT_TIME
   }
