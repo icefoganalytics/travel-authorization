@@ -42,7 +42,7 @@
 <script>
 import Vue from "vue"
 import { computed } from "vue"
-import { useRouter } from "vue-router"
+import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
 import { TRAVEL_DESK_URL, PROFILE_URL } from "@/urls"
