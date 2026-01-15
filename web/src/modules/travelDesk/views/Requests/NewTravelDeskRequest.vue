@@ -40,13 +40,13 @@
         <v-card-text v-if="!loadingData">
           <v-row class="mb-3">
             <v-col :cols="type != 'Submit' ? 8 : 12">
-              <traveler-details
+              <TravelerDetails
                 :traveler-details="travelerDetails"
                 :traveler-state="state"
                 :readonly="false"
               />
 
-              <title-card
+              <TitleCard
                 class="mt-10"
                 large-title
               >
@@ -54,14 +54,14 @@
                   <div>Travel Information</div>
                 </template>
                 <template #body>
-                  <title-card class="mt-5 mx-5">
+                  <TitleCard class="mt-5 mx-5">
                     <template #title>
                       <div>Flight Request</div>
                     </template>
                     <template #body>
                       <v-row class="mt-0 mx-0">
                         <v-col cols="9">
-                          <flight-request-table
+                          <FlightRequestTable
                             :travel-desk-travel-request-id="travelerDetails.id"
                             :authorized-travel="authorizedTravel"
                             :readonly="false"
@@ -87,15 +87,15 @@
                         </v-col>
                       </v-row>
                     </template>
-                  </title-card>
+                  </TitleCard>
 
                   <!-- TODO: fix mapping authorizedTravel.id != travelDeskTravelRequestId -->
                   <TravelDeskRentalCarsEditCard
-                    :travel-desk-travel-request-id="authorizedTravel.id"
+                    :travel-desk-travel-request-id="travelDeskTravelRequestId"
                     :return-to="returnTo"
                   />
                   <TravelDeskHotelsEditCard
-                    :travel-desk-travel-request-id="authorizedTravel.id"
+                    :travel-desk-travel-request-id="travelDeskTravelRequestId"
                     :return-to="returnTo"
                   />
                   <transportation-request-table
@@ -104,7 +104,7 @@
                     :other-transportations="travelerDetails.otherTransportations"
                   />
                 </template>
-              </title-card>
+              </TitleCard>
             </v-col>
             <v-col
               v-if="type != 'Submit'"
@@ -122,7 +122,7 @@
                   />
                 </v-col>
               </v-row>
-              <questions-table
+              <QuestionsTable
                 :readonly="false"
                 :questions="travelerDetails.questions"
               />
@@ -162,8 +162,13 @@
 </template>
 
 <script>
+import { computed } from "vue"
+
 import { LOOKUP_URL, TRAVEL_DESK_URL } from "@/urls"
 import http from "@/api/http-client"
+
+import useCurrentUser from "@/use/use-current-user"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 
@@ -199,6 +204,26 @@ export default {
       type: String,
       default: undefined,
     },
+  },
+  // NOTE: this is component is now more of a concept sketch than a functional component.
+  // Needs full rebuild and rework with new concepts.
+  // Will need to build a travel desk travel request in draft form, before being able to edit it with
+  // current child edit components, as components such as TravelDeskRentalCarsEditCard require a
+  // travel desk travel request id to function.
+  setup(props) {
+    const travelAuthorizationId = computed(() => props.authorizedTravel.id)
+    const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
+    const travelDeskTravelRequest = computed(
+      () => travelAuthorization.value?.travelDeskTravelRequest
+    )
+    const travelDeskTravelRequestId = computed(() => travelDeskTravelRequest.value?.id)
+
+    const { currentUser } = useCurrentUser()
+
+    return {
+      travelDeskTravelRequestId,
+      currentUser,
+    }
   },
   data() {
     return {
@@ -253,7 +278,7 @@ export default {
 
     async getTravelRequestInfo() {
       return http
-        .get(`${TRAVEL_DESK_URL}/travel-request/` + this.authorizedTravel.id)
+        .get(`${TRAVEL_DESK_URL}/travel-request/` + this.travelDeskTravelRequestId)
         .then((resp) => {
           // console.log(resp.data)
           return resp.data
@@ -315,7 +340,7 @@ export default {
       travelerDetails.internationalTravel =
         travelerDetails.passportCountry || travelerDetails.passportNum
       travelerDetails.office = ""
-      travelerDetails.department = this.$store.state.auth.department
+      travelerDetails.department = this.currentUser.department
       travelerDetails.fullName =
         travelerDetails.legalFirstName + "." + travelerDetails.legalLastName
       this.travelerDetails = travelerDetails
@@ -340,9 +365,8 @@ export default {
           body.status = "options_ranked"
         }
         // console.log(body);
-        const id = this.authorizedTravel.id
         return http
-          .post(`${TRAVEL_DESK_URL}/travel-request/${id}`, body)
+          .post(`${TRAVEL_DESK_URL}/travel-request/${this.travelDeskTravelRequestId}`, body)
           .then(() => {
             this.savingData = false
             this.addNewTravelDialog = false
