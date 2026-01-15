@@ -89,15 +89,14 @@
                     </template>
                   </title-card>
 
+                  <!-- TODO: fix mapping authorizedTravel.id != travelDeskTravelRequestId -->
                   <TravelDeskRentalCarsEditCard
                     :travel-desk-travel-request-id="authorizedTravel.id"
                     :return-to="returnTo"
                   />
-                  <hotel-request-table
-                    :authorized-travel="authorizedTravel"
-                    :readonly="false"
-                    :flight-requests="travelerDetails.flightRequests"
-                    :hotels="travelerDetails.hotels"
+                  <TravelDeskHotelsEditCard
+                    :travel-desk-travel-request-id="authorizedTravel.id"
+                    :return-to="returnTo"
                   />
                   <transportation-request-table
                     :authorized-travel="authorizedTravel"
@@ -167,23 +166,25 @@ import { LOOKUP_URL, TRAVEL_DESK_URL } from "@/urls"
 import http from "@/api/http-client"
 
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
+
+import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
+import TravelDeskHotelsEditCard from "@/components/travel-desk-hotels/TravelDeskHotelsEditCard.vue"
+
 import TravelerDetails from "@/modules/travelDesk/views/Requests/Components/TravelerDetails.vue"
 import FlightRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/FlightRequestTable.vue"
-import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
-import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
 import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
 import QuestionsTable from "@/modules/travelDesk/views/Desk/Components/QuestionsTable.vue"
 
 export default {
   name: "NewTravelDeskRequest",
   components: {
-    TitleCard,
-    TravelerDetails,
     FlightRequestTable,
-    TravelDeskRentalCarsEditCard,
-    TransportationRequestTable,
-    HotelRequestTable,
     QuestionsTable,
+    TitleCard,
+    TransportationRequestTable,
+    TravelDeskHotelsEditCard,
+    TravelDeskRentalCarsEditCard,
+    TravelerDetails,
   },
   props: {
     type: {
