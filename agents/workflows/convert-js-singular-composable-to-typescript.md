@@ -5,11 +5,24 @@ auto_execution_mode: 1
 
 # Convert JavaScript Singular Composable to TypeScript Workflow
 
-> **Purpose:** Convert a singular use JavaScript composable file to TypeScript following project conventions.
->
-> **Scope:** Frontend composable conversion (singular form: `useResource`, not plural `useResources`)
->
-> **Reference Files:** `use-user.ts`, `use-expense.ts`, `use-travel-purpose.ts`, `use-travel-desk-travel-request.ts`
+## Intent
+
+**WHY this workflow exists:** JavaScript composables use JSDoc for typing which is verbose and error-prone. TypeScript provides better type inference, cleaner syntax, and catches errors at compile time rather than runtime.
+
+**WHAT this workflow produces:** A TypeScript composable that:
+- Fetches a single resource by ID
+- Manages loading/error state reactively
+- Optionally saves updates back to the API
+- Re-exports types for consumer convenience (so components don't need to import from both the composable and the API)
+
+**Decision Rules:**
+- **Singular vs Plural:** This workflow is for composables that work with ONE resource by ID (`useUser`, `useExpense`). For composables that fetch lists, use the plural workflow instead.
+- **Policy in state:** If the API's `get()` method returns a policy, add `policy` to state. Check the API file.
+- **Save method:** Only add `save()` if the API has an `update()` method and you need to modify the resource.
+
+## Reference Files
+
+`use-user.ts`, `use-expense.ts`, `use-travel-purpose.ts`, `use-travel-desk-travel-request.ts`
 
 ## Prerequisites
 
@@ -50,15 +63,15 @@ import resourcesApi from "@/api/resources-api"
 import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { isNil } from "lodash"
 
-import { type Policy } from "@/api/base-api"
-import resourcesApi, { type ResourceAsShow } from "@/api/resources-api"
+import resourcesApi, { type ResourceAsShow, type ResourcePolicy } from "@/api/resources-api"
 ```
 
 **Import Selection:**
 
 - Always import `type Ref` from Vue
-- Import `type Policy` from `base-api` if API returns policy
-- Import the appropriate type from the API file (`ResourceAsShow`, `Resource`, etc.)
+- Import specific policy type from API file if API returns policy (`type ResourcePolicy`)
+- Import the appropriate types from the API file (`ResourceAsShow`, `ResourcePolicy`, etc.)
+- Note: API files should define `export type ResourcePolicy = Policy` for consistency
 
 ---
 
@@ -92,7 +105,7 @@ export function useResource(id) {
 **After (TS):**
 
 ```typescript
-export function useResource(id: Ref<number | null | undefined>) {
+export function useResource(resourceId: Ref<number | null | undefined>) {
 ```
 
 **Key Changes:**
@@ -100,6 +113,7 @@ export function useResource(id: Ref<number | null | undefined>) {
 - Remove all JSDoc type definitions (`@template`, `@typedef`, `@callback`, `@type`)
 - Add TypeScript parameter type directly to function signature
 - Parameter type is always `Ref<number | null | undefined>` for ID parameters
+- Use descriptive parameter names: `resourceId`, `expenseId`, `travelDeskHotelId` instead of generic `id`
 
 ---
 
@@ -108,9 +122,9 @@ export function useResource(id: Ref<number | null | undefined>) {
 Add type re-exports after imports for consumer convenience:
 
 ```typescript
-import resourcesApi, { type ResourceAsShow } from "@/api/resources-api"
+import resourcesApi, { type ResourceAsShow, type ResourcePolicy } from "@/api/resources-api"
 
-export { type ResourceAsShow }
+export { type ResourceAsShow, type ResourcePolicy }
 ```
 
 If the composable uses enums or constants, re-export those too:
@@ -119,10 +133,11 @@ If the composable uses enums or constants, re-export those too:
 import resourcesApi, {
   RESOURCE_STATUSES,
   type ResourceAsShow,
+  type ResourcePolicy,
   type ResourceStatuses,
 } from "@/api/resources-api"
 
-export { RESOURCE_STATUSES, type ResourceAsShow, type ResourceStatuses }
+export { RESOURCE_STATUSES, type ResourceAsShow, type ResourcePolicy, type ResourceStatuses }
 ```
 
 ---
@@ -159,7 +174,7 @@ const state = reactive<{
 | Property | Type | Default | Notes |
 |----------|------|---------|-------|
 | `{resource}` | `ResourceAsShow \| null` | `null` | Main data object |
-| `policy` | `Policy \| null` | `null` | Only if API returns policy |
+| `policy` | `ResourcePolicy \| null` | `null` | Only if API returns policy |
 | `isLoading` | `boolean` | `false` | Loading state |
 | `isErrored` | `boolean` | `false` | Error state |
 | `isInitialized` | `boolean` | `false` | Optional, for complex flows |
@@ -226,9 +241,9 @@ async function save() {
 
 ```typescript
 async function save(): Promise<ResourceAsShow> {
-  const staticId = unref(id)
+  const staticId = unref(resourceId)
   if (isNil(staticId)) {
-    throw new Error("id is required")
+    throw new Error("resourceId is required")
   }
 
   if (isNil(state.resource)) {
@@ -339,15 +354,14 @@ export default usePerDiem
 import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { isNil } from "lodash"
 
-import { type Policy } from "@/api/base-api"
-import perDiemsApi, { type PerDiem } from "@/api/per-diems-api"
+import perDiemsApi, { type PerDiem, type PerDiemPolicy } from "@/api/per-diems-api"
 
-export { type PerDiem }
+export { type PerDiem, type PerDiemPolicy }
 
-export function usePerDiem(id: Ref<number | null | undefined>) {
+export function usePerDiem(perDiemId: Ref<number | null | undefined>) {
   const state = reactive<{
     perDiem: PerDiem | null
-    policy: Policy | null
+    policy: PerDiemPolicy | null
     isLoading: boolean
     isErrored: boolean
   }>({
@@ -380,7 +394,7 @@ export function usePerDiem(id: Ref<number | null | undefined>) {
   }
 
   watch(
-    () => unref(id),
+    () => unref(perDiemId),
     async (newId) => {
       if (isNil(newId)) return
 
@@ -606,6 +620,6 @@ return {
 
 ---
 
-**Workflow Version:** 1.0
-**Last Updated:** 2026-01-08
+**Workflow Version:** 1.1
+**Last Updated:** 2026-01-15
 **Reference Files:** `use-user.ts`, `use-expense.ts`, `use-travel-purpose.ts`, `use-travel-desk-travel-request.ts`

@@ -5,6 +5,22 @@ auto_execution_mode: 1
 
 # Pull Request Management Workflow
 
+## Intent
+
+**WHY this workflow exists:** Pull requests communicate intent to reviewers and future maintainers. A well-structured PR explains the problem, the solution approach, and how to verify correctness. This reduces review friction and creates valuable documentation.
+
+**WHAT this workflow produces:** A draft PR with:
+- Clear title following naming conventions
+- Context explaining WHY the change is needed
+- Implementation summarizing WHAT was changed (purpose, not files)
+- Testing instructions that verify correctness
+
+**Decision Rules:**
+- **Title format:** Use `TICKET-ID: Description` when linked to a ticket, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features
+- **Implementation section:** Focus on purpose and intent, not specific files. A reviewer can see file changes in the diff - the Implementation section explains the reasoning behind those changes.
+- **Screenshots:** Required for UI changes, "N/A - backend changes only" for non-UI
+- **Draft mode:** Always create PRs as drafts first
+
 This workflow covers the process of creating and editing well-structured pull requests that follow the established patterns in the TravelAuth project.
 
 ## Quick Reference
@@ -145,17 +161,31 @@ Investigation revealed that the status calculation was not considering condition
 #### Implementation Section
 
 - Use numbered list
-- Focus on **what** was changed
-- Group related changes
-- Include side-effect fixes
+- Focus on **purpose and intent**, not specific file changes
+- Extract meaning from commits - what was the goal of each change?
+- A reviewer can see file diffs - tell them WHY, not WHERE
+- Keep it concise: 5-10 items maximum
 
-**Example:**
+**Good Example (purpose-focused):**
 ```markdown
 # Implementation
 
-1. Update status calculation logic in TravelAuthorization model.
-2. Add conditional approval handling to dashboard serializer.
-3. Fix approval status display in dashboard component.
+1. Replace dialog-based editing with dedicated page routes
+2. Convert JavaScript API and composables to TypeScript
+3. Split monolithic table into modular Card and DataTable components
+4. Standardize component naming to match Vuetify patterns
+```
+
+**Bad Example (file-focused - avoid this):**
+```markdown
+# Implementation
+
+1. Delete TravelDeskHotelCreateDialog.vue
+2. Delete TravelDeskHotelEditDialog.vue
+3. Add TravelDeskHotelNewPage.vue
+4. Add TravelDeskHotelEditPage.vue
+5. Update TravelDeskHotelsEditCard.vue
+6. Update router.ts
 ```
 
 #### Screenshots Section
@@ -361,9 +391,9 @@ Investigation revealed that the status calculation was not considering condition
 
 # Implementation
 
-1. Update status calculation logic in TravelAuthorization model.
-2. Add conditional approval handling to dashboard serializer.
-3. Fix approval status display in dashboard component.
+1. Handle conditional approvals in status calculation logic
+2. Propagate calculated status to dashboard view
+3. Add test coverage for conditional approval scenarios
 
 # Screenshots
 
@@ -395,10 +425,9 @@ The current system only supports screen viewing and printing, making it difficul
 
 # Implementation
 
-1. Add PDF export endpoint to TravelAuthorizationsController.
-2. Create PDF service using Puppeteer library.
-3. Add export button to travel authorization detail view.
-4. Update permissions to allow PDF export for authorized users.
+1. Implement PDF generation service for travel authorizations
+2. Add export action to travel authorization detail view
+3. Restrict PDF export to authorized users
 
 # Screenshots
 
@@ -435,5 +464,9 @@ The current system only supports screen viewing and printing, making it difficul
 - `convert-dialog-table-to-page-pattern.md` - Converting dialogs to pages
 
 ---
+
+---
+
+**Last Updated:** 2026-01-15
 
 *Update this workflow when you discover better patterns or TravelAuth project conventions evolve.*

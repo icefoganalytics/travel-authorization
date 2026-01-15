@@ -225,7 +225,7 @@
       </v-col>
     </v-row>
 
-    <v-divider />
+    <v-divider class="mt-md-10" />
 
     <template #actions>
       <v-btn
@@ -282,7 +282,7 @@ const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDe
 const router = useRouter()
 const defaultReturnTo = computed(() => {
   const routeLocation = router.resolve({
-    name: "travel-desk/TravelDeskEditPage",
+    name: "travel-desk/TravelDeskRequestEditPage",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId,
     },
@@ -392,7 +392,7 @@ const breadcrumbs = computed(() => [
   {
     text: "Request",
     to: {
-      name: "TravelDeskReadPage",
+      name: "travel-desk/TravelDeskRequestPage",
       params: {
         travelDeskTravelRequestId: props.travelDeskTravelRequestId,
       },

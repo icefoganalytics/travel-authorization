@@ -13,7 +13,7 @@
         :label="label"
         :rules="rules"
         background-color="white"
-        prepend-icon="mdi-calendar"
+        append-icon="mdi-calendar"
         outlined
         readonly
         v-bind="{ ...$attrs, ...attrs }"
@@ -38,7 +38,7 @@ export default {
 import { required } from "@/utils/validators"
 import { ref } from "vue"
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     value?: string | null
     label?: string

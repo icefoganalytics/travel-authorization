@@ -271,21 +271,33 @@ const routes: RouteConfig[] = [
             component: () => import("@/pages/TravelDeskPage.vue"),
           },
           {
-            name: "TravelDeskReadPage",
+            name: "travel-desk/TravelDeskRequestPage",
             path: "travel-desk/:travelDeskTravelRequestId",
-            component: () => import("@/pages/travel-desk/TravelDeskReadPage.vue"),
+            component: () => import("@/pages/travel-desk/TravelDeskRequestPage.vue"),
             props: true,
           },
           {
-            name: "travel-desk/TravelDeskEditPage",
+            name: "travel-desk/TravelDeskRequestEditPage",
             path: "travel-desk/:travelDeskTravelRequestId/edit",
-            component: () => import("@/pages/travel-desk/TravelDeskEditPage.vue"),
+            component: () => import("@/pages/travel-desk/TravelDeskRequestEditPage.vue"),
             props: true,
           },
           {
             name: "TravelDeskFlightSegmentsManagePage",
             path: "travel-desk/:travelDeskTravelRequestId/manage-flight-segments",
             component: () => import("@/pages/travel-desk/TravelDeskFlightSegmentsManagePage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/hotels/TravelDeskHotelNewPage",
+            path: "travel-desk/:travelDeskTravelRequestId/hotels/new",
+            component: () => import("@/pages/travel-desk/hotels/TravelDeskHotelNewPage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/hotels/TravelDeskHotelEditPage",
+            path: "travel-desk/:travelDeskTravelRequestId/hotels/:travelDeskHotelId/edit",
+            component: () => import("@/pages/travel-desk/hotels/TravelDeskHotelEditPage.vue"),
             props: true,
           },
           {

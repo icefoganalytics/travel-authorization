@@ -5,13 +5,32 @@ auto_execution_mode: 1
 
 # Convert Dialog-Based Table to Page Pattern Workflow
 
-**Purpose:** Convert legacy dialog-based request tables (like `RentalCarRequestTable.vue`) to a modern page-based edit pattern.
+## Intent
 
-**Scope:** Frontend Vue component refactoring
+**WHY this workflow exists:** Legacy components use inline dialogs for create/edit which causes:
+- Complex state management (dialog open/close, form data, validation)
+- Poor URL navigation (no bookmarkable edit links)
+- Mixed concerns (table + forms in one component)
+- Difficult testing (can't navigate directly to edit state)
 
-**Reference Files:**
-- `TravelDeskFlightRequestsEditCard.vue` (EditTableCard pattern)
-- `TravelDeskFlightRequestsEditTable.vue` (EditTable pattern)
+The page-based pattern separates concerns: tables display data, pages handle forms.
+
+**WHAT this workflow produces:** Four components that work together:
+1. **EditCard** - Wrapper with title and "New" button (navigates to NewPage)
+2. **EditDataTable** - Server-paginated table with edit/delete actions (edit navigates to EditPage)
+3. **NewPage** - Standalone page for creating new items
+4. **EditPage** - Standalone page for editing existing items
+
+**Decision Rules:**
+- **Props from router are strings:** Route params are always strings. Create `...AsNumber` computed for API calls.
+- **Where to put components:** EditCard/EditDataTable go in `components/{model-plural}/`. NewPage/EditPage go in `pages/{parent-path}/{model-plural}/`.
+- **Parent ID handling:** For child entities, NewPage receives parentId. EditPage may only need the modelId (depends on whether you need parent context).
+- **returnTo vs fallbackRoute:** Use returnTo prop when the caller specifies where to go back. Use fallbackRoute when determining from route history.
+
+## Reference Files
+
+- `TravelDeskFlightRequestsEditCard.vue` (EditCard pattern)
+- `TravelDeskFlightRequestsEditDataTable.vue` (EditDataTable pattern)
 - `TravelPreApprovalEditPage.vue` (EditPage pattern)
 - `TravelPreApprovalNewPage.vue` (NewPage pattern)
 
@@ -763,6 +782,6 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 
 ---
 
-**Workflow Version:** 1.0
-**Last Updated:** 2026-01-12
+**Workflow Version:** 1.1
+**Last Updated:** 2026-01-15
 **Reference Files:** `TravelDeskFlightRequestsEditCard.vue`, `TravelDeskFlightRequestsEditTable.vue`, `TravelPreApprovalEditPage.vue`, `TravelPreApprovalNewPage.vue`

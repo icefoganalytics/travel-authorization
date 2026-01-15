@@ -5,22 +5,41 @@
     :sort-by.sync="vuetify2SortBy"
     :sort-desc.sync="vuetify2SortDesc"
     :headers="headers"
-    :items="travelDeskHotels"
+    :items="travelDeskRentalCars"
     :loading="isLoading"
     :server-items-length="totalCount"
     v-bind="$attrs"
     v-on="$listeners"
   >
-    <template #item.checkIn="{ value }">
+    <template #item.matchFlightTimes="{ item }">
+      {{ item.matchFlightTimes ? "Yes" : "No" }}
+    </template>
+
+    <template #item.pickUpLocation="{ item }">
+      <div v-if="item.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER">
+        {{ item.pickUpLocationOther }}
+      </div>
+      <div v-else>{{ item.pickUpLocation }}</div>
+    </template>
+
+    <template #item.dropOffLocation="{ item }">
+      <div
+        v-if="
+          item.sameDropOffLocation && item.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER
+        "
+      >
+        {{ item.pickUpLocationOther }}
+      </div>
+      <div v-else-if="item.sameDropOffLocation">{{ item.pickUpLocation }}</div>
+      <div v-else>{{ item.dropOffLocation }}</div>
+    </template>
+
+    <template #item.pickUpDate="{ value }">
       {{ formatDate(value) }}
     </template>
 
-    <template #item.checkOut="{ value }">
+    <template #item.dropOffDate="{ value }">
       {{ formatDate(value) }}
-    </template>
-
-    <template #item.isDedicatedConferenceHotelAvailable="{ item }">
-      {{ item.isDedicatedConferenceHotelAvailable ? "Yes" : "No" }}
     </template>
 
     <template #item.actions="{ item }">
@@ -29,7 +48,7 @@
           title="Edit"
           icon
           color="blue"
-          @click.stop="goToTravelDeskHotelEditPage(item.id)"
+          @click.stop="goToTravelDeskRentalCarEditPage(item.id)"
           ><v-icon>mdi-pencil</v-icon></v-btn
         >
         <v-btn
@@ -43,6 +62,7 @@
       </div>
     </template>
 
+    <!-- Pass-through slots -->
     <template
       v-for="(_, slotName) in $scopedSlots"
       #[slotName]="slotData"
@@ -62,10 +82,11 @@ import { useRouter } from "vue2-helpers/vue-router"
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import formatDate from "@/utils/format-date"
 
-import travelDeskHotelsApi, {
-  type TravelDeskHotelWhereOptions,
-  type TravelDeskHotelFiltersOptions,
-} from "@/api/travel-desk-hotels-api"
+import travelDeskRentalCarsApi, {
+  type TravelDeskRentalCarWhereOptions,
+  type TravelDeskRentalCarFiltersOptions,
+  TravelDeskRentalCarLocationTypes,
+} from "@/api/travel-desk-rental-cars-api"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
@@ -73,12 +94,12 @@ import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-b
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 
 import useSnack from "@/use/use-snack"
-import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
+import useTravelDeskRentalCars from "@/use/use-travel-desk-rental-cars"
 
 const props = withDefaults(
   defineProps<{
-    where?: TravelDeskHotelWhereOptions
-    filters?: TravelDeskHotelFiltersOptions
+    where?: TravelDeskRentalCarWhereOptions
+    filters?: TravelDeskRentalCarFiltersOptions
     routeQuerySuffix?: string
     returnTo?: string
   }>(),
@@ -90,42 +111,58 @@ const props = withDefaults(
   }
 )
 
+// TODO: switch to `updated: [void]` syntax in Vue 3
 const emit = defineEmits<{
   (event: "updated"): void
 }>()
 
 const headers = [
   {
-    text: "Check-in Date",
-    value: "checkIn",
-  },
-  {
-    text: "Check-out Date",
-    value: "checkOut",
-  },
-  {
-    text: "City",
-    value: "city",
+    text: "Match Flight Times",
+    value: "matchFlightTimes",
     sortable: false,
   },
   {
-    text: "Conference Hotel Available?",
-    value: "isDedicatedConferenceHotelAvailable",
+    text: "Pick-Up City",
+    value: "pickUpCity",
     sortable: false,
   },
   {
-    text: "Event Name",
-    value: "conferenceName",
+    text: "Pick-up Location",
+    value: "pickUpLocation",
     sortable: false,
   },
   {
-    text: "Hotel Name",
-    value: "conferenceHotelName",
+    text: "Drop-off City",
+    value: "dropOffCity",
     sortable: false,
   },
   {
-    text: "Additional Information",
-    value: "additionalInformation",
+    text: "Drop-off Location",
+    value: "dropOffLocation",
+    sortable: false,
+  },
+  {
+    text: "Pick-up Date",
+    value: "pickUpDate",
+  },
+  {
+    text: "Drop-off Date",
+    value: "dropOffDate",
+  },
+  {
+    text: "Vehicle Type",
+    value: "vehicleType",
+    sortable: false,
+  },
+  {
+    text: "Change Reason",
+    value: "vehicleChangeRationale",
+    sortable: false,
+  },
+  {
+    text: "Additional Notes",
+    value: "additionalNotes",
     sortable: false,
   },
   {
@@ -143,7 +180,7 @@ const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   {
-    key: "checkIn",
+    key: "pickUpDate",
     order: "asc",
   },
 ])
@@ -157,15 +194,15 @@ const query = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const { travelDeskHotels, totalCount, isLoading, refresh } = useTravelDeskHotels(query)
+const { travelDeskRentalCars, totalCount, isLoading, refresh } = useTravelDeskRentalCars(query)
 
 const router = useRouter()
 
-function goToTravelDeskHotelEditPage(travelDeskHotelId: number) {
+function goToTravelDeskRentalCarEditPage(travelDeskRentalCarId: number) {
   return router.push({
-    name: "travel-desk/hotels/TravelDeskHotelEditPage",
+    name: "travel-desk/rental-cars/TravelDeskRentalCarEditPage",
     params: {
-      travelDeskHotelId: travelDeskHotelId.toString(),
+      travelDeskRentalCarId: travelDeskRentalCarId.toString(),
     },
     query: {
       returnTo: props.returnTo,
@@ -177,12 +214,12 @@ const isDeleting = ref(false)
 const snack = useSnack()
 
 async function deleteItem(itemId: number) {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this hotel?")) return
+  if (!blockedToTrueConfirm("Are you sure you want to remove this item?")) return
 
   isDeleting.value = true
   try {
-    await travelDeskHotelsApi.delete(itemId)
-    snack.success("Hotel deleted successfully")
+    await travelDeskRentalCarsApi.delete(itemId)
+    snack.success("Item deleted successfully")
     await emitUpdatedAndRefresh()
   } catch (error) {
     console.error(error)

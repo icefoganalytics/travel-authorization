@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="px-0 px-md-4">
     <v-skeleton-loader
       v-if="isNil(travelDeskTravelRequest)"
       type="card"
@@ -10,7 +10,7 @@
         <v-btn
           v-if="travelDeskTravelRequest.status !== TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED"
           :to="{
-            name: 'travel-desk/TravelDeskEditPage',
+            name: 'travel-desk/TravelDeskRequestEditPage',
             params: {
               travelDeskTravelRequestId,
             },
@@ -83,11 +83,11 @@
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                   class="borderless-card"
                 />
-                <TravelDeskRentalCarsTable
+                <TravelDeskRentalCarsCard
                   class="borderless-card"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
-                <TravelDeskHotelsTable
+                <TravelDeskHotelsCard
                   class="borderless-card"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
@@ -102,24 +102,21 @@
       </v-card-text>
 
       <v-card-actions>
-        <v-spacer />
+        <v-btn
+          v-if="hasInvoiceNumber"
+          color="primary"
+          @click="openPrintItineraryDialog"
+          >View Itinerary</v-btn
+        >
         <v-btn
           :to="{
             name: 'TravelDeskPage',
           }"
-          color="primary"
-          class="mr-2"
+          :class="{ 'ml-2': hasInvoiceNumber }"
           outlined
         >
-          <div>Back</div>
+          Back
         </v-btn>
-        <v-btn
-          v-if="hasInvoiceNumber"
-          class="ml-auto mr-3"
-          color="#005A65"
-          @click="openPrintItineraryDialog"
-          >View Itinerary</v-btn
-        >
       </v-card-actions>
 
       <TravelDeskTravelRequestPrintItineraryDialog
@@ -141,10 +138,10 @@ import useTravelDeskTravelRequest, {
 import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
 
 import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
-import TravelDeskHotelsTable from "@/components/travel-desk-hotels/TravelDeskHotelsTable.vue"
+import TravelDeskHotelsCard from "@/components/travel-desk-hotels/TravelDeskHotelsCard.vue"
 import TravelDeskOtherTransportationsTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationsTable.vue"
 import TravelDeskQuestionsCard from "@/components/travel-desk-questions/TravelDeskQuestionsCard.vue"
-import TravelDeskRentalCarsTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsTable.vue"
+import TravelDeskRentalCarsCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsCard.vue"
 import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
 import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
@@ -178,7 +175,7 @@ const breadcrumbs = computed(() => [
   {
     text: "Request",
     to: {
-      name: "TravelDeskReadPage",
+      name: "travel-desk/TravelDeskRequestPage",
       params: {
         travelDeskTravelRequestId: props.travelDeskTravelRequestId,
       },
