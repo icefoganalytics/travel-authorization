@@ -87,7 +87,7 @@
                   class="borderless-card"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
-                <TravelDeskHotelsTable
+                <TravelDeskHotelsCard
                   class="borderless-card"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
@@ -141,7 +141,7 @@ import useTravelDeskTravelRequest, {
 import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
 
 import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
-import TravelDeskHotelsTable from "@/components/travel-desk-hotels/TravelDeskHotelsTable.vue"
+import TravelDeskHotelsCard from "@/components/travel-desk-hotels/TravelDeskHotelsCard.vue"
 import TravelDeskOtherTransportationsTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationsTable.vue"
 import TravelDeskQuestionsCard from "@/components/travel-desk-questions/TravelDeskQuestionsCard.vue"
 import TravelDeskRentalCarsCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsCard.vue"

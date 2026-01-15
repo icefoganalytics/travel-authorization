@@ -6,69 +6,72 @@
     :sort-desc.sync="vuetify2SortDesc"
     :headers="headers"
     :items="travelDeskHotels"
-    :server-items-length="totalCount"
     :loading="isLoading"
+    :server-items-length="totalCount"
+    v-bind="$attrs"
+    v-on="$listeners"
   >
-    <template #top="slotProps"
-      ><slot
-        name="top"
-        v-bind="slotProps"
-      ></slot
-    ></template>
     <template #item.isDedicatedConferenceHotelAvailable="{ item }">
       {{ item.isDedicatedConferenceHotelAvailable ? "Yes" : "No" }}
     </template>
 
-    <template #item.checkIn="{ item }">
-      {{ formatDate(item.checkIn) }}
+    <template #item.checkIn="{ value }">
+      {{ formatDate(value) }}
     </template>
 
-    <template #item.checkOut="{ item }">
-      {{ formatDate(item.checkOut) }}
+    <template #item.checkOut="{ value }">
+      {{ formatDate(value) }}
     </template>
 
-    <!-- TODO: add "view" action -->
-    <template #item.actions="slotProps"
-      ><slot
-        name="item.actions"
-        v-bind="slotProps"
-      ></slot
-    ></template>
+    <template
+      v-for="(_, slotName) in $scopedSlots"
+      #[slotName]="slotData"
+    >
+      <slot
+        :name="slotName"
+        v-bind="slotData"
+      ></slot>
+    </template>
   </v-data-table>
 </template>
 
-<script setup>
-import { computed, ref } from "vue"
+<script setup lang="ts">
+import { computed } from "vue"
 
 import formatDate from "@/utils/format-date"
-import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
+
+import {
+  type TravelDeskHotelWhereOptions,
+  type TravelDeskHotelFiltersOptions,
+} from "@/api/travel-desk-hotels-api"
+
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
+
 import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
 
-const props = defineProps({
-  where: {
-    type: Object,
-    default: () => ({}),
-  },
-  filters: {
-    type: Object,
-    default: () => ({}),
-  },
-  routeQuerySuffix: {
-    type: String,
-    default: "",
-  },
-})
-
-const headers = ref([
+const props = withDefaults(
+  defineProps<{
+    where?: TravelDeskHotelWhereOptions
+    filters?: TravelDeskHotelFiltersOptions
+    routeQuerySuffix?: string
+  }>(),
   {
-    text: "Check-in",
+    where: () => ({}),
+    filters: () => ({}),
+    routeQuerySuffix: "",
+  }
+)
+
+const headers = [
+  {
+    text: "Check-in Date",
     value: "checkIn",
   },
   {
-    text: "Check-out",
+    text: "Check-out Date",
     value: "checkOut",
   },
   {
@@ -77,17 +80,17 @@ const headers = ref([
     sortable: false,
   },
   {
-    text: "Conference Hotel?",
+    text: "Conference Hotel Available?",
     value: "isDedicatedConferenceHotelAvailable",
     sortable: false,
   },
   {
-    text: "Conference/Meeting Name",
+    text: "Event Name",
     value: "conferenceName",
     sortable: false,
   },
   {
-    text: "Conference/Meeting Hotel",
+    text: "Hotel Name",
     value: "conferenceHotelName",
     sortable: false,
   },
@@ -96,21 +99,15 @@ const headers = ref([
     value: "additionalInformation",
     sortable: false,
   },
-  {
-    text: "Actions",
-    value: "actions",
-    align: "end",
-    sortable: false,
-  },
-])
+]
 
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, 1, {
-  transform: integerTransformerLegacy,
+const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
 })
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, 5, {
-  transform: integerTransformerLegacy,
+const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`, "5", {
+  transform: integerTransformer,
 })
-const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   {
     key: "checkIn",
     order: "asc",
@@ -119,15 +116,14 @@ const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
 const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
-const travelDeskHotelsQuery = computed(() => ({
+const query = computed(() => ({
   where: props.where,
   filters: props.filters,
   order: order.value,
   page: page.value,
   perPage: perPage.value,
 }))
-const { travelDeskHotels, totalCount, isLoading, refresh } =
-  useTravelDeskHotels(travelDeskHotelsQuery)
+const { travelDeskHotels, totalCount, isLoading, refresh } = useTravelDeskHotels(query)
 
 defineExpose({
   refresh,
