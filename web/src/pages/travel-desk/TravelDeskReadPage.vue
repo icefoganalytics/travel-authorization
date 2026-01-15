@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="px-0 px-md-4">
     <v-skeleton-loader
       v-if="isNil(travelDeskTravelRequest)"
       type="card"
@@ -102,24 +102,21 @@
       </v-card-text>
 
       <v-card-actions>
-        <v-spacer />
+        <v-btn
+          v-if="hasInvoiceNumber"
+          color="primary"
+          @click="openPrintItineraryDialog"
+          >View Itinerary</v-btn
+        >
         <v-btn
           :to="{
             name: 'TravelDeskPage',
           }"
-          color="primary"
-          class="mr-2"
+          :class="{ 'ml-2': hasInvoiceNumber }"
           outlined
         >
-          <div>Back</div>
+          Back
         </v-btn>
-        <v-btn
-          v-if="hasInvoiceNumber"
-          class="ml-auto mr-3"
-          color="#005A65"
-          @click="openPrintItineraryDialog"
-          >View Itinerary</v-btn
-        >
       </v-card-actions>
 
       <TravelDeskTravelRequestPrintItineraryDialog
