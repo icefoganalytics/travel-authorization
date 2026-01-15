@@ -5,11 +5,25 @@ auto_execution_mode: 1
 
 # Convert JavaScript Plural Composable to TypeScript Workflow
 
-> **Purpose:** Convert a plural use JavaScript composable file to TypeScript following project conventions.
->
-> **Scope:** Frontend composable conversion (plural form: `useResources`, not singular `useResource`)
->
-> **Reference Files:** `use-travel-authorizations.ts`, `use-expenses.ts`, `use-travel-segments.ts`, `use-per-diem-claims.ts`
+## Intent
+
+**WHY this workflow exists:** JavaScript composables use JSDoc for typing which is verbose and error-prone. TypeScript provides better type inference, cleaner syntax, and catches errors at compile time rather than runtime.
+
+**WHAT this workflow produces:** A TypeScript composable that:
+- Fetches a list of resources with query options (where, filters, pagination)
+- Manages loading/error state reactively
+- Automatically refetches when query options change
+- Re-exports types for consumer convenience (WhereOptions, FiltersOptions, QueryOptions, enums)
+
+**Decision Rules:**
+- **Singular vs Plural:** This workflow is for composables that fetch LISTS of resources (`useUsers`, `useExpenses`). For single-resource composables, use the singular workflow instead.
+- **skipWatchIf parameter:** Always add this parameter. It allows parent components to prevent fetching until preconditions are met.
+- **Re-export deprecated constants:** Only re-export deprecated Object.freeze constants if they existed in the original JavaScript file. Don't add new deprecated exports.
+- **Computed properties:** These are exceptions, not the norm. Only add computed properties when you have specific derived state needs.
+
+## Reference Files
+
+`use-travel-authorizations.ts`, `use-expenses.ts`, `use-travel-segments.ts`, `use-per-diem-claims.ts`
 
 ## Prerequisites
 
@@ -532,8 +546,8 @@ export function useResources(
 
 ---
 
-**Workflow Version:** 1.0
-**Last Updated:** 2026-01-08
+**Workflow Version:** 1.1
+**Last Updated:** 2026-01-15
 **Reference Files:** `use-travel-authorizations.ts`, `use-expenses.ts`, `use-travel-segments.ts`, `use-travel-desk-flight-requests.ts`
 
 ---

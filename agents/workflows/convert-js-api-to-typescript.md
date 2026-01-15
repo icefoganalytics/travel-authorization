@@ -5,15 +5,21 @@ auto_execution_mode: 1
 
 # Convert JavaScript API to TypeScript Workflow
 
-> **Purpose:** Convert a JavaScript API client file to TypeScript following project conventions.
->
-> **Scope:** Frontend API client conversion
->
-> **Reference Files:** `travel-desk-flight-requests-api.ts`, `expenses-api.ts`, `per-diems-api.ts`
+## Intent
 
-## Core Principle
+**WHY this workflow exists:** JavaScript API files lack type safety, making refactoring risky and IDE support limited. TypeScript conversion provides compile-time type checking, better autocomplete, and documents the API contract.
 
-**Frontend API types should use `AsIndex`/`AsShow` pattern. Check backend serializers first - if they exist, copy them. If they don't exist, create type aliases from the base model.**
+**WHAT this workflow produces:** A TypeScript API file with:
+- Typed model definitions matching backend
+- Enums for status/type constants (with deprecated Object.freeze for backward compatibility)
+- Typed query options (WhereOptions, FiltersOptions, QueryOptions)
+- Properly typed API methods with return types using AsIndex/AsShow pattern
+
+**Decision Rule:** When in doubt about a type, check the backend model first (`api/src/models/{model}.ts`), then backend serializers (`api/src/serializers/{model}/`). The frontend types must match what the backend actually returns.
+
+## Reference Files
+
+`travel-desk-flight-requests-api.ts`, `expenses-api.ts`, `per-diems-api.ts`
 
 ## Prerequisites
 
@@ -692,6 +698,6 @@ resourcesApi.list = debounceWithArgsCache(resourcesApi.list, {
 
 ---
 
-**Workflow Version:** 1.1
-**Last Updated:** 2026-01-14
+**Workflow Version:** 1.2
+**Last Updated:** 2026-01-15
 **Reference Files:** `travel-desk-flight-requests-api.ts`, `travel-desk-hotels-api.ts`, `expenses-api.ts`, `per-diems-api.ts`

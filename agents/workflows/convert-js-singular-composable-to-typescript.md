@@ -5,11 +5,24 @@ auto_execution_mode: 1
 
 # Convert JavaScript Singular Composable to TypeScript Workflow
 
-> **Purpose:** Convert a singular use JavaScript composable file to TypeScript following project conventions.
->
-> **Scope:** Frontend composable conversion (singular form: `useResource`, not plural `useResources`)
->
-> **Reference Files:** `use-user.ts`, `use-expense.ts`, `use-travel-purpose.ts`, `use-travel-desk-travel-request.ts`
+## Intent
+
+**WHY this workflow exists:** JavaScript composables use JSDoc for typing which is verbose and error-prone. TypeScript provides better type inference, cleaner syntax, and catches errors at compile time rather than runtime.
+
+**WHAT this workflow produces:** A TypeScript composable that:
+- Fetches a single resource by ID
+- Manages loading/error state reactively
+- Optionally saves updates back to the API
+- Re-exports types for consumer convenience (so components don't need to import from both the composable and the API)
+
+**Decision Rules:**
+- **Singular vs Plural:** This workflow is for composables that work with ONE resource by ID (`useUser`, `useExpense`). For composables that fetch lists, use the plural workflow instead.
+- **Policy in state:** If the API's `get()` method returns a policy, add `policy` to state. Check the API file.
+- **Save method:** Only add `save()` if the API has an `update()` method and you need to modify the resource.
+
+## Reference Files
+
+`use-user.ts`, `use-expense.ts`, `use-travel-purpose.ts`, `use-travel-desk-travel-request.ts`
 
 ## Prerequisites
 
@@ -607,6 +620,6 @@ return {
 
 ---
 
-**Workflow Version:** 1.0
-**Last Updated:** 2026-01-08
+**Workflow Version:** 1.1
+**Last Updated:** 2026-01-15
 **Reference Files:** `use-user.ts`, `use-expense.ts`, `use-travel-purpose.ts`, `use-travel-desk-travel-request.ts`

@@ -2,6 +2,15 @@
 
 This directory contains reusable AI workflows for the Travel Authorization system.
 
+## Intent
+
+These workflows exist to ensure consistent, high-quality output from AI agents. Each workflow:
+- Defines a specific transformation or task with clear inputs and outputs
+- Provides exact patterns to follow (not guidelines to interpret)
+- Includes decision rules for edge cases
+
+**For AI Agents:** Follow steps literally. When unsure, prefer the explicit example over inference.
+
 ## Available Workflows
 
 ### [pull-request-management.md](pull-request-management.md)
@@ -119,4 +128,4 @@ Complete workflow for converting legacy dialog-based request tables to modern pa
 
 ---
 
-**Last Updated:** 2026-01-14
+**Last Updated:** 2026-01-15
