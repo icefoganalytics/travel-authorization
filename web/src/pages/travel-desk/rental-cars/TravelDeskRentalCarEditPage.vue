@@ -294,7 +294,7 @@ const { travelDeskRentalCar, refresh } = useTravelDeskRentalCar(travelDeskRental
 const router = useRouter()
 const defaultReturnTo = computed(() => {
   const routeLocation = router.resolve({
-    name: "travel-desk/TravelDeskEditPage",
+    name: "travel-desk/TravelDeskRequestEditPage",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId,
     },

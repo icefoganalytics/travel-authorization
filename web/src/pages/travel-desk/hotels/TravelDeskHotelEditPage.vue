@@ -194,7 +194,7 @@ const { tripStartDate, tripEndDate } = useTravelTimesSummary(travelDeskTravelReq
 const router = useRouter()
 const defaultReturnTo = computed(() => {
   const routeLocation = router.resolve({
-    name: "travel-desk/TravelDeskEditPage",
+    name: "travel-desk/TravelDeskRequestEditPage",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId,
     },

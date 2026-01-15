@@ -330,7 +330,7 @@ async function refresh() {
 const router = useRouter()
 const returnTo = computed(() => {
   const routeLocation = router.resolve({
-    name: "travel-desk/TravelDeskEditPage",
+    name: "travel-desk/TravelDeskRequestEditPage",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId,
     },
@@ -419,7 +419,7 @@ const breadcrumbs = computed(() => [
   {
     text: "Edit",
     to: {
-      name: "travel-desk/TravelDeskEditPage",
+      name: "travel-desk/TravelDeskRequestEditPage",
       params: {
         travelDeskTravelRequestId: props.travelDeskTravelRequestId,
       },
