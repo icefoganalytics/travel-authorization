@@ -25,7 +25,7 @@ export class TravelDeskHotelsPolicy extends PolicyFactory(TravelDeskHotel) {
     return this.travelDeskTravelRequestsPolicy.update()
   }
 
-  permittedAttributesForUpdate(): Path[] {
+  permittedAttributes(): Path[] {
     return [
       "city",
       "isDedicatedConferenceHotelAvailable",
@@ -40,7 +40,7 @@ export class TravelDeskHotelsPolicy extends PolicyFactory(TravelDeskHotel) {
   }
 
   permittedAttributesForCreate(): Path[] {
-    return ["travelRequestId", ...this.permittedAttributesForUpdate()]
+    return ["travelRequestId", ...this.permittedAttributes()]
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelDeskHotel>> {
