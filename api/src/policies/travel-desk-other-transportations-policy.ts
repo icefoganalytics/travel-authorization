@@ -1,13 +1,20 @@
-import { ModelStatic, Op } from "@sequelize/core"
+import { type Attributes, type FindOptions } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
-import { User, TravelDeskOtherTransportation, TravelDeskTravelRequest } from "@/models"
+
+import { User, TravelDeskOtherTransportation } from "@/models"
 import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
+import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
+import PolicyFactory from "@/policies/policy-factory"
 
-import BasePolicy from "@/policies/base-policy"
+export class TravelDeskOtherTransportationsPolicy extends PolicyFactory(
+  TravelDeskOtherTransportation
+) {
+  show(): boolean {
+    return this.travelDeskTravelRequestsPolicy.show()
+  }
 
-export class TravelDeskOtherTransportationsPolicy extends BasePolicy<TravelDeskOtherTransportation> {
   create(): boolean {
     return this.travelDeskTravelRequestsPolicy.update()
   }
@@ -20,38 +27,7 @@ export class TravelDeskOtherTransportationsPolicy extends BasePolicy<TravelDeskO
     return this.travelDeskTravelRequestsPolicy.update()
   }
 
-  static applyScope(
-    modelClass: ModelStatic<TravelDeskOtherTransportation>,
-    currentUser: User
-  ): ModelStatic<TravelDeskOtherTransportation> {
-    if (currentUser.roles.includes(User.Roles.ADMIN)) {
-      return modelClass
-    }
-
-    return modelClass.withScope({
-      // @ts-expect-error - Bad types in sequelize, all FindOptions are valid.
-      include: [
-        {
-          association: "travelRequest",
-          include: [
-            {
-              association: "travelAuthorization",
-              where: {
-                [Op.or]: [
-                  {
-                    supervisorEmail: currentUser.email,
-                  },
-                  { userId: currentUser.id },
-                ],
-              },
-            },
-          ],
-        },
-      ],
-    })
-  }
-
-  permittedAttributesForUpdate(): Path[] {
+  permittedAttributes(): Path[] {
     return [
       "depart",
       "arrive",
@@ -64,20 +40,32 @@ export class TravelDeskOtherTransportationsPolicy extends BasePolicy<TravelDeskO
   }
 
   permittedAttributesForCreate(): Path[] {
-    return ["travelRequestId", ...this.permittedAttributesForUpdate()]
+    return ["travelRequestId", ...this.permittedAttributes()]
   }
 
-  private get travelDeskTravelRequest(): TravelDeskTravelRequest {
+  static policyScope(user: User): FindOptions<Attributes<TravelDeskOtherTransportation>> {
+    if (user.isAdmin) return ALL_RECORDS_SCOPE
+
+    const travelDeskTravelRequestsPolicyScope = TravelDeskTravelRequestsPolicy.policyScope(user)
+
+    return {
+      include: [
+        {
+          association: "travelRequest",
+          required: true,
+          ...travelDeskTravelRequestsPolicyScope,
+        },
+      ],
+    }
+  }
+
+  private get travelDeskTravelRequestsPolicy(): TravelDeskTravelRequestsPolicy {
     const { travelRequest } = this.record
     if (isUndefined(travelRequest)) {
       throw new Error("Travel request is required")
     }
 
-    return travelRequest
-  }
-
-  private get travelDeskTravelRequestsPolicy(): TravelDeskTravelRequestsPolicy {
-    return new TravelDeskTravelRequestsPolicy(this.user, this.travelDeskTravelRequest)
+    return new TravelDeskTravelRequestsPolicy(this.user, travelRequest)
   }
 }
 
