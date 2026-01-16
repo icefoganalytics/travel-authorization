@@ -96,7 +96,7 @@ RentalCarRequestTable.vue
     :sort-desc.sync="vuetify2SortDesc"
     :headers="headers"
     :items="records"
-    :loading="isNil(records)"
+    :loading="isLoading"
     :server-items-length="totalCount"
     v-bind="$attrs"
     v-on="$listeners"
@@ -106,24 +106,24 @@ RentalCarRequestTable.vue
       {{ formatDate(value) }}
     </template>
 
-    <template #item.actions="{ item: record }">
-      <v-btn
-        title="Edit"
-        icon
-        color="blue"
-        @click.stop="goTo{Model}EditPage(record.id)"
-      >
-        <v-icon>mdi-pencil</v-icon>
-      </v-btn>
-      <v-btn
-        :loading="isDeleting"
-        title="Delete"
-        icon
-        color="red"
-        @click.stop="delete{Model}(record.id)"
-      >
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
+    <template #item.actions="{ item }">
+      <div class="d-flex">
+        <v-btn
+          title="Edit"
+          icon
+          color="blue"
+          @click.stop="goTo{Model}EditPage(item.id)"
+          ><v-icon>mdi-pencil</v-icon></v-btn
+        >
+        <v-btn
+          :loading="isDeleting"
+          title="Delete"
+          icon
+          color="red"
+          @click.stop="delete{Model}(item.id)"
+          ><v-icon>mdi-close</v-icon></v-btn
+        >
+      </div>
     </template>
 
     <!-- Pass-through slots -->
@@ -144,16 +144,15 @@ RentalCarRequestTable.vue
 
 ```vue
 <script setup lang="ts">
-import { isNil } from "lodash"
 import { ref, computed } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import formatDate from "@/utils/format-date"
 
-import { {modelPlural}Api, type {Model}WhereOptions } from "@/api/{model-plural}-api"
+import { {modelPlural}Api, type {Model}WhereOptions, type {Model}FiltersOptions } from "@/api/{model-plural}-api"
 
-import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
@@ -161,19 +160,18 @@ import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useSnack from "@/use/use-snack"
 import use{ModelPlural} from "@/use/use-{model-plural}"
 
-const DEFAULT_PAGE = 1
-const DEFAULT_PER_PAGE = 5
-
 const props = withDefaults(
   defineProps<{
     where?: {Model}WhereOptions
-    filters?: Record<string, unknown>
+    filters?: {Model}FiltersOptions
     routeQuerySuffix?: string
+    returnTo?: string
   }>(),
   {
     where: () => ({}),
     filters: () => ({}),
     routeQuerySuffix: "",
+    returnTo: undefined,
   }
 )
 
@@ -201,11 +199,11 @@ const headers = [
   },
 ]
 
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, DEFAULT_PAGE, {
-  transform: integerTransformerLegacy,
+const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
 })
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, DEFAULT_PER_PAGE, {
-  transform: integerTransformerLegacy,
+const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`, "5", {
+  transform: integerTransformer,
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   { key: "field1", order: "asc" },
@@ -220,7 +218,7 @@ const query = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const { {modelPlural}: records, totalCount, refresh } = use{ModelPlural}(query)
+const { {modelPlural}: records, totalCount, isLoading, refresh } = use{ModelPlural}(query)
 
 const router = useRouter()
 
@@ -228,7 +226,10 @@ function goTo{Model}EditPage(recordId: number) {
   return router.push({
     name: "{model-plural}/{Model}EditPage",
     params: {
-      {model}Id: recordId,
+      {model}Id: recordId.toString(),
+    },
+    query: {
+      returnTo: props.returnTo,
     },
   })
 }
@@ -237,9 +238,7 @@ const isDeleting = ref(false)
 const snack = useSnack()
 
 async function delete{Model}(recordId: number) {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this record?")) {
-    return
-  }
+  if (!blockedToTrueConfirm("Are you sure you want to remove this record?")) return
 
   isDeleting.value = true
   try {
@@ -247,7 +246,7 @@ async function delete{Model}(recordId: number) {
     snack.success("{Model} deleted successfully")
     await emitUpdatedAndRefresh()
   } catch (error) {
-    console.error(`Failed to delete {model}: ${error}`, { error })
+    console.error(error)
   } finally {
     isDeleting.value = false
   }
@@ -363,15 +362,10 @@ defineExpose({
         cols="12"
         md="6"
       >
-        <h3 class="primary--text">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-icon-name</v-icon
-          >
-          1. Section Name
-        </h3>
+        <SectionHeader
+          title="1. Section Name"
+          icon="mdi-icon-name"
+        />
         <v-row>
           <v-col cols="12">
             <v-text-field
@@ -384,15 +378,11 @@ defineExpose({
           </v-col>
         </v-row>
 
-        <h3 class="primary--text mt-10">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-icon-name</v-icon
-          >
-          2. Section Name
-        </h3>
+        <SectionHeader
+          title="2. Section Name"
+          icon="mdi-icon-name"
+          header-class="mt-10"
+        />
         <v-row>
           <v-col cols="12">
             <v-text-field
@@ -408,15 +398,11 @@ defineExpose({
         cols="12"
         md="6"
       >
-        <h3 class="primary--text mt-10 mt-md-0">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-note-text</v-icon
-          >
-          3. Additional Information
-        </h3>
+        <SectionHeader
+          title="3. Additional Information"
+          icon="mdi-note-text"
+          header-class="mt-10 mt-md-0"
+        />
         <v-row>
           <v-col cols="12">
             <v-textarea
@@ -438,13 +424,15 @@ defineExpose({
         color="primary"
         type="submit"
         :loading="isSaving"
-        :disabled="isSaving"
+        :block="smAndDown"
       >
         Save {Model} Request
       </v-btn>
       <v-btn
+        class="ml-0 ml-md-4"
         color="grey"
         :to="returnTo"
+        :block="smAndDown"
       >
         Cancel
       </v-btn>
@@ -470,6 +458,7 @@ import useSnack from "@/use/use-snack"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import SectionHeader from "@/components/common/SectionHeader.vue"
 
 const props = defineProps<{
   parentId: string
@@ -582,15 +571,10 @@ useBreadcrumbs(breadcrumbs)
         cols="12"
         md="6"
       >
-        <h3 class="primary--text">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-icon-name</v-icon
-          >
-          1. Section Name
-        </h3>
+        <SectionHeader
+          title="1. Section Name"
+          icon="mdi-icon-name"
+        />
         <v-row>
           <v-col cols="12">
             <v-text-field
@@ -603,15 +587,11 @@ useBreadcrumbs(breadcrumbs)
           </v-col>
         </v-row>
 
-        <h3 class="primary--text mt-10">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-icon-name</v-icon
-          >
-          2. Section Name
-        </h3>
+        <SectionHeader
+          title="2. Section Name"
+          icon="mdi-icon-name"
+          header-class="mt-10"
+        />
         <v-row>
           <v-col cols="12">
             <v-text-field
@@ -627,15 +607,11 @@ useBreadcrumbs(breadcrumbs)
         cols="12"
         md="6"
       >
-        <h3 class="primary--text mt-10 mt-md-0">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-note-text</v-icon
-          >
-          3. Additional Information
-        </h3>
+        <SectionHeader
+          title="3. Additional Information"
+          icon="mdi-note-text"
+          header-class="mt-10 mt-md-0"
+        />
         <v-row>
           <v-col cols="12">
             <v-textarea
@@ -657,13 +633,15 @@ useBreadcrumbs(breadcrumbs)
         color="primary"
         type="submit"
         :loading="isSaving"
-        :disabled="isSaving"
+        :block="smAndDown"
       >
         Save {Model} Request
       </v-btn>
       <v-btn
+        class="ml-0 ml-md-4"
         color="grey"
-        :to="previousRouteOrFallback"
+        :to="returnTo"
+        :block="smAndDown"
       >
         Cancel
       </v-btn>
@@ -693,6 +671,7 @@ import useSnack from "@/use/use-snack"
 import use{Model} from "@/use/use-{model}"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import SectionHeader from "@/components/common/SectionHeader.vue"
 
 const props = defineProps<{
   {model}Id: string
