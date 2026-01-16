@@ -860,28 +860,33 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 
 ### EditDataTable Component
 - [ ] Uses `<script setup lang="ts">`
-- [ ] Uses `withDefaults(defineProps<{...}>(), {...})` for props with defaults
+- [ ] Uses `defineProps<{...}>()` with proper TypeScript types
 - [ ] Uses `defineEmits<{ (event: "updated"): void }>()` call-signature syntax
-- [ ] Uses v-data-table with server-side pagination and sorting
-- [ ] Binds `:sort-by.sync` and `:sort-desc.sync` for sorting
-- [ ] Uses sort utilities: `useVuetifySortByToSafeRouteQuery`, `useVuetify2SortByShim`, `useVuetifySortByToSequelizeSafeOrder`
-- [ ] Passes `order` to query computed property
-- [ ] Edit button calls `goTo{Model}EditPage(record.id)` via `@click.stop`
+- [ ] Uses modern `integerTransformer` instead of `integerTransformerLegacy`
+- [ ] Uses `isLoading` from composable, not `isNil(records)` for loading state
+- [ ] Uses proper TypeScript typing: `useRouteQuery<string, number>(..., "1", { transform: integerTransformer })`
+- [ ] Includes `returnTo?: string` prop and passes to edit navigation
+- [ ] Uses flex container for actions: `<div class="d-flex">` with `:block="smAndDown"`
+- [ ] Has edit/delete buttons in actions column
 - [ ] Has delete button with confirmation
+- [ ] Edit navigation includes `returnTo` query parameter and converts ID to string
 - [ ] Action methods are named descriptively (e.g., `delete{Model}` not `deleteItem`)
 - [ ] Uses full, descriptive names for variables (e.g., `record` instead of `item`)
 - [ ] Uses composable for data fetching
 - [ ] Uses useRouteQuery for pagination state
+- [ ] Simplified error logging: `console.error(error)` instead of complex error objects
 - [ ] Emits "updated" event
 - [ ] Exposes refresh() method
 
 ### EditCard Component
 - [ ] Uses `<script setup lang="ts">`
-- [ ] Uses `defineProps<{...}>()` for required props
+- [ ] Uses `defineProps<{...}>()` for required props including `returnTo?: string`
 - [ ] Uses `defineEmits<{ (event: "updated"): void }>()` call-signature syntax
 - [ ] Wraps EditDataTable in v-card
-- [ ] Has "New" button in card title that navigates to NewPage
-- [ ] Passes where prop to EditDataTable
+- [ ] Has "New" button in card title with inline route object
+- [ ] New button includes `returnTo` query parameter and converts ID to string
+- [ ] Passes `where` and `returnTo` props to EditDataTable
+- [ ] Uses computed where property instead of inline object
 - [ ] Emits "updated" event
 - [ ] Exposes refresh() method
 
@@ -900,10 +905,11 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 - [ ] Success messages include "!" at the end
 - [ ] Error messages use singular form: "Failed to create {model} request"
 - [ ] Uses two-column layout with numbered sections and icons
-- [ ] Section headers use `<h3 class="primary--text">` with `v-icon`
+- [ ] Section headers use `<SectionHeader>` component with `title` and `icon` props
 - [ ] Has `v-divider class="mt-md-10"` before actions
-- [ ] Save button has `:disabled="isSaving"` and text "Save {Model} Request"
-- [ ] Cancel button uses `color="grey"` and `:to="returnTo"`
+- [ ] Save button has `:block="smAndDown"` and text "Save {Model} Request"
+- [ ] Cancel button uses `color="grey"`, `:block="smAndDown"`, and `class="ml-0 ml-md-4"`
+- [ ] Cancel button uses `:to="returnTo"` (not route history)
 - [ ] `breadcrumbs` is computed, then passed to `useBreadcrumbs(breadcrumbs)`
 
 ### EditPage Component
@@ -920,11 +926,13 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 - [ ] Success messages include "!" at the end
 - [ ] Error messages use singular form: "Failed to save/delete {model} request"
 - [ ] Uses two-column layout with numbered sections and icons
-- [ ] Section headers use `<h3 class="primary--text">` with `v-icon`
+- [ ] Section headers use `<SectionHeader>` component with `title` and `icon` props
 - [ ] Has `v-divider class="mt-md-10"` before actions
-- [ ] Save button has `:disabled="isSaving"` and text "Save {Model} Request"
-- [ ] Cancel button uses `color="grey"`
-- [ ] Uses useRouteHistory for cancel navigation
+- [ ] Save button has `:block="smAndDown"` and text "Save {Model} Request"
+- [ ] Cancel button uses `color="grey"`, `:block="smAndDown"`, and `class="ml-0 ml-md-4"`
+- [ ] Cancel button uses `:to="returnTo"` (not route history)
+- [ ] Uses `useRouteQuery` for `returnTo` with `defaultReturnTo` computed
+- [ ] `defaultReturnTo` uses `router.resolve()` to get href
 - [ ] `breadcrumbs` is computed, then passed to `useBreadcrumbs(breadcrumbs)`
 
 ### Routes
@@ -947,15 +955,11 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 9. **Not initializing form attributes** - NewPage should initialize attributes with `undefined` values
 10. **Using abbreviations** - Use full descriptive names (e.g., `record` or `{model}` instead of `item`)
 11. **Passing string ID to API calls** - Always use the `...AsNumber` computed when calling API methods
-12. **Using JSDoc for refs** - Use TypeScript generics instead: `ref<InstanceType<typeof Component> | null>(null)`
-13. **Inconsistent directory structure** - Components should be in `web/src/components/{model-kebab-case}/`
-14. **Not using named imports** - Import API methods using named imports instead of default imports
-15. **Using magic numbers** - Hoist magic numbers to named constants (e.g., `const DEFAULT_PER_PAGE = 5`)
-16. **Using `Number()` instead of `parseInt()`** - Use `parseInt()` for converting string props to numbers
-17. **Not using `useRouteQuery` for returnTo** - Use `useRouteQuery("returnTo", defaultReturnTo)` pattern
-18. **Missing section headers with icons** - Use numbered sections with `<h3 class="primary--text">` and `v-icon`
-19. **Not using `useDisplayVuetify2`** - Import and use for responsive breakpoints like `smAndDown`
-20. **Not using guard clauses** - Use `if (!headerActionsFormCard.value?.validate()) return` pattern
+12. **Using legacy transformers** - Use `integerTransformer` instead of `integerTransformerLegacy`
+13. **Using `isNil()` for loading state** - Use `isLoading` from composables instead
+14. **Missing `returnTo` support** - EditCard and EditDataTable should support `returnTo` prop for navigation
+15. **Using old section headers** - Replace `<h3 class="primary--text">` with `<SectionHeader>` component
+16. **Non-responsive action buttons** - Use `:block="smAndDown"` and flex containers for mobile compatibility
 
 ---
 
