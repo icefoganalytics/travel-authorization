@@ -95,9 +95,10 @@
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                   :return-to="returnTo"
                 />
-                <!-- TODO: rebuild TransportationRequestTable component with newer patterns -->
-                <TransportationRequestTable
-                  :other-transportations="travelDeskOtherTransportations"
+                <TravelDeskOtherTransportationEditCard
+                  class="mt-6"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
+                  :return-to="returnTo"
                 />
               </v-card-text>
             </v-card>
@@ -236,7 +237,6 @@ import { computed, nextTick, ref } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
-import { MAX_PER_PAGE } from "@/api/base-api"
 import travelDeskTravelRequestsApi, {
   TravelDeskTravelRequestStatuses,
 } from "@/api/travel-desk-travel-requests-api"
@@ -246,10 +246,7 @@ import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 import useSnack from "@/use/use-snack"
-import useTravelDeskOtherTransportations from "@/use/use-travel-desk-other-transportations"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
-
-import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
 
 import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
 import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
@@ -259,6 +256,7 @@ import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/Tr
 
 import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
 import TravelDeskHotelsEditCard from "@/components/travel-desk-hotels/TravelDeskHotelsEditCard.vue"
+import TravelDeskOtherTransportationEditCard from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditCard.vue"
 import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
@@ -298,17 +296,6 @@ const isCompleteState = computed(
 )
 const invoiceNumber = computed(() => travelDeskTravelRequest.value?.invoiceNumber)
 const hasInvoiceNumber = computed(() => !isNil(invoiceNumber.value))
-
-// TODO: remove once TransportationRequestTable component is rebuilt with newer patterns
-const travelDeskOtherTransportationsQuery = computed(() => ({
-  where: {
-    travelRequestId: travelDeskTravelRequestIdAsNumber.value,
-  },
-  perPage: MAX_PER_PAGE,
-}))
-const { travelDeskOtherTransportations } = useTravelDeskOtherTransportations(
-  travelDeskOtherTransportationsQuery
-)
 
 const { currentUser } = useCurrentUser<true>()
 
