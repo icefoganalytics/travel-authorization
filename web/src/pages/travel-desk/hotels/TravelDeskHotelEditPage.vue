@@ -29,15 +29,10 @@
         cols="12"
         md="6"
       >
-        <h3 class="primary--text">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-calendar-month</v-icon
-          >
-          1. Dates & Location
-        </h3>
+        <SectionHeader
+          title="1. Dates & Location"
+          icon="mdi-calendar-month"
+        />
         <v-row>
           <v-col cols="12">
             <DatePicker
@@ -113,15 +108,11 @@
         cols="12"
         md="6"
       >
-        <h3 class="primary--text mt-10 mt-md-0">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-note-text</v-icon
-          >
-          2. Additional Information
-        </h3>
+        <SectionHeader
+          title="2. Additional Information"
+          icon="mdi-note-text"
+          header-class="mt-10 mt-md-0"
+        />
         <v-row>
           <v-col cols="12">
             <v-textarea
@@ -176,6 +167,7 @@ import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import SectionHeader from "@/components/common/SectionHeader.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"

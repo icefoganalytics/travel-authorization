@@ -29,15 +29,10 @@
         cols="12"
         md="6"
       >
-        <h3 class="primary--text">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-calendar-month</v-icon
-          >
-          1. Trip Schedule
-        </h3>
+        <SectionHeader
+          title="1. Trip Schedule"
+          icon="mdi-calendar-month"
+        />
         <v-row>
           <v-col cols="6">
             <DatePicker
@@ -93,15 +88,11 @@
           </v-row>
         </v-sheet>
 
-        <h3 class="primary--text mt-10">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-map-marker</v-icon
-          >
-          2. Location Details
-        </h3>
+        <SectionHeader
+          title="2. Location Details"
+          icon="mdi-map-marker"
+          header-class="mt-10"
+        />
         <v-row>
           <v-col cols="12">
             <LocationsAutocomplete
@@ -182,15 +173,11 @@
         cols="12"
         md="6"
       >
-        <h3 class="primary--text mt-10 mt-md-0">
-          <v-icon
-            color="primary"
-            size="28"
-            class="mr-2"
-            >mdi-car</v-icon
-          >
-          3. Vehicle & Extra Info
-        </h3>
+        <SectionHeader
+          title="3. Vehicle & Extra Info"
+          icon="mdi-car"
+          header-class="mt-10 mt-md-0"
+        />
         <v-row>
           <v-col cols="12">
             <TravelDeskRentalCarVehicleTypeSelect
@@ -273,6 +260,7 @@ import useTravelDeskRentalCar from "@/use/use-travel-desk-rental-car"
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import SectionHeader from "@/components/common/SectionHeader.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 
