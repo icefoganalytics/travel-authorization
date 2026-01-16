@@ -62,6 +62,8 @@ export type TravelDeskOtherTransportationAsIndex = Pick<
 
 export type TravelDeskOtherTransportationAsShow = TravelDeskOtherTransportation
 
+export type TravelDeskOtherTransportationPolicy = unknown
+
 export type TravelDeskOtherTransportationWhereOptions = WhereOptions<
   TravelDeskOtherTransportation,
   "id" | "travelRequestId" | "depart" | "arrive" | "transportationType" | "date" | "status"
@@ -96,6 +98,7 @@ export const travelDeskOtherTransportationsApi = {
     params: Record<string, unknown> = {}
   ): Promise<{
     travelDeskOtherTransportation: TravelDeskOtherTransportationAsShow
+    policy: TravelDeskOtherTransportationPolicy
   }> {
     const { data } = await http.get(
       `/api/travel-desk-other-transportations/${travelDeskOtherTransportationId}`,
@@ -108,6 +111,7 @@ export const travelDeskOtherTransportationsApi = {
 
   async create(attributes: Partial<TravelDeskOtherTransportation>): Promise<{
     travelDeskOtherTransportation: TravelDeskOtherTransportationAsShow
+    policy: TravelDeskOtherTransportationPolicy
   }> {
     const { data } = await http.post("/api/travel-desk-other-transportations", attributes)
     return data
@@ -118,6 +122,7 @@ export const travelDeskOtherTransportationsApi = {
     attributes: Partial<TravelDeskOtherTransportation>
   ): Promise<{
     travelDeskOtherTransportation: TravelDeskOtherTransportationAsShow
+    policy: TravelDeskOtherTransportationPolicy
   }> {
     const { data } = await http.patch(
       `/api/travel-desk-other-transportations/${travelDeskOtherTransportationId}`,
