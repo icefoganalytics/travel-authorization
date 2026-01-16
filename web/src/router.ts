@@ -315,6 +315,15 @@ const routes: RouteConfig[] = [
             props: true,
           },
           {
+            name: "travel-desk/other-transportations/TravelDeskOtherTransportationNewPage",
+            path: "travel-desk/:travelDeskTravelRequestId/other-transportations/new",
+            component: () =>
+              import(
+                "@/pages/travel-desk/other-transportations/TravelDeskOtherTransportationNewPage.vue"
+              ),
+            props: true,
+          },
+          {
             path: "/flight-expenses",
             component: () => import("@/layouts/FlightExpensesLayout.vue"),
             children: [
