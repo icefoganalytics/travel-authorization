@@ -248,6 +248,7 @@ router
   .post(TravelDeskOtherTransportationsController.create)
 router
   .route("/api/travel-desk-other-transportations/:travelDeskOtherTransportationId")
+  .get(TravelDeskOtherTransportationsController.show)
   .patch(TravelDeskOtherTransportationsController.update)
   .delete(TravelDeskOtherTransportationsController.destroy)
 
