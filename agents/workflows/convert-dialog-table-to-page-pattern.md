@@ -353,51 +353,98 @@ defineExpose({
 <template>
   <HeaderActionsFormCard
     ref="headerActionsFormCard"
-    title="New {Model}"
+    title="New {Model} Request"
     header-tag="h2"
     lazy-validation
-    @submit.prevent="create{Model}"
+    @submit.prevent="createAndReturn"
   >
     <v-row>
       <v-col
         cols="12"
         md="6"
       >
-        <v-text-field
-          v-model="{model}Attributes.field1"
-          label="Field 1 *"
-          :rules="[required]"
-          outlined
-        />
+        <h3 class="primary--text">
+          <v-icon
+            color="primary"
+            size="28"
+            class="mr-2"
+            >mdi-icon-name</v-icon
+          >
+          1. Section Name
+        </h3>
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="{model}Attributes.field1"
+              label="Field 1 *"
+              :rules="[required]"
+              outlined
+              required
+            />
+          </v-col>
+        </v-row>
+
+        <h3 class="primary--text mt-10">
+          <v-icon
+            color="primary"
+            size="28"
+            class="mr-2"
+            >mdi-icon-name</v-icon
+          >
+          2. Section Name
+        </h3>
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="{model}Attributes.field2"
+              label="Field 2"
+              outlined
+            />
+          </v-col>
+        </v-row>
       </v-col>
+
       <v-col
         cols="12"
         md="6"
       >
-        <v-text-field
-          v-model="{model}Attributes.field2"
-          label="Field 2"
-          outlined
-        />
+        <h3 class="primary--text mt-10 mt-md-0">
+          <v-icon
+            color="primary"
+            size="28"
+            class="mr-2"
+            >mdi-note-text</v-icon
+          >
+          3. Additional Information
+        </h3>
+        <v-row>
+          <v-col cols="12">
+            <v-textarea
+              v-model="{model}Attributes.additionalNotes"
+              label="Additional Information"
+              outlined
+              rows="20"
+              clearable
+            />
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
 
-    <!-- Add more form fields as needed -->
+    <v-divider class="mt-md-10" />
 
     <template #actions>
       <v-btn
-        class="my-0"
         color="primary"
-        :loading="isSaving"
         type="submit"
+        :loading="isSaving"
+        :disabled="isSaving"
       >
-        Save
+        Save {Model} Request
       </v-btn>
       <v-btn
-        class="my-0"
-        color="warning"
-        outlined
-        :to="cancelRoute"
+        color="grey"
+        :to="returnTo"
       >
         Cancel
       </v-btn>
@@ -410,15 +457,17 @@ defineExpose({
 
 ```vue
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { ref, computed } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 
 import { required } from "@/utils/validators"
+import useRouteQuery from "@/use/utils/use-route-query"
 
-import {modelPlural}Api from "@/api/{model-plural}-api"
+import {modelPlural}Api, { type {Model} } from "@/api/{model-plural}-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
+import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
@@ -426,9 +475,23 @@ const props = defineProps<{
   parentId: string
 }>()
 
-const parentIdAsNumber = computed(() => Number(props.parentId))
+const parentIdAsNumber = computed(() => parseInt(props.parentId))
 
-const {model}Attributes = ref({
+const { tripStartDate, tripEndDate } = useTravelTimesSummary(parentIdAsNumber)
+
+const router = useRouter()
+const defaultReturnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "{parent-route}",
+    params: {
+      parentId: props.parentId,
+    },
+  })
+  return routeLocation.href
+})
+const returnTo = useRouteQuery("returnTo", defaultReturnTo)
+
+const {model}Attributes = ref<Partial<{Model}>>({
   parentId: parentIdAsNumber.value,
   field1: undefined,
   field2: undefined,
@@ -438,36 +501,23 @@ const {model}Attributes = ref({
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isSaving = ref(false)
 const snack = useSnack()
-const router = useRouter()
 
-async function create{Model}() {
-  if (headerActionsFormCard.value === null) {
-    return
-  }
-
-  if (!headerActionsFormCard.value.validate()) {
-    return
-  }
+async function createAndReturn() {
+  if (!headerActionsFormCard.value?.validate()) return
 
   isSaving.value = true
   try {
     await {modelPlural}Api.create({model}Attributes.value)
-    snack.success("{Model} created successfully")
-    return router.push(cancelRoute.value)
+    snack.success("{Model} request created successfully!")
+
+    return router.push(returnTo.value)
   } catch (error) {
-    console.error(`Failed to create {model}: ${error}`, { error })
-    snack.error(`Failed to create {model}: ${error}`)
+    console.error(`Failed to create {model} request: ${error}`, { error })
+    snack.error(`Failed to create {model} request: ${error}`)
   } finally {
     isSaving.value = false
   }
 }
-
-const cancelRoute = computed(() => ({
-  name: "{parent-route}",
-  params: {
-    parentId: props.parentId,
-  },
-}))
 
 const breadcrumbs = computed(() => [
   {
@@ -475,10 +525,18 @@ const breadcrumbs = computed(() => [
     to: { name: "{parent-route}" },
   },
   {
-    text: "New {Model}",
+    text: "Request",
+    to: {
+      name: "{parent-route}",
+      params: { parentId: props.parentId },
+    },
+  },
+  {
+    text: "New {Model} Request",
     to: { name: "{model-plural}/{Model}NewPage" },
   },
 ])
+
 useBreadcrumbs(breadcrumbs)
 </script>
 ```
@@ -497,23 +555,23 @@ useBreadcrumbs(breadcrumbs)
 <template>
   <v-skeleton-loader
     v-if="isNil(record)"
-    type="card"
+    type="card@2"
   />
   <HeaderActionsFormCard
     v-else
     ref="headerActionsFormCard"
-    title="Edit {Model}"
+    title="Edit {Model} Request"
     header-tag="h2"
     lazy-validation
-    @submit.prevent="save{Model}"
+    @submit.prevent="saveAndReturn"
   >
     <template #header-actions>
       <v-btn
-        class="my-0"
         color="error"
         outlined
         :loading="isDeleting"
-        @click="delete{Model}"
+        :block="smAndDown"
+        @click="deleteAndReturn"
       >
         Delete
       </v-btn>
@@ -524,38 +582,87 @@ useBreadcrumbs(breadcrumbs)
         cols="12"
         md="6"
       >
-        <v-text-field
-          v-model="record.field1"
-          label="Field 1 *"
-          :rules="[required]"
-          outlined
-        />
+        <h3 class="primary--text">
+          <v-icon
+            color="primary"
+            size="28"
+            class="mr-2"
+            >mdi-icon-name</v-icon
+          >
+          1. Section Name
+        </h3>
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="record.field1"
+              label="Field 1 *"
+              :rules="[required]"
+              outlined
+              required
+            />
+          </v-col>
+        </v-row>
+
+        <h3 class="primary--text mt-10">
+          <v-icon
+            color="primary"
+            size="28"
+            class="mr-2"
+            >mdi-icon-name</v-icon
+          >
+          2. Section Name
+        </h3>
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="record.field2"
+              label="Field 2"
+              outlined
+            />
+          </v-col>
+        </v-row>
       </v-col>
+
       <v-col
         cols="12"
         md="6"
       >
-        <v-text-field
-          v-model="record.field2"
-          label="Field 2"
-          outlined
-        />
+        <h3 class="primary--text mt-10 mt-md-0">
+          <v-icon
+            color="primary"
+            size="28"
+            class="mr-2"
+            >mdi-note-text</v-icon
+          >
+          3. Additional Information
+        </h3>
+        <v-row>
+          <v-col cols="12">
+            <v-textarea
+              v-model="record.additionalNotes"
+              label="Additional Information"
+              outlined
+              rows="20"
+              clearable
+            />
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
 
-    <!-- Add more form fields as needed -->
+    <v-divider class="mt-md-10" />
 
     <template #actions>
       <v-btn
         color="primary"
-        :loading="isSaving"
         type="submit"
+        :loading="isSaving"
+        :disabled="isSaving"
       >
-        Save
+        Save {Model} Request
       </v-btn>
       <v-btn
-        color="warning"
-        outlined
+        color="grey"
         :to="previousRouteOrFallback"
       >
         Cancel
@@ -569,7 +676,7 @@ useBreadcrumbs(breadcrumbs)
 
 ```vue
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { ref, computed } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
@@ -577,6 +684,8 @@ import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
 
 import {modelPlural}Api from "@/api/{model-plural}-api"
+
+import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useRouteHistory from "@/use/use-route-history"
@@ -589,21 +698,26 @@ const props = defineProps<{
   {model}Id: string
 }>()
 
-const {model}IdAsNumber = computed(() => Number(props.{model}Id))
+const { smAndDown } = useDisplayVuetify2()
+
+const {model}IdAsNumber = computed(() => parseInt(props.{model}Id))
 const { {model}: record, refresh } = use{Model}({model}IdAsNumber)
 
-const snack = useSnack()
+const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isSaving = ref(false)
+const snack = useSnack()
 
-async function save{Model}() {
+async function saveAndReturn() {
+  if (!headerActionsFormCard.value?.validate()) return
+
   isSaving.value = true
   try {
     await {modelPlural}Api.update({model}IdAsNumber.value, record.value)
-    snack.success("{Model} saved successfully")
+    snack.success("{Model} request saved successfully!")
     await refresh()
   } catch (error) {
-    console.error(`Failed to save {model}: ${error}`, { error })
-    snack.error(`Failed to save {model}: ${error}`)
+    console.error(`Failed to save {model} request: ${error}`, { error })
+    snack.error(`Failed to save {model} request: ${error}`)
   } finally {
     isSaving.value = false
   }
@@ -612,19 +726,19 @@ async function save{Model}() {
 const isDeleting = ref(false)
 const router = useRouter()
 
-async function delete{Model}() {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this {model}?")) {
+async function deleteAndReturn() {
+  if (!blockedToTrueConfirm("Are you sure you want to remove this {model} request?")) {
     return
   }
 
   isDeleting.value = true
   try {
     await {modelPlural}Api.delete({model}IdAsNumber.value)
-    snack.success("{Model} deleted successfully")
+    snack.success("{Model} request deleted successfully!")
     return router.replace(fallbackRoute)
   } catch (error) {
-    console.error(`Failed to delete {model}: ${error}`, { error })
-    snack.error(`Failed to delete {model}: ${error}`)
+    console.error(`Failed to delete {model} request: ${error}`, { error })
+    snack.error(`Failed to delete {model} request: ${error}`)
   } finally {
     isDeleting.value = false
   }
@@ -642,13 +756,20 @@ const previousRouteOrFallback = computed(() => {
   return fallbackRoute
 })
 
-useBreadcrumbs([
+const breadcrumbs = computed(() => [
   {
     text: "Parent Entity",
     to: { name: "{parent-route}" },
   },
   {
-    text: "{Model}",
+    text: "Request",
+    to: {
+      name: "{parent-route}",
+      params: { parentId: props.{model}Id },
+    },
+  },
+  {
+    text: "{Model} Request",
     to: {
       name: "{model-plural}/{Model}Page",
       params: { {model}Id: props.{model}Id },
@@ -662,6 +783,8 @@ useBreadcrumbs([
     },
   },
 ])
+
+useBreadcrumbs(breadcrumbs)
 </script>
 ```
 
@@ -786,27 +909,44 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 ### NewPage Component
 - [ ] Uses `<script setup lang="ts">`
 - [ ] Uses `defineProps<{ parentId: string }>()` (string type, not number)
-- [ ] Creates `parentIdAsNumber` computed for numeric operations
+- [ ] Creates `parentIdAsNumber` computed using `parseInt()` (not `Number()`)
 - [ ] Uses HeaderActionsFormCard wrapper
 - [ ] Has form validation with rules
 - [ ] Has Save/Cancel action buttons
 - [ ] Uses ref for attributes with descriptive naming (e.g., `{model}Attributes`)
-- [ ] Action methods are named descriptively (e.g., `create{Model}` not `createItem`)
-- [ ] Navigates on successful create
-- [ ] Sets breadcrumbs
+- [ ] Action method named `createAndReturn()` (not `create{Model}()`)
+- [ ] Uses `useRouteQuery` for `returnTo` with `defaultReturnTo` computed
+- [ ] `defaultReturnTo` uses `router.resolve()` to get href
+- [ ] Guard clause: `if (!headerActionsFormCard.value?.validate()) return`
+- [ ] Success messages include "!" at the end
+- [ ] Error messages use singular form: "Failed to create {model} request"
+- [ ] Uses two-column layout with numbered sections and icons
+- [ ] Section headers use `<h3 class="primary--text">` with `v-icon`
+- [ ] Has `v-divider class="mt-md-10"` before actions
+- [ ] Save button has `:disabled="isSaving"` and text "Save {Model} Request"
+- [ ] Cancel button uses `color="grey"` and `:to="returnTo"`
+- [ ] `breadcrumbs` is computed, then passed to `useBreadcrumbs(breadcrumbs)`
 
 ### EditPage Component
 - [ ] Uses `<script setup lang="ts">`
 - [ ] Uses `defineProps<{ {model}Id: string }>()` (string type, not number)
-- [ ] Creates `{model}IdAsNumber` computed for API calls and composables
+- [ ] Creates `{model}IdAsNumber` computed using `parseInt()` (not `Number()`)
+- [ ] Uses `useDisplayVuetify2()` for responsive breakpoints (e.g., `smAndDown`)
 - [ ] Uses HeaderActionsFormCard wrapper
-- [ ] Has Delete button in header-actions slot
-- [ ] Has v-skeleton-loader for loading state
+- [ ] Has Delete button in header-actions slot with `:block="smAndDown"`
+- [ ] Has v-skeleton-loader with `type="card@2"` for loading state
 - [ ] Uses composable for loading entity (pass `...AsNumber` computed)
-- [ ] Action methods are named descriptively (e.g., `save{Model}`, `delete{Model}`)
-- [ ] Has Save/Cancel action buttons
+- [ ] Action methods named `saveAndReturn()` and `deleteAndReturn()`
+- [ ] Guard clause: `if (!headerActionsFormCard.value?.validate()) return`
+- [ ] Success messages include "!" at the end
+- [ ] Error messages use singular form: "Failed to save/delete {model} request"
+- [ ] Uses two-column layout with numbered sections and icons
+- [ ] Section headers use `<h3 class="primary--text">` with `v-icon`
+- [ ] Has `v-divider class="mt-md-10"` before actions
+- [ ] Save button has `:disabled="isSaving"` and text "Save {Model} Request"
+- [ ] Cancel button uses `color="grey"`
 - [ ] Uses useRouteHistory for cancel navigation
-- [ ] Sets breadcrumbs with Edit step
+- [ ] `breadcrumbs` is computed, then passed to `useBreadcrumbs(breadcrumbs)`
 
 ### Routes
 - [ ] New page route defined with props: true
@@ -817,13 +957,13 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 
 ## Common Pitfalls
 
-1. **Using `[String, Number]` prop type** - Page props from router are always strings; use `string` type and create `...AsNumber` computed
+1. **Using `[String, Number]` prop type** - Page props from router are always strings; use `string` type and create `...AsNumber` computed using `parseInt()`
 2. **Using old `defineProps({})` syntax** - TypeScript files should use `defineProps<{...}>()` or `withDefaults(defineProps<{...}>(), {...})`
 3. **Using old `defineEmits([])` syntax** - TypeScript files should use call-signature syntax: `defineEmits<{ (event: "name"): void }>()`
 4. **Forgetting to emit "updated"** - Parent components rely on this to know when to refresh
 5. **Not exposing refresh()** - Needed for parent components to trigger data refresh
-6. **Missing v-skeleton-loader** - EditPage should show skeleton while loading
-7. **Hardcoded routes** - Use computed routes based on previousRoute for flexibility
+6. **Missing v-skeleton-loader** - EditPage should show skeleton while loading (use `type="card@2"`)
+7. **Hardcoded routes** - Use `useRouteQuery("returnTo", defaultReturnTo)` for flexible return navigation
 8. **Missing breadcrumbs** - Pages should set breadcrumbs for navigation
 9. **Not initializing form attributes** - NewPage should initialize attributes with `undefined` values
 10. **Using abbreviations** - Use full descriptive names (e.g., `record` or `{model}` instead of `item`)
@@ -832,9 +972,14 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 13. **Inconsistent directory structure** - Components should be in `web/src/components/{model-kebab-case}/`
 14. **Not using named imports** - Import API methods using named imports instead of default imports
 15. **Using magic numbers** - Hoist magic numbers to named constants (e.g., `const DEFAULT_PER_PAGE = 5`)
+16. **Using `Number()` instead of `parseInt()`** - Use `parseInt()` for converting string props to numbers
+17. **Not using `useRouteQuery` for returnTo** - Use `useRouteQuery("returnTo", defaultReturnTo)` pattern
+18. **Missing section headers with icons** - Use numbered sections with `<h3 class="primary--text">` and `v-icon`
+19. **Not using `useDisplayVuetify2`** - Import and use for responsive breakpoints like `smAndDown`
+20. **Not using guard clauses** - Use `if (!headerActionsFormCard.value?.validate()) return` pattern
 
 ---
 
-**Workflow Version:** 1.2
+**Workflow Version:** 1.3
 **Last Updated:** 2026-01-16
-**Reference Files:** `TravelDeskFlightRequestEditCard.vue`, `TravelDeskFlightRequestEditDataTable.vue`, `TravelPreApprovalEditPage.vue`, `TravelPreApprovalNewPage.vue`
+**Reference Files:** `TravelDeskOtherTransportationNewPage.vue`, `TravelDeskHotelNewPage.vue`, `TravelDeskRentalCarNewPage.vue`, `TravelDeskOtherTransportationEditPage.vue`
