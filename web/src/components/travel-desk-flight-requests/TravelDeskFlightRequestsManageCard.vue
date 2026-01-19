@@ -10,8 +10,8 @@
         :attributes="{
           travelRequestId: travelDeskTravelRequestId,
         }"
-        :min-date="minDate"
-        :max-date="maxDate"
+        :min-date="tripStartDate"
+        :max-date="tripEndDate"
         :activator-props="{
           block: smAndDown,
           class: 'my-md-0',
@@ -26,8 +26,8 @@
           travelRequestId: travelDeskTravelRequestId,
         }"
         route-query-suffix="TravelDeskFlightRequest"
-        :min-date="minDate"
-        :max-date="maxDate"
+        :min-date="tripStartDate"
+        :max-date="tripEndDate"
         :show-flight-options="showFlightOptions"
         @updated="emit('updated')"
       >
@@ -51,48 +51,39 @@
   </v-card>
 </template>
 
-<script setup>
-import { computed, ref, toRefs } from "vue"
-import { first, last } from "lodash"
+<script setup lang="ts">
+import { ref, toRefs } from "vue"
 
 import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
-
-import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import TravelDeskFlightRequestCreateDialog from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestCreateDialog.vue"
 import TravelDeskFlightRequestsManageTable from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageTable.vue"
+import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
-const props = defineProps({
-  travelDeskTravelRequestId: {
-    type: Number,
-    required: true,
-  },
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-  showFlightOptions: {
-    type: Boolean,
-    default: false,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    travelDeskTravelRequestId: number
+    showFlightOptions?: boolean
+  }>(),
+  {
+    showFlightOptions: false,
+  }
+)
 
-const emit = defineEmits(["updated"])
+// TODO: switch to `updated: [void]` syntax in Vue 3
+const emit = defineEmits<{
+  (event: "updated"): void
+}>()
 
-const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
-
-const firstTravelSegment = computed(() => first(travelAuthorization.value?.travelSegments))
-const lastTravelSegment = computed(() => last(travelAuthorization.value?.travelSegments))
-
-const minDate = computed(() => firstTravelSegment.value?.departureOn)
-const maxDate = computed(() => lastTravelSegment.value?.departureOn)
+const { travelDeskTravelRequestId } = toRefs(props)
+const { tripStartDate, tripEndDate } = useTravelTimesSummary(travelDeskTravelRequestId)
 
 const { smAndDown } = useDisplayVuetify2()
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightRequestsManageTable> | null>} */
-const travelDeskFlightRequestsManageTable = ref(null)
+const travelDeskFlightRequestsManageTable = ref<InstanceType<
+  typeof TravelDeskFlightRequestsManageTable
+> | null>(null)
 
 async function refresh() {
   await travelDeskFlightRequestsManageTable.value?.refresh()

@@ -10,7 +10,6 @@
     >
       <TravelDeskFlightRequestsManageCard
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-        :travel-authorization-id="travelDeskTravelRequest.travelAuthorizationId"
         show-flight-options
       />
 
