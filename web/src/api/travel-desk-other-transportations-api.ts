@@ -7,25 +7,12 @@ export enum TravelDeskOtherTransportationStatuses {
   RESERVED = "Reserved",
 }
 
-/** @deprecated - prefer enum equivalent `TravelDeskOtherTransportationStatuses` */
-export const TRAVEL_DESK_OTHER_TRANSPORTATION_STATUSES = Object.freeze({
-  REQUESTED: "Requested",
-  RESERVED: "Reserved",
-})
-
 /** Keep in sync with api/src/models/travel-desk-other-transportation.ts */
 export enum TravelDeskOtherTransportationTypes {
   SHUTTLE = "Shuttle",
   BUS = "Bus",
   TRAIN = "Train",
 }
-
-/** @deprecated - prefer enum equivalent `TravelDeskOtherTransportationTypes` */
-export const TRANSPORTATION_TYPES = Object.freeze({
-  SHUTTLE: "Shuttle",
-  BUS: "Bus",
-  TRAIN: "Train",
-})
 
 /** Keep in sync with api/src/models/travel-desk-other-transportation.ts */
 export type TravelDeskOtherTransportation = {
@@ -80,8 +67,6 @@ export type TravelDeskOtherTransportationsQueryOptions = QueryOptions<
 export const travelDeskOtherTransportationsApi = {
   TravelDeskOtherTransportationStatuses,
   TravelDeskOtherTransportationTypes,
-  TRAVEL_DESK_OTHER_TRANSPORTATION_STATUSES,
-  TRANSPORTATION_TYPES,
 
   async list(params: TravelDeskOtherTransportationsQueryOptions = {}): Promise<{
     travelDeskOtherTransportations: TravelDeskOtherTransportationAsIndex[]

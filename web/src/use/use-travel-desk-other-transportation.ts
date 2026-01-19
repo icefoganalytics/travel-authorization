@@ -6,8 +6,6 @@ import travelDeskOtherTransportationsApi, {
   type TravelDeskOtherTransportationPolicy,
   TravelDeskOtherTransportationStatuses,
   TravelDeskOtherTransportationTypes,
-  TRAVEL_DESK_OTHER_TRANSPORTATION_STATUSES,
-  TRANSPORTATION_TYPES,
 } from "@/api/travel-desk-other-transportations-api"
 
 export {
@@ -15,8 +13,6 @@ export {
   type TravelDeskOtherTransportationPolicy,
   TravelDeskOtherTransportationStatuses,
   TravelDeskOtherTransportationTypes,
-  TRAVEL_DESK_OTHER_TRANSPORTATION_STATUSES,
-  TRANSPORTATION_TYPES,
 }
 
 export function useTravelDeskOtherTransportation(
