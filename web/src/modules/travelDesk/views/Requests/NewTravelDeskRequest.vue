@@ -98,10 +98,9 @@
                     :travel-desk-travel-request-id="travelDeskTravelRequestId"
                     :return-to="returnTo"
                   />
-                  <transportation-request-table
-                    :authorized-travel="authorizedTravel"
-                    :readonly="false"
-                    :other-transportations="travelerDetails.otherTransportations"
+                  <TravelDeskOtherTransportationEditCard
+                    :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                    :return-to="returnTo"
                   />
                 </template>
               </TitleCard>
@@ -174,10 +173,10 @@ import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 
 import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 import TravelDeskHotelsEditCard from "@/components/travel-desk-hotels/TravelDeskHotelsEditCard.vue"
+import TravelDeskOtherTransportationEditCard from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditCard.vue"
 
 import TravelerDetails from "@/modules/travelDesk/views/Requests/Components/TravelerDetails.vue"
 import FlightRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/FlightRequestTable.vue"
-import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
 import QuestionsTable from "@/modules/travelDesk/views/Desk/Components/QuestionsTable.vue"
 
 export default {
@@ -186,8 +185,8 @@ export default {
     FlightRequestTable,
     QuestionsTable,
     TitleCard,
-    TransportationRequestTable,
     TravelDeskHotelsEditCard,
+    TravelDeskOtherTransportationEditCard,
     TravelDeskRentalCarsEditCard,
     TravelerDetails,
   },

@@ -16,7 +16,7 @@ auto_execution_mode: 1
 - Testing instructions that verify correctness
 
 **Decision Rules:**
-- **Title format:** Use `TICKET-ID: Description` when linked to a ticket, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features
+- **Title format:** Use `Issue-<number>: Description` for GitHub issues, `TICKET-ID: Description` for Jira tickets, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features. Always use AP style title case.
 - **Implementation section:** Focus on purpose and intent, not specific files. A reviewer can see file changes in the diff - the Implementation section explains the reasoning behind those changes.
 - **Screenshots:** Required for UI changes, "N/A - backend changes only" for non-UI
 - **Draft mode:** Always create PRs as drafts first
@@ -87,12 +87,13 @@ Use one of these patterns:
 
 | Pattern | When to Use | Example |
 |---------|-------------|---------|
+| `Issue-<number>: Description` | Linked to GitHub issue | `Issue-314: Normalize Travel Desk Other Transportations Components to Modern Patterns` |
 | `TICKET-ID: Description` | Linked to Jira ticket | `TA-123: Add Travel Authorization Export Feature` |
 | `Fix: Description` | Bug fixes without ticket | `Fix: Email Notifications Not Sending` |
 | `Action Verb + Noun` | Features/improvements | `Add Expense Report Validation` |
 
 **Title Guidelines:**
-- Use title case
+- Use **AP style title case** (validate at https://titlecaseconverter.com/?style=AP)
 - Be specific but concise
 - Start with action verb when no ticket ID
 

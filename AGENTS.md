@@ -191,7 +191,7 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 
 1. **Model/Domain** - Primary data model (e.g., `FlightStatistics`, `TravelAuthorization`)
 2. **Purpose** - Specific functionality (e.g., `Filters`, `Jobs`, `Edit`)
-3. **Vuetify Component** - Wrapper component (e.g., `Card`, `Modal`, `Dialog`, `Select`)
+3. **Vuetify Component** - Wrapper component (e.g., `Card`, `Modal`, `Dialog`, `Select`, `DataTabe`)
 
 **Directory structure:**
 

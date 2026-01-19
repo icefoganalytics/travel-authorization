@@ -10,12 +10,14 @@ auto_execution_mode: 1
 **WHY this workflow exists:** JavaScript composables use JSDoc for typing which is verbose and error-prone. TypeScript provides better type inference, cleaner syntax, and catches errors at compile time rather than runtime.
 
 **WHAT this workflow produces:** A TypeScript composable that:
+
 - Fetches a single resource by ID
 - Manages loading/error state reactively
 - Optionally saves updates back to the API
 - Re-exports types for consumer convenience (so components don't need to import from both the composable and the API)
 
 **Decision Rules:**
+
 - **Singular vs Plural:** This workflow is for composables that work with ONE resource by ID (`useUser`, `useExpense`). For composables that fetch lists, use the plural workflow instead.
 - **Policy in state:** If the API's `get()` method returns a policy, add `policy` to state. Check the API file.
 - **Save method:** Only add `save()` if the API has an `update()` method and you need to modify the resource.
@@ -88,7 +90,7 @@ import resourcesApi, { type ResourceAsShow, type ResourcePolicy } from "@/api/re
 
 /**
  * @callback UseResource
- * @param {Ref<number>} id
+ * @param {Ref<number>} resourceId
  * @returns {{
  *   resource: Ref<Resource | null | undefined>,
  *   isLoading: Ref<boolean>,
@@ -99,13 +101,15 @@ import resourcesApi, { type ResourceAsShow, type ResourcePolicy } from "@/api/re
  */
 
 /** @type {UseResource} */
-export function useResource(id) {
+export function useResource(resourceId) {
 ```
 
 **After (TS):**
 
 ```typescript
-export function useResource(resourceId: Ref<number | null | undefined>) {
+export function useResource(
+  resourceId: Ref<number | null | undefined>
+) {
 ```
 
 **Key Changes:**
@@ -234,15 +238,15 @@ console.error(`Failed to fetch resource: ${error}`, { error })
 ```javascript
 async function save() {
   // ...
-  const { resource } = await resourcesApi.update(staticId, state.resource)
+  const { resource } = await resourcesApi.update(staticResourceId, state.resource)
 ```
 
 **After (TS):**
 
 ```typescript
 async function save(): Promise<ResourceAsShow> {
-  const staticId = unref(resourceId)
-  if (isNil(staticId)) {
+  const staticResourceId = unref(resourceId)
+  if (isNil(staticResourceId)) {
     throw new Error("resourceId is required")
   }
 
@@ -252,14 +256,18 @@ async function save(): Promise<ResourceAsShow> {
 
   state.isLoading = true
   try {
-    const { resource, policy } = await resourcesApi.update(staticId, state.resource)
+    const { resource, policy } = await resourcesApi.update(staticResourceId, state.resource)
+
     state.isErrored = false
     state.resource = resource
     state.policy = policy
+
     return resource
   } catch (error) {
     console.error(`Failed to save resource: ${error}`, { error })
+
     state.isErrored = true
+
     throw error
   } finally {
     state.isLoading = false
@@ -287,7 +295,7 @@ import perDiemsApi from "@/api/per-diems-api"
 
 /**
  * @callback UsePerDiem
- * @param {Ref<number>} id
+ * @param {Ref<number>} perDiemId
  * @returns {{
  *   perDiem: Ref<PerDiem | null | undefined>,
  *   isLoading: Ref<boolean>,
@@ -298,7 +306,7 @@ import perDiemsApi from "@/api/per-diems-api"
  */
 
 /** @type {UsePerDiem} */
-export function usePerDiem(id) {
+export function usePerDiem(perDiemId) {
   const state = reactive({
     perDiem: null,
     isLoading: false,
@@ -306,20 +314,24 @@ export function usePerDiem(id) {
   })
 
   async function fetch() {
-    const staticId = unref(id)
-    if (isNil(staticId)) {
-      throw new Error("id is required")
+    const staticPerDiemId = unref(perDiemId)
+    if (isNil(staticPerDiemId)) {
+      throw new Error("perDiemId is required")
     }
 
     state.isLoading = true
     try {
-      const { perDiem } = await perDiemsApi.get(staticId)
+      const { perDiem } = await perDiemsApi.get(staticPerDiemId)
+
       state.isErrored = false
       state.perDiem = perDiem
+
       return perDiem
     } catch (error) {
       console.error("Failed to fetch per diem:", error)
+
       state.isErrored = true
+
       throw error
     } finally {
       state.isLoading = false
@@ -327,9 +339,11 @@ export function usePerDiem(id) {
   }
 
   watch(
-    () => unref(id),
-    async (newId) => {
-      if (isNil(newId)) return
+    () => unref(perDiemId),
+    async (newPerDiemId) => {
+      if (isNil(newPerDiemId)) {
+        return
+      }
 
       await fetch()
     },
@@ -372,21 +386,25 @@ export function usePerDiem(perDiemId: Ref<number | null | undefined>) {
   })
 
   async function fetch(): Promise<PerDiem> {
-    const staticId = unref(id)
-    if (isNil(staticId)) {
-      throw new Error("id is required")
+    const staticPerDiemId = unref(perDiemId)
+    if (isNil(staticPerDiemId)) {
+      throw new Error("perDiemId is required")
     }
 
     state.isLoading = true
     try {
-      const { perDiem, policy } = await perDiemsApi.get(staticId)
+      const { perDiem, policy } = await perDiemsApi.get(staticPerDiemId)
+
       state.isErrored = false
       state.perDiem = perDiem
       state.policy = policy
+
       return perDiem
     } catch (error) {
       console.error(`Failed to fetch per diem: ${error}`, { error })
+
       state.isErrored = true
+
       throw error
     } finally {
       state.isLoading = false
@@ -395,8 +413,10 @@ export function usePerDiem(perDiemId: Ref<number | null | undefined>) {
 
   watch(
     () => unref(perDiemId),
-    async (newId) => {
-      if (isNil(newId)) return
+    async (newPerDiemId) => {
+      if (isNil(newPerDiemId)) {
+        return
+      }
 
       await fetch()
     },
@@ -432,7 +452,9 @@ import travelDeskTravelAgenciesApi, {
 
 export { type TravelDeskTravelAgency }
 
-export function useTravelDeskTravelAgency(id: Ref<number | null | undefined>) {
+export function useTravelDeskTravelAgency(
+  travelDeskTravelAgencyId: Ref<number | null | undefined>
+) {
   const state = reactive<{
     travelDeskTravelAgency: TravelDeskTravelAgency | null
     policy: Policy | null
@@ -446,21 +468,27 @@ export function useTravelDeskTravelAgency(id: Ref<number | null | undefined>) {
   })
 
   async function fetch(): Promise<TravelDeskTravelAgency> {
-    const staticId = unref(id)
-    if (isNil(staticId)) {
-      throw new Error("id is required")
+    const staticTravelDeskTravelAgencyId = unref(travelDeskTravelAgencyId)
+    if (isNil(staticTravelDeskTravelAgencyId)) {
+      throw new Error("travelDeskTravelAgencyId is required")
     }
 
     state.isLoading = true
     try {
-      const { travelDeskTravelAgency, policy } = await travelDeskTravelAgenciesApi.get(staticId)
+      const { travelDeskTravelAgency, policy } = await travelDeskTravelAgenciesApi.get(
+        staticTravelDeskTravelAgencyId
+      )
+
       state.isErrored = false
       state.travelDeskTravelAgency = travelDeskTravelAgency
       state.policy = policy
+
       return travelDeskTravelAgency
     } catch (error) {
       console.error(`Failed to fetch travel desk travel agency: ${error}`, { error })
+
       state.isErrored = true
+
       throw error
     } finally {
       state.isLoading = false
@@ -468,9 +496,9 @@ export function useTravelDeskTravelAgency(id: Ref<number | null | undefined>) {
   }
 
   async function save(): Promise<TravelDeskTravelAgency> {
-    const staticId = unref(id)
-    if (isNil(staticId)) {
-      throw new Error("id is required")
+    const staticTravelDeskTravelAgencyId = unref(travelDeskTravelAgencyId)
+    if (isNil(staticTravelDeskTravelAgencyId)) {
+      throw new Error("travelDeskTravelAgencyId is required")
     }
 
     if (isNil(state.travelDeskTravelAgency)) {
@@ -480,16 +508,20 @@ export function useTravelDeskTravelAgency(id: Ref<number | null | undefined>) {
     state.isLoading = true
     try {
       const { travelDeskTravelAgency, policy } = await travelDeskTravelAgenciesApi.update(
-        staticId,
+        staticTravelDeskTravelAgencyId,
         state.travelDeskTravelAgency
       )
+
       state.isErrored = false
       state.travelDeskTravelAgency = travelDeskTravelAgency
       state.policy = policy
+
       return travelDeskTravelAgency
     } catch (error) {
       console.error(`Failed to save travel desk travel agency: ${error}`, { error })
+
       state.isErrored = true
+
       throw error
     } finally {
       state.isLoading = false
@@ -497,9 +529,11 @@ export function useTravelDeskTravelAgency(id: Ref<number | null | undefined>) {
   }
 
   watch(
-    () => unref(id),
-    async (newId) => {
-      if (isNil(newId)) return
+    () => unref(travelDeskTravelAgencyId),
+    async (newTravelDeskTravelAgencyId) => {
+      if (isNil(newTravelDeskTravelAgencyId)) {
+        return
+      }
 
       await fetch()
     },
@@ -555,9 +589,9 @@ For stateful actions like `submit()`, `approve()`, etc.:
 ```typescript
 /** @deprecated - prefer inline api calls for state changes */
 async function submit(): Promise<ResourceAsShow> {
-  const staticId = unref(id)
-  if (isNil(staticId)) {
-    throw new Error("id is required")
+  const staticResourceId = unref(resourceId)
+  if (isNil(staticResourceId)) {
+    throw new Error("resourceId is required")
   }
 
   if (isNil(state.resource)) {
@@ -566,13 +600,17 @@ async function submit(): Promise<ResourceAsShow> {
 
   state.isLoading = true
   try {
-    const { resource } = await resourcesApi.submit(staticId, state.resource)
+    const { resource } = await resourcesApi.submit(staticResourceId, state.resource)
+
     state.isErrored = false
     state.resource = resource
+
     return resource
   } catch (error) {
     console.error(`Failed to submit resource: ${error}`, { error })
+
     state.isErrored = true
+
     throw error
   } finally {
     state.isLoading = false

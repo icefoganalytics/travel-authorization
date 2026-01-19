@@ -128,4 +128,21 @@ Complete workflow for converting legacy dialog-based request tables to modern pa
 
 ---
 
+### [github-ticket-creation.md](github-ticket-creation.md)
+
+Complete workflow for creating well-structured GitHub issues using the project's issue templates.
+
+**Includes:**
+- Step-by-step guidance for bug reports and feature requests
+- Proper template field completion
+- Label and assignment best practices
+- Quality checklists for different issue types
+- Examples from actual TravelAuth issues
+
+**Reference Files:**
+- `.github/ISSUE_TEMPLATE/bug_report.md` (Bug report template)
+- `.github/ISSUE_TEMPLATE/feature_request.md` (Feature request template)
+
+---
+
 **Last Updated:** 2026-01-15

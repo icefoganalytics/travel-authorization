@@ -86,18 +86,22 @@
                   show-flight-options
                 />
                 <TravelDeskRentalCarsEditCard
+                  ref="travelDeskRentalCarsEditCard"
                   class="mt-6"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-                  :return-to="returnTo"
+                  :return-to="buildReturnTo('travel-desk-rental-cars-edit-card')"
                 />
                 <TravelDeskHotelsEditCard
+                  ref="travelDeskHotelsEditCard"
                   class="mt-6"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-                  :return-to="returnTo"
+                  :return-to="buildReturnTo('travel-desk-hotels-edit-card')"
                 />
-                <!-- TODO: rebuild TransportationRequestTable component with newer patterns -->
-                <TransportationRequestTable
-                  :other-transportations="travelDeskOtherTransportations"
+                <TravelDeskOtherTransportationEditCard
+                  ref="travelDeskOtherTransportationEditCard"
+                  class="mt-6"
+                  :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
+                  :return-to="buildReturnTo('travel-desk-other-transportation-edit-card')"
                 />
               </v-card-text>
             </v-card>
@@ -232,11 +236,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { computed, nextTick, Ref, ref, watchEffect } from "vue"
 import { isNil } from "lodash"
+import { useRouter, useRoute } from "vue2-helpers/vue-router"
+import goTo from "vuetify/lib/services/goto"
 
-import { MAX_PER_PAGE } from "@/api/base-api"
 import travelDeskTravelRequestsApi, {
   TravelDeskTravelRequestStatuses,
 } from "@/api/travel-desk-travel-requests-api"
@@ -246,10 +250,7 @@ import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 import useSnack from "@/use/use-snack"
-import useTravelDeskOtherTransportations from "@/use/use-travel-desk-other-transportations"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
-
-import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
 
 import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
 import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
@@ -259,6 +260,7 @@ import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/Tr
 
 import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
 import TravelDeskHotelsEditCard from "@/components/travel-desk-hotels/TravelDeskHotelsEditCard.vue"
+import TravelDeskOtherTransportationEditCard from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditCard.vue"
 import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
 
@@ -299,17 +301,6 @@ const isCompleteState = computed(
 const invoiceNumber = computed(() => travelDeskTravelRequest.value?.invoiceNumber)
 const hasInvoiceNumber = computed(() => !isNil(invoiceNumber.value))
 
-// TODO: remove once TransportationRequestTable component is rebuilt with newer patterns
-const travelDeskOtherTransportationsQuery = computed(() => ({
-  where: {
-    travelRequestId: travelDeskTravelRequestIdAsNumber.value,
-  },
-  perPage: MAX_PER_PAGE,
-}))
-const { travelDeskOtherTransportations } = useTravelDeskOtherTransportations(
-  travelDeskOtherTransportationsQuery
-)
-
 const { currentUser } = useCurrentUser<true>()
 
 async function refresh() {
@@ -328,15 +319,65 @@ async function refresh() {
 }
 
 const router = useRouter()
-const returnTo = computed(() => {
+
+function buildReturnTo(hash: string) {
   const routeLocation = router.resolve({
     name: "travel-desk/TravelDeskRequestEditPage",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId,
     },
+    hash: `#${hash}`,
   })
   return routeLocation.href
+}
+
+const travelDeskRentalCarsEditCard = ref<InstanceType<typeof TravelDeskRentalCarsEditCard> | null>(
+  null
+)
+const travelDeskHotelsEditCard = ref<InstanceType<typeof TravelDeskHotelsEditCard> | null>(null)
+const travelDeskOtherTransportationEditCard = ref<InstanceType<
+  typeof TravelDeskOtherTransportationEditCard
+> | null>(null)
+
+const scrollToTargetMap: Record<string, Ref<{ $el?: Element } | null>> = {
+  ["#travel-desk-rental-cars-edit-card"]: travelDeskRentalCarsEditCard,
+  ["#travel-desk-hotels-edit-card"]: travelDeskHotelsEditCard,
+  ["#travel-desk-other-transportation-edit-card"]: travelDeskOtherTransportationEditCard,
+}
+
+const route = useRoute()
+
+// NOTE: this will be much easier with vuetify 3
+watchEffect(() => {
+  const { hash } = route
+  if (isNil(hash)) return
+
+  const targetRef = scrollToTargetMap[hash]
+  if (isNil(targetRef)) return
+
+  const componentRef = targetRef.value
+  if (isNil(componentRef)) return
+
+  const { $el } = componentRef
+  if (isNil($el)) return
+
+  const targetElement = toHTMLElement($el)
+  if (isNil(targetElement)) return
+
+  scrollToTarget(targetElement)
 })
+
+function toHTMLElement(element: Element): HTMLElement | null {
+  return element instanceof HTMLElement ? element : null
+}
+
+function scrollToTarget(targetElement: HTMLElement) {
+  return goTo(targetElement, {
+    easing: "easeInOutCubic",
+    offset: 75,
+    duration: 300,
+  })
+}
 
 async function returnToTravelDesk() {
   return router.push({

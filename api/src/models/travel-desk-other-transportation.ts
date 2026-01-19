@@ -19,7 +19,7 @@ import {
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
 /**
- * Keep in sync with web/src/api/travel-desk-other-transportations-api.js
+ * Keep in sync with web/src/api/travel-desk-other-transportations-api.ts
  * TODO: normalizes these to snake_case
  */
 export enum TravelDeskOtherTransportationStatuses {
@@ -28,10 +28,10 @@ export enum TravelDeskOtherTransportationStatuses {
 }
 
 /**
- * Keep in sync with web/src/api/travel-desk-other-transportations-api.js
+ * Keep in sync with web/src/api/travel-desk-other-transportations-api.ts
  * TODO: normalizes these to snake_case
  */
-export enum TransportationTypes {
+export enum TravelDeskOtherTransportationTransportationTypes {
   SHUTTLE = "Shuttle",
   BUS = "Bus",
   TRAIN = "Train",
@@ -42,7 +42,7 @@ export class TravelDeskOtherTransportation extends Model<
   InferCreationAttributes<TravelDeskOtherTransportation>
 > {
   static readonly Statuses = TravelDeskOtherTransportationStatuses
-  static readonly TransportationTypes = TransportationTypes
+  static readonly TransportationTypes = TravelDeskOtherTransportationTransportationTypes
 
   @Attribute(DataTypes.INTEGER)
   @PrimaryKey
@@ -65,9 +65,9 @@ export class TravelDeskOtherTransportation extends Model<
   @NotNull
   @ValidateAttribute({
     isIn: {
-      args: [Object.values(TransportationTypes)],
+      args: [Object.values(TravelDeskOtherTransportationTransportationTypes)],
       msg: `Transportation type must be one of the following: ${Object.values(
-        TransportationTypes
+        TravelDeskOtherTransportationTransportationTypes
       ).join(", ")}`,
     },
   })

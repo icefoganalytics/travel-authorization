@@ -1,5 +1,5 @@
 ---
-description: Workflow for converting dialog-based request tables to page-based edit patterns with EditTableCard, EditTable, NewPage, and EditPage components.
+description: Workflow for converting dialog-based request tables to page-based edit patterns with EditCard, EditDataTable, NewPage, and EditPage components.
 auto_execution_mode: 1
 ---
 
@@ -16,21 +16,21 @@ auto_execution_mode: 1
 The page-based pattern separates concerns: tables display data, pages handle forms.
 
 **WHAT this workflow produces:** Four components that work together:
-1. **EditCard** - Wrapper with title and "New" button (navigates to NewPage)
-2. **EditDataTable** - Server-paginated table with edit/delete actions (edit navigates to EditPage)
-3. **NewPage** - Standalone page for creating new items
-4. **EditPage** - Standalone page for editing existing items
+1. **EditCard** - Wrapper with title and "New" button (navigates to NewPage). Naming: `{Model}EditCard.vue`.
+2. **EditDataTable** - Server-paginated table with edit/delete actions (edit navigates to EditPage). Naming: `{Model}EditDataTable.vue`.
+3. **NewPage** - Standalone page for creating new records. Naming: `{Model}NewPage.vue`.
+4. **EditPage** - Standalone page for editing existing records. Naming: `{Model}EditPage.vue`.
 
 **Decision Rules:**
 - **Props from router are strings:** Route params are always strings. Create `...AsNumber` computed for API calls.
-- **Where to put components:** EditCard/EditDataTable go in `components/{model-plural}/`. NewPage/EditPage go in `pages/{parent-path}/{model-plural}/`.
+- **Where to put components:** EditCard/EditDataTable go in `web/src/components/{model-kebab-case}/`. NewPage/EditPage go in `web/src/pages/{parent-path}/{model-plural}/`.
 - **Parent ID handling:** For child entities, NewPage receives parentId. EditPage may only need the modelId (depends on whether you need parent context).
 - **returnTo vs fallbackRoute:** Use returnTo prop when the caller specifies where to go back. Use fallbackRoute when determining from route history.
 
 ## Reference Files
 
-- `TravelDeskFlightRequestsEditCard.vue` (EditCard pattern)
-- `TravelDeskFlightRequestsEditDataTable.vue` (EditDataTable pattern)
+- `TravelDeskFlightRequestEditCard.vue` (EditCard pattern)
+- `TravelDeskFlightRequestEditDataTable.vue` (EditDataTable pattern)
 - `TravelPreApprovalEditPage.vue` (EditPage pattern)
 - `TravelPreApprovalNewPage.vue` (NewPage pattern)
 
@@ -58,10 +58,10 @@ RentalCarRequestTable.vue
 
 **Target Pattern (modern):**
 ```
-{Model}sEditCard.vue (wrapper)
+{Model}EditCard.vue (wrapper)
 ├── v-card with title
 ├── "New" button in header (navigates to NewPage)
-└── {Model}sEditTable.vue (table)
+└── {Model}EditDataTable.vue (table)
     ├── v-data-table
     └── Edit (navigates to EditPage) / Delete buttons in actions column
 
@@ -79,11 +79,11 @@ RentalCarRequestTable.vue
 
 ---
 
-## Step 1: Create the EditTable Component
+## Step 1: Create the EditDataTable Component
 
-**Location:** `web/src/components/{model-plural}/{Model}sEditTable.vue`
+**Location:** `web/src/components/{model-kebab-case}/{Model}EditDataTable.vue`
 
-**Example:** `TravelDeskRentalCarsEditTable.vue`
+**Example:** `TravelDeskRentalCarEditDataTable.vue`
 
 ### Template Structure
 
@@ -95,7 +95,7 @@ RentalCarRequestTable.vue
     :sort-by.sync="vuetify2SortBy"
     :sort-desc.sync="vuetify2SortDesc"
     :headers="headers"
-    :items="items"
+    :items="records"
     :loading="isLoading"
     :server-items-length="totalCount"
     v-bind="$attrs"
@@ -107,21 +107,23 @@ RentalCarRequestTable.vue
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn
-        title="Edit"
-        icon
-        color="blue"
-        @click.stop="goTo{Model}EditPage(item.id)"
-        ><v-icon>mdi-pencil</v-icon></v-btn
-      >
-      <v-btn
-        :loading="isDeleting"
-        title="Delete"
-        icon
-        color="red"
-        @click.stop="deleteItem(item.id)"
-        ><v-icon>mdi-close</v-icon></v-btn
-      >
+      <div class="d-flex">
+        <v-btn
+          title="Edit"
+          icon
+          color="blue"
+          @click.stop="goTo{Model}EditPage(item.id)"
+          ><v-icon>mdi-pencil</v-icon></v-btn
+        >
+        <v-btn
+          :loading="isDeleting"
+          title="Delete"
+          icon
+          color="red"
+          @click.stop="delete{Model}(item.id)"
+          ><v-icon>mdi-close</v-icon></v-btn
+        >
+      </div>
     </template>
 
     <!-- Pass-through slots -->
@@ -148,9 +150,9 @@ import { useRouter } from "vue2-helpers/vue-router"
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import formatDate from "@/utils/format-date"
 
-import {modelPlural}Api, type {Model}WhereOptions } from "@/api/{model-plural}-api"
+import { {modelPlural}Api, type {Model}WhereOptions, type {Model}FiltersOptions } from "@/api/{model-plural}-api"
 
-import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
@@ -161,13 +163,15 @@ import use{ModelPlural} from "@/use/use-{model-plural}"
 const props = withDefaults(
   defineProps<{
     where?: {Model}WhereOptions
-    filters?: Record<string, unknown>
+    filters?: {Model}FiltersOptions
     routeQuerySuffix?: string
+    returnTo?: string
   }>(),
   {
     where: () => ({}),
     filters: () => ({}),
     routeQuerySuffix: "",
+    returnTo: undefined,
   }
 )
 
@@ -177,17 +181,29 @@ const emit = defineEmits<{
 }>()
 
 const headers = [
-  { text: "Field 1", value: "field1" },
-  { text: "Field 2", value: "field2", sortable: false },
+  {
+    text: "Field 1",
+    value: "field1",
+  },
+  {
+    text: "Field 2",
+    value: "field2",
+    sortable: false,
+  },
   // ... more headers (set sortable: false for non-sortable columns)
-  { text: "Actions", value: "actions", align: "end", sortable: false },
+  {
+    text: "Actions",
+    value: "actions",
+    align: "end",
+    sortable: false,
+  },
 ]
 
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, 1, {
-  transform: integerTransformerLegacy,
+const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
 })
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, 5, {
-  transform: integerTransformerLegacy,
+const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`, "5", {
+  transform: integerTransformer,
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   { key: "field1", order: "asc" },
@@ -202,27 +218,32 @@ const query = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const { items, totalCount, isLoading, refresh } = use{ModelPlural}(query)
+const { {modelPlural}: records, totalCount, isLoading, refresh } = use{ModelPlural}(query)
 
 const router = useRouter()
 
-function goTo{Model}EditPage(itemId: number) {
+function goTo{Model}EditPage(recordId: number) {
   return router.push({
     name: "{model-plural}/{Model}EditPage",
-    params: { {model}Id: itemId },
+    params: {
+      {model}Id: recordId.toString(),
+    },
+    query: {
+      returnTo: props.returnTo,
+    },
   })
 }
 
 const isDeleting = ref(false)
 const snack = useSnack()
 
-async function deleteItem(itemId: number) {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this item?")) return
+async function delete{Model}(recordId: number) {
+  if (!blockedToTrueConfirm("Are you sure you want to remove this record?")) return
 
   isDeleting.value = true
   try {
-    await {modelPlural}Api.delete(itemId)
-    snack.success("Item deleted successfully")
+    await {modelPlural}Api.delete(recordId)
+    snack.success("{Model} deleted successfully")
     await emitUpdatedAndRefresh()
   } catch (error) {
     console.error(error)
@@ -246,9 +267,9 @@ defineExpose({
 
 ## Step 2: Create the EditCard Component (Wrapper)
 
-**Location:** `web/src/components/{model-plural}/{Model}sEditCard.vue`
+**Location:** `web/src/components/{model-kebab-case}/{Model}EditCard.vue`
 
-**Example:** `TravelDeskRentalCarsEditCard.vue`
+**Example:** `TravelDeskRentalCarEditCard.vue`
 
 ### Template Structure
 
@@ -267,8 +288,8 @@ defineExpose({
       </v-btn>
     </v-card-title>
     <v-card-text>
-      <{Model}sEditTable
-        ref="{model}sEditTable"
+      <{Model}EditDataTable
+        ref="{model}EditDataTable"
         :where="{
           parentId: parentId,
         }"
@@ -287,7 +308,7 @@ defineExpose({
 <script setup lang="ts">
 import { computed, ref } from "vue"
 
-import {Model}sEditTable from "@/components/{model-plural}/{Model}sEditTable.vue"
+import {Model}EditDataTable from "@/components/{model-kebab-case}/{Model}EditDataTable.vue"
 
 const props = defineProps<{
   parentId: number
@@ -300,13 +321,15 @@ const emit = defineEmits<{
 
 const newRoute = computed(() => ({
   name: "{model-plural}/{Model}NewPage",
-  params: { parentId: props.parentId },
+  params: {
+    parentId: props.parentId,
+  },
 }))
 
-const {model}sEditTable = ref<InstanceType<typeof {Model}sEditTable> | null>(null)
+const {model}EditDataTable = ref<InstanceType<typeof {Model}EditDataTable> | null>(null)
 
 async function refresh() {
-  await {model}sEditTable.value?.refresh()
+  await {model}EditDataTable.value?.refresh()
 }
 
 defineExpose({
@@ -329,45 +352,87 @@ defineExpose({
 <template>
   <HeaderActionsFormCard
     ref="headerActionsFormCard"
-    title="New {Model}"
+    title="New {Model} Request"
     header-tag="h2"
     lazy-validation
-    @submit.prevent="createItem"
+    @submit.prevent="createAndReturn"
   >
     <v-row>
-      <v-col cols="12" md="6">
-        <v-text-field
-          v-model="attributes.field1"
-          label="Field 1 *"
-          :rules="[required]"
-          outlined
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <SectionHeader
+          title="1. Section Name"
+          icon="mdi-icon-name"
         />
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="{model}Attributes.field1"
+              label="Field 1 *"
+              :rules="[required]"
+              outlined
+              required
+            />
+          </v-col>
+        </v-row>
+
+        <SectionHeader
+          title="2. Section Name"
+          icon="mdi-icon-name"
+          header-class="mt-10"
+        />
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="{model}Attributes.field2"
+              label="Field 2"
+              outlined
+            />
+          </v-col>
+        </v-row>
       </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
-          v-model="attributes.field2"
-          label="Field 2"
-          outlined
+
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <SectionHeader
+          title="3. Additional Information"
+          icon="mdi-note-text"
+          header-class="mt-10 mt-md-0"
         />
+        <v-row>
+          <v-col cols="12">
+            <v-textarea
+              v-model="{model}Attributes.additionalNotes"
+              label="Additional Information"
+              outlined
+              rows="20"
+              clearable
+            />
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
 
-    <!-- Add more form fields as needed -->
+    <v-divider class="mt-md-10" />
 
     <template #actions>
       <v-btn
-        class="my-0"
         color="primary"
-        :loading="isLoading"
         type="submit"
+        :loading="isSaving"
+        :block="smAndDown"
       >
-        Save
+        Save {Model} Request
       </v-btn>
       <v-btn
-        class="my-0"
-        color="warning"
-        outlined
-        :to="cancelRoute"
+        class="ml-0 ml-md-4"
+        color="grey"
+        :to="returnTo"
+        :block="smAndDown"
       >
         Cancel
       </v-btn>
@@ -380,25 +445,42 @@ defineExpose({
 
 ```vue
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { ref, computed } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 
 import { required } from "@/utils/validators"
+import useRouteQuery from "@/use/utils/use-route-query"
 
-import {modelPlural}Api from "@/api/{model-plural}-api"
+import {modelPlural}Api, { type {Model} } from "@/api/{model-plural}-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
+import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import SectionHeader from "@/components/common/SectionHeader.vue"
 
 const props = defineProps<{
   parentId: string
 }>()
 
-const parentIdAsNumber = computed(() => Number(props.parentId))
+const parentIdAsNumber = computed(() => parseInt(props.parentId))
 
-const attributes = ref({
+const { tripStartDate, tripEndDate } = useTravelTimesSummary(parentIdAsNumber)
+
+const router = useRouter()
+const defaultReturnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "{parent-route}",
+    params: {
+      parentId: props.parentId,
+    },
+  })
+  return routeLocation.href
+})
+const returnTo = useRouteQuery("returnTo", defaultReturnTo)
+
+const {model}Attributes = ref<Partial<{Model}>>({
   parentId: parentIdAsNumber.value,
   field1: undefined,
   field2: undefined,
@@ -406,31 +488,25 @@ const attributes = ref({
 })
 
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
-const isLoading = ref(false)
+const isSaving = ref(false)
 const snack = useSnack()
-const router = useRouter()
 
-async function createItem() {
-  if (headerActionsFormCard.value === null) return
-  if (!headerActionsFormCard.value.validate()) return
+async function createAndReturn() {
+  if (!headerActionsFormCard.value?.validate()) return
 
-  isLoading.value = true
+  isSaving.value = true
   try {
-    await {modelPlural}Api.create(attributes.value)
-    snack.success("{Model} created successfully")
-    return router.push(cancelRoute.value)
+    await {modelPlural}Api.create({model}Attributes.value)
+    snack.success("{Model} request created successfully!")
+
+    return router.push(returnTo.value)
   } catch (error) {
-    console.error(`Failed to create {model}: ${error}`, { error })
-    snack.error(`Failed to create {model}: ${error}`)
+    console.error(`Failed to create {model} request: ${error}`, { error })
+    snack.error(`Failed to create {model} request: ${error}`)
   } finally {
-    isLoading.value = false
+    isSaving.value = false
   }
 }
-
-const cancelRoute = computed(() => ({
-  name: "{parent-route}",
-  params: { parentId: props.parentId },
-}))
 
 const breadcrumbs = computed(() => [
   {
@@ -438,10 +514,18 @@ const breadcrumbs = computed(() => [
     to: { name: "{parent-route}" },
   },
   {
-    text: "New {Model}",
+    text: "Request",
+    to: {
+      name: "{parent-route}",
+      params: { parentId: props.parentId },
+    },
+  },
+  {
+    text: "New {Model} Request",
     to: { name: "{model-plural}/{Model}NewPage" },
   },
 ])
+
 useBreadcrumbs(breadcrumbs)
 </script>
 ```
@@ -459,61 +543,105 @@ useBreadcrumbs(breadcrumbs)
 ```vue
 <template>
   <v-skeleton-loader
-    v-if="isNil(item)"
-    type="card"
+    v-if="isNil(record)"
+    type="card@2"
   />
   <HeaderActionsFormCard
     v-else
     ref="headerActionsFormCard"
-    title="Edit {Model}"
+    title="Edit {Model} Request"
     header-tag="h2"
     lazy-validation
-    @submit.prevent="saveWrapper"
+    @submit.prevent="saveAndReturn"
   >
     <template #header-actions>
       <v-btn
-        class="my-0"
         color="error"
         outlined
         :loading="isDeleting"
-        @click="deleteItem"
+        :block="smAndDown"
+        @click="deleteAndReturn"
       >
         Delete
       </v-btn>
     </template>
 
     <v-row>
-      <v-col cols="12" md="6">
-        <v-text-field
-          v-model="item.field1"
-          label="Field 1 *"
-          :rules="[required]"
-          outlined
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <SectionHeader
+          title="1. Section Name"
+          icon="mdi-icon-name"
         />
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="record.field1"
+              label="Field 1 *"
+              :rules="[required]"
+              outlined
+              required
+            />
+          </v-col>
+        </v-row>
+
+        <SectionHeader
+          title="2. Section Name"
+          icon="mdi-icon-name"
+          header-class="mt-10"
+        />
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="record.field2"
+              label="Field 2"
+              outlined
+            />
+          </v-col>
+        </v-row>
       </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
-          v-model="item.field2"
-          label="Field 2"
-          outlined
+
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <SectionHeader
+          title="3. Additional Information"
+          icon="mdi-note-text"
+          header-class="mt-10 mt-md-0"
         />
+        <v-row>
+          <v-col cols="12">
+            <v-textarea
+              v-model="record.additionalNotes"
+              label="Additional Information"
+              outlined
+              rows="20"
+              clearable
+            />
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
 
-    <!-- Add more form fields as needed -->
+    <v-divider class="mt-md-10" />
 
     <template #actions>
       <v-btn
         color="primary"
-        :loading="isLoading"
         type="submit"
+        :loading="isSaving"
+        :block="smAndDown"
       >
-        Save
+        Save {Model} Request
       </v-btn>
       <v-btn
-        color="warning"
-        outlined
-        :to="previousRouteOrFallback"
+        class="ml-0 ml-md-4"
+        color="grey"
+        :to="returnTo"
+        :block="smAndDown"
       >
         Cancel
       </v-btn>
@@ -526,7 +654,7 @@ useBreadcrumbs(breadcrumbs)
 
 ```vue
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { ref, computed } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
 
@@ -535,50 +663,61 @@ import { required } from "@/utils/validators"
 
 import {modelPlural}Api from "@/api/{model-plural}-api"
 
+import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
+
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useRouteHistory from "@/use/use-route-history"
 import useSnack from "@/use/use-snack"
 import use{Model} from "@/use/use-{model}"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import SectionHeader from "@/components/common/SectionHeader.vue"
 
 const props = defineProps<{
   {model}Id: string
 }>()
 
-const {model}IdAsNumber = computed(() => Number(props.{model}Id))
-const { {model}: item, isLoading, refresh } = use{Model}({model}IdAsNumber)
+const { smAndDown } = useDisplayVuetify2()
 
+const {model}IdAsNumber = computed(() => parseInt(props.{model}Id))
+const { {model}: record, refresh } = use{Model}({model}IdAsNumber)
+
+const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
+const isSaving = ref(false)
 const snack = useSnack()
 
-async function saveWrapper() {
-  isLoading.value = true
+async function saveAndReturn() {
+  if (!headerActionsFormCard.value?.validate()) return
+
+  isSaving.value = true
   try {
-    await {modelPlural}Api.update({model}IdAsNumber.value, item.value)
-    snack.success("{Model} saved successfully")
+    await {modelPlural}Api.update({model}IdAsNumber.value, record.value)
+    snack.success("{Model} request saved successfully!")
     await refresh()
   } catch (error) {
-    console.error(`Failed to save {model}: ${error}`, { error })
-    snack.error(`Failed to save {model}: ${error}`)
+    console.error(`Failed to save {model} request: ${error}`, { error })
+    snack.error(`Failed to save {model} request: ${error}`)
   } finally {
-    isLoading.value = false
+    isSaving.value = false
   }
 }
 
 const isDeleting = ref(false)
 const router = useRouter()
 
-async function deleteItem() {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this {model}?")) return
+async function deleteAndReturn() {
+  if (!blockedToTrueConfirm("Are you sure you want to remove this {model} request?")) {
+    return
+  }
 
   isDeleting.value = true
   try {
     await {modelPlural}Api.delete({model}IdAsNumber.value)
-    snack.success("{Model} deleted successfully")
+    snack.success("{Model} request deleted successfully!")
     return router.replace(fallbackRoute)
   } catch (error) {
-    console.error(`Failed to delete {model}: ${error}`, { error })
-    snack.error(`Failed to delete {model}: ${error}`)
+    console.error(`Failed to delete {model} request: ${error}`, { error })
+    snack.error(`Failed to delete {model} request: ${error}`)
   } finally {
     isDeleting.value = false
   }
@@ -596,13 +735,20 @@ const previousRouteOrFallback = computed(() => {
   return fallbackRoute
 })
 
-useBreadcrumbs([
+const breadcrumbs = computed(() => [
   {
     text: "Parent Entity",
     to: { name: "{parent-route}" },
   },
   {
-    text: "{Model}",
+    text: "Request",
+    to: {
+      name: "{parent-route}",
+      params: { parentId: props.{model}Id },
+    },
+  },
+  {
+    text: "{Model} Request",
     to: {
       name: "{model-plural}/{Model}Page",
       params: { {model}Id: props.{model}Id },
@@ -616,6 +762,8 @@ useBreadcrumbs([
     },
   },
 ])
+
+useBreadcrumbs(breadcrumbs)
 </script>
 ```
 
@@ -686,8 +834,8 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 
 | Pattern | Naming | Example |
 |---------|--------|---------|
-| Edit Table (plural) | `{Model}sEditTable.vue` | `TravelDeskRentalCarsEditTable.vue` |
-| Edit Card (wrapper) | `{Model}sEditCard.vue` | `TravelDeskRentalCarsEditCard.vue` |
+| Edit Data Table | `{Model}EditDataTable.vue` | `TravelDeskRentalCarEditDataTable.vue` |
+| Edit Card (wrapper) | `{Model}EditCard.vue` | `TravelDeskRentalCarEditCard.vue` |
 | New Page | `{Model}NewPage.vue` | `TravelDeskRentalCarNewPage.vue` |
 | Edit Page | `{Model}EditPage.vue` | `TravelDeskRentalCarEditPage.vue` |
 
@@ -710,53 +858,82 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 
 ## Checklist
 
-### EditTable Component
+### EditDataTable Component
 - [ ] Uses `<script setup lang="ts">`
-- [ ] Uses `withDefaults(defineProps<{...}>(), {...})` for props with defaults
+- [ ] Uses `defineProps<{...}>()` with proper TypeScript types
 - [ ] Uses `defineEmits<{ (event: "updated"): void }>()` call-signature syntax
-- [ ] Uses v-data-table with server-side pagination and sorting
-- [ ] Binds `:sort-by.sync` and `:sort-desc.sync` for sorting
-- [ ] Uses sort utilities: `useVuetifySortByToSafeRouteQuery`, `useVuetify2SortByShim`, `useVuetifySortByToSequelizeSafeOrder`
-- [ ] Passes `order` to query computed property
-- [ ] Edit button calls `goTo{Model}EditPage(item.id)` via `@click.stop`
+- [ ] Uses modern `integerTransformer` instead of `integerTransformerLegacy`
+- [ ] Uses `isLoading` from composable, not `isNil(records)` for loading state
+- [ ] Uses proper TypeScript typing: `useRouteQuery<string, number>(..., "1", { transform: integerTransformer })`
+- [ ] Includes `returnTo?: string` prop and passes to edit navigation
+- [ ] Uses flex container for actions: `<div class="d-flex">` with `:block="smAndDown"`
+- [ ] Has edit/delete buttons in actions column
 - [ ] Has delete button with confirmation
+- [ ] Edit navigation includes `returnTo` query parameter and converts ID to string
+- [ ] Action methods are named descriptively (e.g., `delete{Model}` not `deleteItem`)
+- [ ] Uses full, descriptive names for variables (e.g., `record` instead of `item`)
 - [ ] Uses composable for data fetching
 - [ ] Uses useRouteQuery for pagination state
+- [ ] Simplified error logging: `console.error(error)` instead of complex error objects
 - [ ] Emits "updated" event
 - [ ] Exposes refresh() method
 
 ### EditCard Component
 - [ ] Uses `<script setup lang="ts">`
-- [ ] Uses `defineProps<{...}>()` for required props
+- [ ] Uses `defineProps<{...}>()` for required props including `returnTo?: string`
 - [ ] Uses `defineEmits<{ (event: "updated"): void }>()` call-signature syntax
-- [ ] Wraps EditTable in v-card
-- [ ] Has "New" button in card title that navigates to NewPage
-- [ ] Passes where prop to EditTable
+- [ ] Wraps EditDataTable in v-card
+- [ ] Has "New" button in card title with inline route object
+- [ ] New button includes `returnTo` query parameter and converts ID to string
+- [ ] Passes `where` and `returnTo` props to EditDataTable
+- [ ] Uses computed where property instead of inline object
 - [ ] Emits "updated" event
 - [ ] Exposes refresh() method
 
 ### NewPage Component
 - [ ] Uses `<script setup lang="ts">`
 - [ ] Uses `defineProps<{ parentId: string }>()` (string type, not number)
-- [ ] Creates `parentIdAsNumber` computed for numeric operations
+- [ ] Creates `parentIdAsNumber` computed using `parseInt()` (not `Number()`)
 - [ ] Uses HeaderActionsFormCard wrapper
 - [ ] Has form validation with rules
 - [ ] Has Save/Cancel action buttons
-- [ ] Uses ref for attributes (not loaded data)
-- [ ] Navigates on successful create
-- [ ] Sets breadcrumbs
+- [ ] Uses ref for attributes with descriptive naming (e.g., `{model}Attributes`)
+- [ ] Action method named `createAndReturn()` (not `create{Model}()`)
+- [ ] Uses `useRouteQuery` for `returnTo` with `defaultReturnTo` computed
+- [ ] `defaultReturnTo` uses `router.resolve()` to get href
+- [ ] Guard clause: `if (!headerActionsFormCard.value?.validate()) return`
+- [ ] Success messages include "!" at the end
+- [ ] Error messages use singular form: "Failed to create {model} request"
+- [ ] Uses two-column layout with numbered sections and icons
+- [ ] Section headers use `<SectionHeader>` component with `title` and `icon` props
+- [ ] Has `v-divider class="mt-md-10"` before actions
+- [ ] Save button has `:block="smAndDown"` and text "Save {Model} Request"
+- [ ] Cancel button uses `color="grey"`, `:block="smAndDown"`, and `class="ml-0 ml-md-4"`
+- [ ] Cancel button uses `:to="returnTo"` (not route history)
+- [ ] `breadcrumbs` is computed, then passed to `useBreadcrumbs(breadcrumbs)`
 
 ### EditPage Component
 - [ ] Uses `<script setup lang="ts">`
-- [ ] Uses `defineProps<{ modelId: string }>()` (string type, not number)
-- [ ] Creates `modelIdAsNumber` computed for API calls and composables
+- [ ] Uses `defineProps<{ {model}Id: string }>()` (string type, not number)
+- [ ] Creates `{model}IdAsNumber` computed using `parseInt()` (not `Number()`)
+- [ ] Uses `useDisplayVuetify2()` for responsive breakpoints (e.g., `smAndDown`)
 - [ ] Uses HeaderActionsFormCard wrapper
-- [ ] Has Delete button in header-actions slot
-- [ ] Has v-skeleton-loader for loading state
+- [ ] Has Delete button in header-actions slot with `:block="smAndDown"`
+- [ ] Has v-skeleton-loader with `type="card@2"` for loading state
 - [ ] Uses composable for loading entity (pass `...AsNumber` computed)
-- [ ] Has Save/Cancel action buttons
-- [ ] Uses useRouteHistory for cancel navigation
-- [ ] Sets breadcrumbs with Edit step
+- [ ] Action methods named `saveAndReturn()` and `deleteAndReturn()`
+- [ ] Guard clause: `if (!headerActionsFormCard.value?.validate()) return`
+- [ ] Success messages include "!" at the end
+- [ ] Error messages use singular form: "Failed to save/delete {model} request"
+- [ ] Uses two-column layout with numbered sections and icons
+- [ ] Section headers use `<SectionHeader>` component with `title` and `icon` props
+- [ ] Has `v-divider class="mt-md-10"` before actions
+- [ ] Save button has `:block="smAndDown"` and text "Save {Model} Request"
+- [ ] Cancel button uses `color="grey"`, `:block="smAndDown"`, and `class="ml-0 ml-md-4"`
+- [ ] Cancel button uses `:to="returnTo"` (not route history)
+- [ ] Uses `useRouteQuery` for `returnTo` with `defaultReturnTo` computed
+- [ ] `defaultReturnTo` uses `router.resolve()` to get href
+- [ ] `breadcrumbs` is computed, then passed to `useBreadcrumbs(breadcrumbs)`
 
 ### Routes
 - [ ] New page route defined with props: true
@@ -767,21 +944,25 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 
 ## Common Pitfalls
 
-1. **Using `[String, Number]` prop type** - Page props from router are always strings; use `string` type and create `...AsNumber` computed
+1. **Using `[String, Number]` prop type** - Page props from router are always strings; use `string` type and create `...AsNumber` computed using `parseInt()`
 2. **Using old `defineProps({})` syntax** - TypeScript files should use `defineProps<{...}>()` or `withDefaults(defineProps<{...}>(), {...})`
 3. **Using old `defineEmits([])` syntax** - TypeScript files should use call-signature syntax: `defineEmits<{ (event: "name"): void }>()`
 4. **Forgetting to emit "updated"** - Parent components rely on this to know when to refresh
 5. **Not exposing refresh()** - Needed for parent components to trigger data refresh
-6. **Missing v-skeleton-loader** - EditPage should show skeleton while loading
-7. **Hardcoded routes** - Use computed routes based on previousRoute for flexibility
+6. **Missing v-skeleton-loader** - EditPage should show skeleton while loading (use `type="card@2"`)
+7. **Hardcoded routes** - Use `useRouteQuery("returnTo", defaultReturnTo)` for flexible return navigation
 8. **Missing breadcrumbs** - Pages should set breadcrumbs for navigation
 9. **Not initializing form attributes** - NewPage should initialize attributes with `undefined` values
-10. **Using v-model directly on loaded data** - EditPage can modify loaded entity; NewPage uses separate ref
+10. **Using abbreviations** - Use full descriptive names (e.g., `record` or `{model}` instead of `item`)
 11. **Passing string ID to API calls** - Always use the `...AsNumber` computed when calling API methods
-12. **Using JSDoc for refs** - Use TypeScript generics instead: `ref<InstanceType<typeof Component> | null>(null)`
+12. **Using legacy transformers** - Use `integerTransformer` instead of `integerTransformerLegacy`
+13. **Using `isNil()` for loading state** - Use `isLoading` from composables instead
+14. **Missing `returnTo` support** - EditCard and EditDataTable should support `returnTo` prop for navigation
+15. **Using old section headers** - Replace `<h3 class="primary--text">` with `<SectionHeader>` component
+16. **Non-responsive action buttons** - Use `:block="smAndDown"` and flex containers for mobile compatibility
 
 ---
 
-**Workflow Version:** 1.1
-**Last Updated:** 2026-01-15
-**Reference Files:** `TravelDeskFlightRequestsEditCard.vue`, `TravelDeskFlightRequestsEditTable.vue`, `TravelPreApprovalEditPage.vue`, `TravelPreApprovalNewPage.vue`
+**Workflow Version:** 1.3
+**Last Updated:** 2026-01-16
+**Reference Files:** `TravelDeskOtherTransportationNewPage.vue`, `TravelDeskHotelNewPage.vue`, `TravelDeskRentalCarNewPage.vue`, `TravelDeskOtherTransportationEditPage.vue`

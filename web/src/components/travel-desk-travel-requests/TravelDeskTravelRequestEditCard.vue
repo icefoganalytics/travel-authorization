@@ -25,9 +25,11 @@
         :travel-desk-travel-request-id="travelDeskTravelRequestId"
         :return-to="returnTo"
       />
-      <TravelDeskOtherTransportationsEditTable
+      <TravelDeskOtherTransportationEditCard
+        ref="travelDeskOtherTransportationEditCard"
+        class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestId"
-        :travel-authorization-id="travelAuthorizationId"
+        :return-to="returnTo"
       />
     </v-card-text>
   </v-card>
@@ -41,7 +43,7 @@ import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
 import TravelDeskFlightRequestsEditCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsEditCard.vue"
 import TravelDeskHotelsEditCard from "@/components/travel-desk-hotels/TravelDeskHotelsEditCard.vue"
-import TravelDeskOtherTransportationsEditTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationsEditTable.vue"
+import TravelDeskOtherTransportationEditCard from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditCard.vue"
 import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
 
 const props = defineProps<{
@@ -58,10 +60,14 @@ const travelDeskRentalCarsEditCard = ref<InstanceType<typeof TravelDeskRentalCar
   null
 )
 const travelDeskHotelEditCard = ref<InstanceType<typeof TravelDeskHotelsEditCard> | null>(null)
+const travelDeskOtherTransportationEditCard = ref<InstanceType<
+  typeof TravelDeskOtherTransportationEditCard
+> | null>(null)
 
 function refreshTablesUsingFlightInfo() {
   travelDeskRentalCarsEditCard.value?.refresh()
   travelDeskHotelEditCard.value?.refresh()
+  travelDeskOtherTransportationEditCard.value?.refresh()
 }
 </script>
 
