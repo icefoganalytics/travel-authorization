@@ -1,9 +1,12 @@
 <template>
-  <v-sheet>
+  <v-sheet class="grey lighten-4">
     <v-card-title>
       <h2>{{ title }}</h2>
     </v-card-title>
-    <v-tabs show-arrows>
+    <v-tabs
+      show-arrows
+      background-color="grey lighten-4"
+    >
       <v-tab
         v-for="tab in tabs"
         :key="tab.value"
