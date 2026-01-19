@@ -1,22 +1,25 @@
 <template>
-  <v-card
-    class="card--outlined"
-    style="--card-title-bg: white"
-  >
-    <v-card-title>
-      <h3>Flight Requests</h3>
+  <v-card>
+    <v-card-title class="d-flex justify-space-between">
+      <SectionHeader
+        title="1. Flight Requests"
+        icon="mdi-flight-outline"
+        tag="h4"
+      />
+      <TravelDeskFlightRequestCreateDialog
+        :attributes="{
+          travelRequestId: travelDeskTravelRequestId,
+        }"
+        :min-date="minDate"
+        :max-date="maxDate"
+        :activator-props="{
+          block: smAndDown,
+          class: 'my-md-0',
+        }"
+        @created="emitUpdatedAndRefresh"
+      />
     </v-card-title>
     <v-card-text>
-      <div class="d-flex justify-end">
-        <TravelDeskFlightRequestCreateDialog
-          :attributes="{
-            travelRequestId: travelDeskTravelRequestId,
-          }"
-          :min-date="minDate"
-          :max-date="maxDate"
-          @created="emitUpdatedAndRefresh"
-        />
-      </div>
       <TravelDeskFlightRequestsManageTable
         ref="travelDeskFlightRequestsManageTable"
         :where="{
@@ -27,22 +30,24 @@
         :max-date="maxDate"
         :show-flight-options="showFlightOptions"
         @updated="emit('updated')"
-      />
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer />
-      <v-btn
-        :to="{
-          name: 'TravelDeskFlightSegmentsManagePage',
-          params: {
-            travelDeskTravelRequestId,
-          },
-        }"
-        color="blue"
       >
-        Manage Flight Options - Travelport&trade;
-      </v-btn>
-    </v-card-actions>
+        <template #footer.prepend>
+          <!-- TODO: make this a first class feature! Maybe with it's own tab? -->
+          <v-btn
+            class="my-0"
+            :to="{
+              name: 'TravelDeskFlightSegmentsManagePage',
+              params: {
+                travelDeskTravelRequestId,
+              },
+            }"
+            color="blue"
+          >
+            Manage Flight Options - Travelport&trade;
+          </v-btn>
+        </template>
+      </TravelDeskFlightRequestsManageTable>
+    </v-card-text>
   </v-card>
 </template>
 
@@ -50,8 +55,11 @@
 import { computed, ref, toRefs } from "vue"
 import { first, last } from "lodash"
 
+import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
+
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
+import SectionHeader from "@/components/common/SectionHeader.vue"
 import TravelDeskFlightRequestCreateDialog from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestCreateDialog.vue"
 import TravelDeskFlightRequestsManageTable from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageTable.vue"
 
@@ -80,6 +88,8 @@ const lastTravelSegment = computed(() => last(travelAuthorization.value?.travelS
 
 const minDate = computed(() => firstTravelSegment.value?.departureOn)
 const maxDate = computed(() => lastTravelSegment.value?.departureOn)
+
+const { smAndDown } = useDisplayVuetify2()
 
 /** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightRequestsManageTable> | null>} */
 const travelDeskFlightRequestsManageTable = ref(null)
