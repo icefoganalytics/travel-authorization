@@ -86,19 +86,22 @@
                   show-flight-options
                 />
                 <TravelDeskRentalCarsEditCard
+                  ref="travelDeskRentalCarsEditCard"
                   class="mt-6"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-                  :return-to="returnTo"
+                  :return-to="buildReturnTo('travel-desk-rental-cars-edit-card')"
                 />
                 <TravelDeskHotelsEditCard
+                  ref="travelDeskHotelsEditCard"
                   class="mt-6"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-                  :return-to="returnTo"
+                  :return-to="buildReturnTo('travel-desk-hotels-edit-card')"
                 />
                 <TravelDeskOtherTransportationEditCard
+                  ref="travelDeskOtherTransportationEditCard"
                   class="mt-6"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-                  :return-to="returnTo"
+                  :return-to="buildReturnTo('travel-desk-other-transportation-edit-card')"
                 />
               </v-card-text>
             </v-card>
@@ -233,9 +236,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { computed, nextTick, Ref, ref, watchEffect } from "vue"
 import { isNil } from "lodash"
+import { useRouter, useRoute } from "vue2-helpers/vue-router"
+import goTo from "vuetify/lib/services/goto"
 
 import travelDeskTravelRequestsApi, {
   TravelDeskTravelRequestStatuses,
@@ -315,15 +319,65 @@ async function refresh() {
 }
 
 const router = useRouter()
-const returnTo = computed(() => {
+
+function buildReturnTo(hash: string) {
   const routeLocation = router.resolve({
     name: "travel-desk/TravelDeskRequestEditPage",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId,
     },
+    hash: `#${hash}`,
   })
   return routeLocation.href
+}
+
+const travelDeskRentalCarsEditCard = ref<InstanceType<typeof TravelDeskRentalCarsEditCard> | null>(
+  null
+)
+const travelDeskHotelsEditCard = ref<InstanceType<typeof TravelDeskHotelsEditCard> | null>(null)
+const travelDeskOtherTransportationEditCard = ref<InstanceType<
+  typeof TravelDeskOtherTransportationEditCard
+> | null>(null)
+
+const scrollToTargetMap: Record<string, Ref<{ $el?: Element } | null>> = {
+  ["#travel-desk-rental-cars-edit-card"]: travelDeskRentalCarsEditCard,
+  ["#travel-desk-hotels-edit-card"]: travelDeskHotelsEditCard,
+  ["#travel-desk-other-transportation-edit-card"]: travelDeskOtherTransportationEditCard,
+}
+
+const route = useRoute()
+
+// NOTE: this will be much easier with vuetify 3
+watchEffect(() => {
+  const { hash } = route
+  if (isNil(hash)) return
+
+  const targetRef = scrollToTargetMap[hash]
+  if (isNil(targetRef)) return
+
+  const componentRef = targetRef.value
+  if (isNil(componentRef)) return
+
+  const { $el } = componentRef
+  if (isNil($el)) return
+
+  const targetElement = toHTMLElement($el)
+  if (isNil(targetElement)) return
+
+  scrollToTarget(targetElement)
 })
+
+function toHTMLElement(element: Element): HTMLElement | null {
+  return element instanceof HTMLElement ? element : null
+}
+
+function scrollToTarget(targetElement: HTMLElement) {
+  return goTo(targetElement, {
+    easing: "easeInOutCubic",
+    offset: 75,
+    duration: 300,
+  })
+}
 
 async function returnToTravelDesk() {
   return router.push({
