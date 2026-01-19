@@ -1,5 +1,8 @@
 <template>
-  <v-card class="card--outlined">
+  <v-card
+    class="card--outlined"
+    style="--card-title-bg: white"
+  >
     <v-card-title>
       <h3>Flight Requests</h3>
     </v-card-title>
