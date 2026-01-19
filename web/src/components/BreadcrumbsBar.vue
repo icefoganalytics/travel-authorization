@@ -22,9 +22,7 @@ defineProps({
 
 <style scoped>
 .default-style {
-  background-color: #eee;
   margin: -12px -24px 16px;
   padding: 16px 24px 16px;
-  border-bottom: 1px #ddd solid;
 }
 </style>
