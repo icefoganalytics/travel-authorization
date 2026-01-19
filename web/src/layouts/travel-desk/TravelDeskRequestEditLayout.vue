@@ -2,17 +2,31 @@
   <HeaderWithChildTabPagesLayout
     title="Travel Desk Request"
     :tabs="tabs"
-  />
+  >
+    <template #append>
+      <span class="text-subtitle-1 font-weight-light">
+        Travel Auth: <strong class="font-weight-bold">{{ travelAuthorizationId }}</strong>
+      </span>
+    </template>
+  </HeaderWithChildTabPagesLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
+
+import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
 import HeaderWithChildTabPagesLayout from "@/components/common/layouts/HeaderWithChildTabPagesLayout.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
+
+const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
+const { travelDeskTravelRequest } = useTravelDeskTravelRequest(travelDeskTravelRequestIdAsNumber)
+const travelAuthorizationId = computed(() =>
+  travelDeskTravelRequest.value?.travelAuthorizationId?.toString().padStart(4, "0")
+)
 
 const tabs = ref([
   {

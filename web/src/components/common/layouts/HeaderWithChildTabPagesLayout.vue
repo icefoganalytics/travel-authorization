@@ -1,7 +1,10 @@
 <template>
   <v-sheet class="grey lighten-4">
-    <v-card-title>
-      <h2>{{ title }}</h2>
+    <v-card-title class="d-flex justify-space-between align-baseline">
+      <h2>
+        {{ title }}
+      </h2>
+      <slot name="append" />
     </v-card-title>
     <v-tabs
       show-arrows
