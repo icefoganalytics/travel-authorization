@@ -3,8 +3,9 @@
     <v-card-title class="d-flex justify-space-between">
       <SectionHeader
         title="1. Flight Requests"
-        icon="mdi-flight-outline"
+        icon="mdi-airplane"
         tag="h4"
+        class="mb-0"
       />
       <TravelDeskFlightRequestCreateDialog
         :attributes="{

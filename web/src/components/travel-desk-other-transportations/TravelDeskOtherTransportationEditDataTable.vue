@@ -20,7 +20,7 @@
         <v-btn
           title="Edit"
           icon
-          color="blue"
+          color="primary"
           @click.stop="goToTravelDeskOtherTransportationEditPage(item.id)"
           ><v-icon>mdi-pencil</v-icon></v-btn
         >
