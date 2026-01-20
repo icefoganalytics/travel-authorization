@@ -7,6 +7,7 @@
     <v-card
       v-else
       class="card--outlined"
+      style="--card-title-bg: #f5f5f5"
     >
       <v-card-title>
         <h2>Travel Desk Request</h2>
@@ -75,6 +76,7 @@
             <v-card
               class="mt-10 card--outlined"
               large-title
+              style="--card-title-bg: white"
             >
               <v-card-title>
                 <h3>Travel Information</h3>

@@ -283,6 +283,48 @@ const routes: RouteConfig[] = [
             props: true,
           },
           {
+            path: "travel-desk/:travelDeskTravelRequestId/edit2",
+            component: () => import("@/layouts/travel-desk/TravelDeskRequestEditLayout.vue"),
+            props: true,
+            children: [
+              {
+                path: "",
+                name: "travel-desk/edit/TravelDeskRequestEditRedirect",
+                redirect: {
+                  name: "travel-desk/edit/TravelDeskRequestTravelerDetailsPage",
+                },
+              },
+              {
+                path: "traveler-details",
+                name: "travel-desk/edit/TravelDeskRequestTravelerDetailsPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestTravelerDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "travel-request",
+                name: "travel-desk/edit/TravelDeskRequestTravelRequestPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestTravelRequestPage.vue"),
+                props: true,
+              },
+              {
+                path: "trip-information",
+                name: "travel-desk/edit/TravelDeskRequestTripInformationPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestTripInformationPage.vue"),
+                props: true,
+              },
+              {
+                path: "invoicing",
+                name: "travel-desk/edit/TravelDeskRequestInvoicingPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestInvoicingPage.vue"),
+                props: true,
+              },
+            ],
+          },
+          {
             name: "TravelDeskFlightSegmentsManagePage",
             path: "travel-desk/:travelDeskTravelRequestId/manage-flight-segments",
             component: () => import("@/pages/travel-desk/TravelDeskFlightSegmentsManagePage.vue"),

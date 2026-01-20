@@ -1,7 +1,12 @@
 <template>
   <v-card>
     <v-card-title class="d-flex align-center">
-      <h3 class="mb-0">Rental Car Requests</h3>
+      <SectionHeader
+        title="2. Rental Car Requests"
+        icon="mdi-car"
+        tag="h3"
+        class="mb-0"
+      />
       <v-spacer />
       <v-btn
         class="my-0"
@@ -33,6 +38,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
+
+import SectionHeader from "@/components/common/SectionHeader.vue"
 
 import TravelDeskRentalCarsEditDataTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditDataTable.vue"
 
