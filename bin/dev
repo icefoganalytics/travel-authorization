@@ -323,7 +323,7 @@ class DevHelper
   end
 
   def dynamic_environment_variables
-    if RUBY_PLATFORM =~ /linux/
+    if RUBY_PLATFORM =~ /linux/ && user_id == '1000' && group_id == '1000'
       %(HOST_USER_ID="#{user_id}" HOST_GROUP_ID="#{group_id}")
     else
       ""
