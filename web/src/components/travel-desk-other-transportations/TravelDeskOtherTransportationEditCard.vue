@@ -27,6 +27,7 @@
     <v-card-text>
       <TravelDeskOtherTransportationEditDataTable
         ref="travelDeskOtherTransportationEditDataTable"
+        :travel-desk-travel-request-id="travelDeskTravelRequestId"
         :where="travelDeskOtherTransportationsWhere"
         :return-to="returnTo"
         route-query-suffix="TravelDeskOtherTransportation"

@@ -69,6 +69,7 @@ import useTravelDeskOtherTransportations from "@/use/use-travel-desk-other-trans
 
 const props = withDefaults(
   defineProps<{
+    travelDeskTravelRequestId: number
     where?: TravelDeskOtherTransportationWhereOptions
     filters?: TravelDeskOtherTransportationFiltersOptions
     routeQuerySuffix?: string
@@ -149,6 +150,7 @@ function goToTravelDeskOtherTransportationEditPage(travelDeskOtherTransportation
   return router.push({
     name: "travel-desk/other-transportations/TravelDeskOtherTransportationEditPage",
     params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId.toString(),
       travelDeskOtherTransportationId: travelDeskOtherTransportationId.toString(),
     },
     query: {
