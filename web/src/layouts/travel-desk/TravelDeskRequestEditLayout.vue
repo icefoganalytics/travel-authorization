@@ -69,5 +69,15 @@ const tabs = ref([
       },
     },
   },
+  {
+    value: 5,
+    title: "5. Review and Manage Booking",
+    to: {
+      name: "travel-desk/edit/TravelDeskRequestReviewManageBookingPage",
+      params: {
+        travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+      },
+    },
+  },
 ])
 </script>

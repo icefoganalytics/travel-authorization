@@ -322,6 +322,13 @@ const routes: RouteConfig[] = [
                   import("@/pages/travel-desk/edit/TravelDeskRequestInvoicingPage.vue"),
                 props: true,
               },
+              {
+                path: "review-manage-booking",
+                name: "travel-desk/edit/TravelDeskRequestReviewManageBookingPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestReviewManageBookingPage.vue"),
+                props: true,
+              },
             ],
           },
           {
