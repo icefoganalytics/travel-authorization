@@ -40,6 +40,15 @@ const breadcrumbs = computed(() => [
       },
     },
   },
+  {
+    text: "Invoicing",
+    to: {
+      name: "travel-desk/edit/TravelDeskRequestInvoicingPage",
+      params: {
+        travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+      },
+    },
+  },
 ])
 useBreadcrumbs(breadcrumbs)
 </script>

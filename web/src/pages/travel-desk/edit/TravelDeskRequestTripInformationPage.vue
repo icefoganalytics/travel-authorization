@@ -42,6 +42,15 @@ const breadcrumbs = computed(() => [
       },
     },
   },
+  {
+    text: "Trip Information (PNR details)",
+    to: {
+      name: "travel-desk/edit/TravelDeskRequestTripInformationPage",
+      params: {
+        travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+      },
+    },
+  },
 ])
 useBreadcrumbs(breadcrumbs)
 </script>
