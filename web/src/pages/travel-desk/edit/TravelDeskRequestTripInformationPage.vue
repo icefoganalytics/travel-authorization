@@ -94,6 +94,7 @@
               travelDeskTravelRequestId: props.travelDeskTravelRequestId,
             },
           }"
+          :loading="isSaving"
           :block="smAndDown"
         >
           Back

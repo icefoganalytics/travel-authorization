@@ -126,6 +126,7 @@
               travelDeskTravelRequestId: props.travelDeskTravelRequestId,
             },
           }"
+          :loading="isWorkflowLoading"
           :block="smAndDown"
         >
           Back

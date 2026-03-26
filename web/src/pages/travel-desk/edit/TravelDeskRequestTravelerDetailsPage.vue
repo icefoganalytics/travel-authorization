@@ -282,6 +282,8 @@
         >
         <v-spacer />
         <v-btn
+          color="warning"
+          outlined
           :to="{
             name: 'TravelDeskPage',
           }"
