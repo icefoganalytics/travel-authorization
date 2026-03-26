@@ -277,19 +277,13 @@ const routes: RouteConfig[] = [
             props: true,
           },
           {
-            name: "travel-desk/TravelDeskRequestEditPage",
             path: "travel-desk/:travelDeskTravelRequestId/edit",
-            component: () => import("@/pages/travel-desk/TravelDeskRequestEditPage.vue"),
-            props: true,
-          },
-          {
-            path: "travel-desk/:travelDeskTravelRequestId/edit2",
             component: () => import("@/layouts/travel-desk/TravelDeskRequestEditLayout.vue"),
             props: true,
             children: [
               {
                 path: "",
-                name: "travel-desk/edit/TravelDeskRequestEditRedirect",
+                name: "travel-desk/TravelDeskRequestEditRedirect",
                 redirect: {
                   name: "travel-desk/edit/TravelDeskRequestTravelerDetailsPage",
                 },

@@ -270,7 +270,7 @@ const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDe
 const router = useRouter()
 const defaultReturnTo = computed(() => {
   const routeLocation = router.resolve({
-    name: "travel-desk/TravelDeskRequestEditPage",
+    name: "travel-desk/TravelDeskRequestEditRedirect",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId,
     },
