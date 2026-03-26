@@ -2,7 +2,7 @@
   <v-sheet>
     <v-skeleton-loader
       v-if="isNil(travelDeskTravelRequest)"
-      type="card@4"
+      type="card@5"
     />
     <div
       v-else
