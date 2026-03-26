@@ -2,7 +2,7 @@
   <v-card>
     <v-card-title class="d-flex align-center">
       <SectionHeader
-        title="2. Rental Car Requests"
+        title="3. Rental Car Requests"
         icon="mdi-car"
         tag="h3"
         class="mb-0"

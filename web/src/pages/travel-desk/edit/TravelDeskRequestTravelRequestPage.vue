@@ -8,7 +8,54 @@
       v-else
       class="grey lighten-4"
     >
+      <v-card>
+        <v-card-title>
+          <SectionHeader
+            title="1. Booking Assignment"
+            icon="mdi-briefcase-account-outline"
+            tag="h4"
+          />
+        </v-card-title>
+        <v-form
+          id="booking-assignment-form"
+          ref="form"
+          lazy-validation
+          @submit.prevent="saveTravelDeskTravelRequest"
+        >
+          <v-card-text>
+            <v-row>
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <TravelDeskTravelAgencySelect
+                  v-model="travelDeskTravelRequest.travelAgencyId"
+                  label="Assign Agency"
+                  placeholder="None"
+                  clearable
+                  outlined
+                  persistent-placeholder
+                />
+              </v-col>
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <UserTravelDeskAgentSelect
+                  v-model="travelDeskTravelRequest.travelDeskOfficer"
+                  label="Travel Desk Agent Assigned *"
+                  :rules="[required]"
+                  outlined
+                  required
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-form>
+      </v-card>
+
       <TravelDeskFlightRequestsManageCard
+        class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
         show-flight-options
       />
@@ -34,15 +81,30 @@
         :return-to="buildReturnTo('travel-desk-other-transportation-edit-card')"
       />
 
-      <div class="d-flex flex-column flex-md-row mt-6">
+      <div class="d-flex flex-column flex-md-row">
         <v-btn
+          color="primary"
+          form="booking-assignment-form"
+          type="submit"
+          :loading="isLoading"
+          :block="smAndDown"
+        >
+          Save Booking Details
+        </v-btn>
+        <v-spacer />
+        <v-btn
+          color="warning"
+          outlined
           :to="{
-            name: 'TravelDeskPage',
+            name: 'travel-desk/edit/TravelDeskRequestTravelerDetailsPage',
+            params: {
+              travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+            },
           }"
           :loading="isLoading"
           :block="smAndDown"
         >
-          Return
+          Back
         </v-btn>
       </div>
     </div>
@@ -52,17 +114,24 @@
 <script setup lang="ts">
 import { computed, ref, Ref, watchEffect } from "vue"
 import { isNil } from "lodash"
+import { type VForm } from "vuetify/lib/components"
 import { useRouter, useRoute } from "vue2-helpers/vue-router"
 import goTo from "vuetify/lib/services/goto"
 
+import { required } from "@/utils/validators"
+
 import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
+import SectionHeader from "@/components/common/SectionHeader.vue"
 import TravelDeskFlightRequestsManageCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageCard.vue"
 import TravelDeskHotelsEditCard from "@/components/travel-desk-hotels/TravelDeskHotelsEditCard.vue"
 import TravelDeskOtherTransportationEditCard from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditCard.vue"
 import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
+import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
+import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string
@@ -71,9 +140,28 @@ const props = defineProps<{
 const { smAndDown } = useDisplayVuetify2()
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
-const { travelDeskTravelRequest, isLoading } = useTravelDeskTravelRequest(
+const { travelDeskTravelRequest, isLoading, save } = useTravelDeskTravelRequest(
   travelDeskTravelRequestIdAsNumber
 )
+
+const form = ref<InstanceType<typeof VForm> | null>(null)
+const snack = useSnack()
+
+async function saveTravelDeskTravelRequest() {
+  if (isNil(travelDeskTravelRequest.value)) return
+  if (!form.value?.validate()) return
+
+  isLoading.value = true
+  try {
+    await save()
+    snack.success("Booking details saved successfully!")
+  } catch (error) {
+    console.error(`Failed to save travel desk travel request: ${error}`, { error })
+    snack.error(`Failed to save: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const router = useRouter()
 

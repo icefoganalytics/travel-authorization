@@ -2,7 +2,7 @@
   <v-card>
     <v-card-title class="d-flex align-center">
       <SectionHeader
-        title="3. Hotel Requests"
+        title="4. Hotel Requests"
         icon="mdi-bed"
         tag="h3"
         class="mb-0"
