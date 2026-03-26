@@ -6,6 +6,10 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 
 **Documentation philosophy:** This file focuses on patterns, conventions, and architecture rather than documenting specific features or domain models. Examples illustrate patterns, not exhaustive feature documentation.
 
+Keep `AGENTS.md` focused on project-wide conventions and high-level concepts. When guidance becomes
+specific to a subsystem or directory, move it into the nearest `README.md` or `agents/` workflow
+document and link to it from here instead of letting this file become a dumping ground.
+
 ## Table of Contents
 
 - [Technology Stack](#technology-stack)
