@@ -43,8 +43,11 @@ Basic usage:
 ./bin/dev test
 ./bin/dev test api
 ./bin/dev test web
+./bin/dev test api -- --run tests/services/travel-desk-travel-requests/options-provided-service.test.ts
 ./bin/dev test api -- --grep "travel desk"
 ```
+
+Pass Vitest flags after `--` so they are forwarded to the underlying test runner.
 
 ### Database Operations
 

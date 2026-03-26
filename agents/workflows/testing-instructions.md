@@ -96,7 +96,7 @@ Use this structure:
 ```markdown
 # Testing Instructions
 
-1. Run the relevant test suite via `./bin/dev test api -- --run` or a narrower command.
+1. Run the relevant test suite via `./bin/dev test api -- --run` or a narrower command such as `./bin/dev test api -- --run tests/services/example.test.ts`.
 2. Boot the app via `./bin/dev up`.
 3. Log in to the app at http://localhost:8080.
 

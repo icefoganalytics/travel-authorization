@@ -136,7 +136,7 @@ document and link to it from here instead of letting this file become a dumping 
 **Running tests:**
 
 - All tests: `dev test api`
-- Specific file: `dev test api -- tests/services/example.test.ts --run`
+- Specific file: `dev test api -- --run tests/services/example.test.ts`
 - Watch mode: omit `--run`
 - Pattern: `dev test api -- --grep "pattern"`
 
