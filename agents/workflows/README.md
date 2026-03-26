@@ -15,6 +15,7 @@ implementation details, constraints, or required steps.
 | Workflow | Description |
 | --- | --- |
 | [pull-request-management.md](./pull-request-management.md) | Create and edit well-structured pull requests following TravelAuth conventions |
+| [testing-instructions.md](./testing-instructions.md) | Generate comprehensive testing instructions for pull requests |
 | [github-issue-creation.md](./github-issue-creation.md) | Create well-structured GitHub issues using the project templates |
 | [convert-js-api-to-typescript.md](./convert-js-api-to-typescript.md) | Convert JavaScript API client files to TypeScript |
 | [convert-js-singular-composable-to-typescript.md](./convert-js-singular-composable-to-typescript.md) | Convert singular composables to TypeScript |
@@ -25,6 +26,10 @@ implementation details, constraints, or required steps.
 
 After identifying a relevant workflow here, read that workflow file end-to-end and follow the
 workflow file itself as the authoritative instruction set.
+
+For pull request tasks, agents should usually use
+[pull-request-management.md](./pull-request-management.md) together with
+[testing-instructions.md](./testing-instructions.md).
 
 Example:
 

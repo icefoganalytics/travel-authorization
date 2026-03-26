@@ -17,9 +17,11 @@ auto_execution_mode: 1
 
 **Decision Rules:**
 - **Title format:** Use `Issue-<number>: Description` for GitHub issues, `TICKET-ID: Description` for Jira tickets, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features. Always use AP style title case.
+- **Context section:** Explain WHY the change is needed, not just what changed.
 - **Implementation section:** Focus on purpose and intent, not specific files. A reviewer can see file changes in the diff - the Implementation section explains the reasoning behind those changes.
-- **Screenshots:** Required for UI changes, "N/A - backend changes only" for non-UI
+- **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
+- **Testing instructions:** Use the `testing-instructions.md` workflow alongside this one. Never guess UI labels or navigation paths.
 
 This workflow covers the process of creating and editing well-structured pull requests that follow the established patterns in the TravelAuth project.
 
@@ -49,7 +51,7 @@ Relates to:
 
 # Screenshots
 
-N/A
+TODO - add screenshots for UI changes
 
 # Testing Instructions
 
@@ -137,8 +139,11 @@ The GitHub PR template provides the basic structure. Fill in each section follow
 - **Relates to:** Add related PRs/issues or remove this section entirely
 - **Context:** Explain the problem, user reports, or motivation for the change
 - **Implementation:** List all changes made in numbered format
-- **Screenshots:** Add screenshots for UI changes or "N/A - backend changes only"
-- **Testing Instructions:** Always start with the standard 3 steps, then add specific steps
+- **Screenshots:** If the diff includes `web/src/pages/` or `web/src/components/`, write `TODO`
+  and let the human add screenshots. Use `N/A - backend changes only` only when there are no UI
+  changes.
+- **Testing Instructions:** Always start with the standard 3 steps, then add specific steps using
+  exact UI labels verified from the code.
 
 ### 4. Section Guidelines
 
@@ -191,10 +196,15 @@ Investigation revealed that the status calculation was not considering condition
 
 #### Screenshots Section
 
-- Required for UI changes
-- Use `<img>` tags with width/height
-- Include before/after comparisons
-- Write "N/A - backend changes only" for non-UI changes
+Before writing this section, check whether the diff includes frontend files:
+
+```bash
+git diff main...HEAD --name-only | rg '^web/src/(components|pages)/'
+```
+
+- If frontend files changed, write `TODO` and let the human add screenshots
+- If no frontend files changed, write `N/A - backend changes only`
+- When screenshots are later added, use `<img>` tags with width/height
 
 **Example:**
 ```markdown
@@ -227,6 +237,9 @@ Write testing instructions for someone with zero project knowledge:
 - **Complete workflows**: Test creation, editing, saving, and navigation
 - **Browser behavior**: Include back button, refresh, and direct URL testing
 - **Simple language**: Avoid technical jargon, minimal bolding
+
+Follow [`./testing-instructions.md`](./testing-instructions.md) for the full testing-instructions
+workflow before finalizing the PR body.
 
 **Example:**
 ```markdown
