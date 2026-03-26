@@ -30,7 +30,9 @@
             type="info"
             outlined
           >
-            This request is ready to be sent to the traveler with the available booking options.
+            This request is ready to be sent to the traveler with the available booking options. If
+            this trip includes air travel, each flight request must have at least one flight option
+            before you can send it to the traveler.
           </v-alert>
           <v-alert
             v-else-if="isOptionsProvidedState"
@@ -218,8 +220,8 @@ async function markTravelRequestAsOptionsProvidedAndReturnToTravelDesk() {
     )
     returnToTravelDesk()
   } catch (error) {
-    console.error("Failed to submit travel desk travel request:", error)
-    snack.error(`Failed to submit request: ${error}`)
+    console.error("Failed to send travel desk travel request to traveler:", error)
+    snack.error(`Failed to send request to traveler: ${error}`)
   } finally {
     isWorkflowLoading.value = false
   }
