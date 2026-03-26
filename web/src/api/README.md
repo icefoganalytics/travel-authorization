@@ -1,17 +1,33 @@
-# API
+# Frontend API Layer
 
-> Explanation of Naming: _the_ API mapping to the back-end, if there was an api that corresponded to something else, such as auth0, then it would go in a folder named `web/src/auth0-api/`
+This directory contains the frontend API modules that map browser code to backend endpoints.
 
-APIs provide a way to map back-end endpoints to standard create/read/update/delete (CRUD) actions in the front-end. They handle api setup and data transformation. This lets them remain very simple and flexible if data needs to be transformed to match a new format from the backend, before the front-end gets updated to handle the new format.
+## Intent
 
-e.g.
+Keep HTTP access, endpoint paths, and response-envelope handling in one place so components and
+composables do not need to know transport details.
 
-```javascript
-// api/forms-api.js
+## Naming
+
+These files represent the application API layer, not third-party SDKs. If a file targets a
+different external system directly, prefer a more specific directory name than `api/`.
+
+## Local Pattern
+
+Frontend API modules should:
+
+- define the exported types used by the frontend
+- expose a small CRUD-style surface such as `list`, `get`, `create`, `update`, and `delete`
+- unwrap Axios response envelopes at the API-module boundary
+- keep endpoint paths centralized here instead of scattering them across components
+
+Example:
+
+```typescript
 import http from "@/api/http-client"
 
 export const formsApi = {
-  create(attributes) {
+  create(attributes: FormCreateAttributes) {
     return http.post("/api/forms", attributes).then(({ data }) => data)
   },
 }
@@ -19,6 +35,10 @@ export const formsApi = {
 export default formsApi
 ```
 
-The above code handles all access to the /api/forms endpoint, and since we are using axios it strips out the extra "data" attribute that axious wraps around the request.
+## Why This Matters
 
-This gives a single location to update if the backend naming convention changes.
+- Components stay focused on UI state and user interactions
+- If backend response shapes change, the translation layer is already centralized
+- Shared query option types can live beside the API module that owns them
+
+For broader frontend API conventions, see [../../../AGENTS.md](../../../AGENTS.md).

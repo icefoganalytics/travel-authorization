@@ -20,6 +20,9 @@ Create a plan for completing Issue 314 and save it to agents/plans/
 
 See parent [agents/README.md](../README.md) for general AI workflow documentation.
 
+Do not overwrite this README when creating a new plan unless the request is specifically about
+updating plan-directory documentation.
+
 ## Plan Structure
 
 All plans should generally follow this shape:
@@ -81,4 +84,5 @@ Rules:
 - Use ISO dates (`YYYY-MM-DD`)
 - Prefer a descriptive title over abbreviations
 - Use `Plan` when the work does not fit a narrower category
-
+- Prefer creating a new dated file over renaming or reusing an older plan unless the work is truly
+  the same plan evolving in place

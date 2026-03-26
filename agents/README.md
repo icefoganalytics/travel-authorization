@@ -15,6 +15,9 @@ instructions.
 ```text
 agents/
 ├── README.md
+├── templates/
+│   ├── README.md
+│   └── *.md
 ├── workflows/
 │   ├── README.md
 │   └── *.md
@@ -34,7 +37,8 @@ actual workflow file before acting.
 For pull request work, agents should usually use:
 
 - `pull-request-management.md` for PR title and body structure
-- the project conventions in [AGENTS.md](../AGENTS.md) for testing instructions and code style
+- `testing-instructions.md` for detailed, reviewer-friendly validation steps
+- the project conventions in [AGENTS.md](../AGENTS.md) for code style and broader repo rules
 
 ## Plans
 
@@ -45,6 +49,13 @@ questions captured in one place.
 Use [plans/README.md](./plans/README.md) for naming and structure guidance before creating a new
 plan.
 
+## Templates
+
+Templates are reusable starting points for recurring documentation or code-shape tasks.
+
+Use [templates/README.md](./templates/README.md) to discover the available templates, then read the
+actual template file before using it.
+
 ## Best Practices
 
 1. Keep `agents/workflows/*.md` as the single source of truth for workflow behavior.
@@ -52,3 +63,4 @@ plan.
 3. Use descriptive workflow names.
 4. Update `agents/workflows/README.md` when adding a workflow.
 5. Create new dated plan files instead of overwriting older implementation plans.
+6. Update `agents/templates/README.md` when adding a reusable template.

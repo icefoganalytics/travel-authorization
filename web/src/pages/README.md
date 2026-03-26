@@ -1,22 +1,26 @@
 # Pages
 
 Any component that is directly routeable is considered a page.
-Pages are to be placed in the `pages` directory with a patch matching their URL.
-The name of the page component should end in `Page`.
 
-The current naming conventions for pages is pretty random, but over time it will hopefully become more consistent and similar to this example.
+Pages should live under `web/src/pages/` in a path that mirrors their URL shape, and the page
+component name should end in `Page`.
+
+## Intent
+
+This document exists to keep routeable page naming and organization predictable.
 
 ## Constraints
 
-1. It should take minimal effort to figure out where to add a new page component, and what to call for a given user centric URL.
-3. It should be easy to add page variations. e.g. edit vs. non-edit
-4. Route names must be unique.
-5. It should be easy to find a component given the vue-router route name.
+1. It should take minimal effort to figure out where to add a new page component for a given
+   user-centric URL.
 2. It should be easy to find the page component for a given URL.
+3. It should be easy to add page variations such as `edit`, `new`, or state-specific pages.
+4. Route names must be unique.
+5. It should be easy to find a component given the Vue Router route name.
 
 ## Directory Structure
 
-For example
+For example:
 
 ```bash
 src/
@@ -60,7 +64,7 @@ const routes = [
           {
             path: "details/edit",
             component: () => import("@/pages/my-travel-requests/details/DetailsEditPage.vue"),
-            name: "my-travel-requests/details/DetailsSubmitPage",
+            name: "my-travel-requests/details/DetailsEditPage",
           },
           {
             path: "estimate",
@@ -98,3 +102,10 @@ const routes = [
   },
 ]
 ```
+
+## Naming Guidance
+
+- Prefer page names that reflect the user-facing concept first, then the state or variant
+- Keep route names aligned with the file path when practical
+- When a flow naturally branches into dedicated routeable screens, prefer separate pages over
+  overloading one page with large conditional sections
