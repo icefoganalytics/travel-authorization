@@ -39,7 +39,7 @@
             :to="{
               name: 'TravelDeskFlightSegmentsManagePage',
               params: {
-                travelDeskTravelRequestId,
+                travelDeskTravelRequestId: travelDeskTravelRequestId.toString(),
               },
             }"
             color="blue"
