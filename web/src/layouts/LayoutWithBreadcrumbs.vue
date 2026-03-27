@@ -1,7 +1,10 @@
 <template>
   <div>
     <!-- TODO: move this into the top level layout, once everything is using this layout -->
-    <BreadcrumbsBar :items="breadcrumbs" />
+    <BreadcrumbsBar
+      class="grey lighten-4"
+      :items="breadcrumbs"
+    />
 
     <router-view />
   </div>

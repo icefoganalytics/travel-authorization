@@ -3,9 +3,7 @@
     :items="breadcrumbsWithExactTrueByDefault"
     large
   >
-    <template #divider>
-      <v-icon>mdi-chevron-right</v-icon>
-    </template>
+    <template #divider>/</template>
   </v-breadcrumbs>
 </template>
 

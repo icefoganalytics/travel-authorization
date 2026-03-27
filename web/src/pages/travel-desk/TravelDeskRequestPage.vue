@@ -10,7 +10,7 @@
         <v-btn
           v-if="travelDeskTravelRequest.status !== TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED"
           :to="{
-            name: 'travel-desk/TravelDeskRequestEditPage',
+            name: 'travel-desk/TravelDeskRequestEditRedirect',
             params: {
               travelDeskTravelRequestId,
             },

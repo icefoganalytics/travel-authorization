@@ -186,7 +186,7 @@ watch(tripEndDate, (newEndDate) => {
 const router = useRouter()
 const defaultReturnTo = computed(() => {
   const routeLocation = router.resolve({
-    name: "travel-desk/TravelDeskRequestEditPage",
+    name: "travel-desk/TravelDeskRequestEditRedirect",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId,
     },

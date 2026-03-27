@@ -20,7 +20,7 @@
         <v-btn
           title="Edit"
           icon
-          color="blue"
+          color="primary"
           @click.stop="goToTravelDeskOtherTransportationEditPage(item.id)"
           ><v-icon>mdi-pencil</v-icon></v-btn
         >
@@ -69,6 +69,7 @@ import useTravelDeskOtherTransportations from "@/use/use-travel-desk-other-trans
 
 const props = withDefaults(
   defineProps<{
+    travelDeskTravelRequestId: number
     where?: TravelDeskOtherTransportationWhereOptions
     filters?: TravelDeskOtherTransportationFiltersOptions
     routeQuerySuffix?: string
@@ -149,6 +150,7 @@ function goToTravelDeskOtherTransportationEditPage(travelDeskOtherTransportation
   return router.push({
     name: "travel-desk/other-transportations/TravelDeskOtherTransportationEditPage",
     params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId.toString(),
       travelDeskOtherTransportationId: travelDeskOtherTransportationId.toString(),
     },
     query: {

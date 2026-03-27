@@ -1,7 +1,12 @@
 <template>
   <v-card>
     <v-card-title class="d-flex align-center">
-      <h3 class="mb-0">Hotel Requests</h3>
+      <SectionHeader
+        title="4. Hotel Requests"
+        icon="mdi-bed"
+        tag="h3"
+        class="mb-0"
+      />
       <v-spacer />
       <v-btn
         class="my-0"
@@ -22,6 +27,7 @@
     <v-card-text>
       <TravelDeskHotelsEditDataTable
         ref="travelDeskHotelsEditDataTable"
+        :travel-desk-travel-request-id="travelDeskTravelRequestId"
         :where="travelDeskHotelsWhere"
         :return-to="returnTo"
         route-query-suffix="TravelDeskHotel"
@@ -33,6 +39,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
+
+import SectionHeader from "@/components/common/SectionHeader.vue"
 
 import TravelDeskHotelsEditDataTable from "@/components/travel-desk-hotels/TravelDeskHotelsEditDataTable.vue"
 

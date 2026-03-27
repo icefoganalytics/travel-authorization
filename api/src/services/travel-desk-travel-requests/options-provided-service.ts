@@ -1,6 +1,12 @@
 import { isUndefined } from "lodash"
 
-import db, { TravelAuthorization, TravelDeskTravelRequest, User } from "@/models"
+import db, {
+  TravelAuthorization,
+  TravelDeskFlightRequest,
+  TravelDeskTravelRequest,
+  TravelSegment,
+  User,
+} from "@/models"
 
 import BaseService from "@/services/base-service"
 
@@ -19,6 +25,9 @@ export class OptionsProvidedService extends BaseService {
     if (this.travelDeskTravelRequest.status !== TravelDeskTravelRequest.Statuses.SUBMITTED) {
       throw new Error("Travel desk travel request must be in submitted state to provide options.")
     }
+
+    const { id: travelDeskTravelRequestId, travelAuthorizationId } = this.travelDeskTravelRequest
+    await this.assertAllRequiredFlightOptions(travelAuthorizationId, travelDeskTravelRequestId)
 
     return db.transaction(async () => {
       await this.travelDeskTravelRequest.update({
@@ -39,6 +48,33 @@ export class OptionsProvidedService extends BaseService {
         include: ["travelAuthorization"],
       })
     })
+  }
+
+  private async assertAllRequiredFlightOptions(
+    travelAuthorizationId: number,
+    travelDeskTravelRequestId: number
+  ): Promise<void> {
+    const isTravellingByAir = await TravelSegment.count({
+      where: {
+        travelAuthorizationId,
+        modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+      },
+    })
+    if (!isTravellingByAir) return
+
+    const flightRequestsMissingOptions = await TravelDeskFlightRequest.withScope(
+      "withoutFlightOptions"
+    ).count({
+      where: {
+        travelRequestId: travelDeskTravelRequestId,
+      },
+    })
+
+    if (flightRequestsMissingOptions > 0) {
+      throw new Error(
+        "Travel desk travel request must have at least one flight option for each flight request before sending options to the traveler."
+      )
+    }
   }
 }
 

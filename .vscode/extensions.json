@@ -4,9 +4,13 @@
 
   // List of extensions which should be recommended for users of this workspace.
   "recommendations": [
-    "esbenp.prettier-vscode",
+    "cweijan.vscode-office",
     "dbaeumer.vscode-eslint",
-    "jebbs.plantuml"
+    "esbenp.prettier-vscode",
+    "jebbs.plantuml",
+    "qwtel.sqlite-viewer",
+    "thebearingedge.vscode-sql-lit",
+    "vue.volar",
   ],
   // List of extensions recommended by VS Code that should not be recommended for users of this workspace.
   "unwantedRecommendations": []

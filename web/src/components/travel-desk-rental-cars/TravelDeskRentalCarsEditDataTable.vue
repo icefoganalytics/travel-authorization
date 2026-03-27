@@ -47,7 +47,7 @@
         <v-btn
           title="Edit"
           icon
-          color="blue"
+          color="primary"
           @click.stop="goToTravelDeskRentalCarEditPage(item.id)"
           ><v-icon>mdi-pencil</v-icon></v-btn
         >
@@ -98,6 +98,7 @@ import useTravelDeskRentalCars from "@/use/use-travel-desk-rental-cars"
 
 const props = withDefaults(
   defineProps<{
+    travelDeskTravelRequestId: number
     where?: TravelDeskRentalCarWhereOptions
     filters?: TravelDeskRentalCarFiltersOptions
     routeQuerySuffix?: string
@@ -202,6 +203,7 @@ function goToTravelDeskRentalCarEditPage(travelDeskRentalCarId: number) {
   return router.push({
     name: "travel-desk/rental-cars/TravelDeskRentalCarEditPage",
     params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId.toString(),
       travelDeskRentalCarId: travelDeskRentalCarId.toString(),
     },
     query: {

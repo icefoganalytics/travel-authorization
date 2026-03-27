@@ -1,78 +1,126 @@
-# API service Tests
+# API Tests
 
-## Implementation
+This directory contains the backend test suite for TravelAuth using Vitest and Fishery factories.
 
-Tests are written in [vitest](https://vitest.dev/guide/)
+## Running Tests
 
-Test initialization goes like this:
+```bash
+# Run all API tests
+dev test_api
 
-1. `api/vitest.config.mts` loads the ts config and finds the appropriate setup functions.
+# Run a specific file once
+dev test api -- api/tests/services/example.test.ts --run
 
-2. Before running the tests, it runs the `globalSetup` function from `api/tests/global-setup.ts`. This does things like setting up the database and running migrations and base seeds.
+# Run a pattern
+dev test api -- --grep "travel desk"
+```
 
-3. Next it loads a specific test file triggers the `setupFiles` files, currently only `api/tests/setup.ts`. These setup files add callbacks that will run before/after _each test file_ runs, so they should be performant. Mostly cleanup functions.
+## Test Structure
 
-4. It runs the actual tests in the loaded file.
+Tests should mirror `api/src/`:
 
-5. (Currently) Runs `beforeEach` callback that cleans the database before each test file is run.
+- `api/src/models/user.ts` -> `api/tests/models/user.test.ts`
+- `api/src/services/travel-authorizations/create-service.ts` ->
+  `api/tests/services/travel-authorizations/create-service.test.ts`
 
-6. Runs the next test file, and repeats from step 3.
+Current top-level test areas include:
 
-## General Notes About Tests
+```text
+api/tests/
+├── controllers/
+├── data/
+├── factories/
+├── integrations/
+├── middleware/
+├── models/
+├── policies/
+├── serializers/
+├── services/
+└── support/
+```
 
-1. Tests should map to a specific file in the api/src folder.
+If a source file moves, move its mirrored test file too. If a source file is deleted, delete the
+stale test.
 
-   e.g.
+## Test Pattern
 
-   - `api/src/models/funding-submission-line-json.ts` maps to `api/tests/models/funding-submission-line-json.test.ts`
-   - `api/src/services/centre-services.ts` maps to `api/tests/services/centre-services.test.ts`
+Prefer this structure:
 
-2. Tests should follow the naming convention `{filename}.test.{extension}`.
-3. Test file location should be moved if a given file is moved, and deleted if the file under test is deleted.
-4. A good general pattern for a test is
-   ```typescript
-   describe("api/src/services/centre-services.ts", () => { // references file under test
-     describe("CentreServices", () => { // references class or model under test
-       describe(".create", () => { // referneces a specific method on the class or model
-       test("creates a new centre in the database", async () => { // descriptive message about the specific behaviour under test
-       })
-     })
-   })
-   ```
-5. I'm using a plugin that lets me switch between the test and non-test file, and creates the test file if it does not exist. It's not great, but it mostly works. See https://marketplace.visualstudio.com/items?itemName=klondikemarlen.create-test-file
+```typescript
+describe("api/src/services/example/create-service.ts", () => {
+  describe("CreateService", () => {
+    describe(".perform", () => {
+      test("when the input is valid, it creates the record", async () => {
+        // Arrange
 
-   It requires this config (in your workspace or `.vscode/settings.json`).
+        // Act
 
-   > Note that if this is in your worspace config must be inside the "settings" entry. i.e. `{ "settings": { // these settings } }`.
+        // Assert
+      })
+    })
+  })
+})
+```
 
-   ```json
-   {
-     "createTestFile.nameTemplate": "{filename}.test.{extension}",
-     "createTestFile.languages": {
-       "[vue]": {
-         "createTestFile.nameTemplate": "{filename}.test.{extension}.ts"
-       }
-     },
-     "createTestFile.pathMaps": [
-       {
-         // Other examples
-         // "pathPattern": "/?(.*)",
-         // "testFilePathPattern": "spec/$1"
-         "pathPattern": "(api)/src/?(.*)",
-         "testFilePathPattern": "$1/tests/$2"
-       },
-       {
-         "pathPattern": "(web)/src/?(.*)",
-         "testFilePathPattern": "$1/tests/$2"
-       }
-     ],
-     "createTestFile.isTestFileMatchers": [
-       "^(?:test|spec)s?/",
-       "/(?:test|spec)s?/",
-       "/?(?:test|spec)s?_",
-       "/?_(?:test|spec)s?",
-       "/?\\.(?:test|spec)s?",
-       "/?(?:test|spec)s?\\."
-     ]
-   }
-   ```
+Guidelines:
+
+- Use `test`, not `it`
+- Use nested `describe` blocks: file path -> class/model -> method
+- Use explicit `// Arrange`, `// Act`, and `// Assert` comments
+- Prefer numbered peer entities like `user1`, `user2`
+- Prefer one strong assertion with `toEqual(...)` over many low-signal assertions
+
+## Test Lifecycle Notes
+
+Vitest configuration loads the API test setup in roughly this order:
+
+1. `api/vitest.config.mts` loads config and setup wiring
+2. `api/tests/global-setup.ts` prepares database state, migrations, and base seeds
+3. `api/tests/setup.ts` runs per-file setup and cleanup hooks
+4. The requested test file executes
+
+Keep per-file setup lightweight. Expensive initialization belongs in global setup.
+
+## Factories
+
+Prefer Fishery factories from `@/factories` for creating test data.
+
+Examples:
+
+```typescript
+import { travelAuthorizationFactory, userFactory } from "@/factories"
+
+const user = await userFactory.create()
+const travelAuthorization = await travelAuthorizationFactory.create({
+  userId: user.id,
+})
+```
+
+If you need a new factory, follow the reusable template in
+[`agents/templates/fishery-factory.md`](../../agents/templates/fishery-factory.md).
+
+## Editor Helper
+
+If you use the `create-test-file` extension, this workspace config still helps generate mirrored
+test paths:
+
+```json
+{
+  "createTestFile.nameTemplate": "{filename}.test.{extension}",
+  "createTestFile.languages": {
+    "[vue]": {
+      "createTestFile.nameTemplate": "{filename}.test.{extension}.ts"
+    }
+  },
+  "createTestFile.pathMaps": [
+    {
+      "pathPattern": "(api)/src/?(.*)",
+      "testFilePathPattern": "$1/tests/$2"
+    },
+    {
+      "pathPattern": "(web)/src/?(.*)",
+      "testFilePathPattern": "$1/tests/$2"
+    }
+  ]
+}
+```

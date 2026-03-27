@@ -148,6 +148,26 @@ export class TravelDeskFlightRequest extends Model<
         },
       }
     })
+    this.addScope("withoutFlightOptions", () => {
+      const flightRequestIdsWithOptionsQuery = sql`
+        (
+          SELECT
+            DISTINCT "flight_request_id"
+          FROM
+            "travel_desk_flight_options"
+          WHERE
+            "deleted_at" IS NULL
+        )
+      `
+
+      return {
+        where: {
+          id: {
+            [Op.notIn]: flightRequestIdsWithOptionsQuery,
+          },
+        },
+      }
+    })
   }
 }
 

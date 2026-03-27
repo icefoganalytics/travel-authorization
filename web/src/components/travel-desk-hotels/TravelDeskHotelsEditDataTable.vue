@@ -28,7 +28,7 @@
         <v-btn
           title="Edit"
           icon
-          color="blue"
+          color="primary"
           @click.stop="goToTravelDeskHotelEditPage(item.id)"
           ><v-icon>mdi-pencil</v-icon></v-btn
         >
@@ -77,6 +77,7 @@ import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
 
 const props = withDefaults(
   defineProps<{
+    travelDeskTravelRequestId: number
     where?: TravelDeskHotelWhereOptions
     filters?: TravelDeskHotelFiltersOptions
     routeQuerySuffix?: string
@@ -165,6 +166,7 @@ function goToTravelDeskHotelEditPage(travelDeskHotelId: number) {
   return router.push({
     name: "travel-desk/hotels/TravelDeskHotelEditPage",
     params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId.toString(),
       travelDeskHotelId: travelDeskHotelId.toString(),
     },
     query: {

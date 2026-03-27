@@ -1,7 +1,12 @@
 <template>
   <v-card>
     <v-card-title class="d-flex align-center">
-      <h3 class="mb-0">Other Transportation Requests</h3>
+      <SectionHeader
+        title="5. Other Transportation Requests"
+        icon="mdi-bus"
+        tag="h3"
+        class="mb-0"
+      />
       <v-spacer />
       <v-btn
         class="my-0"
@@ -22,6 +27,7 @@
     <v-card-text>
       <TravelDeskOtherTransportationEditDataTable
         ref="travelDeskOtherTransportationEditDataTable"
+        :travel-desk-travel-request-id="travelDeskTravelRequestId"
         :where="travelDeskOtherTransportationsWhere"
         :return-to="returnTo"
         route-query-suffix="TravelDeskOtherTransportation"
@@ -33,6 +39,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
+
+import SectionHeader from "@/components/common/SectionHeader.vue"
 
 import TravelDeskOtherTransportationEditDataTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditDataTable.vue"
 
