@@ -17,7 +17,6 @@ const i18n = createI18n(Vue)
 Vue.use(Auth0Plugin)
 
 Vue.config.productionTip = false
-Vue.prototype.$http = axios
 
 Vue.directive("yk-btn", {
   bind: function (el) {
