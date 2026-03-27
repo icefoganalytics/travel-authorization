@@ -317,6 +317,7 @@ See `/api/src/config.ts` for complete details.
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
+- Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
 
 **Testing Instructions Format:**
 
