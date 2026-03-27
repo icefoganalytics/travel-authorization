@@ -2,15 +2,6 @@ import Vue from "vue"
 
 import store from "@/store"
 
-Vue.filter("isAdmin", function () {
-  const userDept = store.state.auth?.department
-  const userRoles = store.state.auth?.user?.roles
-  const admin = userRoles?.includes("admin")
-  const patAdmin = userRoles?.includes("pre_approved_travel_admin") && Boolean(userDept)
-  const hasAdminRole = admin || patAdmin
-  return hasAdminRole
-})
-
 Vue.filter("isTdUser", function () {
   const userRoles = store.state.auth?.user?.roles
   const admin = userRoles?.includes("admin")

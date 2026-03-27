@@ -71,8 +71,6 @@
 </template>
 
 <script>
-import Vue from "vue"
-
 import { formatDate } from "@/utils/formatters"
 
 import NewTravelDeskRequest from "@/modules/travelDesk/views/Requests/NewTravelDeskRequest.vue"
@@ -112,7 +110,6 @@ export default {
           sortable: false,
         },
       ],
-      admin: false,
       department: "",
     }
   },
@@ -123,7 +120,6 @@ export default {
   },
   mounted() {
     this.department = this.$store.state.auth?.department
-    this.admin = Vue.filter("isAdmin")()
   },
   methods: {
     formatDate,

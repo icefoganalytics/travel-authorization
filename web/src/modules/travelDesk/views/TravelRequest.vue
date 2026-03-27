@@ -22,7 +22,7 @@
         <v-toolbar-title>
           <b>Travel Requests </b>
           <b
-            v-if="admin && department"
+            v-if="isAdmin && department"
             class="mt-4 blue--text"
             >( {{ department }} )</b
           >
@@ -40,7 +40,6 @@
 </template>
 
 <script>
-import Vue from "vue"
 import { computed } from "vue"
 import { useRouter } from "vue2-helpers/vue-router"
 import { isNil } from "lodash"
@@ -50,6 +49,8 @@ import { useI18n } from "@/plugins/vue-i18n-plugin"
 import http from "@/api/http-client"
 import locationsApi from "@/api/locations-api"
 
+import useCurrentUser from "@/use/use-current-user"
+
 import TravelerRequests from "@/modules/travelDesk/views/Requests/TravelerRequests.vue"
 
 export default {
@@ -58,6 +59,8 @@ export default {
     TravelerRequests,
   },
   setup() {
+    const { isAdmin } = useCurrentUser()
+
     const { t } = useI18n()
 
     const router = useRouter()
@@ -69,6 +72,7 @@ export default {
     })
 
     return {
+      isAdmin,
       t,
       returnTo,
     }
@@ -79,14 +83,12 @@ export default {
       authorizedTravels: [],
       loadingData: false,
       department: "",
-      admin: false,
     }
   },
   async mounted() {
     this.loadingData = true
     // await this.getUserAuth();
     this.department = this.$store.state.auth.department
-    this.admin = Vue.filter("isAdmin")()
     await this.getDestinations()
     await this.getAuthorizedTravels()
     this.loadingData = false
