@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import Vue from "vue"
+import { nextTick } from "vue"
 
 import { formatDateTime } from "@/utils/formatters"
 
@@ -111,7 +111,7 @@ export default {
       this.state.preferenceErr = this.flightOption.flightPreferenceOrder ? false : true
     }
 
-    Vue.nextTick(() => (this.dataReady = true))
+    nextTick(() => (this.dataReady = true))
   },
   computed: {
     sortByOrder() {
