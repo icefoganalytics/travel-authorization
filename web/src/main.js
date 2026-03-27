@@ -10,7 +10,6 @@ import Auth0Plugin from "@/plugins/auth0-plugin"
 import App from "@/App.vue"
 import router from "@/router"
 import store from "@/store"
-import "@/filters"
 
 import { ENVIRONMENT, API_BASE_URL, RELEASE_TAG, GIT_COMMIT_HASH } from "@/config"
 
