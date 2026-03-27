@@ -18,10 +18,6 @@ Vue.filter("isTdUser", function () {
   return admin || TdUser
 })
 
-Vue.filter("currency", function (currency) {
-  return currency.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-})
-
 Vue.filter("flightStartEnd", function (flights) {
   if (flights.length > 0) {
     const dates = flights.map((flight) => flight.datePreference)
