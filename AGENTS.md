@@ -200,6 +200,7 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Composable usage in Options API:** When an Options API component needs a composable, call it inside `setup()` and return the result for use via `this.*`. Do not create composable instances at module scope.
 - **Error notifications:** Before each `snack.error(...)`, log with `console.error(...)`. Include `{ error }` only when handling a real caught error object; for validation or other non-error branches, log a plain message string.
 - **Legacy cleanup triage:** Before modernizing an isolated legacy frontend component or subtree, verify that it is still reachable from pages, routes, or imports. If it is orphaned, prefer deleting it over migrating it.
+- **Code organization matters:** When modernizing frontend behavior, verify that the surrounding route placement, layout nesting, and file organization support the intended behavior. Matching a component API or route name is not enough if the page lives outside the layout or namespace that provides the feature.
 
 ### Component Naming Convention
 
