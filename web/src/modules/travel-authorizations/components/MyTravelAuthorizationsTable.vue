@@ -73,9 +73,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
-import { isNil, isEmpty, isString } from "lodash"
+import { computed, ref } from "vue"
+import { useRouter } from "vue2-helpers/vue-router"
+import { isNil, isEmpty } from "lodash"
 
 import { useI18n } from "@/plugins/vue-i18n-plugin"
 import formatDate from "@/utils/format-date"
@@ -211,28 +211,10 @@ function formatPhase(value: string) {
   return t(`global.phase.${value}`, { $default: "Unknown" })
 }
 
-// TODO: replace this with newer show dialog patterns
-onMounted(() => {
-  showDeleteDialogForRouteQuery()
-})
-
-const route = useRoute()
 const deleteDialog = ref<InstanceType<typeof DeleteTravelAuthorizationDialog> | null>(null)
 
 function showDeleteDialog(item: TravelAuthorizationAsIndex) {
-  deleteDialog.value?.show(item)
-}
-
-function showDeleteDialogForRouteQuery() {
-  if (!isString(route.query.showDelete)) return
-
-  const itemId = parseInt(route.query.showDelete)
-  if (isNaN(itemId)) return
-
-  const item = travelAuthorizations.value.find((item) => item.id === itemId)
-  if (!item) return
-
-  showDeleteDialog(item)
+  deleteDialog.value?.show(item.id)
 }
 
 defineExpose({
