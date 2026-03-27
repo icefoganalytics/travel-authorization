@@ -1,21 +1,18 @@
 /// <reference types="vitest" />
 
 import { fileURLToPath, URL } from "node:url"
-import { defineConfig } from "vite"
-import vue2 from "@vitejs/plugin-vue2"
-import Components from "unplugin-vue-components/vite"
-import { VuetifyResolver } from "unplugin-vue-components/resolvers"
 
-// Add @vitejs/plugin-vue2 if you want to test vue files.
+import { defineConfig } from "vite"
+import vue from "@vitejs/plugin-vue"
+import vuetify from "vite-plugin-vuetify"
+
 export default defineConfig({
   plugins: [
-    vue2(),
-
-    // Auto-import Vuetify 2 components/directives (optional)
-    Components({
-      resolvers: [VuetifyResolver()],
-      dts: false, // set to 'src/components.d.ts' once you start TS
-      version: 2.7,
+    vue(),
+    vuetify({
+      autoImport: {
+        labs: true,
+      },
     }),
   ],
   build: {

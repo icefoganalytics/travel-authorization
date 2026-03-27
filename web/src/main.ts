@@ -1,4 +1,4 @@
-import Vue from "vue"
+import { createApp } from "vue"
 import VueApexCharts from "vue-apexcharts"
 import axios from "axios"
 
@@ -12,22 +12,18 @@ import store from "@/store"
 
 import { ENVIRONMENT, API_BASE_URL, RELEASE_TAG, GIT_COMMIT_HASH } from "@/config"
 
-Vue.use(VueApexCharts)
-const i18n = createI18n(Vue)
-Vue.use(Auth0Plugin)
+const app = createApp(App)
+const i18n = createI18n()
 
-Vue.config.productionTip = false
+app.use(VueApexCharts)
+app.use(router)
+app.use(store)
+app.use(vuetify)
+app.use(i18n)
+app.use(Auth0Plugin)
 
 axios.defaults.withCredentials = true
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*"
-
-const vue = new Vue({
-  router,
-  store,
-  vuetify,
-  i18n,
-  render: (h) => h(App),
-})
 
 console.log("App is running", {
   environment: ENVIRONMENT,
@@ -36,4 +32,4 @@ console.log("App is running", {
   gitCommitHash: GIT_COMMIT_HASH,
 })
 
-vue.$mount("#app")
+app.mount("#app")
