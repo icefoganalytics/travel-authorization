@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
@@ -28,7 +28,7 @@ const travelAuthorizationId = computed(() =>
   travelDeskTravelRequest.value?.travelAuthorizationId?.toString().padStart(4, "0")
 )
 
-const tabs = ref([
+const tabs = computed(() => [
   {
     value: 1,
     title: "1. Traveler Details",
