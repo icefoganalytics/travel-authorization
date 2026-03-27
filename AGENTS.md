@@ -190,6 +190,7 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
   - `timer.value = setTimeout(callback, 1000)`
 - **Props definition:** Prefer TypeScript generic style `defineProps<{ prop: type }>()` over object-style with type arrays
 - **Props defaults:** When `script setup` props need defaults, prefer `withDefaults(defineProps<...>(), ...)` rather than relying on optional props plus template checks alone.
+- **Shared formatters:** Prefer existing helpers from `@/utils/formatters` over creating local inline formatters in components. Reuse shared utilities first and only add a new formatter when no suitable one exists.
 - **Loading states:** Use `isNil(data)` instead of boolean `isLoading` flags for more precise data presence checks
 - **Reactivity:** Use `toRefs(props)` when passing props to composables to maintain ref types and reactivity
 - **Optional chaining:** Only use `?.` when data might actually be null/undefined in rendered context, not when loading state ensures existence
