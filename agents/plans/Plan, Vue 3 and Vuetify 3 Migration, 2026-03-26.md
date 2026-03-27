@@ -23,6 +23,13 @@ and Vuetify 2 specific APIs.
   now lives in shared utilities / formatters instead of `Vue.filter(...)`.
 - Removed legacy `$snack` app usage and deleted the old snack plugin bootstrap.
 - Removed dead legacy `$http` bootstrap wiring from `web/src/main.js`.
+- Removed several orphaned legacy frontend components and layouts instead of
+  modernizing dead code.
+- Moved the QA scenarios page onto the breadcrumb layout path so it now follows
+  the same breadcrumb architecture as the newer page stack.
+- Removed the remaining `mapActions(...)` / `mapGetters(...)` usage from Vue
+  SFCs by switching surviving pages and tables onto existing composable-backed
+  paths.
 
 These completed slices should not be treated as remaining Phase 1 scope.
 
@@ -34,13 +41,13 @@ These completed slices should not be treated as remaining Phase 1 scope.
   already use Composition API imports from `"vue"`.
 - The repo already uses `script setup` and typed composables in many newer
   files, which reduces migration risk for business logic.
-- 88% of Vue components (303 of 344) already use `<script setup>` Composition
-  API. Only 35 components still use Options API.
+- 93% of Vue components (310 of 333) already use `<script setup>` Composition
+  API. Only 13 components still use Options API.
 - Vuetify 2 is already wrapped behind local bridge helpers such as
   `useDisplayVuetify2()` and `useVuetify2SortByShim()`.
 - The frontend is partially modernized in structure:
-  `web/src` currently contains `344` Vue SFCs, `75` TypeScript files, and
-  `102` JavaScript files, so the migration can be staged instead of starting
+  `web/src` currently contains `333` Vue SFCs, so the migration can be staged
+  instead of starting
   from a legacy-only codebase.
 - No legacy patterns found for: `destroyed`/`beforeDestroy` lifecycle hooks,
   functional components, old slot syntax (`slot=`/`slot-scope=`), `$on`/`$off`/
@@ -60,7 +67,7 @@ These completed slices should not be treated as remaining Phase 1 scope.
 - Vuetify integration still depends on Vuetify 2 and
   `@logue/vue2-helpers/vuetify` in `web/src/plugins/vuetify-plugin.js`.
 - The codebase still contains a large Vue 2 compatibility surface, including
-  `.sync`, `v-on="$listeners"`, `$scopedSlots`, `this.$set`, and direct
+  `.sync`, `v-on="$listeners"`, `$scopedSlots`, and direct
   `vuetify/lib/*` imports.
 
 **Quantified Vue 2 Pattern Inventory:**
@@ -75,7 +82,7 @@ These completed slices should not be treated as remaining Phase 1 scope.
 | `$scopedSlots` | 14 | MEDIUM |
 | Direct `$vuetify` access | 3 | LOW |
 | `Vue.prototype` | 1 | LOW |
-| `this.$set()` | 1 | LOW |
+| `this.$set()` | 0 | LOW |
 
 **Vuetify 2 Component Usage (most impacted):**
 
