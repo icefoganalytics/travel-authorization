@@ -24,10 +24,10 @@
               class="d-flex"
             >
               <v-select
-                v-model="selectedFilter"
+                v-model="selectedStatuses"
                 small-chips
                 multiple
-                :items="filterOptions"
+                :items="statusFilterOptions"
                 label="Status filter"
                 dense
                 outlined
@@ -40,7 +40,7 @@
           </v-row>
 
           <v-data-table
-            :items="filteredData"
+            :items="filteredUsers"
             :headers="headers"
             :loading="loading"
             :search="search"
@@ -57,103 +57,84 @@
   </div>
 </template>
 
-<script>
-import { mapActions } from "vuex"
+<script setup lang="ts">
+import { computed, ref } from "vue"
+import { useRouter } from "vue2-helpers/vue-router"
 
-import http from "@/api/http-client"
-import { USERS_URL } from "@/urls"
+import { type User } from "@/api/users-api"
+
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useUsers from "@/use/use-users"
 
-export default {
-  name: "UsersPage",
-  components: {},
-  setup() {
-    useBreadcrumbs([
-      {
-        text: "Administration",
-        to: {
-          name: "AdministrationPage",
-        },
-      },
-      {
-        text: "User Management",
-        to: {
-          name: "administration/UsersPage",
-        },
-      },
-    ])
-
-    return {}
+const search = ref("")
+const headers = [
+  {
+    text: "Email",
+    value: "email",
   },
-  data: () => ({
-    loading: false,
-    users: [],
-    search: "",
-    options: {},
-    totalLength: 0,
-    headers: [
-      {
-        text: "Email",
-        value: "email",
-      },
-      {
-        text: "First Name",
-        value: "firstName",
-      },
-      {
-        text: "Last Name",
-        value: "lastName",
-      },
-      {
-        text: "Status",
-        value: "isActive",
-      },
-      //      { text: "Actions", value: "actions"}
-    ],
-    page: 1,
-    pageCount: 0,
-    iteamsPerPage: 10,
-    selectedFilter: ["Active"],
-    filterOptions: ["Active", "Expired", "Inactive"],
-  }),
-  computed: {
-    filteredData() {
-      if (this.selectedFilter.length == 0) return this.users
+  {
+    text: "First Name",
+    value: "firstName",
+  },
+  {
+    text: "Last Name",
+    value: "lastName",
+  },
+  {
+    text: "Status",
+    value: "isActive",
+  },
+]
+const selectedStatuses = ref(["Active"])
+const statusFilterOptions = ["Active", "Expired", "Inactive"]
 
-      let data = []
-      for (let usr of this.users) {
-        if (this.selectedFilter.indexOf("Active") >= 0) {
-          if (usr.status == "active") data.push(usr)
-        }
+const { users, isLoading: loading } = useUsers()
+const filteredUsers = computed(() => {
+  if (selectedStatuses.value.length === 0) {
+    return users.value
+  }
+
+  // TODO: Move search and status filtering to backend query filters if this page
+  // is revisited for product work beyond the Vue 3 migration scope.
+  const data: User[] = []
+  for (const user of users.value) {
+    if (selectedStatuses.value.indexOf("Active") >= 0) {
+      if (user.status === "active") {
+        data.push(user)
       }
-      return data
-    },
-  },
-  async mounted() {
-    try {
-      this.laodUsers()
-    } finally {
-      this.loading = false
     }
-  },
-  methods: {
-    ...mapActions("users", ["loadUsers"]),
+  }
 
-    goToUserEditPage(user) {
-      this.$router.push({
-        name: "administration/users/UserEditPage",
-        params: {
-          userId: user.id.toString(),
-        },
-      })
+  return data
+})
+
+const router = useRouter()
+
+function goToUserEditPage(user: User) {
+  router.push({
+    name: "administration/users/UserEditPage",
+    params: {
+      userId: user.id.toString(),
     },
-    laodUsers() {
-      http.get(USERS_URL).then((resp) => {
-        this.users = resp.data
-      })
+  })
+}
+
+const breadcrumbs = computed(() => [
+  {
+    text: "Administration",
+    to: {
+      name: "AdministrationPage",
     },
   },
-}
+  {
+    text: "User Management",
+    to: {
+      name: "administration/UsersPage",
+    },
+  },
+])
+
+useBreadcrumbs(breadcrumbs)
 </script>
 
 <style scoped>
