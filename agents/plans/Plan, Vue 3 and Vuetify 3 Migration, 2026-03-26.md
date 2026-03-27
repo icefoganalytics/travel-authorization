@@ -16,6 +16,16 @@ gives us a strong migration starting point, but the application shell, routing,
 state, i18n, filters, and a large number of components still depend on Vue 2
 and Vuetify 2 specific APIs.
 
+## Execution Progress
+
+**Completed Phase 1 slices:**
+- Replaced and removed the legacy global Vue filter registry. Filter behavior
+  now lives in shared utilities / formatters instead of `Vue.filter(...)`.
+- Removed legacy `$snack` app usage and deleted the old snack plugin bootstrap.
+- Removed dead legacy `$http` bootstrap wiring from `web/src/main.js`.
+
+These completed slices should not be treated as remaining Phase 1 scope.
+
 ## Current State Analysis
 
 **Already Implemented:**
@@ -47,7 +57,6 @@ and Vuetify 2 specific APIs.
   composable-first state rather than another centralized store.
 - Internationalization still uses `vue-i18n` 8 with a Vue 2 plugin-style setup
   in `web/src/plugins/vue-i18n-plugin.js`.
-- Global filters still rely on `Vue.filter(...)` in `web/src/filters/index.js`.
 - Vuetify integration still depends on Vuetify 2 and
   `@logue/vue2-helpers/vuetify` in `web/src/plugins/vuetify-plugin.js`.
 - The codebase still contains a large Vue 2 compatibility surface, including
@@ -64,9 +73,8 @@ and Vuetify 2 specific APIs.
 | `v-on="$listeners"` / `$listeners` | 72 | HIGH |
 | Vuetify activator `{ on, attrs }` slot | 25 | MEDIUM |
 | `$scopedSlots` | 14 | MEDIUM |
-| `Vue.filter(...)` | 8 | MEDIUM |
 | Direct `$vuetify` access | 3 | LOW |
-| `Vue.prototype` | 2 | LOW |
+| `Vue.prototype` | 1 | LOW |
 | `this.$set()` | 1 | LOW |
 
 **Vuetify 2 Component Usage (most impacted):**
@@ -189,8 +197,6 @@ These tools can automate significant portions of the mechanical migration work.
 - `.sync` modifier (95 occurrences) → `v-model:propName`
 - `v-on="$listeners"` (72 occurrences) → remove (covered by `v-bind="$attrs"`)
 - `$scopedSlots` (14 occurrences) → `$slots` (slots are now functions)
-- `Vue.filter(...)` (8 filters) → utility functions or
-  `app.config.globalProperties.$filters`
 - `Vue.prototype.$http` → `app.config.globalProperties.$http` or provide/inject
 - `Vue.prototype.$auth0` / `Vue.prototype.$snack` → provide/inject composable
 - `this.$set()` (1 occurrence in `HealthCheckPage.vue`) → direct assignment
@@ -290,16 +296,11 @@ patterns that can be fixed without changing the runtime.
 - Run `@originjs/vue-codemod` and `vue-upgrade-tool` in dry-run mode to
   identify the full scope of mechanical transforms. Apply safe transforms
   (lifecycle renames, slot syntax, `this.$set` removal, emit declarations).
-- Replace global filters in `web/src/filters/index.js` with plain utility
-  functions and update all call sites to use the function directly (or via a
-  composable). This is a mandatory pre-swap task.
-- Replace `Vue.prototype.$http` (axios) with a direct import of the axios
-  module in composables that use it, or inject/provide only where direct import
-  is inappropriate. Do not preserve `this.$http` through
-  `app.config.globalProperties`.
-- Replace `Vue.prototype.$snack` and `Vue.prototype.$auth0` with composable
-  imports where used. Refactor the `install()` plugin pattern to a plain
-  `useAuth0()` / `useSnack()` import. This is a mandatory pre-swap task.
+- Preserve the completed filter / `$snack` / dead `$http` cleanup work and do
+  not reintroduce those global patterns while touching adjacent files.
+- Replace the remaining `Vue.prototype.$auth0` usage as part of the coordinated
+  Auth0 replacement during the Vue 3 swap rather than polishing the legacy Vue
+  2 plugin path further.
 - Audit custom component APIs that currently emulate Vue 2 `v-model` via
   `value` and `@input`, and plan replacements using Vue 3 `v-model` /
   `modelValue` conventions where possible.
@@ -326,9 +327,10 @@ patterns that can be fixed without changing the runtime.
 - `.sync` → leave as-is (requires Vue 3 `v-model:prop` syntax to replace)
 - `$listeners` → leave as-is (requires Vue 3 `$attrs` merge to replace)
 - `$scopedSlots` → can partially replace with `$slots` in Vue 2.7
-- Filters → convert to utility functions (fully doable on Vue 2 and required)
-- `Vue.prototype` → convert to composable imports / inject patterns (fully
-  doable on Vue 2 and required)
+- Filters → completed
+- `Vue.prototype` → partially completed (`$snack` and dead `$http` removed;
+  legacy Auth0 plugin remains and should be replaced during the coordinated
+  Vue 3 swap)
 - `this.$set` → replace with direct assignment (works in Vue 2.7 reactive)
 
 **Benefits:**
@@ -600,9 +602,9 @@ Begin with a formal migration epic and execute the work in this order:
 
 1. **Validate runtime prerequisites and structurally decouple on Vue 2:**
    confirm Dockerfile Node compatibility first, then update linting, trial or
-   enable strict TypeScript, run codemods for safe transforms, remove filters
-   and `Vue.prototype` patterns, convert Options API stragglers, and expand
-   test coverage.
+   enable strict TypeScript, run codemods for safe transforms, continue
+   removing preserve-worthy Vue 2 patterns, convert Options API stragglers, and
+   expand test coverage.
 2. **Coordinated dependency swap:** Upgrade Vue, Vuetify, Router, i18n, and all
    third-party Vue 2 libs simultaneously. Get the app compiling and booting
    without carrying Vuex forward.
@@ -641,15 +643,13 @@ coordinated swap.
    defaults, and theme setup.
 9. `web/src/plugins/vue-i18n-plugin.js` - Vue 2 style i18n with custom `useI18n` bridge.
 10. `web/src/plugins/auth0-plugin.js` - Vue 2 plugin `install()` with `Vue.prototype`.
-11. `web/src/plugins/snack-plugin.js` - Vue 2 plugin `install()` with `Vue.prototype`.
-12. `web/src/filters/index.js` - Global Vue filters that must be replaced.
-13. `web/src/use/utils/use-display-vuetify2.js` - Existing Vuetify 2 bridge helper.
-14. `web/src/use/utils/use-vuetify2-sort-by-shim.js` - Existing data-table migration shim.
-15. `web/types/vuetify-2-types-shim.d.ts` - Vuetify 2 type compatibility layer.
-16. `web/src/yk-style.css` and `web/src/vuetify2-extensions.css` - CSS and
+11. `web/src/use/utils/use-display-vuetify2.js` - Existing Vuetify 2 bridge helper.
+12. `web/src/use/utils/use-vuetify2-sort-by-shim.js` - Existing data-table migration shim.
+13. `web/types/vuetify-2-types-shim.d.ts` - Vuetify 2 type compatibility layer.
+14. `web/src/yk-style.css` and `web/src/vuetify2-extensions.css` - CSS and
    SASS override audit surface.
-17. `web/src/pages/` and `web/src/components/` - Main feature migration surface.
-18. `agents/tmp/` and any existing `now.*` files - Approved temporary working
+15. `web/src/pages/` and `web/src/components/` - Main feature migration surface.
+16. `agents/tmp/` and any existing `now.*` files - Approved temporary working
    surfaces for analysis artifacts and migration scratch work.
 
 ## Out Of Scope
