@@ -44,13 +44,6 @@ Vue.filter("beautifyDateTime", function (date) {
   } else return ""
 })
 
-Vue.filter("capitalize", function (text) {
-  const texts = text.split(" ")
-  const result = []
-  texts.forEach((txt) => result.push(txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()))
-  return result.join(" ")
-})
-
 Vue.filter("currency", function (currency) {
   return currency.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 })
