@@ -80,7 +80,7 @@
             hide-default-footer
           >
             <template #item.createdAt="{ item }">
-              <div>{{ item.createdAt | beautifyDate }}</div>
+              <div>{{ formatDate(item.createdAt) }}</div>
             </template>
 
             <template #item.fullname="{ item }">
@@ -141,6 +141,9 @@ import { isNil, isEmpty } from "lodash"
 import { Printd } from "printd"
 
 import { useI18n } from "@/plugins/vue-i18n-plugin"
+
+import { formatDate } from "@/utils/formatters"
+
 import { TRAVEL_DESK_TRAVEL_REQUEST_STATUSES } from "@/api/travel-desk-travel-requests-api"
 import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
 

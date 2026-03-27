@@ -1,4 +1,7 @@
 import Vue from "vue"
+
+import { formatDate } from "@/utils/formatters"
+
 import store from "@/store"
 
 Vue.filter("isAdmin", function () {
@@ -17,30 +20,10 @@ Vue.filter("isTdUser", function () {
   return admin || TdUser
 })
 
-Vue.filter("beautifyDate", function (date) {
-  const MonthList = {
-    1: "Jan",
-    2: "Feb",
-    3: "Mar",
-    4: "Apr",
-    5: "May",
-    6: "Jun",
-    7: "Jul",
-    8: "Aug",
-    9: "Sep",
-    10: "Oct",
-    11: "Nov",
-    12: "Dec",
-  }
-  if (date)
-    return MonthList[Number(date.substr(5, 2))] + " " + date.substr(8, 2) + " " + date.substr(0, 4)
-  else return ""
-})
-
 Vue.filter("beautifyDateTime", function (date) {
   if (date) {
     const time = date.length > 10 ? ", " + date.substr(11, 5) : ""
-    return Vue.filter("beautifyDate")(date.substr(0, 10)) + time
+    return formatDate(date.substr(0, 10)) + time
   } else return ""
 })
 
