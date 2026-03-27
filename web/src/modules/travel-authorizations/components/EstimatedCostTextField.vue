@@ -26,30 +26,19 @@
   </v-tooltip>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from "vue"
 import { sumBy } from "lodash"
 
-export default {
-  name: "EstimatedCostTextField",
-  props: {
-    estimates: {
-      type: Array,
-      required: true,
-    },
-  },
-  computed: {
-    estimatedCost() {
-      return sumBy(this.estimates, "cost")
-    },
-  },
-  methods: {
-    formatCurrency(amount) {
-      const formatter = new Intl.NumberFormat("en-CA", {
-        style: "currency",
-        currency: "CAD",
-      })
-      return formatter.format(amount)
-    },
-  },
-}
+import { formatCurrency } from "@/utils/formatters"
+
+import { type Expense } from "@/api/expenses-api"
+
+const props = defineProps<{
+  estimates: Expense[]
+}>()
+
+const estimatedCost = computed(() => {
+  return sumBy(props.estimates, "cost")
+})
 </script>
