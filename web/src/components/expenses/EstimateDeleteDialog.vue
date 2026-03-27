@@ -2,31 +2,37 @@
   <v-dialog
     v-model="showDialog"
     max-width="500px"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
   >
     <v-card>
       <v-card-title class="text-h5">
         Are you sure you want to delete the following estimate?
       </v-card-title>
-      <v-card-text>
-        <div v-if="hasEstimate">
+      <v-skeleton-loader
+        v-if="isNil(estimateId) || isNil(expense)"
+        type="card"
+      />
+      <v-card-text v-else>
+        <div>
           <v-row no-gutters>
             <v-col class="text-center">
-              {{ estimate.expenseType }}
+              {{ expense.expenseType }}
             </v-col>
           </v-row>
           <v-row no-gutters>
             <v-col class="text-center">
-              {{ estimate.description }}
+              {{ expense.description }}
             </v-col>
           </v-row>
           <v-row no-gutters>
             <v-col class="text-center">
-              {{ formatDate(estimate.date) }}
+              {{ formatDate(expense.date) }}
             </v-col>
           </v-row>
           <v-row no-gutters>
             <v-col class="text-center">
-              {{ formatCurrency(estimate.cost) }}
+              {{ formatCurrency(expense.cost) }}
             </v-col>
           </v-row>
         </div>
@@ -35,14 +41,14 @@
         <v-spacer></v-spacer>
         <v-btn
           color="secondary"
-          :loading="loading"
-          @click="close"
+          :loading="isLoading"
+          @click="hide"
           >Cancel</v-btn
         >
         <v-btn
           color="error"
-          :loading="loading"
-          @click="deleteAndClose"
+          :loading="isLoading"
+          @click="deleteAndHide"
           >OK</v-btn
         >
         <v-spacer></v-spacer>
@@ -51,81 +57,76 @@
   </v-dialog>
 </template>
 
-<script>
-import { isEmpty } from "lodash"
-import { DateTime } from "luxon"
+<script setup lang="ts">
+import { nextTick, ref, watch } from "vue"
+import { isNil } from "lodash"
 
 import expensesApi from "@/api/expenses-api"
-
 import useSnack from "@/use/use-snack"
+import { formatCurrency, formatDate } from "@/utils/formatters"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useExpense from "@/use/use-expense"
 
-export default {
-  name: "EstimateDeleteDialog",
-  setup() {
-    const snack = useSnack()
+const emit = defineEmits<{
+  (event: "deleted"): void
+}>()
 
-    return {
-      snack,
+const estimateId = useRouteQuery("showDelete", undefined, {
+  transform: integerTransformer,
+})
+const { expense, isLoading } = useExpense(estimateId)
+
+const showDialog = ref(false)
+const snack = useSnack()
+
+watch(
+  estimateId,
+  (newEstimateId) => {
+    if (isNil(newEstimateId)) {
+      showDialog.value = false
+      expense.value = null
+    } else {
+      showDialog.value = true
     }
   },
-  data: () => ({
-    estimate: {},
-    showDialog: false,
-    loading: false,
-  }),
-  computed: {
-    estimateId() {
-      return this.estimate.id
-    },
-    hasEstimate() {
-      return !isEmpty(this.estimate)
-    },
-  },
-  watch: {
-    showDialog(value) {
-      if (value) {
-        if (this.$route.query.showDelete === this.estimate.id.toString()) return
+  {
+    immediate: true,
+  }
+)
 
-        this.$router.push({ query: { showDelete: this.estimate.id } })
-      } else {
-        this.$router.push({ query: { showDelete: undefined } })
-      }
-    },
-  },
-  methods: {
-    show(estimate) {
-      this.estimate = estimate
-      this.showDialog = true
-    },
-    close() {
-      this.showDialog = false
-    },
-    deleteAndClose() {
-      this.loading = true
-      return expensesApi
-        .delete(this.estimateId)
-        .then(() => {
-          this.$emit("deleted")
-          this.close()
-        })
-        .catch((error) => {
-          console.error(`Failed to delete estimate: ${error}`, { error })
-          this.snack.error(`Failed to delete estimate: ${error}`)
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-    formatDate(date) {
-      return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
-    },
-    formatCurrency(amount) {
-      const formatter = new Intl.NumberFormat("en-CA", {
-        style: "currency",
-        currency: "CAD",
-      })
-      return formatter.format(amount)
-    },
-  },
+function show(newEstimateId: number) {
+  estimateId.value = newEstimateId
 }
+
+function hide() {
+  estimateId.value = undefined
+}
+
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
+
+  hide()
+}
+
+async function deleteAndHide() {
+  if (isNil(estimateId.value)) return
+
+  isLoading.value = true
+  try {
+    await expensesApi.delete(estimateId.value)
+    hide()
+
+    await nextTick()
+    emit("deleted")
+  } catch (error) {
+    console.error(`Failed to delete estimate: ${error}`, { error })
+    snack.error(`Failed to delete estimate: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+defineExpose({
+  show,
+})
 </script>
