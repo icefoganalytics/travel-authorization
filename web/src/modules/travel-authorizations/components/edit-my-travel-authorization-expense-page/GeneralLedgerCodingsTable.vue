@@ -71,6 +71,8 @@ import { sumBy } from "lodash"
 import { computed, onMounted, ref } from "vue"
 import { useRoute } from "vue2-helpers/vue-router"
 
+import { formatCurrency } from "@/utils/formatters"
+
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 
 import GeneralLedgerCodingDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingDeleteDialog.vue"
@@ -112,16 +114,7 @@ const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 onMounted(async () => {
   await refresh()
   showEditDialogForRouteQuery()
-  showDeleteDialogForRouteQuery()
 })
-
-function formatCurrency(amount) {
-  const formatter = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  })
-  return formatter.format(amount)
-}
 
 async function emitChangedAndRefresh() {
   emit("changed")
@@ -129,7 +122,7 @@ async function emitChangedAndRefresh() {
 }
 
 function showDeleteDialog(item) {
-  deleteDialog.value.show(item)
+  deleteDialog.value.show(item.id)
 }
 
 function showEditDialog(item) {
@@ -146,18 +139,6 @@ function showEditDialogForRouteQuery() {
   if (!generalLedgerCoding) return
 
   showEditDialog(generalLedgerCoding)
-}
-
-function showDeleteDialogForRouteQuery() {
-  const generalLedgerCodingId = parseInt(route.query.showDelete)
-  if (isNaN(generalLedgerCodingId)) return
-
-  const generalLedgerCoding = generalLedgerCodings.value.find(
-    (generalLedgerCoding) => generalLedgerCoding.id === generalLedgerCodingId
-  )
-  if (!generalLedgerCoding) return
-
-  showDeleteDialog(generalLedgerCoding)
 }
 
 defineExpose({

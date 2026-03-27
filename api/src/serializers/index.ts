@@ -1,10 +1,10 @@
-export { GeneralLedgerCodingsSerializer } from "./general-ledger-codings-serializer"
 export { StopsSerializer } from "./stops-serializer"
 export { TravelAuthorizationActionLogsSerializer } from "./travel-authorization-action-logs-serializer"
 export { UsersSerializer } from "./users-serializer"
 
 // Bundles
 export * as Expenses from "./expenses"
+export * as GeneralLedgerCodings from "./general-ledger-codings"
 export * as Locations from "./locations"
 export * as Stops from "./stops"
 export * as TravelAuthorizations from "./travel-authorizations"
