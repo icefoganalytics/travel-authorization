@@ -15,7 +15,7 @@
       </v-btn>
     </template>
     <v-form @submit.prevent="createAndClose">
-      <v-card :loading="loading">
+      <v-card :loading="isLoading">
         <v-card-title class="text-h5"> Prefill Expenses? </v-card-title>
 
         <v-card-text>
@@ -33,14 +33,14 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            :loading="loading"
+            :loading="isLoading"
             color="error"
             @click="close"
           >
             Cancel
           </v-btn>
           <v-btn
-            :loading="loading"
+            :loading="isLoading"
             color="primary"
             type="submit"
           >
@@ -52,73 +52,52 @@
   </v-dialog>
 </template>
 
-<script>
-import { required } from "@/utils/validators"
+<script setup lang="ts">
+import { ref } from "vue"
 
 import prefillApi from "@/api/travel-authorizations/expenses/prefill-api"
 
 import useSnack from "@/use/use-snack"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 
-export default {
-  name: "ExpensePrefillDialog",
-  components: {},
-  setup() {
-    const snack = useSnack()
+const emit = defineEmits<{
+  (event: "created"): void
+}>()
 
-    return {
-      snack,
-    }
-  },
-  props: {
-    travelAuthorizationId: {
-      type: Number,
-      required: true,
-    },
-    buttonClasses: {
-      type: [String, Array, Object],
-      default: () => "mb-2",
-    },
-    buttonColor: {
-      type: String,
-      default: "primary",
-    },
-  },
-  data() {
-    return {
-      showDialog: this.$route.query.showPrefill === "true",
-      loading: false,
-    }
-  },
-  watch: {
-    showDialog(value) {
-      if (value) {
-        this.$router.push({ query: { showPrefill: value } })
-      } else {
-        this.$router.push({ query: { showPrefill: undefined } })
-      }
-    },
-  },
-  methods: {
-    required,
-    close() {
-      this.showDialog = false
-    },
-    createAndClose() {
-      this.loading = true
-      return prefillApi
-        .create(this.travelAuthorizationId)
-        .then(() => {
-          this.$emit("created")
-          this.close()
-        })
-        .catch((error) => {
-          console.error(`Failed to prefill expenses: ${error}`, { error })
-          this.snack.error(`Failed to prefill expenses: ${error}`)
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-  },
+const props = withDefaults(
+  defineProps<{
+    travelAuthorizationId: number
+    buttonClasses?: string | string[] | Record<string, boolean>
+    buttonColor?: string
+  }>(),
+  {
+    buttonClasses: "mb-2",
+    buttonColor: "primary",
+  }
+)
+
+const showDialog = useRouteQuery("showPrefill", "false", {
+  transform: booleanTransformer,
+})
+const isLoading = ref(false)
+
+const snack = useSnack()
+
+async function createAndClose() {
+  isLoading.value = true
+  try {
+    await prefillApi.create(props.travelAuthorizationId)
+    emit("created")
+    close()
+  } catch (error) {
+    console.error(`Failed to prefill expenses: ${error}`, { error })
+    snack.error(`Failed to prefill expenses: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function close() {
+  showDialog.value = false
 }
 </script>
