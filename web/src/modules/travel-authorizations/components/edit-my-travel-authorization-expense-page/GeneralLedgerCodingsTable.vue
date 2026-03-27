@@ -69,7 +69,6 @@
 <script setup>
 import { sumBy } from "lodash"
 import { computed, onMounted, ref } from "vue"
-import { useRoute } from "vue2-helpers/vue-router"
 
 import { formatCurrency } from "@/utils/formatters"
 
@@ -89,8 +88,6 @@ const emit = defineEmits(["changed"])
 
 const editDialog = ref(null)
 const deleteDialog = ref(null)
-
-const route = useRoute()
 
 const generalLedgerCodingOptions = computed(() => ({
   where: {
@@ -113,7 +110,6 @@ const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 
 onMounted(async () => {
   await refresh()
-  showEditDialogForRouteQuery()
 })
 
 async function emitChangedAndRefresh() {
@@ -126,19 +122,7 @@ function showDeleteDialog(item) {
 }
 
 function showEditDialog(item) {
-  editDialog.value.show(item)
-}
-
-function showEditDialogForRouteQuery() {
-  const generalLedgerCodingId = parseInt(route.query.showEdit)
-  if (isNaN(generalLedgerCodingId)) return
-
-  const generalLedgerCoding = generalLedgerCodings.value.find(
-    (generalLedgerCoding) => generalLedgerCoding.id === generalLedgerCodingId
-  )
-  if (!generalLedgerCoding) return
-
-  showEditDialog(generalLedgerCoding)
+  editDialog.value.show(item.id)
 }
 
 defineExpose({
