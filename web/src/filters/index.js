@@ -1,7 +1,5 @@
 import Vue from "vue"
 
-import { formatDate } from "@/utils/formatters"
-
 import store from "@/store"
 
 Vue.filter("isAdmin", function () {
@@ -18,13 +16,6 @@ Vue.filter("isTdUser", function () {
   const admin = userRoles?.includes("admin")
   const TdUser = userRoles?.includes("travel_desk_user")
   return admin || TdUser
-})
-
-Vue.filter("beautifyDateTime", function (date) {
-  if (date) {
-    const time = date.length > 10 ? ", " + date.substr(11, 5) : ""
-    return formatDate(date.substr(0, 10)) + time
-  } else return ""
 })
 
 Vue.filter("currency", function (currency) {

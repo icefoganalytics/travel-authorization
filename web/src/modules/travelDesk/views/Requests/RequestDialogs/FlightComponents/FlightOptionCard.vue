@@ -54,12 +54,12 @@
                 </tr>
                 <tr style="background: #f9f9f9">
                   <td style="width: 16%">Departure:</td>
-                  <td style="width: 30%">{{ flightSegment.departAt | beautifyDateTime }}</td>
+                  <td style="width: 30%">{{ formatDateTime(flightSegment.departAt) }}</td>
                   <td style="width: 50%">{{ flightSegment.departLocation }}</td>
                 </tr>
                 <tr style="line-height: 1rem">
                   <td style="width: 16%">Arrival:</td>
-                  <td style="width: 30%">{{ flightSegment.arriveAt | beautifyDateTime }}</td>
+                  <td style="width: 30%">{{ formatDateTime(flightSegment.arriveAt) }}</td>
                   <td style="width: 50%">{{ flightSegment.arriveLocation }}</td>
                 </tr>
                 <tr style="background: #f9f9f9">
@@ -82,6 +82,8 @@
 
 <script>
 import Vue from "vue"
+
+import { formatDateTime } from "@/utils/formatters"
 
 export default {
   name: "FlightOptionCard",
@@ -120,7 +122,9 @@ export default {
       return flight
     },
   },
-  methods: {},
+  methods: {
+    formatDateTime,
+  },
 }
 </script>
 
