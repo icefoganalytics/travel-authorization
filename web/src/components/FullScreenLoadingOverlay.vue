@@ -10,14 +10,8 @@
   </v-overlay>
 </template>
 
-<script>
-export default {
-  name: "FullScreenLoadingOverlay",
-  props: {
-    value: {
-      type: Boolean,
-      required: true,
-    },
-  },
-}
+<script setup lang="ts">
+defineProps<{
+  value: boolean
+}>()
 </script>
