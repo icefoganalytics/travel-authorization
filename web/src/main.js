@@ -3,7 +3,6 @@ import VueApexCharts from "vue-apexcharts"
 import axios from "axios"
 
 import vuetify from "@/plugins/vuetify-plugin"
-import SnackPlugin from "@/plugins/snack-plugin"
 import createI18n from "@/plugins/vue-i18n-plugin"
 import Auth0Plugin from "@/plugins/auth0-plugin"
 
@@ -14,7 +13,6 @@ import store from "@/store"
 import { ENVIRONMENT, API_BASE_URL, RELEASE_TAG, GIT_COMMIT_HASH } from "@/config"
 
 Vue.use(VueApexCharts)
-Vue.use(SnackPlugin)
 const i18n = createI18n(Vue)
 Vue.use(Auth0Plugin)
 
