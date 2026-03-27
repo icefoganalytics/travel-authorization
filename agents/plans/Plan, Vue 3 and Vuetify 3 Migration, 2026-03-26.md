@@ -301,6 +301,10 @@ patterns that can be fixed without changing the runtime.
 - Replace the remaining `Vue.prototype.$auth0` usage as part of the coordinated
   Auth0 replacement during the Vue 3 swap rather than polishing the legacy Vue
   2 plugin path further.
+- Do not introduce a Vue 2 `$listeners` compatibility shim as a Phase 1 bridge.
+  Leave `$listeners` / `$scopedSlots` wrapper cleanup for the coordinated Vue 3
+  swap, where each wrapper can be converted directly to explicit `emits`,
+  `$attrs`, and Vue 3 slot patterns instead of adding temporary abstractions.
 - Audit custom component APIs that currently emulate Vue 2 `v-model` via
   `value` and `@input`, and plan replacements using Vue 3 `v-model` /
   `modelValue` conventions where possible.
@@ -326,7 +330,8 @@ patterns that can be fixed without changing the runtime.
 **Pre-migration pattern cleanup targets:**
 - `.sync` → leave as-is (requires Vue 3 `v-model:prop` syntax to replace)
 - `$listeners` → leave as-is (requires Vue 3 `$attrs` merge to replace)
-- `$scopedSlots` → can partially replace with `$slots` in Vue 2.7
+- `$scopedSlots` → leave as-is for now; replace alongside `$listeners` during
+  the coordinated Vue 3 wrapper cleanup
 - Filters → completed
 - `Vue.prototype` → partially completed (`$snack` and dead `$http` removed;
   legacy Auth0 plugin remains and should be replaced during the coordinated
@@ -595,6 +600,10 @@ stable.
     Existing `now.*` files in the codebase may also be used as scratch pads
     when helpful, but they should be treated as temporary working surfaces
     rather than permanent project documentation.
+13. **Listener and slot cleanup timing:** Do not add temporary Vue 2 shims for
+    `$listeners` or `$scopedSlots` just to reduce template counts. Defer that
+    work to the coordinated Vue 3 swap so wrappers can be converted directly to
+    their real Vue 3 contracts.
 
 ## Recommended Action
 
