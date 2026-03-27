@@ -198,7 +198,7 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Default imports:** When a helper or component already exposes a default export and the module has a single clear purpose, prefer the default import form at the call site.
 - **Expanded imports:** When importing 4 or more named items, prefer the expanded multi-line form for readability.
 - **Composable usage in Options API:** When an Options API component needs a composable, call it inside `setup()` and return the result for use via `this.*`. Do not create composable instances at module scope.
-- **Error notifications:** Before each `snack.error(...)`, log with `console.error(...)`. Include `{ error }` only when handling a real caught error object; for validation or other non-error branches, log a plain message string.
+- **Error notifications:** Use `console.error(...)` before `snack.error(...)` when handling a real error path. Do not log validation or other expected non-error user feedback with `console.error(...)`.
 - **Legacy cleanup triage:** Before modernizing an isolated legacy frontend component or subtree, verify that it is still reachable from pages, routes, or imports. If it is orphaned, prefer deleting it over migrating it.
 - **Code organization matters:** When modernizing frontend behavior, verify that the surrounding route placement, layout nesting, and file organization support the intended behavior. Matching a component API or route name is not enough if the page lives outside the layout or namespace that provides the feature.
 
