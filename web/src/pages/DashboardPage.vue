@@ -84,23 +84,10 @@
                   mdi-delete
                 </v-icon>
               </template>
-              <template #item.receipts>
-                <v-btn
-                  text
-                  color="blue"
-                  x-small
-                  @click="uploadReceiptDialog"
-                >
-                  Upload Receipts
-                </v-btn>
+              <template #item.receipts="{ item }">
+                <AddReceiptButtonForm :expense-id="item.id" />
               </template>
             </v-data-table>
-            <v-dialog
-              v-model="dialog"
-              width="400"
-            >
-              <UploadReceipts />
-            </v-dialog>
           </v-col>
         </v-row>
         <v-btn
@@ -173,17 +160,17 @@ import { FORM_URL } from "@/urls"
 
 import DatePicker from "@/components/common/DatePicker.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
-import UploadReceipts from "@/components/Utils/UploadReceipts.vue"
+import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
 
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
 
 export default {
   name: "DashboardPage",
   components: {
+    AddReceiptButtonForm,
     CreateTravelAuthorizationButton,
     DatePicker,
     TimeTextField,
-    UploadReceipts,
   },
   data: () => ({
     daysOffTravel: 1,
@@ -259,7 +246,6 @@ export default {
       },
     ],
     forms: [],
-    dialog: false,
   }),
   created() {
     this.loadTravelAuthorizations()
@@ -270,9 +256,6 @@ export default {
       return http.get(FORM_URL).then((resp) => {
         this.forms = resp.data
       })
-    },
-    uploadReceiptDialog() {
-      this.dialog = true
     },
     openForm(value) {
       this.$router.push(`/TravelRequest/Request/${value.formId}`)

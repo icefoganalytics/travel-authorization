@@ -27,6 +27,7 @@
               :travel-authorization-id="travelAuthorizationIdAsNumber"
               :step-title="currentStep.title"
               :step-subtitle="currentStep.subtitle"
+              :return-to="returnTo"
               @update:travelPurposeId="
                 updateTravelAuthorizationSummary({
                   travelPurposeId: $event,
@@ -110,6 +111,7 @@ export type WizardStepComponent = {
 
 <script setup lang="ts">
 import { computed, ref, toRefs, watch } from "vue"
+import { useRouter } from "vue2-helpers/vue-router"
 import { isNil, isEmpty, isString } from "lodash"
 
 import { TravelAuthorizationWizardStepNames } from "@/api/travel-authorizations-api"
@@ -220,6 +222,19 @@ async function refreshHeaderAndLocalState() {
 function updateTravelAuthorizationSummary(attributes: Partial<TravelAuthorizationSummary>) {
   summaryHeaderPanel.value?.update(attributes)
 }
+
+const router = useRouter()
+const returnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "my-travel-requests/MyTravelRequestWizardPage",
+    params: {
+      travelAuthorizationId: props.travelAuthorizationId,
+      stepName: props.stepName,
+    },
+  })
+
+  return routeLocation.href
+})
 
 const breadcrumbs = computed(() => [
   {

@@ -22,7 +22,6 @@ import TravelDeskFlightRequest from "./travel-desk-flight-request"
 import TravelDeskFlightSegment from "./travel-desk-flight-segment"
 import TravelDeskHotel from "./travel-desk-hotel"
 import TravelDeskOtherTransportation from "./travel-desk-other-transportation"
-import TravelDeskPassengerNameRecordDocument from "./travel-desk-passenger-name-record-document"
 import TravelDeskQuestion from "./travel-desk-question"
 import TravelDeskRentalCar from "./travel-desk-rental-car"
 import TravelDeskTravelAgency from "./travel-desk-travel-agency"
@@ -56,7 +55,6 @@ db.addModels([
   TravelDeskFlightSegment,
   TravelDeskHotel,
   TravelDeskOtherTransportation,
-  TravelDeskPassengerNameRecordDocument,
   TravelDeskQuestion,
   TravelDeskRentalCar,
   TravelDeskTravelAgency,
@@ -90,7 +88,6 @@ TravelDeskFlightRequest.establishScopes()
 TravelDeskFlightSegment.establishScopes()
 TravelDeskHotel.establishScopes()
 TravelDeskOtherTransportation.establishScopes()
-TravelDeskPassengerNameRecordDocument.establishScopes()
 TravelDeskQuestion.establishScopes()
 TravelDeskRentalCar.establishScopes()
 TravelDeskTravelAgency.establishScopes()
@@ -124,7 +121,6 @@ export {
   TravelDeskFlightSegment,
   TravelDeskHotel,
   TravelDeskOtherTransportation,
-  TravelDeskPassengerNameRecordDocument,
   TravelDeskQuestion,
   TravelDeskRentalCar,
   TravelDeskTravelAgency,

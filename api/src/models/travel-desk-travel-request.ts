@@ -23,11 +23,11 @@ import {
 } from "@sequelize/core/decorators-legacy"
 import { isNil } from "lodash"
 
+import Attachment from "@/models/attachment"
 import TravelAuthorization from "@/models/travel-authorization"
 import TravelDeskFlightRequest from "@/models/travel-desk-flight-request"
 import TravelDeskHotel from "@/models/travel-desk-hotel"
 import TravelDeskOtherTransportation from "@/models/travel-desk-other-transportation"
-import TravelDeskPassengerNameRecordDocument from "@/models/travel-desk-passenger-name-record-document"
 import TravelDeskQuestion from "@/models/travel-desk-question"
 import TravelDeskRentalCar from "@/models/travel-desk-rental-car"
 import TravelDeskTravelAgency from "@/models/travel-desk-travel-agency"
@@ -67,6 +67,13 @@ export class TravelDeskTravelRequest extends Model<
 
   @Attribute(DataTypes.INTEGER)
   declare travelAgencyId: number | null
+
+  // TODO: rename this to something externalRecordIdentifier in the future.
+  // It will be used to link to external systems like TravCom or the new Travel datadump from Travelport.
+  // I believe it coresponds to the RecordLocator field in the new Travel datadump and will be used
+  // to generate invoices.
+  @Attribute(DataTypes.STRING(255))
+  declare invoiceNumber: string | null
 
   @Attribute(DataTypes.STRING(255))
   @NotNull
@@ -220,14 +227,18 @@ export class TravelDeskTravelRequest extends Model<
   })
   declare travelAgency?: NonAttribute<TravelDeskTravelAgency>
 
-  @HasOne(() => TravelDeskPassengerNameRecordDocument, {
+  @HasOne(() => Attachment, {
     foreignKey: {
-      name: "travelDeskTravelRequestId",
-      onDelete: "CASCADE",
+      name: "targetId",
+      allowNull: true,
     },
+    foreignKeyConstraints: false,
     inverse: "travelDeskTravelRequest",
+    scope: {
+      targetType: Attachment.TargetTypes.TravelDeskTravelRequest,
+    },
   })
-  declare passengerNameRecordDocument?: NonAttribute<TravelDeskPassengerNameRecordDocument>
+  declare passengerNameRecordDocument?: NonAttribute<Attachment>
 
   @HasMany(() => TravelDeskFlightRequest, {
     foreignKey: "travelRequestId",

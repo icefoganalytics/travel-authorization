@@ -9,3 +9,6 @@ export { SubmitService } from "./submit-service"
 
 // Special Services
 export { PrefillFlightRequestsService } from "./prefill-flight-requests-service"
+
+// Sub-resource Services
+export * as PassengerNameRecordDocument from "./passenger-name-record-document"

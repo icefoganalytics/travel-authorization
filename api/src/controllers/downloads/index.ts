@@ -2,3 +2,4 @@ export { TravelAuthorizationPreApprovalDocumentsController } from "./travel-auth
 
 // Bundled exports
 export * as Expenses from "./expenses"
+export * as TravelDeskTravelRequests from "./travel-desk-travel-requests"

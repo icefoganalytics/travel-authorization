@@ -3,7 +3,7 @@ import { pick } from "lodash"
 import { TravelDeskRentalCar, User } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelDeskRentalCarTableView = Pick<
+export type TravelDeskRentalCarAsIndex = Pick<
   TravelDeskRentalCar,
   | "id"
   | "travelRequestId"
@@ -33,7 +33,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskRentalCar> {
     super(record)
   }
 
-  perform(): TravelDeskRentalCarTableView {
+  perform(): TravelDeskRentalCarAsIndex {
     return {
       ...pick(this.record, [
         "id",

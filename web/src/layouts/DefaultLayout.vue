@@ -57,7 +57,7 @@
       <KebabMenu />
     </v-app-bar>
 
-    <v-main>
+    <v-main class="grey lighten-4">
       <!-- Provides the application the proper gutter -->
       <v-container
         fluid

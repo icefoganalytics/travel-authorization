@@ -102,9 +102,9 @@
         class="mr-4"
         color="primary"
         :to="{
-          name: 'TravelDeskReadPage',
+          name: 'travel-desk/TravelDeskRequestPage',
           params: {
-            travelDeskTravelRequestId: item.id,
+            travelDeskTravelRequestId: item.id.toString(),
           },
         }"
       >
@@ -115,9 +115,9 @@
         class="mr-4"
         color="primary"
         :to="{
-          name: 'TravelDeskEditPage',
+          name: 'travel-desk/TravelDeskRequestEditRedirect',
           params: {
-            travelDeskTravelRequestId: item.id,
+            travelDeskTravelRequestId: item.id.toString(),
           },
         }"
       >

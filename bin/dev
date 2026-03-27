@@ -13,6 +13,7 @@ class DevHelper
     "branch-from" => :branch_from,
     "description-from" => :description_from,
     "check-types" => :check_types,
+    "psql-query" => :psql_query,
     "bash-completions" => :bash_completions,
     "plantuml-to-png" => :plantuml_to_png,
     "edit-pr" => :edit_pr,
@@ -90,7 +91,8 @@ class DevHelper
   end
 
   def check_types(*args, **kwargs)
-    run(*%w[api npm run check-types], *args, **kwargs)
+    run(*%w[api npm run check-types], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs) &&
+      run(*%w[web npm run check-types], *args, **kwargs)
   end
 
   def test(*args, **kwargs)
@@ -115,8 +117,26 @@ class DevHelper
   end
 
   def psql(*args, **kwargs)
-    # TODO: use environment variables for this instead
-    db(*%w[psql "postgresql://app:itsallgood@localhost:5432/travel_development"], *args, **kwargs)
+    compose(
+      <<~BASH,
+        exec db sh -lc '
+          PGPASSWORD="$POSTGRES_PASSWORD" \
+            psql \
+            -U "$POSTGRES_USER" \
+            -d "$POSTGRES_DB" \
+            #{args.join(" ")}
+        '
+      BASH
+      **kwargs
+    )
+  end
+
+  def psql_query(query, *args, **kwargs)
+    if query.nil? || query.strip.empty?
+      raise ArgumentError, "Query cannot be nil or empty"
+    end
+
+    psql(*args, pipe_input: query, **kwargs)
   end
 
   def db(*args, **kwargs)
@@ -275,12 +295,7 @@ class DevHelper
   private
 
   def wait_for_process_with_logging(command)
-    IO.popen("#{command} 2>&1") do |io|
-      until io.eof?
-        line = io.gets
-        puts line
-      end
-    end
+    system(command)
   end
 
   def container_id(container_name, *args, **kwargs)

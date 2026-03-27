@@ -1,4 +1,4 @@
-import { isNil, isNull, minBy } from "lodash"
+import { isNil, minBy } from "lodash"
 import express, { Request, Response } from "express"
 import { CreationAttributes, Op, WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
@@ -13,7 +13,6 @@ import {
   TravelDeskFlightSegment,
   TravelDeskHotel,
   TravelDeskOtherTransportation,
-  TravelDeskPassengerNameRecordDocument,
   TravelDeskQuestion,
   TravelDeskRentalCar,
   TravelDeskTravelRequest,
@@ -50,10 +49,6 @@ travelDeskRouter.get("/", RequiresAuth, async function (_req: Request, res: Resp
           },
         ],
       },
-      {
-        association: "passengerNameRecordDocument",
-        attributes: ["invoiceNumber"],
-      },
     ],
   })
 
@@ -62,11 +57,6 @@ travelDeskRouter.get("/", RequiresAuth, async function (_req: Request, res: Resp
   for (const travelRequest of travelRequestsJson) {
     // @ts-expect-error - not worth fixing at this time, belongs in a serializer
     travelRequest.form = travelRequest.travelAuthorization
-
-    // @ts-expect-error - not worth fixing at this time, belongs in a serializer
-    travelRequest.invoiceNumber =
-      // @ts-expect-error - not worth fixing at this time, belongs in a serializer
-      travelRequest.passengerNameRecordDocument?.invoiceNumber || ""
   }
 
   res.status(200).json(travelRequestsJson)
@@ -108,17 +98,6 @@ travelDeskRouter.get(
         // @ts-expect-error - isn't worth fixing at this time
         form.travelRequest = form.travelDeskTravelRequest
 
-        // @ts-expect-error - isn't worth fixing at this time
-        const travelDeskTravelRequestId = form.travelRequest?.id
-        if (travelDeskTravelRequestId) {
-          const travelDeskPnrDocument = await TravelDeskPassengerNameRecordDocument.findOne({
-            attributes: ["invoiceNumber"],
-            where: { travelDeskTravelRequestId },
-          })
-
-          // @ts-expect-error - isn't worth fixing at this time
-          form.travelRequest.invoiceNumber = travelDeskPnrDocument?.invoiceNumber || ""
-        }
       }
       res.status(200).json(formsJson)
     } catch (error: unknown) {
@@ -539,11 +518,6 @@ travelDeskRouter.get(
       }
     }
 
-    // @ts-expect-error - not worth fixing at this time
-    travelRequestJson.invoiceNumber =
-      // @ts-expect-error - not worth fixing at this time
-      travelRequestJson.passengerNameRecordDocument?.invoiceNumber || ""
-
     res.status(200).json(travelRequestJson)
   }
 )
@@ -751,66 +725,5 @@ travelDeskRouter.post(
         logger.error(error)
         res.status(500).json("Saving the Travel Request failed")
       })
-  }
-)
-
-travelDeskRouter.post(
-  "/pnr-document/:travelDeskTravelRequestId",
-  RequiresAuth,
-  RequiresRoleTdUser,
-  async function (req: Request, res: Response) {
-    const file = req.body.file
-    const travelDeskTravelRequestId = parseInt(req.params.travelDeskTravelRequestId)
-    const data = JSON.parse(req.body.data)
-    const { invoiceNumber, travelAgencyId } = data
-
-    return db
-      .transaction(async () => {
-        await TravelDeskPassengerNameRecordDocument.upsert({
-          travelDeskTravelRequestId,
-          invoiceNumber,
-          pnrDocument: file,
-        })
-
-        if (travelAgencyId) {
-          await TravelDeskTravelRequest.update(
-            {
-              travelAgencyId,
-            },
-            {
-              where: { id: travelDeskTravelRequestId },
-            }
-          )
-        }
-
-        res.status(200).json("Successful")
-      })
-      .catch((error) => {
-        logger.info(error)
-        res.status(500).json("Insert failed")
-      })
-  }
-)
-
-travelDeskRouter.get(
-  "/pnr-document/:travelDeskTravelRequestId",
-  RequiresAuth,
-  RequiresRoleTdUser,
-  async function (req, res) {
-    try {
-      const travelDeskTravelRequestId = req.params.travelDeskTravelRequestId
-      const doc = await TravelDeskPassengerNameRecordDocument.findOne({
-        where: { travelDeskTravelRequestId },
-      })
-
-      if (isNull(doc)) {
-        return res.status(404).json({ message: "No PNR Document found" })
-      }
-
-      res.status(200).send(doc.pnrDocument)
-    } catch (error: unknown) {
-      logger.info(error)
-      res.status(500).json("PDF not Found")
-    }
   }
 )

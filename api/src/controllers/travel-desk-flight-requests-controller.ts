@@ -8,21 +8,21 @@ import BaseController from "@/controllers/base-controller"
 
 export class TravelDeskFlightRequestsController extends BaseController<TravelDeskFlightRequest> {
   async index() {
-    const where = this.buildWhere()
-    const scopes = this.buildFilterScopes()
-
-    const scopedTravelDeskFlightRequests = TravelDeskFlightRequestsPolicy.applyScope(
-      scopes,
-      this.currentUser
-    )
-
     try {
+      const where = this.buildWhere()
+      const scopes = this.buildFilterScopes()
+      const order = this.buildOrder([["datePreference", "ASC"]])
+      const scopedTravelDeskFlightRequests = TravelDeskFlightRequestsPolicy.applyScope(
+        scopes,
+        this.currentUser
+      )
+
       const totalCount = await scopedTravelDeskFlightRequests.count({ where })
       const travelDeskFlightRequests = await scopedTravelDeskFlightRequests.findAll({
         where,
         limit: this.pagination.limit,
         offset: this.pagination.offset,
-        order: [["datePreference", "ASC"]],
+        order,
         include: [
           {
             association: "flightOptions",
@@ -35,9 +35,10 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
         totalCount,
       })
     } catch (error) {
-      return this.response
-        .status(500)
-        .json({ message: `Failed to retrieve travel desk flight requests: ${error}` })
+      console.error(`Failed to retrieve travel desk flight requests: ${error}`, { error })
+      return this.response.status(400).json({
+        message: `Failed to retrieve travel desk flight requests: ${error}`,
+      })
     }
   }
 
@@ -62,6 +63,7 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
         policy,
       })
     } catch (error) {
+      console.error(`Failed to retrieve travel desk flight request: ${error}`, { error })
       return this.response.status(400).json({
         message: `Failed to retrieve travel desk flight request: ${error}`,
       })
@@ -73,9 +75,9 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
       const travelDeskFlightRequest = await this.buildTravelDeskFlightRequest()
       const policy = this.buildPolicy(travelDeskFlightRequest)
       if (!policy.create()) {
-        return this.response
-          .status(403)
-          .json({ message: "You are not authorized to create this flight request." })
+        return this.response.status(403).json({
+          message: "You are not authorized to create this flight request.",
+        })
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
@@ -83,9 +85,15 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
-      return this.response.status(201).json({ travelDeskFlightRequest: newTravelDeskFlightRequest })
+      return this.response.status(201).json({
+        travelDeskFlightRequest: newTravelDeskFlightRequest,
+        policy,
+      })
     } catch (error) {
-      return this.response.status(422).json({ message: `Flight request creation failed: ${error}` })
+      console.error(`Failed to create travel desk flight request: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Flight request creation failed: ${error}`,
+      })
     }
   }
 
@@ -93,14 +101,16 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
     try {
       const travelDeskFlightRequest = await this.loadTravelDeskFlightRequest()
       if (isNil(travelDeskFlightRequest)) {
-        return this.response.status(404).json({ message: "Flight request not found." })
+        return this.response.status(404).json({
+          message: "Flight request not found.",
+        })
       }
 
       const policy = this.buildPolicy(travelDeskFlightRequest)
       if (!policy.update()) {
-        return this.response
-          .status(403)
-          .json({ message: "You are not authorized to update this flight request." })
+        return this.response.status(403).json({
+          message: "You are not authorized to update this flight request.",
+        })
       }
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
@@ -109,11 +119,15 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
-      return this.response
-        .status(200)
-        .json({ travelDeskFlightRequest: updatedTravelDeskFlightRequest })
+      return this.response.status(200).json({
+        travelDeskFlightRequest: updatedTravelDeskFlightRequest,
+        policy,
+      })
     } catch (error) {
-      return this.response.status(422).json({ message: `Flight request update failed: ${error}` })
+      console.error(`Failed to update travel desk flight request: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Flight request update failed: ${error}`,
+      })
     }
   }
 
@@ -121,20 +135,24 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
     try {
       const travelDeskFlightRequest = await this.loadTravelDeskFlightRequest()
       if (isNil(travelDeskFlightRequest)) {
-        return this.response.status(404).json({ message: "Flight request not found." })
+        return this.response.status(404).json({
+          message: "Flight request not found.",
+        })
       }
 
       const policy = this.buildPolicy(travelDeskFlightRequest)
       if (!policy.destroy()) {
-        return this.response
-          .status(403)
-          .json({ message: "You are not authorized to delete this flight request." })
+        return this.response.status(403).json({
+          message: "You are not authorized to delete this flight request.",
+        })
       }
 
       await travelDeskFlightRequest.destroy()
       return this.response.status(204).send()
     } catch (error) {
-      return this.response.status(422).json({ message: `Flight request deletion failed: ${error}` })
+      return this.response.status(422).json({
+        message: `Flight request deletion failed: ${error}`,
+      })
     }
   }
 

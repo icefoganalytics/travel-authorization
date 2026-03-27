@@ -1,8 +1,9 @@
-import { Attributes, FindOptions, Op } from "@sequelize/core"
+import { Attributes, FindOptions } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
-import { User, TravelDeskHotel, TravelDeskTravelRequest } from "@/models"
+
+import { User, TravelDeskHotel } from "@/models"
 import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
 import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
@@ -24,7 +25,7 @@ export class TravelDeskHotelsPolicy extends PolicyFactory(TravelDeskHotel) {
     return this.travelDeskTravelRequestsPolicy.update()
   }
 
-  permittedAttributesForUpdate(): Path[] {
+  permittedAttributes(): Path[] {
     return [
       "city",
       "isDedicatedConferenceHotelAvailable",
@@ -39,47 +40,32 @@ export class TravelDeskHotelsPolicy extends PolicyFactory(TravelDeskHotel) {
   }
 
   permittedAttributesForCreate(): Path[] {
-    return ["travelRequestId", ...this.permittedAttributesForUpdate()]
+    return ["travelRequestId", ...this.permittedAttributes()]
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelDeskHotel>> {
-    if (user.isAdmin) {
-      return ALL_RECORDS_SCOPE
-    }
+    if (user.isAdmin) return ALL_RECORDS_SCOPE
+
+    const travelDeskTravelRequestsPolicyScope = TravelDeskTravelRequestsPolicy.policyScope(user)
 
     return {
       include: [
         {
           association: "travelRequest",
-          include: [
-            {
-              association: "travelAuthorization",
-              where: {
-                [Op.or]: [
-                  {
-                    supervisorEmail: user.email,
-                  },
-                  { userId: user.id },
-                ],
-              },
-            },
-          ],
+          required: true,
+          ...travelDeskTravelRequestsPolicyScope,
         },
       ],
     }
   }
 
-  private get travelDeskTravelRequest(): TravelDeskTravelRequest {
+  private get travelDeskTravelRequestsPolicy(): TravelDeskTravelRequestsPolicy {
     const { travelRequest } = this.record
     if (isUndefined(travelRequest)) {
-      throw new Error("Travel request is required")
+      throw new Error("Expected travelRequest association to be pre-loaded")
     }
 
-    return travelRequest
-  }
-
-  private get travelDeskTravelRequestsPolicy(): TravelDeskTravelRequestsPolicy {
-    return new TravelDeskTravelRequestsPolicy(this.user, this.travelDeskTravelRequest)
+    return new TravelDeskTravelRequestsPolicy(this.user, travelRequest)
   }
 }
 

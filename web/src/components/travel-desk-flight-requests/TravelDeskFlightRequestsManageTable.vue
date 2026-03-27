@@ -21,6 +21,15 @@
         />
       </td>
     </template>
+    <template
+      v-for="(_, slotName) in $scopedSlots"
+      #[slotName]="slotData"
+    >
+      <slot
+        :name="slotName"
+        v-bind="slotData"
+      ></slot>
+    </template>
   </TravelDeskFlightRequestsEditTable>
 </template>
 

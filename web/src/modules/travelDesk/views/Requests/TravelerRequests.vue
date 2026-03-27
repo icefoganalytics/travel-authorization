@@ -6,6 +6,12 @@
       :items-per-page="15"
       class="elevation-1 mt-4"
     >
+      <template #top>
+        <TravelDeskTravelRequestPrintItineraryDialog
+          ref="travelDeskTravelRequestPrintItineraryDialog"
+        />
+      </template>
+
       <template #item.name="{ item }">
         {{ item.name.replace(".", " ") }}
       </template>
@@ -47,12 +53,18 @@
             item.phase == 'Travel Approved' || item.phase == 'Request Draft' ? 'Submit' : 'Review'
           "
           :authorized-travel="item"
+          :return-to="returnTo"
           @updateTable="updateTable"
         />
-        <ItineraryModal
-          v-if="item.status == 'Approved' && item.phase == 'Booked' && item.invoiceNumber"
-          :invoice-number="item.invoiceNumber"
-        />
+        <v-btn
+          v-if="hasInvoiceNumber(item)"
+          class="ml-2"
+          color="#005A65"
+          x-small
+          @click="openPrintItineraryDialog(item.id)"
+        >
+          View Itinerary
+        </v-btn>
       </template>
     </v-data-table>
   </div>
@@ -60,19 +72,24 @@
 
 <script>
 import Vue from "vue"
+
 import NewTravelDeskRequest from "@/modules/travelDesk/views/Requests/NewTravelDeskRequest.vue"
-import ItineraryModal from "@/modules/travelDesk/views/Requests/Components/ItineraryModal.vue"
+import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
 
 export default {
   name: "TravelerRequests",
   components: {
     NewTravelDeskRequest,
-    ItineraryModal,
+    TravelDeskTravelRequestPrintItineraryDialog,
   },
   props: {
     authorizedTravels: {
       type: Array,
       default: () => [],
+    },
+    returnTo: {
+      type: String,
+      default: undefined,
     },
   },
   data() {
@@ -97,7 +114,11 @@ export default {
       department: "",
     }
   },
-  computed: {},
+  computed: {
+    hasInvoiceNumber() {
+      return (item) => item.status === "Approved" && item.phase === "Booked" && item.invoiceNumber
+    },
+  },
   mounted() {
     this.department = this.$store.state.auth?.department
     this.admin = Vue.filter("isAdmin")()
@@ -105,6 +126,9 @@ export default {
   methods: {
     updateTable() {
       this.$emit("updateTable")
+    },
+    openPrintItineraryDialog(travelDeskTravelRequestId) {
+      this.$refs.travelDeskTravelRequestPrintItineraryDialog.open(travelDeskTravelRequestId)
     },
     getLocationName(locations) {
       const names = []

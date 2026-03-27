@@ -56,6 +56,7 @@
         <TimeTextField
           v-model="firstTravelSegmentAttributes.departureTime"
           label="Time (24 hour)"
+          dense
           clearable
           persistent-hint
         />
@@ -205,6 +206,7 @@
           <TimeTextField
             v-model="travelSegmentsAttributes[index].departureTime"
             label="Time (24 hour)"
+            dense
             clearable
             persistent-hint
           />

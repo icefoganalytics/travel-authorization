@@ -1,0 +1,210 @@
+@startuml Travel Desk Invoice Entity Relationship Diagram
+top to bottom direction
+
+note as Disclaimer
+Diagram generated with the assistance of Cascade AI coding assistant - may contain errors
+PlantUML URL: https://plantuml.com/ie-diagram
+Last Updated: 2026-01-07
+Related GitHub issue: https://github.com/icefoganalytics/travel-authorization/issues/314
+Companion plan: Plan, Travel Desk Flight Segment Cost Tracking and Invoice Generation, 2026-01-02.md
+Companion schema reference: Travel Desk Invoice Source Schema Reference.sql
+This diagram shows the proposed new and modified tables for the Travel Desk Invoice system (Issue #314).
+The Travel Request is the core entity - invoices are created per travel request.
+end note
+
+entity "travel_desk_travel_requests" as travel_requests {
+  * id : serial4 <<PK>>
+  --
+  * travel_authorization_id : int4 <<FK>> <<UNIQUE>>
+  travel_agency_id : int4 <<FK>>
+  --
+  * legal_first_name : varchar(255)
+  legal_middle_name : varchar(255)
+  * legal_last_name : varchar(255)
+  birth_date : varchar(255)
+  str_address : varchar(255)
+  city : varchar(255)
+  province : varchar(255)
+  postal_code : varchar(255)
+  is_international_travel : boolean
+  passport_country : varchar(255)
+  passport_num : varchar(255)
+  travel_purpose : varchar(255)
+  travel_location : varchar(255)
+  travel_notes : varchar(255)
+  bus_phone : varchar(255)
+  bus_email : varchar(255)
+  travel_contact : boolean
+  travel_phone : varchar(255)
+  travel_email : varchar(255)
+  additional_information : varchar(255)
+  * status : varchar(255)
+  travel_desk_officer : varchar(255)
+  <color:green>invoice_number : varchar(255)</color>
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  --
+  Core entity for invoicing.
+  Can have multiple invoices, each with its own booking reference code.
+  invoice_number migrated from deprecated pnr_documents table.
+}
+
+entity "attachments" as attachments {
+  * id : serial4 <<PK>>
+  --
+  * target_type : varchar(255)
+  * target_id : int4
+  --
+  * file : bytea
+  * name : varchar(255)
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
+  --
+  Polymorphic attachment storage.
+  PNR documents use target_type = "TravelDeskTravelRequest"
+}
+
+together {
+  entity "travel_desk_product_types" as product_types #LightGreen {
+    * id : serial4 <<PK>>
+    --
+    * name : varchar(255) <<UNIQUE>>
+    description : text
+    * created_at : timestamptz
+    * updated_at : timestamptz
+    deleted_at : timestamptz
+    --
+    Lookup table for invoice item categories
+    (e.g., Flight, Hotel, Service Fee, Other)
+  }
+
+  entity "travel_desk_invoices" as invoices #LightGreen {
+    * id : serial4 <<PK>>
+    --
+    * travel_desk_travel_request_id : int4 <<FK>>
+    --
+    invoice_number : varchar(255)
+    booking_date : date
+    invoice_date : date
+    record_locator : varchar(255)
+    client_number : varchar(255)
+    client_name : varchar(255)
+    department : varchar(255)
+    iata_number : varchar(255)
+    booking_agent_name : varchar(255)
+    ticketing_agent_name : varchar(255)
+    fares_amount : decimal(10,2)
+    taxes_amount : decimal(10,2)
+    penalties_amount : decimal(10,2)
+    gross_amount : decimal(10,2)
+    commissions_amount : decimal(10,2)
+    * created_at : timestamptz
+    * updated_at : timestamptz
+    deleted_at : timestamptz
+    --
+    Invoice header linked to a travel request.
+    Captures TravCom invoice details.
+  }
+
+  entity "travel_desk_invoice_items" as invoice_items #LightGreen {
+    * id : serial4 <<PK>>
+    --
+    * travel_desk_invoice_id : int4 <<FK>>
+    * travel_desk_product_type_id : int4 <<FK>>
+    travel_desk_flight_segment_id : int4 <<FK>>
+    --
+    passenger_name : varchar(255)
+    ticket_number : varchar(255)
+    description : varchar(255)
+    * gross_amount : decimal(10,2)
+    * sale_type : varchar(255)
+    * created_at : timestamptz
+    * updated_at : timestamptz
+    deleted_at : timestamptz
+    --
+    Individual line items on an invoice.
+    sale_type: Sale, Void, Refund
+    Links to flight_segment when product type is Flight.
+  }
+}
+
+entity "travel_desk_flight_segments" as flight_segments {
+  * id : serial4 <<PK>>
+  --
+  * flight_option_id : int4 <<FK>>
+  --
+  * flight_number : varchar(255)
+  * depart_at : timestamptz
+  * depart_location : varchar(255)
+  * arrive_at : timestamptz
+  * arrive_location : varchar(255)
+  * duration : varchar(255)
+  * status : varchar(255)
+  * class : varchar(255)
+  sort_order : int4 : default 1
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
+  --
+  Existing table (no changes)
+  Referenced by invoice_items for Flight charges
+}
+
+entity "travel_desk_flight_options" as flight_options {
+  * id : serial4 <<PK>>
+  --
+  * flight_request_id : int4 <<FK>>
+  * traveler_id : int4 <<FK>>
+  --
+  * cost : varchar(255)
+  * leg : varchar(255)
+  * duration : varchar(255)
+  flight_preference_order : int4
+  additional_information : text
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
+  --
+  Existing table (no changes)
+}
+
+entity "travel_desk_flight_requests" as flight_requests {
+  * id : serial4 <<PK>>
+  --
+  * travel_request_id : int4 <<FK>>
+  --
+  * depart_location : varchar(255)
+  * arrive_location : varchar(255)
+  * date_preference : date
+  * time_preference : varchar(255)
+  * seat_preference : varchar(255)
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
+  --
+  Existing table (no changes)
+}
+
+' Relationships - PNR Document (via Attachments)
+attachments::target_id }o--|| travel_requests::id
+
+' Relationships - New (Invoice system)
+invoices::travel_desk_travel_request_id }o--|| travel_requests::id
+invoice_items::travel_desk_invoice_id }o--|| invoices::id
+invoice_items::travel_desk_product_type_id }o--|| product_types::id
+invoice_items::travel_desk_flight_segment_id }o--o| flight_segments::id
+
+' Relationships - Existing (for context)
+flight_requests::travel_request_id }o--|| travel_requests::id
+flight_options::flight_request_id }o--|| flight_requests::id
+flight_segments::flight_option_id }o--|| flight_options::id
+
+legend right
+  |= Color |= Meaning |
+  | <#LightGreen> | New table (to be created) |
+  | (no color) | Existing table |
+  | <color:green>Green text</color> | New/migrated column |
+endlegend
+
+@enduml

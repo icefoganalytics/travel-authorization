@@ -271,21 +271,108 @@ const routes: RouteConfig[] = [
             component: () => import("@/pages/TravelDeskPage.vue"),
           },
           {
-            name: "TravelDeskReadPage",
+            name: "travel-desk/TravelDeskRequestPage",
             path: "travel-desk/:travelDeskTravelRequestId",
-            component: () => import("@/pages/travel-desk/TravelDeskReadPage.vue"),
+            component: () => import("@/pages/travel-desk/TravelDeskRequestPage.vue"),
             props: true,
           },
           {
-            name: "TravelDeskEditPage",
             path: "travel-desk/:travelDeskTravelRequestId/edit",
-            component: () => import("@/pages/travel-desk/TravelDeskEditPage.vue"),
+            component: () => import("@/layouts/travel-desk/TravelDeskRequestEditLayout.vue"),
             props: true,
+            children: [
+              {
+                path: "",
+                name: "travel-desk/TravelDeskRequestEditRedirect",
+                redirect: {
+                  name: "travel-desk/edit/TravelDeskRequestTravelerDetailsPage",
+                },
+              },
+              {
+                path: "traveler-details",
+                name: "travel-desk/edit/TravelDeskRequestTravelerDetailsPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestTravelerDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "travel-request",
+                name: "travel-desk/edit/TravelDeskRequestTravelRequestPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestTravelRequestPage.vue"),
+                props: true,
+              },
+              {
+                path: "trip-information",
+                name: "travel-desk/edit/TravelDeskRequestTripInformationPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestTripInformationPage.vue"),
+                props: true,
+              },
+              {
+                path: "invoicing",
+                name: "travel-desk/edit/TravelDeskRequestInvoicingPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestInvoicingPage.vue"),
+                props: true,
+              },
+              {
+                path: "review-manage-booking",
+                name: "travel-desk/edit/TravelDeskRequestReviewManageBookingPage",
+                component: () =>
+                  import("@/pages/travel-desk/edit/TravelDeskRequestReviewManageBookingPage.vue"),
+                props: true,
+              },
+            ],
           },
           {
             name: "TravelDeskFlightSegmentsManagePage",
             path: "travel-desk/:travelDeskTravelRequestId/manage-flight-segments",
             component: () => import("@/pages/travel-desk/TravelDeskFlightSegmentsManagePage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/hotels/TravelDeskHotelNewPage",
+            path: "travel-desk/:travelDeskTravelRequestId/hotels/new",
+            component: () => import("@/pages/travel-desk/hotels/TravelDeskHotelNewPage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/hotels/TravelDeskHotelEditPage",
+            path: "travel-desk/:travelDeskTravelRequestId/hotels/:travelDeskHotelId/edit",
+            component: () => import("@/pages/travel-desk/hotels/TravelDeskHotelEditPage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/rental-cars/TravelDeskRentalCarNewPage",
+            path: "travel-desk/:travelDeskTravelRequestId/rental-cars/new",
+            component: () =>
+              import("@/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/rental-cars/TravelDeskRentalCarEditPage",
+            path: "travel-desk/:travelDeskTravelRequestId/rental-cars/:travelDeskRentalCarId/edit",
+            component: () =>
+              import("@/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"),
+            props: true,
+          },
+          {
+            name: "travel-desk/other-transportations/TravelDeskOtherTransportationNewPage",
+            path: "travel-desk/:travelDeskTravelRequestId/other-transportations/new",
+            component: () =>
+              import(
+                "@/pages/travel-desk/other-transportations/TravelDeskOtherTransportationNewPage.vue"
+              ),
+            props: true,
+          },
+          {
+            name: "travel-desk/other-transportations/TravelDeskOtherTransportationEditPage",
+            path: "travel-desk/:travelDeskTravelRequestId/other-transportations/:travelDeskOtherTransportationId/edit",
+            component: () =>
+              import(
+                "@/pages/travel-desk/other-transportations/TravelDeskOtherTransportationEditPage.vue"
+              ),
             props: true,
           },
           {

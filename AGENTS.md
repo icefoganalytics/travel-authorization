@@ -6,6 +6,10 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 
 **Documentation philosophy:** This file focuses on patterns, conventions, and architecture rather than documenting specific features or domain models. Examples illustrate patterns, not exhaustive feature documentation.
 
+Keep `AGENTS.md` focused on project-wide conventions and high-level concepts. When guidance becomes
+specific to a subsystem or directory, move it into the nearest `README.md` or `agents/` workflow
+document and link to it from here instead of letting this file become a dumping ground.
+
 ## Table of Contents
 
 - [Technology Stack](#technology-stack)
@@ -24,6 +28,7 @@ This file follows the format from https://agents.md/ for AI agent documentation.
   - [Security](#security)
   - [Configuration](#configuration)
   - [Pull Request Guidelines](#pull-request-guidelines)
+  - [Agent Workflow Patterns](#agent-workflow-patterns)
 - [Changelog Management](#changelog-management)
 
 ---
@@ -68,6 +73,10 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 - **Guard clauses:** Early returns with blank line after each guard
 - **Named constants:** Hoist magic numbers to named `const`
 - camelCase for variables/functions, PascalCase for classes/types
+- **Prettier formatting:** Let Prettier handle all formatting decisions (line wrapping, spacing, etc.)
+  - Don't manually break lines or add leading `|` in union types
+  - Prettier will automatically wrap based on line length configuration
+  - Example: `Pick<Model, "id" | "name" | "email">` stays single-line until it exceeds print width
 
 **Import ordering (PEP8-style):**
 
@@ -94,10 +103,28 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 - Serializers format output (IndexSerializer, ShowSerializer)
 - Nested controllers in subfolders: `controllers/resource/action-controller.ts`
 
+**Serializer Naming Convention:**
+
+- Use `AsIndex` for index serializer types (not `TableView`)
+- Use `AsShow` for show serializer types
+- Follow pattern: `{Model}AsIndex`, `{Model}AsShow`
+
+**Response Patterns:**
+
+- Multi-line JSON responses with consistent formatting
+- Return policy information in create/update responses: `{ record, policy }`
+- Structured error logging: ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``
+- Consistent error message format: `"Failed to [action] [resource]: ${error}"`
+
 **Policy Pattern:**
 
-- Authorization scoping via policy classes
-- Role checks: Use `user.isAdmin` property directly
+- **Modern Pattern:** Use `PolicyFactory` with `policyScope()` method for new/updated policies
+- **Legacy Pattern:** Manual `applyScope()` method (being phased out)
+- **Policy Composition:** Compose scopes by storing parent policy scope in variable and spreading: `const parentScope = ParentPolicy.policyScope(user)` then `...parentScope` (use `required: true` for mandatory associations)
+- **Admin Handling:** Use `ALL_RECORDS_SCOPE` constant for admin users with early returns
+- **Method Naming:** Use `permittedAttributes()` instead of `permittedAttributesForUpdate()`
+- **Role checks:** Use `user.isAdmin` property directly
+- **Policy Inheritance:** Extend `PolicyFactory(ModelClass)` instead of `BasePolicy`
 
 **Database:**
 
@@ -108,10 +135,10 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 
 **Running tests:**
 
-- All tests: `dev test_api`
-- Specific file: `npm test -- tests/services/example.test.ts --run` (from `/api`)
+- All tests: `dev test api`
+- Specific file: `dev test api -- --run tests/services/example.test.ts`
 - Watch mode: omit `--run`
-- Pattern: `npm test -- --grep "pattern"`
+- Pattern: `dev test api -- --grep "pattern"`
 
 **Test structure:**
 
@@ -126,9 +153,20 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 
 - Numbered entities: `user1`, `user2` (not `existingUser`, `newUser`)
 - Descriptive variable names: `workflowStepPlayersAttributes` not `playersAttributes`
+- Scoped query results: use `scoped{Model}` naming (e.g., `scopedTravelDeskTravelRequests`) to indicate policy-scoped results
 - Assert database state via `findAll()` without where clauses (test isolation handles cleanup)
 - Negative spy assertions: `expect(spy).not.toHaveBeenCalled()` (never use `not.toHaveBeenCalledWith`)
 - Controller tests: `mockCurrentUser(user)` and `request().get("/api/path")` from `@/support`
+- Single assertion per test: prefer `toEqual` with `expect.objectContaining` over multiple assertions
+  ```typescript
+  // Good
+  expect(scopedRecords).toEqual([
+    expect.objectContaining({ id: record1.id }),
+  ])
+  // Avoid
+  expect(result).toHaveLength(1)
+  expect(result[0].id).toEqual(record1.id)
+  ```
 
 **Common factories:**
 Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expenseFactory`, `travelSegmentFactory`, etc.
@@ -146,6 +184,10 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Browser setTimeout:** Use `number` type, not `NodeJS.Timeout`
   - `const timer = ref<number | undefined>(undefined)`
   - `timer.value = setTimeout(callback, 1000)`
+- **Props definition:** Prefer TypeScript generic style `defineProps<{ prop: type }>()` over object-style with type arrays
+- **Loading states:** Use `isNil(data)` instead of boolean `isLoading` flags for more precise data presence checks
+- **Reactivity:** Use `toRefs(props)` when passing props to composables to maintain ref types and reactivity
+- **Optional chaining:** Only use `?.` when data might actually be null/undefined in rendered context, not when loading state ensures existence
 
 ### Component Naming Convention
 
@@ -153,7 +195,7 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 
 1. **Model/Domain** - Primary data model (e.g., `FlightStatistics`, `TravelAuthorization`)
 2. **Purpose** - Specific functionality (e.g., `Filters`, `Jobs`, `Edit`)
-3. **Vuetify Component** - Wrapper component (e.g., `Card`, `Modal`, `Dialog`, `Select`)
+3. **Vuetify Component** - Wrapper component (e.g., `Card`, `Modal`, `Dialog`, `Select`, `DataTabe`)
 
 **Directory structure:**
 
@@ -177,6 +219,7 @@ Type-safe API clients in `web/src/api/*-api.ts`
 - Export API object with methods: `list()`, `get()`, `create()`, `update()`, `delete()`
 - Methods return typed promises
 - Example: `flightStatisticsApi.list(params)` → `Promise<{ flightStatistics: FlightStatisticAsIndex[], totalCount: number }>`
+- **Import style:** Use named imports for API modules: `import { apiName } from "@/path/to/api"`. Exception: when importing many APIs in the same file, use top-level import with dot lookups: `import api from "@/api"`
 
 **Composable Pattern:**
 Reactive data fetching in `web/src/use/use-*.ts`
@@ -194,6 +237,26 @@ _Singular form (`useResource`) for single items:_
 - Return: `resource`, `policy`, `isLoading`, `isErrored`
 - Provide: `fetch()`, `refresh()`, optionally `save()`
 - Watch id with `immediate: true`, skip if nil
+
+_Chaining composables with computed IDs:_
+
+When you need to fetch a detail record based on a list lookup, chain composables using a computed ID:
+
+```typescript
+const resourcesQuery = computed(() => ({
+  where: {
+    name: props.name,
+  },
+}))
+const { resources } = useResources(resourcesQuery, {
+  skipWatchIf: () => !isReady.value,
+})
+const resourceId = computed(() => resources.value[0]?.id)
+
+const { resource } = useResource(resourceId)
+```
+
+This leverages Vue's reactivity - when `resources` updates, `resourceId` recomputes, triggering the singular composable to fetch automatically. Avoid manual watchers and imperative `fetch()` calls when reactive chaining suffices.
 
 Re-export types, enums, and constants from API module for convenience.
 
@@ -226,8 +289,17 @@ See `/api/src/config.ts` for complete details.
 
 **Pre-submission:**
 
-- All tests pass: `npm test` from `/api`
-- No TypeScript errors or `@ts-ignore`
+- All tests pass:
+  - API: `./bin/dev api npm test` or `npm test` from `/api`
+  - Web: `./bin/dev web npm test` or `npm test` from `/web`
+- Type checking passes:
+  - API: `./bin/dev api npm run check-types`
+  - Web: `./bin/dev web npm run check-types`
+- Linting passes:
+  - API: `npm run lint` from `/api`
+  - Web: `npm run lint` from `/web`
+- Prettier formatting passes: `npx prettier --check .` from project root
+- No `@ts-ignore`, `@ts-expect-error`, or `any` types
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
@@ -309,6 +381,7 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 ### Release Workflow
 
 1. **Before tagging an upstream-aligned release**
+
    - Review `Unreleased` and group items into user-facing themes.
    - Remove overly detailed technical notes that only matter to developers.
    - Ensure breaking changes, migrations, and security improvements are clearly called out.
@@ -339,3 +412,63 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
   - Scan `git log` since the last upstream tag.
   - Group commits by emoji into provisional sections (`Added`, `Changed`, `Fixed`, and so on).
   - Output a **draft Unreleased block** that is then manually curated to remove noise and rephrase entries as user-focused bullets.
+
+---
+
+## Agent Workflow Patterns
+
+### Workflow Design Principles
+
+**Comprehensive Scoping:**
+- Name workflows for their complete lifecycle (e.g., "pull-request-management" not "pull-request-creation")
+- Cover all related activities: creation, editing, maintenance, and troubleshooting
+
+**Template/Workflow Separation:**
+- Keep GitHub templates minimal with just structure
+- Move detailed guidance, examples, and instructions to agent workflows
+- Template = what to fill out, Workflow = how to fill it out
+
+**Project-Specific Normalization:**
+- When copying workflows between projects, normalize ALL project-specific details:
+  - Commands: `dev test_api` vs generic test commands
+  - URLs: http://localhost:8080
+  - Navigation patterns: **Travel Authorizations** → **Create New**
+  - Naming conventions and code style
+
+**Practical Examples:**
+- Include real examples from the actual project, not theoretical patterns
+- Show before/after scenarios and common use cases
+- Use actual file names, component names, and patterns from the codebase
+
+**Lifecycle Coverage:**
+- Consider the full lifecycle of the activity, not just initial creation
+- Include editing, updating, and maintenance scenarios
+- Provide troubleshooting and common pitfall guidance
+
+**QA Testing Instructions:**
+- Write for someone with zero project knowledge
+- Focus on UI interactions: "Click on", "Verify", "Fill out"
+- Use simple, sequential steps with specific verification points
+- Test complete user workflows: creation, editing, saving, navigation
+- Include browser behavior testing: back button, refresh, direct URLs
+- Minimal bolding - only for UI elements, avoid technical jargon
+
+### Available Workflows
+
+See `/agents/workflows/README.md` for the complete list of available workflows and their usage patterns.
+
+**Key Workflows:**
+- `pull-request-management.md` - Creating and editing well-structured PRs
+- `convert-js-api-to-typescript.md` - Converting JavaScript APIs to TypeScript
+- `convert-js-plural-composable-to-typescript.md` - Converting composables to TypeScript
+- `convert-dialog-table-to-page-pattern.md` - Modernizing legacy UI patterns
+
+### Workflow Usage
+
+**Example:**
+```
+Follow the workflow in agents/workflows/pull-request-management.md
+to create a comprehensive pull request following TravelAuth patterns.
+```
+
+Workflows are designed to be used with AI coding assistants and provide step-by-step guidance for complex, multi-step processes.

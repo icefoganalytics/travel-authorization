@@ -4,7 +4,6 @@
     :label="label"
     :rules="[...rules, timeValidator]"
     background-color="white"
-    dense
     outlined
     placeholder="HH:MM"
     persistent-placeholder
@@ -18,28 +17,31 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from "vue"
 import { isNil } from "lodash"
 
-const props = defineProps({
-  value: {
-    type: String,
-    default: undefined,
-  },
-  label: {
-    type: String,
-    default: "Time (24 hour)",
-  },
-  rules: {
-    type: Array,
-    default: () => [],
-  },
-})
+import { type ValidationRules } from "@/utils/validators/utility-types"
 
-const emit = defineEmits(["input"])
+const props = withDefaults(
+  defineProps<{
+    value?: string
+    label?: string
+    rules?: ValidationRules
+  }>(),
+  {
+    value: undefined,
+    label: "Time (24 hour)",
+    rules: () => [],
+  }
+)
 
-function stripSeconds(hhmmss) {
+// TODO: switch to `updated: [void]` syntax in Vue 3
+const emit = defineEmits<{
+  (event: "input", value: string | null): void
+}>()
+
+function stripSeconds(hhmmss: string | null | undefined) {
   if (isNil(hhmmss)) return null
 
   return hhmmss.split(":").slice(0, 2).join(":")
@@ -76,7 +78,7 @@ watch(
   }
 )
 
-function timeValidator(value) {
+function timeValidator(value: string | null | undefined) {
   if (isNil(value)) return true
 
   const [hours, minutes] = value.split(":")
@@ -99,7 +101,7 @@ function timeValidator(value) {
   return true
 }
 
-function updateInput(value) {
+function updateInput(value: string | null) {
   emit("input", value)
 }
 </script>

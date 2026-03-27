@@ -40,13 +40,13 @@
         <v-card-text v-if="!loadingData">
           <v-row class="mb-3">
             <v-col :cols="type != 'Submit' ? 8 : 12">
-              <traveler-details
+              <TravelerDetails
                 :traveler-details="travelerDetails"
                 :traveler-state="state"
                 :readonly="false"
               />
 
-              <title-card
+              <TitleCard
                 class="mt-10"
                 large-title
               >
@@ -54,14 +54,14 @@
                   <div>Travel Information</div>
                 </template>
                 <template #body>
-                  <title-card class="mt-5 mx-5">
+                  <TitleCard class="mt-5 mx-5">
                     <template #title>
                       <div>Flight Request</div>
                     </template>
                     <template #body>
                       <v-row class="mt-0 mx-0">
                         <v-col cols="9">
-                          <flight-request-table
+                          <FlightRequestTable
                             :travel-desk-travel-request-id="travelerDetails.id"
                             :authorized-travel="authorizedTravel"
                             :readonly="false"
@@ -87,27 +87,23 @@
                         </v-col>
                       </v-row>
                     </template>
-                  </title-card>
+                  </TitleCard>
 
-                  <rental-car-request-table
-                    :authorized-travel="authorizedTravel"
-                    :readonly="false"
-                    :flight-requests="travelerDetails.flightRequests"
-                    :rental-cars="travelerDetails.rentalCars"
+                  <!-- TODO: fix mapping authorizedTravel.id != travelDeskTravelRequestId -->
+                  <TravelDeskRentalCarsEditCard
+                    :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                    :return-to="returnTo"
                   />
-                  <hotel-request-table
-                    :authorized-travel="authorizedTravel"
-                    :readonly="false"
-                    :flight-requests="travelerDetails.flightRequests"
-                    :hotels="travelerDetails.hotels"
+                  <TravelDeskHotelsEditCard
+                    :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                    :return-to="returnTo"
                   />
-                  <transportation-request-table
-                    :authorized-travel="authorizedTravel"
-                    :readonly="false"
-                    :other-transportations="travelerDetails.otherTransportations"
+                  <TravelDeskOtherTransportationEditCard
+                    :travel-desk-travel-request-id="travelDeskTravelRequestId"
+                    :return-to="returnTo"
                   />
                 </template>
-              </title-card>
+              </TitleCard>
             </v-col>
             <v-col
               v-if="type != 'Submit'"
@@ -125,7 +121,7 @@
                   />
                 </v-col>
               </v-row>
-              <questions-table
+              <QuestionsTable
                 :readonly="false"
                 :questions="travelerDetails.questions"
               />
@@ -165,27 +161,34 @@
 </template>
 
 <script>
+import { computed } from "vue"
+
 import { LOOKUP_URL, TRAVEL_DESK_URL } from "@/urls"
 import http from "@/api/http-client"
 
+import useCurrentUser from "@/use/use-current-user"
+import useTravelAuthorization from "@/use/use-travel-authorization"
+
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
+
+import TravelDeskRentalCarsEditCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsEditCard.vue"
+import TravelDeskHotelsEditCard from "@/components/travel-desk-hotels/TravelDeskHotelsEditCard.vue"
+import TravelDeskOtherTransportationEditCard from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditCard.vue"
+
 import TravelerDetails from "@/modules/travelDesk/views/Requests/Components/TravelerDetails.vue"
 import FlightRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/FlightRequestTable.vue"
-import RentalCarRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/RentalCarRequestTable.vue"
-import HotelRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/HotelRequestTable.vue"
-import TransportationRequestTable from "@/modules/travelDesk/views/Requests/RequestDialogs/TransportationRequestTable.vue"
 import QuestionsTable from "@/modules/travelDesk/views/Desk/Components/QuestionsTable.vue"
 
 export default {
   name: "NewTravelDeskRequest",
   components: {
-    TitleCard,
-    TravelerDetails,
     FlightRequestTable,
-    RentalCarRequestTable,
-    TransportationRequestTable,
-    HotelRequestTable,
     QuestionsTable,
+    TitleCard,
+    TravelDeskHotelsEditCard,
+    TravelDeskOtherTransportationEditCard,
+    TravelDeskRentalCarsEditCard,
+    TravelerDetails,
   },
   props: {
     type: {
@@ -196,6 +199,30 @@ export default {
       type: Object,
       required: true,
     },
+    returnTo: {
+      type: String,
+      default: undefined,
+    },
+  },
+  // NOTE: this is component is now more of a concept sketch than a functional component.
+  // Needs full rebuild and rework with new concepts.
+  // Will need to build a travel desk travel request in draft form, before being able to edit it with
+  // current child edit components, as components such as TravelDeskRentalCarsEditCard require a
+  // travel desk travel request id to function.
+  setup(props) {
+    const travelAuthorizationId = computed(() => props.authorizedTravel.id)
+    const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
+    const travelDeskTravelRequest = computed(
+      () => travelAuthorization.value?.travelDeskTravelRequest
+    )
+    const travelDeskTravelRequestId = computed(() => travelDeskTravelRequest.value?.id)
+
+    const { currentUser } = useCurrentUser()
+
+    return {
+      travelDeskTravelRequestId,
+      currentUser,
+    }
   },
   data() {
     return {
@@ -250,7 +277,7 @@ export default {
 
     async getTravelRequestInfo() {
       return http
-        .get(`${TRAVEL_DESK_URL}/travel-request/` + this.authorizedTravel.id)
+        .get(`${TRAVEL_DESK_URL}/travel-request/` + this.travelDeskTravelRequestId)
         .then((resp) => {
           // console.log(resp.data)
           return resp.data
@@ -312,7 +339,7 @@ export default {
       travelerDetails.internationalTravel =
         travelerDetails.passportCountry || travelerDetails.passportNum
       travelerDetails.office = ""
-      travelerDetails.department = this.$store.state.auth.department
+      travelerDetails.department = this.currentUser.department
       travelerDetails.fullName =
         travelerDetails.legalFirstName + "." + travelerDetails.legalLastName
       this.travelerDetails = travelerDetails
@@ -337,9 +364,8 @@ export default {
           body.status = "options_ranked"
         }
         // console.log(body);
-        const id = this.authorizedTravel.id
         return http
-          .post(`${TRAVEL_DESK_URL}/travel-request/${id}`, body)
+          .post(`${TRAVEL_DESK_URL}/travel-request/${this.travelDeskTravelRequestId}`, body)
           .then(() => {
             this.savingData = false
             this.addNewTravelDialog = false
@@ -360,8 +386,8 @@ export default {
 
     checkFields() {
       this.state.firstNameErr = this.travelerDetails.legalFirstName ? false : true
-      ;(this.state.middleNameErr = false),
-        (this.state.lastNameErr = this.travelerDetails.legalLastName ? false : true)
+      this.state.middleNameErr = false
+      this.state.lastNameErr = this.travelerDetails.legalLastName ? false : true
       this.state.birthDateErr = this.travelerDetails.birthDate ? false : true
       this.state.travelAuthErr = false //this.travelerDetails.travelAuth? false:true; TODO: add this in backend
       this.state.addressErr = this.travelerDetails.strAddress ? false : true

@@ -150,10 +150,12 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  /** @type {string | null} */
   minDate: {
     type: String,
     default: "",
   },
+  /** @type {string | null} */
   maxDate: {
     type: String,
     default: "",
