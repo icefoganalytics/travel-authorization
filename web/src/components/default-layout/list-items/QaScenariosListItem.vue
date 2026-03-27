@@ -2,7 +2,7 @@
   <v-list-item
     v-if="isInDevelopmentOrUserAcceptanceTesting"
     :to="{
-      name: 'Qa-Scenarios',
+      name: 'qa/ScenariosListPage',
     }"
   >
     <v-list-item-icon>

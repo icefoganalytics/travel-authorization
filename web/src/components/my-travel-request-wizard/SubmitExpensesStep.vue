@@ -7,7 +7,7 @@
 
           <ExpenseCreateDialog
             v-if="hasExpenses"
-            :form-id="travelAuthorizationId"
+            :travel-authorization-id="travelAuthorizationId"
             @created="refreshExpenseCreationDependencies"
           />
           <ExpensePrefillDialog

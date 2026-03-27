@@ -8,21 +8,12 @@
   </v-btn>
 </template>
 
-<script>
-export default {
-  name: "SubmitPoolVehicleRequestButton",
-  props: {
-    travelAuthorizationId: {
-      type: Number,
-      required: true,
-    },
-  },
-  methods: {
-    submitPoolVehicleRequest() {
-      alert(
-        "TODO: submit pool vehicle request for travel authorization " + this.travelAuthorizationId
-      )
-    },
-  },
+<script setup lang="ts">
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
+
+function submitPoolVehicleRequest() {
+  alert(`TODO: submit pool vehicle request for travel authorization ${props.travelAuthorizationId}`)
 }
 </script>

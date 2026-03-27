@@ -1,7 +1,12 @@
 <template>
   <v-app>
     <div>
-      <router-link :to="{ name: 'DashboardPage' }">Dashboard</router-link>
+      <router-link
+        :to="{
+          name: 'DashboardPage',
+        }"
+        >Dashboard</router-link
+      >
 
       <v-row class="mt-5">
         <v-col
@@ -110,47 +115,42 @@
     </div>
   </v-app>
 </template>
-<script>
-import http from "@/api/http-client"
 
-import { RELEASE_TAG, GIT_COMMIT_HASH } from "@/config"
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue"
 
-export default {
-  name: "HealthCheckPage",
-  components: {},
-  data: () => ({
-    healthCheck: {
-      appHealth: {},
-      dbHealth: {},
-    },
-    // TODO: load from back-end
-    environment: {
-      releaseTag: RELEASE_TAG,
-      gitCommitHash: GIT_COMMIT_HASH,
-    },
-  }),
-  computed: {
-    dbHealth() {
-      return this.healthCheck.dbHealth || {}
-    },
-    appHealth() {
-      return this.healthCheck.appHealth || {}
-    },
-  },
-  async mounted() {
-    await this.refresh()
-  },
-  methods: {
-    refresh() {
-      return http
-        .get("/api/health-check")
-        .then(({ data }) => {
-          this.$set(this, "healthCheck", data)
-        })
-        .catch((error) => {
-          this.$snack(`Failed to fetch health check data: ${error}`, { color: "error" })
-        })
-    },
-  },
+import { GIT_COMMIT_HASH, RELEASE_TAG } from "@/config"
+
+import { healthCheckApi, type HealthCheck } from "@/api/health-check-api"
+
+import useSnack from "@/use/use-snack"
+
+const healthCheck = ref<HealthCheck>({
+  appHealth: {},
+  dbHealth: {},
+})
+
+const environment = {
+  releaseTag: RELEASE_TAG,
+  gitCommitHash: GIT_COMMIT_HASH,
 }
+
+const appHealth = computed(() => healthCheck.value.appHealth || {})
+const dbHealth = computed(() => healthCheck.value.dbHealth || {})
+
+const snack = useSnack()
+
+async function refresh() {
+  try {
+    const { healthCheck: healthCheckUpdate } = await healthCheckApi.get()
+    healthCheck.value = healthCheckUpdate
+  } catch (error) {
+    console.error(`Failed to fetch health check data: ${error}`, { error })
+    snack.error(`Failed to fetch health check data: ${error}`)
+  }
+}
+
+onMounted(async () => {
+  await refresh()
+})
 </script>

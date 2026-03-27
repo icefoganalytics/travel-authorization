@@ -2,13 +2,19 @@
   <v-dialog
     v-model="showDialog"
     max-width="500px"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
   >
-    <v-card :loading="isLoading">
+    <v-card>
       <v-card-title class="text-h5">
         Are you sure you want to delete the following coding?
       </v-card-title>
-      <v-card-text>
-        <div v-if="hasGeneralLedgerCoding">
+      <v-skeleton-loader
+        v-if="isNil(generalLedgerCodingId) || isNil(generalLedgerCoding)"
+        type="card"
+      />
+      <v-card-text v-else>
+        <div>
           <v-row no-gutters>
             <v-col class="text-center">
               {{ generalLedgerCoding.code }}
@@ -22,91 +28,95 @@
         </div>
       </v-card-text>
       <v-card-actions>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn
           color="secondary"
           :loading="isLoading"
-          @click="close"
+          @click="hide"
           >Cancel</v-btn
         >
         <v-btn
           color="error"
           :loading="isLoading"
-          @click="deleteAndClose"
+          @click="deleteAndHide"
           >OK</v-btn
         >
-        <v-spacer></v-spacer>
+        <v-spacer />
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-<script setup>
-import { isEmpty } from "lodash"
-import { computed, ref, nextTick, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+<script setup lang="ts">
+import { nextTick, ref, watch } from "vue"
+import { isNil } from "lodash"
 
-import useSnack from "@/use/use-snack"
+import { formatCurrency } from "@/utils/formatters"
 
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 
-const emit = defineEmits(["deleted"])
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 
-const route = useRoute()
-const router = useRouter()
+import useGeneralLedgerCoding from "@/use/use-general-ledger-coding"
+import useSnack from "@/use/use-snack"
+
+const emit = defineEmits<{
+  (event: "deleted"): void
+}>()
+
+const generalLedgerCodingId = useRouteQuery("showDelete", undefined, {
+  transform: integerTransformer,
+})
+const { generalLedgerCoding, isLoading } = useGeneralLedgerCoding(generalLedgerCodingId)
+const showDialog = ref(false)
 const snack = useSnack()
 
-const generalLedgerCoding = ref({})
-const showDialog = ref(false)
-const isLoading = ref(false)
+async function deleteAndHide() {
+  if (isNil(generalLedgerCodingId.value)) return
 
-const generalLedgerCodingId = computed(() => generalLedgerCoding.value.id)
-const hasGeneralLedgerCoding = computed(() => !isEmpty(generalLedgerCoding.value))
-
-watch(
-  () => showDialog.value,
-  (value) => {
-    if (value) {
-      if (route.query.showDelete === generalLedgerCodingId.value.toString()) return
-
-      router.push({ query: { showDelete: generalLedgerCodingId.value } })
-    } else {
-      router.push({ query: { showDelete: undefined } })
-    }
-  }
-)
-
-function show(newGeneralLedgerCoding) {
-  generalLedgerCoding.value = newGeneralLedgerCoding
-  showDialog.value = true
-}
-
-function close() {
-  showDialog.value = false
-}
-
-async function deleteAndClose() {
   isLoading.value = true
   try {
     await generalLedgerCodingsApi.delete(generalLedgerCodingId.value)
 
-    close()
-    nextTick(() => {
-      emit("deleted")
-    })
+    hide()
+
+    await nextTick()
+    emit("deleted")
   } catch (error) {
-    snack(error.message, { color: "error" })
+    console.error(`Failed to delete general ledger coding: ${error}`, { error })
+    snack.error(`Failed to delete general ledger coding: ${error}`)
   } finally {
     isLoading.value = false
   }
 }
 
-function formatCurrency(amount) {
-  const formatter = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  })
-  return formatter.format(amount)
+watch(
+  generalLedgerCodingId,
+  (newGeneralLedgerCodingId) => {
+    if (isNil(newGeneralLedgerCodingId)) {
+      showDialog.value = false
+      return
+    }
+
+    showDialog.value = true
+  },
+  {
+    immediate: true,
+  }
+)
+
+function show(newGeneralLedgerCodingId: number) {
+  generalLedgerCodingId.value = newGeneralLedgerCodingId
+}
+
+function hide() {
+  generalLedgerCodingId.value = undefined
+}
+
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
+
+  hide()
 }
 
 defineExpose({

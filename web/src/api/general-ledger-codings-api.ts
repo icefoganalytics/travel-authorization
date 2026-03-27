@@ -16,6 +16,8 @@ export type GeneralLedgerCoding = {
   updatedAt: string
 }
 
+export type GeneralLedgerCodingAsShow = GeneralLedgerCoding
+
 export type GeneralLedgerCodingWhereOptions = WhereOptions<
   GeneralLedgerCoding,
   "id" | "travelAuthorizationId" | "code"
@@ -34,6 +36,13 @@ export const generalLedgerCodingsApi = {
     totalCount: number
   }> {
     const { data } = await http.get("/api/general-ledger-codings", { params })
+    return data
+  },
+  async get(generalLedgerCodingId: number): Promise<{
+    generalLedgerCoding: GeneralLedgerCodingAsShow
+    policy: Policy
+  }> {
+    const { data } = await http.get(`/api/general-ledger-codings/${generalLedgerCodingId}`)
     return data
   },
   async create(attributes: Partial<GeneralLedgerCoding>): Promise<{

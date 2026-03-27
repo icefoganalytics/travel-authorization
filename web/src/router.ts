@@ -490,12 +490,12 @@ const routes: RouteConfig[] = [
             props: true,
           },
           // End of Administration pages
+          {
+            path: "qa/scenarios",
+            name: "qa/ScenariosListPage",
+            component: () => import("@/pages/qa/ScenariosListPage.vue"),
+          },
         ],
-      },
-      {
-        path: "qa/scenarios",
-        name: "Qa-Scenarios",
-        component: () => import("@/pages/qa/ScenariosListPage.vue"),
       },
       {
         path: "health-check",

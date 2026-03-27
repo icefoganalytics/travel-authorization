@@ -67,8 +67,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue"
-import { useRoute } from "vue2-helpers/vue-router"
+import { computed, ref } from "vue"
 import { sumBy } from "lodash"
 
 import { formatDate, formatCurrency } from "@/utils/formatters"
@@ -183,10 +182,6 @@ async function refreshAndEmitUpdated() {
   emit("updated")
 }
 
-onMounted(() => {
-  showDeleteDialogForRouteQuery()
-})
-
 /** @type {import("vue").Ref<InstanceType<typeof EstimateEditDialog> | null>} */
 const editDialog = ref(null)
 
@@ -194,25 +189,11 @@ function showEditDialog(item) {
   editDialog.value?.show(item.id)
 }
 
-const route = useRoute()
-
 /** @type {import("vue").Ref<InstanceType<typeof EstimateDeleteDialog> | null>} */
 const deleteDialog = ref(null)
 
-// TODO: update dialog so it accepts an id instead of an item
 function showDeleteDialog(item) {
-  deleteDialog.value?.show(item)
-}
-
-// TODO: move logic inside of dialog, and load based on id
-function showDeleteDialogForRouteQuery() {
-  const estimateId = parseInt(route.query.showDelete)
-  if (isNaN(estimateId)) return
-
-  const estimate = estimates.value.find((estimate) => estimate.id === estimateId)
-  if (!estimate) return
-
-  showDeleteDialog(estimate)
+  deleteDialog.value?.show(item.id)
 }
 
 defineExpose({

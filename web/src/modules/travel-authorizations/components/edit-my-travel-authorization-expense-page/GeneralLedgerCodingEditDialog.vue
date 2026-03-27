@@ -3,7 +3,8 @@
     v-model="showDialog"
     max-width="500px"
     persistent
-    @keydown.esc="close"
+    @keydown.esc="hide"
+    @input="hideIfFalse"
   >
     <v-form
       ref="form"
@@ -14,7 +15,11 @@
           <span class="text-h5">Edit Coding</span>
         </v-card-title>
 
-        <v-card-text>
+        <v-skeleton-loader
+          v-if="isNil(generalLedgerCodingId) || isNil(generalLedgerCoding)"
+          type="card"
+        />
+        <v-card-text v-else>
           <v-row>
             <v-col>
               <!-- See https://github.com/icefoganalytics/travel-authorization/issues/156#issuecomment-1890047168 -->
@@ -60,11 +65,11 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             :loading="isLoading"
             color="error"
-            @click="close"
+            @click="hide"
           >
             Cancel
           </v-btn>
@@ -81,73 +86,86 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { computed, nextTick, watch, ref } from "vue"
-import { cloneDeep } from "lodash"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
-
-import useSnack from "@/use/use-snack"
+<script setup lang="ts">
+import { nextTick, ref, watch } from "vue"
+import { isNil } from "lodash"
 
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 import { required, isGeneralLedgerCode } from "@/utils/validators"
+import useGeneralLedgerCoding from "@/use/use-general-ledger-coding"
+import useSnack from "@/use/use-snack"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
+import { type VForm } from "vuetify/lib/components"
 
-const emit = defineEmits(["saved"])
+const emit = defineEmits<{
+  (event: "saved"): void
+}>()
 
-const route = useRoute()
-const router = useRouter()
+const generalLedgerCodingId = useRouteQuery("showEdit", undefined, {
+  transform: integerTransformer,
+})
+const { generalLedgerCoding, isLoading } = useGeneralLedgerCoding(generalLedgerCodingId)
+
+const form = ref<InstanceType<typeof VForm> | null>(null)
 const snack = useSnack()
 
-const generalLedgerCoding = ref({})
-const showDialog = ref(false)
-const isLoading = ref(false)
-const form = ref(null)
-
-const generalLedgerCodingId = computed(() => generalLedgerCoding.value.id)
-
-watch(
-  () => showDialog.value,
-  (value) => {
-    if (value) {
-      if (route.query.showEdit === generalLedgerCodingId.value.toString()) return
-
-      router.push({ query: { showEdit: generalLedgerCodingId.value } })
-    } else {
-      router.push({ query: { showEdit: undefined } })
-    }
-  }
-)
-
-function show(newGeneralLedgerCoding) {
-  generalLedgerCoding.value = cloneDeep(newGeneralLedgerCoding)
-  showDialog.value = true
-}
-
-function close() {
-  showDialog.value = false
-  nextTick(() => {
-    generalLedgerCoding.value = {}
-    form.value.resetValidation()
-  })
-}
-
 async function updateAndClose() {
-  if (!form.value.validate()) return
+  if (!form.value?.validate()) return
+  if (isNil(generalLedgerCodingId.value)) return
+  if (isNil(generalLedgerCoding.value)) return
 
   isLoading.value = true
   try {
     await generalLedgerCodingsApi.update(generalLedgerCodingId.value, generalLedgerCoding.value)
 
-    close()
+    hide()
 
-    nextTick(() => {
-      emit("saved")
-    })
+    await nextTick()
+    emit("saved")
   } catch (error) {
-    snack(error.message, { color: "error" })
+    console.error(`Failed to update general ledger coding: ${error}`, { error })
+    snack.error(`Failed to update general ledger coding: ${error}`)
   } finally {
     isLoading.value = false
   }
+}
+
+const showDialog = ref(false)
+
+watch(
+  generalLedgerCodingId,
+  (newGeneralLedgerCodingId) => {
+    if (isNil(newGeneralLedgerCodingId)) {
+      showDialog.value = false
+      generalLedgerCoding.value = null
+      return
+    }
+
+    showDialog.value = true
+  },
+  {
+    immediate: true,
+  }
+)
+
+function show(newGeneralLedgerCodingId: number) {
+  generalLedgerCodingId.value = newGeneralLedgerCodingId
+}
+
+async function hide() {
+  showDialog.value = false
+  generalLedgerCodingId.value = undefined
+
+  await nextTick()
+  generalLedgerCoding.value = null
+  form.value?.resetValidation()
+}
+
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
+
+  hide()
 }
 
 defineExpose({

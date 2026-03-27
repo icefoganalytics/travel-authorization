@@ -58,7 +58,7 @@
           </template>
 
           <template #[`item.datePreference`]="{ item }">
-            {{ item.datePreference | beautifyDateTime }}
+            {{ formatDateTime(item.datePreference) }}
           </template>
 
           <template #[`item.edit`]="{ item }">
@@ -97,6 +97,9 @@
 import { ref } from "vue"
 
 import { TRAVEL_DESK_URL } from "@/urls"
+
+import { formatDateTime } from "@/utils/formatters"
+
 import http from "@/api/http-client"
 
 import FlightOptionCard from "@/modules/travelDesk/views/Requests/RequestDialogs/FlightComponents/FlightOptionCard.vue"
@@ -195,6 +198,7 @@ export default {
     this.initForm()
   },
   methods: {
+    formatDateTime,
     async updateTable(type) {
       if (type == "Add New") {
         // console.log(this.flightRequests)

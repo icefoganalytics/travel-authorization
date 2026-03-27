@@ -26,7 +26,7 @@
         </div>
         <div v-else>
           <div>
-            {{ item.startDate | beautifyDate }}
+            {{ formatDate(item.startDate) }}
           </div>
         </div>
       </template>
@@ -36,7 +36,7 @@
         </div>
         <div v-else>
           <div>
-            {{ item.endDate | beautifyDate }}
+            {{ formatDate(item.endDate) }}
           </div>
         </div>
       </template>
@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import Vue from "vue"
+import { formatDate } from "@/utils/formatters"
 
 import NewTravelDeskRequest from "@/modules/travelDesk/views/Requests/NewTravelDeskRequest.vue"
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
@@ -110,7 +110,6 @@ export default {
           sortable: false,
         },
       ],
-      admin: false,
       department: "",
     }
   },
@@ -121,9 +120,9 @@ export default {
   },
   mounted() {
     this.department = this.$store.state.auth?.department
-    this.admin = Vue.filter("isAdmin")()
   },
   methods: {
+    formatDate,
     updateTable() {
       this.$emit("updateTable")
     },

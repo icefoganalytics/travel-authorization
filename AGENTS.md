@@ -84,7 +84,11 @@ document and link to it from here instead of letting this file become a dumping 
 2. Blank line
 3. External packages from node_modules
 4. Blank line
-5. Internal imports from `@/` (alphabetical preferred)
+5. Internal imports from `@/`
+   Within internal imports, prefer grouping by conceptual distance with blank
+   lines between groups when helpful. Example: config imports, blank line,
+   composables/helpers, blank line, components. Within each group,
+   alphabetical ordering is preferred.
 
 ### Architecture Patterns
 
@@ -185,9 +189,19 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
   - `const timer = ref<number | undefined>(undefined)`
   - `timer.value = setTimeout(callback, 1000)`
 - **Props definition:** Prefer TypeScript generic style `defineProps<{ prop: type }>()` over object-style with type arrays
+- **Props defaults:** When `script setup` props need defaults, prefer `withDefaults(defineProps<...>(), ...)` rather than relying on optional props plus template checks alone.
+- **Shared formatters:** Prefer existing helpers from `@/utils/formatters` over creating local inline formatters in components. Reuse shared utilities first and only add a new formatter when no suitable one exists.
 - **Loading states:** Use `isNil(data)` instead of boolean `isLoading` flags for more precise data presence checks
 - **Reactivity:** Use `toRefs(props)` when passing props to composables to maintain ref types and reactivity
 - **Optional chaining:** Only use `?.` when data might actually be null/undefined in rendered context, not when loading state ensures existence
+- **Top-level const placement:** Keep top-level `const` declarations near the code that uses them. State, composables, refs, and computed values should be grouped by conceptual distance instead of all being hoisted to the top of `script setup`. Keep them top-level, but place them close to the watcher, computed, or action they support.
+- **Import spacing:** Group imports as external packages, blank line, then internal `@/` imports. Within the internal section, prefer grouping by conceptual distance rather than one flat alphabetized block. Preserve visible spacing between groups in Vue SFC scripts.
+- **Default imports:** When a helper or component already exposes a default export and the module has a single clear purpose, prefer the default import form at the call site.
+- **Expanded imports:** When importing 4 or more named items, prefer the expanded multi-line form for readability.
+- **Composable usage in Options API:** When an Options API component needs a composable, call it inside `setup()` and return the result for use via `this.*`. Do not create composable instances at module scope.
+- **Error notifications:** Use `console.error(...)` before `snack.error(...)` when handling a real error path. Do not log validation or other expected non-error user feedback with `console.error(...)`.
+- **Legacy cleanup triage:** Before modernizing an isolated legacy frontend component or subtree, verify that it is still reachable from pages, routes, or imports. If it is orphaned, prefer deleting it over migrating it.
+- **Code organization matters:** When modernizing frontend behavior, verify that the surrounding route placement, layout nesting, and file organization support the intended behavior. Matching a component API or route name is not enough if the page lives outside the layout or namespace that provides the feature.
 
 ### Component Naming Convention
 
@@ -303,6 +317,7 @@ See `/api/src/config.ts` for complete details.
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
+- Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
 
 **Testing Instructions Format:**
 
