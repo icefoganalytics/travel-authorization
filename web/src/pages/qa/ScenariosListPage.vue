@@ -2,8 +2,6 @@
   <div>
     <h1>QA Scenarios</h1>
 
-    <Breadcrumbs />
-
     <v-card
       :loading="isLoading"
       class="mx-auto"
@@ -62,9 +60,9 @@ import { onMounted, ref } from "vue"
 import scenariosApi from "@/api/qa/scenarios-api"
 import ygEmployeesApi from "@/api/yg-employees-api"
 import ygEmployeeGroupsApi from "@/api/yg-employee-groups-api"
-import useSnack from "@/use/use-snack"
 
-import Breadcrumbs from "@/components/Breadcrumbs.vue"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useSnack from "@/use/use-snack"
 
 const scenarios = ref([])
 const isLoading = ref(true)
@@ -125,4 +123,13 @@ async function syncYgEmployees() {
     isLoading.value = false
   }
 }
+
+useBreadcrumbs([
+  {
+    text: "QA Scenarios",
+    to: {
+      name: "qa/ScenariosListPage",
+    },
+  },
+])
 </script>
