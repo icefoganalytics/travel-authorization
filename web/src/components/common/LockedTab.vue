@@ -34,20 +34,16 @@
   </v-tooltip>
 </template>
 
-<script>
-export default {
-  name: "LockedTab",
-  props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    lockReasons: {
-      type: Array,
-      default: () => [],
-    },
-  },
-}
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    title: string
+    lockReasons?: string[]
+  }>(),
+  {
+    lockReasons: () => [],
+  }
+)
 </script>
 
 <style scoped></style>
