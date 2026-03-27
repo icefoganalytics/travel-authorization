@@ -155,7 +155,7 @@ export default {
       return http
         .get("/api/health-check")
         .then(({ data }) => {
-          this.$set(this, "healthCheck", data)
+          this.healthCheck = data
         })
         .catch((error) => {
           console.error(`Failed to fetch health check data: ${error}`, { error })
