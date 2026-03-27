@@ -18,16 +18,6 @@ Vue.use(Auth0Plugin)
 
 Vue.config.productionTip = false
 
-Vue.directive("yk-btn", {
-  bind: function (el) {
-    el.style.backgroundColor = "#a000bb"
-    el.style.color = "#fff"
-    el.style.fontWeight = "400"
-    el.style.textTransform = "none"
-    el.style.borderRadius = "0"
-  },
-})
-
 axios.defaults.withCredentials = true
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*"
 
