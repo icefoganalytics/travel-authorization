@@ -10,8 +10,17 @@
 <script>
 import { mapActions, mapGetters } from "vuex"
 
+import useSnack from "@/use/use-snack"
+
 export default {
   name: "SaveDraftButton",
+  setup() {
+    const snack = useSnack()
+
+    return {
+      snack,
+    }
+  },
   props: {
     travelAuthorizationId: {
       type: Number,
@@ -32,16 +41,18 @@ export default {
     ...mapActions("travelAuthorization", ["ensure", "save"]),
     saveWrapper() {
       if (!this.validateForm()) {
-        this.$snack("Form submission can't be sent until the form is complete.", { color: "error" })
+        console.error("Form submission can't be sent until the form is complete.")
+        this.snack.error("Form submission can't be sent until the form is complete.")
         return
       }
 
       return this.save()
         .then(() => {
-          this.$snack("Form saved as a draft", { color: "success" })
+          this.snack.success("Form saved as a draft")
         })
         .catch((error) => {
-          this.$snack(error.message, { color: "error" })
+          console.error(`Failed to save draft: ${error}`, { error })
+          this.snack.error(`Failed to save draft: ${error}`)
         })
     },
   },

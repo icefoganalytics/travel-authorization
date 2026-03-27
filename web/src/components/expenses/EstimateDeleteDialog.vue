@@ -57,8 +57,17 @@ import { DateTime } from "luxon"
 
 import expensesApi from "@/api/expenses-api"
 
+import useSnack from "@/use/use-snack"
+
 export default {
   name: "EstimateDeleteDialog",
+  setup() {
+    const snack = useSnack()
+
+    return {
+      snack,
+    }
+  },
   data: () => ({
     estimate: {},
     showDialog: false,
@@ -100,7 +109,8 @@ export default {
           this.close()
         })
         .catch((error) => {
-          this.$snack(error.message, { color: "error" })
+          console.error(`Failed to delete estimate: ${error}`, { error })
+          this.snack.error(`Failed to delete estimate: ${error}`)
         })
         .finally(() => {
           this.loading = false

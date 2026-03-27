@@ -57,9 +57,18 @@ import { required } from "@/utils/validators"
 
 import prefillApi from "@/api/travel-authorizations/expenses/prefill-api"
 
+import useSnack from "@/use/use-snack"
+
 export default {
   name: "ExpensePrefillDialog",
   components: {},
+  setup() {
+    const snack = useSnack()
+
+    return {
+      snack,
+    }
+  },
   props: {
     travelAuthorizationId: {
       type: Number,
@@ -103,7 +112,8 @@ export default {
           this.close()
         })
         .catch((error) => {
-          this.$snack(error.message, { color: "error" })
+          console.error(`Failed to prefill expenses: ${error}`, { error })
+          this.snack.error(`Failed to prefill expenses: ${error}`)
         })
         .finally(() => {
           this.loading = false

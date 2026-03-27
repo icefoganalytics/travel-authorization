@@ -62,8 +62,17 @@ import { DateTime } from "luxon"
 
 import travelAuthorizations from "@/api/travel-authorizations-api"
 
+import useSnack from "@/use/use-snack"
+
 export default {
   name: "DeleteTravelAuthorizationDialog",
+  setup() {
+    const snack = useSnack()
+
+    return {
+      snack,
+    }
+  },
   data: () => ({
     travelAuthorization: {},
     showDialog: false,
@@ -105,7 +114,8 @@ export default {
           this.close()
         })
         .catch((error) => {
-          this.$snack(error.message, { color: "error" })
+          console.error(`Failed to delete travel authorization: ${error}`, { error })
+          this.snack.error(`Failed to delete travel authorization: ${error}`)
         })
         .finally(() => {
           this.loading = false

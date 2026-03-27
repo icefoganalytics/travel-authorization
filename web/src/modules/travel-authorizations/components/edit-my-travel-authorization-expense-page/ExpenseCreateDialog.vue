@@ -94,12 +94,21 @@ import { required } from "@/utils/validators"
 
 import expensesApi, { EXPENSE_TYPES } from "@/api/expenses-api"
 
+import useSnack from "@/use/use-snack"
+
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
 import DatePicker from "@/components/common/DatePicker.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
 export default {
   name: "ExpenseCreateDialog",
+  setup() {
+    const snack = useSnack()
+
+    return {
+      snack,
+    }
+  },
   components: {
     CurrencyTextField,
     DatePicker,
@@ -153,7 +162,8 @@ export default {
           })
         })
         .catch((error) => {
-          this.$snack(error.message, { color: "error" })
+          console.error(`Failed to create expense: ${error}`, { error })
+          this.snack.error(`Failed to create expense: ${error}`)
         })
         .finally(() => {
           this.loading = false

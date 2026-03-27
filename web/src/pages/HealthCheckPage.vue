@@ -110,14 +110,24 @@
     </div>
   </v-app>
 </template>
+
 <script>
 import http from "@/api/http-client"
 
 import { RELEASE_TAG, GIT_COMMIT_HASH } from "@/config"
 
+import useSnack from "@/use/use-snack"
+
 export default {
   name: "HealthCheckPage",
   components: {},
+  setup() {
+    const snack = useSnack()
+
+    return {
+      snack,
+    }
+  },
   data: () => ({
     healthCheck: {
       appHealth: {},
@@ -148,7 +158,8 @@ export default {
           this.$set(this, "healthCheck", data)
         })
         .catch((error) => {
-          this.$snack(`Failed to fetch health check data: ${error}`, { color: "error" })
+          console.error(`Failed to fetch health check data: ${error}`, { error })
+          this.snack.error(`Failed to fetch health check data: ${error}`)
         })
     },
   },
