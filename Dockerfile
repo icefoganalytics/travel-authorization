@@ -1,5 +1,5 @@
 # Stage 0 - base node customizations
-FROM node:20.10.0-alpine3.19 AS base-node
+FROM node:20.19.0-alpine3.21 AS base-node
 
 RUN npm install -g npm@10.8.2
 
