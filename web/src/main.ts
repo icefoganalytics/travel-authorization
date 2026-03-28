@@ -1,5 +1,4 @@
 import { createApp } from "vue"
-import VueApexCharts from "vue-apexcharts"
 import axios from "axios"
 
 import vuetify from "@/plugins/vuetify-plugin"
@@ -15,7 +14,6 @@ import { ENVIRONMENT, API_BASE_URL, RELEASE_TAG, GIT_COMMIT_HASH } from "@/confi
 const app = createApp(App)
 const i18n = createI18n()
 
-app.use(VueApexCharts)
 app.use(router)
 app.use(store)
 app.use(vuetify)

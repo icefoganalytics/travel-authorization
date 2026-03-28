@@ -8,10 +8,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
-
-import ApexCharts from "vue-apexcharts"
 import { type ApexOptions } from "apexcharts"
+import ApexCharts from "vue3-apexcharts"
+
+import { computed } from "vue"
 
 const props = defineProps<{
   categoryLabels: string[]
