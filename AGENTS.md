@@ -317,6 +317,14 @@ See `/api/src/config.ts` for complete details.
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
+
+**Commit emoji guidance:**
+
+- Use `:arrow_up:` for dependency, runtime, and version bumps
+- Use `:gear:` for container, workflow, and tooling configuration changes
+- Use `:heavy_minus_sign:` when removing a dependency from the package set
+- Use `:construction:` for intentionally incomplete migration slices that may leave the app broken between commits
+- Use `:recycle:` for structural cleanup or migration-safe refactors that preserve behavior
 - Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
 
 **Testing Instructions Format:**
