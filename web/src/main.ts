@@ -1,9 +1,9 @@
 import { createApp } from "vue"
 import axios from "axios"
 
+import auth0 from "@/plugins/auth0-plugin"
 import vuetify from "@/plugins/vuetify-plugin"
 import createI18n from "@/plugins/vue-i18n-plugin"
-import Auth0Plugin from "@/plugins/auth0-plugin"
 
 import App from "@/App.vue"
 import router from "@/router"
@@ -18,7 +18,7 @@ app.use(router)
 app.use(store)
 app.use(vuetify)
 app.use(i18n)
-app.use(Auth0Plugin)
+app.use(auth0)
 
 axios.defaults.withCredentials = true
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*"

@@ -53,18 +53,20 @@
   </v-menu>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useAuth0 } from "@auth0/auth0-vue"
+
 import { RELEASE_TAG } from "@/config"
-import { auth0 } from "@/plugins/auth0-plugin"
 import useCurrentUser from "@/use/use-current-user"
 
 const { isAdmin, reset: resetCurrentUser } = useCurrentUser()
+const { logout } = useAuth0()
 
 function signOut() {
   resetCurrentUser()
 
   const returnTo = encodeURI(window.location.origin + "/sign-in")
-  return auth0.logout({
+  return logout({
     logoutParams: {
       returnTo,
     },
