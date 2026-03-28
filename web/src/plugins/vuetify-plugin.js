@@ -1,6 +1,5 @@
-import { createVuetify } from "@logue/vue2-helpers/vuetify"
-
-import "vuetify/dist/vuetify.min.css"
+import { createVuetify } from "vuetify"
+import "vuetify/styles"
 
 import "@/assets/yk-style.css"
 import "@/assets/yhsi.css"
@@ -8,11 +7,14 @@ import "@/assets/vuetify2-extensions.css"
 
 export default createVuetify({
   theme: {
+    defaultTheme: "light",
     themes: {
       light: {
-        primary: "#0097a9",
-        secondary: "#ffffff",
-        anchor: "#00818f",
+        colors: {
+          primary: "#0097a9",
+          secondary: "#ffffff",
+          anchor: "#00818f",
+        },
       },
     },
   },

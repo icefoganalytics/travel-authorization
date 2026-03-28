@@ -1,7 +1,7 @@
 import Vue from "vue"
 import VueRouter, { type RouteConfig } from "vue-router"
+import { authGuard } from "@auth0/auth0-vue"
 
-import { authGuard } from "@/utils/auth-guard"
 import useRouteHistory from "@/use/use-route-history"
 
 import travelDeskRouter from "@/modules/travelDesk/router"

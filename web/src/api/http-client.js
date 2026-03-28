@@ -1,7 +1,7 @@
 import axios from "axios"
 import qs from "qs"
 
-import { auth0 } from "@/plugins/auth0-plugin"
+import auth0 from "@/plugins/auth0-plugin"
 import { API_BASE_URL } from "@/config"
 
 export const httpClient = axios.create({
@@ -20,7 +20,7 @@ export const httpClient = axios.create({
 })
 
 httpClient.interceptors.request.use(async (config) => {
-  const accessToken = await auth0.getTokenSilently()
+  const accessToken = await auth0.getAccessTokenSilently()
   config.headers["Authorization"] = `Bearer ${accessToken}`
   return config
 })

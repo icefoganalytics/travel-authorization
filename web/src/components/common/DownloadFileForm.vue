@@ -26,12 +26,11 @@
 </template>
 
 <script setup lang="ts">
+import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
 import { ref, nextTick } from "vue"
 
 import { type VForm } from "vuetify/lib/components"
-
-import { useAuth0 } from "@/plugins/auth0-plugin"
 
 import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 

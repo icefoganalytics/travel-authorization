@@ -288,7 +288,7 @@ patterns that can be fixed without changing the runtime.
 **Implementation:**
 - Validate Node runtime compatibility first across `Dockerfile`,
   `web/development.Dockerfile`, and `api/development.Dockerfile`. The repo is
-  currently on `node:20.10.0-alpine3.19`, which appears sufficient for the
+  currently on `node:20.19.0-alpine3.21`, which appears sufficient for the
   currently targeted migration package set, but if the final chosen package
   versions require a newer Node release then upgrade the Dockerfiles before any
   dependency migration work begins.

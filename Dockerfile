@@ -1,5 +1,5 @@
 # Stage 0 - base node customizations
-FROM node:20.10.0-alpine3.19 AS base-node
+FROM node:20.19.0-alpine3.21 AS base-node
 
 RUN npm install -g npm@10.8.2
 
@@ -12,7 +12,7 @@ WORKDIR /usr/src/api
 
 COPY api/package*.json ./
 COPY api/tsconfig*.json ./
-RUN npm install
+RUN npm clean-install
 
 COPY api ./
 
@@ -36,7 +36,7 @@ WORKDIR /usr/src/web
 COPY web/package*.json ./
 COPY web/tsconfig*.json ./
 COPY web/babel.config.js ./
-RUN npm install
+RUN npm clean-install
 
 COPY web ./
 
@@ -80,7 +80,7 @@ RUN chown -R node:node /home/node/app
 WORKDIR /home/node/app
 
 COPY --from=api-build-stage --chown=node:node /usr/src/api/package*.json ./
-RUN npm install && npm cache clean --force --loglevel=error
+RUN npm clean-install && npm cache clean --force --loglevel=error
 
 COPY --from=api-build-stage --chown=node:node /usr/src/api/dist ./dist
 COPY --from=web-build-stage --chown=node:node /usr/src/web/dist ./dist/web

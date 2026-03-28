@@ -23,10 +23,9 @@
 </template>
 
 <script setup>
+import { useAuth0 } from "@auth0/auth0-vue"
 import { computed, ref, nextTick } from "vue"
 import { isNil, merge } from "lodash"
-
-import { useAuth0 } from "@/plugins/auth0-plugin"
 
 import { API_BASE_URL } from "@/config"
 

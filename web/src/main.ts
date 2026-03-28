@@ -1,10 +1,9 @@
-import Vue from "vue"
-import VueApexCharts from "vue-apexcharts"
+import { createApp } from "vue"
 import axios from "axios"
 
+import auth0 from "@/plugins/auth0-plugin"
 import vuetify from "@/plugins/vuetify-plugin"
 import createI18n from "@/plugins/vue-i18n-plugin"
-import Auth0Plugin from "@/plugins/auth0-plugin"
 
 import App from "@/App.vue"
 import router from "@/router"
@@ -12,32 +11,17 @@ import store from "@/store"
 
 import { ENVIRONMENT, API_BASE_URL, RELEASE_TAG, GIT_COMMIT_HASH } from "@/config"
 
-Vue.use(VueApexCharts)
-const i18n = createI18n(Vue)
-Vue.use(Auth0Plugin)
+const app = createApp(App)
+const i18n = createI18n()
 
-Vue.config.productionTip = false
-
-Vue.directive("yk-btn", {
-  bind: function (el) {
-    el.style.backgroundColor = "#a000bb"
-    el.style.color = "#fff"
-    el.style.fontWeight = "400"
-    el.style.textTransform = "none"
-    el.style.borderRadius = "0"
-  },
-})
+app.use(router)
+app.use(store)
+app.use(vuetify)
+app.use(i18n)
+app.use(auth0)
 
 axios.defaults.withCredentials = true
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*"
-
-const vue = new Vue({
-  router,
-  store,
-  vuetify,
-  i18n,
-  render: (h) => h(App),
-})
 
 console.log("App is running", {
   environment: ENVIRONMENT,
@@ -46,4 +30,4 @@ console.log("App is running", {
   gitCommitHash: GIT_COMMIT_HASH,
 })
 
-vue.$mount("#app")
+app.mount("#app")
