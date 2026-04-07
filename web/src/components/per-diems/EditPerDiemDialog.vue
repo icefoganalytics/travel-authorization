@@ -182,11 +182,11 @@ defineExpose({
 </script>
 
 <style scoped>
-::v-deep(.v-skeleton-loader__list-item) {
+:deep(.v-skeleton-loader__list-item) {
   height: 6rem;
 }
 
-::v-deep(.v-skeleton-loader__text) {
+:deep(.v-skeleton-loader__text) {
   height: 3rem;
 }
 </style>

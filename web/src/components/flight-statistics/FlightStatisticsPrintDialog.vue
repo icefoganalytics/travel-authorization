@@ -292,16 +292,16 @@ defineExpose({
 </script>
 
 <style scoped>
-::v-deep(tbody td) {
+:deep(tbody td) {
   font-size: 7.5pt !important;
   border: 1px solid #666666 !important;
 }
 
-::v-deep(tbody th) {
+:deep(tbody th) {
   font-size: 7pt !important;
 }
 
-::v-deep(thead th) {
+:deep(thead th) {
   border: 1px solid #333334 !important;
   border-bottom: 2px solid #333334 !important;
   text-align: center !important;
@@ -309,7 +309,7 @@ defineExpose({
   color: #111111 !important;
 }
 
-::v-deep(table) {
+:deep(table) {
   border: 2px solid #333334;
 }
 

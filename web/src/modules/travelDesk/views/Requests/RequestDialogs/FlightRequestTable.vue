@@ -290,7 +290,7 @@ export default {
 </script>
 
 <style scoped>
-::v-deep .v-data-table > .v-data-table__wrapper tbody tr.v-data-table__expanded__content {
+:deep(.v-data-table > .v-data-table__wrapper tbody tr.v-data-table__expanded__content) {
   background: #f9f9f9 !important;
 }
 

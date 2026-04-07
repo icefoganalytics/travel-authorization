@@ -129,7 +129,7 @@ export default {
 </script>
 
 <style scoped>
-::v-deep .v-text-field.v-text-field .v-input__control {
+:deep(.v-text-field.v-text-field .v-input__control) {
   min-height: 5px;
 }
 </style>
