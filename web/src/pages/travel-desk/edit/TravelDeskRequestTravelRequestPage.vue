@@ -114,10 +114,9 @@
 <script setup lang="ts">
 import { computed, ref, Ref, watchEffect } from "vue"
 import { isNil } from "lodash"
-import { useDisplay } from "vuetify"
+import { useDisplay, useGoTo } from "vuetify"
 import { type VForm } from "vuetify/lib/components"
 import { useRouter, useRoute } from "vue-router"
-import goTo from "vuetify/lib/services/goto"
 
 import { required } from "@/utils/validators"
 
@@ -138,6 +137,7 @@ const props = defineProps<{
 }>()
 
 const { smAndDown } = useDisplay()
+const goTo = useGoTo()
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 const { travelDeskTravelRequest, isLoading, save } = useTravelDeskTravelRequest(
