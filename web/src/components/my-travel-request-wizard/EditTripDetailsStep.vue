@@ -8,7 +8,6 @@
       <TripDetailsEstimatesEditForm
         ref="tripDetailsEstimatesEditForm"
         :travel-authorization-id="travelAuthorizationId"
-        v-on="$listeners"
       />
     </v-card-text>
   </v-card>

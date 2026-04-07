@@ -2,7 +2,6 @@
   <v-radio-group
     :value="value"
     v-bind="$attrs"
-    v-on="$listeners"
     @change="emit('input', $event)"
   >
     <v-radio

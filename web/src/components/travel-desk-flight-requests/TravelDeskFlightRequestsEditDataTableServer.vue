@@ -8,7 +8,6 @@
     :items-length="totalCount"
     disable-sort
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <template #top>
       <TravelDeskFlightRequestEditDialog

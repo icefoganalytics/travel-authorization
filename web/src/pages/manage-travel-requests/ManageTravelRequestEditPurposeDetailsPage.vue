@@ -3,7 +3,6 @@
     ref="purposeEditFormCard"
     class="mt-4"
     :travel-authorization-id="travelAuthorizationIdAsNumber"
-    v-on="$listeners"
   >
     <template #actions>
       <v-btn

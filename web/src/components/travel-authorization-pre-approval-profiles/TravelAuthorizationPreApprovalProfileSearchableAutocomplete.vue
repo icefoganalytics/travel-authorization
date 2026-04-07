@@ -15,7 +15,6 @@
     persistent-hint
     small-chips
     v-bind="$attrs"
-    v-on="$listeners"
     @input="emit('input', $event)"
     @update:search-input="debouncedUpdateSearchToken"
     @click:clear="reset"

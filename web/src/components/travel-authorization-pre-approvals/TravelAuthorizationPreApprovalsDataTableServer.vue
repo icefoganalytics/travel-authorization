@@ -12,7 +12,6 @@
     :show-select="showSelect"
     :single-select="noRowsAreSelectable"
     v-bind="$attrs"
-    v-on="$listeners"
     @item-selected="lockSelectabilityToSameDepartment"
     @toggle-select-all="selectAllOfSameDepartment"
   >

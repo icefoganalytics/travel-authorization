@@ -3,7 +3,6 @@
     :is="RoleSpecificNavigationDrawerComponent"
     :value="value"
     v-bind="$attrs"
-    v-on="$listeners"
     @update="emit('update', $event)"
   />
 </template>

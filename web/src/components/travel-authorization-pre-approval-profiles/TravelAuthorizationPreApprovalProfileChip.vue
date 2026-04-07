@@ -4,7 +4,6 @@
     outlined
     link
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <v-progress-circular
       v-if="isLoading"

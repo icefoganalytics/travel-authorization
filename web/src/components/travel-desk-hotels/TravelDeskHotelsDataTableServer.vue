@@ -8,7 +8,6 @@
     :loading="isLoading"
     :items-length="totalCount"
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <template #item.isDedicatedConferenceHotelAvailable="{ item }">
       {{ item.isDedicatedConferenceHotelAvailable ? "Yes" : "No" }}

@@ -7,7 +7,6 @@
     no-data-text="No pre-approvals available"
     v-bind="$attrs"
     @input="emit('input', $event)"
-    v-on="$listeners"
   ></v-select>
 </template>
 

@@ -6,7 +6,6 @@
     <TripDetailsEstimatesEditForm
       ref="tripDetailsEstimatesEditForm"
       :travel-authorization-id="travelAuthorizationIdAsNumber"
-      v-on="$listeners"
     />
     <template #actions>
       <v-btn

@@ -6,7 +6,6 @@
     <v-btn
       :disabled="disabled"
       v-bind="merge($attrs, buttonProps)"
-      v-on="$listeners"
     >
       <slot></slot>
     </v-btn>
@@ -23,7 +22,6 @@
     v-else
     :disabled="disabled"
     v-bind="merge($attrs, buttonProps)"
-    v-on="$listeners"
   >
     <slot></slot>
   </v-btn>

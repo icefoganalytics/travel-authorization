@@ -2,7 +2,6 @@
   <v-navigation-drawer
     :value="value"
     v-bind="$attrs"
-    v-on="$listeners"
     @input="emit('update', $event)"
   >
     <v-list>

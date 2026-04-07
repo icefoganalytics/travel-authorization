@@ -8,7 +8,6 @@
     :loading="isLoading"
     :items-length="totalCount"
     class="elevation-2"
-    v-on="$listeners"
     @click:row="goToManageTravelAuthorization"
   >
     <template #item.name="{ item }">

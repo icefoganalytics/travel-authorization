@@ -2,7 +2,6 @@
   <PurposeEditFormCard
     ref="purposeEditFormCard"
     :travel-authorization-id="travelAuthorizationId"
-    v-on="$listeners"
   />
 </template>
 

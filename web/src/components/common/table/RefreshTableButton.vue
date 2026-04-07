@@ -4,7 +4,6 @@
     icon
     color="info"
     title="Refresh Table"
-    v-on="$listeners"
   >
     <v-icon>mdi-cached</v-icon>
   </v-btn>

@@ -8,7 +8,6 @@
     :items="travelAuthorizations"
     :loading="isLoading"
     :items-length="totalCount"
-    v-on="$listeners"
   >
     <template #item.name="{ item }">
       <span>{{ item.firstName }} {{ item.lastName }}</span>

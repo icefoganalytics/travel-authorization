@@ -2,7 +2,6 @@
   <v-btn
     :loading="isLoading"
     v-bind="$attrs"
-    v-on="$listeners"
     @click="syncWithExternalDatabase"
   >
     Sync from TravCom ({{ totalCount }})

@@ -15,7 +15,6 @@
     x-small
     :title="title"
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <v-icon size="18">{{ icon }}</v-icon>
   </v-btn>

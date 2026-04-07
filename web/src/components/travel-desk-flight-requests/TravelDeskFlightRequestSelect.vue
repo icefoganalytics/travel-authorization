@@ -6,7 +6,6 @@
     :loading="isLoading"
     v-bind="$attrs"
     @input="emit('input', $event)"
-    v-on="$listeners"
   />
 </template>
 

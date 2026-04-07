@@ -7,7 +7,6 @@
     :items="expenses"
     :loading="isLoading"
     :items-length="totalCount"
-    v-on="$listeners"
   >
     <template #top>
       <ReceiptAttributesPreviewDialog ref="receiptAttributesPreviewDialogRef" />

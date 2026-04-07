@@ -4,7 +4,6 @@
     :items="accommodationTypes"
     :label="label"
     v-bind="$attrs"
-    v-on="$listeners"
     @input="$emit('input', $event)"
   />
 </template>

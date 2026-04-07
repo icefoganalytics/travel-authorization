@@ -9,7 +9,6 @@
     :loading="isLoading"
     :hide-default-footer="hideDefaultFooter"
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <template #top="slotProps">
       <slot

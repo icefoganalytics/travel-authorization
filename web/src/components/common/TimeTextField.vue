@@ -13,7 +13,6 @@
     v-bind="$attrs"
     @input="updateInput"
     @click:clear="updateInput(null)"
-    v-on="$listeners"
   />
 </template>
 

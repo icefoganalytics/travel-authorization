@@ -4,7 +4,6 @@
     :label="label"
     v-bind="$attrs"
     @change="emit('input', $event)"
-    v-on="$listeners"
   >
     <div class="d-flex align-baseline">
       <v-radio

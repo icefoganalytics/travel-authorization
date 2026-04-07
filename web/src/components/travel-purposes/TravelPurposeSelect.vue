@@ -8,7 +8,6 @@
     item-text="purpose"
     :label="label"
     v-bind="$attrs"
-    v-on="$listeners"
     @input="emit('input', $event)"
     ><template
       v-for="(_, slotName) in $scopedSlots"

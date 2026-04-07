@@ -8,7 +8,6 @@
     :items-length="totalCount"
     :loading="isLoading"
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <template #top="slotProps">
       <slot

@@ -3,7 +3,6 @@
     :value="value"
     :items="travelDeskOtherTransportationTypes"
     v-bind="$attrs"
-    v-on="$listeners"
   />
 </template>
 

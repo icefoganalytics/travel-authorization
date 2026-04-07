@@ -5,7 +5,6 @@
     :show-expand="showFlightOptions"
     single-expand
     v-bind="$attrs"
-    v-on="$listeners"
     @click:row="(_, { item }) => expandItem(item.id)"
   >
     <!-- TODO: consider having a dedicated page for flight options preference order with drag to order? -->

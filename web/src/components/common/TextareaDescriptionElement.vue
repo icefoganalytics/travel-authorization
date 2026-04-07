@@ -4,7 +4,6 @@
     :icon="icon"
     :vertical="vertical"
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <div
       class="overflow-auto pa-4 rounded"

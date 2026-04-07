@@ -15,7 +15,6 @@
           disabled
           readonly
           v-bind="$attrs"
-          v-on="$listeners"
           ><template
             v-for="(_, slotName) in $scopedSlots"
             #[slotName]="slotData"
