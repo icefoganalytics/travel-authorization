@@ -4,13 +4,12 @@
     left
     class="ml-0"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         title="System Options"
         icon
         color="primary"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>

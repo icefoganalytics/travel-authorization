@@ -3,13 +3,12 @@
     v-model="showDialog"
     max-width="500px"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         color="primary"
         dark
         class="mb-2"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Add Estimate
       </v-btn>

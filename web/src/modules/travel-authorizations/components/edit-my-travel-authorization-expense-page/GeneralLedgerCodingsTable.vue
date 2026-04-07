@@ -19,8 +19,8 @@
     <template #header.code="{ header }">
       <!-- See https://github.com/icefoganalytics/travel-authorization/issues/156#issuecomment-1890047168 -->
       <v-tooltip bottom>
-        <template #activator="{ on }">
-          <span v-on="on">
+        <template #activator="{ props: activatorProps }">
+          <span v-bind="activatorProps">
             {{ header.text }}
             <v-icon small> mdi-help-circle-outline </v-icon>
           </span>

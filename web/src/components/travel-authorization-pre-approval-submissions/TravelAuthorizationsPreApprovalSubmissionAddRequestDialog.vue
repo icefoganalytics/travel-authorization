@@ -53,12 +53,12 @@
                 top
                 color="warning"
               >
-                <template #activator="{ on }">
+                <template #activator="{ props: activatorProps }">
                   <v-icon
                     v-if="!isNil(item.submissionId)"
                     style="cursor: pointer"
                     color="warning"
-                    v-on="on"
+                    v-bind="activatorProps"
                     >mdi-alert</v-icon
                   >
                 </template>

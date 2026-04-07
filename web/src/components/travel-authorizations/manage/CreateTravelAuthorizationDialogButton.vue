@@ -4,13 +4,12 @@
     width="500"
     @keydown.esc="close"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         :disabled="isLoading"
         :loading="isLoading"
         color="primary"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Create Travel Request
       </v-btn>
@@ -49,8 +48,8 @@
             v-if="isDisabled"
             bottom
           >
-            <template #activator="{ on }">
-              <span v-on="on">
+            <template #activator="{ props: activatorProps }">
+              <span v-bind="activatorProps">
                 <v-btn
                   class="ml-2"
                   color="success"

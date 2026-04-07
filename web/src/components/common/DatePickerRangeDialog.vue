@@ -7,14 +7,13 @@
     offset-y
     min-width="auto"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props: slotProps }">
       <v-text-field
         :value="dateRangeText"
         :label="label"
         prepend-inner-icon="mdi-calendar"
         readonly
-        v-bind="activatorProps"
-        v-on="on"
+        v-bind="merge({}, slotProps, activatorProps)"
       ></v-text-field>
     </template>
     <v-date-picker
@@ -27,6 +26,7 @@
 
 <script setup>
 import { computed, ref, watchEffect } from "vue"
+import { merge } from "lodash"
 
 const props = defineProps({
   value: {

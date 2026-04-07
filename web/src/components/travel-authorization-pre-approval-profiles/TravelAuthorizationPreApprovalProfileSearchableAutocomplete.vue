@@ -19,29 +19,27 @@
     @update:search-input="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
-    <template #selection="{ attrs, item, select }">
+    <template #chip="{ item, props: chipProps }">
       <TravelAuthorizationPreApprovalProfileChip
-        v-if="!isNil(item.id)"
-        v-bind="attrs"
-        :travel-authorization-pre-approval-profile-id="item.id"
-        @click="select"
+        v-if="!isNil(item.raw.id)"
+        v-bind="chipProps"
+        :travel-authorization-pre-approval-profile-id="item.raw.id"
       />
       <v-chip
         v-else
-        :text="'Unknown#' + (item.id || JSON.stringify(item))"
+        :text="'Unknown#' + (item.raw.id || JSON.stringify(item.raw))"
       />
     </template>
-    <template #item="{ item, on, attrs }">
+    <template #item="{ item, props: itemProps }">
       <TravelAuthorizationPreApprovalProfileListItem
-        v-if="!isNil(item.id)"
-        :travel-authorization-pre-approval-profile-id="item.id"
-        v-bind="attrs"
-        v-on="on"
+        v-if="!isNil(item.raw.id)"
+        :travel-authorization-pre-approval-profile-id="item.raw.id"
+        v-bind="itemProps"
       />
       <v-list-item
         v-else
-        v-bind="attrs"
-        :title="'Unknown#' + (item.id || JSON.stringify(item))"
+        v-bind="itemProps"
+        :title="'Unknown#' + (item.raw.id || JSON.stringify(item.raw))"
       />
     </template>
 

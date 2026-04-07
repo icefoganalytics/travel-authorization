@@ -4,11 +4,10 @@
     persistent
     max-width="950px"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: slotProps }">
       <v-btn
-        v-bind="{ ...attrs, ...activatorProps }"
+        v-bind="merge({}, slotProps, activatorProps)"
         @click="initPrint"
-        v-on="on"
       >
         Print Report
       </v-btn>
@@ -138,7 +137,7 @@
 <script setup>
 import { ref, computed } from "vue"
 import { useI18n } from "vue-i18n"
-import { isNil, isEmpty } from "lodash"
+import { isNil, isEmpty, merge } from "lodash"
 import { Printd } from "printd"
 
 import { formatDate } from "@/utils/formatters"

@@ -5,11 +5,10 @@
     max-width="500px"
     @keydown.esc="hide"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         color="primary"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Add Question
       </v-btn>

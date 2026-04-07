@@ -29,11 +29,10 @@
         v-if="item.unprocessedExpenseCount > 0"
         bottom
       >
-        <template #activator="{ on, attrs }">
+        <template #activator="{ props: activatorProps }">
           <v-chip
             outlined
-            v-bind="attrs"
-            v-on="on"
+            v-bind="activatorProps"
           >
             <v-icon
               left

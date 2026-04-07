@@ -7,12 +7,11 @@
       <h3>Approved Upcoming Travel</h3>
 
       <v-tooltip top>
-        <template #activator="{ on, attrs }">
+        <template #activator="{ props: activatorProps }">
           <v-icon
             class="ml-2"
             color="black"
-            v-bind="attrs"
-            v-on="on"
+            v-bind="activatorProps"
           >
             mdi-help-circle-outline
           </v-icon>

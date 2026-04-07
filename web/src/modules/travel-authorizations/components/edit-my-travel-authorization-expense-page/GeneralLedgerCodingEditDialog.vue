@@ -33,8 +33,8 @@
               >
                 <template #label>
                   <v-tooltip bottom>
-                    <template #activator="{ on }">
-                      <div v-on="on">
+                    <template #activator="{ props: activatorProps }">
+                      <div v-bind="activatorProps">
                         G/L code
                         <v-icon small> mdi-help-circle-outline </v-icon>
                       </div>

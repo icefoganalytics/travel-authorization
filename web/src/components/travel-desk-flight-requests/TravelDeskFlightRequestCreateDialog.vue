@@ -5,11 +5,10 @@
     max-width="1200px"
     @keydown.esc="hide"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: slotProps }">
       <v-btn
         color="primary"
-        v-bind="merge({}, attrs, activatorProps)"
-        v-on="on"
+        v-bind="merge({}, slotProps, activatorProps)"
       >
         Add Flight
       </v-btn>

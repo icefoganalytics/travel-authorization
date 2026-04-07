@@ -6,12 +6,11 @@
   >
     Sync from TravCom ({{ totalCount }})
     <v-tooltip left>
-      <template #activator="{ on, attrs }">
+      <template #activator="{ props: activatorProps }">
         <v-icon
           right
           small
-          v-bind="attrs"
-          v-on="on"
+          v-bind="activatorProps"
           @click.stop
           >mdi-help-circle-outline</v-icon
         >

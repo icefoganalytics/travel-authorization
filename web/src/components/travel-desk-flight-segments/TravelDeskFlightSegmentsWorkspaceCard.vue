@@ -69,12 +69,11 @@
           :attributes="travelDeskFlightOptionAttributes"
           @created="emitCreatedFlightOptionAndRemoveSelected"
         >
-          <template #activator="{ on, attrs }">
+          <template #activator="{ props: activatorProps }">
             <v-btn
               :disabled="selectedSegments.length == 0"
               color="primary"
-              v-bind="attrs"
-              v-on="on"
+              v-bind="activatorProps"
             >
               Group Selected
             </v-btn>

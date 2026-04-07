@@ -1,10 +1,9 @@
 <template>
   <v-tooltip bottom>
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <div
         class="d-flex align-start"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         <v-text-field
           :value="value"

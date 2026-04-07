@@ -3,14 +3,13 @@
     v-model="showDialog"
     width="500"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         :loading="isLoading"
         :disabled="isDisabled"
         :class="buttonClasses"
         color="error"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Deny
       </v-btn>

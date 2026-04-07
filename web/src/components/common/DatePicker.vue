@@ -7,7 +7,7 @@
     offset-y
     min-width="auto"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-text-field
         :value="value || ''"
         :label="label"
@@ -16,8 +16,7 @@
         append-icon="mdi-calendar"
         outlined
         readonly
-        v-bind="{ ...$attrs, ...attrs }"
-        v-on="on"
+        v-bind="merge({}, $attrs, activatorProps)"
       ></v-text-field>
     </template>
     <v-date-picker
@@ -35,8 +34,10 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { required } from "@/utils/validators"
 import { ref } from "vue"
+import { merge } from "lodash"
+
+import { required } from "@/utils/validators"
 
 withDefaults(
   defineProps<{

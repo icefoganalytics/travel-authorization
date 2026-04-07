@@ -4,14 +4,13 @@
       v-model="addNewTravelDialog"
       persistent
     >
-      <template #activator="{ on, attrs }">
+      <template #activator="{ props: activatorProps }">
         <v-btn
           style="width: 80%"
           class="mr-5 my-2"
           color="primary"
-          v-bind="attrs"
+          v-bind="activatorProps"
           @click="initForm"
-          v-on="on"
         >
           <div v-if="type == 'Submit'">Submit Travel Desk Request</div>
           <div v-else-if="type == 'Review'">Review Travel Options</div>

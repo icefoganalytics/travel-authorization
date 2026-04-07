@@ -6,13 +6,12 @@
     @keydown.esc="hide"
     @input="hideIfFalse"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         color="primary"
         dark
         class="mb-2"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Add Coding
       </v-btn>
@@ -41,8 +40,8 @@
               >
                 <template #label>
                   <v-tooltip bottom>
-                    <template #activator="{ on }">
-                      <div v-on="on">
+                    <template #activator="{ props: activatorProps }">
+                      <div v-bind="activatorProps">
                         G/L code
                         <v-icon small> mdi-help-circle-outline </v-icon>
                       </div>
