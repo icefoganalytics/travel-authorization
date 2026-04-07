@@ -65,14 +65,14 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useRouteQuery from "@/use/utils/use-route-query"
 
 const headers = ref([
-  { text: "Agency Name", value: "agencyName" },
-  { text: "Contact Name", value: "contactName" },
-  { text: "Contact Phone Number", value: "contactPhoneNumber" },
-  { text: "Contact Email", value: "contactEmail" },
-  { text: "Agency Info", value: "agencyInfo", sortable: false },
+  { title: "Agency Name", key: "agencyName" },
+  { title: "Contact Name", key: "contactName" },
+  { title: "Contact Phone Number", key: "contactPhoneNumber" },
+  { title: "Contact Email", key: "contactEmail" },
+  { title: "Agency Info", key: "agencyInfo", sortable: false },
   {
-    text: "",
-    value: "edit",
+    title: "",
+    key: "edit",
     width: "8rem",
     sortable: false,
   },

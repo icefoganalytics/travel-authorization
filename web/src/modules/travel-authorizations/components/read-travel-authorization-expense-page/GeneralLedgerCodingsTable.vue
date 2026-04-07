@@ -42,8 +42,8 @@ const { generalLedgerCodings, isLoading } = useGeneralLedgerCodings(generalLedge
 const totalAmount = computed(() => sumBy(generalLedgerCodings.value, "amount"))
 
 const headers = ref([
-  { text: "Vote/Program/Object/Sub1/Sub2", value: "code" },
-  { text: "Amount", value: "amount" },
+  { title: "Vote/Program/Object/Sub1/Sub2", key: "code" },
+  { title: "Amount", key: "amount" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 

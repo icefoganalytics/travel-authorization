@@ -59,16 +59,16 @@ const { t } = useI18n()
 
 const headers = ref([
   {
-    text: "Allowance Type",
-    value: "allowanceType",
+    title: "Allowance Type",
+    key: "allowanceType",
   },
   {
-    text: "Amount",
-    value: "amount",
+    title: "Amount",
+    key: "amount",
   },
   {
-    text: "",
-    value: "actions",
+    title: "",
+    key: "actions",
   },
 ])
 

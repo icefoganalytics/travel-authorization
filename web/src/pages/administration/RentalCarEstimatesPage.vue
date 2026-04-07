@@ -147,14 +147,14 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 const headers = ref([
   {
-    text: "Vehicle Type",
+    title: "Vehicle Type",
     align: "start",
     sortable: false,
-    value: "type",
+    key: "type",
   },
   {
-    text: "Cost",
-    value: "cost",
+    title: "Cost",
+    key: "cost",
   },
 ])
 

@@ -86,20 +86,20 @@ const { t } = useI18n()
 
 const headers = ref([
   {
-    text: "Claim Type",
-    value: "claimType",
+    title: "Claim Type",
+    key: "claimType",
   },
   {
-    text: "Travel Region",
-    value: "travelRegion",
+    title: "Travel Region",
+    key: "travelRegion",
   },
   {
-    text: "Amount",
-    value: "amount",
+    title: "Amount",
+    key: "amount",
   },
   {
-    text: "",
-    value: "actions",
+    title: "",
+    key: "actions",
   },
 ])
 

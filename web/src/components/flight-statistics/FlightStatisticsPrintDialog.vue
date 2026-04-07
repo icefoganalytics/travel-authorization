@@ -152,42 +152,42 @@ const pages = computed(() => range(1, Math.ceil(totalCount.value / PAGE_SIZE) + 
 
 const headers = ref([
   {
-    text: "Department Mailcode",
-    value: "departmentMailcode",
+    title: "Department Mailcode",
+    key: "departmentMailcode",
   },
   {
-    text: "Final Destination City",
-    value: "destinationCity",
+    title: "Final Destination City",
+    key: "destinationCity",
   },
   {
-    text: "Final Destination Province",
-    value: "destinationProvince",
+    title: "Final Destination Province",
+    key: "destinationProvince",
   },
   {
-    text: "Total Trips",
-    value: "totalTrips",
+    title: "Total Trips",
+    key: "totalTrips",
   },
   {
-    text: "Total Expenses",
-    value: "totalExpenses",
+    title: "Total Expenses",
+    key: "totalExpenses",
     class: "m-0 p-0",
     width: "7.5rem",
   },
   {
-    text: "Total Flight Cost",
-    value: "totalFlightCost",
+    title: "Total Flight Cost",
+    key: "totalFlightCost",
   },
   {
-    text: "Average Duration (days)",
-    value: "averageDurationDays",
+    title: "Average Duration (days)",
+    key: "averageDurationDays",
   },
   {
-    text: "Average Expenses per Day",
-    value: "averageExpensesPerDay",
+    title: "Average Expenses per Day",
+    key: "averageExpensesPerDay",
   },
   {
-    text: "Average Round Trip Flight Cost",
-    value: "averageRoundTripFlightCost",
+    title: "Average Round Trip Flight Cost",
+    key: "averageRoundTripFlightCost",
   },
 ])
 

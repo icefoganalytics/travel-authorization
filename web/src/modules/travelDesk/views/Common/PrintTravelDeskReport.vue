@@ -183,16 +183,16 @@ const currentDate = ref("")
 
 // Headers
 const headers = [
-  { text: "Submit Date", value: "createdAt", class: "m-0 p-0" },
-  { text: "Name", value: "fullname", class: "m-0 p-0", sortable: false },
-  { text: "Department", value: "department", class: "m-0 p-0" },
-  { text: "Branch", value: "branch", class: "m-0 p-0", sortable: false },
-  { text: "Travel Start Date", value: "startDate", class: "m-0 p-0" },
-  { text: "Travel End Date", value: "endDate", class: "m-0 p-0", sortable: false },
-  { text: "Location", value: "location", class: "m-0 p-0" },
-  { text: "Requested", value: "requested", class: "m-0 p-0" },
-  { text: "Status", value: "status", class: "m-0 p-0" },
-  { text: "Travel Desk Officer", value: "travelDeskOfficer", class: "m-0 p-0" },
+  { title: "Submit Date", key: "createdAt", class: "m-0 p-0" },
+  { title: "Name", key: "fullname", class: "m-0 p-0", sortable: false },
+  { title: "Department", key: "department", class: "m-0 p-0" },
+  { title: "Branch", key: "branch", class: "m-0 p-0", sortable: false },
+  { title: "Travel Start Date", key: "startDate", class: "m-0 p-0" },
+  { title: "Travel End Date", key: "endDate", class: "m-0 p-0", sortable: false },
+  { title: "Location", key: "location", class: "m-0 p-0" },
+  { title: "Requested", key: "requested", class: "m-0 p-0" },
+  { title: "Status", key: "status", class: "m-0 p-0" },
+  { title: "Travel Desk Officer", key: "travelDeskOfficer", class: "m-0 p-0" },
 ]
 
 function initPrint() {

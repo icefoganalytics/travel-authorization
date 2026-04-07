@@ -69,20 +69,20 @@ import useUsers from "@/use/use-users"
 const search = ref("")
 const headers = [
   {
-    text: "Email",
-    value: "email",
+    title: "Email",
+    key: "email",
   },
   {
-    text: "First Name",
-    value: "firstName",
+    title: "First Name",
+    key: "firstName",
   },
   {
-    text: "Last Name",
-    value: "lastName",
+    title: "Last Name",
+    key: "lastName",
   },
   {
-    text: "Status",
-    value: "isActive",
+    title: "Status",
+    key: "isActive",
   },
 ]
 const selectedStatuses = ref(["Active"])

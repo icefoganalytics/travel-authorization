@@ -164,31 +164,31 @@ const props = defineProps({
 
 const headers = ref([
   {
-    text: "Date of Travel ",
-    value: "travelDate",
+    title: "Date of Travel ",
+    key: "travelDate",
     class: "m-0 p-0",
     width: "8.5rem",
     sortable: false,
   },
   {
-    text: "Purpose",
-    value: "purpose",
+    title: "Purpose",
+    key: "purpose",
     class: "",
   },
   {
-    text: "Location",
-    value: "location",
+    title: "Location",
+    key: "location",
     class: "",
   },
   {
-    text: "Person/Position Travelling",
-    value: "name",
+    title: "Person/Position Travelling",
+    key: "name",
     class: "",
     sortable: false,
   },
   {
-    text: "Estimated Travel Cost",
-    value: "estimatedCost",
+    title: "Estimated Travel Cost",
+    key: "estimatedCost",
     class: "m-0 p-0",
     width: "7.5rem",
   },

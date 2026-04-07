@@ -59,11 +59,11 @@ const props = defineProps({
 })
 
 const headers = ref([
-  { text: "Expense Type", value: "expenseType" },
-  { text: "Description", value: "description" },
-  { text: "Date", value: "date" },
-  { text: "Amount", value: "cost" },
-  { text: "", value: "actions" },
+  { title: "Expense Type", key: "expenseType" },
+  { title: "Description", key: "description" },
+  { title: "Date", key: "date" },
+  { title: "Amount", key: "cost" },
+  { title: "", key: "actions" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 

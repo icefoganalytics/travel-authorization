@@ -104,16 +104,16 @@ export default {
   data() {
     return {
       headers: [
-        { text: "Name", value: "name", class: "blue-grey lighten-4" },
-        { text: "Phase", value: "phase", class: "blue-grey lighten-4" },
-        { text: "Location", value: "location", class: "blue-grey lighten-4" },
-        { text: "Description", value: "description", class: "blue-grey lighten-4" },
-        { text: "Start Date", value: "startDate", class: "blue-grey lighten-4" },
-        { text: "End Date", value: "endDate", class: "blue-grey lighten-4" },
-        { text: "Travel Auth Status", value: "status", class: "blue-grey lighten-4" },
+        { title: "Name", key: "name", class: "blue-grey lighten-4" },
+        { title: "Phase", key: "phase", class: "blue-grey lighten-4" },
+        { title: "Location", key: "location", class: "blue-grey lighten-4" },
+        { title: "Description", key: "description", class: "blue-grey lighten-4" },
+        { title: "Start Date", key: "startDate", class: "blue-grey lighten-4" },
+        { title: "End Date", key: "endDate", class: "blue-grey lighten-4" },
+        { title: "Travel Auth Status", key: "status", class: "blue-grey lighten-4" },
         {
-          text: "Travel Action",
-          value: "edit",
+          title: "Travel Action",
+          key: "edit",
           class: "blue-grey lighten-4",
           cellClass: "px-0 mx-0",
           sortable: false,

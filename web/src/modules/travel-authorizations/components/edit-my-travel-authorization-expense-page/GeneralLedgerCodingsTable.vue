@@ -102,9 +102,9 @@ const {
 const totalAmount = computed(() => sumBy(generalLedgerCodings.value, "amount"))
 
 const headers = ref([
-  { text: "G/L code", value: "code" },
-  { text: "Amount", value: "amount" },
-  { text: "", value: "actions" },
+  { title: "G/L code", key: "code" },
+  { title: "Amount", key: "amount" },
+  { title: "", key: "actions" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 

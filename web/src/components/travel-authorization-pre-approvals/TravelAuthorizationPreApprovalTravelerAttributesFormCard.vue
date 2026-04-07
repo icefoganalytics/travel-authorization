@@ -148,20 +148,20 @@ const profileAlreadyCreated = computed(() => !isEmpty(props.value))
 
 const headers = ref([
   {
-    text: "Name",
-    value: "profileName",
+    title: "Name",
+    key: "profileName",
   },
   {
-    text: "Dept.",
-    value: "department",
+    title: "Dept.",
+    key: "department",
   },
   {
-    text: "Branch",
-    value: "branch",
+    title: "Branch",
+    key: "branch",
   },
   {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
     sortable: false,
   },
 ])

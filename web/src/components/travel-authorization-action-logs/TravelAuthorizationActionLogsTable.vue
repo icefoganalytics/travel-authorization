@@ -46,24 +46,24 @@ const { travelAuthorizationActionLogs, isLoading, refresh } =
 
 const headers = [
   {
-    text: "Status",
-    value: "action",
+    title: "Status",
+    key: "action",
   },
   {
-    text: "Who",
-    value: "actorId",
+    title: "Who",
+    key: "actorId",
   },
   {
-    text: "Assigned To",
-    value: "assigneeId",
+    title: "Assigned To",
+    key: "assigneeId",
   },
   {
-    text: "Date",
-    value: "createdAt",
+    title: "Date",
+    key: "createdAt",
   },
   {
-    text: "Note",
-    value: "note",
+    title: "Note",
+    key: "note",
   },
 ]
 
