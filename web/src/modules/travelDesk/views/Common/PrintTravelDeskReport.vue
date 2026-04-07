@@ -4,9 +4,9 @@
     persistent
     max-width="950px"
   >
-    <template #activator="{ props: slotProps }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
-        v-bind="merge({}, slotProps, activatorProps)"
+        v-bind="activatorProps"
         @click="initPrint"
       >
         Print Report
@@ -137,7 +137,7 @@
 <script setup>
 import { ref, computed } from "vue"
 import { useI18n } from "vue-i18n"
-import { isNil, isEmpty, merge } from "lodash"
+import { isNil, isEmpty } from "lodash"
 import { Printd } from "printd"
 
 import { formatDate } from "@/utils/formatters"
@@ -150,10 +150,6 @@ const props = defineProps({
   travelDeskTravelRequestIds: {
     type: Array,
     default: () => [],
-  },
-  activatorProps: {
-    type: Object,
-    default: () => ({}),
   },
 })
 

@@ -5,10 +5,10 @@
     max-width="1200px"
     @keydown.esc="hide"
   >
-    <template #activator="{ props: slotProps }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         color="primary"
-        v-bind="merge({}, slotProps, activatorProps)"
+        v-bind="activatorProps"
       >
         Add Flight
       </v-btn>
@@ -131,7 +131,6 @@
 
 <script setup>
 import { ref, nextTick } from "vue"
-import { merge } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -158,10 +157,6 @@ const props = defineProps({
   maxDate: {
     type: String,
     default: "",
-  },
-  activatorProps: {
-    type: Object,
-    default: () => ({}),
   },
 })
 
