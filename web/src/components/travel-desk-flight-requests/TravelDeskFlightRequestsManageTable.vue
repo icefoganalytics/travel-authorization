@@ -1,7 +1,7 @@
 <template>
   <TravelDeskFlightRequestsEditDataTableServer
     ref="travelDeskFlightRequestsEditTable"
-    :expanded.sync="expanded"
+    v-model:expanded="expanded"
     :show-expand="showFlightOptions"
     single-expand
     v-bind="$attrs"

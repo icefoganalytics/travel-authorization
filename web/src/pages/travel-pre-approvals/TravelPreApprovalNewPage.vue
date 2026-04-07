@@ -171,8 +171,8 @@
         <v-col>
           <TravelAuthorizationPreApprovalTravelerAttributesFormCard
             v-model="travelAuthorizationPreApprovalProfilesAttributes"
-            :number-travelers.sync="travelAuthorizationPreApprovalAttributes.numberTravelers"
-            :is-open-for-any-traveler.sync="
+            v-model:number-travelers="travelAuthorizationPreApprovalAttributes.numberTravelers"
+            v-model:is-open-for-any-traveler="
               travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler
             "
             :department="travelAuthorizationPreApprovalAttributes.department"

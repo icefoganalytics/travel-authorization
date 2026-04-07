@@ -23,7 +23,7 @@
         <v-data-table
           :headers="flightHeaders"
           :items="flightRequests"
-          :expanded.sync="expanded"
+          v-model:expanded="expanded"
           :show-expand="showFlightOptions"
           hide-default-footer
           class="elevation-1"

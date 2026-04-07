@@ -186,8 +186,8 @@
         <v-col>
           <TravelAuthorizationPreApprovalTravelerEditFormCard
             :travel-authorization-pre-approval-id="travelAuthorizationPreApprovalId"
-            :number-travelers.sync="travelAuthorizationPreApproval.numberTravelers"
-            :is-open-for-any-traveler.sync="travelAuthorizationPreApproval.isOpenForAnyTraveler"
+            v-model:number-travelers="travelAuthorizationPreApproval.numberTravelers"
+            v-model:is-open-for-any-traveler="travelAuthorizationPreApproval.isOpenForAnyTraveler"
             :department="travelAuthorizationPreApproval.department"
             :branch="travelAuthorizationPreApproval.branch"
           />
