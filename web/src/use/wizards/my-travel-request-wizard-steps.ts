@@ -1,5 +1,5 @@
 import { isNil } from "lodash"
-import { type AsyncComponent } from "vue"
+import { type AsyncComponentLoader } from "vue"
 
 import { type VBtn } from "vuetify/lib/components"
 
@@ -9,7 +9,7 @@ export type WizardStep = {
   id: TravelAuthorizationWizardStepNames
   title: string
   subtitle: string
-  component: AsyncComponent
+  component: AsyncComponentLoader
   continueButtonText?: string
   continueButtonProps?: VBtn["props"]
   backButtonText?: string
