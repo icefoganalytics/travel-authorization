@@ -1,5 +1,5 @@
 import { computed, reactive, toRefs, unref, watch, type Ref } from "vue"
-import { useRouter } from "vue-router"
+import { useRouter, type NavigationFailure } from "vue-router"
 import { cloneDeep, isNil } from "lodash"
 
 import type { VBtn } from "vuetify/lib/components"
@@ -12,7 +12,8 @@ import useTravelAuthorization, {
 import MY_TRAVEL_REQUEST_WIZARD_STEPS, {
   type WizardStep,
 } from "@/use/wizards/my-travel-request-wizard-steps"
-import type { Route } from "vue-router"
+
+type RouterPushResult = Promise<NavigationFailure | void | undefined>
 
 export type UseMyTravelRequestWizard = {
   steps: Ref<WizardStep[]>
@@ -25,9 +26,9 @@ export type UseMyTravelRequestWizard = {
   isLoading: Ref<boolean>
   refresh: () => Promise<TravelAuthorizationAsShow>
 
-  goToStep: (stepName: TravelAuthorizationWizardStepNames) => Promise<Route | undefined>
-  goToPreviousStep: () => Promise<Route>
-  goToNextStep: () => Promise<Route>
+  goToStep: (stepName: TravelAuthorizationWizardStepNames) => RouterPushResult
+  goToPreviousStep: () => RouterPushResult
+  goToNextStep: () => RouterPushResult
 
   setEditableSteps: (stepNames: TravelAuthorizationWizardStepNames[]) => void
   setBackButtonProps: (vBtnProps: VBtn["props"]) => void
@@ -122,7 +123,7 @@ export function useMyTravelRequestWizard(
     })
   }
 
-  async function goToNextStep(): Promise<Route> {
+  async function goToNextStep(): RouterPushResult {
     const travelAuthorizationId = unref(travelAuthorizationIdRef)
     if (isNil(travelAuthorizationId)) {
       throw new Error("travelAuthorizationId is required")

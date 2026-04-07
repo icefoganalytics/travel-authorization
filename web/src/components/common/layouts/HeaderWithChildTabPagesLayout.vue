@@ -24,13 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { type Location } from "vue-router"
+import { type RouteLocationRaw } from "vue-router"
 
 export interface Tab {
   value: number
   title: string
   icon?: string
-  to: Location
+  to: RouteLocationRaw
 }
 
 defineProps<{
