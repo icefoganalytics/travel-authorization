@@ -54,7 +54,7 @@
         </v-btn>
       </div>
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses">Total</td>

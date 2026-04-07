@@ -12,7 +12,7 @@
     <template #item.cost="{ value }">
       {{ formatCurrency(value) }}
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses"></td>

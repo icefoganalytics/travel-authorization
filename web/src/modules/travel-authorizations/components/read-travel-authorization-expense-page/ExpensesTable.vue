@@ -23,7 +23,7 @@
         >Receipt is missing</span
       >
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td
