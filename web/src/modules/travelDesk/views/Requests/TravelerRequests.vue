@@ -101,6 +101,7 @@ export default {
       default: undefined,
     },
   },
+  emits: ["updateTable"],
   data() {
     return {
       headers: [

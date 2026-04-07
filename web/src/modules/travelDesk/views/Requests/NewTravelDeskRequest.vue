@@ -203,6 +203,7 @@ export default {
       default: undefined,
     },
   },
+  emits: ["updateTable"],
   // NOTE: this is component is now more of a concept sketch than a functional component.
   // Needs full rebuild and rework with new concepts.
   // Will need to build a travel desk travel request in draft form, before being able to edit it with
