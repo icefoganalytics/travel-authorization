@@ -156,7 +156,7 @@ const headers = ref([
     title: "Actions",
     key: "actions",
     sortable: false,
-    align: "center",
+    align: "center" as const,
   },
 ])
 

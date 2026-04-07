@@ -147,7 +147,7 @@ const headers = computed(() => {
     baseHeaders.push({
       title: "Reconciled",
       key: "reconciled",
-      align: "center",
+      align: "center" as const,
     })
   } else if (props.reconciled === true) {
     baseHeaders.push({

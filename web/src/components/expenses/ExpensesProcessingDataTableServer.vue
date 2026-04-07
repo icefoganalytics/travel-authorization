@@ -152,7 +152,7 @@ const headers = ref([
     title: "Receipt",
     key: "receipt",
     sortable: false,
-    align: "center",
+    align: "center" as const,
   },
   {
     title: "Status",
@@ -162,7 +162,7 @@ const headers = ref([
     title: "Actions",
     key: "actions",
     sortable: false,
-    align: "center",
+    align: "center" as const,
   },
 ])
 

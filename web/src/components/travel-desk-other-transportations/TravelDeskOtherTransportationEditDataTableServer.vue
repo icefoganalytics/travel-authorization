@@ -111,7 +111,7 @@ const headers = [
   {
     title: "Actions",
     key: "actions",
-    align: "end",
+    align: "end" as const,
     sortable: false,
   },
 ]
