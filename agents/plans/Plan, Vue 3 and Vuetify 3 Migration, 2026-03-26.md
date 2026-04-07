@@ -18,32 +18,27 @@ and Vuetify 2 specific APIs.
 
 ## Execution Progress
 
-**Completed Phase 1 slices:**
-- Replaced and removed the legacy global Vue filter registry. Filter behavior
-  now lives in shared utilities / formatters instead of `Vue.filter(...)`.
-- Removed legacy `$snack` app usage and deleted the old snack plugin bootstrap.
-- Removed dead legacy `$http` bootstrap wiring from `web/src/main.js`.
-- Removed several orphaned legacy frontend components and layouts instead of
-  modernizing dead code.
-- Moved the QA scenarios page onto the breadcrumb layout path so it now follows
-  the same breadcrumb architecture as the newer page stack.
-- Removed the remaining `mapActions(...)` / `mapGetters(...)` usage from Vue
-  SFCs by switching surviving pages and tables onto existing composable-backed
-  paths.
-- Swapped the app entrypoint to Vue 3 `createApp(...)` and moved the web app
-  onto the current `web/src/main.ts` bootstrap path.
-- Rewrote the app router to Vue Router 4 in `web/src/router.ts`.
-- Replaced the legacy Vue 2 i18n plugin path with a direct Vue I18n 9
-  `createI18n(...)` plugin and switched app code to import `useI18n` directly
-  from `vue-i18n`.
-- Removed live Vuex store wiring from the app bootstrap and migrated the
-  remaining touched UI path to composable-backed state instead of `$store`.
-- Replaced the Vuetify 2 display / goTo / route-query bridge helpers with
-  `useDisplay()`, `useGoTo()`, and `@vueuse/router`.
-- Replaced the Vuetify 2 sort shim with the `wrap`-style Vue 3 route-query and
-  Sequelize-order helpers.
+Phase 1 structural decoupling and the Phase 2 dependency swap are complete.
+The app boots on Vue 3 + Vuetify 3 + Vue Router 4 + Vue I18n 9. Legacy
+patterns already eliminated: filters, `$snack`, `$http`, `mapActions`/
+`mapGetters`, Vuex store wiring, `$listeners`, `$scopedSlots`, activator
+`{ on, attrs }` slots, `$vuetify` access, Vuetify 2 display/goTo/sort shims,
+and data table renames.
 
-These completed slices should not be treated as remaining Phase 1 scope.
+**Remaining Vue 2 / Vuetify 2 patterns:**
+
+| Pattern | Remaining | Next action |
+|---------|-----------|-------------|
+| `:value=` prop (Vue 2 v-model) | 157 | Convert to `v-model` / `modelValue` |
+| `@input=` event (Vue 2 v-model) | 90 | Convert alongside `:value=` |
+| `.sync` modifier | 7 | `v-model:prop` (change ready, pending commit) |
+| `Vue.prototype` | 1 | Replace during Auth0 swap |
+
+**Current type-check errors (22):**
+- 4 × component still defines `value` prop but consumer passes `modelValue`
+- 2 × `#foot` slot (renamed in Vuetify 3)
+- 16 × pre-existing type issues surfaced by adding `lang="ts"` to 3 data table
+  server components
 
 ## Current State Analysis
 
@@ -83,13 +78,13 @@ These completed slices should not be treated as remaining Phase 1 scope.
 
 | Pattern | Count | Priority |
 |---------|-------|----------|
-| `:value=` prop (Vue 2 v-model) | 159 | HIGH |
-| `.sync` modifier | 95 | HIGH |
-| `@input=` event (Vue 2 v-model) | 86 | HIGH |
-| `v-on="$listeners"` / `$listeners` | 72 | HIGH |
-| Vuetify activator `{ on, attrs }` slot | 25 | MEDIUM |
-| `$scopedSlots` | 14 | MEDIUM |
-| Direct `$vuetify` access | 3 | LOW |
+| `:value=` prop (Vue 2 v-model) | 157 | HIGH |
+| `@input=` event (Vue 2 v-model) | 90 | HIGH |
+| `.sync` modifier | 7 | HIGH |
+| ~~`v-on="$listeners"` / `$listeners`~~ | ~~72~~ **0** | ~~HIGH~~ DONE |
+| ~~Vuetify activator `{ on, attrs }` slot~~ | ~~25~~ **0** | ~~MEDIUM~~ DONE |
+| ~~`$scopedSlots`~~ | ~~14~~ **0** | ~~MEDIUM~~ DONE |
+| ~~Direct `$vuetify` access~~ | ~~3~~ **0** | ~~LOW~~ DONE |
 | `Vue.prototype` | 1 | LOW |
 | `this.$set()` | 0 | LOW |
 
