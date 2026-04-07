@@ -63,11 +63,11 @@ const flightEstimates = ref([
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Flight Estimates",
+    title: "Flight Estimates",
     to: { name: "administration/FlightEstimatesPage" },
   },
 ])

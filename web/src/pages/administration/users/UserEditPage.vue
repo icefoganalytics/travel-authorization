@@ -180,19 +180,19 @@ async function saveWrapper() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Administration",
+    title: "Administration",
     to: {
       name: "AdministrationPage",
     },
   },
   {
-    text: "User Management",
+    title: "User Management",
     to: {
       name: "administration/UsersPage",
     },
   },
   {
-    text: "User Editor",
+    title: "User Editor",
     to: {
       name: "administration/users/UserEditPage",
       params: {

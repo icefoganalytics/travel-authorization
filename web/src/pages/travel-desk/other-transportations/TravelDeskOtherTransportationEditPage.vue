@@ -233,13 +233,13 @@ async function deleteAndReturn() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -248,7 +248,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit Transportation Request",
+    title: "Edit Transportation Request",
     to: {
       name: "travel-desk/other-transportations/TravelDeskOtherTransportationEditPage",
       params: {

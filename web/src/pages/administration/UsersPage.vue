@@ -121,13 +121,13 @@ function goToUserEditPage(user: User) {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Administration",
+    title: "Administration",
     to: {
       name: "AdministrationPage",
     },
   },
   {
-    text: "User Management",
+    title: "User Management",
     to: {
       name: "administration/UsersPage",
     },

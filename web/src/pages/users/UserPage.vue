@@ -210,11 +210,11 @@ const userDisplayName = computed(() =>
 const breadcrumbs = computed(() => [
   // TODO: consider if there should be "Users" page that is accessible to everyone?
   {
-    text: "Users",
+    title: "Users",
     disabled: true,
   },
   {
-    text: isLoading.value === true ? "..." : userDisplayName.value,
+    title: isLoading.value === true ? "..." : userDisplayName.value,
     disabled: true,
   },
 ])

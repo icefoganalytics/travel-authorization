@@ -35,7 +35,7 @@ async function refreshTable() {
 
 useBreadcrumbs([
   {
-    text: "My Travel Requests",
+    title: "My Travel Requests",
     to: {
       name: "my-travel-requests/MyTravelRequestsPage",
     },

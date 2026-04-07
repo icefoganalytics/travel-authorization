@@ -197,7 +197,7 @@ async function copyToClipboard(text, message = "Copied to clipboard") {
 
 useBreadcrumbs([
   {
-    text: "Profile",
+    title: "Profile",
     to: {
       name: "ProfilePage",
     },

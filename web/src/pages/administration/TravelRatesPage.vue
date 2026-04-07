@@ -46,11 +46,11 @@ const { isAdmin } = useCurrentUser()
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Travel Rates",
+    title: "Travel Rates",
     to: { name: "administration/TravelRatesPage" },
   },
 ])

@@ -311,13 +311,13 @@ async function deleteTravelAuthorizationPreApproval() {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "Travel Pre-Approval",
+    title: "Travel Pre-Approval",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalPage",
       params: {

@@ -347,13 +347,13 @@ const previousRouteOrFallback = computed(() => {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "Travel Pre-Approval",
+    title: "Travel Pre-Approval",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalPage",
       params: {
@@ -362,7 +362,7 @@ useBreadcrumbs([
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalEditPage",
       params: {

@@ -221,13 +221,13 @@ const travelAuthorizationPreApprovalDocuments = computed(
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approval Submissions",
+    title: "Travel Pre-Approval Submissions",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
     },
   },
   {
-    text: "Submission",
+    title: "Submission",
     to: {
       name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionPage",
       params: {

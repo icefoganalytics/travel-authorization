@@ -113,13 +113,13 @@ function refresh() {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "Requests",
+    title: "Requests",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },

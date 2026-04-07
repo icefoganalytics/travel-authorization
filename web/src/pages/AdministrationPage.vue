@@ -86,7 +86,7 @@ const menuCardLists = [
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: {
       name: "AdministrationPage",
     },

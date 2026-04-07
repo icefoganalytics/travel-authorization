@@ -255,11 +255,11 @@ async function save() {
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Rental Car Estimates",
+    title: "Rental Car Estimates",
     to: { name: "administration/RentalCarEstimatesPage" },
   },
 ])

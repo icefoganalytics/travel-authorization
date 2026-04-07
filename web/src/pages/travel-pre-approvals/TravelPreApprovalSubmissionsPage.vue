@@ -183,13 +183,13 @@ async function refresh() {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "Submissions",
+    title: "Submissions",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
     },

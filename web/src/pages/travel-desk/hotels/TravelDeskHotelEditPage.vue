@@ -250,13 +250,13 @@ const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -265,7 +265,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit Hotel Request",
+    title: "Edit Hotel Request",
     to: {
       name: "travel-desk/hotels/TravelDeskHotelEditPage",
       params: {

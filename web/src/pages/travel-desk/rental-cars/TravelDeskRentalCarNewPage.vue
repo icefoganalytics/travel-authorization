@@ -372,13 +372,13 @@ async function createAndReturn() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -387,7 +387,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "New Rental Car Request",
+    title: "New Rental Car Request",
     to: {
       name: "travel-desk/rental-cars/TravelDeskRentalCarNewPage",
       params: {

@@ -150,7 +150,7 @@ const totalActiveFilters = computed(() => {
 const breadcrumbs = computed(() => {
   const crumbs: BreadcrumbItem[] = [
     {
-      text: "Reports",
+      title: "Reports",
       to: {
         name: "reports/ReportsTablePage",
       },
@@ -159,7 +159,7 @@ const breadcrumbs = computed(() => {
 
   if (route.name === "reports/ReportsGraphPage") {
     crumbs.push({
-      text: "Graph",
+      title: "Graph",
       to: {
         name: "reports/ReportsGraphPage",
       },
@@ -167,7 +167,7 @@ const breadcrumbs = computed(() => {
     })
   } else if (route.name === "reports/ReportsTablePage") {
     crumbs.push({
-      text: "Table",
+      title: "Table",
       to: {
         name: "reports/ReportsTablePage",
       },

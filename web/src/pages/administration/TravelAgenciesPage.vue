@@ -121,11 +121,11 @@ function goToEditPage(travelDeskTravelAgencyId) {
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Travel Agencies",
+    title: "Travel Agencies",
     to: { name: "administration/TravelAgenciesPage" },
   },
 ])

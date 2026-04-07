@@ -34,7 +34,7 @@ import PendingApprovalsCard from "@/components/travel-authorizations/manage/Pend
 
 useBreadcrumbs([
   {
-    text: "Manage Travel Requests",
+    title: "Manage Travel Requests",
     to: {
       name: "ManageTravelRequests",
     },

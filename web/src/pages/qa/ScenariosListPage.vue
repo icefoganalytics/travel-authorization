@@ -126,7 +126,7 @@ async function syncYgEmployees() {
 
 useBreadcrumbs([
   {
-    text: "QA Scenarios",
+    title: "QA Scenarios",
     to: {
       name: "qa/ScenariosListPage",
     },

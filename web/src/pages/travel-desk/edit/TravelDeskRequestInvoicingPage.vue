@@ -17,13 +17,13 @@ const props = defineProps<{
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -32,7 +32,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-desk/TravelDeskRequestEditRedirect",
       params: {
@@ -41,7 +41,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Invoicing",
+    title: "Invoicing",
     to: {
       name: "travel-desk/edit/TravelDeskRequestInvoicingPage",
       params: {

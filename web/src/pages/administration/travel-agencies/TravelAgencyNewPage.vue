@@ -152,15 +152,15 @@ async function createTravelAgency() {
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Travel Agencies",
+    title: "Travel Agencies",
     to: { name: "administration/TravelAgenciesPage" },
   },
   {
-    text: "New Travel Agency",
+    title: "New Travel Agency",
     to: { name: "administration/travel-agencies/TravelAgencyNewPage" },
   },
 ])

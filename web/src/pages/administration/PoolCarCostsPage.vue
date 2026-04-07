@@ -253,11 +253,11 @@ async function save() {
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Pool Car Costs",
+    title: "Pool Car Costs",
     to: { name: "administration/PoolCarCostsPage" },
   },
 ])

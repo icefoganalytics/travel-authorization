@@ -78,13 +78,13 @@ defineExpose({
 
 useBreadcrumbs([
   {
-    text: "Flight Expenses",
+    title: "Flight Expenses",
     to: {
       name: "flight-expenses/AllFlightExpensesPage",
     },
   },
   {
-    text: "All Flights Expenses",
+    title: "All Flights Expenses",
     to: {
       name: "flight-expenses/AllFlightExpensesPage",
     },

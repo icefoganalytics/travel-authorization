@@ -32,7 +32,7 @@ import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },

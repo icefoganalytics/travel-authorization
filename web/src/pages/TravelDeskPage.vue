@@ -17,7 +17,7 @@ import TravelDeskTravelRequestsManageDataTableServer from "@/components/travel-d
 
 useBreadcrumbs([
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },

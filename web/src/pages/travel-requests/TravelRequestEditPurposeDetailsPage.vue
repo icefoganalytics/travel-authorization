@@ -82,13 +82,13 @@ async function validateSaveAndReturn() {
 
 useBreadcrumbs([
   {
-    text: "Manage Travel Requests",
+    title: "Manage Travel Requests",
     to: {
       name: "ManageTravelRequests",
     },
   },
   {
-    text: "Details",
+    title: "Details",
     to: {
       name: "travel-requests/TravelRequestDetailsPage",
       params: {
@@ -97,7 +97,7 @@ useBreadcrumbs([
     },
   },
   {
-    text: "Edit Purpose Details",
+    title: "Edit Purpose Details",
     to: {
       name: "travel-requests/TravelRequestEditPurposeDetailsPage",
       params: {

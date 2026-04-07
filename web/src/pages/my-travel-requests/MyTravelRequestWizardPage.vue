@@ -238,22 +238,22 @@ const returnTo = computed(() => {
 
 const breadcrumbs = computed(() => [
   {
-    text: "My Travel Requests",
+    title: "My Travel Requests",
     to: {
       name: "my-travel-requests/MyTravelRequestsPage",
     },
   },
   {
-    text: "Wizard",
+    title: "Wizard",
     disabled: true,
   },
   isNil(currentStep.value?.id)
     ? {
-        text: "loading ...",
+        title: "loading ...",
         disabled: true,
       }
     : {
-        text: currentStep.value.subtitle,
+        title: currentStep.value.subtitle,
         to: {
           name: "my-travel-requests/MyTravelRequestWizardPage",
           params: {

@@ -336,13 +336,13 @@ async function createTravelAuthorizationPreApproval() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "New",
+    title: "New",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalNewPage",
     },

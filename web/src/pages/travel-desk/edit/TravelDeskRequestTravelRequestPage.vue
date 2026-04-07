@@ -194,13 +194,13 @@ watch(
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -209,7 +209,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-desk/TravelDeskRequestEditRedirect",
       params: {
@@ -218,7 +218,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Travel Request (Booking)",
+    title: "Travel Request (Booking)",
     to: {
       name: "travel-desk/edit/TravelDeskRequestTravelRequestPage",
       params: {
