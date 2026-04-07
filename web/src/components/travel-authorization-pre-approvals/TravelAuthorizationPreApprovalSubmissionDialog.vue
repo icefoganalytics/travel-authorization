@@ -1,11 +1,11 @@
 <template>
   <!-- TODO: consider making this a "page" instead of a dialog -->
   <v-dialog
-    :value="showSubmissionDialog"
+    :model-value="showSubmissionDialog"
     persistent
     max-width="950px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <HeaderActionsCard title="Submit Travel Pre-Approval Requests">
       <v-row>

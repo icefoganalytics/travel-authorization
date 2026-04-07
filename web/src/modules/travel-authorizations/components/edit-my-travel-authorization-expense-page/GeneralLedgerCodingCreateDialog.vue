@@ -4,7 +4,7 @@
     max-width="500px"
     persistent
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <template #activator="{ props: activatorProps }">
       <v-btn

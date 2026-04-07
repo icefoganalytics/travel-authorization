@@ -52,7 +52,7 @@
         <div class="progress-section">
           <strong>Progress:</strong>
           <v-progress-linear
-            :value="progressPercent"
+            :model-value="progressPercent"
             color="amber"
             height="25"
             class="mt-2"

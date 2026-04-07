@@ -1,10 +1,10 @@
 <template>
   <v-dialog
-    :value="showDialog"
+    :model-value="showDialog"
     persistent
     max-width="1200px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-form
       ref="form"

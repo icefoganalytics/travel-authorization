@@ -4,7 +4,7 @@
     persistent
     max-width="50%"
     @keydown.esc="close"
-    @input="closeIfFalse"
+    @update:model-value="closeIfFalse"
   >
     <HeaderActionsFormCard
       title="Travel Itinerary"

@@ -1,7 +1,7 @@
 <template>
   <v-stepper
     :key="stepsHash"
-    :value="currentStepNumber"
+    :model-value="currentStepNumber"
     vertical
     outlined
     :width="mdAndUp ? 250 : undefined"

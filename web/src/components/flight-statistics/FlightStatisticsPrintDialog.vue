@@ -4,7 +4,7 @@
     persistent
     max-width="950px"
     @keydown.esc="close"
-    @input="closeIfFalse"
+    @update:model-value="closeIfFalse"
   >
     <HeaderActionsFormCard
       ref="headerActionsFormCard"

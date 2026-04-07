@@ -3,7 +3,7 @@
     v-model="showDialog"
     max-width="500px"
     @keydown.esc="close"
-    @input="closeIfFalse"
+    @update:model-value="closeIfFalse"
   >
     <v-skeleton-loader
       v-if="isNil(expenseId) || isNil(expense)"

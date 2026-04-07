@@ -5,7 +5,7 @@
     persistent
     max-width="950px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <HeaderActionsFormCard
       ref="headerActionsFormCard"

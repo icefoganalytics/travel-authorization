@@ -3,7 +3,7 @@
     v-model="showDialog"
     max-width="500px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-form
       ref="formRef"

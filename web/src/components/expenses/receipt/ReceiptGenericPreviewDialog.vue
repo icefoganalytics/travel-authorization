@@ -4,7 +4,7 @@
     width="600"
     persistent
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-card>
       <v-card-title>

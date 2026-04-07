@@ -35,7 +35,7 @@
               <v-badge
                 color="warning"
                 :content="totalActiveFilters"
-                :value="totalActiveFilters"
+                :model-value="totalActiveFilters"
               >
                 Filters
                 <v-icon right>
