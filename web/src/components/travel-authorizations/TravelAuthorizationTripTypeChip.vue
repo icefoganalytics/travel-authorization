@@ -22,8 +22,6 @@ const props = defineProps({
 const { t } = useI18n()
 
 const formattedStatus = computed(() => {
-  return t(`travel_authorization.trip_type.${props.value}`, {
-    $default: props.value,
-  })
+  return t(`travel_authorization.trip_type.${props.value}`, props.value)
 })
 </script>

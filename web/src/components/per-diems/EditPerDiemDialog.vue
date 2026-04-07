@@ -112,13 +112,13 @@ const claimType = computed(() => {
   if (isNil(perDiem.value)) return ""
 
   const { claimType: value } = perDiem.value
-  return t(`per_diem.claim_type.${value}`, { $default: value })
+  return t(`per_diem.claim_type.${value}`, value)
 })
 const travelRegion = computed(() => {
   if (isNil(perDiem.value)) return ""
 
   const { travelRegion: value } = perDiem.value
-  return t(`per_diem.travel_region.${value}`, { $default: value })
+  return t(`per_diem.travel_region.${value}`, value)
 })
 
 const snack = useSnack()

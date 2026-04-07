@@ -19,7 +19,7 @@
     </template>
 
     <template #item.requestType="{ value }">
-      {{ t(`travel_desk_question.request_type.${value}`, { $default: value }) }}
+      {{ t(`travel_desk_question.request_type.${value}`, value) }}
     </template>
 
     <template #item.actions="{ item }">

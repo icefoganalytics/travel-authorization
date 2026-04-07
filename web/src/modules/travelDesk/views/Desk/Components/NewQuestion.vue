@@ -76,7 +76,7 @@ defineProps({
 const { t } = useI18n()
 
 const questionList = Object.values(TRAVEL_DESK_QUESTION_REQUEST_TYPES).map((requestType) => ({
-  text: t(`travel_desk_question.request_type.${requestType}`, { $default: requestType }),
+  text: t(`travel_desk_question.request_type.${requestType}`, requestType),
   value: requestType,
 }))
 </script>

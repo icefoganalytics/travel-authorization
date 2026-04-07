@@ -264,9 +264,7 @@ function determineStatus(status, travelDeskOfficer) {
     return "Not Started"
   }
 
-  return t(`travel_desk_travel_request.status.${status}`, {
-    $default: status,
-  })
+  return t(`travel_desk_travel_request.status.${status}`, status)
 }
 
 function close() {

@@ -20,7 +20,7 @@
         />
       </template>
       <template #item.allowanceType="{ value }">
-        {{ t(`travel_allowance.allowance_type.${value}`, { $default: value }) }}
+        {{ t(`travel_allowance.allowance_type.${value}`, value) }}
       </template>
       <template #item.amount="{ item, value }">
         {{ formatCurrency(value, item.currency) }}

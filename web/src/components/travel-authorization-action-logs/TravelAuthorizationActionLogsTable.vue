@@ -71,7 +71,7 @@ const { t } = useI18n()
 
 function formatAction(value) {
   const fallback = startCase(value.replace("_", " "))
-  return t(`global.status.${value}`, { $default: fallback })
+  return t(`global.status.${value}`, fallback)
 }
 
 function formatDate(value) {

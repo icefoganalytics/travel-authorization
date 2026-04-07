@@ -201,14 +201,14 @@ function formatStatus(
   travelAuthorization: TravelAuthorizationAsIndex
 ) {
   if (travelAuthorization.isTravelling) {
-    return t(`global.status.travelling`, { $default: "Unknown" })
+    return t(`global.status.travelling`, "Unknown")
   }
 
-  return t(`global.status.${value}`, { $default: "Unknown" })
+  return t(`global.status.${value}`, "Unknown")
 }
 
 function formatPhase(value: string) {
-  return t(`global.phase.${value}`, { $default: "Unknown" })
+  return t(`global.phase.${value}`, "Unknown")
 }
 
 const deleteDialog = ref<InstanceType<typeof DeleteTravelAuthorizationDialog> | null>(null)

@@ -184,11 +184,11 @@ const { isAdmin } = useCurrentUser()
 const { t } = useI18n()
 
 function formatRole(value) {
-  return t(`role.name.${value}`, { $default: value })
+  return t(`role.name.${value}`, value)
 }
 
 function formatStatus(value) {
-  return t(`global.status.${value}`, { $default: value })
+  return t(`global.status.${value}`, value)
 }
 
 const snack = useSnack()

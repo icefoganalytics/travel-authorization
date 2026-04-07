@@ -157,7 +157,7 @@ const { user, isLoading, save } = useUser(userIdAsNumber)
 const { t } = useI18n()
 const roles = Object.values(UserRoles).map((role) => ({
   value: role,
-  text: t(`role.name.${role}`, { $default: role }),
+  text: t(`role.name.${role}`, role),
 }))
 
 const { currentUser, refresh: refreshCurrentUser } = useCurrentUser<true>()

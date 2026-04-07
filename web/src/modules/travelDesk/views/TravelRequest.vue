@@ -177,7 +177,7 @@ export default {
       if (authorizedTravel.status != "Approved") return "Authorization"
       if (!authorizedTravel?.travelRequest?.status) return "Travel Approved"
       const { status } = authorizedTravel.travelRequest
-      return this.t(`travel_desk_travel_request.status.${status}`, { $default: status })
+      return this.t(`travel_desk_travel_request.status.${status}`, status)
     },
   },
 }

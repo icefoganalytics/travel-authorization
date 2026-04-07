@@ -29,7 +29,7 @@ const emit = defineEmits(["input"])
 
 const { t } = useI18n()
 const claimTypes = Object.values(PER_DIEM_CLAIM_TYPES).map((claimType) => ({
-  text: t(`per_diem.claim_type.${claimType}`, { $default: claimType }),
+  text: t(`per_diem.claim_type.${claimType}`, claimType),
   value: claimType,
 }))
 </script>

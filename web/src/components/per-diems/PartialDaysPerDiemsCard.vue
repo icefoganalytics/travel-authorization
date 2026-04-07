@@ -9,7 +9,7 @@
       :loading="isLoading"
     >
       <template #item.claimType="{ value }">
-        {{ t(`per_diem.claim_type.${value}`, { $default: value }) }}
+        {{ t(`per_diem.claim_type.${value}`, value) }}
       </template>
       <template #item.yukonAndAlaska="{ item }">
         <template

@@ -20,9 +20,7 @@ const props = defineProps({
 const { t } = useI18n()
 
 const formattedStatus = computed(() => {
-  return t(`travel_authorization_pre_approval.status.${props.status}`, {
-    $default: props.status,
-  })
+  return t(`travel_authorization_pre_approval.status.${props.status}`, props.status)
 })
 
 const color = computed(() => {

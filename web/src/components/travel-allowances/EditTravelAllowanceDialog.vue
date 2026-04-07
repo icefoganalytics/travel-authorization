@@ -103,7 +103,7 @@ const allowanceType = computed(() => {
   if (isNil(travelAllowance.value)) return ""
 
   const { allowanceType: value } = travelAllowance.value
-  return t(`travel_allowance.allowance_type.${value}`, { $default: value })
+  return t(`travel_allowance.allowance_type.${value}`, value)
 })
 
 const snack = useSnack()

@@ -113,7 +113,7 @@ const { t } = useI18n()
 function formatStatus(value: string | null | undefined) {
   if (isNil(value)) return "Unknown"
 
-  return t(`global.status.${value}`, { $default: "Unknown" })
+  return t(`global.status.${value}`, "Unknown")
 }
 
 function formatTerritory(value: boolean | null | undefined) {

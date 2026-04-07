@@ -12,7 +12,7 @@
     disable-sort
   >
     <template #item.requestType="{ value }">
-      {{ t(`travel_desk_question.request_type.${value}`, { $default: value }) }}
+      {{ t(`travel_desk_question.request_type.${value}`, value) }}
     </template>
   </v-data-table>
 </template>

@@ -43,10 +43,10 @@
         />
       </template>
       <template #item.claimType="{ value }">
-        {{ t(`per_diem.claim_type.${value}`, { $default: value }) }}
+        {{ t(`per_diem.claim_type.${value}`, value) }}
       </template>
       <template #item.travelRegion="{ value }">
-        {{ t(`per_diem.travel_region.${value}`, { $default: value }) }}
+        {{ t(`per_diem.travel_region.${value}`, value) }}
       </template>
       <template #item.amount="{ item, value }">
         {{ formatCurrency(value, item.currency) }}

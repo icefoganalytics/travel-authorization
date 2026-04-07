@@ -77,7 +77,7 @@
         Not started <v-icon class="red--text">mdi-flag</v-icon>
       </template>
       <template v-else>
-        {{ t(`travel_desk_travel_request.status.${value}`, { $default: value }) }}
+        {{ t(`travel_desk_travel_request.status.${value}`, value) }}
         <v-icon
           v-if="value === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED"
           class="red--text"
