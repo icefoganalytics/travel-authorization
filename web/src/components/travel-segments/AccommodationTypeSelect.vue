@@ -1,10 +1,10 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="accommodationTypes"
     :label="label"
     v-bind="$attrs"
-    @input="$emit('input', $event)"
+    @update:model-value="$emit('update:modelValue', $event)"
   />
 </template>
 
@@ -12,7 +12,7 @@
 import { ACCOMMODATION_TYPES } from "@/api/travel-segments-api"
 
 defineProps({
-  value: {
+  modelValue: {
     type: String,
     default: ACCOMMODATION_TYPES.HOTEL,
   },

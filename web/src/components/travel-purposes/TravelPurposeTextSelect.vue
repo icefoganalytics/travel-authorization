@@ -1,14 +1,14 @@
 <!-- See https://stackoverflow.com/a/50892881 for slot syntax -->
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="travelPurposes"
     :loading="isLoading"
     :item-text="itemText"
     :item-value="itemValue"
     :label="label"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
     ><template
       v-for="(_, slotName) in $slots"
       #[slotName]="slotData"
@@ -26,7 +26,7 @@ import { MAX_PER_PAGE } from "@/api/base-api"
 import useTravelPurposes from "@/use/use-travel-purposes"
 
 defineProps({
-  value: {
+  modelValue: {
     type: [Number, String],
     default: null,
   },
@@ -44,7 +44,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const travelPurposesQuery = computed(() => {
   return {

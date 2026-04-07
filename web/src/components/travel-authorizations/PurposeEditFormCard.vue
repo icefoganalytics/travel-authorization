@@ -22,7 +22,7 @@
           outlined
           required
           validate-on-blur
-          @input="emit('update:travelPurposeId', $event)"
+          @update:model-value="emit('update:travelPurposeId', $event)"
         />
       </v-col>
       <v-col
@@ -58,7 +58,7 @@
         xl="4"
       >
         <LocationsAutocomplete
-          :value="finalDestinationLocationId"
+          :model-value="finalDestinationLocationId"
           :in-territory="travelAuthorization.allTravelWithinTerritory"
           :rules="[required]"
           clearable
@@ -68,7 +68,7 @@
           persistent-hint
           required
           validate-on-blur
-          @input="updateFinalDestinationLocationId"
+          @update:model-value="updateFinalDestinationLocationId"
         />
       </v-col>
     </v-row>

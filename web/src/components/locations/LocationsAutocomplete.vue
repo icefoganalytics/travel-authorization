@@ -1,11 +1,11 @@
 <template>
   <v-autocomplete
-    :value="value"
+    :model-value="modelValue"
     :items="formattedLocations"
     :loading="isLoading"
     auto-select-first
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
     ><template
       v-for="(_, slotName) in $slots"
       #[slotName]="slotData"
@@ -23,7 +23,7 @@ import { MAX_PER_PAGE } from "@/api/base-api"
 import useLocations from "@/use/use-locations"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     /** @type {number | string | null | undefined} */
     type: [Number, String],
     default: null,
@@ -43,7 +43,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const byProvinceFilter = computed(() => {
   if (props.inTerritory) {

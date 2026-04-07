@@ -1,10 +1,10 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :label="label"
     :items="vehicleTypeOptions"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -15,17 +15,17 @@ import { TravelDeskRentalCarVehicleTypes } from "@/api/travel-desk-rental-cars-a
 
 withDefaults(
   defineProps<{
-    value?: string | null
+    modelValue?: string | null
     label?: string
   }>(),
   {
-    value: null,
+    modelValue: null,
     label: "Vehicle Type",
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: string): void
+  (event: "update:modelValue", value: string): void
 }>()
 
 const vehicleTypeOptions = computed(() => [

@@ -1,11 +1,11 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="formattedTravelDeskFlightRequests"
     :label="label"
     :loading="isLoading"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -25,14 +25,14 @@ import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
  * Defines component props with descriptions and types using JSDoc.
  *
  * @type {{
- *   value: number | null | undefined,
+ *   modelValue: number | null | undefined,
  *   label?: string,
  *   where?: TravelDeskFlightRequestWhereOptions,
  *   filters?: TravelDeskFlightRequestFiltersOptions
  * }}
  */
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Number,
     default: () => null,
   },
@@ -52,10 +52,10 @@ const props = defineProps({
 
 /**
  * @type {{
- *   input: [travelDeskFlightRequestId: string | null]
+ *   "update:modelValue": [travelDeskFlightRequestId: string | null]
  * }}
  */
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const travelDeskFlightRequestsQuery = computed(() => ({
   where: props.where,

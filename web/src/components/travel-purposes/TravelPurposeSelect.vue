@@ -1,14 +1,14 @@
 <!-- See https://stackoverflow.com/a/50892881 for slot syntax -->
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="travelPurposes"
     :loading="isLoading"
     item-value="id"
     item-text="purpose"
     :label="label"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
     ><template
       v-for="(_, slotName) in $slots"
       #[slotName]="slotData"
@@ -27,17 +27,17 @@ import useTravelPurposes from "@/use/use-travel-purposes"
 
 withDefaults(
   defineProps<{
-    value?: number | null | undefined
+    modelValue?: number | null | undefined
     label?: string
   }>(),
   {
-    value: null,
+    modelValue: null,
     label: "Travel Purpose",
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: number): void
+  (event: "update:modelValue", value: number): void
 }>()
 
 const travelPurposesQuery = computed(() => {

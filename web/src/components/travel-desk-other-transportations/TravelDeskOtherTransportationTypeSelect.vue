@@ -1,6 +1,6 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="travelDeskOtherTransportationTypes"
     v-bind="$attrs"
   />
@@ -12,7 +12,7 @@ import { computed } from "vue"
 import { TravelDeskOtherTransportationTypes } from "@/api/travel-desk-other-transportations-api"
 
 defineProps<{
-  value?: string | null
+  modelValue?: string | null
 }>()
 
 const travelDeskOtherTransportationTypes = computed(() => [

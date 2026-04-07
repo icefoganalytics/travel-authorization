@@ -1,13 +1,13 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="travelDeskTravelAgencies"
     :label="label"
     :loading="isLoading"
     item-text="agencyName"
     item-value="id"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -24,13 +24,13 @@ import { useTravelDeskTravelAgencies } from "@/use/use-travel-desk-travel-agenci
  * Defines component props with descriptions and types using JSDoc.
  *
  * @type {{
- *   value: number | null,
+ *   modelValue: number | null,
  *   where?: TravelDeskTravelAgencyWhereOptions,
  *   filters?: TravelDeskTravelAgencyFiltersOptions
  * }}
  */
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Number,
     default: () => null,
   },
@@ -50,10 +50,10 @@ const props = defineProps({
 
 /**
  * @type {{
- *   input: [travelDeskTravelAgencyId: number | null]
+ *   "update:modelValue": [travelDeskTravelAgencyId: number | null]
  * }}
  */
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const travelDeskTravelAgenciesQuery = computed(() => ({
   where: props.where,

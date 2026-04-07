@@ -1,11 +1,11 @@
 <!-- See https://stackoverflow.com/a/50892881 for slot syntax -->
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="requestTypeItems"
     :label="label"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   >
     <template
       v-for="(_, slotName) in $slots"
@@ -26,7 +26,7 @@ import { useI18n } from "vue-i18n"
 import { TRAVEL_DESK_QUESTION_REQUEST_TYPES } from "@/api/travel-desk-questions-api"
 
 defineProps({
-  value: {
+  modelValue: {
     type: String,
     default: null,
   },
@@ -36,7 +36,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 const { t } = useI18n()
 
 const requestTypeItems = computed(() =>

@@ -1,11 +1,11 @@
 <!-- See https://stackoverflow.com/a/50892881 for slot syntax -->
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="months"
     :label="label"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
     ><template
       v-for="(_, slotName) in $slots"
       #[slotName]="slotData"
@@ -37,7 +37,7 @@ export const MONTHS = Object.freeze([
 import { computed } from "vue"
 
 defineProps({
-  value: {
+  modelValue: {
     type: String,
     default: null,
   },
@@ -47,7 +47,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const months = computed(() => MONTHS)
 </script>

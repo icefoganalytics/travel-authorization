@@ -135,7 +135,7 @@
           :rules="[required]"
           outlined
           :clearable="false"
-          @input="resetDependentFieldsDepartment"
+          @update:model-value="resetDependentFieldsDepartment"
         />
       </v-col>
       <v-col
@@ -154,7 +154,7 @@
           :where="branchWhere"
           outlined
           clearable
-          @input="resetDependentFieldsBranch"
+          @update:model-value="resetDependentFieldsBranch"
         />
       </v-col>
     </v-row>

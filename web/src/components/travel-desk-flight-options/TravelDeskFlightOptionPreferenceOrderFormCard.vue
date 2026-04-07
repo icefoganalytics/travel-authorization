@@ -32,14 +32,14 @@
           >
             <!-- TODO: exclude chosen options? -->
             <FlightPreferenceOrderAutocomplete
-              :value="flightOption.flightPreferenceOrder"
+              :model-value="flightOption.flightPreferenceOrder"
               label="Preference"
               :number-of-options="travelDeskFlightOptions.length"
               :rules="[required]"
               :hide-details="smAndDown"
               outlined
               required
-              @input="updateAndswapIfAlreadyInUse(flightOption, $event)"
+              @update:model-value="updateAndswapIfAlreadyInUse(flightOption, $event)"
             />
           </v-col>
 

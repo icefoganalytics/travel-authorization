@@ -1,6 +1,6 @@
 <template>
   <v-combobox
-    :value="value"
+    :model-value="modelValue"
     :items="emails"
     :loading="isLoading"
     :rules="emailRules"
@@ -8,7 +8,7 @@
     clearable
     persistent-hint
     v-bind="$attrs"
-    @input="emitUpdateAndInput"
+    @update:model-value="emitUpdateAndInput"
     @update:search-input="debouncedSearch"
   ></v-combobox>
 </template>
@@ -27,17 +27,17 @@ import usersApi from "@/api/users-api"
 
 const props = withDefaults(
   defineProps<{
-    value?: string | null
+    modelValue?: string | null
     rules?: ((v: unknown) => boolean | string)[]
   }>(),
   {
-    value: null,
+    modelValue: null,
     rules: () => [],
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: string): void
+  (event: "update:modelValue", value: string): void
 }>()
 
 const emailRules = computed(() => [...props.rules, isValidEmail])
@@ -65,7 +65,7 @@ const debouncedSearch = debounce(search, 300)
 
 function emitUpdateAndInput(value: string) {
   searchToken.value = value
-  emit("input", value)
+  emit("update:modelValue", value)
 }
 
 function isValidEmail(v: string) {

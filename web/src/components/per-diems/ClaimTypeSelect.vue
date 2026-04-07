@@ -1,10 +1,10 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="claimTypes"
     :label="label"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -14,7 +14,7 @@ import { useI18n } from "vue-i18n"
 import { PER_DIEM_CLAIM_TYPES } from "@/api/per-diems-api"
 
 defineProps({
-  value: {
+  modelValue: {
     type: String,
     default: () => null,
   },
@@ -24,7 +24,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const { t } = useI18n()
 const claimTypes = Object.values(PER_DIEM_CLAIM_TYPES).map((claimType) => ({

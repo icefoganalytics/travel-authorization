@@ -1,6 +1,6 @@
 <template>
   <v-autocomplete
-    :value="value"
+    :model-value="modelValue"
     :loading="isLoading"
     :items="branches"
     :label="label"
@@ -14,7 +14,7 @@
     :persistent-hint="persistentHint"
     :small-chips="smallChips"
     v-bind="$attrs"
-    @input="emitInputAndReset"
+    @update:model-value="emitInputAndReset"
     @update:search-input="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
@@ -40,7 +40,7 @@ import { debounce, isEmpty, isNil } from "lodash"
 import useYgEmployeeGroups from "@/use/use-yg-employee-groups"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: [Number, String],
     default: null,
   },
@@ -94,17 +94,17 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 function emitInputAndReset(value) {
-  emit("input", value)
+  emit("update:modelValue", value)
   reset()
 }
 
 const searchToken = ref("")
 
 function updateSearchToken(value) {
-  if (value === props.value) return
+  if (value === props.modelValue) return
 
   searchToken.value = value
   page.value = 1
@@ -154,7 +154,7 @@ async function reset() {
 }
 
 watch(
-  () => props.value,
+  () => props.modelValue,
   async (newModelValue) => {
     if (isEmpty(newModelValue)) {
       await reset()

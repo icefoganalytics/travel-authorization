@@ -111,7 +111,7 @@
               :rules="[required]"
               outlined
               required
-              @input="resetPickUpLocationOtherUnlessOther"
+              @update:model-value="resetPickUpLocationOtherUnlessOther"
             />
             <v-text-field
               v-if="travelDeskRentalCar.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER"
@@ -152,7 +152,7 @@
                 :rules="[required]"
                 outlined
                 required
-                @input="resetDropOffLocationOtherUnlessOther"
+                @update:model-value="resetDropOffLocationOtherUnlessOther"
               />
               <v-text-field
                 v-if="
@@ -186,7 +186,7 @@
               :rules="[required]"
               outlined
               required
-              @input="resetVehicleChangeRationaleIfCompact"
+              @update:model-value="resetVehicleChangeRationaleIfCompact"
             />
           </v-col>
           <v-col

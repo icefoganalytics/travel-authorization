@@ -1,6 +1,6 @@
 <template>
   <v-autocomplete
-    :value="value"
+    :model-value="modelValue"
     :loading="isLoading"
     :items="allYgEmployees"
     :label="label"
@@ -14,7 +14,7 @@
     :persistent-hint="persistentHint"
     :small-chips="smallChips"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
     @update:search-input="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
@@ -42,7 +42,7 @@ import useYgEmployee from "@/use/use-yg-employee"
 import useYgEmployees from "@/use/use-yg-employees"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: [Number, String],
     default: null,
   },
@@ -100,12 +100,12 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const ygEmployeeId = computed(() => {
   if (props.itemText !== "id") return null
 
-  return props.value
+  return props.modelValue
 })
 const { ygEmployee } = useYgEmployee(ygEmployeeId)
 
@@ -162,7 +162,7 @@ async function reset() {
 }
 
 watch(
-  () => props.value,
+  () => props.modelValue,
   async (newModelValue) => {
     if (isEmpty(newModelValue)) {
       await reset()
