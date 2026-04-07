@@ -1,12 +1,12 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelDeskHotels"
     :loading="isLoading"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     v-bind="$attrs"
     v-on="$listeners"
   >
@@ -31,7 +31,7 @@
         v-bind="slotData"
       ></slot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -65,36 +65,36 @@ const props = withDefaults(
 
 const headers = [
   {
-    text: "Check-in Date",
-    value: "checkIn",
+    title: "Check-in Date",
+    key: "checkIn",
   },
   {
-    text: "Check-out Date",
-    value: "checkOut",
+    title: "Check-out Date",
+    key: "checkOut",
   },
   {
-    text: "City",
-    value: "city",
+    title: "City",
+    key: "city",
     sortable: false,
   },
   {
-    text: "Conference Hotel Available?",
-    value: "isDedicatedConferenceHotelAvailable",
+    title: "Conference Hotel Available?",
+    key: "isDedicatedConferenceHotelAvailable",
     sortable: false,
   },
   {
-    text: "Event Name",
-    value: "conferenceName",
+    title: "Event Name",
+    key: "conferenceName",
     sortable: false,
   },
   {
-    text: "Hotel Name",
-    value: "conferenceHotelName",
+    title: "Hotel Name",
+    key: "conferenceHotelName",
     sortable: false,
   },
   {
-    text: "Additional Information",
-    value: "additionalInformation",
+    title: "Additional Information",
+    key: "additionalInformation",
     sortable: false,
   },
 ]

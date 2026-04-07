@@ -5,7 +5,7 @@
     </v-card-title>
 
     <v-card-text>
-      <TravelDeskTravelRequestsManageDataTable />
+      <TravelDeskTravelRequestsManageDataTableServer />
     </v-card-text>
   </v-card>
 </template>
@@ -13,7 +13,7 @@
 <script setup>
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import TravelDeskTravelRequestsManageDataTable from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsManageDataTable.vue"
+import TravelDeskTravelRequestsManageDataTableServer from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsManageDataTableServer.vue"
 
 useBreadcrumbs([
   {

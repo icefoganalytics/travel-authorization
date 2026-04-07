@@ -24,13 +24,13 @@
       </v-col>
     </v-card-title>
 
-    <v-data-table
-      :page.sync="page"
-      :items-per-page.sync="perPage"
+    <v-data-table-server
+      v-model:page="page"
+      v-model:items-per-page="perPage"
       :headers="headers"
       :items="perDiems"
       :loading="isLoading"
-      :server-items-length="totalCount"
+      :items-length="totalCount"
       :footer-props="{
         'items-per-page-options': [6, 10, 15, -1],
       }"
@@ -62,7 +62,7 @@
           >
         </div>
       </template>
-    </v-data-table>
+    </v-data-table-server>
   </v-card>
 </template>
 

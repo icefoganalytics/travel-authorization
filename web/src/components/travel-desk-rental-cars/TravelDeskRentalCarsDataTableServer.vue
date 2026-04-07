@@ -1,8 +1,12 @@
 <template>
-  <v-data-table
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelDeskRentalCars"
     :loading="isLoading"
+    :items-length="totalCount"
     v-bind="$attrs"
     v-on="$listeners"
   >
@@ -46,7 +50,7 @@
         v-bind="slotData"
       ></slot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -81,51 +85,51 @@ const props = withDefaults(
 
 const headers = [
   {
-    text: "Match Flight Times",
-    value: "matchFlightTimes",
+    title: "Match Flight Times",
+    key: "matchFlightTimes",
     sortable: false,
   },
   {
-    text: "Pick-Up City",
-    value: "pickUpCity",
+    title: "Pick-Up City",
+    key: "pickUpCity",
     sortable: false,
   },
   {
-    text: "Pick-up Location",
-    value: "pickUpLocation",
+    title: "Pick-up Location",
+    key: "pickUpLocation",
     sortable: false,
   },
   {
-    text: "Drop-off City",
-    value: "dropOffCity",
+    title: "Drop-off City",
+    key: "dropOffCity",
     sortable: false,
   },
   {
-    text: "Drop-off Location",
-    value: "dropOffLocation",
+    title: "Drop-off Location",
+    key: "dropOffLocation",
     sortable: false,
   },
   {
-    text: "Pick-up Date",
-    value: "pickUpDate",
+    title: "Pick-up Date",
+    key: "pickUpDate",
   },
   {
-    text: "Drop-off Date",
-    value: "dropOffDate",
+    title: "Drop-off Date",
+    key: "dropOffDate",
   },
   {
-    text: "Vehicle Type",
-    value: "vehicleType",
+    title: "Vehicle Type",
+    key: "vehicleType",
     sortable: false,
   },
   {
-    text: "Change Reason",
-    value: "vehicleChangeRationale",
+    title: "Change Reason",
+    key: "vehicleChangeRationale",
     sortable: false,
   },
   {
-    text: "Additional Notes",
-    value: "additionalNotes",
+    title: "Additional Notes",
+    key: "additionalNotes",
     sortable: false,
   },
 ]
@@ -151,7 +155,7 @@ const query = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const { travelDeskRentalCars, isLoading, refresh } = useTravelDeskRentalCars(query)
+const { travelDeskRentalCars, totalCount, isLoading, refresh } = useTravelDeskRentalCars(query)
 
 defineExpose({
   refresh,

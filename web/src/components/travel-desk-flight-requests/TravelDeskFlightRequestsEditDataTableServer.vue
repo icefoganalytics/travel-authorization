@@ -1,11 +1,11 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     :headers="headers"
     :items="travelDeskFlightRequests"
     :loading="isLoading"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     disable-sort
     v-bind="$attrs"
     v-on="$listeners"
@@ -48,7 +48,7 @@
         v-bind="slotData"
       ></slot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
@@ -92,28 +92,28 @@ const emit = defineEmits(["updated"])
 
 const headers = [
   {
-    text: "Depart Location",
-    value: "departLocation",
+    title: "Depart Location",
+    key: "departLocation",
   },
   {
-    text: "Arrive Location",
-    value: "arriveLocation",
+    title: "Arrive Location",
+    key: "arriveLocation",
   },
   {
-    text: "Date",
-    value: "datePreference",
+    title: "Date",
+    key: "datePreference",
   },
   {
-    text: "Time Preference",
-    value: "timePreference",
+    title: "Time Preference",
+    key: "timePreference",
   },
   {
-    text: "Seat Preference",
-    value: "seatPreference",
+    title: "Seat Preference",
+    key: "seatPreference",
   },
   {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
     align: "end",
   },
 ]

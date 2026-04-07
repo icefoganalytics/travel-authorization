@@ -1,44 +1,25 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :headers="headers"
-    :items="travelDeskRentalCars"
+    :items="travelDeskHotels"
     :loading="isLoading"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     v-bind="$attrs"
     v-on="$listeners"
   >
-    <template #item.matchFlightTimes="{ item }">
-      {{ item.matchFlightTimes ? "Yes" : "No" }}
-    </template>
-
-    <template #item.pickUpLocation="{ item }">
-      <div v-if="item.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER">
-        {{ item.pickUpLocationOther }}
-      </div>
-      <div v-else>{{ item.pickUpLocation }}</div>
-    </template>
-
-    <template #item.dropOffLocation="{ item }">
-      <div
-        v-if="
-          item.sameDropOffLocation && item.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER
-        "
-      >
-        {{ item.pickUpLocationOther }}
-      </div>
-      <div v-else-if="item.sameDropOffLocation">{{ item.pickUpLocation }}</div>
-      <div v-else>{{ item.dropOffLocation }}</div>
-    </template>
-
-    <template #item.pickUpDate="{ value }">
+    <template #item.checkIn="{ value }">
       {{ formatDate(value) }}
     </template>
 
-    <template #item.dropOffDate="{ value }">
+    <template #item.checkOut="{ value }">
       {{ formatDate(value) }}
+    </template>
+
+    <template #item.isDedicatedConferenceHotelAvailable="{ item }">
+      {{ item.isDedicatedConferenceHotelAvailable ? "Yes" : "No" }}
     </template>
 
     <template #item.actions="{ item }">
@@ -47,7 +28,7 @@
           title="Edit"
           icon
           color="primary"
-          @click.stop="goToTravelDeskRentalCarEditPage(item.id)"
+          @click.stop="goToTravelDeskHotelEditPage(item.id)"
           ><v-icon>mdi-pencil</v-icon></v-btn
         >
         <v-btn
@@ -61,7 +42,6 @@
       </div>
     </template>
 
-    <!-- Pass-through slots -->
     <template
       v-for="(_, slotName) in $scopedSlots"
       #[slotName]="slotData"
@@ -71,7 +51,7 @@
         v-bind="slotData"
       ></slot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -81,24 +61,23 @@ import { useRouter } from "vue-router"
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import formatDate from "@/utils/format-date"
 
-import travelDeskRentalCarsApi, {
-  type TravelDeskRentalCarWhereOptions,
-  type TravelDeskRentalCarFiltersOptions,
-  TravelDeskRentalCarLocationTypes,
-} from "@/api/travel-desk-rental-cars-api"
+import travelDeskHotelsApi, {
+  type TravelDeskHotelWhereOptions,
+  type TravelDeskHotelFiltersOptions,
+} from "@/api/travel-desk-hotels-api"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import useSnack from "@/use/use-snack"
-import useTravelDeskRentalCars from "@/use/use-travel-desk-rental-cars"
+import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
 
 const props = withDefaults(
   defineProps<{
     travelDeskTravelRequestId: number
-    where?: TravelDeskRentalCarWhereOptions
-    filters?: TravelDeskRentalCarFiltersOptions
+    where?: TravelDeskHotelWhereOptions
+    filters?: TravelDeskHotelFiltersOptions
     routeQuerySuffix?: string
     returnTo?: string
   }>(),
@@ -110,63 +89,47 @@ const props = withDefaults(
   }
 )
 
-// TODO: switch to `updated: [void]` syntax in Vue 3
 const emit = defineEmits<{
   (event: "updated"): void
 }>()
 
 const headers = [
   {
-    text: "Match Flight Times",
-    value: "matchFlightTimes",
+    title: "Check-in Date",
+    key: "checkIn",
+  },
+  {
+    title: "Check-out Date",
+    key: "checkOut",
+  },
+  {
+    title: "City",
+    key: "city",
     sortable: false,
   },
   {
-    text: "Pick-Up City",
-    value: "pickUpCity",
+    title: "Conference Hotel Available?",
+    key: "isDedicatedConferenceHotelAvailable",
     sortable: false,
   },
   {
-    text: "Pick-up Location",
-    value: "pickUpLocation",
+    title: "Event Name",
+    key: "conferenceName",
     sortable: false,
   },
   {
-    text: "Drop-off City",
-    value: "dropOffCity",
+    title: "Hotel Name",
+    key: "conferenceHotelName",
     sortable: false,
   },
   {
-    text: "Drop-off Location",
-    value: "dropOffLocation",
+    title: "Additional Information",
+    key: "additionalInformation",
     sortable: false,
   },
   {
-    text: "Pick-up Date",
-    value: "pickUpDate",
-  },
-  {
-    text: "Drop-off Date",
-    value: "dropOffDate",
-  },
-  {
-    text: "Vehicle Type",
-    value: "vehicleType",
-    sortable: false,
-  },
-  {
-    text: "Change Reason",
-    value: "vehicleChangeRationale",
-    sortable: false,
-  },
-  {
-    text: "Additional Notes",
-    value: "additionalNotes",
-    sortable: false,
-  },
-  {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
     sortable: false,
   },
 ]
@@ -179,7 +142,7 @@ const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   {
-    key: "pickUpDate",
+    key: "checkIn",
     order: "asc",
   },
 ])
@@ -192,16 +155,16 @@ const query = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const { travelDeskRentalCars, totalCount, isLoading, refresh } = useTravelDeskRentalCars(query)
+const { travelDeskHotels, totalCount, isLoading, refresh } = useTravelDeskHotels(query)
 
 const router = useRouter()
 
-function goToTravelDeskRentalCarEditPage(travelDeskRentalCarId: number) {
+function goToTravelDeskHotelEditPage(travelDeskHotelId: number) {
   return router.push({
-    name: "travel-desk/rental-cars/TravelDeskRentalCarEditPage",
+    name: "travel-desk/hotels/TravelDeskHotelEditPage",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId.toString(),
-      travelDeskRentalCarId: travelDeskRentalCarId.toString(),
+      travelDeskHotelId: travelDeskHotelId.toString(),
     },
     query: {
       returnTo: props.returnTo,
@@ -213,12 +176,12 @@ const isDeleting = ref(false)
 const snack = useSnack()
 
 async function deleteItem(itemId: number) {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this item?")) return
+  if (!blockedToTrueConfirm("Are you sure you want to remove this hotel?")) return
 
   isDeleting.value = true
   try {
-    await travelDeskRentalCarsApi.delete(itemId)
-    snack.success("Item deleted successfully")
+    await travelDeskHotelsApi.delete(itemId)
+    snack.success("Hotel deleted successfully")
     await emitUpdatedAndRefresh()
   } catch (error) {
     console.error(error)

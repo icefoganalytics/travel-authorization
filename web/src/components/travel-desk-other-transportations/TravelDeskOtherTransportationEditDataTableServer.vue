@@ -1,25 +1,17 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :headers="headers"
-    :items="travelDeskHotels"
+    :items="travelDeskOtherTransportations"
     :loading="isLoading"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     v-bind="$attrs"
     v-on="$listeners"
   >
-    <template #item.checkIn="{ value }">
+    <template #item.date="{ value }">
       {{ formatDate(value) }}
-    </template>
-
-    <template #item.checkOut="{ value }">
-      {{ formatDate(value) }}
-    </template>
-
-    <template #item.isDedicatedConferenceHotelAvailable="{ item }">
-      {{ item.isDedicatedConferenceHotelAvailable ? "Yes" : "No" }}
     </template>
 
     <template #item.actions="{ item }">
@@ -28,7 +20,7 @@
           title="Edit"
           icon
           color="primary"
-          @click.stop="goToTravelDeskHotelEditPage(item.id)"
+          @click.stop="goToTravelDeskOtherTransportationEditPage(item.id)"
           ><v-icon>mdi-pencil</v-icon></v-btn
         >
         <v-btn
@@ -36,7 +28,7 @@
           title="Delete"
           icon
           color="red"
-          @click.stop="deleteItem(item.id)"
+          @click.stop="deleteTravelDeskOtherTransportation(item.id)"
           ><v-icon>mdi-close</v-icon></v-btn
         >
       </div>
@@ -51,33 +43,33 @@
         v-bind="slotData"
       ></slot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { computed, ref } from "vue"
 import { useRouter } from "vue-router"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import formatDate from "@/utils/format-date"
 
-import travelDeskHotelsApi, {
-  type TravelDeskHotelWhereOptions,
-  type TravelDeskHotelFiltersOptions,
-} from "@/api/travel-desk-hotels-api"
+import travelDeskOtherTransportationsApi, {
+  type TravelDeskOtherTransportationWhereOptions,
+  type TravelDeskOtherTransportationFiltersOptions,
+} from "@/api/travel-desk-other-transportations-api"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import useSnack from "@/use/use-snack"
-import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
+import useTravelDeskOtherTransportations from "@/use/use-travel-desk-other-transportations"
 
 const props = withDefaults(
   defineProps<{
     travelDeskTravelRequestId: number
-    where?: TravelDeskHotelWhereOptions
-    filters?: TravelDeskHotelFiltersOptions
+    where?: TravelDeskOtherTransportationWhereOptions
+    filters?: TravelDeskOtherTransportationFiltersOptions
     routeQuerySuffix?: string
     returnTo?: string
   }>(),
@@ -95,41 +87,32 @@ const emit = defineEmits<{
 
 const headers = [
   {
-    text: "Check-in Date",
-    value: "checkIn",
+    title: "Type",
+    key: "transportationType",
   },
   {
-    text: "Check-out Date",
-    value: "checkOut",
-  },
-  {
-    text: "City",
-    value: "city",
+    title: "Depart Location",
+    key: "depart",
     sortable: false,
   },
   {
-    text: "Conference Hotel Available?",
-    value: "isDedicatedConferenceHotelAvailable",
+    title: "Arrive Location",
+    key: "arrive",
     sortable: false,
   },
   {
-    text: "Event Name",
-    value: "conferenceName",
+    title: "Date",
+    key: "date",
+  },
+  {
+    title: "Additional Information",
+    key: "additionalNotes",
     sortable: false,
   },
   {
-    text: "Hotel Name",
-    value: "conferenceHotelName",
-    sortable: false,
-  },
-  {
-    text: "Additional Information",
-    value: "additionalInformation",
-    sortable: false,
-  },
-  {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
+    align: "end",
     sortable: false,
   },
 ]
@@ -142,7 +125,7 @@ const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   {
-    key: "checkIn",
+    key: "date",
     order: "asc",
   },
 ])
@@ -155,16 +138,17 @@ const query = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const { travelDeskHotels, totalCount, isLoading, refresh } = useTravelDeskHotels(query)
+const { travelDeskOtherTransportations, totalCount, isLoading, refresh } =
+  useTravelDeskOtherTransportations(query)
 
 const router = useRouter()
 
-function goToTravelDeskHotelEditPage(travelDeskHotelId: number) {
+function goToTravelDeskOtherTransportationEditPage(travelDeskOtherTransportationId: number) {
   return router.push({
-    name: "travel-desk/hotels/TravelDeskHotelEditPage",
+    name: "travel-desk/other-transportations/TravelDeskOtherTransportationEditPage",
     params: {
       travelDeskTravelRequestId: props.travelDeskTravelRequestId.toString(),
-      travelDeskHotelId: travelDeskHotelId.toString(),
+      travelDeskOtherTransportationId: travelDeskOtherTransportationId.toString(),
     },
     query: {
       returnTo: props.returnTo,
@@ -175,13 +159,13 @@ function goToTravelDeskHotelEditPage(travelDeskHotelId: number) {
 const isDeleting = ref(false)
 const snack = useSnack()
 
-async function deleteItem(itemId: number) {
-  if (!blockedToTrueConfirm("Are you sure you want to remove this hotel?")) return
+async function deleteTravelDeskOtherTransportation(travelDeskOtherTransportationId: number) {
+  if (!blockedToTrueConfirm("Are you sure you want to remove this transportation?")) return
 
   isDeleting.value = true
   try {
-    await travelDeskHotelsApi.delete(itemId)
-    snack.success("Hotel deleted successfully")
+    await travelDeskOtherTransportationsApi.delete(travelDeskOtherTransportationId)
+    snack.success("Transportation deleted successfully")
     await emitUpdatedAndRefresh()
   } catch (error) {
     console.error(error)
@@ -199,5 +183,3 @@ defineExpose({
   refresh,
 })
 </script>
-
-<style scoped></style>

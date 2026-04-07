@@ -154,7 +154,7 @@
     </template>
     <v-row>
       <v-col>
-        <TravelAuthorizationPreApprovalsSimpleDataTable
+        <TravelAuthorizationPreApprovalsSimpleDataTableServer
           :where="travelAuthorizationPreApprovalsWhere"
           route-query-suffix="Requests"
         />
@@ -177,7 +177,7 @@ import useTravelAuthorizationPreApprovalSubmission, {
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import DownloadApprovalDocumentFormBtn from "@/components/travel-authorization-pre-approval-documents/DownloadApprovalDocumentFormBtn.vue"
-import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTableServer.vue"
 import TravelAuthorizationPreApprovalSubmissionStatusChip from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionStatusChip.vue"
 import UserChip from "@/components/users/UserChip.vue"
 

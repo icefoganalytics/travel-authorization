@@ -14,7 +14,7 @@
     >
       <v-row>
         <v-col>
-          <TravelAuthorizationPreApprovalsSimpleDataTable
+          <TravelAuthorizationPreApprovalsSimpleDataTableServer
             ref="travelAuthorizationPreApprovalsSimpleDataTable"
             :filters="travelAuthorizationPreApprovalsFilters"
             show-actions-header
@@ -68,7 +68,7 @@
                 </span>
               </v-tooltip> -->
             </template>
-          </TravelAuthorizationPreApprovalsSimpleDataTable>
+          </TravelAuthorizationPreApprovalsSimpleDataTableServer>
         </v-col>
       </v-row>
 
@@ -99,7 +99,7 @@ import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-p
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
-import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTableServer.vue"
 
 const emit = defineEmits(["added"])
 
@@ -163,7 +163,7 @@ async function addTravelAuthorizationPreApprovalToSubmission(
   }
 }
 
-/** @type {import('vue').Ref<InstanceType<typeof TravelAuthorizationPreApprovalsSimpleDataTable> | null>} */
+/** @type {import('vue').Ref<InstanceType<typeof TravelAuthorizationPreApprovalsSimpleDataTableServer> | null>} */
 const travelAuthorizationPreApprovalsSimpleDataTable = ref(null)
 
 async function refresh() {

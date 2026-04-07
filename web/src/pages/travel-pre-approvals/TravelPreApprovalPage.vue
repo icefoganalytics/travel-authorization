@@ -180,7 +180,7 @@
                 cols="12"
                 md="9"
               >
-                <TravelAuthorizationPreApprovalProfilesDataTable
+                <TravelAuthorizationPreApprovalProfilesDataTableServer
                   :where="preApprovalProfileWhere"
                   route-query-suffix="Profile"
                 />
@@ -260,7 +260,7 @@ import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pr
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
-import TravelAuthorizationPreApprovalProfilesDataTable from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTable.vue"
+import TravelAuthorizationPreApprovalProfilesDataTableServer from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTableServer.vue"
 import TravelAuthorizationPreApprovalSubmissionCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDocumentsCard.vue"
 
 const props = defineProps({

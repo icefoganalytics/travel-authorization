@@ -1,12 +1,12 @@
 <template>
-  <v-data-table
+  <v-data-table-server
     v-model="selectedRequests"
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelDeskTravelRequests"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
     :item-class="itemRowBackground"
     multi-sort
@@ -129,7 +129,7 @@
         Edit
       </v-btn>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
@@ -139,7 +139,7 @@ import { isNil, isEmpty } from "lodash"
 
 import formatDate from "@/utils/format-date"
 
-import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useTravelDeskTravelRequests, {
@@ -150,24 +150,24 @@ import TravelDeskTravelRequestsExportToCsvButton from "@/components/travel-desk-
 import PrintTravelDeskReport from "@/modules/travelDesk/views/Common/PrintTravelDeskReport.vue"
 
 const headers = ref([
-  { text: "TA #", value: "travelAuthorizationId" },
-  { text: "Submit Date", value: "createdAt" },
-  { text: "Name", value: "userDisplayName", sortable: false },
-  { text: "Department", value: "department", sortable: false },
-  { text: "Branch", value: "branch", sortable: false },
-  { text: "Travel Start Date", value: "travelStartDate" },
-  { text: "Travel End Date", value: "travelEndDate", sortable: false },
-  { text: "Locations Traveled", value: "locationsTraveled", sortable: false },
-  { text: "Requested", value: "requested", sortable: false },
-  { text: "Status", value: "status" },
-  { text: "Travel Desk Officer", value: "travelDeskOfficer" },
-  { text: "", value: "edit", cellClass: "px-0 mx-0", sortable: false },
+  { title: "TA #", key: "travelAuthorizationId" },
+  { title: "Submit Date", key: "createdAt" },
+  { title: "Name", key: "userDisplayName", sortable: false },
+  { title: "Department", key: "department", sortable: false },
+  { title: "Branch", key: "branch", sortable: false },
+  { title: "Travel Start Date", key: "travelStartDate" },
+  { title: "Travel End Date", key: "travelEndDate", sortable: false },
+  { title: "Locations Traveled", key: "locationsTraveled", sortable: false },
+  { title: "Requested", key: "requested", sortable: false },
+  { title: "Status", key: "status" },
+  { title: "Travel Desk Officer", key: "travelDeskOfficer" },
+  { title: "", key: "edit", sortable: false },
 ])
 
 const { t } = useI18n()
 
-const page = useRouteQuery("page", "1", { transform: integerTransformerLegacy })
-const perPage = useRouteQuery("perPage", "15", { transform: integerTransformerLegacy })
+const page = useRouteQuery("page", "1", { transform: integerTransformer })
+const perPage = useRouteQuery("perPage", "15", { transform: integerTransformer })
 
 const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
   {

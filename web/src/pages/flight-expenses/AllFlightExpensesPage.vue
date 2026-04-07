@@ -1,5 +1,5 @@
 <template>
-  <FlightReconciliationsDataTable
+  <FlightReconciliationsDataTableServer
     ref="flightReconciliationsDataTable"
     v-model="selectedFlightReconciliations"
     :filters="filters"
@@ -22,7 +22,7 @@
         </v-col>
       </v-row>
     </template>
-  </FlightReconciliationsDataTable>
+  </FlightReconciliationsDataTableServer>
 </template>
 
 <script setup>
@@ -31,7 +31,7 @@ import { isNil, isEmpty } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import FlightReconciliationsDataTable from "@/components/flight-reconciliations/FlightReconciliationsDataTable.vue"
+import FlightReconciliationsDataTableServer from "@/components/flight-reconciliations/FlightReconciliationsDataTableServer.vue"
 import ExportToCsvButton from "@/components/flight-reconciliations/ExportToCsvButton.vue"
 
 const props = defineProps({
@@ -65,7 +65,7 @@ const selectedFlightReconciliationIds = computed(() =>
   selectedFlightReconciliations.value.map((flightReconciliation) => flightReconciliation.id)
 )
 
-/** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTableServer> | null>} */
 const flightReconciliationsDataTable = ref(null)
 
 async function refresh() {

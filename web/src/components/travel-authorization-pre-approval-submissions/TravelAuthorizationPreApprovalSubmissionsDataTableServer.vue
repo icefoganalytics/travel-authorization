@@ -1,11 +1,11 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :items="travelAuthorizationPreApprovalSubmissions"
     :headers="headers"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
     v-bind="$attrs"
     v-on="$listeners"
@@ -37,7 +37,7 @@
         v-bind="slotProps"
       ></slot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
@@ -69,29 +69,29 @@ const props = defineProps({
 
 const headers = [
   {
-    text: "Submission Date",
-    value: "createdAt",
+    title: "Submission Date",
+    key: "createdAt",
   },
   {
-    text: "Department",
-    value: "department",
+    title: "Department",
+    key: "department",
   },
   {
-    text: "Location",
-    value: "location",
+    title: "Location",
+    key: "location",
     sortable: false,
   },
   {
-    text: "Submitter",
-    value: "creatorId",
+    title: "Submitter",
+    key: "creatorId",
   },
   {
-    text: "Status",
-    value: "status",
+    title: "Status",
+    key: "status",
   },
   {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
     sortable: false,
   },
 ]

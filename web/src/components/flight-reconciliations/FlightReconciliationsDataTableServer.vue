@@ -1,11 +1,11 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :items="flightReconciliations"
     :headers="headers"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
     v-bind="$attrs"
     v-on="$listeners"
@@ -60,7 +60,7 @@
         No
       </v-chip>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
@@ -100,60 +100,60 @@ const props = defineProps({
 const headers = computed(() => {
   const baseHeaders = [
     {
-      text: "Purchase Date",
-      value: "invoiceBookingDate",
+      title: "Purchase Date",
+      key: "invoiceBookingDate",
       width: "9rem",
     },
     {
-      text: "Cost",
-      value: "invoiceDetailSellingFare",
+      title: "Cost",
+      key: "invoiceDetailSellingFare",
       width: "7rem",
     },
     {
-      text: "Agent",
-      value: "invoiceDetailComputedAgentName",
+      title: "Agent",
+      key: "invoiceDetailComputedAgentName",
       width: "10rem",
     },
     {
-      text: "Airline",
-      value: "invoiceDetailVendorName",
+      title: "Airline",
+      key: "invoiceDetailVendorName",
       width: "10rem",
     },
     {
-      text: "Flight Info",
-      value: "segmentsComputedFlightInfo",
+      title: "Flight Info",
+      key: "segmentsComputedFlightInfo",
     },
     {
-      text: "Final Destination",
-      value: "segmentsComputedFinalDestination",
+      title: "Final Destination",
+      key: "segmentsComputedFinalDestination",
       width: "10rem",
     },
     {
-      text: "Department Mailcode",
-      value: "invoiceDepartmentMailcode",
+      title: "Department Mailcode",
+      key: "invoiceDepartmentMailcode",
     },
     {
-      text: "Traveler First Name",
-      value: "invoiceDetailComputedTravelerFirstName",
+      title: "Traveler First Name",
+      key: "invoiceDetailComputedTravelerFirstName",
       width: "11rem",
     },
     {
-      text: "Traveler Last Name",
-      value: "invoiceDetailComputedTravelerLastName",
+      title: "Traveler Last Name",
+      key: "invoiceDetailComputedTravelerLastName",
       width: "11rem",
     },
   ]
 
   if (isNil(props.reconciled) && isNil(props.unreconciled)) {
     baseHeaders.push({
-      text: "Reconciled",
-      value: "reconciled",
+      title: "Reconciled",
+      key: "reconciled",
       align: "center",
     })
   } else if (props.reconciled === true) {
     baseHeaders.push({
-      text: "Reconcile Period",
-      value: "reconcilePeriod",
+      title: "Reconcile Period",
+      key: "reconcilePeriod",
     })
   } else if (props.unreconciled === true) {
     // don't add any headers

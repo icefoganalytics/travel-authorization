@@ -1,11 +1,11 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :headers="headers"
     :items="flightStatistics"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
   >
     <template #item.totalExpenses="{ item }">
@@ -20,7 +20,7 @@
     <template #item.averageRoundTripFlightCost="{ item }">
       {{ formatCurrency(item.averageRoundTripFlightCost) }}
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -52,40 +52,40 @@ const props = withDefaults(
 
 const headers = [
   {
-    text: "Department Mailcode",
-    value: "departmentMailcode",
+    title: "Department Mailcode",
+    key: "departmentMailcode",
   },
   {
-    text: "Final Destination City",
-    value: "destinationCity",
+    title: "Final Destination City",
+    key: "destinationCity",
   },
   {
-    text: "Final Destination Province",
-    value: "destinationProvince",
+    title: "Final Destination Province",
+    key: "destinationProvince",
   },
   {
-    text: "Total Trips",
-    value: "totalTrips",
+    title: "Total Trips",
+    key: "totalTrips",
   },
   {
-    text: "Total Expenses",
-    value: "totalExpenses",
+    title: "Total Expenses",
+    key: "totalExpenses",
   },
   {
-    text: "Total Flight Cost",
-    value: "totalFlightCost",
+    title: "Total Flight Cost",
+    key: "totalFlightCost",
   },
   {
-    text: "Average Duration (days)",
-    value: "averageDurationDays",
+    title: "Average Duration (days)",
+    key: "averageDurationDays",
   },
   {
-    text: "Average Expenses per Day",
-    value: "averageExpensesPerDay",
+    title: "Average Expenses per Day",
+    key: "averageExpensesPerDay",
   },
   {
-    text: "Average Round Trip Flight Cost",
-    value: "averageRoundTripFlightCost",
+    title: "Average Round Trip Flight Cost",
+    key: "averageRoundTripFlightCost",
   },
 ]
 

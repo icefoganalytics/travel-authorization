@@ -20,7 +20,7 @@
 
     <v-row>
       <v-col>
-        <TravelAuthorizationPreApprovalsSimpleDataTable
+        <TravelAuthorizationPreApprovalsSimpleDataTableServer
           ref="travelAuthorizationPreApprovalsSimpleDataTable"
           :where="travelAuthorizationPreApprovalsWhere"
           show-actions-header
@@ -75,7 +75,7 @@
               </v-btn>
             </div>
           </template>
-        </TravelAuthorizationPreApprovalsSimpleDataTable>
+        </TravelAuthorizationPreApprovalsSimpleDataTableServer>
       </v-col>
     </v-row>
 
@@ -115,7 +115,7 @@ import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-p
 import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
-import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTableServer.vue"
 import TravelAuthorizationsPreApprovalSubmissionAddRequestDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionAddRequestDialog.vue"
 
 const props = defineProps({
@@ -234,7 +234,7 @@ async function deleteTravelAuthorizationPreApprovalSubmission() {
   }
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsSimpleDataTable> | nul>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsSimpleDataTableServer> | nul>} */
 const travelAuthorizationPreApprovalsSimpleDataTable = ref(null)
 
 async function refresh() {

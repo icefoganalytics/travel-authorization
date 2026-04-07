@@ -1,5 +1,5 @@
 <template>
-  <TravelAuthorizationPreApprovalSubmissionsDataTable
+  <TravelAuthorizationPreApprovalSubmissionsDataTableServer
     ref="travelAuthorizationPreApprovalSubmissionsDataTable"
     v-model="selectedItems"
     show-select
@@ -84,7 +84,7 @@
         </v-btn>
       </div>
     </template>
-  </TravelAuthorizationPreApprovalSubmissionsDataTable>
+  </TravelAuthorizationPreApprovalSubmissionsDataTableServer>
 </template>
 
 <script setup>
@@ -101,7 +101,7 @@ import useSnack from "@/use/use-snack"
 
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
-import TravelAuthorizationPreApprovalSubmissionsDataTable from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTable.vue"
+import TravelAuthorizationPreApprovalSubmissionsDataTableServer from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTableServer.vue"
 import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionApproveDialog.vue"
 
 const selectedItems = ref([])
@@ -174,7 +174,7 @@ async function revertToDraft(travelAuthorizationPreApprovalSubmissionId) {
   }
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionsDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionsDataTableServer> | null>} */
 const travelAuthorizationPreApprovalSubmissionsDataTable = ref(null)
 
 async function refresh() {

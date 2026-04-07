@@ -12,7 +12,7 @@
           @created="refresh"
         />
       </div>
-      <TravelDeskQuestionsEditDataTable
+      <TravelDeskQuestionsEditDataTableServer
         ref="travelDeskQuestionsEditDataTable"
         :where="{
           travelRequestId: travelDeskTravelRequestId,
@@ -27,7 +27,7 @@
 import { ref } from "vue"
 
 import TravelDeskQuestionCreateDialog from "@/components/travel-desk-questions/TravelDeskQuestionCreateDialog.vue"
-import TravelDeskQuestionsEditDataTable from "@/components/travel-desk-questions/TravelDeskQuestionsEditDataTable.vue"
+import TravelDeskQuestionsEditDataTableServer from "@/components/travel-desk-questions/TravelDeskQuestionsEditDataTableServer.vue"
 
 defineProps({
   travelDeskTravelRequestId: {
@@ -36,7 +36,7 @@ defineProps({
   },
 })
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskQuestionsEditDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelDeskQuestionsEditDataTableServer> | null>} */
 const travelDeskQuestionsEditDataTable = ref(null)
 
 function refresh() {

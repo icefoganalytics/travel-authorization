@@ -12,7 +12,7 @@
 
     <v-card class="default">
       <v-card-text>
-        <MyTravelAuthorizationsTable ref="myTravelAuthorizationsTable" />
+        <MyTravelAuthorizationsDataTableServer ref="myTravelAuthorizationsTable" />
       </v-card-text>
     </v-card>
   </div>
@@ -25,7 +25,7 @@ import { useBreadcrumbs } from "@/use/use-breadcrumbs"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
-import MyTravelAuthorizationsTable from "@/modules/travel-authorizations/components/MyTravelAuthorizationsTable.vue"
+import MyTravelAuthorizationsDataTableServer from "@/modules/travel-authorizations/components/MyTravelAuthorizationsDataTableServer.vue"
 
 const myTravelAuthorizationsTable = ref(null)
 

@@ -1,11 +1,11 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :items="travelAuthorizationPreApprovals"
     :headers="headers"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
     :hide-default-footer="hideDefaultFooter"
     v-bind="$attrs"
@@ -28,7 +28,7 @@
         v-bind="slotProps"
       ></slot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
@@ -67,37 +67,37 @@ const props = defineProps({
 const headers = computed(() => {
   const baseHeaders = [
     {
-      text: "Name",
-      value: "name",
+      title: "Name",
+      key: "name",
       sortable: false,
     },
     {
-      text: "Department",
-      value: "department",
+      title: "Department",
+      key: "department",
     },
     {
-      text: "Branch",
-      value: "branch",
+      title: "Branch",
+      key: "branch",
     },
     {
-      text: "Reason",
-      value: "reason",
+      title: "Reason",
+      key: "reason",
       sortable: false,
     },
     {
-      text: "Location",
-      value: "location",
+      title: "Location",
+      key: "location",
     },
     {
-      text: "Purpose Type",
-      value: "purpose",
+      title: "Purpose Type",
+      key: "purpose",
     },
   ]
 
   if (props.showActionsHeader) {
     baseHeaders.push({
-      text: "Actions",
-      value: "actions",
+      title: "Actions",
+      key: "actions",
       sortable: false,
     })
   }

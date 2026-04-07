@@ -1,12 +1,12 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelAuthorizations"
     :loading="isLoading"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     @click:row="goToMyTravelRequestWizardStep"
   >
     <template #top>
@@ -68,7 +68,7 @@
       />
       <span v-else> ERROR: unknown actions: {{ actions }}</span>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -108,37 +108,37 @@ const props = withDefaults(
 
 const headers = ref([
   {
-    text: "Phase",
-    value: "phase",
+    title: "Phase",
+    key: "phase",
     sortable: false,
   },
   {
-    text: "Location",
-    value: "finalDestination",
+    title: "Location",
+    key: "finalDestination",
     sortable: false,
   },
   {
-    text: "Description",
-    value: "eventName",
+    title: "Description",
+    key: "eventName",
     sortable: false,
   },
   {
-    text: "Start Date",
-    value: "departingAt",
+    title: "Start Date",
+    key: "departingAt",
     sortable: false,
   },
   {
-    text: "End Date",
-    value: "returningAt",
+    title: "End Date",
+    key: "returningAt",
     sortable: false,
   },
   {
-    text: "Travel Auth Status",
-    value: "status",
+    title: "Travel Auth Status",
+    key: "status",
   },
   {
-    text: "Travel Action",
-    value: "action",
+    title: "Travel Action",
+    key: "action",
     sortable: false,
   },
 ])

@@ -1,26 +1,28 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     :headers="headers"
-    :items="travelDeskFlightRequests"
+    :items="travelDeskQuestions"
     :loading="isLoading"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
+    :footer-props="{
+      'items-per-page-options': [defaultPerPage, 10, 15, -1],
+    }"
     disable-sort
   >
-    <template #item.datePreference="{ value }">
-      {{ formatDate(value) }}
+    <template #item.requestType="{ value }">
+      {{ t(`travel_desk_question.request_type.${value}`, value) }}
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
 import { computed } from "vue"
-
-import formatDate from "@/utils/format-date"
+import { useI18n } from "vue-i18n"
 
 import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
-import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
+import useTravelDeskQuestions from "@/use/use-travel-desk-questions"
 
 const props = defineProps({
   where: {
@@ -31,6 +33,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  defaultPerPage: {
+    type: Number,
+    default: 3,
+  },
   routeQuerySuffix: {
     type: String,
     default: "",
@@ -39,26 +45,20 @@ const props = defineProps({
 
 const headers = [
   {
-    text: "Depart Location",
-    value: "departLocation",
+    title: "Request Type",
+    key: "requestType",
   },
   {
-    text: "Arrive Location",
-    value: "arriveLocation",
+    title: "Question",
+    key: "question",
   },
   {
-    text: "Date",
-    value: "datePreference",
-  },
-  {
-    text: "Time Preference",
-    value: "timePreference",
-  },
-  {
-    text: "Seat Preference",
-    value: "seatPreference",
+    title: "Response",
+    key: "response",
   },
 ]
+
+const { t } = useI18n()
 
 const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformerLegacy,
@@ -67,19 +67,16 @@ const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, props.defaultP
   transform: integerTransformerLegacy,
 })
 
-const travelDeskFlightRequestsQuery = computed(() => ({
+const travelDeskQuestionsQuery = computed(() => ({
   where: props.where,
   filters: props.filters,
   page: page.value,
   perPage: perPage.value,
 }))
-const { travelDeskFlightRequests, isLoading, totalCount, refresh } = useTravelDeskFlightRequests(
-  travelDeskFlightRequestsQuery
-)
+const { travelDeskQuestions, totalCount, isLoading, refresh } =
+  useTravelDeskQuestions(travelDeskQuestionsQuery)
 
 defineExpose({
   refresh,
 })
 </script>
-
-<style scoped></style>

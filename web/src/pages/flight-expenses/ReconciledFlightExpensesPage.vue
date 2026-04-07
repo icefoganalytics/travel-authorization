@@ -1,5 +1,5 @@
 <template>
-  <FlightReconciliationsDataTable
+  <FlightReconciliationsDataTableServer
     ref="flightReconciliationsDataTable"
     v-model="selectedFlightReconciliations"
     :filters="filters"
@@ -43,14 +43,14 @@
         @saved="refresh"
       />
     </template>
-  </FlightReconciliationsDataTable>
+  </FlightReconciliationsDataTableServer>
 </template>
 
 <script setup>
 import { computed, ref } from "vue"
 import { isNil, isEmpty } from "lodash"
 
-import FlightReconciliationsDataTable from "@/components/flight-reconciliations/FlightReconciliationsDataTable.vue"
+import FlightReconciliationsDataTableServer from "@/components/flight-reconciliations/FlightReconciliationsDataTableServer.vue"
 import FlightReconciliationsBulkUnreconcileDialog from "@/components/flight-reconciliations/FlightReconciliationsBulkUnreconcileDialog.vue"
 import ExportToCsvButton from "@/components/flight-reconciliations/ExportToCsvButton.vue"
 
@@ -96,7 +96,7 @@ function showBulkUnreconcileDialog(flightReconciliationIds) {
   flightReconciliationsBulkUnreconcileDialog.value.show(flightReconciliationIds)
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTableServer> | null>} */
 const flightReconciliationsDataTable = ref(null)
 
 function refresh() {

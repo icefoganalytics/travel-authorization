@@ -1,11 +1,11 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :items="estimates"
     :headers="headers"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
     multi-sort
     v-bind="$attrs"
@@ -62,7 +62,7 @@
         </tr>
       </tfoot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
@@ -100,24 +100,24 @@ const emit = defineEmits(["updated", "click:estimate-edit"])
 
 const headers = ref([
   {
-    text: "Expense Type",
-    value: "expenseType",
+    title: "Expense Type",
+    key: "expenseType",
   },
   {
-    text: "Description",
-    value: "description",
+    title: "Description",
+    key: "description",
   },
   {
-    text: "Date",
-    value: "date",
+    title: "Date",
+    key: "date",
   },
   {
-    text: "Amount",
-    value: "cost",
+    title: "Amount",
+    key: "cost",
   },
   {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
   },
 ])
 

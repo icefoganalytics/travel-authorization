@@ -1,11 +1,11 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     :headers="headers"
     :items="travelDeskQuestions"
     :loading="isLoading"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :footer-props="{
       'items-per-page-options': [defaultPerPage, 10, 15, -1],
     }"
@@ -41,7 +41,7 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
@@ -78,20 +78,20 @@ const props = defineProps({
 
 const headers = [
   {
-    text: "Request Type",
-    value: "requestType",
+    title: "Request Type",
+    key: "requestType",
   },
   {
-    text: "Question",
-    value: "question",
+    title: "Question",
+    key: "question",
   },
   {
-    text: "Response",
-    value: "response",
+    title: "Response",
+    key: "response",
   },
   {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
     align: "end",
   },
 ]

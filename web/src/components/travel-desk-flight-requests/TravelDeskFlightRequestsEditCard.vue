@@ -16,7 +16,7 @@
       />
     </v-card-title>
     <v-card-text>
-      <TravelDeskFlightRequestsEditTable
+      <TravelDeskFlightRequestsEditDataTableServer
         ref="travelDeskFlightRequestsEditTable"
         :where="{
           travelRequestId: travelDeskTravelRequestId,
@@ -38,7 +38,7 @@ import { first, last } from "lodash"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import TravelDeskFlightRequestCreateDialog from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestCreateDialog.vue"
-import TravelDeskFlightRequestsEditTable from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsEditTable.vue"
+import TravelDeskFlightRequestsEditDataTableServer from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsEditDataTableServer.vue"
 
 const props = defineProps({
   travelDeskTravelRequestId: {
@@ -62,7 +62,7 @@ const lastTravelSegment = computed(() => last(travelAuthorization.value?.travelS
 const minDate = computed(() => firstTravelSegment.value?.departureOn)
 const maxDate = computed(() => lastTravelSegment.value?.departureOn)
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightRequestsEditTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightRequestsEditDataTableServer> | null>} */
 const travelDeskFlightRequestsEditTable = ref(null)
 
 async function refresh() {

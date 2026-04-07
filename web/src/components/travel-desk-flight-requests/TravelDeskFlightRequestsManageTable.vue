@@ -1,5 +1,5 @@
 <template>
-  <TravelDeskFlightRequestsEditTable
+  <TravelDeskFlightRequestsEditDataTableServer
     ref="travelDeskFlightRequestsEditTable"
     :expanded.sync="expanded"
     :show-expand="showFlightOptions"
@@ -30,7 +30,7 @@
         v-bind="slotData"
       ></slot>
     </template>
-  </TravelDeskFlightRequestsEditTable>
+  </TravelDeskFlightRequestsEditDataTableServer>
 </template>
 
 <script setup>
@@ -39,7 +39,7 @@ import { computed, ref } from "vue"
 import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
 
 import TravelDeskFlightOptionsDataIterator from "@/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.vue"
-import TravelDeskFlightRequestsEditTable from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsEditTable.vue"
+import TravelDeskFlightRequestsEditDataTableServer from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsEditDataTableServer.vue"
 
 const props = defineProps({
   showFlightOptions: {
@@ -79,7 +79,7 @@ const expanded = computed({
   },
 })
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightRequestsEditTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightRequestsEditDataTableServer> | null>} */
 const travelDeskFlightRequestsEditTable = ref(null)
 
 async function refresh() {

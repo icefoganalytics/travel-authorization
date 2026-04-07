@@ -1,13 +1,13 @@
 <template>
   <!-- TODO: split component into table and selectable table so each layer is less complex -->
-  <v-data-table
+  <v-data-table-server
     v-model="selectedItems"
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :items="travelAuthorizationPreApprovalsWithRestrictedSelectability"
     :headers="headers"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
     :show-select="showSelect"
     :single-select="noRowsAreSelectable"
@@ -69,7 +69,7 @@
         View
       </v-btn>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup>
@@ -110,44 +110,44 @@ const props = defineProps({
 
 const headers = [
   {
-    text: "Name",
-    value: "name",
+    title: "Name",
+    key: "name",
     sortable: false,
     cellClass: "max-w-64",
   },
   {
-    text: "Department",
-    value: "department",
+    title: "Department",
+    key: "department",
   },
   {
-    text: "Branch",
-    value: "branch",
+    title: "Branch",
+    key: "branch",
   },
   {
-    text: "Travel Date",
-    value: "travelDate",
+    title: "Travel Date",
+    key: "travelDate",
     sortable: false,
   },
   {
-    text: "Location",
-    value: "location",
+    title: "Location",
+    key: "location",
   },
   {
-    text: "Purpose Type",
-    value: "purpose",
+    title: "Purpose Type",
+    key: "purpose",
   },
   {
-    text: "Reason",
-    value: "reason",
+    title: "Reason",
+    key: "reason",
     sortable: false,
   },
   {
-    text: "Status",
-    value: "status",
+    title: "Status",
+    key: "status",
   },
   {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
     sortable: false,
   },
 ]

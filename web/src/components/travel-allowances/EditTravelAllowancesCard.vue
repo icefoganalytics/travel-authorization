@@ -4,13 +4,13 @@
       <h3>Travel Allowances</h3>
     </v-card-title>
 
-    <v-data-table
-      :page.sync="page"
-      :items-per-page.sync="perPage"
+    <v-data-table-server
+      v-model:page="page"
+      v-model:items-per-page="perPage"
       :headers="headers"
       :items="travelAllowances"
       :loading="isLoading"
-      :server-items-length="totalCount"
+      :items-length="totalCount"
       @dblclick:row="(_, { item }) => showEditDialog(item)"
     >
       <template #top>
@@ -36,7 +36,7 @@
           >
         </div>
       </template>
-    </v-data-table>
+    </v-data-table-server>
   </v-card>
 </template>
 

@@ -1,12 +1,12 @@
 <template>
-  <v-data-table
-    :page.sync="page"
-    :items-per-page.sync="perPage"
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelDeskOtherTransportations"
     :loading="isLoading"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     v-bind="$attrs"
     v-on="$listeners"
   >
@@ -23,7 +23,7 @@
         v-bind="slotData"
       ></slot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -57,27 +57,27 @@ const props = withDefaults(
 
 const headers = [
   {
-    text: "Type",
-    value: "transportationType",
+    title: "Type",
+    key: "transportationType",
     sortable: false,
   },
   {
-    text: "Depart Location",
-    value: "depart",
+    title: "Depart Location",
+    key: "depart",
     sortable: false,
   },
   {
-    text: "Arrive Location",
-    value: "arrive",
+    title: "Arrive Location",
+    key: "arrive",
     sortable: false,
   },
   {
-    text: "Date",
-    value: "date",
+    title: "Date",
+    key: "date",
   },
   {
-    text: "Additional Information",
-    value: "additionalNotes",
+    title: "Additional Information",
+    key: "additionalNotes",
     sortable: false,
   },
 ]

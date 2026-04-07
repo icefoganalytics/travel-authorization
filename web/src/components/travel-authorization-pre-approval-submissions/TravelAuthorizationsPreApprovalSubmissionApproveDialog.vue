@@ -58,7 +58,7 @@
 
       <v-row>
         <v-col>
-          <TravelAuthorizationPreApprovalsSimpleDataTable
+          <TravelAuthorizationPreApprovalsSimpleDataTableServer
             :where="travelAuthorizationPreApprovalsWhere"
             show-actions-header
             :hide-default-footer="false"
@@ -107,7 +107,7 @@
                 </template>
               </div>
             </template>
-          </TravelAuthorizationPreApprovalsSimpleDataTable>
+          </TravelAuthorizationPreApprovalsSimpleDataTableServer>
         </v-col>
       </v-row>
 
@@ -161,7 +161,7 @@ import useTravelAuthorizationPreApprovals, {
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 import TravelAuthorizationPreApprovalStatusChip from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalStatusChip.vue"
-import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTableServer.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
 const emit = defineEmits(["approved"])

@@ -1,5 +1,5 @@
 <template>
-  <TravelAuthorizationPreApprovalsDataTable
+  <TravelAuthorizationPreApprovalsDataTableServer
     ref="travelAuthorizationPreApprovalsDataTable"
     v-model="selectedItems"
     :show-select="canAdminTravelPreApprovals"
@@ -60,7 +60,7 @@
         </v-col>
       </v-row>
     </template>
-  </TravelAuthorizationPreApprovalsDataTable>
+  </TravelAuthorizationPreApprovalsDataTableServer>
 </template>
 
 <script setup>
@@ -74,7 +74,7 @@ import useCurrentUser from "@/use/use-current-user"
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 
 import TravelAuthorizationPreApprovalsExportToCsvButton from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsExportToCsvButton.vue"
-import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
+import TravelAuthorizationPreApprovalsDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTableServer.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
 
@@ -103,7 +103,7 @@ function showTravelAuthorizationPreApprovalsPrintDialog() {
   travelAuthorizationPreApprovalsPrintDialog.value?.show()
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsDataTableServer> | null>} */
 const travelAuthorizationPreApprovalsDataTable = ref(null)
 
 function refresh() {

@@ -10,7 +10,7 @@
     <HeaderActionsCard title="Submit Travel Pre-Approval Requests">
       <v-row>
         <v-col>
-          <TravelAuthorizationPreApprovalsSimpleDataTable
+          <TravelAuthorizationPreApprovalsSimpleDataTableServer
             :where="travelAuthorizationPreApprovalsWhere"
             route-query-suffix="SubmissionDialog"
             hide-default-footer
@@ -28,7 +28,7 @@
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </template>
-          </TravelAuthorizationPreApprovalsSimpleDataTable>
+          </TravelAuthorizationPreApprovalsSimpleDataTableServer>
         </v-col>
       </v-row>
 
@@ -76,7 +76,7 @@ import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTableServer.vue"
 
 const emit = defineEmits(["submitted"])
 

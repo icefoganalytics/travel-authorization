@@ -1,13 +1,13 @@
 <template>
-  <v-data-table
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
+    v-model:sort-by="sortBy"
     v-bind="$attrs"
     :headers="headers"
     :items="travelAuthorizations"
     :loading="isLoading"
-    :items-per-page.sync="perPage"
-    :page.sync="page"
-    v-model:sort-by="sortBy"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     v-on="$listeners"
   >
     <template #item.name="{ item }">
@@ -59,7 +59,7 @@
         Complete
       </v-btn>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -100,38 +100,38 @@ const emit = defineEmits<{
 
 const headers = ref([
   {
-    text: "TA #",
-    value: "id",
+    title: "TA #",
+    key: "id",
   },
   {
-    text: "Requestee",
-    value: "name",
+    title: "Requestee",
+    key: "name",
     sortable: false,
   },
   {
-    text: "Department",
-    value: "department",
+    title: "Department",
+    key: "department",
   },
   {
-    text: "Final Destination",
-    value: "finalDestination",
+    title: "Final Destination",
+    key: "finalDestination",
     sortable: false,
   },
   {
-    text: "Type",
-    value: "purposeText",
+    title: "Type",
+    key: "purposeText",
   },
   {
-    text: "Departure Date",
-    value: "departingAt",
+    title: "Departure Date",
+    key: "departingAt",
   },
   {
-    text: "Return Date",
-    value: "returningAt",
+    title: "Return Date",
+    key: "returningAt",
   },
   {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
     sortable: false,
     align: "center",
   },

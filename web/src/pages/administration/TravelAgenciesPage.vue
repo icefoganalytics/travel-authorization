@@ -10,13 +10,13 @@
         >
       </v-card-title>
       <v-card-text>
-        <v-data-table
-          :page.sync="page"
-          :items-per-page.sync="perPage"
+        <v-data-table-server
+          v-model:page="page"
+          v-model:items-per-page="perPage"
           :headers="headers"
           :items="travelDeskTravelAgencies"
           :loading="isLoading"
-          :server-items-length="totalCount"
+          :items-length="totalCount"
           class="mt-4"
           @dblclick:row="(_, { item }) => goToEditPage(item.id)"
         >
@@ -48,7 +48,7 @@
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-card-text>
     </v-card>
   </v-container>

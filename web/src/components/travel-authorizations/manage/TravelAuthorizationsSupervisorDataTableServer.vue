@@ -1,12 +1,12 @@
 <template>
-  <v-data-table
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-bind="$attrs"
     :headers="headers"
     :items="travelAuthorizations"
     :loading="isLoading"
-    :items-per-page.sync="perPage"
-    :page.sync="page"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     class="elevation-2"
     v-on="$listeners"
     @click:row="goToManageTravelAuthorization"
@@ -26,7 +26,7 @@
     <template #item.returningAt="{ value }">
       <span>{{ formatDate(value) }}</span>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -60,33 +60,33 @@ const props = defineProps({
 
 const headers = ref([
   {
-    text: "TA #",
-    value: "id",
+    title: "TA #",
+    key: "id",
     sortable: false,
   },
   {
-    text: "Requestee",
-    value: "name",
+    title: "Requestee",
+    key: "name",
     sortable: false,
   },
   {
-    text: "Final Destination",
-    value: "finalDestination",
+    title: "Final Destination",
+    key: "finalDestination",
     sortable: false,
   },
   {
-    text: "Type",
-    value: "purposeText",
+    title: "Type",
+    key: "purposeText",
     sortable: false,
   },
   {
-    text: "Departure Date",
-    value: "departingAt",
+    title: "Departure Date",
+    key: "departingAt",
     sortable: false,
   },
   {
-    text: "Return Date",
-    value: "returningAt",
+    title: "Return Date",
+    key: "returningAt",
     sortable: false,
   },
 ])
