@@ -17,7 +17,13 @@
       </template>
 
       <template #item.location="{ item }">
-        {{ getLocationName(item.locationIds) }}
+        <div class="d-flex flex-wrap ga-1">
+          <LocationChip
+            v-for="locationId in item.locationIds"
+            :key="locationId"
+            :location-id="locationId"
+          />
+        </div>
       </template>
 
       <template #item.startDate="{ item }">
@@ -54,7 +60,7 @@
           "
           :authorized-travel="item"
           :return-to="returnTo"
-          @updateTable="updateTable"
+          @update-table="updateTable"
         />
         <v-btn
           v-if="hasInvoiceNumber(item)"
@@ -76,9 +82,12 @@ import { formatDate } from "@/utils/formatters"
 import NewTravelDeskRequest from "@/modules/travelDesk/views/Requests/NewTravelDeskRequest.vue"
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
 
+import LocationChip from "@/components/locations/LocationChip.vue"
+
 export default {
   name: "TravelerRequests",
   components: {
+    LocationChip,
     NewTravelDeskRequest,
     TravelDeskTravelRequestPrintItineraryDialog,
   },
@@ -110,16 +119,12 @@ export default {
           sortable: false,
         },
       ],
-      department: "",
     }
   },
   computed: {
     hasInvoiceNumber() {
       return (item) => item.status === "Approved" && item.phase === "Booked" && item.invoiceNumber
     },
-  },
-  mounted() {
-    this.department = this.$store.state.auth?.department
   },
   methods: {
     formatDate,
@@ -128,17 +133,6 @@ export default {
     },
     openPrintItineraryDialog(travelDeskTravelRequestId) {
       this.$refs.travelDeskTravelRequestPrintItineraryDialog.open(travelDeskTravelRequestId)
-    },
-    getLocationName(locations) {
-      const names = []
-      const destinations = this.$store.state.traveldesk.destinations
-      for (const locationId of locations) {
-        const location = destinations.filter((dest) => dest.value == locationId)
-        if (location.length > 0) {
-          names.push(location[0].text)
-        }
-      }
-      return names.join(", ")
     },
   },
 }

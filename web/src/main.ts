@@ -7,14 +7,12 @@ import vueI18nPlugin from "@/plugins/vue-i18n-plugin"
 
 import App from "@/App.vue"
 import router from "@/router"
-import store from "@/store"
 
 import { ENVIRONMENT, API_BASE_URL, RELEASE_TAG, GIT_COMMIT_HASH } from "@/config"
 
 const app = createApp(App)
 
 app.use(router)
-app.use(store)
 app.use(vuetify)
 app.use(vueI18nPlugin)
 app.use(auth0)
