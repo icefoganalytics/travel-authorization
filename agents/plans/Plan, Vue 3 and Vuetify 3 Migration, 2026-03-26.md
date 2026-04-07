@@ -30,6 +30,18 @@ and Vuetify 2 specific APIs.
 - Removed the remaining `mapActions(...)` / `mapGetters(...)` usage from Vue
   SFCs by switching surviving pages and tables onto existing composable-backed
   paths.
+- Swapped the app entrypoint to Vue 3 `createApp(...)` and moved the web app
+  onto the current `web/src/main.ts` bootstrap path.
+- Rewrote the app router to Vue Router 4 in `web/src/router.ts`.
+- Replaced the legacy Vue 2 i18n plugin path with a direct Vue I18n 9
+  `createI18n(...)` plugin and switched app code to import `useI18n` directly
+  from `vue-i18n`.
+- Removed live Vuex store wiring from the app bootstrap and migrated the
+  remaining touched UI path to composable-backed state instead of `$store`.
+- Replaced the Vuetify 2 display / goTo / route-query bridge helpers with
+  `useDisplay()`, `useGoTo()`, and `@vueuse/router`.
+- Replaced the Vuetify 2 sort shim with the `wrap`-style Vue 3 route-query and
+  Sequelize-order helpers.
 
 These completed slices should not be treated as remaining Phase 1 scope.
 
@@ -37,14 +49,17 @@ These completed slices should not be treated as remaining Phase 1 scope.
 
 **Already Implemented:**
 - The web app already runs on Vite rather than Vue CLI.
-- `web/package.json` is already on `vue@^2.7.0`, which means many components can
-  already use Composition API imports from `"vue"`.
+- The web app now boots through Vue 3 `createApp(...)` in `web/src/main.ts`.
+- Routing now uses Vue Router 4 in `web/src/router.ts`.
+- Internationalization now uses Vue I18n 9 `createI18n(...)` in
+  `web/src/plugins/vue-i18n-plugin.ts`.
+- Route query state now uses `@vueuse/router` rather than the older
+  compatibility wrapper.
+- The Vuetify 2 display / goTo / sort bridge helpers have already been removed.
 - The repo already uses `script setup` and typed composables in many newer
   files, which reduces migration risk for business logic.
 - 93% of Vue components (310 of 333) already use `<script setup>` Composition
   API. Only 13 components still use Options API.
-- Vuetify 2 is already wrapped behind local bridge helpers such as
-  `useDisplayVuetify2()` and `useVuetify2SortByShim()`.
 - The frontend is partially modernized in structure:
   `web/src` currently contains `333` Vue SFCs, so the migration can be staged
   instead of starting
@@ -56,19 +71,13 @@ These completed slices should not be treated as remaining Phase 1 scope.
   migration scope.
 
 **Not Yet Implemented:**
-- App bootstrap still uses `new Vue(...)` in `web/src/main.js`.
-- Routing still uses Vue Router 3 and `Vue.use(VueRouter)` in
-  `web/src/router.ts`.
-- Global state still uses Vuex 3 and `new Vuex.Store(...)` in
-  `web/src/store/index.js`, even though the desired migration target should be
-  composable-first state rather than another centralized store.
-- Internationalization still uses `vue-i18n` 8 with a Vue 2 plugin-style setup
-  in `web/src/plugins/vue-i18n-plugin.js`.
-- Vuetify integration still depends on Vuetify 2 and
-  `@logue/vue2-helpers/vuetify` in `web/src/plugins/vuetify-plugin.js`.
-- The codebase still contains a large Vue 2 compatibility surface, including
-  `.sync`, `v-on="$listeners"`, `$scopedSlots`, and direct
-  `vuetify/lib/*` imports.
+- The codebase still contains a large Vue 2 / Vuetify 2 compatibility surface,
+  especially `v-on="$listeners"`, `$scopedSlots`, activator `{ on, attrs }`
+  slots, and legacy `value` / `@input` component contracts.
+- Many server-backed tables still use `v-data-table` with Vuetify 2-era header
+  shapes and file names even after the sort/query migration.
+- Legacy Vuex files and Vuetify 2 type shims still exist in the repo and
+  should be removed once all consumers are migrated away.
 
 **Quantified Vue 2 Pattern Inventory:**
 
@@ -408,16 +417,6 @@ the app compiles and boots on Vue 3 + Vuetify 3.
   - Catch-all `path: "*"` → `path: "/:pathMatch(.*)*"`
 - Rewrite `web/src/plugins/auth0-plugin.js` around `@auth0/auth0-vue`, or
   replace it entirely if the official SDK makes the wrapper unnecessary.
-- Replace `web/src/store/index.js` with composable-backed state:
-  - extract app shell concerns such as `setAppSidebar` into a focused app-level
-    composable
-  - move store-backed resource logic into existing or new `use-*` composables
-  - remove `new Vuex.Store()` entirely instead of migrating it to another store
-    library
-- Rewrite `web/src/plugins/vue-i18n-plugin.js`:
-  - `createI18n()` with `legacy: false` for Composition API mode
-  - Replace custom `useI18n()` bridge with official `useI18n()` from vue-i18n 9
-  - Verify custom `missing` handler signature compatibility
 - Run codemods (`vue-codemod -a` and `vue-upgrade-tool`) for remaining
   mechanical transforms:
   - `.sync` → `v-model:propName`
@@ -442,8 +441,6 @@ the app compiles and boots on Vue 3 + Vuetify 3.
 shared components that are reused across many pages.
 
 **Implementation:**
-- Replace `useDisplayVuetify2()` with Vuetify 3 `useDisplay()` composable.
-- Replace `useVuetify2SortByShim()` with Vuetify 3 data-table sort conventions.
 - Audit all manual `value` / `@input` bindings on custom components and
   Vuetify components. Replace them with `v-model` or Vue 3
   `model-value` / `@update:model-value` patterns as appropriate.
