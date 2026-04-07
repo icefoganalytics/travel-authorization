@@ -7,7 +7,7 @@
     v-bind="$attrs"
     @input="emit('input', $event)"
     ><template
-      v-for="(_, slotName) in $scopedSlots"
+      v-for="(_, slotName) in $slots"
       #[slotName]="slotData"
       ><slot
         :name="slotName"
