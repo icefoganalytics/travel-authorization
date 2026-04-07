@@ -61,21 +61,21 @@
       />
 
       <TravelDeskRentalCarsEditCard
-        ref="travelDeskRentalCarsEditCard"
+        id="travel-desk-rental-cars-edit-card"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
         :return-to="buildReturnTo('travel-desk-rental-cars-edit-card')"
       />
 
       <TravelDeskHotelsEditCard
-        ref="travelDeskHotelsEditCard"
+        id="travel-desk-hotels-edit-card"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
         :return-to="buildReturnTo('travel-desk-hotels-edit-card')"
       />
 
       <TravelDeskOtherTransportationEditCard
-        ref="travelDeskOtherTransportationEditCard"
+        id="travel-desk-other-transportation-edit-card"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
         :return-to="buildReturnTo('travel-desk-other-transportation-edit-card')"
@@ -112,11 +112,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, watchEffect } from "vue"
+import { computed, ref, watch } from "vue"
+import { useRouteHash } from "@vueuse/router"
 import { isNil } from "lodash"
 import { useDisplay, useGoTo } from "vuetify"
 import { type VForm } from "vuetify/lib/components"
-import { useRouter, useRoute } from "vue-router"
+import { useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"
 
@@ -164,6 +165,7 @@ async function saveTravelDeskTravelRequest() {
 }
 
 const router = useRouter()
+const routeHash = useRouteHash()
 
 function buildReturnTo(hash: string) {
   const routeLocation = router.resolve({
@@ -176,52 +178,19 @@ function buildReturnTo(hash: string) {
   return routeLocation.href
 }
 
-const travelDeskRentalCarsEditCard = ref<InstanceType<typeof TravelDeskRentalCarsEditCard> | null>(
-  null
+watch(
+  routeHash,
+  (newRouteHash) => {
+    if (isNil(newRouteHash) || newRouteHash.length === 0) return
+
+    goTo(newRouteHash, {
+      easing: "easeInOutCubic",
+      offset: 75,
+      duration: 300,
+    })
+  },
+  { flush: "post" }
 )
-const travelDeskHotelsEditCard = ref<InstanceType<typeof TravelDeskHotelsEditCard> | null>(null)
-const travelDeskOtherTransportationEditCard = ref<InstanceType<
-  typeof TravelDeskOtherTransportationEditCard
-> | null>(null)
-
-const scrollToTargetMap: Record<string, Ref<{ $el?: Element } | null>> = {
-  ["#travel-desk-rental-cars-edit-card"]: travelDeskRentalCarsEditCard,
-  ["#travel-desk-hotels-edit-card"]: travelDeskHotelsEditCard,
-  ["#travel-desk-other-transportation-edit-card"]: travelDeskOtherTransportationEditCard,
-}
-
-const route = useRoute()
-
-watchEffect(() => {
-  const { hash } = route
-  if (isNil(hash)) return
-
-  const targetRef = scrollToTargetMap[hash]
-  if (isNil(targetRef)) return
-
-  const componentRef = targetRef.value
-  if (isNil(componentRef)) return
-
-  const { $el } = componentRef
-  if (isNil($el)) return
-
-  const targetElement = toHTMLElement($el)
-  if (isNil(targetElement)) return
-
-  scrollToTarget(targetElement)
-})
-
-function toHTMLElement(element: Element): HTMLElement | null {
-  return element instanceof HTMLElement ? element : null
-}
-
-function scrollToTarget(targetElement: HTMLElement) {
-  return goTo(targetElement, {
-    easing: "easeInOutCubic",
-    offset: 75,
-    duration: 300,
-  })
-}
 
 const breadcrumbs = computed(() => [
   {
