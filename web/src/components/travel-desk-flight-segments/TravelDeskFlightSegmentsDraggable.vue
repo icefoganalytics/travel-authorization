@@ -11,7 +11,7 @@
     :disabled="isLoading || isReOrdering"
     @input="reOrderFlightSegments"
   >
-    <transition-group>
+    <transition-group tag="span">
       <v-row
         v-for="(segment, flightSegmentIndex) in travelDeskFlightSegments"
         :key="'group-' + segment.id + '-' + flightSegmentIndex"
