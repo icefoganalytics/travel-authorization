@@ -62,7 +62,7 @@
   </v-data-table-server>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 import { isNil } from "lodash"
 

@@ -50,7 +50,7 @@
   </v-data-table-server>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
