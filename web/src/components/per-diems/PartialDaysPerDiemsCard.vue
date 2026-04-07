@@ -53,9 +53,9 @@
 
 <script setup>
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 import { groupBy, mapValues } from "lodash"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { MAX_PER_PAGE } from "@/api/base-api"
 import formatCurrency from "@/utils/format-currency"
 import usePerDiems, { PER_DIEM_CLAIM_TYPES, PER_DIEM_TRAVEL_REGIONS } from "@/use/use-per-diems"

@@ -78,10 +78,10 @@
 <script setup>
 import { computed, ref, nextTick, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import useSnack from "@/use/use-snack"
 import travelAllowancesApi from "@/api/travel-allowances-api"
 import useTravelAllowance from "@/use/use-travel-allowance"

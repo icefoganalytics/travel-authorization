@@ -42,8 +42,8 @@
 
 <script setup>
 import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import formatCurrency from "@/utils/format-currency"
 import useRouteQuery from "@/use/utils/use-route-query"
 import useTravelAllowances from "@/use/use-travel-allowances"

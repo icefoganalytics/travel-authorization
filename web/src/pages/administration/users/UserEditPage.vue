@@ -132,9 +132,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { required } from "@/utils/validators"
 
 import { UserRoles } from "@/api/users-api"

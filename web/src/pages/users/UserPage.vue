@@ -160,8 +160,7 @@
 
 <script setup>
 import { computed } from "vue"
-
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"

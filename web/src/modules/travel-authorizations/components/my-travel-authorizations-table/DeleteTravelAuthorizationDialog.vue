@@ -54,10 +54,10 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
 import travelAuthorizations from "@/api/travel-authorizations-api"
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import useSnack from "@/use/use-snack"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useTravelAuthorization from "@/use/use-travel-authorization"

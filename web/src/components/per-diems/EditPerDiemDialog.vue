@@ -87,11 +87,11 @@
 <script setup>
 import { computed, ref, nextTick, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 import useSnack from "@/use/use-snack"
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import perDiemsApi from "@/api/per-diems-api"
 import usePerDiem from "@/use/use-per-diem"
 

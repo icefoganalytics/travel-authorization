@@ -42,10 +42,10 @@
 <script>
 import { computed } from "vue"
 import { useRouter } from "vue-router"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
 import { TRAVEL_DESK_URL, PROFILE_URL } from "@/urls"
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import http from "@/api/http-client"
 import locationsApi from "@/api/locations-api"
 

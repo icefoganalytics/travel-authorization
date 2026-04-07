@@ -13,11 +13,11 @@
 
 <script setup>
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 import { ExportToCsv } from "export-to-csv"
 import { isNil, isEmpty } from "lodash"
 import { DateTime } from "luxon"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import useTravelDeskTravelRequests, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
 } from "@/use/use-travel-desk-travel-requests"

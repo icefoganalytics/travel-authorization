@@ -22,8 +22,8 @@
 
 <script setup>
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { TRAVEL_DESK_QUESTION_REQUEST_TYPES } from "@/api/travel-desk-questions-api"
 
 defineProps({

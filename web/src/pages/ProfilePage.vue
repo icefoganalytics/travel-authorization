@@ -150,7 +150,7 @@
 </template>
 
 <script setup>
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
 
 import usersApi from "@/api/users-api"
 import useBreadcrumbs from "@/use/use-breadcrumbs"

@@ -19,8 +19,7 @@
 
 <script setup>
 import { computed } from "vue"
-
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
 
 import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
 import useTravelDeskQuestions from "@/use/use-travel-desk-questions"

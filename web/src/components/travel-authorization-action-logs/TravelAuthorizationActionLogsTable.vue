@@ -23,8 +23,8 @@
 import { startCase } from "lodash"
 import { DateTime } from "luxon"
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { useTravelAuthorizationActionLogs } from "@/use/use-travel-authorization-action-logs"
 
 import UserChip from "@/components/users/UserChip.vue"

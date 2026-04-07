@@ -135,9 +135,9 @@
 
 <script setup>
 import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
 import { isNil, isEmpty } from "lodash"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import formatDate from "@/utils/format-date"
 
 import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"

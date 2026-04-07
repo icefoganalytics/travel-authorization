@@ -1,8 +1,6 @@
-import { createI18n, useI18n } from "vue-i18n"
+import { createI18n } from "vue-i18n"
 
 import en from "@/locales/en"
-
-export { useI18n }
 
 export default createI18n({
   legacy: false,

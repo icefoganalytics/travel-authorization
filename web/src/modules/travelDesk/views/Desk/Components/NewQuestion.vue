@@ -58,7 +58,8 @@
 </template>
 
 <script setup>
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
+
 import { TRAVEL_DESK_QUESTION_REQUEST_TYPES } from "@/api/travel-desk-questions-api"
 
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"

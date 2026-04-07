@@ -46,10 +46,9 @@
 
 <script setup>
 import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
-
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 
 import travelDeskQuestionsApi from "@/api/travel-desk-questions-api"
 

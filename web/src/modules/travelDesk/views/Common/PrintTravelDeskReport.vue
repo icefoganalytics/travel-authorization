@@ -137,10 +137,9 @@
 
 <script setup>
 import { ref, computed } from "vue"
+import { useI18n } from "vue-i18n"
 import { isNil, isEmpty } from "lodash"
 import { Printd } from "printd"
-
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 
 import { formatDate } from "@/utils/formatters"
 

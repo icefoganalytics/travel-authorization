@@ -10,7 +10,8 @@
 </template>
 
 <script setup>
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
+
 import { PER_DIEM_CLAIM_TYPES } from "@/api/per-diems-api"
 
 defineProps({
