@@ -2,8 +2,7 @@
   <v-data-table
     :page.sync="page"
     :items-per-page.sync="perPage"
-    :sort-by.sync="vuetify2SortBy"
-    :sort-desc.sync="vuetify2SortDesc"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelDeskHotels"
     :loading="isLoading"
@@ -48,7 +47,6 @@ import {
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
-import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 
 import useTravelDeskHotels from "@/use/use-travel-desk-hotels"
 
@@ -113,7 +111,6 @@ const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}
     order: "asc",
   },
 ])
-const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const query = computed(() => ({

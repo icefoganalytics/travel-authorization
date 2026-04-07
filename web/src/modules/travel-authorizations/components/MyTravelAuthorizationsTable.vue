@@ -2,8 +2,7 @@
   <v-data-table
     :page.sync="page"
     :items-per-page.sync="perPage"
-    :sort-by.sync="vuetify2SortBy"
-    :sort-desc.sync="vuetify2SortDesc"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelAuthorizations"
     :loading="isLoading"
@@ -96,7 +95,6 @@ import SubmitPoolVehicleRequestButton from "@/modules/travel-authorizations/comp
 import SubmitTravelDeskRequestButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/SubmitTravelDeskRequestButton.vue"
 import ViewItineraryButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/ViewItineraryButton.vue"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
-import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 const props = withDefaults(
@@ -152,7 +150,6 @@ const perPage = useRouteQuery<string, number>("perPage", "10", {
   transform: integerTransformer,
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [])
-const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const { currentUser } = useCurrentUser<true>()

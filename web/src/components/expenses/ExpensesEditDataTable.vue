@@ -2,8 +2,7 @@
   <v-data-table
     :page.sync="page"
     :items-per-page.sync="perPage"
-    :sort-by.sync="vuetify2SortBy"
-    :sort-desc.sync="vuetify2SortDesc"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="expenses"
     :loading="isLoading"
@@ -102,7 +101,6 @@ import { DateTime } from "luxon"
 
 import { formatCurrency } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
-import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
@@ -188,7 +186,6 @@ const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}
     order: "asc",
   },
 ])
-const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const expensesQuery = computed(() => ({

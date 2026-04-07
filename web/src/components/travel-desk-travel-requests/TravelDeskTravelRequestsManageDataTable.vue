@@ -3,8 +3,7 @@
     v-model="selectedRequests"
     :page.sync="page"
     :items-per-page.sync="perPage"
-    :sort-by.sync="vuetify2SortBy"
-    :sort-desc.sync="vuetify2SortDesc"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelDeskTravelRequests"
     :server-items-length="totalCount"
@@ -143,7 +142,6 @@ import formatDate from "@/utils/format-date"
 import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
-import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useTravelDeskTravelRequests, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
 } from "@/use/use-travel-desk-travel-requests"
@@ -177,7 +175,6 @@ const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
     order: "asc",
   },
 ])
-const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const travelDeskTravelRequestsQuery = computed(() => {

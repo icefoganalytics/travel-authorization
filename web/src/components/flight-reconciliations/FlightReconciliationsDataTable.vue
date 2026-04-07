@@ -2,8 +2,7 @@
   <v-data-table
     :page.sync="page"
     :items-per-page.sync="perPage"
-    :sort-by.sync="vuetify2SortBy"
-    :sort-desc.sync="vuetify2SortDesc"
+    v-model:sort-by="sortBy"
     :items="flightReconciliations"
     :headers="headers"
     :server-items-length="totalCount"
@@ -73,7 +72,6 @@ import { capitalize, formatCurrency, formatDate } from "@/utils/formatters"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
-import useVuetify2SortByShim from "@/use/utils/use-vuetify2-sort-by-shim"
 import useFlightReconciliations from "@/use/use-flight-reconciliations"
 
 const props = defineProps({
@@ -178,7 +176,6 @@ const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}
     order: "desc",
   },
 ])
-const { vuetify2SortBy, vuetify2SortDesc } = useVuetify2SortByShim(sortBy)
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const flightReconciliationsQuery = computed(() => ({

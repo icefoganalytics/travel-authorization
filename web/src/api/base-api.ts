@@ -1,5 +1,10 @@
 // Keep in sync with api/src/controllers/base-controller.ts#ModelOrder
-export type ModelOrder = [string, string]
+export type ModelOrder =
+  | [string, string]
+  | [string, string, string]
+  | [string, string, string, string]
+  | [string, string, string, string, string]
+  | [string, string, string, string, string, string]
 
 export type WhereOptions<Model, Attributes extends keyof Model> = {
   [K in Attributes]?: Model[K] | Model[K][]
