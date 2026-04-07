@@ -11,13 +11,12 @@ module.exports = {
     es2021: true,
     node: true,
     "vitest-globals/env": true,
-    "vue/setup-compiler-macros": true,
   },
 
   extends: [
     "eslint:recommended",
     "plugin:vitest-globals/recommended",
-    "plugin:vue/recommended",
+    "plugin:vue/vue3-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended",
   ],
@@ -33,11 +32,6 @@ module.exports = {
     extraFileExtensions: [".vue"],
     tsconfigRootDir: __dirname,
     project: ["./tsconfig.node.json", "./tsconfig.json", "./tests/tsconfig.json"],
-  },
-
-  settings: {
-    // Helps some vue rules behave correctly on 2.7
-    vue: { version: "2.7.0" },
   },
 
   ignorePatterns: ["dist/", "coverage/"],
