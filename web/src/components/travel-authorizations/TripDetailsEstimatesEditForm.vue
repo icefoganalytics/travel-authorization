@@ -83,11 +83,11 @@
 <script setup>
 import { computed, defineAsyncComponent, nextTick, ref, toRefs } from "vue"
 import { max, isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
@@ -117,7 +117,7 @@ const emit = defineEmits([
   "update:returnDate",
 ])
 
-const { mdAndUp } = useDisplayVuetify2()
+const { mdAndUp } = useDisplay()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)

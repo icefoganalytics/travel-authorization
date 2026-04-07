@@ -54,8 +54,7 @@
 
 <script setup lang="ts">
 import { ref, toRefs } from "vue"
-
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
+import { useDisplay } from "vuetify"
 
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import TravelDeskFlightRequestCreateDialog from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestCreateDialog.vue"
@@ -80,7 +79,7 @@ const emit = defineEmits<{
 const { travelDeskTravelRequestId } = toRefs(props)
 const { tripStartDate, tripEndDate } = useTravelTimesSummary(travelDeskTravelRequestId)
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const travelDeskFlightRequestsManageTable = ref<InstanceType<
   typeof TravelDeskFlightRequestsManageTable

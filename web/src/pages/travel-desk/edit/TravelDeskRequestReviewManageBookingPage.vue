@@ -142,6 +142,7 @@
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
+import { useDisplay } from "vuetify"
 
 import travelDeskTravelRequestsApi, {
   TravelDeskTravelRequestStatuses,
@@ -150,7 +151,6 @@ import travelDeskTravelRequestsApi, {
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
@@ -251,7 +251,7 @@ function openPrintItineraryDialog() {
   travelDeskTravelRequestPrintItineraryDialog.value?.open(travelDeskTravelRequestIdAsNumber.value)
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {

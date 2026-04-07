@@ -152,6 +152,7 @@
 import { ref, computed } from "vue"
 import { useRouter } from "vue-router"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
@@ -160,7 +161,6 @@ import useRouteQuery from "@/use/utils/use-route-query"
 import travelDeskHotelsApi from "@/api/travel-desk-hotels-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useSnack from "@/use/use-snack"
 import useTravelDeskHotel from "@/use/use-travel-desk-hotel"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
@@ -246,7 +246,7 @@ async function deleteAndReturn() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {

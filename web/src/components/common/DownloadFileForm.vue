@@ -29,10 +29,9 @@
 import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
 import { ref, nextTick } from "vue"
+import { useDisplay } from "vuetify"
 
 import { type VForm } from "vuetify/lib/components"
-
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 withDefaults(
   defineProps<{
@@ -83,5 +82,5 @@ async function getAccessTokenAndSubmit() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 </script>

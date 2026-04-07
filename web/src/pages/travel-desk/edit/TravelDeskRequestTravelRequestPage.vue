@@ -114,13 +114,13 @@
 <script setup lang="ts">
 import { computed, ref, Ref, watchEffect } from "vue"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 import { type VForm } from "vuetify/lib/components"
 import { useRouter, useRoute } from "vue-router"
 import goTo from "vuetify/lib/services/goto"
 
 import { required } from "@/utils/validators"
 
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
@@ -137,7 +137,7 @@ const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 const { travelDeskTravelRequest, isLoading, save } = useTravelDeskTravelRequest(

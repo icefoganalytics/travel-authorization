@@ -71,10 +71,11 @@
 </template>
 
 <script setup lang="ts">
+import { useDisplay } from "vuetify"
+
 import { APPLICATION_NAME } from "@/config"
 
 import useSessionStorage from "@/use/utils/use-session-storage"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useCurrentUser from "@/use/use-current-user"
 
 import KebabMenu from "@/components/default-layout/KebabMenu.vue"
@@ -83,7 +84,7 @@ import LeftSidebarNavigationDrawer from "@/components/default-layout/LeftSidebar
 
 const { fullName } = useCurrentUser()
 
-const { lgAndUp } = useDisplayVuetify2()
+const { lgAndUp } = useDisplay()
 
 const showLeftSidebarNav = useSessionStorage("showLeftSidebarNav", lgAndUp.value)
 

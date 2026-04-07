@@ -225,12 +225,12 @@
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
+import { useDisplay } from "vuetify"
 
 import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
 
 import { required } from "@/utils/validators"
 
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 import useSnack from "@/use/use-snack"
@@ -246,7 +246,7 @@ import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/componen
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 /** @type {Partial<TravelAuthorizationPreApproval>} */
 const travelAuthorizationPreApprovalAttributes = ref({

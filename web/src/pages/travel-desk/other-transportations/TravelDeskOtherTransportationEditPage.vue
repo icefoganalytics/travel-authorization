@@ -136,14 +136,13 @@
 import { computed, ref } from "vue"
 import { useRouter } from "vue-router"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
 import useRouteQuery from "@/use/utils/use-route-query"
 
 import travelDeskOtherTransportationsApi from "@/api/travel-desk-other-transportations-api"
-
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
@@ -161,7 +160,7 @@ const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const travelDeskOtherTransportationIdAsNumber = computed(() =>
   parseInt(props.travelDeskOtherTransportationId)

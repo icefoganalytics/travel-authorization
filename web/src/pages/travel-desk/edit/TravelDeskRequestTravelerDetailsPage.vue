@@ -299,10 +299,10 @@
 <script setup lang="ts">
 import { computed, watchEffect } from "vue"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
@@ -375,7 +375,7 @@ async function saveTravelDeskTravelRequest() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {

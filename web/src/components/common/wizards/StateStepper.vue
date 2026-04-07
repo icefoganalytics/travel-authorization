@@ -4,7 +4,7 @@
     :value="currentStepNumber"
     vertical
     outlined
-    :width="$vuetify.breakpoint.mdAndUp ? 250 : undefined"
+    :width="mdAndUp ? 250 : undefined"
   >
     <v-stepper-step
       v-for="(step, index) in steps"
@@ -24,6 +24,7 @@
 
 <script setup>
 import { computed } from "vue"
+import { useDisplay } from "vuetify"
 import md5 from "md5"
 
 const props = defineProps({
@@ -50,4 +51,6 @@ function updateCurrentWizardStepName(wizardStepName, editable) {
     emit("update:stepName", wizardStepName)
   }
 }
+
+const { mdAndUp } = useDisplay()
 </script>

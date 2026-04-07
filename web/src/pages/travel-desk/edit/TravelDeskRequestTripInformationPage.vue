@@ -107,10 +107,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 import { type VForm } from "vuetify/lib/components"
 
 import { required } from "@/utils/validators"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 import api from "@/api"
 import { passengerNameRecordDocumentsApi } from "@/api/downloads/travel-desk-travel-requests/passenger-name-record-documents-api"
@@ -187,7 +187,7 @@ async function save() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {

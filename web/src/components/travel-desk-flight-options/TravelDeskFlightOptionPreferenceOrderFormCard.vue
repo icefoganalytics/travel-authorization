@@ -36,7 +36,7 @@
               label="Preference"
               :number-of-options="travelDeskFlightOptions.length"
               :rules="[required]"
-              :hide-details="$vuetify.breakpoint.smAndDown"
+              :hide-details="smAndDown"
               outlined
               required
               @input="updateAndswapIfAlreadyInUse(flightOption, $event)"
@@ -61,7 +61,7 @@
               label="Additional Information"
               rows="4"
               :rules="[required]"
-              :hide-details="$vuetify.breakpoint.smAndDown"
+              :hide-details="smAndDown"
               outlined
               required
             />
@@ -87,6 +87,7 @@
 <script setup>
 import { computed, ref } from "vue"
 import { times, uniqueId } from "lodash"
+import { useDisplay } from "vuetify"
 
 import { required } from "@/utils/validators"
 import travelDeskFlightOptionsApi, { DOES_NOT_WORK } from "@/api/travel-desk-flight-options-api"
@@ -119,6 +120,7 @@ const travelDeskFlightOptionsQuery = computed(() => ({
 const { travelDeskFlightOptions, isLoading, refresh } = useTravelDeskFlightOptions(
   travelDeskFlightOptionsQuery
 )
+const { smAndDown } = useDisplay()
 
 const formId = uniqueId("travel-desk-flight-option-preference-order-form-")
 

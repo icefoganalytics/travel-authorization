@@ -244,6 +244,7 @@
 import { computed, ref, watch } from "vue"
 import { useRouter } from "vue-router"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
@@ -268,7 +269,6 @@ import TravelDeskRentalCarLocationTypeSelect from "@/components/travel-desk-rent
 import TravelDeskRentalCarVehicleTypeSelect from "@/components/travel-desk-rental-cars/TravelDeskRentalCarVehicleTypeSelect.vue"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string
@@ -405,7 +405,7 @@ async function deleteAndReturn() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {
