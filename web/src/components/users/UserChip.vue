@@ -58,11 +58,11 @@
               <v-list-item-title>{{ user.email }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <template v-for="(field, index) in fields">
-            <v-list-item
-              v-if="user[field]"
-              :key="index"
-            >
+          <template
+            v-for="(field, index) in fields"
+            :key="index"
+          >
+            <v-list-item v-if="user[field]">
               <v-list-item-content>
                 <v-list-item-subtitle>{{ user[field] }}</v-list-item-subtitle>
               </v-list-item-content>

@@ -1,13 +1,15 @@
 <template>
   <!-- TODO: deuglify this UI -->
   <div>
-    <template v-for="(_, index) in travelSegments">
+    <template
+      v-for="(_, index) in travelSegments"
+      :key="index"
+    >
       <v-divider
         v-if="index > 0"
-        :key="`divider-${index}`"
         class="my-3"
       />
-      <v-row :key="`row1-${index}`">
+      <v-row>
         <v-col
           cols="12"
           md="6"
@@ -32,7 +34,7 @@
           />
         </v-col>
       </v-row>
-      <v-row :key="`row2-${index}`">
+      <v-row>
         <v-col
           cols="12"
           md="3"
