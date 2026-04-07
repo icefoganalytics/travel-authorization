@@ -9,7 +9,7 @@
 import type { Ref } from "vue"
 import { customRef, nextTick, watch } from "vue-demi"
 import { type MaybeRefOrGetter, type MaybeRef, tryOnScopeDispose, toValue } from "@vueuse/shared"
-import { useRoute, useRouter, type Router } from "vue2-helpers/vue-router"
+import { useRoute, useRouter, type Router } from "vue-router"
 
 export * from "@/utils/use-route-query-transformers"
 

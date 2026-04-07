@@ -77,7 +77,7 @@
 
 <script setup>
 import { computed, ref, nextTick, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"

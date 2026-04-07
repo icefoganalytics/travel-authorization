@@ -113,7 +113,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"
 import useRouteQuery from "@/use/utils/use-route-query"

@@ -56,7 +56,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 
 import useSnack from "@/use/use-snack"
 import travelDeskTravelAgenciesApi from "@/api/travel-desk-travel-agencies-api"

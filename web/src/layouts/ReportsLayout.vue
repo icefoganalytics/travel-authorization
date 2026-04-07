@@ -97,7 +97,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { sumBy } from "lodash"
-import { useRoute } from "vue2-helpers/vue-router"
+import { useRoute } from "vue-router"
 
 import useRouteQuery, { booleanTransformer, jsonTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs, { type BreadcrumbItem } from "@/use/use-breadcrumbs"

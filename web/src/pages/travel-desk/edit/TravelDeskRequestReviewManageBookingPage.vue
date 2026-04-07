@@ -141,7 +141,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 
 import travelDeskTravelRequestsApi, {
   TravelDeskTravelRequestStatuses,

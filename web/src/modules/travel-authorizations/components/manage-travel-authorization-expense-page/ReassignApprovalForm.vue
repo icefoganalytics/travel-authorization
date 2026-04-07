@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { ref, toRefs } from "vue"
 import { isNil } from "lodash"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { type VForm } from "vuetify/lib/components"
 
 import { required } from "@/utils/validators"

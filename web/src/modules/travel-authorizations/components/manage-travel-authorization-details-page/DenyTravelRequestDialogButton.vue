@@ -63,7 +63,7 @@
 
 <script setup>
 import { ref, nextTick, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"
 

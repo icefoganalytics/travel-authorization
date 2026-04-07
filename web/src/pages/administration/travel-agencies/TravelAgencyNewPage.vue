@@ -104,7 +104,7 @@
 
 <script setup>
 import { ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 
 import useSnack from "@/use/use-snack"
 import { required, isEmail, isPhoneNumber } from "@/utils/validators"

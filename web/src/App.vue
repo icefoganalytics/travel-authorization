@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { useAuth0 } from "@auth0/auth0-vue"
 import { computed, ref, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 
 import useCurrentUser from "@/use/use-current-user"
 import PageLoader from "@/components/PageLoader.vue"

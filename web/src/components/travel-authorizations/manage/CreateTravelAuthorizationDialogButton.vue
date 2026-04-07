@@ -78,7 +78,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 import { isEmpty } from "lodash"
 
 import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/travel-segments-api"

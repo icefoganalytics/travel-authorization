@@ -111,7 +111,7 @@ export type WizardStepComponent = {
 
 <script setup lang="ts">
 import { computed, ref, toRefs, watch } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil, isEmpty, isString } from "lodash"
 
 import { TravelAuthorizationWizardStepNames } from "@/api/travel-authorizations-api"

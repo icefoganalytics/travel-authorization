@@ -115,7 +115,7 @@
 import { computed, ref, Ref, watchEffect } from "vue"
 import { isNil } from "lodash"
 import { type VForm } from "vuetify/lib/components"
-import { useRouter, useRoute } from "vue2-helpers/vue-router"
+import { useRouter, useRoute } from "vue-router"
 import goTo from "vuetify/lib/services/goto"
 
 import { required } from "@/utils/validators"

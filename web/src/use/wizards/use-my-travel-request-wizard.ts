@@ -1,5 +1,5 @@
 import { computed, reactive, toRefs, unref, watch, type Ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { cloneDeep, isNil } from "lodash"
 
 import type { VBtn } from "vuetify/lib/components"

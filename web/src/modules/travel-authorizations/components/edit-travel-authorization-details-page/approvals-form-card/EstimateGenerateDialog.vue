@@ -52,7 +52,7 @@
 
 <script setup>
 import { ref, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 
 import useSnack from "@/use/use-snack"
 import generateApi from "@/api/travel-authorizations/estimates/generate-api"
