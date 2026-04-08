@@ -4,7 +4,7 @@
     :loading="isLoading"
     readonly
     v-bind="$attrs"
-    append-icon="mdi-lock"
+    append-inner-icon="mdi-lock"
     background-color="white"
   />
 </template>

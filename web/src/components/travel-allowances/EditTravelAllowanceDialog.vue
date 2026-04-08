@@ -27,7 +27,7 @@
                 label="Claim Type"
                 variant="outlined"
                 readonly
-                append-icon="mdi-lock"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
             <v-col cols="12">
@@ -47,7 +47,7 @@
                 label="Currency"
                 variant="outlined"
                 readonly
-                append-icon="mdi-lock"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
           </v-row>

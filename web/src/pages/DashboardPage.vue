@@ -53,7 +53,7 @@
                       v-model="daysOffTravel"
                       density="compact"
                       label="# of days off travel"
-                      prepend-icon="mdi-hail"
+                      prepend-inner-icon="mdi-hail"
                     ></v-text-field>
                   </v-col>
                 </v-row>

@@ -69,7 +69,7 @@
                 label="Travel Duration"
                 readonly
                 variant="outlined"
-                append-icon="mdi-lock"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
           </v-row>

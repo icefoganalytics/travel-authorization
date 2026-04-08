@@ -36,7 +36,7 @@
             <TravelDeskTravelAgencySelect
               v-model="travelDeskTravelRequest.travelAgencyId"
               label="Assign Agency"
-              append-icon="mdi-lock"
+              append-inner-icon="mdi-lock"
               placeholder="None"
               variant="outlined"
               persistent-placeholder
@@ -50,7 +50,7 @@
             <UserTravelDeskAgentSelect
               v-model="travelDeskTravelRequest.travelDeskOfficer"
               label="Travel Desk Agent Assigned"
-              append-icon="mdi-lock"
+              append-inner-icon="mdi-lock"
               readonly
               variant="outlined"
             />

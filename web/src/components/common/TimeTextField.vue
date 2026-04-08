@@ -7,7 +7,7 @@
     variant="outlined"
     placeholder="HH:MM"
     persistent-placeholder
-    prepend-icon="mdi-clock"
+    prepend-inner-icon="mdi-clock"
     maxlength="5"
     validate-on-blur
     v-bind="$attrs"
