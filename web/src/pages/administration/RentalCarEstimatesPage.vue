@@ -25,7 +25,6 @@
             <template #activator="{ props: activatorProps }">
               <v-btn
                 color="primary"
-                dark
                 class="mb-2"
                 v-bind="activatorProps"
               >

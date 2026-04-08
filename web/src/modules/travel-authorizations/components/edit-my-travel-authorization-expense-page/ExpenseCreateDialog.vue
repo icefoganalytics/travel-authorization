@@ -6,7 +6,6 @@
     <template #activator="{ props: activatorProps }">
       <v-btn
         color="secondary"
-        dark
         class="mb-2"
         v-bind="activatorProps"
       >

@@ -30,7 +30,7 @@
       transition="scale-transition"
     >
       <v-card width="300">
-        <v-list dark>
+        <v-list>
           <v-list-item>
             <template #prepend>
               <v-img :src="gravatarUrl"></v-img>

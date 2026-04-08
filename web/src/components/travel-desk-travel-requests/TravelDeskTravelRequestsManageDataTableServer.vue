@@ -122,7 +122,6 @@
       >
         <v-icon
           left
-          dark
         >
           mdi-pencil
         </v-icon>
