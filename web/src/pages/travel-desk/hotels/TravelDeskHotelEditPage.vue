@@ -77,7 +77,7 @@
                 v-model="travelDeskHotel.isDedicatedConferenceHotelAvailable"
                 label="Dedicated Conference/Meeting Hotel Available?"
                 class="mt-1"
-                @change="resetConferenceFieldsIfNo"
+                @update:model-value="resetConferenceFieldsIfNo"
               />
             </v-col>
           </v-row>

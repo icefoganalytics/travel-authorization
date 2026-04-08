@@ -11,8 +11,8 @@
     maxlength="5"
     validate-on-blur
     v-bind="$attrs"
-    @input="updateInput"
-    @click:clear="updateInput(null)"
+    @update:model-value="updateModelValue"
+    @click:clear="updateModelValue(null)"
   />
 </template>
 
@@ -24,12 +24,12 @@ import { type ValidationRules } from "@/utils/validators/utility-types"
 
 const props = withDefaults(
   defineProps<{
-    value?: string
+    modelValue?: string
     label?: string
     rules?: ValidationRules
   }>(),
   {
-    value: undefined,
+    modelValue: undefined,
     label: "Time (24 hour)",
     rules: () => [],
   }
@@ -37,7 +37,7 @@ const props = withDefaults(
 
 // TODO: switch to `updated: [void]` syntax in Vue 3
 const emit = defineEmits<{
-  (event: "input", value: string | null): void
+  (event: "update:modelValue", value: string | null): void
 }>()
 
 function stripSeconds(hhmmss: string | null | undefined) {
@@ -46,10 +46,10 @@ function stripSeconds(hhmmss: string | null | undefined) {
   return hhmmss.split(":").slice(0, 2).join(":")
 }
 
-const time = ref(stripSeconds(props.value))
+const time = ref(stripSeconds(props.modelValue))
 
 watch(
-  () => props.value,
+  () => props.modelValue,
   (newValue) => {
     time.value = stripSeconds(newValue)
   }
@@ -100,7 +100,7 @@ function timeValidator(value: string | null | undefined) {
   return true
 }
 
-function updateInput(value: string | null) {
-  emit("input", value)
+function updateModelValue(value: string | null) {
+  emit("update:modelValue", value)
 }
 </script>

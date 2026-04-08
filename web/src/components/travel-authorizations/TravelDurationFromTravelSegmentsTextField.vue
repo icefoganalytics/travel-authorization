@@ -6,7 +6,7 @@
         v-bind="activatorProps"
       >
         <v-text-field
-          :value="value"
+          :model-value="modelValue"
           :style="{ minWidth: '80px' }"
           label="Travel Days"
           dense
@@ -40,7 +40,7 @@ import { DateTime } from "luxon"
 import { cloneDeep, findLast, isNil, max } from "lodash"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Number,
     default: () => 0,
   },
@@ -50,7 +50,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 watch(
   () => cloneDeep(props.travelSegments),
@@ -64,7 +64,7 @@ watch(
     ).departureOn
 
     const travelDuration = computeTravelDuration(initialDepartureDate, finalDepartureDate)
-    emit("input", travelDuration)
+    emit("update:modelValue", travelDuration)
   },
   {
     deep: true,

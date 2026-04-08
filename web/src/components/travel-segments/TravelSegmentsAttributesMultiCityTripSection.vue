@@ -33,7 +33,9 @@
           outlined
           persistent-hint
           required
-          @input="updateTravelSegmentAttributeByIndex(1, 'departureLocationId', $event)"
+          @update:model-value="
+            updateTravelSegmentAttributeByIndex(1, 'departureLocationId', $event)
+          "
         />
       </v-col>
       <v-col
@@ -46,7 +48,7 @@
           :rules="[required]"
           dense
           persistent-hint
-          @input="nudgeLaterTravelSegmentsDates(1, $event)"
+          @update:model-value="nudgeLaterTravelSegmentsDates(1, $event)"
         />
       </v-col>
       <v-col
@@ -160,7 +162,9 @@
             outlined
             persistent-hint
             required
-            @input="updateTravelSegmentAttributeByIndex(index - 1, 'arrivalLocationId', $event)"
+            @update:model-value="
+              updateTravelSegmentAttributeByIndex(index - 1, 'arrivalLocationId', $event)
+            "
           />
         </v-col>
         <v-col
@@ -177,7 +181,9 @@
             outlined
             persistent-hint
             required
-            @input="updateTravelSegmentAttributeByIndex(index + 1, 'departureLocationId', $event)"
+            @update:model-value="
+              updateTravelSegmentAttributeByIndex(index + 1, 'departureLocationId', $event)
+            "
           />
         </v-col>
         <v-col
@@ -196,7 +202,7 @@
             ]"
             dense
             persistent-hint
-            @input="nudgeLaterTravelSegmentsDates(index + 1, $event)"
+            @update:model-value="nudgeLaterTravelSegmentsDates(index + 1, $event)"
           />
         </v-col>
         <v-col

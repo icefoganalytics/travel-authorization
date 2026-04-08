@@ -45,7 +45,7 @@
           :rules="[required]"
           dense
           persistent-hint
-          @input="nudgeLaterTravelSegmentsDates(1, $event)"
+          @update:model-value="nudgeLaterTravelSegmentsDates(1, $event)"
         />
       </v-col>
       <v-col
@@ -171,7 +171,7 @@
           ]"
           dense
           persistent-hint
-          @input="nudgeLaterTravelSegmentsDates(2, $event)"
+          @update:model-value="nudgeLaterTravelSegmentsDates(2, $event)"
         />
       </v-col>
       <v-col

@@ -130,7 +130,7 @@
                 v-model="travelDeskRentalCar.sameDropOffLocation"
                 label="Same Drop-off location?"
                 class="mt-1"
-                @change="resetDropOffLocationStates"
+                @update:model-value="resetDropOffLocationStates"
               />
             </v-col>
           </v-row>

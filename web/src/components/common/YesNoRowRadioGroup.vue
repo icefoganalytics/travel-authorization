@@ -1,9 +1,9 @@
 <template>
   <v-radio-group
-    :value="value"
+    :model-value="modelValue"
     :label="label"
     v-bind="$attrs"
-    @change="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   >
     <div class="d-flex align-baseline">
       <v-radio
@@ -25,7 +25,7 @@
  * This is different than v-radio-group "row" layout where label is to the left of radio buttons.
  */
 defineProps({
-  value: {
+  modelValue: {
     type: Boolean,
     default: null,
   },
@@ -35,5 +35,5 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 </script>

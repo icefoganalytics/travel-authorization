@@ -13,7 +13,7 @@
         <TripTypeRadioGroup
           v-model="tripType"
           :row="mdAndUp"
-          @input="resetFormValidation"
+          @update:model-value="resetFormValidation"
         />
       </v-col>
     </v-row>
@@ -73,7 +73,7 @@
           label="Expected Date return to work"
           dense
           required
-          @input="emit('update:returnDate', $event)"
+          @update:model-value="emit('update:returnDate', $event)"
         />
       </v-col>
     </v-row>

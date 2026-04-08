@@ -9,7 +9,7 @@
   >
     <template #activator="{ props: activatorProps }">
       <v-text-field
-        :value="value || ''"
+        :model-value="modelValue || ''"
         :label="label"
         :rules="rules"
         background-color="white"
@@ -21,8 +21,8 @@
     </template>
     <v-date-picker
       v-bind="$attrs"
-      :value="value"
-      @input="closeAndEmitInput"
+      :model-value="modelValue"
+      @update:model-value="closeAndEmitInput"
     ></v-date-picker>
   </v-menu>
 </template>
@@ -41,25 +41,25 @@ import { required } from "@/utils/validators"
 
 withDefaults(
   defineProps<{
-    value?: string | null
+    modelValue?: string | null
     label?: string
     rules?: ((value: unknown) => boolean | string)[]
   }>(),
   {
-    value: undefined,
+    modelValue: undefined,
     label: "Pick a Date",
     rules: () => [required],
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: string): void
+  (event: "update:modelValue", value: string): void
 }>()
 
 const menu = ref(false)
 
 function closeAndEmitInput(value: string) {
   menu.value = false
-  emit("input", value)
+  emit("update:modelValue", value)
 }
 </script>

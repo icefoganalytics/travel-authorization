@@ -1,8 +1,8 @@
 <template>
   <v-radio-group
-    :value="value"
+    :model-value="modelValue"
     v-bind="$attrs"
-    @change="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   >
     <v-radio
       label="Round trip"
@@ -23,11 +23,11 @@
 import { TRIP_TYPES } from "@/api/travel-authorizations-api"
 
 defineProps({
-  value: {
+  modelValue: {
     type: String,
     required: true,
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 </script>

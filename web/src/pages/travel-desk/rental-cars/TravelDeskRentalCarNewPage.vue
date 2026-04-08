@@ -71,7 +71,7 @@
                 v-model="travelDeskRentalCarAttributes.matchFlightTimes"
                 label="Pick-up/Drop-off match flights"
                 class="mt-0"
-                @change="matchWithFlight"
+                @update:model-value="matchWithFlight"
               />
             </v-col>
           </v-row>
@@ -122,7 +122,7 @@
                 v-model="travelDeskRentalCarAttributes.sameDropOffLocation"
                 label="Same Drop-off location?"
                 class="mt-1"
-                @change="resetDropOffLocationStates"
+                @update:model-value="resetDropOffLocationStates"
               />
             </v-col>
           </v-row>
