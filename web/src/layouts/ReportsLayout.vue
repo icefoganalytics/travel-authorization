@@ -35,7 +35,7 @@
               <v-badge
                 color="warning"
                 :content="totalActiveFilters"
-                :model-value="totalActiveFilters"
+                :model-value="hasActiveFilters"
               >
                 Filters
                 <v-icon right>
@@ -146,6 +146,8 @@ const totalActiveFilters = computed(() => {
     (filter) => filter?.length ?? 0
   )
 })
+
+const hasActiveFilters = computed(() => totalActiveFilters.value > 0)
 
 const breadcrumbs = computed(() => {
   const crumbs: BreadcrumbItem[] = [
