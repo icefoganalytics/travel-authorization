@@ -25,11 +25,8 @@
           <v-list-item
             v-for="profile in travelAuthorizationPreApprovalProfiles"
             :key="profile.id"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ profile.profileName }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+            :title="profile.profileName"
+          />
         </v-list>
       </v-card>
     </v-menu>

@@ -3,12 +3,11 @@
     v-if="isNil(travelAuthorizationPreApprovalProfile)"
     type="list-item-two-line"
   />
-  <v-list-item-title v-else>
-    <v-list-item-content>
-      <v-list-item-title>{{ title }}</v-list-item-title>
-      <v-list-item-subtitle>{{ subtitle }}</v-list-item-subtitle>
-    </v-list-item-content>
-  </v-list-item-title>
+  <v-list-item
+    v-else
+    :title="title"
+    :subtitle="subtitle"
+  />
 </template>
 
 <script setup>

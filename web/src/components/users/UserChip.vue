@@ -32,38 +32,36 @@
       <v-card width="300">
         <v-list dark>
           <v-list-item>
-            <v-list-item-avatar>
+            <template #prepend>
               <v-img :src="gravatarUrl"></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content>
+            </template>
+            <div>
               <v-list-item-title>{{ user.firstName }} {{ user.lastName }}</v-list-item-title>
               <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
+            </div>
+            <template #append>
               <v-btn
                 icon
                 :to="userProfileLink"
               >
                 <v-icon>mdi-link</v-icon>
               </v-btn>
-            </v-list-item-action>
+            </template>
           </v-list-item>
         </v-list>
         <v-list dense>
-          <v-list-item prepend-icon="mdi-account">
-            <v-list-item-content>
-              <v-list-item-title>{{ user.email }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+          <v-list-item
+            prepend-icon="mdi-account"
+            :title="user.email"
+          />
           <template
             v-for="(field, index) in fields"
             :key="index"
           >
-            <v-list-item v-if="user[field]">
-              <v-list-item-content>
-                <v-list-item-subtitle>{{ user[field] }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
+            <v-list-item
+              v-if="user[field]"
+              :subtitle="String(user[field])"
+            />
           </template>
         </v-list>
       </v-card>
