@@ -6,19 +6,17 @@
     outlined
     :width="mdAndUp ? 250 : undefined"
   >
-    <v-stepper-step
+    <v-stepper-item
       v-for="(step, index) in steps"
       :key="index"
-      :step="index + 1"
+      :value="index + 1"
+      :title="step.title"
+      :subtitle="step.subtitle"
       :complete="index + 1 < currentStepNumber"
       :editable="step.editable"
       @click="updateCurrentWizardStepName(step.id, step.editable)"
     >
-      {{ step.title }}
-      <small v-if="step.subtitle">
-        {{ step.subtitle }}
-      </small>
-    </v-stepper-step>
+    </v-stepper-item>
   </v-stepper>
 </template>
 
