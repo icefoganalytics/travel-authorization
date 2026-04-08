@@ -17,7 +17,7 @@
           v-model="travelAuthorization.supervisorEmail"
           :rules="[required]"
           label="Reassign to"
-          dense
+          density="compact"
           variant="outlined"
           required
         />

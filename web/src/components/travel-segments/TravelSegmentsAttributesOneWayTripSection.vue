@@ -13,7 +13,7 @@
           :in-territory="allTravelWithinTerritory"
           :filters="buildLocationFilters(tripDestinationLocationId)"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           persistent-hint
           required
@@ -29,7 +29,7 @@
           :in-territory="allTravelWithinTerritory"
           :filters="buildLocationFilters(tripOriginLocationId)"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           persistent-hint
           required
@@ -43,7 +43,7 @@
           v-model="departTravelSegmentAttributes.departureOn"
           label="Date"
           :rules="[required]"
-          dense
+          density="compact"
           persistent-hint
           @update:model-value="nudgeLaterTravelSegmentsDates(1, $event)"
         />
@@ -55,7 +55,7 @@
         <TimeTextField
           v-model="departTravelSegmentAttributes.departureTime"
           label="Time (24 hour)"
-          dense
+          density="compact"
           clearable
           persistent-hint
         />
@@ -69,7 +69,7 @@
         <TravelMethodSelect
           v-model="departTravelSegmentAttributes.modeOfTransport"
           :rules="[required]"
-          dense
+          density="compact"
           persistent-hint
           required
           variant="outlined"
@@ -84,7 +84,7 @@
           v-model="departTravelSegmentAttributes.modeOfTransportOther"
           label="Travel Method - Other"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           required
         />
@@ -101,7 +101,7 @@
           hint="Optional, set only if neccessary"
           placeholder="N/A"
           clearable
-          dense
+          density="compact"
           variant="outlined"
           persistent-hint
         />
@@ -115,7 +115,7 @@
           v-model="departTravelSegmentAttributes.accommodationTypeOther"
           label="Type of Accommodation - Other"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           required
         />

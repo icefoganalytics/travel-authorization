@@ -29,7 +29,7 @@
                 v-model="supervisorEmail"
                 :rules="[required]"
                 label="Re-assign to *"
-                dense
+                density="compact"
                 variant="outlined"
                 required
                 validate-on-blur

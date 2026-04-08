@@ -17,7 +17,7 @@
         <TravelPurposeSelect
           v-model="travelAuthorization.purposeId"
           :rules="[required]"
-          dense
+          density="compact"
           label="Purpose *"
           variant="outlined"
           required
@@ -32,7 +32,7 @@
         <v-text-field
           v-model="travelAuthorization.eventName"
           :rules="[required]"
-          dense
+          density="compact"
           label="Name of meeting/conference, mission, trade fair or course *"
           variant="outlined"
           required
@@ -48,7 +48,7 @@
         <v-checkbox
           v-model="travelAuthorization.allTravelWithinTerritory"
           label="In Territory?"
-          dense
+          density="compact"
         />
       </v-col>
       <v-col
@@ -62,7 +62,7 @@
           :in-territory="travelAuthorization.allTravelWithinTerritory"
           :rules="[required]"
           clearable
-          dense
+          density="compact"
           label="Final Destination *"
           variant="outlined"
           persistent-hint
@@ -87,7 +87,7 @@
           v-model="travelAuthorization.benefits"
           :rules="[required]"
           auto-grow
-          dense
+          density="compact"
           label="Objectives *"
           variant="outlined"
           required

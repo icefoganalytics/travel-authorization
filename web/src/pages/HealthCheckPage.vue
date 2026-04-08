@@ -29,7 +29,7 @@
                 <v-icon>mdi-cached</v-icon>
               </v-btn>
             </v-card-title>
-            <v-list dense>
+            <v-list density="compact">
               <v-list-item :title="`API Port: ${appHealth.apiPort}`"></v-list-item>
               <v-list-item :title="`Frontend Url: ${appHealth.frontendUrl}`"></v-list-item>
               <v-list-item :title="`Build Env: ${appHealth.nodeEnd}`"></v-list-item>
@@ -57,7 +57,7 @@
                 <v-icon>mdi-cached</v-icon>
               </v-btn>
             </v-card-title>
-            <v-list dense>
+            <v-list density="compact">
               <v-list-item :title="`Host: ${dbHealth.connection}`"></v-list-item>
               <v-list-item :title="`Database: ${dbHealth.database}`"></v-list-item>
               <v-list-item :title="`User: ${dbHealth.user}`"></v-list-item>
@@ -85,7 +85,7 @@
                 <v-icon>mdi-cached</v-icon>
               </v-btn>
             </v-card-title>
-            <v-list dense>
+            <v-list density="compact">
               <v-list-item :title="`Release Tag: ${environment.releaseTag}`"></v-list-item>
               <v-list-item :title="`Git Commit Hash: ${environment.gitCommitHash}`"></v-list-item>
             </v-list>

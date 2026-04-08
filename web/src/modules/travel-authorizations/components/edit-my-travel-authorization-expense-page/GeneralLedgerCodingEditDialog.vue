@@ -27,7 +27,7 @@
                 v-model="generalLedgerCoding.code"
                 :rules="[isGeneralLedgerCode]"
                 validate-on-blur
-                dense
+                density="compact"
                 variant="outlined"
                 required
               >
@@ -56,7 +56,7 @@
                 v-model="generalLedgerCoding.amount"
                 :rules="[required]"
                 label="Amount"
-                dense
+                density="compact"
                 variant="outlined"
                 required
               />

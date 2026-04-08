@@ -16,7 +16,7 @@
     </template>
 
     <v-list
-      dense
+      density="compact"
       style="min-width: 200px"
     >
       <v-list-item

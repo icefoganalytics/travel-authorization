@@ -14,7 +14,7 @@
                 prepend-inner-icon="mdi-magnify"
                 background-color="white"
                 variant="outlined"
-                dense
+                density="compact"
                 label="Search"
                 hide-details
               ></v-text-field>
@@ -29,7 +29,7 @@
                 multiple
                 :items="statusFilterOptions"
                 label="Status filter"
-                dense
+                density="compact"
                 variant="outlined"
                 background-color="white"
                 hide-details

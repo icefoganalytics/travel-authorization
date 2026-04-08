@@ -18,7 +18,7 @@
           <v-col cols="1">
             <v-btn
               class="ma-2"
-              dense
+              density="compact"
               size="small"
               color="red"
               @click="removeStop(index)"
@@ -30,7 +30,7 @@
 
         <v-btn
           class="ma-2"
-          dense
+          density="compact"
           size="small"
           color="green"
         >
@@ -38,7 +38,7 @@
         </v-btn>
         <v-btn
           class="ma-2"
-          dense
+          density="compact"
           size="small"
           color="red"
         >

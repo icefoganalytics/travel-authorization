@@ -23,13 +23,13 @@
                   <v-col>
                     <DatePicker
                       label="Start Date"
-                      dense
+                      density="compact"
                     ></DatePicker>
                   </v-col>
                   <v-col>
                     <TimeTextField
                       label="Start Time (24 hour)"
-                      dense
+                      density="compact"
                     />
                   </v-col>
                 </v-row>
@@ -37,13 +37,13 @@
                   <v-col>
                     <DatePicker
                       label="End Date"
-                      dense
+                      density="compact"
                     ></DatePicker>
                   </v-col>
                   <v-col>
                     <TimeTextField
                       label="End Time (24 hour)"
-                      dense
+                      density="compact"
                     />
                   </v-col>
                 </v-row>
@@ -51,7 +51,7 @@
                   <v-col>
                     <v-text-field
                       v-model="daysOffTravel"
-                      dense
+                      density="compact"
                       label="# of days off travel"
                       prepend-icon="mdi-hail"
                     ></v-text-field>

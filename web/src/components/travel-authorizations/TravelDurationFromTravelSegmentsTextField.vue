@@ -9,7 +9,7 @@
           :model-value="modelValue"
           :style="{ minWidth: '80px' }"
           label="Travel Days"
-          dense
+          density="compact"
           variant="outlined"
           disabled
           readonly

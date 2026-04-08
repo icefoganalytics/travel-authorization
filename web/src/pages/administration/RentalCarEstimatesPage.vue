@@ -45,7 +45,7 @@
                   >
                     <v-text-field
                       v-model="editedItem.type"
-                      dense
+                      density="compact"
                       variant="outlined"
                       label="Type"
                     ></v-text-field>
@@ -57,7 +57,7 @@
                   >
                     <v-text-field
                       v-model="editedItem.cost"
-                      dense
+                      density="compact"
                       variant="outlined"
                       label="Cost per km"
                     ></v-text-field>

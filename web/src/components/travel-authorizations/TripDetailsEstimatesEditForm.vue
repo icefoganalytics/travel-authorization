@@ -56,7 +56,7 @@
             }),
           ]"
           type="number"
-          dense
+          density="compact"
           required
           variant="outlined"
         ></v-text-field>
@@ -71,7 +71,7 @@
           :min="latestDepartureDate"
           :rules="[required]"
           label="Expected Date return to work"
-          dense
+          density="compact"
           required
           @update:model-value="emit('update:returnDate', $event)"
         />

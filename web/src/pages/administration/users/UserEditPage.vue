@@ -30,7 +30,7 @@
                   <v-text-field
                     v-model="user.firstName"
                     label="First name"
-                    dense
+                    density="compact"
                     variant="outlined"
                     background-color="white"
                     required
@@ -44,7 +44,7 @@
                   <v-text-field
                     v-model="user.lastName"
                     label="Last name"
-                    dense
+                    density="compact"
                     variant="outlined"
                     background-color="white"
                     required
@@ -58,7 +58,7 @@
                   <v-text-field
                     v-model="user.email"
                     label="Email"
-                    dense
+                    density="compact"
                     variant="outlined"
                     background-color="white"
                     required
@@ -72,7 +72,7 @@
                   <v-text-field
                     v-model="user.mailcode"
                     label="Mailcode"
-                    dense
+                    density="compact"
                     variant="outlined"
                     background-color="white"
                     required
@@ -85,7 +85,7 @@
                     label="Department *"
                     :rules="[required]"
                     variant="outlined"
-                    dense
+                    density="compact"
                     chips
                     :clearable="false"
                     background-color="white"
@@ -97,7 +97,7 @@
                     label="Roles"
                     :items="roles"
                     variant="outlined"
-                    dense
+                    density="compact"
                     multiple
                     chips
                     background-color="white"

@@ -30,7 +30,7 @@
 
         <v-data-table
           style="margin: 1rem 0"
-          dense
+          density="compact"
           :headers="headers"
           :items="travelAuthorizationPreApprovals"
           :items-per-page="MAX_PER_PAGE"

@@ -49,7 +49,7 @@
             </template>
           </v-list-item>
         </v-list>
-        <v-list dense>
+        <v-list density="compact">
           <v-list-item
             prepend-icon="mdi-account"
             :title="user.email"

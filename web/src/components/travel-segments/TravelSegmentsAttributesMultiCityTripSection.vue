@@ -13,7 +13,7 @@
           :in-territory="allTravelWithinTerritory"
           :filters="buildLocationFilters(firstTravelSegmentAttributes.arrivalLocationId)"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           persistent-hint
           required
@@ -29,7 +29,7 @@
           :in-territory="allTravelWithinTerritory"
           :filters="buildLocationFilters(firstTravelSegmentAttributes.departureLocationId)"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           persistent-hint
           required
@@ -46,7 +46,7 @@
           v-model="firstTravelSegmentAttributes.departureOn"
           label="Date"
           :rules="[required]"
-          dense
+          density="compact"
           persistent-hint
           @update:model-value="nudgeLaterTravelSegmentsDates(1, $event)"
         />
@@ -58,7 +58,7 @@
         <TimeTextField
           v-model="firstTravelSegmentAttributes.departureTime"
           label="Time (24 hour)"
-          dense
+          density="compact"
           clearable
           persistent-hint
         />
@@ -72,7 +72,7 @@
         <TravelMethodSelect
           v-model="firstTravelSegmentAttributes.modeOfTransport"
           :rules="[required]"
-          dense
+          density="compact"
           persistent-hint
           required
           variant="outlined"
@@ -87,7 +87,7 @@
           v-model="firstTravelSegmentAttributes.modeOfTransportOther"
           label="Travel Method - Other"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           required
         />
@@ -101,7 +101,7 @@
         <AccommodationTypeSelect
           v-model="firstTravelSegmentAttributes.accommodationType"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           required
         />
@@ -115,7 +115,7 @@
           v-model="firstTravelSegmentAttributes.accommodationTypeOther"
           label="Type of Accommodation - Other"
           :rules="[required]"
-          dense
+          density="compact"
           variant="outlined"
           required
         />
@@ -158,7 +158,7 @@
                 travelSegmentsAttributes[index].arrivalLocationId
               )
             "
-            dense
+            density="compact"
             variant="outlined"
             persistent-hint
             required
@@ -177,7 +177,7 @@
             :in-territory="allTravelWithinTerritory"
             :filters="buildLocationFilters(travelSegmentsAttributes[index].departureLocationId)"
             :rules="[required]"
-            dense
+            density="compact"
             variant="outlined"
             persistent-hint
             required
@@ -200,7 +200,7 @@
                 referenceFieldLabel: 'previous departure date',
               }),
             ]"
-            dense
+            density="compact"
             persistent-hint
             @update:model-value="nudgeLaterTravelSegmentsDates(index + 1, $event)"
           />
@@ -212,7 +212,7 @@
           <TimeTextField
             v-model="travelSegmentsAttributes[index].departureTime"
             label="Time (24 hour)"
-            dense
+            density="compact"
             clearable
             persistent-hint
           />
@@ -226,7 +226,7 @@
           <TravelMethodSelect
             v-model="travelSegmentsAttributes[index].modeOfTransport"
             :rules="[required]"
-            dense
+            density="compact"
             persistent-hint
             required
             variant="outlined"
@@ -241,7 +241,7 @@
             v-model="travelSegmentsAttributes[index].modeOfTransportOther"
             label="Travel Method - Other"
             :rules="[required]"
-            dense
+            density="compact"
             variant="outlined"
             required
           />
@@ -255,7 +255,7 @@
           <AccommodationTypeSelect
             v-model="travelSegmentsAttributes[index].accommodationType"
             v-bind="finalAccommodationTypeSelectDefaults(index)"
-            dense
+            density="compact"
             variant="outlined"
           />
         </v-col>
@@ -268,7 +268,7 @@
             v-model="travelSegmentsAttributes[index].accommodationTypeOther"
             label="Type of Accommodation - Other"
             :rules="[required]"
-            dense
+            density="compact"
             variant="outlined"
             required
           />

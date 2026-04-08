@@ -3,7 +3,7 @@
     :model-value="modelValue"
     :items="expenseTypes"
     label="Expense Type"
-    dense
+    density="compact"
     variant="outlined"
     v-bind="$attrs"
     @update:model-value="updateModelValue"
