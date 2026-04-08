@@ -8,7 +8,8 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "lint": "eslint . --ext .js,.ts,.vue --ignore-path ../.gitignore",
+    "lint": "npm run lint:files -- .",
+    "lint:files": "eslint --ext .js,.ts,.vue --ignore-path ../.gitignore",
     "check-types": "vue-tsc --noEmit"
   },
   "dependencies": {
