@@ -15,7 +15,7 @@
 
         <v-alert
           type="warning"
-          outlined
+          variant="outlined"
           class="mt-5"
         >
           Updating the Reports takes about <strong>15-30 Minutes</strong>. Please make sure you need
@@ -65,7 +65,7 @@
 
         <v-alert
           type="info"
-          outlined
+          variant="outlined"
           color="amber darken-2"
           class="mt-5"
         >
@@ -101,7 +101,7 @@
 
         <v-alert
           type="success"
-          outlined
+          variant="outlined"
           class="mt-5"
         >
           The report update has completed successfully.
@@ -135,7 +135,7 @@
 
         <v-alert
           type="error"
-          outlined
+          variant="outlined"
           class="mt-5"
         >
           The report update has failed. Please try again or contact support if the issue persists.

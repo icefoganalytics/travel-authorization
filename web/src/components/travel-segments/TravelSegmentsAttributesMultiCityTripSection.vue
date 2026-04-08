@@ -14,7 +14,7 @@
           :filters="buildLocationFilters(firstTravelSegmentAttributes.arrivalLocationId)"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           persistent-hint
           required
         />
@@ -30,7 +30,7 @@
           :filters="buildLocationFilters(firstTravelSegmentAttributes.departureLocationId)"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           persistent-hint
           required
           @update:model-value="
@@ -75,7 +75,7 @@
           dense
           persistent-hint
           required
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -88,7 +88,7 @@
           label="Travel Method - Other"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           required
         />
       </v-col>
@@ -102,7 +102,7 @@
           v-model="firstTravelSegmentAttributes.accommodationType"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           required
         />
       </v-col>
@@ -116,7 +116,7 @@
           label="Type of Accommodation - Other"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           required
         />
       </v-col>
@@ -159,7 +159,7 @@
               )
             "
             dense
-            outlined
+            variant="outlined"
             persistent-hint
             required
             @update:model-value="
@@ -178,7 +178,7 @@
             :filters="buildLocationFilters(travelSegmentsAttributes[index].departureLocationId)"
             :rules="[required]"
             dense
-            outlined
+            variant="outlined"
             persistent-hint
             required
             @update:model-value="
@@ -229,7 +229,7 @@
             dense
             persistent-hint
             required
-            outlined
+            variant="outlined"
           />
         </v-col>
         <v-col
@@ -242,7 +242,7 @@
             label="Travel Method - Other"
             :rules="[required]"
             dense
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -256,7 +256,7 @@
             v-model="travelSegmentsAttributes[index].accommodationType"
             v-bind="finalAccommodationTypeSelectDefaults(index)"
             dense
-            outlined
+            variant="outlined"
           />
         </v-col>
         <v-col
@@ -269,7 +269,7 @@
             label="Type of Accommodation - Other"
             :rules="[required]"
             dense
-            outlined
+            variant="outlined"
             required
           />
         </v-col>

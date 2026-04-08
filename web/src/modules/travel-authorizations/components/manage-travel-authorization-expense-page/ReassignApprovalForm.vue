@@ -18,7 +18,7 @@
           :rules="[required]"
           label="Reassign to"
           dense
-          outlined
+          variant="outlined"
           required
         />
       </v-col>

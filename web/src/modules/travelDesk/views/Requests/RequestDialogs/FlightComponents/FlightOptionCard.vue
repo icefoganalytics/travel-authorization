@@ -27,7 +27,7 @@
           @input="state.preferenceErr = false"
           label="Preference"
           v-model="flightOption.flightPreferenceOrder"
-          solo
+          variant="solo"
         />
       </v-col>
 

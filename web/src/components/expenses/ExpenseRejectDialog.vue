@@ -37,7 +37,7 @@
         v-model="rejectionNote"
         label="Rejection Note *"
         placeholder="Please provide a reason for rejecting this expense..."
-        outlined
+        variant="outlined"
         rows="3"
         :rules="[required]"
         @keydown.ctrl.enter="rejectAndClose"

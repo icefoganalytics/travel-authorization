@@ -28,7 +28,7 @@
                 :rules="[isGeneralLedgerCode]"
                 validate-on-blur
                 dense
-                outlined
+                variant="outlined"
                 required
               >
                 <template #label>
@@ -57,7 +57,7 @@
                 :rules="[required]"
                 label="Amount"
                 dense
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>

@@ -47,7 +47,7 @@
                     <v-text-field
                       v-model="editedItem.type"
                       dense
-                      outlined
+                      variant="outlined"
                       label="Type"
                     ></v-text-field>
                   </v-col>
@@ -59,7 +59,7 @@
                     <v-text-field
                       v-model="editedItem.cost"
                       dense
-                      outlined
+                      variant="outlined"
                       label="Cost per km"
                     ></v-text-field>
                   </v-col>
@@ -70,14 +70,14 @@
                 <v-spacer></v-spacer>
                 <v-btn
                   color="blue darken-1"
-                  text
+                  variant="text"
                   @click="close"
                 >
                   Cancel
                 </v-btn>
                 <v-btn
                   color="blue darken-1"
-                  text
+                  variant="text"
                   @click="save"
                 >
                   Save
@@ -97,13 +97,13 @@
                 <v-spacer></v-spacer>
                 <v-btn
                   color="blue darken-1"
-                  text
+                  variant="text"
                   @click="closeDelete"
                   >Cancel</v-btn
                 >
                 <v-btn
                   color="blue darken-1"
-                  text
+                  variant="text"
                   @click="deleteItemConfirm"
                   >OK</v-btn
                 >

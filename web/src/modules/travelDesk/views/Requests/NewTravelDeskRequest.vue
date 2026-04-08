@@ -78,7 +78,7 @@
                             class="mt-5 mr-5"
                             :readonly="readonly"
                             label="Additional Information"
-                            outlined
+                            variant="outlined"
                             auto-grow
                             counter
                             :clearable="!readonly"
@@ -116,7 +116,7 @@
                     readonly
                     class="mr-2"
                     label="Travel Desk Agent Assigned"
-                    outlined
+                    variant="outlined"
                   />
                 </v-col>
               </v-row>

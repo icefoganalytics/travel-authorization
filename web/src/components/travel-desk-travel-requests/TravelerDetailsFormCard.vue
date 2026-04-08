@@ -23,7 +23,7 @@
               v-model="travelerDetails.legalFirstName"
               label="Legal First Name *"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -33,7 +33,7 @@
             <v-text-field
               v-model="travelerDetails.legalMiddleName"
               label="Legal Middle Name"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -44,7 +44,7 @@
               v-model="travelerDetails.legalLastName"
               label="Legal Last Name *"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -57,7 +57,7 @@
               type="date"
               :max="dobMaxDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -70,7 +70,7 @@
               v-model="travelerDetails.strAddress"
               label="Address *"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -82,7 +82,7 @@
               label="City *"
               item-value="city"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -93,7 +93,7 @@
               v-model="travelerDetails.province"
               label="Province *"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -104,7 +104,7 @@
               v-model="travelerDetails.postalCode"
               label="Postal Code *"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -129,7 +129,7 @@
               v-model="travelerDetails.passportNum"
               label="Passport Number *"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -140,7 +140,7 @@
               v-model="travelerDetails.passportCountry"
               label="Passport Country *"
               :rules="[required]"
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -154,7 +154,7 @@
               v-model="travelerDetails.busPhone"
               :rules="[isPhoneNumber, required]"
               label="Business Phone *"
-              outlined
+              variant="outlined"
               validate-on-blur
             />
           </v-col>
@@ -166,7 +166,7 @@
               v-model="travelerDetails.busEmail"
               :rules="[isEmail, required]"
               label="Business Email *"
-              outlined
+              variant="outlined"
               validate-on-blur
             />
           </v-col>
@@ -192,7 +192,7 @@
               v-model="travelerDetails.travelPhone"
               :rules="[isPhoneNumber, required]"
               label="Travel Phone *"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -203,7 +203,7 @@
               v-model="travelerDetails.travelEmail"
               :rules="[isEmail, required]"
               label="Travel Email *"
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -212,7 +212,7 @@
             <v-textarea
               v-model="travelerDetails.additionalInformation"
               label="Additional Information"
-              outlined
+              variant="outlined"
               auto-grow
               counter
             />

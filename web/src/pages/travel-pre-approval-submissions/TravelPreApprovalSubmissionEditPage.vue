@@ -31,7 +31,7 @@
                 <v-btn
                   class="mt-0"
                   color="primary"
-                  outlined
+                  variant="outlined"
                   @click="showAddRequestDialog"
                 >
                   Add Request
@@ -54,7 +54,7 @@
                   },
                 }"
                 color="primary"
-                outlined
+                variant="outlined"
               >
                 Edit
               </v-btn>
@@ -63,7 +63,7 @@
                 class="my-0 ml-3"
                 title="Remove"
                 color="error"
-                outlined
+                variant="outlined"
                 @click="
                   removeTravelAuthorizationPreApprovalFromSubmission(
                     travelAuthorizationPreApprovalSubmissionId,

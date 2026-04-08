@@ -4,7 +4,7 @@
     :items="expenseTypes"
     label="Expense Type"
     dense
-    outlined
+    variant="outlined"
     v-bind="$attrs"
     @update:model-value="updateModelValue"
   ></v-select>

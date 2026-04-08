@@ -37,7 +37,7 @@
               :number-of-options="travelDeskFlightOptions.length"
               :rules="[required]"
               :hide-details="smAndDown"
-              outlined
+              variant="outlined"
               required
               @update:model-value="updateAndswapIfAlreadyInUse(flightOption, $event)"
             />
@@ -62,7 +62,7 @@
               rows="4"
               :rules="[required]"
               :hide-details="smAndDown"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -76,7 +76,7 @@
         type="submit"
         :loading="isLoading"
         color="primary"
-        outlined
+        variant="outlined"
       >
         Save
       </v-btn>

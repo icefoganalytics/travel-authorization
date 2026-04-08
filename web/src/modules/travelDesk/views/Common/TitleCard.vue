@@ -1,6 +1,6 @@
 <template>
   <v-card
-    outlined
+    variant="outlined"
     :style="{ border: border }"
   >
     <div

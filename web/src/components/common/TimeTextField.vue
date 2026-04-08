@@ -4,7 +4,7 @@
     :label="label"
     :rules="[...rules, timeValidator]"
     background-color="white"
-    outlined
+    variant="outlined"
     placeholder="HH:MM"
     persistent-placeholder
     prepend-icon="mdi-clock"

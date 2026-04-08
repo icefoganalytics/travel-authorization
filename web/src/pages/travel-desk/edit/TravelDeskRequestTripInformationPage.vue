@@ -31,7 +31,7 @@
                   v-model="travelDeskTravelRequest.invoiceNumber"
                   label="Invoice Number *"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                   required
                 />
               </v-col>
@@ -45,7 +45,7 @@
                   label="PNR Document"
                   accept="application/pdf"
                   hint="Uploading a new PNR document will replace the existing file."
-                  outlined
+                  variant="outlined"
                   persistent-hint
                   show-size
                   truncate-length="40"
@@ -56,7 +56,7 @@
                   label="PNR Document *"
                   accept="application/pdf"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                   required
                   show-size
                   truncate-length="40"
@@ -87,7 +87,7 @@
         <v-spacer />
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           :to="{
             name: 'travel-desk/edit/TravelDeskRequestTravelRequestPage',
             params: {

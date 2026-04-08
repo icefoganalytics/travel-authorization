@@ -14,7 +14,7 @@
           md="6"
         >
           <v-card
-            outlined
+            variant="outlined"
             class="pa-3 mb-4"
           >
             <v-card-title
@@ -42,7 +42,7 @@
           md="6"
         >
           <v-card
-            outlined
+            variant="outlined"
             class="pa-3 mb-4"
           >
             <v-card-title
@@ -70,7 +70,7 @@
       <v-row>
         <v-col cols="12">
           <v-card
-            outlined
+            variant="outlined"
             class="pa-3"
           >
             <v-card-title

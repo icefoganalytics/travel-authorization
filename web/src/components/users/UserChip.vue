@@ -4,7 +4,7 @@
     class="d-flex-inline justify-center"
     style="min-width: fit-content"
     link
-    outlined
+    variant="outlined"
   >
     <v-progress-circular
       v-if="isNil(user)"

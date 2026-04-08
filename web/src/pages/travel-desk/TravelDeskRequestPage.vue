@@ -38,7 +38,7 @@
               label="Assign Agency"
               append-icon="mdi-lock"
               placeholder="None"
-              outlined
+              variant="outlined"
               persistent-placeholder
               readonly
             />
@@ -52,7 +52,7 @@
               label="Travel Desk Agent Assigned"
               append-icon="mdi-lock"
               readonly
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -113,7 +113,7 @@
             name: 'TravelDeskPage',
           }"
           :class="{ 'ml-2': hasInvoiceNumber }"
-          outlined
+          variant="outlined"
         >
           Back
         </v-btn>

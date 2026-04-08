@@ -15,7 +15,7 @@
       <v-btn
         class="my-0"
         color="error"
-        outlined
+        variant="outlined"
         :loading="isDeleting"
         :block="smAndDown"
         @click="deleteAndReturn"
@@ -42,7 +42,7 @@
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -54,7 +54,7 @@
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -64,7 +64,7 @@
               label="City *"
               item-value="city"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -87,7 +87,7 @@
                 v-model="travelDeskHotel.conferenceName"
                 :rules="[required]"
                 label="Event Name *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -96,7 +96,7 @@
                 v-model="travelDeskHotel.conferenceHotelName"
                 :rules="[required]"
                 label="Hotel Name *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -118,7 +118,7 @@
             <v-textarea
               v-model="travelDeskHotel.additionalInformation"
               label="Additional Information"
-              outlined
+              variant="outlined"
               rows="20"
               clearable
             />

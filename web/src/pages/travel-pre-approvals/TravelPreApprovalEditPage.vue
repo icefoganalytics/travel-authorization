@@ -15,7 +15,7 @@
       <v-btn
         class="my-0"
         color="error"
-        outlined
+        variant="outlined"
         :loading="isDeleting"
         @click="deleteTravelAuthorizationPreApproval"
       >
@@ -34,7 +34,7 @@
           label="Purpose *"
           item-value="purpose"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -50,7 +50,7 @@
           v-model="travelAuthorizationPreApproval.location"
           label="Location *"
           item-value="text"
-          outlined
+          variant="outlined"
           :rules="[required]"
         />
       </v-col>
@@ -66,7 +66,7 @@
           label="Estimated Cost ($) *"
           type="number"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -81,7 +81,7 @@
         <v-textarea
           v-model="travelAuthorizationPreApproval.reason"
           label="Reason"
-          outlined
+          variant="outlined"
           clearable
         />
       </v-col>
@@ -109,7 +109,7 @@
             label="Start Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
           />
         </v-col>
         <v-col
@@ -121,7 +121,7 @@
             label="End Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
           />
         </v-col>
       </template>
@@ -134,7 +134,7 @@
           v-model="travelAuthorizationPreApproval.month"
           label="Anticipated Month *"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -148,7 +148,7 @@
           v-model="travelAuthorizationPreApproval.department"
           label="Department *"
           :rules="[required]"
-          outlined
+          variant="outlined"
           :clearable="false"
           @update:model-value="resetDependentFieldsDepartment"
         />
@@ -167,7 +167,7 @@
               : 'Search for a branch'
           "
           :where="branchWhere"
-          outlined
+          variant="outlined"
           clearable
           @update:model-value="resetDependentFieldsBranch"
         />
@@ -202,7 +202,7 @@
           <v-textarea
             v-model="travelAuthorizationPreApproval.travelerNotes"
             label="Traveler Notes"
-            outlined
+            variant="outlined"
             clearable
           />
         </v-col>
@@ -219,7 +219,7 @@
       </v-btn>
       <v-btn
         color="warning"
-        outlined
+        variant="outlined"
         :to="previousRouteOrFallback"
       >
         Cancel

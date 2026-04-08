@@ -17,7 +17,7 @@
         <ClaimTypeSelect
           v-model="claimType"
           class="ml-2"
-          outlined
+          variant="outlined"
           hide-details
           clearable
         />

@@ -33,7 +33,7 @@
                 :rules="[required]"
                 label="Depart Location *"
                 item-value="city"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -46,7 +46,7 @@
                 :rules="[required]"
                 label="Arrive Location *"
                 item-value="city"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -63,7 +63,7 @@
                 :rules="[required]"
                 label="Date *"
                 type="date"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -97,7 +97,7 @@
                 v-model="travelDeskFlightRequest.seatPreference"
                 :rules="[required]"
                 label="Seat Preference *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -109,7 +109,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel

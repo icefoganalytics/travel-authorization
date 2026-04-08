@@ -30,7 +30,7 @@
                 :rules="[required]"
                 label="Re-assign to *"
                 dense
-                outlined
+                variant="outlined"
                 required
                 validate-on-blur
               />
@@ -44,7 +44,7 @@
                 label="Note for the next approver"
                 rows="5"
                 required
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>

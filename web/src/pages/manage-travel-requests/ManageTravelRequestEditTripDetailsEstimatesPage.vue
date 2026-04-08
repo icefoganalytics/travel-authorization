@@ -17,7 +17,7 @@
       </v-btn>
       <v-btn
         color="primary"
-        outlined
+        variant="outlined"
         :to="{
           name: 'manage-travel-requests/ManageTravelRequestDetailsPage',
           params: {

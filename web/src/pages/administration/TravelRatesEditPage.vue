@@ -4,7 +4,7 @@
       Edit Meals and Incidental Expenses for Employees on Travel Status
       <v-btn
         class="secondary"
-        outlined
+        variant="outlined"
         :to="{ name: 'administration/TravelRatesPage' }"
         >Back</v-btn
       >

@@ -29,7 +29,7 @@
                 v-model="travelDeskQuestion.requestType"
                 :rules="[required]"
                 label="Request Type *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -40,7 +40,7 @@
                 v-model="travelDeskQuestion.question"
                 :rules="[required]"
                 label="Question *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -50,7 +50,7 @@
               <v-textarea
                 v-model="travelDeskQuestion.response"
                 label="Response"
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -61,7 +61,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel

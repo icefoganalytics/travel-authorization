@@ -33,7 +33,7 @@
             :loading="isLoading"
             class="ml-3"
             color="warning"
-            outlined
+            variant="outlined"
             tooltip-text="Select submitted item to enable revert to draft option."
             @click="revertToDraft(firstSelectedItem.id)"
           >
@@ -47,7 +47,7 @@
         <v-btn
           v-if="canEdit(item)"
           color="primary"
-          :outlined="hasSelectedItems"
+          :variant="submissionActionButtonVariant"
           :to="{
             name: 'travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage',
             params: {
@@ -65,7 +65,7 @@
         <v-btn
           v-else-if="canApprove(item)"
           color="success"
-          :outlined="hasSelectedItems"
+          :variant="submissionActionButtonVariant"
           @click="showTravelAuthorizationsPreApprovalApproveDialog(item.id)"
         >
           Approve
@@ -106,6 +106,13 @@ import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components
 
 const selectedItems = ref([])
 const hasSelectedItems = computed(() => !isEmpty(selectedItems.value))
+const submissionActionButtonVariant = computed(() => {
+  if (!hasSelectedItems.value) {
+    return undefined
+  }
+
+  return "outlined"
+})
 const firstSelectedItem = computed(() => selectedItems.value[0])
 const canRevertToDraft = computed(
   () =>

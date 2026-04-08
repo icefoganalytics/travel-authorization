@@ -17,7 +17,7 @@
           label="Purpose *"
           item-value="purpose"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -35,7 +35,7 @@
           label="Location *"
           item-value="text"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -50,7 +50,7 @@
           label="Estimated Cost ($) *"
           type="number"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -65,7 +65,7 @@
         <v-textarea
           v-model="travelAuthorizationPreApprovalAttributes.reason"
           label="Reason"
-          outlined
+          variant="outlined"
           clearable
         />
       </v-col>
@@ -93,7 +93,7 @@
             label="Start Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
           />
         </v-col>
         <v-col
@@ -105,7 +105,7 @@
             label="End Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
           />
         </v-col>
       </template>
@@ -118,7 +118,7 @@
           v-model="travelAuthorizationPreApprovalAttributes.month"
           label="Anticipated Month *"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -133,7 +133,7 @@
           label="Department *"
           :where="departmentWhere"
           :rules="[required]"
-          outlined
+          variant="outlined"
           :clearable="false"
           @update:model-value="resetDependentFieldsDepartment"
         />
@@ -152,7 +152,7 @@
               : 'Search for a branch'
           "
           :where="branchWhere"
-          outlined
+          variant="outlined"
           clearable
           @update:model-value="resetDependentFieldsBranch"
         />
@@ -189,7 +189,7 @@
           <v-textarea
             v-model="travelAuthorizationPreApprovalAttributes.travelerNotes"
             label="Traveler Notes"
-            outlined
+            variant="outlined"
             clearable
           />
         </v-col>
@@ -209,7 +209,7 @@
       <v-btn
         class="my-0 mt-4 mt-md-0"
         color="warning"
-        outlined
+        variant="outlined"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
         }"

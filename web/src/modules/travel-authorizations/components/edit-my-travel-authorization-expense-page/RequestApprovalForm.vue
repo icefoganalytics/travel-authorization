@@ -18,7 +18,7 @@
           :rules="[required]"
           label="Submit to"
           dense
-          outlined
+          variant="outlined"
           required
           background-color="white"
         />

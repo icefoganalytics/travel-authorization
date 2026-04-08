@@ -30,7 +30,7 @@
           item-text="fullName"
           label="Traveler name *"
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
-          outlined
+          variant="outlined"
           :where="ygEmployeeWhere"
           :filters="ygEmployeeFilters"
         />
@@ -44,7 +44,7 @@
           v-model.number="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
-          outlined
+          variant="outlined"
           persistent-hint
           :disabled="profileAlreadyCreated"
           @input="emit('update:numberTravelers', Number($event))"

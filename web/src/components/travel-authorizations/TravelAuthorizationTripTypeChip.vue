@@ -1,7 +1,7 @@
 <template>
   <!-- TODO: add icon for each trip type? -->
   <v-chip
-    outlined
+    variant="outlined"
     v-bind="$attrs"
   >
     {{ formattedStatus }}

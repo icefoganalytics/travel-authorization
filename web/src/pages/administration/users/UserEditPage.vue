@@ -31,7 +31,7 @@
                     v-model="user.firstName"
                     label="First name"
                     dense
-                    outlined
+                    variant="outlined"
                     background-color="white"
                     required
                     hide-details
@@ -45,7 +45,7 @@
                     v-model="user.lastName"
                     label="Last name"
                     dense
-                    outlined
+                    variant="outlined"
                     background-color="white"
                     required
                     hide-details
@@ -59,7 +59,7 @@
                     v-model="user.email"
                     label="Email"
                     dense
-                    outlined
+                    variant="outlined"
                     background-color="white"
                     required
                     hide-details
@@ -73,7 +73,7 @@
                     v-model="user.mailcode"
                     label="Mailcode"
                     dense
-                    outlined
+                    variant="outlined"
                     background-color="white"
                     required
                     hide-details
@@ -84,7 +84,7 @@
                     v-model="user.department"
                     label="Department *"
                     :rules="[required]"
-                    outlined
+                    variant="outlined"
                     dense
                     small-chips
                     :clearable="false"
@@ -96,7 +96,7 @@
                     v-model="user.roles"
                     label="Roles"
                     :items="roles"
-                    outlined
+                    variant="outlined"
                     dense
                     multiple
                     small-chips

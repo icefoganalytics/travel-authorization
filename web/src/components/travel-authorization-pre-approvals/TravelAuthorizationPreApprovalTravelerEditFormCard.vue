@@ -30,7 +30,7 @@
           item-value="fullName"
           item-text="fullName"
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -42,7 +42,7 @@
           v-model="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
-          outlined
+          variant="outlined"
           persistent-hint
         />
       </v-col>

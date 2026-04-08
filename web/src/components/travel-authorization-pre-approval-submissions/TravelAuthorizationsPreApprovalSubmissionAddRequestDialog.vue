@@ -76,7 +76,7 @@
         <v-btn
           :loading="isSaving"
           color="primary"
-          outlined
+          variant="outlined"
           @click="hide"
         >
           Return

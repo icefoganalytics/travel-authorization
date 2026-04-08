@@ -15,7 +15,7 @@
       <v-btn
         class="my-0"
         color="error"
-        outlined
+        variant="outlined"
         :loading="isDeleting"
         :block="smAndDown"
         @click="deleteAndReturn"
@@ -40,7 +40,7 @@
               label="Pick-up date *"
               :disabled="travelDeskRentalCar.matchFlightTimes"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -49,7 +49,7 @@
               v-model="pickUpTime"
               label="Pick-up time *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -61,7 +61,7 @@
               label="Drop-off date *"
               :disabled="travelDeskRentalCar.matchFlightTimes"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -70,7 +70,7 @@
               v-model="dropOffTime"
               label="Drop-off time *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -100,7 +100,7 @@
               label="Pick-up City *"
               :rules="[required]"
               item-value="city"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -109,7 +109,7 @@
               v-model="travelDeskRentalCar.pickUpLocation"
               label="Pick-up Location *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
               @update:model-value="resetPickUpLocationOtherUnlessOther"
             />
@@ -118,7 +118,7 @@
               v-model="travelDeskRentalCar.pickUpLocationOther"
               label="Other Pick-up Location *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -141,7 +141,7 @@
                 label="Drop-off City *"
                 :rules="[required]"
                 item-value="city"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -150,7 +150,7 @@
                 v-model="travelDeskRentalCar.dropOffLocation"
                 label="Drop-off Location *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
                 @update:model-value="resetDropOffLocationOtherUnlessOther"
               />
@@ -162,7 +162,7 @@
                 v-model="travelDeskRentalCar.dropOffLocationOther"
                 label="Other Drop-off Location *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -184,7 +184,7 @@
               v-model="travelDeskRentalCar.vehicleType"
               label="Vehicle Type *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
               @update:model-value="resetVehicleChangeRationaleIfCompact"
             />
@@ -198,7 +198,7 @@
               label="Reason for Change *"
               hint="Please provide a reason for requesting a vehicle type other than Compact."
               :rules="[required]"
-              outlined
+              variant="outlined"
               persistent-hint
               required
               rows="4"
@@ -208,7 +208,7 @@
             <v-textarea
               v-model="travelDeskRentalCar.additionalNotes"
               label="Additional Information"
-              outlined
+              variant="outlined"
               rows="10"
               clearable
             />

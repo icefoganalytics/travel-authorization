@@ -23,7 +23,7 @@
             hint="Only PDF, PNG, and JPEG files are allowed"
             :rules="[required]"
             persistent-hint
-            outlined
+            variant="outlined"
             prepend-icon=""
             append-icon="$file"
           />
@@ -38,7 +38,7 @@
           <YgEmployeeAutocomplete
             v-model="approvalDocumentApproverName"
             label="Approved By (in document) *"
-            outlined
+            variant="outlined"
             :rules="[required]"
           />
         </v-col>
@@ -50,7 +50,7 @@
             v-model="approvalDocumentApprovedOn"
             label="Approval Date (of document) *"
             :rules="[required]"
-            outlined
+            variant="outlined"
             type="date"
           />
         </v-col>
@@ -83,7 +83,7 @@
                     class="my-0 ml-0 ml-md-2 mt-2 mt-md-0"
                     color="warning"
                     small
-                    outlined
+                    variant="outlined"
                     @click="unmark(item.id)"
                   >
                     Revert
@@ -122,7 +122,7 @@
         <v-btn
           :key="preApprovalMarkRefreshKey"
           :loading="isSaving"
-          :outlined="!everyTravelAuthorizationPreApprovalMarked"
+          :variant="approveButtonVariant"
           color="success"
           type="submit"
         >
@@ -131,7 +131,7 @@
         <v-btn
           :loading="isSaving"
           color="warning"
-          outlined
+          variant="outlined"
           @click="hide"
         >
           Cancel
@@ -227,6 +227,13 @@ const { totalCount: totalTravelAuthorizationPreApprovalsTotalCount } =
   useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
 
 const everyTravelAuthorizationPreApprovalMarked = ref(false)
+const approveButtonVariant = computed(() => {
+  if (everyTravelAuthorizationPreApprovalMarked.value) {
+    return undefined
+  }
+
+  return "outlined"
+})
 
 watch(
   () => preApprovalMarkRefreshKey.value,

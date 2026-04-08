@@ -29,7 +29,7 @@
           :rules="[required, isInteger]"
           label="Travel Advance *"
           prefix="$"
-          outlined
+          variant="outlined"
           required
         />
       </v-col>
@@ -43,7 +43,7 @@
           v-model="travelAuthorization.preApprovalProfileId"
           :where="travelAuthorizationPreApprovalProfileWhere"
           :filters="travelAuthorizationPreApprovalProfileFilters"
-          outlined
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -56,7 +56,7 @@
           v-model="travelAuthorization.supervisorEmail"
           label="Submit to *"
           :rules="[required]"
-          outlined
+          variant="outlined"
           required
         />
       </v-col>

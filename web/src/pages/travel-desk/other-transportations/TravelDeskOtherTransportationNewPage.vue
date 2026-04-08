@@ -21,7 +21,7 @@
               v-model="travelDeskOtherTransportationAttributes.transportationType"
               label="Transportation Type *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -39,7 +39,7 @@
               label="Departure Location *"
               item-value="city"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -49,7 +49,7 @@
               label="Arrival Location *"
               item-value="city"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -61,7 +61,7 @@
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -81,7 +81,7 @@
             <v-textarea
               v-model="travelDeskOtherTransportationAttributes.additionalNotes"
               label="Additional Information"
-              outlined
+              variant="outlined"
               rows="15"
               clearable
             />

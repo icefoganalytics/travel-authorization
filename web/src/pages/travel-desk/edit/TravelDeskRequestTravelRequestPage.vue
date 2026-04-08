@@ -33,7 +33,7 @@
                   label="Assign Agency"
                   placeholder="None"
                   clearable
-                  outlined
+                  variant="outlined"
                   persistent-placeholder
                 />
               </v-col>
@@ -45,7 +45,7 @@
                   v-model="travelDeskTravelRequest.travelDeskOfficer"
                   label="Travel Desk Agent Assigned *"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                   required
                 />
               </v-col>
@@ -94,7 +94,7 @@
         <v-spacer />
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           :to="{
             name: 'travel-desk/edit/TravelDeskRequestTravelerDetailsPage',
             params: {

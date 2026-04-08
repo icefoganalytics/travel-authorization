@@ -25,7 +25,7 @@
               <v-text-field
                 :value="claimType"
                 label="Claim Type"
-                outlined
+                variant="outlined"
                 readonly
                 append-icon="mdi-lock"
               />
@@ -34,7 +34,7 @@
               <v-text-field
                 :value="travelRegion"
                 label="Travel Region"
-                outlined
+                variant="outlined"
                 readonly
                 append-icon="mdi-lock"
               />
@@ -46,7 +46,7 @@
                 type="number"
                 :step="perDiem.amount > 1 ? 0.01 : 0.001"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -54,7 +54,7 @@
               <v-text-field
                 :value="perDiem.currency"
                 label="Currency"
-                outlined
+                variant="outlined"
                 readonly
                 append-icon="mdi-lock"
               />

@@ -11,7 +11,7 @@
       <v-btn
         class="my-0"
         color="warning"
-        outlined
+        variant="outlined"
         @click="resetFilters"
       >
         Clear Filters
@@ -31,7 +31,7 @@
             clearable
             deletable-chips
             multiple
-            outlined
+            variant="outlined"
             @input="selectLocationCategories"
           />
         </v-col>
@@ -48,7 +48,7 @@
             clearable
             deletable-chips
             multiple
-            outlined
+            variant="outlined"
             @input="updateYukonDestinations"
           />
           <v-autocomplete
@@ -60,7 +60,7 @@
             clearable
             deletable-chips
             multiple
-            outlined
+            variant="outlined"
             @input="updateCanadaDestinations"
           />
           <v-autocomplete
@@ -72,7 +72,7 @@
             clearable
             deletable-chips
             multiple
-            outlined
+            variant="outlined"
             @input="updateInternationalDestinations"
           />
         </v-col>
@@ -87,7 +87,7 @@
             clearable
             deletable-chips
             multiple
-            outlined
+            variant="outlined"
             @input="updateDepartmentMailcodes"
           />
         </v-col>

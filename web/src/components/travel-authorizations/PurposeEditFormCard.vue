@@ -19,7 +19,7 @@
           :rules="[required]"
           dense
           label="Purpose *"
-          outlined
+          variant="outlined"
           required
           validate-on-blur
           @update:model-value="emit('update:travelPurposeId', $event)"
@@ -34,7 +34,7 @@
           :rules="[required]"
           dense
           label="Name of meeting/conference, mission, trade fair or course *"
-          outlined
+          variant="outlined"
           required
           validate-on-blur
         />
@@ -64,7 +64,7 @@
           clearable
           dense
           label="Final Destination *"
-          outlined
+          variant="outlined"
           persistent-hint
           required
           validate-on-blur
@@ -89,7 +89,7 @@
           auto-grow
           dense
           label="Objectives *"
-          outlined
+          variant="outlined"
           required
           rows="10"
           validate-on-blur

@@ -29,7 +29,7 @@
                 v-model="travelDeskTravelRequest.legalFirstName"
                 label="Legal First Name *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -39,7 +39,7 @@
               <v-text-field
                 v-model="travelDeskTravelRequest.legalMiddleName"
                 label="Legal Middle Name"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -50,7 +50,7 @@
                 v-model="travelDeskTravelRequest.legalLastName"
                 label="Legal Last Name *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -63,7 +63,7 @@
                 type="date"
                 :max="dobMaxDate"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -86,7 +86,7 @@
                   v-model="travelDeskTravelRequest.passportNum"
                   label="Passport Number *"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                 />
               </v-col>
               <v-col
@@ -97,7 +97,7 @@
                   v-model="travelDeskTravelRequest.passportCountry"
                   label="Passport Country *"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                 />
               </v-col>
             </v-row>
@@ -123,7 +123,7 @@
                 v-model="travelDeskTravelRequest.busPhone"
                 :rules="[isPhoneNumber, required]"
                 label="Business Phone *"
-                outlined
+                variant="outlined"
                 validate-on-blur
               />
             </v-col>
@@ -135,7 +135,7 @@
                 v-model="travelDeskTravelRequest.busEmail"
                 :rules="[isEmail, required]"
                 label="Business Email *"
-                outlined
+                variant="outlined"
                 validate-on-blur
               />
             </v-col>
@@ -162,7 +162,7 @@
                   v-model="travelDeskTravelRequest.travelPhone"
                   :rules="[isPhoneNumber, required]"
                   label="Travel Phone *"
-                  outlined
+                  variant="outlined"
                 />
               </v-col>
               <v-col
@@ -173,7 +173,7 @@
                   v-model="travelDeskTravelRequest.travelEmail"
                   :rules="[isEmail, required]"
                   label="Travel Email *"
-                  outlined
+                  variant="outlined"
                 />
               </v-col>
             </v-row>
@@ -199,7 +199,7 @@
                 v-model="travelDeskTravelRequest.strAddress"
                 label="Address *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -211,7 +211,7 @@
                 label="City *"
                 item-value="city"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -222,7 +222,7 @@
                 v-model="travelDeskTravelRequest.province"
                 label="Province *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -233,7 +233,7 @@
                 v-model="travelDeskTravelRequest.postalCode"
                 label="Postal Code *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -254,7 +254,7 @@
               <v-textarea
                 v-model="travelDeskTravelRequest.additionalInformation"
                 label="Additional Information"
-                outlined
+                variant="outlined"
                 auto-grow
                 counter
               />
@@ -273,7 +273,7 @@
         </v-btn>
         <v-btn
           class="ml-md-2"
-          outlined
+          variant="outlined"
           :loading="isLoading"
           :block="smAndDown"
           @click="refresh"
@@ -283,7 +283,7 @@
         <v-spacer />
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           :to="{
             name: 'TravelDeskPage',
           }"

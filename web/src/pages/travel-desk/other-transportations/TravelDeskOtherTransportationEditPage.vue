@@ -15,7 +15,7 @@
       <v-btn
         class="my-0"
         color="error"
-        outlined
+        variant="outlined"
         :loading="isDeleting"
         :block="smAndDown"
         @click="deleteAndReturn"
@@ -39,7 +39,7 @@
               v-model="travelDeskOtherTransportation.transportationType"
               label="Transportation Type *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -57,7 +57,7 @@
               label="Departure Location *"
               item-value="city"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -67,7 +67,7 @@
               label="Arrival Location *"
               item-value="city"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -79,7 +79,7 @@
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -100,7 +100,7 @@
             <v-textarea
               v-model="travelDeskOtherTransportation.additionalNotes"
               label="Additional Information"
-              outlined
+              variant="outlined"
               rows="15"
               clearable
             />

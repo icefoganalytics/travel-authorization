@@ -20,7 +20,7 @@
           <v-alert
             v-if="isDraftState"
             type="info"
-            outlined
+            variant="outlined"
           >
             This request is still in draft. Review the booking details, then submit it for the
             traveler.
@@ -28,7 +28,7 @@
           <v-alert
             v-else-if="isSubmittedState"
             type="info"
-            outlined
+            variant="outlined"
           >
             This request is ready to be sent to the traveler with the available booking options. If
             this trip includes air travel, each flight request must have at least one flight option
@@ -37,21 +37,21 @@
           <v-alert
             v-else-if="isOptionsProvidedState"
             type="info"
-            outlined
+            variant="outlined"
           >
             Waiting for the traveler to rank flight options before booking can be finalized.
           </v-alert>
           <v-alert
             v-else-if="isOptionsRankedState && !hasInvoiceNumber"
             type="warning"
-            outlined
+            variant="outlined"
           >
             Upload a PNR with an invoice number before marking the booking complete.
           </v-alert>
           <v-alert
             v-else-if="isOptionsRankedState && hasInvoiceNumber"
             type="info"
-            outlined
+            variant="outlined"
           >
             The traveler has ranked their options. Review the itinerary, then mark the booking
             complete when finalized.
@@ -59,14 +59,14 @@
           <v-alert
             v-else-if="isBookedState || isCompleteState"
             type="success"
-            outlined
+            variant="outlined"
           >
             This travel request is already booked and no further workflow action is required.
           </v-alert>
           <v-alert
             v-else-if="!isKnownWorkflowState"
             type="warning"
-            outlined
+            variant="outlined"
           >
             Unhandled state: {{ travelDeskTravelRequest.status }}
           </v-alert>
@@ -121,7 +121,7 @@
         <v-spacer />
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           :to="{
             name: 'travel-desk/edit/TravelDeskRequestTripInformationPage',
             params: {

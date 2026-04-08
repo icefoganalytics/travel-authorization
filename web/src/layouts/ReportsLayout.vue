@@ -29,7 +29,7 @@
           <div>
             <v-btn
               color="primary"
-              outlined
+              variant="outlined"
               @click="showFilters = !showFilters"
             >
               <v-badge
@@ -51,13 +51,13 @@
             <FlightStatisticsExportToCsvButton
               :filters="filters"
               color="primary"
-              outlined
+              variant="outlined"
             />
 
             <v-btn
               class="ml-2"
               color="primary"
-              outlined
+              variant="outlined"
               @click="openFlightStatisticsPrintDialog"
             >
               Print Report
@@ -69,7 +69,7 @@
             <v-btn
               class="ml-2"
               color="primary"
-              outlined
+              variant="outlined"
               @click="openFlightStatisticsJobsModal"
             >
               Update Reports

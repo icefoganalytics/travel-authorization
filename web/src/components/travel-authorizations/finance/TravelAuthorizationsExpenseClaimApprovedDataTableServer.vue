@@ -31,7 +31,7 @@
       >
         <template #activator="{ props: activatorProps }">
           <v-chip
-            outlined
+            variant="outlined"
             v-bind="activatorProps"
           >
             <v-icon

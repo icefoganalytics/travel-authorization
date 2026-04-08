@@ -22,7 +22,7 @@
         class="pa-0 no-change-on-hover"
         height="44"
         style="margin-top: -8px"
-        text
+        variant="text"
       >
         <img
           src="/yukon.svg"
@@ -46,7 +46,7 @@
       </v-btn>
 
       <v-btn
-        text
+        variant="text"
         :to="{
           name: 'ProfilePage',
         }"

@@ -2,7 +2,7 @@
   <!-- TODO: re-write this so that it accepts where/filters and loads the profiles internally? -->
   <v-chip
     ref="chip"
-    outlined
+    variant="outlined"
     link
     v-bind="$attrs"
   >

@@ -14,7 +14,7 @@
           :filters="buildLocationFilters(tripDestinationLocationId)"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           persistent-hint
           required
         />
@@ -30,7 +30,7 @@
           :filters="buildLocationFilters(tripOriginLocationId)"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           persistent-hint
           required
         />
@@ -72,7 +72,7 @@
           dense
           persistent-hint
           required
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -85,7 +85,7 @@
           label="Travel Method - Other"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           required
         />
       </v-col>
@@ -102,7 +102,7 @@
           placeholder="N/A"
           clearable
           dense
-          outlined
+          variant="outlined"
           persistent-hint
         />
       </v-col>
@@ -116,7 +116,7 @@
           label="Type of Accommodation - Other"
           :rules="[required]"
           dense
-          outlined
+          variant="outlined"
           required
         />
       </v-col>

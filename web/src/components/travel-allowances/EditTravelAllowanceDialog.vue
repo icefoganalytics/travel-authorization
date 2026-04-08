@@ -25,7 +25,7 @@
               <v-text-field
                 :value="allowanceType"
                 label="Claim Type"
-                outlined
+                variant="outlined"
                 readonly
                 append-icon="mdi-lock"
               />
@@ -37,7 +37,7 @@
                 type="number"
                 :step="travelAllowance.amount > 1 ? 0.01 : 0.001"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -45,7 +45,7 @@
               <v-text-field
                 :value="travelAllowance.currency"
                 label="Currency"
-                outlined
+                variant="outlined"
                 readonly
                 append-icon="mdi-lock"
               />

@@ -15,7 +15,7 @@
               :readonly="readonly"
               :error="travelerState.firstNameErr"
               label="Legal First Name"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col cols="2">
@@ -24,7 +24,7 @@
               :readonly="readonly"
               :error="travelerState.middleNameErr"
               label="Legal Middle Name"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col cols="2">
@@ -33,7 +33,7 @@
               :readonly="readonly"
               :error="travelerState.lastNameErr"
               label="Legal Last Name"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col cols="2">
@@ -42,7 +42,7 @@
               :readonly="readonly"
               :error="travelerState.birthDateErr"
               label="Birth Date"
-              outlined
+              variant="outlined"
               :max="dobMaxDate"
               type="date"
               @input="travelerState.birthDateErr = false"
@@ -54,7 +54,7 @@
               readonly
               :error="travelerState.travelAuthErr"
               label="Travel Auth"
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -65,7 +65,7 @@
               :readonly="readonly"
               :error="travelerState.addressErr"
               label="Address"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col cols="2">
@@ -75,7 +75,7 @@
               :readonly="readonly"
               :error="travelerState.cityErr"
               label="City"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col cols="2">
@@ -84,7 +84,7 @@
               :readonly="readonly"
               :error="travelerState.provinceErr"
               label="Province"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col cols="2">
@@ -93,7 +93,7 @@
               :readonly="readonly"
               :error="travelerState.postalCodeErr"
               label="Postal Code"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -115,7 +115,7 @@
               :readonly="readonly"
               :error="travelerState.passportNumberErr"
               label="Passport Number"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -127,7 +127,7 @@
               :readonly="readonly"
               :error="travelerState.passportCountryErr"
               label="Passport Country"
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -140,7 +140,7 @@
               :rules="[rules.phone]"
               :error="travelerState.businessPhoneErr"
               label="Business Phone"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col cols="2">
@@ -150,7 +150,7 @@
               :rules="[rules.email]"
               :error="travelerState.businessEmailErr"
               label="Business Email"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col cols="3">
@@ -170,7 +170,7 @@
               :rules="[rules.phone]"
               :error="travelerState.travelPhoneErr"
               label="Travel Phone"
-              outlined
+              variant="outlined"
             />
           </v-col>
           <v-col
@@ -183,7 +183,7 @@
               :rules="[rules.email]"
               :error="travelerState.travelEmailErr"
               label="Travel Email"
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>

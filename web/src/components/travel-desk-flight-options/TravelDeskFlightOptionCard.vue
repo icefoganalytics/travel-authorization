@@ -19,7 +19,7 @@
                 : ''
             "
             persistent-hint
-            outlined
+            variant="outlined"
             readonly
           />
         </v-col>
@@ -30,7 +30,7 @@
           <v-text-field
             label="Cost"
             :value="formatCurrency(flightOption.cost)"
-            outlined
+            variant="outlined"
             readonly
           />
         </v-col>

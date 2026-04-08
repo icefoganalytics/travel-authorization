@@ -17,7 +17,7 @@
     <template #action="{ attrs }">
       <v-btn
         :color="constrastingColor"
-        text
+        variant="text"
         v-bind="attrs"
         @click="close"
       >

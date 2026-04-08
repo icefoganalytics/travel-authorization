@@ -3,7 +3,7 @@
     :key="stepsHash"
     :model-value="currentStepNumber"
     vertical
-    outlined
+    variant="outlined"
     :width="mdAndUp ? 250 : undefined"
   >
     <v-stepper-item

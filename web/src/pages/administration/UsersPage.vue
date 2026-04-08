@@ -13,7 +13,7 @@
                 v-model="search"
                 prepend-inner-icon="mdi-magnify"
                 background-color="white"
-                outlined
+                variant="outlined"
                 dense
                 label="Search"
                 hide-details
@@ -30,7 +30,7 @@
                 :items="statusFilterOptions"
                 label="Status filter"
                 dense
-                outlined
+                variant="outlined"
                 background-color="white"
                 hide-details
               ></v-select>

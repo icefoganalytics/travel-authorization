@@ -1,7 +1,7 @@
 <template>
   <v-chip
     ref="chip"
-    outlined
+    variant="outlined"
     link
     v-bind="$attrs"
   >

@@ -32,7 +32,7 @@
                 label="Denial reason"
                 rows="5"
                 required
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>

@@ -24,7 +24,7 @@
               <v-text-field
                 v-model="travelDeskTravelAgency.agencyName"
                 label="Agency Name *"
-                outlined
+                variant="outlined"
                 required
                 :rules="[required]"
               />
@@ -36,7 +36,7 @@
               <v-text-field
                 v-model="travelDeskTravelAgency.contactName"
                 label="Contact Name"
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -50,7 +50,7 @@
                 label="Contact Email"
                 type="email"
                 :rules="[isEmail]"
-                outlined
+                variant="outlined"
                 validate-on-blur
               />
             </v-col>
@@ -64,7 +64,7 @@
                 hint="e.g. 123-456-7890"
                 type="tel"
                 :rules="[isPhoneNumber]"
-                outlined
+                variant="outlined"
                 validate-on-blur
               />
             </v-col>
@@ -78,7 +78,7 @@
                 v-model="travelDeskTravelAgency.agencyInfo"
                 label="Additional Information"
                 clearable
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -88,7 +88,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             :to="{
               name: 'administration/TravelAgenciesPage',
             }"

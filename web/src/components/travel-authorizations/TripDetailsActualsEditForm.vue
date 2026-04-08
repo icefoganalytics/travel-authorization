@@ -59,7 +59,7 @@
           type="number"
           dense
           required
-          outlined
+          variant="outlined"
         ></v-text-field>
       </v-col>
       <v-col

@@ -42,7 +42,7 @@
                   travelRequestId: travelDeskTravelRequestId,
                 }"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -56,7 +56,7 @@
                 type="number"
                 :rules="[required]"
                 prefix="$"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -68,7 +68,7 @@
                 v-model="travelDeskFlightOptionAttributes.duration"
                 label="Travel Duration"
                 readonly
-                outlined
+                variant="outlined"
                 append-icon="mdi-lock"
               />
             </v-col>
@@ -91,7 +91,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel

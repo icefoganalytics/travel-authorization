@@ -28,7 +28,7 @@
           <UserEmailSearchableCombobox
             v-model="travelerEmail"
             label="Traveler Email"
-            outlined
+            variant="outlined"
             required
           />
         </v-card-text>

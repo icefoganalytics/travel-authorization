@@ -10,7 +10,7 @@
           :style="{ minWidth: '80px' }"
           label="Travel Days"
           dense
-          outlined
+          variant="outlined"
           disabled
           readonly
           v-bind="$attrs"

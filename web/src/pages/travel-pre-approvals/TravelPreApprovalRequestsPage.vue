@@ -28,7 +28,7 @@
             v-if="canAdminTravelPreApprovals"
             class="ml-md-5"
             color="primary"
-            outlined
+            variant="outlined"
             :block="smAndDown"
             @click="showTravelAuthorizationPreApprovalsPrintDialog"
           >
@@ -41,7 +41,7 @@
             v-if="canAdminTravelPreApprovals"
             class="ml-md-5"
             color="primary"
-            outlined
+            variant="outlined"
             :block="smAndDown"
           >
             Export To Excel
@@ -52,7 +52,7 @@
             :to="{
               name: 'travel-pre-approvals/TravelPreApprovalNewPage',
             }"
-            :outlined="!isEmpty(selectedItemIds)"
+            :variant="addTravelPreApprovalButtonVariant"
             :block="smAndDown"
           >
             Add Travel Pre-Approval
@@ -84,6 +84,13 @@ const selectedItems = ref([])
 
 const selectedItemIds = computed(() => {
   return selectedItems.value.map((item) => item.id)
+})
+const addTravelPreApprovalButtonVariant = computed(() => {
+  if (isEmpty(selectedItemIds.value)) {
+    return undefined
+  }
+
+  return "outlined"
 })
 
 const { isAdmin, isPreApprovedTravelAdmin } = useCurrentUser()

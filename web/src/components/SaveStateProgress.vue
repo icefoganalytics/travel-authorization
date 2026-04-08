@@ -10,7 +10,7 @@
     v-else
     :color="isInPostSaveStateTemporarily ? 'success' : 'primary'"
     :class="{ pulse: isInPostSaveStateTemporarily }"
-    outlined
+    variant="outlined"
     fab
     x-small
     :title="title"

@@ -14,7 +14,7 @@
         :rules="rules"
         background-color="white"
         append-icon="mdi-calendar"
-        outlined
+        variant="outlined"
         readonly
         v-bind="merge({}, $attrs, activatorProps)"
       ></v-text-field>

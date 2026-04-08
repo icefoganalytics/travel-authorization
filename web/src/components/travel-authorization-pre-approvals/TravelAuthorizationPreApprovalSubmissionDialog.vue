@@ -35,7 +35,7 @@
       <template #actions>
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           @click="hide"
         >
           Cancel

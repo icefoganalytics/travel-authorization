@@ -12,7 +12,7 @@
               :readonly="!travelDeskUser || readonly"
               :items="questionList"
               label="About"
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -24,7 +24,7 @@
               :readonly="!travelDeskUser || readonly"
               :error="question.state?.questionErr ?? false"
               label="Question"
-              outlined
+              variant="outlined"
               @input="
                 question.state = {
                   ...question.state,
@@ -42,7 +42,7 @@
               :readonly="readonly"
               :error="question.state?.responseErr ?? false"
               label="Response"
-              outlined
+              variant="outlined"
               @input="
                 question.state = {
                   ...question.state,
