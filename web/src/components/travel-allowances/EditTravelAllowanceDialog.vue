@@ -90,7 +90,7 @@ import useTravelAllowance from "@/use/use-travel-allowance"
  * @template [T=any]
  * @typedef {import("vue").Ref<T>} Ref
  */
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 
 const emit = defineEmits(["saved"])
 

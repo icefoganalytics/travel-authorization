@@ -31,7 +31,7 @@ import { isNil } from "lodash"
 import { ref, nextTick } from "vue"
 import { useDisplay } from "vuetify"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 withDefaults(
   defineProps<{

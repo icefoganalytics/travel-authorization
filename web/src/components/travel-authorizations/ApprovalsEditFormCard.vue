@@ -70,7 +70,7 @@
 import { computed, onMounted, ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required, isInteger } from "@/utils/validators"
 

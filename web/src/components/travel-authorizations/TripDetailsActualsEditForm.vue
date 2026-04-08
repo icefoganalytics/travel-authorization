@@ -207,7 +207,7 @@ const tripTypeComponent = computed(() => {
   }
 })
 
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 /** @type {import('vue').Ref<typeof VForm | null>} */
 const form = ref(null)
 const isSaving = ref(false)

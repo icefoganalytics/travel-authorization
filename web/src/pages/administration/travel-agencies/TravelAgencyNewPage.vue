@@ -115,7 +115,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
  * @template [T=any]
  * @typedef {import("vue").Ref<T>} Ref
  */
-/** @typedef {import('vuetify/lib').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 
 const isLoading = ref(false)
 

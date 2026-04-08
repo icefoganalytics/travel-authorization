@@ -22,7 +22,7 @@
 import { isEmpty, isNil } from "lodash"
 import { ref } from "vue"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 import { expenses } from "@/api"

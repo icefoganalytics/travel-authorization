@@ -91,7 +91,7 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import expensesApi, { ExpenseExpenseTypes, ExpenseTypes, type Expense } from "@/api/expenses-api"
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"

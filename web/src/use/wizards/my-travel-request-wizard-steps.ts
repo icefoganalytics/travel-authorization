@@ -1,9 +1,13 @@
 import { isNil } from "lodash"
 import { type AsyncComponentLoader } from "vue"
-
-import { type VBtn } from "vuetify/lib/components"
+import { type VBtn } from "vuetify/components"
 
 import { TravelAuthorizationWizardStepNames } from "@/api/travel-authorizations-api"
+
+export type WizardButtonProps = Pick<VBtn["$props"], "color" | "disabled" | "loading"> & {
+  tooltipText?: string
+  enabled?: boolean
+}
 
 export type WizardStep = {
   id: TravelAuthorizationWizardStepNames
@@ -11,9 +15,9 @@ export type WizardStep = {
   subtitle: string
   component: AsyncComponentLoader
   continueButtonText?: string
-  continueButtonProps?: VBtn["props"]
+  continueButtonProps?: WizardButtonProps
   backButtonText?: string
-  backButtonProps?: VBtn["props"]
+  backButtonProps?: WizardButtonProps
   editable: boolean
 }
 

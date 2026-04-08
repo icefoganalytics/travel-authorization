@@ -79,7 +79,7 @@ import { computed, ref, toRefs } from "vue"
 import md5 from "md5"
 import { isNil } from "lodash"
 
-import { type VChip } from "vuetify/lib/components"
+import { type VChip } from "vuetify/components"
 
 import useCurrentUser from "@/use/use-current-user"
 import useUser, { type User } from "@/use/use-user"

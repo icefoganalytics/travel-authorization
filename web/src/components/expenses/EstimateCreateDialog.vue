@@ -121,7 +121,7 @@ const { travelAuthorizationId } = toRefs(props)
 const { isLoading, departureDate, returnDate } =
   useTravelAuthorizationSummary(travelAuthorizationId)
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const formRef = ref(null)
 
 const showDialog = useRouteQuery("showEstimateCreate", false, {

@@ -100,7 +100,7 @@ const travelDeskQuestion = ref({
 const snack = useSnack()
 const showDialog = useRouteQuery("showTravelDeskQuestionCreate", false, { transform: Boolean })
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
 const isLoading = ref(false)
 

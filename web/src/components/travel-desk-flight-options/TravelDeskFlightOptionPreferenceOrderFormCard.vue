@@ -149,7 +149,7 @@ function updateAndswapIfAlreadyInUse(flightOption, newPreference) {
   flightOption.flightPreferenceOrder = newPreference
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm>>> */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm>>> */
 const form = ref(null)
 
 const snack = useSnack()

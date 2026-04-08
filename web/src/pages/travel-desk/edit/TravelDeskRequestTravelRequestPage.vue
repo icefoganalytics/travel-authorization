@@ -116,7 +116,7 @@ import { computed, ref, watch } from "vue"
 import { useRouteHash } from "@vueuse/router"
 import { isNil } from "lodash"
 import { useDisplay, useGoTo } from "vuetify"
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 import { useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"

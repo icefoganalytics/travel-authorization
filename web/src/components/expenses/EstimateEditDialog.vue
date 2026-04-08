@@ -125,7 +125,7 @@ function close() {
 
 const snack = useSnack()
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const formRef = ref(null)
 
 async function updateAndClose() {

@@ -2,14 +2,13 @@ import { computed, reactive, toRefs, unref, watch, type Ref } from "vue"
 import { useRouter, type NavigationFailure } from "vue-router"
 import { cloneDeep, isNil } from "lodash"
 
-import type { VBtn } from "vuetify/lib/components"
-
 import useTravelAuthorization, {
   type TravelAuthorizationAsShow,
   type TravelAuthorizationWizardStepNames,
 } from "@/use/use-travel-authorization"
 
 import MY_TRAVEL_REQUEST_WIZARD_STEPS, {
+  type WizardButtonProps,
   type WizardStep,
 } from "@/use/wizards/my-travel-request-wizard-steps"
 
@@ -31,8 +30,8 @@ export type UseMyTravelRequestWizard = {
   goToNextStep: () => RouterPushResult
 
   setEditableSteps: (stepNames: TravelAuthorizationWizardStepNames[]) => void
-  setBackButtonProps: (vBtnProps: VBtn["props"]) => void
-  setContinueButtonProps: (vBtnProps: VBtn["props"]) => void
+  setBackButtonProps: (vBtnProps: WizardButtonProps) => void
+  setContinueButtonProps: (vBtnProps: WizardButtonProps) => void
 }
 
 export type WizardStepComponentContext = {
@@ -181,13 +180,13 @@ export function useMyTravelRequestWizard(
     })
   }
 
-  function setBackButtonProps(vBtnProps: VBtn["props"]) {
+  function setBackButtonProps(vBtnProps: WizardButtonProps) {
     if (isNil(currentStep.value)) return
 
     currentStep.value.backButtonProps = vBtnProps
   }
 
-  function setContinueButtonProps(vBtnProps: VBtn["props"]) {
+  function setContinueButtonProps(vBtnProps: WizardButtonProps) {
     if (isNil(currentStep.value)) return
 
     currentStep.value.continueButtonProps = vBtnProps

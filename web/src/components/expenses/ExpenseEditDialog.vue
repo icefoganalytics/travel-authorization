@@ -88,7 +88,7 @@
 import { nextTick, ref, watch } from "vue"
 import { isNil } from "lodash"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"

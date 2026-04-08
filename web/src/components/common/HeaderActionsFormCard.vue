@@ -71,7 +71,7 @@ defineProps({
 
 const emit = defineEmits(["update:modelValue", "submit"])
 
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 /** @type {import('vue').Ref<InstanceType<typeof VForm> | null>} */
 const form = ref(null)
 

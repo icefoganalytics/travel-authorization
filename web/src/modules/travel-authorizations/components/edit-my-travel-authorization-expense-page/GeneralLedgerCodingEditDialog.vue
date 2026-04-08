@@ -96,7 +96,7 @@ import useGeneralLedgerCoding from "@/use/use-general-ledger-coding"
 import useSnack from "@/use/use-snack"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 const emit = defineEmits<{
   (event: "saved"): void

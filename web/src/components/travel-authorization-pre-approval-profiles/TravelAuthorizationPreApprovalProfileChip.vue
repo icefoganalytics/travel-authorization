@@ -71,7 +71,7 @@ const subtitle = computed(() => {
   return [location, purpose, dateInfo].filter(Boolean).join(" - ")
 })
 
-/** @typedef {import('vuetify/lib/components').VChip} VChip */
+/** @typedef {import('vuetify/components').VChip} VChip */
 /** @type {import('vue').Ref<InstanceType<typeof VChip> | null>} */
 const chip = ref(null)
 </script>

@@ -122,7 +122,7 @@ import useTravelDeskTravelAgency from "@/use/use-travel-desk-travel-agency"
  * @template [T=any]
  * @typedef {import("vue").Ref<T>} Ref
  */
-/** @typedef {import('vuetify/lib').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 
 /**
  * @type {{

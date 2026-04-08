@@ -99,7 +99,7 @@ import usePerDiem from "@/use/use-per-diem"
  * @template [T=any]
  * @typedef {import("vue").Ref<T>} Ref
  */
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 
 const emit = defineEmits(["saved"])
 

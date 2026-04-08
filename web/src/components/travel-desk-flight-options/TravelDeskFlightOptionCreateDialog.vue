@@ -156,7 +156,7 @@ const flightSegmentsAttributes = computed(
 const snack = useSnack()
 const showDialog = useRouteQuery("showTravelDeskFlightOptionCreate", false, { transform: Boolean })
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
 const isLoading = ref(false)
 

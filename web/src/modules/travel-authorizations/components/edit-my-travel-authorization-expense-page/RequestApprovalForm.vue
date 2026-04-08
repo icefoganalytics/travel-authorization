@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { ref, computed, toRefs } from "vue"
 import { isNil } from "lodash"
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 

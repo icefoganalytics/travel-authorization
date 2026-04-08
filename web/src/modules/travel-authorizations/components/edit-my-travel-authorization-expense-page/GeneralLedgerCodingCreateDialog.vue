@@ -96,7 +96,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from "vue"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required, isGeneralLedgerCode } from "@/utils/validators"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"

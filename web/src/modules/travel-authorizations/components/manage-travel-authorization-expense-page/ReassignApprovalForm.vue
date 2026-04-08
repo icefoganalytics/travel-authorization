@@ -43,7 +43,7 @@
 import { ref, toRefs } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 

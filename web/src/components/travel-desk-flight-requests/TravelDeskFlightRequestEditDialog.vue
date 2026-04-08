@@ -163,7 +163,7 @@ const { travelDeskFlightRequest, isLoading } = useTraveDeskFlightRequest(travelD
 
 const showDialog = ref(false)
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
 
 function show(newTravelDeskFlightRequestId) {

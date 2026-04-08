@@ -108,7 +108,7 @@
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
 import { useDisplay } from "vuetify"
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 
