@@ -65,6 +65,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { isNil } from "lodash"
+import { type DataTableHeader } from "vuetify"
 
 import { capitalize, formatCurrency, formatDate } from "@/utils/formatters"
 
@@ -97,7 +98,7 @@ const props = defineProps({
 })
 
 const headers = computed(() => {
-  const baseHeaders = [
+  const baseHeaders: DataTableHeader[] = [
     {
       title: "Purchase Date",
       key: "invoiceBookingDate",
@@ -163,10 +164,10 @@ const headers = computed(() => {
   return baseHeaders
 })
 
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
+const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformer,
 })
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "10", {
+const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`, "10", {
   transform: integerTransformer,
 })
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [

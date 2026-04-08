@@ -45,14 +45,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, useTemplateRef } from "vue"
 import { useI18n } from "vue-i18n"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 
 import travelDeskQuestionsApi from "@/api/travel-desk-questions-api"
 
-import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 import useTravelDeskQuestions from "@/use/use-travel-desk-questions"
 import TravelDeskQuestionEditDialog from "@/components/travel-desk-questions/TravelDeskQuestionEditDialog.vue"
@@ -98,13 +98,17 @@ const headers = [
 
 const { t } = useI18n()
 
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
-  transform: integerTransformerLegacy,
+const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
 })
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, props.defaultPerPage, {
-  transform: integerTransformerLegacy,
-})
-
+const defaultPerPageAsString = computed(() => String(props.defaultPerPage))
+const perPage = useRouteQuery<string, number>(
+  `perPage${props.routeQuerySuffix}`,
+  defaultPerPageAsString,
+  {
+    transform: integerTransformer,
+  }
+)
 const travelDeskQuestionsQuery = computed(() => ({
   where: props.where,
   filters: props.filters,
@@ -114,16 +118,16 @@ const travelDeskQuestionsQuery = computed(() => ({
 const { travelDeskQuestions, totalCount, isLoading, refresh } =
   useTravelDeskQuestions(travelDeskQuestionsQuery)
 
-const travelDeskQuestionEditDialog = ref(null)
+const travelDeskQuestionEditDialog = useTemplateRef("travelDeskQuestionEditDialog")
 
-function showEditDialog(questionId) {
-  travelDeskQuestionEditDialog.value.show(questionId)
+function showEditDialog(questionId: number) {
+  travelDeskQuestionEditDialog.value?.show(questionId)
 }
 
 const isDeleting = ref(false)
 const snack = useSnack()
 
-async function deleteQuestion(questionId) {
+async function deleteQuestion(questionId: number) {
   if (!blockedToTrueConfirm("Are you sure you want to delete this question?")) return
 
   isDeleting.value = true

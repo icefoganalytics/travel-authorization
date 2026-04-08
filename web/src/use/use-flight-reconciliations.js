@@ -12,7 +12,7 @@ import flightReconciliationsApi from "@/api/flight-reconciliations-api"
 /**
  * Provides reactive state management for flight reconciliations with API integration.
  *
- * @param {FlightReconciliationsQueryOptions} [options=ref({})] - Configuration options containing filters and pagination settings for fetching flight reconciliations.
+ * @param {Ref<FlightReconciliationsQueryOptions>} [options=ref({})] - Configuration options containing filters and pagination settings for fetching flight reconciliations.
  * @param {Object} [{ skipWatchIf = () => false }={}] - Configuration to conditionally skip API calls.
  * @param {Function} [skipWatchIf] - Function that returns a boolean to determine if fetching should be skipped.
  * @returns {{

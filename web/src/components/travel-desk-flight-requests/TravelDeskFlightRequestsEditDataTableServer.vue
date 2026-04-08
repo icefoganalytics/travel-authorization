@@ -51,14 +51,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { computed, ref, useTemplateRef } from "vue"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import formatDate from "@/utils/format-date"
 
 import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
 
-import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
 
@@ -117,11 +117,11 @@ const headers = [
   },
 ]
 
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
-  transform: integerTransformerLegacy,
+const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
 })
-const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "5", {
-  transform: integerTransformerLegacy,
+const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`, "5", {
+  transform: integerTransformer,
 })
 
 const travelDeskFlightRequestsQuery = computed(() => ({
@@ -133,17 +133,16 @@ const travelDeskFlightRequestsQuery = computed(() => ({
 const { travelDeskFlightRequests, totalCount, isLoading, refresh } = useTravelDeskFlightRequests(
   travelDeskFlightRequestsQuery
 )
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightRequestEditDialog> | null>} */
-const travelDeskFlightRequestEditDialog = ref(null)
+const travelDeskFlightRequestEditDialog = useTemplateRef("travelDeskFlightRequestEditDialog")
 
-function showEditDialog(flightRequestId) {
+function showEditDialog(flightRequestId: number) {
   travelDeskFlightRequestEditDialog.value?.show(flightRequestId)
 }
 
 const isDeleting = ref(false)
 const snack = useSnack()
 
-async function deleteFlightRequest(flightRequestId) {
+async function deleteFlightRequest(flightRequestId: number) {
   if (!blockedToTrueConfirm("Are you sure you want to remove this flight request?")) return
 
   isDeleting.value = true
