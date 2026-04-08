@@ -45,21 +45,18 @@
       <v-chip
         v-if="!isNil(item.approvedAt)"
         color="success"
-        text-color="white"
       >
         Approved
       </v-chip>
       <v-chip
         v-else-if="!isNil(item.rejectedAt)"
         color="error"
-        text-color="white"
       >
         Rejected
       </v-chip>
       <v-chip
         v-else
         color="warning"
-        text-color="white"
       >
         Pending
       </v-chip>

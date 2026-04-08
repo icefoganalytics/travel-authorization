@@ -45,7 +45,6 @@
       <v-chip
         v-if="value === true"
         color="success"
-        text-color="white"
         size="small"
       >
         Yes
@@ -53,7 +52,6 @@
       <v-chip
         v-else
         color="warning"
-        text-color="white"
         size="small"
       >
         No
