@@ -28,7 +28,7 @@
           label="Traveler name *"
           :where="ygEmployeeWhere"
           item-value="fullName"
-          item-text="fullName"
+          item-title="fullName"
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
           variant="outlined"
         />

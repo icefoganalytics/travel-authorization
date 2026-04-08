@@ -4,7 +4,7 @@
     :model-value="modelValue"
     :items="travelPurposes"
     :loading="isLoading"
-    :item-text="itemText"
+    :item-title="itemText"
     :item-value="itemValue"
     :label="label"
     v-bind="$attrs"
@@ -31,7 +31,7 @@ defineProps({
     default: null,
   },
   itemText: {
-    type: [String, Array, Function], // See https://v2.vuetifyjs.com/en/api/v-select/#props-item-text
+    type: [String, Array, Function], // See https://v3.vuetifyjs.com/en/api/v-select/#props-item-title
     default: "purpose",
   },
   itemValue: {

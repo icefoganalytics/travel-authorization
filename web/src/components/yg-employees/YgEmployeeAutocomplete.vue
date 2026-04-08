@@ -6,7 +6,7 @@
     :label="label"
     :hint="hint"
     :item-value="itemValue"
-    :item-text="itemText"
+    :item-title="itemText"
     :auto-select-first="autoSelectFirst"
     :chips="chips"
     :hide-selected="hideSelected"

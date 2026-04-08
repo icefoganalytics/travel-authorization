@@ -5,7 +5,7 @@
     :items="travelPurposes"
     :loading="isLoading"
     item-value="id"
-    item-text="purpose"
+    item-title="purpose"
     :label="label"
     v-bind="$attrs"
     @update:model-value="emit('update:modelValue', $event)"

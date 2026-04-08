@@ -27,7 +27,7 @@
         <YgEmployeeAutocomplete
           v-model="travelerName"
           item-value="fullName"
-          item-text="fullName"
+          item-title="fullName"
           label="Traveler name *"
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
           variant="outlined"

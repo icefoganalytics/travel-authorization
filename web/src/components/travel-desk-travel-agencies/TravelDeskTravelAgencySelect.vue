@@ -4,7 +4,7 @@
     :items="travelDeskTravelAgencies"
     :label="label"
     :loading="isLoading"
-    item-text="agencyName"
+    item-title="agencyName"
     item-value="id"
     v-bind="$attrs"
     @update:model-value="emit('update:modelValue', $event)"
