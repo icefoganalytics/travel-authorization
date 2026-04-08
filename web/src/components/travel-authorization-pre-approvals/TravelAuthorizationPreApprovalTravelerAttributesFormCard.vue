@@ -47,7 +47,7 @@
           variant="outlined"
           persistent-hint
           :disabled="profileAlreadyCreated"
-          @input="emit('update:numberTravelers', Number($event))"
+          @update:model-value="emit('update:numberTravelers', Number($event))"
         />
       </v-col>
       <v-col

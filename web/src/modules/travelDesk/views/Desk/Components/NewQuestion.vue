@@ -25,7 +25,7 @@
               :error="question.state?.questionErr ?? false"
               label="Question"
               variant="outlined"
-              @input="
+              @update:model-value="
                 question.state = {
                   ...question.state,
                   questionErr: question.state?.questionErr ?? false,
@@ -43,7 +43,7 @@
               :error="question.state?.responseErr ?? false"
               label="Response"
               variant="outlined"
-              @input="
+              @update:model-value="
                 question.state = {
                   ...question.state,
                   questionErr: question.state?.responseErr ?? false,

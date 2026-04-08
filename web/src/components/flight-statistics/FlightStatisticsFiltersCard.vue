@@ -32,7 +32,7 @@
             deletable-chips
             multiple
             variant="outlined"
-            @input="selectLocationCategories"
+            @update:model-value="selectLocationCategories"
           />
         </v-col>
         <v-col
@@ -49,7 +49,7 @@
             deletable-chips
             multiple
             variant="outlined"
-            @input="updateYukonDestinations"
+            @update:model-value="updateYukonDestinations"
           />
           <v-autocomplete
             v-show="selectedLocationCategories.includes(LocationCategory.Canada)"
@@ -61,7 +61,7 @@
             deletable-chips
             multiple
             variant="outlined"
-            @input="updateCanadaDestinations"
+            @update:model-value="updateCanadaDestinations"
           />
           <v-autocomplete
             v-show="selectedLocationCategories.includes(LocationCategory.International)"
@@ -73,7 +73,7 @@
             deletable-chips
             multiple
             variant="outlined"
-            @input="updateInternationalDestinations"
+            @update:model-value="updateInternationalDestinations"
           />
         </v-col>
       </v-row>
@@ -88,7 +88,7 @@
             deletable-chips
             multiple
             variant="outlined"
-            @input="updateDepartmentMailcodes"
+            @update:model-value="updateDepartmentMailcodes"
           />
         </v-col>
       </v-row>

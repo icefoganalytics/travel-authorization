@@ -45,7 +45,7 @@
               variant="outlined"
               :max="dobMaxDate"
               type="date"
-              @input="travelerState.birthDateErr = false"
+              @update:model-value="travelerState.birthDateErr = false"
             />
           </v-col>
           <v-col cols="2">
