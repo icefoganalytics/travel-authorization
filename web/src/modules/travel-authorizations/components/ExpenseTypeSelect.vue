@@ -15,7 +15,7 @@ import { ExpenseExpenseTypes } from "@/api/expenses-api"
 
 withDefaults(
   defineProps<{
-    modelValue: string | null | undefined
+    modelValue: ExpenseExpenseTypes | null | undefined
     expenseTypes?: ExpenseExpenseTypes[]
   }>(),
   {
@@ -24,10 +24,10 @@ withDefaults(
 )
 
 const emit = defineEmits<{
-  (event: "update:modelValue", value: string | null): void
+  (event: "update:modelValue", value: ExpenseExpenseTypes | null): void
 }>()
 
-function updateModelValue(value: string | null) {
+function updateModelValue(value: ExpenseExpenseTypes | null) {
   emit("update:modelValue", value)
 }
 </script>

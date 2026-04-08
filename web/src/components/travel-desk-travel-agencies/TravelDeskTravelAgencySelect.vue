@@ -15,7 +15,8 @@
 import { computed } from "vue"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
-import { useTravelDeskTravelAgencies } from "@/use/use-travel-desk-travel-agencies"
+
+import useTravelDeskTravelAgencies from "@/use/use-travel-desk-travel-agencies"
 
 /** @typedef {import('@/api/travel-desk-travel-agencies-api.js').TravelDeskTravelAgencyWhereOptions} TravelDeskTravelAgencyWhereOptions */
 /** @typedef {import('@/api/travel-desk-travel-agencies-api.js').TravelDeskTravelAgencyFiltersOptions} TravelDeskTravelAgencyFiltersOptions */
@@ -24,13 +25,14 @@ import { useTravelDeskTravelAgencies } from "@/use/use-travel-desk-travel-agenci
  * Defines component props with descriptions and types using JSDoc.
  *
  * @type {{
- *   modelValue: number | null,
+ *   modelValue: number | null | undefined,
  *   where?: TravelDeskTravelAgencyWhereOptions,
  *   filters?: TravelDeskTravelAgencyFiltersOptions
  * }}
  */
 const props = defineProps({
   modelValue: {
+    /** @type {import('vue').PropType<number | null | undefined>} */
     type: Number,
     default: () => null,
   },
@@ -50,7 +52,7 @@ const props = defineProps({
 
 /**
  * @type {{
- *   "update:modelValue": [travelDeskTravelAgencyId: number | null]
+ *   "update:modelValue": [travelDeskTravelAgencyId: number | null | undefined]
  * }}
  */
 const emit = defineEmits(["update:modelValue"])
