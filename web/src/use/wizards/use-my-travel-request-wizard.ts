@@ -1,4 +1,4 @@
-import { computed, reactive, toRefs, unref, watch, type Ref } from "vue"
+import { computed, markRaw, reactive, toRefs, unref, watch, type Ref } from "vue"
 import { useRouter, type NavigationFailure } from "vue-router"
 import { cloneDeep, isNil } from "lodash"
 
@@ -45,11 +45,16 @@ export function useMyTravelRequestWizard(
   travelAuthorizationIdRef: Ref<number | null | undefined>,
   wizardStepNameRef: Ref<string>
 ): UseMyTravelRequestWizard {
+  const steps = Array.from(MY_TRAVEL_REQUEST_WIZARD_STEPS, ({ component, ...wizardStepRest }) => ({
+    ...cloneDeep(wizardStepRest),
+    component: markRaw(component),
+  }))
+
   const state = reactive<{
     steps: WizardStep[]
     isReady: boolean
   }>({
-    steps: cloneDeep(Array.from(MY_TRAVEL_REQUEST_WIZARD_STEPS)),
+    steps,
     isReady: false,
   })
 
