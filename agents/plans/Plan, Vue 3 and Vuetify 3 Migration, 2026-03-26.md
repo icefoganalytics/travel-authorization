@@ -18,12 +18,24 @@ and Vuetify 2 specific APIs.
 
 ## Execution Progress
 
-Phase 1 structural decoupling and the Phase 2 dependency swap are complete.
-The app boots on Vue 3 + Vuetify 3 + Vue Router 4 + Vue I18n 9. Legacy
-patterns already eliminated: filters, `$snack`, `$http`, `mapActions`/
-`mapGetters`, Vuex store wiring, `$listeners`, `$scopedSlots`, activator
-`{ on, attrs }` slots, `$vuetify` access, Vuetify 2 display/goTo/sort shims,
-and data table renames.
+Phases 1 and 2 are complete. The app now boots on Vue 3 + Vuetify 3 + Vue
+Router 4 + Vue I18n 9, and the migration is now in the manual runtime mismatch
+cleanup phase.
+
+**Completed work, summarized briefly:**
+- structural decoupling on Vue 2 before the swap
+- Node/container baseline update and clean-install Docker flow
+- Vue 3 dependency swap and app bootstrap conversion
+- removal of filters, `$snack`, `$http`, Vuex store wiring, and Vuetify 2 shims
+- removal of `$listeners`, `$scopedSlots`, activator `{ on, attrs }`, and
+  direct `$vuetify` access
+- major Vuetify 3 data table and slot renames already landed
+
+**Highest-value remaining work:**
+- resolve runtime component mismatches from removed Vuetify 2 subcomponents
+- finish converting Vue 2 `value` / `@input` contracts to `modelValue`
+- clear the remaining `.sync` usages
+- finish the last typed cleanup in shared tables and wrappers
 
 **Remaining Vue 2 / Vuetify 2 patterns:**
 
@@ -34,11 +46,17 @@ and data table renames.
 | `.sync` modifier | 7 | `v-model:prop` (change ready, pending commit) |
 | `Vue.prototype` | 1 | Replace during Auth0 swap |
 
-**Current type-check errors (22):**
-- 4 × component still defines `value` prop but consumer passes `modelValue`
-- 2 × `#foot` slot (renamed in Vuetify 3)
-- 16 × pre-existing type issues surfaced by adding `lang="ts"` to 3 data table
-  server components
+**Current high-priority runtime cleanup focus:**
+- `v-list-item-icon` / `v-list-item-content` / `v-list-item-avatar` /
+  `v-list-item-action` / `v-list-item-group`
+- `v-tabs-items` / `v-tab-item`
+- `v-expansion-panel-header` / `v-expansion-panel-content`
+- any remaining removed Vuetify 2 subcomponents surfaced by the browser console
+
+**Current type-check backlog (smaller than the runtime mismatch bucket):**
+- table server components with `null` page/per-page values
+- a few remaining `value` vs `modelValue` component contracts
+- a few report / travel desk page prop mismatches surfaced by stricter Vue 3 typing
 
 ## Current State Analysis
 
@@ -67,12 +85,12 @@ and data table renames.
 
 **Not Yet Implemented:**
 - The codebase still contains a large Vue 2 / Vuetify 2 compatibility surface,
-  especially `v-on="$listeners"`, `$scopedSlots`, activator `{ on, attrs }`
-  slots, and legacy `value` / `@input` component contracts.
-- Many server-backed tables still use `v-data-table` with Vuetify 2-era header
-  shapes and file names even after the sort/query migration.
-- Legacy Vuex files and Vuetify 2 type shims still exist in the repo and
-  should be removed once all consumers are migrated away.
+  now concentrated in removed Vuetify 2 subcomponents and legacy `value` /
+  `@input` component contracts rather than in global bootstrap patterns.
+- Several shared data-table and edit-table components still need Vue 3-compatible
+  prop/query typing cleanup.
+- The remaining work is no longer “set up Vue 3”; it is “finish component API
+  migration and remove runtime mismatches”.
 
 **Quantified Vue 2 Pattern Inventory:**
 
