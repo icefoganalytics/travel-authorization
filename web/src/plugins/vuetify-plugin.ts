@@ -1,4 +1,5 @@
 import { createVuetify } from "vuetify"
+
 import "vuetify/styles"
 
 import "@/assets/yk-style.css"
