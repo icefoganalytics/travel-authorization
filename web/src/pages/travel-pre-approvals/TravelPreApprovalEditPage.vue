@@ -93,10 +93,10 @@
         md="4"
       >
         <v-switch
-          :input-value="exactTravelDateKnown"
+          :model-value="exactTravelDateKnown"
           :label="exactTravelDateKnown ? 'Exact date known' : 'Exact date not known'"
           inset
-          @change="toggleExactTravelDateKnown"
+          @update:model-value="toggleExactTravelDateKnown"
         />
       </v-col>
       <template v-if="exactTravelDateKnown">

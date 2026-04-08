@@ -10,10 +10,10 @@
         md="3"
       >
         <v-switch
-          :input-value="exactTravelerKnown"
+          :model-value="exactTravelerKnown"
           :label="exactTravelerKnown ? 'Exact traveler known' : 'Exact traveler not known'"
           inset
-          @change="toggleExactTravelerKnown"
+          @update:model-value="toggleExactTravelerKnown"
         />
       </v-col>
     </v-row>

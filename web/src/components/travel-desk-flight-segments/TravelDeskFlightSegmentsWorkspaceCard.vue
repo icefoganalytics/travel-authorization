@@ -24,9 +24,9 @@
             <div class="d-flex justify-center justify-md-start">
               <v-checkbox
                 label="Select All"
-                :input-value="selectAllValue"
+                :model-value="selectAllValue"
                 :indeterminate="selectAllValue === null"
-                @change="selectAll"
+                @update:model-value="selectAll"
               />
             </div>
             <div
@@ -35,9 +35,9 @@
               class="d-flex flex-column flex-md-row align-center"
             >
               <v-checkbox
-                :input-value="isSelected(item)"
+                :model-value="isSelected(item)"
                 color="primary"
-                @change="($event) => select(item, $event)"
+                @update:model-value="($event) => select(item, $event)"
               />
               <TravelDeskFlightSegmentEditCard
                 :flight-segment="item"
