@@ -122,7 +122,14 @@ function formatFinalDestination(location: LocationAsReference | null) {
 
 const router = useRouter()
 
-function goToManageTravelAuthorization(travelAuthorization: TravelAuthorizationAsIndex) {
+type TravelAuthorizationTableRow = {
+  item: TravelAuthorizationAsIndex
+}
+
+function goToManageTravelAuthorization(
+  _event: unknown,
+  { item: travelAuthorization }: TravelAuthorizationTableRow
+) {
   const travelAuthorizationId = travelAuthorization.id.toString()
   router.push({
     name: "manage-travel-requests/ManageTravelRequestDetailsPage",

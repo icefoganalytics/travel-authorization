@@ -110,7 +110,11 @@ const filteredUsers = computed(() => {
 
 const router = useRouter()
 
-function goToUserEditPage(user: User) {
+type UserTableRow = {
+  item: User
+}
+
+function goToUserEditPage(_event: unknown, { item: user }: UserTableRow) {
   router.push({
     name: "administration/users/UserEditPage",
     params: {

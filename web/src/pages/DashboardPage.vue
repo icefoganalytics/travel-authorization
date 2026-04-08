@@ -257,8 +257,8 @@ export default {
         this.forms = resp.data
       })
     },
-    openForm(value) {
-      this.$router.push(`/TravelRequest/Request/${value.formId}`)
+    openForm(_event, { item }) {
+      this.$router.push(`/TravelRequest/Request/${item.formId}`)
     },
     createForm() {
       this.$router.push(`/TravelRequest/Request/${uuidv4()}`)

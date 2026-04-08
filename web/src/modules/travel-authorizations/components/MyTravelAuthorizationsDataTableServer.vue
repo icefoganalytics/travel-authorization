@@ -166,7 +166,14 @@ const { travelAuthorizations, totalCount, isLoading, refresh } =
 
 const router = useRouter()
 
-async function goToMyTravelRequestWizardStep(travelAuthorization: TravelAuthorizationAsIndex) {
+type TravelAuthorizationTableRow = {
+  item: TravelAuthorizationAsIndex
+}
+
+async function goToMyTravelRequestWizardStep(
+  _event: unknown,
+  { item: travelAuthorization }: TravelAuthorizationTableRow
+) {
   const { wizardStepName } = travelAuthorization
   if (isNil(wizardStepName)) return
 
