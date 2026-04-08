@@ -233,7 +233,7 @@ import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Object,
     required: true,
   },
@@ -243,7 +243,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input", "save-requested"])
+const emit = defineEmits(["update:modelValue", "save-requested"])
 
 const travelerDetails = reactive({
   legalFirstName: "",
@@ -263,7 +263,7 @@ const travelerDetails = reactive({
   travelPhone: "",
   travelEmail: "",
   additionalInformation: "",
-  ...props.value,
+  ...props.modelValue,
 })
 const form = ref(null)
 
@@ -289,7 +289,7 @@ watch(
       newValue.travelEmail = null
     }
 
-    emit("input", cloneDeep({ ...props.value, ...newValue }))
+    emit("update:modelValue", cloneDeep({ ...props.modelValue, ...newValue }))
   },
   {
     deep: true,

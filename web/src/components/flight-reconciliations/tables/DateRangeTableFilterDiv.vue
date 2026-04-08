@@ -64,7 +64,7 @@ import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
 import DatePickerRangeDialog from "@/components/common/DatePickerRangeDialog.vue"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Array,
     default: () => [],
   },
@@ -78,7 +78,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue", "update:loaded"])
 
 const INITIAL_DATE_RANGE = [
   DateTime.local().toISODate(),
@@ -98,7 +98,7 @@ watch(
       emit("update:loaded", true)
     }
 
-    emit("input", newValue)
+    emit("update:modelValue", newValue)
   },
   { immediate: true, deep: true }
 )

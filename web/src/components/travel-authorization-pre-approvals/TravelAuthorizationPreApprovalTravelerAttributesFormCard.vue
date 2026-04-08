@@ -71,7 +71,7 @@
       >
         <v-data-table
           :headers="headers"
-          :items="value"
+          :items="modelValue"
           hide-default-footer
         >
           <template #item.actions="{ index }">
@@ -104,7 +104,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  value: {
+  modelValue: {
     /**
      * @type {Partial<TravelAuthorizationPreApprovalProfile>[]}
      */
@@ -125,7 +125,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input", "update:numberTravelers", "update:isOpenForAnyTraveler"])
+const emit = defineEmits(["update:modelValue", "update:numberTravelers", "update:isOpenForAnyTraveler"])
 
 const exactTravelerKnown = ref(true)
 const travelerName = ref(undefined)
@@ -136,15 +136,15 @@ const ygEmployeeWhere = computed(() => ({
   branch: props.branch,
 }))
 const ygEmployeeFilters = computed(() => {
-  if (isEmpty(props.value)) return {}
+  if (isEmpty(props.modelValue)) return {}
 
-  const fullNamesToExclude = props.value.map((profile) => profile.profileName)
+  const fullNamesToExclude = props.modelValue.map((profile) => profile.profileName)
   return {
     excludingByFullNames: fullNamesToExclude,
   }
 })
 
-const profileAlreadyCreated = computed(() => !isEmpty(props.value))
+const profileAlreadyCreated = computed(() => !isEmpty(props.modelValue))
 
 const headers = ref([
   {
@@ -173,7 +173,7 @@ function toggleExactTravelerKnown(value) {
 
   emit("update:isOpenForAnyTraveler", !exactTravelerKnown.value)
   emit("update:numberTravelers", numberTravelersLocal.value)
-  emit("input", [])
+  emit("update:modelValue", [])
 }
 
 function addTravelerProfileAttributes() {
@@ -201,16 +201,16 @@ function addTravelerProfileAttributes() {
     }
   }
 
-  emit("input", [...props.value, newProfileAttributes])
+  emit("update:modelValue", [...props.modelValue, newProfileAttributes])
   travelerName.value = undefined
   numberTravelersLocal.value = undefined
 }
 
 function removeTravelerProfileAttributes(index) {
   const travelerProfilesAttributesWithoutItem = [
-    ...props.value.slice(0, index),
-    ...props.value.slice(index + 1),
+    ...props.modelValue.slice(0, index),
+    ...props.modelValue.slice(index + 1),
   ]
-  emit("input", travelerProfilesAttributesWithoutItem)
+  emit("update:modelValue", travelerProfilesAttributesWithoutItem)
 }
 </script>
