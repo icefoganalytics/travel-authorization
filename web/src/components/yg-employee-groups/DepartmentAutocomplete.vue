@@ -79,7 +79,13 @@ const emit = defineEmits<{
   (event: "update:modelValue", value: string): void
 }>()
 
-function emitInputAndReset(value: string) {
+function emitInputAndReset(value: string | null) {
+  if (isNil(value)) {
+    emit("update:modelValue", "")
+    reset()
+    return
+  }
+
   emit("update:modelValue", value)
   reset()
 }

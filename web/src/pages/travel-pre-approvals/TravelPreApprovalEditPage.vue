@@ -96,7 +96,7 @@
           :model-value="exactTravelDateKnown"
           :label="exactTravelDateKnown ? 'Exact date known' : 'Exact date not known'"
           inset
-          @update:model-value="toggleExactTravelDateKnown"
+          @update:model-value="toggleExactTravelDateKnown($event ?? false)"
         />
       </v-col>
       <template v-if="exactTravelDateKnown">

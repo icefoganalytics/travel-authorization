@@ -235,6 +235,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
+import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"
@@ -305,14 +306,14 @@ const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
 
-function resetPickUpLocationOtherUnlessOther(value: string) {
-  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+function resetPickUpLocationOtherUnlessOther(value: string | null) {
+  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCarAttributes.value.pickUpLocationOther = undefined
   }
 }
 
-function resetDropOffLocationOtherUnlessOther(value: string) {
-  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+function resetDropOffLocationOtherUnlessOther(value: string | null) {
+  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCarAttributes.value.dropOffLocationOther = undefined
   }
 }
@@ -325,8 +326,8 @@ function resetDropOffLocationStates(value: boolean) {
   }
 }
 
-function resetVehicleChangeRationaleIfCompact(value: string) {
-  if (value === TravelDeskRentalCarVehicleTypes.COMPACT) {
+function resetVehicleChangeRationaleIfCompact(value: string | null) {
+  if (isNil(value) || value === TravelDeskRentalCarVehicleTypes.COMPACT) {
     travelDeskRentalCarAttributes.value.vehicleChangeRationale = undefined
   }
 }

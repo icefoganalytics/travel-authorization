@@ -146,8 +146,12 @@ async function deleteReceipt() {
 
 const isFullscreen = ref(false)
 
-function updateFullScreen(value: boolean) {
-  isFullscreen.value = value
+function updateFullScreen(value: boolean | null) {
+  if (isNil(value)) {
+    isFullscreen.value = false
+  } else {
+    isFullscreen.value = value
+  }
 }
 
 function hideIfNotFullscreen() {

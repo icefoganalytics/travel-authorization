@@ -323,18 +323,18 @@ watch(
   { immediate: true }
 )
 
-function resetPickUpLocationOtherUnlessOther(value: string) {
+function resetPickUpLocationOtherUnlessOther(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
 
-  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCar.value.pickUpLocationOther = null
   }
 }
 
-function resetDropOffLocationOtherUnlessOther(value: string) {
+function resetDropOffLocationOtherUnlessOther(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
 
-  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCar.value.dropOffLocationOther = null
   }
 }
@@ -349,10 +349,10 @@ function resetDropOffLocationStates(value: boolean) {
   }
 }
 
-function resetVehicleChangeRationaleIfCompact(value: string) {
+function resetVehicleChangeRationaleIfCompact(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
 
-  if (value === TravelDeskRentalCarVehicleTypes.COMPACT) {
+  if (isNil(value) || value === TravelDeskRentalCarVehicleTypes.COMPACT) {
     travelDeskRentalCar.value.vehicleChangeRationale = null
   }
 }

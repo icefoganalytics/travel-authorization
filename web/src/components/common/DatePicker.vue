@@ -35,7 +35,7 @@ export default {
 
 <script setup lang="ts">
 import { ref } from "vue"
-import { merge } from "lodash"
+import { isNil, merge } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -58,8 +58,14 @@ const emit = defineEmits<{
 
 const menu = ref(false)
 
-function closeAndEmitInput(value: string) {
+function closeAndEmitInput(value: string | null) {
   menu.value = false
-  emit("update:modelValue", value)
+
+  if (isNil(value)) {
+    emit("update:modelValue", "")
+    return
+  } else {
+    emit("update:modelValue", value)
+  }
 }
 </script>

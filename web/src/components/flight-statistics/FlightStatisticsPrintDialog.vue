@@ -279,7 +279,7 @@ function close() {
   showDialog.value = false
 }
 
-function closeIfFalse(value: boolean) {
+function closeIfFalse(value: boolean | null) {
   if (value !== false) return
 
   close()

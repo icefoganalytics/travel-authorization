@@ -20,7 +20,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { debounce } from "lodash"
+import { debounce, isNil } from "lodash"
 import { ref, computed } from "vue"
 
 import usersApi from "@/api/users-api"
@@ -63,7 +63,13 @@ async function search(token: string) {
 
 const debouncedSearch = debounce(search, 300)
 
-function emitUpdateAndInput(value: string) {
+function emitUpdateAndInput(value: string | null) {
+  if (isNil(value)) {
+    searchToken.value = ""
+    emit("update:modelValue", "")
+    return
+  }
+
   searchToken.value = value
   emit("update:modelValue", value)
 }

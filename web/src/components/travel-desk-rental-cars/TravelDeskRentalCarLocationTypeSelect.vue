@@ -25,7 +25,7 @@ withDefaults(
 )
 
 const emit = defineEmits<{
-  (event: "update:modelValue", value: string): void
+  (event: "update:modelValue", value: string | null): void
 }>()
 
 const locationTypeOptions = computed(() => [
