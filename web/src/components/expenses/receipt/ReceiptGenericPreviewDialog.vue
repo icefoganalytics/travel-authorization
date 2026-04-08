@@ -12,7 +12,7 @@
         <v-spacer />
         <v-chip
           v-if="receipt"
-          small
+          size="small"
           >{{ friendlyType }}</v-chip
         >
       </v-card-title>
@@ -25,7 +25,7 @@
             size="64"
             class="mb-3 white elevation-1"
           >
-            <v-icon large>{{ iconName }}</v-icon>
+            <v-icon size="large">{{ iconName }}</v-icon>
           </v-avatar>
 
           <div class="text-h6 mb-1">Can't preview {{ friendlyType }}</div>

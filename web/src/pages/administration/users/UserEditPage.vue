@@ -86,7 +86,7 @@
                     :rules="[required]"
                     variant="outlined"
                     dense
-                    small-chips
+                    chips
                     :clearable="false"
                     background-color="white"
                   />
@@ -99,7 +99,7 @@
                     variant="outlined"
                     dense
                     multiple
-                    small-chips
+                    chips
                     background-color="white"
                     clearable
                     hide-details

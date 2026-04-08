@@ -36,7 +36,7 @@
           >
             <v-icon
               left
-              small
+              size="small"
             >
               mdi-progress-clock
             </v-icon>

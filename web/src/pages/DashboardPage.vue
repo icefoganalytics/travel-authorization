@@ -71,14 +71,14 @@
             >
               <template #item.actions="{ item }">
                 <v-icon
-                  small
+                  size="small"
                   class="mr-2"
                   @click="editItem(item)"
                 >
                   mdi-pencil
                 </v-icon>
                 <v-icon
-                  small
+                  size="small"
                   @click="deleteItem(item)"
                 >
                   mdi-delete
@@ -92,7 +92,7 @@
         </v-row>
         <v-btn
           color="blue"
-          small
+          size="small"
           @click="saveChanges"
           >Save Changes</v-btn
         >

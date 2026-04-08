@@ -19,7 +19,7 @@
             <v-btn
               class="ma-2"
               dense
-              small
+              size="small"
               color="red"
               @click="removeStop(index)"
             >
@@ -31,7 +31,7 @@
         <v-btn
           class="ma-2"
           dense
-          small
+          size="small"
           color="green"
         >
           Save
@@ -39,7 +39,7 @@
         <v-btn
           class="ma-2"
           dense
-          small
+          size="small"
           color="red"
         >
           Discard Changes

@@ -12,7 +12,7 @@
     :class="{ pulse: isInPostSaveStateTemporarily }"
     variant="outlined"
     fab
-    x-small
+    size="x-small"
     :title="title"
     v-bind="$attrs"
   >

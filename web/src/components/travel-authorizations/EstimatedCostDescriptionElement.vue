@@ -8,7 +8,7 @@
       {{ formatCurrency(estimatedCost) }}
       <v-icon
         right
-        small
+        size="small"
       >
         mdi-help-circle-outline
       </v-icon>

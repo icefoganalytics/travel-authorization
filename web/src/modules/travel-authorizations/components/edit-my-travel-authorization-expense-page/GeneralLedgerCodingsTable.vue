@@ -22,7 +22,7 @@
         <template #activator="{ props: activatorProps }">
           <span v-bind="activatorProps">
             {{ header.text }}
-            <v-icon small> mdi-help-circle-outline </v-icon>
+            <v-icon size="small">mdi-help-circle-outline</v-icon>
           </span>
         </template>
         <span>

@@ -82,7 +82,7 @@
                   <v-btn
                     class="my-0 ml-0 ml-md-2 mt-2 mt-md-0"
                     color="warning"
-                    small
+                    size="small"
                     variant="outlined"
                     @click="unmark(item.id)"
                   >

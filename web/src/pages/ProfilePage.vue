@@ -47,7 +47,7 @@
           class="ml-2 my-0"
           title="Copy email to clipboard"
           icon
-          small
+          size="small"
           @click="copyToClipboard(currentUser.email, 'Email copied to clipboard')"
         >
           <v-icon>mdi-content-copy</v-icon>

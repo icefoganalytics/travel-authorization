@@ -12,7 +12,6 @@
     :hide-selected="hideSelected"
     :no-filter="noFilter"
     :persistent-hint="persistentHint"
-    :small-chips="smallChips"
     v-bind="$attrs"
     @update:model-value="emitInputAndReset"
     @update:search="debouncedUpdateSearchToken"
@@ -56,7 +55,6 @@ const props = withDefaults(
     hideSelected?: boolean
     noFilter?: boolean
     persistentHint?: boolean
-    smallChips?: boolean
   }>(),
   {
     modelValue: null,
@@ -71,7 +69,6 @@ const props = withDefaults(
     hideSelected: true,
     noFilter: true,
     persistentHint: true,
-    smallChips: true,
   }
 )
 

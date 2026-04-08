@@ -22,7 +22,7 @@
                 title="Remove"
                 color="error"
                 icon
-                small
+                size="small"
                 @click="removePreApprovalRequest(item.id)"
               >
                 <v-icon>mdi-delete</v-icon>

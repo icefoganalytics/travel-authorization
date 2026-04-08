@@ -29,7 +29,7 @@
         @click="resetDateRange"
       >
         <v-icon
-          small
+          size="small"
           left
           >mdi-refresh</v-icon
         >
@@ -44,7 +44,7 @@
         @click="clearDateRange"
       >
         <v-icon
-          small
+          size="small"
           left
           >mdi-close</v-icon
         >

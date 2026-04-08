@@ -9,7 +9,7 @@
       <template #activator="{ props: activatorProps }">
         <v-icon
           right
-          small
+          size="small"
           v-bind="activatorProps"
           @click.stop
           >mdi-help-circle-outline</v-icon

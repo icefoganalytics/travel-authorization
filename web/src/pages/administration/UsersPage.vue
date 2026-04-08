@@ -25,7 +25,7 @@
             >
               <v-select
                 v-model="selectedStatuses"
-                small-chips
+                chips
                 multiple
                 :items="statusFilterOptions"
                 label="Status filter"

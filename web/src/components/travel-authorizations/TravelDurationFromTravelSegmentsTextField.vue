@@ -24,7 +24,7 @@
         ></v-text-field>
         <v-icon
           class="ml-1"
-          small
+          size="small"
         >
           mdi-help-circle-outline
         </v-icon>

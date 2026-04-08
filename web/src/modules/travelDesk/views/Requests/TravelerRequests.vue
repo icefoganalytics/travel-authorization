@@ -66,7 +66,7 @@
           v-if="hasInvoiceNumber(item)"
           class="ml-2"
           color="#005A65"
-          x-small
+          size="x-small"
           @click="openPrintItineraryDialog(item.id)"
         >
           View Itinerary

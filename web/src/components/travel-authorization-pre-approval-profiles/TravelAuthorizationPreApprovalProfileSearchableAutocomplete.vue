@@ -13,7 +13,6 @@
     hide-selected
     no-filter
     persistent-hint
-    small-chips
     v-bind="$attrs"
     @update:model-value="emit('update:modelValue', $event)"
     @update:search="debouncedUpdateSearchToken"

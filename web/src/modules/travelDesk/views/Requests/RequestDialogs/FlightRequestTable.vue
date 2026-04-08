@@ -77,7 +77,7 @@
                 style="min-width: 0"
                 color="transparent"
                 class="px-1 pt-2"
-                small
+                size="small"
                 @click="removeFlight(item)"
                 ><v-icon
                   class=""

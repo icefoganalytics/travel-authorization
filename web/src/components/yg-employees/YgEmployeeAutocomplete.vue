@@ -12,7 +12,6 @@
     :hide-selected="hideSelected"
     :no-filter="noFilter"
     :persistent-hint="persistentHint"
-    :small-chips="smallChips"
     v-bind="$attrs"
     @update:model-value="emit('update:modelValue', $event)"
     @update:search="debouncedUpdateSearchToken"
@@ -91,10 +90,6 @@ const props = defineProps({
     default: true,
   },
   persistentHint: {
-    type: Boolean,
-    default: true,
-  },
-  smallChips: {
     type: Boolean,
     default: true,
   },
