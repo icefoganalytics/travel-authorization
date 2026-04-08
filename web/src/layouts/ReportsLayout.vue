@@ -38,7 +38,7 @@
                 :model-value="hasActiveFilters"
               >
                 Filters
-                <v-icon right>
+                <v-icon end>
                   {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }}
                 </v-icon>
               </v-badge>

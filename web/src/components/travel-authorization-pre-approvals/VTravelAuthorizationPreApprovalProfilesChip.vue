@@ -12,7 +12,7 @@
     </template>
     <template v-else> {{ travelAuthorizationPreApprovalProfiles[0].profileName }}, ... </template>
 
-    <v-icon right>mdi-menu-down</v-icon>
+    <v-icon end>mdi-menu-down</v-icon>
 
     <v-menu
       :activator="chip?.$el"

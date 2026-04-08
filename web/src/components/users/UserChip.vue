@@ -14,7 +14,7 @@
     />
     <template v-else>
       {{ user.firstName }} {{ user.lastName }}
-      <v-icon right>mdi-menu-down</v-icon>
+      <v-icon end>mdi-menu-down</v-icon>
     </template>
     <v-progress-circular
       v-if="isNil(user)"

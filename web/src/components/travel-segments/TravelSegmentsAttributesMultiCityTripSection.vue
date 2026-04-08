@@ -284,7 +284,7 @@
           class="my-0"
           @click="addTravelSegmentAttribute"
         >
-          <v-icon left>mdi-plus</v-icon> Add Leg
+          <v-icon start>mdi-plus</v-icon> Add Leg
         </v-btn>
       </v-col>
     </v-row>

@@ -8,7 +8,7 @@
         color="primary"
         @click="ygGovernmentDirectorySync"
       >
-        <v-icon left>mdi-cached</v-icon> Sync
+        <v-icon start>mdi-cached</v-icon> Sync
       </v-btn>
     </h1>
 

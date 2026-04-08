@@ -18,7 +18,7 @@
           color="primary"
           class="my-0"
         >
-          <v-icon left> mdi-pencil </v-icon>
+          <v-icon start> mdi-pencil </v-icon>
           Edit
         </v-btn>
       </v-card-title>

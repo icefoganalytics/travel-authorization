@@ -53,7 +53,7 @@
         :loading="isProcessingTravelAuthorization(item.id)"
         @click.stop="approveTravelAuthorization(item.id)"
       >
-        <v-icon left> mdi-check </v-icon>
+        <v-icon start> mdi-check </v-icon>
         Complete
       </v-btn>
     </template>

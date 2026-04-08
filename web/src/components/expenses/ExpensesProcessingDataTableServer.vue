@@ -76,7 +76,7 @@
           :loading="isProcessingExpense(item.id)"
           @click.stop="approveExpense(item.id)"
         >
-          <v-icon left> mdi-check </v-icon>
+          <v-icon start> mdi-check </v-icon>
           Approve
         </v-btn>
         <v-btn
@@ -85,7 +85,7 @@
           :loading="isProcessingExpense(item.id)"
           @click.stop="openExpenseRejectDialog(item.id)"
         >
-          <v-icon left> mdi-close </v-icon>
+          <v-icon start> mdi-close </v-icon>
           Reject
         </v-btn>
       </div>

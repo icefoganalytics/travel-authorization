@@ -17,7 +17,7 @@
       type="submit"
     >
       <slot>{{ buttonText }}</slot>
-      <v-icon right>mdi-download</v-icon>
+      <v-icon end>mdi-download</v-icon>
     </v-btn>
   </form>
 </template>
