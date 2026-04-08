@@ -1,8 +1,8 @@
 <template>
   <v-navigation-drawer
-    :value="value"
+    :model-value="modelValue"
     v-bind="$attrs"
-    @input="emit('update', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   >
     <v-list>
       <DashboardListItem />
@@ -32,10 +32,10 @@ import TravelPreApprovalsListItem from "@/components/default-layout/list-items/T
 import TravelRequestsListItem from "@/components/default-layout/list-items/TravelRequestsListItem.vue"
 
 defineProps<{
-  value: boolean
+  modelValue: boolean
 }>()
 
 const emit = defineEmits<{
-  (event: "update", value: boolean): void
+  (event: "update:modelValue", value: boolean): void
 }>()
 </script>

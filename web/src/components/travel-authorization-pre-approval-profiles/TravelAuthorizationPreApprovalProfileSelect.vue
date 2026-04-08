@@ -1,12 +1,12 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="profiles"
     :loading="isLoading"
     label="Pre-approved travel for (if applicable)"
     no-data-text="No pre-approvals available"
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   ></v-select>
 </template>
 
@@ -20,7 +20,7 @@ import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorizatio
  * Defines component props with descriptions and types using JSDoc.
  *
  * @type {{
- *   value: number | null,
+ *   modelValue: number | null,
  *   queryOptions: {
  *     where?: {department?: string},
  *     filters?: {approved?: boolean, openDateOrBeforeStartDate?: boolean}
@@ -28,7 +28,7 @@ import travelAuthorizationPreApprovalProfilesApi from "@/api/travel-authorizatio
  * }}
  */
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Number,
     default: null,
   },
@@ -38,7 +38,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const profiles = ref([])
 const isLoading = ref(false)
@@ -66,9 +66,9 @@ async function fetch(queryOptions) {
     profiles.value = newProfiles.map(({ id, preApproval }) => {
       // TODO: consider if "profileName" should be included here?
       const { branch, location, purpose } = preApproval
-      const text = [branch, location, purpose].filter(Boolean).join(" - ")
+      const title = [branch, location, purpose].filter(Boolean).join(" - ")
       return {
-        text,
+        title,
         value: id,
       }
     })

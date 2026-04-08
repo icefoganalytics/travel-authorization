@@ -2,8 +2,8 @@
   <v-card :elevation="elevation">
     <v-form
       ref="form"
-      :value="value"
-      @input="emit('input', $event)"
+      :model-value="modelValue"
+      @update:model-value="emit('update:modelValue', $event)"
       @submit="emit('submit', $event)"
     >
       <v-card-title class="d-flex flex-column flex-md-row justify-md-space-between align-md-end">
@@ -38,7 +38,7 @@ import { ref } from "vue"
 import { isEmpty, isNil } from "lodash"
 
 defineProps({
-  value: {
+  modelValue: {
     type: Boolean,
     default: null,
   },
@@ -69,7 +69,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input", "submit"])
+const emit = defineEmits(["update:modelValue", "submit"])
 
 /** @typedef {import('vuetify/lib/components').VForm} VForm */
 /** @type {import('vue').Ref<InstanceType<typeof VForm> | null>} */

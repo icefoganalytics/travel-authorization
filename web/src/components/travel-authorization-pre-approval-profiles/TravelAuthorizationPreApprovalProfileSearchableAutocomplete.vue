@@ -1,6 +1,6 @@
 <template>
   <v-autocomplete
-    :value="value"
+    :model-value="modelValue"
     :loading="isLoading"
     :items="allTravelAuthorizationPreApprovalProfiles"
     :label="label"
@@ -15,7 +15,7 @@
     persistent-hint
     small-chips
     v-bind="$attrs"
-    @input="emit('input', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
     @update:search-input="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
@@ -70,7 +70,7 @@ import TravelAuthorizationPreApprovalProfileChip from "@/components/travel-autho
 import TravelAuthorizationPreApprovalProfileListItem from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileListItem.vue"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     /** @type {number | null | undefined} */
     type: Number,
     default: null,
@@ -97,9 +97,9 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
-const travelAuthorizationPreApprovalProfileId = computed(() => props.value)
+const travelAuthorizationPreApprovalProfileId = computed(() => props.modelValue)
 const { travelAuthorizationPreApprovalProfile } = useTravelAuthorizationPreApprovalProfile(
   travelAuthorizationPreApprovalProfileId
 )
@@ -161,7 +161,7 @@ async function reset() {
 }
 
 watch(
-  () => props.value,
+  () => props.modelValue,
   async (newModelValue) => {
     if (isEmpty(newModelValue)) {
       await reset()

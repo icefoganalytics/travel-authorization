@@ -1,9 +1,9 @@
 <template>
   <component
     :is="RoleSpecificNavigationDrawerComponent"
-    :value="value"
+    :model-value="modelValue"
     v-bind="$attrs"
-    @update="emit('update', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -19,11 +19,11 @@ import TravelDeskUserLeftSideNavigationDrawer from "@/components/default-layout/
 import UserLeftSideNavigationDrawer from "@/components/default-layout/left-side-navigation-drawers/UserLeftSideNavigationDrawer.vue"
 
 defineProps<{
-  value: boolean
+  modelValue: boolean
 }>()
 
 const emit = defineEmits<{
-  (event: "update", value: boolean): void
+  (event: "update:modelValue", value: boolean): void
 }>()
 
 const { isAdmin, isDepartmentAdmin, isFinanceUser, isPreApprovedTravelAdmin, isTravelDeskUser } =
