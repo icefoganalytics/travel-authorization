@@ -11,7 +11,7 @@
     :color="isInPostSaveStateTemporarily ? 'success' : 'primary'"
     :class="{ pulse: isInPostSaveStateTemporarily }"
     variant="outlined"
-    fab
+    icon
     size="x-small"
     :title="title"
     v-bind="$attrs"
