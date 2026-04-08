@@ -15,7 +15,7 @@
     :small-chips="smallChips"
     v-bind="$attrs"
     @update:model-value="emit('update:modelValue', $event)"
-    @update:search-input="debouncedUpdateSearchToken"
+    @update:search="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
     <!-- TODO: triggers => [Vuetify] assert: staticList should not be called if slots are used -->

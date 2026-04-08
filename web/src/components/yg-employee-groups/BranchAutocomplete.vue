@@ -15,7 +15,7 @@
     :small-chips="smallChips"
     v-bind="$attrs"
     @update:model-value="emitInputAndReset"
-    @update:search-input="debouncedUpdateSearchToken"
+    @update:search="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
     <template

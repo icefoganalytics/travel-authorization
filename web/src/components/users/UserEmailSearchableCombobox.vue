@@ -9,7 +9,7 @@
     persistent-hint
     v-bind="$attrs"
     @update:model-value="emitUpdateAndInput"
-    @update:search-input="debouncedSearch"
+    @update:search="debouncedSearch"
   ></v-combobox>
 </template>
 

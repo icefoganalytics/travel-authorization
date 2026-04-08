@@ -16,7 +16,7 @@
     small-chips
     v-bind="$attrs"
     @update:model-value="emit('update:modelValue', $event)"
-    @update:search-input="debouncedUpdateSearchToken"
+    @update:search="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
     <template #chip="{ item, props: chipProps }">
