@@ -19,33 +19,37 @@
       dense
       style="min-width: 200px"
     >
-      <v-list-item :to="{ name: 'ProfilePage' }">
-        <v-list-item-icon>
-          <v-icon>mdi-account</v-icon>
-        </v-list-item-icon>
+      <v-list-item
+        :to="{
+          name: 'ProfilePage',
+        }"
+        prepend-icon="mdi-account"
+      >
         <v-list-item-title>My profile</v-list-item-title>
       </v-list-item>
       <v-list-item
         v-if="isAdmin"
-        :to="{ name: 'AdministrationPage' }"
+        :to="{
+          name: 'AdministrationPage',
+        }"
+        prepend-icon="mdi-cogs"
       >
-        <v-list-item-icon>
-          <v-icon>mdi-cogs</v-icon>
-        </v-list-item-icon>
         <v-list-item-title>Administration</v-list-item-title>
       </v-list-item>
 
       <v-divider />
-      <v-list-item :to="{ name: 'HealthCheck' }">
-        <v-list-item-icon>
-          <v-icon>mdi-clock</v-icon>
-        </v-list-item-icon>
+      <v-list-item
+        :to="{
+          name: 'HealthCheck',
+        }"
+        prepend-icon="mdi-clock"
+      >
         <v-list-item-title>{{ RELEASE_TAG || "development" }}</v-list-item-title>
       </v-list-item>
-      <v-list-item @click="signOut">
-        <v-list-item-icon>
-          <v-icon>mdi-exit-run</v-icon>
-        </v-list-item-icon>
+      <v-list-item
+        prepend-icon="mdi-exit-run"
+        @click="signOut"
+      >
         <v-list-item-title>Sign out</v-list-item-title>
       </v-list-item>
     </v-list>

@@ -3,10 +3,8 @@
     :to="{
       name: 'reports/ReportsTablePage',
     }"
+    prepend-icon="mdi-chart-bar"
   >
-    <v-list-item-icon>
-      <v-icon>mdi-chart-bar</v-icon>
-    </v-list-item-icon>
     <v-list-item-title>Reports</v-list-item-title>
   </v-list-item>
 </template>

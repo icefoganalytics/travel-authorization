@@ -50,10 +50,7 @@
           </v-list-item>
         </v-list>
         <v-list dense>
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-account</v-icon>
-            </v-list-item-icon>
+          <v-list-item prepend-icon="mdi-account">
             <v-list-item-content>
               <v-list-item-title>{{ user.email }}</v-list-item-title>
             </v-list-item-content>

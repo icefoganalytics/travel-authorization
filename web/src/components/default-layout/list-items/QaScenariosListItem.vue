@@ -4,10 +4,8 @@
     :to="{
       name: 'qa/ScenariosListPage',
     }"
+    prepend-icon="mdi-tools"
   >
-    <v-list-item-icon>
-      <v-icon>mdi-tools</v-icon>
-    </v-list-item-icon>
     <v-list-item-title>QA Scenarios</v-list-item-title>
   </v-list-item>
 </template>

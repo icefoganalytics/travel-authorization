@@ -14,10 +14,8 @@
               v-for="(item, itemIndex) in menuCardList.items"
               :key="itemIndex"
               :to="item.to"
+              :prepend-icon="item.icon"
             >
-              <v-list-item-icon>
-                <v-icon>{{ item.icon }}</v-icon>
-              </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title>{{ item.title }}</v-list-item-title>
               </v-list-item-content>
