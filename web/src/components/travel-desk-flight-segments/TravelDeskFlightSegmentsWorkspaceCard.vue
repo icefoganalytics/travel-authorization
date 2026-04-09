@@ -31,7 +31,7 @@
             </div>
             <div
               v-for="(item, index) in items"
-              :key="item.id"
+              :key="item.raw.id"
               class="d-flex flex-column flex-md-row align-center"
             >
               <v-checkbox
@@ -40,7 +40,7 @@
                 @update:model-value="($event) => select(item, $event)"
               />
               <TravelDeskFlightSegmentEditCard
-                :flight-segment="item"
+                :flight-segment="item.raw"
                 @update:flight-segment="updateFlightSegment($event, index)"
               />
               <v-btn

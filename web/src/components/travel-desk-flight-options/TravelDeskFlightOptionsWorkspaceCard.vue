@@ -19,14 +19,14 @@
       <template #default="{ items }">
         <v-card
           v-for="(item, index) in items"
-          :key="`travel-desk-flight-option-${item.id}`"
+          :key="`travel-desk-flight-option-${item.raw.id}`"
         >
           <v-card-title class="d-flex justify-space-between align-center">
             <h5>Group {{ index + 1 }}</h5>
             <v-btn
               class="my-0"
               color="primary"
-              @click.stop="showEditDialog(item.id)"
+              @click.stop="showEditDialog(item.raw.id)"
               >Edit</v-btn
             >
           </v-card-title>
@@ -37,7 +37,7 @@
                 md="6"
               >
                 <TravelDeskFlightRequestDescriptionElement
-                  :travel-desk-flight-request-id="item.flightRequestId"
+                  :travel-desk-flight-request-id="item.raw.flightRequestId"
                   label="Leg"
                   vertical
                 />
@@ -47,7 +47,7 @@
                 md="2"
               >
                 <DescriptionElement
-                  :value="'$' + item.cost"
+                  :value="'$' + item.raw.cost"
                   label="Cost"
                   vertical
                 />
@@ -57,7 +57,7 @@
                 md="4"
               >
                 <DescriptionElement
-                  :value="item.duration"
+                  :value="item.raw.duration"
                   label="Travel Duration"
                   vertical
                 />
@@ -65,7 +65,7 @@
             </v-row>
             <TravelDeskFlightSegmentsDraggable
               class="mt-4"
-              :travel-desk-flight-option-id="item.id"
+              :travel-desk-flight-option-id="item.raw.id"
             />
           </v-card-text>
           <v-card-actions>
@@ -73,7 +73,7 @@
             <v-btn
               color="error"
               :loading="isDeleting"
-              @click="deleteTravelDeskFlightOption(item.id)"
+              @click="deleteTravelDeskFlightOption(item.raw.id)"
             >
               Delete
             </v-btn>
