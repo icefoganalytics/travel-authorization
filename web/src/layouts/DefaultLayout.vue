@@ -1,22 +1,16 @@
 <template>
-  <v-app>
-    <LeftSidebarNavigationDrawer
-      v-model="showLeftSidebarNav"
-      style="margin-top: 70px"
-      app
-    />
-
+  <v-layout>
     <v-app-bar
       app
       color="#fff"
       flat
       height="70"
-      style="left: 0; border-bottom: 3px #f3b228 solid"
+      style="border-bottom: 3px #f3b228 solid"
     >
       <v-app-bar-nav-icon
         title="Show Navigation"
         @click="toggleDrawer"
-      ></v-app-bar-nav-icon>
+      />
       <v-btn
         :to="{ name: 'DashboardPage' }"
         class="pa-0 no-change-on-hover"
@@ -33,7 +27,7 @@
         <h1 class="text-h6 font-weight-bold mb-0">{{ APPLICATION_NAME }}</h1>
       </v-toolbar-title>
 
-      <v-spacer></v-spacer>
+      <v-spacer />
 
       <v-btn
         icon
@@ -57,6 +51,8 @@
       <KebabMenu />
     </v-app-bar>
 
+    <LeftSidebarNavigationDrawer v-model="showLeftSidebarNav" />
+
     <v-main class="grey lighten-4">
       <!-- Provides the application the proper gutter -->
       <v-container
@@ -64,10 +60,10 @@
         class="h-full"
       >
         <UnsetDepartmentAlert />
-        <router-view></router-view>
+        <router-view />
       </v-container>
     </v-main>
-  </v-app>
+  </v-layout>
 </template>
 
 <script setup lang="ts">
