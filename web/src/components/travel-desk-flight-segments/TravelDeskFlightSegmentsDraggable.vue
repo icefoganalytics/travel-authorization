@@ -58,7 +58,7 @@ import reOrderFlightSegmentsApi from "@/api/travel-desk-flight-options/re-order-
 import useSnack from "@/use/use-snack"
 import useTravelDeskFlightSegments from "@/use/use-travel-desk-flight-segments"
 
-import Draggable from "vuedraggable"
+import { VueDraggableNext as Draggable } from "vue-draggable-next"
 import TravelDeskFlightSegmentCard from "@/components/travel-desk-flight-segments/TravelDeskFlightSegmentCard.vue"
 
 /** @typedef {import('@/api/travel-desk-flight-segments-api.js').TravelDeskFlightSegment} TravelDeskFlightSegment */
