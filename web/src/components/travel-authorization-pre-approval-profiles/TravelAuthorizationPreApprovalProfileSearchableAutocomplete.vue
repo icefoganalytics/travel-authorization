@@ -7,6 +7,7 @@
     :hint="hint"
     :no-data-text="noDataText"
     item-value="id"
+    item-title="profileName"
     auto-select-first
     chips
     clearable
