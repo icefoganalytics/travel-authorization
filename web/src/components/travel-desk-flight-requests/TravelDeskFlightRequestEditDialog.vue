@@ -217,7 +217,8 @@ async function updateAndHide() {
     emit("saved", newFlightRequest.id)
     snack.success("Flight request saved")
   } catch (error) {
-    snack.error("Failed to save flight request")
+    console.error(`Failed to save flight request: ${error}`, { error })
+    snack.error(`Failed to save flight request: ${error}`)
   } finally {
     isLoading.value = false
   }
