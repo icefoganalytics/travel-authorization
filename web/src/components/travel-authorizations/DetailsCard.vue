@@ -14,7 +14,7 @@
         <DescriptionElement label="Trip Type">
           <TravelAuthorizationTripTypeChip
             v-if="travelAuthorization.tripTypeEstimate"
-            :value="travelAuthorization.tripTypeEstimate"
+            :model-value="travelAuthorization.tripTypeEstimate"
           />
         </DescriptionElement>
       </v-col>
