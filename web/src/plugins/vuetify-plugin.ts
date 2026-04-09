@@ -41,6 +41,8 @@ export default createVuetify({
       color: "primary",
       prependIcon: "",
       prependInnerIcon: "mdi-calendar",
+      placeholder: "YYYY-MM-DD",
+      persistentPlaceholder: true,
       inputFormat: "yyyy-mm-dd",
     },
   },
