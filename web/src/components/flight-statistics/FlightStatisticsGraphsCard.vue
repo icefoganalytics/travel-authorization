@@ -14,7 +14,7 @@
           v-model="selectedChart"
           mandatory
           color="primary"
-          @change="resetInterface"
+          @update:model-value="resetInterface"
         >
           <v-btn :value="ChartType.PIE"> Pie </v-btn>
           <v-btn :value="ChartType.BAR"> Bar </v-btn>
@@ -48,7 +48,7 @@
                 v-for="(dataGroup, dataGroupInx) in DATA_GROUPS"
                 :key="dataGroupInx"
                 v-model="selectedDataGroup"
-                @change="chartStateBusterKey++"
+                @update:model-value="chartStateBusterKey++"
               >
                 <v-radio
                   :value="dataGroup"
@@ -65,7 +65,7 @@
                 v-for="(dataFilter, dataFilterInx) in DATA_FILTERS"
                 :key="dataFilterInx"
                 v-model="selectedDataFilter"
-                @change="chartStateBusterKey++"
+                @update:model-value="chartStateBusterKey++"
               >
                 <v-radio
                   :value="dataFilter"
