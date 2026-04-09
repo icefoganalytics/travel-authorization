@@ -5,7 +5,7 @@
         class="flex-shrink-0"
         :steps="steps"
         :step-name="stepName"
-        @update:stepName="goToStep"
+        @update:step-name="goToStep"
       />
       <div class="ml-md-2 flex-grow-1">
         <v-card class="default">
@@ -28,22 +28,22 @@
               :step-title="currentStep.title"
               :step-subtitle="currentStep.subtitle"
               :return-to="returnTo"
-              @update:travelPurposeId="
+              @update:travel-purpose-id="
                 updateTravelAuthorizationSummary({
                   travelPurposeId: $event,
                 })
               "
-              @update:finalDestinationLocationId="
+              @update:final-destination-location-id="
                 updateTravelAuthorizationSummary({
                   finalDestinationLocationId: $event,
                 })
               "
-              @update:departureDate="
+              @update:departure-date="
                 updateTravelAuthorizationSummary({
                   departureDate: $event,
                 })
               "
-              @update:returnDate="
+              @update:return-date="
                 updateTravelAuthorizationSummary({
                   returnDate: $event,
                 })
