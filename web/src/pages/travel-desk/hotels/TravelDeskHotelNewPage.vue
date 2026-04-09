@@ -17,7 +17,7 @@
         />
         <v-row>
           <v-col cols="12">
-            <DatePicker
+            <StringDateInput
               v-model="travelDeskHotelAttributes.checkIn"
               label="Check-in date *"
               :picker-date="tripStartDate"
@@ -29,7 +29,7 @@
             />
           </v-col>
           <v-col cols="12">
-            <DatePicker
+            <StringDateInput
               v-model="travelDeskHotelAttributes.checkOut"
               label="Check-out date *"
               :picker-date="tripStartDate"
@@ -144,7 +144,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"

@@ -35,7 +35,7 @@
         />
         <v-row>
           <v-col cols="6">
-            <DatePicker
+            <StringDateInput
               v-model="pickUpDate"
               label="Pick-up date *"
               :disabled="travelDeskRentalCar.matchFlightTimes"
@@ -56,7 +56,7 @@
         </v-row>
         <v-row>
           <v-col cols="6">
-            <DatePicker
+            <StringDateInput
               v-model="dropOffDate"
               label="Drop-off date *"
               :disabled="travelDeskRentalCar.matchFlightTimes"
@@ -259,7 +259,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskRentalCar from "@/use/use-travel-desk-rental-car"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"

@@ -57,7 +57,7 @@
               cols="12"
               md="4"
             >
-              <DatePicker
+              <StringDateInput
                 v-model="travelDeskFlightRequest.datePreference"
                 :min="minDate"
                 :max="maxDate"
@@ -140,7 +140,7 @@ import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
 import useRouteQuery from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import SeatPreferenceSelect from "@/components/travel-desk-flight-requests/SeatPreferenceSelect.vue"
 

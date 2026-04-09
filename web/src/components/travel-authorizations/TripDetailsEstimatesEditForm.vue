@@ -66,7 +66,7 @@
         md="5"
         lg="4"
       >
-        <DatePicker
+        <StringDateInput
           v-model="travelAuthorization.dateBackToWorkEstimate"
           :min="latestDepartureDate"
           :rules="[required]"
@@ -91,7 +91,7 @@ import useRouteQuery from "@/use/utils/use-route-query"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
 import TravelDurationFromTravelSegmentsTextField from "@/components/travel-authorizations/TravelDurationFromTravelSegmentsTextField.vue"
 

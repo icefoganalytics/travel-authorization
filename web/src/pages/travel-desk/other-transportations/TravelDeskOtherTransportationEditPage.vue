@@ -72,7 +72,7 @@
             />
           </v-col>
           <v-col cols="12">
-            <DatePicker
+            <StringDateInput
               v-model="travelDeskOtherTransportation.date"
               label="Travel Date *"
               :picker-date="tripStartDate"
@@ -149,7 +149,7 @@ import useSnack from "@/use/use-snack"
 import useTravelDeskOtherTransportation from "@/use/use-travel-desk-other-transportation"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"

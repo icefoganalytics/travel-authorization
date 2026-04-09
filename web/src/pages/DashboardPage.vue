@@ -21,10 +21,10 @@
                 </v-row>
                 <v-row>
                   <v-col>
-                    <DatePicker
+                    <StringDateInput
                       label="Start Date"
                       density="compact"
-                    ></DatePicker>
+                    ></StringDateInput>
                   </v-col>
                   <v-col>
                     <TimeTextField
@@ -35,10 +35,10 @@
                 </v-row>
                 <v-row>
                   <v-col>
-                    <DatePicker
+                    <StringDateInput
                       label="End Date"
                       density="compact"
-                    ></DatePicker>
+                    ></StringDateInput>
                   </v-col>
                   <v-col>
                     <TimeTextField
@@ -158,7 +158,7 @@ import { v4 as uuidv4 } from "uuid"
 import http from "@/api/http-client"
 import { FORM_URL } from "@/urls"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
 import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
 
@@ -169,7 +169,7 @@ export default {
   components: {
     AddReceiptButtonForm,
     CreateTravelAuthorizationButton,
-    DatePicker,
+    StringDateInput,
     TimeTextField,
   },
   data: () => ({

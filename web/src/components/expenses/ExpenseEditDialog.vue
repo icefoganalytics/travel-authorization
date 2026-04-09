@@ -42,7 +42,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <DatePicker
+              <StringDateInput
                 v-model="expense.date"
                 :rules="[required]"
                 label="Date"
@@ -98,7 +98,7 @@ import useSnack from "@/use/use-snack"
 import useExpense from "@/use/use-expense"
 
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
 // TODO: consider if this should be a prop?

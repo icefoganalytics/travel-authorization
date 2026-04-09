@@ -30,5 +30,13 @@ export default createVuetify({
       style: "text-transform: none;",
       variant: "flat",
     },
+    VDateInput: {
+      variant: "outlined",
+      density: "comfortable",
+      color: "primary",
+      prependIcon: "",
+      prependInnerIcon: "mdi-calendar",
+      inputFormat: "yyyy-mm-dd",
+    },
   },
 })
