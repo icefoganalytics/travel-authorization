@@ -7,6 +7,7 @@
       <v-card-text>
         <v-row>
           <v-col>
+            <!-- TODO: this card should show the current/recent trip information; currently it's just a placeholder -->
             <v-card>
               <v-col>
                 <v-row>
@@ -22,9 +23,10 @@
                 <v-row>
                   <v-col>
                     <StringDateInput
+                      v-model="startDate"
                       label="Start Date"
                       density="compact"
-                    ></StringDateInput>
+                    />
                   </v-col>
                   <v-col>
                     <TimeTextField
@@ -36,9 +38,10 @@
                 <v-row>
                   <v-col>
                     <StringDateInput
+                      v-model="endDate"
                       label="End Date"
                       density="compact"
-                    ></StringDateInput>
+                    />
                   </v-col>
                   <v-col>
                     <TimeTextField
@@ -173,6 +176,8 @@ export default {
     TimeTextField,
   },
   data: () => ({
+    startDate: null,
+    endDate: null,
     daysOffTravel: 1,
     data: {},
     headers: [
