@@ -5,7 +5,7 @@
     @click="syncWithExternalDatabase"
   >
     Sync from TravCom ({{ totalCount }})
-    <v-tooltip left>
+    <v-tooltip location="left">
       <template #activator="{ props: activatorProps }">
         <v-icon
           end

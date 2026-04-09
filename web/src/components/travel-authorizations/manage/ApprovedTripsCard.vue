@@ -6,7 +6,7 @@
     <v-card-title class="d-flex align-baseline">
       <h3>Approved Upcoming Travel</h3>
 
-      <v-tooltip top>
+      <v-tooltip location="top">
         <template #activator="{ props: activatorProps }">
           <v-icon
             class="ml-2"

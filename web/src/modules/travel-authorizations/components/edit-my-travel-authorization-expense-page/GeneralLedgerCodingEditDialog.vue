@@ -32,7 +32,7 @@
                 required
               >
                 <template #label>
-                  <v-tooltip bottom>
+                  <v-tooltip location="bottom">
                     <template #activator="{ props: activatorProps }">
                       <div v-bind="activatorProps">
                         G/L code

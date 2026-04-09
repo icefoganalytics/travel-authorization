@@ -54,7 +54,7 @@ defineProps({
   tooltipProps: {
     type: Object,
     default: () => ({
-      bottom: true,
+      location: "bottom",
     }),
   },
 })

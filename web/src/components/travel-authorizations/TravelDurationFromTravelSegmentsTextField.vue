@@ -1,5 +1,5 @@
 <template>
-  <v-tooltip bottom>
+  <v-tooltip location="bottom">
     <template #activator="{ props: activatorProps }">
       <div
         class="d-flex align-start"
