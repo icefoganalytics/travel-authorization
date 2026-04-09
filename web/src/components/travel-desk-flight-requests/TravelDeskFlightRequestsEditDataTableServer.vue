@@ -40,6 +40,12 @@
         ><v-icon>mdi-close</v-icon></v-btn
       >
     </template>
+    <template #expanded-row="expandedRowProps">
+      <slot
+        name="expanded-row"
+        v-bind="expandedRowProps"
+      ></slot>
+    </template>
     <template #footer.prepend>
       <slot name="footer.prepend"></slot>
     </template>

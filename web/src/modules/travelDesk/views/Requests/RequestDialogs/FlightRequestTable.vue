@@ -21,9 +21,9 @@
         cols="12"
       >
         <v-data-table
+          v-model:expanded="expanded"
           :headers="flightHeaders"
           :items="flightRequests"
-          v-model:expanded="expanded"
           :show-expand="showFlightOptions"
           hide-default-footer
           class="elevation-1"
@@ -36,7 +36,7 @@
               @saved="updateTable"
             />
           </template>
-          <template #expanded-item="{ item }">
+          <template #expanded-row="{ item }">
             <td
               v-if="showFlightOptions"
               :colspan="6"
@@ -189,7 +189,7 @@ export default {
       admin: false,
       travelerDetails: {},
       savingData: false,
-      expanded: [true],
+      expanded: [],
       loadingData: false,
       minDate: "",
       maxDate: "",
