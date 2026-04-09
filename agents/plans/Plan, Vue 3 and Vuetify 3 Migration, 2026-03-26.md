@@ -26,34 +26,34 @@ Already done, summarized briefly:
 - major Vuetify 3 table, slot, badge, density, size, dark-prop, and icon-alignment updates
 
 What is left:
-- form validation behavior cleanup for Vuetify 3
 - remaining shared `value` / `@input` component contracts
-- remaining `.sync` usages
 - remaining typed cleanup in shared wrappers and table/query helpers
 - a small number of final Vuetify 2 prop/event stragglers found by search or runtime testing
+- final validation cleanup and runtime verification after the broad async-validation pass
 
 Useful current context:
 - the app already boots on Vue 3 and Vuetify 3, so this is no longer a dependency-swap plan
 - most remaining work is in component templates and shared wrapper contracts
 - runtime warnings and broken UI are currently more important than the smaller type backlog
 - recent work has been most effective when handled as broad mechanical families across the tree
+- the broad Vuetify 3 async-validation migration pass is now in, so validation work is mostly follow-up verification and straggler cleanup rather than a large untouched family
 
 ## Remaining Work
 
 ### 1. Form Validation Behavior
 
-Normalize validation behavior so forms work like `wrap` under Vuetify 3.
+Finish verifying the new Vuetify 3 async validation behavior across the app.
 
 Focus:
-- `v-form.validate()` is async in Vuetify 3, but many callers still use it synchronously
-- shared wrappers that expose `validate()` should return the correct Vuetify 3 result shape
-- high-traffic dialogs and form cards should be fixed first
-- prefer broad mechanical passes where the same validation pattern repeats
+- confirm the broad `await form.validate()` migration behaves correctly in the browser
+- clean up any remaining reachable validation stragglers found by search or runtime testing
+- keep wrapper `validate()` methods returning the correct Vuetify 3 result shape
+- avoid pulling dead/orphaned components back into scope just to normalize validation there
 
 Known places to check:
-- dialogs and cards using `if (!form.value?.validate()) return`
+- high-traffic dialogs and form cards touched in the async-validation pass
 - wrappers such as `HeaderActionsFormCard` and page-level form cards
-- submit buttons/components that depend on parent `validate()` callbacks
+- any runtime-tested flows that still feel inconsistent with `wrap`
 
 Rule:
 - handle these as discrete slices across the codebase
@@ -81,19 +81,7 @@ Current known contract families still worth checking:
 - parent components still using old Vue 2 bindings against partially migrated children
 - draggable/table integrations that still use non-Vue-3 event names for library reasons should be reviewed deliberately, not changed blindly
 
-### 3. `.sync` Cleanup
-
-Replace all remaining `.sync` usages with Vue 3 `v-model:propName`.
-
-Expectation:
-- this should be one of the last broad mechanical families
-- convert parent and child contracts together where needed
-
-Known remaining usages:
-- `TravelPreApprovalNewPage.vue`
-- `TravelPreApprovalEditPage.vue`
-
-### 4. Typed Cleanup
+### 3. Typed Cleanup
 
 Finish the smaller type backlog that remains after runtime mismatches:
 - shared table/query helper typing
@@ -107,7 +95,7 @@ Rule:
 
 Keep this behind runtime/API work unless a type issue blocks the next migration family.
 
-### 5. Final Vuetify 3 Stragglers
+### 4. Final Vuetify 3 Stragglers
 
 Most broad Vuetify 2 → 3 surface families are already done. What remains here
 should be handled opportunistically when surfaced by search or manual testing:
@@ -119,11 +107,10 @@ should be handled opportunistically when surfaced by search or manual testing:
 ## Current Priorities
 
 In order:
-1. form validation behavior
-2. shared `modelValue` contract cleanup
-3. `.sync`
-4. leftover type errors
-5. final Vuetify 3 stragglers and polish
+1. shared `modelValue` contract cleanup
+2. validation verification and stragglers
+3. leftover type errors
+4. final Vuetify 3 stragglers and polish
 
 ## Working Rules
 
@@ -154,7 +141,6 @@ Only keep the migration facts here that still matter for remaining work:
 ### Vue 3 / Shared Component Contracts
 
 - `value` / `@input` → `modelValue` / `@update:modelValue`
-- `.sync` → `v-model:propName`
 - `$attrs` now includes listeners, `class`, and `style`
 - slot/rendered dynamic component behavior is stricter, so raw async loaders need `defineAsyncComponent(...)` when used via `:is`
 
@@ -175,19 +161,18 @@ Only keep the migration facts here that still matter for remaining work:
 ## Where To Look Next
 
 When picking the next slice, prefer this order:
-1. form wrappers and submit flows using synchronous `validate()`
-2. remaining old prop/event families found by `rg`
-3. shared custom component contracts (`value` / `input` / `.sync`)
+1. remaining old prop/event families found by `rg`
+2. shared custom component contracts (`value` / `input`)
+3. validation follow-up found by browser testing
 4. shared type abstractions that are still leaking Vue 2 assumptions
 
 ## Current Known Stragglers
 
 Known remaining families still worth checking:
-- validation wrappers and submit handlers still treating `validate()` as synchronous
-- `.sync` in travel pre-approval pages
+- shared inputs still using `value` props for public API
+- shared inputs or wrappers still emitting `input`
 - `v-row dense`
 - activator-prop objects still passing old Vuetify density flags
-- `.sync`
 - remaining `value` / `@input` shared contracts
 - `hide-details` and similar props only if they prove to be real Vuetify 3 mismatches, not just because they look old
 
@@ -197,6 +182,5 @@ This migration plan is complete when:
 - the app no longer uses Vuetify 2-only component names, props, or slot patterns
 - forms validate correctly under Vuetify 3 without relying on synchronous `validate()`
 - shared components expose Vue 3-style `modelValue` contracts where appropriate
-- `.sync` is gone
 - web typecheck passes cleanly
 - browser runtime warnings are reduced to ordinary app issues rather than framework-migration issues
