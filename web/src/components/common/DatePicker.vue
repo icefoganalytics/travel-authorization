@@ -3,7 +3,6 @@
     v-model="menu"
     :close-on-content-click="false"
     :offset="8"
-    :nudge-right="40"
     transition="scale-transition"
     min-width="auto"
   >
