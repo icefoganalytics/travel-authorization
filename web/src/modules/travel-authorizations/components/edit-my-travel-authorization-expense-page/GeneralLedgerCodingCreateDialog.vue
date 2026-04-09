@@ -32,7 +32,7 @@
               <v-text-field
                 v-model="generalLedgerCoding.code"
                 :rules="[isGeneralLedgerCode]"
-                validate-on-blur
+                validate-on="blur"
                 density="compact"
                 variant="outlined"
                 required

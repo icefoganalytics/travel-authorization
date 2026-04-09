@@ -32,7 +32,7 @@
                 density="compact"
                 variant="outlined"
                 required
-                validate-on-blur
+                validate-on="blur"
               />
             </v-col>
           </v-row>

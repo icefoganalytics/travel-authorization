@@ -124,7 +124,7 @@
                 :rules="[isPhoneNumber, required]"
                 label="Business Phone *"
                 variant="outlined"
-                validate-on-blur
+                validate-on="blur"
               />
             </v-col>
             <v-col
@@ -136,7 +136,7 @@
                 :rules="[isEmail, required]"
                 label="Business Email *"
                 variant="outlined"
-                validate-on-blur
+                validate-on="blur"
               />
             </v-col>
           </v-row>

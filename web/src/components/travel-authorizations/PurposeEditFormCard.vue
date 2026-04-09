@@ -21,7 +21,7 @@
           label="Purpose *"
           variant="outlined"
           required
-          validate-on-blur
+          validate-on="blur"
           @update:model-value="emit('update:travelPurposeId', $event)"
         />
       </v-col>
@@ -36,7 +36,7 @@
           label="Name of meeting/conference, mission, trade fair or course *"
           variant="outlined"
           required
-          validate-on-blur
+          validate-on="blur"
         />
       </v-col>
       <v-col
@@ -67,7 +67,7 @@
           variant="outlined"
           persistent-hint
           required
-          validate-on-blur
+          validate-on="blur"
           @update:model-value="updateFinalDestinationLocationId"
         />
       </v-col>
@@ -92,7 +92,7 @@
           variant="outlined"
           required
           rows="10"
-          validate-on-blur
+          validate-on="blur"
         />
       </v-col>
     </v-row>

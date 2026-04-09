@@ -9,7 +9,7 @@
     persistent-placeholder
     prepend-inner-icon="mdi-clock"
     maxlength="5"
-    validate-on-blur
+    validate-on="blur"
     v-bind="$attrs"
     @update:model-value="updateModelValue"
     @click:clear="updateModelValue(null)"

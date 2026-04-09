@@ -44,7 +44,7 @@
                 type="email"
                 :rules="[isEmail]"
                 variant="outlined"
-                validate-on-blur
+                validate-on="blur"
               />
             </v-col>
             <v-col
@@ -58,7 +58,7 @@
                 type="tel"
                 :rules="[isPhoneNumber]"
                 variant="outlined"
-                validate-on-blur
+                validate-on="blur"
               />
             </v-col>
           </v-row>
