@@ -58,7 +58,7 @@
             />
             <div
               v-else
-              class="d-flex flex-column flex-md-row"
+              class="d-flex flex-column flex-md-row mt-4"
             >
               <ConditionalTooltipButton
                 ref="continueButton"
@@ -73,7 +73,7 @@
                 {{ currentStep.continueButtonText || "Continue" }}
               </ConditionalTooltipButton>
               <ConditionalTooltipButton
-                class="ml-0 ml-md-3"
+                class="ml-0 ml-md-3 mt-3 mt-md-0"
                 v-bind="{
                   color: 'secondary',
                   tooltipText: 'Not available',
