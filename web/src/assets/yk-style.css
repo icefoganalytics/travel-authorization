@@ -1,3 +1,9 @@
+/**
+ * @deprecated Legacy Yukon-specific overrides.
+ *
+ * Prefer moving component styling into Vuetify theme configuration and
+ * `createVuetify({ defaults: ... })` instead of adding new rules here.
+ */
 body,
 h1,
 h2,
@@ -24,28 +30,6 @@ h3 {
 
 a {
   text-decoration: none;
-}
-
-.v-main .v-btn,
-.v-dialog__content .v-btn {
-  text-transform: none;
-  /* border: 1px #000 solid !important; */
-  text-decoration: none;
-  margin: 15px 0;
-  box-shadow: none;
-  font-size: 16px;
-  font-weight: 400;
-}
-
-/* .v-main .v-btn.primary {
-    border: 1px #000 solid !important;
-}
- */
-
-.v-main .v-btn.secondary,
-.v-dialog__content .v-btn.secondary {
-  color: #0097a9;
-  border: 1px #0097a9 solid !important;
 }
 
 .v-card {

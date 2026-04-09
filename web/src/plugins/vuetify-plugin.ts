@@ -19,6 +19,14 @@ export default createVuetify({
       },
     },
   },
+  defaults: {
+    VBtn: {
+      color: "primary",
+      elevation: 0,
+      style: "text-transform: none;",
+      variant: "flat",
+    },
+  },
 })
 
 /* --blue:#007bff;
