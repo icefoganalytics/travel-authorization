@@ -21,7 +21,6 @@
         class="my-0"
         color="primary"
         block
-        primary
         @click="resetDateRange"
       >
         <v-icon
@@ -36,7 +35,6 @@
         class="my-0"
         color="primary"
         block
-        primary
         @click="clearDateRange"
       >
         <v-icon
