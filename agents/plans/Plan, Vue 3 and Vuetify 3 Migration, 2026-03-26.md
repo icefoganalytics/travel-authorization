@@ -26,10 +26,11 @@ Already done, summarized briefly:
 - major Vuetify 3 table, slot, badge, density, size, dark-prop, and icon-alignment updates
 
 What is left:
-- remaining Vuetify 2 prop/event/component mismatches
+- form validation behavior cleanup for Vuetify 3
 - remaining shared `value` / `@input` component contracts
 - remaining `.sync` usages
 - remaining typed cleanup in shared wrappers and table/query helpers
+- a small number of final Vuetify 2 prop/event stragglers found by search or runtime testing
 
 Useful current context:
 - the app already boots on Vue 3 and Vuetify 3, so this is no longer a dependency-swap plan
@@ -39,23 +40,27 @@ Useful current context:
 
 ## Remaining Work
 
-### 1. Remaining Vuetify 2 Runtime Mismatches
+### 1. Form Validation Behavior
 
-Finish the remaining mechanical Vuetify 2 → 3 families:
-- remaining input icon prop cleanup where still needed
-- final density stragglers
-  - `v-row dense`
-  - activator prop objects using `dense: true`
-- `v-tabs-items` / `v-tab-item`
-- `v-expansion-panel-header` / `v-expansion-panel-content`
-- any other removed Vuetify 2 subcomponents surfaced by browser warnings
+Normalize validation behavior so forms work like `wrap` under Vuetify 3.
+
+Focus:
+- `v-form.validate()` is async in Vuetify 3, but many callers still use it synchronously
+- shared wrappers that expose `validate()` should return the correct Vuetify 3 result shape
+- high-traffic dialogs and form cards should be fixed first
+- prefer broad mechanical passes where the same validation pattern repeats
+
+Known places to check:
+- dialogs and cards using `if (!form.value?.validate()) return`
+- wrappers such as `HeaderActionsFormCard` and page-level form cards
+- submit buttons/components that depend on parent `validate()` callbacks
 
 Rule:
 - handle these as discrete slices across the codebase
 - each commit should contain one kind of migration only
 - prefer fixing the same prop/component family everywhere at once instead of file-by-file
 
-### 2. Shared Component Contract Migration
+### 2. Remaining Shared Component Contract Migration
 
 Finish converting shared Vue 2-style component APIs to Vue 3 contracts:
 - `value` → `modelValue`
@@ -74,6 +79,7 @@ Current known contract families still worth checking:
 - custom inputs still emitting `input`
 - wrappers still normalizing old Vuetify payload shapes
 - parent components still using old Vue 2 bindings against partially migrated children
+- draggable/table integrations that still use non-Vue-3 event names for library reasons should be reviewed deliberately, not changed blindly
 
 ### 3. `.sync` Cleanup
 
@@ -82,6 +88,10 @@ Replace all remaining `.sync` usages with Vue 3 `v-model:propName`.
 Expectation:
 - this should be one of the last broad mechanical families
 - convert parent and child contracts together where needed
+
+Known remaining usages:
+- `TravelPreApprovalNewPage.vue`
+- `TravelPreApprovalEditPage.vue`
 
 ### 4. Typed Cleanup
 
@@ -97,14 +107,23 @@ Rule:
 
 Keep this behind runtime/API work unless a type issue blocks the next migration family.
 
+### 5. Final Vuetify 3 Stragglers
+
+Most broad Vuetify 2 → 3 surface families are already done. What remains here
+should be handled opportunistically when surfaced by search or manual testing:
+- `v-row dense`
+- activator prop objects still passing old Vuetify density flags
+- any final legacy prop/event cases surfaced by browser warnings
+- `hide-details` and similar props only if they prove to be real Vuetify 3 mismatches
+
 ## Current Priorities
 
 In order:
-1. runtime-breaking Vuetify 2 → 3 mismatches
+1. form validation behavior
 2. shared `modelValue` contract cleanup
 3. `.sync`
 4. leftover type errors
-5. polish and cleanup
+5. final Vuetify 3 stragglers and polish
 
 ## Working Rules
 
@@ -143,8 +162,6 @@ Only keep the migration facts here that still matter for remaining work:
 
 - removed subcomponents must be replaced, not shimmed
   - `v-list-item-icon`, `v-list-item-content`, `v-list-item-avatar`, `v-list-item-action`, `v-list-item-group`
-  - `v-tabs-items`, `v-tab-item`
-  - `v-expansion-panel-header`, `v-expansion-panel-content`
 - input/control prop migrations still relevant:
   - variants moved to `variant`
   - sizes moved to `size`
@@ -158,7 +175,7 @@ Only keep the migration facts here that still matter for remaining work:
 ## Where To Look Next
 
 When picking the next slice, prefer this order:
-1. browser warnings about removed Vuetify 2 components
+1. form wrappers and submit flows using synchronous `validate()`
 2. remaining old prop/event families found by `rg`
 3. shared custom component contracts (`value` / `input` / `.sync`)
 4. shared type abstractions that are still leaking Vue 2 assumptions
@@ -166,9 +183,10 @@ When picking the next slice, prefer this order:
 ## Current Known Stragglers
 
 Known remaining families still worth checking:
+- validation wrappers and submit handlers still treating `validate()` as synchronous
+- `.sync` in travel pre-approval pages
 - `v-row dense`
 - activator-prop objects still passing old Vuetify density flags
-- remaining `append-icon` / `prepend-icon` cases that are not list-item usage
 - `.sync`
 - remaining `value` / `@input` shared contracts
 - `hide-details` and similar props only if they prove to be real Vuetify 3 mismatches, not just because they look old
@@ -177,6 +195,7 @@ Known remaining families still worth checking:
 
 This migration plan is complete when:
 - the app no longer uses Vuetify 2-only component names, props, or slot patterns
+- forms validate correctly under Vuetify 3 without relying on synchronous `validate()`
 - shared components expose Vue 3-style `modelValue` contracts where appropriate
 - `.sync` is gone
 - web typecheck passes cleanly
