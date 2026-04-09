@@ -30,7 +30,7 @@
                 <TravelDeskFlightSegmentsWorkspaceCard
                   v-model="travelDeskFlightSegmentsAttributes"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-                  @createdFlightOption="refreshFlightOptionsWorkspaceCard"
+                  @created-flight-option="refreshFlightOptionsWorkspaceCard"
                 />
                 <TravelDeskFlightOptionsWorkspaceCard
                   ref="travelDeskFlightOptionsWorkspaceCard"
