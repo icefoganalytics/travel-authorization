@@ -23,7 +23,7 @@
           <v-row class="mt-5 mx-3">
             <v-col cols="12">
               <v-text-field
-                :value="claimType"
+                :model-value="claimType"
                 label="Claim Type"
                 variant="outlined"
                 readonly
@@ -32,7 +32,7 @@
             </v-col>
             <v-col cols="12">
               <v-text-field
-                :value="travelRegion"
+                :model-value="travelRegion"
                 label="Travel Region"
                 variant="outlined"
                 readonly
@@ -52,7 +52,7 @@
             </v-col>
             <v-col cols="12">
               <v-text-field
-                :value="perDiem.currency"
+                :model-value="perDiem.currency"
                 label="Currency"
                 variant="outlined"
                 readonly

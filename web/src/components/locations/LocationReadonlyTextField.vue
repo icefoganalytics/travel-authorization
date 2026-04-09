@@ -1,6 +1,6 @@
 <template>
   <v-text-field
-    :value="locationText"
+    :model-value="locationText"
     :loading="isLoading"
     class="bg-white"
     readonly
