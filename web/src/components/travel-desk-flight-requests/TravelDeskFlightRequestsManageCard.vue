@@ -46,6 +46,7 @@
           >
             Manage Flight Options - Travelport&trade;
           </v-btn>
+          <v-spacer />
         </template>
       </TravelDeskFlightRequestsManageTable>
     </v-card-text>
