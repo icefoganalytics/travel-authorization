@@ -25,6 +25,7 @@
       <v-btn
         title="Edit"
         icon
+        size="small"
         color="primary"
         @click.stop="showEditDialog(item.id)"
         ><v-icon>mdi-pencil</v-icon></v-btn
@@ -33,6 +34,7 @@
         :loading="isLoading"
         title="Delete"
         icon
+        size="small"
         color="red"
         @click.stop="deleteFlightRequest(item.id)"
         ><v-icon>mdi-close</v-icon></v-btn

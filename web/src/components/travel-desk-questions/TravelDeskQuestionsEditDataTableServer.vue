@@ -26,6 +26,7 @@
       <v-btn
         title="Edit"
         icon
+        size="small"
         color="blue"
         @click="showEditDialog(item.id)"
       >
@@ -35,6 +36,7 @@
         :loading="isDeleting"
         title="Delete"
         icon
+        size="small"
         color="red"
         @click="deleteQuestion(item.id)"
       >

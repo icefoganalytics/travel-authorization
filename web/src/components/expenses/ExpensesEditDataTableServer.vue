@@ -65,6 +65,7 @@
           <v-btn
             v-if="actions.includes('delete')"
             icon
+            size="small"
             class="ml-2"
             color="error"
             title="Delete"

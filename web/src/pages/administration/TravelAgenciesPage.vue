@@ -30,6 +30,7 @@
               title="Edit"
               color="info"
               icon
+              size="small"
               :to="{
                 name: 'administration/travel-agencies/TravelAgencyEditPage',
                 params: { travelDeskTravelAgencyId: item.id },
@@ -43,6 +44,7 @@
               :loading="isDeleting"
               color="error"
               icon
+              size="small"
               @click="deleteTravelAgency(item.id)"
             >
               <v-icon>mdi-delete</v-icon>

@@ -78,6 +78,7 @@
             <v-btn
               title="Remove traveler profile"
               icon
+              size="small"
               color="error"
               @click="removeTravelerProfileAttributes(index)"
             >

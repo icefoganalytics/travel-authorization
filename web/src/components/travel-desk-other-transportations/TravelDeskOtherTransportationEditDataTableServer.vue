@@ -18,6 +18,7 @@
         <v-btn
           title="Edit"
           icon
+          size="small"
           color="primary"
           @click.stop="goToTravelDeskOtherTransportationEditPage(item.id)"
           ><v-icon>mdi-pencil</v-icon></v-btn
@@ -26,6 +27,7 @@
           :loading="isDeleting"
           title="Delete"
           icon
+          size="small"
           color="red"
           @click.stop="deleteTravelDeskOtherTransportation(item.id)"
           ><v-icon>mdi-close</v-icon></v-btn

@@ -56,6 +56,7 @@
           <v-btn
             title="Edit"
             icon
+            size="small"
             color="blue"
             @click="showEditDialog(item)"
             ><v-icon>mdi-pencil</v-icon></v-btn

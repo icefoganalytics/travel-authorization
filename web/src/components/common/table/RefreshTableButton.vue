@@ -2,6 +2,7 @@
   <v-btn
     class="ma-0"
     icon
+    size="small"
     color="info"
     title="Refresh Table"
   >

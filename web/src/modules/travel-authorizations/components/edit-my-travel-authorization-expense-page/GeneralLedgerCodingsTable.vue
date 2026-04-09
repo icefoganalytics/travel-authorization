@@ -45,6 +45,7 @@
         >
         <v-btn
           icon
+          size="small"
           class="ml-2"
           color="error"
           title="Delete"

@@ -48,6 +48,7 @@
                 color="error"
                 title="Delete"
                 icon
+                size="small"
                 @click="deleteFlightSegment(index)"
               >
                 <v-icon>mdi-delete</v-icon>

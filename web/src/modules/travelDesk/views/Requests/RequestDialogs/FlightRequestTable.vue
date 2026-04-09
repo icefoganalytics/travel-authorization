@@ -67,6 +67,7 @@
                 v-if="!readonly"
                 title="Edit"
                 icon
+                size="small"
                 color="blue"
                 @click="showEditDialog(item.id)"
               >

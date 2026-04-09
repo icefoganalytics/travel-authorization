@@ -42,6 +42,7 @@
             <template #append>
               <v-btn
                 icon
+                size="small"
                 :to="userProfileLink"
               >
                 <v-icon>mdi-link</v-icon>

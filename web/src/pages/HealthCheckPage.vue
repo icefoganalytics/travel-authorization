@@ -22,6 +22,7 @@
               <v-btn
                 class="ma-0 ml-1"
                 icon
+                size="small"
                 color="green"
                 title="refresh"
                 @click="refresh"
@@ -50,6 +51,7 @@
               <v-btn
                 class="ma-0 ml-1"
                 icon
+                size="small"
                 color="green"
                 title="refresh"
                 @click="refresh"
@@ -78,6 +80,7 @@
               <v-btn
                 class="ma-0 ml-1"
                 icon
+                size="small"
                 color="green"
                 title="refresh"
                 @click="refresh"
