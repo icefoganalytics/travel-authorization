@@ -5,7 +5,7 @@
   >
     <template #activator="{ props: activatorProps }">
       <v-btn
-        color="secondary"
+        variant="outlined"
         class="mb-2"
         v-bind="activatorProps"
       >

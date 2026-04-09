@@ -56,7 +56,7 @@
           <v-spacer></v-spacer>
           <v-btn
             :loading="isLoading"
-            color="secondary"
+            variant="outlined"
             @click="close"
             >Cancel</v-btn
           >

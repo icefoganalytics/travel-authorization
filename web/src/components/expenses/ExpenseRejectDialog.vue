@@ -52,7 +52,7 @@
           Reject
         </v-btn>
         <v-btn
-          color="secondary"
+          variant="outlined"
           :loading="isLoading"
           @click="close"
         >

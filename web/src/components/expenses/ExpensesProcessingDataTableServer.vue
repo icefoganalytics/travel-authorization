@@ -28,7 +28,7 @@
       <v-btn
         v-if="!isNil(item.receipt)"
         class="ma-0"
-        color="secondary"
+        variant="outlined"
         @click.stop="showReceiptAttributesPreviewDialog(item.receipt)"
       >
         View Receipt

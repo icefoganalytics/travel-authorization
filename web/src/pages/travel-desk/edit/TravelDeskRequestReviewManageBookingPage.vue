@@ -109,7 +109,7 @@
         <v-btn
           v-if="hasInvoiceNumber"
           class="ml-md-2"
-          color="secondary"
+          variant="outlined"
           :block="smAndDown"
           @click="openPrintItineraryDialog"
         >

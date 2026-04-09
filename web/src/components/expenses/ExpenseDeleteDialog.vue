@@ -40,7 +40,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
-          color="secondary"
+          variant="outlined"
           :loading="isLoading"
           @click="hide"
           >Cancel</v-btn

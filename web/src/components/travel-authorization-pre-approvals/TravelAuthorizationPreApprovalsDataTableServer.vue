@@ -45,7 +45,7 @@
     <template #item.actions="{ item }">
       <v-btn
         v-if="canEdit(item)"
-        color="secondary"
+        variant="outlined"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalEditPage',
           params: {
@@ -57,7 +57,7 @@
       </v-btn>
       <v-btn
         v-else
-        color="secondary"
+        variant="outlined"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalPage',
           params: {

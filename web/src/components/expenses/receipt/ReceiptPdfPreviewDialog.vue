@@ -41,7 +41,7 @@
         <DownloadFileForm
           :download-url="downloadUrl"
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           text="Download Receipt"
           @downloaded="hide"
         />

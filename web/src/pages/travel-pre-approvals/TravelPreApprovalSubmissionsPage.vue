@@ -72,7 +72,7 @@
         </v-btn>
         <v-btn
           v-else
-          color="secondary"
+          variant="outlined"
           :to="{
             name: 'travel-pre-approval-submissions/TravelPreApprovalSubmissionPage',
             params: {

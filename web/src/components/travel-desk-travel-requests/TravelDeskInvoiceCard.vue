@@ -14,7 +14,7 @@
       <strong> Invoice Number: {{ travelDeskTravelRequest.invoiceNumber }} </strong>
       <DownloadFileForm
         :download-url="downloadUrl"
-        color="secondary"
+        variant="outlined"
         text="Download PNR"
         :loading="isLoading"
       />

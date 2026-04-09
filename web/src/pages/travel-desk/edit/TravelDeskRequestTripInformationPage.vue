@@ -81,7 +81,7 @@
           v-if="hasPassengerNameRecordDocument"
           class="ml-md-2"
           :download-url="downloadUrl"
-          color="secondary"
+          variant="outlined"
           text="Download PNR"
         />
         <v-spacer />

@@ -91,7 +91,7 @@
           <v-icon start>mdi-printer</v-icon>
         </v-btn>
         <v-btn
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close

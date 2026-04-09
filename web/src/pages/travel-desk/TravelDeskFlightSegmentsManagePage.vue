@@ -10,7 +10,7 @@
               travelDeskTravelRequestId,
             },
           }"
-          color="secondary"
+          variant="outlined"
         >
           Back
         </v-btn>

@@ -42,7 +42,7 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          color="secondary"
+          variant="outlined"
           :loading="isSubmitting"
           @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT)"
         >

@@ -25,7 +25,7 @@
       <v-card-actions>
         <v-btn
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close
@@ -75,7 +75,7 @@
       <v-card-actions>
         <v-btn
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close
@@ -110,7 +110,7 @@
       <v-card-actions>
         <v-btn
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close
@@ -144,7 +144,7 @@
       <v-card-actions>
         <v-btn
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close

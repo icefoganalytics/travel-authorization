@@ -49,7 +49,7 @@
           <SyncWithTravComBtn
             class="my-0"
             :filters="filters"
-            color="secondary"
+            variant="outlined"
             block
             @synced="refresh"
           />

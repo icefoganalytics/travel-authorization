@@ -1,7 +1,7 @@
 <template>
   <v-btn
     class="ma-0"
-    color="secondary"
+    variant="outlined"
     :to="{
       name: 'my-travel-requests/MyTravelRequestWizardPage',
       params: {

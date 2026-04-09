@@ -42,7 +42,7 @@
         <v-col class="d-flex justify-end">
           <v-btn
             v-if="actions.includes('edit')"
-            color="secondary"
+            variant="outlined"
             @click="showEditDialog(item.id)"
             >Edit</v-btn
           >
@@ -56,7 +56,7 @@
           />
           <v-btn
             v-else
-            color="secondary"
+            variant="outlined"
             @click="showReceiptPreviewDialog(item.receipt.mimeType, item.id)"
           >
             View Receipt

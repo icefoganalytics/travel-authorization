@@ -81,7 +81,7 @@
 
     <template #actions>
       <v-btn
-        color="secondary"
+        variant="outlined"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalSubmissionsPage',
         }"

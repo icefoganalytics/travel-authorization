@@ -12,7 +12,7 @@
         <v-spacer />
         <v-btn
           class="my-0"
-          color="secondary"
+          variant="outlined"
           @click="showFullscreenImage"
         >
           Fullscreen
@@ -36,7 +36,7 @@
         <DownloadFileForm
           :download-url="downloadUrl"
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           text="Download Receipt"
           @downloaded="hide"
         />

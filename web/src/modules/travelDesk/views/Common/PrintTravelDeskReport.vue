@@ -21,7 +21,7 @@
         <v-col cols="5" />
         <v-col cols="2">
           <v-btn
-            color="secondary"
+            variant="outlined"
             :loading="isLoading"
             @click="print"
           >

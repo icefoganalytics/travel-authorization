@@ -39,7 +39,7 @@
     <template #item.actions="{ item }">
       <div class="d-flex justify-end">
         <v-btn
-          color="secondary"
+          variant="outlined"
           @click="showEditDialog(item)"
           >Edit</v-btn
         >
