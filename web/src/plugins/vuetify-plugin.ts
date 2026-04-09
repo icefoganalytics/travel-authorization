@@ -8,6 +8,11 @@ import "@/assets/vuetify2-extensions.css"
 export default createVuetify({
   theme: {
     defaultTheme: "yukonNorthStar",
+    variations: {
+      colors: ["primary", "secondary"],
+      lighten: 2,
+      darken: 2,
+    },
     themes: {
       yukonNorthStar: {
         colors: {

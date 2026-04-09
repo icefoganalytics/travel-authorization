@@ -17,7 +17,7 @@
       </v-card-text>
       <v-card-actions>
         <v-btn
-          color="grey darken-5"
+          color="secondary"
           class="px-5"
           @click="close"
         >

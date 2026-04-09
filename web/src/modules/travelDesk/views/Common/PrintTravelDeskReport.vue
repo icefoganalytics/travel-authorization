@@ -28,7 +28,7 @@
             Print
             <v-icon
               class="ml-2"
-              color="primary darken-2"
+              color="primary-darken-2"
               >mdi-printer</v-icon
             >
           </v-btn>

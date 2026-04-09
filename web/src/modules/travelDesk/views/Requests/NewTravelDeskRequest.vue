@@ -130,7 +130,7 @@
 
         <v-card-actions>
           <v-btn
-            color="grey darken-5"
+            color="secondary"
             class="px-5"
             @click="addNewTravelDialog = false"
           >
@@ -140,7 +140,7 @@
           <v-btn
             v-if="type"
             class="ml-auto mr-2 px-5"
-            color="green darken-1"
+            color="success"
             :loading="savingData"
             @click="saveNewTravelRequest('save')"
             >Save Draft
@@ -148,7 +148,7 @@
           <v-btn
             v-if="type"
             class="mr-5 px-5"
-            color="brown darken-1"
+            color="primary"
             :loading="savingData"
             @click="saveNewTravelRequest('submit')"
             >Submit

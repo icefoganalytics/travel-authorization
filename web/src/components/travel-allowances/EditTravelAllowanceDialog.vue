@@ -57,14 +57,14 @@
           <v-spacer />
           <v-btn
             :loading="isLoading"
-            color="grey darken-5"
+            color="secondary"
             @click="hide"
           >
             Cancel
           </v-btn>
           <v-btn
             :loading="isLoading"
-            color="green darken-1"
+            color="success"
             type="submit"
           >
             Save

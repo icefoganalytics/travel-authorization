@@ -66,7 +66,7 @@
         <v-alert
           type="info"
           variant="outlined"
-          color="amber darken-2"
+          color="warning"
           class="mt-5"
         >
           The job is currently running. This may take 15-30 minutes to complete.
