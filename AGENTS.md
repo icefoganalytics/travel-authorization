@@ -446,6 +446,12 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 - Name workflows for their complete lifecycle (e.g., "pull-request-management" not "pull-request-creation")
 - Cover all related activities: creation, editing, maintenance, and troubleshooting
 
+**Tracked files and permissions:**
+- Do not ask the user for permission to edit or delete a file that is already tracked by git.
+- Do not trigger sandbox approval prompts for normal edits to tracked repository files.
+- Prefer direct repository edits over any escalated command when the target file is inside the git worktree and writable.
+- Only escalate or ask for approval when the action is genuinely outside normal repository editing, such as sandbox restrictions, network access, or destructive operations the user did not request.
+
 **Template/Workflow Separation:**
 - Keep GitHub templates minimal with just structure
 - Move detailed guidance, examples, and instructions to agent workflows
