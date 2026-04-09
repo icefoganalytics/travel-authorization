@@ -3,7 +3,7 @@
     ref="headerActionsFormCard"
     title="New Travel Pre-Approval"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="createTravelAuthorizationPreApproval"
   >
     <v-row>

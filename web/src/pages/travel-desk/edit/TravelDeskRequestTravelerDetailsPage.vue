@@ -8,7 +8,7 @@
       v-else
       ref="form"
       class="grey lighten-4"
-      lazy-validation
+      validate-on="lazy"
       @submit.prevent="saveTravelDeskTravelRequest"
     >
       <v-card>

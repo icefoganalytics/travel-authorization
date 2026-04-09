@@ -8,7 +8,7 @@
     ref="headerActionsFormCard"
     title="Edit Other Transportation Request"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="saveAndReturn"
   >
     <template #header-actions>

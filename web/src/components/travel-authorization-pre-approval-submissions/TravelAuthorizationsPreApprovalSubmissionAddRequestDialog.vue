@@ -10,7 +10,7 @@
     <HeaderActionsCard
       ref="headerActionsCard"
       title="Add Request"
-      lazy-validation
+      validate-on="lazy"
     >
       <v-row>
         <v-col>

@@ -19,7 +19,7 @@
         <v-form
           id="booking-assignment-form"
           ref="form"
-          lazy-validation
+          validate-on="lazy"
           @submit.prevent="saveTravelDeskTravelRequest"
         >
           <v-card-text>

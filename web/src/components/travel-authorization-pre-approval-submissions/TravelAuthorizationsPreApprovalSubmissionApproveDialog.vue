@@ -10,7 +10,7 @@
     <HeaderActionsFormCard
       ref="headerActionsFormCard"
       title="Approval"
-      lazy-validation
+      validate-on="lazy"
       @submit.prevent="approve"
     >
       <v-row>

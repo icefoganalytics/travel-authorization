@@ -8,7 +8,7 @@
     ref="headerActionsFormCard"
     title="Edit Rental Car Request"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="saveAndReturn"
   >
     <template #header-actions>

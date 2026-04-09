@@ -3,7 +3,7 @@
     ref="headerActionsFormCard"
     title="New Rental Car Request"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="createAndReturn"
   >
     <v-row>

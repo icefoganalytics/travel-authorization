@@ -3,6 +3,7 @@
     <v-form
       ref="form"
       :model-value="modelValue"
+      :validate-on="validateOn"
       @update:model-value="emit('update:modelValue', $event)"
       @submit="emit('submit', $event)"
     >
@@ -66,6 +67,10 @@ defineProps({
   elevation: {
     type: [String, Number],
     default: 0,
+  },
+  validateOn: {
+    type: String,
+    default: undefined,
   },
 })
 

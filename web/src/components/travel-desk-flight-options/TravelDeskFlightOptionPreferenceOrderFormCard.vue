@@ -16,7 +16,7 @@
       <v-form
         :id="formId"
         ref="form"
-        lazy-validation
+        validate-on="lazy"
         @submit.prevent="save"
       >
         <v-row

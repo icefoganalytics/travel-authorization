@@ -7,7 +7,7 @@
     v-else
     ref="headerActionsFormCard"
     title="Approvals"
-    lazy-validation
+    validate-on="lazy"
   >
     <v-row>
       <v-col

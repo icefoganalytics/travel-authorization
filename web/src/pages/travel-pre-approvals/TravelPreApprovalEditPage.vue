@@ -8,7 +8,7 @@
     ref="headerActionsFormCard"
     title="Edit Travel Pre-Approval"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="saveWrapper"
   >
     <template #header-actions>

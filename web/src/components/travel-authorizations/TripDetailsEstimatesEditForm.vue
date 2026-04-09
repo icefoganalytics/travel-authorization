@@ -6,7 +6,7 @@
   <v-form
     v-else
     ref="form"
-    lazy-validation
+    validate-on="lazy"
   >
     <v-row>
       <v-col cols="12">
