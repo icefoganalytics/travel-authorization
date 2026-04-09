@@ -1,7 +1,7 @@
 <template>
   <v-data-iterator
     :items="travelDeskFlightOptions"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
   >
     <template #default="{ items }">
