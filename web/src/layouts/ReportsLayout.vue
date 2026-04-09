@@ -84,12 +84,15 @@
         v-model="filters"
       />
 
-      <v-fade-transition>
-        <router-view
-          class="mt-4"
-          :filters="filters"
-        />
-      </v-fade-transition>
+      <router-view v-slot="{ Component }">
+        <v-fade-transition>
+          <component
+            :is="Component"
+            class="mt-4"
+            :filters="filters"
+          />
+        </v-fade-transition>
+      </router-view>
     </v-card-text>
   </v-card>
 </template>
