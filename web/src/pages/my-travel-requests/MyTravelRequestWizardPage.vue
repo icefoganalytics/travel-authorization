@@ -2,9 +2,10 @@
   <div>
     <div class="d-flex flex-column flex-md-row">
       <StateStepper
-        class="flex-shrink-0"
+        class="flex-shrink-0 border"
         :steps="steps"
         :step-name="stepName"
+        elevation="0"
         @update:step-name="goToStep"
       />
       <div class="ml-md-2 flex-grow-1">

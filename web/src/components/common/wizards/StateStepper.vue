@@ -2,14 +2,13 @@
   <v-stepper
     :key="stepsHash"
     :model-value="currentStepNumber"
-    vertical
-    variant="outlined"
     :width="mdAndUp ? 250 : undefined"
   >
     <v-stepper-item
       v-for="(step, index) in steps"
       :key="index"
       :value="index + 1"
+      :color="index + 1 === currentStepNumber ? 'primary' : undefined"
       :title="step.title"
       :subtitle="step.subtitle"
       :complete="index + 1 < currentStepNumber"
