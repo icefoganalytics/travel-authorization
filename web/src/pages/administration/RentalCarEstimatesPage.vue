@@ -10,7 +10,7 @@
       class="elevation-1"
     >
       <template #top>
-        <v-toolbar flat>
+        <v-toolbar elevation="0">
           <v-toolbar-title>Rental Vehicle Cost Estimate</v-toolbar-title>
           <v-divider
             class="mx-4"

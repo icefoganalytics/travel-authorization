@@ -17,7 +17,7 @@
       <v-toolbar
         class=""
         height="100px"
-        flat
+        elevation="0"
       >
         <v-toolbar-title>
           <b>Travel Requests </b>

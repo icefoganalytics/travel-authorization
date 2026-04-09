@@ -3,7 +3,7 @@
     <v-app-bar
       app
       color="#fff"
-      flat
+      elevation="0"
       height="70"
       style="border-bottom: 3px #f3b228 solid"
     >

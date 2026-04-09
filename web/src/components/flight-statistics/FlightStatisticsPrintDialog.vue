@@ -14,7 +14,7 @@
       <div :id="PDF_SCOPE_ID">
         <v-app-bar
           color="#fff"
-          flat
+          elevation="0"
           height="70"
           style="left: 0; border-bottom: 3px #f3b228 solid"
         >

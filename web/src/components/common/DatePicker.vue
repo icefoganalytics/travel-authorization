@@ -12,8 +12,8 @@
         :model-value="modelValue || ''"
         :label="label"
         :rules="rules"
+        class="bg-white"
         append-inner-icon="mdi-calendar"
-        background-color="white"
         variant="outlined"
         readonly
         v-bind="merge({}, $attrs, activatorProps)"

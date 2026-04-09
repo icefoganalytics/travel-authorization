@@ -30,9 +30,9 @@
                   <v-text-field
                     v-model="user.firstName"
                     label="First name"
+                    class="bg-white"
                     density="compact"
                     variant="outlined"
-                    background-color="white"
                     required
                     hide-details
                   ></v-text-field>
@@ -44,9 +44,9 @@
                   <v-text-field
                     v-model="user.lastName"
                     label="Last name"
+                    class="bg-white"
                     density="compact"
                     variant="outlined"
-                    background-color="white"
                     required
                     hide-details
                   ></v-text-field>
@@ -58,9 +58,9 @@
                   <v-text-field
                     v-model="user.email"
                     label="Email"
+                    class="bg-white"
                     density="compact"
                     variant="outlined"
-                    background-color="white"
                     required
                     hide-details
                   />
@@ -72,9 +72,9 @@
                   <v-text-field
                     v-model="user.mailcode"
                     label="Mailcode"
+                    class="bg-white"
                     density="compact"
                     variant="outlined"
-                    background-color="white"
                     required
                     hide-details
                   />
@@ -84,11 +84,11 @@
                     v-model="user.department"
                     label="Department *"
                     :rules="[required]"
+                    class="bg-white"
                     variant="outlined"
                     density="compact"
                     chips
                     :clearable="false"
-                    background-color="white"
                   />
                 </v-col>
                 <v-col cols="12">
@@ -96,11 +96,11 @@
                     v-model="user.roles"
                     label="Roles"
                     :items="roles"
+                    class="bg-white"
                     variant="outlined"
                     density="compact"
                     multiple
                     chips
-                    background-color="white"
                     clearable
                     hide-details
                   />

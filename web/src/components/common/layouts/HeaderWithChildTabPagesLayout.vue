@@ -8,7 +8,7 @@
     </v-card-title>
     <v-tabs
       show-arrows
-      background-color="grey lighten-4"
+      class="bg-grey-lighten-4"
     >
       <v-tab
         v-for="tab in tabs"

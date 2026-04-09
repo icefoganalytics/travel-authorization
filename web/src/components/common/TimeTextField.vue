@@ -3,7 +3,7 @@
     v-model="time"
     :label="label"
     :rules="[...rules, timeValidator]"
-    background-color="white"
+    class="bg-white"
     variant="outlined"
     placeholder="HH:MM"
     persistent-placeholder

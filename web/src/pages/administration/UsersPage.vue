@@ -11,8 +11,8 @@
             >
               <v-text-field
                 v-model="search"
+                class="bg-white"
                 prepend-inner-icon="mdi-magnify"
-                background-color="white"
                 variant="outlined"
                 density="compact"
                 label="Search"
@@ -25,13 +25,13 @@
             >
               <v-select
                 v-model="selectedStatuses"
+                class="bg-white"
                 chips
                 multiple
                 :items="statusFilterOptions"
                 label="Status filter"
                 density="compact"
                 variant="outlined"
-                background-color="white"
                 hide-details
               ></v-select>
             </v-col>

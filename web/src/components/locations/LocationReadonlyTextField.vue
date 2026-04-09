@@ -2,10 +2,10 @@
   <v-text-field
     :value="locationText"
     :loading="isLoading"
+    class="bg-white"
     readonly
     v-bind="$attrs"
     append-inner-icon="mdi-lock"
-    background-color="white"
   />
 </template>
 
