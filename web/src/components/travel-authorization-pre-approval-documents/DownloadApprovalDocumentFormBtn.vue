@@ -48,8 +48,8 @@ const buttonPropsWithDefaults = computed(() =>
   merge(
     {},
     {
-      outlined: true,
-      xLarge: true,
+      variant: "outlined",
+      size: "x-large",
       color: "info",
     },
     props.buttonProps

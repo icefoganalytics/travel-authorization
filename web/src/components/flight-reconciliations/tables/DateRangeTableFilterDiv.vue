@@ -8,11 +8,7 @@
       <DatePickerRangeDialog
         v-model="dateRange"
         label="Records date range"
-        :activator-props="{
-          outlined: true,
-          dense: true,
-          hideDetails: true,
-        }"
+        :activator-props="datePickerActivatorProps"
       />
     </v-col>
     <v-col
@@ -79,6 +75,12 @@ const props = defineProps({
 })
 
 const emit = defineEmits(["update:modelValue", "update:loaded"])
+
+const datePickerActivatorProps = {
+  variant: "outlined",
+  density: "compact",
+  hideDetails: true,
+}
 
 const INITIAL_DATE_RANGE = [
   DateTime.local().toISODate(),
