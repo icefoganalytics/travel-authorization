@@ -3,7 +3,6 @@ import { createVuetify } from "vuetify"
 import "vuetify/styles"
 
 import "@/assets/yk-style.css"
-import "@/assets/yhsi.css"
 import "@/assets/vuetify2-extensions.css"
 
 export default createVuetify({
