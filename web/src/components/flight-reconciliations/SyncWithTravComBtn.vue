@@ -8,7 +8,7 @@
     <v-tooltip left>
       <template #activator="{ props: activatorProps }">
         <v-icon
-          right
+          end
           size="small"
           v-bind="activatorProps"
           @click.stop

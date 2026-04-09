@@ -30,7 +30,7 @@
       >
         <v-icon
           size="small"
-          left
+          start
           >mdi-refresh</v-icon
         >
         Reset
@@ -45,7 +45,7 @@
       >
         <v-icon
           size="small"
-          left
+          start
           >mdi-close</v-icon
         >
         Clear

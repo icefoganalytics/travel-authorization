@@ -35,7 +35,7 @@
             v-bind="activatorProps"
           >
             <v-icon
-              left
+              start
               size="small"
             >
               mdi-progress-clock

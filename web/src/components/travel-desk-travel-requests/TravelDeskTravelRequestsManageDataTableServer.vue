@@ -120,11 +120,7 @@
           },
         }"
       >
-        <v-icon
-          left
-        >
-          mdi-pencil
-        </v-icon>
+        <v-icon start> mdi-pencil </v-icon>
         Edit
       </v-btn>
     </template>
