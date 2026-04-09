@@ -3,7 +3,6 @@
     :items="travelDeskFlightOptions"
     :server-items-length="totalCount"
     :loading="isLoading"
-    hide-default-footer
   >
     <template #default="{ items }">
       <TravelDeskFlightOptionCard

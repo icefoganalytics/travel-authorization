@@ -14,7 +14,6 @@
       :server-items-length="totalCount"
       :items-per-page="-1"
       :loading="isLoading"
-      hide-default-footer
     >
       <template #default="{ items }">
         <v-card
