@@ -99,6 +99,7 @@ dev migrate make create-table-name
 ## Development Notes
 
 - Migrations and seeds run during normal boot.
+- The frontend waits for the public `/_status` endpoint before starting in Docker development.
 - Database tables use `snake_case`; models use `camelCase`.
 - Auth0 in development requires third-party cookies to be allowed in the browser.
 - The `dev` wrapper is the preferred way to run local services and project commands.

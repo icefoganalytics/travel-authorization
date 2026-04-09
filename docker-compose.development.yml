@@ -57,7 +57,10 @@ services:
       - ./.gitignore:/usr/src/.gitignore
       - ./.prettierrc.yaml:/usr/src/.prettierrc.yaml
     depends_on:
-      - api
+      api:
+        condition: service_started
+      api_wait:
+        condition: service_completed_successfully
 
   test_api:
     build:
@@ -91,6 +94,16 @@ services:
     tty: true
     volumes:
       - ./web:/usr/src/web
+
+  api_wait:
+    image: node:20.19.0-alpine3.21
+    depends_on:
+      api:
+        condition: service_started
+    volumes:
+      - ./bin/api-wait.mjs:/bin/api-wait.mjs:ro
+    entrypoint: ["node", "/bin/api-wait.mjs"]
+    restart: "no"
 
   db:
     image: "postgres:14.4"

@@ -30,6 +30,8 @@ dev up
 ```
 
 The web app is then available at `http://localhost:8080`.
+When the full stack boots in Docker, the web service waits for the API `/_status` endpoint before
+starting.
 
 ## Common Commands
 
