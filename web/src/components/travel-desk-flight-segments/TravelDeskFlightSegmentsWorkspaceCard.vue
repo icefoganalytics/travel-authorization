@@ -19,8 +19,9 @@
           :items="travelDeskFlightSegmentsAttributesWithId"
           :items-per-page="-1"
           show-select
+          return-object
         >
-          <template #default="{ items, isSelected, select }">
+          <template #default="{ items, isSelected, toggleSelect, selectAll }">
             <div class="d-flex justify-center justify-md-start">
               <v-checkbox
                 label="Select All"
@@ -37,7 +38,7 @@
               <v-checkbox
                 :model-value="isSelected(item)"
                 color="primary"
-                @update:model-value="($event) => select(item, $event)"
+                @update:model-value="toggleSelect(item)"
               />
               <TravelDeskFlightSegmentEditCard
                 :flight-segment="item.raw"
@@ -87,7 +88,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { cloneDeep, isEmpty, isEqual } from "lodash"
+import { cloneDeep, isEmpty, isEqual, isNil } from "lodash"
 
 import useSessionStorage from "@/use/utils/use-session-storage"
 
@@ -133,16 +134,6 @@ const selectAllValue = computed(() => {
     return null
   }
 })
-
-function selectAll(value) {
-  if (value === true && !isEmpty(selectedSegments.value)) {
-    selectedSegments.value = []
-  } else if (value === false) {
-    selectedSegments.value = []
-  } else {
-    selectedSegments.value = cloneDeep(travelDeskFlightSegmentsAttributesWithId.value)
-  }
-}
 
 function addFlightSegmentAttributes() {
   const flightSegmentAttributes = {
@@ -212,6 +203,10 @@ watch(
 )
 
 function extractDuration(duration) {
+  if (isNil(duration)) {
+    return { hours: 0, minutes: 0 }
+  }
+
   let hours = 0
   let minutes = 0
   const time = duration.match(/\d+/g)
