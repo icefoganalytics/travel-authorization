@@ -2,9 +2,9 @@
   <v-menu
     v-model="menu"
     :close-on-content-click="false"
+    :offset="8"
     :nudge-right="40"
     transition="scale-transition"
-    offset-y
     min-width="auto"
   >
     <template #activator="{ props: activatorProps }">

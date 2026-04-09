@@ -26,7 +26,7 @@
       v-else
       :activator="chip?.$el"
       :close-on-content-click="false"
-      offset-y
+      :offset="8"
       transition="scale-transition"
     >
       <v-card width="300">
