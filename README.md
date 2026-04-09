@@ -70,6 +70,15 @@ If you do not use `dev`, use:
 docker compose -f docker-compose.development.yml up
 ```
 
+On Linux, include the Linux override file as well:
+
+```bash
+docker compose \
+  -f docker-compose.development.yml \
+  -f docker-compose.development.linux.yml \
+  up
+```
+
 ## Common Commands
 
 ```bash
@@ -93,6 +102,8 @@ dev migrate make create-table-name
 - Database tables use `snake_case`; models use `camelCase`.
 - Auth0 in development requires third-party cookies to be allowed in the browser.
 - The `dev` wrapper is the preferred way to run local services and project commands.
+- `dev up` starts a small host-side editor bridge for Vue Devtools **Open in Editor**, and
+  `dev down` stops it again.
 - Use `@/` import aliases for source imports in both API and web code.
 - Test files mirror source structure:
   `api/src/services/example.ts` -> `api/tests/services/example.test.ts`
@@ -135,6 +146,14 @@ dev migrate down
 If you see repeated `Login required` errors in the browser console during development, disable
 enhanced tracking protection or other third-party cookie blocking for the app. Auth0 development
 login depends on third-party cookies.
+
+If Vue Devtools **Open in Editor** fails while running the frontend in Docker:
+
+- Prefer `dev up` over raw `docker compose up` so the host-side bridge starts automatically.
+- On Linux, make sure you also include `docker-compose.development.linux.yml` when running Docker
+  Compose manually.
+- The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and falls back to
+  `windsurf --goto ...`.
 
 ## Build And Deploy
 
