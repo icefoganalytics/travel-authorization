@@ -40,15 +40,6 @@
       {{ formatDate(value) }}
     </template>
 
-    <template
-      v-for="(_, slotName) in $slots"
-      #[slotName]="slotData"
-    >
-      <slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot>
-    </template>
   </v-data-table-server>
 </template>
 

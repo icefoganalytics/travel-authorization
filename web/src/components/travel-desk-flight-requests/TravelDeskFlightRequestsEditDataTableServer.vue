@@ -38,14 +38,8 @@
         ><v-icon>mdi-close</v-icon></v-btn
       >
     </template>
-    <template
-      v-for="(_, slotName) in $slots"
-      #[slotName]="slotData"
-    >
-      <slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot>
+    <template #footer.prepend>
+      <slot name="footer.prepend"></slot>
     </template>
   </v-data-table-server>
 </template>

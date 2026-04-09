@@ -6,14 +6,7 @@
     auto-select-first
     v-bind="$attrs"
     @update:model-value="emit('update:modelValue', $event)"
-    ><template
-      v-for="(_, slotName) in $slots"
-      #[slotName]="slotData"
-      ><slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot></template
-  ></v-autocomplete>
+  />
 </template>
 
 <script setup>

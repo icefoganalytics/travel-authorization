@@ -9,14 +9,7 @@
     :label="label"
     v-bind="$attrs"
     @update:model-value="emit('update:modelValue', $event)"
-    ><template
-      v-for="(_, slotName) in $slots"
-      #[slotName]="slotData"
-      ><slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot></template
-  ></v-select>
+  />
 </template>
 
 <script setup>

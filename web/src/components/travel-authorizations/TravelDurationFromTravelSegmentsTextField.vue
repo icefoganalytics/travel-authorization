@@ -14,14 +14,7 @@
           disabled
           readonly
           v-bind="$attrs"
-          ><template
-            v-for="(_, slotName) in $slots"
-            #[slotName]="slotData"
-            ><slot
-              :name="slotName"
-              v-bind="slotData"
-            ></slot></template
-        ></v-text-field>
+        />
         <v-icon
           class="ml-1"
           size="small"

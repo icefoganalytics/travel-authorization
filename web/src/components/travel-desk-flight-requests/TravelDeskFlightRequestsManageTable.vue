@@ -20,14 +20,8 @@
         />
       </td>
     </template>
-    <template
-      v-for="(_, slotName) in $slots"
-      #[slotName]="slotData"
-    >
-      <slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot>
+    <template #footer.prepend>
+      <slot name="footer.prepend"></slot>
     </template>
   </TravelDeskFlightRequestsEditDataTableServer>
 </template>
