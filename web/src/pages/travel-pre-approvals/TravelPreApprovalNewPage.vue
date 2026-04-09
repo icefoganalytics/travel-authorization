@@ -312,8 +312,10 @@ const snack = useSnack()
 const router = useRouter()
 
 async function createTravelAuthorizationPreApproval() {
-  if (headerActionsFormCard.value === null) return
-  if (!headerActionsFormCard.value.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) return
 
   isLoading.value = true
 

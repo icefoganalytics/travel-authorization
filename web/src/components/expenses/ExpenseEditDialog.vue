@@ -119,7 +119,8 @@ const snack = useSnack()
 async function updateAndClose() {
   if (isNil(formRef.value)) return
 
-  if (!formRef.value.validate()) {
+  const { valid } = await formRef.value.validate()
+  if (!valid) {
     snack.error("Please fill in all required fields")
     return
   }

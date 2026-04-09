@@ -291,7 +291,9 @@ const isSaving = ref(false)
 async function saveWrapper() {
   if (isNil(travelAuthorization.value)) return
   if (isNil(headerActionsFormCard.value)) return
-  if (!headerActionsFormCard.value.validate()) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) return
 
   const travelSegmentEstimatesAttributes = buildTravelSegmentEstimatesAttributes(
     finalDestinationLocationId.value,
@@ -319,6 +321,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: () => headerActionsFormCard.value?.validate(),
+  validate: async () => headerActionsFormCard.value?.validate(),
 })
 </script>

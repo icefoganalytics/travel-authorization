@@ -216,7 +216,9 @@ async function resetFormValidation() {
 
 async function saveWrapper() {
   if (isNil(form.value)) return
-  if (!form.value.validate()) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) return
 
   isSaving.value = true
   try {
@@ -237,6 +239,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: () => form.value?.validate(),
+  validate: async () => form.value?.validate(),
 })
 </script>

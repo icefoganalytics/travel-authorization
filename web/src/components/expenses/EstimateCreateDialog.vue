@@ -88,6 +88,7 @@
 
 <script setup>
 import { ref, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
@@ -138,8 +139,10 @@ function newEstimate() {
 const snack = useSnack()
 
 async function createAndClose() {
-  if (formRef.value === null) return
-  if (!formRef.value.validate()) return
+  if (isNil(formRef.value)) return
+
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
 
   try {
     await expensesApi.create(estimate.value)

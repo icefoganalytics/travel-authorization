@@ -96,9 +96,10 @@ const snack = useSnack()
 
 async function rejectAndClose() {
   if (isNil(expenseId.value)) return
+  if (isNil(formCardRef.value)) return
 
-  const isValid = formCardRef.value?.validate()
-  if (!isValid) return
+  const { valid } = await formCardRef.value.validate()
+  if (!valid) return
 
   isLoading.value = true
   try {

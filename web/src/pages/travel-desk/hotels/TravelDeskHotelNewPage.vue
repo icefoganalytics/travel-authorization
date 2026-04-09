@@ -133,6 +133,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
 import { useRouter } from "vue-router"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 import useRouteQuery from "@/use/utils/use-route-query"
@@ -149,7 +150,6 @@ import SectionHeader from "@/components/common/SectionHeader.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import { isNil } from "lodash"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string
@@ -207,7 +207,10 @@ function resetConferenceFieldsIfNo(value: boolean) {
 }
 
 async function createAndReturn() {
-  if (!headerActionsFormCard.value?.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) return
 
   if (travelDeskHotelAttributes.value.isDedicatedConferenceHotelAvailable === false) {
     travelDeskHotelAttributes.value.conferenceName = undefined

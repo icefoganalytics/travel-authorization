@@ -157,7 +157,8 @@ async function save() {
     return
   }
 
-  if (!formRef.value.validate()) {
+  const { valid } = await formRef.value.validate()
+  if (!valid) {
     snack.error("Please fill in all required fields")
     return
   }

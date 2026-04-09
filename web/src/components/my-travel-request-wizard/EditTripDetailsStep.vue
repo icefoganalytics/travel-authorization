@@ -62,7 +62,8 @@ const snack = useSnack()
 async function validateSaveAndGenerateEstimatesIfNoneExist() {
   isLoading.value = true
   try {
-    if (tripDetailsEstimatesEditForm.value.validate() === false) {
+    const { valid } = await tripDetailsEstimatesEditForm.value.validate()
+    if (!valid) {
       snack.error("Please fill in all required fields.")
       return false
     }

@@ -86,7 +86,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { times, uniqueId } from "lodash"
+import { isNil, times, uniqueId } from "lodash"
 import { useDisplay } from "vuetify"
 
 import { required } from "@/utils/validators"
@@ -155,7 +155,10 @@ const form = ref(null)
 const snack = useSnack()
 
 async function save() {
-  if (!form.value.validate()) {
+  if (isNil(form.value)) return false
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
     snack.error("Please fill in all required fields")
     return false
   }

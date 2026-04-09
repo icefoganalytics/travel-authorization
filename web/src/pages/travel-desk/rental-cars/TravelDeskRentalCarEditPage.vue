@@ -363,7 +363,10 @@ const snack = useSnack()
 
 async function saveAndReturn() {
   if (isNil(travelDeskRentalCar.value)) return
-  if (!headerActionsFormCard.value?.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) return
 
   travelDeskRentalCar.value.pickUpDate = `${pickUpDate.value}T${pickUpTime.value}:00.000Z`
   travelDeskRentalCar.value.dropOffDate = `${dropOffDate.value}T${dropOffTime.value}:00.000Z`

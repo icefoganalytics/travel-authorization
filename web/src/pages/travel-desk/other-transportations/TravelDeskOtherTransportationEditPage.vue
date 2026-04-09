@@ -191,7 +191,10 @@ const snack = useSnack()
 
 async function saveAndReturn() {
   if (isNil(travelDeskOtherTransportation.value)) return
-  if (!headerActionsFormCard.value?.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) return
 
   isSaving.value = true
   try {

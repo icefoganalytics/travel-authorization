@@ -111,7 +111,11 @@ const form = ref<InstanceType<typeof VForm> | null>(null)
 const snack = useSnack()
 
 async function updateAndClose() {
-  if (!form.value?.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) return
+
   if (isNil(generalLedgerCodingId.value)) return
   if (isNil(generalLedgerCoding.value)) return
 

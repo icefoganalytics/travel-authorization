@@ -27,7 +27,9 @@ const snack = useSnack()
 
 async function validateAndSave() {
   if (isNil(purposeEditFormCard.value)) return false
-  if (!purposeEditFormCard.value.validate()) {
+
+  const { valid } = await purposeEditFormCard.value.validate()
+  if (!valid) {
     snack.error("Please fill in all required fields.")
     return false
   }

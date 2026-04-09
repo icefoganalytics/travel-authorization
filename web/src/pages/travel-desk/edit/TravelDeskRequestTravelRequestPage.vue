@@ -150,7 +150,10 @@ const snack = useSnack()
 
 async function saveTravelDeskTravelRequest() {
   if (isNil(travelDeskTravelRequest.value)) return
-  if (!form.value?.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) return
 
   isLoading.value = true
   try {

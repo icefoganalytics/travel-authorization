@@ -64,7 +64,10 @@ const snack = useSnack()
 const router = useRouter()
 
 async function reassign() {
-  if (!form.value?.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) return
 
   try {
     // TODO: if we want to track re-assigment we should add an action specific endpoint

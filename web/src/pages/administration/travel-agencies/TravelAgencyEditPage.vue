@@ -145,7 +145,10 @@ const form = ref(null)
 const snack = useSnack()
 
 async function validateAndSave() {
-  if (!form.value?.validate()) {
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
     snack("Please fill in all required fields.", { color: "error" })
     return
   }

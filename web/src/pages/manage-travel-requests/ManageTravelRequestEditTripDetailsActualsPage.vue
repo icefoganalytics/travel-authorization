@@ -60,7 +60,9 @@ const router = useRouter()
 
 async function validateSaveAndReturn() {
   if (isNil(tripDetailsActualsEditForm.value)) return
-  if (!tripDetailsActualsEditForm.value.validate()) {
+
+  const { valid } = await tripDetailsActualsEditForm.value.validate()
+  if (!valid) {
     snack.error("Please fill in all required fields.")
     return
   }

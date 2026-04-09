@@ -51,7 +51,8 @@ const snack = useSnack()
 async function validateAndSave() {
   isLoading.value = true
   try {
-    if (approvalsEditFormCard.value.validate() === false) {
+    const { valid } = await approvalsEditFormCard.value.validate()
+    if (!valid) {
       snack.error("Please fill in all required fields.")
       return false
     }

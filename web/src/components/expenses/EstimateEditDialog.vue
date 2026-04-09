@@ -129,8 +129,10 @@ const snack = useSnack()
 const formRef = ref(null)
 
 async function updateAndClose() {
-  if (formRef.value === null) return
-  if (!formRef.value.validate()) return
+  if (isNil(formRef.value)) return
+
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
 
   try {
     await save()

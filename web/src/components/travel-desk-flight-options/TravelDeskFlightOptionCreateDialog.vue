@@ -111,7 +111,7 @@
 
 <script setup>
 import { ref, nextTick, computed, watch } from "vue"
-import { cloneDeep } from "lodash"
+import { cloneDeep, isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -167,7 +167,10 @@ function hide() {
 }
 
 async function createAndHide() {
-  if (!form.value?.validate()) {
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
     snack.error("Please fill in all required fields")
     return
   }

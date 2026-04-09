@@ -54,7 +54,8 @@ const travelerDetailsFormCard = ref(null)
 const snack = useSnack()
 
 async function saveAndNotify() {
-  if (travelerDetailsFormCard.value.validate() !== true) {
+  const { valid } = await travelerDetailsFormCard.value.validate()
+  if (!valid) {
     snack("Form validation failed! Please fill out all required fields.", {
       color: "error",
     })

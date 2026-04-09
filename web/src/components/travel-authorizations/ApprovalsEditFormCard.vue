@@ -131,7 +131,9 @@ onMounted(async () => {
 
 async function saveWrapper() {
   if (isNil(headerActionsFormCard.value)) return
-  if (!headerActionsFormCard.value.validate()) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) return
   if (isNil(travelAuthorization.value)) return
 
   await save({
@@ -145,7 +147,8 @@ async function saveWrapper() {
 // Maybe figure out some better pattern for this?
 async function submitWrapper() {
   if (isNil(headerActionsFormCard.value)) return
-  if (!headerActionsFormCard.value.validate()) return
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) return
   if (isNil(travelAuthorization.value)) return
 
   await submit({
@@ -158,6 +161,6 @@ async function submitWrapper() {
 defineExpose({
   save: saveWrapper,
   submit: submitWrapper,
-  validate: () => headerActionsFormCard.value?.validate(),
+  validate: async () => headerActionsFormCard.value?.validate(),
 })
 </script>

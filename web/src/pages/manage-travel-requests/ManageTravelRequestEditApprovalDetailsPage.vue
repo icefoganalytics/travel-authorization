@@ -57,7 +57,9 @@ const router = useRouter()
 
 async function validateSubmitAndReturn() {
   if (isNil(approvalsEditFormCard.value)) return
-  if (!approvalsEditFormCard.value.validate()) {
+
+  const { valid } = await approvalsEditFormCard.value.validate()
+  if (!valid) {
     snack.error("Please fill in all required fields.")
     return
   }

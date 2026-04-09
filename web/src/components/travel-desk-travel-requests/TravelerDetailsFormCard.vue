@@ -296,7 +296,7 @@ watch(
   }
 )
 
-function validate() {
+async function validate() {
   if (isNil(form.value)) {
     throw new Error("Form could not be found")
   }

@@ -49,7 +49,9 @@ const snack = useSnack()
 
 async function uploadFileAndEmit(event: Event) {
   if (isNil(formRef.value)) return
-  if (!formRef.value.validate()) return
+
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
 
   const target = event.target as HTMLInputElement
   const { files } = target

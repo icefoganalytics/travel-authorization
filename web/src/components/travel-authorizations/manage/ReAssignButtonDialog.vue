@@ -75,6 +75,7 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -115,7 +116,10 @@ const snack = useSnack()
 const router = useRouter()
 
 async function reAssignAndClose() {
-  if (!form.value.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) return
 
   isLoading.value = true
   try {

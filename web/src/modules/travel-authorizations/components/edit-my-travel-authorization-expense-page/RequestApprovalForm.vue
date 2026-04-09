@@ -113,7 +113,10 @@ async function requestApprovalForExpenseClaim() {
     return false
   }
 
-  if (!form.value?.validate()) return false
+  if (isNil(form.value)) return false
+
+  const { valid } = await form.value.validate()
+  if (!valid) return false
 
   isLoadingTravelAuthorization.value = true
   try {

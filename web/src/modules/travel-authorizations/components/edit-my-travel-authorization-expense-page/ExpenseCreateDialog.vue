@@ -89,6 +89,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue"
+import { isNil } from "lodash"
 
 import { type VForm } from "vuetify/components"
 
@@ -139,7 +140,10 @@ const isLoading = ref(false)
 const snack = useSnack()
 
 async function createAndClose() {
-  if (!form.value?.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) return
 
   isLoading.value = true
   try {

@@ -113,6 +113,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
+import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"
@@ -169,7 +170,10 @@ const isSaving = ref(false)
 const snack = useSnack()
 
 async function createAndReturn() {
-  if (!headerActionsFormCard.value?.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) return
 
   isSaving.value = true
   try {

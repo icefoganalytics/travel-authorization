@@ -104,6 +104,7 @@
 
 <script setup>
 import { ref } from "vue"
+import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
 import useSnack from "@/use/use-snack"
@@ -131,7 +132,10 @@ const router = useRouter()
 const snack = useSnack()
 
 async function createTravelAgency() {
-  if (!form.value?.validate()) {
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
     snack("Please fill in all required fields.", { color: "error" })
     return
   }

@@ -174,7 +174,10 @@ watch(
 const snack = useSnack()
 
 async function updateAndHide() {
-  if (!form.value?.validate()) {
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
     snack.error("Please fill in all required fields")
     return
   }
