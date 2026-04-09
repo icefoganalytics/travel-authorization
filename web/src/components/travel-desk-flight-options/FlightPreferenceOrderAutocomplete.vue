@@ -38,13 +38,13 @@ const flightPreferenceOrders = computed(() => {
   const numbericOptions = times(props.numberOfOptions, (i) => {
     return {
       value: i + 1,
-      text: i + 1,
+      title: i + 1,
     }
   })
 
   numbericOptions.push({
     value: DOES_NOT_WORK,
-    text: "Does Not Work",
+    title: "Does Not Work",
   })
 
   return numbericOptions

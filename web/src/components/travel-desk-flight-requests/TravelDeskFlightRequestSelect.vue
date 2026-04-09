@@ -68,8 +68,8 @@ const { travelDeskFlightRequests, isLoading } = useTravelDeskFlightRequests(
 )
 const formattedTravelDeskFlightRequests = computed(() =>
   travelDeskFlightRequests.value.map((travelDeskFlightRequest) => ({
+    title: buildFlightRequestDescription(travelDeskFlightRequest),
     value: travelDeskFlightRequest.id,
-    text: buildFlightRequestDescription(travelDeskFlightRequest),
   }))
 )
 

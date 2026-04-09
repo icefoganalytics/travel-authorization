@@ -41,7 +41,7 @@ const { t } = useI18n()
 
 const requestTypeItems = computed(() =>
   Object.values(TRAVEL_DESK_QUESTION_REQUEST_TYPES).map((requestType) => ({
-    text: t(`travel_desk_question.request_type.${requestType}`, requestType),
+    title: t(`travel_desk_question.request_type.${requestType}`, requestType),
     value: requestType,
   }))
 )

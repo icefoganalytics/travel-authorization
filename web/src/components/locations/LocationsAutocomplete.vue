@@ -68,8 +68,8 @@ const { locations, isLoading } = useLocations(locationsQuery)
 const formattedLocations = computed(() => {
   return locations.value.map(({ id, city, province }) => {
     return {
+      title: `${city} (${province})`,
       value: id,
-      text: `${city} (${province})`,
       // These legacy fields support using location selector string values.
       city,
       province,

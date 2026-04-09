@@ -17,15 +17,15 @@ defineProps<{
 
 const travelDeskOtherTransportationTypes = computed(() => [
   {
-    text: "Shuttle",
+    title: "Shuttle",
     value: TravelDeskOtherTransportationTypes.SHUTTLE,
   },
   {
-    text: "Bus",
+    title: "Bus",
     value: TravelDeskOtherTransportationTypes.BUS,
   },
   {
-    text: "Train",
+    title: "Train",
     value: TravelDeskOtherTransportationTypes.TRAIN,
   },
 ])

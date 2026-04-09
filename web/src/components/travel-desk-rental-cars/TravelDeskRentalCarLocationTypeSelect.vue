@@ -30,19 +30,19 @@ const emit = defineEmits<{
 
 const locationTypeOptions = computed(() => [
   {
-    text: "Airport",
+    title: "Airport",
     value: TravelDeskRentalCarLocationTypes.AIRPORT,
   },
   {
-    text: "Hotel",
+    title: "Hotel",
     value: TravelDeskRentalCarLocationTypes.HOTEL,
   },
   {
-    text: "Downtown",
+    title: "Downtown",
     value: TravelDeskRentalCarLocationTypes.DOWNTOWN,
   },
   {
-    text: "Other",
+    title: "Other",
     value: TravelDeskRentalCarLocationTypes.OTHER,
   },
 ])
