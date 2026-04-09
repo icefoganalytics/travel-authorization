@@ -35,6 +35,12 @@ export default createVuetify({
       style: "text-transform: none;",
       variant: "flat",
     },
+    VCardActions: {
+      VBtn: {
+        variant: "elevated",
+        color: "primary",
+      },
+    },
     VDateInput: {
       variant: "outlined",
       density: "comfortable",
