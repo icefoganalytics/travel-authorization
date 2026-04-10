@@ -43,6 +43,14 @@ export default createVuetify({
         color: "primary",
       },
     },
+    VDataTable: {
+      elevation: 0,
+      class: "rounded",
+    },
+    VDataTableServer: {
+      elevation: 0,
+      class: "rounded",
+    },
     VDateInput: {
       variant: "outlined",
       density: "comfortable",

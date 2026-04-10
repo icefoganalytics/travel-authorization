@@ -7,7 +7,6 @@
     :items="expenses"
     :loading="isLoading"
     :items-length="totalCount"
-    class="elevation-2"
   >
     <template #top>
       <ExpenseEditDialog

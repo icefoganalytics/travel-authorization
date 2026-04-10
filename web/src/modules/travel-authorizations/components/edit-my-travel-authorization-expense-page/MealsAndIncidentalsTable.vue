@@ -4,7 +4,6 @@
     :items="expenses"
     :items-per-page="10"
     :loading="isLoading"
-    class="elevation-2"
   >
     <template #item.date="{ value }">
       {{ formatDate(value) }}

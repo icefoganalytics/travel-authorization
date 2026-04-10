@@ -4,7 +4,6 @@
     :items="generalLedgerCodings"
     :items-per-page="10"
     :loading="isLoading"
-    class="elevation-2"
   >
     <template #item.amount="{ value }">
       {{ formatCurrency(value) }}
