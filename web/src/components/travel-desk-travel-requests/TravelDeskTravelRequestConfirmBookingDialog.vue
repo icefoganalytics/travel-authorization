@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue"
+import { nextTick, ref, watch } from "vue"
 import { isNil } from "lodash"
 
 import useSnack from "@/use/use-snack"
@@ -58,8 +58,10 @@ async function bookTravelRequest() {
   try {
     await travelDeskTravelRequestsApi.book(travelDeskTravelRequestId.value)
     snack.success("Travel request booked.")
-    emit("booked")
     close()
+
+    await nextTick()
+    emit("booked")
   } catch (error) {
     console.error(error)
     snack.error(`Failed to book travel request: ${error}`)
