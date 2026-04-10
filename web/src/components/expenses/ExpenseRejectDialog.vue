@@ -99,7 +99,10 @@ async function rejectAndClose() {
   if (isNil(formCardRef.value)) return
 
   const { valid } = await formCardRef.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isLoading.value = true
   try {

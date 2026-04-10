@@ -75,6 +75,7 @@ import { type VForm } from "vuetify/components"
 import { required, isInteger } from "@/utils/validators"
 
 import useCurrentUser from "@/use/use-current-user"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
@@ -124,6 +125,7 @@ const travelAdvanceInDollars = computed({
 })
 
 const headerActionsFormCard = ref<InstanceType<typeof VForm> | null>(null)
+const snack = useSnack()
 
 onMounted(async () => {
   await headerActionsFormCard.value?.resetValidation()
@@ -133,7 +135,11 @@ async function saveWrapper() {
   if (isNil(headerActionsFormCard.value)) return
 
   const { valid } = await headerActionsFormCard.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
+
   if (isNil(travelAuthorization.value)) return
 
   await save({
@@ -148,7 +154,11 @@ async function saveWrapper() {
 async function submitWrapper() {
   if (isNil(headerActionsFormCard.value)) return
   const { valid } = await headerActionsFormCard.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
+
   if (isNil(travelAuthorization.value)) return
 
   await submit({

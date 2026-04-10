@@ -114,7 +114,10 @@ async function updateAndClose() {
   if (isNil(form.value)) return
 
   const { valid } = await form.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   if (isNil(generalLedgerCodingId.value)) return
   if (isNil(generalLedgerCoding.value)) return

@@ -248,7 +248,10 @@ async function approve() {
   if (isNil(headerActionsFormCard.value)) return
 
   const { valid } = await headerActionsFormCard.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   if (!everyTravelAuthorizationPreApprovalMarked.value) {
     showAlert.value = true

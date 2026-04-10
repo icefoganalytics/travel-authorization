@@ -116,7 +116,10 @@ async function requestApprovalForExpenseClaim() {
   if (isNil(form.value)) return false
 
   const { valid } = await form.value.validate()
-  if (!valid) return false
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return false
+  }
 
   isLoadingTravelAuthorization.value = true
   try {

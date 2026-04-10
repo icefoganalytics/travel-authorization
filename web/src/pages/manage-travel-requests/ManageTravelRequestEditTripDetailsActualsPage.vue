@@ -63,7 +63,7 @@ async function validateSaveAndReturn() {
 
   const { valid } = await tripDetailsActualsEditForm.value.validate()
   if (!valid) {
-    snack.error("Please fill in all required fields.")
+    snack.warning("Please fill in all required fields.")
     return
   }
 

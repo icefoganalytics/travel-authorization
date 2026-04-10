@@ -116,7 +116,7 @@ async function createAndHide() {
 
   const { valid } = await form.value.validate()
   if (!valid) {
-    snack.error("Please fill in all required fields")
+    snack.warning("Please fill in all required fields.")
     return
   }
 

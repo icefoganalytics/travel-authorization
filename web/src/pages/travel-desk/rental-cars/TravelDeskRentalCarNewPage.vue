@@ -350,7 +350,10 @@ async function createAndReturn() {
   if (isNil(headerActionsFormCard.value)) return
 
   const { valid } = await headerActionsFormCard.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   // TODO: Notify the user, in the UI, that times are in UTC?
   // Or maybe make them local to city?

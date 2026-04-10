@@ -315,7 +315,10 @@ async function createTravelAuthorizationPreApproval() {
   if (isNil(headerActionsFormCard.value)) return
 
   const { valid } = await headerActionsFormCard.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isLoading.value = true
 

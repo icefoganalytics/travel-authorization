@@ -112,6 +112,7 @@ import {
 } from "@/api/travel-segments-api"
 
 import { required } from "@/utils/validators"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization, {
   TravelAuthorizationTripTypes,
 } from "@/use/use-travel-authorization"
@@ -287,13 +288,17 @@ function buildTravelSegmentEstimatesAttributes(
 
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isSaving = ref(false)
+const snack = useSnack()
 
 async function saveWrapper() {
   if (isNil(travelAuthorization.value)) return
   if (isNil(headerActionsFormCard.value)) return
 
   const { valid } = await headerActionsFormCard.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   const travelSegmentEstimatesAttributes = buildTravelSegmentEstimatesAttributes(
     finalDestinationLocationId.value,

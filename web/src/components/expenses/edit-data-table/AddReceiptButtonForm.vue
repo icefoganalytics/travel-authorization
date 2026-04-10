@@ -51,7 +51,10 @@ async function uploadFileAndEmit(event: Event) {
   if (isNil(formRef.value)) return
 
   const { valid } = await formRef.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   const target = event.target as HTMLInputElement
   const { files } = target

@@ -144,7 +144,7 @@ async function updateAndClose() {
 
   const { valid } = await form.value.validate()
   if (!valid) {
-    snack("Please fill in all required fields", { color: "error" })
+    snack.warning("Please fill in all required fields.")
     return
   }
 

@@ -88,6 +88,7 @@ import { useDisplay } from "vuetify"
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
@@ -207,6 +208,7 @@ const tripTypeComponent = computed(() => {
 /** @typedef {import('vuetify/components').VForm} VForm */
 /** @type {import('vue').Ref<typeof VForm | null>} */
 const form = ref(null)
+const snack = useSnack()
 const isSaving = ref(false)
 
 async function resetFormValidation() {
@@ -218,7 +220,10 @@ async function saveWrapper() {
   if (isNil(form.value)) return
 
   const { valid } = await form.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isSaving.value = true
   try {

@@ -67,7 +67,10 @@ async function reassign() {
   if (isNil(form.value)) return
 
   const { valid } = await form.value.validate()
-  if (!valid) return
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   try {
     // TODO: if we want to track re-assigment we should add an action specific endpoint
