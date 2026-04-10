@@ -320,11 +320,21 @@ See `/api/src/config.ts` for complete details.
 
 **Commit emoji guidance:**
 
+Format: `:emoji: Verb phrase.` — imperative mood, ends with a period.
+
+- Use `:butterfly:` for database migrations and data backfills
+- Use `:bug:` for bug fixes
+- Use `:sparkles:` for new features
+- Use `:recycle:` for structural cleanup or migration-safe refactors that preserve behavior
+- Use `:art:` for theme, styling, or visual changes
+- Use `:cherry_blossom:` for UI polish and cosmetic improvements
+- Use `:wrench:` for config and settings changes
+- Use `:memo:` for documentation and plan updates
+- Use `:hammer:` for infrastructure and tooling changes (docker, scripts)
 - Use `:arrow_up:` for dependency, runtime, and version bumps
 - Use `:gear:` for container, workflow, and tooling configuration changes
 - Use `:heavy_minus_sign:` when removing a dependency from the package set
 - Use `:construction:` for intentionally incomplete migration slices that may leave the app broken between commits
-- Use `:recycle:` for structural cleanup or migration-safe refactors that preserve behavior
 - Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
 
 **Testing Instructions Format:**
