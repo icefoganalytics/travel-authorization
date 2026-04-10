@@ -98,8 +98,9 @@
     <template #item.edit="{ item }">
       <v-btn
         v-if="item.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED"
-        class="mr-4"
+        prepend-icon="mdi-eye"
         color="primary"
+        min-width="6rem"
         :to="{
           name: 'travel-desk/TravelDeskRequestPage',
           params: {
@@ -111,8 +112,9 @@
       </v-btn>
       <v-btn
         v-else
-        class="mr-4"
+        prepend-icon="mdi-pencil"
         color="primary"
+        min-width="6rem"
         :to="{
           name: 'travel-desk/TravelDeskRequestEditRedirect',
           params: {
@@ -120,7 +122,6 @@
           },
         }"
       >
-        <v-icon start> mdi-pencil </v-icon>
         Edit
       </v-btn>
     </template>
@@ -156,7 +157,7 @@ const headers = ref([
   { title: "Requested", key: "requested", sortable: false },
   { title: "Status", key: "status" },
   { title: "Travel Desk Officer", key: "travelDeskOfficer" },
-  { title: "", key: "edit", sortable: false },
+  { title: "Actions", key: "edit", sortable: false, align: "start" },
 ])
 
 const { t } = useI18n()
