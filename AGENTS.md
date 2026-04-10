@@ -452,6 +452,12 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 
 ### Workflow Design Principles
 
+**Codebase-wide search discipline:**
+- Search for the **method or pattern**, not the variable name — variable names differ per file
+- BAD: `form\.value\.validate` — misses `formRef`, `headerActionsFormCard`, `tripDetailsEstimatesEditForm`, etc.
+- GOOD: `\.validate\(\)` — catches all call sites regardless of ref name
+- When doing a codebase-wide pass, use the most general regex that captures the semantic pattern, then filter false positives manually
+
 **Comprehensive Scoping:**
 - Name workflows for their complete lifecycle (e.g., "pull-request-management" not "pull-request-creation")
 - Cover all related activities: creation, editing, maintenance, and troubleshooting
