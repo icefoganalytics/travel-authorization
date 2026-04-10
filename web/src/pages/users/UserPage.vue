@@ -55,12 +55,11 @@
         <v-btn
           class="ml-2 my-0"
           title="Copy email to clipboard"
-          icon
+          icon="mdi-content-copy"
           size="small"
+          variant="text"
           @click="copyToClipboard(user.email, 'Email copied to clipboard')"
-        >
-          <v-icon>mdi-content-copy</v-icon>
-        </v-btn>
+        />
       </v-col>
       <v-col
         cols="12"

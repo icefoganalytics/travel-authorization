@@ -22,24 +22,24 @@
     </template>
 
     <template #item.actions="{ item }">
-      <div class="d-flex">
+      <div class="d-flex ga-1 justify-end">
         <v-btn
           title="Edit"
-          icon
+          icon="mdi-pencil"
           size="small"
+          variant="text"
           color="primary"
           @click.stop="goToTravelDeskHotelEditPage(item.id)"
-          ><v-icon>mdi-pencil</v-icon></v-btn
-        >
+        />
         <v-btn
           :loading="isDeleting"
           title="Delete"
-          icon
+          icon="mdi-close"
           size="small"
-          color="red"
+          variant="text"
+          color="error"
           @click.stop="deleteItem(item.id)"
-          ><v-icon>mdi-close</v-icon></v-btn
-        >
+        />
       </div>
     </template>
 

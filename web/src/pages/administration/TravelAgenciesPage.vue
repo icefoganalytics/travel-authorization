@@ -26,29 +26,28 @@
             </span>
           </template>
           <template #item.edit="{ item }">
-            <v-btn
-              title="Edit"
-              color="info"
-              icon
-              size="small"
-              :to="{
-                name: 'administration/travel-agencies/TravelAgencyEditPage',
-                params: { travelDeskTravelAgencyId: item.id },
-              }"
-            >
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn
-              title="Delete"
-              class="ml-2"
-              :loading="isDeleting"
-              color="error"
-              icon
-              size="small"
-              @click="deleteTravelAgency(item.id)"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
+            <div class="d-flex ga-1 justify-end">
+              <v-btn
+                title="Edit"
+                icon="mdi-pencil"
+                size="small"
+                variant="text"
+                color="primary"
+                :to="{
+                  name: 'administration/travel-agencies/TravelAgencyEditPage',
+                  params: { travelDeskTravelAgencyId: item.id },
+                }"
+              />
+              <v-btn
+                title="Delete"
+                icon="mdi-delete"
+                size="small"
+                variant="text"
+                :loading="isDeleting"
+                color="error"
+                @click="deleteTravelAgency(item.id)"
+              />
+            </div>
           </template>
         </v-data-table-server>
       </v-card-text>

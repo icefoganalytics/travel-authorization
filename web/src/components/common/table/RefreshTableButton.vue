@@ -1,13 +1,12 @@
 <template>
   <v-btn
     class="ma-0"
-    icon
+    icon="mdi-cached"
     size="small"
-    color="info"
+    variant="text"
+    color="primary"
     title="Refresh Table"
-  >
-    <v-icon>mdi-cached</v-icon>
-  </v-btn>
+  />
 </template>
 
 <script setup></script>

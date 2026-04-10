@@ -26,15 +26,15 @@
         {{ formatCurrency(value, item.currency) }}
       </template>
       <template #item.actions="{ item }">
-        <div class="d-flex justify-end">
+        <div class="d-flex ga-1 justify-end">
           <v-btn
             title="Edit"
-            icon
+            icon="mdi-pencil"
             size="small"
-            color="blue"
+            variant="text"
+            color="primary"
             @click="showEditDialog(item)"
-            ><v-icon>mdi-pencil</v-icon></v-btn
-          >
+          />
         </div>
       </template>
     </v-data-table-server>

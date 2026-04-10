@@ -62,30 +62,25 @@
           </template>
 
           <template #[`item.edit`]="{ item }">
-            <div class="d-flex justify-end">
+            <div class="d-flex ga-1 justify-end">
               <v-btn
                 v-if="!readonly"
                 title="Edit"
-                icon
+                icon="mdi-pencil"
                 size="small"
-                color="blue"
+                variant="text"
+                color="primary"
                 @click="showEditDialog(item.id)"
-              >
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
+              />
               <v-btn
                 v-if="!readonly"
-                style="min-width: 0"
-                color="transparent"
-                class="px-1 pt-2"
+                title="Delete"
+                icon="mdi-close"
                 size="small"
+                variant="text"
+                color="error"
                 @click="removeFlight(item)"
-                ><v-icon
-                  class=""
-                  color="red"
-                  >mdi-close</v-icon
-                >
-              </v-btn>
+              />
             </div>
           </template>
         </v-data-table>

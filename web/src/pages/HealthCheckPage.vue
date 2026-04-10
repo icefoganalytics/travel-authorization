@@ -21,14 +21,13 @@
               >Health Check
               <v-btn
                 class="ma-0 ml-1"
-                icon
+                icon="mdi-cached"
                 size="small"
-                color="green"
+                variant="text"
+                color="success"
                 title="refresh"
                 @click="refresh"
-              >
-                <v-icon>mdi-cached</v-icon>
-              </v-btn>
+              />
             </v-card-title>
             <v-list density="compact">
               <v-list-item :title="`API Port: ${appHealth.apiPort}`"></v-list-item>
@@ -50,14 +49,13 @@
               >DB Connection Information
               <v-btn
                 class="ma-0 ml-1"
-                icon
+                icon="mdi-cached"
                 size="small"
-                color="green"
+                variant="text"
+                color="success"
                 title="refresh"
                 @click="refresh"
-              >
-                <v-icon>mdi-cached</v-icon>
-              </v-btn>
+              />
             </v-card-title>
             <v-list density="compact">
               <v-list-item :title="`Host: ${dbHealth.connection}`"></v-list-item>
@@ -79,14 +77,13 @@
               >Environment Information
               <v-btn
                 class="ma-0 ml-1"
-                icon
+                icon="mdi-cached"
                 size="small"
-                color="green"
+                variant="text"
+                color="success"
                 title="refresh"
                 @click="refresh"
-              >
-                <v-icon>mdi-cached</v-icon>
-              </v-btn>
+              />
             </v-card-title>
             <v-list density="compact">
               <v-list-item :title="`Release Tag: ${environment.releaseTag}`"></v-list-item>
