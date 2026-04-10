@@ -39,7 +39,7 @@
                 cols="12"
                 md="6"
               >
-                <v-file-input
+                <EnhancedFileInput
                   v-if="hasPassengerNameRecordDocument"
                   v-model="passengerNameRecordDocumentFile"
                   label="PNR Document"
@@ -50,7 +50,7 @@
                   show-size
                   truncate-length="40"
                 />
-                <v-file-input
+                <EnhancedFileInput
                   v-else
                   v-model="passengerNameRecordDocumentFile"
                   label="PNR Document *"
@@ -121,6 +121,7 @@ import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
+import EnhancedFileInput from "@/components/common/EnhancedFileInput.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 
 const props = defineProps<{

@@ -15,7 +15,7 @@
     >
       <v-row>
         <v-col cols="12">
-          <v-file-input
+          <EnhancedFileInput
             v-model="approvalDocument"
             accept="application/pdf,image/x-png,image/jpeg"
             label="Approval Document *"
@@ -158,6 +158,7 @@ import useTravelAuthorizationPreApprovals, {
   TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
 } from "@/use/use-travel-authorization-pre-approvals"
 
+import EnhancedFileInput from "@/components/common/EnhancedFileInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 import TravelAuthorizationPreApprovalStatusChip from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalStatusChip.vue"
