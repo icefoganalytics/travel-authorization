@@ -16,12 +16,12 @@
         @deleted="emitChangedAndRefresh"
       />
     </template>
-    <template #header.code="{ header }">
+    <template #header.code="{ column }">
       <!-- See https://github.com/icefoganalytics/travel-authorization/issues/156#issuecomment-1890047168 -->
       <v-tooltip location="bottom">
         <template #activator="{ props: activatorProps }">
           <span v-bind="activatorProps">
-            {{ header.text }}
+            {{ column.title }}
             <v-icon size="small">mdi-help-circle-outline</v-icon>
           </span>
         </template>
