@@ -6,29 +6,26 @@
     @click:outside="close"
   >
     <v-card>
-      <v-card-title class="warning">
-        <div class="text-h5">Confirm Booking is Complete</div>
-      </v-card-title>
+      <v-card-title class="text-h5 bg-warning"> Confirm Booking is Complete </v-card-title>
       <v-card-text>
-        <p class="mt-5">
+        <p>
           Are you sure this booking is Complete?<br />
           Once a booking is completed, you can no longer make changes to it.
         </p>
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions class="justify-start">
         <v-btn
           color="secondary"
-          class="px-5"
           @click="close"
         >
-          <div>Cancel</div>
+          Cancel
         </v-btn>
         <v-btn
-          class="mr-0 ml-auto px-5"
-          color="#005A65"
+          color="primary"
           :loading="isLoading"
           @click="bookTravelRequest"
-          >Confirm
+        >
+          Confirm
         </v-btn>
       </v-card-actions>
     </v-card>
