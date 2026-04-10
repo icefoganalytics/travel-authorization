@@ -209,7 +209,7 @@
               <LocationsAutocomplete
                 v-model="travelDeskTravelRequest.city"
                 label="City *"
-                item-value="city"
+                item-value="cityUniqueLegacy"
                 :rules="[required]"
                 variant="outlined"
               />

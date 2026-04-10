@@ -37,7 +37,7 @@
             <LocationsAutocomplete
               v-model="travelDeskOtherTransportationAttributes.depart"
               label="Departure Location *"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :rules="[required]"
               variant="outlined"
               required
@@ -47,7 +47,7 @@
             <LocationsAutocomplete
               v-model="travelDeskOtherTransportationAttributes.arrive"
               label="Arrival Location *"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :rules="[required]"
               variant="outlined"
               required

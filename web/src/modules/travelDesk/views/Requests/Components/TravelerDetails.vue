@@ -71,7 +71,7 @@
           <v-col cols="2">
             <LocationsAutocomplete
               v-model="travelerDetails.city"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :readonly="readonly"
               :error="travelerState.cityErr"
               label="City"

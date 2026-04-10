@@ -80,7 +80,7 @@
             <LocationsAutocomplete
               v-model="travelerDetails.city"
               label="City *"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :rules="[required]"
               variant="outlined"
             />

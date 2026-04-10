@@ -33,7 +33,7 @@
                 v-model="travelDeskFlightRequest.departLocation"
                 :rules="[required]"
                 label="Depart Location *"
-                item-value="city"
+                item-value="cityUniqueLegacy"
                 variant="outlined"
                 required
               />
@@ -46,7 +46,7 @@
                 v-model="travelDeskFlightRequest.arriveLocation"
                 :rules="[required]"
                 label="Arrive Location *"
-                item-value="city"
+                item-value="cityUniqueLegacy"
                 variant="outlined"
                 required
               />

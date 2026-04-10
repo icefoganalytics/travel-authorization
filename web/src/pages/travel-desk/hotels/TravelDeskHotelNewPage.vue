@@ -44,7 +44,7 @@
             <LocationsAutocomplete
               v-model="travelDeskHotelAttributes.city"
               label="City *"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :rules="[required]"
               variant="outlined"
               required

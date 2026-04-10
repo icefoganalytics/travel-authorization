@@ -99,7 +99,7 @@
               v-model="travelDeskRentalCar.pickUpCity"
               label="Pick-up City *"
               :rules="[required]"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               variant="outlined"
               required
             />
@@ -140,7 +140,7 @@
                 v-model="travelDeskRentalCar.dropOffCity"
                 label="Drop-off City *"
                 :rules="[required]"
-                item-value="city"
+                item-value="cityUniqueLegacy"
                 variant="outlined"
                 required
               />

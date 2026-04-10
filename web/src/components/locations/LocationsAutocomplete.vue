@@ -64,7 +64,9 @@ const formattedLocations = computed(() => {
       title: `${city} (${province})`,
       value: id,
       // These legacy fields support using location selector string values.
-      city,
+      // In the future we should update the data model to seprate city and province values,
+      // while ensuring city string values are unique.
+      cityUniqueLegacy: `${city} (${province})`,
       province,
     }
   })
