@@ -41,13 +41,13 @@
                 @update:model-value="toggleSelect(item)"
               />
               <TravelDeskFlightSegmentEditCard
+                class="flex-grow-1"
                 :flight-segment="item.raw"
                 @update:flight-segment="updateFlightSegment($event, index)"
               />
               <v-btn
-                class="ml-2"
+                class="align-self-center align-self-md-start mt-2 ml-md-2"
                 icon="mdi-delete"
-                size="small"
                 variant="text"
                 color="error"
                 title="Delete"
