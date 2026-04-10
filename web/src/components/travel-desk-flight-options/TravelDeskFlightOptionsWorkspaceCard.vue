@@ -23,7 +23,7 @@
           <v-card-title class="d-flex justify-space-between align-center">
             <h5>Group {{ index + 1 }}</h5>
             <v-btn
-              class="my-0"
+              class="my-0 mr-n2"
               color="primary"
               @click.stop="showEditDialog(item.raw.id)"
               >Edit</v-btn
