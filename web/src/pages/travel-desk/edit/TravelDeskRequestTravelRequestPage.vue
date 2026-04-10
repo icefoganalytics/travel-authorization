@@ -81,7 +81,7 @@
         :return-to="buildReturnTo('travel-desk-other-transportation-edit-card')"
       />
 
-      <div class="d-flex flex-column flex-md-row my-4">
+      <div class="d-flex flex-column flex-md-row ga-2 my-4">
         <v-btn
           color="primary"
           form="booking-assignment-form"

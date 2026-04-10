@@ -73,7 +73,7 @@
         </v-card-text>
       </v-card>
 
-      <div class="d-flex flex-column flex-md-row my-4">
+      <div class="d-flex flex-column flex-md-row ga-2 my-4">
         <v-btn
           v-if="isDraftState"
           color="primary"
