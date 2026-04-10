@@ -7,12 +7,11 @@
     <template #activator="{ props: activatorProps }">
       <v-btn
         title="System Options"
-        icon
+        icon="mdi-dots-vertical"
+        variant="text"
         color="primary"
         v-bind="activatorProps"
-      >
-        <v-icon>mdi-dots-vertical</v-icon>
-      </v-btn>
+      />
     </template>
 
     <v-list

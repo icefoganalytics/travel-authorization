@@ -44,15 +44,14 @@
           >Edit</v-btn
         >
         <v-btn
-          icon
+          icon="mdi-close"
           size="small"
+          variant="text"
           class="ml-2"
           color="error"
           title="Delete"
           @click="showDeleteDialog(item)"
-        >
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        />
       </div>
     </template>
     <template #tfoot>

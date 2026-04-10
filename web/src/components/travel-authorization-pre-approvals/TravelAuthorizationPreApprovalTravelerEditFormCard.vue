@@ -74,13 +74,12 @@
           <template #item.actions="{ item }">
             <v-btn
               title="Remove traveler profile"
-              icon
+              icon="mdi-delete"
               size="small"
+              variant="text"
               color="error"
               @click="removeTravelAuthorizationPreApprovalProfile(item.id)"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
+            />
           </template>
         </TravelAuthorizationPreApprovalProfilesDataTableServer>
       </v-col>

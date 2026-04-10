@@ -64,15 +64,14 @@
 
           <v-btn
             v-if="actions.includes('delete')"
-            icon
+            icon="mdi-close"
             size="small"
+            variant="text"
             class="ml-2"
             color="error"
             title="Delete"
             @click="showDeleteDialog(item.id)"
-          >
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+          />
         </v-col>
       </div>
     </template>

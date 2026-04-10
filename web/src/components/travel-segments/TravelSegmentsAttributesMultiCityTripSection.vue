@@ -133,13 +133,12 @@
         <v-btn
           v-if="travelSegmentsAttributes.length > 2"
           title="Remove leg"
-          icon
+          icon="mdi-close"
+          variant="text"
           color="error"
           class="my-0"
           @click="removeTravelSegmentAttribute(index)"
-        >
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        />
       </h4>
 
       <v-row>

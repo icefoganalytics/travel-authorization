@@ -46,14 +46,13 @@
               />
               <v-btn
                 class="ml-2"
+                icon="mdi-delete"
+                size="small"
+                variant="text"
                 color="error"
                 title="Delete"
-                icon
-                size="small"
                 @click="deleteFlightSegment(index)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
+              />
             </div>
           </template>
         </v-data-iterator>

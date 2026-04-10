@@ -41,12 +41,11 @@
             </div>
             <template #append>
               <v-btn
-                icon
+                icon="mdi-link"
                 size="small"
+                variant="text"
                 :to="userProfileLink"
-              >
-                <v-icon>mdi-link</v-icon>
-              </v-btn>
+              />
             </template>
           </v-list-item>
         </v-list>

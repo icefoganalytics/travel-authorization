@@ -30,14 +30,13 @@
       <v-spacer />
 
       <v-btn
-        icon
+        icon="mdi-history"
+        variant="text"
         color="primary"
         class="mr-2"
         title="Recently visited"
         @click="showHistory"
-      >
-        <v-icon>mdi-history</v-icon>
-      </v-btn>
+      />
 
       <v-btn
         variant="text"

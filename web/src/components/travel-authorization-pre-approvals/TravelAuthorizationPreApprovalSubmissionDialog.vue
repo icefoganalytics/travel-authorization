@@ -20,13 +20,12 @@
               <v-btn
                 v-if="canDelete"
                 title="Remove"
-                color="error"
-                icon
+                icon="mdi-delete"
                 size="small"
+                variant="text"
+                color="error"
                 @click="removePreApprovalRequest(item.id)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
+              />
             </template>
           </TravelAuthorizationPreApprovalsSimpleDataTableServer>
         </v-col>

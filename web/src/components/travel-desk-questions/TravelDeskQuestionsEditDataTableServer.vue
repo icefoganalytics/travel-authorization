@@ -23,25 +23,25 @@
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn
-        title="Edit"
-        icon
-        size="small"
-        color="blue"
-        @click="showEditDialog(item.id)"
-      >
-        <v-icon>mdi-pencil</v-icon>
-      </v-btn>
-      <v-btn
-        :loading="isDeleting"
-        title="Delete"
-        icon
-        size="small"
-        color="red"
-        @click="deleteQuestion(item.id)"
-      >
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
+      <div class="d-flex ga-1 justify-end">
+        <v-btn
+          title="Edit"
+          icon="mdi-pencil"
+          size="small"
+          variant="text"
+          color="primary"
+          @click="showEditDialog(item.id)"
+        />
+        <v-btn
+          :loading="isDeleting"
+          title="Delete"
+          icon="mdi-close"
+          size="small"
+          variant="text"
+          color="error"
+          @click="deleteQuestion(item.id)"
+        />
+      </div>
     </template>
   </v-data-table-server>
 </template>

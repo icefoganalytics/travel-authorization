@@ -77,13 +77,12 @@
           <template #item.actions="{ index }">
             <v-btn
               title="Remove traveler profile"
-              icon
+              icon="mdi-delete"
               size="small"
+              variant="text"
               color="error"
               @click="removeTravelerProfileAttributes(index)"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
+            />
           </template>
         </v-data-table>
       </v-col>
