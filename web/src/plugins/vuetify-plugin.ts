@@ -23,6 +23,7 @@ export default createVuetify({
           info: "#0097a9",
           success: "#7A9A01",
           warning: "#F2A900",
+          "on-warning": "#FFFFFF",
           error: "#DC4405",
         },
       },
