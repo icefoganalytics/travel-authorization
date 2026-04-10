@@ -263,7 +263,7 @@
         </v-card-text>
       </v-card>
 
-      <div class="d-flex flex-column flex-md-row">
+      <div class="d-flex flex-column flex-md-row my-4">
         <v-btn
           color="primary"
           :loading="isLoading"
