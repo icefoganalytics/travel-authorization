@@ -3,6 +3,7 @@
 require "fileutils"
 require "json"
 require "rbconfig"
+require "shellwords"
 require "socket"
 require "uri"
 
@@ -145,7 +146,7 @@ class OpenInEditorBridge
     end
 
     translated_target = translate_target(file)
-    success = system(EDITOR_COMMAND, "--goto", translated_target)
+    success = system(*editor_command_args, "--goto", translated_target)
 
     write_json_response(
       socket,
@@ -191,6 +192,10 @@ class OpenInEditorBridge
 
   def server_process_command
     [RbConfig.ruby, __FILE__, "--serve"]
+  end
+
+  def editor_command_args
+    Shellwords.split(EDITOR_COMMAND)
   end
 
   def install_signal_handlers
