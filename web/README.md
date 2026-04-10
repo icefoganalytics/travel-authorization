@@ -74,6 +74,27 @@ If you run Docker Compose manually on Linux, include
 
 The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and falls back to `windsurf`.
 
+## Sample Travelport Text
+
+If you need parsable sample flight text while testing the Travel Desk flight import flow, this block
+has been used successfully in prior TravelAuth PR testing:
+
+```text
+WestJet WS3566 - Operated By: WESTJET ENCORE
+Departure: 03 Dec 06:25 Cranbrook Municipal (YXC) Terminal:
+Arrival:   03 Dec 07:09 Calgary Intl Arpt (YYC) Terminal:
+Duration:  0 Hour(s) 44 Minutes
+Status:    Sold
+Class:     B
+
+WestJet WS107
+Departure: 03 Dec 09:00 Calgary Intl Arpt (YYC) Terminal:
+Arrival:   03 Dec 09:47 Vancouver Intl Arpt (YVR) Terminal: M
+Duration:  1 Hour(s) 47 Minutes
+Status:    Sold
+Class:     B
+```
+
 ## TypeScript And Editor Support
 
 For Vue type support in editors, use:
