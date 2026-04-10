@@ -95,6 +95,14 @@ Status:    Sold
 Class:     B
 ```
 
+## Sample Invoice Number
+
+If you need a known invoice number while testing the Travel Desk **Trip Information (PNR details)**
+flow, use `39339`.
+
+That value has been used in prior TravelAuth PR testing for itinerary and Passenger Name Record
+flows.
+
 ## TypeScript And Editor Support
 
 For Vue type support in editors, use:
