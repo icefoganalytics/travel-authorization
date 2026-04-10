@@ -327,7 +327,7 @@ Format: `:emoji: Verb phrase.` — imperative mood, ends with a period.
 - Use `:sparkles:` for new features
 - Use `:recycle:` for structural cleanup or migration-safe refactors that preserve behavior
 - Use `:art:` for theme, styling, or visual changes
-- Use `:cherry_blossom:` for UI polish and cosmetic improvements
+- Use `:cherry_blossom:` for UI polish and cosmetic improvements — **never use `:lipstick:`**
 - Use `:wrench:` for config and settings changes
 - Use `:memo:` for documentation and plan updates
 - Use `:hammer:` for infrastructure and tooling changes (docker, scripts)
