@@ -40,7 +40,7 @@
         <TotalsTable
           ref="totalsTable"
           :travel-authorization-id="travelAuthorizationId"
-          class="white"
+          class="bg-white py-4"
         />
       </v-col>
     </v-row>
