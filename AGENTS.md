@@ -211,7 +211,6 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Form submission:** Use `formRef.value.submit()` instead of `formRef.value.$el.submit()` in Vuetify 3
 - **Gap over margins:** Prefer gap classes (`ga-2`, `ga-3`) over margin classes for component spacing in flex containers
 - **Text wrapping:** Avoid `v-list-item-title` and `v-list-item-subtitle` for text that needs to wrap - use regular divs with utility classes
-- **Navigation drawers:** Use `expand-on-hover` prop for better UX in rail mode, align under app bar for mobile experience
 - **Template refs:** Use `useTemplateRef()` instead of `ref()` for template references in Vue 3
 
 ### Component Naming Convention
