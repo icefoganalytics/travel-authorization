@@ -6,7 +6,7 @@
     <template #activator="{ props: activatorProps }">
       <v-btn
         variant="outlined"
-        class="mb-2"
+        class="mb-2 bg-white"
         v-bind="activatorProps"
       >
         Add Expense
