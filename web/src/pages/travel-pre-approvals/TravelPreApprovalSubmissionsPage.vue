@@ -3,7 +3,8 @@
     ref="travelAuthorizationPreApprovalSubmissionsDataTable"
     v-model="selectedItems"
     show-select
-    single-select
+    select-strategy="single"
+    return-object
   >
     <template #top>
       <v-row>
