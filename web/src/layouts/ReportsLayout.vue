@@ -26,24 +26,22 @@
 
       <v-row class="mt-4">
         <v-col class="d-flex justify-space-between">
-          <div>
+          <v-badge
+            color="warning"
+            :content="totalActiveFilters"
+            :model-value="hasActiveFilters"
+          >
             <v-btn
               color="primary"
               variant="outlined"
               @click="showFilters = !showFilters"
             >
-              <v-badge
-                color="warning"
-                :content="totalActiveFilters"
-                :model-value="hasActiveFilters"
-              >
-                Filters
-                <v-icon end>
-                  {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }}
-                </v-icon>
-              </v-badge>
+              Filters
+              <v-icon end>
+                {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }}
+              </v-icon>
             </v-btn>
-          </div>
+          </v-badge>
           <div
             v-if="isAdmin"
             class="d-flex justify-end"
@@ -82,6 +80,7 @@
       <FlightStatisticsFiltersCard
         v-if="showFilters"
         v-model="filters"
+        class="mt-2"
       />
 
       <router-view v-slot="{ Component }">
