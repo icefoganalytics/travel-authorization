@@ -338,6 +338,18 @@ Format: `:emoji: Verb phrase.` — imperative mood, ends with a period.
 - Use `:construction:` for intentionally incomplete migration slices that may leave the app broken between commits
 - Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
 
+**Commit body guidance:**
+
+Write in plain English for the next developer reading `git log`. Focus on:
+- What changed (briefly, since the diff shows the how)
+- Why it was needed — the problem being solved
+- What the observable effect is for users or callers
+
+Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
+
+- **Bad:** `the frontend redirects only when policy.show is false after the save`
+- **Good:** `the frontend redirects only when the user can no longer view the document`
+
 **Testing Instructions Format:**
 
 Standard setup (always include):
