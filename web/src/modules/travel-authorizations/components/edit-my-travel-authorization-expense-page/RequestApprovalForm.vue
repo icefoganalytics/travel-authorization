@@ -17,9 +17,10 @@
           v-model="travelAuthorization.supervisorEmail"
           :rules="[required]"
           label="Submit to"
-          class="bg-white"
+          class="border rounded pa-4 bg-white"
           density="compact"
           variant="outlined"
+          hide-details="auto"
           required
         />
       </v-col>
