@@ -100,11 +100,11 @@ const { currentUser } = useCurrentUser<true>()
 
 const travelAuthorizationsQuery = computed(() => {
   return {
-    where: {
-      ...props.where,
-      supervisorEmail: currentUser.value.email,
+    where: props.where,
+    filters: {
+      ...props.filters,
+      notOwnedByUserId: currentUser.value.id,
     },
-    filters: props.filters,
     page: page.value,
     perPage: perPage.value,
   }

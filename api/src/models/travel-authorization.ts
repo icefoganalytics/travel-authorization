@@ -442,6 +442,14 @@ export class TravelAuthorization extends BaseModel<
       }
     })
 
+    this.addScope("notOwnedByUserId", (userId: number) => ({
+      where: {
+        userId: {
+          [Op.ne]: userId,
+        },
+      },
+    }))
+
     this.addScope("forTravelDeskTravelRequest", (travelDeskTravelRequestId: string) => ({
       include: [
         {

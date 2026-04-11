@@ -233,6 +233,7 @@ export type TravelAuthorizationFiltersOptions = FiltersOptions<{
   isUpcomingTravel: void
   isBeforeTripEnd: void
   forTravelDeskTravelRequest: number | string
+  notOwnedByUserId: number
 }>
 
 export type TravelAuthorizationsQueryOptions = QueryOptions<
