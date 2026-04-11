@@ -262,7 +262,8 @@ async function approve() {
   isSaving.value = true
 
   const preApprovalsAttributes = Array.from(
-    markedTravelAuthorizationPreApprovalMaps.value.entries().map(([id, status]) => ({ id, status }))
+    markedTravelAuthorizationPreApprovalMaps.value.entries(),
+    ([id, status]) => ({ id, status })
   )
 
   const data = {
