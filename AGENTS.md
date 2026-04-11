@@ -36,7 +36,7 @@ document and link to it from here instead of letting this file become a dumping 
 ## Technology Stack
 
 - **Backend:** Node.js + Express + TypeScript, PostgreSQL, Sequelize ORM, Knex migrations
-- **Frontend:** Vue 2 + Vuetify 2 (migrating to Vue 3 + Vuetify 3), TypeScript
+- **Frontend:** Vue 3 + Vuetify 3, TypeScript
 - **Testing:** Vitest, Fishery factories
 - **Infrastructure:** Docker Compose
 
@@ -183,7 +183,7 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 ### Code Style
 
 - TypeScript only - no `any`, `@ts-expect-error`, `@ts-ignore`
-- Vue 2 + Vuetify 2 (migrating to Vue 3 + Vuetify 3)
+- Vue 3 + Vuetify 3
 - 2 spaces, no semicolons, double quotes, 100 char line limit
 - camelCase for variables/functions, PascalCase for components
 - **Browser setTimeout:** Use `number` type, not `NodeJS.Timeout`
@@ -203,6 +203,16 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Error notifications:** Use `console.error(...)` before `snack.error(...)` when handling a real error path. Do not log validation or other expected non-error user feedback with `console.error(...)`.
 - **Legacy cleanup triage:** Before modernizing an isolated legacy frontend component or subtree, verify that it is still reachable from pages, routes, or imports. If it is orphaned, prefer deleting it over migrating it.
 - **Code organization matters:** When modernizing frontend behavior, verify that the surrounding route placement, layout nesting, and file organization support the intended behavior. Matching a component API or route name is not enough if the page lives outside the layout or namespace that provides the feature.
+
+### Vuetify 3 Patterns
+
+- **Utility classes over custom CSS:** Use Vuetify 3 utility classes instead of custom CSS (e.g., `d-flex`, `align-center`, `bg-white`, `h-full`)
+- **Remove redundant CSS:** Delete CSS that's now built into Vuetify 3 (e.g., `.h-full { height: 100%; }`)
+- **Form submission:** Use `formRef.value.submit()` instead of `formRef.value.$el.submit()` in Vuetify 3
+- **Gap over margins:** Prefer gap classes (`ga-2`, `ga-3`) over margin classes for component spacing in flex containers
+- **Text wrapping:** Avoid `v-list-item-title` and `v-list-item-subtitle` for text that needs to wrap - use regular divs with utility classes
+- **Navigation drawers:** Use `expand-on-hover` prop for better UX in rail mode, align under app bar for mobile experience
+- **Template refs:** Use `useTemplateRef()` instead of `ref()` for template references in Vue 3
 
 ### Component Naming Convention
 
@@ -225,6 +235,12 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - `UserTravelDeskAgentSelect.vue` - Select for travel desk agent
 
 ### Architecture Patterns
+
+**Component Simplification Patterns:**
+- **Consolidate role-specific components:** Replace multiple role-based component imports with single components using conditional rendering
+- **Use actual list items:** Prefer existing list item components over hardcoded navigation structures
+- **Conditional rendering:** Use `v-if` directives instead of computed component selection for better maintainability
+- **Reduce nesting:** Merge `v-card-text` with direct child divs when possible to reduce unnecessary DOM nesting
 
 **API Module Pattern:**
 Type-safe API clients in `web/src/api/*-api.ts`
