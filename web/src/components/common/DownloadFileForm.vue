@@ -69,8 +69,7 @@ async function getAccessTokenAndSubmit() {
     accessToken.value = await getAccessTokenSilently()
     await nextTick() // Wait for accessToken to be updated in the DOM
 
-    // TODO: update to formRef.value.submit() when using Vuetify 3
-    formRef.value.$el.submit()
+    formRef.value.submit()
 
     await nextTick()
     emit("downloaded")
