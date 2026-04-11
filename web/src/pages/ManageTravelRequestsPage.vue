@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="d-flex justify-space-between align-baseline">
-      <h2>Manage Travel Requests</h2>
+    <v-card-title class="d-flex justify-space-between align-center py-0">
+      <h2 class="mb-0">Manage Travel Requests</h2>
       <CreateTravelAuthorizationDialogButton />
-    </div>
+    </v-card-title>
     <v-row>
       <v-col>
         <PendingApprovalsCard />
