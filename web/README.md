@@ -103,6 +103,17 @@ flow, use `39339`.
 That value has been used in prior TravelAuth PR testing for itinerary and Passenger Name Record
 flows.
 
+## Sample General Ledger Codes
+
+If you need known valid General Ledger codes while testing the expense submission flow, use one of
+these values:
+
+- `552-503010-0222-0006-09999`
+- `552-502010-0222-3152-09999`
+
+These values were used as valid examples in prior TravelAuth PR testing for expense coding and GL
+validation flows.
+
 ## TypeScript And Editor Support
 
 For Vue type support in editors, use:
