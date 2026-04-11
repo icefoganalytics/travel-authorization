@@ -12,21 +12,8 @@
       @submit.prevent="print"
     >
       <div :id="PDF_SCOPE_ID">
-        <v-app-bar
-          color="#fff"
-          elevation="0"
-          height="70"
-          style="left: 0; border-bottom: 3px #f3b228 solid"
-        >
-          <img
-            src="/yukon.svg"
-            style="margin: -1.2rem -10rem 0 0"
-            height="44"
-          />
-          <div style="margin: 0 auto !important; font-size: 14pt !important">
-            <b>Flight Statistics</b>
-          </div>
-        </v-app-bar>
+        <PrintLogoHeader>Flight Statistics</PrintLogoHeader>
+
         <div
           v-for="(page, index) in pages"
           :key="`pdf-page-${page}-${index}-${PDF_SCOPE_ID}`"
@@ -118,6 +105,7 @@ import {
 import useFlightStatistics from "@/use/use-flight-statistics"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import PrintLogoHeader from "@/components/common/print/PrintLogoHeader.vue"
 
 const PDF_SCOPE_ID = uniqueId("pdf-scope-")
 const PAGE_SIZE = 13

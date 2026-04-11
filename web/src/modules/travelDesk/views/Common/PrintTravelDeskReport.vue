@@ -47,21 +47,7 @@
       </v-row>
 
       <div id="pdf-page">
-        <v-app-bar
-          color="#fff"
-          elevation="0"
-          height="70"
-          style="left: 0; border-bottom: 3px #f3b228 solid"
-        >
-          <img
-            src="/yukon.svg"
-            style="margin: -1.2rem -10rem 0 0"
-            height="44"
-          />
-          <div style="margin: 0 auto !important; font-size: 14pt !important">
-            <b>Out-of-Territory Travel Desk Report</b>
-          </div>
-        </v-app-bar>
+        <PrintLogoHeader>Out-of-Territory Travel Desk Report</PrintLogoHeader>
 
         <div
           v-for="page in pages"
@@ -144,6 +130,8 @@ import { formatDate } from "@/utils/formatters"
 
 import { TRAVEL_DESK_TRAVEL_REQUEST_STATUSES } from "@/api/travel-desk-travel-requests-api"
 import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
+
+import PrintLogoHeader from "@/components/common/print/PrintLogoHeader.vue"
 
 // Props
 const props = defineProps({
