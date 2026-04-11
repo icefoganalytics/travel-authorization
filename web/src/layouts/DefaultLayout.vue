@@ -1,8 +1,8 @@
 <template>
   <v-layout>
-    <LeftSidebarNavigationDrawer ref="leftSidebarNavigationDrawerRef" />
-
     <DefaultLayoutAppBar @toggle-drawer="toggleDrawer" />
+
+    <LeftSidebarNavigationDrawer ref="leftSidebarNavigationDrawerRef" />
 
     <v-main class="grey lighten-4">
       <!-- Provides the application the proper gutter -->
