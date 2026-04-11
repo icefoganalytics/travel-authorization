@@ -6,6 +6,7 @@ import BasePolicy, { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 import ApproveStatePolicy from "@/policies/travel-authorizations/approve-state-policy"
 import DraftStatePolicy from "@/policies/travel-authorizations/draft-state-policy"
+import ExpenseClaimSubmittedStatePolicy from "@/policies/travel-authorizations/expense-claim-submitted-state-policy"
 import GenericStatePolicy from "@/policies/travel-authorizations/generic-state-policy"
 import SubmitStatePolicy from "@/policies/travel-authorizations/submit-state-policy"
 import UsersPolicy from "@/policies/users-policy"
@@ -94,6 +95,8 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
         return new SubmitStatePolicy(this.user, this.record)
       case TravelAuthorization.Statuses.APPROVED:
         return new ApproveStatePolicy(this.user, this.record)
+      case TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED:
+        return new ExpenseClaimSubmittedStatePolicy(this.user, this.record)
       default:
         return new GenericStatePolicy(this.user, this.record)
     }
