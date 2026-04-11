@@ -74,7 +74,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const travelDeskFlightOption = CreateService.perform(permittedAttributes, this.currentUser)
+      const travelDeskFlightOption = await CreateService.perform(permittedAttributes, this.currentUser)
       return this.response.status(201).json({
         travelDeskFlightOption,
       })

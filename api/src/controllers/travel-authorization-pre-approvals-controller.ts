@@ -75,7 +75,7 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const travelAuthorizationPreApproval = CreateService.perform(
+      const travelAuthorizationPreApproval = await CreateService.perform(
         permittedAttributes,
         this.currentUser
       )

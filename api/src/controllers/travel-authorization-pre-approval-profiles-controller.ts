@@ -69,7 +69,7 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const travelAuthorizationPreApprovalProfile = CreateService.perform(
+      const travelAuthorizationPreApprovalProfile = await CreateService.perform(
         permittedAttributes,
         this.currentUser
       )
