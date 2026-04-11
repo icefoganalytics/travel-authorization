@@ -1,6 +1,6 @@
 <template>
   <v-data-table-server
-    v-model="selectedRequests"
+    v-model="selectedTravelDeskTravelRequestIds"
     v-model:page="page"
     v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
@@ -16,16 +16,16 @@
       <div class="d-flex mb-4">
         <v-spacer />
         <PrintTravelDeskReport
-          :travel-desk-travel-request-ids="selectedRequests.map((request) => request.id)"
+          :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
           :activator-props="{
             class: 'my-0 mr-4',
             color: 'primary',
-            disabled: isNil(selectedRequests) || isEmpty(selectedRequests),
+            disabled: isEmpty(selectedTravelDeskTravelRequestIds),
           }"
         />
         <TravelDeskTravelRequestsExportToCsvButton
-          :travel-desk-travel-request-ids="selectedRequests.map((request) => request.id)"
-          :disabled="isNil(selectedRequests) || isEmpty(selectedRequests)"
+          :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
+          :disabled="isEmpty(selectedTravelDeskTravelRequestIds)"
           class="my-0"
           color="primary"
         >
@@ -184,7 +184,7 @@ const { travelDeskTravelRequests, totalCount, isLoading } = useTravelDeskTravelR
   travelDeskTravelRequestsQuery
 )
 
-const selectedRequests = ref([])
+const selectedTravelDeskTravelRequestIds = ref([])
 
 function determineRequestedOptions(travelDeskTravelRequest) {
   const requested = []
