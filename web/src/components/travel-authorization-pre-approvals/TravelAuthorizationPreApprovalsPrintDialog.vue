@@ -194,7 +194,7 @@ const headers = ref([
   },
 ])
 
-const showDialog = useRouteQuery("showPrintDialog", false, {
+const showDialog = useRouteQuery("showPrintDialog", "false", {
   transform: booleanTransformer,
 })
 

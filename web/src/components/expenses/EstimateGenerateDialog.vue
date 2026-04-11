@@ -73,7 +73,7 @@ const props = defineProps({
 
 const emit = defineEmits(["created"])
 
-const showDialog = useRouteQuery("showEstimateGenerate", false, {
+const showDialog = useRouteQuery("showEstimateGenerate", "false", {
   transform: booleanTransformer,
 })
 

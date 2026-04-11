@@ -124,7 +124,7 @@ const { isLoading, departureDate, returnDate } =
 /** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const formRef = ref(null)
 
-const showDialog = useRouteQuery("showEstimateCreate", false, {
+const showDialog = useRouteQuery("showEstimateCreate", "false", {
   transform: booleanTransformer,
 })
 
