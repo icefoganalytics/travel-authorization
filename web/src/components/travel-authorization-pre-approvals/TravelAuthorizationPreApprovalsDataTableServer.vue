@@ -5,15 +5,15 @@
     v-model:page="page"
     v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
-    :items="travelAuthorizationPreApprovalsWithRestrictedSelectability"
+    :items="travelAuthorizationPreApprovals"
     :headers="headers"
     :items-length="totalCount"
     :loading="isLoading"
     :show-select="showSelect"
-    :single-select="noRowsAreSelectable"
+    :item-selectable="isItemSelectable"
+    select-strategy="page"
+    return-object
     v-bind="$attrs"
-    @item-selected="lockSelectabilityToSameDepartment"
-    @toggle-select-all="selectAllOfSameDepartment"
   >
     <template #top="slotProps">
       <slot
@@ -73,7 +73,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { isEmpty, isNil } from "lodash"
+import { isNil } from "lodash"
 
 import { formatDate } from "@/utils/formatters"
 
@@ -189,61 +189,24 @@ function canEdit(travelAuthorizationPreApproval) {
 }
 
 const selectedItems = ref([])
-const departmentSelectionLimiter = ref(null)
 
-const travelAuthorizationPreApprovalsWithRestrictedSelectability = computed(() => {
-  return travelAuthorizationPreApprovals.value.map((travelAuthorizationPreApproval) => {
-    const isSelectable =
-      travelAuthorizationPreApproval.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT &&
-      (travelAuthorizationPreApproval.department === departmentSelectionLimiter.value ||
-        isNil(departmentSelectionLimiter.value))
+const selectedDepartment = computed(() => {
+  const firstSelectedItem = selectedItems.value[0]
+  if (isNil(firstSelectedItem)) return null
 
-    return {
-      ...travelAuthorizationPreApproval,
-      isSelectable,
-    }
-  })
+  return firstSelectedItem.department
 })
 
-const noRowsAreSelectable = computed(
-  () =>
-    !travelAuthorizationPreApprovalsWithRestrictedSelectability.value.some(
-      (travelAuthorizationPreApproval) => travelAuthorizationPreApproval.isSelectable
-    )
-)
+function isItemSelectable(travelAuthorizationPreApproval) {
+  const isDraft =
+    travelAuthorizationPreApproval.status === TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES.DRAFT
+  if (!isDraft) return false
 
-async function lockSelectabilityToSameDepartment({
-  item: travelAuthorizationPreApproval,
-  value: isSelected,
-}) {
-  if (isSelected) {
-    departmentSelectionLimiter.value = travelAuthorizationPreApproval.department
-  } else {
-    departmentSelectionLimiter.value = null
-  }
-}
+  const hasNoSelection = isNil(selectedDepartment.value)
+  if (hasNoSelection) return true
 
-async function selectAllOfSameDepartment({ items, value: isSelected }) {
-  if (isSelected && departmentSelectionLimiter.value) {
-    selectedItems.value = items.filter(
-      (travelAuthorizationPreApproval) =>
-        travelAuthorizationPreApproval.isSelectable &&
-        travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
-    )
-  } else if (isSelected && !isEmpty(items)) {
-    const firstSelectableTravelAuthorizationPreApproval = items.find(
-      (travelAuthorizationPreApproval) => travelAuthorizationPreApproval.isSelectable
-    )
-    departmentSelectionLimiter.value = firstSelectableTravelAuthorizationPreApproval.department
-    selectedItems.value = items.filter(
-      (travelAuthorizationPreApproval) =>
-        travelAuthorizationPreApproval.isSelectable &&
-        travelAuthorizationPreApproval.department === departmentSelectionLimiter.value
-    )
-  } else {
-    selectedItems.value = []
-    departmentSelectionLimiter.value = null
-  }
+  const isSameDepartment = travelAuthorizationPreApproval.department === selectedDepartment.value
+  return isSameDepartment
 }
 
 defineExpose({
