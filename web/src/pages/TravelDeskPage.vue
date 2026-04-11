@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title>
+    <v-card-title class="mb-n16">
       <h2>Travel Desk</h2>
     </v-card-title>
 
