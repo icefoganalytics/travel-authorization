@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs, useTemplateRef } from "vue"
+import { nextTick, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
@@ -82,6 +82,7 @@ const emit = defineEmits(["approved", "denied"])
 const { travelAuthorizationId } = toRefs(props)
 const {
   travelAuthorization,
+  policy,
   isLoading: isLoadingTravelAuthorization,
   save,
 } = useTravelAuthorization(travelAuthorizationId)
@@ -91,6 +92,8 @@ const snack = useSnack()
 const router = useRouter()
 
 async function reassign() {
+  if (isNil(travelAuthorization.value)) return
+  if (isNil(policy.value)) return
   if (isNil(form.value)) return
 
   const { valid } = await form.value.validate()
@@ -104,11 +107,12 @@ async function reassign() {
     await save()
     snack.success("Travel authorization reassigned.")
 
-    // must redirect away from the current page, as re-assignment might revoke the user's
-    // permissions to access the said page.
-    await router.push({
-      name: "ManageTravelRequests",
-    })
+    await nextTick()
+    if (!policy.value.show) {
+      await router.push({
+        name: "ManageTravelRequests",
+      })
+    }
   } catch (error) {
     console.error(`Failed to reassign travel authorization: ${error}`, { error })
     snack.error(`Failed to reassign travel authorization: ${error}`)

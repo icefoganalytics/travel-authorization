@@ -283,6 +283,7 @@ export const travelAuthorizationsApi = {
     attributes: TravelAuthorizationCreationAttributes
   ): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
+    policy: Policy
   }> {
     const { data } = await http.patch(
       `/api/travel-authorizations/${travelAuthorizationId}`,

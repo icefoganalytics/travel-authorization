@@ -84,7 +84,7 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
     }
 
     try {
-      const { travelAuthorization } = await travelAuthorizationsApi.update(
+      const { travelAuthorization, policy } = await travelAuthorizationsApi.update(
         staticTravelAuthorizationId,
         {
           ...attributes,
@@ -92,6 +92,7 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
       )
       state.isErrored = false
       state.travelAuthorization = travelAuthorization
+      state.policy = policy
       return travelAuthorization
     } catch (error) {
       console.error(`Failed to update travel authorization: ${error}`, { error })
