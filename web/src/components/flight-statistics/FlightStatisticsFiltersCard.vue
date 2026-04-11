@@ -29,7 +29,7 @@
             label="Locations"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
             variant="outlined"
             @update:model-value="selectLocationCategories"
@@ -46,7 +46,7 @@
             label="Locations (Yukon)"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
             variant="outlined"
             @update:model-value="updateYukonDestinations"
@@ -58,7 +58,7 @@
             label="Locations (Canada)"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
             variant="outlined"
             @update:model-value="updateCanadaDestinations"
@@ -70,7 +70,7 @@
             label="Locations (International)"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
             variant="outlined"
             @update:model-value="updateInternationalDestinations"
@@ -85,7 +85,7 @@
             label="Department Mailcodes"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
             variant="outlined"
             @update:model-value="updateDepartmentMailcodes"
