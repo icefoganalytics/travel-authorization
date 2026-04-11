@@ -1,7 +1,7 @@
 <template>
   <FlightReconciliationsDataTableServer
     ref="flightReconciliationsDataTable"
-    v-model="selectedFlightReconciliations"
+    v-model="selectedFlightReconciliationIds"
     :filters="filters"
     show-select
   >
@@ -60,10 +60,7 @@ const filters = computed(() => {
   }
 })
 
-const selectedFlightReconciliations = ref([])
-const selectedFlightReconciliationIds = computed(() =>
-  selectedFlightReconciliations.value.map((flightReconciliation) => flightReconciliation.id)
-)
+const selectedFlightReconciliationIds = ref([])
 
 /** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTableServer> | null>} */
 const flightReconciliationsDataTable = ref(null)

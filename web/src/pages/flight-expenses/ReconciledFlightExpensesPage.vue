@@ -1,7 +1,7 @@
 <template>
   <FlightReconciliationsDataTableServer
     ref="flightReconciliationsDataTable"
-    v-model="selectedFlightReconciliations"
+    v-model="selectedFlightReconciliationIds"
     :filters="filters"
     :where="where"
     reconciled
@@ -83,11 +83,7 @@ const where = computed(() => ({
   reconciled: true,
 }))
 
-const selectedFlightReconciliations = ref([])
-
-const selectedFlightReconciliationIds = computed(() =>
-  selectedFlightReconciliations.value.map((flightReconciliation) => flightReconciliation.id)
-)
+const selectedFlightReconciliationIds = ref([])
 
 /** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsBulkUnreconcileDialog> | null>} */
 const flightReconciliationsBulkUnreconcileDialog = ref(null)
