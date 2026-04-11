@@ -1,8 +1,9 @@
 <template>
   <TravelAuthorizationPreApprovalsDataTableServer
     ref="travelAuthorizationPreApprovalsDataTable"
-    v-model="selectedItemIds"
+    v-model="selectedItems"
     :show-select="canAdminTravelPreApprovals"
+    return-object
   >
     <template #top>
       <v-row>
@@ -80,7 +81,11 @@ import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-
 
 const { smAndDown } = useDisplay()
 
-const selectedItemIds = ref([])
+const selectedItems = ref([])
+
+const selectedItemIds = computed(() => {
+  return selectedItems.value.map((item) => item.id)
+})
 
 const addTravelPreApprovalButtonVariant = computed(() => {
   if (isEmpty(selectedItemIds.value)) {
@@ -111,7 +116,7 @@ function showTravelAuthorizationPreApprovalsPrintDialog() {
 const travelAuthorizationPreApprovalsDataTable = ref(null)
 
 function refresh() {
-  selectedItemIds.value = []
+  selectedItems.value = []
   travelAuthorizationPreApprovalsDataTable.value?.refresh()
 }
 
