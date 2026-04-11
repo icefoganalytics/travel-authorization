@@ -1,13 +1,10 @@
 <template>
   <div>
-    <div class="d-flex align-baseline my-5">
-      <h1 class="mb-0">My Travel Requests</h1>
+    <div class="d-flex align-center my-3 ga-2">
+      <h2 class="mb-0">My Travel Requests</h2>
       <v-spacer />
+      <RefreshTableButton @click="refreshTable" />
       <CreateTravelAuthorizationButton class="my-0" />
-      <RefreshTableButton
-        class="ml-2"
-        @click="refreshTable"
-      />
     </div>
 
     <v-card class="default">
