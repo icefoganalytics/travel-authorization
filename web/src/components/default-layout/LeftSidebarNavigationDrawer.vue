@@ -1,5 +1,9 @@
 <template>
-  <v-navigation-drawer>
+  <v-navigation-drawer
+    v-model="showDrawer"
+    :rail="showRail"
+    mobile-breakpoint="lg"
+  >
     <v-list>
       <v-list-item
         v-for="listItem in listItems"
@@ -13,7 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref } from "vue"
+import { useDisplay } from "vuetify"
 
 import { ENVIRONMENT } from "@/config"
 import useCurrentUser from "@/use/use-current-user"
@@ -151,5 +156,21 @@ const listItems = computed<ListItem[]>(() => {
   } else {
     return [dashboardListItem, myTravelRequestsListItem]
   }
+})
+
+const { lgAndUp } = useDisplay()
+const showDrawer = ref(lgAndUp.value)
+const showRail = ref(false)
+
+function toggle() {
+  if (lgAndUp.value) {
+    showRail.value = !showRail.value
+  } else {
+    showDrawer.value = !showDrawer.value
+  }
+}
+
+defineExpose({
+  toggle,
 })
 </script>
