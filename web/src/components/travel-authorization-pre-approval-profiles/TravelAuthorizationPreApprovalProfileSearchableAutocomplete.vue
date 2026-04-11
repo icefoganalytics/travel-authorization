@@ -1,48 +1,45 @@
 <template>
   <v-autocomplete
-    :value="value"
+    :model-value="modelValue"
     :loading="isLoading"
     :items="allTravelAuthorizationPreApprovalProfiles"
     :label="label"
     :hint="hint"
     :no-data-text="noDataText"
     item-value="id"
+    item-title="profileName"
     auto-select-first
     chips
     clearable
     hide-selected
     no-filter
     persistent-hint
-    small-chips
     v-bind="$attrs"
-    v-on="$listeners"
-    @input="emit('input', $event)"
-    @update:search-input="debouncedUpdateSearchToken"
+    @update:model-value="emit('update:modelValue', $event)"
+    @update:search="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
-    <template #selection="{ attrs, item, select }">
+    <template #chip="{ item, props: chipProps }">
       <TravelAuthorizationPreApprovalProfileChip
-        v-if="!isNil(item.id)"
-        v-bind="attrs"
-        :travel-authorization-pre-approval-profile-id="item.id"
-        @click="select"
+        v-if="!isNil(item.raw.id)"
+        v-bind="chipProps"
+        :travel-authorization-pre-approval-profile-id="item.raw.id"
       />
       <v-chip
         v-else
-        :text="'Unknown#' + (item.id || JSON.stringify(item))"
+        :text="'Unknown#' + (item.raw.id || JSON.stringify(item.raw))"
       />
     </template>
-    <template #item="{ item, on, attrs }">
+    <template #item="{ item, props: itemProps }">
       <TravelAuthorizationPreApprovalProfileListItem
-        v-if="!isNil(item.id)"
-        :travel-authorization-pre-approval-profile-id="item.id"
-        v-bind="attrs"
-        v-on="on"
+        v-if="!isNil(item.raw.id)"
+        :travel-authorization-pre-approval-profile-id="item.raw.id"
+        v-bind="itemProps"
       />
       <v-list-item
         v-else
-        v-bind="attrs"
-        :title="'Unknown#' + (item.id || JSON.stringify(item))"
+        v-bind="itemProps"
+        :title="'Unknown#' + (item.raw.id || JSON.stringify(item.raw))"
       />
     </template>
 
@@ -73,7 +70,7 @@ import TravelAuthorizationPreApprovalProfileChip from "@/components/travel-autho
 import TravelAuthorizationPreApprovalProfileListItem from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfileListItem.vue"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     /** @type {number | null | undefined} */
     type: Number,
     default: null,
@@ -100,9 +97,9 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
-const travelAuthorizationPreApprovalProfileId = computed(() => props.value)
+const travelAuthorizationPreApprovalProfileId = computed(() => props.modelValue)
 const { travelAuthorizationPreApprovalProfile } = useTravelAuthorizationPreApprovalProfile(
   travelAuthorizationPreApprovalProfileId
 )
@@ -164,7 +161,7 @@ async function reset() {
 }
 
 watch(
-  () => props.value,
+  () => props.modelValue,
   async (newModelValue) => {
     if (isEmpty(newModelValue)) {
       await reset()

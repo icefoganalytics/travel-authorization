@@ -13,7 +13,7 @@
             v-model="flightSegmentAttributes.flightNumber"
             label="Flight *"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -26,7 +26,7 @@
             v-model="flightSegmentAttributes.duration"
             label="Duration *"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -38,7 +38,7 @@
             v-model="flightSegmentAttributes.departLocation"
             label="Depart From *"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -51,7 +51,7 @@
             label="Departure Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -64,7 +64,7 @@
             label="Departure Time *"
             type="time"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -79,7 +79,7 @@
             v-model="flightSegmentAttributes.arriveLocation"
             label="Arrive To *"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -92,7 +92,7 @@
             label="Arrival Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -105,7 +105,7 @@
             label="Arrival Time *"
             type="time"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -121,7 +121,7 @@
             v-model="flightSegmentAttributes.status"
             label="Status *"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>
@@ -133,7 +133,7 @@
             v-model="flightSegmentAttributes.class"
             label="Class *"
             :rules="[required]"
-            outlined
+            variant="outlined"
             required
           />
         </v-col>

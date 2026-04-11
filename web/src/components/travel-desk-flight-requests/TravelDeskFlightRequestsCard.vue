@@ -4,7 +4,7 @@
       <h4>Flight Requests</h4>
     </v-card-title>
     <v-card-text class="px-0 px-md-4">
-      <TravelDeskFlightRequestsDataTable
+      <TravelDeskFlightRequestsDataTableServer
         :where="{
           travelRequestId: travelDeskTravelRequestId,
         }"
@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import TravelDeskFlightRequestsDataTable from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsDataTable.vue"
+import TravelDeskFlightRequestsDataTableServer from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsDataTableServer.vue"
 
 defineProps({
   travelDeskTravelRequestId: {

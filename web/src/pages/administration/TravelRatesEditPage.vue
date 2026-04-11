@@ -4,7 +4,7 @@
       Edit Meals and Incidental Expenses for Employees on Travel Status
       <v-btn
         class="secondary"
-        outlined
+        variant="outlined"
         :to="{ name: 'administration/TravelRatesPage' }"
         >Back</v-btn
       >
@@ -23,15 +23,15 @@ import EditTravelAllowancesCard from "@/components/travel-allowances/EditTravelA
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Travel Rates",
+    title: "Travel Rates",
     to: { name: "administration/TravelRatesPage" },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: { name: "administration/TravelRatesEditPage" },
   },
 ])

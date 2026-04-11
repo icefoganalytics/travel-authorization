@@ -1,23 +1,15 @@
 <!-- See https://stackoverflow.com/a/50892881 for slot syntax -->
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="travelPurposes"
     :loading="isLoading"
-    :item-text="itemText"
+    :item-title="itemText"
     :item-value="itemValue"
     :label="label"
     v-bind="$attrs"
-    v-on="$listeners"
-    @input="emit('input', $event)"
-    ><template
-      v-for="(_, slotName) in $scopedSlots"
-      #[slotName]="slotData"
-      ><slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot></template
-  ></v-select>
+    @update:model-value="emit('update:modelValue', $event)"
+  />
 </template>
 
 <script setup>
@@ -27,12 +19,12 @@ import { MAX_PER_PAGE } from "@/api/base-api"
 import useTravelPurposes from "@/use/use-travel-purposes"
 
 defineProps({
-  value: {
+  modelValue: {
     type: [Number, String],
     default: null,
   },
   itemText: {
-    type: [String, Array, Function], // See https://v2.vuetifyjs.com/en/api/v-select/#props-item-text
+    type: [String, Array, Function], // See https://v3.vuetifyjs.com/en/api/v-select/#props-item-title
     default: "purpose",
   },
   itemValue: {
@@ -45,7 +37,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const travelPurposesQuery = computed(() => {
   return {

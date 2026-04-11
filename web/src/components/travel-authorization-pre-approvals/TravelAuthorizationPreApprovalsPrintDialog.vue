@@ -4,7 +4,7 @@
     persistent
     max-width="950px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <HeaderActionsFormCard
       ref="headerActionsFormCard"
@@ -12,25 +12,11 @@
       @submit.prevent="print"
     >
       <div :id="PDF_SCOPE_ID">
-        <v-app-bar
-          color="#fff"
-          flat
-          height="70"
-          style="left: 0; border-bottom: 3px #f3b228 solid"
-        >
-          <img
-            src="/yukon.svg"
-            style="margin: -1.2rem -10rem 0 0"
-            height="44"
-          />
-          <div style="margin: 0 auto !important; font-size: 14pt !important">
-            <b>Out-of-Territory Travel</b>
-          </div>
-        </v-app-bar>
+        <PrintLogoHeader>Out-of-Territory Travel</PrintLogoHeader>
 
         <v-data-table
           style="margin: 1rem 0"
-          dense
+          density="compact"
           :headers="headers"
           :items="travelAuthorizationPreApprovals"
           :items-per-page="MAX_PER_PAGE"
@@ -123,7 +109,7 @@
           <v-icon start>mdi-printer</v-icon>
         </v-btn>
         <v-btn
-          color="secondary"
+          variant="outlined"
           @click="hide"
         >
           Close
@@ -146,6 +132,7 @@ import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import PrintLogoHeader from "@/components/common/print/PrintLogoHeader.vue"
 
 const PDF_SCOPE_ID = uniqueId("pdf-scope-")
 
@@ -164,37 +151,37 @@ const props = defineProps({
 
 const headers = ref([
   {
-    text: "Date of Travel ",
-    value: "travelDate",
+    title: "Date of Travel ",
+    key: "travelDate",
     class: "m-0 p-0",
     width: "8.5rem",
     sortable: false,
   },
   {
-    text: "Purpose",
-    value: "purpose",
+    title: "Purpose",
+    key: "purpose",
     class: "",
   },
   {
-    text: "Location",
-    value: "location",
+    title: "Location",
+    key: "location",
     class: "",
   },
   {
-    text: "Person/Position Travelling",
-    value: "name",
+    title: "Person/Position Travelling",
+    key: "name",
     class: "",
     sortable: false,
   },
   {
-    text: "Estimated Travel Cost",
-    value: "estimatedCost",
+    title: "Estimated Travel Cost",
+    key: "estimatedCost",
     class: "m-0 p-0",
     width: "7.5rem",
   },
 ])
 
-const showDialog = useRouteQuery("showPrintDialog", false, {
+const showDialog = useRouteQuery("showPrintDialog", "false", {
   transform: booleanTransformer,
 })
 
@@ -315,16 +302,16 @@ defineExpose({
 </script>
 
 <style scoped>
-::v-deep(tbody td) {
+:deep(tbody td) {
   font-size: 7.5pt !important;
   border: 1px solid #666666 !important;
 }
 
-::v-deep(tbody th) {
+:deep(tbody th) {
   font-size: 7pt !important;
 }
 
-::v-deep(thead th) {
+:deep(thead th) {
   border: 1px solid #333334 !important;
   border-bottom: 2px solid #333334 !important;
   text-align: center !important;
@@ -332,7 +319,7 @@ defineExpose({
   color: #111111 !important;
 }
 
-::v-deep(table) {
+:deep(table) {
   border: 2px solid #333334;
 }
 

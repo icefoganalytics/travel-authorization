@@ -11,7 +11,7 @@
       <v-btn
         class="my-0"
         color="warning"
-        outlined
+        variant="outlined"
         @click="resetFilters"
       >
         Clear Filters
@@ -24,15 +24,15 @@
           md="6"
         >
           <v-autocomplete
-            :value="selectedLocationCategories"
+            :model-value="selectedLocationCategories"
             :items="locationCategoryOptions"
             label="Locations"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
-            outlined
-            @input="selectLocationCategories"
+            variant="outlined"
+            @update:model-value="selectLocationCategories"
           />
         </v-col>
         <v-col
@@ -41,54 +41,54 @@
         >
           <v-autocomplete
             v-show="selectedLocationCategories.includes(LocationCategory.Yukon)"
-            :value="byYukonDestinationCities"
+            :model-value="byYukonDestinationCities"
             :items="yukonLocationCategories"
             label="Locations (Yukon)"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
-            outlined
-            @input="updateYukonDestinations"
+            variant="outlined"
+            @update:model-value="updateYukonDestinations"
           />
           <v-autocomplete
             v-show="selectedLocationCategories.includes(LocationCategory.Canada)"
-            :value="byCanadianDestinationProvinces"
+            :model-value="byCanadianDestinationProvinces"
             :items="canadianLocationCategories"
             label="Locations (Canada)"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
-            outlined
-            @input="updateCanadaDestinations"
+            variant="outlined"
+            @update:model-value="updateCanadaDestinations"
           />
           <v-autocomplete
             v-show="selectedLocationCategories.includes(LocationCategory.International)"
-            :value="byInternationalDestinationProvinces"
+            :model-value="byInternationalDestinationProvinces"
             :items="internationalLocationCategories"
             label="Locations (International)"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
-            outlined
-            @input="updateInternationalDestinations"
+            variant="outlined"
+            @update:model-value="updateInternationalDestinations"
           />
         </v-col>
       </v-row>
       <v-row>
         <v-col>
           <v-autocomplete
-            :value="byDepartmentMailcodes"
+            :model-value="byDepartmentMailcodes"
             :items="departmentMailcodes"
             label="Department Mailcodes"
             chips
             clearable
-            deletable-chips
+            closable-chips
             multiple
-            outlined
-            @input="updateDepartmentMailcodes"
+            variant="outlined"
+            @update:model-value="updateDepartmentMailcodes"
           />
         </v-col>
       </v-row>
@@ -109,25 +109,27 @@ import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
 const props = withDefaults(
   defineProps<{
-    value: FlightStatisticFiltersOptions
+    modelValue: FlightStatisticFiltersOptions
   }>(),
   {
-    value: () => ({}),
+    modelValue: () => ({}),
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: FlightStatisticFiltersOptions): void
+  (event: "update:modelValue", value: FlightStatisticFiltersOptions): void
 }>()
 
-const byYukonDestinationCities = computed(() => props.value.byLocations?.byYukonDestinationCities)
+const byYukonDestinationCities = computed(
+  () => props.modelValue.byLocations?.byYukonDestinationCities
+)
 const byCanadianDestinationProvinces = computed(
-  () => props.value.byLocations?.byCanadianDestinationProvinces
+  () => props.modelValue.byLocations?.byCanadianDestinationProvinces
 )
 const byInternationalDestinationProvinces = computed(
-  () => props.value.byLocations?.byInternationalDestinationProvinces
+  () => props.modelValue.byLocations?.byInternationalDestinationProvinces
 )
-const byDepartmentMailcodes = computed(() => props.value.byDepartmentMailcodes)
+const byDepartmentMailcodes = computed(() => props.modelValue.byDepartmentMailcodes)
 
 const flightStatisticsQuery = computed(() => ({
   perPage: MAX_PER_PAGE, // TODO: push filter generation to back-end
@@ -204,7 +206,7 @@ const internationalLocationCategories = computed(() =>
 )
 
 function selectLocationCategories(categories: LocationCategory[]) {
-  const filters = cloneDeep(props.value)
+  const filters = cloneDeep(props.modelValue)
   filters.byLocations ??= {}
 
   if (
@@ -247,11 +249,11 @@ function selectLocationCategories(categories: LocationCategory[]) {
     delete filters.byLocations
   }
 
-  emit("input", filters)
+  emit("update:modelValue", filters)
 }
 
 function updateYukonDestinations(destinations: string[]) {
-  const filters = cloneDeep(props.value)
+  const filters = cloneDeep(props.modelValue)
 
   if (!isEmpty(destinations)) {
     filters.byLocations ??= {}
@@ -263,11 +265,11 @@ function updateYukonDestinations(destinations: string[]) {
     }
   }
 
-  emit("input", filters)
+  emit("update:modelValue", filters)
 }
 
 function updateCanadaDestinations(destinations: string[]) {
-  const filters = cloneDeep(props.value)
+  const filters = cloneDeep(props.modelValue)
 
   if (!isEmpty(destinations)) {
     filters.byLocations ??= {}
@@ -279,11 +281,11 @@ function updateCanadaDestinations(destinations: string[]) {
     }
   }
 
-  emit("input", filters)
+  emit("update:modelValue", filters)
 }
 
 function updateInternationalDestinations(destinations: string[]) {
-  const filters = cloneDeep(props.value)
+  const filters = cloneDeep(props.modelValue)
 
   if (!isEmpty(destinations)) {
     filters.byLocations ??= {}
@@ -295,11 +297,11 @@ function updateInternationalDestinations(destinations: string[]) {
     }
   }
 
-  emit("input", filters)
+  emit("update:modelValue", filters)
 }
 
 function updateDepartmentMailcodes(departmentMailcodes: string[]) {
-  const filters = cloneDeep(props.value)
+  const filters = cloneDeep(props.modelValue)
 
   if (!isEmpty(departmentMailcodes)) {
     filters.byDepartmentMailcodes = departmentMailcodes
@@ -307,11 +309,11 @@ function updateDepartmentMailcodes(departmentMailcodes: string[]) {
     filters.byDepartmentMailcodes = undefined
   }
 
-  emit("input", filters)
+  emit("update:modelValue", filters)
 }
 
 function resetFilters() {
-  emit("input", {})
+  emit("update:modelValue", {})
 }
 </script>
 

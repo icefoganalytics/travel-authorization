@@ -3,13 +3,11 @@
     v-model="showDialog"
     max-width="500px"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
-        color="secondary"
-        dark
-        class="mb-2"
-        v-bind="attrs"
-        v-on="on"
+        variant="outlined"
+        class="mb-2 bg-white"
+        v-bind="activatorProps"
       >
         Add Expense
       </v-btn>
@@ -47,7 +45,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <DatePicker
+              <StringDateInput
                 v-model="expense.date"
                 :rules="[required]"
                 label="Date"
@@ -91,12 +89,13 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue"
+import { isNil } from "lodash"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import expensesApi, { ExpenseExpenseTypes, ExpenseTypes, type Expense } from "@/api/expenses-api"
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 import useSnack from "@/use/use-snack"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
@@ -141,7 +140,13 @@ const isLoading = ref(false)
 const snack = useSnack()
 
 async function createAndClose() {
-  if (!form.value?.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isLoading.value = true
   try {

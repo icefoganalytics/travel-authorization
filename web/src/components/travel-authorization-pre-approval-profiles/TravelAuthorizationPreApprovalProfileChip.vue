@@ -1,10 +1,9 @@
 <template>
   <v-chip
     ref="chip"
-    outlined
+    variant="outlined"
     link
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <v-progress-circular
       v-if="isLoading"
@@ -16,11 +15,11 @@
       {{ title }}
     </template>
 
-    <v-icon right>mdi-menu-down</v-icon>
+    <v-icon end>mdi-menu-down</v-icon>
     <v-menu
       :activator="chip?.$el"
       :close-on-content-click="false"
-      offset-y
+      :offset="8"
       transition="scale-transition"
     >
       <v-card>
@@ -72,7 +71,7 @@ const subtitle = computed(() => {
   return [location, purpose, dateInfo].filter(Boolean).join(" - ")
 })
 
-/** @typedef {import('vuetify/lib/components').VChip} VChip */
+/** @typedef {import('vuetify/components').VChip} VChip */
 /** @type {import('vue').Ref<InstanceType<typeof VChip> | null>} */
 const chip = ref(null)
 </script>

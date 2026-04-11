@@ -17,10 +17,11 @@
           v-model="travelAuthorization.supervisorEmail"
           :rules="[required]"
           label="Submit to"
-          dense
-          outlined
+          class="border rounded pa-4 bg-white"
+          density="compact"
+          variant="outlined"
+          hide-details="auto"
           required
-          background-color="white"
         />
       </v-col>
     </v-row>
@@ -30,7 +31,7 @@
 <script setup lang="ts">
 import { ref, computed, toRefs } from "vue"
 import { isNil } from "lodash"
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 
@@ -113,7 +114,13 @@ async function requestApprovalForExpenseClaim() {
     return false
   }
 
-  if (!form.value?.validate()) return false
+  if (isNil(form.value)) return false
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return false
+  }
 
   isLoadingTravelAuthorization.value = true
   try {

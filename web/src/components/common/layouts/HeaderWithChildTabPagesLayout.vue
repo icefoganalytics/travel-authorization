@@ -8,7 +8,7 @@
     </v-card-title>
     <v-tabs
       show-arrows
-      background-color="grey lighten-4"
+      class="bg-grey-lighten-4"
     >
       <v-tab
         v-for="tab in tabs"
@@ -24,13 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { type Location } from "vue-router"
+import { type RouteLocationRaw } from "vue-router"
 
 export interface Tab {
   value: number
   title: string
   icon?: string
-  to: Location
+  to: RouteLocationRaw
 }
 
 defineProps<{

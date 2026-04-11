@@ -1,11 +1,10 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :label="label"
     :items="PERIOD_OPTIONS"
     v-bind="$attrs"
-    @input="emit('input', $event)"
-    v-on="$listeners"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -15,7 +14,7 @@ import { range } from "lodash"
 const PERIOD_OPTIONS = range(1, 13).concat(14) // [1-12, 14]
 
 defineProps({
-  value: {
+  modelValue: {
     type: Number,
     default: null,
   },
@@ -25,5 +24,5 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 </script>

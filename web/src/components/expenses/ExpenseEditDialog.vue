@@ -3,7 +3,7 @@
     v-model="showDialog"
     max-width="500px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-form
       ref="formRef"
@@ -42,7 +42,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <DatePicker
+              <StringDateInput
                 v-model="expense.date"
                 :rules="[required]"
                 label="Date"
@@ -88,7 +88,7 @@
 import { nextTick, ref, watch } from "vue"
 import { isNil } from "lodash"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
@@ -98,7 +98,7 @@ import useSnack from "@/use/use-snack"
 import useExpense from "@/use/use-expense"
 
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
 // TODO: consider if this should be a prop?
@@ -119,8 +119,9 @@ const snack = useSnack()
 async function updateAndClose() {
   if (isNil(formRef.value)) return
 
-  if (!formRef.value.validate()) {
-    snack.error("Please fill in all required fields")
+  const { valid } = await formRef.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 

@@ -12,6 +12,7 @@
           Preference
         </div>
         <v-select
+          v-model="flightOption.flightPreferenceOrder"
           :readonly="travelDeskUser"
           class="mr-2"
           :items="preferenceList"
@@ -24,10 +25,9 @@
           "
           persistent-hint
           :error="state.preferenceErr"
-          @input="state.preferenceErr = false"
           label="Preference"
-          v-model="flightOption.flightPreferenceOrder"
-          solo
+          variant="solo"
+          @update:model-value="state.preferenceErr = false"
         />
       </v-col>
 
@@ -64,9 +64,7 @@
                 </tr>
                 <tr style="background: #f9f9f9">
                   <td style="width: 16%">Duration</td>
-                  <td
-                    style="width:30%;"
-                  >
+                  <td style="width: 30%">
                     {{ flightSegment.duration }}
                   </td>
                   <td style="width: 50%"></td>
@@ -129,7 +127,7 @@ export default {
 </script>
 
 <style scoped>
-::v-deep .v-text-field.v-text-field .v-input__control {
+:deep(.v-text-field.v-text-field .v-input__control) {
   min-height: 5px;
 }
 </style>

@@ -104,13 +104,13 @@ function refresh() {
 
 useBreadcrumbs([
   {
-    text: "Manage Travel Requests",
+    title: "Manage Travel Requests",
     to: {
       name: "ManageTravelRequests",
     },
   },
   {
-    text: "Details",
+    title: "Details",
     to: {
       name: "manage-travel-requests/ManageTravelRequestDetailsPage",
       params: {

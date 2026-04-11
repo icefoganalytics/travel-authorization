@@ -31,7 +31,7 @@
                   v-model="travelDeskTravelRequest.invoiceNumber"
                   label="Invoice Number *"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                   required
                 />
               </v-col>
@@ -39,24 +39,24 @@
                 cols="12"
                 md="6"
               >
-                <v-file-input
+                <EnhancedFileInput
                   v-if="hasPassengerNameRecordDocument"
                   v-model="passengerNameRecordDocumentFile"
                   label="PNR Document"
                   accept="application/pdf"
                   hint="Uploading a new PNR document will replace the existing file."
-                  outlined
+                  variant="outlined"
                   persistent-hint
                   show-size
                   truncate-length="40"
                 />
-                <v-file-input
+                <EnhancedFileInput
                   v-else
                   v-model="passengerNameRecordDocumentFile"
                   label="PNR Document *"
                   accept="application/pdf"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                   required
                   show-size
                   truncate-length="40"
@@ -67,7 +67,7 @@
         </v-form>
       </v-card>
 
-      <div class="d-flex flex-column flex-md-row">
+      <div class="d-flex flex-column flex-md-row ga-2 my-4">
         <v-btn
           color="primary"
           form="passenger-name-record-form"
@@ -81,13 +81,13 @@
           v-if="hasPassengerNameRecordDocument"
           class="ml-md-2"
           :download-url="downloadUrl"
-          color="secondary"
+          variant="outlined"
           text="Download PNR"
         />
         <v-spacer />
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           :to="{
             name: 'travel-desk/edit/TravelDeskRequestTravelRequestPage',
             params: {
@@ -107,10 +107,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
-import { type VForm } from "vuetify/lib/components"
+import { useDisplay } from "vuetify"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 import api from "@/api"
 import { passengerNameRecordDocumentsApi } from "@/api/downloads/travel-desk-travel-requests/passenger-name-record-documents-api"
@@ -121,6 +121,7 @@ import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
+import EnhancedFileInput from "@/components/common/EnhancedFileInput.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 
 const props = defineProps<{
@@ -157,8 +158,9 @@ async function save() {
     return
   }
 
-  if (!formRef.value.validate()) {
-    snack.error("Please fill in all required fields")
+  const { valid } = await formRef.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 
@@ -187,17 +189,17 @@ async function save() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -206,7 +208,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-desk/TravelDeskRequestEditRedirect",
       params: {
@@ -215,7 +217,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Trip Information (PNR details)",
+    title: "Trip Information (PNR details)",
     to: {
       name: "travel-desk/edit/TravelDeskRequestTripInformationPage",
       params: {

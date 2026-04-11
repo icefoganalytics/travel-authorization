@@ -11,10 +11,10 @@
             >
               <v-text-field
                 v-model="search"
+                class="bg-white"
                 prepend-inner-icon="mdi-magnify"
-                background-color="white"
-                outlined
-                dense
+                variant="outlined"
+                density="compact"
                 label="Search"
                 hide-details
               ></v-text-field>
@@ -25,13 +25,13 @@
             >
               <v-select
                 v-model="selectedStatuses"
-                small-chips
+                class="bg-white"
+                chips
                 multiple
                 :items="statusFilterOptions"
                 label="Status filter"
-                dense
-                outlined
-                background-color="white"
+                density="compact"
+                variant="outlined"
                 hide-details
               ></v-select>
             </v-col>
@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 
 import { type User } from "@/api/users-api"
 
@@ -69,20 +69,20 @@ import useUsers from "@/use/use-users"
 const search = ref("")
 const headers = [
   {
-    text: "Email",
-    value: "email",
+    title: "Email",
+    key: "email",
   },
   {
-    text: "First Name",
-    value: "firstName",
+    title: "First Name",
+    key: "firstName",
   },
   {
-    text: "Last Name",
-    value: "lastName",
+    title: "Last Name",
+    key: "lastName",
   },
   {
-    text: "Status",
-    value: "isActive",
+    title: "Status",
+    key: "isActive",
   },
 ]
 const selectedStatuses = ref(["Active"])
@@ -110,7 +110,11 @@ const filteredUsers = computed(() => {
 
 const router = useRouter()
 
-function goToUserEditPage(user: User) {
+type UserTableRow = {
+  item: User
+}
+
+function goToUserEditPage(_event: unknown, { item: user }: UserTableRow) {
   router.push({
     name: "administration/users/UserEditPage",
     params: {
@@ -121,13 +125,13 @@ function goToUserEditPage(user: User) {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Administration",
+    title: "Administration",
     to: {
       name: "AdministrationPage",
     },
   },
   {
-    text: "User Management",
+    title: "User Management",
     to: {
       name: "administration/UsersPage",
     },

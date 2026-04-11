@@ -1,8 +1,9 @@
 <template>
-  <TravelAuthorizationPreApprovalsDataTable
+  <TravelAuthorizationPreApprovalsDataTableServer
     ref="travelAuthorizationPreApprovalsDataTable"
     v-model="selectedItems"
     :show-select="canAdminTravelPreApprovals"
+    return-object
   >
     <template #top>
       <v-row>
@@ -28,7 +29,7 @@
             v-if="canAdminTravelPreApprovals"
             class="ml-md-5"
             color="primary"
-            outlined
+            variant="outlined"
             :block="smAndDown"
             @click="showTravelAuthorizationPreApprovalsPrintDialog"
           >
@@ -41,7 +42,7 @@
             v-if="canAdminTravelPreApprovals"
             class="ml-md-5"
             color="primary"
-            outlined
+            variant="outlined"
             :block="smAndDown"
           >
             Export To Excel
@@ -52,7 +53,7 @@
             :to="{
               name: 'travel-pre-approvals/TravelPreApprovalNewPage',
             }"
-            :outlined="!isEmpty(selectedItemIds)"
+            :variant="addTravelPreApprovalButtonVariant"
             :block="smAndDown"
           >
             Add Travel Pre-Approval
@@ -60,30 +61,38 @@
         </v-col>
       </v-row>
     </template>
-  </TravelAuthorizationPreApprovalsDataTable>
+  </TravelAuthorizationPreApprovalsDataTableServer>
 </template>
 
 <script setup>
 import { computed, ref } from "vue"
 import { isEmpty } from "lodash"
+import { useDisplay } from "vuetify"
 
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 
 import TravelAuthorizationPreApprovalsExportToCsvButton from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsExportToCsvButton.vue"
-import TravelAuthorizationPreApprovalsDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTable.vue"
+import TravelAuthorizationPreApprovalsDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsDataTableServer.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
 import TravelAuthorizationPreApprovalSubmissionDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDialog.vue"
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const selectedItems = ref([])
 
 const selectedItemIds = computed(() => {
   return selectedItems.value.map((item) => item.id)
+})
+
+const addTravelPreApprovalButtonVariant = computed(() => {
+  if (isEmpty(selectedItemIds.value)) {
+    return undefined
+  }
+
+  return "outlined"
 })
 
 const { isAdmin, isPreApprovedTravelAdmin } = useCurrentUser()
@@ -103,7 +112,7 @@ function showTravelAuthorizationPreApprovalsPrintDialog() {
   travelAuthorizationPreApprovalsPrintDialog.value?.show()
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsDataTableServer> | null>} */
 const travelAuthorizationPreApprovalsDataTable = ref(null)
 
 function refresh() {
@@ -113,13 +122,13 @@ function refresh() {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "Requests",
+    title: "Requests",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
@@ -128,7 +137,7 @@ useBreadcrumbs([
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

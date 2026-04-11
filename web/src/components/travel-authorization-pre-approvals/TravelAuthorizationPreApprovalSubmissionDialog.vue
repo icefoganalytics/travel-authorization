@@ -1,16 +1,16 @@
 <template>
   <!-- TODO: consider making this a "page" instead of a dialog -->
   <v-dialog
-    :value="showSubmissionDialog"
+    :model-value="showSubmissionDialog"
     persistent
     max-width="950px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <HeaderActionsCard title="Submit Travel Pre-Approval Requests">
       <v-row>
         <v-col>
-          <TravelAuthorizationPreApprovalsSimpleDataTable
+          <TravelAuthorizationPreApprovalsSimpleDataTableServer
             :where="travelAuthorizationPreApprovalsWhere"
             route-query-suffix="SubmissionDialog"
             hide-default-footer
@@ -20,29 +20,28 @@
               <v-btn
                 v-if="canDelete"
                 title="Remove"
+                icon="mdi-delete"
+                size="small"
+                variant="text"
                 color="error"
-                icon
-                small
                 @click="removePreApprovalRequest(item.id)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
+              />
             </template>
-          </TravelAuthorizationPreApprovalsSimpleDataTable>
+          </TravelAuthorizationPreApprovalsSimpleDataTableServer>
         </v-col>
       </v-row>
 
       <template #actions>
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           @click="hide"
         >
           Cancel
         </v-btn>
         <v-spacer />
         <v-btn
-          color="secondary"
+          variant="outlined"
           :loading="isSubmitting"
           @click="submitTravelRequest(TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES.DRAFT)"
         >
@@ -76,7 +75,7 @@ import useSnack from "@/use/use-snack"
 import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-pre-approvals"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTableServer.vue"
 
 const emit = defineEmits(["submitted"])
 
@@ -164,7 +163,7 @@ defineExpose({
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

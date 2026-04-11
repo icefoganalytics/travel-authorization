@@ -1,10 +1,10 @@
 <template>
   <v-dialog
-    :value="showDialog"
+    :model-value="showDialog"
     persistent
     max-width="500px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-form
       ref="form"
@@ -29,7 +29,7 @@
                 v-model="travelDeskQuestion.requestType"
                 :rules="[required]"
                 label="Request Type *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -40,7 +40,7 @@
                 v-model="travelDeskQuestion.question"
                 :rules="[required]"
                 label="Question *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -50,7 +50,7 @@
               <v-textarea
                 v-model="travelDeskQuestion.response"
                 label="Response"
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -61,7 +61,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel
@@ -130,7 +130,13 @@ watch(
 const snack = useSnack()
 
 async function updateAndHide() {
-  if (!form.value.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isLoading.value = true
   try {

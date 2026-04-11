@@ -15,7 +15,7 @@
       />
     </div>
 
-    <EstimatesEditDataTable
+    <EstimatesEditDataTableServer
       ref="estimatesTable"
       :where="estimatesWhere"
       @updated="expensesRefresh"
@@ -38,7 +38,7 @@ import useExpenses, { TYPES as EXPENSE_TYPES } from "@/use/use-expenses"
 
 import EstimateCreateDialog from "@/components/expenses/EstimateCreateDialog.vue"
 import EstimateGenerateDialog from "@/components/expenses/EstimateGenerateDialog.vue"
-import EstimatesEditDataTable from "@/components/expenses/EstimatesEditDataTable.vue"
+import EstimatesEditDataTableServer from "@/components/expenses/EstimatesEditDataTableServer.vue"
 import EstimateEditDialog from "@/components/expenses/EstimateEditDialog.vue"
 
 const props = defineProps({
@@ -62,7 +62,7 @@ const expensesQuery = computed(() => ({
 const { totalCount, isLoading, refresh: expensesRefresh } = useExpenses(expensesQuery)
 const hasEstimates = computed(() => totalCount.value > 0)
 
-/** @type {import("vue").Ref<InstanceType<typeof EstimatesEditDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof EstimatesEditDataTableServer> | null>} */
 const estimatesTable = ref(null)
 
 async function refreshEstimatesAndTable() {

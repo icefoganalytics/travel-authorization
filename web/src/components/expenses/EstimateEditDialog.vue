@@ -36,7 +36,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <DatePicker
+              <StringDateInput
                 v-model="expense.date"
                 :rules="[required]"
                 :min="departureDate"
@@ -92,7 +92,7 @@ import useExpense from "@/use/use-expense"
 import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
@@ -125,12 +125,17 @@ function close() {
 
 const snack = useSnack()
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const formRef = ref(null)
 
 async function updateAndClose() {
-  if (formRef.value === null) return
-  if (!formRef.value.validate()) return
+  if (isNil(formRef.value)) return
+
+  const { valid } = await formRef.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   try {
     await save()

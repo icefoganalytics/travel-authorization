@@ -17,20 +17,20 @@
         <ClaimTypeSelect
           v-model="claimType"
           class="ml-2"
-          outlined
+          variant="outlined"
           hide-details
           clearable
         />
       </v-col>
     </v-card-title>
 
-    <v-data-table
-      :page.sync="page"
-      :items-per-page.sync="perPage"
+    <v-data-table-server
+      v-model:page="page"
+      v-model:items-per-page="perPage"
       :headers="headers"
       :items="perDiems"
       :loading="isLoading"
-      :server-items-length="totalCount"
+      :items-length="totalCount"
       :footer-props="{
         'items-per-page-options': [6, 10, 15, -1],
       }"
@@ -43,33 +43,34 @@
         />
       </template>
       <template #item.claimType="{ value }">
-        {{ t(`per_diem.claim_type.${value}`, { $default: value }) }}
+        {{ t(`per_diem.claim_type.${value}`, value) }}
       </template>
       <template #item.travelRegion="{ value }">
-        {{ t(`per_diem.travel_region.${value}`, { $default: value }) }}
+        {{ t(`per_diem.travel_region.${value}`, value) }}
       </template>
       <template #item.amount="{ item, value }">
         {{ formatCurrency(value, item.currency) }}
       </template>
       <template #item.actions="{ item }">
-        <div class="d-flex justify-end">
+        <div class="d-flex ga-1 justify-end">
           <v-btn
             title="Edit"
-            icon
-            color="blue"
+            icon="mdi-pencil"
+            size="small"
+            variant="text"
+            color="primary"
             @click="showEditDialog(item)"
-            ><v-icon>mdi-pencil</v-icon></v-btn
-          >
+          />
         </div>
       </template>
-    </v-data-table>
+    </v-data-table-server>
   </v-card>
 </template>
 
 <script setup>
 import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import formatCurrency from "@/utils/format-currency"
 import useRouteQuery from "@/use/utils/use-route-query"
 import usePerDiems from "@/use/use-per-diems"
@@ -86,20 +87,20 @@ const { t } = useI18n()
 
 const headers = ref([
   {
-    text: "Claim Type",
-    value: "claimType",
+    title: "Claim Type",
+    key: "claimType",
   },
   {
-    text: "Travel Region",
-    value: "travelRegion",
+    title: "Travel Region",
+    key: "travelRegion",
   },
   {
-    text: "Amount",
-    value: "amount",
+    title: "Amount",
+    key: "amount",
   },
   {
-    text: "",
-    value: "actions",
+    title: "",
+    key: "actions",
   },
 ])
 

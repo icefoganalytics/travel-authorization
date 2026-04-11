@@ -1,11 +1,11 @@
 <template>
-  <FlightStatisticsDataTable :filters="filters" />
+  <FlightStatisticsDataTableServer :filters="filters" />
 </template>
 
 <script setup lang="ts">
 import { type FlightStatisticFiltersOptions } from "@/api/flight-statistics-api"
 
-import FlightStatisticsDataTable from "@/components/flight-statistics/FlightStatisticsDataTable.vue"
+import FlightStatisticsDataTableServer from "@/components/flight-statistics/FlightStatisticsDataTableServer.vue"
 
 withDefaults(
   defineProps<{

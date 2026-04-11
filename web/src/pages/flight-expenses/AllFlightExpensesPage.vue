@@ -1,7 +1,7 @@
 <template>
-  <FlightReconciliationsDataTable
+  <FlightReconciliationsDataTableServer
     ref="flightReconciliationsDataTable"
-    v-model="selectedFlightReconciliations"
+    v-model="selectedFlightReconciliationIds"
     :filters="filters"
     show-select
   >
@@ -22,7 +22,7 @@
         </v-col>
       </v-row>
     </template>
-  </FlightReconciliationsDataTable>
+  </FlightReconciliationsDataTableServer>
 </template>
 
 <script setup>
@@ -31,7 +31,7 @@ import { isNil, isEmpty } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import FlightReconciliationsDataTable from "@/components/flight-reconciliations/FlightReconciliationsDataTable.vue"
+import FlightReconciliationsDataTableServer from "@/components/flight-reconciliations/FlightReconciliationsDataTableServer.vue"
 import ExportToCsvButton from "@/components/flight-reconciliations/ExportToCsvButton.vue"
 
 const props = defineProps({
@@ -60,12 +60,9 @@ const filters = computed(() => {
   }
 })
 
-const selectedFlightReconciliations = ref([])
-const selectedFlightReconciliationIds = computed(() =>
-  selectedFlightReconciliations.value.map((flightReconciliation) => flightReconciliation.id)
-)
+const selectedFlightReconciliationIds = ref([])
 
-/** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTableServer> | null>} */
 const flightReconciliationsDataTable = ref(null)
 
 async function refresh() {
@@ -78,13 +75,13 @@ defineExpose({
 
 useBreadcrumbs([
   {
-    text: "Flight Expenses",
+    title: "Flight Expenses",
     to: {
       name: "flight-expenses/AllFlightExpensesPage",
     },
   },
   {
-    text: "All Flights Expenses",
+    title: "All Flights Expenses",
     to: {
       name: "flight-expenses/AllFlightExpensesPage",
     },
@@ -93,7 +90,7 @@ useBreadcrumbs([
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

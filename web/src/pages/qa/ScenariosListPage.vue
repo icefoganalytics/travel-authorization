@@ -20,34 +20,31 @@
           v-for="scenario in scenarios"
           :key="scenario"
         >
-          <v-list-item-content>
-            <v-btn
-              :loading="isLoading"
-              color="primary"
-              @click="triggerScenario(scenario)"
-              >{{ scenario }}</v-btn
-            >
-          </v-list-item-content>
+          <v-btn
+            :loading="isLoading"
+            color="primary"
+            block
+            @click="triggerScenario(scenario)"
+            >{{ scenario }}</v-btn
+          >
         </v-list-item>
         <v-list-item>
-          <v-list-item-content>
-            <v-btn
-              :loading="isLoading"
-              color="primary"
-              @click="syncYgEmployeeGroups"
-              >Sync YG Employee Groups</v-btn
-            >
-          </v-list-item-content>
+          <v-btn
+            :loading="isLoading"
+            color="primary"
+            block
+            @click="syncYgEmployeeGroups"
+            >Sync YG Employee Groups</v-btn
+          >
         </v-list-item>
         <v-list-item>
-          <v-list-item-content>
-            <v-btn
-              :loading="isLoading"
-              color="primary"
-              @click="syncYgEmployees"
-              >Sync YG Employees</v-btn
-            >
-          </v-list-item-content>
+          <v-btn
+            :loading="isLoading"
+            color="primary"
+            block
+            @click="syncYgEmployees"
+            >Sync YG Employees</v-btn
+          >
         </v-list-item>
       </v-list>
     </v-card>
@@ -126,7 +123,7 @@ async function syncYgEmployees() {
 
 useBreadcrumbs([
   {
-    text: "QA Scenarios",
+    title: "QA Scenarios",
     to: {
       name: "qa/ScenariosListPage",
     },

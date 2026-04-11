@@ -62,13 +62,13 @@ const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthor
 
 useBreadcrumbs([
   {
-    text: "Manage Travel Requests",
+    title: "Manage Travel Requests",
     to: {
       name: "ManageTravelRequests",
     },
   },
   {
-    text: "Expenses",
+    title: "Expenses",
     to: {
       name: "manage-travel-requests/ManageTravelRequestExpensesPage",
       params: {

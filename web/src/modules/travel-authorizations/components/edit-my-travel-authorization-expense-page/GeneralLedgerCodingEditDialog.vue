@@ -4,7 +4,7 @@
     max-width="500px"
     persistent
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-form
       ref="form"
@@ -26,17 +26,17 @@
               <v-text-field
                 v-model="generalLedgerCoding.code"
                 :rules="[isGeneralLedgerCode]"
-                validate-on-blur
-                dense
-                outlined
+                validate-on="blur"
+                density="compact"
+                variant="outlined"
                 required
               >
                 <template #label>
-                  <v-tooltip bottom>
-                    <template #activator="{ on }">
-                      <div v-on="on">
+                  <v-tooltip location="bottom">
+                    <template #activator="{ props: activatorProps }">
+                      <div v-bind="activatorProps">
                         G/L code
-                        <v-icon small> mdi-help-circle-outline </v-icon>
+                        <v-icon size="small">mdi-help-circle-outline</v-icon>
                       </div>
                     </template>
                     <span>
@@ -56,8 +56,8 @@
                 v-model="generalLedgerCoding.amount"
                 :rules="[required]"
                 label="Amount"
-                dense
-                outlined
+                density="compact"
+                variant="outlined"
                 required
               />
             </v-col>
@@ -96,7 +96,7 @@ import useGeneralLedgerCoding from "@/use/use-general-ledger-coding"
 import useSnack from "@/use/use-snack"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 const emit = defineEmits<{
   (event: "saved"): void
@@ -111,7 +111,14 @@ const form = ref<InstanceType<typeof VForm> | null>(null)
 const snack = useSnack()
 
 async function updateAndClose() {
-  if (!form.value?.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
+
   if (isNil(generalLedgerCodingId.value)) return
   if (isNil(generalLedgerCoding.value)) return
 

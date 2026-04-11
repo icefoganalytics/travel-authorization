@@ -28,9 +28,9 @@
           label="Traveler name *"
           :where="ygEmployeeWhere"
           item-value="fullName"
-          item-text="fullName"
+          item-title="fullName"
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -42,7 +42,7 @@
           v-model="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
-          outlined
+          variant="outlined"
           persistent-hint
         />
       </v-col>
@@ -66,7 +66,7 @@
         cols="12"
         md="9"
       >
-        <TravelAuthorizationPreApprovalProfilesDataTable
+        <TravelAuthorizationPreApprovalProfilesDataTableServer
           ref="travelAuthorizationPreApprovalProfilesDataTable"
           :where="preApprovalProfileWhere"
           route-query-suffix="Profile"
@@ -74,14 +74,14 @@
           <template #item.actions="{ item }">
             <v-btn
               title="Remove traveler profile"
-              icon
+              icon="mdi-delete"
+              size="small"
+              variant="text"
               color="error"
               @click="removeTravelAuthorizationPreApprovalProfile(item.id)"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
+            />
           </template>
-        </TravelAuthorizationPreApprovalProfilesDataTable>
+        </TravelAuthorizationPreApprovalProfilesDataTableServer>
       </v-col>
     </v-row>
   </HeaderActionsFormCard>
@@ -97,7 +97,7 @@ import useSnack from "@/use/use-snack"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
-import TravelAuthorizationPreApprovalProfilesDataTable from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTable.vue"
+import TravelAuthorizationPreApprovalProfilesDataTableServer from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTableServer.vue"
 
 /** @typedef {import("@/api/travel-authorization-pre-approvals-api").TravelAuthorizationPreApprovalProfile} TravelAuthorizationPreApprovalProfile */
 
@@ -174,7 +174,7 @@ const ygEmployeeWhere = computed(() => ({
 const isLoading = ref(false)
 const snack = useSnack()
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalProfilesDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalProfilesDataTableServer> | null>} */
 const travelAuthorizationPreApprovalProfilesDataTable = ref(null)
 
 async function createTravelAuthorizationPreApprovalProfile() {

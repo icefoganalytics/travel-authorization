@@ -1,7 +1,7 @@
 <template>
-  <FlightReconciliationsDataTable
+  <FlightReconciliationsDataTableServer
     ref="flightReconciliationsDataTable"
-    v-model="selectedFlightReconciliations"
+    v-model="selectedFlightReconciliationIds"
     :filters="filters"
     :where="where"
     reconciled
@@ -43,14 +43,14 @@
         @saved="refresh"
       />
     </template>
-  </FlightReconciliationsDataTable>
+  </FlightReconciliationsDataTableServer>
 </template>
 
 <script setup>
 import { computed, ref } from "vue"
 import { isNil, isEmpty } from "lodash"
 
-import FlightReconciliationsDataTable from "@/components/flight-reconciliations/FlightReconciliationsDataTable.vue"
+import FlightReconciliationsDataTableServer from "@/components/flight-reconciliations/FlightReconciliationsDataTableServer.vue"
 import FlightReconciliationsBulkUnreconcileDialog from "@/components/flight-reconciliations/FlightReconciliationsBulkUnreconcileDialog.vue"
 import ExportToCsvButton from "@/components/flight-reconciliations/ExportToCsvButton.vue"
 
@@ -83,11 +83,7 @@ const where = computed(() => ({
   reconciled: true,
 }))
 
-const selectedFlightReconciliations = ref([])
-
-const selectedFlightReconciliationIds = computed(() =>
-  selectedFlightReconciliations.value.map((flightReconciliation) => flightReconciliation.id)
-)
+const selectedFlightReconciliationIds = ref([])
 
 /** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsBulkUnreconcileDialog> | null>} */
 const flightReconciliationsBulkUnreconcileDialog = ref(null)
@@ -96,7 +92,7 @@ function showBulkUnreconcileDialog(flightReconciliationIds) {
   flightReconciliationsBulkUnreconcileDialog.value.show(flightReconciliationIds)
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTableServer> | null>} */
 const flightReconciliationsDataTable = ref(null)
 
 function refresh() {
@@ -105,7 +101,7 @@ function refresh() {
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

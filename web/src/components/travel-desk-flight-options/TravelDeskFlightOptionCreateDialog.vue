@@ -42,7 +42,7 @@
                   travelRequestId: travelDeskTravelRequestId,
                 }"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -56,7 +56,7 @@
                 type="number"
                 :rules="[required]"
                 prefix="$"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -68,8 +68,8 @@
                 v-model="travelDeskFlightOptionAttributes.duration"
                 label="Travel Duration"
                 readonly
-                outlined
-                append-icon="mdi-lock"
+                variant="outlined"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
           </v-row>
@@ -91,7 +91,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel
@@ -111,7 +111,7 @@
 
 <script setup>
 import { ref, nextTick, computed, watch } from "vue"
-import { cloneDeep } from "lodash"
+import { cloneDeep, isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -154,9 +154,9 @@ const flightSegmentsAttributes = computed(
 )
 
 const snack = useSnack()
-const showDialog = useRouteQuery("showTravelDeskFlightOptionCreate", false, { transform: Boolean })
+const showDialog = useRouteQuery("showTravelDeskFlightOptionCreate", "false", { transform: Boolean })
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
 const isLoading = ref(false)
 
@@ -167,8 +167,11 @@ function hide() {
 }
 
 async function createAndHide() {
-  if (!form.value?.validate()) {
-    snack.error("Please fill in all required fields")
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 

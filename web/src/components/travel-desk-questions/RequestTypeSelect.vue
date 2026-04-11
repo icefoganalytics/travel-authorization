@@ -1,33 +1,22 @@
 <!-- See https://stackoverflow.com/a/50892881 for slot syntax -->
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="requestTypeItems"
     :label="label"
     v-bind="$attrs"
-    v-on="$listeners"
-    @input="emit('input', $event)"
-  >
-    <template
-      v-for="(_, slotName) in $scopedSlots"
-      #[slotName]="slotData"
-    >
-      <slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot>
-    </template>
-  </v-select>
+    @update:model-value="emit('update:modelValue', $event)"
+  />
 </template>
 
 <script setup>
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { TRAVEL_DESK_QUESTION_REQUEST_TYPES } from "@/api/travel-desk-questions-api"
 
 defineProps({
-  value: {
+  modelValue: {
     type: String,
     default: null,
   },
@@ -37,12 +26,12 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 const { t } = useI18n()
 
 const requestTypeItems = computed(() =>
   Object.values(TRAVEL_DESK_QUESTION_REQUEST_TYPES).map((requestType) => ({
-    text: t(`travel_desk_question.request_type.${requestType}`, { $default: requestType }),
+    title: t(`travel_desk_question.request_type.${requestType}`, requestType),
     value: requestType,
   }))
 )

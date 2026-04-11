@@ -1,5 +1,5 @@
 <template>
-  <v-card outlined>
+  <v-card variant="outlined">
     <v-card-title class="blue--text font-weight-bold">
       Flight: {{ travelDeskFlightSegmentAttributes.flightNumber }}
     </v-card-title>

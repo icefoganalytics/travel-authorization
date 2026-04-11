@@ -1,14 +1,13 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="travelDeskTravelAgencies"
     :label="label"
     :loading="isLoading"
-    item-text="agencyName"
+    item-title="agencyName"
     item-value="id"
     v-bind="$attrs"
-    @input="emit('input', $event)"
-    v-on="$listeners"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -16,7 +15,8 @@
 import { computed } from "vue"
 
 import { MAX_PER_PAGE } from "@/api/base-api"
-import { useTravelDeskTravelAgencies } from "@/use/use-travel-desk-travel-agencies"
+
+import useTravelDeskTravelAgencies from "@/use/use-travel-desk-travel-agencies"
 
 /** @typedef {import('@/api/travel-desk-travel-agencies-api.js').TravelDeskTravelAgencyWhereOptions} TravelDeskTravelAgencyWhereOptions */
 /** @typedef {import('@/api/travel-desk-travel-agencies-api.js').TravelDeskTravelAgencyFiltersOptions} TravelDeskTravelAgencyFiltersOptions */
@@ -25,13 +25,14 @@ import { useTravelDeskTravelAgencies } from "@/use/use-travel-desk-travel-agenci
  * Defines component props with descriptions and types using JSDoc.
  *
  * @type {{
- *   value: number | null,
+ *   modelValue: number | null | undefined,
  *   where?: TravelDeskTravelAgencyWhereOptions,
  *   filters?: TravelDeskTravelAgencyFiltersOptions
  * }}
  */
 const props = defineProps({
-  value: {
+  modelValue: {
+    /** @type {import('vue').PropType<number | null | undefined>} */
     type: Number,
     default: () => null,
   },
@@ -51,10 +52,10 @@ const props = defineProps({
 
 /**
  * @type {{
- *   input: [travelDeskTravelAgencyId: number | null]
+ *   "update:modelValue": [travelDeskTravelAgencyId: number | null | undefined]
  * }}
  */
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const travelDeskTravelAgenciesQuery = computed(() => ({
   where: props.where,

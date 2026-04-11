@@ -55,12 +55,11 @@
         <v-btn
           class="ml-2 my-0"
           title="Copy email to clipboard"
-          icon
-          small
+          icon="mdi-content-copy"
+          size="small"
+          variant="text"
           @click="copyToClipboard(user.email, 'Email copied to clipboard')"
-        >
-          <v-icon>mdi-content-copy</v-icon>
-        </v-btn>
+        />
       </v-col>
       <v-col
         cols="12"
@@ -160,8 +159,7 @@
 
 <script setup>
 import { computed } from "vue"
-
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
@@ -185,11 +183,11 @@ const { isAdmin } = useCurrentUser()
 const { t } = useI18n()
 
 function formatRole(value) {
-  return t(`role.name.${value}`, { $default: value })
+  return t(`role.name.${value}`, value)
 }
 
 function formatStatus(value) {
-  return t(`global.status.${value}`, { $default: value })
+  return t(`global.status.${value}`, value)
 }
 
 const snack = useSnack()
@@ -211,11 +209,11 @@ const userDisplayName = computed(() =>
 const breadcrumbs = computed(() => [
   // TODO: consider if there should be "Users" page that is accessible to everyone?
   {
-    text: "Users",
+    title: "Users",
     disabled: true,
   },
   {
-    text: isLoading.value === true ? "..." : userDisplayName.value,
+    title: isLoading.value === true ? "..." : userDisplayName.value,
     disabled: true,
   },
 ])

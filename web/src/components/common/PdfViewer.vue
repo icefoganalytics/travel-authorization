@@ -16,8 +16,8 @@
         <!-- NOTE: don't use v-else or the pdf will never render -->
         <VuePdfEmbed
           :source="source"
-          :page="isFullscreen ? null : page"
-          :height="isFullscreen ? height : null"
+          :page="isFullscreen ? undefined : page"
+          :height="isFullscreen ? height : undefined"
           @loaded="updateState"
         />
       </div>
@@ -37,8 +37,7 @@ import { isNil, isUndefined } from "lodash"
 import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import { supportsPDFs } from "pdfobject"
 
-// Using import from dist/vue2-pdf-embed for Vue 2 compatibility, remove once we migrate to Vue 3.
-import VuePdfEmbed from "vue-pdf-embed/dist/vue2-pdf-embed"
+import VuePdfEmbed from "vue-pdf-embed"
 
 defineProps<{
   source: string
@@ -68,7 +67,7 @@ async function updateState(doc: PDFDocumentProxy) {
 
 const fullscreenDivRef = ref<InstanceType<typeof HTMLDivElement> | null>(null)
 const height = computed(() => {
-  if (isNil(fullscreenDivRef.value)) return null
+  if (isNil(fullscreenDivRef.value)) return undefined
 
   return fullscreenDivRef.value.clientHeight - fullscreenDivRef.value.clientHeight / 10
 })

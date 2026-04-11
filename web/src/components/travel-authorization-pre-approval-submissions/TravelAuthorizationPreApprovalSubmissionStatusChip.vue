@@ -6,8 +6,7 @@
 
 <script setup>
 import { computed } from "vue"
-
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
 
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES } from "@/api/travel-authorization-pre-approval-submissions-api"
 
@@ -21,9 +20,7 @@ const props = defineProps({
 const { t } = useI18n()
 
 const formattedStatus = computed(() => {
-  return t(`travel_authorization_pre_approval_submission.status.${props.status}`, {
-    $default: props.status,
-  })
+  return t(`travel_authorization_pre_approval_submission.status.${props.status}`, props.status)
 })
 
 const color = computed(() => {

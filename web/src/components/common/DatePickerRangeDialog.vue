@@ -2,25 +2,23 @@
   <v-menu
     v-model="showMenu"
     :close-on-content-click="false"
-    :nudge-right="40"
+    :offset="8"
     transition="scale-transition"
-    offset-y
     min-width="auto"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props: activatorProps }">
       <v-text-field
-        :value="dateRangeText"
+        :model-value="dateRangeText"
         :label="label"
         prepend-inner-icon="mdi-calendar"
         readonly
         v-bind="activatorProps"
-        v-on="on"
       ></v-text-field>
     </template>
     <v-date-picker
       v-model="selectedDateRange"
       range
-      @change="emitInput"
+      @update:model-value="emitInput"
     ></v-date-picker>
   </v-menu>
 </template>
@@ -29,7 +27,7 @@
 import { computed, ref, watchEffect } from "vue"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Array,
     default: () => [],
   },
@@ -37,25 +35,21 @@ const props = defineProps({
     type: String,
     default: "Pick date range",
   },
-  activatorProps: {
-    type: Object,
-    default: () => ({}),
-  },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const showMenu = ref(false)
 
-const dateRangeText = computed(() => props.value.join(" ~ "))
+const dateRangeText = computed(() => props.modelValue.join(" ~ "))
 
-const selectedDateRange = ref(props.value)
+const selectedDateRange = ref(props.modelValue)
 
 watchEffect(() => {
-  selectedDateRange.value = props.value
+  selectedDateRange.value = props.modelValue
 })
 
 function emitInput(value) {
-  emit("input", value)
+  emit("update:modelValue", value)
 }
 </script>

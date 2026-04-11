@@ -3,13 +3,11 @@
     v-model="showDialog"
     max-width="500px"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
-        dark
         :class="buttonClasses"
         :color="buttonColor"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Prefill Expenses
       </v-btn>

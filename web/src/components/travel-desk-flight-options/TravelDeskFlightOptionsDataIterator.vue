@@ -1,15 +1,14 @@
 <template>
   <v-data-iterator
     :items="travelDeskFlightOptions"
-    :server-items-length="totalCount"
+    :items-length="totalCount"
     :loading="isLoading"
-    hide-default-footer
   >
     <template #default="{ items }">
       <TravelDeskFlightOptionCard
         v-for="item in items"
-        :key="item.id"
-        :flight-option="item"
+        :key="item.raw.id"
+        :flight-option="item.raw"
         :number-of-flight-options="totalCount"
         travel-desk-user
       />

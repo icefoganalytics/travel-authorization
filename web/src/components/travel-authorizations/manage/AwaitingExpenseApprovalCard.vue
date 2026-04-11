@@ -10,7 +10,7 @@
       <RefreshTableButton @click="refreshTable" />
     </v-card-title>
     <v-card-text>
-      <TravelAuthorizationsSupervisorDataTable
+      <TravelAuthorizationsSupervisorDataTableServer
         ref="travelAuthorizationsSupervisorDataTable"
         :where="whereClause"
         route-query-suffix="AwaitingExpenseApproval"
@@ -25,7 +25,7 @@ import { ref } from "vue"
 import { STATUSES } from "@/api/travel-authorizations-api"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import TravelAuthorizationsSupervisorDataTable from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTable.vue"
+import TravelAuthorizationsSupervisorDataTableServer from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTableServer.vue"
 
 const whereClause = {
   status: STATUSES.EXPENSE_CLAIM_SUBMITTED,

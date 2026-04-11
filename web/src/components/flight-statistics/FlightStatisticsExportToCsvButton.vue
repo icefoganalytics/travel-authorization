@@ -2,7 +2,6 @@
   <v-btn
     v-bind="$attrs"
     :loading="isLoading"
-    v-on="$listeners"
     @click="exportToCsv"
   >
     Export to CSV

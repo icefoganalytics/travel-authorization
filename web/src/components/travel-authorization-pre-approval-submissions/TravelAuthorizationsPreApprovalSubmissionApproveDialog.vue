@@ -5,17 +5,17 @@
     persistent
     max-width="950px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <HeaderActionsFormCard
       ref="headerActionsFormCard"
       title="Approval"
-      lazy-validation
+      validate-on="lazy"
       @submit.prevent="approve"
     >
       <v-row>
         <v-col cols="12">
-          <v-file-input
+          <EnhancedFileInput
             v-model="approvalDocument"
             accept="application/pdf,image/x-png,image/jpeg"
             label="Approval Document *"
@@ -23,7 +23,7 @@
             hint="Only PDF, PNG, and JPEG files are allowed"
             :rules="[required]"
             persistent-hint
-            outlined
+            variant="outlined"
             prepend-icon=""
             append-icon="$file"
           />
@@ -38,7 +38,7 @@
           <YgEmployeeAutocomplete
             v-model="approvalDocumentApproverName"
             label="Approved By (in document) *"
-            outlined
+            variant="outlined"
             :rules="[required]"
           />
         </v-col>
@@ -50,7 +50,7 @@
             v-model="approvalDocumentApprovedOn"
             label="Approval Date (of document) *"
             :rules="[required]"
-            outlined
+            variant="outlined"
             type="date"
           />
         </v-col>
@@ -58,7 +58,7 @@
 
       <v-row>
         <v-col>
-          <TravelAuthorizationPreApprovalsSimpleDataTable
+          <TravelAuthorizationPreApprovalsSimpleDataTableServer
             :where="travelAuthorizationPreApprovalsWhere"
             show-actions-header
             :hide-default-footer="false"
@@ -82,8 +82,8 @@
                   <v-btn
                     class="my-0 ml-0 ml-md-2 mt-2 mt-md-0"
                     color="warning"
-                    small
-                    outlined
+                    size="small"
+                    variant="outlined"
                     @click="unmark(item.id)"
                   >
                     Revert
@@ -107,7 +107,7 @@
                 </template>
               </div>
             </template>
-          </TravelAuthorizationPreApprovalsSimpleDataTable>
+          </TravelAuthorizationPreApprovalsSimpleDataTableServer>
         </v-col>
       </v-row>
 
@@ -122,7 +122,7 @@
         <v-btn
           :key="preApprovalMarkRefreshKey"
           :loading="isSaving"
-          :outlined="!everyTravelAuthorizationPreApprovalMarked"
+          :variant="approveButtonVariant"
           color="success"
           type="submit"
         >
@@ -131,7 +131,7 @@
         <v-btn
           :loading="isSaving"
           color="warning"
-          outlined
+          variant="outlined"
           @click="hide"
         >
           Cancel
@@ -158,10 +158,11 @@ import useTravelAuthorizationPreApprovals, {
   TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
 } from "@/use/use-travel-authorization-pre-approvals"
 
+import EnhancedFileInput from "@/components/common/EnhancedFileInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import VTravelAuthorizationPreApprovalProfilesChip from "@/components/travel-authorization-pre-approvals/VTravelAuthorizationPreApprovalProfilesChip.vue"
 import TravelAuthorizationPreApprovalStatusChip from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalStatusChip.vue"
-import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTableServer.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
 const emit = defineEmits(["approved"])
@@ -227,6 +228,13 @@ const { totalCount: totalTravelAuthorizationPreApprovalsTotalCount } =
   useTravelAuthorizationPreApprovals(travelAuthorizationPreApprovalsQuery)
 
 const everyTravelAuthorizationPreApprovalMarked = ref(false)
+const approveButtonVariant = computed(() => {
+  if (everyTravelAuthorizationPreApprovalMarked.value) {
+    return undefined
+  }
+
+  return "outlined"
+})
 
 watch(
   () => preApprovalMarkRefreshKey.value,
@@ -238,8 +246,13 @@ watch(
 )
 
 async function approve() {
-  if (headerActionsFormCard.value === null) return
-  if (!headerActionsFormCard.value.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   if (!everyTravelAuthorizationPreApprovalMarked.value) {
     showAlert.value = true
@@ -249,7 +262,8 @@ async function approve() {
   isSaving.value = true
 
   const preApprovalsAttributes = Array.from(
-    markedTravelAuthorizationPreApprovalMaps.value.entries().map(([id, status]) => ({ id, status }))
+    markedTravelAuthorizationPreApprovalMaps.value.entries(),
+    ([id, status]) => ({ id, status })
   )
 
   const data = {
@@ -312,7 +326,7 @@ defineExpose({
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

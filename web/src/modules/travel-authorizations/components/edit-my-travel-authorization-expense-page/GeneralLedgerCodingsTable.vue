@@ -4,7 +4,6 @@
     :items="generalLedgerCodings"
     :items-per-page="10"
     :loading="isLoading"
-    class="elevation-2"
   >
     <template #top>
       <GeneralLedgerCodingEditDialog
@@ -16,13 +15,13 @@
         @deleted="emitChangedAndRefresh"
       />
     </template>
-    <template #header.code="{ header }">
+    <template #header.code="{ column }">
       <!-- See https://github.com/icefoganalytics/travel-authorization/issues/156#issuecomment-1890047168 -->
-      <v-tooltip bottom>
-        <template #activator="{ on }">
-          <span v-on="on">
-            {{ header.text }}
-            <v-icon small> mdi-help-circle-outline </v-icon>
+      <v-tooltip location="bottom">
+        <template #activator="{ props: activatorProps }">
+          <span v-bind="activatorProps">
+            {{ column.title }}
+            <v-icon size="small">mdi-help-circle-outline</v-icon>
           </span>
         </template>
         <span>
@@ -39,22 +38,22 @@
     <template #item.actions="{ item }">
       <div class="d-flex justify-end">
         <v-btn
-          color="secondary"
+          variant="outlined"
           @click="showEditDialog(item)"
           >Edit</v-btn
         >
         <v-btn
-          icon
+          icon="mdi-close"
+          size="small"
+          variant="text"
           class="ml-2"
           color="error"
           title="Delete"
           @click="showDeleteDialog(item)"
-        >
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        />
       </div>
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses">Total</td>
@@ -102,9 +101,9 @@ const {
 const totalAmount = computed(() => sumBy(generalLedgerCodings.value, "amount"))
 
 const headers = ref([
-  { text: "G/L code", value: "code" },
-  { text: "Amount", value: "amount" },
-  { text: "", value: "actions" },
+  { title: "G/L code", key: "code" },
+  { title: "Amount", key: "amount" },
+  { title: "", key: "actions" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 

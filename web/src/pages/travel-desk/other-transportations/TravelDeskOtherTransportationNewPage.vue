@@ -3,7 +3,7 @@
     ref="headerActionsFormCard"
     title="New Other Transportation Request"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="createAndReturn"
   >
     <v-row>
@@ -21,7 +21,7 @@
               v-model="travelDeskOtherTransportationAttributes.transportationType"
               label="Transportation Type *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -37,9 +37,9 @@
             <LocationsAutocomplete
               v-model="travelDeskOtherTransportationAttributes.depart"
               label="Departure Location *"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -47,21 +47,21 @@
             <LocationsAutocomplete
               v-model="travelDeskOtherTransportationAttributes.arrive"
               label="Arrival Location *"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
           <v-col cols="12">
-            <DatePicker
+            <StringDateInput
               v-model="travelDeskOtherTransportationAttributes.date"
               label="Travel Date *"
               :picker-date="tripStartDate"
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -81,7 +81,7 @@
             <v-textarea
               v-model="travelDeskOtherTransportationAttributes.additionalNotes"
               label="Additional Information"
-              outlined
+              variant="outlined"
               rows="15"
               clearable
             />
@@ -113,7 +113,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { isNil } from "lodash"
+import { useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"
 import useRouteQuery from "@/use/utils/use-route-query"
@@ -127,7 +128,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 
@@ -169,7 +170,13 @@ const isSaving = ref(false)
 const snack = useSnack()
 
 async function createAndReturn() {
-  if (!headerActionsFormCard.value?.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isSaving.value = true
   try {
@@ -187,13 +194,13 @@ async function createAndReturn() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -202,7 +209,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "New Other Transportation Request",
+    title: "New Other Transportation Request",
     to: {
       name: "travel-desk/other-transportations/TravelDeskOtherTransportationNewPage",
       params: {

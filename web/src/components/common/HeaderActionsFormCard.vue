@@ -2,8 +2,9 @@
   <v-card :elevation="elevation">
     <v-form
       ref="form"
-      :value="value"
-      @input="emit('input', $event)"
+      :model-value="modelValue"
+      :validate-on="validateOn"
+      @update:model-value="emit('update:modelValue', $event)"
       @submit="emit('submit', $event)"
     >
       <v-card-title class="d-flex flex-column flex-md-row justify-md-space-between align-md-end">
@@ -38,7 +39,7 @@ import { ref } from "vue"
 import { isEmpty, isNil } from "lodash"
 
 defineProps({
-  value: {
+  modelValue: {
     type: Boolean,
     default: null,
   },
@@ -67,21 +68,25 @@ defineProps({
     type: [String, Number],
     default: 0,
   },
+  validateOn: {
+    type: String,
+    default: undefined,
+  },
 })
 
-const emit = defineEmits(["input", "submit"])
+const emit = defineEmits(["update:modelValue", "submit"])
 
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 /** @type {import('vue').Ref<InstanceType<typeof VForm> | null>} */
 const form = ref(null)
 
-function validate() {
+async function validate() {
   if (isNil(form.value)) throw new Error("form component not loaded")
 
   return form.value?.validate()
 }
 
-function resetValidation() {
+async function resetValidation() {
   if (isNil(form.value)) throw new Error("form component not loaded")
 
   return form.value?.resetValidation()

@@ -1,7 +1,7 @@
 <template>
   <!-- TODO: add icon for each trip type? -->
   <v-chip
-    outlined
+    variant="outlined"
     v-bind="$attrs"
   >
     {{ formattedStatus }}
@@ -10,11 +10,10 @@
 
 <script setup>
 import { computed } from "vue"
-
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: String,
     required: true,
   },
@@ -23,8 +22,6 @@ const props = defineProps({
 const { t } = useI18n()
 
 const formattedStatus = computed(() => {
-  return t(`travel_authorization.trip_type.${props.value}`, {
-    $default: props.value,
-  })
+  return t(`travel_authorization.trip_type.${props.modelValue}`, props.modelValue)
 })
 </script>

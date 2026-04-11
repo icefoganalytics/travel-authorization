@@ -7,7 +7,7 @@
     v-else
     ref="headerActionsFormCard"
     title="Approvals"
-    lazy-validation
+    validate-on="lazy"
   >
     <v-row>
       <v-col
@@ -29,7 +29,7 @@
           :rules="[required, isInteger]"
           label="Travel Advance *"
           prefix="$"
-          outlined
+          variant="outlined"
           required
         />
       </v-col>
@@ -43,7 +43,7 @@
           v-model="travelAuthorization.preApprovalProfileId"
           :where="travelAuthorizationPreApprovalProfileWhere"
           :filters="travelAuthorizationPreApprovalProfileFilters"
-          outlined
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -56,7 +56,7 @@
           v-model="travelAuthorization.supervisorEmail"
           label="Submit to *"
           :rules="[required]"
-          outlined
+          variant="outlined"
           required
         />
       </v-col>
@@ -70,11 +70,12 @@
 import { computed, onMounted, ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required, isInteger } from "@/utils/validators"
 
 import useCurrentUser from "@/use/use-current-user"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
@@ -124,6 +125,7 @@ const travelAdvanceInDollars = computed({
 })
 
 const headerActionsFormCard = ref<InstanceType<typeof VForm> | null>(null)
+const snack = useSnack()
 
 onMounted(async () => {
   await headerActionsFormCard.value?.resetValidation()
@@ -131,7 +133,13 @@ onMounted(async () => {
 
 async function saveWrapper() {
   if (isNil(headerActionsFormCard.value)) return
-  if (!headerActionsFormCard.value.validate()) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
+
   if (isNil(travelAuthorization.value)) return
 
   await save({
@@ -145,7 +153,12 @@ async function saveWrapper() {
 // Maybe figure out some better pattern for this?
 async function submitWrapper() {
   if (isNil(headerActionsFormCard.value)) return
-  if (!headerActionsFormCard.value.validate()) return
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
+
   if (isNil(travelAuthorization.value)) return
 
   await submit({
@@ -158,6 +171,6 @@ async function submitWrapper() {
 defineExpose({
   save: saveWrapper,
   submit: submitWrapper,
-  validate: () => headerActionsFormCard.value?.validate(),
+  validate: async () => headerActionsFormCard.value?.validate(),
 })
 </script>

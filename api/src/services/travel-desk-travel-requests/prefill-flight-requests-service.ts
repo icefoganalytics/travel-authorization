@@ -54,12 +54,14 @@ export class PrefillFlightRequestsService extends BaseService {
     }
 
     const timePreference = this.determineTimePreference(departureTime)
+    const departureCityUniqueLegacy = `${departureLocation.city} (${departureLocation.province})`
+    const arrivalCityUniqueLegacy = `${arrivalLocation.city} (${arrivalLocation.province})`
 
     const travelDeskFlightRequest = await TravelDeskFlightRequests.CreateService.perform(
       {
         travelRequestId: this.travelDeskTravelRequest.id,
-        departLocation: departureLocation.city,
-        arriveLocation: arrivalLocation.city,
+        departLocation: departureCityUniqueLegacy,
+        arriveLocation: arrivalCityUniqueLegacy,
         datePreference: departureOnAsDate,
         timePreference,
         seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.NO_PREFERENCE,

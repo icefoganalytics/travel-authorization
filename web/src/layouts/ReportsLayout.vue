@@ -26,24 +26,22 @@
 
       <v-row class="mt-4">
         <v-col class="d-flex justify-space-between">
-          <div>
+          <v-badge
+            color="warning"
+            :content="totalActiveFilters"
+            :model-value="hasActiveFilters"
+          >
             <v-btn
               color="primary"
-              outlined
+              variant="outlined"
               @click="showFilters = !showFilters"
             >
-              <v-badge
-                color="warning"
-                :content="totalActiveFilters"
-                :value="totalActiveFilters"
-              >
-                Filters
-                <v-icon right>
-                  {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }}
-                </v-icon>
-              </v-badge>
+              Filters
+              <v-icon end>
+                {{ showFilters ? "mdi-chevron-down" : "mdi-chevron-right" }}
+              </v-icon>
             </v-btn>
-          </div>
+          </v-badge>
           <div
             v-if="isAdmin"
             class="d-flex justify-end"
@@ -51,13 +49,13 @@
             <FlightStatisticsExportToCsvButton
               :filters="filters"
               color="primary"
-              outlined
+              variant="outlined"
             />
 
             <v-btn
               class="ml-2"
               color="primary"
-              outlined
+              variant="outlined"
               @click="openFlightStatisticsPrintDialog"
             >
               Print Report
@@ -69,7 +67,7 @@
             <v-btn
               class="ml-2"
               color="primary"
-              outlined
+              variant="outlined"
               @click="openFlightStatisticsJobsModal"
             >
               Update Reports
@@ -82,14 +80,18 @@
       <FlightStatisticsFiltersCard
         v-if="showFilters"
         v-model="filters"
+        class="mt-2"
       />
 
-      <v-fade-transition>
-        <router-view
-          class="mt-4"
-          :filters="filters"
-        />
-      </v-fade-transition>
+      <router-view v-slot="{ Component }">
+        <v-fade-transition>
+          <component
+            :is="Component"
+            class="mt-4"
+            :filters="filters"
+          />
+        </v-fade-transition>
+      </router-view>
     </v-card-text>
   </v-card>
 </template>
@@ -97,7 +99,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { sumBy } from "lodash"
-import { useRoute } from "vue2-helpers/vue-router"
+import { useRoute } from "vue-router"
 
 import useRouteQuery, { booleanTransformer, jsonTransformer } from "@/use/utils/use-route-query"
 import useBreadcrumbs, { type BreadcrumbItem } from "@/use/use-breadcrumbs"
@@ -147,10 +149,12 @@ const totalActiveFilters = computed(() => {
   )
 })
 
+const hasActiveFilters = computed(() => totalActiveFilters.value > 0)
+
 const breadcrumbs = computed(() => {
   const crumbs: BreadcrumbItem[] = [
     {
-      text: "Reports",
+      title: "Reports",
       to: {
         name: "reports/ReportsTablePage",
       },
@@ -159,7 +163,7 @@ const breadcrumbs = computed(() => {
 
   if (route.name === "reports/ReportsGraphPage") {
     crumbs.push({
-      text: "Graph",
+      title: "Graph",
       to: {
         name: "reports/ReportsGraphPage",
       },
@@ -167,7 +171,7 @@ const breadcrumbs = computed(() => {
     })
   } else if (route.name === "reports/ReportsTablePage") {
     crumbs.push({
-      text: "Table",
+      title: "Table",
       to: {
         name: "reports/ReportsTablePage",
       },

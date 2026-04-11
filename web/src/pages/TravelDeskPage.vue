@@ -1,11 +1,11 @@
 <template>
   <v-card>
-    <v-card-title>
+    <v-card-title class="mb-n16">
       <h2>Travel Desk</h2>
     </v-card-title>
 
     <v-card-text>
-      <TravelDeskTravelRequestsManageDataTable />
+      <TravelDeskTravelRequestsManageDataTableServer />
     </v-card-text>
   </v-card>
 </template>
@@ -13,11 +13,11 @@
 <script setup>
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import TravelDeskTravelRequestsManageDataTable from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsManageDataTable.vue"
+import TravelDeskTravelRequestsManageDataTableServer from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsManageDataTableServer.vue"
 
 useBreadcrumbs([
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },

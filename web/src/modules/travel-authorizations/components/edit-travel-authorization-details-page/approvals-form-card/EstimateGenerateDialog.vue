@@ -3,13 +3,11 @@
     v-model="showDialog"
     max-width="500px"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
-        dark
         :class="buttonClasses"
         :color="buttonColor"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Generate Estimate
       </v-btn>
@@ -52,7 +50,7 @@
 
 <script setup>
 import { ref, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 
 import useSnack from "@/use/use-snack"
 import generateApi from "@/api/travel-authorizations/estimates/generate-api"

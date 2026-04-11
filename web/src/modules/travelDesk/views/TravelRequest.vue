@@ -17,7 +17,7 @@
       <v-toolbar
         class=""
         height="100px"
-        flat
+        elevation="0"
       >
         <v-toolbar-title>
           <b>Travel Requests </b>
@@ -32,7 +32,7 @@
         <TravelerRequests
           :authorized-travels="authorizedTravels"
           :return-to="returnTo"
-          @updateTable="getAuthorizedTravels"
+          @update-table="getAuthorizedTravels"
         />
       </v-card>
     </div>
@@ -41,13 +41,12 @@
 
 <script>
 import { computed } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
-import { TRAVEL_DESK_URL, PROFILE_URL } from "@/urls"
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { TRAVEL_DESK_URL } from "@/urls"
 import http from "@/api/http-client"
-import locationsApi from "@/api/locations-api"
 
 import useCurrentUser from "@/use/use-current-user"
 
@@ -59,7 +58,7 @@ export default {
     TravelerRequests,
   },
   setup() {
-    const { isAdmin } = useCurrentUser()
+    const { currentUser, isAdmin } = useCurrentUser()
 
     const { t } = useI18n()
 
@@ -71,7 +70,10 @@ export default {
       return routeLocation.href
     })
 
+    const department = computed(() => currentUser.value?.department ?? "")
+
     return {
+      department,
       isAdmin,
       t,
       returnTo,
@@ -82,45 +84,15 @@ export default {
       tabs: null,
       authorizedTravels: [],
       loadingData: false,
-      department: "",
     }
   },
   async mounted() {
     this.loadingData = true
-    // await this.getUserAuth();
-    this.department = this.$store.state.auth.department
-    await this.getDestinations()
     await this.getAuthorizedTravels()
     this.loadingData = false
   },
 
   methods: {
-    async getUserAuth() {
-      return http
-        .get(PROFILE_URL)
-        .then((resp) => {
-          this.$store.commit("auth/setUser", resp.data.user)
-        })
-        .catch((e) => {
-          console.log(e)
-        })
-    },
-
-    async getDestinations() {
-      return locationsApi.list().then(({ locations }) => {
-        const formattedLocations = locations.map(({ id, city, province }) => {
-          return {
-            value: id,
-            text: `${city} (${province})`,
-            city,
-            province,
-          }
-        })
-        this.$store.commit("traveldesk/SET_DESTINATIONS", formattedLocations)
-        return formattedLocations
-      })
-    },
-
     async getAuthorizedTravels() {
       this.loadingData = true
       return http
@@ -177,7 +149,7 @@ export default {
       if (authorizedTravel.status != "Approved") return "Authorization"
       if (!authorizedTravel?.travelRequest?.status) return "Travel Approved"
       const { status } = authorizedTravel.travelRequest
-      return this.t(`travel_desk_travel_request.status.${status}`, { $default: status })
+      return this.t(`travel_desk_travel_request.status.${status}`, status)
     },
   },
 }

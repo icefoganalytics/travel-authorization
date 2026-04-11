@@ -233,6 +233,7 @@ export type TravelAuthorizationFiltersOptions = FiltersOptions<{
   isUpcomingTravel: void
   isBeforeTripEnd: void
   forTravelDeskTravelRequest: number | string
+  notOwnedByUserId: number
 }>
 
 export type TravelAuthorizationsQueryOptions = QueryOptions<
@@ -282,6 +283,7 @@ export const travelAuthorizationsApi = {
     attributes: TravelAuthorizationCreationAttributes
   ): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
+    policy: Policy
   }> {
     const { data } = await http.patch(
       `/api/travel-authorizations/${travelAuthorizationId}`,

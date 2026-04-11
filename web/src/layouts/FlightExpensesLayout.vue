@@ -38,7 +38,7 @@
         >
           <DateRangeTableFilterDiv
             v-model="dateRange"
-            :loaded.sync="loadedDateRangeTableFilterDiv"
+            v-model:loaded="loadedDateRangeTableFilterDiv"
           />
         </v-col>
         <v-spacer />
@@ -49,7 +49,7 @@
           <SyncWithTravComBtn
             class="my-0"
             :filters="filters"
-            color="secondary"
+            variant="outlined"
             block
             @synced="refresh"
           />

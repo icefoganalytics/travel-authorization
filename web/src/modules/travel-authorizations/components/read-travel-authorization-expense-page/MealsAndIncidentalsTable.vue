@@ -4,7 +4,6 @@
     :items="expenses"
     :items-per-page="10"
     :loading="isLoading"
-    class="elevation-2"
   >
     <template #item.date="{ value }">
       {{ formatDate(value) }}
@@ -12,7 +11,7 @@
     <template #item.cost="{ value }">
       {{ formatCurrency(value) }}
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses"></td>
@@ -48,9 +47,9 @@ const expenseOptions = computed(() => ({
 const { expenses, isLoading } = useExpenses(expenseOptions)
 
 const headers = ref([
-  { text: "Date", value: "date" },
-  { text: "Description", value: "description" },
-  { text: "Amount", value: "cost" },
+  { title: "Date", key: "date" },
+  { title: "Description", key: "description" },
+  { title: "Amount", key: "cost" },
 ])
 
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")

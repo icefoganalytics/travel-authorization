@@ -4,7 +4,6 @@
     :label="label"
     :loading="isLoading"
     v-bind="$attrs"
-    v-on="$listeners"
   />
 </template>
 

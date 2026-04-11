@@ -22,7 +22,7 @@
 import { isEmpty, isNil } from "lodash"
 import { ref } from "vue"
 
-import { type VForm } from "vuetify/lib/components"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 import { expenses } from "@/api"
@@ -49,7 +49,12 @@ const snack = useSnack()
 
 async function uploadFileAndEmit(event: Event) {
   if (isNil(formRef.value)) return
-  if (!formRef.value.validate()) return
+
+  const { valid } = await formRef.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   const target = event.target as HTMLInputElement
   const { files } = target

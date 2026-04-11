@@ -1,21 +1,18 @@
 /// <reference types="vitest" />
 
 import { fileURLToPath, URL } from "node:url"
-import { defineConfig } from "vite"
-import vue2 from "@vitejs/plugin-vue2"
-import Components from "unplugin-vue-components/vite"
-import { VuetifyResolver } from "unplugin-vue-components/resolvers"
 
-// Add @vitejs/plugin-vue2 if you want to test vue files.
+import { defineConfig } from "vite"
+import vue from "@vitejs/plugin-vue"
+import vuetify from "vite-plugin-vuetify"
+
 export default defineConfig({
   plugins: [
-    vue2(),
-
-    // Auto-import Vuetify 2 components/directives (optional)
-    Components({
-      resolvers: [VuetifyResolver()],
-      dts: false, // set to 'src/components.d.ts' once you start TS
-      version: 2.7,
+    vue(),
+    vuetify({
+      autoImport: {
+        labs: true,
+      },
     }),
   ],
   build: {
@@ -31,34 +28,12 @@ export default defineConfig({
   },
   server: {
     port: 8080,
-  },
-  css: {
-    postcss: {
-      plugins: [
-        // Fix vite build includes @charset problem
-        // https://github.com/vitejs/vite/issues/5655
-        {
-          postcssPlugin: "internal:charset-removal",
-          AtRule: {
-            charset: (atRule) => {
-              if (atRule.name === "charset") {
-                atRule.remove()
-              }
-            },
-          },
-        },
-      ],
+    proxy: {
+      // Forward editor-open requests to a host-side bridge so Windsurf launches on the host.
+      "/__open-in-editor": {
+        target: "http://host.docker.internal:3333",
+      },
     },
-    // https://vitejs.dev/config/#css-preprocessoroptions
-    // preprocessorOptions: {
-    //   sass: {
-    //     additionalData: [
-    //       // vuetify variable overrides
-    //       // '@import "@/styles/variables.scss"',
-    //       "",
-    //     ].join("\n"),
-    //   },
-    // },
   },
   test: {
     globals: true, // https://vitest.dev/config/#globals

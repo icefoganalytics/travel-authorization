@@ -46,7 +46,8 @@ document and link to it from here instead of letting this file become a dumping 
 
 - `dev up` - Start all services (API at :3000, web at :8080, mail UI at :1080)
 - `dev down -v` - Stop and wipe database
-- `dev psql` - Access database CLI
+- `dev psql` - Access database CLI (database name: `travel_development`)
+- `dev psql-query "SELECT ..."` - Run a SQL query directly against the dev database
 - `dev test_api` - Run all API tests
 - `dev migrate up` - Run migration
 - `dev migrate down` - Rollback migration
@@ -317,7 +318,37 @@ See `/api/src/config.ts` for complete details.
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
+
+**Commit emoji guidance:**
+
+Format: `:emoji: Verb phrase.` — imperative mood, ends with a period.
+
+- Use `:butterfly:` for database migrations and data backfills
+- Use `:bug:` for bug fixes
+- Use `:sparkles:` for new features
+- Use `:recycle:` for structural cleanup or migration-safe refactors that preserve behavior
+- Use `:art:` for theme, styling, or visual changes
+- Use `:cherry_blossom:` for UI polish and cosmetic improvements — **never use `:lipstick:`**
+- Use `:wrench:` for config and settings changes
+- Use `:memo:` for documentation and plan updates
+- Use `:hammer:` for infrastructure and tooling changes (docker, scripts)
+- Use `:arrow_up:` for dependency, runtime, and version bumps
+- Use `:gear:` for container, workflow, and tooling configuration changes
+- Use `:heavy_minus_sign:` when removing a dependency from the package set
+- Use `:construction:` for intentionally incomplete migration slices that may leave the app broken between commits
 - Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
+
+**Commit body guidance:**
+
+Write in plain English for the next developer reading `git log`. Focus on:
+- What changed (briefly, since the diff shows the how)
+- Why it was needed — the problem being solved
+- What the observable effect is for users or callers
+
+Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
+
+- **Bad:** `the frontend redirects only when policy.show is false after the save`
+- **Good:** `the frontend redirects only when the user can no longer view the document`
 
 **Testing Instructions Format:**
 
@@ -434,9 +465,21 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 
 ### Workflow Design Principles
 
+**Codebase-wide search discipline:**
+- Search for the **method or pattern**, not the variable name — variable names differ per file
+- BAD: `form\.value\.validate` — misses `formRef`, `headerActionsFormCard`, `tripDetailsEstimatesEditForm`, etc.
+- GOOD: `\.validate\(\)` — catches all call sites regardless of ref name
+- When doing a codebase-wide pass, use the most general regex that captures the semantic pattern, then filter false positives manually
+
 **Comprehensive Scoping:**
 - Name workflows for their complete lifecycle (e.g., "pull-request-management" not "pull-request-creation")
 - Cover all related activities: creation, editing, maintenance, and troubleshooting
+
+**Tracked files and permissions:**
+- Do not ask the user for permission to edit or delete a file that is already tracked by git.
+- Do not trigger sandbox approval prompts for normal edits to tracked repository files.
+- Prefer direct repository edits over any escalated command when the target file is inside the git worktree and writable.
+- Only escalate or ask for approval when the action is genuinely outside normal repository editing, such as sandbox restrictions, network access, or destructive operations the user did not request.
 
 **Template/Workflow Separation:**
 - Keep GitHub templates minimal with just structure

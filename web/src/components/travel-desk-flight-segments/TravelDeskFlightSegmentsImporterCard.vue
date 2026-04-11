@@ -11,7 +11,7 @@
             label="Paste Text Here"
             rows="8"
             clearable
-            outlined
+            variant="outlined"
             hide-details
             @keydown.ctrl.enter="parseRawTravelPortalText"
           />

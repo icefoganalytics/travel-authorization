@@ -3,13 +3,11 @@
     v-model="showDialog"
     max-width="500px"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         color="primary"
-        dark
         class="mb-2"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Add Estimate
       </v-btn>
@@ -45,7 +43,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <DatePicker
+              <StringDateInput
                 v-model="estimate.date"
                 :rules="[required]"
                 label="Date"
@@ -90,6 +88,7 @@
 
 <script setup>
 import { ref, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
@@ -100,7 +99,7 @@ import useSnack from "@/use/use-snack"
 import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 
 const emit = defineEmits(["created"])
@@ -122,10 +121,10 @@ const { travelAuthorizationId } = toRefs(props)
 const { isLoading, departureDate, returnDate } =
   useTravelAuthorizationSummary(travelAuthorizationId)
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const formRef = ref(null)
 
-const showDialog = useRouteQuery("showEstimateCreate", false, {
+const showDialog = useRouteQuery("showEstimateCreate", "false", {
   transform: booleanTransformer,
 })
 
@@ -140,8 +139,13 @@ function newEstimate() {
 const snack = useSnack()
 
 async function createAndClose() {
-  if (formRef.value === null) return
-  if (!formRef.value.validate()) return
+  if (isNil(formRef.value)) return
+
+  const { valid } = await formRef.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   try {
     await expensesApi.create(estimate.value)

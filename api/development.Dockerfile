@@ -1,10 +1,10 @@
-FROM node:20.10.0-alpine3.19
+FROM node:20.19.0-alpine3.21
 
 WORKDIR /usr/src/api
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm clean-install
 
 COPY . .
 

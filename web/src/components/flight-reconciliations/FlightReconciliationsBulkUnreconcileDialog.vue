@@ -3,7 +3,7 @@
     v-model="showDialog"
     max-width="400px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-form
       ref="form"
@@ -30,7 +30,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel
@@ -76,7 +76,7 @@ function hide() {
 
 const showDialog = ref(false)
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
 
 watch(
@@ -100,8 +100,11 @@ const isLoading = ref(false)
 const snack = useSnack()
 
 async function updateAndHide() {
-  if (!form.value?.validate()) {
-    snack.error("Please fill in all required fields")
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 

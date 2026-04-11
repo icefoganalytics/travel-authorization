@@ -4,7 +4,6 @@
     :icon="icon"
     :vertical="vertical"
     v-bind="$attrs"
-    v-on="$listeners"
   >
     <div
       class="overflow-auto pa-4 rounded"
@@ -14,7 +13,7 @@
         border: '1px solid #ccc',
       }"
     >
-      <slot>{{ value }}</slot>
+      <slot>{{ modelValue }}</slot>
     </div>
   </DescriptionElement>
 </template>
@@ -43,7 +42,7 @@ const props = defineProps({
   /**
    * The value to display. Not required if using slot content
    */
-  value: {
+  modelValue: {
     /** @type {string | number | boolean | null} */
     type: [String, Number, Boolean],
     default: "",

@@ -16,7 +16,7 @@
       <v-form
         :id="formId"
         ref="form"
-        lazy-validation
+        validate-on="lazy"
         @submit.prevent="save"
       >
         <v-row
@@ -32,14 +32,14 @@
           >
             <!-- TODO: exclude chosen options? -->
             <FlightPreferenceOrderAutocomplete
-              :value="flightOption.flightPreferenceOrder"
+              :model-value="flightOption.flightPreferenceOrder"
               label="Preference"
               :number-of-options="travelDeskFlightOptions.length"
               :rules="[required]"
-              :hide-details="$vuetify.breakpoint.smAndDown"
-              outlined
+              :hide-details="smAndDown"
+              variant="outlined"
               required
-              @input="updateAndswapIfAlreadyInUse(flightOption, $event)"
+              @update:model-value="updateAndswapIfAlreadyInUse(flightOption, $event)"
             />
           </v-col>
 
@@ -61,8 +61,8 @@
               label="Additional Information"
               rows="4"
               :rules="[required]"
-              :hide-details="$vuetify.breakpoint.smAndDown"
-              outlined
+              :hide-details="smAndDown"
+              variant="outlined"
               required
             />
           </v-col>
@@ -76,7 +76,7 @@
         type="submit"
         :loading="isLoading"
         color="primary"
-        outlined
+        variant="outlined"
       >
         Save
       </v-btn>
@@ -86,7 +86,8 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { times, uniqueId } from "lodash"
+import { isNil, times, uniqueId } from "lodash"
+import { useDisplay } from "vuetify"
 
 import { required } from "@/utils/validators"
 import travelDeskFlightOptionsApi, { DOES_NOT_WORK } from "@/api/travel-desk-flight-options-api"
@@ -119,6 +120,7 @@ const travelDeskFlightOptionsQuery = computed(() => ({
 const { travelDeskFlightOptions, isLoading, refresh } = useTravelDeskFlightOptions(
   travelDeskFlightOptionsQuery
 )
+const { smAndDown } = useDisplay()
 
 const formId = uniqueId("travel-desk-flight-option-preference-order-form-")
 
@@ -147,14 +149,17 @@ function updateAndswapIfAlreadyInUse(flightOption, newPreference) {
   flightOption.flightPreferenceOrder = newPreference
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm>>> */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm>>> */
 const form = ref(null)
 
 const snack = useSnack()
 
 async function save() {
-  if (!form.value.validate()) {
-    snack.error("Please fill in all required fields")
+  if (isNil(form.value)) return false
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return false
   }
 

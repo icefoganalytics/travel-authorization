@@ -1,9 +1,9 @@
 <template>
   <v-text-field
     v-bind="$attrs"
-    :value="displayValue"
+    :model-value="displayValue"
     :prefix="prefix"
-    @input="updateValue"
+    @update:model-value="updateValue"
     @blur="formatValue"
     @focus="selectAll"
   ></v-text-field>
@@ -15,24 +15,24 @@ import { nextTick, ref, watch } from "vue"
 
 const props = withDefaults(
   defineProps<{
-    value?: number | string
+    modelValue?: number | string
     prefix?: string
   }>(),
   {
-    value: 0,
+    modelValue: 0,
     prefix: "$",
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: number): void
+  (event: "update:modelValue", value: number): void
 }>()
 
-const rawValue = ref<number | string>(props.value)
+const rawValue = ref<number | string>(props.modelValue)
 const displayValue = ref("")
 
 watch(
-  () => props.value,
+  () => props.modelValue,
   (newValue) => {
     rawValue.value = newValue
     displayValue.value = buildFormattedDisplayValue(newValue)
@@ -42,18 +42,18 @@ watch(
   }
 )
 
-function updateValue(value: string) {
-  displayValue.value = value
+function updateValue(value: string | null) {
+  displayValue.value = value ?? ""
 
-  const numericValue = parseFloat(value)
+  const numericValue = parseFloat(value ?? "")
   if (isNaN(numericValue)) {
     rawValue.value = ""
-    emit("input", 0)
+    emit("update:modelValue", 0)
     return
   }
 
   rawValue.value = numericValue
-  emit("input", numericValue)
+  emit("update:modelValue", numericValue)
 }
 
 function showRawValue() {

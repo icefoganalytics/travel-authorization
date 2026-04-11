@@ -10,15 +10,12 @@
     v-else
     :color="isInPostSaveStateTemporarily ? 'success' : 'primary'"
     :class="{ pulse: isInPostSaveStateTemporarily }"
-    outlined
-    fab
-    x-small
+    variant="outlined"
+    :icon="icon"
+    size="x-small"
     :title="title"
     v-bind="$attrs"
-    v-on="$listeners"
-  >
-    <v-icon size="18">{{ icon }}</v-icon>
-  </v-btn>
+  />
 </template>
 
 <script setup>

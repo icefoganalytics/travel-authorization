@@ -4,14 +4,13 @@
       v-model="addNewTravelDialog"
       persistent
     >
-      <template #activator="{ on, attrs }">
+      <template #activator="{ props: activatorProps }">
         <v-btn
           style="width: 80%"
           class="mr-5 my-2"
           color="primary"
-          v-bind="attrs"
+          v-bind="activatorProps"
           @click="initForm"
-          v-on="on"
         >
           <div v-if="type == 'Submit'">Submit Travel Desk Request</div>
           <div v-else-if="type == 'Review'">Review Travel Options</div>
@@ -79,7 +78,7 @@
                             class="mt-5 mr-5"
                             :readonly="readonly"
                             label="Additional Information"
-                            outlined
+                            variant="outlined"
                             auto-grow
                             counter
                             :clearable="!readonly"
@@ -117,7 +116,7 @@
                     readonly
                     class="mr-2"
                     label="Travel Desk Agent Assigned"
-                    outlined
+                    variant="outlined"
                   />
                 </v-col>
               </v-row>
@@ -131,7 +130,7 @@
 
         <v-card-actions>
           <v-btn
-            color="grey darken-5"
+            color="secondary"
             class="px-5"
             @click="addNewTravelDialog = false"
           >
@@ -141,7 +140,7 @@
           <v-btn
             v-if="type"
             class="ml-auto mr-2 px-5"
-            color="green darken-1"
+            color="success"
             :loading="savingData"
             @click="saveNewTravelRequest('save')"
             >Save Draft
@@ -149,7 +148,7 @@
           <v-btn
             v-if="type"
             class="mr-5 px-5"
-            color="brown darken-1"
+            color="primary"
             :loading="savingData"
             @click="saveNewTravelRequest('submit')"
             >Submit
@@ -204,6 +203,7 @@ export default {
       default: undefined,
     },
   },
+  emits: ["updateTable"],
   // NOTE: this is component is now more of a concept sketch than a functional component.
   // Needs full rebuild and rework with new concepts.
   // Will need to build a travel desk travel request in draft form, before being able to edit it with

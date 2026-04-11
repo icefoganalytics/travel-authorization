@@ -2,7 +2,7 @@ import { reactive, toRefs, unref, watch, type Ref } from "vue"
 import { isUndefined } from "lodash"
 
 export type BreadcrumbItem = {
-  text: string
+  title: string
   to?: {
     name: string
     params?: Record<string, unknown>
@@ -11,7 +11,7 @@ export type BreadcrumbItem = {
 }
 
 const BASE_CRUMB: BreadcrumbItem = {
-  text: "Dashboard",
+  title: "Dashboard",
   to: {
     name: "DashboardPage",
   },

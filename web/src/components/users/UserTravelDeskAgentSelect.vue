@@ -1,12 +1,11 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="usersDisplayNames"
     :label="label"
     :loading="isLoading"
     v-bind="$attrs"
-    @input="emit('input', $event)"
-    v-on="$listeners"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -18,13 +17,13 @@ import useUsers, { type UserFiltersOptions, type UserWhereOptions } from "@/use/
 
 withDefaults(
   defineProps<{
-    value?: string | null
+    modelValue?: string | null
     label?: string
     where?: UserWhereOptions
     filters?: UserFiltersOptions
   }>(),
   {
-    value: null,
+    modelValue: null,
     label: "Travel Desk Agent",
     where: () => ({}),
     filters: () => ({}),
@@ -33,11 +32,11 @@ withDefaults(
 
 /**
  * @type {{
- *   input: [userDisplayName: string | null]
+ *   "update:modelValue": [userDisplayName: string | null]
  * }}
  */
 const emit = defineEmits<{
-  (event: "input", value: string | null): void
+  (event: "update:modelValue", value: string | null): void
 }>()
 
 const usersQuery = computed(() => ({

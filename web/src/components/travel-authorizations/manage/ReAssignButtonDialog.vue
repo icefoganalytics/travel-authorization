@@ -3,14 +3,13 @@
     v-model="showDialog"
     width="500"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         :loading="isLoading"
         :disabled="isDisabled"
         :class="buttonClasses"
         color="warning"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Re-assign
       </v-btn>
@@ -30,10 +29,10 @@
                 v-model="supervisorEmail"
                 :rules="[required]"
                 label="Re-assign to *"
-                dense
-                outlined
+                density="compact"
+                variant="outlined"
                 required
-                validate-on-blur
+                validate-on="blur"
               />
             </v-col>
           </v-row>
@@ -45,7 +44,7 @@
                 label="Note for the next approver"
                 rows="5"
                 required
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -57,7 +56,7 @@
           <v-spacer></v-spacer>
           <v-btn
             :loading="isLoading"
-            color="secondary"
+            variant="outlined"
             @click="close"
             >Cancel</v-btn
           >
@@ -75,7 +74,8 @@
 
 <script setup>
 import { ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -116,7 +116,13 @@ const snack = useSnack()
 const router = useRouter()
 
 async function reAssignAndClose() {
-  if (!form.value.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isLoading.value = true
   try {

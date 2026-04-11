@@ -9,7 +9,7 @@
       :loading="isLoading"
     >
       <template #item.claimType="{ value }">
-        {{ t(`per_diem.claim_type.${value}`, { $default: value }) }}
+        {{ t(`per_diem.claim_type.${value}`, value) }}
       </template>
       <template #item.yukonAndAlaska="{ item }">
         <template
@@ -53,9 +53,9 @@
 
 <script setup>
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 import { groupBy, mapValues } from "lodash"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { MAX_PER_PAGE } from "@/api/base-api"
 import formatCurrency from "@/utils/format-currency"
 import usePerDiems, { PER_DIEM_CLAIM_TYPES, PER_DIEM_TRAVEL_REGIONS } from "@/use/use-per-diems"
@@ -64,28 +64,28 @@ const { t } = useI18n()
 
 const headers = [
   {
-    text: "",
-    value: "claimType",
+    title: "",
+    key: "claimType",
   },
   {
-    text: "Yukon/Alaska",
-    value: "yukonAndAlaska",
+    title: "Yukon/Alaska",
+    key: "yukonAndAlaska",
   },
   {
-    text: "NWT",
-    value: "nwt",
+    title: "NWT",
+    key: "nwt",
   },
   {
-    text: "Nunavut",
-    value: "nunavut",
+    title: "Nunavut",
+    key: "nunavut",
   },
   {
-    text: "Rest of Canada",
-    value: "restOfCanada",
+    title: "Rest of Canada",
+    key: "restOfCanada",
   },
   {
-    text: "Rest of USA",
-    value: "restOfUsa",
+    title: "Rest of USA",
+    key: "restOfUsa",
   },
 ]
 

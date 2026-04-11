@@ -1,11 +1,10 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="travelMethods"
     :label="label"
     v-bind="$attrs"
-    v-on="$listeners"
-    @input="$emit('input', $event)"
+    @update:model-value="$emit('update:modelValue', $event)"
   />
 </template>
 
@@ -13,7 +12,7 @@
 import { TRAVEL_METHODS } from "@/api/travel-segments-api"
 
 defineProps({
-  value: {
+  modelValue: {
     type: String,
     default: TRAVEL_METHODS.AIRCRAFT,
   },

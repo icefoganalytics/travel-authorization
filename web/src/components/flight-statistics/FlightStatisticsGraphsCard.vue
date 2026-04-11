@@ -14,7 +14,7 @@
           v-model="selectedChart"
           mandatory
           color="primary"
-          @change="resetInterface"
+          @update:model-value="resetInterface"
         >
           <v-btn :value="ChartType.PIE"> Pie </v-btn>
           <v-btn :value="ChartType.BAR"> Bar </v-btn>
@@ -25,14 +25,14 @@
       <v-col cols="8">
         <FlightStatisticsPieChart
           v-if="selectedChart === ChartType.PIE"
-          :key="chartStateBusterKey"
+          :key="`pie-${chartStateBusterKey}`"
           :category-labels="categoryLabels"
           :metric-totals="metricTotalsPerCategory"
           :y-formatter-function="valueFormatter"
         />
         <FlightStatisticsBarChart
           v-else-if="selectedChart === ChartType.BAR"
-          :key="chartStateBusterKey"
+          :key="`bar-${chartStateBusterKey}`"
           :category-labels="categoryLabels"
           :metric-totals="metricTotalsPerCategory"
           :metric-name="selectedDataFilter"
@@ -48,7 +48,7 @@
                 v-for="(dataGroup, dataGroupInx) in DATA_GROUPS"
                 :key="dataGroupInx"
                 v-model="selectedDataGroup"
-                @change="chartStateBusterKey++"
+                @update:model-value="chartStateBusterKey++"
               >
                 <v-radio
                   :value="dataGroup"
@@ -65,7 +65,7 @@
                 v-for="(dataFilter, dataFilterInx) in DATA_FILTERS"
                 :key="dataFilterInx"
                 v-model="selectedDataFilter"
-                @change="chartStateBusterKey++"
+                @update:model-value="chartStateBusterKey++"
               >
                 <v-radio
                   :value="dataFilter"

@@ -3,7 +3,7 @@
     ref="headerActionsFormCard"
     title="New Hotel Request"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="createAndReturn"
   >
     <v-row>
@@ -17,26 +17,26 @@
         />
         <v-row>
           <v-col cols="12">
-            <DatePicker
+            <StringDateInput
               v-model="travelDeskHotelAttributes.checkIn"
               label="Check-in date *"
               :picker-date="tripStartDate"
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
           <v-col cols="12">
-            <DatePicker
+            <StringDateInput
               v-model="travelDeskHotelAttributes.checkOut"
               label="Check-out date *"
               :picker-date="tripStartDate"
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -44,9 +44,9 @@
             <LocationsAutocomplete
               v-model="travelDeskHotelAttributes.city"
               label="City *"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -59,7 +59,7 @@
                 v-model="travelDeskHotelAttributes.isDedicatedConferenceHotelAvailable"
                 label="Dedicated Conference/Meeting Hotel Available?"
                 class="mt-1"
-                @change="resetConferenceFieldsIfNo"
+                @update:model-value="resetConferenceFieldsIfNo"
               />
             </v-col>
           </v-row>
@@ -69,7 +69,7 @@
                 v-model="travelDeskHotelAttributes.conferenceName"
                 :rules="[required]"
                 label="Event Name *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -78,7 +78,7 @@
                 v-model="travelDeskHotelAttributes.conferenceHotelName"
                 label="Hotel Name *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -100,7 +100,7 @@
             <v-textarea
               v-model="travelDeskHotelAttributes.additionalInformation"
               label="Additional Information"
-              outlined
+              variant="outlined"
               rows="20"
               clearable
             />
@@ -132,7 +132,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 import useRouteQuery from "@/use/utils/use-route-query"
@@ -143,13 +144,12 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import { isNil } from "lodash"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string
@@ -207,7 +207,13 @@ function resetConferenceFieldsIfNo(value: boolean) {
 }
 
 async function createAndReturn() {
-  if (!headerActionsFormCard.value?.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   if (travelDeskHotelAttributes.value.isDedicatedConferenceHotelAvailable === false) {
     travelDeskHotelAttributes.value.conferenceName = undefined
@@ -230,13 +236,13 @@ async function createAndReturn() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -245,7 +251,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "New Hotel Request",
+    title: "New Hotel Request",
     to: {
       name: "travel-desk/hotels/TravelDeskHotelNewPage",
       params: {

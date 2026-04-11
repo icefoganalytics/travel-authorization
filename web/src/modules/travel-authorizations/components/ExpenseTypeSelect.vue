@@ -1,12 +1,12 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="expenseTypes"
     label="Expense Type"
-    dense
-    outlined
+    density="compact"
+    variant="outlined"
     v-bind="$attrs"
-    @input="input"
+    @update:model-value="updateModelValue"
   ></v-select>
 </template>
 
@@ -15,7 +15,7 @@ import { ExpenseExpenseTypes } from "@/api/expenses-api"
 
 withDefaults(
   defineProps<{
-    value: string | null | undefined
+    modelValue: ExpenseExpenseTypes | null | undefined
     expenseTypes?: ExpenseExpenseTypes[]
   }>(),
   {
@@ -24,10 +24,10 @@ withDefaults(
 )
 
 const emit = defineEmits<{
-  (event: "input", value: string | null): void
+  (event: "update:modelValue", value: ExpenseExpenseTypes | null): void
 }>()
 
-function input(value: string | null) {
-  emit("input", value)
+function updateModelValue(value: ExpenseExpenseTypes | null) {
+  emit("update:modelValue", value)
 }
 </script>

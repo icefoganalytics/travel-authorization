@@ -8,7 +8,7 @@
     </v-card-title>
     <v-card-text>
       <!-- TODO: add ability to filter by travel authorization -->
-      <ExpensesProcessingDataTable
+      <ExpensesProcessingDataTableServer
         ref="expensesProcessingDataTable"
         route-query-suffix="Expenses"
         @approved="emit('updated')"
@@ -22,13 +22,13 @@
 import { ref } from "vue"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import ExpensesProcessingDataTable from "@/components/expenses/ExpensesProcessingDataTable.vue"
+import ExpensesProcessingDataTableServer from "@/components/expenses/ExpensesProcessingDataTableServer.vue"
 
 const emit = defineEmits<{
   (event: "updated"): void
 }>()
 
-const expensesProcessingDataTable = ref<InstanceType<typeof ExpensesProcessingDataTable> | null>(
+const expensesProcessingDataTable = ref<InstanceType<typeof ExpensesProcessingDataTableServer> | null>(
   null
 )
 

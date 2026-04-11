@@ -1,11 +1,10 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :label="label"
     :items="locationTypeOptions"
     v-bind="$attrs"
-    @input="emit('input', $event)"
-    v-on="$listeners"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -16,34 +15,34 @@ import { TravelDeskRentalCarLocationTypes } from "@/api/travel-desk-rental-cars-
 
 withDefaults(
   defineProps<{
-    value?: string | null
+    modelValue?: string | null
     label?: string
   }>(),
   {
-    value: null,
+    modelValue: null,
     label: "Location Type",
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: string): void
+  (event: "update:modelValue", value: string | null): void
 }>()
 
 const locationTypeOptions = computed(() => [
   {
-    text: "Airport",
+    title: "Airport",
     value: TravelDeskRentalCarLocationTypes.AIRPORT,
   },
   {
-    text: "Hotel",
+    title: "Hotel",
     value: TravelDeskRentalCarLocationTypes.HOTEL,
   },
   {
-    text: "Downtown",
+    title: "Downtown",
     value: TravelDeskRentalCarLocationTypes.DOWNTOWN,
   },
   {
-    text: "Other",
+    title: "Other",
     value: TravelDeskRentalCarLocationTypes.OTHER,
   },
 ])

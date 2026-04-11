@@ -1,8 +1,6 @@
-import { computed, reactive, toRefs, unref, watch, type Ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { computed, markRaw, reactive, toRefs, unref, watch, type Ref } from "vue"
+import { useRouter, type NavigationFailure } from "vue-router"
 import { cloneDeep, isNil } from "lodash"
-
-import type { VBtn } from "vuetify/lib/components"
 
 import useTravelAuthorization, {
   type TravelAuthorizationAsShow,
@@ -10,9 +8,11 @@ import useTravelAuthorization, {
 } from "@/use/use-travel-authorization"
 
 import MY_TRAVEL_REQUEST_WIZARD_STEPS, {
+  type WizardButtonProps,
   type WizardStep,
 } from "@/use/wizards/my-travel-request-wizard-steps"
-import type { Route } from "vue-router"
+
+type RouterPushResult = Promise<NavigationFailure | void | undefined>
 
 export type UseMyTravelRequestWizard = {
   steps: Ref<WizardStep[]>
@@ -25,13 +25,13 @@ export type UseMyTravelRequestWizard = {
   isLoading: Ref<boolean>
   refresh: () => Promise<TravelAuthorizationAsShow>
 
-  goToStep: (stepName: TravelAuthorizationWizardStepNames) => Promise<Route | undefined>
-  goToPreviousStep: () => Promise<Route>
-  goToNextStep: () => Promise<Route>
+  goToStep: (stepName: TravelAuthorizationWizardStepNames) => RouterPushResult
+  goToPreviousStep: () => RouterPushResult
+  goToNextStep: () => RouterPushResult
 
   setEditableSteps: (stepNames: TravelAuthorizationWizardStepNames[]) => void
-  setBackButtonProps: (vBtnProps: VBtn["props"]) => void
-  setContinueButtonProps: (vBtnProps: VBtn["props"]) => void
+  setBackButtonProps: (vBtnProps: WizardButtonProps) => void
+  setContinueButtonProps: (vBtnProps: WizardButtonProps) => void
 }
 
 export type WizardStepComponentContext = {
@@ -45,11 +45,16 @@ export function useMyTravelRequestWizard(
   travelAuthorizationIdRef: Ref<number | null | undefined>,
   wizardStepNameRef: Ref<string>
 ): UseMyTravelRequestWizard {
+  const steps = Array.from(MY_TRAVEL_REQUEST_WIZARD_STEPS, ({ component, ...wizardStepRest }) => ({
+    ...cloneDeep(wizardStepRest),
+    component: markRaw(component),
+  }))
+
   const state = reactive<{
     steps: WizardStep[]
     isReady: boolean
   }>({
-    steps: cloneDeep(Array.from(MY_TRAVEL_REQUEST_WIZARD_STEPS)),
+    steps,
     isReady: false,
   })
 
@@ -122,7 +127,7 @@ export function useMyTravelRequestWizard(
     })
   }
 
-  async function goToNextStep(): Promise<Route> {
+  async function goToNextStep(): RouterPushResult {
     const travelAuthorizationId = unref(travelAuthorizationIdRef)
     if (isNil(travelAuthorizationId)) {
       throw new Error("travelAuthorizationId is required")
@@ -180,13 +185,13 @@ export function useMyTravelRequestWizard(
     })
   }
 
-  function setBackButtonProps(vBtnProps: VBtn["props"]) {
+  function setBackButtonProps(vBtnProps: WizardButtonProps) {
     if (isNil(currentStep.value)) return
 
     currentStep.value.backButtonProps = vBtnProps
   }
 
-  function setContinueButtonProps(vBtnProps: VBtn["props"]) {
+  function setContinueButtonProps(vBtnProps: WizardButtonProps) {
     if (isNil(currentStep.value)) return
 
     currentStep.value.continueButtonProps = vBtnProps

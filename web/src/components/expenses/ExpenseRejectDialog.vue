@@ -3,7 +3,7 @@
     v-model="showDialog"
     max-width="500px"
     @keydown.esc="close"
-    @input="closeIfFalse"
+    @update:model-value="closeIfFalse"
   >
     <v-skeleton-loader
       v-if="isNil(expenseId) || isNil(expense)"
@@ -37,7 +37,7 @@
         v-model="rejectionNote"
         label="Rejection Note *"
         placeholder="Please provide a reason for rejecting this expense..."
-        outlined
+        variant="outlined"
         rows="3"
         :rules="[required]"
         @keydown.ctrl.enter="rejectAndClose"
@@ -52,7 +52,7 @@
           Reject
         </v-btn>
         <v-btn
-          color="secondary"
+          variant="outlined"
           :loading="isLoading"
           @click="close"
         >
@@ -96,9 +96,13 @@ const snack = useSnack()
 
 async function rejectAndClose() {
   if (isNil(expenseId.value)) return
+  if (isNil(formCardRef.value)) return
 
-  const isValid = formCardRef.value?.validate()
-  if (!isValid) return
+  const { valid } = await formCardRef.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isLoading.value = true
   try {

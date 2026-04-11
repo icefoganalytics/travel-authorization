@@ -8,14 +8,14 @@
     ref="headerActionsFormCard"
     title="Edit Rental Car Request"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="saveAndReturn"
   >
     <template #header-actions>
       <v-btn
         class="my-0"
         color="error"
-        outlined
+        variant="outlined"
         :loading="isDeleting"
         :block="smAndDown"
         @click="deleteAndReturn"
@@ -35,12 +35,12 @@
         />
         <v-row>
           <v-col cols="6">
-            <DatePicker
+            <StringDateInput
               v-model="pickUpDate"
               label="Pick-up date *"
               :disabled="travelDeskRentalCar.matchFlightTimes"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -49,19 +49,19 @@
               v-model="pickUpTime"
               label="Pick-up time *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="6">
-            <DatePicker
+            <StringDateInput
               v-model="dropOffDate"
               label="Drop-off date *"
               :disabled="travelDeskRentalCar.matchFlightTimes"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -70,7 +70,7 @@
               v-model="dropOffTime"
               label="Drop-off time *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -99,8 +99,8 @@
               v-model="travelDeskRentalCar.pickUpCity"
               label="Pick-up City *"
               :rules="[required]"
-              item-value="city"
-              outlined
+              item-value="cityUniqueLegacy"
+              variant="outlined"
               required
             />
           </v-col>
@@ -109,16 +109,16 @@
               v-model="travelDeskRentalCar.pickUpLocation"
               label="Pick-up Location *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
-              @input="resetPickUpLocationOtherUnlessOther"
+              @update:model-value="resetPickUpLocationOtherUnlessOther"
             />
             <v-text-field
               v-if="travelDeskRentalCar.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER"
               v-model="travelDeskRentalCar.pickUpLocationOther"
               label="Other Pick-up Location *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -130,7 +130,7 @@
                 v-model="travelDeskRentalCar.sameDropOffLocation"
                 label="Same Drop-off location?"
                 class="mt-1"
-                @change="resetDropOffLocationStates"
+                @update:model-value="resetDropOffLocationStates"
               />
             </v-col>
           </v-row>
@@ -140,8 +140,8 @@
                 v-model="travelDeskRentalCar.dropOffCity"
                 label="Drop-off City *"
                 :rules="[required]"
-                item-value="city"
-                outlined
+                item-value="cityUniqueLegacy"
+                variant="outlined"
                 required
               />
             </v-col>
@@ -150,9 +150,9 @@
                 v-model="travelDeskRentalCar.dropOffLocation"
                 label="Drop-off Location *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
-                @input="resetDropOffLocationOtherUnlessOther"
+                @update:model-value="resetDropOffLocationOtherUnlessOther"
               />
               <v-text-field
                 v-if="
@@ -162,7 +162,7 @@
                 v-model="travelDeskRentalCar.dropOffLocationOther"
                 label="Other Drop-off Location *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -184,9 +184,9 @@
               v-model="travelDeskRentalCar.vehicleType"
               label="Vehicle Type *"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
-              @input="resetVehicleChangeRationaleIfCompact"
+              @update:model-value="resetVehicleChangeRationaleIfCompact"
             />
           </v-col>
           <v-col
@@ -198,7 +198,7 @@
               label="Reason for Change *"
               hint="Please provide a reason for requesting a vehicle type other than Compact."
               :rules="[required]"
-              outlined
+              variant="outlined"
               persistent-hint
               required
               rows="4"
@@ -208,7 +208,7 @@
             <v-textarea
               v-model="travelDeskRentalCar.additionalNotes"
               label="Additional Information"
-              outlined
+              variant="outlined"
               rows="10"
               clearable
             />
@@ -242,8 +242,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
@@ -258,7 +259,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskRentalCar from "@/use/use-travel-desk-rental-car"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
@@ -268,7 +269,6 @@ import TravelDeskRentalCarLocationTypeSelect from "@/components/travel-desk-rent
 import TravelDeskRentalCarVehicleTypeSelect from "@/components/travel-desk-rental-cars/TravelDeskRentalCarVehicleTypeSelect.vue"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string
@@ -323,18 +323,18 @@ watch(
   { immediate: true }
 )
 
-function resetPickUpLocationOtherUnlessOther(value: string) {
+function resetPickUpLocationOtherUnlessOther(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
 
-  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCar.value.pickUpLocationOther = null
   }
 }
 
-function resetDropOffLocationOtherUnlessOther(value: string) {
+function resetDropOffLocationOtherUnlessOther(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
 
-  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCar.value.dropOffLocationOther = null
   }
 }
@@ -349,10 +349,10 @@ function resetDropOffLocationStates(value: boolean) {
   }
 }
 
-function resetVehicleChangeRationaleIfCompact(value: string) {
+function resetVehicleChangeRationaleIfCompact(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
 
-  if (value === TravelDeskRentalCarVehicleTypes.COMPACT) {
+  if (isNil(value) || value === TravelDeskRentalCarVehicleTypes.COMPACT) {
     travelDeskRentalCar.value.vehicleChangeRationale = null
   }
 }
@@ -363,7 +363,13 @@ const snack = useSnack()
 
 async function saveAndReturn() {
   if (isNil(travelDeskRentalCar.value)) return
-  if (!headerActionsFormCard.value?.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   travelDeskRentalCar.value.pickUpDate = `${pickUpDate.value}T${pickUpTime.value}:00.000Z`
   travelDeskRentalCar.value.dropOffDate = `${dropOffDate.value}T${dropOffTime.value}:00.000Z`
@@ -405,17 +411,17 @@ async function deleteAndReturn() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -424,7 +430,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit Rental Car Request",
+    title: "Edit Rental Car Request",
     to: {
       name: "travel-desk/rental-cars/TravelDeskRentalCarEditPage",
       params: {

@@ -19,39 +19,40 @@
           :items="travelDeskFlightSegmentsAttributesWithId"
           :items-per-page="-1"
           show-select
+          return-object
         >
-          <template #default="{ items, isSelected, select }">
+          <template #default="{ items, isSelected, toggleSelect, selectAll }">
             <div class="d-flex justify-center justify-md-start">
               <v-checkbox
                 label="Select All"
-                :input-value="selectAllValue"
+                :model-value="selectAllValue"
                 :indeterminate="selectAllValue === null"
-                @change="selectAll"
+                @update:model-value="selectAll"
               />
             </div>
             <div
               v-for="(item, index) in items"
-              :key="item.id"
+              :key="item.raw.id"
               class="d-flex flex-column flex-md-row align-center"
             >
               <v-checkbox
-                :input-value="isSelected(item)"
+                :model-value="isSelected(item)"
                 color="primary"
-                @change="($event) => select(item, $event)"
+                @update:model-value="toggleSelect(item)"
               />
               <TravelDeskFlightSegmentEditCard
-                :flight-segment="item"
-                @update:flightSegment="updateFlightSegment($event, index)"
+                class="flex-grow-1"
+                :flight-segment="item.raw"
+                @update:flight-segment="updateFlightSegment($event, index)"
               />
               <v-btn
-                class="ml-2"
+                class="align-self-center align-self-md-start mt-2 ml-md-2"
+                icon="mdi-delete"
+                variant="text"
                 color="error"
                 title="Delete"
-                icon
                 @click="deleteFlightSegment(index)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
+              />
             </div>
           </template>
         </v-data-iterator>
@@ -69,12 +70,11 @@
           :attributes="travelDeskFlightOptionAttributes"
           @created="emitCreatedFlightOptionAndRemoveSelected"
         >
-          <template #activator="{ on, attrs }">
+          <template #activator="{ props: activatorProps }">
             <v-btn
               :disabled="selectedSegments.length == 0"
               color="primary"
-              v-bind="attrs"
-              v-on="on"
+              v-bind="activatorProps"
             >
               Group Selected
             </v-btn>
@@ -85,39 +85,31 @@
   </div>
 </template>
 
-<script>
-export default {
-  model: {
-    prop: "travelDeskFlightSegmentsAttributes",
-    event: "update",
-  },
-}
-</script>
-
 <script setup>
 import { computed, ref, watch } from "vue"
-import { cloneDeep, isEmpty, isEqual } from "lodash"
+import { cloneDeep, isEmpty, isEqual, isNil } from "lodash"
 
 import useSessionStorage from "@/use/utils/use-session-storage"
 
 import TravelDeskFlightSegmentEditCard from "@/components/travel-desk-flight-segments/TravelDeskFlightSegmentEditCard.vue"
 import TravelDeskFlightOptionCreateDialog from "@/components/travel-desk-flight-options/TravelDeskFlightOptionCreateDialog.vue"
 
+const travelDeskFlightSegmentsAttributes = defineModel({
+  type: Array,
+  default: () => [],
+})
+
 const props = defineProps({
-  travelDeskFlightSegmentsAttributes: {
-    type: Array,
-    default: () => [],
-  },
   travelDeskTravelRequestId: {
     type: Number,
     required: true,
   },
 })
 
-const emit = defineEmits(["update", "createdFlightOption"])
+const emit = defineEmits(["update:modelValue", "createdFlightOption"])
 
 const travelDeskFlightSegmentsAttributesWithId = computed(() =>
-  props.travelDeskFlightSegmentsAttributes.map((segment, index) => ({
+  travelDeskFlightSegmentsAttributes.value.map((segment, index) => ({
     id: index,
     ...segment,
   }))
@@ -142,16 +134,6 @@ const selectAllValue = computed(() => {
   }
 })
 
-function selectAll(value) {
-  if (value === true && !isEmpty(selectedSegments.value)) {
-    selectedSegments.value = []
-  } else if (value === false) {
-    selectedSegments.value = []
-  } else {
-    selectedSegments.value = cloneDeep(travelDeskFlightSegmentsAttributesWithId.value)
-  }
-}
-
 function addFlightSegmentAttributes() {
   const flightSegmentAttributes = {
     flightNumber: "",
@@ -166,22 +148,22 @@ function addFlightSegmentAttributes() {
     duration: "",
     status: "",
     class: "",
-    sortOrder: props.travelDeskFlightSegmentsAttributes.length + 1,
+    sortOrder: travelDeskFlightSegmentsAttributes.value.length + 1,
   }
-  emit("update", [flightSegmentAttributes, ...props.travelDeskFlightSegmentsAttributes])
+  emit("update:modelValue", [flightSegmentAttributes, ...travelDeskFlightSegmentsAttributes.value])
 }
 
 function updateFlightSegment(newFlightSegment, index) {
-  const newFlightSegments = cloneDeep(props.travelDeskFlightSegmentsAttributes)
+  const newFlightSegments = cloneDeep(travelDeskFlightSegmentsAttributes.value)
   const { id, ...newFlightSegmentWithoutId } = newFlightSegment
   newFlightSegments[index] = newFlightSegmentWithoutId
-  emit("update", newFlightSegments)
+  emit("update:modelValue", newFlightSegments)
 }
 
 function deleteFlightSegment(index) {
-  const newFlightSegments = cloneDeep(props.travelDeskFlightSegmentsAttributes)
+  const newFlightSegments = cloneDeep(travelDeskFlightSegmentsAttributes.value)
   newFlightSegments.splice(index, 1)
-  emit("update", newFlightSegments)
+  emit("update:modelValue", newFlightSegments)
 }
 
 // Using a watcher rather than a computed property because reactivity breaks
@@ -220,6 +202,10 @@ watch(
 )
 
 function extractDuration(duration) {
+  if (isNil(duration)) {
+    return { hours: 0, minutes: 0 }
+  }
+
   let hours = 0
   let minutes = 0
   const time = duration.match(/\d+/g)
@@ -235,7 +221,7 @@ function extractDuration(duration) {
 }
 
 function deleteSelectedFlightSegments() {
-  const newFlightSegments = cloneDeep(props.travelDeskFlightSegmentsAttributes)
+  const newFlightSegments = cloneDeep(travelDeskFlightSegmentsAttributes.value)
   for (const { id, ...selectedSegmentWithoutId } of selectedSegments.value) {
     const indexOfItemToRemove = newFlightSegments.findIndex((segment) =>
       isEqual(segment, selectedSegmentWithoutId)
@@ -245,7 +231,7 @@ function deleteSelectedFlightSegments() {
     }
   }
 
-  emit("update", newFlightSegments)
+  emit("update:modelValue", newFlightSegments)
   selectedSegments.value = []
 }
 

@@ -4,7 +4,6 @@
     :items="expenses"
     :items-per-page="10"
     :loading="isLoading"
-    class="elevation-2"
   >
     <template #item.date="{ value }">
       {{ formatDate(value) }}
@@ -23,7 +22,7 @@
         >Receipt is missing</span
       >
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td
@@ -59,11 +58,11 @@ const props = defineProps({
 })
 
 const headers = ref([
-  { text: "Expense Type", value: "expenseType" },
-  { text: "Description", value: "description" },
-  { text: "Date", value: "date" },
-  { text: "Amount", value: "cost" },
-  { text: "", value: "actions" },
+  { title: "Expense Type", key: "expenseType" },
+  { title: "Description", key: "description" },
+  { title: "Date", key: "date" },
+  { title: "Amount", key: "cost" },
+  { title: "", key: "actions" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 

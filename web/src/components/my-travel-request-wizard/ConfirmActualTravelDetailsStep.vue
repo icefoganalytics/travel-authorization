@@ -8,7 +8,6 @@
       <TripDetailsActualsEditForm
         ref="tripDetailsActualsEditForm"
         :travel-authorization-id="travelAuthorizationId"
-        v-on="$listeners"
       />
     </v-card-text>
   </v-card>
@@ -53,8 +52,9 @@ const snack = useSnack()
 async function validateAndSave() {
   isLoading.value = true
   try {
-    if (tripDetailsActualsEditForm.value.validate() === false) {
-      snack.error("Please fill in all required fields.")
+    const { valid } = await tripDetailsActualsEditForm.value.validate()
+    if (!valid) {
+      snack.warning("Please fill in all required fields.")
       return false
     }
 

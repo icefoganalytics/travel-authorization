@@ -2,7 +2,6 @@
   <v-btn
     v-bind="$attrs"
     :loading="isLoading"
-    v-on="$listeners"
     @click="exportToCsv"
   >
     <template #default>
@@ -13,11 +12,11 @@
 
 <script setup>
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 import { ExportToCsv } from "export-to-csv"
 import { isNil, isEmpty } from "lodash"
 import { DateTime } from "luxon"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import useTravelDeskTravelRequests, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
 } from "@/use/use-travel-desk-travel-requests"
@@ -108,8 +107,6 @@ function determineStatus(status, travelDeskOfficer) {
     return "Not Started"
   }
 
-  return t(`travel_desk_travel_request.status.${status}`, {
-    $default: status,
-  })
+  return t(`travel_desk_travel_request.status.${status}`, status)
 }
 </script>

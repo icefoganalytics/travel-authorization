@@ -2,10 +2,11 @@
   <div>
     <div class="d-flex flex-column flex-md-row">
       <StateStepper
-        class="flex-shrink-0"
+        class="flex-shrink-0 border"
         :steps="steps"
         :step-name="stepName"
-        @update:stepName="goToStep"
+        elevation="0"
+        @update:step-name="goToStep"
       />
       <div class="ml-md-2 flex-grow-1">
         <v-card class="default">
@@ -28,22 +29,22 @@
               :step-title="currentStep.title"
               :step-subtitle="currentStep.subtitle"
               :return-to="returnTo"
-              @update:travelPurposeId="
+              @update:travel-purpose-id="
                 updateTravelAuthorizationSummary({
                   travelPurposeId: $event,
                 })
               "
-              @update:finalDestinationLocationId="
+              @update:final-destination-location-id="
                 updateTravelAuthorizationSummary({
                   finalDestinationLocationId: $event,
                 })
               "
-              @update:departureDate="
+              @update:departure-date="
                 updateTravelAuthorizationSummary({
                   departureDate: $event,
                 })
               "
-              @update:returnDate="
+              @update:return-date="
                 updateTravelAuthorizationSummary({
                   returnDate: $event,
                 })
@@ -57,7 +58,7 @@
             />
             <div
               v-else
-              class="d-flex flex-column flex-md-row"
+              class="d-flex flex-column flex-md-row mt-4"
             >
               <ConditionalTooltipButton
                 ref="continueButton"
@@ -72,7 +73,7 @@
                 {{ currentStep.continueButtonText || "Continue" }}
               </ConditionalTooltipButton>
               <ConditionalTooltipButton
-                class="ml-0 ml-md-3"
+                class="ml-0 ml-md-3 mt-3 mt-md-0"
                 v-bind="{
                   color: 'secondary',
                   tooltipText: 'Not available',
@@ -111,7 +112,7 @@ export type WizardStepComponent = {
 
 <script setup lang="ts">
 import { computed, ref, toRefs, watch } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil, isEmpty, isString } from "lodash"
 
 import { TravelAuthorizationWizardStepNames } from "@/api/travel-authorizations-api"
@@ -238,22 +239,22 @@ const returnTo = computed(() => {
 
 const breadcrumbs = computed(() => [
   {
-    text: "My Travel Requests",
+    title: "My Travel Requests",
     to: {
       name: "my-travel-requests/MyTravelRequestsPage",
     },
   },
   {
-    text: "Wizard",
+    title: "Wizard",
     disabled: true,
   },
   isNil(currentStep.value?.id)
     ? {
-        text: "loading ...",
+        title: "loading ...",
         disabled: true,
       }
     : {
-        text: currentStep.value.subtitle,
+        title: currentStep.value.subtitle,
         to: {
           name: "my-travel-requests/MyTravelRequestWizardPage",
           params: {

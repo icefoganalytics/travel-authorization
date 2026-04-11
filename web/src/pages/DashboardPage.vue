@@ -7,6 +7,7 @@
       <v-card-text>
         <v-row>
           <v-col>
+            <!-- TODO: this card should show the current/recent trip information; currently it's just a placeholder -->
             <v-card>
               <v-col>
                 <v-row>
@@ -21,29 +22,31 @@
                 </v-row>
                 <v-row>
                   <v-col>
-                    <DatePicker
+                    <StringDateInput
+                      v-model="startDate"
                       label="Start Date"
-                      dense
-                    ></DatePicker>
+                      density="compact"
+                    />
                   </v-col>
                   <v-col>
                     <TimeTextField
                       label="Start Time (24 hour)"
-                      dense
+                      density="compact"
                     />
                   </v-col>
                 </v-row>
                 <v-row>
                   <v-col>
-                    <DatePicker
+                    <StringDateInput
+                      v-model="endDate"
                       label="End Date"
-                      dense
-                    ></DatePicker>
+                      density="compact"
+                    />
                   </v-col>
                   <v-col>
                     <TimeTextField
                       label="End Time (24 hour)"
-                      dense
+                      density="compact"
                     />
                   </v-col>
                 </v-row>
@@ -51,9 +54,9 @@
                   <v-col>
                     <v-text-field
                       v-model="daysOffTravel"
-                      dense
+                      density="compact"
                       label="# of days off travel"
-                      prepend-icon="mdi-hail"
+                      prepend-inner-icon="mdi-hail"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -71,14 +74,14 @@
             >
               <template #item.actions="{ item }">
                 <v-icon
-                  small
+                  size="small"
                   class="mr-2"
                   @click="editItem(item)"
                 >
                   mdi-pencil
                 </v-icon>
                 <v-icon
-                  small
+                  size="small"
                   @click="deleteItem(item)"
                 >
                   mdi-delete
@@ -92,7 +95,7 @@
         </v-row>
         <v-btn
           color="blue"
-          small
+          size="small"
           @click="saveChanges"
           >Save Changes</v-btn
         >
@@ -158,7 +161,7 @@ import { v4 as uuidv4 } from "uuid"
 import http from "@/api/http-client"
 import { FORM_URL } from "@/urls"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
 import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
 
@@ -169,80 +172,82 @@ export default {
   components: {
     AddReceiptButtonForm,
     CreateTravelAuthorizationButton,
-    DatePicker,
+    StringDateInput,
     TimeTextField,
   },
   data: () => ({
+    startDate: null,
+    endDate: null,
     daysOffTravel: 1,
     data: {},
     headers: [
       {
-        text: "Purpose",
-        value: "purpose",
+        title: "Purpose",
+        key: "purpose",
       },
       {
-        text: "Departure Date",
-        value: "departureDate",
+        title: "Departure Date",
+        key: "departureDate",
       },
       {
-        text: "Return Date",
-        value: "dateBackToWork",
+        title: "Return Date",
+        key: "dateBackToWork",
       },
       {
-        text: "Status",
-        value: "status",
+        title: "Status",
+        key: "status",
       },
     ],
     expenseHeaders: [
       {
-        text: "Type",
-        value: "type",
+        title: "Type",
+        key: "type",
       },
       {
-        text: "Description",
-        value: "description",
+        title: "Description",
+        key: "description",
       },
       {
-        text: "Date",
-        value: "date",
+        title: "Date",
+        key: "date",
       },
       {
-        text: "Amount",
-        value: "cost",
+        title: "Amount",
+        key: "cost",
       },
       {
-        text: "Actions",
-        value: "actions",
+        title: "Actions",
+        key: "actions",
       },
       {
-        text: "Receipts",
-        value: "receipts",
+        title: "Receipts",
+        key: "receipts",
       },
     ],
     travelAuthHeaders: [
       {
-        text: "Location",
-        value: "location",
+        title: "Location",
+        key: "location",
       },
       {
-        text: "Description",
-        value: "description",
+        title: "Description",
+        key: "description",
       },
       {
-        text: "Start Date",
-        value: "date",
+        title: "Start Date",
+        key: "date",
       },
       {
-        text: "End Date",
-        value: "cost",
+        title: "End Date",
+        key: "cost",
       },
       {
-        text: "Auth Status",
-        value: "actions",
+        title: "Auth Status",
+        key: "actions",
       },
       {
-        text: "Booking Status",
-        value: "receipts",
+        title: "Booking Status",
+        key: "receipts",
       },
     ],
     forms: [],
@@ -257,8 +262,8 @@ export default {
         this.forms = resp.data
       })
     },
-    openForm(value) {
-      this.$router.push(`/TravelRequest/Request/${value.formId}`)
+    openForm(_event, { item }) {
+      this.$router.push(`/TravelRequest/Request/${item.formId}`)
     },
     createForm() {
       this.$router.push(`/TravelRequest/Request/${uuidv4()}`)

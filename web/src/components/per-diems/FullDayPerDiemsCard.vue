@@ -56,24 +56,24 @@ import usePerDiems, { PER_DIEM_TRAVEL_REGIONS } from "@/use/use-per-diems"
 
 const headers = [
   {
-    text: "Yukon/Alaska",
-    value: "yukonAndAlaska",
+    title: "Yukon/Alaska",
+    key: "yukonAndAlaska",
   },
   {
-    text: "NWT",
-    value: "nwt",
+    title: "NWT",
+    key: "nwt",
   },
   {
-    text: "Nunavut",
-    value: "nunavut",
+    title: "Nunavut",
+    key: "nunavut",
   },
   {
-    text: "Rest of Canada",
-    value: "restOfCanada",
+    title: "Rest of Canada",
+    key: "restOfCanada",
   },
   {
-    text: "Rest of USA",
-    value: "restOfUsa",
+    title: "Rest of USA",
+    key: "restOfUsa",
   },
 ]
 

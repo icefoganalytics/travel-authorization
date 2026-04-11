@@ -9,7 +9,7 @@
     handle=".handle"
     :group="`travel-desk-flight-option-${travelDeskFlightOptionId}-flight-segments`"
     :disabled="isLoading || isReOrdering"
-    @input="reOrderFlightSegments"
+    @update:model-value="reOrderFlightSegments"
   >
     <transition-group>
       <v-row
@@ -51,6 +51,8 @@
 </template>
 
 <script setup>
+import { VueDraggableNext as Draggable } from "vue-draggable-next"
+
 import { computed, ref } from "vue"
 
 import reOrderFlightSegmentsApi from "@/api/travel-desk-flight-options/re-order-flight-segments-api"
@@ -58,7 +60,6 @@ import reOrderFlightSegmentsApi from "@/api/travel-desk-flight-options/re-order-
 import useSnack from "@/use/use-snack"
 import useTravelDeskFlightSegments from "@/use/use-travel-desk-flight-segments"
 
-import Draggable from "vuedraggable"
 import TravelDeskFlightSegmentCard from "@/components/travel-desk-flight-segments/TravelDeskFlightSegmentCard.vue"
 
 /** @typedef {import('@/api/travel-desk-flight-segments-api.js').TravelDeskFlightSegment} TravelDeskFlightSegment */

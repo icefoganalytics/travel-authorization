@@ -11,6 +11,8 @@ import http from "@/api/http-client"
  *   externalTravComIdentifier: number;
  *   reconciled: boolean;
  *   reconcilePeriod: number | null;
+ *   segmentsComputedFlightInfo: string | null;
+ *   segmentsComputedFinalDestination: string | null;
  *   createdAt: string;
  *   updatedAt: string;
  * }} FlightReconciliation

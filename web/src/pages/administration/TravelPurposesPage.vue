@@ -10,17 +10,17 @@
 </template>
 
 <script setup>
-import breadcrumbs from "@/use/use-breadcrumbs"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-breadcrumbs([
+useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: {
       name: "AdministrationPage",
     },
   },
   {
-    text: "Travel Purposes",
+    title: "Travel Purposes",
     to: {
       name: "administration/TravelPurposesPage",
     },

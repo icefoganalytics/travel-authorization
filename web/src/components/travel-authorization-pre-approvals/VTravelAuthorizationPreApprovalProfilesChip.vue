@@ -2,7 +2,7 @@
   <!-- TODO: re-write this so that it accepts where/filters and loads the profiles internally? -->
   <v-chip
     ref="chip"
-    outlined
+    variant="outlined"
     link
     v-bind="$attrs"
   >
@@ -12,12 +12,12 @@
     </template>
     <template v-else> {{ travelAuthorizationPreApprovalProfiles[0].profileName }}, ... </template>
 
-    <v-icon right>mdi-menu-down</v-icon>
+    <v-icon end>mdi-menu-down</v-icon>
 
     <v-menu
       :activator="chip?.$el"
       :close-on-content-click="false"
-      offset-y
+      :offset="8"
       transition="scale-transition"
     >
       <v-card>
@@ -25,11 +25,8 @@
           <v-list-item
             v-for="profile in travelAuthorizationPreApprovalProfiles"
             :key="profile.id"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ profile.profileName }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+            :title="profile.profileName"
+          />
         </v-list>
       </v-card>
     </v-menu>
@@ -50,7 +47,7 @@ const travelAuthorizationPreApprovalProfiles = computed(() => {
   return props.travelAuthorizationPreApproval.profiles || []
 })
 
-/** @typedef {import('vuetify/lib/components').VChip} VChip */
+/** @typedef {import('vuetify/components').VChip} VChip */
 /** @type {import('vue').Ref<InstanceType<typeof VChip> | null>} */
 const chip = ref(null)
 </script>

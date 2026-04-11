@@ -1,8 +1,7 @@
 import {
-  fn,
-  literal,
   Model,
   Op,
+  sql,
   type Attributes,
   type FindOptions,
   type WhereOptions,
@@ -35,7 +34,7 @@ export function searchFieldsByTermsFactory<M extends Model>(
     const whereConditions: WhereOptions<M>[] = terms.map((term: string) => {
       const termPattern = `%${term}%`
       const fieldsQuery = fields.map((field) => {
-        return where(fn("LOWER", literal(field)), Op.iLike, termPattern)
+        return where(sql.attribute(field), Op.iLike, termPattern)
       })
 
       return {

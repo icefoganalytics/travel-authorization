@@ -11,7 +11,7 @@
     <template #item.cost="{ value }">
       {{ formatCurrency(value) }}
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses"></td>
@@ -38,10 +38,10 @@ const props = defineProps<{
 }>()
 
 const headers = ref([
-  { text: "Expense Type", value: "expenseType" },
-  { text: "Description", value: "description" },
-  { text: "Date", value: "date" },
-  { text: "Amount", value: "cost" },
+  { title: "Expense Type", key: "expenseType" },
+  { title: "Description", key: "description" },
+  { title: "Date", key: "date" },
+  { title: "Amount", key: "cost" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 

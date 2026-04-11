@@ -12,7 +12,7 @@
               :readonly="!travelDeskUser || readonly"
               :items="questionList"
               label="About"
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -24,8 +24,8 @@
               :readonly="!travelDeskUser || readonly"
               :error="question.state?.questionErr ?? false"
               label="Question"
-              outlined
-              @input="
+              variant="outlined"
+              @update:model-value="
                 question.state = {
                   ...question.state,
                   questionErr: question.state?.questionErr ?? false,
@@ -42,8 +42,8 @@
               :readonly="readonly"
               :error="question.state?.responseErr ?? false"
               label="Response"
-              outlined
-              @input="
+              variant="outlined"
+              @update:model-value="
                 question.state = {
                   ...question.state,
                   questionErr: question.state?.responseErr ?? false,
@@ -58,7 +58,8 @@
 </template>
 
 <script setup>
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
+
 import { TRAVEL_DESK_QUESTION_REQUEST_TYPES } from "@/api/travel-desk-questions-api"
 
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
@@ -75,7 +76,7 @@ defineProps({
 const { t } = useI18n()
 
 const questionList = Object.values(TRAVEL_DESK_QUESTION_REQUEST_TYPES).map((requestType) => ({
-  text: t(`travel_desk_question.request_type.${requestType}`, { $default: requestType }),
+  title: t(`travel_desk_question.request_type.${requestType}`, requestType),
   value: requestType,
 }))
 </script>

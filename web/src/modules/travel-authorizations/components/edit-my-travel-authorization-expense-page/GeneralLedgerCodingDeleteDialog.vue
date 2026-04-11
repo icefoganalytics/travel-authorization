@@ -3,7 +3,7 @@
     v-model="showDialog"
     max-width="500px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-card>
       <v-card-title class="text-h5">
@@ -30,7 +30,7 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
-          color="secondary"
+          variant="outlined"
           :loading="isLoading"
           @click="hide"
           >Cancel</v-btn

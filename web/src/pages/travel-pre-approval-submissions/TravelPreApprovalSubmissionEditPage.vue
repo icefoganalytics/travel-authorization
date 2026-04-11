@@ -20,7 +20,7 @@
 
     <v-row>
       <v-col>
-        <TravelAuthorizationPreApprovalsSimpleDataTable
+        <TravelAuthorizationPreApprovalsSimpleDataTableServer
           ref="travelAuthorizationPreApprovalsSimpleDataTable"
           :where="travelAuthorizationPreApprovalsWhere"
           show-actions-header
@@ -31,7 +31,7 @@
                 <v-btn
                   class="mt-0"
                   color="primary"
-                  outlined
+                  variant="outlined"
                   @click="showAddRequestDialog"
                 >
                   Add Request
@@ -54,7 +54,7 @@
                   },
                 }"
                 color="primary"
-                outlined
+                variant="outlined"
               >
                 Edit
               </v-btn>
@@ -63,7 +63,7 @@
                 class="my-0 ml-3"
                 title="Remove"
                 color="error"
-                outlined
+                variant="outlined"
                 @click="
                   removeTravelAuthorizationPreApprovalFromSubmission(
                     travelAuthorizationPreApprovalSubmissionId,
@@ -75,13 +75,13 @@
               </v-btn>
             </div>
           </template>
-        </TravelAuthorizationPreApprovalsSimpleDataTable>
+        </TravelAuthorizationPreApprovalsSimpleDataTableServer>
       </v-col>
     </v-row>
 
     <template #actions>
       <v-btn
-        color="secondary"
+        variant="outlined"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalSubmissionsPage',
         }"
@@ -101,7 +101,7 @@
 
 <script setup>
 import { computed, ref, toRefs } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
@@ -115,7 +115,7 @@ import useTravelAuthorizationPreApprovals from "@/use/use-travel-authorization-p
 import useTravelAuthorizationPreApprovalSubmission from "@/use/use-travel-authorization-pre-approval-submission"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
-import TravelAuthorizationPreApprovalsSimpleDataTable from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTable.vue"
+import TravelAuthorizationPreApprovalsSimpleDataTableServer from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsSimpleDataTableServer.vue"
 import TravelAuthorizationsPreApprovalSubmissionAddRequestDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionAddRequestDialog.vue"
 
 const props = defineProps({
@@ -234,7 +234,7 @@ async function deleteTravelAuthorizationPreApprovalSubmission() {
   }
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsSimpleDataTable> | nul>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalsSimpleDataTableServer> | nul>} */
 const travelAuthorizationPreApprovalsSimpleDataTable = ref(null)
 
 async function refresh() {
@@ -244,13 +244,13 @@ async function refresh() {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approval Submissions",
+    title: "Travel Pre-Approval Submissions",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
     },
   },
   {
-    text: "Submission",
+    title: "Submission",
     to: {
       name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionPage",
       params: {
@@ -260,7 +260,7 @@ useBreadcrumbs([
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage",
       params: {
@@ -273,7 +273,7 @@ useBreadcrumbs([
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

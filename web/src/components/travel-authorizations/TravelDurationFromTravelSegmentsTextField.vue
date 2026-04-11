@@ -1,32 +1,23 @@
 <template>
-  <v-tooltip bottom>
-    <template #activator="{ on, attrs }">
+  <v-tooltip location="bottom">
+    <template #activator="{ props: activatorProps }">
       <div
         class="d-flex align-start"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         <v-text-field
-          :value="value"
+          :model-value="modelValue"
           :style="{ minWidth: '80px' }"
           label="Travel Days"
-          dense
-          outlined
+          density="compact"
+          variant="outlined"
           disabled
           readonly
           v-bind="$attrs"
-          v-on="$listeners"
-          ><template
-            v-for="(_, slotName) in $scopedSlots"
-            #[slotName]="slotData"
-            ><slot
-              :name="slotName"
-              v-bind="slotData"
-            ></slot></template
-        ></v-text-field>
+        />
         <v-icon
           class="ml-1"
-          small
+          size="small"
         >
           mdi-help-circle-outline
         </v-icon>
@@ -42,7 +33,7 @@ import { DateTime } from "luxon"
 import { cloneDeep, findLast, isNil, max } from "lodash"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Number,
     default: () => 0,
   },
@@ -52,7 +43,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 watch(
   () => cloneDeep(props.travelSegments),
@@ -66,7 +57,7 @@ watch(
     ).departureOn
 
     const travelDuration = computeTravelDuration(initialDepartureDate, finalDepartureDate)
-    emit("input", travelDuration)
+    emit("update:modelValue", travelDuration)
   },
   {
     deep: true,

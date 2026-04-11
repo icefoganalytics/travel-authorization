@@ -8,14 +8,14 @@
     ref="headerActionsFormCard"
     title="Edit Hotel Request"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="saveAndReturn"
   >
     <template #header-actions>
       <v-btn
         class="my-0"
         color="error"
-        outlined
+        variant="outlined"
         :loading="isDeleting"
         :block="smAndDown"
         @click="deleteAndReturn"
@@ -35,26 +35,26 @@
         />
         <v-row>
           <v-col cols="12">
-            <DatePicker
+            <StringDateInput
               v-model="travelDeskHotel.checkIn"
               label="Check-in date *"
               :picker-date="tripStartDate"
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
           <v-col cols="12">
-            <DatePicker
+            <StringDateInput
               v-model="travelDeskHotel.checkOut"
               label="Check-out date *"
               :picker-date="tripStartDate"
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -62,9 +62,9 @@
             <LocationsAutocomplete
               v-model="travelDeskHotel.city"
               label="City *"
-              item-value="city"
+              item-value="cityUniqueLegacy"
               :rules="[required]"
-              outlined
+              variant="outlined"
               required
             />
           </v-col>
@@ -77,7 +77,7 @@
                 v-model="travelDeskHotel.isDedicatedConferenceHotelAvailable"
                 label="Dedicated Conference/Meeting Hotel Available?"
                 class="mt-1"
-                @change="resetConferenceFieldsIfNo"
+                @update:model-value="resetConferenceFieldsIfNo"
               />
             </v-col>
           </v-row>
@@ -87,7 +87,7 @@
                 v-model="travelDeskHotel.conferenceName"
                 :rules="[required]"
                 label="Event Name *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -96,7 +96,7 @@
                 v-model="travelDeskHotel.conferenceHotelName"
                 :rules="[required]"
                 label="Hotel Name *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -118,7 +118,7 @@
             <v-textarea
               v-model="travelDeskHotel.additionalInformation"
               label="Additional Information"
-              outlined
+              variant="outlined"
               rows="20"
               clearable
             />
@@ -150,8 +150,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 import { required } from "@/utils/validators"
@@ -160,12 +161,11 @@ import useRouteQuery from "@/use/utils/use-route-query"
 import travelDeskHotelsApi from "@/api/travel-desk-hotels-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useSnack from "@/use/use-snack"
 import useTravelDeskHotel from "@/use/use-travel-desk-hotel"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
@@ -210,7 +210,13 @@ function resetConferenceFieldsIfNo(value: boolean) {
 
 async function saveAndReturn() {
   if (isNil(travelDeskHotel.value)) return
-  if (!headerActionsFormCard.value?.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isSaving.value = true
   try {
@@ -246,17 +252,17 @@ async function deleteAndReturn() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -265,7 +271,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit Hotel Request",
+    title: "Edit Hotel Request",
     to: {
       name: "travel-desk/hotels/TravelDeskHotelEditPage",
       params: {

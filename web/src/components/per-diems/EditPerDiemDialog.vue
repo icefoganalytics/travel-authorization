@@ -23,20 +23,20 @@
           <v-row class="mt-5 mx-3">
             <v-col cols="12">
               <v-text-field
-                :value="claimType"
+                :model-value="claimType"
                 label="Claim Type"
-                outlined
+                variant="outlined"
                 readonly
-                append-icon="mdi-lock"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
             <v-col cols="12">
               <v-text-field
-                :value="travelRegion"
+                :model-value="travelRegion"
                 label="Travel Region"
-                outlined
+                variant="outlined"
                 readonly
-                append-icon="mdi-lock"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
             <v-col cols="12">
@@ -46,17 +46,17 @@
                 type="number"
                 :step="perDiem.amount > 1 ? 0.01 : 0.001"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
             <v-col cols="12">
               <v-text-field
-                :value="perDiem.currency"
+                :model-value="perDiem.currency"
                 label="Currency"
-                outlined
+                variant="outlined"
                 readonly
-                append-icon="mdi-lock"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
           </v-row>
@@ -66,14 +66,14 @@
           <v-spacer />
           <v-btn
             :loading="isLoading"
-            color="grey darken-5"
+            color="secondary"
             @click="hide"
           >
             Cancel
           </v-btn>
           <v-btn
             :loading="isLoading"
-            color="green darken-1"
+            color="success"
             type="submit"
           >
             Save
@@ -86,12 +86,12 @@
 
 <script setup>
 import { computed, ref, nextTick, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 import useSnack from "@/use/use-snack"
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import perDiemsApi from "@/api/per-diems-api"
 import usePerDiem from "@/use/use-per-diem"
 
@@ -99,7 +99,7 @@ import usePerDiem from "@/use/use-per-diem"
  * @template [T=any]
  * @typedef {import("vue").Ref<T>} Ref
  */
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 
 const emit = defineEmits(["saved"])
 
@@ -112,13 +112,13 @@ const claimType = computed(() => {
   if (isNil(perDiem.value)) return ""
 
   const { claimType: value } = perDiem.value
-  return t(`per_diem.claim_type.${value}`, { $default: value })
+  return t(`per_diem.claim_type.${value}`, value)
 })
 const travelRegion = computed(() => {
   if (isNil(perDiem.value)) return ""
 
   const { travelRegion: value } = perDiem.value
-  return t(`per_diem.travel_region.${value}`, { $default: value })
+  return t(`per_diem.travel_region.${value}`, value)
 })
 
 const snack = useSnack()
@@ -155,8 +155,11 @@ function hide() {
 }
 
 async function updateAndClose() {
-  if (!form.value?.validate()) {
-    snack("Please fill in all required fields", { color: "error" })
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 
@@ -182,11 +185,11 @@ defineExpose({
 </script>
 
 <style scoped>
-::v-deep(.v-skeleton-loader__list-item) {
+:deep(.v-skeleton-loader__list-item) {
   height: 6rem;
 }
 
-::v-deep(.v-skeleton-loader__text) {
+:deep(.v-skeleton-loader__text) {
   height: 3rem;
 }
 </style>

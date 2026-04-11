@@ -17,7 +17,7 @@
           />
         </div>
 
-        <ExpensesEditDataTable
+        <ExpensesEditDataTableServer
           ref="expensesTable"
           :where="expenseWhere"
           route-query-suffix="Expenses"
@@ -40,7 +40,7 @@
         <TotalsTable
           ref="totalsTable"
           :travel-authorization-id="travelAuthorizationId"
-          class="white"
+          class="bg-white py-4"
         />
       </v-col>
     </v-row>
@@ -85,7 +85,7 @@ import useTravelSegments from "@/use/use-travel-segments"
 
 import ExpenseCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseCreateDialog.vue"
 import ExpensePrefillDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpensePrefillDialog.vue"
-import ExpensesEditDataTable from "@/components/expenses/ExpensesEditDataTable.vue"
+import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
 import GeneralLedgerCodingCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingCreateDialog.vue"
 import GeneralLedgerCodingsTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingsTable.vue"
 import MealsAndIncidentalsTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/MealsAndIncidentalsTable.vue"
@@ -114,7 +114,7 @@ const expenseOptions = computed(() => ({
 const { totalCount, isLoading, refresh } = useExpenses(expenseOptions)
 const hasExpenses = computed(() => isLoading.value === false && totalCount.value > 0)
 
-/** @type {import("vue").Ref<InstanceType<typeof ExpensesEditDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof ExpensesEditDataTableServer> | null>} */
 const expensesTable = ref(null)
 /** @type {import("vue").Ref<InstanceType<typeof MealsAndIncidentalsTable> | null>} */
 const mealsAndIncidentalsTable = ref(null)

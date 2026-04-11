@@ -1,7 +1,7 @@
 <template>
   <DownloadFileForm
     :download-url="downloadUrl"
-    color="secondary"
+    variant="outlined"
     text="View Receipt"
   />
 </template>
