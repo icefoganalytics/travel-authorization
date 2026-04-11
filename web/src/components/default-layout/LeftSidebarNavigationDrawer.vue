@@ -3,6 +3,7 @@
     v-model="showDrawer"
     :rail="showRail"
     mobile-breakpoint="lg"
+    expand-on-hover
   >
     <v-list>
       <v-list-item
