@@ -46,7 +46,8 @@ document and link to it from here instead of letting this file become a dumping 
 
 - `dev up` - Start all services (API at :3000, web at :8080, mail UI at :1080)
 - `dev down -v` - Stop and wipe database
-- `dev psql` - Access database CLI
+- `dev psql` - Access database CLI (database name: `travel_development`)
+- `dev psql-query "SELECT ..."` - Run a SQL query directly against the dev database
 - `dev test_api` - Run all API tests
 - `dev migrate up` - Run migration
 - `dev migrate down` - Rollback migration
