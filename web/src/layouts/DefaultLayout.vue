@@ -30,9 +30,3 @@ function toggleDrawer() {
   leftSidebarNavigationDrawerRef.value?.toggle()
 }
 </script>
-
-<style scoped>
-.h-full {
-  height: 100%;
-}
-</style>
