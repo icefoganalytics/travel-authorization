@@ -23,6 +23,7 @@
           <v-btn
             :loading="isLoading"
             color="primary"
+            block
             @click="triggerScenario(scenario)"
             >{{ scenario }}</v-btn
           >
@@ -31,6 +32,7 @@
           <v-btn
             :loading="isLoading"
             color="primary"
+            block
             @click="syncYgEmployeeGroups"
             >Sync YG Employee Groups</v-btn
           >
@@ -39,6 +41,7 @@
           <v-btn
             :loading="isLoading"
             color="primary"
+            block
             @click="syncYgEmployees"
             >Sync YG Employees</v-btn
           >
