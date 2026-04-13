@@ -3,7 +3,7 @@ import { isNil } from "lodash"
 import { PerDiem } from "@/models"
 import { PerDiemsPolicy } from "@/policies"
 import { UpdateService } from "@/services/per-diems"
-
+import { IndexSerializer } from "@/serializers/per-diems"
 import BaseController from "@/controllers/base-controller"
 
 export class PerDiemsController extends BaseController<PerDiem> {
@@ -25,8 +25,9 @@ export class PerDiemsController extends BaseController<PerDiem> {
         offset: this.pagination.offset,
         order,
       })
+      const serializedPerDiems = IndexSerializer.perform(perDiems, this.currentUser)
       return this.response.status(200).json({
-        perDiems,
+        perDiems: serializedPerDiems,
         totalCount,
       })
     } catch (error) {
