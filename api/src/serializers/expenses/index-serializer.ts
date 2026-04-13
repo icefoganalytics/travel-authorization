@@ -6,7 +6,7 @@ import AttachmentsReferenceSerializer, {
   type AttachmentReferenceView,
 } from "@/serializers/attachments/reference-serializer"
 
-export type ExpenseIndexView = Pick<
+export type ExpenseAsIndex = Pick<
   Expense,
   | "id"
   | "expenseType"
@@ -33,7 +33,7 @@ export class IndexSerializer extends BaseSerializer<Expense> {
     super(record)
   }
 
-  perform(): ExpenseIndexView {
+  perform(): ExpenseAsIndex {
     const { receipt } = this.record
     if (isUndefined(receipt)) {
       throw new Error("Expected receipt association to be pre-loaded")

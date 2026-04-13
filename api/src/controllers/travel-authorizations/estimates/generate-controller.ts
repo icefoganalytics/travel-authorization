@@ -4,6 +4,7 @@ import logger from "@/utils/logger"
 import { Expense, TravelAuthorization } from "@/models"
 import { ExpensesPolicy } from "@/policies"
 import { BulkGenerateService } from "@/services/estimates"
+import { IndexSerializer } from "@/serializers/expenses"
 import BaseController from "@/controllers/base-controller"
 
 export class GenerateController extends BaseController {
@@ -30,8 +31,9 @@ export class GenerateController extends BaseController {
         travelSegmentEstimates,
         daysOffTravelStatusEstimate || 0
       )
+      const serializedEstimates = IndexSerializer.perform(estimates, this.currentUser)
       return this.response.status(201).json({
-        estimates,
+        estimates: serializedEstimates,
         message: "Generated estimates",
       })
     } catch (error) {
