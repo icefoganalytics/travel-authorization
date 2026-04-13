@@ -37,10 +37,18 @@ Before starting, ensure:
 
 ### 1. Update File Extension
 
-Rename `.js` to `.ts`:
+**Important:** A proper TypeScript conversion requires two steps: (1) rename the file from .js to .ts, and (2) update the content from JavaScript + JSDoc to TypeScript. Do not create new .ts files - convert the existing files in place.
+
+Rename `.js` to `.ts` using git mv to preserve file history:
 
 ```bash
 git mv web/src/api/{resource}-api.js web/src/api/{resource}-api.ts
+```
+
+If `git mv` fails (e.g., file already exists), delete the old file after creating the new one:
+
+```bash
+rm web/src/api/{resource}-api.js
 ```
 
 ### 2. Update Imports
@@ -62,6 +70,8 @@ import {
   type WhereOptions,
 } from "@/api/base-api"
 ```
+
+**Note:** Do not import `ModelOrder` - use `QueryOptions` which handles ordering internally.
 
 **Import Selection:**
 
@@ -163,6 +173,8 @@ export type TravelDeskFlightRequestAsShow = TravelDeskFlightRequest
 
 **Note:** Ideally backend should have serializers, but pragmatically you can proceed without them using aliases for flat resources. If the response includes associations or computed nested shapes, add or align backend serializers first so the frontend API type stays grounded in the actual response contract.
 
+**Important:** Place AsIndex and AsShow type definitions immediately after the base type definition, not after query options or other types. This keeps related types together.
+
 **Step 3: Verify backend serializer naming**
 
 If backend uses old naming like `{Resource}IndexView`, rename it to `{Resource}AsIndex` pattern.
@@ -218,6 +230,8 @@ export type TravelDeskHotel = {
 | `null` optional | `T \| null` |
 | Enum | Use the defined enum type |
 
+**Important:** Exclude `deletedAt` from frontend types - it's almost never exposed in API responses and is only used internally for soft deletes.
+
 ---
 
 ### 6. Define Query Option Types
@@ -265,86 +279,16 @@ export type ResourceQueryOptions = QueryOptions<ResourceWhereOptions, ResourceFi
 
 ### 7. Convert API Object Methods
 
-**Before (JS):**
-
-```javascript
-export const resourceApi = {
-  async list({ where, page, perPage, ...otherParams } = {}) {
-    const { data } = await http.get("/api/resources", {
-      params: { where, page, perPage, ...otherParams },
-    })
-    return data
-  },
-  async get(resourceId, params = {}) {
-    const { data } = await http.get(`/api/resources/${resourceId}`, { params })
-    return data
-  },
-  async create(attributes) {
-    const { data } = await http.post("/api/resources", attributes)
-    return data
-  },
-  async update(resourceId, attributes) {
-    const { data } = await http.patch(`/api/resources/${resourceId}`, attributes)
-    return data
-  },
-  async delete(resourceId) {
-    const { data } = await http.delete(`/api/resources/${resourceId}`)
-    return data
-  },
-}
-```
-
-**After (TS):**
-
-```typescript
-export const resourcesApi = {
-  async list(params: ResourceQueryOptions = {}): Promise<{
-    resources: ResourceAsIndex[]
-    totalCount: number
-  }> {
-    const { data } = await http.get("/api/resources", { params })
-    return data
-  },
-
-  async get(resourceId: number): Promise<{
-    resource: ResourceAsShow
-    policy: Policy
-  }> {
-    const { data } = await http.get(`/api/resources/${resourceId}`)
-    return data
-  },
-
-  async create(attributes: Partial<Resource>): Promise<{
-    resource: ResourceAsShow
-    policy: Policy
-  }> {
-    const { data } = await http.post("/api/resources", attributes)
-    return data
-  },
-
-  async update(
-    resourceId: number,
-    attributes: Partial<Resource>
-  ): Promise<{
-    resource: ResourceAsShow
-    policy: Policy
-  }> {
-    const { data } = await http.patch(`/api/resources/${resourceId}`, attributes)
-    return data
-  },
-
-  async delete(resourceId: number): Promise<void> {
-    const { data } = await http.delete(`/api/resources/${resourceId}`)
-    return data
-  },
-}
-```
-
 **Key Changes:**
 
 - Add parameter types
 - Add return type annotations with `Promise<{...}>`
 - Use `params: QueryOptions` for list instead of destructuring
+- `list()` returns `ResourceAsIndex[]`
+- `get()`/`update()` return `ResourceAsShow` with policy
+- `create()` returns `ResourceAsShow` (with policy if applicable)
+
+See workflow: `frontend-api-conversion-example.md` for complete before/after conversion example.
 
 ---
 
@@ -367,6 +311,47 @@ export const resourcesApi = {
 
 ---
 
+### 8. Add Backend Serializers (If Missing)
+
+If the backend controller doesn't have serializers, create them following the pattern from other controllers:
+
+**Create serializer directory:**
+
+```bash
+mkdir -p api/src/serializers/{resource-name}
+```
+
+**Create serializers using templates:**
+
+- Use template: `backend-index-serializer.md` for index-serializer.ts
+- Use template: `backend-show-serializer.md` for show-serializer.ts
+- Use template: `backend-serializer-index.md` for index.ts
+
+**Add bundle export to api/src/serializers/index.ts:**
+
+```typescript
+export * as ResourceName from "./{resource-name}"
+```
+
+**Update controller to use serializers:**
+
+```typescript
+import { IndexSerializer, ShowSerializer } from "@/serializers/{resource-name}"
+
+// In index():
+const serializedResources = IndexSerializer.perform(resources, this.currentUser)
+
+// In show():
+const serializedResource = ShowSerializer.perform(resource, this.currentUser)
+
+// In update():
+const serializedResource = ShowSerializer.perform(resource, this.currentUser)
+```
+
+**Important:** Use `IndexSerializer.perform()` directly on arrays - don't map and call perform on each item. BaseSerializer handles arrays automatically.
+
+---
+
 ### 9. Keep Default Export
 
 ```typescript
@@ -377,264 +362,29 @@ export default resourcesApi
 
 ## Complete Example
 
-**Input:** `travel-desk-rental-cars-api.js`
-
-```javascript
-import http from "@/api/http-client"
-
-export const LOCATION_TYPES = Object.freeze({
-  AIRPORT: "Airport",
-  HOTEL: "Hotel",
-  DOWNTOWN: "Downtown",
-  OTHER: "Other",
-})
-
-export const TRAVEL_DESK_RENTAL_CAR_STATUSES = Object.freeze({
-  REQUESTED: "Requested",
-  RESERVED: "Reserved",
-})
-
-export const VEHICLE_TYPES = Object.freeze({
-  ECONOMY: "Economy",
-  COMPACT: "Compact",
-  // ... more values
-})
-
-export const travelDeskRentalCarsApi = {
-  async list({ where, page, perPage, ...otherParams } = {}) {
-    const { data } = await http.get("/api/travel-desk-rental-cars", {
-      params: { where, page, perPage, ...otherParams },
-    })
-    return data
-  },
-  async get(travelDeskRentalCarId, params = {}) {
-    const { data } = await http.get(`/api/travel-desk-rental-cars/${travelDeskRentalCarId}`, {
-      params,
-    })
-    return data
-  },
-  // ... more methods
-}
-
-export default travelDeskRentalCarsApi
-```
-
-**Output:** `travel-desk-rental-cars-api.ts`
-
-```typescript
-import http from "@/api/http-client"
-import {
-  type FiltersOptions,
-  type Policy,
-  type QueryOptions,
-  type WhereOptions,
-} from "@/api/base-api"
-
-// Step 1: Copy enums from backend model
-
-/** Keep in sync with api/src/models/travel-desk-rental-car.ts */
-export enum TravelDeskRentalCarLocationTypes {
-  AIRPORT = "Airport",
-  HOTEL = "Hotel",
-  DOWNTOWN = "Downtown",
-  OTHER = "Other",
-}
-
-/** @deprecated - prefer enum equivalent `TravelDeskRentalCarLocationTypes` */
-export const LOCATION_TYPES = Object.freeze({
-  AIRPORT: "Airport",
-  HOTEL: "Hotel",
-  DOWNTOWN: "Downtown",
-  OTHER: "Other",
-})
-
-/** Keep in sync with api/src/models/travel-desk-rental-car.ts */
-export enum TravelDeskRentalCarStatuses {
-  REQUESTED = "Requested",
-  RESERVED = "Reserved",
-}
-
-/** @deprecated - prefer enum equivalent `TravelDeskRentalCarStatuses` */
-export const TRAVEL_DESK_RENTAL_CAR_STATUSES = Object.freeze({
-  REQUESTED: "Requested",
-  RESERVED: "Reserved",
-})
-
-/** Keep in sync with api/src/models/travel-desk-rental-car.ts */
-export enum TravelDeskRentalCarVehicleTypes {
-  ECONOMY = "Economy",
-  COMPACT = "Compact",
-  INTERMEDIATE = "Intermediate",
-  STANDARD = "Standard",
-  FULL_SIZE = "Full-Size",
-  INTERMEDIATE_SUV = "Intermediate SUV",
-  LUXURY = "Luxury",
-  MINIVAN = "Minivan",
-  STANDARD_SUV = "Standard SUV",
-  FULL_SIZE_SUV = "Full-Size SUV",
-  PICKUP_TRUCK = "Pickup Truck",
-}
-
-/** @deprecated - prefer enum equivalent `TravelDeskRentalCarVehicleTypes` */
-export const VEHICLE_TYPES = Object.freeze({
-  ECONOMY: "Economy",
-  COMPACT: "Compact",
-  INTERMEDIATE: "Intermediate",
-  STANDARD: "Standard",
-  FULL_SIZE: "Full-Size",
-  INTERMEDIATE_SUV: "Intermediate SUV",
-  LUXURY: "Luxury",
-  MINIVAN: "Minivan",
-  STANDARD_SUV: "Standard SUV",
-  FULL_SIZE_SUV: "Full-Size SUV",
-  PICKUP_TRUCK: "Pickup Truck",
-})
-
-// Step 2: Define AsIndex type (copy from backend or create alias)
-
-// If backend has serializer, copy it:
-/** Keep in sync with api/src/serializers/travel-desk-rental-cars/index-serializer.ts */
-export type TravelDeskRentalCarAsIndex = Pick<
-  TravelDeskRentalCar,
-  | "id"
-  | "travelRequestId"
-  | "pickUpCity"
-  | "pickUpLocation"
-  | "pickUpDate"
-  | "dropOffDate"
-  | "vehicleType"
-  | "status"
-  | "createdAt"
-  | "updatedAt"
->
-
-// If backend has NO serializer, create alias:
-// export type TravelDeskRentalCarAsIndex = TravelDeskRentalCar
-// export type TravelDeskRentalCarAsShow = TravelDeskRentalCar
-
-// Step 3: Define specific policy type for consistency
-export type TravelDeskRentalCarPolicy = Policy
-
-// Step 4: Define base model type for reference and create/update payloads
-
-/** Keep in sync with api/src/models/travel-desk-rental-car.ts */
-export type TravelDeskRentalCar = {
-  id: number
-  travelRequestId: number
-  pickUpCity: string
-  pickUpLocation: string
-  pickUpLocationOther: string | null
-  dropOffCity: string | null
-  dropOffLocation: string | null
-  dropOffLocationOther: string | null
-  sameDropOffLocation: boolean
-  matchFlightTimes: boolean
-  vehicleTypeChangeIndicator: string | null
-  vehicleType: string
-  vehicleChangeRationale: string | null
-  pickUpDate: string
-  dropOffDate: string
-  additionalNotes: string | null
-  status: string
-  reservedVehicleInfo: string | null
-  booking: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-// Step 5: Define query options
-
-export type TravelDeskRentalCarWhereOptions = WhereOptions<
-  TravelDeskRentalCar,
-  | "id"
-  | "travelRequestId"
-  | "pickUpCity"
-  | "pickUpLocation"
-  | "dropOffCity"
-  | "dropOffLocation"
-  | "vehicleType"
-  | "status"
->
-
-/** must match model scopes */
-export type TravelDeskRentalCarFiltersOptions = FiltersOptions<Record<never, never>>
-
-export type TravelDeskRentalCarsQueryOptions = QueryOptions<
-  TravelDeskRentalCarWhereOptions,
-  TravelDeskRentalCarFiltersOptions
->
-
-// Step 5: Define API methods with proper serializer return types
-
-export const travelDeskRentalCarsApi = {
-  TravelDeskRentalCarLocationTypes,
-  TravelDeskRentalCarStatuses,
-  TravelDeskRentalCarVehicleTypes,
-  LOCATION_TYPES,
-  TRAVEL_DESK_RENTAL_CAR_STATUSES,
-  VEHICLE_TYPES,
-
-  async list(params: TravelDeskRentalCarsQueryOptions = {}): Promise<{
-    travelDeskRentalCars: TravelDeskRentalCarAsIndex[]
-    totalCount: number
-  }> {
-    const { data } = await http.get("/api/travel-desk-rental-cars", { params })
-    return data
-  },
-
-  async get(travelDeskRentalCarId: number): Promise<{
-    travelDeskRentalCar: TravelDeskRentalCarAsShow
-    policy: Policy
-  }> {
-    const { data } = await http.get(`/api/travel-desk-rental-cars/${travelDeskRentalCarId}`)
-    return data
-  },
-
-  async create(attributes: Partial<TravelDeskRentalCar>): Promise<{
-    travelDeskRentalCar: TravelDeskRentalCarAsShow
-  }> {
-    const { data } = await http.post("/api/travel-desk-rental-cars", attributes)
-    return data
-  },
-
-  async update(
-    travelDeskRentalCarId: number,
-    attributes: Partial<TravelDeskRentalCar>
-  ): Promise<{
-    travelDeskRentalCar: TravelDeskRentalCarAsShow
-    policy: Policy
-  }> {
-    const { data } = await http.patch(
-      `/api/travel-desk-rental-cars/${travelDeskRentalCarId}`,
-      attributes
-    )
-    return data
-  },
-
-  async delete(travelDeskRentalCarId: number): Promise<void> {
-    const { data } = await http.delete(`/api/travel-desk-rental-cars/${travelDeskRentalCarId}`)
-    return data
-  },
-}
-
-export default travelDeskRentalCarsApi
-```
+See template: `frontend-api-complete-example.md` for a complete before/after conversion example.
 
 ---
 
 ## Checklist
 
-- [ ] File renamed from `.js` to `.ts`
+- [ ] File renamed from `.js` to `.ts` (or old file deleted if git mv fails)
 - [ ] Imports updated with base-api types
+- [ ] ModelOrder NOT imported (use QueryOptions instead)
 - [ ] Object.freeze constants converted to enums
 - [ ] Deprecated comments added to old constants
 - [ ] Backend serializers checked
 - [ ] AsIndex/AsShow types defined (copied from backend or aliased from base model)
+- [ ] AsIndex/AsShow types placed immediately after base type definition
 - [ ] Base model type defined
+- [ ] deletedAt excluded from frontend type (almost never exposed)
 - [ ] Policy type defined: `export type ResourcePolicy = Policy`
 - [ ] WhereOptions defined with filterable fields
 - [ ] FiltersOptions defined (or `Record<never, never>` if none)
 - [ ] QueryOptions defined combining where and filters
+- [ ] Backend serializers created if missing (index-serializer.ts, show-serializer.ts, index.ts)
+- [ ] Bundle export added to api/src/serializers/index.ts
+- [ ] Controller updated to use serializers
 - [ ] `list()` returns `ResourceAsIndex[]`
 - [ ] `get()`, `create()`, `update()` all return `ResourceAsShow`
 - [ ] API method return types use serializer types, not base model
@@ -701,6 +451,15 @@ resourcesApi.list = debounceWithArgsCache(resourcesApi.list, {
 
 ---
 
-**Workflow Version:** 1.2
-**Last Updated:** 2026-01-15
-**Reference Files:** `travel-desk-flight-requests-api.ts`, `travel-desk-hotels-api.ts`, `expenses-api.ts`, `per-diems-api.ts`
+**Workflow Version:** 1.5
+**Last Updated:** 2026-04-13
+**Reference Files:** `travel-desk-flight-requests-api.ts`, `travel-desk-hotels-api.ts`, `expenses-api.ts`, `per-diems-api.ts`, `flight-reconciliations-api.ts`
+
+**Related Templates:**
+- `backend-index-serializer.md` - Index serializer template
+- `backend-show-serializer.md` - Show serializer template
+- `backend-serializer-index.md` - Serializer index file template
+- `frontend-api-typescript-template.md` - TypeScript API file structure template
+
+**Related Workflows:**
+- `frontend-api-conversion-example.md` - Complete before/after conversion example

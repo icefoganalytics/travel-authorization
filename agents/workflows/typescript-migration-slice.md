@@ -1,7 +1,11 @@
-# TypeScript Migration Slice Template
+---
+description: Workflow for planning and executing a batch of JavaScript-to-TypeScript migrations
+auto_execution_mode: 1
+---
 
-Use this template to scope and execute one batch of the remaining JavaScript-to-TypeScript
-migration work.
+# TypeScript Migration Slice Workflow
+
+Use this workflow to scope and execute one batch of the remaining JavaScript-to-TypeScript migration work.
 
 ## Slice Name
 
