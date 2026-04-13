@@ -118,6 +118,8 @@ document and link to it from here instead of letting this file become a dumping 
 
 - Multi-line JSON responses with consistent formatting
 - Return policy information in create/update responses: `{ record, policy }`
+- When create/update/show responses need association data beyond the base model, reload with the
+  required includes and serialize the response instead of returning the raw Sequelize model
 - Structured error logging: ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``
 - Consistent error message format: `"Failed to [action] [resource]: ${error}"`
 
@@ -245,6 +247,8 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 Type-safe API clients in `web/src/api/*-api.ts`
 
 - Export types matching backend models/serializers
+- Prefer explicit `AsIndex` / `AsShow` response types that mirror backend serializers rather than
+  typing list/get/update responses directly as the base model when associations are present
 - Export `WhereOptions`, `FiltersOptions`, `QueryOptions` for query parameters
 - Export API object with methods: `list()`, `get()`, `create()`, `update()`, `delete()`
 - Methods return typed promises

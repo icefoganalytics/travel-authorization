@@ -16,6 +16,7 @@ auto_execution_mode: 1
 - Properly typed API methods with return types using AsIndex/AsShow pattern
 
 **Decision Rule:** When in doubt about a type, check the backend model first (`api/src/models/{model}.ts`), then backend serializers (`api/src/serializers/{model}/`). The frontend types must match what the backend actually returns.
+- **Association rule:** If the frontend response includes related records that are not part of the base model, prefer adding or aligning backend serializers and then mirror those `AsIndex` / `AsShow` shapes in the frontend API file instead of inventing ad hoc nested types locally.
 
 ## Reference Files
 
@@ -160,7 +161,7 @@ export type TravelDeskFlightRequestAsIndex = TravelDeskFlightRequest
 export type TravelDeskFlightRequestAsShow = TravelDeskFlightRequest
 ```
 
-**Note:** Ideally backend should have serializers, but pragmatically you can proceed without them using aliases.
+**Note:** Ideally backend should have serializers, but pragmatically you can proceed without them using aliases for flat resources. If the response includes associations or computed nested shapes, add or align backend serializers first so the frontend API type stays grounded in the actual response contract.
 
 **Step 3: Verify backend serializer naming**
 
@@ -175,6 +176,8 @@ If backend uses old naming like `{Resource}IndexView`, rename it to `{Resource}A
 - `delete()` → Returns `Promise<void>`
 
 **Note:** Always use `AsShow` for get/create/update, even if it's just an alias to the base model.
+When backend create/update actions reload associations and serialize the record, the frontend
+`create()` and `update()` methods should return the serialized `AsShow` type, not the base model.
 
 ---
 

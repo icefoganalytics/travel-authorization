@@ -2,18 +2,16 @@
 
 This directory contains reusable AI-oriented documentation templates for TravelAuth.
 
-## Important
+## Discovering Templates
 
-This file is an index, not the source of truth for template contents.
+Do not rely on a static index here — it goes stale. Instead, list the directory directly:
 
-Agents should use this README to discover relevant templates, then read the actual template file
-directly before acting. Do not rely on this index alone for implementation details.
+```bash
+ls agents/templates/*.md
+```
 
-## Available Templates
-
-| Template | Description |
-| --- | --- |
-| [fishery-factory.md](./fishery-factory.md) | Template and examples for creating TravelAuth test factories with Fishery |
+Then read any template file that looks relevant before acting. The template file itself is the
+authoritative instruction set — do not rely on summaries.
 
 ## Using Templates
 
@@ -24,6 +22,11 @@ Example:
 ```text
 Follow the template in agents/templates/fishery-factory.md
 to add a new factory under api/tests/factories/.
+```
+
+```text
+Use the agents/templates/typescript-migration-slice.md template to
+document the batch of files being converted in this PR.
 ```
 
 See parent [agents/README.md](../README.md) for the broader agents directory overview.
