@@ -8,7 +8,7 @@ Government.
 TravelAuth is built with:
 
 - API: Node.js, Express, TypeScript, Sequelize, Knex, PostgreSQL
-- Web: Vue 2, Vuetify 2, TypeScript, Vite
+- Web: Vue 3, Vuetify 3, TypeScript, Vite
 - Dev environment: Docker Compose with the `dev` wrapper
 - Tests: Vitest with Fishery factories
 

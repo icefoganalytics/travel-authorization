@@ -5,6 +5,7 @@ import logger from "@/utils/logger"
 import { Expense, TravelAuthorization } from "@/models"
 import { ExpensesPolicy } from "@/policies"
 import { PrefillService } from "@/services/expenses"
+import { IndexSerializer } from "@/serializers/expenses"
 import BaseController from "@/controllers/base-controller"
 
 export class PrefillController extends BaseController {
@@ -31,8 +32,9 @@ export class PrefillController extends BaseController {
         travelSegmentActuals,
         daysOffTravelStatusActual || 0
       )
+      const serializedExpenses = IndexSerializer.perform(expenses, this.currentUser)
       return this.response.status(201).json({
-        expenses,
+        expenses: serializedExpenses,
       })
     } catch (error) {
       logger.error(`Failed to prefill expenses: ${error}`, { error })

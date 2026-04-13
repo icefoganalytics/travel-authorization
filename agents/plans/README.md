@@ -12,6 +12,30 @@ and follow the naming convention: `Type, Title, Date.md`.
 Plans are created when implementation requires analysis, staged rollout thinking, multiple options,
 or cross-cutting decisions.
 
+Plans in this repo are programmer-facing working documents, not business cases or product briefs.
+They should help an engineer or coding agent complete the work safely and incrementally.
+
+Write plans in task-focused language:
+
+- Describe concrete code changes, rollout slices, validation steps, and cleanup work
+- Prefer implementation constraints, dependency ordering, and file-level review notes
+- Keep business context brief and only include enough to explain why the implementation matters
+- Avoid turning plans into stakeholder-friendly narratives, roadmap prose, or status-report docs
+
+Plans should also be executable in coherent slices. Large migrations in this repo, including the
+Vue 3 migration work reflected in commit history, were completed by repeatedly narrowing the plan to
+the next set of well-bounded tasks rather than carrying one giant checklist forever.
+
+When planning a large migration or refactor:
+
+- Break work into slices that can be implemented, reviewed, and verified independently
+- Group slices by dependency direction or subsystem boundaries, not by arbitrary file counts
+- Make it clear what can ship now, what depends on earlier slices, and what should be deleted
+  instead of migrated
+- Update the plan as slices land so the remaining work stays concise and current
+- End the plan with cleanup work for temporary migration scaffolding, compatibility code, or
+  migration-only docs when applicable
+
 Example:
 
 ```text
@@ -86,3 +110,19 @@ Rules:
 - Use `Plan` when the work does not fit a narrower category
 - Prefer creating a new dated file over renaming or reusing an older plan unless the work is truly
   the same plan evolving in place
+
+## Quality Bar
+
+A good implementation plan should be:
+
+- Programmer-facing: written for the person doing the code changes
+- Task-focused: centered on implementation steps, validation, and cleanup
+- Sliceable: broken into coherent batches that can land independently
+- Current: updated as completed slices reduce the remaining scope
+- Disposable when temporary: migration-only plans should be retired or replaced once the work is
+  done
+- Minimal: include only what helps complete the work; less is more
+- Complete by subtraction: prefer plans that remove unnecessary steps, scaffolding, and stale scope
+  instead of expanding forever
+- Preserve hard-to-rediscover references: keep known-good inputs, verified sample values, and other
+  durable implementation references when they materially help future work

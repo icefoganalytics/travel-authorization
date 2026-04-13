@@ -5,6 +5,11 @@ TravelAuth is a full-stack travel authorization and approval system for the Yuko
 This file follows the format from https://agents.md/ for AI agent documentation.
 
 **Documentation philosophy:** This file focuses on patterns, conventions, and architecture rather than documenting specific features or domain models. Examples illustrate patterns, not exhaustive feature documentation.
+Less is more: prefer the smallest guidance, implementation, or abstraction that fully solves the
+problem. A thing is complete not when there is nothing left to add, but when there is nothing left
+to take away.
+Do not remove durable reference material that is hard to rediscover later, such as known-good test
+inputs, sample payloads, or validated reference values.
 
 Keep `AGENTS.md` focused on project-wide conventions and high-level concepts. When guidance becomes
 specific to a subsystem or directory, move it into the nearest `README.md` or `agents/` workflow
@@ -87,9 +92,17 @@ document and link to it from here instead of letting this file become a dumping 
 4. Blank line
 5. Internal imports from `@/`
    Within internal imports, prefer grouping by conceptual distance with blank
-   lines between groups when helpful. Example: config imports, blank line,
-   composables/helpers, blank line, components. Within each group,
-   alphabetical ordering is preferred.
+   lines between groups when helpful. Within each group, alphabetical ordering is preferred.
+
+**Controller import ordering:**
+
+Within internal imports for controllers, group by conceptual distance:
+- Utilities (logger, config)
+- Models
+- Policies
+- Services
+- Serializers
+- Controllers
 
 ### Architecture Patterns
 
@@ -118,6 +131,8 @@ document and link to it from here instead of letting this file become a dumping 
 
 - Multi-line JSON responses with consistent formatting
 - Return policy information in create/update responses: `{ record, policy }`
+- When create/update/show responses need association data beyond the base model, reload with the
+  required includes and serialize the response instead of returning the raw Sequelize model
 - Structured error logging: ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``
 - Consistent error message format: `"Failed to [action] [resource]: ${error}"`
 
@@ -197,6 +212,14 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Optional chaining:** Only use `?.` when data might actually be null/undefined in rendered context, not when loading state ensures existence
 - **Top-level const placement:** Keep top-level `const` declarations near the code that uses them. State, composables, refs, and computed values should be grouped by conceptual distance instead of all being hoisted to the top of `script setup`. Keep them top-level, but place them close to the watcher, computed, or action they support.
 - **Import spacing:** Group imports as external packages, blank line, then internal `@/` imports. Within the internal section, prefer grouping by conceptual distance rather than one flat alphabetized block. Preserve visible spacing between groups in Vue SFC scripts.
+
+**Component import ordering:**
+
+Within internal imports for Vue components, group by conceptual distance:
+- Config imports
+- Composables/helpers
+- Components
+Within each group, alphabetical ordering is preferred.
 - **Default imports:** When a helper or component already exposes a default export and the module has a single clear purpose, prefer the default import form at the call site.
 - **Expanded imports:** When importing 4 or more named items, prefer the expanded multi-line form for readability.
 - **Composable usage in Options API:** When an Options API component needs a composable, call it inside `setup()` and return the result for use via `this.*`. Do not create composable instances at module scope.
@@ -245,6 +268,8 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 Type-safe API clients in `web/src/api/*-api.ts`
 
 - Export types matching backend models/serializers
+- Prefer explicit `AsIndex` / `AsShow` response types that mirror backend serializers rather than
+  typing list/get/update responses directly as the base model when associations are present
 - Export `WhereOptions`, `FiltersOptions`, `QueryOptions` for query parameters
 - Export API object with methods: `list()`, `get()`, `create()`, `update()`, `delete()`
 - Methods return typed promises
