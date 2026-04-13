@@ -92,9 +92,17 @@ document and link to it from here instead of letting this file become a dumping 
 4. Blank line
 5. Internal imports from `@/`
    Within internal imports, prefer grouping by conceptual distance with blank
-   lines between groups when helpful. Example: config imports, blank line,
-   composables/helpers, blank line, components. Within each group,
-   alphabetical ordering is preferred.
+   lines between groups when helpful. Within each group, alphabetical ordering is preferred.
+
+**Controller import ordering:**
+
+Within internal imports for controllers, group by conceptual distance:
+- Utilities (logger, config)
+- Models
+- Policies
+- Services
+- Serializers
+- Controllers
 
 ### Architecture Patterns
 
@@ -204,6 +212,14 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 - **Optional chaining:** Only use `?.` when data might actually be null/undefined in rendered context, not when loading state ensures existence
 - **Top-level const placement:** Keep top-level `const` declarations near the code that uses them. State, composables, refs, and computed values should be grouped by conceptual distance instead of all being hoisted to the top of `script setup`. Keep them top-level, but place them close to the watcher, computed, or action they support.
 - **Import spacing:** Group imports as external packages, blank line, then internal `@/` imports. Within the internal section, prefer grouping by conceptual distance rather than one flat alphabetized block. Preserve visible spacing between groups in Vue SFC scripts.
+
+**Component import ordering:**
+
+Within internal imports for Vue components, group by conceptual distance:
+- Config imports
+- Composables/helpers
+- Components
+Within each group, alphabetical ordering is preferred.
 - **Default imports:** When a helper or component already exposes a default export and the module has a single clear purpose, prefer the default import form at the call site.
 - **Expanded imports:** When importing 4 or more named items, prefer the expanded multi-line form for readability.
 - **Composable usage in Options API:** When an Options API component needs a composable, call it inside `setup()` and return the result for use via `this.*`. Do not create composable instances at module scope.
