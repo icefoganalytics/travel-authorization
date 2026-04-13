@@ -279,6 +279,7 @@ Treat this as a composable-layer plan with necessary backend serialization prere
 4. One-at-a-time conversion revealed dependencies that would be missed in batch conversion
 5. The plan must include backend serialization work as Phase 0 (prerequisites)
 6. This pattern will likely repeat for other plural composables
+7. When converting composables with deprecated constants, export both deprecated and non-deprecated versions for backward compatibility
 
 **Staged changes for use-locations:**
 - Created `api/src/serializers/locations/index-serializer.ts`

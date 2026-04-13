@@ -18,7 +18,7 @@ auto_execution_mode: 1
 **Decision Rules:**
 - **Singular vs Plural:** This workflow is for composables that fetch LISTS of resources (`useUsers`, `useExpenses`). For single-resource composables, use the singular workflow instead.
 - **skipWatchIf parameter:** Always add this parameter. It allows parent components to prevent fetching until preconditions are met.
-- **Re-export deprecated constants:** Only re-export deprecated Object.freeze constants if they existed in the original JavaScript file. Don't add new deprecated exports.
+- **Export both deprecated and non-deprecated constants:** When the API file has both deprecated Object.freeze constants (e.g., PER_DIEM_CLAIM_TYPES) and non-deprecated enums (e.g., PerDiemClaimTypes), export BOTH from the composable. This ensures backward compatibility with existing components that use the deprecated constants while allowing new code to use the non-deprecated enums.
 - **Computed properties:** These are exceptions, not the norm. Only add computed properties when you have specific derived state needs.
 
 ## Reference Files
@@ -32,6 +32,19 @@ Before starting, ensure:
 - [ ] The JavaScript composable file exists in `web/src/use/`
 - [ ] The corresponding TypeScript API file exists (e.g., `web/src/api/resources-api.ts`)
 - [ ] You understand the API methods available (list, create, custom actions)
+
+### Backend Serialization Prerequisites
+
+Before converting a plural composable, ensure backend serialization is in place:
+
+- [ ] Check if backend has IndexSerializer for the resource in `api/src/serializers/{resource}/`
+- [ ] If missing, create IndexSerializer using `agents/templates/backend-index-serializer.md`
+- [ ] Update controller to use IndexSerializer in index method: `IndexSerializer.perform(records, this.currentUser)`
+- [ ] Update API file to use AsIndex type for list method (not base model type)
+- [ ] Update serializer index to export IndexSerializer: `export { IndexSerializer, type ResourceAsIndex as AsIndex } from "./index-serializer"`
+- [ ] Add bundle export to main serializers index: `export * as Resources from "./resources"`
+
+**Why this is necessary:** The API must return properly typed responses (ResourceAsIndex[]) for the composable to use correct types. Without backend serialization, the API returns the full model which may include fields not intended for list views.
 
 ---
 
