@@ -5,6 +5,11 @@ TravelAuth is a full-stack travel authorization and approval system for the Yuko
 This file follows the format from https://agents.md/ for AI agent documentation.
 
 **Documentation philosophy:** This file focuses on patterns, conventions, and architecture rather than documenting specific features or domain models. Examples illustrate patterns, not exhaustive feature documentation.
+Less is more: prefer the smallest guidance, implementation, or abstraction that fully solves the
+problem. A thing is complete not when there is nothing left to add, but when there is nothing left
+to take away.
+Do not remove durable reference material that is hard to rediscover later, such as known-good test
+inputs, sample payloads, or validated reference values.
 
 Keep `AGENTS.md` focused on project-wide conventions and high-level concepts. When guidance becomes
 specific to a subsystem or directory, move it into the nearest `README.md` or `agents/` workflow

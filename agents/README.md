@@ -61,6 +61,5 @@ actual template file before using it.
 1. Keep `agents/workflows/*.md` as the single source of truth for workflow behavior.
 2. Treat directory READMEs as indexes, not full task instructions.
 3. Use descriptive workflow names.
-4. Update `agents/workflows/README.md` when adding a workflow.
-5. Create new dated plan files instead of overwriting older implementation plans.
-6. Update `agents/templates/README.md` when adding a reusable template.
+4. Create new dated plan files instead of overwriting older implementation plans.
+5. Prefer discovery guidance over static file inventories in directory READMEs.

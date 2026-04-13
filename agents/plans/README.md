@@ -121,3 +121,8 @@ A good implementation plan should be:
 - Current: updated as completed slices reduce the remaining scope
 - Disposable when temporary: migration-only plans should be retired or replaced once the work is
   done
+- Minimal: include only what helps complete the work; less is more
+- Complete by subtraction: prefer plans that remove unnecessary steps, scaffolding, and stale scope
+  instead of expanding forever
+- Preserve hard-to-rediscover references: keep known-good inputs, verified sample values, and other
+  durable implementation references when they materially help future work
