@@ -43,6 +43,11 @@ export type TravelAllowance = {
   updatedAt: string
 }
 
+export type TravelAllowanceAsIndex = Pick<
+  TravelAllowance,
+  "id" | "allowanceType" | "amount" | "currency" | "createdAt" | "updatedAt"
+>
+
 export type TravelAllowanceWhereOptions = WhereOptions<
   TravelAllowance,
   "allowanceType" | "currency"
@@ -58,7 +63,7 @@ export type TravelAllowancesQueryOptions = QueryOptions<
 
 export const travelAllowancesApi = {
   async list(params: TravelAllowancesQueryOptions = {}): Promise<{
-    travelAllowances: TravelAllowance[]
+    travelAllowances: TravelAllowanceAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-allowances", {

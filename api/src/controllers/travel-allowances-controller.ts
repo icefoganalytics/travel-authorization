@@ -3,7 +3,7 @@ import { isNil } from "lodash"
 import { TravelAllowance } from "@/models"
 import { TravelAllowancesPolicy } from "@/policies"
 import { UpdateService } from "@/services/travel-allowances"
-
+import { IndexSerializer } from "@/serializers/travel-allowances"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAllowancesController extends BaseController<TravelAllowance> {
@@ -21,8 +21,9 @@ export class TravelAllowancesController extends BaseController<TravelAllowance> 
         offset: this.pagination.offset,
         order,
       })
+      const serializedTravelAllowances = IndexSerializer.perform(travelAllowances, this.currentUser)
       return this.response.status(200).json({
-        travelAllowances,
+        travelAllowances: serializedTravelAllowances,
         totalCount,
       })
     } catch (error) {
