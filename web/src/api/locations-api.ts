@@ -11,6 +11,8 @@ export type Location = {
   updatedAt: string
 }
 
+export type LocationAsIndex = Pick<Location, "id" | "city" | "province" | "createdAt" | "updatedAt">
+
 export type LocationAsReference = Pick<
   Location,
   "id" | "city" | "province" | "createdAt" | "updatedAt"
@@ -26,7 +28,7 @@ export type LocationsQueryOptions = QueryOptions<LocationWhereOptions, LocationF
 
 export const locationsApi = {
   async list(params: LocationsQueryOptions = {}): Promise<{
-    locations: Location[]
+    locations: LocationAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/locations", { params })
