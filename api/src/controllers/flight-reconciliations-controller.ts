@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 import { FlightReconciliation } from "@/models"
 import { FlightReconciliationsPolicy } from "@/policies"
 import { UpdateService } from "@/services/flight-reconciliations"
-
+import { IndexSerializer, ShowSerializer } from "@/serializers/flight-reconciliations"
 import BaseController from "@/controllers/base-controller"
 
 export class FlightReconciliationsController extends BaseController<FlightReconciliation> {
@@ -26,8 +26,12 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
         offset: this.pagination.offset,
         order,
       })
-      return this.response.status(200).json({
+      const serializedFlightReconciliations = IndexSerializer.perform(
         flightReconciliations,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        flightReconciliations: serializedFlightReconciliations,
         totalCount,
       })
     } catch (error) {
@@ -54,8 +58,12 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
         })
       }
 
-      return this.response.status(200).json({
+      const serializedFlightReconciliation = ShowSerializer.perform(
         flightReconciliation,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        flightReconciliation: serializedFlightReconciliation,
         policy,
       })
     } catch (error) {
@@ -84,9 +92,13 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
       await UpdateService.perform(flightReconciliation, permittedAttributes, this.currentUser)
-
-      return this.response.status(200).json({
+      const serializedFlightReconciliation = ShowSerializer.perform(
         flightReconciliation,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        flightReconciliation: serializedFlightReconciliation,
+        policy,
       })
     } catch (error) {
       logger.error(`Error updating flight reconciliation: ${error}`, { error })
@@ -122,8 +134,8 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
     }
   }
 
-  private async loadFlightReconciliation() {
-    return await FlightReconciliation.findByPk(this.params.flightReconciliationId)
+  private loadFlightReconciliation() {
+    return FlightReconciliation.findByPk(this.params.flightReconciliationId)
   }
 
   private buildPolicy(flightReconciliation: FlightReconciliation = FlightReconciliation.build()) {

@@ -4,6 +4,7 @@ export { UsersSerializer } from "./users-serializer"
 
 // Bundles
 export * as Expenses from "./expenses"
+export * as FlightReconciliations from "./flight-reconciliations"
 export * as GeneralLedgerCodings from "./general-ledger-codings"
 export * as Locations from "./locations"
 export * as Stops from "./stops"
