@@ -75,11 +75,11 @@ import { isNil } from "lodash"
 import { Resource } from "@/models"
 import { ResourcePolicy } from "@/policies"
 import { UpdateService } from "@/services/resources"
-
 import { IndexSerializer } from "@/serializers/resources"
-
 import BaseController from "@/controllers/base-controller"
 ```
+
+**Important:** No blank lines between internal imports when they're in the same conceptual group (Models, Serializers, Controllers). Blank lines only between different conceptual groups.
 
 **Incorrect order (Controllers before Serializers):**
 ```typescript
