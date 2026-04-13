@@ -13,6 +13,18 @@ export type TravelAuthorizationActionLog = {
   updatedAt: string
 }
 
+export type TravelAuthorizationActionLogAsIndex = Pick<
+  TravelAuthorizationActionLog,
+  | "id"
+  | "travelAuthorizationId"
+  | "actorId"
+  | "assigneeId"
+  | "action"
+  | "note"
+  | "createdAt"
+  | "updatedAt"
+>
+
 export type TravelAuthorizationActionLogWhereOptions = WhereOptions<
   TravelAuthorizationActionLog,
   "id" | "travelAuthorizationId" | "actorId" | "assigneeId" | "action"
@@ -25,7 +37,7 @@ export type TravelAuthorizationActionLogsQueryOptions = QueryOptions<
 
 export const travelAuthorizationActionLogsApi = {
   async list(params: TravelAuthorizationActionLogsQueryOptions = {}): Promise<{
-    travelAuthorizationActionLogs: TravelAuthorizationActionLog[]
+    travelAuthorizationActionLogs: TravelAuthorizationActionLogAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-authorization-action-logs", {

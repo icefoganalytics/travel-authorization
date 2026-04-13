@@ -1,8 +1,7 @@
 import { WhereOptions } from "@sequelize/core"
 
 import { TravelAuthorizationActionLog } from "@/models"
-import { TravelAuthorizationActionLogsSerializer } from "@/serializers"
-
+import { IndexSerializer } from "@/serializers/travel-authorization-action-logs"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAuthorizationActionLogsController extends BaseController {
@@ -10,15 +9,20 @@ export class TravelAuthorizationActionLogsController extends BaseController {
     const where = this.query.where as WhereOptions<TravelAuthorizationActionLog>
     // TODO: add policy scoping to query
 
-    return TravelAuthorizationActionLog.findAll({
+    const totalCount = await TravelAuthorizationActionLog.count({ where })
+    const travelAuthorizationActionLogs = await TravelAuthorizationActionLog.findAll({
       where,
+      limit: this.pagination.limit,
+      offset: this.pagination.offset,
       order: [["createdAt", "ASC"]],
-    }).then((travelAuthorizationActionLogs) => {
-      const serializedTravelAuthorizationActionLogs =
-        TravelAuthorizationActionLogsSerializer.asTable(travelAuthorizationActionLogs)
-      return this.response.json({
-        travelAuthorizationActionLogs: serializedTravelAuthorizationActionLogs,
-      })
+    })
+    const serializedTravelAuthorizationActionLogs = IndexSerializer.perform(
+      travelAuthorizationActionLogs,
+      this.currentUser
+    )
+    return this.response.json({
+      travelAuthorizationActionLogs: serializedTravelAuthorizationActionLogs,
+      totalCount,
     })
   }
 }
