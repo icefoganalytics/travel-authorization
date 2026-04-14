@@ -4,7 +4,7 @@
       <h4>Rental Car Requests</h4>
     </v-card-title>
     <v-card-text class="px-0 px-md-4">
-      <TravelDeskRentalCarsDataTable
+      <TravelDeskRentalCarsDataTableServer
         :where="travelDeskRentalCarsWhere"
         hide-default-footer
       />
@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 
-import TravelDeskRentalCarsDataTable from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsDataTable.vue"
+import TravelDeskRentalCarsDataTableServer from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsDataTableServer.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: number

@@ -10,13 +10,13 @@
         >
       </v-card-title>
       <v-card-text>
-        <v-data-table
-          :page.sync="page"
-          :items-per-page.sync="perPage"
+        <v-data-table-server
+          v-model:page="page"
+          v-model:items-per-page="perPage"
           :headers="headers"
           :items="travelDeskTravelAgencies"
           :loading="isLoading"
-          :server-items-length="totalCount"
+          :items-length="totalCount"
           class="mt-4"
           @dblclick:row="(_, { item }) => goToEditPage(item.id)"
         >
@@ -26,29 +26,30 @@
             </span>
           </template>
           <template #item.edit="{ item }">
-            <v-btn
-              title="Edit"
-              color="info"
-              icon
-              :to="{
-                name: 'administration/travel-agencies/TravelAgencyEditPage',
-                params: { travelDeskTravelAgencyId: item.id },
-              }"
-            >
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn
-              title="Delete"
-              class="ml-2"
-              :loading="isDeleting"
-              color="error"
-              icon
-              @click="deleteTravelAgency(item.id)"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
+            <div class="d-flex ga-1 justify-end">
+              <v-btn
+                title="Edit"
+                icon="mdi-pencil"
+                size="small"
+                variant="text"
+                color="primary"
+                :to="{
+                  name: 'administration/travel-agencies/TravelAgencyEditPage',
+                  params: { travelDeskTravelAgencyId: item.id },
+                }"
+              />
+              <v-btn
+                title="Delete"
+                icon="mdi-delete"
+                size="small"
+                variant="text"
+                :loading="isDeleting"
+                color="error"
+                @click="deleteTravelAgency(item.id)"
+              />
+            </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-card-text>
     </v-card>
   </v-container>
@@ -56,7 +57,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 
 import useSnack from "@/use/use-snack"
 import travelDeskTravelAgenciesApi from "@/api/travel-desk-travel-agencies-api"
@@ -65,14 +66,14 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useRouteQuery from "@/use/utils/use-route-query"
 
 const headers = ref([
-  { text: "Agency Name", value: "agencyName" },
-  { text: "Contact Name", value: "contactName" },
-  { text: "Contact Phone Number", value: "contactPhoneNumber" },
-  { text: "Contact Email", value: "contactEmail" },
-  { text: "Agency Info", value: "agencyInfo", sortable: false },
+  { title: "Agency Name", key: "agencyName" },
+  { title: "Contact Name", key: "contactName" },
+  { title: "Contact Phone Number", key: "contactPhoneNumber" },
+  { title: "Contact Email", key: "contactEmail" },
+  { title: "Agency Info", key: "agencyInfo", sortable: false },
   {
-    text: "",
-    value: "edit",
+    title: "",
+    key: "edit",
     width: "8rem",
     sortable: false,
   },
@@ -121,11 +122,11 @@ function goToEditPage(travelDeskTravelAgencyId) {
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Travel Agencies",
+    title: "Travel Agencies",
     to: { name: "administration/TravelAgenciesPage" },
   },
 ])

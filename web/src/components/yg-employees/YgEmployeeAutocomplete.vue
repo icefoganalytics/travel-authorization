@@ -1,22 +1,20 @@
 <template>
   <v-autocomplete
-    :value="value"
+    :model-value="modelValue"
     :loading="isLoading"
     :items="allYgEmployees"
     :label="label"
     :hint="hint"
     :item-value="itemValue"
-    :item-text="itemText"
+    :item-title="itemText"
     :auto-select-first="autoSelectFirst"
     :chips="chips"
     :hide-selected="hideSelected"
     :no-filter="noFilter"
     :persistent-hint="persistentHint"
-    :small-chips="smallChips"
     v-bind="$attrs"
-    v-on="$listeners"
-    @input="emit('input', $event)"
-    @update:search-input="debouncedUpdateSearchToken"
+    @update:model-value="emit('update:modelValue', $event)"
+    @update:search="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
     <!-- TODO: triggers => [Vuetify] assert: staticList should not be called if slots are used -->
@@ -43,7 +41,7 @@ import useYgEmployee from "@/use/use-yg-employee"
 import useYgEmployees from "@/use/use-yg-employees"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: [Number, String],
     default: null,
   },
@@ -95,18 +93,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  smallChips: {
-    type: Boolean,
-    default: true,
-  },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const ygEmployeeId = computed(() => {
   if (props.itemText !== "id") return null
 
-  return props.value
+  return props.modelValue
 })
 const { ygEmployee } = useYgEmployee(ygEmployeeId)
 
@@ -163,7 +157,7 @@ async function reset() {
 }
 
 watch(
-  () => props.value,
+  () => props.modelValue,
   async (newModelValue) => {
     if (isEmpty(newModelValue)) {
       await reset()

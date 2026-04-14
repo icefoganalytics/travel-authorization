@@ -180,7 +180,7 @@
                 cols="12"
                 md="9"
               >
-                <TravelAuthorizationPreApprovalProfilesDataTable
+                <TravelAuthorizationPreApprovalProfilesDataTableServer
                   :where="preApprovalProfileWhere"
                   route-query-suffix="Profile"
                 />
@@ -232,7 +232,7 @@
         Edit
       </v-btn>
       <v-btn
-        color="secondary"
+        variant="outlined"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
         }"
@@ -245,7 +245,7 @@
 
 <script setup>
 import { computed, ref, toRefs } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
@@ -260,7 +260,7 @@ import useTravelAuthorizationPreApproval from "@/use/use-travel-authorization-pr
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
-import TravelAuthorizationPreApprovalProfilesDataTable from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTable.vue"
+import TravelAuthorizationPreApprovalProfilesDataTableServer from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTableServer.vue"
 import TravelAuthorizationPreApprovalSubmissionCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalSubmissionDocumentsCard.vue"
 
 const props = defineProps({
@@ -311,13 +311,13 @@ async function deleteTravelAuthorizationPreApproval() {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "Travel Pre-Approval",
+    title: "Travel Pre-Approval",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalPage",
       params: {

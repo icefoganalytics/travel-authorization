@@ -1,11 +1,11 @@
 <template>
   <v-text-field
-    :value="locationText"
+    :model-value="locationText"
     :loading="isLoading"
+    class="bg-white"
     readonly
     v-bind="$attrs"
-    append-icon="mdi-lock"
-    background-color="white"
+    append-inner-icon="mdi-lock"
   />
 </template>
 

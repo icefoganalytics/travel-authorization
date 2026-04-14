@@ -4,13 +4,13 @@
       <h3>Travel Allowances</h3>
     </v-card-title>
 
-    <v-data-table
-      :page.sync="page"
-      :items-per-page.sync="perPage"
+    <v-data-table-server
+      v-model:page="page"
+      v-model:items-per-page="perPage"
       :headers="headers"
       :items="travelAllowances"
       :loading="isLoading"
-      :server-items-length="totalCount"
+      :items-length="totalCount"
       @dblclick:row="(_, { item }) => showEditDialog(item)"
     >
       <template #top>
@@ -20,30 +20,31 @@
         />
       </template>
       <template #item.allowanceType="{ value }">
-        {{ t(`travel_allowance.allowance_type.${value}`, { $default: value }) }}
+        {{ t(`travel_allowance.allowance_type.${value}`, value) }}
       </template>
       <template #item.amount="{ item, value }">
         {{ formatCurrency(value, item.currency) }}
       </template>
       <template #item.actions="{ item }">
-        <div class="d-flex justify-end">
+        <div class="d-flex ga-1 justify-end">
           <v-btn
             title="Edit"
-            icon
-            color="blue"
+            icon="mdi-pencil"
+            size="small"
+            variant="text"
+            color="primary"
             @click="showEditDialog(item)"
-            ><v-icon>mdi-pencil</v-icon></v-btn
-          >
+          />
         </div>
       </template>
-    </v-data-table>
+    </v-data-table-server>
   </v-card>
 </template>
 
 <script setup>
 import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import formatCurrency from "@/utils/format-currency"
 import useRouteQuery from "@/use/utils/use-route-query"
 import useTravelAllowances from "@/use/use-travel-allowances"
@@ -59,16 +60,16 @@ const { t } = useI18n()
 
 const headers = ref([
   {
-    text: "Allowance Type",
-    value: "allowanceType",
+    title: "Allowance Type",
+    key: "allowanceType",
   },
   {
-    text: "Amount",
-    value: "amount",
+    title: "Amount",
+    key: "amount",
   },
   {
-    text: "",
-    value: "actions",
+    title: "",
+    key: "actions",
   },
 ])
 

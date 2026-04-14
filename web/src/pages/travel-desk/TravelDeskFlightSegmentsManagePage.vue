@@ -10,7 +10,7 @@
               travelDeskTravelRequestId,
             },
           }"
-          color="secondary"
+          variant="outlined"
         >
           Back
         </v-btn>
@@ -30,7 +30,7 @@
                 <TravelDeskFlightSegmentsWorkspaceCard
                   v-model="travelDeskFlightSegmentsAttributes"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-                  @createdFlightOption="refreshFlightOptionsWorkspaceCard"
+                  @created-flight-option="refreshFlightOptionsWorkspaceCard"
                 />
                 <TravelDeskFlightOptionsWorkspaceCard
                   ref="travelDeskFlightOptionsWorkspaceCard"
@@ -100,27 +100,27 @@ function refreshFlightOptionsWorkspaceCard() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: { travelDeskTravelRequestId: props.travelDeskTravelRequestId },
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-desk/edit/TravelDeskRequestTravelRequestPage",
       params: { travelDeskTravelRequestId: props.travelDeskTravelRequestId },
     },
   },
   {
-    text: "Manage Flight Segments",
+    title: "Manage Flight Segments",
     to: {
       name: "TravelDeskFlightSegmentsManagePage",
       params: { travelDeskTravelRequestId: props.travelDeskTravelRequestId },

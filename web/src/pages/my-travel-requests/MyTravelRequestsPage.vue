@@ -1,18 +1,15 @@
 <template>
   <div>
-    <div class="d-flex align-baseline my-5">
-      <h1 class="mb-0">My Travel Requests</h1>
+    <v-card-title class="d-flex align-center pt-0 mb-3 ga-2">
+      <h2 class="mb-0">My Travel Requests</h2>
       <v-spacer />
+      <RefreshTableButton @click="refreshTable" />
       <CreateTravelAuthorizationButton class="my-0" />
-      <RefreshTableButton
-        class="ml-2"
-        @click="refreshTable"
-      />
-    </div>
+    </v-card-title>
 
     <v-card class="default">
       <v-card-text>
-        <MyTravelAuthorizationsTable ref="myTravelAuthorizationsTable" />
+        <MyTravelAuthorizationsDataTableServer ref="myTravelAuthorizationsTable" />
       </v-card-text>
     </v-card>
   </div>
@@ -25,7 +22,7 @@ import { useBreadcrumbs } from "@/use/use-breadcrumbs"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
-import MyTravelAuthorizationsTable from "@/modules/travel-authorizations/components/MyTravelAuthorizationsTable.vue"
+import MyTravelAuthorizationsDataTableServer from "@/modules/travel-authorizations/components/MyTravelAuthorizationsDataTableServer.vue"
 
 const myTravelAuthorizationsTable = ref(null)
 
@@ -35,7 +32,7 @@ async function refreshTable() {
 
 useBreadcrumbs([
   {
-    text: "My Travel Requests",
+    title: "My Travel Requests",
     to: {
       name: "my-travel-requests/MyTravelRequestsPage",
     },

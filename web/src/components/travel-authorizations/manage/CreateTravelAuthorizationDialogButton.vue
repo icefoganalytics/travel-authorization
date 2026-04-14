@@ -4,13 +4,12 @@
     width="500"
     @keydown.esc="close"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         :disabled="isLoading"
         :loading="isLoading"
         color="primary"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Create Travel Request
       </v-btn>
@@ -29,7 +28,7 @@
           <UserEmailSearchableCombobox
             v-model="travelerEmail"
             label="Traveler Email"
-            outlined
+            variant="outlined"
             required
           />
         </v-card-text>
@@ -40,7 +39,7 @@
           <v-spacer></v-spacer>
           <v-btn
             :loading="isLoading"
-            color="secondary"
+            variant="outlined"
             @click="close"
             >Cancel</v-btn
           >
@@ -49,8 +48,8 @@
             v-if="isDisabled"
             bottom
           >
-            <template #activator="{ on }">
-              <span v-on="on">
+            <template #activator="{ props: activatorProps }">
+              <span v-bind="activatorProps">
                 <v-btn
                   class="ml-2"
                   color="success"
@@ -78,7 +77,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 import { isEmpty } from "lodash"
 
 import { ACCOMMODATION_TYPES, TRAVEL_METHODS } from "@/api/travel-segments-api"

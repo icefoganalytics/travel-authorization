@@ -1,20 +1,12 @@
 <template>
   <v-autocomplete
-    :value="value"
+    :model-value="modelValue"
     :items="formattedLocations"
     :loading="isLoading"
     auto-select-first
     v-bind="$attrs"
-    v-on="$listeners"
-    @input="emit('input', $event)"
-    ><template
-      v-for="(_, slotName) in $scopedSlots"
-      #[slotName]="slotData"
-      ><slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot></template
-  ></v-autocomplete>
+    @update:model-value="emit('update:modelValue', $event)"
+  />
 </template>
 
 <script setup>
@@ -24,7 +16,7 @@ import { MAX_PER_PAGE } from "@/api/base-api"
 import useLocations from "@/use/use-locations"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     /** @type {number | string | null | undefined} */
     type: [Number, String],
     default: null,
@@ -44,7 +36,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const byProvinceFilter = computed(() => {
   if (props.inTerritory) {
@@ -69,10 +61,12 @@ const { locations, isLoading } = useLocations(locationsQuery)
 const formattedLocations = computed(() => {
   return locations.value.map(({ id, city, province }) => {
     return {
+      title: `${city} (${province})`,
       value: id,
-      text: `${city} (${province})`,
       // These legacy fields support using location selector string values.
-      city,
+      // In the future we should update the data model to seprate city and province values,
+      // while ensuring city string values are unique.
+      cityUniqueLegacy: `${city} (${province})`,
       province,
     }
   })

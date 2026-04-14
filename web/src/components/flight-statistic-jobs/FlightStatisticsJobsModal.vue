@@ -15,7 +15,7 @@
 
         <v-alert
           type="warning"
-          outlined
+          variant="outlined"
           class="mt-5"
         >
           Updating the Reports takes about <strong>15-30 Minutes</strong>. Please make sure you need
@@ -25,7 +25,7 @@
       <v-card-actions>
         <v-btn
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close
@@ -52,7 +52,7 @@
         <div class="progress-section">
           <strong>Progress:</strong>
           <v-progress-linear
-            :value="progressPercent"
+            :model-value="progressPercent"
             color="amber"
             height="25"
             class="mt-2"
@@ -65,8 +65,8 @@
 
         <v-alert
           type="info"
-          outlined
-          color="amber darken-2"
+          variant="outlined"
+          color="warning"
           class="mt-5"
         >
           The job is currently running. This may take 15-30 minutes to complete.
@@ -75,7 +75,7 @@
       <v-card-actions>
         <v-btn
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close
@@ -101,7 +101,7 @@
 
         <v-alert
           type="success"
-          outlined
+          variant="outlined"
           class="mt-5"
         >
           The report update has completed successfully.
@@ -110,7 +110,7 @@
       <v-card-actions>
         <v-btn
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close
@@ -135,7 +135,7 @@
 
         <v-alert
           type="error"
-          outlined
+          variant="outlined"
           class="mt-5"
         >
           The report update has failed. Please try again or contact support if the issue persists.
@@ -144,7 +144,7 @@
       <v-card-actions>
         <v-btn
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close

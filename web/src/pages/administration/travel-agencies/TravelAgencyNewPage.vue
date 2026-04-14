@@ -17,7 +17,7 @@
               <v-text-field
                 v-model="attributes.agencyName"
                 label="Agency Name *"
-                outlined
+                variant="outlined"
                 required
                 :rules="[required]"
               />
@@ -29,7 +29,7 @@
               <v-text-field
                 v-model="attributes.contactName"
                 label="Contact Name"
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -43,8 +43,8 @@
                 label="Contact Email"
                 type="email"
                 :rules="[isEmail]"
-                outlined
-                validate-on-blur
+                variant="outlined"
+                validate-on="blur"
               />
             </v-col>
             <v-col
@@ -57,8 +57,8 @@
                 hint="e.g. 123-456-7890"
                 type="tel"
                 :rules="[isPhoneNumber]"
-                outlined
-                validate-on-blur
+                variant="outlined"
+                validate-on="blur"
               />
             </v-col>
           </v-row>
@@ -71,7 +71,7 @@
                 v-model="attributes.agencyInfo"
                 label="Additional Information"
                 clearable
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -81,7 +81,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             :to="{
               name: 'administration/TravelAgenciesPage',
             }"
@@ -104,7 +104,8 @@
 
 <script setup>
 import { ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { isNil } from "lodash"
+import { useRouter } from "vue-router"
 
 import useSnack from "@/use/use-snack"
 import { required, isEmail, isPhoneNumber } from "@/utils/validators"
@@ -115,7 +116,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
  * @template [T=any]
  * @typedef {import("vue").Ref<T>} Ref
  */
-/** @typedef {import('vuetify/lib').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 
 const isLoading = ref(false)
 
@@ -131,8 +132,11 @@ const router = useRouter()
 const snack = useSnack()
 
 async function createTravelAgency() {
-  if (!form.value?.validate()) {
-    snack("Please fill in all required fields.", { color: "error" })
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 
@@ -152,15 +156,15 @@ async function createTravelAgency() {
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Travel Agencies",
+    title: "Travel Agencies",
     to: { name: "administration/TravelAgenciesPage" },
   },
   {
-    text: "New Travel Agency",
+    title: "New Travel Agency",
     to: { name: "administration/travel-agencies/TravelAgencyNewPage" },
   },
 ])

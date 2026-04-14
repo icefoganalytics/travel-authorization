@@ -25,7 +25,7 @@
       </v-btn>
     </v-card-title>
     <v-card-text>
-      <TravelDeskOtherTransportationEditDataTable
+      <TravelDeskOtherTransportationEditDataTableServer
         ref="travelDeskOtherTransportationEditDataTable"
         :travel-desk-travel-request-id="travelDeskTravelRequestId"
         :where="travelDeskOtherTransportationsWhere"
@@ -42,7 +42,7 @@ import { computed, ref } from "vue"
 
 import SectionHeader from "@/components/common/SectionHeader.vue"
 
-import TravelDeskOtherTransportationEditDataTable from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditDataTable.vue"
+import TravelDeskOtherTransportationEditDataTableServer from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationEditDataTableServer.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: number
@@ -58,7 +58,7 @@ const travelDeskOtherTransportationsWhere = computed(() => ({
 }))
 
 const travelDeskOtherTransportationEditDataTable = ref<InstanceType<
-  typeof TravelDeskOtherTransportationEditDataTable
+  typeof TravelDeskOtherTransportationEditDataTableServer
 > | null>(null)
 
 async function refresh() {

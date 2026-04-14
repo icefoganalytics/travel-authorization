@@ -4,7 +4,7 @@
     width="600"
     persistent
     @keydown.esc="hideIfNotFullscreen"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-card>
       <v-card-title>
@@ -12,7 +12,7 @@
         <v-spacer />
         <v-btn
           class="my-0"
-          color="secondary"
+          variant="outlined"
           @click="showFullscreenImage"
         >
           Fullscreen
@@ -36,7 +36,7 @@
         <DownloadFileForm
           :download-url="downloadUrl"
           :loading="isLoading"
-          color="secondary"
+          variant="outlined"
           text="Download Receipt"
           @downloaded="hide"
         />
@@ -146,8 +146,12 @@ async function deleteReceipt() {
 
 const isFullscreen = ref(false)
 
-function updateFullScreen(value: boolean) {
-  isFullscreen.value = value
+function updateFullScreen(value: boolean | null) {
+  if (isNil(value)) {
+    isFullscreen.value = false
+  } else {
+    isFullscreen.value = value
+  }
 }
 
 function hideIfNotFullscreen() {

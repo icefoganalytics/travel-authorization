@@ -1,0 +1,198 @@
+<template>
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
+    v-model:sort-by="sortBy"
+    :items="estimates"
+    :headers="headers"
+    :items-length="totalCount"
+    :loading="isLoading"
+    multi-sort
+    v-bind="$attrs"
+  >
+    <template #top="slotProps">
+      <slot
+        name="top"
+        v-bind="slotProps"
+      >
+        <EstimateEditDialog
+          ref="editDialog"
+          @updated="refreshAndEmitUpdated"
+        />
+        <EstimateDeleteDialog
+          ref="deleteDialog"
+          @deleted="refreshAndEmitUpdated"
+        />
+      </slot>
+    </template>
+    <template #item.date="{ value }">
+      {{ formatDate(value) }}
+    </template>
+    <template #item.cost="{ value }">
+      {{ formatCurrency(value) }}
+    </template>
+    <template #item.actions="{ value: actions, item }">
+      <div class="d-flex justify-end">
+        <v-btn
+          v-if="actions.includes('edit')"
+          variant="outlined"
+          @click="showEditDialog(item)"
+          >Edit</v-btn
+        >
+        <v-btn
+          v-if="actions.includes('delete')"
+          class="ml-2"
+          color="error"
+          @click="showDeleteDialog(item)"
+          >Delete</v-btn
+        >
+      </div>
+    </template>
+    <template #tfoot>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="text-start font-weight-bold text-uppercase">Total</td>
+          <td class="text-start font-weight-bold text-uppercase">
+            {{ formatCurrency(totalAmount) }}
+          </td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </template>
+  </v-data-table-server>
+</template>
+
+<script setup>
+import { computed, ref } from "vue"
+import { sumBy } from "lodash"
+
+import { formatDate, formatCurrency } from "@/utils/formatters"
+
+import { MAX_PER_PAGE } from "@/api/base-api"
+
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+import useExpenses, { TYPES } from "@/use/use-expenses"
+
+import EstimateEditDialog from "@/components/expenses/EstimateEditDialog.vue"
+import EstimateDeleteDialog from "@/components/expenses/EstimateDeleteDialog.vue"
+
+const props = defineProps({
+  where: {
+    type: Object,
+    default: () => ({}),
+  },
+  filters: {
+    type: Object,
+    default: () => ({}),
+  },
+  routeQuerySuffix: {
+    type: String,
+    default: "",
+  },
+})
+
+const emit = defineEmits(["updated", "click:estimate-edit"])
+
+const headers = ref([
+  {
+    title: "Expense Type",
+    key: "expenseType",
+  },
+  {
+    title: "Description",
+    key: "description",
+  },
+  {
+    title: "Date",
+    key: "date",
+  },
+  {
+    title: "Amount",
+    key: "cost",
+  },
+  {
+    title: "Actions",
+    key: "actions",
+  },
+])
+
+const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
+  transform: integerTransformer,
+})
+const perPage = useRouteQuery(`perPage${props.routeQuerySuffix}`, "10", {
+  transform: integerTransformer,
+})
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  {
+    key: "date",
+    order: "asc",
+  },
+  {
+    key: "expenseType",
+    order: "asc",
+  },
+])
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
+
+const expensesQuery = computed(() => ({
+  where: {
+    ...props.where,
+    type: TYPES.ESTIMATE,
+  },
+  filters: props.filters,
+  order: order.value,
+  page: page.value,
+  perPage: perPage.value,
+}))
+const {
+  expenses: estimates,
+  totalCount,
+  isLoading,
+  refresh: refreshEstimates,
+} = useExpenses(expensesQuery)
+
+// TODO: add dedicated endpoint to obtain total amount
+// We can't use this for the normal table display as it breaks pagination
+const expensesTotalAmountQuery = computed(() => ({
+  where: {
+    ...props.where,
+    type: TYPES.ESTIMATE,
+  },
+  filters: props.filters,
+  perPage: MAX_PER_PAGE, // Need to load all estimates to calculate total amount, without dedicated endpoint
+}))
+const { expenses: totalAmountEstimates, refresh: refreshTotalAmountEstimates } =
+  useExpenses(expensesTotalAmountQuery)
+const totalAmount = computed(() => sumBy(totalAmountEstimates.value, "cost"))
+
+async function refresh() {
+  await Promise.all([refreshEstimates(), refreshTotalAmountEstimates()])
+}
+
+async function refreshAndEmitUpdated() {
+  await refresh()
+  emit("updated")
+}
+
+/** @type {import("vue").Ref<InstanceType<typeof EstimateEditDialog> | null>} */
+const editDialog = ref(null)
+
+function showEditDialog(item) {
+  editDialog.value?.show(item.id)
+}
+
+/** @type {import("vue").Ref<InstanceType<typeof EstimateDeleteDialog> | null>} */
+const deleteDialog = ref(null)
+
+function showDeleteDialog(item) {
+  deleteDialog.value?.show(item.id)
+}
+
+defineExpose({
+  refresh,
+})
+</script>

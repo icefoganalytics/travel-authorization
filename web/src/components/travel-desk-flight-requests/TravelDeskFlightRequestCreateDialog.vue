@@ -5,11 +5,10 @@
     max-width="1200px"
     @keydown.esc="hide"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         color="primary"
-        v-bind="merge({}, attrs, activatorProps)"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Add Flight
       </v-btn>
@@ -34,8 +33,8 @@
                 v-model="travelDeskFlightRequest.departLocation"
                 :rules="[required]"
                 label="Depart Location *"
-                item-value="city"
-                outlined
+                item-value="cityUniqueLegacy"
+                variant="outlined"
                 required
               />
             </v-col>
@@ -47,8 +46,8 @@
                 v-model="travelDeskFlightRequest.arriveLocation"
                 :rules="[required]"
                 label="Arrive Location *"
-                item-value="city"
-                outlined
+                item-value="cityUniqueLegacy"
+                variant="outlined"
                 required
               />
             </v-col>
@@ -58,7 +57,7 @@
               cols="12"
               md="4"
             >
-              <DatePicker
+              <StringDateInput
                 v-model="travelDeskFlightRequest.datePreference"
                 :min="minDate"
                 :max="maxDate"
@@ -66,7 +65,7 @@
                 :rules="[required]"
                 label="Date *"
                 type="date"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -100,7 +99,7 @@
                 v-model="travelDeskFlightRequest.seatPreference"
                 :rules="[required]"
                 label="Seat Preference *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -112,7 +111,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel
@@ -132,7 +131,7 @@
 
 <script setup>
 import { ref, nextTick } from "vue"
-import { merge } from "lodash"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -141,7 +140,7 @@ import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
 import useRouteQuery from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import SeatPreferenceSelect from "@/components/travel-desk-flight-requests/SeatPreferenceSelect.vue"
 
@@ -160,10 +159,6 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  activatorProps: {
-    type: Object,
-    default: () => ({}),
-  },
 })
 
 const emit = defineEmits(["created"])
@@ -173,9 +168,9 @@ const travelDeskFlightRequest = ref({
 })
 
 const snack = useSnack()
-const showDialog = useRouteQuery("showTravelDeskFlightRequestCreate", false, { transform: Boolean })
+const showDialog = useRouteQuery("showTravelDeskFlightRequestCreate", "false", { transform: Boolean })
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
 const isLoading = ref(false)
 
@@ -186,8 +181,11 @@ function hide() {
 }
 
 async function createAndHide() {
-  if (!form.value?.validate()) {
-    snack.error("Please fill in all required fields")
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 

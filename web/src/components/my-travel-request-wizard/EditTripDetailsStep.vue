@@ -8,7 +8,6 @@
       <TripDetailsEstimatesEditForm
         ref="tripDetailsEstimatesEditForm"
         :travel-authorization-id="travelAuthorizationId"
-        v-on="$listeners"
       />
     </v-card-text>
   </v-card>
@@ -63,8 +62,9 @@ const snack = useSnack()
 async function validateSaveAndGenerateEstimatesIfNoneExist() {
   isLoading.value = true
   try {
-    if (tripDetailsEstimatesEditForm.value.validate() === false) {
-      snack.error("Please fill in all required fields.")
+    const { valid } = await tripDetailsEstimatesEditForm.value.validate()
+    if (!valid) {
+      snack.warning("Please fill in all required fields.")
       return false
     }
 

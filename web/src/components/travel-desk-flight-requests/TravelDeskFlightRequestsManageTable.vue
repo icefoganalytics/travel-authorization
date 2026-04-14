@@ -1,17 +1,14 @@
 <template>
-  <TravelDeskFlightRequestsEditTable
+  <TravelDeskFlightRequestsEditDataTableServer
     ref="travelDeskFlightRequestsEditTable"
-    :expanded.sync="expanded"
+    v-model:expanded="expanded"
     :show-expand="showFlightOptions"
-    single-expand
-    v-bind="$attrs"
-    v-on="$listeners"
-    @click:row="(_, { item }) => expandItem(item.id)"
+    expand-on-click
   >
     <!-- TODO: consider having a dedicated page for flight options preference order with drag to order? -->
-    <template #expanded-item="{ headers: expandedItemHeaders, item }">
+    <template #expanded-row="{ columns, item }">
       <td
-        :colspan="expandedItemHeaders.length"
+        :colspan="columns.length"
         class="pa-0"
       >
         <TravelDeskFlightOptionsDataIterator
@@ -21,66 +18,48 @@
         />
       </td>
     </template>
-    <template
-      v-for="(_, slotName) in $scopedSlots"
-      #[slotName]="slotData"
-    >
-      <slot
-        :name="slotName"
-        v-bind="slotData"
-      ></slot>
+    <template #footer.prepend>
+      <slot name="footer.prepend"></slot>
     </template>
-  </TravelDeskFlightRequestsEditTable>
+  </TravelDeskFlightRequestsEditDataTableServer>
 </template>
 
-<script setup>
-import { computed, ref } from "vue"
+<script setup lang="ts">
+import { computed, useTemplateRef } from "vue"
 
 import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
 
 import TravelDeskFlightOptionsDataIterator from "@/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.vue"
-import TravelDeskFlightRequestsEditTable from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsEditTable.vue"
+import TravelDeskFlightRequestsEditDataTableServer from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsEditDataTableServer.vue"
 
-const props = defineProps({
-  showFlightOptions: {
-    type: Boolean,
-    default: false,
-  },
-})
+withDefaults(
+  defineProps<{
+    showFlightOptions: boolean
+  }>(),
+  {
+    showFlightOptions: false,
+  }
+)
 
-const expandTravelDeskFlightRequest = useRouteQuery("expandTravelDeskFlightRequest", undefined, {
+const expandTravelDeskFlightRequest = useRouteQuery("expandTravelDeskFlightRequest", null, {
   transform: integerTransformerLegacy,
 })
-
-function expandItem(travelDeskFlightRequestId) {
-  if (props.showFlightOptions !== true) return
-
-  if (travelDeskFlightRequestId === expandTravelDeskFlightRequest.value) {
-    expandTravelDeskFlightRequest.value = undefined
-  } else {
-    expandTravelDeskFlightRequest.value = travelDeskFlightRequestId
-  }
-}
 
 const expanded = computed({
   get() {
     if (expandTravelDeskFlightRequest.value) {
-      return [{ id: expandTravelDeskFlightRequest.value }]
+      return [expandTravelDeskFlightRequest.value]
     } else {
       return []
     }
   },
   set(newExpanded) {
-    if (newExpanded.length > 0) {
-      expandTravelDeskFlightRequest.value = newExpanded[0].id
-    } else {
-      expandTravelDeskFlightRequest.value = undefined
-    }
+    const lastItem = newExpanded[newExpanded.length - 1]
+    expandTravelDeskFlightRequest.value = lastItem
   },
 })
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskFlightRequestsEditTable> | null>} */
-const travelDeskFlightRequestsEditTable = ref(null)
+const travelDeskFlightRequestsEditTable = useTemplateRef("travelDeskFlightRequestsEditTable")
 
 async function refresh() {
   await travelDeskFlightRequestsEditTable.value?.refresh()

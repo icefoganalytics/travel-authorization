@@ -3,14 +3,13 @@
     v-model="showDialog"
     width="500"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         :loading="isLoading"
         :disabled="isDisabled"
         :class="buttonClasses"
         color="success"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Approve
       </v-btn>
@@ -37,7 +36,7 @@
           <v-spacer></v-spacer>
           <v-btn
             :loading="isLoading"
-            color="secondary"
+            variant="outlined"
             @click="close"
             >Cancel</v-btn
           >
@@ -55,7 +54,7 @@
 
 <script setup>
 import { ref, nextTick, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"

@@ -7,7 +7,7 @@
     v-else
     ref="headerActionsFormCard"
     title="Purpose"
-    lazy-validation
+    validate-on="lazy"
   >
     <v-row>
       <v-col
@@ -17,12 +17,12 @@
         <TravelPurposeSelect
           v-model="travelAuthorization.purposeId"
           :rules="[required]"
-          dense
+          density="compact"
           label="Purpose *"
-          outlined
+          variant="outlined"
           required
-          validate-on-blur
-          @input="emit('update:travelPurposeId', $event)"
+          validate-on="blur"
+          @update:model-value="emit('update:travelPurposeId', $event)"
         />
       </v-col>
       <v-col
@@ -32,11 +32,11 @@
         <v-text-field
           v-model="travelAuthorization.eventName"
           :rules="[required]"
-          dense
+          density="compact"
           label="Name of meeting/conference, mission, trade fair or course *"
-          outlined
+          variant="outlined"
           required
-          validate-on-blur
+          validate-on="blur"
         />
       </v-col>
       <v-col
@@ -48,7 +48,7 @@
         <v-checkbox
           v-model="travelAuthorization.allTravelWithinTerritory"
           label="In Territory?"
-          dense
+          density="compact"
         />
       </v-col>
       <v-col
@@ -58,17 +58,17 @@
         xl="4"
       >
         <LocationsAutocomplete
-          :value="finalDestinationLocationId"
+          :model-value="finalDestinationLocationId"
           :in-territory="travelAuthorization.allTravelWithinTerritory"
           :rules="[required]"
           clearable
-          dense
+          density="compact"
           label="Final Destination *"
-          outlined
+          variant="outlined"
           persistent-hint
           required
-          validate-on-blur
-          @input="updateFinalDestinationLocationId"
+          validate-on="blur"
+          @update:model-value="updateFinalDestinationLocationId"
         />
       </v-col>
     </v-row>
@@ -87,12 +87,12 @@
           v-model="travelAuthorization.benefits"
           :rules="[required]"
           auto-grow
-          dense
+          density="compact"
           label="Objectives *"
-          outlined
+          variant="outlined"
           required
           rows="10"
-          validate-on-blur
+          validate-on="blur"
         />
       </v-col>
     </v-row>
@@ -112,6 +112,7 @@ import {
 } from "@/api/travel-segments-api"
 
 import { required } from "@/utils/validators"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization, {
   TravelAuthorizationTripTypes,
 } from "@/use/use-travel-authorization"
@@ -287,11 +288,17 @@ function buildTravelSegmentEstimatesAttributes(
 
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isSaving = ref(false)
+const snack = useSnack()
 
 async function saveWrapper() {
   if (isNil(travelAuthorization.value)) return
   if (isNil(headerActionsFormCard.value)) return
-  if (!headerActionsFormCard.value.validate()) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   const travelSegmentEstimatesAttributes = buildTravelSegmentEstimatesAttributes(
     finalDestinationLocationId.value,
@@ -319,6 +326,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: () => headerActionsFormCard.value?.validate(),
+  validate: async () => headerActionsFormCard.value?.validate(),
 })
 </script>

@@ -1,8 +1,5 @@
 <template>
-  <v-breadcrumbs
-    :items="breadcrumbsWithExactTrueByDefault"
-    large
-  >
+  <v-breadcrumbs :items="breadcrumbsWithExactTrueByDefault">
     <template #divider>/</template>
   </v-breadcrumbs>
 </template>

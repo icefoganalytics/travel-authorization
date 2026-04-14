@@ -1,46 +1,33 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="expenseTypes"
-    :loading="loading"
-    :rules="[required]"
     label="Expense Type"
-    dense
-    outlined
-    required
+    density="compact"
+    variant="outlined"
     v-bind="$attrs"
-    @input="input"
+    @update:model-value="updateModelValue"
   ></v-select>
 </template>
 
-<script>
-import { required } from "@/utils/validators"
+<script setup lang="ts">
+import { ExpenseExpenseTypes } from "@/api/expenses-api"
 
-import { EXPENSE_TYPES } from "@/api/expenses-api"
+withDefaults(
+  defineProps<{
+    modelValue: ExpenseExpenseTypes | null | undefined
+    expenseTypes?: ExpenseExpenseTypes[]
+  }>(),
+  {
+    expenseTypes: () => Object.values(ExpenseExpenseTypes),
+  }
+)
 
-export default {
-  inheritAttrs: false,
-  props: {
-    value: {
-      type: String,
-      default: () => null,
-    },
-    expenseTypes: {
-      type: Array,
-      default: () => Object.values(EXPENSE_TYPES),
-    },
-  },
-  data: () => ({
-    loading: true,
-  }),
-  mounted() {
-    this.loading = false
-  },
-  methods: {
-    required,
-    input(value) {
-      this.$emit("input", value)
-    },
-  },
+const emit = defineEmits<{
+  (event: "update:modelValue", value: ExpenseExpenseTypes | null): void
+}>()
+
+function updateModelValue(value: ExpenseExpenseTypes | null) {
+  emit("update:modelValue", value)
 }
 </script>

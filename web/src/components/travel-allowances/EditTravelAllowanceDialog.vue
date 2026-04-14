@@ -23,11 +23,11 @@
           <v-row class="mt-5 mx-3">
             <v-col cols="12">
               <v-text-field
-                :value="allowanceType"
+                :model-value="allowanceType"
                 label="Claim Type"
-                outlined
+                variant="outlined"
                 readonly
-                append-icon="mdi-lock"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
             <v-col cols="12">
@@ -37,17 +37,17 @@
                 type="number"
                 :step="travelAllowance.amount > 1 ? 0.01 : 0.001"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
             <v-col cols="12">
               <v-text-field
-                :value="travelAllowance.currency"
+                :model-value="travelAllowance.currency"
                 label="Currency"
-                outlined
+                variant="outlined"
                 readonly
-                append-icon="mdi-lock"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
           </v-row>
@@ -57,14 +57,14 @@
           <v-spacer />
           <v-btn
             :loading="isLoading"
-            color="grey darken-5"
+            color="secondary"
             @click="hide"
           >
             Cancel
           </v-btn>
           <v-btn
             :loading="isLoading"
-            color="green darken-1"
+            color="success"
             type="submit"
           >
             Save
@@ -77,11 +77,11 @@
 
 <script setup>
 import { computed, ref, nextTick, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import useSnack from "@/use/use-snack"
 import travelAllowancesApi from "@/api/travel-allowances-api"
 import useTravelAllowance from "@/use/use-travel-allowance"
@@ -90,7 +90,7 @@ import useTravelAllowance from "@/use/use-travel-allowance"
  * @template [T=any]
  * @typedef {import("vue").Ref<T>} Ref
  */
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 
 const emit = defineEmits(["saved"])
 
@@ -103,7 +103,7 @@ const allowanceType = computed(() => {
   if (isNil(travelAllowance.value)) return ""
 
   const { allowanceType: value } = travelAllowance.value
-  return t(`travel_allowance.allowance_type.${value}`, { $default: value })
+  return t(`travel_allowance.allowance_type.${value}`, value)
 })
 
 const snack = useSnack()
@@ -140,8 +140,11 @@ function hide() {
 }
 
 async function updateAndClose() {
-  if (!form.value?.validate()) {
-    snack("Please fill in all required fields", { color: "error" })
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 
@@ -170,11 +173,11 @@ defineExpose({
 </script>
 
 <style scoped>
-::v-deep(.v-skeleton-loader__list-item) {
+:deep(.v-skeleton-loader__list-item) {
   height: 6rem;
 }
 
-::v-deep(.v-skeleton-loader__text) {
+:deep(.v-skeleton-loader__text) {
   height: 3rem;
 }
 </style>

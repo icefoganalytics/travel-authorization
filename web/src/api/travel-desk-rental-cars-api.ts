@@ -124,7 +124,7 @@ export const travelDeskRentalCarsApi = {
   VEHICLE_TYPES,
 
   async list(params: TravelDeskRentalCarsQueryOptions = {}): Promise<{
-    travelDeskRentalCars: TravelDeskRentalCar[]
+    travelDeskRentalCars: TravelDeskRentalCarAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-desk-rental-cars", { params })

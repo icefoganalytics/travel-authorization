@@ -1,54 +1,106 @@
 <template>
   <v-text-field
-    :value="localValue"
+    v-bind="$attrs"
+    :model-value="displayValue"
     :prefix="prefix"
-    @input="updateValue"
+    @update:model-value="updateValue"
     @blur="formatValue"
     @focus="selectAll"
-    v-bind="$attrs"
   ></v-text-field>
 </template>
 
-<script>
-import { isNaN } from "lodash"
+<script setup lang="ts">
+import { isEmpty, isNaN, isNil } from "lodash"
+import { nextTick, ref, watch } from "vue"
 
-export default {
-  name: "CurrencyTextField",
-  inheritAttrs: false,
-  props: {
-    value: {
-      type: [Number, String],
-      default: 0,
-    },
-    prefix: {
-      type: String,
-      default: "$",
-    },
+const props = withDefaults(
+  defineProps<{
+    modelValue?: number | string
+    prefix?: string
+  }>(),
+  {
+    modelValue: 0,
+    prefix: "$",
+  }
+)
+
+const emit = defineEmits<{
+  (event: "update:modelValue", value: number): void
+}>()
+
+const rawValue = ref<number | string>(props.modelValue)
+const displayValue = ref("")
+
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    rawValue.value = newValue
+    displayValue.value = buildFormattedDisplayValue(newValue)
   },
-  data() {
-    return {
-      localValue: this.value,
-    }
-  },
-  watch: {
-    value(newVal) {
-      this.localValue = newVal
-    },
-  },
-  methods: {
-    updateValue(value) {
-      this.localValue = value
-      const numericValue = parseFloat(value)
-      this.$emit("input", isNaN(numericValue) ? 0 : numericValue)
-    },
-    formatValue() {
-      this.localValue = (parseFloat(this.localValue) || 0).toFixed(2)
-    },
-    selectAll(event) {
-      this.$nextTick(() => {
-        event.target.select()
-      })
-    },
-  },
+  {
+    immediate: true,
+  }
+)
+
+function updateValue(value: string | null) {
+  displayValue.value = value ?? ""
+
+  const numericValue = parseFloat(value ?? "")
+  if (isNaN(numericValue)) {
+    rawValue.value = ""
+    emit("update:modelValue", 0)
+    return
+  }
+
+  rawValue.value = numericValue
+  emit("update:modelValue", numericValue)
+}
+
+function showRawValue() {
+  displayValue.value = buildEditableDisplayValue(rawValue.value)
+}
+
+function formatValue() {
+  displayValue.value = buildFormattedDisplayValue(rawValue.value)
+}
+
+async function selectAll(event: FocusEvent) {
+  const target = event.target
+  if (!(target instanceof HTMLInputElement)) {
+    return
+  }
+
+  showRawValue()
+  await nextTick()
+  target.select()
+}
+
+function buildEditableDisplayValue(value: number | string | null | undefined) {
+  if (isNil(value)) {
+    return ""
+  }
+
+  if (typeof value === "string") {
+    return value
+  }
+
+  return String(value)
+}
+
+function buildFormattedDisplayValue(value: number | string | null | undefined) {
+  if (isNil(value)) {
+    return "0.00"
+  }
+
+  if (typeof value === "string" && isEmpty(value.trim())) {
+    return "0.00"
+  }
+
+  const parsedValue = parseFloat(String(value))
+  if (isNaN(parsedValue)) {
+    return "0.00"
+  }
+
+  return parsedValue.toFixed(2)
 }
 </script>

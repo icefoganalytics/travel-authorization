@@ -5,11 +5,10 @@
     max-width="500px"
     @keydown.esc="hide"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         color="primary"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Add Question
       </v-btn>
@@ -32,7 +31,7 @@
                 v-model="travelDeskQuestion.requestType"
                 :rules="[required]"
                 label="Request Type *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -43,7 +42,7 @@
                 v-model="travelDeskQuestion.question"
                 :rules="[required]"
                 label="Question *"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -55,7 +54,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel
@@ -75,6 +74,7 @@
 
 <script setup>
 import { ref } from "vue"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
@@ -99,9 +99,9 @@ const travelDeskQuestion = ref({
 })
 
 const snack = useSnack()
-const showDialog = useRouteQuery("showTravelDeskQuestionCreate", false, { transform: Boolean })
+const showDialog = useRouteQuery("showTravelDeskQuestionCreate", "false", { transform: Boolean })
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
 const isLoading = ref(false)
 
@@ -112,8 +112,11 @@ function hide() {
 }
 
 async function createAndHide() {
-  if (!form.value?.validate()) {
-    snack.error("Please fill in all required fields")
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 

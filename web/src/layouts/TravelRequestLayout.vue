@@ -74,7 +74,7 @@ async function refresh() {
 
 useBreadcrumbs([
   {
-    text: "Travel Requests",
+    title: "Travel Requests",
     to: {
       name: "TravelRequests",
     },

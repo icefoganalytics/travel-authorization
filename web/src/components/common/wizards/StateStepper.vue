@@ -1,29 +1,27 @@
 <template>
   <v-stepper
     :key="stepsHash"
-    :value="currentStepNumber"
-    vertical
-    outlined
-    :width="$vuetify.breakpoint.mdAndUp ? 250 : undefined"
+    :model-value="currentStepNumber"
+    :width="mdAndUp ? 250 : undefined"
   >
-    <v-stepper-step
+    <v-stepper-item
       v-for="(step, index) in steps"
       :key="index"
-      :step="index + 1"
+      :value="index + 1"
+      :color="index + 1 === currentStepNumber ? 'primary' : undefined"
+      :title="step.title"
+      :subtitle="step.subtitle"
       :complete="index + 1 < currentStepNumber"
       :editable="step.editable"
       @click="updateCurrentWizardStepName(step.id, step.editable)"
     >
-      {{ step.title }}
-      <small v-if="step.subtitle">
-        {{ step.subtitle }}
-      </small>
-    </v-stepper-step>
+    </v-stepper-item>
   </v-stepper>
 </template>
 
 <script setup>
 import { computed } from "vue"
+import { useDisplay } from "vuetify"
 import md5 from "md5"
 
 const props = defineProps({
@@ -50,4 +48,6 @@ function updateCurrentWizardStepName(wizardStepName, editable) {
     emit("update:stepName", wizardStepName)
   }
 }
+
+const { mdAndUp } = useDisplay()
 </script>

@@ -16,7 +16,7 @@
         <h3>Totals</h3>
         <TotalsTable
           :travel-authorization-id="travelAuthorizationId"
-          class="white"
+          class="bg-white py-4"
         />
       </v-col>
     </v-row>

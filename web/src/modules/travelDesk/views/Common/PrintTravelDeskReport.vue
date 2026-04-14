@@ -4,11 +4,10 @@
     persistent
     max-width="950px"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
-        v-bind="{ ...attrs, ...activatorProps }"
+        v-bind="activatorProps"
         @click="initPrint"
-        v-on="on"
       >
         Print Report
       </v-btn>
@@ -22,14 +21,14 @@
         <v-col cols="5" />
         <v-col cols="2">
           <v-btn
-            color="secondary"
+            variant="outlined"
             :loading="isLoading"
             @click="print"
           >
             Print
             <v-icon
               class="ml-2"
-              color="primary darken-2"
+              color="primary-darken-2"
               >mdi-printer</v-icon
             >
           </v-btn>
@@ -48,21 +47,7 @@
       </v-row>
 
       <div id="pdf-page">
-        <v-app-bar
-          color="#fff"
-          flat
-          height="70"
-          style="left: 0; border-bottom: 3px #f3b228 solid"
-        >
-          <img
-            src="/yukon.svg"
-            style="margin: -1.2rem -10rem 0 0"
-            height="44"
-          />
-          <div style="margin: 0 auto !important; font-size: 14pt !important">
-            <b>Out-of-Territory Travel Desk Report</b>
-          </div>
-        </v-app-bar>
+        <PrintLogoHeader>Out-of-Territory Travel Desk Report</PrintLogoHeader>
 
         <div
           v-for="page in pages"
@@ -70,7 +55,7 @@
         >
           <v-data-table
             style="margin: 1rem 0"
-            dense
+            density="compact"
             :headers="headers"
             :items="travelDeskTravelRequests"
             :loading="isLoading"
@@ -80,7 +65,7 @@
             hide-default-footer
           >
             <template #item.createdAt="{ item }">
-              <div>{{ item.createdAt | beautifyDate }}</div>
+              <div>{{ formatDate(item.createdAt) }}</div>
             </template>
 
             <template #item.fullname="{ item }">
@@ -137,22 +122,22 @@
 
 <script setup>
 import { ref, computed } from "vue"
+import { useI18n } from "vue-i18n"
 import { isNil, isEmpty } from "lodash"
 import { Printd } from "printd"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { formatDate } from "@/utils/formatters"
+
 import { TRAVEL_DESK_TRAVEL_REQUEST_STATUSES } from "@/api/travel-desk-travel-requests-api"
 import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
+
+import PrintLogoHeader from "@/components/common/print/PrintLogoHeader.vue"
 
 // Props
 const props = defineProps({
   travelDeskTravelRequestIds: {
     type: Array,
     default: () => [],
-  },
-  activatorProps: {
-    type: Object,
-    default: () => ({}),
   },
 })
 
@@ -186,16 +171,16 @@ const currentDate = ref("")
 
 // Headers
 const headers = [
-  { text: "Submit Date", value: "createdAt", class: "m-0 p-0" },
-  { text: "Name", value: "fullname", class: "m-0 p-0", sortable: false },
-  { text: "Department", value: "department", class: "m-0 p-0" },
-  { text: "Branch", value: "branch", class: "m-0 p-0", sortable: false },
-  { text: "Travel Start Date", value: "startDate", class: "m-0 p-0" },
-  { text: "Travel End Date", value: "endDate", class: "m-0 p-0", sortable: false },
-  { text: "Location", value: "location", class: "m-0 p-0" },
-  { text: "Requested", value: "requested", class: "m-0 p-0" },
-  { text: "Status", value: "status", class: "m-0 p-0" },
-  { text: "Travel Desk Officer", value: "travelDeskOfficer", class: "m-0 p-0" },
+  { title: "Submit Date", key: "createdAt", class: "m-0 p-0" },
+  { title: "Name", key: "fullname", class: "m-0 p-0", sortable: false },
+  { title: "Department", key: "department", class: "m-0 p-0" },
+  { title: "Branch", key: "branch", class: "m-0 p-0", sortable: false },
+  { title: "Travel Start Date", key: "startDate", class: "m-0 p-0" },
+  { title: "Travel End Date", key: "endDate", class: "m-0 p-0", sortable: false },
+  { title: "Location", key: "location", class: "m-0 p-0" },
+  { title: "Requested", key: "requested", class: "m-0 p-0" },
+  { title: "Status", key: "status", class: "m-0 p-0" },
+  { title: "Travel Desk Officer", key: "travelDeskOfficer", class: "m-0 p-0" },
 ]
 
 function initPrint() {
@@ -262,9 +247,7 @@ function determineStatus(status, travelDeskOfficer) {
     return "Not Started"
   }
 
-  return t(`travel_desk_travel_request.status.${status}`, {
-    $default: status,
-  })
+  return t(`travel_desk_travel_request.status.${status}`, status)
 }
 
 function close() {
@@ -273,16 +256,16 @@ function close() {
 </script>
 
 <style scoped>
-::v-deep(tbody td) {
+:deep(tbody td) {
   font-size: 7.5pt !important;
   border: 1px solid #666666 !important;
 }
 
-::v-deep(tbody th) {
+:deep(tbody th) {
   font-size: 7pt !important;
 }
 
-::v-deep(thead th) {
+:deep(thead th) {
   border: 1px solid #333334 !important;
   border-bottom: 2px solid #333334 !important;
   text-align: center !important;
@@ -290,7 +273,7 @@ function close() {
   color: #111111 !important;
 }
 
-::v-deep(table) {
+:deep(table) {
   border: 2px solid #333334;
 }
 

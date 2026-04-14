@@ -4,7 +4,7 @@
     header-tag="h2"
     header-class="text-h4 mb-0"
   >
-    <v-tabs active-class="primary--text teal lighten-5">
+    <v-tabs color="primary">
       <v-tab
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
@@ -32,7 +32,7 @@ import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },

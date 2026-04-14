@@ -30,9 +30,9 @@
                   <v-text-field
                     v-model="user.firstName"
                     label="First name"
-                    dense
-                    outlined
-                    background-color="white"
+                    class="bg-white"
+                    density="compact"
+                    variant="outlined"
                     required
                     hide-details
                   ></v-text-field>
@@ -44,9 +44,9 @@
                   <v-text-field
                     v-model="user.lastName"
                     label="Last name"
-                    dense
-                    outlined
-                    background-color="white"
+                    class="bg-white"
+                    density="compact"
+                    variant="outlined"
                     required
                     hide-details
                   ></v-text-field>
@@ -58,9 +58,9 @@
                   <v-text-field
                     v-model="user.email"
                     label="Email"
-                    dense
-                    outlined
-                    background-color="white"
+                    class="bg-white"
+                    density="compact"
+                    variant="outlined"
                     required
                     hide-details
                   />
@@ -72,9 +72,9 @@
                   <v-text-field
                     v-model="user.mailcode"
                     label="Mailcode"
-                    dense
-                    outlined
-                    background-color="white"
+                    class="bg-white"
+                    density="compact"
+                    variant="outlined"
                     required
                     hide-details
                   />
@@ -84,11 +84,11 @@
                     v-model="user.department"
                     label="Department *"
                     :rules="[required]"
-                    outlined
-                    dense
-                    small-chips
+                    class="bg-white"
+                    variant="outlined"
+                    density="compact"
+                    chips
                     :clearable="false"
-                    background-color="white"
                   />
                 </v-col>
                 <v-col cols="12">
@@ -96,11 +96,11 @@
                     v-model="user.roles"
                     label="Roles"
                     :items="roles"
-                    outlined
-                    dense
+                    class="bg-white"
+                    variant="outlined"
+                    density="compact"
                     multiple
-                    small-chips
-                    background-color="white"
+                    chips
                     clearable
                     hide-details
                   />
@@ -132,9 +132,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { required } from "@/utils/validators"
 
 import { UserRoles } from "@/api/users-api"
@@ -157,7 +157,7 @@ const { user, isLoading, save } = useUser(userIdAsNumber)
 const { t } = useI18n()
 const roles = Object.values(UserRoles).map((role) => ({
   value: role,
-  text: t(`role.name.${role}`, { $default: role }),
+  title: t(`role.name.${role}`, role),
 }))
 
 const { currentUser, refresh: refreshCurrentUser } = useCurrentUser<true>()
@@ -180,19 +180,19 @@ async function saveWrapper() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Administration",
+    title: "Administration",
     to: {
       name: "AdministrationPage",
     },
   },
   {
-    text: "User Management",
+    title: "User Management",
     to: {
       name: "administration/UsersPage",
     },
   },
   {
-    text: "User Editor",
+    title: "User Editor",
     to: {
       name: "administration/users/UserEditPage",
       params: {

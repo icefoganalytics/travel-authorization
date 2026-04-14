@@ -27,7 +27,7 @@
         />
         <v-spacer />
         <v-btn
-          color="secondary"
+          variant="outlined"
           :to="{ name: 'ManageTravelRequests' }"
           >Back</v-btn
         >

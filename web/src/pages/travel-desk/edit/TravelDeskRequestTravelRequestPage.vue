@@ -19,7 +19,7 @@
         <v-form
           id="booking-assignment-form"
           ref="form"
-          lazy-validation
+          validate-on="lazy"
           @submit.prevent="saveTravelDeskTravelRequest"
         >
           <v-card-text>
@@ -33,7 +33,7 @@
                   label="Assign Agency"
                   placeholder="None"
                   clearable
-                  outlined
+                  variant="outlined"
                   persistent-placeholder
                 />
               </v-col>
@@ -45,7 +45,7 @@
                   v-model="travelDeskTravelRequest.travelDeskOfficer"
                   label="Travel Desk Agent Assigned *"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                   required
                 />
               </v-col>
@@ -61,27 +61,27 @@
       />
 
       <TravelDeskRentalCarsEditCard
-        ref="travelDeskRentalCarsEditCard"
+        id="travel-desk-rental-cars-edit-card"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
         :return-to="buildReturnTo('travel-desk-rental-cars-edit-card')"
       />
 
       <TravelDeskHotelsEditCard
-        ref="travelDeskHotelsEditCard"
+        id="travel-desk-hotels-edit-card"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
         :return-to="buildReturnTo('travel-desk-hotels-edit-card')"
       />
 
       <TravelDeskOtherTransportationEditCard
-        ref="travelDeskOtherTransportationEditCard"
+        id="travel-desk-other-transportation-edit-card"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
         :return-to="buildReturnTo('travel-desk-other-transportation-edit-card')"
       />
 
-      <div class="d-flex flex-column flex-md-row">
+      <div class="d-flex flex-column flex-md-row ga-2 my-4">
         <v-btn
           color="primary"
           form="booking-assignment-form"
@@ -94,7 +94,7 @@
         <v-spacer />
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           :to="{
             name: 'travel-desk/edit/TravelDeskRequestTravelerDetailsPage',
             params: {
@@ -112,15 +112,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, watchEffect } from "vue"
+import { computed, ref, watch } from "vue"
+import { useRouteHash } from "@vueuse/router"
 import { isNil } from "lodash"
-import { type VForm } from "vuetify/lib/components"
-import { useRouter, useRoute } from "vue2-helpers/vue-router"
-import goTo from "vuetify/lib/services/goto"
+import { useDisplay, useGoTo } from "vuetify"
+import { type VForm } from "vuetify/components"
+import { useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"
 
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
@@ -137,7 +137,8 @@ const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
+const goTo = useGoTo()
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 const { travelDeskTravelRequest, isLoading, save } = useTravelDeskTravelRequest(
@@ -149,7 +150,13 @@ const snack = useSnack()
 
 async function saveTravelDeskTravelRequest() {
   if (isNil(travelDeskTravelRequest.value)) return
-  if (!form.value?.validate()) return
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isLoading.value = true
   try {
@@ -164,6 +171,7 @@ async function saveTravelDeskTravelRequest() {
 }
 
 const router = useRouter()
+const routeHash = useRouteHash()
 
 function buildReturnTo(hash: string) {
   const routeLocation = router.resolve({
@@ -176,62 +184,29 @@ function buildReturnTo(hash: string) {
   return routeLocation.href
 }
 
-const travelDeskRentalCarsEditCard = ref<InstanceType<typeof TravelDeskRentalCarsEditCard> | null>(
-  null
+watch(
+  routeHash,
+  (newRouteHash) => {
+    if (isNil(newRouteHash) || newRouteHash.length === 0) return
+
+    goTo(newRouteHash, {
+      easing: "easeInOutCubic",
+      offset: 75,
+      duration: 300,
+    })
+  },
+  { flush: "post" }
 )
-const travelDeskHotelsEditCard = ref<InstanceType<typeof TravelDeskHotelsEditCard> | null>(null)
-const travelDeskOtherTransportationEditCard = ref<InstanceType<
-  typeof TravelDeskOtherTransportationEditCard
-> | null>(null)
-
-const scrollToTargetMap: Record<string, Ref<{ $el?: Element } | null>> = {
-  ["#travel-desk-rental-cars-edit-card"]: travelDeskRentalCarsEditCard,
-  ["#travel-desk-hotels-edit-card"]: travelDeskHotelsEditCard,
-  ["#travel-desk-other-transportation-edit-card"]: travelDeskOtherTransportationEditCard,
-}
-
-const route = useRoute()
-
-watchEffect(() => {
-  const { hash } = route
-  if (isNil(hash)) return
-
-  const targetRef = scrollToTargetMap[hash]
-  if (isNil(targetRef)) return
-
-  const componentRef = targetRef.value
-  if (isNil(componentRef)) return
-
-  const { $el } = componentRef
-  if (isNil($el)) return
-
-  const targetElement = toHTMLElement($el)
-  if (isNil(targetElement)) return
-
-  scrollToTarget(targetElement)
-})
-
-function toHTMLElement(element: Element): HTMLElement | null {
-  return element instanceof HTMLElement ? element : null
-}
-
-function scrollToTarget(targetElement: HTMLElement) {
-  return goTo(targetElement, {
-    easing: "easeInOutCubic",
-    offset: 75,
-    duration: 300,
-  })
-}
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -240,7 +215,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-desk/TravelDeskRequestEditRedirect",
       params: {
@@ -249,7 +224,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Travel Request (Booking)",
+    title: "Travel Request (Booking)",
     to: {
       name: "travel-desk/edit/TravelDeskRequestTravelRequestPage",
       params: {

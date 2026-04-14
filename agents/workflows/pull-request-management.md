@@ -17,6 +17,7 @@ auto_execution_mode: 1
 
 **Decision Rules:**
 - **Title format:** Use `Issue-<number>: Description` for GitHub issues, `TICKET-ID: Description` for Jira tickets, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features. Always use AP style title case.
+- **Issue linkage wording:** Use `Fixes <issue-url>` only when the PR is intended to close the issue. Use `Part of <issue-url>` for one PR in a larger multi-PR effort.
 - **Context section:** Explain WHY the change is needed, not just what changed.
 - **Implementation section:** Focus on purpose and intent, not specific files. A reviewer can see file changes in the diff - the Implementation section explains the reasoning behind those changes.
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
@@ -35,7 +36,7 @@ cat <<'EOF' | gh api repos/{owner}/{repo}/pulls -X POST \
   -F base="main" \
   -F draft=true \
   -F body=@-
-Fixes <url>
+Part of <url>
 
 Relates to:
 
@@ -104,7 +105,7 @@ Use one of these patterns:
 Follow this template structure:
 
 ```markdown
-Fixes <issue-tracker-url>
+Part of <issue-tracker-url>
 
 Relates to:
 
@@ -135,7 +136,7 @@ Relates to:
 
 The GitHub PR template provides the basic structure. Fill in each section following these guidelines:
 
-- **Fixes:** Add issue URL or "N/A" if no specific issue
+- **Issue linkage:** Use `Fixes:` only for PRs that should close the linked issue. Use `Part of:` when the work is one slice of a larger effort.
 - **Relates to:** Add related PRs/issues or remove this section entirely
 - **Context:** Explain the problem, user reports, or motivation for the change
 - **Implementation:** List all changes made in numbered format

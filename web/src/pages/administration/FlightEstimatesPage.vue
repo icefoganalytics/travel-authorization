@@ -18,8 +18,8 @@
           <v-col cols="1">
             <v-btn
               class="ma-2"
-              dense
-              small
+              density="compact"
+              size="small"
               color="red"
               @click="removeStop(index)"
             >
@@ -30,16 +30,16 @@
 
         <v-btn
           class="ma-2"
-          dense
-          small
+          density="compact"
+          size="small"
           color="green"
         >
           Save
         </v-btn>
         <v-btn
           class="ma-2"
-          dense
-          small
+          density="compact"
+          size="small"
           color="red"
         >
           Discard Changes
@@ -63,11 +63,11 @@ const flightEstimates = ref([
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Flight Estimates",
+    title: "Flight Estimates",
     to: { name: "administration/FlightEstimatesPage" },
   },
 ])

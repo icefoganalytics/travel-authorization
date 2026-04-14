@@ -1,9 +1,10 @@
 <template>
-  <TravelAuthorizationPreApprovalSubmissionsDataTable
+  <TravelAuthorizationPreApprovalSubmissionsDataTableServer
     ref="travelAuthorizationPreApprovalSubmissionsDataTable"
     v-model="selectedItems"
     show-select
-    single-select
+    select-strategy="single"
+    return-object
   >
     <template #top>
       <v-row>
@@ -33,7 +34,7 @@
             :loading="isLoading"
             class="ml-3"
             color="warning"
-            outlined
+            variant="outlined"
             tooltip-text="Select submitted item to enable revert to draft option."
             @click="revertToDraft(firstSelectedItem.id)"
           >
@@ -47,7 +48,7 @@
         <v-btn
           v-if="canEdit(item)"
           color="primary"
-          :outlined="hasSelectedItems"
+          :variant="submissionActionButtonVariant"
           :to="{
             name: 'travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage',
             params: {
@@ -65,14 +66,14 @@
         <v-btn
           v-else-if="canApprove(item)"
           color="success"
-          :outlined="hasSelectedItems"
+          :variant="submissionActionButtonVariant"
           @click="showTravelAuthorizationsPreApprovalApproveDialog(item.id)"
         >
           Approve
         </v-btn>
         <v-btn
           v-else
-          color="secondary"
+          variant="outlined"
           :to="{
             name: 'travel-pre-approval-submissions/TravelPreApprovalSubmissionPage',
             params: {
@@ -84,7 +85,7 @@
         </v-btn>
       </div>
     </template>
-  </TravelAuthorizationPreApprovalSubmissionsDataTable>
+  </TravelAuthorizationPreApprovalSubmissionsDataTableServer>
 </template>
 
 <script setup>
@@ -101,11 +102,18 @@ import useSnack from "@/use/use-snack"
 
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 import TravelAuthorizationPreApprovalsPrintDialog from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsPrintDialog.vue"
-import TravelAuthorizationPreApprovalSubmissionsDataTable from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTable.vue"
+import TravelAuthorizationPreApprovalSubmissionsDataTableServer from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationPreApprovalSubmissionsDataTableServer.vue"
 import TravelAuthorizationsPreApprovalSubmissionApproveDialog from "@/components/travel-authorization-pre-approval-submissions/TravelAuthorizationsPreApprovalSubmissionApproveDialog.vue"
 
 const selectedItems = ref([])
 const hasSelectedItems = computed(() => !isEmpty(selectedItems.value))
+const submissionActionButtonVariant = computed(() => {
+  if (!hasSelectedItems.value) {
+    return undefined
+  }
+
+  return "outlined"
+})
 const firstSelectedItem = computed(() => selectedItems.value[0])
 const canRevertToDraft = computed(
   () =>
@@ -174,7 +182,7 @@ async function revertToDraft(travelAuthorizationPreApprovalSubmissionId) {
   }
 }
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionsDataTable> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof TravelAuthorizationPreApprovalSubmissionsDataTableServer> | null>} */
 const travelAuthorizationPreApprovalSubmissionsDataTable = ref(null)
 
 async function refresh() {
@@ -183,13 +191,13 @@ async function refresh() {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "Submissions",
+    title: "Submissions",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalSubmissionsPage",
     },

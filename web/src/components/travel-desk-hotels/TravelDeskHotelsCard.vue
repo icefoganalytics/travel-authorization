@@ -4,7 +4,7 @@
       <h4>Hotel Requests</h4>
     </v-card-title>
     <v-card-text class="px-0 px-md-4">
-      <TravelDeskHotelsDataTable
+      <TravelDeskHotelsDataTableServer
         :where="travelDeskHotelsWhere"
         hide-default-footer
       />
@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 
-import TravelDeskHotelsDataTable from "@/components/travel-desk-hotels/TravelDeskHotelsDataTable.vue"
+import TravelDeskHotelsDataTableServer from "@/components/travel-desk-hotels/TravelDeskHotelsDataTableServer.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: number

@@ -8,11 +8,7 @@
       <DatePickerRangeDialog
         v-model="dateRange"
         label="Records date range"
-        :activator-props="{
-          outlined: true,
-          dense: true,
-          hideDetails: true,
-        }"
+        :activator-props="datePickerActivatorProps"
       />
     </v-col>
     <v-col
@@ -25,12 +21,11 @@
         class="my-0"
         color="primary"
         block
-        primary
         @click="resetDateRange"
       >
         <v-icon
-          small
-          left
+          size="small"
+          start
           >mdi-refresh</v-icon
         >
         Reset
@@ -40,12 +35,11 @@
         class="my-0"
         color="primary"
         block
-        primary
         @click="clearDateRange"
       >
         <v-icon
-          small
-          left
+          size="small"
+          start
           >mdi-close</v-icon
         >
         Clear
@@ -64,7 +58,7 @@ import useRouteQuery, { jsonTransformer } from "@/use/utils/use-route-query"
 import DatePickerRangeDialog from "@/components/common/DatePickerRangeDialog.vue"
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Array,
     default: () => [],
   },
@@ -78,7 +72,13 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue", "update:loaded"])
+
+const datePickerActivatorProps = {
+  variant: "outlined",
+  density: "compact",
+  hideDetails: true,
+}
 
 const INITIAL_DATE_RANGE = [
   DateTime.local().toISODate(),
@@ -98,7 +98,7 @@ watch(
       emit("update:loaded", true)
     }
 
-    emit("input", newValue)
+    emit("update:modelValue", newValue)
   },
   { immediate: true, deep: true }
 )

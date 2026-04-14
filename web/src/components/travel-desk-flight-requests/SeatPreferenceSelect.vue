@@ -1,11 +1,10 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :items="seatPreferences"
     :label="label"
     v-bind="$attrs"
-    @input="emit('input', $event)"
-    v-on="$listeners"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -13,7 +12,7 @@
 import { SEAT_PREFERENCE_TYPES } from "@/api/travel-desk-flight-requests-api"
 
 defineProps({
-  value: {
+  modelValue: {
     type: String,
     default: () => null,
   },
@@ -23,7 +22,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(["input"])
+const emit = defineEmits(["update:modelValue"])
 
 const seatPreferences = Object.values(SEAT_PREFERENCE_TYPES)
 </script>

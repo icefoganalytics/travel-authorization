@@ -5,6 +5,11 @@ TravelAuth is a full-stack travel authorization and approval system for the Yuko
 This file follows the format from https://agents.md/ for AI agent documentation.
 
 **Documentation philosophy:** This file focuses on patterns, conventions, and architecture rather than documenting specific features or domain models. Examples illustrate patterns, not exhaustive feature documentation.
+Less is more: prefer the smallest guidance, implementation, or abstraction that fully solves the
+problem. A thing is complete not when there is nothing left to add, but when there is nothing left
+to take away.
+Do not remove durable reference material that is hard to rediscover later, such as known-good test
+inputs, sample payloads, or validated reference values.
 
 Keep `AGENTS.md` focused on project-wide conventions and high-level concepts. When guidance becomes
 specific to a subsystem or directory, move it into the nearest `README.md` or `agents/` workflow
@@ -36,7 +41,7 @@ document and link to it from here instead of letting this file become a dumping 
 ## Technology Stack
 
 - **Backend:** Node.js + Express + TypeScript, PostgreSQL, Sequelize ORM, Knex migrations
-- **Frontend:** Vue 2 + Vuetify 2 (migrating to Vue 3 + Vuetify 3), TypeScript
+- **Frontend:** Vue 3 + Vuetify 3, TypeScript
 - **Testing:** Vitest, Fishery factories
 - **Infrastructure:** Docker Compose
 
@@ -46,7 +51,8 @@ document and link to it from here instead of letting this file become a dumping 
 
 - `dev up` - Start all services (API at :3000, web at :8080, mail UI at :1080)
 - `dev down -v` - Stop and wipe database
-- `dev psql` - Access database CLI
+- `dev psql` - Access database CLI (database name: `travel_development`)
+- `dev psql-query "SELECT ..."` - Run a SQL query directly against the dev database
 - `dev test_api` - Run all API tests
 - `dev migrate up` - Run migration
 - `dev migrate down` - Rollback migration
@@ -84,7 +90,19 @@ document and link to it from here instead of letting this file become a dumping 
 2. Blank line
 3. External packages from node_modules
 4. Blank line
-5. Internal imports from `@/` (alphabetical preferred)
+5. Internal imports from `@/`
+   Within internal imports, prefer grouping by conceptual distance with blank
+   lines between groups when helpful. Within each group, alphabetical ordering is preferred.
+
+**Controller import ordering:**
+
+Within internal imports for controllers, group by conceptual distance:
+- Utilities (logger, config)
+- Models
+- Policies
+- Services
+- Serializers
+- Controllers
 
 ### Architecture Patterns
 
@@ -113,6 +131,8 @@ document and link to it from here instead of letting this file become a dumping 
 
 - Multi-line JSON responses with consistent formatting
 - Return policy information in create/update responses: `{ record, policy }`
+- When create/update/show responses need association data beyond the base model, reload with the
+  required includes and serialize the response instead of returning the raw Sequelize model
 - Structured error logging: ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``
 - Consistent error message format: `"Failed to [action] [resource]: ${error}"`
 
@@ -178,16 +198,43 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 ### Code Style
 
 - TypeScript only - no `any`, `@ts-expect-error`, `@ts-ignore`
-- Vue 2 + Vuetify 2 (migrating to Vue 3 + Vuetify 3)
+- Vue 3 + Vuetify 3
 - 2 spaces, no semicolons, double quotes, 100 char line limit
 - camelCase for variables/functions, PascalCase for components
 - **Browser setTimeout:** Use `number` type, not `NodeJS.Timeout`
   - `const timer = ref<number | undefined>(undefined)`
   - `timer.value = setTimeout(callback, 1000)`
 - **Props definition:** Prefer TypeScript generic style `defineProps<{ prop: type }>()` over object-style with type arrays
+- **Props defaults:** When `script setup` props need defaults, prefer `withDefaults(defineProps<...>(), ...)` rather than relying on optional props plus template checks alone.
+- **Shared formatters:** Prefer existing helpers from `@/utils/formatters` over creating local inline formatters in components. Reuse shared utilities first and only add a new formatter when no suitable one exists.
 - **Loading states:** Use `isNil(data)` instead of boolean `isLoading` flags for more precise data presence checks
 - **Reactivity:** Use `toRefs(props)` when passing props to composables to maintain ref types and reactivity
 - **Optional chaining:** Only use `?.` when data might actually be null/undefined in rendered context, not when loading state ensures existence
+- **Top-level const placement:** Keep top-level `const` declarations near the code that uses them. State, composables, refs, and computed values should be grouped by conceptual distance instead of all being hoisted to the top of `script setup`. Keep them top-level, but place them close to the watcher, computed, or action they support.
+- **Import spacing:** Group imports as external packages, blank line, then internal `@/` imports. Within the internal section, prefer grouping by conceptual distance rather than one flat alphabetized block. Preserve visible spacing between groups in Vue SFC scripts.
+
+**Component import ordering:**
+
+Within internal imports for Vue components, group by conceptual distance:
+- Config imports
+- Composables/helpers
+- Components
+Within each group, alphabetical ordering is preferred.
+- **Default imports:** When a helper or component already exposes a default export and the module has a single clear purpose, prefer the default import form at the call site.
+- **Expanded imports:** When importing 4 or more named items, prefer the expanded multi-line form for readability.
+- **Composable usage in Options API:** When an Options API component needs a composable, call it inside `setup()` and return the result for use via `this.*`. Do not create composable instances at module scope.
+- **Error notifications:** Use `console.error(...)` before `snack.error(...)` when handling a real error path. Do not log validation or other expected non-error user feedback with `console.error(...)`.
+- **Legacy cleanup triage:** Before modernizing an isolated legacy frontend component or subtree, verify that it is still reachable from pages, routes, or imports. If it is orphaned, prefer deleting it over migrating it.
+- **Code organization matters:** When modernizing frontend behavior, verify that the surrounding route placement, layout nesting, and file organization support the intended behavior. Matching a component API or route name is not enough if the page lives outside the layout or namespace that provides the feature.
+
+### Vuetify 3 Patterns
+
+- **Utility classes over custom CSS:** Use Vuetify 3 utility classes instead of custom CSS (e.g., `d-flex`, `align-center`, `bg-white`, `h-full`)
+- **Remove redundant CSS:** Delete CSS that's now built into Vuetify 3 (e.g., `.h-full { height: 100%; }`)
+- **Form submission:** Use `formRef.value.submit()` instead of `formRef.value.$el.submit()` in Vuetify 3
+- **Gap over margins:** Prefer gap classes (`ga-2`, `ga-3`) over margin classes for component spacing in flex containers
+- **Text wrapping:** Avoid `v-list-item-title` and `v-list-item-subtitle` for text that needs to wrap - use regular divs with utility classes
+- **Template refs:** Use `useTemplateRef()` instead of `ref()` for template references in Vue 3
 
 ### Component Naming Convention
 
@@ -211,10 +258,18 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 
 ### Architecture Patterns
 
+**Component Simplification Patterns:**
+- **Consolidate role-specific components:** Replace multiple role-based component imports with single components using conditional rendering
+- **Use actual list items:** Prefer existing list item components over hardcoded navigation structures
+- **Conditional rendering:** Use `v-if` directives instead of computed component selection for better maintainability
+- **Reduce nesting:** Merge `v-card-text` with direct child divs when possible to reduce unnecessary DOM nesting
+
 **API Module Pattern:**
 Type-safe API clients in `web/src/api/*-api.ts`
 
 - Export types matching backend models/serializers
+- Prefer explicit `AsIndex` / `AsShow` response types that mirror backend serializers rather than
+  typing list/get/update responses directly as the base model when associations are present
 - Export `WhereOptions`, `FiltersOptions`, `QueryOptions` for query parameters
 - Export API object with methods: `list()`, `get()`, `create()`, `update()`, `delete()`
 - Methods return typed promises
@@ -303,6 +358,37 @@ See `/api/src/config.ts` for complete details.
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
+
+**Commit emoji guidance:**
+
+Format: `:emoji: Verb phrase.` — imperative mood, ends with a period.
+
+- Use `:butterfly:` for database migrations and data backfills
+- Use `:bug:` for bug fixes
+- Use `:sparkles:` for new features
+- Use `:recycle:` for structural cleanup or migration-safe refactors that preserve behavior
+- Use `:art:` for theme, styling, or visual changes
+- Use `:cherry_blossom:` for UI polish and cosmetic improvements — **never use `:lipstick:`**
+- Use `:wrench:` for config and settings changes
+- Use `:memo:` for documentation and plan updates
+- Use `:hammer:` for infrastructure and tooling changes (docker, scripts)
+- Use `:arrow_up:` for dependency, runtime, and version bumps
+- Use `:gear:` for container, workflow, and tooling configuration changes
+- Use `:heavy_minus_sign:` when removing a dependency from the package set
+- Use `:construction:` for intentionally incomplete migration slices that may leave the app broken between commits
+- Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
+
+**Commit body guidance:**
+
+Write in plain English for the next developer reading `git log`. Focus on:
+- What changed (briefly, since the diff shows the how)
+- Why it was needed — the problem being solved
+- What the observable effect is for users or callers
+
+Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
+
+- **Bad:** `the frontend redirects only when policy.show is false after the save`
+- **Good:** `the frontend redirects only when the user can no longer view the document`
 
 **Testing Instructions Format:**
 
@@ -419,9 +505,21 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 
 ### Workflow Design Principles
 
+**Codebase-wide search discipline:**
+- Search for the **method or pattern**, not the variable name — variable names differ per file
+- BAD: `form\.value\.validate` — misses `formRef`, `headerActionsFormCard`, `tripDetailsEstimatesEditForm`, etc.
+- GOOD: `\.validate\(\)` — catches all call sites regardless of ref name
+- When doing a codebase-wide pass, use the most general regex that captures the semantic pattern, then filter false positives manually
+
 **Comprehensive Scoping:**
 - Name workflows for their complete lifecycle (e.g., "pull-request-management" not "pull-request-creation")
 - Cover all related activities: creation, editing, maintenance, and troubleshooting
+
+**Tracked files and permissions:**
+- Do not ask the user for permission to edit or delete a file that is already tracked by git.
+- Do not trigger sandbox approval prompts for normal edits to tracked repository files.
+- Prefer direct repository edits over any escalated command when the target file is inside the git worktree and writable.
+- Only escalate or ask for approval when the action is genuinely outside normal repository editing, such as sandbox restrictions, network access, or destructive operations the user did not request.
 
 **Template/Workflow Separation:**
 - Keep GitHub templates minimal with just structure

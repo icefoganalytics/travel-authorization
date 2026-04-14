@@ -48,7 +48,7 @@ function refreshTravelAuthorizationsExpenseClaimApprovedCard() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Expense Processing",
+    title: "Expense Processing",
     to: {
       name: "ExpenseProcessingPage",
     },

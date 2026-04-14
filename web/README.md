@@ -30,6 +30,8 @@ dev up
 ```
 
 The web app is then available at `http://localhost:8080`.
+When the full stack boots in Docker, the web service waits for the API `/_status` endpoint before
+starting.
 
 ## Common Commands
 
@@ -52,6 +54,65 @@ What these are for:
 - `npm run build`: build the production frontend bundle
 - `npm run lint`: run frontend linting
 - `npm run check-types`: run frontend type checking
+
+## Open In Editor
+
+When the frontend runs in Docker, Vue Devtools cannot launch your host editor directly from inside
+the container. This project handles that by:
+
+- proxying Vite `"/__open-in-editor"` requests from the container to a small host-side bridge
+- translating container paths like `/usr/src/web/...` back to your host checkout path
+- launching `windsurf --goto ...` on the host by default
+
+If you use the repo-level `dev` wrapper, this is automatic:
+
+- `dev up` starts the bridge before Docker Compose boots the stack
+- `dev down` stops the bridge again
+
+If you run Docker Compose manually on Linux, include
+`docker-compose.development.linux.yml` so the container can resolve `host.docker.internal`.
+
+The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and falls back to `windsurf`.
+
+## Sample Travelport Text
+
+If you need parsable sample flight text while testing the Travel Desk flight import flow, this block
+has been used successfully in prior TravelAuth PR testing:
+
+```text
+WestJet WS3566 - Operated By: WESTJET ENCORE
+Departure: 03 Dec 06:25 Cranbrook Municipal (YXC) Terminal:
+Arrival:   03 Dec 07:09 Calgary Intl Arpt (YYC) Terminal:
+Duration:  0 Hour(s) 44 Minutes
+Status:    Sold
+Class:     B
+
+WestJet WS107
+Departure: 03 Dec 09:00 Calgary Intl Arpt (YYC) Terminal:
+Arrival:   03 Dec 09:47 Vancouver Intl Arpt (YVR) Terminal: M
+Duration:  1 Hour(s) 47 Minutes
+Status:    Sold
+Class:     B
+```
+
+## Sample Invoice Number
+
+If you need a known invoice number while testing the Travel Desk **Trip Information (PNR details)**
+flow, use `39339`.
+
+That value has been used in prior TravelAuth PR testing for itinerary and Passenger Name Record
+flows.
+
+## Sample General Ledger Codes
+
+If you need known valid General Ledger codes while testing the expense submission flow, use one of
+these values:
+
+- `552-503010-0222-0006-09999`
+- `552-502010-0222-3152-09999`
+
+These values were used as valid examples in prior TravelAuth PR testing for expense coding and GL
+validation flows.
 
 ## TypeScript And Editor Support
 

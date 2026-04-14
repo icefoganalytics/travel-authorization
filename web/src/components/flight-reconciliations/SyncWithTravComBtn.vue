@@ -2,17 +2,15 @@
   <v-btn
     :loading="isLoading"
     v-bind="$attrs"
-    v-on="$listeners"
     @click="syncWithExternalDatabase"
   >
     Sync from TravCom ({{ totalCount }})
-    <v-tooltip left>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="left">
+      <template #activator="{ props: activatorProps }">
         <v-icon
-          right
-          small
-          v-bind="attrs"
-          v-on="on"
+          end
+          size="small"
+          v-bind="activatorProps"
           @click.stop
           >mdi-help-circle-outline</v-icon
         >

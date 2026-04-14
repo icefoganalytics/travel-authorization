@@ -1,6 +1,6 @@
 <template>
   <v-combobox
-    :value="value"
+    :model-value="modelValue"
     :items="emails"
     :loading="isLoading"
     :rules="emailRules"
@@ -8,8 +8,8 @@
     clearable
     persistent-hint
     v-bind="$attrs"
-    @input="emitUpdateAndInput"
-    @update:search-input="debouncedSearch"
+    @update:model-value="emitUpdateAndInput"
+    @update:search="debouncedSearch"
   ></v-combobox>
 </template>
 
@@ -20,24 +20,24 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { debounce } from "lodash"
+import { debounce, isNil } from "lodash"
 import { ref, computed } from "vue"
 
 import usersApi from "@/api/users-api"
 
 const props = withDefaults(
   defineProps<{
-    value?: string | null
+    modelValue?: string | null
     rules?: ((v: unknown) => boolean | string)[]
   }>(),
   {
-    value: null,
+    modelValue: null,
     rules: () => [],
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: string): void
+  (event: "update:modelValue", value: string): void
 }>()
 
 const emailRules = computed(() => [...props.rules, isValidEmail])
@@ -63,9 +63,15 @@ async function search(token: string) {
 
 const debouncedSearch = debounce(search, 300)
 
-function emitUpdateAndInput(value: string) {
+function emitUpdateAndInput(value: string | null) {
+  if (isNil(value)) {
+    searchToken.value = ""
+    emit("update:modelValue", "")
+    return
+  }
+
   searchToken.value = value
-  emit("input", value)
+  emit("update:modelValue", value)
 }
 
 function isValidEmail(v: string) {

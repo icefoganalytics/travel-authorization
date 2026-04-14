@@ -6,14 +6,14 @@
   <v-form
     v-else
     ref="form"
-    lazy-validation
+    validate-on="lazy"
   >
     <v-row>
       <v-col cols="12">
         <TripTypeRadioGroup
           v-model="tripType"
           :row="mdAndUp"
-          @input="resetFormValidation"
+          @update:model-value="resetFormValidation"
         />
       </v-col>
     </v-row>
@@ -56,9 +56,9 @@
             }),
           ]"
           type="number"
-          dense
+          density="compact"
           required
-          outlined
+          variant="outlined"
         ></v-text-field>
       </v-col>
       <v-col
@@ -66,14 +66,14 @@
         md="5"
         lg="4"
       >
-        <DatePicker
+        <StringDateInput
           v-model="travelAuthorization.dateBackToWorkEstimate"
           :min="latestDepartureDate"
           :rules="[required]"
           label="Expected Date return to work"
-          dense
+          density="compact"
           required
-          @input="emit('update:returnDate', $event)"
+          @update:model-value="emit('update:returnDate', $event)"
         />
       </v-col>
     </v-row>
@@ -83,15 +83,16 @@
 <script setup>
 import { computed, defineAsyncComponent, nextTick, ref, toRefs } from "vue"
 import { max, isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
 import TravelDurationFromTravelSegmentsTextField from "@/components/travel-authorizations/TravelDurationFromTravelSegmentsTextField.vue"
 
@@ -117,7 +118,7 @@ const emit = defineEmits([
   "update:returnDate",
 ])
 
-const { mdAndUp } = useDisplayVuetify2()
+const { mdAndUp } = useDisplay()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
@@ -204,9 +205,10 @@ const tripTypeComponent = computed(() => {
   }
 })
 
-/** @typedef {import('vuetify/lib/components').VForm} VForm */
+/** @typedef {import('vuetify/components').VForm} VForm */
 /** @type {import('vue').Ref<typeof VForm | null>} */
 const form = ref(null)
+const snack = useSnack()
 const isSaving = ref(false)
 
 async function resetFormValidation() {
@@ -216,7 +218,12 @@ async function resetFormValidation() {
 
 async function saveWrapper() {
   if (isNil(form.value)) return
-  if (!form.value.validate()) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isSaving.value = true
   try {
@@ -237,6 +244,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: () => form.value?.validate(),
+  validate: async () => form.value?.validate(),
 })
 </script>

@@ -2,11 +2,12 @@
   <v-btn
     class="ma-0"
     icon
-    color="info"
+    size="small"
+    variant="text"
+    color="primary"
     title="Refresh Table"
-    v-on="$listeners"
   >
-    <v-icon>mdi-cached</v-icon>
+    <v-icon size="28">mdi-cached</v-icon>
   </v-btn>
 </template>
 

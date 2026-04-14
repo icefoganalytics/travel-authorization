@@ -10,10 +10,10 @@
         md="3"
       >
         <v-switch
-          :input-value="exactTravelerKnown"
+          :model-value="exactTravelerKnown"
           :label="exactTravelerKnown ? 'Exact traveler known' : 'Exact traveler not known'"
           inset
-          @change="toggleExactTravelerKnown"
+          @update:model-value="toggleExactTravelerKnown"
         />
       </v-col>
     </v-row>
@@ -27,10 +27,10 @@
         <YgEmployeeAutocomplete
           v-model="travelerName"
           item-value="fullName"
-          item-text="fullName"
+          item-title="fullName"
           label="Traveler name *"
           hint="Search for a traveler. If no travelers are found, try a different department or branch."
-          outlined
+          variant="outlined"
           :where="ygEmployeeWhere"
           :filters="ygEmployeeFilters"
         />
@@ -44,10 +44,10 @@
           v-model.number="numberTravelersLocal"
           label="Number of Travelers *"
           type="number"
-          outlined
+          variant="outlined"
           persistent-hint
           :disabled="profileAlreadyCreated"
-          @input="emit('update:numberTravelers', Number($event))"
+          @update:model-value="emit('update:numberTravelers', Number($event))"
         />
       </v-col>
       <v-col
@@ -71,18 +71,18 @@
       >
         <v-data-table
           :headers="headers"
-          :items="value"
+          :items="modelValue"
           hide-default-footer
         >
           <template #item.actions="{ index }">
             <v-btn
               title="Remove traveler profile"
-              icon
+              icon="mdi-delete"
+              size="small"
+              variant="text"
               color="error"
               @click="removeTravelerProfileAttributes(index)"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
+            />
           </template>
         </v-data-table>
       </v-col>
@@ -104,7 +104,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  value: {
+  modelValue: {
     /**
      * @type {Partial<TravelAuthorizationPreApprovalProfile>[]}
      */
@@ -125,7 +125,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["input", "update:numberTravelers", "update:isOpenForAnyTraveler"])
+const emit = defineEmits(["update:modelValue", "update:numberTravelers", "update:isOpenForAnyTraveler"])
 
 const exactTravelerKnown = ref(true)
 const travelerName = ref(undefined)
@@ -136,32 +136,32 @@ const ygEmployeeWhere = computed(() => ({
   branch: props.branch,
 }))
 const ygEmployeeFilters = computed(() => {
-  if (isEmpty(props.value)) return {}
+  if (isEmpty(props.modelValue)) return {}
 
-  const fullNamesToExclude = props.value.map((profile) => profile.profileName)
+  const fullNamesToExclude = props.modelValue.map((profile) => profile.profileName)
   return {
     excludingByFullNames: fullNamesToExclude,
   }
 })
 
-const profileAlreadyCreated = computed(() => !isEmpty(props.value))
+const profileAlreadyCreated = computed(() => !isEmpty(props.modelValue))
 
 const headers = ref([
   {
-    text: "Name",
-    value: "profileName",
+    title: "Name",
+    key: "profileName",
   },
   {
-    text: "Dept.",
-    value: "department",
+    title: "Dept.",
+    key: "department",
   },
   {
-    text: "Branch",
-    value: "branch",
+    title: "Branch",
+    key: "branch",
   },
   {
-    text: "Actions",
-    value: "actions",
+    title: "Actions",
+    key: "actions",
     sortable: false,
   },
 ])
@@ -173,7 +173,7 @@ function toggleExactTravelerKnown(value) {
 
   emit("update:isOpenForAnyTraveler", !exactTravelerKnown.value)
   emit("update:numberTravelers", numberTravelersLocal.value)
-  emit("input", [])
+  emit("update:modelValue", [])
 }
 
 function addTravelerProfileAttributes() {
@@ -201,16 +201,16 @@ function addTravelerProfileAttributes() {
     }
   }
 
-  emit("input", [...props.value, newProfileAttributes])
+  emit("update:modelValue", [...props.modelValue, newProfileAttributes])
   travelerName.value = undefined
   numberTravelersLocal.value = undefined
 }
 
 function removeTravelerProfileAttributes(index) {
   const travelerProfilesAttributesWithoutItem = [
-    ...props.value.slice(0, index),
-    ...props.value.slice(index + 1),
+    ...props.modelValue.slice(0, index),
+    ...props.modelValue.slice(index + 1),
   ]
-  emit("input", travelerProfilesAttributesWithoutItem)
+  emit("update:modelValue", travelerProfilesAttributesWithoutItem)
 }
 </script>

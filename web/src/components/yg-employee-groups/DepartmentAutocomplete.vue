@@ -1,6 +1,6 @@
 <template>
   <v-autocomplete
-    :value="value"
+    :model-value="modelValue"
     :loading="isLoading"
     :items="departments"
     :label="label"
@@ -12,11 +12,9 @@
     :hide-selected="hideSelected"
     :no-filter="noFilter"
     :persistent-hint="persistentHint"
-    :small-chips="smallChips"
     v-bind="$attrs"
-    v-on="$listeners"
-    @input="emitInputAndReset"
-    @update:search-input="debouncedUpdateSearchToken"
+    @update:model-value="emitInputAndReset"
+    @update:search="debouncedUpdateSearchToken"
     @click:clear="reset"
   >
     <template
@@ -45,7 +43,7 @@ import useYgEmployeeGroups, {
 
 const props = withDefaults(
   defineProps<{
-    value?: string | null
+    modelValue?: string | null
     where?: YgEmployeeGroupWhereOptions
     filters?: YgEmployeeGroupFiltersOptions
     label?: string
@@ -57,10 +55,9 @@ const props = withDefaults(
     hideSelected?: boolean
     noFilter?: boolean
     persistentHint?: boolean
-    smallChips?: boolean
   }>(),
   {
-    value: null,
+    modelValue: null,
     where: () => ({}),
     filters: () => ({}),
     label: "Department",
@@ -72,23 +69,28 @@ const props = withDefaults(
     hideSelected: true,
     noFilter: true,
     persistentHint: true,
-    smallChips: true,
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: string): void
+  (event: "update:modelValue", value: string): void
 }>()
 
-function emitInputAndReset(value: string) {
-  emit("input", value)
+function emitInputAndReset(value: string | null) {
+  if (isNil(value)) {
+    emit("update:modelValue", "")
+    reset()
+    return
+  }
+
+  emit("update:modelValue", value)
   reset()
 }
 
 const searchToken = ref("")
 
 function updateSearchToken(value: string) {
-  if (value === props.value) return
+  if (value === props.modelValue) return
 
   searchToken.value = value
   page.value = 1
@@ -138,7 +140,7 @@ async function reset() {
 }
 
 watch(
-  () => props.value,
+  () => props.modelValue,
   async (newModelValue) => {
     if (isEmpty(newModelValue)) {
       await reset()

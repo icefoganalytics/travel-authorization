@@ -4,7 +4,7 @@
     class="d-flex-inline justify-center"
     style="min-width: fit-content"
     link
-    outlined
+    variant="outlined"
   >
     <v-progress-circular
       v-if="isNil(user)"
@@ -14,7 +14,7 @@
     />
     <template v-else>
       {{ user.firstName }} {{ user.lastName }}
-      <v-icon right>mdi-menu-down</v-icon>
+      <v-icon end>mdi-menu-down</v-icon>
     </template>
     <v-progress-circular
       v-if="isNil(user)"
@@ -26,49 +26,53 @@
       v-else
       :activator="chip?.$el"
       :close-on-content-click="false"
-      offset-y
+      :offset="8"
       transition="scale-transition"
     >
       <v-card width="300">
-        <v-list dark>
-          <v-list-item>
-            <v-list-item-avatar>
-              <v-img :src="gravatarUrl"></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title>{{ user.firstName }} {{ user.lastName }}</v-list-item-title>
-              <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-btn
-                icon
-                :to="userProfileLink"
-              >
-                <v-icon>mdi-link</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </v-list-item>
-        </v-list>
-        <v-list dense>
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-account</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ user.email }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <template v-for="(field, index) in fields">
-            <v-list-item
+        <v-card-text class="d-flex align-center">
+          <v-img
+            :src="gravatarUrl"
+            class="mr-3"
+            width="40"
+            height="40"
+          ></v-img>
+          <div class="flex-grow-1">
+            <div class="text-body-1 font-weight-bold">{{ user.firstName }} {{ user.lastName }}</div>
+            <div class="text-body-2 text-wrap">{{ user.email }}</div>
+          </div>
+          <v-btn
+            icon="mdi-link"
+            size="small"
+            variant="text"
+            :to="userProfileLink"
+          />
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-text>
+          <div class="d-flex align-center ga-3">
+            <v-icon>mdi-account</v-icon>
+            <div class="text-body-2 text-wrap">{{ user.email }}</div>
+            <v-btn
+              size="x-small"
+              icon="mdi-content-copy"
+              title="Copy email to clipboard"
+              variant="text"
+              @click="copyToClipboard(user.email)"
+            />
+          </div>
+          <template
+            v-for="(field, index) in fields"
+            :key="index"
+          >
+            <div
               v-if="user[field]"
-              :key="index"
+              class="text-body-2 text-wrap mt-2"
             >
-              <v-list-item-content>
-                <v-list-item-subtitle>{{ user[field] }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
+              {{ String(user[field]) }}
+            </div>
           </template>
-        </v-list>
+        </v-card-text>
       </v-card>
     </v-menu>
   </v-chip>
@@ -79,9 +83,10 @@ import { computed, ref, toRefs } from "vue"
 import md5 from "md5"
 import { isNil } from "lodash"
 
-import { type VChip } from "vuetify/lib/components"
+import { type VChip } from "vuetify/components"
 
 import useCurrentUser from "@/use/use-current-user"
+import useSnack from "@/use/use-snack"
 import useUser, { type User } from "@/use/use-user"
 
 const props = withDefaults(
@@ -134,4 +139,16 @@ const userProfileLink = computed(() => {
     },
   }
 })
+
+const snack = useSnack()
+
+async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text)
+    snack.success("Email copied")
+  } catch (error) {
+    console.error(`Failed to copy to clipboard: ${error}`)
+    snack.error(`Failed to copy to clipboard: ${error}`)
+  }
+}
 </script>

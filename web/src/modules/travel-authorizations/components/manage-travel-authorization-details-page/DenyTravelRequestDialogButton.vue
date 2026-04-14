@@ -3,14 +3,13 @@
     v-model="showDialog"
     width="500"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         :loading="isLoading"
         :disabled="isDisabled"
         :class="buttonClasses"
         color="error"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="activatorProps"
       >
         Deny
       </v-btn>
@@ -33,7 +32,7 @@
                 label="Denial reason"
                 rows="5"
                 required
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -45,7 +44,7 @@
           <v-spacer></v-spacer>
           <v-btn
             :loading="isLoading"
-            color="secondary"
+            variant="outlined"
             @click="close"
             >Cancel</v-btn
           >
@@ -63,7 +62,7 @@
 
 <script setup>
 import { ref, nextTick, watch } from "vue"
-import { useRoute, useRouter } from "vue2-helpers/vue-router"
+import { useRoute, useRouter } from "vue-router"
 
 import { required } from "@/utils/validators"
 

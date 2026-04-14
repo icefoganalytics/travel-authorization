@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 
 import { GeneralLedgerCoding, TravelAuthorization } from "@/models"
 import { GeneralLedgerCodingsPolicy } from "@/policies"
-import { GeneralLedgerCodingsSerializer } from "@/serializers"
+import { IndexSerializer, ShowSerializer } from "@/serializers/general-ledger-codings"
 import { CreateService, UpdateService, DestroyService } from "@/services/general-ledger-codings"
 import BaseController from "@/controllers/base-controller"
 
@@ -27,8 +27,7 @@ export class GeneralLedgerCodingsController extends BaseController<GeneralLedger
         offset: this.pagination.offset,
         order,
       })
-      const serializedGeneralLedgerCodings =
-        GeneralLedgerCodingsSerializer.asTable(generalLedgerCodings)
+      const serializedGeneralLedgerCodings = IndexSerializer.perform(generalLedgerCodings)
       return this.response.json({
         generalLedgerCodings: serializedGeneralLedgerCodings,
         totalCount,
@@ -37,6 +36,36 @@ export class GeneralLedgerCodingsController extends BaseController<GeneralLedger
       logger.error(`Error fetching general ledger codings: ${error}`, { error })
       return this.response.status(400).json({
         message: `Failed to retrieve general ledger codings: ${error}`,
+      })
+    }
+  }
+
+  async show() {
+    try {
+      const generalLedgerCoding = await this.loadGeneralLedgerCoding()
+      if (isNil(generalLedgerCoding)) {
+        return this.response.status(404).json({
+          message: "General ledger coding not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(generalLedgerCoding)
+      if (!policy.show()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to view this general ledger coding.",
+        })
+      }
+
+      const serializedGeneralLedgerCoding =
+        ShowSerializer.perform(generalLedgerCoding)
+      return this.response.status(200).json({
+        generalLedgerCoding: serializedGeneralLedgerCoding,
+        policy,
+      })
+    } catch (error) {
+      logger.error(`Error fetching general ledger coding: ${error}`, { error })
+      return this.response.status(400).json({
+        message: `Failed to retrieve general ledger coding: ${error}`,
       })
     }
   }

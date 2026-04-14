@@ -23,8 +23,8 @@
 import { startCase } from "lodash"
 import { DateTime } from "luxon"
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 
-import { useI18n } from "@/plugins/vue-i18n-plugin"
 import { useTravelAuthorizationActionLogs } from "@/use/use-travel-authorization-action-logs"
 
 import UserChip from "@/components/users/UserChip.vue"
@@ -46,24 +46,24 @@ const { travelAuthorizationActionLogs, isLoading, refresh } =
 
 const headers = [
   {
-    text: "Status",
-    value: "action",
+    title: "Status",
+    key: "action",
   },
   {
-    text: "Who",
-    value: "actorId",
+    title: "Who",
+    key: "actorId",
   },
   {
-    text: "Assigned To",
-    value: "assigneeId",
+    title: "Assigned To",
+    key: "assigneeId",
   },
   {
-    text: "Date",
-    value: "createdAt",
+    title: "Date",
+    key: "createdAt",
   },
   {
-    text: "Note",
-    value: "note",
+    title: "Note",
+    key: "note",
   },
 ]
 
@@ -71,7 +71,7 @@ const { t } = useI18n()
 
 function formatAction(value) {
   const fallback = startCase(value.replace("_", " "))
-  return t(`global.status.${value}`, { $default: fallback })
+  return t(`global.status.${value}`, fallback)
 }
 
 function formatDate(value) {

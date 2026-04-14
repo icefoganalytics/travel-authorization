@@ -8,7 +8,7 @@
       v-else
       ref="form"
       class="grey lighten-4"
-      lazy-validation
+      validate-on="lazy"
       @submit.prevent="saveTravelDeskTravelRequest"
     >
       <v-card>
@@ -29,7 +29,7 @@
                 v-model="travelDeskTravelRequest.legalFirstName"
                 label="Legal First Name *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -39,7 +39,7 @@
               <v-text-field
                 v-model="travelDeskTravelRequest.legalMiddleName"
                 label="Legal Middle Name"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -50,7 +50,7 @@
                 v-model="travelDeskTravelRequest.legalLastName"
                 label="Legal Last Name *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -63,7 +63,7 @@
                 type="date"
                 :max="dobMaxDate"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -86,7 +86,7 @@
                   v-model="travelDeskTravelRequest.passportNum"
                   label="Passport Number *"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                 />
               </v-col>
               <v-col
@@ -97,7 +97,7 @@
                   v-model="travelDeskTravelRequest.passportCountry"
                   label="Passport Country *"
                   :rules="[required]"
-                  outlined
+                  variant="outlined"
                 />
               </v-col>
             </v-row>
@@ -123,8 +123,8 @@
                 v-model="travelDeskTravelRequest.busPhone"
                 :rules="[isPhoneNumber, required]"
                 label="Business Phone *"
-                outlined
-                validate-on-blur
+                variant="outlined"
+                validate-on="blur"
               />
             </v-col>
             <v-col
@@ -135,8 +135,8 @@
                 v-model="travelDeskTravelRequest.busEmail"
                 :rules="[isEmail, required]"
                 label="Business Email *"
-                outlined
-                validate-on-blur
+                variant="outlined"
+                validate-on="blur"
               />
             </v-col>
           </v-row>
@@ -162,7 +162,7 @@
                   v-model="travelDeskTravelRequest.travelPhone"
                   :rules="[isPhoneNumber, required]"
                   label="Travel Phone *"
-                  outlined
+                  variant="outlined"
                 />
               </v-col>
               <v-col
@@ -173,7 +173,7 @@
                   v-model="travelDeskTravelRequest.travelEmail"
                   :rules="[isEmail, required]"
                   label="Travel Email *"
-                  outlined
+                  variant="outlined"
                 />
               </v-col>
             </v-row>
@@ -199,7 +199,7 @@
                 v-model="travelDeskTravelRequest.strAddress"
                 label="Address *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -209,9 +209,9 @@
               <LocationsAutocomplete
                 v-model="travelDeskTravelRequest.city"
                 label="City *"
-                item-value="city"
+                item-value="cityUniqueLegacy"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -222,7 +222,7 @@
                 v-model="travelDeskTravelRequest.province"
                 label="Province *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
             <v-col
@@ -233,7 +233,7 @@
                 v-model="travelDeskTravelRequest.postalCode"
                 label="Postal Code *"
                 :rules="[required]"
-                outlined
+                variant="outlined"
               />
             </v-col>
           </v-row>
@@ -254,7 +254,7 @@
               <v-textarea
                 v-model="travelDeskTravelRequest.additionalInformation"
                 label="Additional Information"
-                outlined
+                variant="outlined"
                 auto-grow
                 counter
               />
@@ -263,7 +263,7 @@
         </v-card-text>
       </v-card>
 
-      <div class="d-flex flex-column flex-md-row">
+      <div class="d-flex flex-column flex-md-row ga-2 my-4">
         <v-btn
           color="primary"
           :loading="isLoading"
@@ -272,8 +272,7 @@
           >Save Details
         </v-btn>
         <v-btn
-          class="ml-md-2"
-          outlined
+          variant="outlined"
           :loading="isLoading"
           :block="smAndDown"
           @click="refresh"
@@ -283,7 +282,7 @@
         <v-spacer />
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           :to="{
             name: 'TravelDeskPage',
           }"
@@ -299,10 +298,10 @@
 <script setup lang="ts">
 import { computed, watchEffect } from "vue"
 import { isNil } from "lodash"
+import { useDisplay } from "vuetify"
 
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
@@ -375,17 +374,17 @@ async function saveTravelDeskTravelRequest() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -394,7 +393,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-desk/TravelDeskRequestEditRedirect",
       params: {
@@ -403,7 +402,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Traveler Details",
+    title: "Traveler Details",
     to: {
       name: "travel-desk/edit/TravelDeskRequestTravelerDetailsPage",
       params: {

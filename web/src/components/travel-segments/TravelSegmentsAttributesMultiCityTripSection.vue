@@ -13,8 +13,8 @@
           :in-territory="allTravelWithinTerritory"
           :filters="buildLocationFilters(firstTravelSegmentAttributes.arrivalLocationId)"
           :rules="[required]"
-          dense
-          outlined
+          density="compact"
+          variant="outlined"
           persistent-hint
           required
         />
@@ -29,24 +29,26 @@
           :in-territory="allTravelWithinTerritory"
           :filters="buildLocationFilters(firstTravelSegmentAttributes.departureLocationId)"
           :rules="[required]"
-          dense
-          outlined
+          density="compact"
+          variant="outlined"
           persistent-hint
           required
-          @input="updateTravelSegmentAttributeByIndex(1, 'departureLocationId', $event)"
+          @update:model-value="
+            updateTravelSegmentAttributeByIndex(1, 'departureLocationId', $event)
+          "
         />
       </v-col>
       <v-col
         cols="12"
         md="3"
       >
-        <DatePicker
+        <StringDateInput
           v-model="firstTravelSegmentAttributes.departureOn"
           label="Date"
           :rules="[required]"
-          dense
+          density="compact"
           persistent-hint
-          @input="nudgeLaterTravelSegmentsDates(1, $event)"
+          @update:model-value="nudgeLaterTravelSegmentsDates(1, $event)"
         />
       </v-col>
       <v-col
@@ -56,7 +58,7 @@
         <TimeTextField
           v-model="firstTravelSegmentAttributes.departureTime"
           label="Time (24 hour)"
-          dense
+          density="compact"
           clearable
           persistent-hint
         />
@@ -70,10 +72,10 @@
         <TravelMethodSelect
           v-model="firstTravelSegmentAttributes.modeOfTransport"
           :rules="[required]"
-          dense
+          density="compact"
           persistent-hint
           required
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -85,8 +87,8 @@
           v-model="firstTravelSegmentAttributes.modeOfTransportOther"
           label="Travel Method - Other"
           :rules="[required]"
-          dense
-          outlined
+          density="compact"
+          variant="outlined"
           required
         />
       </v-col>
@@ -99,8 +101,8 @@
         <AccommodationTypeSelect
           v-model="firstTravelSegmentAttributes.accommodationType"
           :rules="[required]"
-          dense
-          outlined
+          density="compact"
+          variant="outlined"
           required
         />
       </v-col>
@@ -113,8 +115,8 @@
           v-model="firstTravelSegmentAttributes.accommodationTypeOther"
           label="Type of Accommodation - Other"
           :rules="[required]"
-          dense
-          outlined
+          density="compact"
+          variant="outlined"
           required
         />
       </v-col>
@@ -131,13 +133,12 @@
         <v-btn
           v-if="travelSegmentsAttributes.length > 2"
           title="Remove leg"
-          icon
+          icon="mdi-close"
+          variant="text"
           color="error"
           class="my-0"
           @click="removeTravelSegmentAttribute(index)"
-        >
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        />
       </h4>
 
       <v-row>
@@ -156,11 +157,13 @@
                 travelSegmentsAttributes[index].arrivalLocationId
               )
             "
-            dense
-            outlined
+            density="compact"
+            variant="outlined"
             persistent-hint
             required
-            @input="updateTravelSegmentAttributeByIndex(index - 1, 'arrivalLocationId', $event)"
+            @update:model-value="
+              updateTravelSegmentAttributeByIndex(index - 1, 'arrivalLocationId', $event)
+            "
           />
         </v-col>
         <v-col
@@ -173,18 +176,20 @@
             :in-territory="allTravelWithinTerritory"
             :filters="buildLocationFilters(travelSegmentsAttributes[index].departureLocationId)"
             :rules="[required]"
-            dense
-            outlined
+            density="compact"
+            variant="outlined"
             persistent-hint
             required
-            @input="updateTravelSegmentAttributeByIndex(index + 1, 'departureLocationId', $event)"
+            @update:model-value="
+              updateTravelSegmentAttributeByIndex(index + 1, 'departureLocationId', $event)
+            "
           />
         </v-col>
         <v-col
           cols="12"
           md="3"
         >
-          <DatePicker
+          <StringDateInput
             v-model="travelSegmentsAttributes[index].departureOn"
             label="Date"
             :min="travelSegmentsAttributes[index - 1].departureOn"
@@ -194,9 +199,9 @@
                 referenceFieldLabel: 'previous departure date',
               }),
             ]"
-            dense
+            density="compact"
             persistent-hint
-            @input="nudgeLaterTravelSegmentsDates(index + 1, $event)"
+            @update:model-value="nudgeLaterTravelSegmentsDates(index + 1, $event)"
           />
         </v-col>
         <v-col
@@ -206,7 +211,7 @@
           <TimeTextField
             v-model="travelSegmentsAttributes[index].departureTime"
             label="Time (24 hour)"
-            dense
+            density="compact"
             clearable
             persistent-hint
           />
@@ -220,10 +225,10 @@
           <TravelMethodSelect
             v-model="travelSegmentsAttributes[index].modeOfTransport"
             :rules="[required]"
-            dense
+            density="compact"
             persistent-hint
             required
-            outlined
+            variant="outlined"
           />
         </v-col>
         <v-col
@@ -235,8 +240,8 @@
             v-model="travelSegmentsAttributes[index].modeOfTransportOther"
             label="Travel Method - Other"
             :rules="[required]"
-            dense
-            outlined
+            density="compact"
+            variant="outlined"
             required
           />
         </v-col>
@@ -249,8 +254,8 @@
           <AccommodationTypeSelect
             v-model="travelSegmentsAttributes[index].accommodationType"
             v-bind="finalAccommodationTypeSelectDefaults(index)"
-            dense
-            outlined
+            density="compact"
+            variant="outlined"
           />
         </v-col>
         <v-col
@@ -262,8 +267,8 @@
             v-model="travelSegmentsAttributes[index].accommodationTypeOther"
             label="Type of Accommodation - Other"
             :rules="[required]"
-            dense
-            outlined
+            density="compact"
+            variant="outlined"
             required
           />
         </v-col>
@@ -278,7 +283,7 @@
           class="my-0"
           @click="addTravelSegmentAttribute"
         >
-          <v-icon left>mdi-plus</v-icon> Add Leg
+          <v-icon start>mdi-plus</v-icon> Add Leg
         </v-btn>
       </v-col>
     </v-row>
@@ -298,7 +303,7 @@ import {
   PERMITTED_ATTRIBUTES_FOR_CLONE,
 } from "@/api/travel-segments-api"
 
-import DatePicker from "@/components/common/DatePicker.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import AccommodationTypeSelect from "@/components/travel-segments/AccommodationTypeSelect.vue"

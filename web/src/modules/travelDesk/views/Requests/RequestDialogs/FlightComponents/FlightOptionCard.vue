@@ -12,6 +12,7 @@
           Preference
         </div>
         <v-select
+          v-model="flightOption.flightPreferenceOrder"
           :readonly="travelDeskUser"
           class="mr-2"
           :items="preferenceList"
@@ -24,10 +25,9 @@
           "
           persistent-hint
           :error="state.preferenceErr"
-          @input="state.preferenceErr = false"
           label="Preference"
-          v-model="flightOption.flightPreferenceOrder"
-          solo
+          variant="solo"
+          @update:model-value="state.preferenceErr = false"
         />
       </v-col>
 
@@ -54,19 +54,17 @@
                 </tr>
                 <tr style="background: #f9f9f9">
                   <td style="width: 16%">Departure:</td>
-                  <td style="width: 30%">{{ flightSegment.departAt | beautifyDateTime }}</td>
+                  <td style="width: 30%">{{ formatDateTime(flightSegment.departAt) }}</td>
                   <td style="width: 50%">{{ flightSegment.departLocation }}</td>
                 </tr>
                 <tr style="line-height: 1rem">
                   <td style="width: 16%">Arrival:</td>
-                  <td style="width: 30%">{{ flightSegment.arriveAt | beautifyDateTime }}</td>
+                  <td style="width: 30%">{{ formatDateTime(flightSegment.arriveAt) }}</td>
                   <td style="width: 50%">{{ flightSegment.arriveLocation }}</td>
                 </tr>
                 <tr style="background: #f9f9f9">
                   <td style="width: 16%">Duration</td>
-                  <td
-                    style="width:30%;"
-                  >
+                  <td style="width: 30%">
                     {{ flightSegment.duration }}
                   </td>
                   <td style="width: 50%"></td>
@@ -81,7 +79,9 @@
 </template>
 
 <script>
-import Vue from "vue"
+import { nextTick } from "vue"
+
+import { formatDateTime } from "@/utils/formatters"
 
 export default {
   name: "FlightOptionCard",
@@ -109,7 +109,7 @@ export default {
       this.state.preferenceErr = this.flightOption.flightPreferenceOrder ? false : true
     }
 
-    Vue.nextTick(() => (this.dataReady = true))
+    nextTick(() => (this.dataReady = true))
   },
   computed: {
     sortByOrder() {
@@ -120,12 +120,14 @@ export default {
       return flight
     },
   },
-  methods: {},
+  methods: {
+    formatDateTime,
+  },
 }
 </script>
 
 <style scoped>
-::v-deep .v-text-field.v-text-field .v-input__control {
+:deep(.v-text-field.v-text-field .v-input__control) {
   min-height: 5px;
 }
 </style>

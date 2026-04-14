@@ -7,8 +7,8 @@
     <span class="d-flex">
       {{ formatCurrency(estimatedCost) }}
       <v-icon
-        right
-        small
+        end
+        size="small"
       >
         mdi-help-circle-outline
       </v-icon>

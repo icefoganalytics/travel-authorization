@@ -79,14 +79,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useAuth0 } from "@auth0/auth0-vue"
 import { onMounted } from "vue"
 
 import { APPLICATION_NAME } from "@/config"
-import { auth0 } from "@/plugins/auth0-plugin"
 import useCurrentUser from "@/use/use-current-user"
 
 const { reset: resetCurrentUser } = useCurrentUser()
+const { loginWithRedirect } = useAuth0()
 
 const title = APPLICATION_NAME
 
@@ -95,6 +96,6 @@ onMounted(() => {
 })
 
 function login() {
-  return auth0.loginWithRedirect()
+  return loginWithRedirect()
 }
 </script>

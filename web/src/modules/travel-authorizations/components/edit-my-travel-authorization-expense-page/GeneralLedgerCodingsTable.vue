@@ -4,7 +4,6 @@
     :items="generalLedgerCodings"
     :items-per-page="10"
     :loading="isLoading"
-    class="elevation-2"
   >
     <template #top>
       <GeneralLedgerCodingEditDialog
@@ -16,13 +15,13 @@
         @deleted="emitChangedAndRefresh"
       />
     </template>
-    <template #header.code="{ header }">
+    <template #header.code="{ column }">
       <!-- See https://github.com/icefoganalytics/travel-authorization/issues/156#issuecomment-1890047168 -->
-      <v-tooltip bottom>
-        <template #activator="{ on }">
-          <span v-on="on">
-            {{ header.text }}
-            <v-icon small> mdi-help-circle-outline </v-icon>
+      <v-tooltip location="bottom">
+        <template #activator="{ props: activatorProps }">
+          <span v-bind="activatorProps">
+            {{ column.title }}
+            <v-icon size="small">mdi-help-circle-outline</v-icon>
           </span>
         </template>
         <span>
@@ -39,22 +38,22 @@
     <template #item.actions="{ item }">
       <div class="d-flex justify-end">
         <v-btn
-          color="secondary"
+          variant="outlined"
           @click="showEditDialog(item)"
           >Edit</v-btn
         >
         <v-btn
-          icon
+          icon="mdi-close"
+          size="small"
+          variant="text"
           class="ml-2"
           color="error"
           title="Delete"
           @click="showDeleteDialog(item)"
-        >
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        />
       </div>
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses">Total</td>
@@ -69,7 +68,8 @@
 <script setup>
 import { sumBy } from "lodash"
 import { computed, onMounted, ref } from "vue"
-import { useRoute } from "vue2-helpers/vue-router"
+
+import { formatCurrency } from "@/utils/formatters"
 
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 
@@ -88,8 +88,6 @@ const emit = defineEmits(["changed"])
 const editDialog = ref(null)
 const deleteDialog = ref(null)
 
-const route = useRoute()
-
 const generalLedgerCodingOptions = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
@@ -103,25 +101,15 @@ const {
 const totalAmount = computed(() => sumBy(generalLedgerCodings.value, "amount"))
 
 const headers = ref([
-  { text: "G/L code", value: "code" },
-  { text: "Amount", value: "amount" },
-  { text: "", value: "actions" },
+  { title: "G/L code", key: "code" },
+  { title: "Amount", key: "amount" },
+  { title: "", key: "actions" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 
 onMounted(async () => {
   await refresh()
-  showEditDialogForRouteQuery()
-  showDeleteDialogForRouteQuery()
 })
-
-function formatCurrency(amount) {
-  const formatter = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  })
-  return formatter.format(amount)
-}
 
 async function emitChangedAndRefresh() {
   emit("changed")
@@ -129,35 +117,11 @@ async function emitChangedAndRefresh() {
 }
 
 function showDeleteDialog(item) {
-  deleteDialog.value.show(item)
+  deleteDialog.value.show(item.id)
 }
 
 function showEditDialog(item) {
-  editDialog.value.show(item)
-}
-
-function showEditDialogForRouteQuery() {
-  const generalLedgerCodingId = parseInt(route.query.showEdit)
-  if (isNaN(generalLedgerCodingId)) return
-
-  const generalLedgerCoding = generalLedgerCodings.value.find(
-    (generalLedgerCoding) => generalLedgerCoding.id === generalLedgerCodingId
-  )
-  if (!generalLedgerCoding) return
-
-  showEditDialog(generalLedgerCoding)
-}
-
-function showDeleteDialogForRouteQuery() {
-  const generalLedgerCodingId = parseInt(route.query.showDelete)
-  if (isNaN(generalLedgerCodingId)) return
-
-  const generalLedgerCoding = generalLedgerCodings.value.find(
-    (generalLedgerCoding) => generalLedgerCoding.id === generalLedgerCodingId
-  )
-  if (!generalLedgerCoding) return
-
-  showDeleteDialog(generalLedgerCoding)
+  editDialog.value.show(item.id)
 }
 
 defineExpose({

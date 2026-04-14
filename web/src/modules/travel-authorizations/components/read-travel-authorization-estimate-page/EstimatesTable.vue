@@ -1,7 +1,7 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="items"
+    :items="estimates"
     :items-per-page="10"
     :loading="isLoading"
   >
@@ -11,7 +11,7 @@
     <template #item.cost="{ value }">
       {{ formatCurrency(value) }}
     </template>
-    <template #foot>
+    <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses"></td>
@@ -25,59 +25,34 @@
   </v-data-table>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, ref } from "vue"
 import { sumBy } from "lodash"
-import { mapActions, mapGetters } from "vuex"
-import { DateTime } from "luxon"
 
-import { TYPES } from "@/api/expenses-api"
+import { formatCurrency, formatDate } from "@/utils/formatters"
 
-export default {
-  name: "EstimatesTable",
-  components: {},
-  props: {
-    travelAuthorizationId: {
-      type: Number,
-      required: true,
-    },
+import useExpenses, { ExpenseTypes } from "@/use/use-expenses"
+
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
+
+const headers = ref([
+  { title: "Expense Type", key: "expenseType" },
+  { title: "Description", key: "description" },
+  { title: "Date", key: "date" },
+  { title: "Amount", key: "cost" },
+])
+const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
+
+const expenseOptions = computed(() => ({
+  where: {
+    travelAuthorizationId: props.travelAuthorizationId,
+    type: ExpenseTypes.ESTIMATE,
   },
-  data: () => ({
-    headers: [
-      { text: "Expense Type", value: "expenseType" },
-      { test: "Description", value: "description" },
-      { text: "Date", value: "date" },
-      { text: "Amount", value: "cost" },
-      // { text: "", value: "actions" }, // no actions; read-only
-    ],
-    totalRowClasses: "text-start font-weight-bold text-uppercase",
-  }),
-  computed: {
-    ...mapGetters("expenses", ["items", "isLoading"]),
-    // Will need to be calculated in the back-end if data is multi-page.
-    totalAmount() {
-      return sumBy(this.items, "cost")
-    },
-  },
-  async mounted() {
-    await this.ensure({
-      where: {
-        travelAuthorizationId: this.travelAuthorizationId,
-        type: TYPES.ESTIMATE,
-      },
-    })
-  },
-  methods: {
-    ...mapActions("expenses", ["ensure"]),
-    formatDate(date) {
-      return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
-    },
-    formatCurrency(amount) {
-      const formatter = new Intl.NumberFormat("en-CA", {
-        style: "currency",
-        currency: "CAD",
-      })
-      return formatter.format(amount)
-    },
-  },
-}
+}))
+const { expenses: estimates, isLoading } = useExpenses(expenseOptions)
+
+// Will need to be calculated in the back-end if data is multi-page.
+const totalAmount = computed(() => sumBy(estimates.value, "cost"))
 </script>

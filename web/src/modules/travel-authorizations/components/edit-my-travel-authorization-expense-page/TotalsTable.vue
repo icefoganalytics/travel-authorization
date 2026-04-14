@@ -3,10 +3,7 @@
     v-if="isLoading"
     type="table-heading@3"
   />
-  <div
-    v-else
-    class="elevation-2"
-  >
+  <v-card v-else>
     <v-row>
       <v-col
         cols="6"
@@ -42,7 +39,7 @@
         </strong>
       </v-col>
     </v-row>
-  </div>
+  </v-card>
 </template>
 
 <script setup lang="ts">

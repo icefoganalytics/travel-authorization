@@ -17,16 +17,15 @@
       type="submit"
     >
       <slot>{{ buttonText }}</slot>
-      <v-icon right>mdi-download</v-icon>
+      <v-icon end>mdi-download</v-icon>
     </v-btn>
   </form>
 </template>
 
 <script setup>
+import { useAuth0 } from "@auth0/auth0-vue"
 import { computed, ref, nextTick } from "vue"
 import { isNil, merge } from "lodash"
-
-import { useAuth0 } from "@/plugins/auth0-plugin"
 
 import { API_BASE_URL } from "@/config"
 
@@ -49,8 +48,8 @@ const buttonPropsWithDefaults = computed(() =>
   merge(
     {},
     {
-      outlined: true,
-      xLarge: true,
+      variant: "outlined",
+      size: "x-large",
       color: "info",
     },
     props.buttonProps

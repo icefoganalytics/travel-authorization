@@ -18,7 +18,7 @@
           color="primary"
           class="my-0"
         >
-          <v-icon left> mdi-pencil </v-icon>
+          <v-icon start> mdi-pencil </v-icon>
           Edit
         </v-btn>
       </v-card-title>
@@ -36,9 +36,9 @@
             <TravelDeskTravelAgencySelect
               v-model="travelDeskTravelRequest.travelAgencyId"
               label="Assign Agency"
-              append-icon="mdi-lock"
+              append-inner-icon="mdi-lock"
               placeholder="None"
-              outlined
+              variant="outlined"
               persistent-placeholder
               readonly
             />
@@ -50,9 +50,9 @@
             <UserTravelDeskAgentSelect
               v-model="travelDeskTravelRequest.travelDeskOfficer"
               label="Travel Desk Agent Assigned"
-              append-icon="mdi-lock"
+              append-inner-icon="mdi-lock"
               readonly
-              outlined
+              variant="outlined"
             />
           </v-col>
         </v-row>
@@ -113,7 +113,7 @@
             name: 'TravelDeskPage',
           }"
           :class="{ 'ml-2': hasInvoiceNumber }"
-          outlined
+          variant="outlined"
         >
           Back
         </v-btn>
@@ -167,13 +167,13 @@ function openPrintItineraryDialog() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {

@@ -31,16 +31,16 @@ import usePerDiems, { PER_DIEM_CLAIM_TYPES, PER_DIEM_TRAVEL_REGIONS } from "@/us
 
 const headers = [
   {
-    text: "Within Canada",
-    value: "withinCanada",
+    title: "Within Canada",
+    key: "withinCanada",
   },
   {
-    text: "Within USA",
-    value: "withinUsa",
+    title: "Within USA",
+    key: "withinUsa",
   },
   {
-    text: "Outside Canada and USA",
-    value: "outsideCanadaAndUsa",
+    title: "Outside Canada and USA",
+    key: "outsideCanadaAndUsa",
   },
 ]
 

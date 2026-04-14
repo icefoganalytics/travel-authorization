@@ -21,9 +21,9 @@
         cols="12"
       >
         <v-data-table
+          v-model:expanded="expanded"
           :headers="flightHeaders"
           :items="flightRequests"
-          :expanded.sync="expanded"
           :show-expand="showFlightOptions"
           hide-default-footer
           class="elevation-1"
@@ -36,7 +36,7 @@
               @saved="updateTable"
             />
           </template>
-          <template #expanded-item="{ item }">
+          <template #expanded-row="{ item }">
             <td
               v-if="showFlightOptions"
               :colspan="6"
@@ -58,33 +58,29 @@
           </template>
 
           <template #[`item.datePreference`]="{ item }">
-            {{ item.datePreference | beautifyDateTime }}
+            {{ formatDateTime(item.datePreference) }}
           </template>
 
           <template #[`item.edit`]="{ item }">
-            <div class="d-flex justify-end">
+            <div class="d-flex ga-1 justify-end">
               <v-btn
                 v-if="!readonly"
                 title="Edit"
-                icon
-                color="blue"
+                icon="mdi-pencil"
+                size="small"
+                variant="text"
+                color="primary"
                 @click="showEditDialog(item.id)"
-              >
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
+              />
               <v-btn
                 v-if="!readonly"
-                style="min-width: 0"
-                color="transparent"
-                class="px-1 pt-2"
-                small
+                title="Delete"
+                icon="mdi-close"
+                size="small"
+                variant="text"
+                color="error"
                 @click="removeFlight(item)"
-                ><v-icon
-                  class=""
-                  color="red"
-                  >mdi-close</v-icon
-                >
-              </v-btn>
+              />
             </div>
           </template>
         </v-data-table>
@@ -97,6 +93,9 @@
 import { ref } from "vue"
 
 import { TRAVEL_DESK_URL } from "@/urls"
+
+import { formatDateTime } from "@/utils/formatters"
+
 import http from "@/api/http-client"
 
 import FlightOptionCard from "@/modules/travelDesk/views/Requests/RequestDialogs/FlightComponents/FlightOptionCard.vue"
@@ -152,40 +151,40 @@ export default {
   data() {
     return {
       flightHeaders: [
-        { text: "", value: "data-table-expand", class: "blue-grey lighten-4" },
+        { title: "", key: "data-table-expand", class: "blue-grey lighten-4" },
         {
-          text: "Depart Location",
-          value: "departLocation",
+          title: "Depart Location",
+          key: "departLocation",
           class: "blue-grey lighten-4",
           sortable: false,
         },
         {
-          text: "Arrive Location",
-          value: "arriveLocation",
+          title: "Arrive Location",
+          key: "arriveLocation",
           class: "blue-grey lighten-4",
           sortable: false,
         },
-        { text: "Date", value: "date", class: "blue-grey lighten-4" },
+        { title: "Date", key: "date", class: "blue-grey lighten-4" },
         {
-          text: "Time Preference",
-          value: "timePreference",
+          title: "Time Preference",
+          key: "timePreference",
           class: "blue-grey lighten-4",
           sortable: false,
         },
         {
-          text: "Seat Preference",
-          value: "seatPreference",
+          title: "Seat Preference",
+          key: "seatPreference",
           class: "blue-grey lighten-4",
           sortable: false,
         },
-        { text: "", value: "edit", class: "blue-grey lighten-4", width: "4rem", sortable: false },
+        { title: "", key: "edit", class: "blue-grey lighten-4", width: "4rem", sortable: false },
       ],
       flightRequest: {},
       tmpId: 1,
       admin: false,
       travelerDetails: {},
       savingData: false,
-      expanded: [true],
+      expanded: [],
       loadingData: false,
       minDate: "",
       maxDate: "",
@@ -195,6 +194,7 @@ export default {
     this.initForm()
   },
   methods: {
+    formatDateTime,
     async updateTable(type) {
       if (type == "Add New") {
         // console.log(this.flightRequests)
@@ -286,7 +286,7 @@ export default {
 </script>
 
 <style scoped>
-::v-deep .v-data-table > .v-data-table__wrapper tbody tr.v-data-table__expanded__content {
+:deep(.v-data-table > .v-data-table__wrapper tbody tr.v-data-table__expanded__content) {
   background: #f9f9f9 !important;
 }
 

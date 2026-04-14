@@ -4,7 +4,7 @@
 
 <script setup>
 import { onMounted } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
 
 import travelAuthorizationsApi from "@/api/travel-authorizations-api"

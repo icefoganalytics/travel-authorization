@@ -8,14 +8,14 @@
     ref="headerActionsFormCard"
     title="Edit Travel Pre-Approval"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="saveWrapper"
   >
     <template #header-actions>
       <v-btn
         class="my-0"
         color="error"
-        outlined
+        variant="outlined"
         :loading="isDeleting"
         @click="deleteTravelAuthorizationPreApproval"
       >
@@ -34,7 +34,7 @@
           label="Purpose *"
           item-value="purpose"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -50,7 +50,7 @@
           v-model="travelAuthorizationPreApproval.location"
           label="Location *"
           item-value="text"
-          outlined
+          variant="outlined"
           :rules="[required]"
         />
       </v-col>
@@ -66,7 +66,7 @@
           label="Estimated Cost ($) *"
           type="number"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -81,7 +81,7 @@
         <v-textarea
           v-model="travelAuthorizationPreApproval.reason"
           label="Reason"
-          outlined
+          variant="outlined"
           clearable
         />
       </v-col>
@@ -93,10 +93,10 @@
         md="4"
       >
         <v-switch
-          :input-value="exactTravelDateKnown"
+          :model-value="exactTravelDateKnown"
           :label="exactTravelDateKnown ? 'Exact date known' : 'Exact date not known'"
           inset
-          @change="toggleExactTravelDateKnown"
+          @update:model-value="toggleExactTravelDateKnown($event ?? false)"
         />
       </v-col>
       <template v-if="exactTravelDateKnown">
@@ -109,7 +109,7 @@
             label="Start Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
           />
         </v-col>
         <v-col
@@ -121,7 +121,7 @@
             label="End Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
           />
         </v-col>
       </template>
@@ -134,7 +134,7 @@
           v-model="travelAuthorizationPreApproval.month"
           label="Anticipated Month *"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -148,9 +148,9 @@
           v-model="travelAuthorizationPreApproval.department"
           label="Department *"
           :rules="[required]"
-          outlined
+          variant="outlined"
           :clearable="false"
-          @input="resetDependentFieldsDepartment"
+          @update:model-value="resetDependentFieldsDepartment"
         />
       </v-col>
       <v-col
@@ -167,9 +167,9 @@
               : 'Search for a branch'
           "
           :where="branchWhere"
-          outlined
+          variant="outlined"
           clearable
-          @input="resetDependentFieldsBranch"
+          @update:model-value="resetDependentFieldsBranch"
         />
       </v-col>
     </v-row>
@@ -186,8 +186,8 @@
         <v-col>
           <TravelAuthorizationPreApprovalTravelerEditFormCard
             :travel-authorization-pre-approval-id="travelAuthorizationPreApprovalId"
-            :number-travelers.sync="travelAuthorizationPreApproval.numberTravelers"
-            :is-open-for-any-traveler.sync="travelAuthorizationPreApproval.isOpenForAnyTraveler"
+            v-model:number-travelers="travelAuthorizationPreApproval.numberTravelers"
+            v-model:is-open-for-any-traveler="travelAuthorizationPreApproval.isOpenForAnyTraveler"
             :department="travelAuthorizationPreApproval.department"
             :branch="travelAuthorizationPreApproval.branch"
           />
@@ -202,7 +202,7 @@
           <v-textarea
             v-model="travelAuthorizationPreApproval.travelerNotes"
             label="Traveler Notes"
-            outlined
+            variant="outlined"
             clearable
           />
         </v-col>
@@ -219,7 +219,7 @@
       </v-btn>
       <v-btn
         color="warning"
-        outlined
+        variant="outlined"
         :to="previousRouteOrFallback"
       >
         Cancel
@@ -230,7 +230,7 @@
 
 <script setup>
 import { computed, ref, toRefs } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
@@ -347,13 +347,13 @@ const previousRouteOrFallback = computed(() => {
 
 useBreadcrumbs([
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "Travel Pre-Approval",
+    title: "Travel Pre-Approval",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalPage",
       params: {
@@ -362,7 +362,7 @@ useBreadcrumbs([
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalEditPage",
       params: {
@@ -374,7 +374,7 @@ useBreadcrumbs([
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

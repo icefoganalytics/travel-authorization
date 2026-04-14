@@ -17,7 +17,13 @@
       </template>
 
       <template #item.location="{ item }">
-        {{ getLocationName(item.locationIds) }}
+        <div class="d-flex flex-wrap ga-1">
+          <LocationChip
+            v-for="locationId in item.locationIds"
+            :key="locationId"
+            :location-id="locationId"
+          />
+        </div>
       </template>
 
       <template #item.startDate="{ item }">
@@ -26,7 +32,7 @@
         </div>
         <div v-else>
           <div>
-            {{ item.startDate | beautifyDate }}
+            {{ formatDate(item.startDate) }}
           </div>
         </div>
       </template>
@@ -36,7 +42,7 @@
         </div>
         <div v-else>
           <div>
-            {{ item.endDate | beautifyDate }}
+            {{ formatDate(item.endDate) }}
           </div>
         </div>
       </template>
@@ -54,13 +60,13 @@
           "
           :authorized-travel="item"
           :return-to="returnTo"
-          @updateTable="updateTable"
+          @update-table="updateTable"
         />
         <v-btn
           v-if="hasInvoiceNumber(item)"
           class="ml-2"
           color="#005A65"
-          x-small
+          size="x-small"
           @click="openPrintItineraryDialog(item.id)"
         >
           View Itinerary
@@ -71,14 +77,17 @@
 </template>
 
 <script>
-import Vue from "vue"
+import { formatDate } from "@/utils/formatters"
 
 import NewTravelDeskRequest from "@/modules/travelDesk/views/Requests/NewTravelDeskRequest.vue"
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
 
+import LocationChip from "@/components/locations/LocationChip.vue"
+
 export default {
   name: "TravelerRequests",
   components: {
+    LocationChip,
     NewTravelDeskRequest,
     TravelDeskTravelRequestPrintItineraryDialog,
   },
@@ -92,26 +101,25 @@ export default {
       default: undefined,
     },
   },
+  emits: ["updateTable"],
   data() {
     return {
       headers: [
-        { text: "Name", value: "name", class: "blue-grey lighten-4" },
-        { text: "Phase", value: "phase", class: "blue-grey lighten-4" },
-        { text: "Location", value: "location", class: "blue-grey lighten-4" },
-        { text: "Description", value: "description", class: "blue-grey lighten-4" },
-        { text: "Start Date", value: "startDate", class: "blue-grey lighten-4" },
-        { text: "End Date", value: "endDate", class: "blue-grey lighten-4" },
-        { text: "Travel Auth Status", value: "status", class: "blue-grey lighten-4" },
+        { title: "Name", key: "name", class: "blue-grey lighten-4" },
+        { title: "Phase", key: "phase", class: "blue-grey lighten-4" },
+        { title: "Location", key: "location", class: "blue-grey lighten-4" },
+        { title: "Description", key: "description", class: "blue-grey lighten-4" },
+        { title: "Start Date", key: "startDate", class: "blue-grey lighten-4" },
+        { title: "End Date", key: "endDate", class: "blue-grey lighten-4" },
+        { title: "Travel Auth Status", key: "status", class: "blue-grey lighten-4" },
         {
-          text: "Travel Action",
-          value: "edit",
+          title: "Travel Action",
+          key: "edit",
           class: "blue-grey lighten-4",
           cellClass: "px-0 mx-0",
           sortable: false,
         },
       ],
-      admin: false,
-      department: "",
     }
   },
   computed: {
@@ -119,34 +127,20 @@ export default {
       return (item) => item.status === "Approved" && item.phase === "Booked" && item.invoiceNumber
     },
   },
-  mounted() {
-    this.department = this.$store.state.auth?.department
-    this.admin = Vue.filter("isAdmin")()
-  },
   methods: {
+    formatDate,
     updateTable() {
       this.$emit("updateTable")
     },
     openPrintItineraryDialog(travelDeskTravelRequestId) {
       this.$refs.travelDeskTravelRequestPrintItineraryDialog.open(travelDeskTravelRequestId)
     },
-    getLocationName(locations) {
-      const names = []
-      const destinations = this.$store.state.traveldesk.destinations
-      for (const locationId of locations) {
-        const location = destinations.filter((dest) => dest.value == locationId)
-        if (location.length > 0) {
-          names.push(location[0].text)
-        }
-      }
-      return names.join(", ")
-    },
   },
 }
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

@@ -77,7 +77,7 @@ async function refresh() {
 
 const breadcrumbs = ref([
   {
-    text: "Manage Travel Requests",
+    title: "Manage Travel Requests",
     to: {
       name: "ManageTravelRequests",
     },

@@ -6,13 +6,12 @@
     <v-card-title class="d-flex align-baseline">
       <h3>Approved Upcoming Travel</h3>
 
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
+      <v-tooltip location="top">
+        <template #activator="{ props: activatorProps }">
           <v-icon
             class="ml-2"
             color="black"
-            v-bind="attrs"
-            v-on="on"
+            v-bind="activatorProps"
           >
             mdi-help-circle-outline
           </v-icon>
@@ -24,7 +23,7 @@
       <RefreshTableButton @click="refreshTable" />
     </v-card-title>
     <v-card-text>
-      <TravelAuthorizationsSupervisorDataTable
+      <TravelAuthorizationsSupervisorDataTableServer
         ref="travelAuthorizationsSupervisorDataTable"
         :where="whereClause"
         :filters="filtersClause"
@@ -41,7 +40,7 @@ import { ref } from "vue"
 import { STATUSES } from "@/api/travel-authorizations-api"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import TravelAuthorizationsSupervisorDataTable from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTable.vue"
+import TravelAuthorizationsSupervisorDataTableServer from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTableServer.vue"
 
 const whereClause = {
   status: STATUSES.APPROVED,

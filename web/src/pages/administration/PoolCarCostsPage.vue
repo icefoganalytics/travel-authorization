@@ -12,19 +12,17 @@
           class="elevation-1"
         >
           <template #top>
-            <v-toolbar flat>
+            <v-toolbar elevation="0">
               <v-spacer></v-spacer>
               <v-dialog
                 v-model="dialog"
                 max-width="500px"
               >
-                <template #activator="{ on, attrs }">
+                <template #activator="{ props: activatorProps }">
                   <v-btn
                     color="primary"
-                    dark
                     class="mb-2"
-                    v-bind="attrs"
-                    v-on="on"
+                    v-bind="activatorProps"
                   >
                     New Item
                   </v-btn>
@@ -43,8 +41,8 @@
                       >
                         <v-text-field
                           v-model="editedItem.type"
-                          dense
-                          outlined
+                          density="compact"
+                          variant="outlined"
                           label="Type"
                         ></v-text-field>
                       </v-col>
@@ -55,8 +53,8 @@
                       >
                         <v-text-field
                           v-model="editedItem.cost"
-                          dense
-                          outlined
+                          density="compact"
+                          variant="outlined"
                           label="Cost per km"
                         ></v-text-field>
                       </v-col>
@@ -66,15 +64,15 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn
-                      color="blue darken-1"
-                      text
+                      color="primary"
+                      variant="text"
                       @click="close"
                     >
                       Cancel
                     </v-btn>
                     <v-btn
-                      color="blue darken-1"
-                      text
+                      color="primary"
+                      variant="text"
                       @click="save"
                     >
                       Save
@@ -94,14 +92,14 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn
-                      color="blue darken-1"
-                      text
+                      color="primary"
+                      variant="text"
                       @click="closeDelete"
                       >Cancel</v-btn
                     >
                     <v-btn
-                      color="blue darken-1"
-                      text
+                      color="primary"
+                      variant="text"
                       @click="deleteItemConfirm"
                       >OK</v-btn
                     >
@@ -113,14 +111,14 @@
           </template>
           <template #[`item.actions`]="{ item }">
             <v-icon
-              small
+              size="small"
               class="mr-2"
               @click="editItem(item)"
             >
               mdi-pencil
             </v-icon>
             <v-icon
-              small
+              size="small"
               @click="deleteItem(item)"
             >
               mdi-delete
@@ -146,14 +144,14 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 const headers = ref([
   {
-    text: "Vehicle Type",
+    title: "Vehicle Type",
     align: "start",
     sortable: false,
-    value: "type",
+    key: "type",
   },
   {
-    text: "Cost",
-    value: "cost",
+    title: "Cost",
+    key: "cost",
   },
 ])
 
@@ -254,11 +252,11 @@ async function save() {
 
 useBreadcrumbs([
   {
-    text: "Administration",
+    title: "Administration",
     to: { name: "AdministrationPage" },
   },
   {
-    text: "Pool Car Costs",
+    title: "Pool Car Costs",
     to: { name: "administration/PoolCarCostsPage" },
   },
 ])

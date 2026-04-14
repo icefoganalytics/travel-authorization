@@ -70,22 +70,22 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
         // Assert
         expect(travelDeskFlightRequests).toEqual([
           expect.objectContaining({
-            departLocation: departureLocation1.city,
-            arriveLocation: arrivalLocation1.city,
+            departLocation: `${departureLocation1.city} (${departureLocation1.province})`,
+            arriveLocation: `${arrivalLocation1.city} (${arrivalLocation1.province})`,
             datePreference: travelSegment1.departureOn,
             timePreference: TravelDeskFlightRequest.TimePreferences.AM,
             seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.NO_PREFERENCE,
           }),
           expect.objectContaining({
-            departLocation: departureLocation2.city,
-            arriveLocation: arrivalLocation2.city,
+            departLocation: `${departureLocation2.city} (${departureLocation2.province})`,
+            arriveLocation: `${arrivalLocation2.city} (${arrivalLocation2.province})`,
             datePreference: travelSegment2.departureOn,
             timePreference: TravelDeskFlightRequest.TimePreferences.PM,
             seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.NO_PREFERENCE,
           }),
           expect.objectContaining({
-            departLocation: departureLocation3.city,
-            arriveLocation: arrivalLocation3.city,
+            departLocation: `${departureLocation3.city} (${departureLocation3.province})`,
+            arriveLocation: `${arrivalLocation3.city} (${arrivalLocation3.province})`,
             datePreference: travelSegment3.departureOn,
             timePreference: TravelDeskFlightRequest.TimePreferences.AM,
             seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.NO_PREFERENCE,

@@ -2,8 +2,6 @@
   <div>
     <h1>QA Scenarios</h1>
 
-    <Breadcrumbs />
-
     <v-card
       :loading="isLoading"
       class="mx-auto"
@@ -22,34 +20,31 @@
           v-for="scenario in scenarios"
           :key="scenario"
         >
-          <v-list-item-content>
-            <v-btn
-              :loading="isLoading"
-              color="primary"
-              @click="triggerScenario(scenario)"
-              >{{ scenario }}</v-btn
-            >
-          </v-list-item-content>
+          <v-btn
+            :loading="isLoading"
+            color="primary"
+            block
+            @click="triggerScenario(scenario)"
+            >{{ scenario }}</v-btn
+          >
         </v-list-item>
         <v-list-item>
-          <v-list-item-content>
-            <v-btn
-              :loading="isLoading"
-              color="primary"
-              @click="syncYgEmployeeGroups"
-              >Sync YG Employee Groups</v-btn
-            >
-          </v-list-item-content>
+          <v-btn
+            :loading="isLoading"
+            color="primary"
+            block
+            @click="syncYgEmployeeGroups"
+            >Sync YG Employee Groups</v-btn
+          >
         </v-list-item>
         <v-list-item>
-          <v-list-item-content>
-            <v-btn
-              :loading="isLoading"
-              color="primary"
-              @click="syncYgEmployees"
-              >Sync YG Employees</v-btn
-            >
-          </v-list-item-content>
+          <v-btn
+            :loading="isLoading"
+            color="primary"
+            block
+            @click="syncYgEmployees"
+            >Sync YG Employees</v-btn
+          >
         </v-list-item>
       </v-list>
     </v-card>
@@ -62,9 +57,9 @@ import { onMounted, ref } from "vue"
 import scenariosApi from "@/api/qa/scenarios-api"
 import ygEmployeesApi from "@/api/yg-employees-api"
 import ygEmployeeGroupsApi from "@/api/yg-employee-groups-api"
-import useSnack from "@/use/use-snack"
 
-import Breadcrumbs from "@/components/Breadcrumbs.vue"
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useSnack from "@/use/use-snack"
 
 const scenarios = ref([])
 const isLoading = ref(true)
@@ -125,4 +120,13 @@ async function syncYgEmployees() {
     isLoading.value = false
   }
 }
+
+useBreadcrumbs([
+  {
+    title: "QA Scenarios",
+    to: {
+      name: "qa/ScenariosListPage",
+    },
+  },
+])
 </script>

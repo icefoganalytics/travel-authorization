@@ -3,13 +3,11 @@
     v-model="showDialog"
     max-width="500px"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
-        color="secondary"
-        dark
-        class="mb-2"
-        v-bind="attrs"
-        v-on="on"
+        variant="outlined"
+        class="mb-2 bg-white"
+        v-bind="activatorProps"
       >
         Add Expense
       </v-btn>
@@ -18,7 +16,7 @@
       ref="form"
       @submit.prevent="createAndClose"
     >
-      <v-card :loading="loading">
+      <v-card :loading="isLoading">
         <v-card-title>
           <span class="text-h5">Create Expense</span>
         </v-card-title>
@@ -42,12 +40,12 @@
                 :rules="[required]"
                 label="Description"
                 required
-              ></v-text-field>
+              />
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <DatePicker
+              <StringDateInput
                 v-model="expense.date"
                 :rules="[required]"
                 label="Date"
@@ -70,14 +68,14 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            :loading="loading"
+            :loading="isLoading"
             color="error"
-            @click="close"
+            @click="hide"
           >
             Cancel
           </v-btn>
           <v-btn
-            :loading="loading"
+            :loading="isLoading"
             color="primary"
             type="submit"
           >
@@ -89,76 +87,92 @@
   </v-dialog>
 </template>
 
-<script>
+<script setup lang="ts">
+import { nextTick, ref, watch } from "vue"
+import { isNil } from "lodash"
+
+import { type VForm } from "vuetify/components"
+
+import expensesApi, { ExpenseExpenseTypes, ExpenseTypes, type Expense } from "@/api/expenses-api"
+import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
+import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
+import useSnack from "@/use/use-snack"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import { required } from "@/utils/validators"
 
-import expensesApi, { EXPENSE_TYPES } from "@/api/expenses-api"
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
-import DatePicker from "@/components/common/DatePicker.vue"
-import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
+const emit = defineEmits<{
+  (event: "created"): void
+}>()
 
-export default {
-  name: "ExpenseCreateDialog",
-  components: {
-    CurrencyTextField,
-    DatePicker,
-    ExpenseTypeSelect,
-  },
-  props: {
-    formId: {
-      type: Number,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      expenseTypes: [EXPENSE_TYPES.ACCOMMODATIONS, EXPENSE_TYPES.TRANSPORTATION],
-      expense: this.newExpense(),
-      showDialog: this.$route.query.showCreateExpense === "true",
-      loading: false,
-    }
-  },
-  watch: {
-    showDialog(value) {
-      if (value) {
-        this.$router.push({ query: { showCreateExpense: value } })
-      } else {
-        this.$router.push({ query: { showCreateExpense: undefined } })
-      }
-    },
-  },
-  methods: {
-    required,
-    newExpense() {
-      return {
-        travelAuthorizationId: this.formId,
-        type: expensesApi.TYPES.EXPENSE,
-        currency: "CAD",
-      }
-    },
-    close() {
-      this.showDialog = false
-      this.expense = this.newExpense()
-      this.$refs.form.resetValidation()
-    },
-    createAndClose() {
-      this.loading = true
-      return expensesApi
-        .create(this.expense)
-        .then(() => {
-          this.close()
-          this.$nextTick(() => {
-            this.$emit("created")
-          })
-        })
-        .catch((error) => {
-          this.$snack(error.message, { color: "error" })
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-  },
+const showDialog = useRouteQuery("showCreateExpense", "false", {
+  transform: booleanTransformer,
+})
+
+const expense = ref<Partial<Expense>>({
+  travelAuthorizationId: props.travelAuthorizationId,
+  type: ExpenseTypes.EXPENSE,
+  currency: "CAD",
+})
+
+const expenseTypes = [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION]
+
+watch(
+  () => showDialog.value,
+  () => {
+    reset()
+  }
+)
+
+watch(
+  () => props.travelAuthorizationId,
+  () => {
+    reset()
+  }
+)
+
+const form = ref<InstanceType<typeof VForm> | null>(null)
+const isLoading = ref(false)
+const snack = useSnack()
+
+async function createAndClose() {
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
+
+  isLoading.value = true
+  try {
+    await expensesApi.create(expense.value)
+    hide()
+
+    await nextTick()
+    emit("created")
+  } catch (error) {
+    console.error(`Failed to create expense: ${error}`, { error })
+    snack.error(`Failed to create expense: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function reset() {
+  form.value?.resetValidation()
+  expense.value = {
+    travelAuthorizationId: props.travelAuthorizationId,
+    type: ExpenseTypes.EXPENSE,
+    currency: "CAD",
+  }
+}
+
+function hide() {
+  showDialog.value = false
 }
 </script>

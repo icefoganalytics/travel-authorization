@@ -12,14 +12,14 @@
         >
           <v-text-field
             label="Preference"
-            :value="flightPreferenceOrderText"
+            :model-value="flightPreferenceOrderText"
             :hint="
               flightOption.flightPreferenceOrder === DOES_NOT_WORK
                 ? 'Please see the Additional Information.'
                 : ''
             "
             persistent-hint
-            outlined
+            variant="outlined"
             readonly
           />
         </v-col>
@@ -29,8 +29,8 @@
         >
           <v-text-field
             label="Cost"
-            :value="formatCurrency(flightOption.cost)"
-            outlined
+            :model-value="formatCurrency(flightOption.cost)"
+            variant="outlined"
             readonly
           />
         </v-col>

@@ -1,10 +1,10 @@
 <template>
   <v-dialog
-    :value="showDialog"
+    :model-value="showDialog"
     persistent
     max-width="1200px"
     @keydown.esc="hide"
-    @input="hideIfFalse"
+    @update:model-value="hideIfFalse"
   >
     <v-form
       ref="form"
@@ -35,7 +35,7 @@
                   familyOf: travelDeskFlightOption.flightRequestId,
                 }"
                 :rules="[required]"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -49,7 +49,7 @@
                 type="number"
                 :rules="[required]"
                 prefix="$"
-                outlined
+                variant="outlined"
                 required
               />
             </v-col>
@@ -61,8 +61,8 @@
                 v-model="travelDeskFlightOption.duration"
                 label="Travel Duration"
                 readonly
-                outlined
-                append-icon="mdi-lock"
+                variant="outlined"
+                append-inner-icon="mdi-lock"
               />
             </v-col>
           </v-row>
@@ -90,7 +90,7 @@
           <v-btn
             :loading="isLoading"
             color="warning"
-            outlined
+            variant="outlined"
             @click="hide"
           >
             Cancel
@@ -144,7 +144,7 @@ const { travelDeskFlightSegments, isLoading: isLoadingFlightSegments } =
 
 const showDialog = ref(false)
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/lib").VForm> | null>} */
+/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
 
 function show(newTravelDeskFlightOptionId) {
@@ -174,8 +174,11 @@ watch(
 const snack = useSnack()
 
 async function updateAndHide() {
-  if (!form.value?.validate()) {
-    snack.error("Please fill in all required fields")
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 

@@ -4,7 +4,7 @@
     persistent
     max-width="950px"
     @keydown.esc="close"
-    @input="closeIfFalse"
+    @update:model-value="closeIfFalse"
   >
     <HeaderActionsFormCard
       ref="headerActionsFormCard"
@@ -12,28 +12,15 @@
       @submit.prevent="print"
     >
       <div :id="PDF_SCOPE_ID">
-        <v-app-bar
-          color="#fff"
-          flat
-          height="70"
-          style="left: 0; border-bottom: 3px #f3b228 solid"
-        >
-          <img
-            src="/yukon.svg"
-            style="margin: -1.2rem -10rem 0 0"
-            height="44"
-          />
-          <div style="margin: 0 auto !important; font-size: 14pt !important">
-            <b>Flight Statistics</b>
-          </div>
-        </v-app-bar>
+        <PrintLogoHeader>Flight Statistics</PrintLogoHeader>
+
         <div
           v-for="(page, index) in pages"
           :key="`pdf-page-${page}-${index}-${PDF_SCOPE_ID}`"
         >
           <v-data-table
             style="margin: 1rem 0"
-            dense
+            density="compact"
             :headers="headers"
             :items="flightStatistics"
             :items-per-page="PAGE_SIZE"
@@ -91,7 +78,7 @@
           <v-icon start>mdi-printer</v-icon>
         </v-btn>
         <v-btn
-          color="secondary"
+          variant="outlined"
           @click="close"
         >
           Close
@@ -118,6 +105,7 @@ import {
 import useFlightStatistics from "@/use/use-flight-statistics"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
+import PrintLogoHeader from "@/components/common/print/PrintLogoHeader.vue"
 
 const PDF_SCOPE_ID = uniqueId("pdf-scope-")
 const PAGE_SIZE = 13
@@ -152,42 +140,42 @@ const pages = computed(() => range(1, Math.ceil(totalCount.value / PAGE_SIZE) + 
 
 const headers = ref([
   {
-    text: "Department Mailcode",
-    value: "departmentMailcode",
+    title: "Department Mailcode",
+    key: "departmentMailcode",
   },
   {
-    text: "Final Destination City",
-    value: "destinationCity",
+    title: "Final Destination City",
+    key: "destinationCity",
   },
   {
-    text: "Final Destination Province",
-    value: "destinationProvince",
+    title: "Final Destination Province",
+    key: "destinationProvince",
   },
   {
-    text: "Total Trips",
-    value: "totalTrips",
+    title: "Total Trips",
+    key: "totalTrips",
   },
   {
-    text: "Total Expenses",
-    value: "totalExpenses",
+    title: "Total Expenses",
+    key: "totalExpenses",
     class: "m-0 p-0",
     width: "7.5rem",
   },
   {
-    text: "Total Flight Cost",
-    value: "totalFlightCost",
+    title: "Total Flight Cost",
+    key: "totalFlightCost",
   },
   {
-    text: "Average Duration (days)",
-    value: "averageDurationDays",
+    title: "Average Duration (days)",
+    key: "averageDurationDays",
   },
   {
-    text: "Average Expenses per Day",
-    value: "averageExpensesPerDay",
+    title: "Average Expenses per Day",
+    key: "averageExpensesPerDay",
   },
   {
-    text: "Average Round Trip Flight Cost",
-    value: "averageRoundTripFlightCost",
+    title: "Average Round Trip Flight Cost",
+    key: "averageRoundTripFlightCost",
   },
 ])
 
@@ -279,7 +267,7 @@ function close() {
   showDialog.value = false
 }
 
-function closeIfFalse(value: boolean) {
+function closeIfFalse(value: boolean | null) {
   if (value !== false) return
 
   close()
@@ -292,16 +280,16 @@ defineExpose({
 </script>
 
 <style scoped>
-::v-deep(tbody td) {
+:deep(tbody td) {
   font-size: 7.5pt !important;
   border: 1px solid #666666 !important;
 }
 
-::v-deep(tbody th) {
+:deep(tbody th) {
   font-size: 7pt !important;
 }
 
-::v-deep(thead th) {
+:deep(thead th) {
   border: 1px solid #333334 !important;
   border-bottom: 2px solid #333334 !important;
   text-align: center !important;
@@ -309,7 +297,7 @@ defineExpose({
   color: #111111 !important;
 }
 
-::v-deep(table) {
+:deep(table) {
   border: 2px solid #333334;
 }
 

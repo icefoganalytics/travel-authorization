@@ -8,7 +8,7 @@
         color="primary"
         @click="ygGovernmentDirectorySync"
       >
-        <v-icon left>mdi-cached</v-icon> Sync
+        <v-icon start>mdi-cached</v-icon> Sync
       </v-btn>
     </h1>
 
@@ -46,12 +46,11 @@
         <v-btn
           class="ml-2 my-0"
           title="Copy email to clipboard"
-          icon
-          small
+          icon="mdi-content-copy"
+          size="small"
+          variant="text"
           @click="copyToClipboard(currentUser.email, 'Email copied to clipboard')"
-        >
-          <v-icon>mdi-content-copy</v-icon>
-        </v-btn>
+        />
       </v-col>
       <v-col
         cols="12"
@@ -150,7 +149,7 @@
 </template>
 
 <script setup>
-import { useI18n } from "@/plugins/vue-i18n-plugin"
+import { useI18n } from "vue-i18n"
 
 import usersApi from "@/api/users-api"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -178,11 +177,11 @@ async function ygGovernmentDirectorySync() {
 }
 
 function formatRole(value) {
-  return t(`role.name.${value}`, { $default: value })
+  return t(`role.name.${value}`, value)
 }
 
 function formatStatus(value) {
-  return t(`global.status.${value}`, { $default: value })
+  return t(`global.status.${value}`, value)
 }
 
 async function copyToClipboard(text, message = "Copied to clipboard") {
@@ -197,7 +196,7 @@ async function copyToClipboard(text, message = "Copied to clipboard") {
 
 useBreadcrumbs([
   {
-    text: "Profile",
+    title: "Profile",
     to: {
       name: "ProfilePage",
     },

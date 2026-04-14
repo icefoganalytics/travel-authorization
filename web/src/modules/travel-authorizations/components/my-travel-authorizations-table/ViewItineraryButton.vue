@@ -1,26 +1,19 @@
 <template>
   <v-btn
     class="ma-0"
-    color="secondary"
+    variant="outlined"
     @click.stop="viewItinerary"
   >
     View Itinerary
   </v-btn>
 </template>
 
-<script>
-export default {
-  name: "ViewItineraryButton",
-  props: {
-    travelAuthorizationId: {
-      type: Number,
-      required: true,
-    },
-  },
-  methods: {
-    viewItinerary() {
-      alert("TODO: view itinerary for travel authorization " + this.travelAuthorizationId)
-    },
-  },
+<script setup lang="ts">
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
+
+function viewItinerary() {
+  alert(`TODO: view itinerary for travel authorization ${props.travelAuthorizationId}`)
 }
 </script>

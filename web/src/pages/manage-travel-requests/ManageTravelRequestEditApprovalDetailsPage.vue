@@ -3,7 +3,6 @@
     ref="approvalsEditFormCard"
     class="mt-4"
     :travel-authorization-id="travelAuthorizationIdAsNumber"
-    v-on="$listeners"
   >
     <template #actions>
       <v-btn
@@ -15,7 +14,7 @@
       </v-btn>
       <v-btn
         color="primary"
-        outlined
+        variant="outlined"
         :to="{
           name: 'manage-travel-requests/ManageTravelRequestDetailsPage',
           params: {
@@ -31,7 +30,7 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -58,8 +57,10 @@ const router = useRouter()
 
 async function validateSubmitAndReturn() {
   if (isNil(approvalsEditFormCard.value)) return
-  if (!approvalsEditFormCard.value.validate()) {
-    snack.error("Please fill in all required fields.")
+
+  const { valid } = await approvalsEditFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
     return
   }
 
@@ -84,13 +85,13 @@ async function validateSubmitAndReturn() {
 
 useBreadcrumbs([
   {
-    text: "Manage Travel Requests",
+    title: "Manage Travel Requests",
     to: {
       name: "ManageTravelRequests",
     },
   },
   {
-    text: "Details",
+    title: "Details",
     to: {
       name: "manage-travel-requests/ManageTravelRequestDetailsPage",
       params: {
@@ -99,7 +100,7 @@ useBreadcrumbs([
     },
   },
   {
-    text: "Edit Approvals",
+    title: "Edit Approvals",
     to: {
       name: "manage-travel-requests/ManageTravelRequestEditApprovalDetailsPage",
       params: {

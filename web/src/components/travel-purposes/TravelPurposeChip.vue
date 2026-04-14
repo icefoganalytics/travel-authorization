@@ -1,5 +1,5 @@
 <template>
-  <v-chip outlined>
+  <v-chip variant="outlined">
     <v-progress-circular
       v-if="isLoading"
       size="20"

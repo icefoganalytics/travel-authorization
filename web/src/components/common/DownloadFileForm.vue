@@ -26,14 +26,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
 import { ref, nextTick } from "vue"
+import { useDisplay } from "vuetify"
 
-import { type VForm } from "vuetify/lib/components"
-
-import { useAuth0 } from "@/plugins/auth0-plugin"
-
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
+import { type VForm } from "vuetify/components"
 
 withDefaults(
   defineProps<{
@@ -71,8 +69,7 @@ async function getAccessTokenAndSubmit() {
     accessToken.value = await getAccessTokenSilently()
     await nextTick() // Wait for accessToken to be updated in the DOM
 
-    // TODO: update to formRef.value.submit() when using Vuetify 3
-    formRef.value.$el.submit()
+    formRef.value.submit()
 
     await nextTick()
     emit("downloaded")
@@ -84,5 +81,5 @@ async function getAccessTokenAndSubmit() {
   }
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 </script>

@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- TODO: move this into the top level layout, once everything is using this layout -->
-    <BreadcrumbsBar
-      class="grey lighten-4"
+    <SimpleBreadcrumbs
+      class="grey lighten-4 mt-n3 mb-4"
       :items="breadcrumbs"
     />
 
@@ -13,7 +13,7 @@
 <script setup>
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import BreadcrumbsBar from "@/components/BreadcrumbsBar.vue"
+import SimpleBreadcrumbs from "@/components/SimpleBreadcrumbs.vue"
 
 const { breadcrumbs } = useBreadcrumbs()
 </script>

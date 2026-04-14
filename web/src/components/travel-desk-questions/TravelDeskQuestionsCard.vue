@@ -4,7 +4,7 @@
       <h3>Questions</h3>
     </v-card-title>
     <v-card-text>
-      <TravelDeskQuestionsDataTable
+      <TravelDeskQuestionsDataTableServer
         :where="{
           travelRequestId: travelDeskTravelRequestId,
         }"
@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import TravelDeskQuestionsDataTable from "@/components/travel-desk-questions/TravelDeskQuestionsDataTable.vue"
+import TravelDeskQuestionsDataTableServer from "@/components/travel-desk-questions/TravelDeskQuestionsDataTableServer.vue"
 
 defineProps({
   travelDeskTravelRequestId: {

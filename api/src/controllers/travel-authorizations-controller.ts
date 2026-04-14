@@ -142,6 +142,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
       const serializedTravelAuthorization = ShowSerializer.perform(updatedTravelAuthorization)
       return this.response.json({
         travelAuthorization: serializedTravelAuthorization,
+        policy,
       })
     } catch (error) {
       logger.error(`Error updating travel authorization: ${error}`, { error })

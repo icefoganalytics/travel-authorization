@@ -1,11 +1,10 @@
 <template>
   <v-select
-    :value="value"
+    :model-value="modelValue"
     :label="label"
     :items="vehicleTypeOptions"
     v-bind="$attrs"
-    @input="emit('input', $event)"
-    v-on="$listeners"
+    @update:model-value="emit('update:modelValue', $event)"
   />
 </template>
 
@@ -16,62 +15,62 @@ import { TravelDeskRentalCarVehicleTypes } from "@/api/travel-desk-rental-cars-a
 
 withDefaults(
   defineProps<{
-    value?: string | null
+    modelValue?: string | null
     label?: string
   }>(),
   {
-    value: null,
+    modelValue: null,
     label: "Vehicle Type",
   }
 )
 
 const emit = defineEmits<{
-  (event: "input", value: string): void
+  (event: "update:modelValue", value: string | null): void
 }>()
 
 const vehicleTypeOptions = computed(() => [
   {
-    text: "Economy",
+    title: "Economy",
     value: TravelDeskRentalCarVehicleTypes.ECONOMY,
   },
   {
-    text: "Compact",
+    title: "Compact",
     value: TravelDeskRentalCarVehicleTypes.COMPACT,
   },
   {
-    text: "Intermediate",
+    title: "Intermediate",
     value: TravelDeskRentalCarVehicleTypes.INTERMEDIATE,
   },
   {
-    text: "Standard",
+    title: "Standard",
     value: TravelDeskRentalCarVehicleTypes.STANDARD,
   },
   {
-    text: "Full-Size",
+    title: "Full-Size",
     value: TravelDeskRentalCarVehicleTypes.FULL_SIZE,
   },
   {
-    text: "Intermediate SUV",
+    title: "Intermediate SUV",
     value: TravelDeskRentalCarVehicleTypes.INTERMEDIATE_SUV,
   },
   {
-    text: "Luxury",
+    title: "Luxury",
     value: TravelDeskRentalCarVehicleTypes.LUXURY,
   },
   {
-    text: "Minivan",
+    title: "Minivan",
     value: TravelDeskRentalCarVehicleTypes.MINIVAN,
   },
   {
-    text: "Standard SUV",
+    title: "Standard SUV",
     value: TravelDeskRentalCarVehicleTypes.STANDARD_SUV,
   },
   {
-    text: "Full-Size SUV",
+    title: "Full-Size SUV",
     value: TravelDeskRentalCarVehicleTypes.FULL_SIZE_SUV,
   },
   {
-    text: "Pickup Truck",
+    title: "Pickup Truck",
     value: TravelDeskRentalCarVehicleTypes.PICKUP_TRUCK,
   },
 ])

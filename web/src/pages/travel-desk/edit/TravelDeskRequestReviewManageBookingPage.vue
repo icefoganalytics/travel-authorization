@@ -20,7 +20,7 @@
           <v-alert
             v-if="isDraftState"
             type="info"
-            outlined
+            variant="outlined"
           >
             This request is still in draft. Review the booking details, then submit it for the
             traveler.
@@ -28,7 +28,7 @@
           <v-alert
             v-else-if="isSubmittedState"
             type="info"
-            outlined
+            variant="outlined"
           >
             This request is ready to be sent to the traveler with the available booking options. If
             this trip includes air travel, each flight request must have at least one flight option
@@ -37,21 +37,21 @@
           <v-alert
             v-else-if="isOptionsProvidedState"
             type="info"
-            outlined
+            variant="outlined"
           >
             Waiting for the traveler to rank flight options before booking can be finalized.
           </v-alert>
           <v-alert
             v-else-if="isOptionsRankedState && !hasInvoiceNumber"
             type="warning"
-            outlined
+            variant="outlined"
           >
             Upload a PNR with an invoice number before marking the booking complete.
           </v-alert>
           <v-alert
             v-else-if="isOptionsRankedState && hasInvoiceNumber"
             type="info"
-            outlined
+            variant="outlined"
           >
             The traveler has ranked their options. Review the itinerary, then mark the booking
             complete when finalized.
@@ -59,21 +59,21 @@
           <v-alert
             v-else-if="isBookedState || isCompleteState"
             type="success"
-            outlined
+            variant="outlined"
           >
             This travel request is already booked and no further workflow action is required.
           </v-alert>
           <v-alert
             v-else-if="!isKnownWorkflowState"
             type="warning"
-            outlined
+            variant="outlined"
           >
             Unhandled state: {{ travelDeskTravelRequest.status }}
           </v-alert>
         </v-card-text>
       </v-card>
 
-      <div class="d-flex flex-column flex-md-row">
+      <div class="d-flex flex-column flex-md-row ga-2 my-4">
         <v-btn
           v-if="isDraftState"
           color="primary"
@@ -109,7 +109,7 @@
         <v-btn
           v-if="hasInvoiceNumber"
           class="ml-md-2"
-          color="secondary"
+          variant="outlined"
           :block="smAndDown"
           @click="openPrintItineraryDialog"
         >
@@ -121,7 +121,7 @@
         <v-spacer />
         <v-btn
           color="warning"
-          outlined
+          variant="outlined"
           :to="{
             name: 'travel-desk/edit/TravelDeskRequestTripInformationPage',
             params: {
@@ -141,7 +141,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
+import { useDisplay } from "vuetify"
 
 import travelDeskTravelRequestsApi, {
   TravelDeskTravelRequestStatuses,
@@ -150,7 +151,6 @@ import travelDeskTravelRequestsApi, {
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 
 import SectionHeader from "@/components/common/SectionHeader.vue"
 import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
@@ -251,17 +251,17 @@ function openPrintItineraryDialog() {
   travelDeskTravelRequestPrintItineraryDialog.value?.open(travelDeskTravelRequestIdAsNumber.value)
 }
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Desk",
+    title: "Travel Desk",
     to: {
       name: "TravelDeskPage",
     },
   },
   {
-    text: "Request",
+    title: "Request",
     to: {
       name: "travel-desk/TravelDeskRequestPage",
       params: {
@@ -270,7 +270,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Edit",
+    title: "Edit",
     to: {
       name: "travel-desk/TravelDeskRequestEditRedirect",
       params: {
@@ -279,7 +279,7 @@ const breadcrumbs = computed(() => [
     },
   },
   {
-    text: "Review and Manage Booking",
+    title: "Review and Manage Booking",
     to: {
       name: "travel-desk/edit/TravelDeskRequestReviewManageBookingPage",
       params: {

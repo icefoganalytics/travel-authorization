@@ -3,7 +3,7 @@
     ref="headerActionsFormCard"
     title="New Travel Pre-Approval"
     header-tag="h2"
-    lazy-validation
+    validate-on="lazy"
     @submit.prevent="createTravelAuthorizationPreApproval"
   >
     <v-row>
@@ -17,7 +17,7 @@
           label="Purpose *"
           item-value="purpose"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -35,7 +35,7 @@
           label="Location *"
           item-value="text"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -50,7 +50,7 @@
           label="Estimated Cost ($) *"
           type="number"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
       <v-col
@@ -65,7 +65,7 @@
         <v-textarea
           v-model="travelAuthorizationPreApprovalAttributes.reason"
           label="Reason"
-          outlined
+          variant="outlined"
           clearable
         />
       </v-col>
@@ -77,10 +77,10 @@
         md="4"
       >
         <v-switch
-          :input-value="exactTravelDateKnown"
+          :model-value="exactTravelDateKnown"
           :label="exactTravelDateKnown ? 'Exact date known' : 'Exact date not known'"
           inset
-          @change="toggleExactTravelDateKnown"
+          @update:model-value="toggleExactTravelDateKnown($event ?? false)"
         />
       </v-col>
       <template v-if="exactTravelDateKnown">
@@ -93,7 +93,7 @@
             label="Start Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
           />
         </v-col>
         <v-col
@@ -105,7 +105,7 @@
             label="End Date *"
             type="date"
             :rules="[required]"
-            outlined
+            variant="outlined"
           />
         </v-col>
       </template>
@@ -118,7 +118,7 @@
           v-model="travelAuthorizationPreApprovalAttributes.month"
           label="Anticipated Month *"
           :rules="[required]"
-          outlined
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -133,9 +133,9 @@
           label="Department *"
           :where="departmentWhere"
           :rules="[required]"
-          outlined
+          variant="outlined"
           :clearable="false"
-          @input="resetDependentFieldsDepartment"
+          @update:model-value="resetDependentFieldsDepartment"
         />
       </v-col>
       <v-col
@@ -152,9 +152,9 @@
               : 'Search for a branch'
           "
           :where="branchWhere"
-          outlined
+          variant="outlined"
           clearable
-          @input="resetDependentFieldsBranch"
+          @update:model-value="resetDependentFieldsBranch"
         />
       </v-col>
     </v-row>
@@ -171,8 +171,8 @@
         <v-col>
           <TravelAuthorizationPreApprovalTravelerAttributesFormCard
             v-model="travelAuthorizationPreApprovalProfilesAttributes"
-            :number-travelers.sync="travelAuthorizationPreApprovalAttributes.numberTravelers"
-            :is-open-for-any-traveler.sync="
+            v-model:number-travelers="travelAuthorizationPreApprovalAttributes.numberTravelers"
+            v-model:is-open-for-any-traveler="
               travelAuthorizationPreApprovalAttributes.isOpenForAnyTraveler
             "
             :department="travelAuthorizationPreApprovalAttributes.department"
@@ -189,7 +189,7 @@
           <v-textarea
             v-model="travelAuthorizationPreApprovalAttributes.travelerNotes"
             label="Traveler Notes"
-            outlined
+            variant="outlined"
             clearable
           />
         </v-col>
@@ -209,7 +209,7 @@
       <v-btn
         class="my-0 mt-4 mt-md-0"
         color="warning"
-        outlined
+        variant="outlined"
         :to="{
           name: 'travel-pre-approvals/TravelPreApprovalRequestsPage',
         }"
@@ -224,13 +224,13 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { isNil } from "lodash"
-import { useRouter } from "vue2-helpers/vue-router"
+import { useRouter } from "vue-router"
+import { useDisplay } from "vuetify"
 
 import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
 
 import { required } from "@/utils/validators"
 
-import useDisplayVuetify2 from "@/use/utils/use-display-vuetify2"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 import useSnack from "@/use/use-snack"
@@ -246,7 +246,7 @@ import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/componen
 
 /** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
 
-const { smAndDown } = useDisplayVuetify2()
+const { smAndDown } = useDisplay()
 
 /** @type {Partial<TravelAuthorizationPreApproval>} */
 const travelAuthorizationPreApprovalAttributes = ref({
@@ -312,8 +312,13 @@ const snack = useSnack()
 const router = useRouter()
 
 async function createTravelAuthorizationPreApproval() {
-  if (headerActionsFormCard.value === null) return
-  if (!headerActionsFormCard.value.validate()) return
+  if (isNil(headerActionsFormCard.value)) return
+
+  const { valid } = await headerActionsFormCard.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
 
   isLoading.value = true
 
@@ -336,13 +341,13 @@ async function createTravelAuthorizationPreApproval() {
 
 const breadcrumbs = computed(() => [
   {
-    text: "Travel Pre-Approvals",
+    title: "Travel Pre-Approvals",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalRequestsPage",
     },
   },
   {
-    text: "New",
+    title: "New",
     to: {
       name: "travel-pre-approvals/TravelPreApprovalNewPage",
     },
@@ -352,7 +357,7 @@ useBreadcrumbs(breadcrumbs)
 </script>
 
 <style scoped>
-::v-deep(tbody tr:nth-of-type(even)) {
+:deep(tbody tr:nth-of-type(even)) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

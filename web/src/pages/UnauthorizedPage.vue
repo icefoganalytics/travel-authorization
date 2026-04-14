@@ -48,9 +48,9 @@
 </template>
 
 <script setup lang="ts">
+import { useAuth0 } from "@auth0/auth0-vue"
 import { onMounted, ref } from "vue"
 
-import { auth0 } from "@/plugins/auth0-plugin"
 import http from "@/api/http-client"
 
 import { APPLICATION_NAME } from "@/config"
@@ -59,6 +59,7 @@ const releaseTag = ref("not-set")
 const gitCommitHash = ref("not-set")
 
 const isLoading = ref(true)
+const { logout } = useAuth0()
 
 onMounted(async () => {
   await refresh()
@@ -70,7 +71,7 @@ function goBack() {
 
 async function signOut() {
   const returnTo = encodeURI(window.location.origin + "/sign-in")
-  return auth0.logout({
+  return logout({
     logoutParams: {
       returnTo,
     },
