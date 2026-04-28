@@ -141,6 +141,45 @@ describe("api/src/services/estimates/bulk-generate-service.ts", () => {
         ])
       })
 
+      test("when called with valid parameters, it returns expenses with receipt association loaded", async () => {
+        // Arrange
+        const travelAuthorization = await travelAuthorizationFactory.create()
+        const travelSegment = await travelSegmentFactory.create({
+          travelAuthorizationId: travelAuthorization.id,
+          segmentNumber: 1,
+        })
+        const daysOffTravelStatus = 2
+        const mockExpenseAttributes: CreationAttributes<Expense>[] = [
+          {
+            travelAuthorizationId: travelAuthorization.id,
+            description: "Aircraft transportation",
+            date: "2022-06-05",
+            cost: 350.0,
+            currency: Expense.CurrencyTypes.CAD,
+            type: Expense.Types.ESTIMATE,
+            expenseType: Expense.ExpenseTypes.TRANSPORTATION,
+          },
+        ]
+
+        mockedBuildAttributesFromTravelSegmentsServicePerform.mockResolvedValue(
+          mockExpenseAttributes
+        )
+
+        // Act
+        const estimates = await BulkGenerateService.perform(
+          travelAuthorization.id,
+          [travelSegment],
+          daysOffTravelStatus
+        )
+
+        // Assert
+        expect(estimates).toEqual([
+          expect.objectContaining({
+            receipt: null,
+          }),
+        ])
+      })
+
       test("when called with valid parameters, but BuildAttributesFromTravelSegmentsService throws an error, it propagates the error", async () => {
         const travelAuthorization = await travelAuthorizationFactory.create()
         const travelSegment1 = await travelSegmentFactory.create({

@@ -20,7 +20,15 @@ export class BulkGenerateService extends BaseService {
       Expense.Types.ESTIMATE
     )
 
-    return Expense.bulkCreate(estimatesAttributes)
+    const estimates = await Expense.bulkCreate(estimatesAttributes)
+    await Promise.all(
+      estimates.map((estimate) =>
+        estimate.reload({
+          include: ["receipt"],
+        })
+      )
+    )
+    return estimates
   }
 }
 
