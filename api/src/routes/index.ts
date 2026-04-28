@@ -75,12 +75,17 @@ router.route("/_status").get((_req: Request, res: Response) => {
 
 // TODO: move all route actions into controllers
 // TODO: convert all routes to use the router.route(/path).action(...).action(...) syntax
+// NOTE: these legacy routes are a security risk and should be removed before going to production.
 //// START LEGACY ROUTES
 router.use("/migrate", databaseHealthCheckMiddleware)
 router.use(migrateRouter)
 
 router.use("/api/lookup", databaseHealthCheckMiddleware, lookupRouter)
 router.use("/api/lookup-tables", databaseHealthCheckMiddleware, lookupTableRouter)
+
+router.use("/api/form", databaseHealthCheckMiddleware, formRouter)
+router.use("/api/user", databaseHealthCheckMiddleware, userRouter)
+router.use("/api/traveldesk", databaseHealthCheckMiddleware, travelDeskRouter)
 //// END LEGACY ROUTES
 
 // api routes
@@ -91,12 +96,6 @@ router.use(
   jwtMiddleware,
   authorizationMiddleware
 )
-
-//// START MORE LEGACY ROUTES
-router.use("/api/form", formRouter)
-router.use("/api/user", userRouter)
-router.use("/api/traveldesk", travelDeskRouter)
-//// END MORE LEGACY ROUTES
 
 router.route("/api/current-user").get(CurrentUserController.show)
 
