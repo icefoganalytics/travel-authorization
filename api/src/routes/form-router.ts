@@ -66,6 +66,33 @@ formRouter.get(
   }
 )
 
+formRouter.get(
+  "/recent",
+  ReturnValidationErrors,
+  async function (req: Request, res: Response) {
+    const user = (req as AuthorizedRequest).user
+
+    if (!user) {
+      return res.status(401).json({ message: "Authentication required" })
+    }
+
+    try {
+      const form = await TravelAuthorization.findOne({
+        where: { userId: user.id },
+        order: [["createdAt", "DESC"]],
+      })
+      if (isNull(form)) {
+        return res.status(404).json({ message: "No recent form found" })
+      }
+
+      res.status(200).json(await formService.getForm(form.id.toString()))
+    } catch (error: unknown) {
+      logger.info(error)
+      res.status(500).json("Error retrieving recent form")
+    }
+  }
+)
+
 //Get one of your own forms
 formRouter.get("/:formId", ReturnValidationErrors, async function (req: Request, res: Response) {
   try {
