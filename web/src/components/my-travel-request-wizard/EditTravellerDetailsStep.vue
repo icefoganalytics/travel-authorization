@@ -11,7 +11,6 @@
       <TravelerDetailsFormCard
         ref="travelerDetailsFormCard"
         v-model="travelDeskTravelRequest"
-        :is-saving="isLoading"
         class="mt-4"
         @save-requested="saveAndNotify"
       />
@@ -19,25 +18,25 @@
   </v-card>
 </template>
 
-<script setup>
-import { computed, ref, toRefs } from "vue"
+<script setup lang="ts">
+import { computed, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
 import useSnack from "@/use/use-snack"
 
 import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
+import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
 import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/TravelerDetailsFormCard.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-const emit = defineEmits(["updated"])
+const emit = defineEmits<{
+  updated: [travelAuthorizationId: number]
+}>()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
@@ -45,15 +44,14 @@ const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 const travelDeskTravelRequestId = computed(() => {
   return travelAuthorization.value?.travelDeskTravelRequest?.id
 })
-const { travelDeskTravelRequest, isLoading, save } =
-  useTravelDeskTravelRequest(travelDeskTravelRequestId)
+const { travelDeskTravelRequest, save } = useTravelDeskTravelRequest(travelDeskTravelRequestId)
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelerDetailsFormCard> | null>} */
-const travelerDetailsFormCard = ref(null)
-
+const travelerDetailsFormCard = useTemplateRef("travelerDetailsFormCard")
 const snack = useSnack()
 
 async function saveAndNotify() {
+  if (isNil(travelerDetailsFormCard.value)) return false
+
   const { valid } = await travelerDetailsFormCard.value.validate()
   if (!valid) {
     snack("Form validation failed! Please fill out all required fields.", {
@@ -65,7 +63,7 @@ async function saveAndNotify() {
   try {
     await save()
     snack.success("Request updated.")
-    emit("updated", travelAuthorization.value.id)
+    emit("updated", props.travelAuthorizationId)
     return true
   } catch (error) {
     snack.error(`Failed to save request: ${error}`)
@@ -73,7 +71,7 @@ async function saveAndNotify() {
   }
 }
 
-async function initialize(context) {
+async function initialize(context: WizardStepComponentContext) {
   context.setEditableSteps([])
 }
 
