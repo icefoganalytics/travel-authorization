@@ -144,8 +144,8 @@ Before finalizing:
 
 ## Related Workflows
 
-- [`./pull-request-management.md`](./pull-request-management.md) - Create and update pull requests
-- [`./github-issue-creation.md`](./github-issue-creation.md) - Create and enhance GitHub issues
+- [`./pull-request-management-workflow.md`](./pull-request-management-workflow.md) - Create and update pull requests
+- [`./github-issue-creation-workflow.md`](./github-issue-creation-workflow.md) - Create and enhance GitHub issues
 
 ## Tips
 

@@ -69,6 +69,6 @@ and mention any test gaps or residual risk.
 
 ## Related Workflows
 
-- [`./pull-request-management.md`](./pull-request-management.md) - Create and update pull requests
-- [`./testing-instructions.md`](./testing-instructions.md) - Generate reviewer-friendly validation
+- [`./pull-request-management-workflow.md`](./pull-request-management-workflow.md) - Create and update pull requests
+- [`./testing-instructions-workflow.md`](./testing-instructions-workflow.md) - Generate reviewer-friendly validation
   steps

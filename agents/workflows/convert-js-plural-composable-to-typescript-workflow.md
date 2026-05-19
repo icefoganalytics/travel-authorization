@@ -541,8 +541,8 @@ export function useResources(
 
 ## Related Workflows
 
-- [convert-js-api-to-typescript.md](convert-js-api-to-typescript.md) - Convert API file first if needed
-- [convert-js-singular-composable-to-typescript.md](convert-js-singular-composable-to-typescript.md) - For single resource composables
+- [convert-js-api-to-typescript-workflow.md](convert-js-api-to-typescript-workflow.md) - Convert API file first if needed
+- [convert-js-singular-composable-to-typescript-workflow.md](convert-js-singular-composable-to-typescript-workflow.md) - For single resource composables
 
 ---
 

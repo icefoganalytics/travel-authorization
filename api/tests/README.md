@@ -120,7 +120,7 @@ const travelAuthorization = await travelAuthorizationFactory.create({
 ```
 
 If you need a new factory, follow the reusable template in
-[`agents/templates/fishery-factory.md`](../../agents/templates/fishery-factory.md).
+[`agents/templates/fishery-factory-template.md`](../../agents/templates/fishery-factory-template.md).
 
 ## Editor Helper
 

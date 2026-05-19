@@ -25,7 +25,7 @@ auto_execution_mode: 1
 - **End-user relevance:** Only include changes that affect end users in the Implementation section. Internal refactoring (component location changes, import updates) should be excluded unless they impact user experience.
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
-- **Testing instructions:** Use the `testing-instructions.md` workflow alongside this one. Never guess UI labels or navigation paths.
+- **Testing instructions:** Use the `testing-instructions-workflow.md` workflow alongside this one. Never guess UI labels or navigation paths.
 
 This workflow covers the process of creating and editing well-structured pull requests that follow the established patterns in the TravelAuth project.
 
@@ -246,7 +246,7 @@ Write testing instructions for someone with zero project knowledge:
 - **Browser behavior**: Include back button, refresh, and direct URL testing
 - **Simple language**: Avoid technical jargon, minimal bolding
 
-Follow [`./testing-instructions.md`](./testing-instructions.md) for the full testing-instructions workflow before finalizing the PR body.
+Follow [`./testing-instructions-workflow.md`](./testing-instructions-workflow.md) for the full testing-instructions workflow before finalizing the PR body.
 
 **Example:**
 
@@ -484,9 +484,9 @@ The current system only supports screen viewing and printing, making it difficul
 
 ## Related Workflows
 
-- `convert-js-api-to-typescript.md` - Converting JavaScript APIs to TypeScript
-- `convert-js-plural-composable-to-typescript.md` - Converting composables to TypeScript
-- `convert-dialog-table-to-page-pattern.md` - Converting dialogs to pages
+- `convert-js-api-to-typescript-workflow.md` - Converting JavaScript APIs to TypeScript
+- `convert-js-plural-composable-to-typescript-workflow.md` - Converting composables to TypeScript
+- `convert-dialog-table-to-page-pattern-workflow.md` - Converting dialogs to pages
 
 ---
 

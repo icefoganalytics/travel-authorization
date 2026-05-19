@@ -23,7 +23,7 @@ as templates are added, renamed, or removed.
 When creating new documentation:
 - Put end-state code examples in `agents/templates/`
 - Put conversion patterns and process steps in `agents/workflows/`
-- Reference templates from workflows: "See template: `backend-index-serializer.md`"
+- Reference templates from workflows: "See template: `backend-index-serializer-template.md`"
 
 ## Using Templates
 
@@ -32,7 +32,7 @@ Templates are useful when a task follows a repeated local pattern and benefits f
 Example:
 
 ```text
-Follow the template in agents/templates/fishery-factory.md
+Follow the template in agents/templates/fishery-factory-template.md
 to add a new factory under api/tests/factories/.
 ```
 

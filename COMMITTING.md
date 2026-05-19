@@ -165,7 +165,7 @@ NOTE: Multi-line `--exec` strings in `git rebase --onto` are not supported.
 
 ## PR description guidelines
 
-See also: [`agents/workflows/pull-request-management.md`](agents/workflows/pull-request-management.md) for the full PR creation workflow.
+See also: [`agents/workflows/pull-request-management-workflow.md`](agents/workflows/pull-request-management-workflow.md) for the full PR creation workflow.
 
 - **Concise language:** use direct, active voice. Avoid redundant words like "entire", "proper", and "fully".
 - **Context section:** focus on the problem and solution. Use present tense, such as "implements" instead of "will implement".
@@ -174,7 +174,7 @@ See also: [`agents/workflows/pull-request-management.md`](agents/workflows/pull-
 
 ## Testing instructions format
 
-See also: [`agents/workflows/testing-instructions.md`](agents/workflows/testing-instructions.md) for comprehensive guidance.
+See also: [`agents/workflows/testing-instructions-workflow.md`](agents/workflows/testing-instructions-workflow.md) for comprehensive guidance.
 
 Standard setup, always include:
 

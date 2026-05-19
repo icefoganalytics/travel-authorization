@@ -421,17 +421,17 @@ See `/agents/workflows/README.md` for the complete list of available workflows a
 
 **Key Workflows:**
 
-- `pull-request-management.md` - Creating and editing well-structured PRs
-- `convert-js-api-to-typescript.md` - Converting JavaScript APIs to TypeScript
-- `convert-js-plural-composable-to-typescript.md` - Converting composables to TypeScript
-- `convert-dialog-table-to-page-pattern.md` - Modernizing legacy UI patterns
+- `pull-request-management-workflow.md` - Creating and editing well-structured PRs
+- `convert-js-api-to-typescript-workflow.md` - Converting JavaScript APIs to TypeScript
+- `convert-js-plural-composable-to-typescript-workflow.md` - Converting composables to TypeScript
+- `convert-dialog-table-to-page-pattern-workflow.md` - Modernizing legacy UI patterns
 
 ### Workflow Usage
 
 **Example:**
 
 ```
-Follow the workflow in agents/workflows/pull-request-management.md
+Follow the workflow in agents/workflows/pull-request-management-workflow.md
 to create a comprehensive pull request following TravelAuth patterns.
 ```
 
