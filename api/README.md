@@ -40,7 +40,6 @@ Run API commands from the `api/` directory or through the repo-level `dev` wrapp
 
 ```bash
 dev up api
-dev test_api
 dev migrate up
 dev migrate down
 dev migrate make create-table-name
@@ -49,6 +48,8 @@ npm run build
 npm run lint
 npm run check-types
 ```
+
+See [../bin/README.md](../bin/README.md#testing) for the canonical test commands.
 
 ## Environment Variables
 
@@ -70,4 +71,3 @@ That file defines the loaded environment files and the supported API configurati
 - [src/services/README.md](./src/services/README.md) - service-layer patterns
 - [src/integrations/README.md](./src/integrations/README.md) - integrations guidance
 - [src/queries/README.md](./src/queries/README.md) - reusable SQL query guidance
-

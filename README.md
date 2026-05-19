@@ -89,8 +89,6 @@ dev up db
 dev down
 dev down -v
 dev psql
-dev test_api
-dev test_web
 dev migrate up
 dev migrate down
 dev migrate make create-table-name
@@ -111,8 +109,7 @@ dev migrate make create-table-name
 
 ## Testing
 
-- Run API tests with `dev test_api`
-- Run web tests with `dev test_web`
+- See [bin/README.md](./bin/README.md#testing) for the canonical test commands.
 
 See [api/tests/README.md](./api/tests/README.md) for backend testing conventions.
 See [web/tests/README.md](./web/tests/README.md) for the frontend test directory overview.

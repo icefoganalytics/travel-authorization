@@ -53,7 +53,6 @@ document and link to it from here instead of letting this file become a dumping 
 - `dev down -v` - Stop and wipe database
 - `dev psql` - Access database CLI (database name: `travel_development`)
 - `dev psql-query "SELECT ..."` - Run a SQL query directly against the dev database
-- `dev test_api` - Run all API tests
 - `dev migrate up` - Run migration
 - `dev migrate down` - Rollback migration
 - `dev migrate make create-table-name` - Create new migration
@@ -155,10 +154,8 @@ Within internal imports for controllers, group by conceptual distance:
 
 **Running tests:**
 
-- All tests: `dev test api`
-- Specific file: `dev test api -- --run tests/services/example.test.ts`
-- Watch mode: omit `--run`
-- Pattern: `dev test api -- --grep "pattern"`
+See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use the dedicated
+`dev test ...` commands for test runs, not service-shell package commands.
 
 **Test structure:**
 
@@ -348,8 +345,7 @@ instructions guidance.
 **Pre-submission:**
 
 - All tests pass:
-  - API: `./bin/dev api npm test` or `npm test` from `/api`
-  - Web: `./bin/dev web npm test` or `npm test` from `/web`
+  - See [`bin/README.md`](bin/README.md#testing) for canonical API and web test commands
 - Type checking passes:
   - API: `./bin/dev api npm run check-types`
   - Web: `./bin/dev web npm run check-types`
@@ -483,7 +479,7 @@ instructions guidance.
 
 **Project-Specific Normalization:**
 - When copying workflows between projects, normalize ALL project-specific details:
-  - Commands: `dev test_api` vs generic test commands
+  - Commands: use the canonical test commands from `bin/README.md` instead of generic test commands
   - URLs: http://localhost:8080
   - Navigation patterns: **Travel Authorizations** → **Create New**
   - Naming conventions and code style

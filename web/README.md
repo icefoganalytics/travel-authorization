@@ -39,17 +39,17 @@ Run web commands from the `web/` directory or through the repo-level `dev` wrapp
 
 ```bash
 dev up web
-dev test_web
 npm run start
 npm run build
 npm run lint
 npm run check-types
 ```
 
+See [../bin/README.md](../bin/README.md#testing) for the canonical test commands.
+
 What these are for:
 
 - `dev up web`: boot the frontend service in Docker
-- `dev test_web`: run the web test suite
 - `npm run start`: run the local Vite dev server
 - `npm run build`: build the production frontend bundle
 - `npm run lint`: run frontend linting

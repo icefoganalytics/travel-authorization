@@ -4,16 +4,7 @@ This directory contains the backend test suite for TravelAuth using Vitest and F
 
 ## Running Tests
 
-```bash
-# Run all API tests
-dev test_api
-
-# Run a specific file once
-dev test api -- api/tests/services/example.test.ts --run
-
-# Run a pattern
-dev test api -- --grep "travel desk"
-```
+See [../../bin/README.md](../../bin/README.md#testing) for the canonical API test commands.
 
 ## Test Structure
 

@@ -178,7 +178,7 @@ See also: [`agents/workflows/testing-instructions.md`](agents/workflows/testing-
 
 Standard setup, always include:
 
-1. Run the relevant test suite via `dev test_api` or a narrower command such as `dev test api -- --run tests/services/example.test.ts`.
+1. Run the relevant test suite using the canonical commands in [`bin/README.md`](bin/README.md#testing).
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 
