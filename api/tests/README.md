@@ -43,9 +43,7 @@ describe("api/src/services/example/create-service.ts", () => {
     describe(".perform", () => {
       test("when the input is valid, it creates the record", async () => {
         // Arrange
-
         // Act
-
         // Assert
       })
     })
@@ -60,6 +58,40 @@ Guidelines:
 - Use explicit `// Arrange`, `// Act`, and `// Assert` comments
 - Prefer numbered peer entities like `user1`, `user2`
 - Prefer one strong assertion with `toEqual(...)` over many low-signal assertions
+- Test names should describe condition and outcome: `"when [condition], [expected behavior]"`
+- Use Fishery factories for test data
+- Use descriptive variable names, such as `workflowStepPlayersAttributes`
+- Name policy-scoped query results with `scoped{Model}`, such as
+  `scopedTravelDeskTravelRequests`
+- Assert database state with `findAll()` without redundant `where` clauses unless the filter is
+  under test
+- Use negative spy assertions such as `expect(spy).not.toHaveBeenCalled()`
+- Avoid `not.toHaveBeenCalledWith(...)`
+- Controller tests should use `mockCurrentUser(user)` and `request()` from `@/support`
+
+For common factories, import from `@/factories`:
+
+- `userFactory`
+- `travelAuthorizationFactory`
+- `expenseFactory`
+- `travelSegmentFactory`
+
+Prefer one strong assertion:
+
+```typescript
+expect(scopedRecords).toEqual([
+  expect.objectContaining({
+    id: record1.id,
+  }),
+])
+```
+
+Avoid many low-signal assertions:
+
+```typescript
+expect(result).toHaveLength(1)
+expect(result[0].id).toEqual(record1.id)
+```
 
 ## Test Lifecycle Notes
 

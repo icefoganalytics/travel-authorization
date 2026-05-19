@@ -15,6 +15,13 @@ Serializers take model data, in the form mapping directly to the database struct
 
 Serializers are used in controllers to convert from a database representation to a front-end data packet. Serializers should generally not be used for general data formating such as date or money formatting, as formatting those kinds of things in the front-end is generally more flexible.
 
+## Naming
+
+- Use `AsIndex` for index serializer types.
+- Use `AsShow` for show serializer types.
+- Follow the shape `{Model}AsIndex` and `{Model}AsShow`.
+- Avoid older view names such as `TableView` for new serializer types.
+
 e.g. Usage in a Controller might look like this
 
 ```typescript
@@ -46,10 +53,7 @@ export class ShowSerializer extends BaseSerializer<Form> {
     const serializedPurpose = Purposes.ReferenceSerializer.perform(purpose)
 
     return {
-      ...pick(this.record, [
-        "id",
-        "purposeId",
-      ]),
+      ...pick(this.record, ["id", "purposeId"]),
       purpose: serializedPurpose,
     }
   }

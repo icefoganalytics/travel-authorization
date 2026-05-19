@@ -23,6 +23,13 @@ In the above example, the controller handles the mapping of the action, while th
 
 The service should, for convenience, expose static methods, that call internal instance methods.
 
+## Local Pattern
+
+- Business logic belongs in services that extend `BaseService`.
+- Call services via static methods such as `ServiceName.perform(args)`.
+- Do not instantiate services directly at call sites.
+- Services may call other services; keep controllers focused on request orchestration.
+
 ## Scaling
 
 A pattern that supports very good scaling is to have per-action classes.
