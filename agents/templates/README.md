@@ -7,11 +7,12 @@ This directory contains reusable AI-oriented documentation templates for TravelA
 Do not rely on a static index here — it goes stale. Instead, list the directory directly:
 
 ```bash
-ls agents/templates/*.md
+find agents/templates -name "*.md" -not -name README.md | sort
 ```
 
 Then read any template file that looks relevant before acting. The template file itself is the
-authoritative instruction set — do not rely on summaries.
+authoritative instruction set. Do not add per-template summaries or links here; they become stale
+as templates are added, renamed, or removed.
 
 ## Template vs Workflow Separation
 
