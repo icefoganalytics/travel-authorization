@@ -99,7 +99,7 @@ import useExpense from "@/use/use-expense"
 
 import CurrencyTextField from "@/components/common/CurrencyTextField.vue"
 import StringDateInput from "@/components/common/StringDateInput.vue"
-import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
+import ExpenseTypeSelect from "@/components/expenses/ExpenseTypeSelect.vue"
 
 // TODO: consider if this should be a prop?
 const expenseTypes = [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION]
