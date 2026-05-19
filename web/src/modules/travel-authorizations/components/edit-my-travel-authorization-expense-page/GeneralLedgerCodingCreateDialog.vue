@@ -104,7 +104,7 @@ import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 import useSnack from "@/use/use-snack"
 
-import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
+import CurrencyTextField from "@/components/common/CurrencyTextField.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number

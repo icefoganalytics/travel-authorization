@@ -94,7 +94,7 @@ import { isNil } from "lodash"
 import { type VForm } from "vuetify/components"
 
 import expensesApi, { ExpenseExpenseTypes, ExpenseTypes, type Expense } from "@/api/expenses-api"
-import CurrencyTextField from "@/components/Utils/CurrencyTextField.vue"
+import CurrencyTextField from "@/components/common/CurrencyTextField.vue"
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import ExpenseTypeSelect from "@/modules/travel-authorizations/components/ExpenseTypeSelect.vue"
 import useSnack from "@/use/use-snack"
