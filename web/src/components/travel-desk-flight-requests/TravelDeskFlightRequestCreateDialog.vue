@@ -4,6 +4,7 @@
     persistent
     max-width="1200px"
     @keydown.esc="hide"
+    @update:model-value="hideIfFalse"
   >
     <template #activator="{ props: activatorProps }">
       <v-btn
@@ -129,58 +130,58 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { ref, nextTick } from "vue"
+<script setup lang="ts">
+import { nextTick, ref, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
-import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
+import travelDeskFlightRequestsApi, {
+  type TravelDeskFlightRequest,
+} from "@/api/travel-desk-flight-requests-api"
 
-import useRouteQuery from "@/use/utils/use-route-query"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import SeatPreferenceSelect from "@/components/travel-desk-flight-requests/SeatPreferenceSelect.vue"
 
-const props = defineProps({
-  attributes: {
-    type: Object,
-    default: () => ({}),
-  },
-  /** @type {string | null} */
-  minDate: {
-    type: String,
-    default: "",
-  },
-  /** @type {string | null} */
-  maxDate: {
-    type: String,
-    default: "",
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    travelRequestId: number
+    minDate?: string | null
+    maxDate?: string | null
+  }>(),
+  {
+    minDate: "",
+    maxDate: "",
+  }
+)
 
-const emit = defineEmits(["created"])
+const emit = defineEmits<{
+  created: [travelDeskFlightRequestId: number]
+}>()
 
-const travelDeskFlightRequest = ref({
-  ...props.attributes,
-})
-
-const snack = useSnack()
 const showDialog = useRouteQuery("showTravelDeskFlightRequestCreate", "false", {
-  transform: Boolean,
+  transform: booleanTransformer,
 })
 
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
-const form = ref(null)
-const isLoading = ref(false)
+const travelDeskFlightRequest = ref<Partial<TravelDeskFlightRequest>>({
+  travelRequestId: props.travelRequestId,
+})
 
-function hide() {
-  showDialog.value = false
-  resetFlightRequest()
-  form.value?.resetValidation()
-}
+watch(
+  () => props.travelRequestId,
+  () => {
+    resetFlightRequest()
+  },
+  { immediate: true }
+)
+
+const form = useTemplateRef("form")
+const snack = useSnack()
+const isLoading = ref(false)
 
 async function createAndHide() {
   if (isNil(form.value)) return
@@ -210,14 +211,28 @@ async function createAndHide() {
 
 function resetFlightRequest() {
   travelDeskFlightRequest.value = {
-    travelRequestId: props.travelDeskTravelRequestId,
+    travelRequestId: props.travelRequestId,
   }
 }
-</script>
 
-<style scoped>
-.label {
-  font-weight: 600;
-  font-size: 10pt !important;
+function show() {
+  showDialog.value = true
 }
-</style>
+
+function hide() {
+  showDialog.value = false
+  resetFlightRequest()
+  form.value?.resetValidation()
+}
+
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
+
+  hide()
+}
+
+defineExpose({
+  show,
+  hide,
+})
+</script>

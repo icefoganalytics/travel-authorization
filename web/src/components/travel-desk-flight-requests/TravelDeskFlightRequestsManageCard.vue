@@ -8,9 +8,7 @@
         class="mb-0"
       />
       <TravelDeskFlightRequestCreateDialog
-        :attributes="{
-          travelRequestId: travelDeskTravelRequestId,
-        }"
+        :travel-request-id="travelDeskTravelRequestId"
         :min-date="tripStartDate"
         :max-date="tripEndDate"
         :activator-props="{
