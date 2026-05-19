@@ -51,10 +51,9 @@
             cols="12"
             md="3"
           >
-            <v-text-field
+            <StringDateInput
               v-model="travelerDetails.birthDate"
               label="Birth Date *"
-              type="date"
               :max="dobMaxDate"
               :rules="[required]"
               variant="outlined"
@@ -230,6 +229,7 @@ import { cloneDeep, isNil } from "lodash"
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 
 const props = defineProps({
