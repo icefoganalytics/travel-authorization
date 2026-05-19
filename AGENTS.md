@@ -342,6 +342,9 @@ See `/api/src/config.ts` for complete details.
 
 ### Pull Request Guidelines
 
+See [`COMMITTING.md`](COMMITTING.md) for detailed commit message, PR description, and testing
+instructions guidance.
+
 **Pre-submission:**
 
 - All tests pass:
@@ -358,55 +361,6 @@ See `/api/src/config.ts` for complete details.
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
-
-**Commit emoji guidance:**
-
-Format: `:emoji: Verb phrase.` — imperative mood, ends with a period.
-
-- Use `:butterfly:` for database migrations and data backfills
-- Use `:bug:` for bug fixes
-- Use `:sparkles:` for new features
-- Use `:recycle:` for structural cleanup or migration-safe refactors that preserve behavior
-- Use `:art:` for theme, styling, or visual changes
-- Use `:cherry_blossom:` for UI polish and cosmetic improvements — **never use `:lipstick:`**
-- Use `:wrench:` for config and settings changes
-- Use `:memo:` for documentation and plan updates
-- Use `:hammer:` for infrastructure and tooling changes (docker, scripts)
-- Use `:arrow_up:` for dependency, runtime, and version bumps
-- Use `:gear:` for container, workflow, and tooling configuration changes
-- Use `:heavy_minus_sign:` when removing a dependency from the package set
-- Use `:construction:` for intentionally incomplete migration slices that may leave the app broken between commits
-- Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
-
-**Commit body guidance:**
-
-Write in plain English for the next developer reading `git log`. Focus on:
-- What changed (briefly, since the diff shows the how)
-- Why it was needed — the problem being solved
-- What the observable effect is for users or callers
-
-Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
-
-- **Bad:** `the frontend redirects only when policy.show is false after the save`
-- **Good:** `the frontend redirects only when the user can no longer view the document`
-
-**Testing Instructions Format:**
-
-Standard setup (always include):
-
-1. Run test suite: `dev test_api`
-2. Boot app: `dev up`
-3. Log in at http://localhost:8080
-
-Navigation/verification steps:
-
-- Use exact UI element names: **Add User**, **Activate Position**
-- Reference menu locations: "top right dropdown nav", "left sidebar nav"
-- Use navigation arrows: **Administration** → **Positions** → **Users** tab
-- Explicit verification: "Verify success message: 'X created!'"
-- Format: Bold for **UI elements**, inline code for `exact values/URLs/errors`
-
-For complex scenarios, use `## Test Case N: Description` subheadings.
 
 ---
 

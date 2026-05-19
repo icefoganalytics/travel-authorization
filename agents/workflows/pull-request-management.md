@@ -16,7 +16,7 @@ auto_execution_mode: 1
 - Testing instructions that verify correctness
 
 **Decision Rules:**
-- **Title format:** Use `Issue-<number>: Description` for GitHub issues, `TICKET-ID: Description` for Jira tickets, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features. Always use AP style title case.
+- **Title format:** Use `Issue-<number>: Description` for GitHub issues, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features. Always use AP style title case.
 - **Issue linkage wording:** Use `Fixes <issue-url>` only when the PR is intended to close the issue. Use `Part of <issue-url>` for one PR in a larger multi-PR effort.
 - **Context section:** Explain WHY the change is needed, not just what changed.
 - **Implementation section:** Focus on purpose and intent, not specific files. A reviewer can see file changes in the diff - the Implementation section explains the reasoning behind those changes.
@@ -91,7 +91,6 @@ Use one of these patterns:
 | Pattern | When to Use | Example |
 |---------|-------------|---------|
 | `Issue-<number>: Description` | Linked to GitHub issue | `Issue-314: Normalize Travel Desk Other Transportations Components to Modern Patterns` |
-| `TICKET-ID: Description` | Linked to Jira ticket | `TA-123: Add Travel Authorization Export Feature` |
 | `Fix: Description` | Bug fixes without ticket | `Fix: Email Notifications Not Sending` |
 | `Action Verb + Noun` | Features/improvements | `Add Expense Report Validation` |
 
@@ -427,9 +426,9 @@ Investigation revealed that the status calculation was not considering condition
 ### Feature Example
 
 ```markdown
-# TA-456: Add Travel Authorization Export to PDF
+# Issue-456: Add Travel Authorization Export to PDF
 
-Fixes https://yukon-government.atlassian.net/browse/TA-456
+Fixes https://github.com/icefoganalytics/travel-authorization/issues/456
 
 # Context
 
