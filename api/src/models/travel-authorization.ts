@@ -400,6 +400,11 @@ export class TravelAuthorization extends BaseModel<
         "travelSegments",
         "user",
       ],
+      order: [
+        ["stops", "departureDate", "ASC"],
+        ["stops", "departureTime", "ASC"],
+        ["travelSegments", "segmentNumber", "ASC"],
+      ],
     })
     this.addScope("isTravelling", () => {
       const currentDate = new Date().toISOString()
