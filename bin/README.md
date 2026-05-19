@@ -39,6 +39,9 @@ Basic usage:
 
 ### Testing
 
+This section is the canonical source for local test commands. Other docs should link here instead
+of duplicating test command examples.
+
 ```bash
 ./bin/dev test
 ./bin/dev test api

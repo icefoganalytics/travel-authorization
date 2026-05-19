@@ -25,7 +25,7 @@ auto_execution_mode: 1
 - **End-user relevance:** Only include changes that affect end users in the Implementation section. Internal refactoring (component location changes, import updates) should be excluded unless they impact user experience.
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
-- **Testing instructions:** Use the `testing-instructions.md` workflow alongside this one. Never guess UI labels or navigation paths.
+- **Testing instructions:** Use the `testing-instructions-workflow.md` workflow alongside this one. Never guess UI labels or navigation paths.
 
 This workflow covers the process of creating and editing well-structured pull requests that follow the established patterns in the TravelAuth project.
 
@@ -59,7 +59,7 @@ TODO - add screenshots for UI changes
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. <specific step>
@@ -129,7 +129,7 @@ Relates to:
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. <Specific testing step>
@@ -224,7 +224,7 @@ git diff main...HEAD --name-only | rg '^web/src/(components|pages)/'
 **Always start with these three steps:**
 
 ```markdown
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 ```
@@ -246,7 +246,7 @@ Write testing instructions for someone with zero project knowledge:
 - **Browser behavior**: Include back button, refresh, and direct URL testing
 - **Simple language**: Avoid technical jargon, minimal bolding
 
-Follow [`./testing-instructions.md`](./testing-instructions.md) for the full testing-instructions workflow before finalizing the PR body.
+Follow [`./testing-instructions-workflow.md`](./testing-instructions-workflow.md) for the full testing-instructions workflow before finalizing the PR body.
 
 **Example:**
 
@@ -347,7 +347,7 @@ Investigation revealed that the status calculation was not considering condition
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. Navigate to **Travel Authorizations**.
@@ -376,10 +376,9 @@ Before submitting:
 
 ### Testing Commands
 
-Always use these exact commands in testing instructions:
+Keep test command examples centralized:
 
-- **API tests:** `dev test_api`
-- **Web tests:** `dev test_web` (if applicable)
+- **Tests:** use the canonical commands in `bin/README.md`
 - **Type checking:** `dev api npm run check-types` and `dev web npm run check-types`
 - **App startup:** `dev up`
 - **Login URL:** http://localhost:8080
@@ -426,7 +425,7 @@ Investigation revealed that the status calculation was not considering condition
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. Navigate to **Travel Authorizations**.
@@ -462,7 +461,7 @@ The current system only supports screen viewing and printing, making it difficul
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. Navigate to an existing travel authorization.
@@ -480,14 +479,14 @@ The current system only supports screen viewing and printing, making it difficul
 | No screenshots for UI | Always include for visual changes                                          |
 | Unclear scope         | Separate core changes from side fixes                                      |
 | Missing links         | Include Fixes/Relates to URLs                                              |
-| Wrong test commands   | Use `dev test_api` not generic test commands                               |
+| Wrong test commands   | Use the canonical test commands in `bin/README.md`, not generic commands   |
 | Type checking ignored | Always run `dev api npm run check-types` and `dev web npm run check-types` |
 
 ## Related Workflows
 
-- `convert-js-api-to-typescript.md` - Converting JavaScript APIs to TypeScript
-- `convert-js-plural-composable-to-typescript.md` - Converting composables to TypeScript
-- `convert-dialog-table-to-page-pattern.md` - Converting dialogs to pages
+- `convert-js-api-to-typescript-workflow.md` - Converting JavaScript APIs to TypeScript
+- `convert-js-plural-composable-to-typescript-workflow.md` - Converting composables to TypeScript
+- `convert-dialog-table-to-page-pattern-workflow.md` - Converting dialogs to pages
 
 ---
 

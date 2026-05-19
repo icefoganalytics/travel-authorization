@@ -323,9 +323,9 @@ mkdir -p api/src/serializers/{resource-name}
 
 **Create serializers using templates:**
 
-- Use template: `backend-index-serializer.md` for index-serializer.ts
-- Use template: `backend-show-serializer.md` for show-serializer.ts
-- Use template: `backend-serializer-index.md` for index.ts
+- Use template: `backend-index-serializer-template.md` for index-serializer.ts
+- Use template: `backend-show-serializer-template.md` for show-serializer.ts
+- Use template: `backend-serializer-index-template.md` for index.ts
 
 **Add bundle export to api/src/serializers/index.ts:**
 
@@ -456,9 +456,9 @@ resourcesApi.list = debounceWithArgsCache(resourcesApi.list, {
 **Reference Files:** `travel-desk-flight-requests-api.ts`, `travel-desk-hotels-api.ts`, `expenses-api.ts`, `per-diems-api.ts`, `flight-reconciliations-api.ts`
 
 **Related Templates:**
-- `backend-index-serializer.md` - Index serializer template
-- `backend-show-serializer.md` - Show serializer template
-- `backend-serializer-index.md` - Serializer index file template
+- `backend-index-serializer-template.md` - Index serializer template
+- `backend-show-serializer-template.md` - Show serializer template
+- `backend-serializer-index-template.md` - Serializer index file template
 - `frontend-api-typescript-template.md` - TypeScript API file structure template
 
 **Related Workflows:**

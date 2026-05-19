@@ -653,8 +653,8 @@ return {
 
 ## Related Workflows
 
-- [convert-js-api-to-typescript.md](convert-js-api-to-typescript.md) - Convert API file first if needed
-- (Future) `convert-js-plural-composable-to-typescript.md` - For list composables
+- [convert-js-api-to-typescript-workflow.md](convert-js-api-to-typescript-workflow.md) - Convert API file first if needed
+- (Future) `convert-js-plural-composable-to-typescript-workflow.md` - For list composables
 
 ---
 

@@ -36,8 +36,8 @@ actual workflow file before acting.
 
 For pull request work, agents should usually use:
 
-- `pull-request-management.md` for PR title and body structure
-- `testing-instructions.md` for detailed, reviewer-friendly validation steps
+- `pull-request-management-workflow.md` for PR title and body structure
+- `testing-instructions-workflow.md` for detailed, reviewer-friendly validation steps
 - the project conventions in [AGENTS.md](../AGENTS.md) for code style and broader repo rules
 
 ## Plans

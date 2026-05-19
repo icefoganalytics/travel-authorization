@@ -5,16 +5,7 @@ application.
 
 ## Running Tests
 
-```bash
-dev test_web
-```
-
-To run tests from `web/` directly:
-
-```bash
-npm test
-npm test -- --run
-```
+See [../../bin/README.md](../../bin/README.md#testing) for the canonical web test commands.
 
 ## Directory Overview
 

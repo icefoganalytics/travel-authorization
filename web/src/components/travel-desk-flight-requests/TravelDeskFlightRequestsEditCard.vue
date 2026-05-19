@@ -4,9 +4,7 @@
       <h3 class="mb-0">Flight Requests</h3>
       <v-spacer />
       <TravelDeskFlightRequestCreateDialog
-        :attributes="{
-          travelRequestId: travelDeskTravelRequestId,
-        }"
+        :travel-request-id="travelDeskTravelRequestId"
         :activator-props="{
           class: 'my-0',
         }"

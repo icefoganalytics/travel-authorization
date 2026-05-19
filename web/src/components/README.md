@@ -25,6 +25,27 @@ here instead of expanding top-level project documentation.
   and reusable UI logic in `web/src/components/`.
 - Prefer local template refs only where needed, and keep them grouped clearly near other local UI
   state.
+- Consolidate role-specific components when one component with conditional rendering is clearer.
+- Prefer existing list item components over hardcoded navigation structures.
+- Use `v-if` for straightforward conditional rendering instead of computed component selection.
+- Reduce nesting when wrappers such as extra `v-card-text` elements add no behavior.
+
+## Naming
+
+Use `{Model}{Purpose}{VuetifyComponent}.vue`.
+
+1. **Model/Domain** - primary data model, such as `FlightStatistics` or `TravelAuthorization`
+2. **Purpose** - specific function, such as `Filters`, `Jobs`, or `Edit`
+3. **Vuetify Component** - wrapper shape, such as `Card`, `Dialog`, or `Select`
+
+Put shared domain components in `/web/src/components/{model}/` using kebab-case directories and
+PascalCase file names.
+
+Examples:
+
+- `FlightStatisticsFiltersCard.vue`
+- `FlightStatisticsJobsDialog.vue`
+- `UserTravelDeskAgentSelect.vue`
 
 ## Vuetify Notes
 
@@ -33,6 +54,14 @@ here instead of expanding top-level project documentation.
   lighten/darken variants by default.
 - Keep form layouts readable and consistent across cards, dialogs, and pages.
 - Avoid non-Vuetify utility-class patterns that do not belong to this stack.
+- Use Vuetify utility classes instead of custom CSS when available, such as `d-flex`,
+  `align-center`, `bg-white`, and `h-full`.
+- Remove redundant CSS that Vuetify already provides.
+- Use `formRef.value.submit()` instead of `formRef.value.$el.submit()`.
+- Prefer gap classes such as `ga-2` and `ga-3` over margin classes for flex spacing.
+- Avoid `v-list-item-title` and `v-list-item-subtitle` for text that needs to wrap; use regular
+  elements with utility classes.
+- Use `useTemplateRef()` instead of `ref()` for template references.
 
 ## Related Docs
 

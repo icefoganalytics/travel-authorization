@@ -13,52 +13,47 @@
         border: '1px solid #ccc',
       }"
     >
-      <slot>{{ modelValue }}</slot>
+      <slot>{{ value }}</slot>
     </div>
   </DescriptionElement>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
-
-import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import { isNumber } from "lodash"
 
-const props = defineProps({
-  /**
-   * The label text to display
-   */
-  label: {
-    type: String,
-    required: true,
-  },
-  /**
-   * Optional icon name from Material Design Icons (e.g., 'mdi-account')
-   */
-  icon: {
-    type: String,
-    default: "",
-  },
-  /**
-   * The value to display. Not required if using slot content
-   */
-  modelValue: {
-    /** @type {string | number | boolean | null} */
-    type: [String, Number, Boolean],
-    default: "",
-  },
-  /**
-   * Whether to display label and value horizontally or vertically
-   */
-  vertical: {
-    type: Boolean,
-    default: false,
-  },
-  height: {
-    type: [String, Number],
-    default: "150px",
-  },
-})
+import DescriptionElement from "@/components/common/DescriptionElement.vue"
+
+const props = withDefaults(
+  defineProps<{
+    /**
+     * The label text to display
+     */
+    label: string
+    icon?: string
+    value?: string | number | boolean | null
+    vertical?: boolean
+    height?: string | number
+  }>(),
+  {
+    /**
+     * Optional icon name from Material Design Icons (e.g., 'mdi-account')
+     */
+    icon: "",
+    /**
+     * The value to display. Not required if using slot content
+     */
+    value: "",
+    /**
+     * Whether to display label and value horizontally or vertically
+     */
+    vertical: false,
+    /**
+     * Height of the textarea
+     */
+    height: "150px",
+  }
+)
 
 const normalizedHeight = computed(() => {
   const { height } = props

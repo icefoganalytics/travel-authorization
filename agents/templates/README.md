@@ -7,11 +7,12 @@ This directory contains reusable AI-oriented documentation templates for TravelA
 Do not rely on a static index here — it goes stale. Instead, list the directory directly:
 
 ```bash
-ls agents/templates/*.md
+find agents/templates -name "*.md" -not -name README.md | sort
 ```
 
 Then read any template file that looks relevant before acting. The template file itself is the
-authoritative instruction set — do not rely on summaries.
+authoritative instruction set. Do not add per-template summaries or links here; they become stale
+as templates are added, renamed, or removed.
 
 ## Template vs Workflow Separation
 
@@ -22,7 +23,7 @@ authoritative instruction set — do not rely on summaries.
 When creating new documentation:
 - Put end-state code examples in `agents/templates/`
 - Put conversion patterns and process steps in `agents/workflows/`
-- Reference templates from workflows: "See template: `backend-index-serializer.md`"
+- Reference templates from workflows: "See template: `backend-index-serializer-template.md`"
 
 ## Using Templates
 
@@ -31,7 +32,7 @@ Templates are useful when a task follows a repeated local pattern and benefits f
 Example:
 
 ```text
-Follow the template in agents/templates/fishery-factory.md
+Follow the template in agents/templates/fishery-factory-template.md
 to add a new factory under api/tests/factories/.
 ```
 
