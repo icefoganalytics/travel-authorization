@@ -12,7 +12,7 @@
       <v-col cols="12">
         <TripTypeRadioGroup
           v-model="tripType"
-          :row="mdAndUp"
+          :inline="mdAndUp"
           @update:model-value="resetFormValidation"
         />
       </v-col>

@@ -78,7 +78,7 @@
                 v-model="travelDeskFlightRequest.timePreference"
                 :rules="[required]"
                 class="mt-1"
-                row
+                inline
                 required
               >
                 <v-radio
@@ -168,7 +168,9 @@ const travelDeskFlightRequest = ref({
 })
 
 const snack = useSnack()
-const showDialog = useRouteQuery("showTravelDeskFlightRequestCreate", "false", { transform: Boolean })
+const showDialog = useRouteQuery("showTravelDeskFlightRequestCreate", "false", {
+  transform: Boolean,
+})
 
 /** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)

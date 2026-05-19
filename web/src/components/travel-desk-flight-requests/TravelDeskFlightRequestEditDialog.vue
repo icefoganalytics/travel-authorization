@@ -76,7 +76,7 @@
                 v-model="travelDeskFlightRequest.timePreference"
                 :rules="[required]"
                 class="mt-1"
-                row
+                inline
                 required
               >
                 <v-radio
