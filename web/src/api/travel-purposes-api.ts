@@ -35,7 +35,7 @@ export const travelPurposesApi = {
   async get(travelPurposeId: number): Promise<{
     travelPurpose: TravelPurpose
   }> {
-    const { data } = await http.get(`api/travel-purposes/${travelPurposeId}`)
+    const { data } = await http.get(`/api/travel-purposes/${travelPurposeId}`)
     return data
   },
 }

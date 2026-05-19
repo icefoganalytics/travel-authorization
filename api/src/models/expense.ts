@@ -24,7 +24,7 @@ import Attachment from "@/models/attachment"
 import TravelAuthorization from "@/models/travel-authorization"
 import User from "@/models/user"
 
-// Keep in sync with web/src/modules/travel-authorizations/components/ExpenseTypeSelect.vue
+// Keep in sync with web/src/components/expenses/ExpenseTypeSelect.vue
 // TODO: rename to ExpenseCategories to avoid confusion with Expense "Types"
 export enum ExpenseExpenseTypes {
   ACCOMMODATIONS = "Accommodations",

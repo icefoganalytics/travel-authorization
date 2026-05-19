@@ -43,6 +43,12 @@ export default createVuetify({
         color: "primary",
       },
     },
+    VAutocomplete: {
+      variant: "outlined",
+    },
+    VCombobox: {
+      variant: "outlined",
+    },
     VDataTable: {
       elevation: 0,
       class: "rounded",
@@ -53,13 +59,21 @@ export default createVuetify({
     },
     VDateInput: {
       variant: "outlined",
-      density: "comfortable",
       color: "primary",
       prependIcon: "",
       prependInnerIcon: "mdi-calendar",
       placeholder: "YYYY-MM-DD",
       persistentPlaceholder: true,
       inputFormat: "yyyy-mm-dd",
+    },
+    VSelect: {
+      variant: "outlined",
+    },
+    VTextarea: {
+      variant: "outlined",
+    },
+    VTextField: {
+      variant: "outlined",
     },
   },
 })
