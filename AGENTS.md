@@ -474,6 +474,7 @@ instructions guidance.
 - Do not trigger sandbox approval prompts for normal edits to tracked repository files.
 - Prefer direct repository edits over any escalated command when the target file is inside the git worktree and writable.
 - Only escalate or ask for approval when the action is genuinely outside normal repository editing, such as sandbox restrictions, network access, or destructive operations the user did not request.
+- When moving or renaming tracked files, use `git mv` so git records the operation as an intentional relocation.
 
 **Template/Workflow Separation:**
 - Keep GitHub templates minimal with just structure
