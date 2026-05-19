@@ -3,8 +3,6 @@
     :model-value="modelValue"
     :items="expenseTypes"
     label="Expense Type"
-    density="compact"
-    variant="outlined"
     v-bind="$attrs"
     @update:model-value="updateModelValue"
   ></v-select>
