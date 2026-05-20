@@ -62,7 +62,7 @@
       <v-col>
         <TextareaDescriptionElement
           label="Objectives"
-          :model-value="travelAuthorization.benefits"
+          :value="travelAuthorization.benefits"
           vertical
         />
       </v-col>

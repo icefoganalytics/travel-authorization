@@ -21,12 +21,12 @@ instruction set.
 Example:
 
 ```text
-Follow the workflow in agents/workflows/pull-request-management.md
+Follow the workflow in agents/workflows/pull-request-management-workflow.md
 to create a PR for my changes.
 ```
 
 ```text
-Follow the workflow in agents/workflows/convert-js-api-to-typescript.md
+Follow the workflow in agents/workflows/convert-js-api-to-typescript-workflow.md
 to convert web/src/api/travel-desk-rental-cars-api.js to TypeScript.
 ```
 

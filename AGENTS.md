@@ -18,6 +18,7 @@ document and link to it from here instead of letting this file become a dumping 
 ## Table of Contents
 
 - [Technology Stack](#technology-stack)
+- [Useful Local Documentation](#useful-local-documentation)
 - [Development Environment](#development-environment)
   - [Common Commands](#common-commands)
   - [Conventions](#conventions)
@@ -45,6 +46,35 @@ document and link to it from here instead of letting this file become a dumping 
 - **Testing:** Vitest, Fishery factories
 - **Infrastructure:** Docker Compose
 
+## Useful Local Documentation
+
+- [README.md](README.md) - project overview and quick start
+- [COMMITTING.md](COMMITTING.md) - commit, pull request, and testing-instruction guidance
+- [bin/README.md](bin/README.md) - development wrapper commands
+- [api/README.md](api/README.md) - backend service overview
+- [api/tests/README.md](api/tests/README.md) - API testing patterns
+- [api/src/controllers/README.md](api/src/controllers/README.md) - controller patterns
+- [api/src/db/README.md](api/src/db/README.md) - migrations and database workflow
+- [api/src/integrations/README.md](api/src/integrations/README.md) - integration guidance
+- [api/src/models/README.md](api/src/models/README.md) - model patterns
+- [api/src/policies/README.md](api/src/policies/README.md) - policy and scope patterns
+- [api/src/queries/README.md](api/src/queries/README.md) - reusable query guidance
+- [api/src/serializers/README.md](api/src/serializers/README.md) - serializer patterns
+- [api/src/services/README.md](api/src/services/README.md) - service-layer patterns
+- [web/README.md](web/README.md) - frontend service overview
+- [web/tests/README.md](web/tests/README.md) - frontend test directory overview
+- [web/src/api/README.md](web/src/api/README.md) - frontend API layer patterns
+- [web/src/components/README.md](web/src/components/README.md) - component and Vuetify patterns
+- [web/src/layouts/README.md](web/src/layouts/README.md) - layout guidance
+- [web/src/modules/travel-authorizations/components/README.md](web/src/modules/travel-authorizations/components/README.md) - travel authorization module component guidance
+- [web/src/modules/travel-authorizations/pages/README.md](web/src/modules/travel-authorizations/pages/README.md) - travel authorization module page guidance
+- [web/src/pages/README.md](web/src/pages/README.md) - routeable page guidance
+- [web/src/use/README.md](web/src/use/README.md) - composable patterns
+- [agents/README.md](agents/README.md) - agent workflow discovery
+- [agents/plans/README.md](agents/plans/README.md) - plan naming and structure
+- [agents/templates/README.md](agents/templates/README.md) - template discovery
+- [agents/workflows/README.md](agents/workflows/README.md) - workflow discovery
+
 ## Development Environment
 
 ### Common Commands
@@ -53,7 +83,6 @@ document and link to it from here instead of letting this file become a dumping 
 - `dev down -v` - Stop and wipe database
 - `dev psql` - Access database CLI (database name: `travel_development`)
 - `dev psql-query "SELECT ..."` - Run a SQL query directly against the dev database
-- `dev test_api` - Run all API tests
 - `dev migrate up` - Run migration
 - `dev migrate down` - Rollback migration
 - `dev migrate make create-table-name` - Create new migration
@@ -97,6 +126,7 @@ document and link to it from here instead of letting this file become a dumping 
 **Controller import ordering:**
 
 Within internal imports for controllers, group by conceptual distance:
+
 - Utilities (logger, config)
 - Models
 - Policies
@@ -106,45 +136,14 @@ Within internal imports for controllers, group by conceptual distance:
 
 ### Architecture Patterns
 
-**Service Pattern:**
+Detailed backend guidance lives close to the code it governs:
 
-- Business logic in services extending `BaseService`
-- Call via static method: `ServiceName.perform(args)` (never instantiate directly)
-- Services call other services, not queries directly
-
-**Controller Pattern:**
-
-- RESTful controllers extending `BaseController`
-- Standard CRUD: `index()`, `show()`, `create()`, `update()`, `destroy()`
-- Routes: `GET /api/resources`, `GET /api/resources/:id`, `POST /api/resources`, etc.
-- Authorization via `this.buildPolicy()` and `Policy.applyScope()`
-- Serializers format output (IndexSerializer, ShowSerializer)
-- Nested controllers in subfolders: `controllers/resource/action-controller.ts`
-
-**Serializer Naming Convention:**
-
-- Use `AsIndex` for index serializer types (not `TableView`)
-- Use `AsShow` for show serializer types
-- Follow pattern: `{Model}AsIndex`, `{Model}AsShow`
-
-**Response Patterns:**
-
-- Multi-line JSON responses with consistent formatting
-- Return policy information in create/update responses: `{ record, policy }`
-- When create/update/show responses need association data beyond the base model, reload with the
-  required includes and serialize the response instead of returning the raw Sequelize model
-- Structured error logging: ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``
-- Consistent error message format: `"Failed to [action] [resource]: ${error}"`
-
-**Policy Pattern:**
-
-- **Modern Pattern:** Use `PolicyFactory` with `policyScope()` method for new/updated policies
-- **Legacy Pattern:** Manual `applyScope()` method (being phased out)
-- **Policy Composition:** Compose scopes by storing parent policy scope in variable and spreading: `const parentScope = ParentPolicy.policyScope(user)` then `...parentScope` (use `required: true` for mandatory associations)
-- **Admin Handling:** Use `ALL_RECORDS_SCOPE` constant for admin users with early returns
-- **Method Naming:** Use `permittedAttributes()` instead of `permittedAttributesForUpdate()`
-- **Role checks:** Use `user.isAdmin` property directly
-- **Policy Inheritance:** Extend `PolicyFactory(ModelClass)` instead of `BasePolicy`
+- Controllers: [api/src/controllers/README.md](api/src/controllers/README.md)
+- Services: [api/src/services/README.md](api/src/services/README.md)
+- Policies: [api/src/policies/README.md](api/src/policies/README.md)
+- Serializers: [api/src/serializers/README.md](api/src/serializers/README.md)
+- Models: [api/src/models/README.md](api/src/models/README.md)
+- Queries: [api/src/queries/README.md](api/src/queries/README.md)
 
 **Database:**
 
@@ -155,41 +154,11 @@ Within internal imports for controllers, group by conceptual distance:
 
 **Running tests:**
 
-- All tests: `dev test api`
-- Specific file: `dev test api -- --run tests/services/example.test.ts`
-- Watch mode: omit `--run`
-- Pattern: `dev test api -- --grep "pattern"`
+See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use the dedicated
+`dev test ...` commands for test runs, not service-shell package commands.
 
-**Test structure:**
-
-- Mirror source structure: `api/src/services/example.ts` → `api/tests/services/example.test.ts`
-- Use `test` not `it`
-- Nested describe blocks: file path → class name → method name
-- AAA pattern with explicit comments: `// Arrange`, `// Act`, `// Assert`
-- Test naming: `"when [condition], [expected behavior]"`
-- Use Fishery factories for all test data
-
-**Test patterns:**
-
-- Numbered entities: `user1`, `user2` (not `existingUser`, `newUser`)
-- Descriptive variable names: `workflowStepPlayersAttributes` not `playersAttributes`
-- Scoped query results: use `scoped{Model}` naming (e.g., `scopedTravelDeskTravelRequests`) to indicate policy-scoped results
-- Assert database state via `findAll()` without where clauses (test isolation handles cleanup)
-- Negative spy assertions: `expect(spy).not.toHaveBeenCalled()` (never use `not.toHaveBeenCalledWith`)
-- Controller tests: `mockCurrentUser(user)` and `request().get("/api/path")` from `@/support`
-- Single assertion per test: prefer `toEqual` with `expect.objectContaining` over multiple assertions
-  ```typescript
-  // Good
-  expect(scopedRecords).toEqual([
-    expect.objectContaining({ id: record1.id }),
-  ])
-  // Avoid
-  expect(result).toHaveLength(1)
-  expect(result[0].id).toEqual(record1.id)
-  ```
-
-**Common factories:**
-Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expenseFactory`, `travelSegmentFactory`, etc.
+See [api/tests/README.md](api/tests/README.md) for API test structure, factories, and assertion
+patterns.
 
 ---
 
@@ -216,10 +185,11 @@ Import from `@/factories`: `userFactory`, `travelAuthorizationFactory`, `expense
 **Component import ordering:**
 
 Within internal imports for Vue components, group by conceptual distance:
+
 - Config imports
 - Composables/helpers
 - Components
-Within each group, alphabetical ordering is preferred.
+- Within each group, alphabetical ordering is preferred.
 - **Default imports:** When a helper or component already exposes a default export and the module has a single clear purpose, prefer the default import form at the call site.
 - **Expanded imports:** When importing 4 or more named items, prefer the expanded multi-line form for readability.
 - **Composable usage in Options API:** When an Options API component needs a composable, call it inside `setup()` and return the result for use via `this.*`. Do not create composable instances at module scope.
@@ -229,91 +199,23 @@ Within each group, alphabetical ordering is preferred.
 
 ### Vuetify 3 Patterns
 
-- **Utility classes over custom CSS:** Use Vuetify 3 utility classes instead of custom CSS (e.g., `d-flex`, `align-center`, `bg-white`, `h-full`)
-- **Remove redundant CSS:** Delete CSS that's now built into Vuetify 3 (e.g., `.h-full { height: 100%; }`)
-- **Form submission:** Use `formRef.value.submit()` instead of `formRef.value.$el.submit()` in Vuetify 3
-- **Gap over margins:** Prefer gap classes (`ga-2`, `ga-3`) over margin classes for component spacing in flex containers
-- **Text wrapping:** Avoid `v-list-item-title` and `v-list-item-subtitle` for text that needs to wrap - use regular divs with utility classes
-- **Template refs:** Use `useTemplateRef()` instead of `ref()` for template references in Vue 3
+See [web/src/components/README.md](web/src/components/README.md) for component and Vuetify
+patterns.
 
 ### Component Naming Convention
 
-**Pattern:** `{Model}{Purpose}{VuetifyComponent}.vue`
-
-1. **Model/Domain** - Primary data model (e.g., `FlightStatistics`, `TravelAuthorization`)
-2. **Purpose** - Specific functionality (e.g., `Filters`, `Jobs`, `Edit`)
-3. **Vuetify Component** - Wrapper component (e.g., `Card`, `Modal`, `Dialog`, `Select`, `DataTabe`)
-
-**Directory structure:**
-
-- Location: `/web/src/components/{model}/`
-- Directories: kebab-case (e.g., `flight-statistics`)
-- Files: PascalCase (e.g., `FlightStatisticsFiltersCard.vue`)
-
-**Examples:**
-
-- `FlightStatisticsFiltersCard.vue` - Filters card for flight statistics
-- `FlightStatisticsJobsModal.vue` - Jobs modal for flight statistics
-- `UserTravelDeskAgentSelect.vue` - Select for travel desk agent
+See [web/src/components/README.md](web/src/components/README.md) for component naming and
+directory conventions.
 
 ### Architecture Patterns
 
-**Component Simplification Patterns:**
-- **Consolidate role-specific components:** Replace multiple role-based component imports with single components using conditional rendering
-- **Use actual list items:** Prefer existing list item components over hardcoded navigation structures
-- **Conditional rendering:** Use `v-if` directives instead of computed component selection for better maintainability
-- **Reduce nesting:** Merge `v-card-text` with direct child divs when possible to reduce unnecessary DOM nesting
+Detailed frontend guidance lives close to the code it governs:
 
-**API Module Pattern:**
-Type-safe API clients in `web/src/api/*-api.ts`
-
-- Export types matching backend models/serializers
-- Prefer explicit `AsIndex` / `AsShow` response types that mirror backend serializers rather than
-  typing list/get/update responses directly as the base model when associations are present
-- Export `WhereOptions`, `FiltersOptions`, `QueryOptions` for query parameters
-- Export API object with methods: `list()`, `get()`, `create()`, `update()`, `delete()`
-- Methods return typed promises
-- Example: `flightStatisticsApi.list(params)` → `Promise<{ flightStatistics: FlightStatisticAsIndex[], totalCount: number }>`
-- **Import style:** Use named imports for API modules: `import { apiName } from "@/path/to/api"`. Exception: when importing many APIs in the same file, use top-level import with dot lookups: `import api from "@/api"`
-
-**Composable Pattern:**
-Reactive data fetching in `web/src/use/use-*.ts`
-
-_Plural form (`useResources`) for collections:_
-
-- Accept `options` ref with query parameters, optional `skipWatchIf` function
-- Return: `resources`, `totalCount`, `isLoading`, `isErrored`
-- Provide: `fetch()` and `refresh()` methods
-- Watch options with `deep: true, immediate: true`
-
-_Singular form (`useResource`) for single items:_
-
-- Accept `id` ref (can be `number | null | undefined`)
-- Return: `resource`, `policy`, `isLoading`, `isErrored`
-- Provide: `fetch()`, `refresh()`, optionally `save()`
-- Watch id with `immediate: true`, skip if nil
-
-_Chaining composables with computed IDs:_
-
-When you need to fetch a detail record based on a list lookup, chain composables using a computed ID:
-
-```typescript
-const resourcesQuery = computed(() => ({
-  where: {
-    name: props.name,
-  },
-}))
-const { resources } = useResources(resourcesQuery, {
-  skipWatchIf: () => !isReady.value,
-})
-const resourceId = computed(() => resources.value[0]?.id)
-
-const { resource } = useResource(resourceId)
-```
-
-This leverages Vue's reactivity - when `resources` updates, `resourceId` recomputes, triggering the singular composable to fetch automatically. Avoid manual watchers and imperative `fetch()` calls when reactive chaining suffices.
-
-Re-export types, enums, and constants from API module for convenience.
+- API modules: [web/src/api/README.md](web/src/api/README.md)
+- Components and Vuetify: [web/src/components/README.md](web/src/components/README.md)
+- Layouts: [web/src/layouts/README.md](web/src/layouts/README.md)
+- Pages: [web/src/pages/README.md](web/src/pages/README.md)
+- Composables: [web/src/use/README.md](web/src/use/README.md)
 
 ---
 
@@ -342,11 +244,13 @@ See `/api/src/config.ts` for complete details.
 
 ### Pull Request Guidelines
 
+See [`COMMITTING.md`](COMMITTING.md) for detailed commit message, PR description, and testing
+instructions guidance.
+
 **Pre-submission:**
 
 - All tests pass:
-  - API: `./bin/dev api npm test` or `npm test` from `/api`
-  - Web: `./bin/dev web npm test` or `npm test` from `/web`
+  - See [`bin/README.md`](bin/README.md#testing) for canonical API and web test commands
 - Type checking passes:
   - API: `./bin/dev api npm run check-types`
   - Web: `./bin/dev web npm run check-types`
@@ -358,55 +262,6 @@ See `/api/src/config.ts` for complete details.
 - Follow naming conventions (no abbreviations)
 - Write tests for new functionality (AAA pattern)
 - Never `git push --force` on main branch
-
-**Commit emoji guidance:**
-
-Format: `:emoji: Verb phrase.` — imperative mood, ends with a period.
-
-- Use `:butterfly:` for database migrations and data backfills
-- Use `:bug:` for bug fixes
-- Use `:sparkles:` for new features
-- Use `:recycle:` for structural cleanup or migration-safe refactors that preserve behavior
-- Use `:art:` for theme, styling, or visual changes
-- Use `:cherry_blossom:` for UI polish and cosmetic improvements — **never use `:lipstick:`**
-- Use `:wrench:` for config and settings changes
-- Use `:memo:` for documentation and plan updates
-- Use `:hammer:` for infrastructure and tooling changes (docker, scripts)
-- Use `:arrow_up:` for dependency, runtime, and version bumps
-- Use `:gear:` for container, workflow, and tooling configuration changes
-- Use `:heavy_minus_sign:` when removing a dependency from the package set
-- Use `:construction:` for intentionally incomplete migration slices that may leave the app broken between commits
-- Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
-
-**Commit body guidance:**
-
-Write in plain English for the next developer reading `git log`. Focus on:
-- What changed (briefly, since the diff shows the how)
-- Why it was needed — the problem being solved
-- What the observable effect is for users or callers
-
-Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
-
-- **Bad:** `the frontend redirects only when policy.show is false after the save`
-- **Good:** `the frontend redirects only when the user can no longer view the document`
-
-**Testing Instructions Format:**
-
-Standard setup (always include):
-
-1. Run test suite: `dev test_api`
-2. Boot app: `dev up`
-3. Log in at http://localhost:8080
-
-Navigation/verification steps:
-
-- Use exact UI element names: **Add User**, **Activate Position**
-- Reference menu locations: "top right dropdown nav", "left sidebar nav"
-- Use navigation arrows: **Administration** → **Positions** → **Users** tab
-- Explicit verification: "Verify success message: 'X created!'"
-- Format: Bold for **UI elements**, inline code for `exact values/URLs/errors`
-
-For complex scenarios, use `## Test Case N: Description` subheadings.
 
 ---
 
@@ -506,44 +361,53 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 ### Workflow Design Principles
 
 **Codebase-wide search discipline:**
+
 - Search for the **method or pattern**, not the variable name — variable names differ per file
 - BAD: `form\.value\.validate` — misses `formRef`, `headerActionsFormCard`, `tripDetailsEstimatesEditForm`, etc.
 - GOOD: `\.validate\(\)` — catches all call sites regardless of ref name
 - When doing a codebase-wide pass, use the most general regex that captures the semantic pattern, then filter false positives manually
 
 **Comprehensive Scoping:**
+
 - Name workflows for their complete lifecycle (e.g., "pull-request-management" not "pull-request-creation")
 - Cover all related activities: creation, editing, maintenance, and troubleshooting
 
 **Tracked files and permissions:**
+
 - Do not ask the user for permission to edit or delete a file that is already tracked by git.
 - Do not trigger sandbox approval prompts for normal edits to tracked repository files.
 - Prefer direct repository edits over any escalated command when the target file is inside the git worktree and writable.
 - Only escalate or ask for approval when the action is genuinely outside normal repository editing, such as sandbox restrictions, network access, or destructive operations the user did not request.
+- When moving or renaming tracked files, use `git mv` so git records the operation as an intentional relocation.
 
 **Template/Workflow Separation:**
+
 - Keep GitHub templates minimal with just structure
 - Move detailed guidance, examples, and instructions to agent workflows
 - Template = what to fill out, Workflow = how to fill it out
 
 **Project-Specific Normalization:**
+
 - When copying workflows between projects, normalize ALL project-specific details:
-  - Commands: `dev test_api` vs generic test commands
+  - Commands: use the canonical test commands from `bin/README.md` instead of generic test commands
   - URLs: http://localhost:8080
   - Navigation patterns: **Travel Authorizations** → **Create New**
   - Naming conventions and code style
 
 **Practical Examples:**
+
 - Include real examples from the actual project, not theoretical patterns
 - Show before/after scenarios and common use cases
 - Use actual file names, component names, and patterns from the codebase
 
 **Lifecycle Coverage:**
+
 - Consider the full lifecycle of the activity, not just initial creation
 - Include editing, updating, and maintenance scenarios
 - Provide troubleshooting and common pitfall guidance
 
 **QA Testing Instructions:**
+
 - Write for someone with zero project knowledge
 - Focus on UI interactions: "Click on", "Verify", "Fill out"
 - Use simple, sequential steps with specific verification points
@@ -556,16 +420,18 @@ For complex scenarios, use `## Test Case N: Description` subheadings.
 See `/agents/workflows/README.md` for the complete list of available workflows and their usage patterns.
 
 **Key Workflows:**
-- `pull-request-management.md` - Creating and editing well-structured PRs
-- `convert-js-api-to-typescript.md` - Converting JavaScript APIs to TypeScript
-- `convert-js-plural-composable-to-typescript.md` - Converting composables to TypeScript
-- `convert-dialog-table-to-page-pattern.md` - Modernizing legacy UI patterns
+
+- `pull-request-management-workflow.md` - Creating and editing well-structured PRs
+- `convert-js-api-to-typescript-workflow.md` - Converting JavaScript APIs to TypeScript
+- `convert-js-plural-composable-to-typescript-workflow.md` - Converting composables to TypeScript
+- `convert-dialog-table-to-page-pattern-workflow.md` - Modernizing legacy UI patterns
 
 ### Workflow Usage
 
 **Example:**
+
 ```
-Follow the workflow in agents/workflows/pull-request-management.md
+Follow the workflow in agents/workflows/pull-request-management-workflow.md
 to create a comprehensive pull request following TravelAuth patterns.
 ```
 

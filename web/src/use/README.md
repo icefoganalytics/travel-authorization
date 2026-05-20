@@ -1,19 +1,42 @@
-# web/src/use/README.md
+# Frontend Composables
 
-This is a very light store pattern known as the "use" pattern. Each instance of the store has its own state; however, state is keyed by query/id. The primary use for this is per-query state, that also tracks loading and error states. This is useful if you need to use the same store for multiple components on a page and don't want to share state between them.
+This directory holds the lightweight `use*` composables used for reactive data loading and shared
+browser state.
 
-Id/queries that are the same will return the state object.
+## Intent
 
-The pattern is evolving, but so far it looks like:
+Composables should keep API fetching, loading state, and error state out of components while still
+letting each caller provide reactive query or id inputs.
 
-Each use function gets a "reactive" state object.
-That state object is returned from the function as a spread "toRefs"" object.
-Functions and constants are returned directly.
+## Local Pattern
 
-Useage looks like
+Each composable owns a reactive state object. Return state as refs and return functions directly.
+
+Plural collection composables usually:
+
+- accept an options ref or computed query object
+- optionally accept `skipWatchIf`
+- return records, `totalCount`, `isLoading`, and `isErrored`
+- provide `fetch()` and `refresh()`
+- watch options with `deep: true` and `immediate: true`
+
+Singular record composables usually:
+
+- accept an id ref or computed id
+- allow `number | null | undefined`
+- return the record, policy, `isLoading`, and `isErrored`
+- provide `fetch()`, `refresh()`, and optionally `save()`
+- watch the id immediately and skip nil ids
+
+## Reactive Options
+
+Options passed to composables should be reactive: a computed value, ref, or prop ref. This lets the
+composable reload content whenever the options change.
+
+Usage looks like:
 
 ```js
-import { useExpenses } from '@/use/use-expenses'
+import { useExpenses } from "@/use/use-expenses"
 
 const expenseOptions = computed(() => ({
   where: {
@@ -24,8 +47,23 @@ const expenseOptions = computed(() => ({
 const { expenses, isLoading, fetch } = useExpenses(expenseOptions)
 ```
 
-Note that options passed to use files should be reactive.
-i.e. either a computed, ref, or props attribute.
-This enables the use function to reactively load content whenever the options change.
+## Chained Lookups
 
-"expenses" and "isLoading" are refs and fetch is a function that mutates those refs.
+When you need to fetch a detail record based on a list lookup, chain composables with a computed id:
+
+```typescript
+const resourcesQuery = computed(() => ({
+  where: {
+    name: props.name,
+  },
+}))
+const { resources } = useResources(resourcesQuery, {
+  skipWatchIf: () => !isReady.value,
+})
+const resourceId = computed(() => resources.value[0]?.id)
+
+const { resource } = useResource(resourceId)
+```
+
+When `resources` updates, `resourceId` recomputes and triggers the singular composable. Prefer this
+over manual watchers and imperative `fetch()` calls when reactive chaining is enough.

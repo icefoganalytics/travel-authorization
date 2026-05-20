@@ -17,6 +17,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
         ["updatedAt", "DESC"],
         ["stops", "departureDate", "ASC"],
         ["stops", "departureTime", "ASC"],
+        ["travelSegments", "segmentNumber", "ASC"],
       ])
       const scopedTravelAuthorizations = TravelAuthorizationsPolicy.applyScope(
         scopes,

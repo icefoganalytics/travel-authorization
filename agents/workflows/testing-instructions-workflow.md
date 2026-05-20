@@ -96,7 +96,7 @@ Use this structure:
 ```markdown
 # Testing Instructions
 
-1. Run the relevant test suite via `./bin/dev test api -- --run` or a narrower command such as `./bin/dev test api -- --run tests/services/example.test.ts`.
+1. Run the relevant test suite using the canonical commands in [`bin/README.md`](../../bin/README.md#testing).
 2. Boot the app via `./bin/dev up`.
 3. Log in to the app at http://localhost:8080.
 
@@ -144,8 +144,8 @@ Before finalizing:
 
 ## Related Workflows
 
-- [`./pull-request-management.md`](./pull-request-management.md) - Create and update pull requests
-- [`./github-issue-creation.md`](./github-issue-creation.md) - Create and enhance GitHub issues
+- [`./pull-request-management-workflow.md`](./pull-request-management-workflow.md) - Create and update pull requests
+- [`./github-issue-creation-workflow.md`](./github-issue-creation-workflow.md) - Create and enhance GitHub issues
 
 ## Tips
 

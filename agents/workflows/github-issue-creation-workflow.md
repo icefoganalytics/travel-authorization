@@ -159,24 +159,24 @@ This would improve the finance review workflow and reduce back-and-forth between
 
 ### Refactoring Example
 
-**Title:** `Standardize Money and Percent Storage to DECIMAL Types + Use Big.js for Calculations`
+**Title:** `Standardize Travel Estimate Money Storage and Calculations`
 
 **Labels:** `refactor`
 
 **Body:**
 ```
 Relates to:
-- ELCC-9: Switch Database Columns to DECIMAL Types for Money and Percent Values
+- Issue 315: Improve Travel Estimate Calculation Accuracy
 
 # Context
 
 **Is your feature request related to a problem? Please describe.**
-Current money and percent storage uses inconsistent types that can lead to calculation errors.
+Current travel estimate cost fields use inconsistent types that can lead to calculation or display errors.
 
 **Describe the solution you'd like**
-- Switch all money and percent database columns to DECIMAL types
-- Use Big.js for all calculations to ensure precision
-- Update API serialization to handle new types properly
+- Standardize travel estimate money fields on one storage pattern
+- Use precise arithmetic for estimate totals
+- Update API serialization so frontend displays remain consistent
 
 **Describe alternatives you've considered**
 - Keep current types with manual precision handling
@@ -184,7 +184,7 @@ Current money and percent storage uses inconsistent types that can lead to calcu
 - Use string-based storage with parsing
 
 **Additional context**
-This aligns with ELCC data management standards and improves financial calculation accuracy.
+This improves travel estimate and expense review accuracy.
 ```
 
 ---

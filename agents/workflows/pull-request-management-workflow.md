@@ -10,19 +10,24 @@ auto_execution_mode: 1
 **WHY this workflow exists:** Pull requests communicate intent to reviewers and future maintainers. A well-structured PR explains the problem, the solution approach, and how to verify correctness. This reduces review friction and creates valuable documentation.
 
 **WHAT this workflow produces:** A draft PR with:
+
 - Clear title following naming conventions
 - Context explaining WHY the change is needed
 - Implementation summarizing WHAT was changed (purpose, not files)
 - Testing instructions that verify correctness
 
 **Decision Rules:**
-- **Title format:** Use `Issue-<number>: Description` for GitHub issues, `TICKET-ID: Description` for Jira tickets, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features. Always use AP style title case.
+
+- **Title format:** Use `Issue-<number>: Description` for GitHub issues, `Fix: Description` for bug fixes, or `Action Verb + Noun` for features. Always use AP style title case.
 - **Issue linkage wording:** Use `Fixes <issue-url>` only when the PR is intended to close the issue. Use `Part of <issue-url>` for one PR in a larger multi-PR effort.
-- **Context section:** Explain WHY the change is needed, not just what changed.
-- **Implementation section:** Focus on purpose and intent, not specific files. A reviewer can see file changes in the diff - the Implementation section explains the reasoning behind those changes.
+- **Context section:** Explain WHY the change is needed, not just what changed. When linked to an issue, directly reference the specific issues/steps from the ticket (e.g., "STEP 1: Objectives list spacing is inconsistent").
+- **Implementation section:** Focus on purpose and intent, not specific files. A reviewer can see file changes in the diff - the Implementation section explains the reasoning behind those changes. List primary issue fixes first, then optional cleanup relevant to end users. Bundle related changes under descriptive purposes (e.g., "standardize styling of estimate creation dialog and propagate throughout app").
+- **End-user relevance:** Only include changes that affect end users in the Implementation section. Internal refactoring (component location changes, import updates) should be excluded unless they impact user experience.
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
-- **Testing instructions:** Use the `testing-instructions.md` workflow alongside this one. Never guess UI labels or navigation paths.
+- **Testing instructions:** Use the `testing-instructions-workflow.md` workflow alongside this one. Never guess UI labels or navigation paths.
+- **No extra sections:** Do not add sections beyond this workflow's PR body structure unless the
+  user asks for them. Validation commands belong in the chat handoff, not in a PR body section.
 
 This workflow covers the process of creating and editing well-structured pull requests that follow the established patterns in the TravelAuth project.
 
@@ -56,7 +61,7 @@ TODO - add screenshots for UI changes
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. <specific step>
@@ -88,14 +93,14 @@ git branch -vv
 
 Use one of these patterns:
 
-| Pattern | When to Use | Example |
-|---------|-------------|---------|
-| `Issue-<number>: Description` | Linked to GitHub issue | `Issue-314: Normalize Travel Desk Other Transportations Components to Modern Patterns` |
-| `TICKET-ID: Description` | Linked to Jira ticket | `TA-123: Add Travel Authorization Export Feature` |
-| `Fix: Description` | Bug fixes without ticket | `Fix: Email Notifications Not Sending` |
-| `Action Verb + Noun` | Features/improvements | `Add Expense Report Validation` |
+| Pattern                       | When to Use              | Example                                                                                |
+| ----------------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
+| `Issue-<number>: Description` | Linked to GitHub issue   | `Issue-314: Normalize Travel Desk Other Transportations Components to Modern Patterns` |
+| `Fix: Description`            | Bug fixes without ticket | `Fix: Email Notifications Not Sending`                                                 |
+| `Action Verb + Noun`          | Features/improvements    | `Add Expense Report Validation`                                                        |
 
 **Title Guidelines:**
+
 - Use **AP style title case** (validate at https://titlecaseconverter.com/?style=AP)
 - Be specific but concise
 - Start with action verb when no ticket ID
@@ -126,7 +131,7 @@ Relates to:
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. <Specific testing step>
@@ -138,13 +143,12 @@ The GitHub PR template provides the basic structure. Fill in each section follow
 
 - **Issue linkage:** Use `Fixes:` only for PRs that should close the linked issue. Use `Part of:` when the work is one slice of a larger effort.
 - **Relates to:** Add related PRs/issues or remove this section entirely
-- **Context:** Explain the problem, user reports, or motivation for the change
-- **Implementation:** List all changes made in numbered format
-- **Screenshots:** If the diff includes `web/src/pages/` or `web/src/components/`, write `TODO`
-  and let the human add screenshots. Use `N/A - backend changes only` only when there are no UI
-  changes.
-- **Testing Instructions:** Always start with the standard 3 steps, then add specific steps using
-  exact UI labels verified from the code.
+- **Context:** Explain the problem, user reports, or motivation for the change. When linked to an issue, directly reference the specific issues/steps from the ticket (e.g., "STEP 1: Objectives list spacing is inconsistent"). Verify all issues from the ticket are addressed in the PR.
+- **Implementation:** List changes in numbered format. List primary issue fixes first (with step references if applicable), then optional cleanup relevant to end users. Bundle related changes under descriptive purposes. Exclude internal refactoring (component location changes, import updates) unless they impact user experience.
+- **Screenshots:** If the diff includes `web/src/pages/` or `web/src/components/`, write `TODO` and let the human add screenshots. Use `N/A - backend changes only` only when there are no UI changes.
+- **Testing Instructions:** Always start with the standard 3 steps using the dev wrapper commands (`dev test`, `dev up`), then add specific steps using exact UI labels verified from the code. Follow the `testing-instructions.md` workflow for detailed guidance.
+- **Additional sections:** Do not add a `Validation`, `Checks`, or similar section unless the user
+  explicitly requests it. Mention commands you ran in the final chat response instead.
 
 ### 4. Section Guidelines
 
@@ -156,10 +160,12 @@ The GitHub PR template provides the basic structure. Fill in each section follow
 - Include "Steps to Reproduce" for bugs
 
 **Example:**
+
 ```markdown
 # Context
 
 User Report
+
 > Travel authorization requests are not showing the correct approval status in the dashboard.
 
 Investigation revealed that the status calculation was not considering conditional approvals.
@@ -174,6 +180,7 @@ Investigation revealed that the status calculation was not considering condition
 - Keep it concise: 5-10 items maximum
 
 **Good Example (purpose-focused):**
+
 ```markdown
 # Implementation
 
@@ -184,6 +191,7 @@ Investigation revealed that the status calculation was not considering condition
 ```
 
 **Bad Example (file-focused - avoid this):**
+
 ```markdown
 # Implementation
 
@@ -208,6 +216,7 @@ git diff main...HEAD --name-only | rg '^web/src/(components|pages)/'
 - When screenshots are later added, use `<img>` tags with width/height
 
 **Example:**
+
 ```markdown
 # Screenshots
 
@@ -217,13 +226,15 @@ git diff main...HEAD --name-only | rg '^web/src/(components|pages)/'
 #### Testing Instructions Section
 
 **Always start with these three steps:**
+
 ```markdown
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 ```
 
 **Then add specific steps:**
+
 - Use **bold** for UI elements: **Create Request**, **Save**
 - Use arrows for navigation: **Travel Authorizations** → **Create New**
 - Include verification: "Verify that..." or "Check that..."
@@ -239,10 +250,10 @@ Write testing instructions for someone with zero project knowledge:
 - **Browser behavior**: Include back button, refresh, and direct URL testing
 - **Simple language**: Avoid technical jargon, minimal bolding
 
-Follow [`./testing-instructions.md`](./testing-instructions.md) for the full testing-instructions
-workflow before finalizing the PR body.
+Follow [`./testing-instructions-workflow.md`](./testing-instructions-workflow.md) for the full testing-instructions workflow before finalizing the PR body.
 
 **Example:**
+
 ```markdown
 4. Navigate to **Travel Authorizations** → **Create New**.
 5. Fill out the travel authorization form with test data.
@@ -270,6 +281,7 @@ EOF
 ```
 
 To mark a draft PR as ready for review:
+
 ```bash
 gh api repos/{owner}/{repo}/pulls/NUMBER -X PATCH -F draft=false
 ```
@@ -297,14 +309,14 @@ gh pr edit NUMBER
 
 **Common Scenarios for Editing:**
 
-| Scenario | What to Update |
-|----------|----------------|
-| **Missing context** | Add detailed problem explanation to Context section |
-| **Unclear implementation** | Expand Implementation section with numbered list |
-| **Missing screenshots** | Add Screenshots section with images or "N/A - backend changes only" |
-| **Incomplete testing** | Add specific testing steps after the standard 3 steps |
-| **Wrong title format** | Update title to follow naming patterns |
-| **Add related issues** | Add "Relates to:" section with links |
+| Scenario                   | What to Update                                                      |
+| -------------------------- | ------------------------------------------------------------------- |
+| **Missing context**        | Add detailed problem explanation to Context section                 |
+| **Unclear implementation** | Expand Implementation section with numbered list                    |
+| **Missing screenshots**    | Add Screenshots section with images or "N/A - backend changes only" |
+| **Incomplete testing**     | Add specific testing steps after the standard 3 steps               |
+| **Wrong title format**     | Update title to follow naming patterns                              |
+| **Add related issues**     | Add "Relates to:" section with links                                |
 
 **Editing Workflow:**
 
@@ -314,6 +326,7 @@ gh pr edit NUMBER
 4. **Verify completeness** - Run through the quality checklist again
 
 **Example Edit:**
+
 ```bash
 # Add missing testing instructions to PR #123
 gh pr edit 123 --body "$(cat <<'EOF'
@@ -338,7 +351,7 @@ Investigation revealed that the status calculation was not considering condition
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. Navigate to **Travel Authorizations**.
@@ -367,10 +380,9 @@ Before submitting:
 
 ### Testing Commands
 
-Always use these exact commands in testing instructions:
+Keep test command examples centralized:
 
-- **API tests:** `dev test_api`
-- **Web tests:** `dev test_web` (if applicable)
+- **Tests:** use the canonical commands in `bin/README.md`
 - **Type checking:** `dev api npm run check-types` and `dev web npm run check-types`
 - **App startup:** `dev up`
 - **Login URL:** http://localhost:8080
@@ -400,6 +412,7 @@ Fixes https://github.com/icefoganalytics/travel-authorization/issues/123
 # Context
 
 User Report
+
 > Travel authorization requests are not showing the correct approval status in the dashboard.
 
 Investigation revealed that the status calculation was not considering conditional approvals from secondary approvers.
@@ -416,7 +429,7 @@ Investigation revealed that the status calculation was not considering condition
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. Navigate to **Travel Authorizations**.
@@ -427,13 +440,14 @@ Investigation revealed that the status calculation was not considering condition
 ### Feature Example
 
 ```markdown
-# TA-456: Add Travel Authorization Export to PDF
+# Issue-456: Add Travel Authorization Export to PDF
 
-Fixes https://yukon-government.atlassian.net/browse/TA-456
+Fixes https://github.com/icefoganalytics/travel-authorization/issues/456
 
 # Context
 
 Business Requirement
+
 > Users need the ability to export travel authorizations to PDF for record keeping and external sharing.
 
 The current system only supports screen viewing and printing, making it difficult to share official travel authorization documents.
@@ -451,7 +465,7 @@ The current system only supports screen viewing and printing, making it difficul
 
 # Testing Instructions
 
-1. Run the test suite via `dev test_api`.
+1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
 3. Log in to the app at http://localhost:8080.
 4. Navigate to an existing travel authorization.
@@ -461,22 +475,22 @@ The current system only supports screen viewing and printing, making it difficul
 
 ## Common Pitfalls
 
-| Pitfall | Solution |
-|---------|----------|
-| PR not in draft mode | Always create PRs as drafts using `draft=true` |
-| Vague context | Be specific about the problem and user impact |
-| Missing testing steps | Start with standard 3 steps for TravelAuth |
-| No screenshots for UI | Always include for visual changes |
-| Unclear scope | Separate core changes from side fixes |
-| Missing links | Include Fixes/Relates to URLs |
-| Wrong test commands | Use `dev test_api` not generic test commands |
+| Pitfall               | Solution                                                                   |
+| --------------------- | -------------------------------------------------------------------------- |
+| PR not in draft mode  | Always create PRs as drafts using `draft=true`                             |
+| Vague context         | Be specific about the problem and user impact                              |
+| Missing testing steps | Start with standard 3 steps for TravelAuth                                 |
+| No screenshots for UI | Always include for visual changes                                          |
+| Unclear scope         | Separate core changes from side fixes                                      |
+| Missing links         | Include Fixes/Relates to URLs                                              |
+| Wrong test commands   | Use the canonical test commands in `bin/README.md`, not generic commands   |
 | Type checking ignored | Always run `dev api npm run check-types` and `dev web npm run check-types` |
 
 ## Related Workflows
 
-- `convert-js-api-to-typescript.md` - Converting JavaScript APIs to TypeScript
-- `convert-js-plural-composable-to-typescript.md` - Converting composables to TypeScript
-- `convert-dialog-table-to-page-pattern.md` - Converting dialogs to pages
+- `convert-js-api-to-typescript-workflow.md` - Converting JavaScript APIs to TypeScript
+- `convert-js-plural-composable-to-typescript-workflow.md` - Converting composables to TypeScript
+- `convert-dialog-table-to-page-pattern-workflow.md` - Converting dialogs to pages
 
 ---
 
@@ -484,4 +498,4 @@ The current system only supports screen viewing and printing, making it difficul
 
 **Last Updated:** 2026-01-15
 
-*Update this workflow when you discover better patterns or TravelAuth project conventions evolve.*
+_Update this workflow when you discover better patterns or TravelAuth project conventions evolve._

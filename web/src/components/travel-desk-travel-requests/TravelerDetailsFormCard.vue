@@ -9,7 +9,7 @@
     <v-card-text>
       <div class="d-flex justify-center justify-md-end mt-md-n4 mb-2">
         <DescriptionElement
-          v-model="travelAuthorizationId"
+          :value="formattedTravelAuthorizationId"
           label="Travel Auth"
         />
       </div>
@@ -20,7 +20,7 @@
             md="3"
           >
             <v-text-field
-              v-model="travelerDetails.legalFirstName"
+              v-model="travelDeskTravelRequest.legalFirstName"
               label="Legal First Name *"
               :rules="[required]"
               variant="outlined"
@@ -31,7 +31,7 @@
             md="3"
           >
             <v-text-field
-              v-model="travelerDetails.legalMiddleName"
+              v-model="travelDeskTravelRequest.legalMiddleName"
               label="Legal Middle Name"
               variant="outlined"
             />
@@ -41,7 +41,7 @@
             md="3"
           >
             <v-text-field
-              v-model="travelerDetails.legalLastName"
+              v-model="travelDeskTravelRequest.legalLastName"
               label="Legal Last Name *"
               :rules="[required]"
               variant="outlined"
@@ -51,10 +51,9 @@
             cols="12"
             md="3"
           >
-            <v-text-field
-              v-model="travelerDetails.birthDate"
+            <StringDateInput
+              v-model="travelDeskTravelRequest.birthDate"
               label="Birth Date *"
-              type="date"
               :max="dobMaxDate"
               :rules="[required]"
               variant="outlined"
@@ -67,7 +66,7 @@
             md="3"
           >
             <v-text-field
-              v-model="travelerDetails.strAddress"
+              v-model="travelDeskTravelRequest.strAddress"
               label="Address *"
               :rules="[required]"
               variant="outlined"
@@ -78,7 +77,7 @@
             md="3"
           >
             <LocationsAutocomplete
-              v-model="travelerDetails.city"
+              v-model="travelDeskTravelRequest.city"
               label="City *"
               item-value="cityUniqueLegacy"
               :rules="[required]"
@@ -90,7 +89,7 @@
             md="2"
           >
             <v-text-field
-              v-model="travelerDetails.province"
+              v-model="travelDeskTravelRequest.province"
               label="Province *"
               :rules="[required]"
               variant="outlined"
@@ -101,7 +100,7 @@
             md="2"
           >
             <v-text-field
-              v-model="travelerDetails.postalCode"
+              v-model="travelDeskTravelRequest.postalCode"
               label="Postal Code *"
               :rules="[required]"
               variant="outlined"
@@ -112,13 +111,13 @@
             md="2"
           >
             <v-checkbox
-              v-model="travelerDetails.isInternationalTravel"
+              v-model="travelDeskTravelRequest.isInternationalTravel"
               label="International travel"
             />
           </v-col>
         </v-row>
         <v-row
-          v-if="travelerDetails.isInternationalTravel"
+          v-if="travelDeskTravelRequest.isInternationalTravel"
           class="mt-0 mx-3"
         >
           <v-col
@@ -126,7 +125,7 @@
             md="3"
           >
             <v-text-field
-              v-model="travelerDetails.passportNum"
+              v-model="travelDeskTravelRequest.passportNum"
               label="Passport Number *"
               :rules="[required]"
               variant="outlined"
@@ -137,7 +136,7 @@
             md="3"
           >
             <v-text-field
-              v-model="travelerDetails.passportCountry"
+              v-model="travelDeskTravelRequest.passportCountry"
               label="Passport Country *"
               :rules="[required]"
               variant="outlined"
@@ -151,7 +150,7 @@
             md="3"
           >
             <v-text-field
-              v-model="travelerDetails.busPhone"
+              v-model="travelDeskTravelRequest.busPhone"
               :rules="[isPhoneNumber, required]"
               label="Business Phone *"
               variant="outlined"
@@ -163,7 +162,7 @@
             md="4"
           >
             <v-text-field
-              v-model="travelerDetails.busEmail"
+              v-model="travelDeskTravelRequest.busEmail"
               :rules="[isEmail, required]"
               label="Business Email *"
               variant="outlined"
@@ -175,13 +174,13 @@
             md="3"
           >
             <v-checkbox
-              v-model="travelerDetails.travelContact"
+              v-model="travelDeskTravelRequest.travelContact"
               label="Contact information different for travel"
             />
           </v-col>
         </v-row>
         <v-row
-          v-if="travelerDetails.travelContact"
+          v-if="travelDeskTravelRequest.travelContact"
           class="mt-0 mx-3"
         >
           <v-col
@@ -189,7 +188,7 @@
             md="2"
           >
             <v-text-field
-              v-model="travelerDetails.travelPhone"
+              v-model="travelDeskTravelRequest.travelPhone"
               :rules="[isPhoneNumber, required]"
               label="Travel Phone *"
               variant="outlined"
@@ -200,7 +199,7 @@
             md="4"
           >
             <v-text-field
-              v-model="travelerDetails.travelEmail"
+              v-model="travelDeskTravelRequest.travelEmail"
               :rules="[isEmail, required]"
               label="Travel Email *"
               variant="outlined"
@@ -210,7 +209,7 @@
         <v-row class="mt-0 mx-3">
           <v-col cols="12">
             <v-textarea
-              v-model="travelerDetails.additionalInformation"
+              v-model="travelDeskTravelRequest.additionalInformation"
               label="Additional Information"
               variant="outlined"
               auto-grow
@@ -223,52 +222,34 @@
   </v-card>
 </template>
 
-<script setup>
-import { computed, reactive, ref, watch } from "vue"
-import { cloneDeep, isNil } from "lodash"
+<script setup lang="ts">
+import { computed, useTemplateRef, watch } from "vue"
+import { isNil } from "lodash"
 
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
+import { type TravelDeskTravelRequest } from "@/api/travel-desk-travel-requests-api"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
+import StringDateInput from "@/components/common/StringDateInput.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true,
-  },
-  isSaving: {
-    type: Boolean,
-    default: false,
-  },
+/**
+ * TravelDeskTravelRequest contains traveller details fields:
+ * - legalFirstName, legalMiddleName, legalLastName
+ * - birthDate
+ * - strAddress, city, province, postalCode
+ * - isInternationalTravel
+ * - passportNum, passportCountry (when international)
+ * - busPhone, busEmail
+ * - travelContact, travelPhone, travelEmail (when different from business contact)
+ * - additionalInformation
+ */
+const travelDeskTravelRequest = defineModel<TravelDeskTravelRequest>({
+  required: true,
 })
 
-const emit = defineEmits(["update:modelValue", "save-requested"])
-
-const travelerDetails = reactive({
-  legalFirstName: "",
-  legalMiddleName: "",
-  legalLastName: "",
-  birthDate: "",
-  strAddress: "",
-  city: "",
-  province: "",
-  postalCode: "",
-  isInternationalTravel: false,
-  passportNum: "",
-  passportCountry: "",
-  busPhone: "",
-  busEmail: "",
-  travelContact: false,
-  travelPhone: "",
-  travelEmail: "",
-  additionalInformation: "",
-  ...props.modelValue,
-})
-const form = ref(null)
-
-const travelAuthorizationId = computed(() => {
-  return travelerDetails.travelAuthorizationId.toString().padStart(5, "0")
+const formattedTravelAuthorizationId = computed(() => {
+  return travelDeskTravelRequest.value.travelAuthorizationId.toString().padStart(4, "0")
 })
 const dobMaxDate = computed(() => {
   const currentDate = new Date()
@@ -277,24 +258,24 @@ const dobMaxDate = computed(() => {
 })
 
 watch(
-  travelerDetails,
-  (newValue) => {
-    if (newValue.isInternationalTravel === false) {
-      newValue.passportNum = null
-      newValue.passportCountry = null
+  travelDeskTravelRequest,
+  (newTravelDeskTravelRequest) => {
+    if (newTravelDeskTravelRequest.isInternationalTravel === false) {
+      newTravelDeskTravelRequest.passportNum = null
+      newTravelDeskTravelRequest.passportCountry = null
     }
 
-    if (newValue.travelContact === false) {
-      newValue.travelPhone = null
-      newValue.travelEmail = null
+    if (newTravelDeskTravelRequest.travelContact === false) {
+      newTravelDeskTravelRequest.travelPhone = null
+      newTravelDeskTravelRequest.travelEmail = null
     }
-
-    emit("update:modelValue", cloneDeep({ ...props.modelValue, ...newValue }))
   },
   {
     deep: true,
   }
 )
+
+const form = useTemplateRef("form")
 
 async function validate() {
   if (isNil(form.value)) {

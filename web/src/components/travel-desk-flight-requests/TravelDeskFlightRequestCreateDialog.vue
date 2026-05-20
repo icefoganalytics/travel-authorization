@@ -4,6 +4,7 @@
     persistent
     max-width="1200px"
     @keydown.esc="hide"
+    @update:model-value="hideIfFalse"
   >
     <template #activator="{ props: activatorProps }">
       <v-btn
@@ -73,12 +74,11 @@
               cols="12"
               md="4"
             >
-              <div class="label">Time Preference *</div>
               <v-radio-group
                 v-model="travelDeskFlightRequest.timePreference"
+                label="Time Preference *"
                 :rules="[required]"
-                class="mt-1"
-                row
+                inline
                 required
               >
                 <v-radio
@@ -129,56 +129,58 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { ref, nextTick } from "vue"
+<script setup lang="ts">
+import { nextTick, ref, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
-import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
+import travelDeskFlightRequestsApi, {
+  type TravelDeskFlightRequest,
+} from "@/api/travel-desk-flight-requests-api"
 
-import useRouteQuery from "@/use/utils/use-route-query"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import SeatPreferenceSelect from "@/components/travel-desk-flight-requests/SeatPreferenceSelect.vue"
 
-const props = defineProps({
-  attributes: {
-    type: Object,
-    default: () => ({}),
-  },
-  /** @type {string | null} */
-  minDate: {
-    type: String,
-    default: "",
-  },
-  /** @type {string | null} */
-  maxDate: {
-    type: String,
-    default: "",
-  },
+const props = withDefaults(
+  defineProps<{
+    travelRequestId: number
+    minDate?: string | null
+    maxDate?: string | null
+  }>(),
+  {
+    minDate: null,
+    maxDate: null,
+  }
+)
+
+const emit = defineEmits<{
+  created: [travelDeskFlightRequestId: number]
+}>()
+
+const showDialog = useRouteQuery("showTravelDeskFlightRequestCreate", "false", {
+  transform: booleanTransformer,
 })
 
-const emit = defineEmits(["created"])
-
-const travelDeskFlightRequest = ref({
-  ...props.attributes,
+const travelDeskFlightRequest = ref<Partial<TravelDeskFlightRequest>>({
+  travelRequestId: props.travelRequestId,
 })
 
+watch(
+  () => props.travelRequestId,
+  () => {
+    resetTravelDeskFlightRequest()
+  },
+  { immediate: true }
+)
+
+const form = useTemplateRef("form")
 const snack = useSnack()
-const showDialog = useRouteQuery("showTravelDeskFlightRequestCreate", "false", { transform: Boolean })
-
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
-const form = ref(null)
 const isLoading = ref(false)
-
-function hide() {
-  showDialog.value = false
-  resetFlightRequest()
-  form.value?.resetValidation()
-}
 
 async function createAndHide() {
   if (isNil(form.value)) return
@@ -206,16 +208,30 @@ async function createAndHide() {
   }
 }
 
-function resetFlightRequest() {
+function resetTravelDeskFlightRequest() {
   travelDeskFlightRequest.value = {
-    travelRequestId: props.travelDeskTravelRequestId,
+    travelRequestId: props.travelRequestId,
   }
 }
-</script>
 
-<style scoped>
-.label {
-  font-weight: 600;
-  font-size: 10pt !important;
+function show() {
+  showDialog.value = true
 }
-</style>
+
+function hide() {
+  showDialog.value = false
+  resetTravelDeskFlightRequest()
+  form.value?.resetValidation()
+}
+
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
+
+  hide()
+}
+
+defineExpose({
+  show,
+  hide,
+})
+</script>

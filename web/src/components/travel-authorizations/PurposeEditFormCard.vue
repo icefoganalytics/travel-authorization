@@ -74,8 +74,8 @@
     </v-row>
     <v-row>
       <v-col>
-        <h3>Objectives</h3>
-        <ul>
+        <h3 class="mb-2">Objectives</h3>
+        <ul class="mt-0 mb-0 pl-8">
           <li>Purpose of attendance</li>
           <li>Relevance and anticipated benefits to branch and Government of Yukon</li>
         </ul>

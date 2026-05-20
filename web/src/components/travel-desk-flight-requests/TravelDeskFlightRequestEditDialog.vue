@@ -71,12 +71,11 @@
               cols="12"
               md="4"
             >
-              <div class="label">Time Preference *</div>
               <v-radio-group
                 v-model="travelDeskFlightRequest.timePreference"
+                label="Time Preference *"
                 :rules="[required]"
-                class="mt-1"
-                row
+                inline
                 required
               >
                 <v-radio
@@ -127,52 +126,48 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { ref, nextTick, watch } from "vue"
+<script setup lang="ts">
+import { nextTick, ref, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
 import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
 
-import useRouteQuery, { integerTransformerLegacy } from "@/use/utils/use-route-query"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 import useTraveDeskFlightRequest from "@/use/use-travel-desk-flight-request"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import SeatPreferenceSelect from "@/components/travel-desk-flight-requests/SeatPreferenceSelect.vue"
 
-defineProps({
-  minDate: {
-    type: String,
-    default: "",
-  },
-  maxDate: {
-    type: String,
-    default: "",
-  },
-})
+withDefaults(
+  defineProps<{
+    minDate?: string | null
+    maxDate?: string | null
+  }>(),
+  {
+    minDate: null,
+    maxDate: null,
+  }
+)
 
-const emit = defineEmits(["saved"])
+const emit = defineEmits<{
+  saved: [travelDeskFlightRequestId: number]
+}>()
 
-const travelDeskFlightRequestId = useRouteQuery("showFlightRequestEdit", undefined, {
-  transform: integerTransformerLegacy,
-})
+const travelDeskFlightRequestId = useRouteQuery<string | undefined, number | undefined>(
+  "showFlightRequestEdit",
+  undefined,
+  {
+    transform: integerTransformer,
+  }
+)
 
 const { travelDeskFlightRequest, isLoading } = useTraveDeskFlightRequest(travelDeskFlightRequestId)
 
 const showDialog = ref(false)
-
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
-const form = ref(null)
-
-function show(newTravelDeskFlightRequestId) {
-  travelDeskFlightRequestId.value = newTravelDeskFlightRequestId
-}
-
-function hide() {
-  travelDeskFlightRequestId.value = undefined
-}
+const form = useTemplateRef("form")
 
 watch(
   travelDeskFlightRequestId,
@@ -203,19 +198,24 @@ async function updateAndHide() {
 
   isLoading.value = true
   try {
-    if (travelDeskFlightRequestId.value === undefined) {
+    if (isNil(travelDeskFlightRequestId.value)) {
       throw new Error("Flight request could not be found")
     }
 
-    const { travelDeskFlightRequest: newFlightRequest } = await travelDeskFlightRequestsApi.update(
-      travelDeskFlightRequestId.value,
-      travelDeskFlightRequest.value
-    )
+    if (isNil(travelDeskFlightRequest.value)) {
+      throw new Error("Flight request could not be loaded")
+    }
+
+    const { travelDeskFlightRequest: updatedTravelDeskFlightRequest } =
+      await travelDeskFlightRequestsApi.update(
+        travelDeskFlightRequestId.value,
+        travelDeskFlightRequest.value
+      )
     hide()
 
     await nextTick()
-    emit("saved", newFlightRequest.id)
-    snack.success("Flight request saved")
+    emit("saved", updatedTravelDeskFlightRequest.id)
+    snack.success("Flight request saved.")
   } catch (error) {
     console.error(`Failed to save flight request: ${error}`, { error })
     snack.error(`Failed to save flight request: ${error}`)
@@ -224,7 +224,15 @@ async function updateAndHide() {
   }
 }
 
-function hideIfFalse(value) {
+function show(newTravelDeskFlightRequestId: number) {
+  travelDeskFlightRequestId.value = newTravelDeskFlightRequestId
+}
+
+function hide() {
+  travelDeskFlightRequestId.value = undefined
+}
+
+function hideIfFalse(value: boolean | null) {
   if (value !== false) return
 
   hide()
@@ -232,12 +240,6 @@ function hideIfFalse(value) {
 
 defineExpose({
   show,
+  hide,
 })
 </script>
-
-<style scoped>
-.label {
-  font-weight: 600;
-  font-size: 10pt !important;
-}
-</style>

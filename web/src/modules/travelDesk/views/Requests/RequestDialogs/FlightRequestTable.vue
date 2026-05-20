@@ -6,7 +6,7 @@
     <div class="d-flex justify-end mr-3">
       <TravelDeskFlightRequestCreateDialog
         v-if="!readonly"
-        :travel-desk-travel-request-id="travelDeskTravelRequestId"
+        :travel-request-id="travelDeskTravelRequestId"
         :min-date="minDate"
         :max-date="maxDate"
         @created="updateTable"
