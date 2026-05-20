@@ -21,6 +21,7 @@ as templates are added, renamed, or removed.
 **Workflows** (in `agents/workflows/`) should contain conversion patterns and process instructions (e.g., "start with this JavaScript file, follow these steps, reference this template").
 
 When creating new documentation:
+
 - Put end-state code examples in `agents/templates/`
 - Put conversion patterns and process steps in `agents/workflows/`
 - Reference templates from workflows: "See template: `backend-index-serializer-template.md`"

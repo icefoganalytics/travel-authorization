@@ -1,32 +1,30 @@
-# Frontend Route-Query Create Dialog Template
+# Frontend Route-Query Edit Dialog Template
 
-Use this shape for Vue 3 create dialogs that open from a route query parameter.
+Use this shape for Vue 3 edit dialogs that open from a route query record id.
 
 ```vue
 <template>
   <v-dialog
-    v-model="showDialog"
+    :model-value="showDialog"
     persistent
     max-width="500px"
     @keydown.esc="hide"
     @update:model-value="hideIfFalse"
   >
-    <template #activator="{ props: activatorProps }">
-      <v-btn
-        color="primary"
-        v-bind="activatorProps"
-      >
-        Add Thing
-      </v-btn>
-    </template>
-
     <v-form
       ref="form"
-      @submit.prevent="createAndHide"
+      @submit.prevent="updateAndHide"
     >
-      <v-card :loading="isLoading">
+      <v-skeleton-loader
+        v-if="isNil(thingId) || isNil(thing)"
+        type="card"
+      />
+      <v-card
+        v-else
+        :loading="isLoading"
+      >
         <v-card-title>
-          <h2>Add Thing</h2>
+          <h2>Edit Thing</h2>
         </v-card-title>
 
         <v-card-text>
@@ -62,40 +60,44 @@ import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
-import thingsApi, { type Thing } from "@/api/things-api"
+import thingsApi from "@/api/things-api"
 
-import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
-
-const props = defineProps<{
-  parentId: number
-}>()
+import useThing from "@/use/use-thing"
 
 const emit = defineEmits<{
-  created: [thingId: number]
+  saved: [thingId: number]
 }>()
 
-const showDialog = useRouteQuery("showThingCreate", "false", {
-  transform: booleanTransformer,
+const thingId = useRouteQuery<string | undefined, number | undefined>("showThingEdit", undefined, {
+  transform: integerTransformer,
 })
 
-const thing = ref<Partial<Thing>>({
-  parentId: props.parentId,
-})
+const { thing, isLoading } = useThing(thingId)
+
+const showDialog = ref(false)
+const form = useTemplateRef("form")
 
 watch(
-  () => props.parentId,
-  () => {
-    resetThing()
+  thingId,
+  (newThingId) => {
+    if (isNil(newThingId)) {
+      showDialog.value = false
+      thing.value = null
+      form.value?.resetValidation()
+    } else {
+      showDialog.value = true
+    }
   },
-  { immediate: true }
+  {
+    immediate: true,
+  }
 )
 
-const form = useTemplateRef("form")
 const snack = useSnack()
-const isLoading = ref(false)
 
-async function createAndHide() {
+async function updateAndHide() {
   if (isNil(form.value)) return
 
   const { valid } = await form.value.validate()
@@ -106,34 +108,34 @@ async function createAndHide() {
 
   isLoading.value = true
   try {
-    const { thing: newThing } = await thingsApi.create(thing.value)
+    if (isNil(thingId.value)) {
+      throw new Error("Thing could not be found.")
+    }
+
+    if (isNil(thing.value)) {
+      throw new Error("Thing could not be loaded.")
+    }
+
+    const { thing: updatedThing } = await thingsApi.update(thingId.value, thing.value)
     hide()
 
     await nextTick()
-    emit("created", newThing.id)
-    snack.success("Thing created successfully")
+    emit("saved", updatedThing.id)
+    snack.success("Thing saved.")
   } catch (error) {
-    console.error(`Failed to create thing: ${error}`, { error })
-    snack.error(`Failed to create thing: ${error}`)
+    console.error(`Failed to save thing: ${error}`, { error })
+    snack.error(`Failed to save thing: ${error}`)
   } finally {
     isLoading.value = false
   }
 }
 
-function resetThing() {
-  thing.value = {
-    parentId: props.parentId,
-  }
-}
-
-function show() {
-  showDialog.value = true
+function show(newThingId: number) {
+  thingId.value = newThingId
 }
 
 function hide() {
-  showDialog.value = false
-  resetThing()
-  form.value?.resetValidation()
+  thingId.value = undefined
 }
 
 function hideIfFalse(value: boolean | null) {
@@ -151,15 +153,15 @@ defineExpose({
 
 ## Notes
 
-- Use `booleanTransformer` for boolean route-query dialog state. Do not use `Boolean`, because
-  `Boolean("false")` is true.
-- Keep parent identity values as explicit props, such as `parentId`; do not pass arbitrary
-  `attributes` objects just to seed dialog state.
-- Keep route query values for dialog state and record identifiers, not create payloads.
-- Prefer `useTemplateRef("form")` for form refs.
-- Order the script as props/emits, route-query dialog state, form model state, watchers, template
-  refs/composables used by the submit action, primary submit action, reset helper, show/hide
-  helpers, then `defineExpose`.
+- Use `integerTransformer` for route-query record ids.
+- Use `useTemplateRef("form")` for form refs.
+- Keep route query values for dialog state and record identifiers, not edit payloads.
+- Let the singular composable load the record from the route-query id.
+- Render a skeleton state while the route-query id or loaded record is missing.
+- When the route-query id clears, close the dialog, clear the loaded record, and reset validation.
+- Order the script as props/emits, route-query id state, loaded record state, dialog visibility
+  state and form ref, watcher, composables used by the submit action, primary submit action,
+  show/hide helpers, then `defineExpose`.
 - Keep the main template generic. Add domain-specific fields only when the real dialog needs them.
 
 ## Field Patterns

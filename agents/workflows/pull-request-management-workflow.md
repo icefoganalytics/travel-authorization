@@ -26,6 +26,8 @@ auto_execution_mode: 1
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
 - **Testing instructions:** Use the `testing-instructions-workflow.md` workflow alongside this one. Never guess UI labels or navigation paths.
+- **No extra sections:** Do not add sections beyond this workflow's PR body structure unless the
+  user asks for them. Validation commands belong in the chat handoff, not in a PR body section.
 
 This workflow covers the process of creating and editing well-structured pull requests that follow the established patterns in the TravelAuth project.
 
@@ -145,6 +147,8 @@ The GitHub PR template provides the basic structure. Fill in each section follow
 - **Implementation:** List changes in numbered format. List primary issue fixes first (with step references if applicable), then optional cleanup relevant to end users. Bundle related changes under descriptive purposes. Exclude internal refactoring (component location changes, import updates) unless they impact user experience.
 - **Screenshots:** If the diff includes `web/src/pages/` or `web/src/components/`, write `TODO` and let the human add screenshots. Use `N/A - backend changes only` only when there are no UI changes.
 - **Testing Instructions:** Always start with the standard 3 steps using the dev wrapper commands (`dev test`, `dev up`), then add specific steps using exact UI labels verified from the code. Follow the `testing-instructions.md` workflow for detailed guidance.
+- **Additional sections:** Do not add a `Validation`, `Checks`, or similar section unless the user
+  explicitly requests it. Mention commands you ran in the final chat response instead.
 
 ### 4. Section Guidelines
 

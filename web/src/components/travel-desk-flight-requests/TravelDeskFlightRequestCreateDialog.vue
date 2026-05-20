@@ -74,11 +74,10 @@
               cols="12"
               md="4"
             >
-              <div class="label">Time Preference *</div>
               <v-radio-group
                 v-model="travelDeskFlightRequest.timePreference"
+                label="Time Preference *"
                 :rules="[required]"
-                class="mt-1"
                 inline
                 required
               >
@@ -154,8 +153,8 @@ const props = withDefaults(
     maxDate?: string | null
   }>(),
   {
-    minDate: "",
-    maxDate: "",
+    minDate: null,
+    maxDate: null,
   }
 )
 
@@ -174,7 +173,7 @@ const travelDeskFlightRequest = ref<Partial<TravelDeskFlightRequest>>({
 watch(
   () => props.travelRequestId,
   () => {
-    resetFlightRequest()
+    resetTravelDeskFlightRequest()
   },
   { immediate: true }
 )
@@ -209,7 +208,7 @@ async function createAndHide() {
   }
 }
 
-function resetFlightRequest() {
+function resetTravelDeskFlightRequest() {
   travelDeskFlightRequest.value = {
     travelRequestId: props.travelRequestId,
   }
@@ -221,7 +220,7 @@ function show() {
 
 function hide() {
   showDialog.value = false
-  resetFlightRequest()
+  resetTravelDeskFlightRequest()
   form.value?.resetValidation()
 }
 
