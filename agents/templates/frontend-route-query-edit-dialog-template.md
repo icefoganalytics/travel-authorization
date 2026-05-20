@@ -28,33 +28,7 @@ Use this shape for Vue 3 edit dialogs that open from a route query record id.
         </v-card-title>
 
         <v-card-text>
-          <v-text-field
-            v-model="thing.startedOn"
-            :min="minDate"
-            :max="maxDate"
-            :rules="[required]"
-            label="Start Date *"
-            type="date"
-            variant="outlined"
-            required
-          />
-
-          <v-radio-group
-            v-model="thing.timePreference"
-            label="Time Preference *"
-            :rules="[required]"
-            inline
-            required
-          >
-            <v-radio
-              label="AM"
-              value="AM"
-            ></v-radio>
-            <v-radio
-              label="PM"
-              value="PM"
-            ></v-radio>
-          </v-radio-group>
+          <!-- Form fields go here. -->
         </v-card-text>
 
         <v-card-actions>
@@ -91,17 +65,6 @@ import thingsApi from "@/api/things-api"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 import useThing from "@/use/use-thing"
-
-withDefaults(
-  defineProps<{
-    minDate?: string | null
-    maxDate?: string | null
-  }>(),
-  {
-    minDate: null,
-    maxDate: null,
-  }
-)
 
 const emit = defineEmits<{
   saved: [thingId: number]
@@ -191,10 +154,6 @@ defineExpose({
 ## Notes
 
 - Use `integerTransformer` for route-query record ids.
-- Keep optional date boundaries as `string | null` props and default them to `null` when they feed
-  `:min` or `:max`.
-- Put radio group labels on `v-radio-group` with the `label` prop instead of rendering a separate
-  label element above the group.
 - Use `useTemplateRef("form")` for form refs.
 - Keep route query values for dialog state and record identifiers, not edit payloads.
 - Let the singular composable load the record from the route-query id.
@@ -203,3 +162,23 @@ defineExpose({
 - Order the script as props/emits, route-query id state, loaded record state, dialog visibility
   state and form ref, watcher, composables used by the submit action, primary submit action,
   show/hide helpers, then `defineExpose`.
+- Keep the main template generic. Add domain-specific fields only when the real dialog needs them.
+
+## Field Patterns
+
+Keep this template generic. Before adding form fields, search existing Vue components for the same
+field type and follow the closest local pattern.
+
+Useful searches:
+
+- `rg -n "StringDateInput|:min=|:max=" web/src -g "*.vue"`
+- `rg -n "v-radio-group|label=.*\\*" web/src -g "*.vue"`
+- `rg -n "v-autocomplete|v-select|v-text-field" web/src -g "*.vue"`
+
+Rules that still apply:
+
+- Do not add unused props or imports.
+- Put radio group labels on `v-radio-group` with the `label` prop instead of rendering a separate
+  label element above the group.
+- If a field uses optional date bounds with `:min` or `:max`, define those bounds as
+  `string | null` and default them to `null`.
