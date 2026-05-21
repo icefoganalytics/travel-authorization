@@ -65,6 +65,7 @@ async function initializeViewer(newImgRef: HTMLImageElement) {
     },
     rotatable: false,
     scalable: false,
+    zIndex: 20000,
   })
 }
 

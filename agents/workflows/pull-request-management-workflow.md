@@ -25,7 +25,7 @@ auto_execution_mode: 1
 - **End-user relevance:** Only include changes that affect end users in the Implementation section. Internal refactoring (component location changes, import updates) should be excluded unless they impact user experience.
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
-- **Testing instructions:** Use the `testing-instructions-workflow.md` workflow alongside this one. Never guess UI labels or navigation paths.
+- **Testing instructions:** Follow the `testing-instructions-workflow.md` workflow for detailed guidance on writing testing instructions. Never guess UI labels or navigation paths.
 - **No extra sections:** Do not add sections beyond this workflow's PR body structure unless the
   user asks for them. Validation commands belong in the chat handoff, not in a PR body section.
 
@@ -36,11 +36,11 @@ This workflow covers the process of creating and editing well-structured pull re
 ```bash
 # Create draft PR via gh api (preferred)
 cat <<'EOF' | gh api repos/{owner}/{repo}/pulls -X POST \
-  -F title="Title here" \
-  -F head="branch-name" \
-  -F base="main" \
-  -F draft=true \
-  -F body=@-
+  -f title="Title here" \
+  -f head="branch-name" \
+  -f base="main" \
+  -f draft=true \
+  -f body=@-
 Part of <url>
 
 Relates to:
@@ -271,11 +271,11 @@ git push -u origin HEAD
 
 # Create draft PR via gh api
 cat <<'EOF' | gh api repos/{owner}/{repo}/pulls -X POST \
-  -F title="Title" \
-  -F head="$(git branch --show-current)" \
-  -F base="main" \
-  -F draft=true \
-  -F body=@-
+  -f title="Title" \
+  -f head="$(git branch --show-current)" \
+  -f base="main" \
+  -f draft=true \
+  -f body=@-
 [Body content]
 EOF
 ```
@@ -283,7 +283,7 @@ EOF
 To mark a draft PR as ready for review:
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/NUMBER -X PATCH -F draft=false
+gh api repos/{owner}/{repo}/pulls/NUMBER -X PATCH -f draft=false
 ```
 
 ### 5. Edit Existing Pull Requests
@@ -292,19 +292,16 @@ When you need to update an existing PR (add context, fix title, update testing i
 
 ```bash
 # View current PR details
-gh pr view NUMBER
+gh api repos/{owner}/{repo}/pulls/NUMBER
 
 # Edit PR title
-gh pr edit NUMBER --title "New Title"
+gh api repos/{owner}/{repo}/pulls/NUMBER -X PATCH -f title="New Title"
 
 # Edit PR body
-gh pr edit NUMBER --body "$(cat <<'EOF'
+gh api repos/{owner}/{repo}/pulls/NUMBER -X PATCH -f body="$(cat <<'EOF'
 Updated PR body content
 EOF
 )"
-
-# Or edit interactively
-gh pr edit NUMBER
 ```
 
 **Common Scenarios for Editing:**
@@ -329,7 +326,7 @@ gh pr edit NUMBER
 
 ```bash
 # Add missing testing instructions to PR #123
-gh pr edit 123 --body "$(cat <<'EOF'
+gh api repos/{owner}/{repo}/pulls/123 -X PATCH -f body="$(cat <<'EOF'
 Fixes https://github.com/icefoganalytics/travel-authorization/issues/123
 
 # Context
@@ -485,12 +482,6 @@ The current system only supports screen viewing and printing, making it difficul
 | Missing links         | Include Fixes/Relates to URLs                                              |
 | Wrong test commands   | Use the canonical test commands in `bin/README.md`, not generic commands   |
 | Type checking ignored | Always run `dev api npm run check-types` and `dev web npm run check-types` |
-
-## Related Workflows
-
-- `convert-js-api-to-typescript-workflow.md` - Converting JavaScript APIs to TypeScript
-- `convert-js-plural-composable-to-typescript-workflow.md` - Converting composables to TypeScript
-- `convert-dialog-table-to-page-pattern-workflow.md` - Converting dialogs to pages
 
 ---
 

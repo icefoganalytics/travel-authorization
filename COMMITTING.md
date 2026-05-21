@@ -12,6 +12,10 @@
 **Simple commits:** Single line when the change is self-explanatory.
 **Complex commits:** Title line followed by one or two plain sentences explaining the non-obvious context: things the diff does not make immediately clear. Each sentence ends with a period.
 
+**Less is more:** Keep commit messages concise. Avoid redundancy and unnecessary detail.
+
+**Avoid markers in prose:** Do not use `Why?`, `What?`, `How?`, `NOTE:`, or similar markers in commit body prose. Write in plain conversational English instead.
+
 ## When to use bullet points
 
 Use bullet points for:
@@ -90,29 +94,6 @@ Also fix secondary thing.
 ## Commit body guidance
 
 Write in plain English for the next developer reading `git log`. Use conversational style and focus on "why" and "what" rather than implementation mechanics.
-
-**Common markers to structure information:**
-
-- `Why?` - Explains the reason for the change
-- `What?` - Explains what was changed or the problem being solved
-- `How?` - Technical implementation details
-- `NOTE:` - Additional context, warnings, or caveats
-- `TODO:` - Future work that needs to be done
-- `See` - References to issues, PRs, external links, or other commits
-- `Undoes` - References to previous commits being reverted
-- `Also` - Additional related changes
-
-**Examples:**
-
-```text
-Why? Simplify non-reusable queries into services to reduce complexity at caller location.
-
-What? Previously if a traveller selected a purpose, the summary chip fetched the label without an authorization token.
-
-NOTE: route-query state should use a unique suffix when multiple tables appear on the same page.
-
-See https://github.com/icefoganalytics/travel-authorization/issues/123
-```
 
 Focus on:
 

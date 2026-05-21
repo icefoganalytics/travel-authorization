@@ -1,5 +1,5 @@
 import { Expense, PerDiem, Stop, TravelAllowance, TravelAuthorization, User } from "@/models"
-import { BulkGenerateService } from "@/services/estimates"
+import { PrefillService } from "@/services/expenses"
 
 import { mockCurrentUser, request, testWithCustomLogLevel } from "@/support"
 import {
@@ -11,7 +11,7 @@ import {
   userFactory,
 } from "@/factories"
 
-describe("api/src/controllers/travel-authorizations/estimates/generate-controller.ts", () => {
+describe("api/src/controllers/travel-authorizations/expenses/prefill-controller.ts", () => {
   let user: User
 
   beforeEach(async () => {
@@ -21,8 +21,8 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
     mockCurrentUser(user)
   })
 
-  describe("POST /api/travel-authorizations/:travelAuthorizationId/estimates/generate", () => {
-    test("when the current user is authorized and bulk generation is successful, it serializes generated estimates", async () => {
+  describe("POST /api/travel-authorizations/:travelAuthorizationId/expenses/prefill", () => {
+    test("when the current user is authorized and expense prefill is successful, it serializes prefilled expenses", async () => {
       // Arrange
       const travelAuthorization = await travelAuthorizationFactory.associations({ user }).create({
         status: TravelAuthorization.Statuses.DRAFT,
@@ -86,7 +86,7 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
           arrivalLocation: vancouver,
         })
         .create({
-          isActual: false,
+          isActual: true,
           segmentNumber: 1,
           departureOn: new Date("2022-06-05"),
           departureTime: Stop.BEGINNING_OF_DAY,
@@ -96,13 +96,13 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
 
       // Act
       const response = await request()
-        .post(`/api/travel-authorizations/${travelAuthorization.id}/estimates/generate`)
+        .post(`/api/travel-authorizations/${travelAuthorization.id}/expenses/prefill`)
         .expect("Content-Type", /json/)
 
       // Assert
       expect(response.status).toEqual(201)
       expect(response.body).toEqual({
-        estimates: expect.arrayContaining([
+        expenses: expect.arrayContaining([
           expect.objectContaining({
             expenseType: Expense.ExpenseTypes.TRANSPORTATION,
             description: "Pool Vehicle from Whitehorse to Vancouver",
@@ -118,12 +118,11 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
             actions: ["delete"],
           }),
         ]),
-        message: "Generated estimates",
       })
     })
 
     testWithCustomLogLevel(
-      "when the current user is authorized and bulk generation is not successful, it errors informatively",
+      "when the current user is authorized and expense prefill is not successful, it errors informatively",
       async ({ setLogLevel }) => {
         // Arrange
         setLogLevel("silent")
@@ -132,25 +131,23 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
           status: TravelAuthorization.Statuses.DRAFT,
         })
 
-        const mockBulkGenerateServicePerformResponse = "mock bulk generate response"
-        vi.spyOn(BulkGenerateService, "perform").mockRejectedValueOnce(
-          mockBulkGenerateServicePerformResponse
-        )
+        const mockPrefillServicePerformResponse = "mock prefill response"
+        vi.spyOn(PrefillService, "perform").mockRejectedValueOnce(mockPrefillServicePerformResponse)
 
         // Act
         const response = await request().post(
-          `/api/travel-authorizations/${travelAuthorization.id}/estimates/generate`
+          `/api/travel-authorizations/${travelAuthorization.id}/expenses/prefill`
         )
 
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: `Failed to generate estimate: ${mockBulkGenerateServicePerformResponse}`,
+          message: `Failed to prefill expenses: ${mockPrefillServicePerformResponse}`,
         })
       }
     )
 
-    test("when the current user is not authorized to create estimates for the travel authorization, it errors informatively", async () => {
+    test("when the current user is not authorized to create expenses for the travel authorization, it errors informatively", async () => {
       // Arrange
       const otherUser = await userFactory.create({
         roles: [User.Roles.USER],
@@ -165,13 +162,13 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
 
       // Act
       const response = await request()
-        .post(`/api/travel-authorizations/${travelAuthorization.id}/estimates/generate`)
+        .post(`/api/travel-authorizations/${travelAuthorization.id}/expenses/prefill`)
         .expect("Content-Type", /json/)
 
       // Assert
       expect(response.status).toEqual(403)
       expect(response.body).toEqual({
-        message: "You are not authorized to create this expense.",
+        message: "You are not authorized to prefill expenses.",
       })
     })
 
@@ -181,7 +178,7 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
 
       // Act
       const response = await request()
-        .post(`/api/travel-authorizations/${invalidTravelAuthorizationId}/estimates/generate`)
+        .post(`/api/travel-authorizations/${invalidTravelAuthorizationId}/expenses/prefill`)
         .expect("Content-Type", /json/)
 
       // Assert
