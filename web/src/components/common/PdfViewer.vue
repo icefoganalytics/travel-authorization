@@ -39,6 +39,8 @@ import { supportsPDFs } from "pdfobject"
 
 import VuePdfEmbed from "vue-pdf-embed"
 
+import PageLoader from "@/components/PageLoader.vue"
+
 defineProps<{
   source: string
 }>()
