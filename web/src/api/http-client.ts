@@ -4,6 +4,7 @@ import axios from "axios"
 import { API_BASE_URL } from "@/config"
 import auth0 from "@/plugins/auth0-plugin"
 import ApiError from "@/api/api-error"
+import URLToPathName from "@/utils/url-to-path-name"
 
 export const httpClient = axios.create({
   baseURL: API_BASE_URL,
@@ -23,7 +24,8 @@ export const httpClient = axios.create({
 
 httpClient.interceptors.request.use(async (config) => {
   // Only add the Authorization header to requests that start with "/api"
-  if (config.url?.startsWith("/api")) {
+  const pathname = URLToPathName(config.url)
+  if (pathname?.startsWith("/api")) {
     const accessToken = await auth0.getAccessTokenSilently()
     config.headers["Authorization"] = `Bearer ${accessToken}`
   }
