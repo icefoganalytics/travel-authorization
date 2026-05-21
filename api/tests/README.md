@@ -4,7 +4,7 @@ This directory contains the backend test suite for TravelAuth using Vitest and F
 
 ## Running Tests
 
-See [../../bin/README.md](../../bin/README.md#testing) for the canonical API test commands.
+See [../../bin/README.md](../../bin/README.md#testing) for the canonical API test commands and test container management guidelines.
 
 ## Test Structure
 
@@ -58,8 +58,10 @@ Guidelines:
 - Use explicit `// Arrange`, `// Act`, and `// Assert` comments
 - Prefer numbered peer entities like `user1`, `user2`
 - Prefer one strong assertion with `toEqual(...)` over many low-signal assertions
-- Test names should describe condition and outcome: `"when [condition], [expected behavior]"`
+- Test names should describe condition and outcome: `"when [condition], it [expected behavior]"`
 - Use Fishery factories for test data
+- In API test files, group imports by role: code under test and domain models/services first, then
+  a blank line, then test support and factories.
 - Use descriptive variable names, such as `workflowStepPlayersAttributes`
 - Name policy-scoped query results with `scoped{Model}`, such as
   `scopedTravelDeskTravelRequests`
@@ -68,6 +70,15 @@ Guidelines:
 - Use negative spy assertions such as `expect(spy).not.toHaveBeenCalled()`
 - Avoid `not.toHaveBeenCalledWith(...)`
 - Controller tests should use `mockCurrentUser(user)` and `request()` from `@/support`
+- Controller response assertions should prefer the double-expect pattern so failures are readable:
+  first assert `response.status`, then assert `response.body`.
+- Controller happy-path tests should prefer the real controller -> service -> serializer pipeline
+  when the risk is that serializers cannot parse service results.
+- Mock service methods for narrow controller error paths, not for the serialization proof.
+- When adding controller coverage for related endpoints, keep edge-case coverage parallel unless the
+  routes intentionally differ: happy path, service failure, authorization denial, and not-found.
+- Do not add local `vi.restoreAllMocks()` hooks; `api/vite.config.mts` already enables mock
+  cleanup with `clearMocks`, `mockReset`, and `restoreMocks`.
 
 For common factories, import from `@/factories`:
 
@@ -97,7 +108,7 @@ expect(result[0].id).toEqual(record1.id)
 
 Vitest configuration loads the API test setup in roughly this order:
 
-1. `api/vitest.config.mts` loads config and setup wiring
+1. `api/vite.config.mts` loads config and setup wiring
 2. `api/tests/global-setup.ts` prepares database state, migrations, and base seeds
 3. `api/tests/setup.ts` runs per-file setup and cleanup hooks
 4. The requested test file executes

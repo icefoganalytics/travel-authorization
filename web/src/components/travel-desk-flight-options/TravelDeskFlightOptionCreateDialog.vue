@@ -117,7 +117,7 @@ import { required } from "@/utils/validators"
 
 import travelDeskFlightOptionsApi from "@/api/travel-desk-flight-options-api"
 
-import useRouteQuery from "@/use/utils/use-route-query"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 
 import TravelDeskFlightRequestSelect from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestSelect.vue"
@@ -154,7 +154,9 @@ const flightSegmentsAttributes = computed(
 )
 
 const snack = useSnack()
-const showDialog = useRouteQuery("showTravelDeskFlightOptionCreate", "false", { transform: Boolean })
+const showDialog = useRouteQuery("showTravelDeskFlightOptionCreate", "false", {
+  transform: booleanTransformer,
+})
 
 /** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
 const form = ref(null)
@@ -186,6 +188,7 @@ async function createAndHide() {
     emit("created", travelDeskFlightOption.id)
     snack.success("Flight option created successfully")
   } catch (error) {
+    console.error(`Failed to create flight option: ${error}`, { error })
     snack.error("Failed to create flight option")
   } finally {
     isLoading.value = false
