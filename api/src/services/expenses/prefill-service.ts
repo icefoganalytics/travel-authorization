@@ -19,7 +19,21 @@ export class PrefillService extends BaseService {
       Expense.Types.EXPENSE
     )
 
-    return Expense.bulkCreate(expensesAttributes)
+    const expenses = await Expense.bulkCreate(expensesAttributes, {
+      returning: ["id"],
+    })
+    const expenseIds = expenses.map(({ id }) => id)
+    const expensesWithReceipt = await Expense.findAll({
+      where: {
+        id: expenseIds,
+      },
+      include: [
+        {
+          association: "receipt",
+        },
+      ],
+    })
+    return expensesWithReceipt
   }
 }
 
