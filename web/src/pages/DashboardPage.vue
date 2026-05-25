@@ -66,7 +66,7 @@
           <v-col cols="8">
             <v-data-table
               :headers="expenseHeaders"
-              :items="data.expenses"
+              :items="(data as any).expenses"
               hide-default-footer
               disable-pagination
               class="elevation-2"
@@ -88,7 +88,8 @@
                 </v-icon>
               </template>
               <template #item.receipts="{ item }">
-                <AddReceiptButtonForm :expense-id="item.id" />
+                <!-- eslint-disable-next-line @typescript-eslint/no-explicit-any -->
+                <AddReceiptButtonForm :expense-id="(item as any).id" />
               </template>
             </v-data-table>
           </v-col>
@@ -155,8 +156,13 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// @ts-expect-error uuid types not installed
 import { v4 as uuidv4 } from "uuid"
+import { ref, onMounted } from "vue"
+import { useRouter } from "vue-router"
 
 import http from "@/api/http-client"
 import { FORM_URL } from "@/urls"
@@ -167,115 +173,125 @@ import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddRecei
 
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
 
-export default {
-  name: "DashboardPage",
-  components: {
-    AddReceiptButtonForm,
-    CreateTravelAuthorizationButton,
-    StringDateInput,
-    TimeTextField,
+const router = useRouter()
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const startDate = ref(null)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const endDate = ref(null)
+const daysOffTravel = ref<number>(1)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const data = ref({})
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const forms = ref([])
+
+const headers = [
+  {
+    title: "Purpose",
+    key: "purpose",
   },
-  data: () => ({
-    startDate: null,
-    endDate: null,
-    daysOffTravel: 1,
-    data: {},
-    headers: [
-      {
-        title: "Purpose",
-        key: "purpose",
-      },
-      {
-        title: "Departure Date",
-        key: "departureDate",
-      },
-      {
-        title: "Return Date",
-        key: "dateBackToWork",
-      },
-      {
-        title: "Status",
-        key: "status",
-      },
-    ],
-    expenseHeaders: [
-      {
-        title: "Type",
-        key: "type",
-      },
-      {
-        title: "Description",
-        key: "description",
-      },
-      {
-        title: "Date",
-        key: "date",
-      },
-      {
-        title: "Amount",
-        key: "cost",
-      },
-      {
-        title: "Actions",
-        key: "actions",
-      },
-      {
-        title: "Receipts",
-        key: "receipts",
-      },
-    ],
-    travelAuthHeaders: [
-      {
-        title: "Location",
-        key: "location",
-      },
-      {
-        title: "Description",
-        key: "description",
-      },
-      {
-        title: "Start Date",
-        key: "date",
-      },
-      {
-        title: "End Date",
-        key: "cost",
-      },
-      {
-        title: "Auth Status",
-        key: "actions",
-      },
-      {
-        title: "Booking Status",
-        key: "receipts",
-      },
-    ],
-    forms: [],
-  }),
-  created() {
-    this.loadTravelAuthorizations()
-    this.getTrip()
+  {
+    title: "Departure Date",
+    key: "departureDate",
   },
-  methods: {
-    loadTravelAuthorizations() {
-      return http.get(FORM_URL).then((resp) => {
-        this.forms = resp.data
-      })
-    },
-    openForm(_event, { item }) {
-      this.$router.push(`/TravelRequest/Request/${item.formId}`)
-    },
-    createForm() {
-      this.$router.push(`/TravelRequest/Request/${uuidv4()}`)
-    },
-    getTrip() {
-      return http.get(`${FORM_URL}/recent`).then((resp) => {
-        this.data = resp.data
-      })
-    },
-    editItem() {},
-    deleteItem() {},
-    saveChanges() {},
+  {
+    title: "Return Date",
+    key: "dateBackToWork",
   },
+  {
+    title: "Status",
+    key: "status",
+  },
+]
+
+const expenseHeaders = [
+  {
+    title: "Type",
+    key: "type",
+  },
+  {
+    title: "Description",
+    key: "description",
+  },
+  {
+    title: "Date",
+    key: "date",
+  },
+  {
+    title: "Amount",
+    key: "cost",
+  },
+  {
+    title: "Actions",
+    key: "actions",
+  },
+  {
+    title: "Receipts",
+    key: "receipts",
+  },
+]
+
+const travelAuthHeaders = [
+  {
+    title: "Location",
+    key: "location",
+  },
+  {
+    title: "Description",
+    key: "description",
+  },
+  {
+    title: "Start Date",
+    key: "date",
+  },
+  {
+    title: "End Date",
+    key: "cost",
+  },
+  {
+    title: "Auth Status",
+    key: "actions",
+  },
+  {
+    title: "Booking Status",
+    key: "receipts",
+  },
+]
+
+onMounted(() => {
+  loadTravelAuthorizations()
+  getTrip()
+})
+
+function loadTravelAuthorizations() {
+  return http.get(FORM_URL).then((resp) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    forms.value = resp.data
+  })
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function openForm(_event: unknown, { item }: { item: any }) {
+  router.push(`/TravelRequest/Request/${item.formId}`)
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function createForm() {
+  router.push(`/TravelRequest/Request/${uuidv4()}`)
+}
+
+function getTrip() {
+  return http.get(`${FORM_URL}/recent`).then((resp) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data.value = resp.data
+  })
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function editItem(_item?: any) {}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function deleteItem(_item?: any) {}
+
+function saveChanges() {}
 </script>
