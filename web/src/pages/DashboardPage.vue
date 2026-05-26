@@ -1,84 +1,8 @@
 <template>
-  <div class="home">
+  <div>
     <h1>Dashboard</h1>
 
-    <v-card class="mt-5 default">
-      <v-card-title>Current/Recent Trip</v-card-title>
-      <v-card-text>
-        <v-row>
-          <v-col>
-            <!-- TODO: this card should show the current/recent trip information; currently it's just a placeholder -->
-            <v-card>
-              <v-col>
-                <v-row>
-                  <v-col>
-                    <h3>Purpose:</h3>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <div>Trip stops:</div>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <StringDateInput
-                      v-model="startDate"
-                      label="Start Date"
-                      density="compact"
-                    />
-                  </v-col>
-                  <v-col>
-                    <TimeTextField
-                      label="Start Time (24 hour)"
-                      density="compact"
-                    />
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <StringDateInput
-                      v-model="endDate"
-                      label="End Date"
-                      density="compact"
-                    />
-                  </v-col>
-                  <v-col>
-                    <TimeTextField
-                      label="End Time (24 hour)"
-                      density="compact"
-                    />
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <v-text-field
-                      v-model="daysOffTravel"
-                      density="compact"
-                      label="# of days off travel"
-                      prepend-inner-icon="mdi-hail"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-card>
-          </v-col>
-          <v-col cols="8">
-            <DashboardExpensesDataTable
-              v-if="recentTravelAuthorizationId"
-              :where="recentTripExpensesWhere"
-              route-query-suffix="DashboardRecentTripExpenses"
-            />
-          </v-col>
-        </v-row>
-        <v-btn
-          color="blue"
-          size="small"
-          @click="saveChanges"
-          >Save Changes</v-btn
-        >
-      </v-card-text>
-    </v-card>
+    <DashboardLatestTravelAuthorizationCard />
     <v-row>
       <v-col>
         <v-card class="mt-5 default">
@@ -138,28 +62,19 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 // @ts-expect-error uuid types not installed
 import { v4 as uuidv4 } from "uuid"
-import { computed, ref, onMounted } from "vue"
+import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 
 import http from "@/api/http-client"
-import { travelAuthorizationsApi } from "@/api/travel-authorizations-api"
 import { FORM_URL } from "@/urls"
 
-import StringDateInput from "@/components/common/StringDateInput.vue"
-import TimeTextField from "@/components/common/TimeTextField.vue"
-import DashboardExpensesDataTable from "@/components/dashboards/DashboardExpensesDataTable.vue"
+import DashboardLatestTravelAuthorizationCard from "@/components/dashboards/DashboardLatestTravelAuthorizationCard.vue"
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
 
 const router = useRouter()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const startDate = ref(null)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const endDate = ref(null)
-const daysOffTravel = ref<number>(1)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const forms = ref([])
-const recentTravelAuthorizationId = ref<number | undefined>(undefined)
 
 const headers = [
   {
@@ -207,13 +122,8 @@ const travelAuthHeaders = [
   },
 ]
 
-const recentTripExpensesWhere = computed(() => ({
-  travelAuthorizationId: recentTravelAuthorizationId.value,
-}))
-
 onMounted(() => {
   loadTravelAuthorizations()
-  loadRecentTravelAuthorizationId()
 })
 
 function loadTravelAuthorizations() {
@@ -232,15 +142,4 @@ function openForm(_event: unknown, { item }: { item: any }) {
 function createForm() {
   router.push(`/TravelRequest/Request/${uuidv4()}`)
 }
-
-async function loadRecentTravelAuthorizationId() {
-  const response = await travelAuthorizationsApi.list({
-    order: [["createdAt", "DESC"]],
-    perPage: 1,
-  })
-  const recentTravelAuthorization = response.travelAuthorizations[0]
-  recentTravelAuthorizationId.value = recentTravelAuthorization?.id
-}
-
-function saveChanges() {}
 </script>
