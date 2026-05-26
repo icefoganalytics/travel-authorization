@@ -236,7 +236,7 @@ export type TravelAuthorizationFiltersOptions = FiltersOptions<{
   notOwnedByUserId: number
 }>
 
-export type TravelAuthorizationsQueryOptions = QueryOptions<
+export type TravelAuthorizationQueryOptions = QueryOptions<
   TravelAuthorizationWhereOptions,
   TravelAuthorizationFiltersOptions
 >
@@ -251,7 +251,7 @@ export const travelAuthorizationsApi = {
   TRIP_TYPES,
   WIZARD_STEP_NAMES: TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES,
 
-  async list(params: TravelAuthorizationsQueryOptions = {}): Promise<{
+  async list(params: TravelAuthorizationQueryOptions = {}): Promise<{
     travelAuthorizations: TravelAuthorizationAsIndex[]
     totalCount: number
   }> {
