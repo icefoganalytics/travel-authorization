@@ -2,11 +2,15 @@
   <div>
     <h1>Dashboard</h1>
 
-    <DashboardLatestTravelAuthorizationCard class="mt-5 default" />
+    <v-row>
+      <v-col>
+        <DashboardLatestTravelAuthorizationCard class="default" />
+      </v-col>
+    </v-row>
 
     <v-row>
       <v-col>
-        <v-card class="mt-5 default">
+        <v-card class="default">
           <v-card-title>Past Trips</v-card-title>
           <v-card-text>
             <DashboardTravelAuthorizationsDataTable
@@ -17,7 +21,7 @@
         </v-card>
       </v-col>
       <v-col>
-        <v-card class="mt-5 default">
+        <v-card class="default">
           <v-card-title>Upcoming Trips</v-card-title>
           <v-card-text>
             <DashboardTravelAuthorizationsDataTable
