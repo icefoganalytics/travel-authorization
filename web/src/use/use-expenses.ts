@@ -1,4 +1,4 @@
-import { type Ref, ref, reactive, toRefs, unref, watch } from "vue"
+import { ref, reactive, toRefs, unref, watch } from "vue"
 
 import expensesApi, {
   type ExpenseAsIndex,
@@ -26,7 +26,7 @@ export {
  * Fetches and manages expenses data based on the provided options.
  */
 export function useExpenses(
-  options: Ref<ExpenseQueryOptions> = ref({}),
+  options = ref<ExpenseQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
 ) {
   const state = reactive<{

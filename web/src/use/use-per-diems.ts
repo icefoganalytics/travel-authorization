@@ -1,4 +1,4 @@
-import { type Ref, reactive, toRefs, unref, watch, ref } from "vue"
+import { reactive, toRefs, unref, watch, ref } from "vue"
 
 import perDiemsApi, {
   PER_DIEM_CLAIM_TYPES,
@@ -29,14 +29,7 @@ export {
 export function usePerDiems(
   options = ref<PerDiemsQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
-): {
-  perDiems: Ref<PerDiemAsIndex[]>
-  totalCount: Ref<number>
-  isLoading: Ref<boolean>
-  isErrored: Ref<boolean>
-  fetch: () => Promise<PerDiemAsIndex[]>
-  refresh: () => Promise<PerDiemAsIndex[]>
-} {
+) {
   const state = reactive<{
     perDiems: PerDiemAsIndex[]
     totalCount: number

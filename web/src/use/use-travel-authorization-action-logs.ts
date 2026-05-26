@@ -1,4 +1,4 @@
-import { type Ref, reactive, toRefs, unref, watch, ref } from "vue"
+import { reactive, toRefs, unref, watch, ref } from "vue"
 
 import travelAuthorizationActionLogsApi, {
   type TravelAuthorizationActionLogAsIndex,
@@ -15,13 +15,7 @@ export {
 export function useTravelAuthorizationActionLogs(
   options = ref<TravelAuthorizationActionLogsQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
-): {
-  travelAuthorizationActionLogs: Ref<TravelAuthorizationActionLogAsIndex[]>
-  isLoading: Ref<boolean>
-  isErrored: Ref<boolean>
-  fetch: () => Promise<TravelAuthorizationActionLogAsIndex[]>
-  refresh: () => Promise<TravelAuthorizationActionLogAsIndex[]>
-} {
+) {
   const state = reactive<{
     travelAuthorizationActionLogs: TravelAuthorizationActionLogAsIndex[]
     isLoading: boolean

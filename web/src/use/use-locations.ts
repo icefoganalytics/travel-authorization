@@ -1,4 +1,4 @@
-import { type Ref, reactive, toRefs, unref, watch, ref } from "vue"
+import { reactive, toRefs, unref, watch, ref } from "vue"
 
 import locationsApi, {
   type LocationAsIndex,
@@ -17,14 +17,7 @@ export {
 export function useLocations(
   options = ref<LocationsQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
-): {
-  locations: Ref<LocationAsIndex[]>
-  totalCount: Ref<number>
-  isLoading: Ref<boolean>
-  isErrored: Ref<boolean>
-  fetch: () => Promise<LocationAsIndex[]>
-  refresh: () => Promise<LocationAsIndex[]>
-} {
+) {
   const state = reactive<{
     locations: LocationAsIndex[]
     totalCount: number

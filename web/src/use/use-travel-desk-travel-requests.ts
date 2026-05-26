@@ -1,4 +1,4 @@
-import { type Ref, reactive, toRefs, ref, unref, watch } from "vue"
+import { reactive, toRefs, ref, unref, watch } from "vue"
 
 import travelDeskTravelRequestsApi, {
   type TravelDeskTravelRequestAsIndex,
@@ -18,16 +18,9 @@ export {
  * Provides reactive state management for travel desk travel requests with API integration.
  */
 export function useTravelDeskTravelRequests(
-  options: Ref<TravelDeskTravelRequestsQueryOptions> = ref({}),
+  options = ref<TravelDeskTravelRequestsQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
-): {
-  travelDeskTravelRequests: Ref<TravelDeskTravelRequestAsIndex[]>
-  totalCount: Ref<number>
-  isLoading: Ref<boolean>
-  isErrored: Ref<boolean>
-  fetch: () => Promise<TravelDeskTravelRequestAsIndex[]>
-  refresh: () => Promise<TravelDeskTravelRequestAsIndex[]>
-} {
+) {
   const state = reactive<{
     travelDeskTravelRequests: TravelDeskTravelRequestAsIndex[]
     totalCount: number

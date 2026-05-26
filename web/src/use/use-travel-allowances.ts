@@ -1,4 +1,4 @@
-import { type Ref, reactive, toRefs, unref, watch, ref } from "vue"
+import { reactive, toRefs, unref, watch, ref } from "vue"
 
 import travelAllowancesApi, {
   TRAVEL_ALLOWANCE_ALLOWANCE_TYPES,
@@ -25,14 +25,7 @@ export {
 export function useTravelAllowances(
   options = ref<TravelAllowancesQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
-): {
-  travelAllowances: Ref<TravelAllowanceAsIndex[]>
-  totalCount: Ref<number>
-  isLoading: Ref<boolean>
-  isErrored: Ref<boolean>
-  fetch: () => Promise<TravelAllowanceAsIndex[]>
-  refresh: () => Promise<TravelAllowanceAsIndex[]>
-} {
+) {
   const state = reactive<{
     travelAllowances: TravelAllowanceAsIndex[]
     totalCount: number

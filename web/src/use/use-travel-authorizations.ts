@@ -1,4 +1,4 @@
-import { type Ref, ref, reactive, toRefs, unref, watch } from "vue"
+import { ref, reactive, toRefs, unref, watch } from "vue"
 
 import travelAuthorizationsApi, {
   type TravelAuthorizationAsIndex,
@@ -30,7 +30,7 @@ export {
  * Fetches travel authorizations based on the provided query options.
  */
 export function useTravelAuthorizations(
-  options: Ref<TravelAuthorizationQueryOptions> = ref({}),
+  options = ref<TravelAuthorizationQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
 ) {
   const state = reactive<{

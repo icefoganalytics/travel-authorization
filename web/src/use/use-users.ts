@@ -1,4 +1,4 @@
-import { type Ref, ref, reactive, toRefs, unref, watch } from "vue"
+import { ref, reactive, toRefs, unref, watch } from "vue"
 
 import usersApi, {
   type User,
@@ -20,7 +20,7 @@ export {
  * Fetches and manages users data based on the provided options.
  */
 export function useUsers(
-  options: Ref<UserQueryOptions> = ref({}),
+  options = ref<UserQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
 ) {
   const state = reactive<{

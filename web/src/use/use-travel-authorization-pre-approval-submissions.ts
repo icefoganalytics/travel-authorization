@@ -1,4 +1,4 @@
-import { type Ref, reactive, toRefs, unref, watch, ref } from "vue"
+import { reactive, toRefs, unref, watch, ref } from "vue"
 
 import travelAuthorizationPreApprovalSubmissionsApi, {
   type TravelAuthorizationPreApprovalSubmissionAsIndex,
@@ -21,14 +21,7 @@ export {
 export function useTravelAuthorizationPreApprovalSubmissions(
   options = ref<TravelAuthorizationPreApprovalSubmissionsQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
-): {
-  travelAuthorizationPreApprovalSubmissions: Ref<TravelAuthorizationPreApprovalSubmissionAsIndex[]>
-  totalCount: Ref<number>
-  isLoading: Ref<boolean>
-  isErrored: Ref<boolean>
-  fetch: () => Promise<TravelAuthorizationPreApprovalSubmissionAsIndex[]>
-  refresh: () => Promise<TravelAuthorizationPreApprovalSubmissionAsIndex[]>
-} {
+) {
   const state = reactive<{
     travelAuthorizationPreApprovalSubmissions: TravelAuthorizationPreApprovalSubmissionAsIndex[]
     totalCount: number
