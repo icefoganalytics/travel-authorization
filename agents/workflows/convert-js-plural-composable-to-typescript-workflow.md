@@ -10,12 +10,14 @@ auto_execution_mode: 1
 **WHY this workflow exists:** JavaScript composables use JSDoc for typing which is verbose and error-prone. TypeScript provides better type inference, cleaner syntax, and catches errors at compile time rather than runtime.
 
 **WHAT this workflow produces:** A TypeScript composable that:
+
 - Fetches a list of resources with query options (where, filters, pagination)
 - Manages loading/error state reactively
 - Automatically refetches when query options change
 - Re-exports types for consumer convenience (WhereOptions, FiltersOptions, QueryOptions, enums)
 
 **Decision Rules:**
+
 - **Singular vs Plural:** This workflow is for composables that fetch LISTS of resources (`useUsers`, `useExpenses`). For single-resource composables, use the singular workflow instead.
 - **skipWatchIf parameter:** Always add this parameter. It allows parent components to prevent fetching until preconditions are met.
 - **Export both deprecated and non-deprecated constants:** When the API file has both deprecated Object.freeze constants (e.g., PER_DIEM_CLAIM_TYPES) and non-deprecated enums (e.g., PerDiemClaimTypes), export BOTH from the composable. This ensures backward compatibility with existing components that use the deprecated constants while allowing new code to use the non-deprecated enums.
@@ -93,6 +95,7 @@ import resourcesApi, {
 **Import style:** Use named imports for API modules: `import { apiName } from "@/path/to/api"`. Exception: when importing many APIs in the same file, use top-level import with dot lookups: `import api from "@/api"`
 
 **Import guidance:**
+
 - Import Vue composables that are actually used (reactive, toRefs, unref, watch, ref)
 - Import the appropriate type from the API file (`ResourceAsIndex`, not `ResourceAsShow`)
 - Import all common types: `WhereOptions`, `FiltersOptions`, `QueryOptions`
@@ -134,17 +137,12 @@ export function useResources(options) {
 **After (TS):**
 
 ```typescript
+import { type Ref, reactive, toRefs, unref, watch, ref } from "vue"
+
 export function useResources(
   options = ref<ResourceQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
-): {
-  resources: ResourceAsIndex[]
-  totalCount: number
-  isLoading: boolean
-  isErrored: boolean
-  fetch: () => Promise<ResourceAsIndex[]>
-  refresh: () => Promise<ResourceAsIndex[]>
-} {
+) {
 ```
 
 **Key Changes:**
