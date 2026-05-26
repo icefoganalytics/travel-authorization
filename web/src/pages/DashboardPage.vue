@@ -31,12 +31,11 @@
 
     <v-row>
       <v-col>
-        <v-card class="mt-5 default">
+        <v-card class="default">
           <v-card-title>Create a new travel request</v-card-title>
           <v-card-text>
-            To begin the process of creating a new travel request, click the button
-            bellow.</v-card-text
-          >
+            To begin the process of creating a new travel request, click the button below.
+          </v-card-text>
           <v-card-actions>
             <CreateTravelAuthorizationButton color="blue" />
           </v-card-actions>
