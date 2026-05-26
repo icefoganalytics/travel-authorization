@@ -66,6 +66,11 @@ export type PerDiem = {
   updatedAt: string
 }
 
+export type PerDiemAsIndex = Pick<
+  PerDiem,
+  "id" | "claimType" | "travelRegion" | "amount" | "currency" | "createdAt" | "updatedAt"
+>
+
 export type PerDiemWhereOptions = WhereOptions<PerDiem, "claimType" | "travelRegion" | "currency">
 
 /** must match model scopes */
@@ -75,7 +80,7 @@ export type PerDiemsQueryOptions = QueryOptions<PerDiemWhereOptions, PerDiemFilt
 
 export const perDiemsApi = {
   async list(params: PerDiemsQueryOptions = {}): Promise<{
-    perDiems: PerDiem[]
+    perDiems: PerDiemAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/per-diems", {

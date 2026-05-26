@@ -3,6 +3,7 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 
 import { Location } from "@/models"
+import { IndexSerializer } from "@/serializers/locations"
 import BaseController from "@/controllers/base-controller"
 
 export class LocationsController extends BaseController<Location> {
@@ -24,8 +25,9 @@ export class LocationsController extends BaseController<Location> {
         offset: this.pagination.offset,
         order,
       })
+      const serializedLocations = IndexSerializer.perform(locations, this.currentUser)
       return this.response.json({
-        locations,
+        locations: serializedLocations,
         totalCount,
       })
     } catch (error) {

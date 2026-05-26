@@ -36,6 +36,19 @@ export type TravelAuthorizationPreApprovalSubmission = {
   updatedAt: string
 }
 
+/** Keep in sync with api/src/models/travel-authorization-pre-approval-submission.ts */
+export type TravelAuthorizationPreApprovalSubmissionAsIndex = Pick<
+  TravelAuthorizationPreApprovalSubmission,
+  | "id"
+  | "creatorId"
+  | "approverId"
+  | "approvedAt"
+  | "status"
+  | "department"
+  | "createdAt"
+  | "updatedAt"
+>
+
 export type TravelAuthorizationPreApprovalSubmissionWhereOptions = WhereOptions<
   TravelAuthorizationPreApprovalSubmission,
   "id" | "creatorId" | "approverId" | "status" | "department"
@@ -55,7 +68,7 @@ export const travelAuthorizationPreApprovalSubmissionsApi = {
   STATUSES: TRAVEL_AUTHORIZATION_PRE_APPROVAL_SUBMISSION_STATUSES,
 
   async list(params: TravelAuthorizationPreApprovalSubmissionsQueryOptions = {}): Promise<{
-    travelAuthorizationPreApprovalSubmissions: TravelAuthorizationPreApprovalSubmission[]
+    travelAuthorizationPreApprovalSubmissions: TravelAuthorizationPreApprovalSubmissionAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-authorization-pre-approval-submissions", {

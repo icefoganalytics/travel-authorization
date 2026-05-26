@@ -27,6 +27,7 @@ export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES = Object.freeze({
 /** Keep in sync with api/src/models/travel-authorization-pre-approval.ts */
 export type TravelAuthorizationPreApproval = {
   id: number
+  creatorId: number
   submissionId: number | null
   estimatedCost: number
   location: string
@@ -46,7 +47,28 @@ export type TravelAuthorizationPreApproval = {
   updatedAt: string
 }
 
-export type TravelAuthorizationPreApprovalAsIndex = TravelAuthorizationPreApproval
+export type TravelAuthorizationPreApprovalAsIndex = Pick<
+  TravelAuthorizationPreApproval,
+  | "id"
+  | "creatorId"
+  | "submissionId"
+  | "estimatedCost"
+  | "location"
+  | "department"
+  | "branch"
+  | "purpose"
+  | "reason"
+  | "startDate"
+  | "endDate"
+  | "isOpenForAnyDate"
+  | "month"
+  | "isOpenForAnyTraveler"
+  | "numberTravelers"
+  | "travelerNotes"
+  | "status"
+  | "createdAt"
+  | "updatedAt"
+>
 
 export type TravelAuthorizationPreApprovalAsShow = TravelAuthorizationPreApproval & {
   submission?: TravelAuthorizationPreApprovalSubmission

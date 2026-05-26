@@ -1,25 +1,42 @@
-import { WhereOptions } from "@sequelize/core"
+import logger from "@/utils/logger"
 
 import { TravelAuthorizationActionLog } from "@/models"
-import { TravelAuthorizationActionLogsSerializer } from "@/serializers"
-
+import { TravelAuthorizationActionLogsPolicy } from "@/policies"
+import { IndexSerializer } from "@/serializers/travel-authorization-action-logs"
 import BaseController from "@/controllers/base-controller"
 
-export class TravelAuthorizationActionLogsController extends BaseController {
+export class TravelAuthorizationActionLogsController extends BaseController<TravelAuthorizationActionLog> {
   async index() {
-    const where = this.query.where as WhereOptions<TravelAuthorizationActionLog>
-    // TODO: add policy scoping to query
+    try {
+      const where = this.buildWhere()
+      const scopes = this.buildFilterScopes()
+      const order = this.buildOrder([["createdAt", "ASC"]])
+      const scopedTravelAuthorizationActionLogs = TravelAuthorizationActionLogsPolicy.applyScope(
+        scopes,
+        this.currentUser
+      )
 
-    return TravelAuthorizationActionLog.findAll({
-      where,
-      order: [["createdAt", "ASC"]],
-    }).then((travelAuthorizationActionLogs) => {
-      const serializedTravelAuthorizationActionLogs =
-        TravelAuthorizationActionLogsSerializer.asTable(travelAuthorizationActionLogs)
+      const totalCount = await scopedTravelAuthorizationActionLogs.count({ where })
+      const travelAuthorizationActionLogs = await scopedTravelAuthorizationActionLogs.findAll({
+        where,
+        limit: this.pagination.limit,
+        offset: this.pagination.offset,
+        order,
+      })
+      const serializedTravelAuthorizationActionLogs = IndexSerializer.perform(
+        travelAuthorizationActionLogs,
+        this.currentUser
+      )
       return this.response.json({
         travelAuthorizationActionLogs: serializedTravelAuthorizationActionLogs,
+        totalCount,
       })
-    })
+    } catch (error) {
+      logger.error(`Failed to fetch travel authorization action logs: ${error}`, { error })
+      return this.response.status(400).json({
+        error: "Failed to fetch travel authorization action logs",
+      })
+    }
   }
 }
 

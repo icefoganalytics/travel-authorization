@@ -5,6 +5,7 @@ import logger from "@/utils/logger"
 import { TravelAuthorizationPreApproval } from "@/models"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
 import { CreateService } from "@/services/travel-authorization-pre-approvals"
+import { IndexSerializer } from "@/serializers/travel-authorization-pre-approvals"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAuthorizationPreApprovalsController extends BaseController<TravelAuthorizationPreApproval> {
@@ -25,8 +26,12 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
         order,
         include: ["profiles"],
       })
-      return this.response.json({
+      const serializedTravelAuthorizationPreApprovals = IndexSerializer.perform(
         travelAuthorizationPreApprovals,
+        this.currentUser
+      )
+      return this.response.json({
+        travelAuthorizationPreApprovals: serializedTravelAuthorizationPreApprovals,
         totalCount,
       })
     } catch (error) {

@@ -1,4 +1,4 @@
-import { type ComputedRef, type Ref, computed, reactive, toRefs, ref, unref, watch } from "vue"
+import { computed, reactive, toRefs, ref, unref, watch } from "vue"
 
 import travelDeskFlightRequestsApi, {
   type TravelDeskFlightRequest,
@@ -22,18 +22,9 @@ export {
  * Provides reactive state management for travelDeskFlightRequests with API integration.
  */
 export function useTravelDeskFlightRequests(
-  options: Ref<TravelDeskFlightRequestsQueryOptions> = ref({}),
+  options = ref<TravelDeskFlightRequestsQueryOptions>({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
-): {
-  travelDeskFlightRequests: Ref<TravelDeskFlightRequest[]>
-  totalCount: Ref<number>
-  isLoading: Ref<boolean>
-  isErrored: Ref<boolean>
-  earliestFlightDate: ComputedRef<string | null>
-  latestFlightDate: ComputedRef<string | null>
-  fetch: () => Promise<TravelDeskFlightRequest[]>
-  refresh: () => Promise<TravelDeskFlightRequest[]>
-} {
+) {
   const state = reactive<{
     travelDeskFlightRequests: TravelDeskFlightRequest[]
     totalCount: number

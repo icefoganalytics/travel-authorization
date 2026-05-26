@@ -39,7 +39,13 @@ export default IndexSerializer
 **Usage in controller:**
 
 ```typescript
-import { IndexSerializer } from "@/serializers/{resource-name}"
+import { isNil } from "lodash"
+
+import { Resource } from "@/models"
+import { ResourcePolicy } from "@/policies"
+import { UpdateService } from "@/services/resources"
+import { IndexSerializer } from "@/serializers/resources"
+import BaseController from "@/controllers/base-controller"
 
 // In index() method:
 const serializedResources = IndexSerializer.perform(resources, this.currentUser)
@@ -51,3 +57,31 @@ return this.response.status(200).json({
 ```
 
 **Important:** Use `IndexSerializer.perform()` directly on arrays - don't map and call perform on each item. BaseSerializer handles arrays automatically.
+
+**Important:** When updating a controller to use IndexSerializer, ensure the import order follows the controller import ordering pattern:
+
+Within internal imports for controllers, group by conceptual distance:
+- Utilities (logger, config)
+- Models
+- Policies
+- Services
+- Serializers
+- Controllers
+
+**Correct order:**
+```typescript
+import { isNil } from "lodash"
+
+import { Resource } from "@/models"
+import { ResourcePolicy } from "@/policies"
+import { UpdateService } from "@/services/resources"
+import { IndexSerializer } from "@/serializers/resources"
+import BaseController from "@/controllers/base-controller"
+```
+
+**Important:** No blank lines between internal imports when they're in the same conceptual group (Models, Serializers, Controllers). Blank lines only between different conceptual groups.
+
+**Incorrect order (Controllers before Serializers):**
+```typescript
+import BaseController from "@/controllers/base-controller"
+import { IndexSerializer } from "@/serializers/resources"
