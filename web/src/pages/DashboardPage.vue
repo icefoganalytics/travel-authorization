@@ -64,34 +64,11 @@
             </v-card>
           </v-col>
           <v-col cols="8">
-            <v-data-table
-              :headers="expenseHeaders"
-              :items="(data as any).expenses"
-              hide-default-footer
-              disable-pagination
-              class="elevation-2"
-              style="margin: 20px"
-            >
-              <template #item.actions="{ item }">
-                <v-icon
-                  size="small"
-                  class="mr-2"
-                  @click="editItem(item)"
-                >
-                  mdi-pencil
-                </v-icon>
-                <v-icon
-                  size="small"
-                  @click="deleteItem(item)"
-                >
-                  mdi-delete
-                </v-icon>
-              </template>
-              <template #item.receipts="{ item }">
-                <!-- eslint-disable-next-line @typescript-eslint/no-explicit-any -->
-                <AddReceiptButtonForm :expense-id="(item as any).id" />
-              </template>
-            </v-data-table>
+            <DashboardExpensesDataTable
+              v-if="recentTravelAuthorizationId"
+              :where="recentTripExpensesWhere"
+              route-query-suffix="DashboardRecentTripExpenses"
+            />
           </v-col>
         </v-row>
         <v-btn
@@ -161,16 +138,16 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 // @ts-expect-error uuid types not installed
 import { v4 as uuidv4 } from "uuid"
-import { ref, onMounted } from "vue"
+import { computed, ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 
 import http from "@/api/http-client"
+import { travelAuthorizationsApi } from "@/api/travel-authorizations-api"
 import { FORM_URL } from "@/urls"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
-import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
-
+import DashboardExpensesDataTable from "@/components/dashboards/DashboardExpensesDataTable.vue"
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
 
 const router = useRouter()
@@ -181,9 +158,8 @@ const startDate = ref(null)
 const endDate = ref(null)
 const daysOffTravel = ref<number>(1)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const data = ref({})
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const forms = ref([])
+const recentTravelAuthorizationId = ref<number | undefined>(undefined)
 
 const headers = [
   {
@@ -201,33 +177,6 @@ const headers = [
   {
     title: "Status",
     key: "status",
-  },
-]
-
-const expenseHeaders = [
-  {
-    title: "Type",
-    key: "type",
-  },
-  {
-    title: "Description",
-    key: "description",
-  },
-  {
-    title: "Date",
-    key: "date",
-  },
-  {
-    title: "Amount",
-    key: "cost",
-  },
-  {
-    title: "Actions",
-    key: "actions",
-  },
-  {
-    title: "Receipts",
-    key: "receipts",
   },
 ]
 
@@ -258,9 +207,13 @@ const travelAuthHeaders = [
   },
 ]
 
+const recentTripExpensesWhere = computed(() => ({
+  travelAuthorizationId: recentTravelAuthorizationId.value,
+}))
+
 onMounted(() => {
   loadTravelAuthorizations()
-  getTrip()
+  loadRecentTravelAuthorizationId()
 })
 
 function loadTravelAuthorizations() {
@@ -280,18 +233,14 @@ function createForm() {
   router.push(`/TravelRequest/Request/${uuidv4()}`)
 }
 
-function getTrip() {
-  return http.get(`${FORM_URL}/recent`).then((resp) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data.value = resp.data
+async function loadRecentTravelAuthorizationId() {
+  const response = await travelAuthorizationsApi.list({
+    order: [["createdAt", "DESC"]],
+    perPage: 1,
   })
+  const recentTravelAuthorization = response.travelAuthorizations[0]
+  recentTravelAuthorizationId.value = recentTravelAuthorization?.id
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function editItem(_item?: any) {}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function deleteItem(_item?: any) {}
 
 function saveChanges() {}
 </script>
