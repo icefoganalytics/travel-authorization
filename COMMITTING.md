@@ -74,7 +74,8 @@ Prepares older draft requests to resume at the correct wizard step after the ste
 - `:white_check_mark:` / `:heavy_check_mark:` - tests
 - `:heavy_plus_sign:` - additions
 - `:heavy_minus_sign:` - removals, including removing dependencies from the package set
-- `:label:` - typing fixes
+- `:label:` - TypeScript type fixes
+- `:pencil:` - spelling and typo fixes
 - `:beetle:` - fixes
 
 Never use `:lipstick:`; use `:cherry_blossom:` for cosmetic UI polish.
