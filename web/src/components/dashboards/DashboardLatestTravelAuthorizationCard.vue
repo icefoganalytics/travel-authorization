@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mt-5 default">
+  <v-card>
     <v-card-title>Latest Travel Authorization</v-card-title>
     <v-skeleton-loader
       v-if="isLoading"

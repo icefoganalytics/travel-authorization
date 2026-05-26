@@ -229,9 +229,10 @@ export type TravelAuthorizationWhereOptions = WhereOptions<
 
 /** must match model scopes */
 export type TravelAuthorizationFiltersOptions = FiltersOptions<{
-  isTravelling: void
-  isUpcomingTravel: void
-  isBeforeTripEnd: void
+  isTravelling: boolean
+  isUpcomingTrip: boolean
+  isPastTrip: boolean
+  isBeforeTripEnd: boolean
   forTravelDeskTravelRequest: number | string
   notOwnedByUserId: number
 }>

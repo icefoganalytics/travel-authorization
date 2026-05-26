@@ -32,7 +32,8 @@ import User from "@/models/user"
 
 import {
   buildIsTravellingQuery,
-  buildIsUpcomingTravelQuery,
+  buildIsUpcomingTripQuery,
+  buildIsPastTripQuery,
   buildIsBeforeTripEndQuery,
 } from "@/queries/travel-authorizations"
 
@@ -419,12 +420,25 @@ export class TravelAuthorization extends BaseModel<
         },
       }
     })
-    this.addScope("isUpcomingTravel", () => {
+    this.addScope("isUpcomingTrip", () => {
       const currentDate = new Date().toISOString()
       return {
         where: {
           id: {
-            [Op.in]: buildIsUpcomingTravelQuery(),
+            [Op.in]: buildIsUpcomingTripQuery(),
+          },
+        },
+        replacements: {
+          currentDate,
+        },
+      }
+    })
+    this.addScope("isPastTrip", () => {
+      const currentDate = new Date().toISOString()
+      return {
+        where: {
+          id: {
+            [Op.in]: buildIsPastTripQuery(),
           },
         },
         replacements: {

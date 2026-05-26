@@ -300,7 +300,7 @@ describe("api/src/models/travel-authorization.ts", () => {
         })
       })
 
-      describe("#isUpcomingTravel", () => {
+      describe("#isUpcomingTrip", () => {
         beforeEach(() => {
           vi.useFakeTimers()
 
@@ -365,7 +365,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.withScope("isUpcomingTravel").findAll()
+          const result = await TravelAuthorization.withScope("isUpcomingTrip").findAll()
 
           expect(result).toEqual([
             expect.objectContaining({
@@ -392,7 +392,7 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.withScope("isUpcomingTravel").findAll()
+          const result = await TravelAuthorization.withScope("isUpcomingTrip").findAll()
 
           expect(result).toEqual([
             expect.objectContaining({
@@ -419,7 +419,114 @@ describe("api/src/models/travel-authorization.ts", () => {
             segmentNumber: 2,
           })
 
-          const result = await TravelAuthorization.withScope("isUpcomingTravel").findAll()
+          const result = await TravelAuthorization.withScope("isUpcomingTrip").findAll()
+
+          expect(result).toEqual([])
+        })
+      })
+
+      describe("#isPastTrip", () => {
+        beforeEach(() => {
+          vi.useFakeTimers()
+
+          const date = new Date("2025-01-24T18:30:00.000Z")
+          vi.setSystemTime(date)
+        })
+
+        afterEach(() => {
+          vi.useRealTimers()
+        })
+
+        test("when current date is after trip start date, returns the travel authorization", async () => {
+          const pastTravelAuthorization = await travelAuthorizationFactory.create({
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+            status: TravelAuthorization.Statuses.APPROVED,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: pastTravelAuthorization.id,
+            departureOn: "2025-01-20",
+            departureTime: "08:30",
+            segmentNumber: 1,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: pastTravelAuthorization.id,
+            departureOn: "2025-01-22",
+            departureTime: "11:30",
+            segmentNumber: 2,
+          })
+
+          const upcomingTravelAuthorization = await travelAuthorizationFactory.create({
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+            status: TravelAuthorization.Statuses.APPROVED,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: upcomingTravelAuthorization.id,
+            departureOn: "2025-01-28",
+            departureTime: "08:00",
+            segmentNumber: 1,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: upcomingTravelAuthorization.id,
+            departureOn: "2025-01-30",
+            departureTime: "18:00",
+            segmentNumber: 2,
+          })
+
+          const result = await TravelAuthorization.withScope("isPastTrip").findAll()
+
+          expect(result).toEqual([
+            expect.objectContaining({
+              id: pastTravelAuthorization.id,
+            }),
+          ])
+        })
+
+        test("when travel time values are missing, still returns the travel authorization", async () => {
+          const pastTravelAuthorization = await travelAuthorizationFactory.create({
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+            status: TravelAuthorization.Statuses.APPROVED,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: pastTravelAuthorization.id,
+            departureOn: "2025-01-20",
+            departureTime: null,
+            segmentNumber: 1,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: pastTravelAuthorization.id,
+            departureOn: "2025-01-22",
+            departureTime: null,
+            segmentNumber: 2,
+          })
+
+          const result = await TravelAuthorization.withScope("isPastTrip").findAll()
+
+          expect(result).toEqual([
+            expect.objectContaining({
+              id: pastTravelAuthorization.id,
+            }),
+          ])
+        })
+
+        test("when date values are missing, does not crash and does not return the travel authorization", async () => {
+          const pastTravelAuthorization = await travelAuthorizationFactory.create({
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+            status: TravelAuthorization.Statuses.APPROVED,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: pastTravelAuthorization.id,
+            departureOn: null,
+            departureTime: null,
+            segmentNumber: 1,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: pastTravelAuthorization.id,
+            departureOn: null,
+            departureTime: null,
+            segmentNumber: 2,
+          })
+
+          const result = await TravelAuthorization.withScope("isPastTrip").findAll()
 
           expect(result).toEqual([])
         })
