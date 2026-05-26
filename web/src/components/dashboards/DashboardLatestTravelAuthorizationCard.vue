@@ -81,7 +81,7 @@
             variant="outlined"
             block
           >
-            Go to Travel Authorization
+            View Trip
           </v-btn>
         </v-col>
         <v-col
