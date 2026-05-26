@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title>Most Recent Trip</v-card-title>
+    <v-card-title>Current or Most Recent Trip</v-card-title>
     <v-skeleton-loader
       v-if="isLoading"
       type="card"
