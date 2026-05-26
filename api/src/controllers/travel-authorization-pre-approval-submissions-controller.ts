@@ -8,6 +8,7 @@ import {
   CreateService,
   DestroyService,
 } from "@/services/travel-authorization-pre-approval-submissions"
+import { IndexSerializer } from "@/serializers/travel-authorization-pre-approval-submissions"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAuthorizationPreApprovalSubmissionsController extends BaseController<TravelAuthorizationPreApprovalSubmission> {
@@ -34,8 +35,13 @@ export class TravelAuthorizationPreApprovalSubmissionsController extends BaseCon
             },
           ],
         })
-      return this.response.json({
+      const serializedTravelAuthorizationPreApprovalSubmissions = IndexSerializer.perform(
         travelAuthorizationPreApprovalSubmissions,
+        this.currentUser
+      )
+      return this.response.json({
+        travelAuthorizationPreApprovalSubmissions:
+          serializedTravelAuthorizationPreApprovalSubmissions,
         totalCount,
       })
     } catch (error) {
