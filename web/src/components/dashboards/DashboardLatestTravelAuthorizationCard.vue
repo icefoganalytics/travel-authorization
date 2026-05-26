@@ -1,15 +1,15 @@
 <template>
   <v-card>
-    <v-card-title>Latest Travel Authorization</v-card-title>
+    <v-card-title>Most Recent Trip</v-card-title>
     <v-skeleton-loader
       v-if="isLoading"
       type="card"
     />
     <v-card-text
       v-else-if="
-        !isNil(recentTravelAuthorizationId) &&
-        !isNil(recentTravelAuthorizationAsIndex) &&
-        !isNil(recentTravelAuthorizationAsShow)
+        !isNil(travelAuthorizationId) &&
+        !isNil(travelAuthorizationAsIndex) &&
+        !isNil(travelAuthorizationAsShow)
       "
     >
       <v-row>
@@ -23,7 +23,7 @@
                 <v-col>
                   <DescriptionElement
                     label="Purpose of Travel"
-                    :value="recentTravelAuthorizationAsShow.eventName || 'Not specified'"
+                    :value="travelAuthorizationAsShow.eventName || 'Not specified'"
                     vertical
                   />
                 </v-col>
@@ -62,7 +62,7 @@
                 <v-col>
                   <DescriptionElement
                     label="Days on non-travel status"
-                    :value="recentTravelAuthorizationAsShow.daysOffTravelStatusEstimate ?? '0'"
+                    :value="travelAuthorizationAsShow.daysOffTravelStatusEstimate ?? '0'"
                   />
                 </v-col>
               </v-row>
@@ -73,8 +73,8 @@
             :to="{
               name: 'my-travel-requests/MyTravelRequestWizardPage',
               params: {
-                travelAuthorizationId: recentTravelAuthorizationId,
-                stepName: recentTravelAuthorizationAsShow.wizardStepName,
+                travelAuthorizationId: travelAuthorizationId,
+                stepName: travelAuthorizationAsShow.wizardStepName,
               },
             }"
             color="primary"
@@ -89,8 +89,7 @@
           md="8"
         >
           <DashboardExpensesDataTable
-            v-if="recentTravelAuthorizationId"
-            :where="recentTripExpensesWhere"
+            :where="travelAuthorizationExpensesWhere"
             route-query-suffix="DashboardRecentTripExpenses"
           />
         </v-col>
@@ -132,36 +131,61 @@ import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import LocationDescriptionElement from "@/components/locations/LocationDescriptionElement.vue"
 import DashboardExpensesDataTable from "@/components/dashboards/DashboardExpensesDataTable.vue"
 
-const latestTravelAuthorizationQuery = computed<TravelAuthorizationQueryOptions>(() => ({
+const activeTravelAuthorizationQuery = computed<TravelAuthorizationQueryOptions>(() => ({
+  filters: {
+    isActiveTrip: true,
+  },
   order: [["createdAt", "desc"]],
   perPage: 1,
 }))
 
-const { travelAuthorizations, isLoading: isLoadingLatestTravelAuthorization } =
-  useTravelAuthorizations(latestTravelAuthorizationQuery)
-
-const recentTravelAuthorizationId = computed(() => travelAuthorizations.value[0]?.id)
-const recentTravelAuthorizationAsIndex = computed(() => travelAuthorizations.value[0])
+const fallbackTravelAuthorizationQuery = computed<TravelAuthorizationQueryOptions>(() => ({
+  order: [["createdAt", "desc"]],
+  perPage: 1,
+}))
 
 const {
-  travelAuthorization: recentTravelAuthorizationAsShow,
-  isLoading: isLoadingRecentTravelAuthorizationAsShow,
-} = useTravelAuthorization(recentTravelAuthorizationId)
+  travelAuthorizations: activeTravelAuthorizations,
+  isLoading: isLoadingActiveTravelAuthorizations,
+} = useTravelAuthorizations(activeTravelAuthorizationQuery)
+
+const {
+  travelAuthorizations: fallbackTravelAuthorizations,
+  isLoading: isLoadingFallbackTravelAuthorizations,
+} = useTravelAuthorizations(fallbackTravelAuthorizationQuery)
+
+const activeOrFallbackTravelAuthorizations = computed(() => {
+  if (activeTravelAuthorizations.value.length > 0) {
+    return activeTravelAuthorizations.value
+  }
+  return fallbackTravelAuthorizations.value
+})
+
+const travelAuthorizationId = computed(() => activeOrFallbackTravelAuthorizations.value[0]?.id)
+const travelAuthorizationAsIndex = computed(() => activeOrFallbackTravelAuthorizations.value[0])
+
+const {
+  travelAuthorization: travelAuthorizationAsShow,
+  isLoading: isLoadingTravelAuthorizationAsShow,
+} = useTravelAuthorization(travelAuthorizationId)
 
 const isLoading = computed(
-  () => isLoadingLatestTravelAuthorization.value || isLoadingRecentTravelAuthorizationAsShow.value
+  () =>
+    isLoadingActiveTravelAuthorizations.value ||
+    isLoadingFallbackTravelAuthorizations.value ||
+    isLoadingTravelAuthorizationAsShow.value
 )
 
-const { finalDestinationLocationId } = useTravelAuthorizationSummary(recentTravelAuthorizationId)
+const { finalDestinationLocationId } = useTravelAuthorizationSummary(travelAuthorizationId)
 
 const formattedDepartingAt = computed(() =>
-  formatDateTime(recentTravelAuthorizationAsIndex.value?.departingAt, "MMM d yyyy, h:mm\u00A0a")
+  formatDateTime(travelAuthorizationAsIndex.value?.departingAt, "MMM d yyyy, h:mm\u00A0a")
 )
 const formattedReturningAt = computed(() =>
-  formatDateTime(recentTravelAuthorizationAsIndex.value?.returningAt, "MMM d yyyy, h:mm\u00A0a")
+  formatDateTime(travelAuthorizationAsIndex.value?.returningAt, "MMM d yyyy, h:mm\u00A0a")
 )
 
-const recentTripExpensesWhere = computed(() => ({
-  travelAuthorizationId: recentTravelAuthorizationId.value,
+const travelAuthorizationExpensesWhere = computed(() => ({
+  travelAuthorizationId: travelAuthorizationId.value,
 }))
 </script>

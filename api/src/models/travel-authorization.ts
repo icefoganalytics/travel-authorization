@@ -34,6 +34,7 @@ import {
   buildIsTravellingQuery,
   buildIsUpcomingTripQuery,
   buildIsPastTripQuery,
+  buildIsActiveTripQuery,
   buildIsBeforeTripEndQuery,
 } from "@/queries/travel-authorizations"
 
@@ -426,6 +427,19 @@ export class TravelAuthorization extends BaseModel<
         where: {
           id: {
             [Op.in]: buildIsUpcomingTripQuery(),
+          },
+        },
+        replacements: {
+          currentDate,
+        },
+      }
+    })
+    this.addScope("isActiveTrip", () => {
+      const currentDate = new Date().toISOString()
+      return {
+        where: {
+          id: {
+            [Op.in]: buildIsActiveTripQuery(),
           },
         },
         replacements: {

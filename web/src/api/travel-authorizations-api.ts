@@ -231,6 +231,7 @@ export type TravelAuthorizationWhereOptions = WhereOptions<
 export type TravelAuthorizationFiltersOptions = FiltersOptions<{
   isTravelling: boolean
   isUpcomingTrip: boolean
+  isActiveTrip: boolean
   isPastTrip: boolean
   isBeforeTripEnd: boolean
   forTravelDeskTravelRequest: number | string
