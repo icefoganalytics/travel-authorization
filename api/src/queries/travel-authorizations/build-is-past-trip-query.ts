@@ -1,7 +1,7 @@
 import { sql, type Literal } from "@sequelize/core"
 
-export function buildIsUpcomingTravelQuery(): Literal {
-  const isUpcomingTravelQuery = sql`
+export function buildIsPastTripQuery(): Literal {
+  const isPastTripQuery = sql`
     (
       SELECT
         travel_authorization_id
@@ -19,10 +19,10 @@ export function buildIsUpcomingTravelQuery(): Literal {
             travel_authorizations.id
         ) AS travel_periods
       WHERE
-        :currentDate < travel_periods.departing_at
+        :currentDate >= travel_periods.departing_at
     )
   `
-  return isUpcomingTravelQuery
+  return isPastTripQuery
 }
 
-export default buildIsUpcomingTravelQuery
+export default buildIsPastTripQuery

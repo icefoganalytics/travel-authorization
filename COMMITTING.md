@@ -1,5 +1,27 @@
 # Committing
 
+## Quick Decision Flow
+
+Before writing your commit message, answer this:
+
+**Is this a multi-part or complex change?**
+- Yes → Use bullet points (see "When to use bullet points" below)
+- No → Use conversational prose (see "When NOT to use bullet points" below)
+
+Then follow the sections below for format and details.
+
+## Commit Message Checklist
+
+Before committing, verify:
+- [ ] Subject line describes outcome/why, not what was added
+- [ ] Subject line ends with a period
+- [ ] Used correct emoji (see Emoji guidance below)
+- [ ] Chose correct structure: bullet points (multi-part) or conversational prose (single-purpose)
+- [ ] Body focuses on "why" and user-visible effect, not implementation details
+- [ ] Each sentence in body ends with a period
+- [ ] No markers like "Why?", "What?", "NOTE:" in prose
+- [ ] Message is concise and avoids redundancy
+
 ## Format
 
 `:emoji: Verb phrase.` - imperative mood, subject line ends with a period.
@@ -74,7 +96,8 @@ Prepares older draft requests to resume at the correct wizard step after the ste
 - `:white_check_mark:` / `:heavy_check_mark:` - tests
 - `:heavy_plus_sign:` - additions
 - `:heavy_minus_sign:` - removals, including removing dependencies from the package set
-- `:label:` - typing fixes
+- `:label:` - TypeScript type fixes
+- `:pencil:` - spelling and typo fixes
 - `:beetle:` - fixes
 
 Never use `:lipstick:`; use `:cherry_blossom:` for cosmetic UI polish.
@@ -105,71 +128,13 @@ Focus on:
 
 Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
 
-## Rewording past commits
-
-The global git editor may hang when invoked non-interactively. Use these patterns instead.
-
-**Reword HEAD:**
-
-```bash
-git commit --amend -m "new message"
-```
-
-**Reword an older commit:**
-
-```bash
-# 1. Detach HEAD at the target commit
-git checkout <hash>
-# 2. Amend directly (-m bypasses the editor)
-git commit --amend -m "new message"
-# 3. Rebase the branch tip back on top
-git rebase --onto HEAD <branch-tip>~ <branch-tip>
-# 4. Move the branch pointer back
-git branch -f <branch> HEAD && git checkout <branch>
-```
-
-**Interactive rebase without editor hang:**
-
-```bash
-GIT_EDITOR="true" git rebase -i <base>
-```
-
-`GIT_EDITOR="true"` makes git use the `true` no-op command for commit message editing, so the sequence editor step works normally but individual message editing is skipped. Combine with `--amend -m` for rewording specific commits mid-rebase.
-
-NOTE: Multi-line `--exec` strings in `git rebase --onto` are not supported.
-
 ## General rules
 
 - One commit per logical change: do not bundle multiple fixes or changes into a single commit
 - Never `git push --force` on main branch
-- Use `Part of <issue-url>` in PR bodies for multi-PR work. Reserve `Fixes <issue-url>` for the PR that should actually close the issue.
 
-## PR description guidelines
+## Related documentation
 
-See also: [`agents/workflows/pull-request-management-workflow.md`](agents/workflows/pull-request-management-workflow.md) for the full PR creation workflow.
-
-- **Concise language:** use direct, active voice. Avoid redundant words like "entire", "proper", and "fully".
-- **Context section:** focus on the problem and solution. Use present tense, such as "implements" instead of "will implement".
-- **Implementation section:** short, focused bullet points. Combine related items. Avoid qualifiers and unnecessary detail.
-- **Example:** "Add travel estimate validation" instead of "Add broad travel estimate validation utilities".
-
-## Testing instructions format
-
-See also: [`agents/workflows/testing-instructions-workflow.md`](agents/workflows/testing-instructions-workflow.md) for comprehensive guidance.
-
-Standard setup, always include:
-
-1. Run the relevant test suite using the canonical commands in [`bin/README.md`](bin/README.md#testing).
-2. Boot the app via `dev up`.
-3. Log in to the app at http://localhost:8080.
-
-Navigation and verification steps:
-
-- Use exact UI element names: **Add User**, **Activate Position**
-- Reference menu locations: "top right dropdown nav", "left sidebar nav"
-- Use navigation arrows: **Administration** -> **Positions** -> **Users** tab
-- Explicit verification: "Verify success message: `X created!`"
-- Format: bold for **UI elements**, inline code for `exact values`, URLs, and errors
-- Always verify UI element names against the actual Vue component source before writing instructions; do not guess button labels or field names
-
-For complex scenarios, use `## Test Case N: Description` subheadings.
+- **Git workflow operations (rewording, rebase):** See [`agents/workflows/git-workflow.md`](agents/workflows/git-workflow.md)
+- **PR descriptions:** See [`agents/workflows/pull-request-management-workflow.md`](agents/workflows/pull-request-management-workflow.md)
+- **Testing instructions:** See [`agents/workflows/testing-instructions-workflow.md`](agents/workflows/testing-instructions-workflow.md)

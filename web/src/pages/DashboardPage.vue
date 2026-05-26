@@ -1,138 +1,33 @@
 <template>
-  <div class="home">
+  <div>
     <h1>Dashboard</h1>
 
-    <v-card class="mt-5 default">
-      <v-card-title>Current/Recent Trip</v-card-title>
-      <v-card-text>
-        <v-row>
-          <v-col>
-            <!-- TODO: this card should show the current/recent trip information; currently it's just a placeholder -->
-            <v-card>
-              <v-col>
-                <v-row>
-                  <v-col>
-                    <h3>Purpose:</h3>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <div>Trip stops:</div>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <StringDateInput
-                      v-model="startDate"
-                      label="Start Date"
-                      density="compact"
-                    />
-                  </v-col>
-                  <v-col>
-                    <TimeTextField
-                      label="Start Time (24 hour)"
-                      density="compact"
-                    />
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <StringDateInput
-                      v-model="endDate"
-                      label="End Date"
-                      density="compact"
-                    />
-                  </v-col>
-                  <v-col>
-                    <TimeTextField
-                      label="End Time (24 hour)"
-                      density="compact"
-                    />
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <v-text-field
-                      v-model="daysOffTravel"
-                      density="compact"
-                      label="# of days off travel"
-                      prepend-inner-icon="mdi-hail"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-card>
-          </v-col>
-          <v-col cols="8">
-            <v-data-table
-              :headers="expenseHeaders"
-              :items="data.expenses"
-              hide-default-footer
-              disable-pagination
-              class="elevation-2"
-              style="margin: 20px"
-            >
-              <template #item.actions="{ item }">
-                <v-icon
-                  size="small"
-                  class="mr-2"
-                  @click="editItem(item)"
-                >
-                  mdi-pencil
-                </v-icon>
-                <v-icon
-                  size="small"
-                  @click="deleteItem(item)"
-                >
-                  mdi-delete
-                </v-icon>
-              </template>
-              <template #item.receipts="{ item }">
-                <AddReceiptButtonForm :expense-id="item.id" />
-              </template>
-            </v-data-table>
-          </v-col>
-        </v-row>
-        <v-btn
-          color="blue"
-          size="small"
-          @click="saveChanges"
-          >Save Changes</v-btn
-        >
-      </v-card-text>
-    </v-card>
     <v-row>
       <v-col>
-        <v-card class="mt-5 default">
-          <v-card-title>Travel Authorization Status</v-card-title>
+        <DashboardLatestTravelAuthorizationCard class="default" />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <v-card class="default">
+          <v-card-title>Past Trips</v-card-title>
           <v-card-text>
-            <v-data-table
-              :headers="travelAuthHeaders"
-              :items="forms"
-              hide-default-footer
-              disable-pagination
-              class="elevation-2"
-              style="margin: 20px"
-              @click:row="openForm"
-            >
-            </v-data-table>
+            <DashboardTravelAuthorizationsDataTable
+              :filters="pastTripsFilters"
+              route-query-suffix="DashboardStatus"
+            />
           </v-card-text>
         </v-card>
       </v-col>
       <v-col>
-        <v-card class="mt-5 default">
+        <v-card class="default">
           <v-card-title>Upcoming Trips</v-card-title>
           <v-card-text>
-            <v-data-table
-              :headers="headers"
-              :items="forms"
-              hide-default-footer
-              disable-pagination
-              class="elevation-2"
-              style="margin: 20px"
-              @click:row="openForm"
-            >
-            </v-data-table>
+            <DashboardTravelAuthorizationsDataTable
+              :filters="upcomingTripsFilters"
+              route-query-suffix="DashboardUpcoming"
+            />
           </v-card-text>
         </v-card>
       </v-col>
@@ -140,12 +35,11 @@
 
     <v-row>
       <v-col>
-        <v-card class="mt-5 default">
+        <v-card class="default">
           <v-card-title>Create a new travel request</v-card-title>
           <v-card-text>
-            To begin the process of creating a new travel request, click the button
-            bellow.</v-card-text
-          >
+            To begin the process of creating a new travel request, click the button below.
+          </v-card-text>
           <v-card-actions>
             <CreateTravelAuthorizationButton color="blue" />
           </v-card-actions>
@@ -155,127 +49,18 @@
   </div>
 </template>
 
-<script>
-import { v4 as uuidv4 } from "uuid"
+<script setup lang="ts">
+import { computed } from "vue"
 
-import http from "@/api/http-client"
-import { FORM_URL } from "@/urls"
-
-import StringDateInput from "@/components/common/StringDateInput.vue"
-import TimeTextField from "@/components/common/TimeTextField.vue"
-import AddReceiptButtonForm from "@/components/expenses/edit-data-table/AddReceiptButtonForm.vue"
-
+import DashboardLatestTravelAuthorizationCard from "@/components/dashboards/DashboardLatestTravelAuthorizationCard.vue"
+import DashboardTravelAuthorizationsDataTable from "@/components/dashboards/DashboardTravelAuthorizationsDataTable.vue"
 import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
 
-export default {
-  name: "DashboardPage",
-  components: {
-    AddReceiptButtonForm,
-    CreateTravelAuthorizationButton,
-    StringDateInput,
-    TimeTextField,
-  },
-  data: () => ({
-    startDate: null,
-    endDate: null,
-    daysOffTravel: 1,
-    data: {},
-    headers: [
-      {
-        title: "Purpose",
-        key: "purpose",
-      },
-      {
-        title: "Departure Date",
-        key: "departureDate",
-      },
-      {
-        title: "Return Date",
-        key: "dateBackToWork",
-      },
-      {
-        title: "Status",
-        key: "status",
-      },
-    ],
-    expenseHeaders: [
-      {
-        title: "Type",
-        key: "type",
-      },
-      {
-        title: "Description",
-        key: "description",
-      },
-      {
-        title: "Date",
-        key: "date",
-      },
-      {
-        title: "Amount",
-        key: "cost",
-      },
-      {
-        title: "Actions",
-        key: "actions",
-      },
-      {
-        title: "Receipts",
-        key: "receipts",
-      },
-    ],
-    travelAuthHeaders: [
-      {
-        title: "Location",
-        key: "location",
-      },
-      {
-        title: "Description",
-        key: "description",
-      },
-      {
-        title: "Start Date",
-        key: "date",
-      },
-      {
-        title: "End Date",
-        key: "cost",
-      },
-      {
-        title: "Auth Status",
-        key: "actions",
-      },
-      {
-        title: "Booking Status",
-        key: "receipts",
-      },
-    ],
-    forms: [],
-  }),
-  created() {
-    this.loadTravelAuthorizations()
-    this.getTrip()
-  },
-  methods: {
-    loadTravelAuthorizations() {
-      return http.get(FORM_URL).then((resp) => {
-        this.forms = resp.data
-      })
-    },
-    openForm(_event, { item }) {
-      this.$router.push(`/TravelRequest/Request/${item.formId}`)
-    },
-    createForm() {
-      this.$router.push(`/TravelRequest/Request/${uuidv4()}`)
-    },
-    getTrip() {
-      return http.get(`${FORM_URL}/recent`).then((resp) => {
-        this.data = resp.data
-      })
-    },
-    editItem() {},
-    deleteItem() {},
-    saveChanges() {},
-  },
-}
+const upcomingTripsFilters = computed(() => ({
+  isUpcomingTrip: true,
+}))
+
+const pastTripsFilters = computed(() => ({
+  isPastTrip: true,
+}))
 </script>

@@ -4,7 +4,7 @@ import travelAuthorizationsApi, {
   type TravelAuthorizationAsIndex,
   type TravelAuthorizationWhereOptions,
   type TravelAuthorizationFiltersOptions,
-  type TravelAuthorizationsQueryOptions,
+  type TravelAuthorizationQueryOptions,
   TravelAuthorizationStatuses,
   TravelAuthorizationTripTypes,
   TravelAuthorizationWizardStepNames,
@@ -17,7 +17,7 @@ export {
   type TravelAuthorizationAsIndex,
   type TravelAuthorizationWhereOptions,
   type TravelAuthorizationFiltersOptions,
-  type TravelAuthorizationsQueryOptions,
+  type TravelAuthorizationQueryOptions,
   TravelAuthorizationStatuses,
   TravelAuthorizationTripTypes,
   TravelAuthorizationWizardStepNames,
@@ -30,7 +30,7 @@ export {
  * Fetches travel authorizations based on the provided query options.
  */
 export function useTravelAuthorizations(
-  options: Ref<TravelAuthorizationsQueryOptions> = ref({}),
+  options: Ref<TravelAuthorizationQueryOptions> = ref({}),
   { skipWatchIf = () => false }: { skipWatchIf?: () => boolean } = {}
 ) {
   const state = reactive<{

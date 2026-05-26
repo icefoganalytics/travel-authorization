@@ -11,6 +11,7 @@
     <v-btn
       color="primary"
       :loading="isLoading"
+      v-bind="buttonProps"
       @click="triggerFileInput"
     >
       Add Receipt
@@ -20,25 +21,27 @@
 
 <script setup lang="ts">
 import { isEmpty, isNil } from "lodash"
-import { ref } from "vue"
+import { ref, useTemplateRef } from "vue"
 
-import { type VForm } from "vuetify/components"
+import { type VBtn } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 import { expenses } from "@/api"
 import useSnack from "@/use/use-snack"
 
+type VBtnProps = VBtn["$props"]
+
 const props = defineProps<{
   expenseId: number
+  buttonProps?: VBtnProps
 }>()
 
-// TODO: switch to `uploaded: [void]` syntax in vue 3
 const emit = defineEmits<{
-  (event: "uploaded"): void
+  uploaded: [void]
 }>()
 
-const formRef = ref<InstanceType<typeof VForm> | null>(null)
-const fileInputRef = ref<HTMLInputElement | null>(null)
+const formRef = useTemplateRef("formRef")
+const fileInputRef = useTemplateRef("fileInputRef")
 const isLoading = ref(false)
 
 function triggerFileInput() {
