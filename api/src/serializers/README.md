@@ -22,6 +22,19 @@ Serializers are used in controllers to convert from a database representation to
 - Follow the shape `{Model}AsIndex` and `{Model}AsShow`.
 - Avoid older view names such as `TableView` for new serializer types.
 
+## Index File Export Order
+
+Export serializer barrel entries in the order: **Index → Show → Reference**.
+
+```typescript
+export { IndexSerializer, type LocationAsIndex as AsIndex } from "./index-serializer"
+export { ShowSerializer, type LocationAsShow as AsShow } from "./show-serializer"
+export {
+  ReferenceSerializer,
+  type LocationAsReference as AsReference,
+} from "./reference-serializer"
+```
+
 e.g. Usage in a Controller might look like this
 
 ```typescript
