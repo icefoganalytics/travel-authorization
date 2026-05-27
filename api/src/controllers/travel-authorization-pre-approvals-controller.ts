@@ -5,7 +5,7 @@ import logger from "@/utils/logger"
 import { TravelAuthorizationPreApproval } from "@/models"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
 import { CreateService } from "@/services/travel-authorization-pre-approvals"
-import { IndexSerializer } from "@/serializers/travel-authorization-pre-approvals"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-authorization-pre-approvals"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAuthorizationPreApprovalsController extends BaseController<TravelAuthorizationPreApproval> {
@@ -58,8 +58,12 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
         })
       }
 
-      return this.response.status(200).json({
+      const serializedTravelAuthorizationPreApproval = ShowSerializer.perform(
         travelAuthorizationPreApproval,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        travelAuthorizationPreApproval: serializedTravelAuthorizationPreApproval,
         policy,
       })
     } catch (error) {
@@ -112,8 +116,12 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
       await travelAuthorizationPreApproval.update(permittedAttributes)
-      return this.response.status(200).json({
+      const serializedTravelAuthorizationPreApproval = ShowSerializer.perform(
         travelAuthorizationPreApproval,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        travelAuthorizationPreApproval: serializedTravelAuthorizationPreApproval,
         policy,
       })
     } catch (error) {

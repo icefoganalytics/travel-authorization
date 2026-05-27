@@ -3,7 +3,7 @@ import { isNil } from "lodash"
 import { PerDiem } from "@/models"
 import { PerDiemsPolicy } from "@/policies"
 import { UpdateService } from "@/services/per-diems"
-import { IndexSerializer } from "@/serializers/per-diems"
+import { IndexSerializer, ShowSerializer } from "@/serializers/per-diems"
 import BaseController from "@/controllers/base-controller"
 
 export class PerDiemsController extends BaseController<PerDiem> {
@@ -53,8 +53,9 @@ export class PerDiemsController extends BaseController<PerDiem> {
         })
       }
 
+      const serializedPerDiem = ShowSerializer.perform(perDiem, this.currentUser)
       return this.response.status(200).json({
-        perDiem,
+        perDiem: serializedPerDiem,
         policy,
       })
     } catch (error) {
@@ -86,8 +87,9 @@ export class PerDiemsController extends BaseController<PerDiem> {
         permittedAttributes,
         this.currentUser
       )
+      const serializedPerDiem = ShowSerializer.perform(updatedPerDiem, this.currentUser)
       return this.response.status(200).json({
-        perDiem: updatedPerDiem,
+        perDiem: serializedPerDiem,
         policy,
       })
     } catch (error) {

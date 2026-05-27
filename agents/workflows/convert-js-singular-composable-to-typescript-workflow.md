@@ -34,6 +34,18 @@ Before starting, ensure:
 - [ ] The corresponding TypeScript API file exists (e.g., `web/src/api/resources-api.ts`)
 - [ ] You understand the API methods available (get, update, custom actions)
 
+### Backend Serialization Prerequisites
+
+Before converting a singular composable, ensure backend serialization is in place:
+
+- [ ] Check if backend has ShowSerializer for the resource in `api/src/serializers/{resource}/`
+- [ ] If missing, create ShowSerializer using `agents/templates/backend-show-serializer-template.md`
+- [ ] Update controller to use ShowSerializer in show() (and update() if applicable): `ShowSerializer.perform(record, this.currentUser)`
+- [ ] Update API file to use AsShow type for get method (not base model type)
+- [ ] Update serializer index to export ShowSerializer: `export { ShowSerializer, type ResourceAsShow as AsShow } from "./show-serializer"`
+- [ ] Ensure bundle export exists in main serializers index: `export * as Resources from "./resources"`
+
+**Why this is necessary:** The API must return properly typed responses (`ResourceAsShow`) for the composable to use correct types. Without backend serialization, the API returns the full model which may include fields not intended for detail views and lacks the serialization layer that sibling projects (wrap, elcc-data-management, traditional-knowledge) use consistently.
 ---
 
 ## Conversion Steps

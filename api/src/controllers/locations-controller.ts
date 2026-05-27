@@ -3,7 +3,7 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 
 import { Location } from "@/models"
-import { IndexSerializer } from "@/serializers/locations"
+import { IndexSerializer, ShowSerializer } from "@/serializers/locations"
 import BaseController from "@/controllers/base-controller"
 
 export class LocationsController extends BaseController<Location> {
@@ -47,8 +47,9 @@ export class LocationsController extends BaseController<Location> {
         })
       }
 
+      const serializedLocation = ShowSerializer.perform(location, this.currentUser)
       return this.response.json({
-        location,
+        location: serializedLocation,
       })
     } catch (error) {
       logger.error(`Error fetching location: ${error}`, { error })

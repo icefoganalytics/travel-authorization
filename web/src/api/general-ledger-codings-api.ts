@@ -16,6 +16,8 @@ export type GeneralLedgerCoding = {
   updatedAt: string
 }
 
+export type GeneralLedgerCodingAsIndex = GeneralLedgerCoding
+
 export type GeneralLedgerCodingAsShow = GeneralLedgerCoding
 
 export type GeneralLedgerCodingWhereOptions = WhereOptions<
@@ -32,7 +34,7 @@ export type GeneralLedgerCodingQueryOptions = QueryOptions<
 
 export const generalLedgerCodingsApi = {
   async list(params: GeneralLedgerCodingQueryOptions = {}): Promise<{
-    generalLedgerCodings: GeneralLedgerCoding[]
+    generalLedgerCodings: GeneralLedgerCodingAsIndex[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/general-ledger-codings", { params })

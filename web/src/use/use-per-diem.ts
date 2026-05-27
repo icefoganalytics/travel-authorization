@@ -1,35 +1,20 @@
-import { reactive, toRefs, unref, watch } from "vue"
+import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { isNil } from "lodash"
 
-import perDiemsApi from "@/api/per-diems-api"
+import perDiemsApi, { type PerDiemAsShow } from "@/api/per-diems-api"
 
-/**
- * @template [T=any]
- * @typedef {import('vue').Ref<T>} Ref
- */
-/** @typedef {import('@/api/per-diems-api.js').PerDiem} PerDiem */
-
-/**
- * @callback UsePerDiem
- * @param {Ref<number>} id
- * @returns {{
- *   perDiem: Ref<PerDiem | null | undefined>,
- *   isLoading: Ref<boolean>,
- *   isErrored: Ref<boolean>,
- *   fetch: () => Promise<PerDiem>,
- *   refresh: () => Promise<PerDiem>,
- * }}
- */
-
-/** @type {UsePerDiem} */
-export function usePerDiem(id) {
-  const state = reactive({
+export function usePerDiem(id: Ref<number | null | undefined>) {
+  const state = reactive<{
+    perDiem: PerDiemAsShow | null
+    isLoading: boolean
+    isErrored: boolean
+  }>({
     perDiem: null,
     isLoading: false,
     isErrored: false,
   })
 
-  async function fetch() {
+  async function fetch(): Promise<PerDiemAsShow> {
     const staticId = unref(id)
     if (isNil(staticId)) {
       throw new Error("id is required")

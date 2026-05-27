@@ -21,8 +21,9 @@ TravelAuth has 29 JavaScript composable files in `web/src/use` that use JSDoc fo
   - Plural composables (list with query options): 14 files
   - Utility composables (snack): 1 file
 - Composables use JSDoc type definitions which are verbose and error-prone
-- Some API files may not have proper AsIndex types for list methods
-- Some backend controllers may not use IndexSerializer for list responses
+- Some API files may not have proper AsIndex types for list methods or AsShow types for get/update methods
+- Some backend controllers may not use IndexSerializer for list responses or ShowSerializer for detail responses
+- Sibling projects (wrap, elcc-data-management, traditional-knowledge) consistently use ShowSerializer + AsShow for singular endpoints, but travel-auth has gaps
 
 ## Key Findings
 
@@ -34,9 +35,11 @@ TravelAuth has 29 JavaScript composable files in `web/src/use` that use JSDoc fo
 
 2. **Dependency Ordering:**
    - API files should already be TypeScript (from previous work)
-   - Backend serializers (IndexSerializer) must exist for list endpoints
-   - API files must use AsIndex types for list methods, not base model types
-   - Controllers must use IndexSerializer for list responses
+   - Backend serializers must exist:
+     - IndexSerializer for list endpoints (plural composables)
+     - ShowSerializer for detail endpoints (singular composables)
+   - API files must use AsIndex types for list methods and AsShow types for get/update methods
+   - Controllers must use IndexSerializer for index responses and ShowSerializer for show/update responses
    - If any API files are still JavaScript, convert them first using `convert-js-api-to-typescript.md`
    - Utility composables (no API) can be converted independently
 
@@ -49,12 +52,15 @@ TravelAuth has 29 JavaScript composable files in `web/src/use` that use JSDoc fo
 
 This plan is designed to be executed using the composable conversion workflows:
 
-| Phase | Workflow to Use | When to Use It |
+| Phase | Workflow/Template to Use | When to Use It |
 | --- | --- | --- |
-| Phase 0 | `agents/templates/backend-index-serializer.md` | Creating backend IndexSerializer for list endpoints |
-| Phase 2 | `convert-js-singular-composable-to-typescript.md` | Converting single-resource composables |
+| Phase 0 | `agents/templates/backend-index-serializer-template.md` | Creating backend IndexSerializer for list endpoints |
+| Phase 0.5 | `agents/templates/backend-show-serializer-template.md` | Creating backend ShowSerializer for detail endpoints |
+| Phase 1 | Manual verification | Checking prerequisites across all resources before conversion |
 | Phase 2 | `convert-js-plural-composable-to-typescript.md` | Converting list composables |
-| Phase 3 | Manual conversion | Utility composables without API |
+| Phase 3 | `convert-js-singular-composable-to-typescript.md` | Converting single-resource composables |
+| Phase 4 | Manual conversion | Utility composables without API |
+| Phase 5 | `check-types`, `lint`, `test` commands | Validation and cleanup |
 
 Before starting a batch, read the workflow file end-to-end. For each composable, follow the workflow steps exactly as documented.
 
@@ -66,7 +72,7 @@ Before starting a batch, read the workflow file end-to-end. For each composable,
 
 **Implementation:**
 - For each resource with a plural composable, check if backend has IndexSerializer
-- If missing, create IndexSerializer using `agents/templates/backend-index-serializer.md`
+- If missing, create IndexSerializer using `agents/templates/backend-index-serializer-template.md`
 - Update controller to use IndexSerializer in index method
 - Update API file to use AsIndex type for list method
 - Update serializer index to export IndexSerializer
@@ -76,12 +82,26 @@ Before starting a batch, read the workflow file end-to-end. For each composable,
 - Prevents composables from using incorrect types
 - Establishes the serializer pattern for future work
 
+### Phase 0.5: Backend ShowSerialization Prerequisites
+
+**Implementation:**
+- For each resource with a singular composable, check if backend has ShowSerializer
+- If missing, create ShowSerializer using `agents/templates/backend-show-serializer-template.md`
+- Update controller to use ShowSerializer in show() (and update() if applicable)
+- Update API file to use AsShow type for get/update methods
+- Update serializer index to export ShowSerializer and AsShow type
+
+**Benefits:**
+- Ensures proper type alignment between backend and frontend for detail views
+- Prevents composables from using raw model types that may include unintended fields
+- Aligns with the consistent pattern used by sibling projects (wrap, elcc-data-management, traditional-knowledge)
+
 ### Phase 1: Prerequisites and Reachability
 
 **Implementation:**
 - Verify each composable's corresponding API file is TypeScript
-- Verify API file uses AsIndex type for list methods (not base model type)
-- Verify backend controller uses IndexSerializer for list responses
+- Verify API file uses AsIndex type for list methods and AsShow type for get/update methods
+- Verify backend controller uses IndexSerializer for list responses and ShowSerializer for detail responses
 - Identify any composables without corresponding API files (utility composables)
 - Check for deprecated constants that need special handling
 - Record any custom patterns that deviate from standard workflows
@@ -193,16 +213,16 @@ Before starting a batch, read the workflow file end-to-end. For each composable,
 
 ## Decision Factors
 
-1. **Order of conversion:** Backend serialization first (Phase 0), then plural composables (more complex), then singular, then utilities
+1. **Order of conversion:** Backend serialization first (Phase 0: IndexSerialization, Phase 0.5: ShowSerialization), then prerequisites verification (Phase 1), then plural composables (Phase 2), then singular composables (Phase 3), then utilities (Phase 4), then validation (Phase 5)
 2. **Batch size:** Convert one composable at a time, commit, then continue (following established pattern)
-3. **Backend serialization:** Create IndexSerializer before converting plural composables if missing
-4. **API type alignment:** Ensure API uses AsIndex types for list methods before composable conversion
+3. **Backend serialization:** Create IndexSerializer before converting plural composables and ShowSerializer before converting singular composables if missing
+4. **API type alignment:** Ensure API uses AsIndex types for list methods before plural composable conversion, and AsShow types for get/update before singular composable conversion
 5. **Deprecated constants:** Only re-export if they existed in the original JavaScript file
 6. **Nested directory:** Consider flattening `trav-com/` structure or keep as-is based on usage
 
 ## Recommended Action
 
-Start with Phase 0 (backend serialization) to ensure each resource has proper IndexSerializer and API type alignment. Then proceed to Phase 1 (prerequisites) to verify API types, then Phase 2 (plural composables) using the documented workflow. Convert one composable at a time, commit, and continue. This incremental approach allows for review and rollback if issues arise.
+Start with Phase 0 (IndexSerialization) to ensure each resource has proper IndexSerializer and API type alignment for list endpoints. Then proceed to Phase 0.5 (ShowSerialization) to ensure each resource has proper ShowSerializer and API type alignment for detail endpoints. Then Phase 1 (prerequisites) to verify API types across both paths. Then Phase 2 (plural composables) followed by Phase 3 (singular composables), one at a time. This incremental approach allows for review and rollback if issues arise.
 
 Treat this as a composable-layer plan with necessary backend serialization prerequisites. Do not pull component files or other frontend files into this plan's execution scope.
 
@@ -244,13 +264,13 @@ Treat this as a composable-layer plan with necessary backend serialization prere
 2. `web/src/use/trav-com/use-accounts-receivable-invoice-details.js`
 
 ### Workflows and Templates
-1. `agents/workflows/convert-js-singular-composable-to-typescript.md` - Singular composable conversion
-2. `agents/workflows/convert-js-plural-composable-to-typescript.md` - Plural composable conversion
-3. `agents/workflows/convert-js-api-to-typescript.md` - API conversion (if needed)
+1. `agents/workflows/convert-js-singular-composable-to-typescript-workflow.md` - Singular composable conversion
+2. `agents/workflows/convert-js-plural-composable-to-typescript-workflow.md` - Plural composable conversion
+3. `agents/workflows/convert-js-api-to-typescript-workflow.md` - API conversion (if needed)
 4. `agents/templates/frontend-api-typescript-template.md` - Reference for API patterns
-5. `agents/templates/backend-index-serializer.md` - Backend IndexSerializer template
-6. `agents/templates/backend-show-serializer.md` - Backend ShowSerializer template
-7. `agents/templates/backend-serializer-index.md` - Backend serializer index template
+5. `agents/templates/backend-index-serializer-template.md` - Backend IndexSerializer template
+6. `agents/templates/backend-show-serializer-template.md` - Backend ShowSerializer template
+7. `agents/templates/backend-serializer-index-template.md` - Backend serializer index template
 
 ## Out Of Scope
 
@@ -289,9 +309,10 @@ Treat this as a composable-layer plan with necessary backend serialization prere
 - Converted `web/src/use/use-locations.js` to TypeScript
 
 **Plan updates made:**
-- Added Phase 0 for backend serialization prerequisites
-- Updated Phase 1 to verify API type alignment
+- Added Phase 0 for backend IndexSerialization prerequisites
+- Added Phase 0.5 for backend ShowSerialization prerequisites
+- Updated Phase 1 to verify API type alignment for both AsIndex and AsShow
 - Removed backend work from Out of Scope
-- Updated decision factors to include backend serialization
-- Added backend serializer templates to workflows section
+- Updated decision factors to include both serializer types
+- Added and updated backend serializer templates in workflows section
 - Marked use-locations.js as completed

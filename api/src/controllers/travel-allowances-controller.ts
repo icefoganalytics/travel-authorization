@@ -3,7 +3,7 @@ import { isNil } from "lodash"
 import { TravelAllowance } from "@/models"
 import { TravelAllowancesPolicy } from "@/policies"
 import { UpdateService } from "@/services/travel-allowances"
-import { IndexSerializer } from "@/serializers/travel-allowances"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-allowances"
 import BaseController from "@/controllers/base-controller"
 
 export class TravelAllowancesController extends BaseController<TravelAllowance> {
@@ -49,8 +49,9 @@ export class TravelAllowancesController extends BaseController<TravelAllowance> 
         })
       }
 
+      const serializedTravelAllowance = ShowSerializer.perform(travelAllowance, this.currentUser)
       return this.response.status(200).json({
-        travelAllowance,
+        travelAllowance: serializedTravelAllowance,
         policy,
       })
     } catch (error) {
@@ -82,8 +83,9 @@ export class TravelAllowancesController extends BaseController<TravelAllowance> 
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelAllowance = ShowSerializer.perform(updatedTravelAllowance, this.currentUser)
       return this.response.status(200).json({
-        travelAllowance: updatedTravelAllowance,
+        travelAllowance: serializedTravelAllowance,
         policy,
       })
     } catch (error) {

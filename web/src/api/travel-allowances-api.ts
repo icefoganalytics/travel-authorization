@@ -43,6 +43,11 @@ export type TravelAllowance = {
   updatedAt: string
 }
 
+export type TravelAllowanceAsShow = Pick<
+  TravelAllowance,
+  "id" | "allowanceType" | "amount" | "currency" | "createdAt" | "updatedAt"
+>
+
 export type TravelAllowanceAsIndex = Pick<
   TravelAllowance,
   "id" | "allowanceType" | "amount" | "currency" | "createdAt" | "updatedAt"
@@ -73,7 +78,7 @@ export const travelAllowancesApi = {
   },
 
   async get(travelAllowanceId: number): Promise<{
-    travelAllowance: TravelAllowance
+    travelAllowance: TravelAllowanceAsShow
     policy: Policy
   }> {
     const { data } = await http.get(`/api/travel-allowances/${travelAllowanceId}`)
@@ -84,7 +89,7 @@ export const travelAllowancesApi = {
     travelAllowanceId: number,
     attributes: Partial<TravelAllowance>
   ): Promise<{
-    travelAllowance: TravelAllowance
+    travelAllowance: TravelAllowanceAsShow
     policy: Policy
   }> {
     const { data } = await http.patch(`/api/travel-allowances/${travelAllowanceId}`, attributes)
