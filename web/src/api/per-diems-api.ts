@@ -66,6 +66,11 @@ export type PerDiem = {
   updatedAt: string
 }
 
+export type PerDiemAsShow = Pick<
+  PerDiem,
+  "id" | "claimType" | "travelRegion" | "amount" | "currency" | "createdAt" | "updatedAt"
+>
+
 export type PerDiemAsIndex = Pick<
   PerDiem,
   "id" | "claimType" | "travelRegion" | "amount" | "currency" | "createdAt" | "updatedAt"
@@ -90,7 +95,7 @@ export const perDiemsApi = {
   },
 
   async get(perDiemId: number): Promise<{
-    perDiem: PerDiem
+    perDiem: PerDiemAsShow
     policy: Policy
   }> {
     const { data } = await http.get(`/api/per-diems/${perDiemId}`)
@@ -101,7 +106,7 @@ export const perDiemsApi = {
     perDiemId: number,
     attributes: Partial<PerDiem>
   ): Promise<{
-    perDiem: PerDiem
+    perDiem: PerDiemAsShow
     policy: Policy
   }> {
     const { data } = await http.patch(`/api/per-diems/${perDiemId}`, attributes)
