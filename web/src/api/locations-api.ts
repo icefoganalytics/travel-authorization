@@ -13,6 +13,11 @@ export type Location = {
 
 export type LocationAsIndex = Pick<Location, "id" | "city" | "province" | "createdAt" | "updatedAt">
 
+export type LocationAsShow = Pick<
+  Location,
+  "id" | "city" | "province" | "createdAt" | "updatedAt"
+>
+
 export type LocationAsReference = Pick<
   Location,
   "id" | "city" | "province" | "createdAt" | "updatedAt"
@@ -36,7 +41,7 @@ export const locationsApi = {
   },
 
   async get(locationId: number): Promise<{
-    location: Location
+    location: LocationAsShow
   }> {
     const { data } = await http.get(`/api/locations/${locationId}`)
     return data
