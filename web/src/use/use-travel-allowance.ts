@@ -1,35 +1,20 @@
-import { reactive, toRefs, unref, watch } from "vue"
+import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { isNil } from "lodash"
 
-import travelAllowancesApi from "@/api/travel-allowances-api"
+import travelAllowancesApi, { type TravelAllowanceAsShow } from "@/api/travel-allowances-api"
 
-/**
- * @template [T=any]
- * @typedef {import('vue').Ref<T>} Ref
- */
-/** @typedef {import('@/api/travel-allowances-api.js').TravelAllowance} TravelAllowance */
-
-/**
- * @callback UseTravelAllowance
- * @param {Ref<number>} id
- * @returns {{
- *   travelAllowance: Ref<TravelAllowance | null | undefined>,
- *   isLoading: Ref<boolean>,
- *   isErrored: Ref<boolean>,
- *   fetch: () => Promise<TravelAllowance>,
- *   refresh: () => Promise<TravelAllowance>,
- * }}
- */
-
-/** @type {UseTravelAllowance} */
-export function useTravelAllowance(id) {
-  const state = reactive({
+export function useTravelAllowance(id: Ref<number | null | undefined>) {
+  const state = reactive<{
+    travelAllowance: TravelAllowanceAsShow | null
+    isLoading: boolean
+    isErrored: boolean
+  }>({
     travelAllowance: null,
     isLoading: false,
     isErrored: false,
   })
 
-  async function fetch() {
+  async function fetch(): Promise<TravelAllowanceAsShow> {
     const staticId = unref(id)
     if (isNil(staticId)) {
       throw new Error("id is required")
@@ -42,7 +27,7 @@ export function useTravelAllowance(id) {
       state.travelAllowance = travelAllowance
       return travelAllowance
     } catch (error) {
-      console.error("Failed to fetch per diem:", error)
+      console.error("Failed to fetch travel allowance:", error)
       state.isErrored = true
       throw error
     } finally {
