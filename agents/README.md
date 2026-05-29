@@ -27,9 +27,8 @@ agents/
 
 ## Workflows
 
-Workflows are AI-readable documents that guide coding assistants through complex, multi-step tasks.
-They typically include step-by-step instructions, implementation checklists, examples, and testing
-guidance.
+Workflows are process guidance — step-by-step instructions for complex, multi-step tasks. They cover
+the "how": conversion patterns, review checklists, PR structure, testing instructions.
 
 Use [workflows/README.md](./workflows/README.md) to discover the right workflow, then read the
 actual workflow file before acting.
@@ -40,21 +39,25 @@ For pull request work, agents should usually use:
 - `testing-instructions-workflow.md` for detailed, reviewer-friendly validation steps
 - the project conventions in [AGENTS.md](../AGENTS.md) for code style and broader repo rules
 
-## Plans
-
-Plans are implementation documents that outline the steps to implement a feature or fix. They are
-useful for larger efforts that need problem framing, staged rollout notes, schema planning, or open
-questions captured in one place.
-
-Use [plans/README.md](./plans/README.md) for naming and structure guidance before creating a new
-plan.
-
 ## Templates
 
-Templates are reusable starting points for recurring documentation or code-shape tasks.
+Templates show the "what" — end-state code examples for recurring patterns (serializers, factories,
+API modules, dialogs). They are the concrete output a workflow should produce.
 
 Use [templates/README.md](./templates/README.md) to discover the available templates, then read the
 actual template file before using it.
+
+Together, **workflows + templates replace what other tools call "skills"**: process in the workflow,
+end state in the template.
+
+## Plans
+
+Plans are a separate category — exploratory, multi-phase implementation documents. They are not
+workflows or templates. Plans frame the problem, stage the rollout, and capture schema decisions
+before any code is written.
+
+Use [plans/README.md](./plans/README.md) for naming and structure guidance before creating a new
+plan.
 
 ## Best Practices
 
