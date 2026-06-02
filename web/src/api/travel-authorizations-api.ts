@@ -1,3 +1,5 @@
+import { cloneDeep } from "lodash"
+
 import http from "@/api/http-client"
 import {
   type FiltersOptions,
@@ -24,25 +26,14 @@ export enum TravelAuthorizationStatuses {
   DRAFT = "draft",
   EXPENSE_CLAIM_SUBMITTED = "expense_claim_submitted",
   EXPENSE_CLAIM_APPROVED = "expense_claim_approved",
+  EXPENSE_CLAIM_CHANGES_REQUESTED = "expense_claim_changes_requested",
   EXPENSE_CLAIM_DENIED = "expense_claim_denied",
   EXPENSED = "expensed",
   SUBMITTED = "submitted",
 }
 
 /** @deprecated - prefer enum equivalent `TravelAuthorizationStatuses` */
-export const STATUSES = Object.freeze({
-  APPROVED: "approved",
-  AWAITING_DIRECTOR_APPROVAL: "awaiting_director_approval",
-  BOOKED: "booked",
-  CHANGE_REQUESTED: "change_requested",
-  DENIED: "denied",
-  DRAFT: "draft",
-  EXPENSE_CLAIM_SUBMITTED: "expense_claim_submitted",
-  EXPENSE_CLAIM_APPROVED: "expense_claim_approved",
-  EXPENSE_CLAIM_DENIED: "expense_claim_denied",
-  EXPENSED: "expensed",
-  SUBMITTED: "submitted",
-})
+export const STATUSES = Object.freeze(cloneDeep(TravelAuthorizationStatuses))
 
 /** Keep in sync with api/src/models/travel-authorization.ts */
 export enum TravelAuthorizationTripTypes {
@@ -52,11 +43,7 @@ export enum TravelAuthorizationTripTypes {
 }
 
 /** @deprecated - prefer enum equivalent `TripTypes` */
-export const TRIP_TYPES = Object.freeze({
-  ROUND_TRIP: "round_trip",
-  ONE_WAY: "one_way",
-  MULTI_CITY: "multi_city",
-})
+export const TRIP_TYPES = Object.freeze(cloneDeep(TravelAuthorizationTripTypes))
 
 export enum TravelAuthorizationWizardStepNames {
   EDIT_PURPOSE_DETAILS = "edit-purpose-details",
