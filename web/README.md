@@ -103,7 +103,7 @@ flow, use `39339`.
 That value has been used in prior TravelAuth PR testing for itinerary and Passenger Name Record
 flows.
 
-## Sample General Ledger Codes
+## Sample General Ledger (GL) Codes
 
 If you need known valid General Ledger codes while testing the expense submission flow, use one of
 these values:
