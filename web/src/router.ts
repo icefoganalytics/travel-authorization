@@ -120,6 +120,31 @@ const routes: RouteRecordRaw[] = [
             component: () => import("@/pages/ExpenseProcessingPage.vue"),
           },
           {
+            path: "expense-processing/:travelAuthorizationId",
+            component: () => import("@/layouts/ExpenseProcessingLayout.vue"),
+            props: true,
+            children: [
+              {
+                path: "",
+                redirect: "details",
+              },
+              {
+                path: "details",
+                name: "expense-processing/ExpenseProcessingDetailsPage",
+                component: () =>
+                  import("@/pages/expense-processing/ExpenseProcessingDetailsPage.vue"),
+                props: true,
+              },
+              {
+                path: "expense",
+                name: "expense-processing/ExpenseProcessingExpensesPage",
+                component: () =>
+                  import("@/pages/expense-processing/ExpenseProcessingExpensesPage.vue"),
+                props: true,
+              },
+            ],
+          },
+          {
             name: "ManageTravelRequests",
             path: "manage-travel-requests",
             component: () => import("@/pages/ManageTravelRequestsPage.vue"),
