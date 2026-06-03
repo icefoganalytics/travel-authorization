@@ -31,6 +31,8 @@ Before committing, verify:
 - Bad: `:sparkles: Add travel authorization export button.` - describes what was built
 - Good: `:sparkles: Let users export travel authorizations from the details page.` - describes the outcome
 
+When the "what" needs to name the thing being added, pair it with the "why" in the same line: `Add [thing] to [outcome]`. For example, `:sparkles: Add status types to support finance reviewers flagging travel requests for revision.` The subject still ends with a period.
+
 **Simple commits:** Single line when the change is self-explanatory.
 **Complex commits:** Title line followed by one or two plain sentences explaining the non-obvious context: things the diff does not make immediately clear. Each sentence ends with a period.
 
@@ -42,9 +44,10 @@ Before committing, verify:
 
 Use bullet points for:
 
-- Multi-part changes with distinct items
+- Multi-part changes where each item needs its own justification
 - Complex changes needing detailed explanation
-- When multiple files or concepts are affected
+
+For minor secondary items bundled with a primary change, prefer a conversational "Also ..." sentence instead of bullet points. (See [Multi-concern commits](#multi-concern-commits).)
 
 Example:
 
@@ -104,15 +107,25 @@ Never use `:lipstick:`; use `:cherry_blossom:` for cosmetic UI polish.
 
 ## Multi-concern commits
 
-When a commit addresses more than one concern, put the primary concern in the subject line and move secondary concerns into the body. Each sentence in the body ends with a period.
+When a commit addresses more than one concern, put the primary concern in the subject line and move secondary concerns into the body. Use a conversational "Also ..." sentence for secondary items rather than bullet points, unless each item genuinely needs its own justification.
 
-Example:
+Example with one secondary change:
 
 ```text
 :bug: Fix primary thing.
 
 Also fix secondary thing.
 ```
+
+Example with two minor secondary changes:
+
+```text
+:sparkles: Add primary feature to support some outcome.
+
+Also refactor the related constants to reduce redundancy, and fix some typos in the comments.
+```
+
+Each sentence in the body ends with a period.
 
 ## Commit body guidance
 
