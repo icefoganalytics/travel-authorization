@@ -7,9 +7,10 @@ require "fileutils"
 # Example usage:
 #   - PullRequestEditor.edit_pull_request_description('https://github.com/icefoganalytics/travel-authorization/pull/218')
 class PullRequestEditor
-  EDITOR = ENV.fetch("EDITOR", ENV.fetch("VISUAL", "windsurf"))
+  EDITOR = ENV.fetch("EDITOR", ENV.fetch("VISUAL", nil))
 
   def self.edit_pull_request_description(pull_request_url)
+    raise "No editor configured. Set EDITOR or VISUAL environment variable." if EDITOR.nil?
     repo, pull_request_number = extract_repo_and_pull_request_number(pull_request_url)
 
     pull_request_body = fetch_pull_request_body_via_rest(repo, pull_request_number)
