@@ -38,7 +38,12 @@
       <!-- TODO: add in any tabs that you can normally see in manage mode -->
     </v-tabs>
 
-    <router-view @updated="refresh"></router-view>
+    <router-view v-slot="{ Component }">
+      <component
+        :is="Component"
+        @updated="refresh"
+      />
+    </router-view>
 
     <v-row class="mt-md-10 mt-5">
       <v-col>
