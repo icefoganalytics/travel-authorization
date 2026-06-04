@@ -45,7 +45,7 @@ useBreadcrumbs(
       },
     },
     {
-      title: `TA #${props.travelAuthorizationId}`,
+      title: "Details",
     },
   ])
 )
