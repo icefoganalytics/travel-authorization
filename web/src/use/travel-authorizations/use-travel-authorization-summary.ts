@@ -20,6 +20,7 @@ export {
 
 export type TravelAuthorizationSummary = {
   travelPurposeId: number | null
+  eventName: string | null
   finalDestinationLocationId: number | null
   departureDate: string | null
   returnDate: string | null
@@ -36,6 +37,7 @@ export function useTravelAuthorizationSummary(
     }
   >({
     travelPurposeId: null,
+    eventName: null,
     finalDestinationLocationId: null,
     departureDate: null,
     returnDate: null,
@@ -56,6 +58,7 @@ export function useTravelAuthorizationSummary(
       state.isErrored = false
 
       state.travelPurposeId = travelAuthorization.purposeId
+      state.eventName = travelAuthorization.eventName
 
       const tripType = travelAuthorization.tripTypeActual || travelAuthorization.tripTypeEstimate
       const travelSegments = travelAuthorization.tripTypeActual

@@ -49,6 +49,11 @@
                   returnDate: $event,
                 })
               "
+              @update:event-name="
+                updateTravelAuthorizationSummary({
+                  eventName: $event,
+                })
+              "
               @updated="refreshHeaderAndLocalState"
             />
 
