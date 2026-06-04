@@ -141,6 +141,8 @@ Focus on:
 
 Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
 
+For secondary cleanup items bundled with a primary change, a brief "Also do some general cleanup and code clarity alignment" is preferable to enumerating specific fixes. The diff already shows the details; the body should explain why, not what.
+
 ## General rules
 
 - One commit per logical change: do not bundle multiple fixes or changes into a single commit
