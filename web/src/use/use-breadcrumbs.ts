@@ -1,4 +1,4 @@
-import { reactive, toRefs, unref, watch, type Ref } from "vue"
+import { reactive, toRefs, toValue, watch, type MaybeRefOrGetter } from "vue"
 import { isUndefined } from "lodash"
 
 export type BreadcrumbItem = {
@@ -26,9 +26,9 @@ const state = reactive<{
 /**
  * This stores a global breadcrumb state.
  */
-export function useBreadcrumbs(breadcrumbs: Ref<BreadcrumbItem[]>) {
+export function useBreadcrumbs(breadcrumbs: MaybeRefOrGetter<BreadcrumbItem[]>) {
   watch(
-    () => unref(breadcrumbs),
+    () => toValue(breadcrumbs),
     (newBreadcrumbs) => {
       if (isUndefined(newBreadcrumbs)) return
 
