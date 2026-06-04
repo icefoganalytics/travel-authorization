@@ -69,11 +69,20 @@ import expensesApi from "@/api/expenses-api"
 import useExpense from "@/use/use-expense"
 import useSnack from "@/use/use-snack"
 
+const props = withDefaults(
+  defineProps<{
+    routeQuerySuffix?: string
+  }>(),
+  {
+    routeQuerySuffix: "",
+  }
+)
+
 const emit = defineEmits<{
   (event: "deleted"): void
 }>()
 
-const expenseId = useRouteQuery("showExpenseDelete", undefined, {
+const expenseId = useRouteQuery(`showExpenseDelete${props.routeQuerySuffix}`, undefined, {
   transform: integerTransformer,
 })
 const { expense, isLoading } = useExpense(expenseId)

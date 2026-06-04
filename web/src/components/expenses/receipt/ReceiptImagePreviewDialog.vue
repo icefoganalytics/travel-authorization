@@ -74,6 +74,15 @@ import useExpense from "@/use/use-expense"
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import ImageViewer from "@/components/common/ImageViewer.vue"
 
+const props = withDefaults(
+  defineProps<{
+    routeQuerySuffix?: string
+  }>(),
+  {
+    routeQuerySuffix: "",
+  }
+)
+
 // TODO: switch to `deleted: [void]` syntax in vue 3
 const emit = defineEmits<{
   (event: "deleted"): void
@@ -81,7 +90,7 @@ const emit = defineEmits<{
 
 const showDialog = ref(false)
 
-const expenseId = useRouteQuery("previewReceiptImage", undefined, {
+const expenseId = useRouteQuery(`previewReceiptImage${props.routeQuerySuffix}`, undefined, {
   transform: integerTransformer,
 })
 

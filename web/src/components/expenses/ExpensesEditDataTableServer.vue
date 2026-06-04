@@ -11,22 +11,27 @@
     <template #top>
       <ExpenseEditDialog
         ref="editDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @saved="emitChangedAndRefresh"
       />
       <ExpenseDeleteDialog
         ref="deleteDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @deleted="emitChangedAndRefresh"
       />
       <ReceiptGenericPreviewDialog
         ref="receiptGenericPreviewDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @deleted="emitChangedAndRefresh"
       />
       <ReceiptImagePreviewDialog
         ref="receiptImagePreviewDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @deleted="emitChangedAndRefresh"
       />
       <ReceiptPdfPreviewDialog
         ref="receiptPdfPreviewDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @deleted="emitChangedAndRefresh"
       />
     </template>

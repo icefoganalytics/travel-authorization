@@ -5,7 +5,7 @@
         <h3>Traveler Expenses</h3>
         <ExpensesEditDataTableServer
           :where="travelerExpensesWhere"
-          route-query-suffix="traveler-expenses"
+          route-query-suffix="TravelerExpenses"
           @changed="emit('updated')"
         >
           <template #footerNote>
@@ -21,7 +21,7 @@
         <h3>Meals and Incidentals</h3>
         <ExpensesEditDataTableServer
           :where="mealsAndIncidentalsWhere"
-          route-query-suffix="meals-and-incidentals"
+          route-query-suffix="MealsAndIncidentals"
           @changed="emit('updated')"
         />
       </v-col>
