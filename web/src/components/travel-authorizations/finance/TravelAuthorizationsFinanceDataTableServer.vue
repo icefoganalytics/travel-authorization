@@ -2,12 +2,12 @@
   <v-data-table-server
     v-model:page="page"
     v-model:items-per-page="perPage"
-    v-bind="$attrs"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelAuthorizations"
     :loading="isLoading"
     :items-length="totalCount"
-    @click:row="goToFinanceReview"
+    @click:row="goToExpenseProcessingDetailsPage"
   >
     <template #item.name="{ item }">
       <span>{{ item.firstName }} {{ item.lastName }}</span>
@@ -28,22 +28,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
 import formatDate from "@/utils/format-date"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import { type LocationAsReference } from "@/api/locations-api"
 import useTravelAuthorizations, {
   type TravelAuthorizationAsIndex,
+  type TravelAuthorizationQueryOptions,
+  type TravelAuthorizationWhereOptions,
+  type TravelAuthorizationFiltersOptions,
 } from "@/use/use-travel-authorizations"
 
 const props = withDefaults(
   defineProps<{
-    where?: Record<string, unknown>
-    filters?: Record<string, unknown>
+    where?: TravelAuthorizationWhereOptions
+    filters?: TravelAuthorizationFiltersOptions
     routeQuerySuffix?: string
   }>(),
   {
@@ -53,11 +58,10 @@ const props = withDefaults(
   }
 )
 
-const headers = ref([
+const headers = [
   {
     title: "TA #",
     key: "id",
-    sortable: false,
   },
   {
     title: "Requestee",
@@ -88,7 +92,7 @@ const headers = ref([
     key: "returningAt",
     sortable: false,
   },
-])
+]
 
 const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformer,
@@ -97,10 +101,16 @@ const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`
   transform: integerTransformer,
 })
 
-const travelAuthorizationsQuery = computed(() => {
+const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
+  { key: "updatedAt", order: "desc" },
+])
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
+
+const travelAuthorizationsQuery = computed<TravelAuthorizationQueryOptions>(() => {
   return {
     where: props.where,
     filters: props.filters,
+    order: order.value,
     page: page.value,
     perPage: perPage.value,
   }
@@ -121,7 +131,7 @@ type TravelAuthorizationTableRow = {
   item: TravelAuthorizationAsIndex
 }
 
-function goToFinanceReview(
+function goToExpenseProcessingDetailsPage(
   _event: unknown,
   { item: travelAuthorization }: TravelAuthorizationTableRow
 ) {
