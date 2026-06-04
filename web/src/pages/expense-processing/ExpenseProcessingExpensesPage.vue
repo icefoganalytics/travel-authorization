@@ -25,6 +25,8 @@
           @changed="emit('updated')"
         />
       </v-col>
+    </v-row>
+    <v-row>
       <v-col>
         <h3>Totals</h3>
         <TotalsTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
