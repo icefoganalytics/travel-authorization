@@ -1,61 +1,45 @@
 <template>
   <v-card>
     <v-card-text>
-      <v-row dense>
-        <v-col
-          class="d-flex align-center justify-center justify-md-start"
-          :cols="mdAndUp ? undefined : 12"
+      <div class="d-flex flex-wrap align-center ga-4">
+        <h2 class="mb-0 mr-md-2">Travel&nbsp;Auth #{{ paddedTravelAuthorizationId }}</h2>
+        <DescriptionElement
+          label="Purpose"
+          :vertical="mdAndUp"
         >
-          <h2 class="mb-0">Travel</h2>
-        </v-col>
-        <v-col :cols="mdAndUp ? undefined : 12">
-          <DescriptionElement
-            label="Purpose"
-            :vertical="mdAndUp"
-          >
-            <TravelPurposeChip
-              v-show="travelPurposeId"
-              :travel-purpose-id="travelPurposeId"
-            />
-          </DescriptionElement>
-        </v-col>
-        <v-col :cols="mdAndUp ? undefined : 12">
-          <LocationDescriptionElement
-            label="Final Destination"
-            :location-id="finalDestinationLocationId"
-            :vertical="mdAndUp"
+          <TravelPurposeChip
+            v-show="travelPurposeId"
+            :travel-purpose-id="travelPurposeId"
           />
-        </v-col>
-        <v-col :cols="mdAndUp ? undefined : 12">
-          <DescriptionElement
-            label="Depart"
-            :value="departureDate"
-            :vertical="mdAndUp"
-          />
-        </v-col>
-        <v-col :cols="mdAndUp ? undefined : 12">
-          <DescriptionElement
-            label="Return"
-            :value="returnDate"
-            :vertical="mdAndUp"
-          />
-        </v-col>
-        <v-col
-          class="d-flex align-center justify-center justify-md-start"
-          :cols="mdAndUp ? undefined : 12"
-        >
+        </DescriptionElement>
+        <LocationDescriptionElement
+          label="Final Destination"
+          :location-id="finalDestinationLocationId"
+          :vertical="mdAndUp"
+        />
+        <DescriptionElement
+          label="Depart"
+          :value="departureDate"
+          :vertical="mdAndUp"
+        />
+        <DescriptionElement
+          label="Return"
+          :value="returnDate"
+          :vertical="mdAndUp"
+        />
+        <div :class="['align-self-end', { 'w-100': !mdAndUp }]">
           <UserChip
             :loading="isLoading"
             :user-id="userId ?? currentUser.id"
           />
-        </v-col>
-      </v-row>
+        </div>
+      </div>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { toRefs } from "vue"
+import { computed, toRefs } from "vue"
 import { useDisplay } from "vuetify"
 
 import useCurrentUser from "@/use/use-current-user"
@@ -71,6 +55,10 @@ const props = defineProps<{
 }>()
 
 const { travelAuthorizationId } = toRefs(props)
+
+const paddedTravelAuthorizationId = computed(() =>
+  travelAuthorizationId.value.toString().padStart(4, "0")
+)
 
 const {
   travelPurposeId,
