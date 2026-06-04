@@ -80,7 +80,9 @@
           <td
             :class="totalRowClasses"
             colspan="2"
-          ></td>
+          >
+            <slot name="footerNote"></slot>
+          </td>
           <td :class="totalRowClasses">Total</td>
           <td :class="totalRowClasses">{{ formatCurrency(totalAmount) }}</td>
           <td
