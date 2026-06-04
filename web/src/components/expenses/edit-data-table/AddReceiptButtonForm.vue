@@ -45,23 +45,31 @@ const fileInputRef = useTemplateRef("fileInputRef")
 const isLoading = ref(false)
 
 function triggerFileInput() {
+  isLoading.value = true
   fileInputRef.value?.click()
 }
 
 const snack = useSnack()
 
 async function uploadFileAndEmit(event: Event) {
-  if (isNil(formRef.value)) return
+  if (isNil(formRef.value)) {
+    isLoading.value = false
+    return
+  }
 
   const { valid } = await formRef.value.validate()
   if (!valid) {
+    isLoading.value = false
     snack.warning("Please fill in all required fields.")
     return
   }
 
   const target = event.target as HTMLInputElement
   const { files } = target
-  if (isNil(files) || isEmpty(files)) return
+  if (isNil(files) || isEmpty(files)) {
+    isLoading.value = false
+    return
+  }
 
   const file = files[0]
 
