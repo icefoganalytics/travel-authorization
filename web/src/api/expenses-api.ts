@@ -55,6 +55,7 @@ export type Expense = {
 
 export type ExpenseAsIndex = Expense & {
   receipt: AttachmentAsReference | null
+  policy: Policy
 }
 
 export type ExpenseAsShow = Expense & {

@@ -108,14 +108,24 @@ describe("api/src/controllers/travel-authorizations/expenses/prefill-controller.
             description: "Pool Vehicle from Whitehorse to Vancouver",
             cost: 0,
             receipt: null,
-            actions: ["edit", "delete"],
+            policy: {
+              show: true,
+              create: true,
+              update: true,
+              destroy: true,
+            },
           }),
           expect.objectContaining({
             expenseType: Expense.ExpenseTypes.MEALS_AND_INCIDENTALS,
             description: "Breakfast/Lunch/Dinner",
             cost: 106.1,
             receipt: null,
-            actions: ["delete"],
+            policy: {
+              show: true,
+              create: true,
+              update: true,
+              destroy: true,
+            },
           }),
         ]),
       })

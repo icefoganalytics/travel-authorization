@@ -1,6 +1,7 @@
 import { isNil, isUndefined, pick } from "lodash"
 
 import { Attachment, Expense, User } from "@/models"
+import { ExpensesPolicy } from "@/policies"
 import BaseSerializer from "@/serializers/base-serializer"
 import AttachmentsReferenceSerializer, {
   type AttachmentReferenceView,
@@ -22,7 +23,7 @@ export type ExpenseAsIndex = Pick<
   | "updatedAt"
 > & {
   receipt: AttachmentReferenceView | null
-  actions: ["delete"] | ["edit", "delete"]
+  policy: ExpensesPolicy
 }
 
 export class IndexSerializer extends BaseSerializer<Expense> {
@@ -40,6 +41,7 @@ export class IndexSerializer extends BaseSerializer<Expense> {
     }
 
     const serializedReceipt = this.serializeReceipt(receipt)
+    const policy = this.buildExpensePolicy(this.currentUser, this.record)
 
     return {
       ...pick(this.record, [
@@ -57,7 +59,7 @@ export class IndexSerializer extends BaseSerializer<Expense> {
         "updatedAt",
       ]),
       receipt: serializedReceipt,
-      actions: this.actions(),
+      policy,
     }
   }
 
@@ -67,13 +69,8 @@ export class IndexSerializer extends BaseSerializer<Expense> {
     return AttachmentsReferenceSerializer.perform(receipt, this.currentUser)
   }
 
-  // TODO: investigate whether these should depend on a policy check
-  private actions(): ["delete"] | ["edit", "delete"] {
-    if (this.record.expenseType === Expense.ExpenseTypes.MEALS_AND_INCIDENTALS) {
-      return ["delete"]
-    } else {
-      return ["edit", "delete"]
-    }
+  private buildExpensePolicy(currentUser: User, expense: Expense) {
+    return new ExpensesPolicy(currentUser, expense)
   }
 }
 

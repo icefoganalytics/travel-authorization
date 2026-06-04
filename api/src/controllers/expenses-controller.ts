@@ -23,7 +23,10 @@ export class ExpensesController extends BaseController<Expense> {
       const totalCount = await scopedExpenses.count({ where })
       const expenses = await scopedExpenses.findAll({
         where,
-        include: ["receipt"],
+        include: [
+          "receipt",
+          "travelAuthorization",
+        ],
         limit: this.pagination.limit,
         offset: this.pagination.offset,
         order,
