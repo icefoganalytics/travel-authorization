@@ -173,7 +173,7 @@ export type TravelDeskFlightRequestAsShow = TravelDeskFlightRequest
 
 **Note:** Ideally backend should have serializers, but pragmatically you can proceed without them using aliases for flat resources. If the response includes associations or computed nested shapes, add or align backend serializers first so the frontend API type stays grounded in the actual response contract.
 
-**Important:** Place AsIndex and AsShow type definitions immediately after the base type definition, not after query options or other types. This keeps related types together.
+**Important ordering convention:** Base model type → `AsIndex`/`AsShow`/`AsReference` → `Summaries` → `Policy` → `WhereOptions`/`FiltersOptions`/`QueryOptions`. Group conceptually related types, not by serialization layer alone.
 
 **Step 3: Verify backend serializer naming**
 
@@ -375,7 +375,7 @@ See template: `frontend-api-complete-example.md` for a complete before/after con
 - [ ] Deprecated comments added to old constants
 - [ ] Backend serializers checked
 - [ ] AsIndex/AsShow types defined (copied from backend or aliased from base model)
-- [ ] AsIndex/AsShow types placed immediately after base type definition
+- [ ] AsIndex/AsShow types follow base model type, in order: AsIndex → AsShow → AsReference → Summaries → Policy → Where/Filters/Query
 - [ ] Base model type defined
 - [ ] deletedAt excluded from frontend type (almost never exposed)
 - [ ] Policy type defined: `export type ResourcePolicy = Policy`

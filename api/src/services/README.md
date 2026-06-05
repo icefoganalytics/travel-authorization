@@ -100,3 +100,17 @@ export class GenerateController extends BaseController {
   }
 }
 ```
+
+## IndexService pattern
+
+For paginated list endpoints that need summary aggregates (totals), create an IndexService.
+
+See template: [`agents/templates/backend-index-service-template.md`](../../agents/templates/backend-index-service-template.md)
+
+Key points:
+
+- Accept `where`, `scopes`, `order`, `limit`, `offset`, `currentUser` in the constructor.
+- Call `Model.count()` and `Model.findAll()` through the scoped model (from `Policy.applyScope`).
+- Compute summaries in a separate `computeSummaries()` → `compute{Summary}()` pipeline.
+- Use `.aggregate()` with `includeIgnoreAttributes: false`, `plain: true`, and `?? 0` when
+  the policy scope produces a JOIN (same internal pattern as `Model.count()`).

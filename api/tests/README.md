@@ -63,6 +63,8 @@ Guidelines:
 - In API test files, group imports by role: code under test and domain models/services first, then
   a blank line, then test support and factories.
 - Use descriptive variable names, such as `workflowStepPlayersAttributes`
+- Prefer numbered peer entities like `user1`, `user2`
+- Use expanded variable names (no abbreviations): `generalLedgerCoding1`, not `coding1`
 - Name policy-scoped query results with `scoped{Model}`, such as
   `scopedTravelDeskTravelRequests`
 - Assert database state with `findAll()` without redundant `where` clauses unless the filter is
@@ -80,11 +82,12 @@ Guidelines:
 - Do not add local `vi.restoreAllMocks()` hooks; `api/vite.config.mts` already enables mock
   cleanup with `clearMocks`, `mockReset`, and `restoreMocks`.
 
-For common factories, import from `@/factories`:
+Prefer common factories from `@/factories`:
 
 - `userFactory`
 - `travelAuthorizationFactory`
 - `expenseFactory`
+- `generalLedgerCodingFactory`
 - `travelSegmentFactory`
 
 Prefer one strong assertion:

@@ -25,25 +25,7 @@ export const TYPES = Object.freeze({
   TYPE_B = "TypeB",
 })
 
-// Step 2: Define AsIndex type (copy from backend or create alias)
-
-/** Keep in sync with api/src/serializers/{resource}/index-serializer.ts */
-export type ResourceAsIndex = Pick<
-  Resource,
-  | "id"
-  | "field1"
-  | "field2"
-  // ... all fields to expose in list views
->
-
-// If backend has NO serializer, create alias:
-// export type ResourceAsIndex = Resource
-// export type ResourceAsShow = Resource
-
-// Step 3: Define specific policy type for consistency
-export type ResourcePolicy = Policy
-
-// Step 4: Define base model type for reference and create/update payloads
+// Step 2: Define base model type for reference and create/update payloads
 
 /** Keep in sync with api/src/models/{model}.ts */
 export type Resource = {
@@ -56,7 +38,42 @@ export type Resource = {
   updatedAt: string
 }
 
-// Step 5: Define query options
+// Step 3: Define AsIndex/AsShow types (copy from backend or create alias)
+
+/** Keep in sync with api/src/serializers/{resource}/index-serializer.ts */
+export type ResourceAsIndex = Pick<
+  Resource,
+  | "id"
+  | "field1"
+  | "field2"
+  // ... all fields to expose in list views
+>
+
+/** Keep in sync with api/src/serializers/{resource}/show-serializer.ts */
+export type ResourceAsShow = Resource & {
+  // ... associated data exposed in detail views
+}
+
+/** Kept in sync with api/src/serializers/{resource}/reference-serializer.ts */
+export type ResourceAsReference = Pick<
+  Resource,
+  | "id"
+  | "field1"
+  | "field2"
+>
+
+// If backend has NO serializer, create alias:
+// export type ResourceAsIndex = Resource
+// export type ResourceAsShow = Resource
+
+// Step 4: Define summaries type (if applicable)
+
+export type ResourceSummaries = Summaries<"totalField">
+
+// Step 5: Define specific policy type for consistency
+export type ResourcePolicy = Policy
+
+// Step 6: Define query options
 
 export type ResourceWhereOptions = WhereOptions<
   Resource,
@@ -126,10 +143,18 @@ export const resourcesApi = {
 export default resourcesApi
 ```
 
+**Type ordering convention:**
+1. Enums (legacy constants + TypeScript enums)
+2. Base model type (`Resource`)
+3. `ResourceAsIndex`, `ResourceAsShow`, `ResourceAsReference`
+4. `ResourceSummaries` (if applicable)
+5. `ResourcePolicy`
+6. `ResourceWhereOptions`, `ResourceFiltersOptions`, `ResourceQueryOptions`
+7. API methods
+
 **Key patterns:**
 - Import base-api types (FiltersOptions, Policy, QueryOptions, WhereOptions)
 - Convert Object.freeze to TypeScript enums with deprecated comments
-- Place AsIndex/AsShow types immediately after base type definition
 - Use Pick<> to define AsIndex/AsShow from backend serializers
 - Exclude deletedAt from frontend types (almost never exposed)
 - Attach enums to API object for component use

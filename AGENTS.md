@@ -80,7 +80,10 @@ npx prettier --write .          # Auto-fix formatting
 
 ### Code Style
 
-- TypeScript only - no `any`, `@ts-expect-error`, `@ts-ignore`, or `!` (non-null assertion)
+- TypeScript only - never introduce `any`, `@ts-ignore`, or `!` (non-null assertion) without
+  asking first
+- Do not use `@ts-expect-error` without asking first; if permitted, always include a comment
+  explaining the gap
 - No abbreviations: full descriptive names (`workflow` not `wf`)
 - When using acronyms in prose (commit messages, comments, docs), spell out the full term first at least once per block of text before using the acronym.
 - Number similar entities: `user1`, `user2` for clarity (not `existingUser`, `newUser`)
