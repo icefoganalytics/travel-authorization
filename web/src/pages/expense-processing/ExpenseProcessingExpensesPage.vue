@@ -47,7 +47,7 @@
     <v-row>
       <v-col>
         <h3>Management</h3>
-        <ManagementCard
+        <FinanceManagementCard
           :travel-authorization-id="travelAuthorizationIdAsNumber"
           @approved="emit('updated')"
           @denied="emit('updated')"
@@ -65,7 +65,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import { ExpenseExpenseTypes } from "@/api/expenses-api"
 import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
 import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
-import ManagementCard from "@/modules/travel-authorizations/components/manage-travel-authorization-expense-page/ManagementCard.vue"
+import FinanceManagementCard from "@/components/travel-authorizations/finance/TravelAuthorizationFinanceManagementCard.vue"
 import TravelAuthorizationExpenseTotalsCard from "@/components/travel-authorizations/expenses/TravelAuthorizationExpenseTotalsCard.vue"
 
 const props = defineProps<{
