@@ -29,7 +29,10 @@
     <v-row>
       <v-col>
         <h3>Totals</h3>
-        <TotalsTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        <TravelAuthorizationExpenseTotalsCard
+          class="py-4"
+          :travel-authorization-id="travelAuthorizationIdAsNumber"
+        />
       </v-col>
     </v-row>
     <v-row>
@@ -63,7 +66,7 @@ import { ExpenseExpenseTypes } from "@/api/expenses-api"
 import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
 import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
 import ManagementCard from "@/modules/travel-authorizations/components/manage-travel-authorization-expense-page/ManagementCard.vue"
-import TotalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/TotalsTable.vue"
+import TravelAuthorizationExpenseTotalsCard from "@/components/travel-authorizations/expenses/TravelAuthorizationExpenseTotalsCard.vue"
 
 const props = defineProps<{
   travelAuthorizationId: string
