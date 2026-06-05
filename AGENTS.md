@@ -82,6 +82,7 @@ npx prettier --write .          # Auto-fix formatting
 
 - TypeScript only - no `any`, `@ts-expect-error`, `@ts-ignore`, or `!` (non-null assertion)
 - No abbreviations: full descriptive names (`workflow` not `wf`)
+- When using acronyms in prose (commit messages, comments, docs), spell out the full term first at least once per block of text before using the acronym.
 - Number similar entities: `user1`, `user2` for clarity (not `existingUser`, `newUser`)
 - Expanded code style: one thing per line, avoid terse functional chains
 - Guard clauses with blank line after each
