@@ -57,12 +57,26 @@ export class IndexService extends BaseService {
     }
   }
 
+  /**
+   * See https://github.com/sequelize/sequelize/blob/52e3c30d2927879ed47cbcf19f55e5cc10ba3771/packages/core/test/integration/model/scope/aggregate.test.js
+   */
   private async computeTotalAmount(
     scopedGeneralLedgerCodings: ModelStatic<GeneralLedgerCoding>,
     where: WhereOptions<Attributes<GeneralLedgerCoding>>
   ): Promise<number> {
-    const totalAmount = await scopedGeneralLedgerCodings.sum("amount", {
+    const totalAmount = await scopedGeneralLedgerCodings.aggregate<
+      number | null,
+      GeneralLedgerCoding
+    >("amount", "SUM", {
       where,
+      // Query enhancers
+      plain: true,
+      // @ts-expect-error Not in AggregateOptions type but supported at runtime
+      includeIgnoreAttributes: false,
+      limit: null,
+      offset: null,
+      order: null,
+      attributes: [],
     })
     return totalAmount ?? 0
   }

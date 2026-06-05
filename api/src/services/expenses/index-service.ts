@@ -55,12 +55,23 @@ export class IndexService extends BaseService {
     }
   }
 
+  /**
+   * See https://github.com/sequelize/sequelize/blob/52e3c30d2927879ed47cbcf19f55e5cc10ba3771/packages/core/test/integration/model/scope/aggregate.test.js
+   */
   private async computeTotalCost(
     scopedExpenses: ModelStatic<Expense>,
     where: WhereOptions<Attributes<Expense>>
   ): Promise<number> {
-    const totalCost = await scopedExpenses.sum("cost", {
+    const totalCost = await scopedExpenses.aggregate<number | null, Expense>("cost", "SUM", {
       where,
+      // Query enhancers
+      plain: true,
+      // @ts-expect-error Not in AggregateOptions type but supported at runtime
+      includeIgnoreAttributes: false,
+      limit: null,
+      offset: null,
+      order: null,
+      attributes: [],
     })
     return totalCost ?? 0
   }
