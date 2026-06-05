@@ -1,4 +1,4 @@
-import { FindOptions, Attributes, Op } from "@sequelize/core"
+import { FindOptions, Attributes } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { GeneralLedgerCoding, User } from "@/models"
@@ -8,6 +8,12 @@ import PolicyFactory from "@/policies/policy-factory"
 import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
 export class GeneralLedgerCodingsPolicy extends PolicyFactory(GeneralLedgerCoding) {
+  show(): boolean {
+    if (this.travelAuthorizationPolicy.show()) return true
+
+    return false
+  }
+
   create(): boolean {
     if (this.travelAuthorizationPolicy.update()) return true
 
@@ -39,20 +45,14 @@ export class GeneralLedgerCodingsPolicy extends PolicyFactory(GeneralLedgerCodin
       return ALL_RECORDS_SCOPE
     }
 
+    const travelAuthorizationsPolicyScope = TravelAuthorizationsPolicy.policyScope(user)
+
     return {
       include: [
         {
           association: "travelAuthorization",
-          where: {
-            [Op.or]: [
-              {
-                supervisorEmail: user.email,
-              },
-              {
-                userId: user.id,
-              },
-            ],
-          },
+          required: true,
+          ...travelAuthorizationsPolicyScope,
         },
       ],
     }
