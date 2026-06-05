@@ -2,6 +2,7 @@ import { ref, reactive, toRefs, unref, watch } from "vue"
 
 import expensesApi, {
   type ExpenseAsIndex,
+  type ExpenseSummaries,
   type ExpenseWhereOptions,
   type ExpenseFiltersOptions,
   type ExpenseQueryOptions,
@@ -13,6 +14,7 @@ import expensesApi, {
 
 export {
   type ExpenseAsIndex,
+  type ExpenseSummaries,
   type ExpenseWhereOptions,
   type ExpenseFiltersOptions,
   type ExpenseQueryOptions,
@@ -32,12 +34,16 @@ export function useExpenses(
   const state = reactive<{
     expenses: ExpenseAsIndex[]
     totalCount: number
+    summaries: ExpenseSummaries
     isLoading: boolean
     isErrored: boolean
     isInitialized: boolean
   }>({
     expenses: [],
     totalCount: 0,
+    summaries: {
+      totalCost: 0,
+    },
     isLoading: false,
     isErrored: false,
     isInitialized: false,
@@ -46,10 +52,11 @@ export function useExpenses(
   async function fetch(): Promise<ExpenseAsIndex[]> {
     state.isLoading = true
     try {
-      const { expenses, totalCount } = await expensesApi.list(unref(options))
+      const { expenses, totalCount, summaries } = await expensesApi.list(unref(options))
       state.isErrored = false
       state.expenses = expenses
       state.totalCount = totalCount
+      state.summaries = summaries
       return expenses
     } catch (error) {
       console.error("Failed to fetch expenses:", error)

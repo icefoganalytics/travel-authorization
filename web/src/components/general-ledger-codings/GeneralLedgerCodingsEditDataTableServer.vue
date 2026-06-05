@@ -59,7 +59,7 @@
       <tfoot>
         <tr>
           <td :class="totalRowClasses">Total</td>
-          <td :class="totalRowClasses">{{ formatCurrency(totalAmount) }}</td>
+          <td :class="totalRowClasses">{{ formatCurrency(summaries.totalAmount) }}</td>
           <td :class="totalRowClasses"></td>
         </tr>
       </tfoot>
@@ -68,7 +68,6 @@
 </template>
 
 <script setup lang="ts">
-import { sumBy } from "lodash"
 import { computed, ref } from "vue"
 
 import { formatCurrency } from "@/utils/formatters"
@@ -129,10 +128,9 @@ const generalLedgerCodingOptions = computed(() => ({
   page: page.value,
   perPage: perPage.value,
 }))
-const { generalLedgerCodings, totalCount, isLoading, refresh } = useGeneralLedgerCodings(
+const { generalLedgerCodings, totalCount, summaries, isLoading, refresh } = useGeneralLedgerCodings(
   generalLedgerCodingOptions
 )
-const totalAmount = computed(() => sumBy(generalLedgerCodings.value, "amount"))
 
 const headers = ref([
   {

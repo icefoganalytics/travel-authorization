@@ -89,7 +89,7 @@
             <slot name="footerNote"></slot>
           </td>
           <td :class="totalRowClasses">Total</td>
-          <td :class="totalRowClasses">{{ formatCurrency(totalAmount) }}</td>
+          <td :class="totalRowClasses">{{ formatCurrency(summaries.totalCost) }}</td>
           <td
             :class="totalRowClasses"
             colspan="1"
@@ -102,7 +102,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { isNil, sumBy } from "lodash"
+import { isNil } from "lodash"
 import { DateTime } from "luxon"
 
 import { formatCurrency } from "@/utils/formatters"
@@ -205,10 +205,7 @@ const expensesQuery = computed(() => ({
   page: page.value,
 }))
 
-const { expenses, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
-
-// Will need to be calculated in the back-end if data is multi-page.
-const totalAmount = computed(() => sumBy(expenses.value, "cost"))
+const { expenses, totalCount, summaries, isLoading, refresh } = useExpenses(expensesQuery)
 
 function emitChangedAndRefresh() {
   emit("changed")

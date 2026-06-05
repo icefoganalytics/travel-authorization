@@ -5,7 +5,12 @@ import logger from "@/utils/logger"
 import { GeneralLedgerCoding, TravelAuthorization } from "@/models"
 import { GeneralLedgerCodingsPolicy } from "@/policies"
 import { IndexSerializer, ShowSerializer } from "@/serializers/general-ledger-codings"
-import { CreateService, UpdateService, DestroyService } from "@/services/general-ledger-codings"
+import {
+  CreateService,
+  IndexService,
+  UpdateService,
+  DestroyService,
+} from "@/services/general-ledger-codings"
 import BaseController from "@/controllers/base-controller"
 
 export class GeneralLedgerCodingsController extends BaseController<GeneralLedgerCoding> {
@@ -15,22 +20,19 @@ export class GeneralLedgerCodingsController extends BaseController<GeneralLedger
       const scopes = this.buildFilterScopes()
       const order = this.buildOrder()
 
-      const scopedGeneralLedgerCodings = GeneralLedgerCodingsPolicy.applyScope(
+      const { generalLedgerCodings, totalCount, summaries } = await IndexService.perform(
+        where,
         scopes,
+        order,
+        this.pagination.limit,
+        this.pagination.offset,
         this.currentUser
       )
-
-      const totalCount = await scopedGeneralLedgerCodings.count({ where })
-      const generalLedgerCodings = await scopedGeneralLedgerCodings.findAll({
-        where,
-        limit: this.pagination.limit,
-        offset: this.pagination.offset,
-        order,
-      })
       const serializedGeneralLedgerCodings = IndexSerializer.perform(generalLedgerCodings)
       return this.response.json({
         generalLedgerCodings: serializedGeneralLedgerCodings,
         totalCount,
+        summaries,
       })
     } catch (error) {
       logger.error(`Error fetching general ledger codings: ${error}`, { error })
@@ -56,8 +58,7 @@ export class GeneralLedgerCodingsController extends BaseController<GeneralLedger
         })
       }
 
-      const serializedGeneralLedgerCoding =
-        ShowSerializer.perform(generalLedgerCoding)
+      const serializedGeneralLedgerCoding = ShowSerializer.perform(generalLedgerCoding)
       return this.response.status(200).json({
         generalLedgerCoding: serializedGeneralLedgerCoding,
         policy,

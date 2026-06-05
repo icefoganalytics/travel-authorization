@@ -1,4 +1,5 @@
 export { CreateService } from "./create-service"
+export { IndexService } from "./index-service"
 
 // Special actions
 export { ApproveService } from "./approve-service"

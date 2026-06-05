@@ -20,6 +20,8 @@ export type QueryOptions<WhereOptions, FiltersOptions> = Partial<{
   perPage: number
 }>
 
+export type Summaries<Field extends string = string> = Record<Field, number>
+
 export type Policy = {
   show: boolean
   create: boolean

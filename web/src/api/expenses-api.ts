@@ -4,6 +4,7 @@ import {
   type FiltersOptions,
   type Policy,
   type QueryOptions,
+  type Summaries,
   type WhereOptions,
 } from "@/api/base-api"
 import { type AttachmentAsReference } from "@/api/attachments-api"
@@ -76,6 +77,8 @@ export type ExpenseAsReference = Pick<
   | "updatedAt"
 >
 
+export type ExpenseSummaries = Summaries<"totalCost">
+
 export type ExpensePolicy = Policy
 
 export type ExpenseWhereOptions = WhereOptions<
@@ -97,6 +100,7 @@ export const expensesApi = {
   async list(params: ExpenseQueryOptions = {}): Promise<{
     expenses: ExpenseAsIndex[]
     totalCount: number
+    summaries: ExpenseSummaries
   }> {
     const { data } = await http.get("/api/expenses", { params })
     return data

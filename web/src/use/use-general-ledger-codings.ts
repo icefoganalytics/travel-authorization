@@ -2,6 +2,7 @@ import { reactive, toRefs, unref, watch, ref } from "vue"
 
 import generalLedgerCodingsApi, {
   type GeneralLedgerCodingAsIndex,
+  type GeneralLedgerCodingSummaries,
   type GeneralLedgerCodingWhereOptions,
   type GeneralLedgerCodingFiltersOptions,
   type GeneralLedgerCodingQueryOptions,
@@ -9,6 +10,7 @@ import generalLedgerCodingsApi, {
 
 export {
   type GeneralLedgerCodingAsIndex,
+  type GeneralLedgerCodingSummaries,
   type GeneralLedgerCodingWhereOptions,
   type GeneralLedgerCodingFiltersOptions,
   type GeneralLedgerCodingQueryOptions,
@@ -21,11 +23,15 @@ export function useGeneralLedgerCodings(
   const state = reactive<{
     generalLedgerCodings: GeneralLedgerCodingAsIndex[]
     totalCount: number
+    summaries: GeneralLedgerCodingSummaries
     isLoading: boolean
     isErrored: boolean
   }>({
     generalLedgerCodings: [],
     totalCount: 0,
+    summaries: {
+      totalAmount: 0,
+    },
     isLoading: false,
     isErrored: false,
   })
@@ -33,11 +39,12 @@ export function useGeneralLedgerCodings(
   async function fetch(): Promise<GeneralLedgerCodingAsIndex[]> {
     state.isLoading = true
     try {
-      const { generalLedgerCodings, totalCount } = await generalLedgerCodingsApi.list(
+      const { generalLedgerCodings, totalCount, summaries } = await generalLedgerCodingsApi.list(
         unref(options)
       )
       state.generalLedgerCodings = generalLedgerCodings
       state.totalCount = totalCount
+      state.summaries = summaries
       state.isErrored = false
       return generalLedgerCodings
     } catch (error) {
