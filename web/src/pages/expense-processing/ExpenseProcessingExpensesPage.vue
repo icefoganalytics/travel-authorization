@@ -36,7 +36,7 @@
       <v-col>
         <h3>Coding</h3>
         <GeneralLedgerCodingsEditDataTableServer
-          :where="{ travelAuthorizationId: travelAuthorizationIdAsNumber }"
+          :where="generalLedgerCodingsWhere"
           @changed="emit('updated')"
         />
       </v-col>
@@ -83,6 +83,10 @@ const travelerExpensesWhere = computed(() => ({
 const mealsAndIncidentalsWhere = computed(() => ({
   travelAuthorizationId: travelAuthorizationIdAsNumber.value,
   expenseType: ExpenseExpenseTypes.MEALS_AND_INCIDENTALS,
+}))
+
+const generalLedgerCodingsWhere = computed(() => ({
+  travelAuthorizationId: travelAuthorizationIdAsNumber.value,
 }))
 
 useBreadcrumbs([
