@@ -5,6 +5,7 @@ export { DestroyService } from "./destroy-service"
 // State management services
 export { ApproveExpenseClaimService } from "./approve-expense-claim-service"
 export { ApproveService } from "./approve-service"
+export { DenyExpenseClaimService } from "./deny-expense-claim-service"
 export { DenyService } from "./deny-service"
 export { ExpenseClaimService } from "./expense-claim-service"
 export { ExpenseService } from "./expense-service"

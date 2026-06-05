@@ -107,8 +107,8 @@ async function expense() {
 async function deny() {
   isDenying.value = true
   try {
-    await travelAuthorizationsApi.deny(props.travelAuthorizationId)
-    snack.success("Travel authorization denied!")
+    await travelAuthorizationsApi.denyExpenseClaim(props.travelAuthorizationId)
+    snack.success("Expense claim denied!")
     await refresh()
     emit("denied", props.travelAuthorizationId)
   } catch (error) {

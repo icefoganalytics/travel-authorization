@@ -3,7 +3,7 @@ import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
 
-export class DenyService extends BaseService {
+export class DenyExpenseClaimService extends BaseService {
   private travelAuthorization: TravelAuthorization
   private denialReason: string | null
   private denier: User
@@ -16,22 +16,22 @@ export class DenyService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorization> {
-    if (this.travelAuthorization.status !== TravelAuthorization.Statuses.SUBMITTED) {
+    if (this.travelAuthorization.status !== TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED) {
       throw new Error(
-        "Travel authorization must be in submitted state to deny."
+        "Travel authorization must be in expense claim submitted state to deny expense claim."
       )
     }
 
     await db.transaction(async () => {
       await this.travelAuthorization.update({
         denialReason: this.denialReason,
-        status: TravelAuthorization.Statuses.DENIED,
+        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_DENIED,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
         actorId: this.denier.id,
         assigneeId: this.travelAuthorization.userId,
-        action: TravelAuthorizationActionLog.Actions.DENIED,
+        action: TravelAuthorizationActionLog.Actions.EXPENSE_CLAIM_DENIED,
       })
     })
 
@@ -39,4 +39,4 @@ export class DenyService extends BaseService {
   }
 }
 
-export default DenyService
+export default DenyExpenseClaimService

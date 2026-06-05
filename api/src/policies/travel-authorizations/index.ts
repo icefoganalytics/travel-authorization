@@ -1,5 +1,6 @@
 export { ApprovePolicy } from "./approve-policy"
 export { ApproveStatePolicy } from "./approve-state-policy"
+export { DenyExpenseClaimPolicy } from "./deny-expense-claim-policy"
 export { DenyPolicy } from "./deny-policy"
 export { DraftStatePolicy } from "./draft-state-policy"
 export { ExpenseClaimPolicy } from "./expense-claim-policy"

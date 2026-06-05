@@ -330,6 +330,18 @@ export const travelAuthorizationsApi = {
     )
     return data
   },
+  async denyExpenseClaim(
+    travelAuthorizationId: number,
+    attributes: { denialReason?: string } = {}
+  ): Promise<{
+    travelAuthorization: TravelAuthorizationAsShow
+  }> {
+    const { data } = await http.post(
+      `/api/travel-authorizations/${travelAuthorizationId}/deny-expense-claim`,
+      attributes
+    )
+    return data
+  },
   async expenseClaim(
     travelAuthorizationId: number,
     attributes: Partial<TravelAuthorization>
