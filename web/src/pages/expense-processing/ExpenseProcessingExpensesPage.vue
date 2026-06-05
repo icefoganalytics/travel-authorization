@@ -35,9 +35,11 @@
     <v-row>
       <v-col>
         <h3>Coding</h3>
-        <GeneralLedgerCodingsTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        <GeneralLedgerCodingsEditDataTableServer
+          :where="{ travelAuthorizationId: travelAuthorizationIdAsNumber }"
+          @changed="emit('updated')"
+        />
       </v-col>
-      <v-col cols="4"></v-col>
     </v-row>
     <v-row>
       <v-col>
@@ -59,7 +61,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import { ExpenseExpenseTypes } from "@/api/expenses-api"
 import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
-import GeneralLedgerCodingsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/GeneralLedgerCodingsTable.vue"
+import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
 import ManagementCard from "@/modules/travel-authorizations/components/manage-travel-authorization-expense-page/ManagementCard.vue"
 import TotalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/TotalsTable.vue"
 
