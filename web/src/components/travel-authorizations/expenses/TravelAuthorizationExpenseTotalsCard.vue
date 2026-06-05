@@ -3,42 +3,34 @@
     v-if="isLoading"
     type="table-heading@3"
   />
-  <v-card v-else>
-    <v-row>
-      <v-col
-        cols="6"
-        class="text-right"
-        >Subtotal Claim:</v-col
-      >
-      <v-col cols="6">{{ formatCurrency(subTotalClaim) }}</v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        cols="6"
-        class="text-right"
-        >Travel Advance:</v-col
-      >
-      <v-col cols="6">
-        <div class="single-underline d-inline-block">
-          {{ formatCurrency(travelAdvance) }}
-        </div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        cols="6"
-        class="text-right"
-      >
-        <strong>Total Claim:</strong>
-      </v-col>
-      <v-col cols="6">
-        <div class="double-underline d-inline-block">
-          <strong>
-            {{ formatCurrency(totalClaim) }}
-          </strong>
-        </div>
-      </v-col>
-    </v-row>
+  <v-card
+    v-else
+    class="pa-6"
+  >
+    <table class="accounting-totals">
+      <tbody>
+        <tr>
+          <th scope="row">Subtotal Claim:</th>
+          <td>{{ formatCurrency(subTotalClaim) }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Travel Advance:</th>
+          <td>
+            <span class="single-underline">
+              {{ formatCurrency(travelAdvance, "CAD", { style: "decimal" }) }}
+            </span>
+          </td>
+        </tr>
+        <tr class="accounting-total">
+          <th scope="row">Total Claim:</th>
+          <td>
+            <span class="double-underline">
+              {{ formatCurrency(totalClaim) }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </v-card>
 </template>
 
@@ -76,6 +68,34 @@ const totalClaim = computed(() => subTotalClaim.value - travelAdvance.value)
 </script>
 
 <style scoped>
+.accounting-totals {
+  border-collapse: separate;
+  border-spacing: 0 1rem;
+  margin: 0 auto;
+}
+
+.accounting-totals th {
+  font-weight: normal;
+  padding-right: 0.75rem;
+  text-align: right;
+}
+
+.accounting-totals td {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.accounting-total th,
+.accounting-total td {
+  font-weight: bold;
+}
+
+.single-underline,
+.double-underline {
+  display: inline-block;
+}
+
 .single-underline {
   border-bottom: 1px solid;
 }
