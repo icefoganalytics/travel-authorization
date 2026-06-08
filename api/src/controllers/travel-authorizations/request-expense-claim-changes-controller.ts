@@ -29,9 +29,11 @@ export class RequestExpenseClaimChangesController extends BaseController {
         })
       }
 
+      const { requestChange } = this.request.body
       const updatedTravelAuthorization =
         await TravelAuthorizations.RequestExpenseClaimChangesService.perform(
           travelAuthorization,
+          requestChange,
           this.currentUser
         )
       const serializedTravelAuthorization = ShowSerializer.perform(updatedTravelAuthorization)

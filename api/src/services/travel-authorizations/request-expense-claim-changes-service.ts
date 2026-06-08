@@ -1,3 +1,5 @@
+import { isEmpty, isNil } from "lodash"
+
 import db from "@/db/db-client"
 
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
@@ -6,11 +8,17 @@ import BaseService from "@/services/base-service"
 
 export class RequestExpenseClaimChangesService extends BaseService {
   private travelAuthorization: TravelAuthorization
+  private requestChange: string | null
   private currentUser: User
 
-  constructor(travelAuthorization: TravelAuthorization, currentUser: User) {
+  constructor(
+    travelAuthorization: TravelAuthorization,
+    requestChange: string | null,
+    currentUser: User
+  ) {
     super()
     this.travelAuthorization = travelAuthorization
+    this.requestChange = requestChange
     this.currentUser = currentUser
   }
 
@@ -21,8 +29,13 @@ export class RequestExpenseClaimChangesService extends BaseService {
       )
     }
 
+    if (isNil(this.requestChange) || isEmpty(this.requestChange)) {
+      throw new Error("Request change reason is required.")
+    }
+
     await db.transaction(async () => {
       await this.travelAuthorization.update({
+        requestChange: this.requestChange,
         status: TravelAuthorization.Statuses.EXPENSE_CLAIM_CHANGES_REQUESTED,
       })
       await TravelAuthorizationActionLog.create({
@@ -30,6 +43,7 @@ export class RequestExpenseClaimChangesService extends BaseService {
         actorId: this.currentUser.id,
         assigneeId: this.travelAuthorization.userId,
         action: TravelAuthorizationActionLog.Actions.EXPENSE_CLAIM_CHANGES_REQUESTED,
+        note: this.requestChange,
       })
     })
 

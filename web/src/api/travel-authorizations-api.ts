@@ -360,11 +360,15 @@ export const travelAuthorizationsApi = {
     const { data } = await http.post(`/api/travel-authorizations/${travelAuthorizationId}/expense`)
     return data
   },
-  async requestExpenseClaimChanges(travelAuthorizationId: number): Promise<{
+  async requestExpenseClaimChanges(
+    travelAuthorizationId: number,
+    attributes: { requestChange?: string } = {}
+  ): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(
-      `/api/travel-authorizations/${travelAuthorizationId}/request-expense-claim-changes`
+      `/api/travel-authorizations/${travelAuthorizationId}/request-expense-claim-changes`,
+      attributes
     )
     return data
   },

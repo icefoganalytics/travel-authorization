@@ -37,7 +37,6 @@
         <v-btn
           block
           variant="outlined"
-          :loading="isRequestingExpenseClaimChanges"
           @click="sendBackToTraveler"
         >
           Send Back to Traveler
@@ -56,6 +55,10 @@
         </v-btn>
       </v-col>
     </v-row>
+    <RequestExpenseClaimChangesDialog
+      ref="requestExpenseClaimChangesDialogRef"
+      @changes-requested="refreshAndEmitChangesRequested"
+    />
   </HeaderActionsCard>
 </template>
 
@@ -63,12 +66,15 @@
 import { ref, toRefs } from "vue"
 import { isNil } from "lodash"
 
+import travelAuthorizationsApi from "@/api/travel-authorizations-api"
+
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 
-import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import travelAuthorizationsApi from "@/api/travel-authorizations-api"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
+
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
+import RequestExpenseClaimChangesDialog from "@/components/travel-authorizations/finance/RequestExpenseClaimChangesDialog.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number
@@ -81,9 +87,11 @@ const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizat
 
 const snack = useSnack()
 
+const requestExpenseClaimChangesDialogRef = ref<InstanceType<
+  typeof RequestExpenseClaimChangesDialog
+> | null>(null)
 const isExpensing = ref(false)
 const isDenying = ref(false)
-const isRequestingExpenseClaimChanges = ref(false)
 
 async function expense() {
   if (
@@ -121,19 +129,13 @@ async function deny() {
   }
 }
 
-async function sendBackToTraveler() {
-  isRequestingExpenseClaimChanges.value = true
-  try {
-    await travelAuthorizationsApi.requestExpenseClaimChanges(props.travelAuthorizationId)
-    snack.success("Expense claim changes requested!")
-    await refresh()
-    emit("changesRequested", props.travelAuthorizationId)
-  } catch (error) {
-    console.error(`Failed to request expense claim changes: ${error}`, { error })
-    snack.error(`Failed to request expense claim changes: ${error}`)
-  } finally {
-    isRequestingExpenseClaimChanges.value = false
-  }
+function sendBackToTraveler() {
+  requestExpenseClaimChangesDialogRef.value?.open(props.travelAuthorizationId)
+}
+
+async function refreshAndEmitChangesRequested(travelAuthorizationId: number) {
+  await refresh()
+  emit("changesRequested", travelAuthorizationId)
 }
 
 async function sendBackToSupervisor() {
