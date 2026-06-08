@@ -3,6 +3,7 @@ import { isEmpty, isNil } from "lodash"
 import db from "@/db/db-client"
 
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
+import type { TravelAuthorizationStatuses } from "@/models/travel-authorization"
 
 import BaseService from "@/services/base-service"
 
@@ -23,9 +24,14 @@ export class RequestExpenseClaimChangesService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorization> {
-    if (this.travelAuthorization.status !== TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED) {
+    if (
+      ![
+        TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
+        TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED,
+      ].includes(this.travelAuthorization.status as TravelAuthorizationStatuses)
+    ) {
       throw new Error(
-        "Travel authorization must be in expense claim submitted state to request changes."
+        "Travel authorization must be in expense claim submitted or approved state to request changes."
       )
     }
 
