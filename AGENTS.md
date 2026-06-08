@@ -150,6 +150,7 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 - **Error notifications:** `console.error(...)` before `snack.error(...)`
 - **Shared formatters:** Prefer `@/utils/formatters` over local inline formatters
 - **Reactivity:** Use `toRefs(props)` when passing props to composables
+- **Event handler naming:** Name by effect, not trigger. Use `refreshAndEmitChangesRequested` over `handleChangesRequested`, `openExpenseRejectDialog` over `handleExpenseReject`. Describing the outcome makes the function reusable when a different trigger invokes the same behavior.
 
 **Import ordering (PEP8-style):** builtins → blank → externals → blank → `@/` internals. Within `@/` internals, group by conceptual distance with blank lines between groups. The typical order is:
 
