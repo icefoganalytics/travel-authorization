@@ -35,12 +35,12 @@ This workflow covers the process of creating and editing well-structured pull re
 
 ```bash
 # Create draft PR via gh api (preferred)
-cat <<'EOF' | gh api repos/{owner}/{repo}/pulls -X POST \
+gh api repos/{owner}/{repo}/pulls -X POST \
   -f title="Title here" \
   -f head="branch-name" \
   -f base="main" \
   -f draft=true \
-  -f body=@-
+  -f body="$(cat <<'EOF'
 Part of <url>
 
 Relates to:
@@ -270,14 +270,15 @@ Follow [`./testing-instructions-workflow.md`](./testing-instructions-workflow.md
 git push -u origin HEAD
 
 # Create draft PR via gh api
-cat <<'EOF' | gh api repos/{owner}/{repo}/pulls -X POST \
+gh api repos/{owner}/{repo}/pulls -X POST \
   -f title="Title" \
   -f head="$(git branch --show-current)" \
   -f base="main" \
   -f draft=true \
-  -f body=@-
+  -f body="$(cat <<'EOF'
 [Body content]
 EOF
+)"
 ```
 
 To mark a draft PR as ready for review:
