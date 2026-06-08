@@ -1,52 +1,52 @@
 <template>
-  <div class="mt-4">
+  <div>
     <v-row>
       <v-col>
-        <h3>Traveler Expenses</h3>
-        <ExpensesEditDataTableServer
-          :where="travelerExpensesWhere"
-          route-query-suffix="TravelerExpenses"
-          @changed="emit('updated')"
-        >
-          <template #footerNote>
-            <span class="text-body-2 text-none">
-              * Meals and Incidentals are not included in this table.
-            </span>
-          </template>
-        </ExpensesEditDataTableServer>
+        <HeaderActionsCard title="Traveler Expenses">
+          <ExpensesEditDataTableServer
+            :where="travelerExpensesWhere"
+            route-query-suffix="TravelerExpenses"
+            @changed="emit('updated')"
+          >
+            <template #footerNote>
+              <span class="text-body-2 text-none">
+                * Meals and Incidentals are not included in this table.
+              </span>
+            </template>
+          </ExpensesEditDataTableServer>
+        </HeaderActionsCard>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <h3>Meals and Incidentals</h3>
-        <ExpensesEditDataTableServer
-          :where="mealsAndIncidentalsWhere"
-          route-query-suffix="MealsAndIncidentals"
-          @changed="emit('updated')"
-        />
+        <HeaderActionsCard title="Meals and Incidentals">
+          <ExpensesEditDataTableServer
+            :where="mealsAndIncidentalsWhere"
+            route-query-suffix="MealsAndIncidentals"
+            @changed="emit('updated')"
+          />
+        </HeaderActionsCard>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <h3>Totals</h3>
         <TravelAuthorizationExpenseTotalsCard
-          class="py-4"
           :travel-authorization-id="travelAuthorizationIdAsNumber"
         />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <h3>Coding</h3>
-        <GeneralLedgerCodingsEditDataTableServer
-          :where="generalLedgerCodingsWhere"
-          @changed="emit('updated')"
-        />
+        <HeaderActionsCard title="Coding">
+          <GeneralLedgerCodingsEditDataTableServer
+            :where="generalLedgerCodingsWhere"
+            @changed="emit('updated')"
+          />
+        </HeaderActionsCard>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <h3>Management</h3>
         <FinanceManagementCard
           :travel-authorization-id="travelAuthorizationIdAsNumber"
           @approved="emit('updated')"
@@ -64,6 +64,8 @@ import { computed } from "vue"
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import { ExpenseExpenseTypes } from "@/api/expenses-api"
+
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
 import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
 import FinanceManagementCard from "@/components/travel-authorizations/finance/TravelAuthorizationFinanceManagementCard.vue"

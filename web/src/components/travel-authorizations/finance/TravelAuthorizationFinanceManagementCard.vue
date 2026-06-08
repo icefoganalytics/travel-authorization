@@ -3,61 +3,60 @@
     v-if="isNil(travelAuthorization)"
     type="card"
   />
-  <v-card v-else>
-    <v-form ref="form">
-      <v-card-text>
-        <v-row>
-          <v-col
-            cols="12"
-            md="4"
-            class="d-flex ga-2"
-          >
-            <v-btn
-              class="flex-grow-1"
-              color="success"
-              :loading="isExpensing"
-              @click="expense"
-            >
-              Approve
-            </v-btn>
-            <v-btn
-              class="flex-grow-1"
-              color="error"
-              :loading="isDenying"
-              @click="deny"
-            >
-              Deny
-            </v-btn>
-          </v-col>
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <v-btn
-              block
-              variant="outlined"
-              :loading="isRequestingExpenseClaimChanges"
-              @click="sendBackToTraveler"
-            >
-              Send to User
-            </v-btn>
-          </v-col>
-          <v-col
-            cols="12"
-            md="3"
-          >
-            <v-btn
-              block
-              variant="outlined"
-              @click="sendBackToSupervisor"
-            >
-              Send to Supervisor
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-form>
-  </v-card>
+  <HeaderActionsCard
+    v-else
+    title="Management"
+  >
+    <v-row>
+      <v-col
+        cols="12"
+        md="4"
+        class="d-flex ga-2"
+      >
+        <v-btn
+          class="flex-grow-1"
+          color="success"
+          :loading="isExpensing"
+          @click="expense"
+        >
+          Approve
+        </v-btn>
+        <v-btn
+          class="flex-grow-1"
+          color="error"
+          :loading="isDenying"
+          @click="deny"
+        >
+          Deny
+        </v-btn>
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <v-btn
+          block
+          variant="outlined"
+          :loading="isRequestingExpenseClaimChanges"
+          @click="sendBackToTraveler"
+        >
+          Send Back to Traveler
+        </v-btn>
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+      >
+        <v-btn
+          block
+          variant="outlined"
+          @click="sendBackToSupervisor"
+        >
+          Send Back to Supervisor
+        </v-btn>
+      </v-col>
+    </v-row>
+  </HeaderActionsCard>
 </template>
 
 <script setup lang="ts">
@@ -66,8 +65,9 @@ import { isNil } from "lodash"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 
-import useSnack from "@/use/use-snack"
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import travelAuthorizationsApi from "@/api/travel-authorizations-api"
+import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 const props = defineProps<{

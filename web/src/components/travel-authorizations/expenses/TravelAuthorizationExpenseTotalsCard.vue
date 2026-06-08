@@ -3,9 +3,9 @@
     v-if="isLoading"
     type="table-heading@3"
   />
-  <v-card
+  <HeaderActionsCard
     v-else
-    class="pa-6"
+    title="Totals"
   >
     <table class="accounting-totals">
       <tbody>
@@ -31,7 +31,7 @@
         </tr>
       </tbody>
     </table>
-  </v-card>
+  </HeaderActionsCard>
 </template>
 
 <script setup lang="ts">
@@ -41,6 +41,8 @@ import { formatCurrency } from "@/utils/formatters"
 
 import useExpenses, { ExpenseTypes } from "@/use/use-expenses"
 import useTravelAuthorization from "@/use/use-travel-authorization"
+
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number

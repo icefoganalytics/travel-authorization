@@ -1,10 +1,5 @@
 <template>
   <div>
-    <SummaryHeaderPanel
-      ref="summaryHeaderPanel"
-      :travel-authorization-id="travelAuthorizationIdAsNumber"
-    />
-
     <v-tabs>
       <v-tab
         :to="{
@@ -28,11 +23,19 @@
       </v-tab>
     </v-tabs>
 
+    <SummaryHeaderPanel
+      ref="summaryHeaderPanel"
+      :travel-authorization-id="travelAuthorizationIdAsNumber"
+      class="mt-4"
+    />
+
     <router-view v-slot="{ Component }">
-      <component
-        :is="Component"
-        @updated="refresh"
-      />
+      <div class="mt-6">
+        <component
+          :is="Component"
+          @updated="refresh"
+        />
+      </div>
     </router-view>
 
     <v-row class="mt-md-10 mt-5">
