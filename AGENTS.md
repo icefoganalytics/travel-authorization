@@ -110,6 +110,7 @@ npx prettier --write .          # Auto-fix formatting
 Detailed backend guidance lives close to the code it governs (see links above).
 
 **Request flow:**
+
 ```
 Route → BaseController (instance) → Service (.perform()) → Model/Sequelize
          ├─ buildWhere() merges overridable + ?where params + non-overridable where
@@ -150,7 +151,15 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 - **Shared formatters:** Prefer `@/utils/formatters` over local inline formatters
 - **Reactivity:** Use `toRefs(props)` when passing props to composables
 
-**Import ordering (PEP8-style):** builtins → blank → externals → blank → `@/` internals. Within internals, group by conceptual distance (config → composables/helpers → components), then alphabetical.
+**Import ordering (PEP8-style):** builtins → blank → externals → blank → `@/` internals. Within `@/` internals, group by conceptual distance with blank lines between groups. The typical order is:
+
+1. `@/utils` + `@/use/utils` (utility functions and composables — no blank line between them)
+2. `@/api` (API types and values)
+3. `@/use` (domain composables)
+4. `@/components/common` (common UI components — always first within components)
+5. `@/components/{domain}` (other components, alphabetical by path)
+
+Within each group, alphabetical by import variable name is preferred.
 
 ### Component Naming Convention
 
@@ -159,6 +168,7 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 ### Architecture Patterns
 
 **Data flow:**
+
 ```
 Page → Composable (use{Resource}) → API module ({domain}Api.list()) → http-client (Axios)
                                                                       ├─ qs with arrayFormat: "indices"
@@ -176,6 +186,7 @@ All routes are children of `DefaultLayout.vue`. Breadcrumb-enabled routes nest u
 Route names use dotted URL-like paths: `"my-travel-requests/MyTravelRequestsPage"`. Page file paths mirror route paths under `web/src/pages/`. Catch-all `"/:pathMatch(.*)*"` → `NotFoundPage`.
 
 **Sorting/Query pipeline:**
+
 ```
 v-data-table sortBy → useVuetifySortByToSafeRouteQuery (serializes as "key_order")
     → URL query param → useVuetifySortByToSequelizeSafeOrder (splits nested keys on ".")
@@ -193,6 +204,7 @@ v-data-table sortBy → useVuetifySortByToSafeRouteQuery (serializes as "key_ord
 | test_web | Web test container | — |
 
 **Toolchain quirks:**
+
 - **Sequelize 7 alpha** + Knex 3 for migrations (separate tooling, not managed by Sequelize)
 - **Two tsconfigs per service**: main + `tests/tsconfig.json` extending it
 - Puppeteer/Chromium in production: `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true`
@@ -222,6 +234,7 @@ Key variables: `AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, `AZURE_KEY`, database config, `
 See [`COMMITTING.md`](COMMITTING.md) for detailed commit message, PR description, and testing instructions guidance.
 
 **Pre-submission:**
+
 - All tests pass via `dev test`
 - Type checking passes via `dev check-types`
 - Prettier formatting passes: `npx prettier --check .`
@@ -245,6 +258,7 @@ See [`COMMITTING.md`](COMMITTING.md) for detailed commit message, PR description
 See [`agents/README.md`](agents/README.md) and [`agents/workflows/README.md`](agents/workflows/README.md) for available workflows and usage patterns.
 
 **Available workflows:**
+
 - `pull-request-management-workflow.md` - Creating and editing well-structured PRs
 - `convert-js-api-to-typescript-workflow.md` - Converting JavaScript APIs to TypeScript
 - `convert-js-plural-composable-to-typescript-workflow.md` - Converting composables to TypeScript
