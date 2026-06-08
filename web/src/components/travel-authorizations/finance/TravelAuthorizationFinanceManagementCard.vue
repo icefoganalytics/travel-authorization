@@ -59,11 +59,15 @@
       ref="requestExpenseClaimChangesDialogRef"
       @changes-requested="refreshAndEmitChangesRequested"
     />
+    <ReturnToExpenseClaimSubmittedDialog
+      ref="returnToExpenseClaimSubmittedDialogRef"
+      @returned-to-expense-claim-submitted="refreshAndEmitReturnedToExpenseClaimSubmitted"
+    />
   </HeaderActionsCard>
 </template>
 
 <script setup lang="ts">
-import { ref, toRefs } from "vue"
+import { ref, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
 import travelAuthorizationsApi from "@/api/travel-authorizations-api"
@@ -75,21 +79,24 @@ import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import RequestExpenseClaimChangesDialog from "@/components/travel-authorizations/finance/RequestExpenseClaimChangesDialog.vue"
+import ReturnToExpenseClaimSubmittedDialog from "@/components/travel-authorizations/finance/ReturnToExpenseClaimSubmittedDialog.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number
 }>()
 
-const emit = defineEmits(["approved", "denied", "changesRequested"])
+const emit = defineEmits<{
+  approved: [travelAuthorizationId: number]
+  denied: [travelAuthorizationId: number]
+  changesRequested: [travelAuthorizationId: number]
+  returnedToExpenseClaimSubmitted: [travelAuthorizationId: number]
+}>()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizationId)
 
 const snack = useSnack()
 
-const requestExpenseClaimChangesDialogRef = ref<InstanceType<
-  typeof RequestExpenseClaimChangesDialog
-> | null>(null)
 const isExpensing = ref(false)
 const isDenying = ref(false)
 
@@ -129,6 +136,8 @@ async function deny() {
   }
 }
 
+const requestExpenseClaimChangesDialogRef = useTemplateRef("requestExpenseClaimChangesDialogRef")
+
 function sendBackToTraveler() {
   requestExpenseClaimChangesDialogRef.value?.open(props.travelAuthorizationId)
 }
@@ -138,7 +147,16 @@ async function refreshAndEmitChangesRequested(travelAuthorizationId: number) {
   emit("changesRequested", travelAuthorizationId)
 }
 
-async function sendBackToSupervisor() {
-  snack.warning("Send back to supervisor — not yet implemented.")
+const returnToExpenseClaimSubmittedDialogRef = useTemplateRef(
+  "returnToExpenseClaimSubmittedDialogRef"
+)
+
+function sendBackToSupervisor() {
+  returnToExpenseClaimSubmittedDialogRef.value?.open(props.travelAuthorizationId)
+}
+
+async function refreshAndEmitReturnedToExpenseClaimSubmitted(travelAuthorizationId: number) {
+  await refresh()
+  emit("returnedToExpenseClaimSubmitted", travelAuthorizationId)
 }
 </script>
