@@ -36,6 +36,7 @@
             <v-btn
               block
               variant="outlined"
+              :loading="isRequestingExpenseClaimChanges"
               @click="sendBackToTraveler"
             >
               Send to User
@@ -73,7 +74,7 @@ const props = defineProps<{
   travelAuthorizationId: number
 }>()
 
-const emit = defineEmits(["approved", "denied"])
+const emit = defineEmits(["approved", "denied", "changesRequested"])
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizationId)
@@ -82,6 +83,7 @@ const snack = useSnack()
 
 const isExpensing = ref(false)
 const isDenying = ref(false)
+const isRequestingExpenseClaimChanges = ref(false)
 
 async function expense() {
   if (
@@ -120,7 +122,18 @@ async function deny() {
 }
 
 async function sendBackToTraveler() {
-  snack.warning("Send back to user — not yet implemented.")
+  isRequestingExpenseClaimChanges.value = true
+  try {
+    await travelAuthorizationsApi.requestExpenseClaimChanges(props.travelAuthorizationId)
+    snack.success("Expense claim changes requested!")
+    await refresh()
+    emit("changesRequested", props.travelAuthorizationId)
+  } catch (error) {
+    console.error(`Failed to request expense claim changes: ${error}`, { error })
+    snack.error(`Failed to request expense claim changes: ${error}`)
+  } finally {
+    isRequestingExpenseClaimChanges.value = false
+  }
 }
 
 async function sendBackToSupervisor() {
