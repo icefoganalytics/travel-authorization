@@ -90,6 +90,15 @@ Prefer common factories from `@/factories`:
 - `generalLedgerCodingFactory`
 - `travelSegmentFactory`
 
+**Admin users:** `User.isAdmin` is a virtual getter (`this.roles.includes("admin")`) with no setter. Fishery merges factory overrides with `lodash.mergeWith`, which reads property descriptors — getter-only properties are skipped at runtime, so passing `{ isAdmin: true }` to `userFactory.create()` has no effect. Use `roles: [User.Roles.ADMIN]` instead:
+
+```typescript
+import { User } from "@/models"
+
+const admin = await userFactory.create({ roles: [User.Roles.ADMIN] })
+const nonAdmin = await userFactory.create({ roles: [User.Roles.USER] })
+```
+
 Prefer one strong assertion:
 
 ```typescript
