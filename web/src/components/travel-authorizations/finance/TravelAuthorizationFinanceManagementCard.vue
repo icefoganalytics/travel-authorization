@@ -122,6 +122,10 @@ async function expense() {
 }
 
 async function deny() {
+  if (!blockedToTrueConfirm("Are you sure you want to deny this expense claim?")) {
+    return
+  }
+
   isDenying.value = true
   try {
     await travelAuthorizationsApi.denyExpenseClaim(props.travelAuthorizationId)

@@ -73,6 +73,8 @@ import { useRouter } from "vue-router"
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 import { required } from "@/utils/validators"
 
+import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
+
 import useSnack from "@/use/use-snack"
 import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useTravelAuthorization from "@/use/use-travel-authorization"
@@ -152,6 +154,10 @@ async function approveExpenseClaim() {
 }
 
 async function denyExpenseClaim() {
+  if (!blockedToTrueConfirm("Are you sure you want to deny this expense claim?")) {
+    return
+  }
+
   try {
     await travelAuthorizationApi.denyExpenseClaim(props.travelAuthorizationId)
     snack.success("Expense claim denied!")
