@@ -57,7 +57,7 @@
         <ManagementCard
           :travel-authorization-id="travelAuthorizationIdAsNumber"
           @approved="emit('updated')"
-          @rejected="emit('updated')"
+          @denied="emit('updated')"
         />
       </v-col>
     </v-row>
