@@ -1,6 +1,8 @@
 <template>
   <div class="mt-4">
-    <EstimatesTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+    <HeaderActionsCard title="Estimates">
+      <EstimatesTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+    </HeaderActionsCard>
   </div>
 </template>
 
@@ -8,6 +10,8 @@
 import { computed } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
 import EstimatesTable from "@/modules/travel-authorizations/components/read-travel-authorization-estimate-page/EstimatesTable.vue"
 
