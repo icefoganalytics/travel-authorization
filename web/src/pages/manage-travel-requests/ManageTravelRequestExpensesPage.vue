@@ -2,27 +2,55 @@
   <div class="mt-4">
     <v-row>
       <v-col>
-        <h3>Traveler Expenses</h3>
-        <ExpensesTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
-        * Meals and Incidentals are not included in this table.
+        <HeaderActionsCard title="Traveler Expenses">
+          <ExpensesEditDataTableServer
+            :where="travelerExpensesWhere"
+            route-query-suffix="TravelerExpenses"
+            @changed="emit('updated')"
+          >
+            <template #footerNote>
+              <span class="text-body-2 text-none">
+                * Meals and Incidentals are not included in this table.
+              </span>
+            </template>
+          </ExpensesEditDataTableServer>
+        </HeaderActionsCard>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <h3>Meals and Incidentals</h3>
-        <MealsAndIncidentalsTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        <HeaderActionsCard title="Meals and Incidentals">
+          <ExpensesEditDataTableServer
+            :where="mealsAndIncidentalsWhere"
+            route-query-suffix="MealsAndIncidentals"
+            @changed="emit('updated')"
+          />
+        </HeaderActionsCard>
       </v-col>
       <v-col>
-        <h3>Totals</h3>
-        <TotalsTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        <TravelAuthorizationExpenseTotalsCard
+          :travel-authorization-id="travelAuthorizationIdAsNumber"
+        />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <h3>Coding</h3>
-        <GeneralLedgerCodingsTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+        <HeaderActionsCard title="Coding">
+          <template #header-actions>
+            <GeneralLedgerCodingCreateDialog
+              :travel-authorization-id="travelAuthorizationIdAsNumber"
+              :activator-props="{
+                class: 'my-0',
+              }"
+              @created="emit('updated')"
+            />
+          </template>
+          <GeneralLedgerCodingsEditDataTableServer
+            :where="generalLedgerCodingsWhere"
+            @changed="emit('updated')"
+          />
+        </HeaderActionsCard>
       </v-col>
-      <v-col cols="4"></v-col>
     </v-row>
     <v-row>
       <v-col>
@@ -37,28 +65,45 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
+
+import { ExpenseExpenseTypes } from "@/api/expenses-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import ExpensesTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/ExpensesTable.vue"
-import GeneralLedgerCodingsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/GeneralLedgerCodingsTable.vue"
-import MealsAndIncidentalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/MealsAndIncidentalsTable.vue"
-import TotalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/TotalsTable.vue"
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
+import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
+import GeneralLedgerCodingCreateDialog from "@/components/general-ledger-codings/GeneralLedgerCodingCreateDialog.vue"
+import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
+
+import TravelAuthorizationExpenseTotalsCard from "@/components/travel-authorizations/expenses/TravelAuthorizationExpenseTotalsCard.vue"
 import ManagementCard from "@/modules/travel-authorizations/components/manage-travel-authorization-expense-page/ManagementCard.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: String,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: string
+}>()
 
-const emit = defineEmits(["updated"])
+const emit = defineEmits<{
+  updated: [void]
+}>()
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+
+const travelerExpensesWhere = computed(() => ({
+  travelAuthorizationId: travelAuthorizationIdAsNumber.value,
+  expenseType: [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION],
+}))
+
+const mealsAndIncidentalsWhere = computed(() => ({
+  travelAuthorizationId: travelAuthorizationIdAsNumber.value,
+  expenseType: ExpenseExpenseTypes.MEALS_AND_INCIDENTALS,
+}))
+
+const generalLedgerCodingsWhere = computed(() => ({
+  travelAuthorizationId: travelAuthorizationIdAsNumber.value,
+}))
 
 useBreadcrumbs([
   {
