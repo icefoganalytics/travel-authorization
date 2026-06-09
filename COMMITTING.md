@@ -5,6 +5,7 @@
 Before writing your commit message, answer this:
 
 **Is this a multi-part or complex change?**
+
 - Yes → Use bullet points (see "When to use bullet points" below)
 - No → Use conversational prose (see "When NOT to use bullet points" below)
 
@@ -13,6 +14,7 @@ Then follow the sections below for format and details.
 ## Commit Message Checklist
 
 Before committing, verify:
+
 - [ ] Subject line describes outcome/why, not what was added
 - [ ] Subject line ends with a period
 - [ ] Used correct emoji (see Emoji guidance below)
@@ -142,6 +144,32 @@ Focus on:
 Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
 
 For secondary cleanup items bundled with a primary change, a brief "Also do some general cleanup and code clarity alignment" is preferable to enumerating specific fixes. The diff already shows the details; the body should explain why, not what.
+
+### Renames and refactors (:truck:, :recycle:)
+
+Renames and refactors are especially prone to "what" bodies that list every renamed file, symbol, or target. Resist this. The diff already shows what moved where. Instead, explain what confusion or ambiguity the old naming caused and what the new naming makes clearer. Ask yourself: "What would someone misunderstand if they saw the old name without context?"
+
+Bad — lists mechanics instead of motivation:
+
+```text
+:truck: Rename ExpenseClaimService to SubmitExpenseClaimService.
+
+Updates the service class, controller, policy, and route to use the new name.
+The service now also accepts EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED as a source
+state and sets wizardStepName on the transition.
+```
+
+Good — explains why the old name was confusing and what improves:
+
+```text
+:truck: Rename ExpenseClaimService to SubmitExpenseClaimService.
+
+The old name did not describe the action, making it easy to confuse with other
+expense-claim services that approve, deny, or request changes. The new name aligns
+with the VerbExpenseClaim pattern and clarifies what the service does on sight.
+```
+
+Notice the good version says nothing about which files were renamed or what fields were added — the diff shows that. The body answers the question a future reader would actually have: "why was this renamed?"
 
 ## General rules
 
