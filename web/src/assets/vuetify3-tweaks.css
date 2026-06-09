@@ -1,0 +1,10 @@
+/* VTextField hint text is clipped at the bottom because .v-input__details
+   has no bottom padding. Vuetify has no defaults prop for this. */
+.v-text-field .v-input__details {
+  padding-bottom: 4px;
+}
+
+/* Default line-height is too tight for multi-line hint text. */
+.v-text-field .v-messages__message {
+  line-height: 1.4;
+}
