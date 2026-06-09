@@ -12,20 +12,24 @@
             md="4"
             class="d-flex ga-2"
           >
-            <v-btn
+            <ConditionalTooltipButton
               class="flex-grow-1"
               color="success"
-              @click="approve"
+              :disabled="!canApproveOrDeny"
+              tooltip-text="Only available when the expense claim is awaiting your approval."
+              @click="approveExpenseClaim"
             >
               Approve
-            </v-btn>
-            <v-btn
+            </ConditionalTooltipButton>
+            <ConditionalTooltipButton
               class="flex-grow-1"
               color="error"
-              @click="deny"
+              :disabled="!canApproveOrDeny"
+              tooltip-text="Only available when the expense claim is awaiting your approval."
+              @click="denyExpenseClaim"
             >
               Deny
-            </v-btn>
+            </ConditionalTooltipButton>
           </v-col>
           <v-col
             cols="12"
@@ -61,23 +65,28 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, toRefs, useTemplateRef } from "vue"
+import { computed, nextTick, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
+import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 import { required } from "@/utils/validators"
 
 import useSnack from "@/use/use-snack"
 import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
+import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number
 }>()
 
-const emit = defineEmits(["approved", "denied"])
+const emit = defineEmits<{
+  approved: [travelAuthorizationId: number]
+  denied: [travelAuthorizationId: number]
+}>()
 
 const { travelAuthorizationId } = toRefs(props)
 const {
@@ -86,6 +95,16 @@ const {
   isLoading: isLoadingTravelAuthorization,
   save,
 } = useTravelAuthorization(travelAuthorizationId)
+
+const canApproveOrDeny = computed(() => {
+  if (isNil(travelAuthorization.value)) return false
+
+  const { status } = travelAuthorization.value
+  return (
+    status === TravelAuthorizationStatuses.EXPENSE_CLAIM_SUBMITTED ||
+    status === TravelAuthorizationStatuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED
+  )
+})
 
 const form = useTemplateRef("form")
 const snack = useSnack()
@@ -119,25 +138,25 @@ async function reassign() {
   }
 }
 
-async function approve() {
+async function approveExpenseClaim() {
   try {
     await travelAuthorizationApi.approveExpenseClaim(props.travelAuthorizationId)
-    snack.success("Travel authorization approved!")
+    snack.success("Expense claim approved!")
     emit("approved", props.travelAuthorizationId)
   } catch (error) {
-    console.error(`Failed to approve travel authorization: ${error}`, { error })
-    snack.error(`Failed to approve travel authorization: ${error}`)
+    console.error(`Failed to approve expense claim: ${error}`, { error })
+    snack.error(`Failed to approve expense claim: ${error}`)
   }
 }
 
-async function deny() {
+async function denyExpenseClaim() {
   try {
-    await travelAuthorizationApi.deny(props.travelAuthorizationId)
-    snack.success("Travel authorization denied!")
+    await travelAuthorizationApi.denyExpenseClaim(props.travelAuthorizationId)
+    snack.success("Expense claim denied!")
     emit("denied", props.travelAuthorizationId)
   } catch (error) {
-    console.error(`Failed to deny travel authorization: ${error}`, { error })
-    snack.error(`Failed to deny travel authorization: ${error}`)
+    console.error(`Failed to deny expense claim: ${error}`, { error })
+    snack.error(`Failed to deny expense claim: ${error}`)
   }
 }
 </script>

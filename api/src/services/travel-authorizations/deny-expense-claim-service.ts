@@ -2,6 +2,7 @@ import db from "@/db/db-client"
 
 import BaseService from "@/services/base-service"
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
+import { type TravelAuthorizationStatuses } from "@/models/travel-authorization"
 
 export class DenyExpenseClaimService extends BaseService {
   private travelAuthorization: TravelAuthorization
@@ -16,9 +17,14 @@ export class DenyExpenseClaimService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorization> {
-    if (this.travelAuthorization.status !== TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED) {
+    if (
+      ![
+        TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
+        TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
+      ].includes(this.travelAuthorization.status as TravelAuthorizationStatuses)
+    ) {
       throw new Error(
-        "Travel authorization must be in expense claim submitted state to deny expense claim."
+        "Travel authorization must be in expense claim submitted or expense claim supervisor changes requested state to deny expense claim."
       )
     }
 
