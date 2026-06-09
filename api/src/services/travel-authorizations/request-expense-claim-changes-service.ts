@@ -43,6 +43,7 @@ export class RequestExpenseClaimChangesService extends BaseService {
       await this.travelAuthorization.update({
         requestChange: this.requestChange,
         status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+        wizardStepName: TravelAuthorization.WizardStepNames.SUBMIT_EXPENSES,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
