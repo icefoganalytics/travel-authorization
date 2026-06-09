@@ -1,10 +1,5 @@
 <template>
   <div>
-    <SummaryHeaderPanel
-      ref="summaryHeaderPanel"
-      :travel-authorization-id="travelAuthorizationIdAsNumber"
-    />
-
     <v-tabs>
       <v-tab
         :to="{
@@ -35,6 +30,12 @@
       </v-tab>
       <!-- TODO: add in any tabs that you can normally see in manage mode -->
     </v-tabs>
+
+    <SummaryHeaderPanel
+      ref="summaryHeaderPanel"
+      :travel-authorization-id="travelAuthorizationIdAsNumber"
+      class="mt-4"
+    />
 
     <router-view v-slot="{ Component }">
       <component
