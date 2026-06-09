@@ -22,13 +22,13 @@
 <script setup>
 import { ref } from "vue"
 
-import { STATUSES } from "@/api/travel-authorizations-api"
+import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import TravelAuthorizationsSupervisorDataTableServer from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTableServer.vue"
 
 const whereClause = {
-  status: STATUSES.EXPENSE_CLAIM_SUBMITTED,
+  status: TravelAuthorizationStatuses.EXPENSE_CLAIM_SUBMITTED,
 }
 
 const travelAuthorizationsSupervisorDataTable = ref(null)

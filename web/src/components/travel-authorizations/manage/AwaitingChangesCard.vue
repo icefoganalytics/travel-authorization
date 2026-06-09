@@ -22,13 +22,16 @@
 <script setup>
 import { ref } from "vue"
 
-import { STATUSES } from "@/api/travel-authorizations-api"
+import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import TravelAuthorizationsSupervisorDataTableServer from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTableServer.vue"
 
 const whereClause = {
-  status: STATUSES.CHANGE_REQUESTED,
+  status: [
+    TravelAuthorizationStatuses.CHANGE_REQUESTED,
+    TravelAuthorizationStatuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
+  ],
 }
 
 const travelAuthorizationsSupervisorDataTable = ref(null)
