@@ -7,11 +7,7 @@ import { Users } from "@/services"
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
 import { type TravelAuthorizationStatuses } from "@/models/travel-authorization"
 
-// TODO: Rename ExpenseClaimService → SubmitExpenseClaimService and update the full
-// pipeline: SubmitExpenseClaimController, SubmitExpenseClaimPolicy, barrel re-exports,
-// route POST /expense-claim → /submit-expense-claim, and the test file. The verb "submit"
-// aligns with the EXPENSE_CLAIM_SUBMITTED status and action log entry this service produces.
-export class ExpenseClaimService extends BaseService {
+export class SubmitExpenseClaimService extends BaseService {
   private travelAuthorization: TravelAuthorization
   private supervisorEmail: string
   private currentUser: User
@@ -97,4 +93,4 @@ export class ExpenseClaimService extends BaseService {
   }
 }
 
-export default ExpenseClaimService
+export default SubmitExpenseClaimService

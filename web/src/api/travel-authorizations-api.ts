@@ -285,26 +285,6 @@ export const travelAuthorizationsApi = {
     await http.delete(`/api/travel-authorizations/${travelAuthorizationId}`)
   },
   // State Management Actions
-  async submit(
-    travelAuthorizationId: number,
-    attributes: TravelAuthorizationCreationAttributes
-  ): Promise<{
-    travelAuthorization: TravelAuthorizationAsShow
-  }> {
-    const { data } = await http.post(
-      `/api/travel-authorizations/${travelAuthorizationId}/submit`,
-      attributes
-    )
-    return data
-  },
-  async revertToDraft(travelAuthorizationId: number): Promise<{
-    travelAuthorization: TravelAuthorizationAsShow
-  }> {
-    const { data } = await http.post(
-      `/api/travel-authorizations/${travelAuthorizationId}/revert-to-draft`
-    )
-    return data
-  },
   async approve(travelAuthorizationId: number): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {
@@ -343,22 +323,18 @@ export const travelAuthorizationsApi = {
     )
     return data
   },
-  async expenseClaim(
-    travelAuthorizationId: number,
-    attributes: Partial<TravelAuthorization>
-  ): Promise<{
-    travelAuthorization: TravelAuthorizationAsShow
-  }> {
-    const { data } = await http.post(
-      `/api/travel-authorizations/${travelAuthorizationId}/expense-claim`,
-      attributes
-    )
-    return data
-  },
   async expense(travelAuthorizationId: number): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(`/api/travel-authorizations/${travelAuthorizationId}/expense`)
+    return data
+  },
+  async revertToDraft(travelAuthorizationId: number): Promise<{
+    travelAuthorization: TravelAuthorizationAsShow
+  }> {
+    const { data } = await http.post(
+      `/api/travel-authorizations/${travelAuthorizationId}/revert-to-draft`
+    )
     return data
   },
   async sendBackToSupervisor(
@@ -381,6 +357,30 @@ export const travelAuthorizationsApi = {
   }> {
     const { data } = await http.post(
       `/api/travel-authorizations/${travelAuthorizationId}/send-back-to-traveller`,
+      attributes
+    )
+    return data
+  },
+  async submit(
+    travelAuthorizationId: number,
+    attributes: TravelAuthorizationCreationAttributes
+  ): Promise<{
+    travelAuthorization: TravelAuthorizationAsShow
+  }> {
+    const { data } = await http.post(
+      `/api/travel-authorizations/${travelAuthorizationId}/submit`,
+      attributes
+    )
+    return data
+  },
+  async submitExpenseClaim(
+    travelAuthorizationId: number,
+    attributes: Partial<TravelAuthorization>
+  ): Promise<{
+    travelAuthorization: TravelAuthorizationAsShow
+  }> {
+    const { data } = await http.post(
+      `/api/travel-authorizations/${travelAuthorizationId}/submit-expense-claim`,
       attributes
     )
     return data

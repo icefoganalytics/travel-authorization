@@ -3,10 +3,10 @@ import { DateTime } from "luxon"
 import { TravelAuthorization } from "@/models"
 import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
 
-import ExpenseClaimService from "@/services/travel-authorizations/expense-claim-service"
+import SubmitExpenseClaimService from "@/services/travel-authorizations/submit-expense-claim-service"
 
-describe("api/src/services/travel-authorizations/expense-claim-service.ts", () => {
-  describe("ExpenseClaimService", () => {
+describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts", () => {
+  describe("SubmitExpenseClaimService", () => {
     describe("#perform", () => {
       test("when submitting from APPROVED state, it correctly updates travel authorization state and wizard step", async () => {
         // Arrange
@@ -28,7 +28,7 @@ describe("api/src/services/travel-authorizations/expense-claim-service.ts", () =
         })
 
         // Act
-        const updatedTravelAuthorization = await ExpenseClaimService.perform(
+        const updatedTravelAuthorization = await SubmitExpenseClaimService.perform(
           travelAuthorization,
           supervisor.email,
           currentUser
@@ -64,7 +64,7 @@ describe("api/src/services/travel-authorizations/expense-claim-service.ts", () =
         })
 
         // Act
-        const updatedTravelAuthorization = await ExpenseClaimService.perform(
+        const updatedTravelAuthorization = await SubmitExpenseClaimService.perform(
           travelAuthorization,
           supervisor.email,
           currentUser
@@ -93,7 +93,7 @@ describe("api/src/services/travel-authorizations/expense-claim-service.ts", () =
         // Assert
         await expect(
           // Act
-          ExpenseClaimService.perform(travelAuthorization, supervisor.email, currentUser)
+          SubmitExpenseClaimService.perform(travelAuthorization, supervisor.email, currentUser)
         ).rejects.toThrow(
           "Travel authorization must be in an approved or expense claim traveller changes requested state to submit an expense claim."
         )
@@ -120,7 +120,7 @@ describe("api/src/services/travel-authorizations/expense-claim-service.ts", () =
         // Assert
         await expect(
           // Act
-          ExpenseClaimService.perform(travelAuthorization, supervisor.email, currentUser)
+          SubmitExpenseClaimService.perform(travelAuthorization, supervisor.email, currentUser)
         ).rejects.toThrow("Can not submit an expense claim before travel is completed.")
       })
     })

@@ -124,7 +124,7 @@ async function requestApprovalForExpenseClaim() {
 
   isLoadingTravelAuthorization.value = true
   try {
-    await travelAuthorizationsApi.expenseClaim(props.travelAuthorizationId, {
+    await travelAuthorizationsApi.submitExpenseClaim(props.travelAuthorizationId, {
       supervisorEmail: travelAuthorization.value?.supervisorEmail,
     })
     isLoadingTravelAuthorization.value = false
