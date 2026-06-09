@@ -54,7 +54,6 @@
     </v-row>
     <v-row>
       <v-col>
-        <h3>Management</h3>
         <ManagementCard
           :travel-authorization-id="travelAuthorizationIdAsNumber"
           @approved="emit('updated')"

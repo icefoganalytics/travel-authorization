@@ -3,65 +3,66 @@
     v-if="isNil(travelAuthorization)"
     type="card"
   />
-  <v-card v-else>
+  <HeaderActionsCard
+    v-else
+    title="Management"
+  >
     <v-form ref="form">
-      <v-card-text>
-        <v-row>
-          <v-col
-            cols="12"
-            md="4"
-            class="d-flex ga-2"
+      <v-row>
+        <v-col
+          cols="12"
+          md="4"
+          class="d-flex ga-2"
+        >
+          <ConditionalTooltipButton
+            class="flex-grow-1"
+            color="success"
+            :disabled="!canApproveOrDeny"
+            tooltip-text="Only available when the expense claim is awaiting your approval."
+            @click="approveExpenseClaim"
           >
-            <ConditionalTooltipButton
-              class="flex-grow-1"
-              color="success"
-              :disabled="!canApproveOrDeny"
-              tooltip-text="Only available when the expense claim is awaiting your approval."
-              @click="approveExpenseClaim"
-            >
-              Approve
-            </ConditionalTooltipButton>
-            <ConditionalTooltipButton
-              class="flex-grow-1"
-              color="error"
-              :disabled="!canApproveOrDeny"
-              tooltip-text="Only available when the expense claim is awaiting your approval."
-              @click="denyExpenseClaim"
-            >
-              Deny
-            </ConditionalTooltipButton>
-          </v-col>
-          <v-col
-            cols="12"
-            md="6"
+            Approve
+          </ConditionalTooltipButton>
+          <ConditionalTooltipButton
+            class="flex-grow-1"
+            color="error"
+            :disabled="!canApproveOrDeny"
+            tooltip-text="Only available when the expense claim is awaiting your approval."
+            @click="denyExpenseClaim"
           >
-            <UserEmailSearchableCombobox
-              v-model="travelAuthorization.supervisorEmail"
-              :rules="[required]"
-              label="Reassign to"
-              density="compact"
-              hide-details="auto"
-              required
-              variant="outlined"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="2"
+            Deny
+          </ConditionalTooltipButton>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <UserEmailSearchableCombobox
+            v-model="travelAuthorization.supervisorEmail"
+            :rules="[required]"
+            label="Reassign to"
+            density="compact"
+            hide-details="auto"
+            required
+            variant="outlined"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="2"
+        >
+          <v-btn
+            class="mt-0"
+            block
+            :loading="isLoadingTravelAuthorization"
+            @click="reassign"
           >
-            <v-btn
-              class="mt-0"
-              block
-              :loading="isLoadingTravelAuthorization"
-              @click="reassign"
-            >
-              Reassign
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-text>
+            Reassign
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-form>
-  </v-card>
+  </HeaderActionsCard>
 </template>
 
 <script setup lang="ts">
@@ -77,6 +78,7 @@ import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const props = defineProps<{
