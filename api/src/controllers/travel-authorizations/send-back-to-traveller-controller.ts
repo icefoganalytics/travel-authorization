@@ -2,11 +2,11 @@ import { isNil } from "lodash"
 
 import { BaseController } from "@/controllers/base-controller"
 import { TravelAuthorization } from "@/models"
-import { RequestExpenseClaimChangesPolicy } from "@/policies/travel-authorizations"
+import { SendBackToTravellerPolicy } from "@/policies/travel-authorizations"
 import { TravelAuthorizations } from "@/services"
 import { ShowSerializer } from "@/serializers/travel-authorizations"
 
-export class RequestExpenseClaimChangesController extends BaseController {
+export class SendBackToTravellerController extends BaseController {
   async create() {
     try {
       if (isNil(this.params.travelAuthorizationId)) {
@@ -25,13 +25,13 @@ export class RequestExpenseClaimChangesController extends BaseController {
       const policy = this.buildPolicy(travelAuthorization)
       if (!policy.create()) {
         return this.response.status(403).json({
-          message: "You are not authorized to request changes to this expense claim.",
+          message: "You are not authorized to send this expense claim back to traveller.",
         })
       }
 
       const { requestChange } = this.request.body
       const updatedTravelAuthorization =
-        await TravelAuthorizations.RequestExpenseClaimChangesService.perform(
+        await TravelAuthorizations.SendBackToTravellerService.perform(
           travelAuthorization,
           requestChange,
           this.currentUser
@@ -42,7 +42,7 @@ export class RequestExpenseClaimChangesController extends BaseController {
       })
     } catch (error) {
       return this.response.status(422).json({
-        message: `Failed to request expense claim changes: ${error}`,
+        message: `Failed to send expense claim back to traveller: ${error}`,
       })
     }
   }
@@ -51,9 +51,9 @@ export class RequestExpenseClaimChangesController extends BaseController {
     return TravelAuthorization.findByPk(this.params.travelAuthorizationId)
   }
 
-  private buildPolicy(record: TravelAuthorization): RequestExpenseClaimChangesPolicy {
-    return new RequestExpenseClaimChangesPolicy(this.currentUser, record)
+  private buildPolicy(record: TravelAuthorization): SendBackToTravellerPolicy {
+    return new SendBackToTravellerPolicy(this.currentUser, record)
   }
 }
 
-export default RequestExpenseClaimChangesController
+export default SendBackToTravellerController

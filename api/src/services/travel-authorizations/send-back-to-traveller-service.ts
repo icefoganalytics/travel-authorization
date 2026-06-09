@@ -7,7 +7,7 @@ import type { TravelAuthorizationStatuses } from "@/models/travel-authorization"
 
 import BaseService from "@/services/base-service"
 
-export class RequestExpenseClaimChangesService extends BaseService {
+export class SendBackToTravellerService extends BaseService {
   private travelAuthorization: TravelAuthorization
   private requestChange: string | null
   private currentUser: User
@@ -31,12 +31,12 @@ export class RequestExpenseClaimChangesService extends BaseService {
       ].includes(this.travelAuthorization.status as TravelAuthorizationStatuses)
     ) {
       throw new Error(
-        "Travel authorization must be in expense claim submitted or approved state to request changes."
+        "Travel authorization must be in expense claim submitted or approved state to send back to traveller."
       )
     }
 
     if (isNil(this.requestChange) || isEmpty(this.requestChange)) {
-      throw new Error("Request change reason is required.")
+      throw new Error("Reason is required to send expense claim back to traveller.")
     }
 
     await db.transaction(async () => {
@@ -58,4 +58,4 @@ export class RequestExpenseClaimChangesService extends BaseService {
   }
 }
 
-export default RequestExpenseClaimChangesService
+export default SendBackToTravellerService

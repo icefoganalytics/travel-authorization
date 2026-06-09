@@ -373,14 +373,14 @@ export const travelAuthorizationsApi = {
     )
     return data
   },
-  async requestExpenseClaimChanges(
+  async sendBackToTraveller(
     travelAuthorizationId: number,
     attributes: { requestChange?: string } = {}
   ): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {
     const { data } = await http.post(
-      `/api/travel-authorizations/${travelAuthorizationId}/request-expense-claim-changes`,
+      `/api/travel-authorizations/${travelAuthorizationId}/send-back-to-traveller`,
       attributes
     )
     return data

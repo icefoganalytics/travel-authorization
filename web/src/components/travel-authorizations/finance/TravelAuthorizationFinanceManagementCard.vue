@@ -55,9 +55,9 @@
         </v-btn>
       </v-col>
     </v-row>
-    <RequestExpenseClaimChangesDialog
-      ref="requestExpenseClaimChangesDialogRef"
-      @changes-requested="refreshAndEmitChangesRequested"
+    <SendBackToTravellerDialog
+      ref="sendBackToTravellerDialogRef"
+      @sent-back-to-traveller="refreshAndEmitSentBackToTraveller"
     />
     <SendBackToSupervisorDialog
       ref="sendBackToSupervisorDialogRef"
@@ -78,7 +78,7 @@ import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import RequestExpenseClaimChangesDialog from "@/components/travel-authorizations/finance/RequestExpenseClaimChangesDialog.vue"
+import SendBackToTravellerDialog from "@/components/travel-authorizations/finance/SendBackToTravellerDialog.vue"
 import SendBackToSupervisorDialog from "@/components/travel-authorizations/finance/SendBackToSupervisorDialog.vue"
 
 const props = defineProps<{
@@ -88,7 +88,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   approved: [travelAuthorizationId: number]
   denied: [travelAuthorizationId: number]
-  changesRequested: [travelAuthorizationId: number]
+  sentBackToTraveller: [travelAuthorizationId: number]
   sentBackToSupervisor: [travelAuthorizationId: number]
 }>()
 
@@ -136,15 +136,15 @@ async function deny() {
   }
 }
 
-const requestExpenseClaimChangesDialogRef = useTemplateRef("requestExpenseClaimChangesDialogRef")
+const sendBackToTravellerDialogRef = useTemplateRef("sendBackToTravellerDialogRef")
 
 function sendBackToTraveler() {
-  requestExpenseClaimChangesDialogRef.value?.open(props.travelAuthorizationId)
+  sendBackToTravellerDialogRef.value?.open(props.travelAuthorizationId)
 }
 
-async function refreshAndEmitChangesRequested(travelAuthorizationId: number) {
+async function refreshAndEmitSentBackToTraveller(travelAuthorizationId: number) {
   await refresh()
-  emit("changesRequested", travelAuthorizationId)
+  emit("sentBackToTraveller", travelAuthorizationId)
 }
 
 const sendBackToSupervisorDialogRef = useTemplateRef("sendBackToSupervisorDialogRef")

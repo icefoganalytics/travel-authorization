@@ -51,7 +51,7 @@
           :travel-authorization-id="travelAuthorizationIdAsNumber"
           @approved="emit('updated')"
           @denied="emit('updated')"
-          @changes-requested="emit('updated')"
+          @sent-back-to-traveller="emit('updated')"
           @sent-back-to-supervisor="emit('updated')"
         />
       </v-col>

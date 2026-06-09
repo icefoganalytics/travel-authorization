@@ -8,7 +8,7 @@
     <HeaderActionsFormCard
       ref="formCardRef"
       title="Send Back to Traveler"
-      @submit.prevent="requestChangesAndClose"
+      @submit.prevent="sendBackToTravellerAndClose"
     >
       <v-textarea
         v-model="requestChange"
@@ -17,7 +17,7 @@
         variant="outlined"
         rows="4"
         :rules="[required]"
-        @keydown.ctrl.enter="requestChangesAndClose"
+        @keydown.ctrl.enter="sendBackToTravellerAndClose"
       />
 
       <template #actions>
@@ -54,11 +54,11 @@ import useSnack from "@/use/use-snack"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
 const emit = defineEmits<{
-  changesRequested: [travelAuthorizationId: number]
+  sentBackToTraveller: [travelAuthorizationId: number]
 }>()
 
 const travelAuthorizationId = useRouteQuery<string | undefined, number | undefined>(
-  "showRequestExpenseClaimChanges",
+  "showSendBackToTraveller",
   undefined,
   {
     transform: integerTransformer,
@@ -67,9 +67,6 @@ const travelAuthorizationId = useRouteQuery<string | undefined, number | undefin
 
 const showDialog = ref(false)
 const requestChange = ref("")
-const isSubmitting = ref(false)
-const formCardRef = useTemplateRef("formCardRef")
-const snack = useSnack()
 
 watch(
   travelAuthorizationId,
@@ -86,7 +83,11 @@ watch(
   }
 )
 
-async function requestChangesAndClose() {
+const isSubmitting = ref(false)
+const formCardRef = useTemplateRef("formCardRef")
+const snack = useSnack()
+
+async function sendBackToTravellerAndClose() {
   if (isNil(travelAuthorizationId.value)) return
 
   if (isNil(formCardRef.value)) return
@@ -99,17 +100,17 @@ async function requestChangesAndClose() {
 
   isSubmitting.value = true
   try {
-    await travelAuthorizationsApi.requestExpenseClaimChanges(travelAuthorizationId.value, {
+    await travelAuthorizationsApi.sendBackToTraveller(travelAuthorizationId.value, {
       requestChange: requestChange.value,
     })
-    snack.success("Expense claim changes requested!")
+    snack.success("Expense claim sent back to traveller!")
     close()
 
     await nextTick()
-    emit("changesRequested", travelAuthorizationId.value)
+    emit("sentBackToTraveller", travelAuthorizationId.value)
   } catch (error) {
-    console.error(`Failed to request expense claim changes: ${error}`, { error })
-    snack.error(`Failed to request expense claim changes: ${error}`)
+    console.error(`Failed to send expense claim back to traveller: ${error}`, { error })
+    snack.error(`Failed to send expense claim back to traveller: ${error}`)
   } finally {
     isSubmitting.value = false
   }

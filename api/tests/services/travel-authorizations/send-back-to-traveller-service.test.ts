@@ -1,12 +1,12 @@
 import { TravelAuthorization } from "@/models"
 import { travelAuthorizationFactory, userFactory } from "@/factories"
 
-import RequestExpenseClaimChangesService from "@/services/travel-authorizations/request-expense-claim-changes-service"
+import SendBackToTravellerService from "@/services/travel-authorizations/send-back-to-traveller-service"
 
-describe("api/src/services/travel-authorizations/request-expense-claim-changes-service.ts", () => {
-  describe("RequestExpenseClaimChangesService", () => {
+describe("api/src/services/travel-authorizations/send-back-to-traveller-service.ts", () => {
+  describe("SendBackToTravellerService", () => {
     describe("#perform", () => {
-      test("when requesting changes from EXPENSE_CLAIM_SUBMITTED state, it correctly updates travel authorization state and wizard step", async () => {
+      test("when sending back to traveller from EXPENSE_CLAIM_SUBMITTED state (supervisor), it correctly updates travel authorization state and wizard step", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const traveller = await userFactory.create()
@@ -17,7 +17,7 @@ describe("api/src/services/travel-authorizations/request-expense-claim-changes-s
         })
 
         // Act
-        const updatedTravelAuthorization = await RequestExpenseClaimChangesService.perform(
+        const updatedTravelAuthorization = await SendBackToTravellerService.perform(
           travelAuthorization,
           "Please fix the GL coding",
           currentUser
@@ -33,7 +33,7 @@ describe("api/src/services/travel-authorizations/request-expense-claim-changes-s
         )
       })
 
-      test("when requesting changes from EXPENSE_CLAIM_APPROVED state (finance send-back), it correctly updates travel authorization state and wizard step", async () => {
+      test("when sending back to traveller from EXPENSE_CLAIM_APPROVED state (finance), it correctly updates travel authorization state and wizard step", async () => {
         // Arrange
         const currentUser = await userFactory.create({
           roles: ["finance_user"],
@@ -46,7 +46,7 @@ describe("api/src/services/travel-authorizations/request-expense-claim-changes-s
         })
 
         // Act
-        const updatedTravelAuthorization = await RequestExpenseClaimChangesService.perform(
+        const updatedTravelAuthorization = await SendBackToTravellerService.perform(
           travelAuthorization,
           "Receipt is missing",
           currentUser
@@ -72,13 +72,13 @@ describe("api/src/services/travel-authorizations/request-expense-claim-changes-s
         // Assert
         await expect(
           // Act
-          RequestExpenseClaimChangesService.perform(travelAuthorization, "reason", currentUser)
+          SendBackToTravellerService.perform(travelAuthorization, "reason", currentUser)
         ).rejects.toThrow(
-          "Travel authorization must be in expense claim submitted or approved state to request changes."
+          "Travel authorization must be in expense claim submitted or approved state to send back to traveller."
         )
       })
 
-      test("when request change reason is empty, it errors informatively", async () => {
+      test("when reason is empty, it errors informatively", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -88,8 +88,8 @@ describe("api/src/services/travel-authorizations/request-expense-claim-changes-s
         // Assert
         await expect(
           // Act
-          RequestExpenseClaimChangesService.perform(travelAuthorization, "", currentUser)
-        ).rejects.toThrow("Request change reason is required.")
+          SendBackToTravellerService.perform(travelAuthorization, "", currentUser)
+        ).rejects.toThrow("Reason is required to send expense claim back to traveller.")
       })
     })
   })

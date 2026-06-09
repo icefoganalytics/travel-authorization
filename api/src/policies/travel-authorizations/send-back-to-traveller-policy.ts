@@ -1,7 +1,7 @@
 import { TravelAuthorization } from "@/models"
 import PolicyFactory from "@/policies/policy-factory"
 
-export class RequestExpenseClaimChangesPolicy extends PolicyFactory(TravelAuthorization) {
+export class SendBackToTravellerPolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
     if (this.user.isAdmin) return true
     if (this.record.supervisorEmail === this.user.email) return true
@@ -11,4 +11,4 @@ export class RequestExpenseClaimChangesPolicy extends PolicyFactory(TravelAuthor
   }
 }
 
-export default RequestExpenseClaimChangesPolicy
+export default SendBackToTravellerPolicy
