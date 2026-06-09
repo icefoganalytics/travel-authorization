@@ -46,14 +46,15 @@
       />
     </router-view>
 
-    <v-row class="mt-md-10 mt-5">
-      <v-col>
-        <TravelAuthorizationActionLogsTable
-          ref="travelAuthorizationActionLogsTable"
-          :travel-authorization-id="travelAuthorizationIdAsNumber"
-        />
-      </v-col>
-    </v-row>
+    <HeaderActionsCard
+      title="Logs"
+      class="mt-5 mt-md-10"
+    >
+      <TravelAuthorizationActionLogsTable
+        ref="travelAuthorizationActionLogsTable"
+        :travel-authorization-id="travelAuthorizationIdAsNumber"
+      />
+    </HeaderActionsCard>
   </div>
 </template>
 
@@ -62,6 +63,7 @@ import { computed, ref } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 import TravelAuthorizationActionLogsTable from "@/components/travel-authorization-action-logs/TravelAuthorizationActionLogsTable.vue"
 
