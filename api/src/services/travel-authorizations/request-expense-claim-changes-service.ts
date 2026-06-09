@@ -42,13 +42,13 @@ export class RequestExpenseClaimChangesService extends BaseService {
     await db.transaction(async () => {
       await this.travelAuthorization.update({
         requestChange: this.requestChange,
-        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_CHANGES_REQUESTED,
+        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
         actorId: this.currentUser.id,
         assigneeId: this.travelAuthorization.userId,
-        action: TravelAuthorizationActionLog.Actions.EXPENSE_CLAIM_CHANGES_REQUESTED,
+        action: TravelAuthorizationActionLog.Actions.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
         note: this.requestChange,
       })
     })

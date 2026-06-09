@@ -13,6 +13,8 @@ export type TravelAuthorizationStateFlagsView = {
   isBooked: boolean
   isExpenseClaimSubmitted: boolean
   isExpenseClaimApproved: boolean
+  isExpenseClaimTravellerChangesRequested: boolean
+  isExpenseClaimSupervisorChangesRequested: boolean
   isExpenseClaimDenied: boolean
   isExpensed: boolean
   // Travel Desk states
@@ -60,6 +62,8 @@ export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
       isBooked: this.isBooked(),
       isExpenseClaimSubmitted: this.isExpenseClaimSubmitted(),
       isExpenseClaimApproved: this.isExpenseClaimApproved(),
+      isExpenseClaimTravellerChangesRequested: this.isExpenseClaimTravellerChangesRequested(),
+      isExpenseClaimSupervisorChangesRequested: this.isExpenseClaimSupervisorChangesRequested(),
       isExpenseClaimDenied: this.isExpenseClaimDenied(),
       isExpensed: this.isExpensed(),
       // Travel Desk states
@@ -112,6 +116,14 @@ export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
 
   private isExpenseClaimApproved() {
     return this.record.status === TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED
+  }
+
+  private isExpenseClaimTravellerChangesRequested() {
+    return this.record.status === TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED
+  }
+
+  private isExpenseClaimSupervisorChangesRequested() {
+    return this.record.status === TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED
   }
 
   private isExpenseClaimDenied() {
