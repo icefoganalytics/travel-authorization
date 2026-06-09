@@ -38,7 +38,17 @@
     <v-row>
       <v-col>
         <HeaderActionsCard title="Coding">
+          <template #header-actions>
+            <GeneralLedgerCodingCreateDialog
+              :travel-authorization-id="travelAuthorizationIdAsNumber"
+              :activator-props="{
+                class: 'my-0',
+              }"
+              @created="emitChangedAndRefresh"
+            />
+          </template>
           <GeneralLedgerCodingsEditDataTableServer
+            ref="generalLedgerCodingsTable"
             :where="generalLedgerCodingsWhere"
             @changed="emit('updated')"
           />
@@ -60,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, useTemplateRef } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
@@ -68,6 +78,7 @@ import { ExpenseExpenseTypes } from "@/api/expenses-api"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
+import GeneralLedgerCodingCreateDialog from "@/components/general-ledger-codings/GeneralLedgerCodingCreateDialog.vue"
 import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
 import FinanceManagementCard from "@/components/travel-authorizations/finance/TravelAuthorizationFinanceManagementCard.vue"
 import TravelAuthorizationExpenseTotalsCard from "@/components/travel-authorizations/expenses/TravelAuthorizationExpenseTotalsCard.vue"
@@ -95,6 +106,13 @@ const mealsAndIncidentalsWhere = computed(() => ({
 const generalLedgerCodingsWhere = computed(() => ({
   travelAuthorizationId: travelAuthorizationIdAsNumber.value,
 }))
+
+const generalLedgerCodingsTable = useTemplateRef("generalLedgerCodingsTable")
+
+async function emitChangedAndRefresh() {
+  emit("updated")
+  await generalLedgerCodingsTable.value?.refresh()
+}
 
 useBreadcrumbs([
   {
