@@ -5,6 +5,13 @@ import GenericStatePolicy from "@/policies/travel-authorizations/generic-state-p
 import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
 
 export class DraftStatePolicy extends GenericStatePolicy {
+  update(): boolean {
+    if (this.user.isAdmin) return true
+    if (this.record.userId === this.user.id) return true
+
+    return false
+  }
+
   destroy(): boolean {
     if (this.record.userId === this.user.id) return true
 
