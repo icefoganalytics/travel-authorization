@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-4">
+  <div>
     <v-row>
       <v-col>
         <HeaderActionsCard title="Traveler Expenses">

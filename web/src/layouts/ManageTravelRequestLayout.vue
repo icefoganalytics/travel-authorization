@@ -36,19 +36,21 @@
     <SummaryHeaderPanel
       ref="summaryHeaderPanel"
       :travel-authorization-id="travelAuthorizationIdAsNumber"
-      class="mt-4"
+      class="mt-6"
     />
 
     <router-view v-slot="{ Component }">
-      <component
-        :is="Component"
-        @updated="refresh"
-      />
+      <div class="mt-6">
+        <component
+          :is="Component"
+          @updated="refresh"
+        />
+      </div>
     </router-view>
 
     <HeaderActionsCard
       title="Logs"
-      class="mt-5 mt-md-10"
+      class="mt-6"
     >
       <TravelAuthorizationActionLogsTable
         ref="travelAuthorizationActionLogsTable"

@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-4">
+  <div>
     <HeaderActionsCard title="Estimates">
       <EstimatesTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
     </HeaderActionsCard>
