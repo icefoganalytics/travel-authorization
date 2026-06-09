@@ -142,6 +142,13 @@ const routes: RouteRecordRaw[] = [
                   import("@/pages/expense-processing/ExpenseProcessingExpensesPage.vue"),
                 props: true,
               },
+              {
+                path: "estimates",
+                name: "expense-processing/ExpenseProcessingEstimatesPage",
+                component: () =>
+                  import("@/pages/expense-processing/ExpenseProcessingEstimatesPage.vue"),
+                props: true,
+              },
             ],
           },
           {

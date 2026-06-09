@@ -13,13 +13,23 @@
       </v-tab>
       <v-tab
         :to="{
+          name: 'expense-processing/ExpenseProcessingEstimatesPage',
+          params: {
+            travelAuthorizationId,
+          },
+        }"
+      >
+        Estimates
+      </v-tab>
+      <v-tab
+        :to="{
           name: 'expense-processing/ExpenseProcessingExpensesPage',
           params: {
             travelAuthorizationId,
           },
         }"
       >
-        Expense
+        Expenses
       </v-tab>
     </v-tabs>
 
