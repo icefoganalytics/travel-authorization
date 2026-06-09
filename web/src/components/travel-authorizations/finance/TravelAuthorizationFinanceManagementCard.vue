@@ -59,9 +59,9 @@
       ref="requestExpenseClaimChangesDialogRef"
       @changes-requested="refreshAndEmitChangesRequested"
     />
-    <ReturnToExpenseClaimSubmittedDialog
-      ref="returnToExpenseClaimSubmittedDialogRef"
-      @returned-to-expense-claim-submitted="refreshAndEmitReturnedToExpenseClaimSubmitted"
+    <SendBackToSupervisorDialog
+      ref="sendBackToSupervisorDialogRef"
+      @sent-back-to-supervisor="refreshAndEmitSentBackToSupervisor"
     />
   </HeaderActionsCard>
 </template>
@@ -79,7 +79,7 @@ import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import RequestExpenseClaimChangesDialog from "@/components/travel-authorizations/finance/RequestExpenseClaimChangesDialog.vue"
-import ReturnToExpenseClaimSubmittedDialog from "@/components/travel-authorizations/finance/ReturnToExpenseClaimSubmittedDialog.vue"
+import SendBackToSupervisorDialog from "@/components/travel-authorizations/finance/SendBackToSupervisorDialog.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number
@@ -89,7 +89,7 @@ const emit = defineEmits<{
   approved: [travelAuthorizationId: number]
   denied: [travelAuthorizationId: number]
   changesRequested: [travelAuthorizationId: number]
-  returnedToExpenseClaimSubmitted: [travelAuthorizationId: number]
+  sentBackToSupervisor: [travelAuthorizationId: number]
 }>()
 
 const { travelAuthorizationId } = toRefs(props)
@@ -147,16 +147,14 @@ async function refreshAndEmitChangesRequested(travelAuthorizationId: number) {
   emit("changesRequested", travelAuthorizationId)
 }
 
-const returnToExpenseClaimSubmittedDialogRef = useTemplateRef(
-  "returnToExpenseClaimSubmittedDialogRef"
-)
+const sendBackToSupervisorDialogRef = useTemplateRef("sendBackToSupervisorDialogRef")
 
 function sendBackToSupervisor() {
-  returnToExpenseClaimSubmittedDialogRef.value?.open(props.travelAuthorizationId)
+  sendBackToSupervisorDialogRef.value?.open(props.travelAuthorizationId)
 }
 
-async function refreshAndEmitReturnedToExpenseClaimSubmitted(travelAuthorizationId: number) {
+async function refreshAndEmitSentBackToSupervisor(travelAuthorizationId: number) {
   await refresh()
-  emit("returnedToExpenseClaimSubmitted", travelAuthorizationId)
+  emit("sentBackToSupervisor", travelAuthorizationId)
 }
 </script>

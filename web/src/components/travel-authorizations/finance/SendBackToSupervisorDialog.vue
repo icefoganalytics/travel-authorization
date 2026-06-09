@@ -8,7 +8,7 @@
     <HeaderActionsFormCard
       ref="formCardRef"
       title="Send Back to Supervisor"
-      @submit.prevent="returnToSubmittedAndClose"
+      @submit.prevent="sendBackToSupervisorAndClose"
     >
       <v-textarea
         v-model="sendbackReason"
@@ -17,7 +17,7 @@
         variant="outlined"
         rows="4"
         :rules="[required]"
-        @keydown.ctrl.enter="returnToSubmittedAndClose"
+        @keydown.ctrl.enter="sendBackToSupervisorAndClose"
       />
 
       <template #actions>
@@ -54,11 +54,11 @@ import useSnack from "@/use/use-snack"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 
 const emit = defineEmits<{
-  returnedToExpenseClaimSubmitted: [travelAuthorizationId: number]
+  sentBackToSupervisor: [travelAuthorizationId: number]
 }>()
 
 const travelAuthorizationId = useRouteQuery<string | undefined, number | undefined>(
-  "showReturnToExpenseClaimSubmitted",
+  "showSendBackToSupervisor",
   undefined,
   {
     transform: integerTransformer,
@@ -87,7 +87,7 @@ const isSubmitting = ref(false)
 const formCardRef = useTemplateRef("formCardRef")
 const snack = useSnack()
 
-async function returnToSubmittedAndClose() {
+async function sendBackToSupervisorAndClose() {
   if (isNil(travelAuthorizationId.value)) return
 
   if (isNil(formCardRef.value)) return
@@ -100,14 +100,14 @@ async function returnToSubmittedAndClose() {
 
   isSubmitting.value = true
   try {
-    await travelAuthorizationsApi.returnToExpenseClaimSubmitted(travelAuthorizationId.value, {
+    await travelAuthorizationsApi.sendBackToSupervisor(travelAuthorizationId.value, {
       sendbackReason: sendbackReason.value,
     })
     snack.success("Expense claim sent back to supervisor!")
     close()
 
     await nextTick()
-    emit("returnedToExpenseClaimSubmitted", travelAuthorizationId.value)
+    emit("sentBackToSupervisor", travelAuthorizationId.value)
   } catch (error) {
     console.error(`Failed to send expense claim back to supervisor: ${error}`, { error })
     snack.error(`Failed to send expense claim back to supervisor: ${error}`)

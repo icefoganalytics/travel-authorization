@@ -2,11 +2,11 @@ import { isNil } from "lodash"
 
 import { BaseController } from "@/controllers/base-controller"
 import { TravelAuthorization } from "@/models"
-import { ReturnToExpenseClaimSubmittedPolicy } from "@/policies/travel-authorizations"
+import { SendBackToSupervisorPolicy } from "@/policies/travel-authorizations"
 import { TravelAuthorizations } from "@/services"
 import { ShowSerializer } from "@/serializers/travel-authorizations"
 
-export class ReturnToExpenseClaimSubmittedController extends BaseController {
+export class SendBackToSupervisorController extends BaseController {
   async create() {
     try {
       if (isNil(this.params.travelAuthorizationId)) {
@@ -25,13 +25,13 @@ export class ReturnToExpenseClaimSubmittedController extends BaseController {
       const policy = this.buildPolicy(travelAuthorization)
       if (!policy.create()) {
         return this.response.status(403).json({
-          message: "You are not authorized to return this expense claim to submitted.",
+          message: "You are not authorized to send this expense claim back to supervisor.",
         })
       }
 
       const { sendbackReason } = this.request.body
       const updatedTravelAuthorization =
-        await TravelAuthorizations.ReturnToExpenseClaimSubmittedService.perform(
+        await TravelAuthorizations.SendBackToSupervisorService.perform(
           travelAuthorization,
           sendbackReason,
           this.currentUser
@@ -42,7 +42,7 @@ export class ReturnToExpenseClaimSubmittedController extends BaseController {
       })
     } catch (error) {
       return this.response.status(422).json({
-        message: `Failed to return expense claim to submitted: ${error}`,
+        message: `Failed to send expense claim back to supervisor: ${error}`,
       })
     }
   }
@@ -51,9 +51,9 @@ export class ReturnToExpenseClaimSubmittedController extends BaseController {
     return TravelAuthorization.findByPk(this.params.travelAuthorizationId)
   }
 
-  private buildPolicy(record: TravelAuthorization): ReturnToExpenseClaimSubmittedPolicy {
-    return new ReturnToExpenseClaimSubmittedPolicy(this.currentUser, record)
+  private buildPolicy(record: TravelAuthorization): SendBackToSupervisorPolicy {
+    return new SendBackToSupervisorPolicy(this.currentUser, record)
   }
 }
 
-export default ReturnToExpenseClaimSubmittedController
+export default SendBackToSupervisorController

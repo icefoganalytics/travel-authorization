@@ -8,7 +8,7 @@ export { ExpenseClaimSubmittedStatePolicy } from "./expense-claim-submitted-stat
 export { ExpensePolicy } from "./expense-policy"
 export { GenericStatePolicy } from "./generic-state-policy"
 export { RequestExpenseClaimChangesPolicy } from "./request-expense-claim-changes-policy"
-export { ReturnToExpenseClaimSubmittedPolicy } from "./return-to-expense-claim-submitted-policy"
+export { SendBackToSupervisorPolicy } from "./send-back-to-supervisor-policy"
 export { RevertToDraftPolicy } from "./revert-to-draft-policy"
 export { SubmitPolicy } from "./submit-policy"
 export { SubmitStatePolicy } from "./submit-state-policy"

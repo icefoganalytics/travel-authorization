@@ -196,8 +196,8 @@ router
   .route("/api/travel-authorizations/:travelAuthorizationId/request-expense-claim-changes")
   .post(TravelAuthorizations.RequestExpenseClaimChangesController.create)
 router
-  .route("/api/travel-authorizations/:travelAuthorizationId/return-to-expense-claim-submitted")
-  .post(TravelAuthorizations.ReturnToExpenseClaimSubmittedController.create)
+  .route("/api/travel-authorizations/:travelAuthorizationId/send-back-to-supervisor")
+  .post(TravelAuthorizations.SendBackToSupervisorController.create)
 
 router
   .route("/api/travel-authorizations/:travelAuthorizationId/estimates/generate")

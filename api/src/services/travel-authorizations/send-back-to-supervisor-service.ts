@@ -6,7 +6,7 @@ import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/model
 
 import BaseService from "@/services/base-service"
 
-export class ReturnToExpenseClaimSubmittedService extends BaseService {
+export class SendBackToSupervisorService extends BaseService {
   private travelAuthorization: TravelAuthorization
   private sendbackReason: string | null
   private currentUser: User
@@ -25,24 +25,41 @@ export class ReturnToExpenseClaimSubmittedService extends BaseService {
   async perform(): Promise<TravelAuthorization> {
     if (this.travelAuthorization.status !== TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED) {
       throw new Error(
-        "Travel authorization must be in expense claim approved state to return to submitted."
+        "Travel authorization must be in expense claim approved state to send back to supervisor."
       )
     }
 
     if (isNil(this.sendbackReason) || isEmpty(this.sendbackReason)) {
-      throw new Error("Send back reason is required to return expense claim to submitted.")
+      throw new Error("Send back reason is required to send expense claim back to supervisor.")
+    }
+
+    const { supervisorEmail } = this.travelAuthorization
+    if (isNil(supervisorEmail)) {
+      throw new Error(
+        "Travel authorization must have a supervisor email to send back to supervisor."
+      )
+    }
+
+    const supervisor = await User.findOne({
+      where: {
+        email: supervisorEmail,
+      },
+    })
+    if (isNil(supervisor)) {
+      throw new Error("Could not find supervisor user for this travel authorization.")
     }
 
     await db.transaction(async () => {
       await this.travelAuthorization.update({
         requestChange: this.sendbackReason,
-        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
+        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
+        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
         actorId: this.currentUser.id,
-        assigneeId: this.travelAuthorization.userId,
-        action: TravelAuthorizationActionLog.Actions.EXPENSE_CLAIM_SUBMITTED,
+        assigneeId: supervisor.id,
+        action: TravelAuthorizationActionLog.Actions.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
         note: this.sendbackReason,
       })
     })
@@ -51,4 +68,4 @@ export class ReturnToExpenseClaimSubmittedService extends BaseService {
   }
 }
 
-export default ReturnToExpenseClaimSubmittedService
+export default SendBackToSupervisorService

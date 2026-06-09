@@ -52,6 +52,7 @@
           @approved="emit('updated')"
           @denied="emit('updated')"
           @changes-requested="emit('updated')"
+          @sent-back-to-supervisor="emit('updated')"
         />
       </v-col>
     </v-row>

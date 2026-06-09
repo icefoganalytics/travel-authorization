@@ -1,7 +1,7 @@
 import { TravelAuthorization } from "@/models"
 import PolicyFactory from "@/policies/policy-factory"
 
-export class ReturnToExpenseClaimSubmittedPolicy extends PolicyFactory(TravelAuthorization) {
+export class SendBackToSupervisorPolicy extends PolicyFactory(TravelAuthorization) {
   create(): boolean {
     if (this.user.isAdmin) return true
     if (this.user.isFinanceUser && this.user.department === this.record.department) return true
@@ -10,4 +10,4 @@ export class ReturnToExpenseClaimSubmittedPolicy extends PolicyFactory(TravelAut
   }
 }
 
-export default ReturnToExpenseClaimSubmittedPolicy
+export default SendBackToSupervisorPolicy
