@@ -17,7 +17,9 @@ export type GeneralLedgerCoding = {
   updatedAt: string
 }
 
-export type GeneralLedgerCodingAsIndex = GeneralLedgerCoding
+export type GeneralLedgerCodingAsIndex = GeneralLedgerCoding & {
+  policy: Policy
+}
 
 export type GeneralLedgerCodingAsShow = GeneralLedgerCoding
 

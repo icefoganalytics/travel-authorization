@@ -34,6 +34,7 @@ export class IndexService extends BaseService {
     const totalCount = await scopedGeneralLedgerCodings.count({ where: this.where })
     const generalLedgerCodings = await scopedGeneralLedgerCodings.findAll({
       where: this.where,
+      include: ["travelAuthorization"],
       order: this.order,
       limit: this.limit,
       offset: this.offset,

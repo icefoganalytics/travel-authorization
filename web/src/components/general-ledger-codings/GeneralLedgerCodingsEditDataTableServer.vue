@@ -40,11 +40,13 @@
     <template #item.actions="{ item }">
       <div class="d-flex justify-end">
         <v-btn
+          v-if="item.policy.update"
           variant="outlined"
           @click="showEditDialog(item)"
           >Edit</v-btn
         >
         <v-btn
+          v-if="item.policy.destroy"
           icon="mdi-close"
           size="small"
           variant="text"

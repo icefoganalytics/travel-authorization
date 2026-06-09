@@ -28,7 +28,10 @@ export class GeneralLedgerCodingsController extends BaseController<GeneralLedger
         this.pagination.offset,
         this.currentUser
       )
-      const serializedGeneralLedgerCodings = IndexSerializer.perform(generalLedgerCodings)
+      const serializedGeneralLedgerCodings = IndexSerializer.perform(
+        generalLedgerCodings,
+        this.currentUser
+      )
       return this.response.json({
         generalLedgerCodings: serializedGeneralLedgerCodings,
         totalCount,
