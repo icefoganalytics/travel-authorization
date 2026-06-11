@@ -19,9 +19,7 @@ import {
   TravelSegmentAccommodationTypes,
   TravelSegmentTravelMethods,
 } from "@/api/travel-segments-api"
-import travelAuthorizationsApi, {
-  TravelAuthorizationStatuses,
-} from "@/api/travel-authorizations-api"
+import travelAuthorizationsApi from "@/api/travel-authorizations-api"
 
 import useCurrentUser from "@/use/use-current-user"
 
@@ -45,7 +43,6 @@ async function createAndGoToEditPage() {
   try {
     const { travelAuthorization } = await travelAuthorizationsApi.create({
       userId: currentUser.value.id,
-      status: TravelAuthorizationStatuses.DRAFT,
       travelSegmentEstimatesAttributes: [
         {
           isActual: false,
