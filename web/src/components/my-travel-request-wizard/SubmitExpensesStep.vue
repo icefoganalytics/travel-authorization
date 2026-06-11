@@ -74,14 +74,14 @@
   </div>
 </template>
 
-<script setup>
-import { computed, ref } from "vue"
+<script setup lang="ts">
+import { computed, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
-import { TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES } from "@/api/travel-authorizations-api"
-
+import { TravelAuthorizationWizardStepNames } from "@/use/use-travel-authorization"
 import useExpenses, { ExpenseTypes, ExpenseExpenseTypes } from "@/use/use-expenses"
 import useTravelSegments from "@/use/use-travel-segments"
+import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
 import ExpenseCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseCreateDialog.vue"
 import ExpensePrefillDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpensePrefillDialog.vue"
@@ -92,12 +92,9 @@ import MealsAndIncidentalsTable from "@/modules/travel-authorizations/components
 import RequestApprovalForm from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/RequestApprovalForm.vue"
 import TotalsTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/TotalsTable.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
 const expenseWhere = computed(() => ({
   travelAuthorizationId: props.travelAuthorizationId,
@@ -114,16 +111,11 @@ const expenseOptions = computed(() => ({
 const { totalCount, isLoading, refresh } = useExpenses(expenseOptions)
 const hasExpenses = computed(() => isLoading.value === false && totalCount.value > 0)
 
-/** @type {import("vue").Ref<InstanceType<typeof ExpensesEditDataTableServer> | null>} */
-const expensesTable = ref(null)
-/** @type {import("vue").Ref<InstanceType<typeof MealsAndIncidentalsTable> | null>} */
-const mealsAndIncidentalsTable = ref(null)
-/** @type {import("vue").Ref<InstanceType<typeof TotalsTable> | null>} */
-const totalsTable = ref(null)
-/** @type {import("vue").Ref<InstanceType<typeof GeneralLedgerCodingsTable> | null>} */
-const codingsTable = ref(null)
-/** @type {import("vue").Ref<InstanceType<typeof RequestApprovalForm> | null>} */
-const requestApprovalForm = ref(null)
+const expensesTable = useTemplateRef("expensesTable")
+const mealsAndIncidentalsTable = useTemplateRef("mealsAndIncidentalsTable")
+const totalsTable = useTemplateRef("totalsTable")
+const codingsTable = useTemplateRef("codingsTable")
+const requestApprovalForm = useTemplateRef("requestApprovalForm")
 
 async function refreshExpenseCreationDependencies() {
   await Promise.all([
@@ -155,14 +147,17 @@ const travelSegmentsQuery = computed(() => ({
 }))
 const { travelSegments, isReady: isReadyTravelSegments } = useTravelSegments(travelSegmentsQuery)
 
-async function initialize(context) {
-  context.setEditableSteps([TRAVEL_AUTHORIZATION_WIZARD_STEP_NAMES.CONFIRM_ACTUAL_TRAVEL_DETAILS])
+async function initialize(context: WizardStepComponentContext) {
+  context.setEditableSteps([TravelAuthorizationWizardStepNames.CONFIRM_ACTUAL_TRAVEL_DETAILS])
 
   await isReadyTravelSegments()
   const lastTravelSegment = travelSegments.value.at(-1)
   if (isNil(lastTravelSegment)) return
 
-  const isAfterTravelEndDate = new Date(lastTravelSegment.departureOn) < new Date()
+  const { departureOn } = lastTravelSegment
+  if (isNil(departureOn)) return
+
+  const isAfterTravelEndDate = new Date(departureOn) < new Date()
   if (isAfterTravelEndDate) {
     context.setContinueButtonProps({
       enabled: true,
