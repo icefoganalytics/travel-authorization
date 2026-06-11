@@ -53,7 +53,7 @@ export class SendBackToSupervisorService extends BaseService {
       await this.travelAuthorization.update({
         requestChange: this.sendbackReason,
         status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
-        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
+        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
