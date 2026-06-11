@@ -31,16 +31,16 @@
     <template #item.cost="{ value }">
       {{ formatCurrency(value) }}
     </template>
-    <template #item.actions="{ value: actions, item }">
+    <template #item.actions="{ item }">
       <div class="d-flex justify-end">
         <v-btn
-          v-if="actions.includes('edit')"
+          v-if="item.policy.update"
           variant="outlined"
           @click="showEditDialog(item)"
           >Edit</v-btn
         >
         <v-btn
-          v-if="actions.includes('delete')"
+          v-if="item.policy.destroy"
           class="ml-2"
           color="error"
           @click="showDeleteDialog(item)"
