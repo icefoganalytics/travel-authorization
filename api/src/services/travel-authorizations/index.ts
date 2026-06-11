@@ -13,3 +13,6 @@ export { SendBackToSupervisorService } from "./send-back-to-supervisor-service"
 export { SendBackToTravellerService } from "./send-back-to-traveller-service"
 export { SubmitExpenseClaimService } from "./submit-expense-claim-service"
 export { SubmitService } from "./submit-service"
+
+// Namespaced services
+export * as Wizard from "./wizard"

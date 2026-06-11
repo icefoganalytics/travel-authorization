@@ -190,8 +190,15 @@ export class TravelAuthorization extends BaseModel<
   })
   declare status: TravelAuthorizationStatuses | null
 
+  // TODO: make this non-nullable in the database then update here.
   @Attribute(DataTypes.STRING(255))
-  declare wizardStepName: string | null
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelAuthorizationWizardStepNames)],
+      msg: `Wizard step name must be one of: ${Object.values(TravelAuthorizationWizardStepNames).join(", ")}`,
+    },
+  })
+  declare wizardStepName: TravelAuthorizationWizardStepNames | null
 
   // TODO: consider making this supervisorId?
   @Attribute(DataTypes.STRING(255))

@@ -52,6 +52,7 @@ export class CreateService extends BaseService {
           tripTypeEstimate: tripTypeEstimate || TravelAuthorization.TripTypes.ROUND_TRIP,
           slug: slug || uuid(),
           status: status || TravelAuthorization.Statuses.DRAFT,
+          wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
           department,
           createdBy: this.currentUser.id,
         }).catch((error) => {

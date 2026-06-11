@@ -15,7 +15,6 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
 
         expect(policy.permittedAttributes()).toEqual([
-          "wizardStepName",
           "preApprovalProfileId",
           "purposeId",
           "firstName",
@@ -54,7 +53,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
 
-        expect(policy.permittedAttributes()).toEqual(["wizardStepName"])
+        expect(policy.permittedAttributes()).toEqual([])
       })
 
       test("when record is submitted, and user is admin, returns correct attributes", () => {
@@ -66,7 +65,6 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         const policy = new TravelAuthorizationsPolicy(admin, travelAuthorization)
 
         expect(policy.permittedAttributes()).toEqual([
-          "wizardStepName",
           "preApprovalProfileId",
           "purposeId",
           "firstName",
@@ -106,7 +104,6 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
 
         expect(policy.permittedAttributes()).toEqual([
-          "wizardStepName",
           "daysOffTravelStatusActual",
           "dateBackToWorkActual",
           "travelDurationActual",
@@ -125,7 +122,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
 
-        expect(policy.permittedAttributes()).toEqual(["wizardStepName"])
+        expect(policy.permittedAttributes()).toEqual([])
       })
     })
 
@@ -171,7 +168,6 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
         expect(policy.permittedAttributesForCreate()).toEqual([
           "slug",
-          "wizardStepName",
           "preApprovalProfileId",
           "purposeId",
           "firstName",

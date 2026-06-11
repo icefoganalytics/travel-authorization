@@ -8,6 +8,7 @@ export { SendBackToSupervisorController } from "./send-back-to-supervisor-contro
 export { SendBackToTravellerController } from "./send-back-to-traveller-controller"
 export { SubmitController } from "./submit-controller"
 export { SubmitExpenseClaimController } from "./submit-expense-claim-controller"
+export { WizardController } from "./wizard-controller"
 
 // Namespaced controllers
 export * as Estimates from "./estimates"

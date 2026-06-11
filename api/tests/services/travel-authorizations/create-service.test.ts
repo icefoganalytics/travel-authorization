@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker"
 
-import { User } from "@/models"
+import { TravelAuthorization, User } from "@/models"
 import { Users } from "@/services"
 import { CreateService } from "@/services/travel-authorizations"
 
@@ -15,6 +15,26 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
 
   describe("CreateService", () => {
     describe(".perform", () => {
+      test("when provided with valid attributes, it creates a travel authorization with appropriate defaults", async () => {
+        // Arrange
+        const creator = await userFactory.create()
+
+        // Act
+        const travelAuthorization = await CreateService.perform({}, creator)
+
+        // Assert
+        expect(travelAuthorization).toEqual(
+          expect.objectContaining({
+            userId: creator.id,
+            createdBy: creator.id,
+            slug: expect.any(String),
+            status: TravelAuthorization.Statuses.DRAFT,
+            tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+            wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
+          })
+        )
+      })
+
       test("when creator is admin, and user attributes are supplied, it calls EnsureUser with those attributes", async () => {
         // Arrange
         const email = faker.internet.email().toLowerCase()

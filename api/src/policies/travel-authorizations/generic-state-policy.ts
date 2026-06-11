@@ -19,9 +19,8 @@ export class GenericStatePolicy extends PolicyFactory(TravelAuthorization) {
     return false
   }
 
-  // TODO: move wizardStepName modification to a travel authorization "wizard" controller, and treat it like a state change.
   permittedAttributes(): Path[] {
-    return ["wizardStepName"]
+    return []
   }
 }
 

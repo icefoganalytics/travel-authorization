@@ -205,6 +205,10 @@ router
 router
   .route("/api/travel-authorizations/:travelAuthorizationId/expenses/prefill")
   .post(TravelAuthorizations.Expenses.PrefillController.create)
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/wizard")
+  .get(TravelAuthorizations.WizardController.show)
+  .patch(TravelAuthorizations.WizardController.update)
 
 router
   .route("/api/travel-desk-flight-options")
