@@ -31,6 +31,31 @@ describe("api/src/services/travel-authorizations/deny-expense-claim-service.ts",
         )
       })
 
+      test("when denying from EXPENSE_CLAIM_APPROVED state, it correctly updates travel authorization state to EXPENSE_CLAIM_DENIED", async () => {
+        // Arrange
+        const denier = await userFactory.create()
+        const traveller = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          status: TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED,
+          userId: traveller.id,
+        })
+
+        // Act
+        const updatedTravelAuthorization = await DenyExpenseClaimService.perform(
+          travelAuthorization,
+          null,
+          denier
+        )
+
+        // Assert
+        expect(updatedTravelAuthorization).toEqual(
+          expect.objectContaining({
+            id: travelAuthorization.id,
+            status: TravelAuthorization.Statuses.EXPENSE_CLAIM_DENIED,
+          })
+        )
+      })
+
       test("when denying from EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED state, it correctly updates travel authorization state to EXPENSE_CLAIM_DENIED", async () => {
         // Arrange
         const denier = await userFactory.create()
@@ -68,7 +93,7 @@ describe("api/src/services/travel-authorizations/deny-expense-claim-service.ts",
           // Act
           DenyExpenseClaimService.perform(travelAuthorization, null, denier)
         ).rejects.toThrow(
-          "Travel authorization must be in expense claim submitted or expense claim supervisor changes requested state to deny expense claim."
+          "Travel authorization must be in expense claim submitted, approved, or supervisor changes requested state to deny expense claim."
         )
       })
     })

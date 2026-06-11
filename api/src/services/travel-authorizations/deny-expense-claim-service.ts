@@ -20,11 +20,12 @@ export class DenyExpenseClaimService extends BaseService {
     if (
       ![
         TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
+        TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED,
         TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
       ].includes(this.travelAuthorization.status as TravelAuthorizationStatuses)
     ) {
       throw new Error(
-        "Travel authorization must be in expense claim submitted or expense claim supervisor changes requested state to deny expense claim."
+        "Travel authorization must be in expense claim submitted, approved, or supervisor changes requested state to deny expense claim."
       )
     }
 
