@@ -1,5 +1,17 @@
 <template>
   <div>
+    <v-alert
+      v-if="isExpenseClaimSupervisorChangesRequested"
+      type="warning"
+      class="mb-4"
+      title="Finance has requested changes to this expense claim."
+    >
+      <template #text>
+        <span class="text-pre-wrap">{{
+          travelAuthorization?.requestChange ?? "No reason provided."
+        }}</span>
+      </template>
+    </v-alert>
     <v-row>
       <v-col>
         <HeaderActionsCard title="Traveler Expenses">
@@ -69,6 +81,8 @@ import { computed } from "vue"
 
 import { ExpenseExpenseTypes } from "@/api/expenses-api"
 
+import useTravelAuthorization, { TravelAuthorizationStatuses } from "@/use/use-travel-authorization"
+
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
@@ -89,6 +103,13 @@ const emit = defineEmits<{
 }>()
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+
+const { travelAuthorization } = useTravelAuthorization(travelAuthorizationIdAsNumber)
+const isExpenseClaimSupervisorChangesRequested = computed(
+  () =>
+    travelAuthorization.value?.status ===
+    TravelAuthorizationStatuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED
+)
 
 const travelerExpensesWhere = computed(() => ({
   travelAuthorizationId: travelAuthorizationIdAsNumber.value,
