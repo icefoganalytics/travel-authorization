@@ -13,11 +13,14 @@ import MY_TRAVEL_REQUEST_WIZARD_STEPS, {
   type WizardStep,
 } from "@/use/wizards/my-travel-request-wizard-steps"
 
+export type { WizardStep }
+
 type RouterPushResult = Promise<NavigationFailure | void | undefined>
 
 export type UseMyTravelRequestWizard = {
   steps: Ref<WizardStep[]>
   isReady: Ref<boolean>
+  wizardStepName: Ref<TravelAuthorizationWizardStepNames | null>
 
   currentStep: Ref<WizardStep | null>
   previousStep: Ref<WizardStep | null>
@@ -61,6 +64,10 @@ export function useMyTravelRequestWizard(
 
   const { travelAuthorization, isLoading, refresh, save } =
     useTravelAuthorizationWizard(travelAuthorizationIdRef)
+
+  const wizardStepName = computed<TravelAuthorizationWizardStepNames | null>(
+    () => travelAuthorization.value?.wizardStepName ?? null
+  )
 
   watch(
     () => cloneDeep(travelAuthorization.value),
@@ -200,6 +207,7 @@ export function useMyTravelRequestWizard(
 
   return {
     ...toRefs(state),
+    wizardStepName,
     currentStep,
     previousStep,
     nextStep,

@@ -104,7 +104,10 @@
 </template>
 
 <script lang="ts">
-import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
+import {
+  type WizardStepComponentContext,
+  type WizardStep,
+} from "@/use/wizards/use-my-travel-request-wizard"
 
 export type WizardStepComponent = {
   initialize?: (context: WizardStepComponentContext) => void
@@ -141,6 +144,8 @@ const { stepName } = toRefs(props)
 
 const {
   steps,
+  isReady,
+  wizardStepName,
   currentStep,
   isLoading,
   refresh,
@@ -230,6 +235,7 @@ function updateTravelAuthorizationSummary(attributes: Partial<TravelAuthorizatio
 }
 
 const router = useRouter()
+
 const returnTo = computed(() => {
   const routeLocation = router.resolve({
     name: "my-travel-requests/MyTravelRequestWizardPage",
@@ -241,6 +247,27 @@ const returnTo = computed(() => {
 
   return routeLocation.href
 })
+
+/**
+ * When the wizard is ready but the URL step name does not match any known step
+ * (e.g. a stale bookmark, or a URL typed before the server advanced the step),
+ * the skeleton loader would show indefinitely. Redirect to the server-authoritative
+ * wizard step instead.
+ */
+watch<[boolean, WizardStep | null, TravelAuthorizationWizardStepNames | null]>(
+  () => [isReady.value, currentStep.value, wizardStepName.value],
+  async ([newIsReady, newCurrentStep, newWizardStepName]) => {
+    if (!newIsReady || !isNil(newCurrentStep) || isNil(newWizardStepName)) return
+
+    await router.replace({
+      name: "my-travel-requests/MyTravelRequestWizardPage",
+      params: {
+        travelAuthorizationId: props.travelAuthorizationId,
+        stepName: newWizardStepName,
+      },
+    })
+  }
+)
 
 const breadcrumbs = computed(() => [
   {
