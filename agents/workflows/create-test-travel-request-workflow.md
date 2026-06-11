@@ -169,10 +169,28 @@ The wizard blocks at "Waiting for Approval" until the designated supervisor appr
 ### Admin approval steps
 
 > **Tab-session note:** Auth0 sessions are shared across all tabs in the same browser. Logging in
-> as admin in a second tab logs the traveller out of the first tab. For a Playwright test, use
-> `browser.newContext()` for a separate admin context that doesn't interfere with the traveller
-> context. In a manual test, you can use the same browser — just be aware the traveller tab will
-> show the admin user after you log in as admin.
+> as admin in a second tab logs the traveller out of the first tab. **This breaks the wizard:**
+> the wizard's `PATCH /api/travel-authorizations/:id/wizard` endpoint is policy-gated to only
+> allow the travel authorization's *owner* (i.e. the traveller). If the admin is logged in on the
+> wizard tab, every Continue button call fails silently with `ApiError: You are not authorized to
+> update this travel authorization wizard.` The page saves field data but never navigates.
+>
+> **Design intent:** Only the traveller should advance the wizard step via the UI. Supervisors,
+> admins, and finance users advance it via back-end state-change services (which bypass the wizard
+> policy). This is intentional — the wizard policy (`WizardPolicy#update`) enforces that only
+> the travel authorization owner can call `PATCH /api/travel-authorizations/:id/wizard`.
+>
+> **Fix after doing the admin approval:** In the admin tab, sign out and sign back in as the
+> traveller before returning to the wizard. Alternatively, for a Playwright test, use
+> `browser.newContext()` for the admin so the traveller's cookie jar is never touched.
+>
+> **How to sign out via JS (when the kebab menu is hard to click):**
+> ```js
+> // Run in browser console — finds the "Sign out" text node and clicks it
+> [...document.querySelectorAll('*')]
+>   .find(el => el.textContent.trim() === 'Sign out' && el.children.length === 0)
+>   ?.click()
+> ```
 
 1. Open a new browser tab (or a second browser window / Playwright context).
 2. Navigate to `http://localhost:8080`.
@@ -188,18 +206,20 @@ The wizard blocks at "Waiting for Approval" until the designated supervisor appr
 
 ### Return to traveller window
 
-After the admin approves, switch back to the traveller window:
+After the admin approves, restore the traveller session then return to the wizard:
 
-1. Click **Check status?** on the Waiting for Approval page.
-   - The snackbar "Travel authorization approved!" confirms the API returned the approved status.
-   - The wizard *may* fail to navigate automatically due to cascading Vue render errors triggered
-     during the component transition.
-2. If the page does not advance automatically, navigate directly to the next step:
-   `http://localhost:8080/my-travel-requests/:id/wizard/edit-traveller-details`
+1. In the admin browser tab, click the user menu (top right) → **Sign out**.
+2. Log back in as the traveller account (`$TRAVELLER_EMAIL` / `$TRAVELLER_PASSWORD`).
+3. Navigate back to the wizard at:
+   `http://localhost:8080/my-travel-requests/:id/wizard/awaiting-supervisor-approval`
+4. Click **Check status?**. The snackbar "Travel authorization approved!" confirms the status.
+   The wizard navigates to Step 6 (Traveler Details).
+   - If the wizard does not navigate automatically, navigate directly:
+     `http://localhost:8080/my-travel-requests/:id/wizard/edit-traveller-details`
 
 > **AI Note (Playwright):** Use separate `browser.newContext()` for the admin — it gets its own
-> cookie jar, so the traveller session is preserved. The admin context only needs to live long
-> enough to click Approve.
+> cookie jar, so the traveller session is never disturbed. The admin context only needs to live
+> long enough to click Approve; close it immediately after.
 
 ---
 
@@ -289,28 +309,19 @@ Final state — the traveller can review the approved expenses. No further actio
 
 ---
 
-## Quick Reference: Wizard URL Map
+## Quick Reference: Wizard Step Names
 
-| Step | URL segment | Description |
-|---|---|---|
-| 1 | `/edit-trip-purpose` | Conference/purpose details |
-| 2 | `/edit-trip-details` | Dates, segments, accommodation |
-| 3 | `/generate-estimate` | Cost estimates table |
-| 4 | `/submit-to-supervisor` | Review + submit |
-| 5 | `/awaiting-supervisor-approval` | Blocked — needs supervisor approval (second window) |
-| 6 | `/edit-traveler-details` | Traveller profile |
-| 7 | `/submit-travel-desk-form` | Travel desk preferences |
-| 8 | `/awaiting-flight-options` | Blocked — travel desk adds options |
-| 9 | `/rank-flight-options` | Traveller ranks options |
-| 10 | `/awaiting-booking-confirmation` | Blocked — travel desk confirms |
-| 11 | `/awaiting-travel-start` | Blocked — must wait until after depart date |
-| 12 | `/confirm-actual-travel-details` | Confirm real travel details |
-| 13 | `/submit-expenses` | Add expenses, receipts, coding |
-| 14 | `/awaiting-expense-claim-approval` | Blocked — supervisor approves expenses |
-| 15 | `/awaiting-finance-review` | Blocked — finance reviews |
-| 16 | `/review-expenses` | Final review |
+The canonical step names (used as URL segments) are defined in the
+`TravelAuthorizationWizardStepNames` enum in
+`web/src/api/travel-authorizations-api.ts`.
 
-All segments are prefixed by `/my-travel-requests/:id/wizard`.
+All wizard URLs follow the pattern `/my-travel-requests/:id/wizard/:stepName`.
+
+> **Navigation rule:** Always advance the wizard by clicking the **Continue** /
+> **Submit** / **Check status?** / **Back** buttons in the UI. Never navigate by
+> typing a URL directly — the wizard's Continue buttons perform server-side state
+> transitions that bare URL navigation skips, which leaves the wizard in an
+> inconsistent state.
 
 ---
 
