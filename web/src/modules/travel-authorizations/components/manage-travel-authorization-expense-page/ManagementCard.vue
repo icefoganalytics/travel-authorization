@@ -16,6 +16,7 @@
         >
           <ConditionalTooltipButton
             class="flex-grow-1"
+            wrapper-class="d-flex flex-grow-1"
             color="success"
             :disabled="!canApproveOrDeny"
             :loading="isLoadingTravelAuthorization"
@@ -26,6 +27,7 @@
           </ConditionalTooltipButton>
           <ConditionalTooltipButton
             class="flex-grow-1"
+            wrapper-class="d-flex flex-grow-1"
             color="error"
             :disabled="!canApproveOrDeny"
             :loading="isLoadingTravelAuthorization"
