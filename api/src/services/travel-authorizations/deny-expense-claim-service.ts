@@ -33,6 +33,7 @@ export class DenyExpenseClaimService extends BaseService {
       await this.travelAuthorization.update({
         denialReason: this.denialReason,
         status: TravelAuthorization.Statuses.EXPENSE_CLAIM_DENIED,
+        wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,

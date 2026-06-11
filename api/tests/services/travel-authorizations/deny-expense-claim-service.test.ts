@@ -6,7 +6,7 @@ import DenyExpenseClaimService from "@/services/travel-authorizations/deny-expen
 describe("api/src/services/travel-authorizations/deny-expense-claim-service.ts", () => {
   describe("DenyExpenseClaimService", () => {
     describe("#perform", () => {
-      test("when denying from EXPENSE_CLAIM_SUBMITTED state, it correctly updates travel authorization state to EXPENSE_CLAIM_DENIED", async () => {
+      test("when denying from EXPENSE_CLAIM_SUBMITTED state, it sets status to EXPENSE_CLAIM_DENIED and advances the wizard to REVIEW_EXPENSES", async () => {
         // Arrange
         const denier = await userFactory.create()
         const traveller = await userFactory.create()
@@ -27,11 +27,12 @@ describe("api/src/services/travel-authorizations/deny-expense-claim-service.ts",
           expect.objectContaining({
             id: travelAuthorization.id,
             status: TravelAuthorization.Statuses.EXPENSE_CLAIM_DENIED,
+            wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
           })
         )
       })
 
-      test("when denying from EXPENSE_CLAIM_APPROVED state, it correctly updates travel authorization state to EXPENSE_CLAIM_DENIED", async () => {
+      test("when denying from EXPENSE_CLAIM_APPROVED state, it sets status to EXPENSE_CLAIM_DENIED and advances the wizard to REVIEW_EXPENSES", async () => {
         // Arrange
         const denier = await userFactory.create()
         const traveller = await userFactory.create()
@@ -52,11 +53,12 @@ describe("api/src/services/travel-authorizations/deny-expense-claim-service.ts",
           expect.objectContaining({
             id: travelAuthorization.id,
             status: TravelAuthorization.Statuses.EXPENSE_CLAIM_DENIED,
+            wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
           })
         )
       })
 
-      test("when denying from EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED state, it correctly updates travel authorization state to EXPENSE_CLAIM_DENIED", async () => {
+      test("when denying from EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED state, it sets status to EXPENSE_CLAIM_DENIED and advances the wizard to REVIEW_EXPENSES", async () => {
         // Arrange
         const denier = await userFactory.create()
         const traveller = await userFactory.create()
@@ -77,6 +79,7 @@ describe("api/src/services/travel-authorizations/deny-expense-claim-service.ts",
           expect.objectContaining({
             id: travelAuthorization.id,
             status: TravelAuthorization.Statuses.EXPENSE_CLAIM_DENIED,
+            wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
           })
         )
       })
