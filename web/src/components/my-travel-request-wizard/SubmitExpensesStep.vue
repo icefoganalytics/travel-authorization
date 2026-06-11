@@ -1,5 +1,17 @@
 <template>
   <div class="mt-4">
+    <v-alert
+      v-if="isExpenseClaimTravellerChangesRequested"
+      type="warning"
+      class="mb-4"
+      title="Changes have been requested for your expense claim."
+    >
+      <template #text>
+        <span class="text-pre-wrap">{{
+          travelAuthorization?.requestChange ?? "No reason provided."
+        }}</span>
+      </template>
+    </v-alert>
     <v-row>
       <v-col>
         <div class="d-flex justify-space-between align-end">
@@ -75,10 +87,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useTemplateRef } from "vue"
+import { computed, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
-import { TravelAuthorizationWizardStepNames } from "@/use/use-travel-authorization"
+import useTravelAuthorization, {
+  TravelAuthorizationStatuses,
+  TravelAuthorizationWizardStepNames,
+} from "@/use/use-travel-authorization"
 import useExpenses, { ExpenseTypes, ExpenseExpenseTypes } from "@/use/use-expenses"
 import useTravelSegments from "@/use/use-travel-segments"
 import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
@@ -95,6 +110,14 @@ import TotalsTable from "@/modules/travel-authorizations/components/edit-my-trav
 const props = defineProps<{
   travelAuthorizationId: number
 }>()
+
+const { travelAuthorizationId } = toRefs(props)
+const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
+const isExpenseClaimTravellerChangesRequested = computed(
+  () =>
+    travelAuthorization.value?.status ===
+    TravelAuthorizationStatuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED
+)
 
 const expenseWhere = computed(() => ({
   travelAuthorizationId: props.travelAuthorizationId,
