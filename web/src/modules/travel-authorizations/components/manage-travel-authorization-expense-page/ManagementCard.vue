@@ -18,6 +18,7 @@
             class="flex-grow-1"
             color="success"
             :disabled="!canApproveOrDeny"
+            :loading="isLoadingTravelAuthorization"
             tooltip-text="Only available when the expense claim is awaiting your approval."
             @click="approveExpenseClaim"
           >
@@ -27,6 +28,7 @@
             class="flex-grow-1"
             color="error"
             :disabled="!canApproveOrDeny"
+            :loading="isLoadingTravelAuthorization"
             tooltip-text="Only available when the expense claim is awaiting your approval."
             @click="denyExpenseClaim"
           >
@@ -98,6 +100,7 @@ const {
   policy,
   isLoading: isLoadingTravelAuthorization,
   save,
+  refresh,
 } = useTravelAuthorization(travelAuthorizationId)
 
 const canApproveOrDeny = computed(() => {
@@ -143,8 +146,14 @@ async function reassign() {
 }
 
 async function approveExpenseClaim() {
+  if (!blockedToTrueConfirm("Are you sure you want to approve this expense claim?")) {
+    return
+  }
+
   try {
     await travelAuthorizationApi.approveExpenseClaim(props.travelAuthorizationId)
+    await refresh()
+
     snack.success("Expense claim approved!")
     emit("approved", props.travelAuthorizationId)
   } catch (error) {
@@ -160,6 +169,8 @@ async function denyExpenseClaim() {
 
   try {
     await travelAuthorizationApi.denyExpenseClaim(props.travelAuthorizationId)
+    await refresh()
+
     snack.success("Expense claim denied!")
     emit("denied", props.travelAuthorizationId)
   } catch (error) {
