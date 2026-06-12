@@ -17,7 +17,7 @@
           class="flex-grow-1"
           color="success"
           :disabled="!isActionable"
-          :loading="isExpensing"
+          :loading="isLoading"
           @click="expense"
         >
           Approve
@@ -26,7 +26,7 @@
           class="flex-grow-1"
           color="error"
           :disabled="!isActionable"
-          :loading="isDenying"
+          :loading="isLoading"
           @click="deny"
         >
           Deny
@@ -40,6 +40,7 @@
           block
           variant="outlined"
           :disabled="!isActionable"
+          :loading="isLoading"
           @click="sendBackToTraveler"
         >
           Send Back to Traveler
@@ -53,6 +54,7 @@
           block
           variant="outlined"
           :disabled="!isActionable"
+          :loading="isLoading"
           @click="sendBackToSupervisor"
         >
           Send Back to Supervisor
@@ -71,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRefs, useTemplateRef } from "vue"
+import { computed, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
 import travelAuthorizationsApi from "@/api/travel-authorizations-api"
@@ -97,12 +99,9 @@ const emit = defineEmits<{
 }>()
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, refresh } = useTravelAuthorization(travelAuthorizationId)
+const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
 
 const snack = useSnack()
-
-const isExpensing = ref(false)
-const isDenying = ref(false)
 
 const isActionable = computed(() => travelAuthorization.value?.isExpenseClaimApproved)
 
@@ -113,7 +112,7 @@ async function expense() {
     return
   }
 
-  isExpensing.value = true
+  isLoading.value = true
   try {
     await travelAuthorizationsApi.expense(props.travelAuthorizationId)
     snack.success("Travel authorization expensed!")
@@ -123,7 +122,7 @@ async function expense() {
     console.error(`Failed to expense travel authorization: ${error}`, { error })
     snack.error(`Failed to expense travel authorization: ${error}`)
   } finally {
-    isExpensing.value = false
+    isLoading.value = false
   }
 }
 
@@ -132,7 +131,7 @@ async function deny() {
     return
   }
 
-  isDenying.value = true
+  isLoading.value = true
   try {
     await travelAuthorizationsApi.denyExpenseClaim(props.travelAuthorizationId)
     snack.success("Expense claim denied!")
@@ -142,7 +141,7 @@ async function deny() {
     console.error(`Failed to deny travel authorization: ${error}`, { error })
     snack.error(`Failed to deny travel authorization: ${error}`)
   } finally {
-    isDenying.value = false
+    isLoading.value = false
   }
 }
 
