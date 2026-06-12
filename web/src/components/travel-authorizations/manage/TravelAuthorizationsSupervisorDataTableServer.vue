@@ -2,12 +2,11 @@
   <v-data-table-server
     v-model:page="page"
     v-model:items-per-page="perPage"
-    v-bind="$attrs"
     :headers="headers"
     :items="travelAuthorizations"
     :loading="isLoading"
     :items-length="totalCount"
-    @click:row="goToManageTravelAuthorization"
+    v-bind="attrsWithRowClickFallback"
   >
     <template #item.name="{ item }">
       <span>{{ item.firstName }} {{ item.lastName }}</span>
@@ -27,8 +26,16 @@
   </v-data-table-server>
 </template>
 
+<script lang="ts">
+import { type TravelAuthorizationAsIndex } from "@/use/use-travel-authorizations"
+
+export type TravelAuthorizationTableRow = {
+  item: TravelAuthorizationAsIndex
+}
+</script>
+
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, useAttrs } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
@@ -38,23 +45,29 @@ import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import { type LocationAsReference } from "@/api/locations-api"
 import useCurrentUser from "@/use/use-current-user"
 import useTravelAuthorizations, {
-  type TravelAuthorizationAsIndex,
+  type TravelAuthorizationFiltersOptions,
+  type TravelAuthorizationWhereOptions,
 } from "@/use/use-travel-authorizations"
 
-const props = defineProps({
-  where: {
-    type: Object,
-    default: () => ({}),
-  },
-  filters: {
-    type: Object,
-    default: () => ({}),
-  },
-  routeQuerySuffix: {
-    type: String,
-    default: "",
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    where?: TravelAuthorizationWhereOptions
+    filters?: TravelAuthorizationFiltersOptions
+    routeQuerySuffix?: string
+  }>(),
+  {
+    where: () => ({}),
+    filters: () => ({}),
+    routeQuerySuffix: "",
+  }
+)
+
+const attrs = useAttrs()
+
+const attrsWithRowClickFallback = computed(() => ({
+  "onClick:row": goToManageTravelAuthorization,
+  ...attrs,
+}))
 
 const headers = ref([
   {
@@ -120,10 +133,6 @@ function formatFinalDestination(location: LocationAsReference | null) {
 }
 
 const router = useRouter()
-
-type TravelAuthorizationTableRow = {
-  item: TravelAuthorizationAsIndex
-}
 
 function goToManageTravelAuthorization(
   _event: unknown,
