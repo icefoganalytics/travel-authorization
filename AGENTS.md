@@ -158,6 +158,37 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 See [api/tests/README.md](api/tests/README.md) for API test structure, factories, and assertion
 patterns.
 
+### End-to-End Tests
+
+End-to-end tests use [Playwright](https://playwright.dev/) and live in `api/end-to-end-tests/`,
+a sibling of `api/tests/`. They share `api/tests/support/clean-database.ts` and
+`clean-trav-com-database.ts` directly via the `@/tests/support/` path alias — no duplication.
+Tests run against the full development stack (frontend on port 8080).
+
+**Run locally (via Docker — matches CI):**
+
+```bash
+dev up                            # start the app stack first
+dev test end-to-end-tests         # run in Docker (headless), uses test databases
+```
+
+**Run locally (native — for development and debugging):**
+
+```bash
+dev up                            # start the app stack first
+cd api
+npm install
+npx playwright install chromium
+npm run test:e2e                  # headless
+```
+
+**Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` and
+`expect` from `../fixtures` (not `@playwright/test` directly) to get the auto database cleanup fixture.
+Use `test()` (not `it()`). Prefer `page.getByRole` and `page.getByText` locators over CSS selectors.
+
+**Auth:** Most routes require Auth0 login. Tests that need authentication should use a shared
+storageState auth fixture (to be built) and are currently skipped.
+
 ---
 
 ## Frontend Patterns & Conventions
