@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    env:
+      POSTGRES_CACHE_VERSION: v1
+      MSSQL_CACHE_VERSION: v1
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,8 +28,26 @@ jobs:
         # directive — runtime values come from the x-default-environment anchor in the compose file.
         run: touch api/.env.development
 
+      - name: Cache PostgreSQL data
+        uses: actions/cache@v4
+        with:
+          path: /tmp/e2e-test-db-postgres
+          key: ${{ runner.os }}-e2e-postgres-${{ env.POSTGRES_CACHE_VERSION }}-${{ hashFiles('api/src/db/migrations/**') }}
+
+      - name: Cache MSSQL data
+        uses: actions/cache@v4
+        with:
+          path: /tmp/e2e-test-db-mssql
+          key: ${{ runner.os }}-e2e-mssql-${{ env.MSSQL_CACHE_VERSION }}-${{ hashFiles('api/src/integrations/trav-com-integration/db/migrations/**') }}
+
+      - name: Prepare database directories
+        run: |
+          mkdir -p /tmp/e2e-test-db-postgres /tmp/e2e-test-db-mssql
+          sudo chown -R 999:999 /tmp/e2e-test-db-postgres
+          sudo chown -R 10001:0 /tmp/e2e-test-db-mssql
+
       - name: Start application stack
-        run: docker compose -f docker-compose.development.yml up -d db db_trav_com api api_wait web
+        run: docker compose -f docker-compose.development.yml -f docker-compose.e2e-test.yml up -d db db_trav_com api api_wait web
 
       - name: Wait for web to be ready
         run: |
