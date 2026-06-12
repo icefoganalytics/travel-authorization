@@ -3,60 +3,30 @@
     class="mt-5"
     color="#fff2d5"
   >
-    <v-card-title class="d-flex align-baseline">
-      <h3>Awaiting Changes</h3>
+    <v-card-title class="d-flex align-center">
+      <h3 class="d-flex align-top">
+        Awaiting Changes
 
-      <v-spacer />
-      <RefreshTableButton @click="refreshTable" />
+        <v-icon
+          class="ml-1"
+          size="x-small"
+        >
+          mdi-help-circle-outline
+        </v-icon>
+        <v-tooltip
+          activator="parent"
+          text="Travel requests where the supervisor has sent back a pre-trip request for changes. Not yet implemented."
+        />
+      </h3>
     </v-card-title>
     <v-card-text>
-      <TravelAuthorizationsSupervisorDataTableServer
-        ref="travelAuthorizationsSupervisorDataTable"
-        :where="whereClause"
-        route-query-suffix="AwaitingChanges"
-        @click:row="goToManageTravelAuthorization"
+      <v-empty-state
+        icon="mdi-clock-outline"
+        title="Coming Soon"
+        text="Supervisor change requests on pre-trip travel authorizations are not yet implemented."
       />
     </v-card-text>
   </v-card>
 </template>
 
-<script setup lang="ts">
-import { useTemplateRef } from "vue"
-import { useRouter } from "vue-router"
-
-import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
-
-import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import TravelAuthorizationsSupervisorDataTableServer, {
-  type TravelAuthorizationTableRow,
-} from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTableServer.vue"
-
-const whereClause = {
-  status: [
-    TravelAuthorizationStatuses.CHANGE_REQUESTED,
-    TravelAuthorizationStatuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
-  ],
-}
-
-const travelAuthorizationsSupervisorDataTable = useTemplateRef(
-  "travelAuthorizationsSupervisorDataTable"
-)
-
-function refreshTable() {
-  travelAuthorizationsSupervisorDataTable.value?.refresh()
-}
-
-const router = useRouter()
-
-async function goToManageTravelAuthorization(
-  _event: unknown,
-  { item: travelAuthorization }: TravelAuthorizationTableRow
-) {
-  await router.push({
-    name: "manage-travel-requests/ManageTravelRequestExpensesPage",
-    params: {
-      travelAuthorizationId: travelAuthorization.id.toString(),
-    },
-  })
-}
-</script>
+<script setup lang="ts"></script>

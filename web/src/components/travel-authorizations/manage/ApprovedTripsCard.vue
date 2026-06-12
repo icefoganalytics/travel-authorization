@@ -3,21 +3,21 @@
     class="mt-5"
     color="#fff2d5"
   >
-    <v-card-title class="d-flex align-baseline">
-      <h3>Approved Upcoming Travel</h3>
+    <v-card-title class="d-flex align-center">
+      <h3 class="d-flex align-top">
+        Approved Upcoming Travel
 
-      <v-tooltip location="top">
-        <template #activator="{ props: activatorProps }">
-          <v-icon
-            class="ml-2"
-            color="black"
-            v-bind="activatorProps"
-          >
-            mdi-help-circle-outline
-          </v-icon>
-        </template>
-        <span>Highlighted rows indicate where the traveller is currently in transit.</span>
-      </v-tooltip>
+        <v-icon
+          class="ml-1"
+          size="x-small"
+        >
+          mdi-help-circle-outline
+        </v-icon>
+        <v-tooltip
+          activator="parent"
+          text="Supervisor-approved travel with upcoming or active trips. Highlighted rows indicate the traveller is currently in transit."
+        />
+      </h3>
 
       <v-spacer />
       <RefreshTableButton @click="refreshTable" />
@@ -34,29 +34,32 @@
   </v-card>
 </template>
 
-<script setup>
-import { ref } from "vue"
+<script setup lang="ts">
+import { useTemplateRef } from "vue"
 
-import { STATUSES } from "@/api/travel-authorizations-api"
+import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import TravelAuthorizationsSupervisorDataTableServer from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTableServer.vue"
+import { type TravelAuthorizationAsIndex } from "@/use/use-travel-authorizations"
 
 const whereClause = {
-  status: STATUSES.APPROVED,
+  status: TravelAuthorizationStatuses.APPROVED,
 }
 
 const filtersClause = {
   isBeforeTripEnd: true,
 }
 
-const travelAuthorizationsSupervisorDataTable = ref(null)
+const travelAuthorizationsSupervisorDataTable = useTemplateRef(
+  "travelAuthorizationsSupervisorDataTable"
+)
 
 function refreshTable() {
   travelAuthorizationsSupervisorDataTable.value?.refresh()
 }
 
-function getRowClass(item) {
+function getRowClass(item: TravelAuthorizationAsIndex) {
   return item.isTravelling ? "highlight-row" : ""
 }
 </script>

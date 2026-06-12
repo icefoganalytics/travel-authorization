@@ -14,7 +14,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <AwaitingExpenseApprovalCard />
+        <ExpenseClaimsPendingReviewCard />
       </v-col>
       <v-col>
         <ApprovedTripsCard />
@@ -28,7 +28,7 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import ApprovedTripsCard from "@/components/travel-authorizations/manage/ApprovedTripsCard.vue"
 import AwaitingChangesCard from "@/components/travel-authorizations/manage/AwaitingChangesCard.vue"
-import AwaitingExpenseApprovalCard from "@/components/travel-authorizations/manage/AwaitingExpenseApprovalCard.vue"
+import ExpenseClaimsPendingReviewCard from "@/components/travel-authorizations/manage/ExpenseClaimsPendingReviewCard.vue"
 import CreateTravelAuthorizationDialogButton from "@/components/travel-authorizations/manage/CreateTravelAuthorizationDialogButton.vue"
 import PendingApprovalsCard from "@/components/travel-authorizations/manage/PendingApprovalsCard.vue"
 

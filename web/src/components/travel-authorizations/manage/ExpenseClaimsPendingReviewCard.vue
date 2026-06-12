@@ -3,8 +3,21 @@
     class="mt-5"
     color="#fff2d5"
   >
-    <v-card-title class="d-flex align-baseline">
-      <h3>Awaiting Expense Approval</h3>
+    <v-card-title class="d-flex align-center">
+      <h3 class="d-flex align-top">
+        Expense Claims Pending Review
+
+        <v-icon
+          class="ml-1"
+          size="x-small"
+        >
+          mdi-help-circle-outline
+        </v-icon>
+        <v-tooltip
+          activator="parent"
+          text="Travel requests with expense claims awaiting supervisor review, including claims returned by finance for re-evaluation."
+        />
+      </h3>
 
       <v-spacer />
       <RefreshTableButton @click="refreshTable" />
@@ -32,7 +45,10 @@ import TravelAuthorizationsSupervisorDataTableServer, {
 } from "@/components/travel-authorizations/manage/TravelAuthorizationsSupervisorDataTableServer.vue"
 
 const whereClause = {
-  status: TravelAuthorizationStatuses.EXPENSE_CLAIM_SUBMITTED,
+  status: [
+    TravelAuthorizationStatuses.EXPENSE_CLAIM_SUBMITTED,
+    TravelAuthorizationStatuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
+  ],
 }
 
 const travelAuthorizationsSupervisorDataTable = useTemplateRef(
