@@ -4,6 +4,8 @@ description: Create a complete end-to-end test travel request through the My Tra
 
 # Create Test Travel Request Workflow
 
+See also: [Flow Chart, Travel Authorization Wizard UI Flow, 2026-06-12](<../../_Design/Flow Chart, Travel Authorization Wizard UI Flow, 2026-06-12.wsd>)
+
 ## Intent
 
 **WHY this workflow exists:** The travel authorization wizard has 16 steps and requires two
@@ -13,7 +15,7 @@ complete, fully-approved travel request quickly and repeatably.
 
 **WHAT this workflow produces:** A travel request for Travel Auth #XXXX that has been submitted
 through all wizard steps up to (and including) expense submission, with supervisor and finance
-approvals obtained by switching to a second browser window logged in as the admin account.
+approvals obtained by switching between user accounts.
 
 **Decision Rules:**
 
@@ -25,9 +27,11 @@ approvals obtained by switching to a second browser window logged in as the admi
   select all text, then type the date in `YYYY-MM-DD` format.
 - **Accounts:** User = `$TRAVELLER_EMAIL`. Supervisor/Admin = `$ADMIN_EMAIL`. Never use the admin
   account for the traveller role or vice versa.
-- **Approvals require a second browser window:** Open a separate window logged in as the admin
-  account for all approval steps. Switch back to the traveller window afterward and click
-  **Check status?** to advance the wizard.
+- **Session switching required at approval steps:** Auth0 cookies are shared across all tabs in
+  the same browser profile. Logging in as admin displaces the traveller session in every tab. At
+  each approval step you must sign in as admin, perform the approval, then sign back in as the
+  traveller before clicking **Check status?**. The JS `loginWithRedirect` call (see Steps 7 and
+  13) is the fastest way to switch back without navigating away.
 - **Expense prefill exists:** When you reach the Submit Expenses step the app offers to prefill
   expenses from the estimates already created in Step 3. Always use prefill — it saves time.
 - **Coding rows are required before Submit Expenses Continue is enabled:** Add at least one General
@@ -40,7 +44,7 @@ approvals obtained by switching to a second browser window logged in as the admi
 | Role | Env var | Used for |
 |---|---|---|
 | Traveller | `$TRAVELLER_EMAIL` / `$TRAVELLER_PASSWORD` | All wizard steps as the traveller |
-| Admin / Supervisor | `$ADMIN_EMAIL` / `$ADMIN_PASSWORD` | Approvals (Steps 5, 15) |
+| Admin / Supervisor | `$ADMIN_EMAIL` / `$ADMIN_PASSWORD` | Approvals (Steps 7, 13), Finance review (Step 14) |
 
 Credentials are stored in `.envrc` (not committed). Run `direnv allow` after filling them in.
 
@@ -52,6 +56,7 @@ App base URL: `http://localhost:8080`
 |---|---|
 | Travel request details + approval | `/manage-travel-requests/:id/details` |
 | Expense claim details + finance approval | `/manage-travel-requests/:id/expense` |
+| Finance expense processing | `/expense-processing/:id/expense` |
 | Travel desk (flight options) | `/travel-desk` |
 
 ---
@@ -162,64 +167,47 @@ Click **Submit to Supervisor**. Verify "Travel request submitted." toast and URL
 
 ---
 
-## Step 7 — Supervisor Approval (Wizard Step 5, admin window)
+## Step 7 — Supervisor Approval (Wizard Step 5, admin account)
 
 The wizard blocks at "Waiting for Approval" until the designated supervisor approves.
 
+> **Session displacement warning:** Auth0 cookies are shared across all tabs in the same browser
+> profile. Logging in as admin here will log the traveller out of every tab. The wizard's
+> `PATCH /api/travel-authorizations/:id/wizard` endpoint is owner-only (`WizardPolicy#update`), so
+> if the admin session is active when the traveller clicks Continue, the call silently returns 403
+> and the wizard never advances. Always sign back in as the traveller before clicking **Check
+> status?**.
+
 ### Admin approval steps
 
-> **Tab-session note:** Auth0 sessions are shared across all tabs in the same browser. Logging in
-> as admin in a second tab logs the traveller out of the first tab. **This breaks the wizard:**
-> the wizard's `PATCH /api/travel-authorizations/:id/wizard` endpoint is policy-gated to only
-> allow the travel authorization's *owner* (i.e. the traveller). If the admin is logged in on the
-> wizard tab, every Continue button call fails silently with `ApiError: You are not authorized to
-> update this travel authorization wizard.` The page saves field data but never navigates.
->
-> **Design intent:** Only the traveller should advance the wizard step via the UI. Supervisors,
-> admins, and finance users advance it via back-end state-change services (which bypass the wizard
-> policy). This is intentional — the wizard policy (`WizardPolicy#update`) enforces that only
-> the travel authorization owner can call `PATCH /api/travel-authorizations/:id/wizard`.
->
-> **Fix after doing the admin approval:** In the admin tab, sign out and sign back in as the
-> traveller before returning to the wizard. Alternatively, for a Playwright test, use
-> `browser.newContext()` for the admin so the traveller's cookie jar is never touched.
->
-> **How to sign out via JS (when the kebab menu is hard to click):**
-> ```js
-> // Run in browser console — finds the "Sign out" text node and clicks it
-> [...document.querySelectorAll('*')]
->   .find(el => el.textContent.trim() === 'Sign out' && el.children.length === 0)
->   ?.click()
-> ```
-
-1. Open a new browser tab (or a second browser window / Playwright context).
-2. Navigate to `http://localhost:8080`.
-3. Sign out of the current session, then log in as the admin account
-   (`$ADMIN_EMAIL` / `$ADMIN_PASSWORD`). Confirm the admin nav bar appears (Travel Desk, Manage
-   Travel Requ…, Expense Processing, QA Scenarios visible).
-4. Navigate to `http://localhost:8080/manage-travel-requests/:id/details` (replace `:id` with the
-   travel auth ID noted in Step 2).
-5. Scroll down past the **Details** card to the **Management** card.
-6. Click the green **Approve** button. A confirmation dialog appears:
+1. Note the current wizard URL (you will need to return here after signing back in).
+2. Sign in as the admin account (`$ADMIN_EMAIL` / `$ADMIN_PASSWORD`).
+   Confirm the admin nav bar appears (Travel Desk, Manage Travel Requests, Expense Processing
+   visible).
+3. Navigate to `/manage-travel-requests/:id/details` (replace `:id` with the travel auth ID).
+4. Scroll down to the **Management** card.
+5. Click the green **Approve** button. A confirmation dialog appears:
    `"Approve travel of [Traveller Name] to [Destination]?"`
-7. Click **Approve** in the dialog. Verify "Travel authorization approved!" toast on the admin side.
+6. Click **Approve** in the dialog. Verify "Travel authorization approved!" toast.
 
-### Return to traveller window
+### Return to traveller session
 
-After the admin approves, restore the traveller session then return to the wizard:
+Sign back in as the traveller. The fastest way without navigating away from the wizard tab:
 
-1. In the admin browser tab, click the user menu (top right) → **Sign out**.
-2. Log back in as the traveller account (`$TRAVELLER_EMAIL` / `$TRAVELLER_PASSWORD`).
-3. Navigate back to the wizard at:
-   `http://localhost:8080/my-travel-requests/:id/wizard/awaiting-supervisor-approval`
-4. Click **Check status?**. The snackbar "Travel authorization approved!" confirms the status.
-   The wizard navigates to Step 6 (Traveler Details).
-   - If the wizard does not navigate automatically, navigate directly:
-     `http://localhost:8080/my-travel-requests/:id/wizard/edit-traveller-details`
+```javascript
+// Run in the browser console on the wizard tab
+const auth0 = document.getElementById('app').__vue_app__.config.globalProperties.$auth0
+auth0.loginWithRedirect({
+  authorizationParams: { prompt: 'login', login_hint: '$TRAVELLER_EMAIL' },
+  appState: { target: '/my-travel-requests/:id/wizard/awaiting-supervisor-approval' }
+})
+```
 
-> **AI Note (Playwright):** Use separate `browser.newContext()` for the admin — it gets its own
-> cookie jar, so the traveller session is never disturbed. The admin context only needs to live
-> long enough to click Approve; close it immediately after.
+Enter the traveller password on the Auth0 page. After redirect, click **Check status?**. Toast:
+"Travel authorization approved!" Wizard advances to Traveler Details.
+
+> **Playwright:** Use a second `browser.newContext({ storageState: 'tests/.auth/admin.json' })`
+> for the admin — it gets its own cookie jar and never disturbs the traveller context.
 
 ---
 
@@ -278,34 +266,139 @@ This step requires:
 2. **Add expenses** — click **Prefill from Estimates** to copy the estimates into actual expenses.
    This is the fastest path.
 
-3. **Upload receipts** (optional for testing) — receipts can be skipped if the policy permits.
+3. **Upload receipts (REQUIRED)** — receipts are mandatory for all non-Meals-and-Incidentals
+   expenses. The `isReadyToSubmit` computed in `RequestApprovalForm.vue` checks
+   `allRelevantExpensesHaveReceipts`, which filters out M&I and requires every remaining expense to
+   have a non-null `receipt`. The Continue button will show an error snackbar instead of submitting
+   if any receipt is missing.
+
+   **AI workaround for testing:** Inject fake receipts via the DataTransfer API without opening
+   the file picker:
+
+   ```javascript
+   const pngBytes = new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,2,0,0,0,144,119,83,222,0,0,0,12,73,68,65,84,8,215,99,248,15,0,0,1,1,0,5,24,213,78,0,0,0,0,73,69,78,68,174,66,96,130])
+   const blob = new Blob([pngBytes], { type: 'image/png' })
+   const fileInputs = document.querySelectorAll('input[type="file"].d-none')
+   for (let i = 0; i < fileInputs.length; i++) {
+     const file = new File([blob], `receipt_${i+1}.png`, { type: 'image/png' })
+     const dt = new DataTransfer()
+     dt.items.add(file)
+     fileInputs[i].files = dt.files
+     fileInputs[i].dispatchEvent(new Event('change', { bubbles: true }))
+   }
+   ```
+
+   Wait a moment for the uploads to complete, then verify each expense row shows "View Receipt"
+   instead of "Add Receipt" before proceeding.
 
 4. **Add at least one Coding row** — click **Add Coding** and fill in one General Ledger Coding
    entry. The Continue button stays disabled until at least one coding row exists.
 
-5. Click **Submit Expenses** (via the `RequestApprovalForm` at the bottom of the page).
+   Valid G/L code format (YG finance system): `552-503010-0222-0006-09999`
+
+5. Click **Submit Expenses** (the "Submit to Supervisor" button in the `RequestApprovalForm` at
+   the bottom of the page, inside the wizard's Continue button flow).
 
 ---
 
 ## Step 13 — Awaiting Supervisor Approval of Expenses (Wizard Step 14)
 
-The wizard blocks until the supervisor approves the expense claim.
+The wizard blocks at step `awaiting-expense-claim-approval` until the supervisor approves.
 
-> **TODO:** Covered by the same second-window admin flow as Step 7. Approve the expense claim
-> from the admin panel, then return to the traveller window and click **Check status?**.
+### Admin approval steps
+
+The **Manage Travel Requests** expense page (`/manage-travel-requests/:id/expense`) has a
+**Management** card with **Approve** and **Deny** buttons. These call `blockedToTrueConfirm()`
+(a native `window.confirm()` dialog) which freezes the browser extension.
+
+Sign in as the admin account, then use one of these options:
+
+**Option A — click in the browser (manual):** Navigate to `/manage-travel-requests/:id/expense`,
+click **Approve** in the Management card, and confirm the native dialog manually.
+
+**Option B — call the API directly (AI-friendly):**
+
+```javascript
+// Run in the browser console while signed in as admin
+(async () => {
+  const app = document.getElementById('app').__vue_app__
+  const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
+  const resp = await fetch('http://localhost:3000/api/travel-authorizations/:id/approve-expense-claim', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+  })
+  const body = await resp.json()
+  console.log(body.travelAuthorization.status, body.travelAuthorization.wizardStepName)
+})()
+// Expected: "expense_claim_approved"  "awaiting-finance-review-and-processing"
+```
+
+### Return to traveller session
+
+Sign back in as the traveller (same `loginWithRedirect` pattern as Step 7, targeting
+`/my-travel-requests/:id/wizard/awaiting-expense-claim-approval`). Click **Check status?**. Toast:
+"Expense claim approved by supervisor! Awaiting finance review." Wizard advances to step 15
+(`awaiting-finance-review-and-processing`).
 
 ---
 
 ## Step 14 — Finance Review (Wizard Step 15)
 
-A finance user must review and approve. Navigate to the **Finance** admin panel as admin and
-process the expense claim. The wizard then advances to Step 16 (Review Expenses).
+The wizard shows "Awaiting Finance Review And Processing" with a **Check status?** button.
+
+### Finance user actions (admin tab)
+
+1. Navigate to **Expense Processing** in the left sidebar (`/expense-processing`).
+2. TA #9 appears in the **Awaiting Finance Review** table. Click the row.
+3. You land on `/expense-processing/:id/details`. Click the **Expenses** tab
+   (`/expense-processing/:id/expense`).
+
+The **Expenses** tab is the full-form finance review page. It contains:
+
+| Section | What the finance user can do |
+|---|---|
+| **Traveler Expenses** | View accommodations & transportation; **View Receipt** links |
+| **Meals and Incidentals** | View M&I rows; **Add Receipt** if not uploaded |
+| **Expense Totals** | Read-only subtotal / travel advance / total claim |
+| **Coding** | Add / edit / delete G/L coding rows |
+| **Finance Management** | **Approve**, **Deny**, **Send Back to Traveler**, **Send Back to Supervisor** |
+
+#### Approve (mark as expensed)
+
+The **Approve** button calls `POST /api/travel-authorizations/:id/expense` via
+`blockedToTrueConfirm()` (native dialog). Use the API directly to avoid freezing the extension:
+
+```javascript
+(async () => {
+  const app = document.getElementById('app').__vue_app__
+  const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
+  const resp = await fetch('http://localhost:3000/api/travel-authorizations/9/expense', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+  })
+  const body = await resp.json()
+  console.log(body.travelAuthorization.status, body.travelAuthorization.wizardStepName)
+})()
+// Expected: "expensed"  "review-expenses"
+```
+
+#### Send Back to Traveler / Send Back to Supervisor
+
+These open Vuetify dialogs (not native confirms) — safe to click in the browser extension.
+The dialog prompts for a reason/note before sending back.
+
+### Advance traveller wizard to step 16
+
+Sign back in as the traveller (same `loginWithRedirect` pattern as Step 7, targeting
+`/my-travel-requests/:id/wizard/awaiting-finance-review-and-processing`), then click **Check
+status?**. Toast confirms finance approval; wizard advances to step 16 (`review-expenses`).
 
 ---
 
 ## Step 15 — Review Expenses (Wizard Step 16)
 
-Final state — the traveller can review the approved expenses. No further action required.
+Final state (`review-expenses`). The traveller sees the fully approved expense summary. No
+further action is required from the traveller. The travel authorization status is `expensed`.
 
 ---
 
@@ -329,13 +422,32 @@ All wizard URLs follow the pattern `/my-travel-requests/:id/wizard/:stepName`.
 
 When converting this workflow to Playwright:
 
+- **Multi-user isolation:** Use `browser.newContext()` for each role — each context has its own
+  isolated cookie jar so both sessions can stay alive simultaneously, eliminating the sign-in/out
+  switching this manual workflow requires. Authenticate once per role, save state, and reuse:
+
+  ```typescript
+  // global-setup.ts — run once before the test suite
+  const adminContext = await browser.newContext()
+  const adminPage = await adminContext.newPage()
+  // ... log in as admin via Auth0 ...
+  await adminContext.storageState({ path: 'tests/.auth/admin.json' })
+  await adminContext.close()
+
+  const travellerContext = await browser.newContext()
+  // ... log in as traveller ...
+  await travellerContext.storageState({ path: 'tests/.auth/traveller.json' })
+  await travellerContext.close()
+
+  // In each test:
+  const adminCtx = await browser.newContext({ storageState: 'tests/.auth/admin.json' })
+  const travellerCtx = await browser.newContext({ storageState: 'tests/.auth/traveller.json' })
+  ```
+
 - **Date fields:** Use `page.fill('[placeholder="YYYY-MM-DD"]', '2026-06-01')` combined with
   `page.dispatchEvent('[placeholder="YYYY-MM-DD"]', 'input')` to trigger Vue reactivity. Or use
   `page.evaluate` to dispatch a native `InputEvent`.
 - **Wait for toasts:** `await page.waitForSelector('.v-snackbar:has-text("Travel request saved.")')`.
-- **Approval steps:** Use a second `browser.newContext()` logged in as the admin account. The
-  admin context can navigate to the travel authorization's admin view and click **Approve**
-  there, then the traveller context refreshes via **Check status?**.
 - **Combobox/autocomplete selects:** Vuetify comboboxes need a click to open, then click on the
   list item. Use `page.click('[aria-label="From"]')` + `page.click('[role="option"]:has-text("Whitehorse (YT)")')`.
 - **Policy-gated buttons:** Edit/Delete buttons are conditionally rendered via `v-if="item.policy.update"`.
