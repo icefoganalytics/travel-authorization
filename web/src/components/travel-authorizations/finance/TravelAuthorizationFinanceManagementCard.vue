@@ -16,6 +16,7 @@
         <v-btn
           class="flex-grow-1"
           color="success"
+          :disabled="!isActionable"
           :loading="isExpensing"
           @click="expense"
         >
@@ -24,6 +25,7 @@
         <v-btn
           class="flex-grow-1"
           color="error"
+          :disabled="!isActionable"
           :loading="isDenying"
           @click="deny"
         >
@@ -37,6 +39,7 @@
         <v-btn
           block
           variant="outlined"
+          :disabled="!isActionable"
           @click="sendBackToTraveler"
         >
           Send Back to Traveler
@@ -49,6 +52,7 @@
         <v-btn
           block
           variant="outlined"
+          :disabled="!isActionable"
           @click="sendBackToSupervisor"
         >
           Send Back to Supervisor
@@ -67,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRefs, useTemplateRef } from "vue"
+import { computed, ref, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
 import travelAuthorizationsApi from "@/api/travel-authorizations-api"
@@ -99,6 +103,8 @@ const snack = useSnack()
 
 const isExpensing = ref(false)
 const isDenying = ref(false)
+
+const isActionable = computed(() => travelAuthorization.value?.isExpenseClaimApproved)
 
 async function expense() {
   if (
