@@ -16,14 +16,14 @@
  * @see agents/workflows/create-test-travel-request-workflow.md
  */
 
-import { test, expect } from "../fixtures"
+import { test, expect, type Page } from "@playwright/test"
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 /** Fill a Vuetify date-picker text field and trigger Vue reactivity. */
-async function fillDate(page: import("@playwright/test").Page, label: string, value: string) {
+async function fillDate(page: Page, label: string, value: string) {
   const field = page.getByLabel(label)
   await field.click()
   await field.selectText()
@@ -32,16 +32,12 @@ async function fillDate(page: import("@playwright/test").Page, label: string, va
 }
 
 /** Wait for a Vuetify snackbar containing the given text. */
-async function expectToast(page: import("@playwright/test").Page, text: string) {
+async function expectToast(page: Page, text: string) {
   await expect(page.locator(`.v-snackbar:has-text("${text}")`)).toBeVisible()
 }
 
 /** Select a Vuetify combobox / autocomplete option by label and option text. */
-async function selectCombobox(
-  page: import("@playwright/test").Page,
-  label: string,
-  option: string
-) {
+async function selectCombobox(page: Page, label: string, option: string) {
   await page.getByLabel(label).click()
   await page.getByRole("option", { name: option }).click()
 }
