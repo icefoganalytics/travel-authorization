@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-alert
-      v-if="isExpenseClaimSupervisorChangesRequested"
+      v-if="travelAuthorization?.isExpenseClaimSupervisorChangesRequested"
       type="warning"
       class="mb-4"
       title="Finance has requested changes to this expense claim."
@@ -64,12 +64,17 @@
         </HeaderActionsCard>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row
+      v-if="
+        travelAuthorization?.isExpenseClaimSubmitted ||
+        travelAuthorization?.isExpenseClaimSupervisorChangesRequested
+      "
+    >
       <v-col>
         <ManagementCard
           :travel-authorization-id="travelAuthorizationIdAsNumber"
-          @approved="emit('updated')"
-          @denied="emit('updated')"
+          @approved="goToManageTravelRequests"
+          @denied="goToManageTravelRequests"
         />
       </v-col>
     </v-row>
@@ -78,10 +83,11 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { useRouter } from "vue-router"
 
 import { ExpenseExpenseTypes } from "@/api/expenses-api"
 
-import useTravelAuthorization, { TravelAuthorizationStatuses } from "@/use/use-travel-authorization"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
@@ -105,11 +111,6 @@ const emit = defineEmits<{
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationIdAsNumber)
-const isExpenseClaimSupervisorChangesRequested = computed(
-  () =>
-    travelAuthorization.value?.status ===
-    TravelAuthorizationStatuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED
-)
 
 const travelerExpensesWhere = computed(() => ({
   travelAuthorizationId: travelAuthorizationIdAsNumber.value,
@@ -124,6 +125,14 @@ const mealsAndIncidentalsWhere = computed(() => ({
 const generalLedgerCodingsWhere = computed(() => ({
   travelAuthorizationId: travelAuthorizationIdAsNumber.value,
 }))
+
+const router = useRouter()
+
+async function goToManageTravelRequests() {
+  await router.push({
+    name: "ManageTravelRequests",
+  })
+}
 
 useBreadcrumbs([
   {
