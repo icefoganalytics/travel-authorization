@@ -88,6 +88,7 @@ Prepares older draft requests to resume at the correct wizard step after the ste
 - `:cherry_blossom:` - UI polish and cosmetic improvements
 - `:wrench:` - config and settings changes
 - `:memo:` - documentation and plan updates
+- `:tophat:` - diagrams and visual design assets (PlantUML `.wsd`, rendered images)
 - `:hammer:` - infrastructure and tooling changes, such as Docker or scripts
 - `:arrow_up:` - dependency, runtime, and version bumps
 - `:arrow_down:` - dependency downgrades
