@@ -73,7 +73,8 @@ App base URL: `http://localhost:8080`
 
 1. In the left sidebar, click **My Travel Requests**.
 2. Click **New Request** (top-right of the list).
-3. Note the new Travel Auth ID from the URL: `/my-travel-requests/:id/wizard/edit-trip-purpose`.
+3. Note the new Travel Auth ID from the URL. Current wizard URLs use
+   `/my-travel-requests/:id/wizard/edit-purpose-details` for the first step.
 
 ---
 
@@ -87,6 +88,7 @@ Fill in the purpose form:
 | Conference name | `Annual Tech Conference 2026` |
 | In Territory? | `No` |
 | Final Destination | `Vancouver (BC)` |
+| Objectives | `Attend conference sessions and meet with program stakeholders.` |
 | Department | *(your department, or leave default)* |
 | Branch | *(leave default)* |
 
@@ -120,6 +122,16 @@ Travel type: **Round trip** (default).
 | Date | 3 days after depart, e.g. `2026-06-04` |
 | Time | `17:00` |
 | Travel Method | `Aircraft` |
+
+### Additional trip detail fields in the current UI
+
+After both segment dates are filled, **Travel Days** is calculated automatically. Fill these fields
+before continuing if they are present:
+
+| Field | Value |
+|---|---|
+| Days on non-travel status | `0` |
+| Expected Date return to work | Day after return date, e.g. `2026-06-05` |
 
 ### How to enter date values (AI note)
 
@@ -161,6 +173,9 @@ Review the summary. Fill in the Approvals section:
 | Travel Advance | `0` |
 | Pre-approved travel | *(leave blank)* |
 | Submit to | `$ADMIN_EMAIL` |
+
+The **Submit to** field accepts direct email entry; a dropdown option may not appear when typing the
+full address, but submission can still succeed if the email resolves server-side.
 
 Click **Submit to Supervisor**. Verify "Travel request submitted." toast and URL changes to
 `/awaiting-supervisor-approval`.
@@ -214,7 +229,8 @@ Enter the traveller password on the Auth0 page. After redirect, click **Check st
 ## Step 8 — Traveler Details (Wizard Step 6)
 
 The form is pre-populated from the user's profile. The header reads "Travel Desk Request /
-Traveler Details". Verify and fill in:
+Traveler Details". Current URLs may use Canadian spelling in the path:
+`/my-travel-requests/:id/wizard/edit-traveller-details`. Verify and fill in:
 
 | Field | Test value (pre-filled) |
 |---|---|
@@ -420,6 +436,56 @@ All wizard URLs follow the pattern `/my-travel-requests/:id/wizard/:stepName`.
 
 ## Playwright Porting Notes
 
+### OpenCode + Playwright MCP setup
+
+OpenCode can drive a local browser through the Playwright Model Context Protocol (MCP) server. The
+working local setup uses the system Chromium snap and writes generated snapshots/logs outside the
+repository:
+
+```jsonc
+// ~/.config/opencode/opencode.jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp",
+        "--executable-path",
+        "/snap/bin/chromium",
+        "--isolated",
+        "--output-dir",
+        "/tmp/opencode/playwright-mcp-output"
+      ],
+      "enabled": true,
+      "env": {
+        "BROWSER": "chromium"
+      }
+    }
+  }
+}
+```
+
+After changing OpenCode config, quit and restart OpenCode. MCP config is loaded on startup and is not
+hot-reloaded.
+
+Important local setup notes:
+
+- Use `--executable-path /snap/bin/chromium` on this workstation. Without it, Playwright MCP may try
+  to launch Google Chrome from `/opt/google/chrome/chrome` and fail.
+- Use `--isolated` to avoid shared Chromium profile locks such as
+  `Browser is already in use for ~/.cache/ms-playwright-mcp/...`.
+- Use `--output-dir /tmp/opencode/playwright-mcp-output` so MCP snapshots, console logs, and network
+  logs do not spam the repository. Keep `.playwright-mcp/` ignored in `.gitignore` as a fallback.
+- Firefox is not a reliable fallback on this workstation: the system Firefox binary failed under
+  Playwright, and Playwright-managed Firefox is not supported on `ubuntu26.04-x64`.
+
+Use MCP for exploratory browser inspection, snapshots, and small UI interactions. For this full
+multi-user workflow, prefer a direct Playwright script with separate browser contexts or persistent
+profiles, because the MCP browser tools expose one active browser context in the OpenCode session.
+
 When converting this workflow to Playwright:
 
 - **Multi-user isolation:** Use `browser.newContext()` for each role — each context has its own
@@ -450,6 +516,24 @@ When converting this workflow to Playwright:
 - **Wait for toasts:** `await page.waitForSelector('.v-snackbar:has-text("Travel request saved.")')`.
 - **Combobox/autocomplete selects:** Vuetify comboboxes need a click to open, then click on the
   list item. Use `page.click('[aria-label="From"]')` + `page.click('[role="option"]:has-text("Whitehorse (YT)")')`.
+  When the raw `input[role="combobox"]` is covered by Vuetify's field wrapper, click the wrapper
+  instead, e.g. `page.locator('[role="combobox"]:has-text("Purpose")').click()` then click the
+  desired `[role="option"]`.
+  For destination searches, use exact option matching because `Vancouver (BC)` also matches
+  `North Vancouver (BC)`, e.g. `page.getByRole("option", { name: "Vancouver (BC)", exact: true })`.
+- **MCP browser profile:** The Playwright Model Context Protocol (MCP) server is configured with
+  `--isolated`, which avoids shared Chromium profile locks. It provides a single browser context in
+  the current opencode session. For true traveller/admin isolation in one automated run, use a
+  direct Playwright script with two `browser.newContext()` contexts or two persistent profile
+  directories.
+- **Preferred local automation path:** For this full workflow, prefer a direct Playwright script over
+  the MCP browser tools. Create separate Chromium profiles such as
+  `/tmp/opencode/playwright-profiles/traveller` and `/tmp/opencode/playwright-profiles/admin`, log
+  each role in once, then switch between the two `Page` objects. This avoids Auth0 cookie
+  displacement and lets the traveller page remain on the wizard while the admin page performs
+  approvals.
+  On first login for a fresh profile, Auth0 may show an **Authorize App** consent screen; click
+  **Accept** once for each role/profile.
 - **Policy-gated buttons:** Edit/Delete buttons are conditionally rendered via `v-if="item.policy.update"`.
   Don't use `waitForSelector` with a timeout if the user lacks permission — check the API response
   `policy.update` field first.
