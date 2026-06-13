@@ -3,11 +3,11 @@
     v-model:page="page"
     v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
-    v-bind="$attrs"
     :headers="headers"
     :items="travelAuthorizations"
     :loading="isLoading"
     :items-length="totalCount"
+    v-bind="attrsWithRowClickFallback"
   >
     <template #item.name="{ item }">
       <span>{{ item.firstName }} {{ item.lastName }}</span>
@@ -24,60 +24,33 @@
     <template #item.returningAt="{ value }">
       <span>{{ formatDate(value) }}</span>
     </template>
-    <template #item.actions="{ item }">
-      <v-tooltip
-        v-if="item.unprocessedExpenseCount > 0"
-        bottom
-      >
-        <template #activator="{ props: activatorProps }">
-          <v-chip
-            variant="outlined"
-            v-bind="activatorProps"
-          >
-            <v-icon
-              start
-              size="small"
-            >
-              mdi-progress-clock
-            </v-icon>
-            Pending: {{ item.unprocessedExpenseCount }}
-          </v-chip>
-        </template>
-        <span>{{ item.unprocessedExpenseCount }} expenses remaining to be processed.</span>
-      </v-tooltip>
-      <!-- TODO: should this perform a different status effect if some expenses where rejected? -->
-      <v-btn
-        v-else
-        class="ma-0 mr-2"
-        color="primary"
-        :loading="isProcessingTravelAuthorization(item.id)"
-        @click.stop="approveTravelAuthorization(item.id)"
-      >
-        <v-icon start> mdi-check </v-icon>
-        Complete
-      </v-btn>
-    </template>
   </v-data-table-server>
 </template>
 
-<script setup lang="ts">
-import { computed, nextTick, ref } from "vue"
+<script lang="ts">
+import { type TravelAuthorizationAsIndex } from "@/use/use-travel-authorizations"
 
-import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
+export type TravelAuthorizationTableRow = {
+  item: TravelAuthorizationAsIndex
+}
+</script>
+
+<script setup lang="ts">
+import { computed, useAttrs } from "vue"
+import { isNil } from "lodash"
+import { useRouter } from "vue-router"
+
 import formatDate from "@/utils/format-date"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import { type LocationAsReference } from "@/api/locations-api"
-import travelAuthorizationsApi from "@/api/travel-authorizations-api"
-
 import useTravelAuthorizations, {
-  TravelAuthorizationStatuses,
-  type TravelAuthorizationFiltersOptions,
+  type TravelAuthorizationQueryOptions,
   type TravelAuthorizationWhereOptions,
+  type TravelAuthorizationFiltersOptions,
 } from "@/use/use-travel-authorizations"
-import useSnack from "@/use/use-snack"
 
 const props = withDefaults(
   defineProps<{
@@ -92,11 +65,14 @@ const props = withDefaults(
   }
 )
 
-const emit = defineEmits<{
-  (event: "expensed", travelAuthorizationId: number): void
-}>()
+const attrs = useAttrs()
 
-const headers = ref([
+const attrsWithRowClickFallback = computed(() => ({
+  "onClick:row": goToExpenseProcessingDetailsPage,
+  ...attrs,
+}))
+
+const headers = [
   {
     title: "TA #",
     key: "id",
@@ -118,22 +94,19 @@ const headers = ref([
   {
     title: "Type",
     key: "purposeText",
+    sortable: false,
   },
   {
     title: "Departure Date",
     key: "departingAt",
+    sortable: false,
   },
   {
     title: "Return Date",
     key: "returningAt",
-  },
-  {
-    title: "Actions",
-    key: "actions",
     sortable: false,
-    align: "center" as const,
   },
-])
+]
 
 const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformer,
@@ -143,19 +116,13 @@ const perPage = useRouteQuery<string, number>(`perPage${props.routeQuerySuffix}`
 })
 
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
-  {
-    key: "id",
-    order: "asc",
-  },
+  { key: "updatedAt", order: "desc" },
 ])
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
-const travelAuthorizationsQuery = computed(() => {
+const travelAuthorizationsQuery = computed<TravelAuthorizationQueryOptions>(() => {
   return {
-    where: {
-      ...props.where,
-      status: TravelAuthorizationStatuses.EXPENSE_CLAIM_APPROVED,
-    },
+    where: props.where,
     filters: props.filters,
     order: order.value,
     page: page.value,
@@ -165,36 +132,26 @@ const travelAuthorizationsQuery = computed(() => {
 const { travelAuthorizations, totalCount, isLoading, refresh } =
   useTravelAuthorizations(travelAuthorizationsQuery)
 
-const isProcessingTravelAuthorizationMap = ref(new Map<number, boolean>())
-const snack = useSnack()
+function formatFinalDestination(location: LocationAsReference | null) {
+  if (isNil(location)) return ""
 
-async function approveTravelAuthorization(travelAuthorizationId: number): Promise<void> {
-  if (
-    !blockedToTrueConfirm("Are you sure you want to mark this travel authorization as expensed?")
-  ) {
-    return
-  }
-
-  isProcessingTravelAuthorizationMap.value.set(travelAuthorizationId, true)
-  try {
-    await travelAuthorizationsApi.expense(travelAuthorizationId)
-    snack.success("Travel authorization expensed!")
-    refresh()
-
-    await nextTick()
-    emit("expensed", travelAuthorizationId)
-  } finally {
-    isProcessingTravelAuthorizationMap.value.set(travelAuthorizationId, false)
-  }
-}
-
-function isProcessingTravelAuthorization(travelAuthorizationId: number): boolean {
-  return isProcessingTravelAuthorizationMap.value.get(travelAuthorizationId) ?? false
-}
-
-function formatFinalDestination(value: LocationAsReference) {
-  const { city, province } = value
+  const { city, province } = location
   return `${city} (${province})`
+}
+
+const router = useRouter()
+
+function goToExpenseProcessingDetailsPage(
+  _event: unknown,
+  { item: travelAuthorization }: TravelAuthorizationTableRow
+) {
+  const travelAuthorizationId = travelAuthorization.id.toString()
+  router.push({
+    name: "expense-processing/ExpenseProcessingDetailsPage",
+    params: {
+      travelAuthorizationId,
+    },
+  })
 }
 
 defineExpose({

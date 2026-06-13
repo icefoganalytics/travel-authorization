@@ -62,7 +62,7 @@ the container. This project handles that by:
 
 - proxying Vite `"/__open-in-editor"` requests from the container to a small host-side bridge
 - translating container paths like `/usr/src/web/...` back to your host checkout path
-- launching `windsurf --goto ...` on the host by default
+- launching `$EDITOR` on the host, or returning an error if no editor is configured.
 
 If you use the repo-level `dev` wrapper, this is automatic:
 
@@ -72,7 +72,7 @@ If you use the repo-level `dev` wrapper, this is automatic:
 If you run Docker Compose manually on Linux, include
 `docker-compose.development.linux.yml` so the container can resolve `host.docker.internal`.
 
-The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and falls back to `windsurf`.
+The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
 
 ## Sample Travelport Text
 
@@ -103,7 +103,7 @@ flow, use `39339`.
 That value has been used in prior TravelAuth PR testing for itinerary and Passenger Name Record
 flows.
 
-## Sample General Ledger Codes
+## Sample General Ledger (GL) Codes
 
 If you need known valid General Ledger codes while testing the expense submission flow, use one of
 these values:

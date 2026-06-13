@@ -27,11 +27,7 @@ export class PrefillService extends BaseService {
       where: {
         id: expenseIds,
       },
-      include: [
-        {
-          association: "receipt",
-        },
-      ],
+      include: ["receipt", "travelAuthorization"],
     })
     return expensesWithReceipt
   }

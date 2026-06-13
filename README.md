@@ -150,8 +150,7 @@ If Vue Devtools **Open in Editor** fails while running the frontend in Docker:
 - Prefer `dev up` over raw `docker compose up` so the host-side bridge starts automatically.
 - On Linux, make sure you also include `docker-compose.development.linux.yml` when running Docker
   Compose manually.
-- The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and falls back to
-  `windsurf --goto ...`.
+- The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
 
 ## Build And Deploy
 

@@ -2,6 +2,7 @@
   <span
     v-if="disabled"
     ref="spanNativeRef"
+    :class="wrapperClass"
   >
     <v-btn
       :disabled="disabled"
@@ -56,6 +57,10 @@ defineProps({
     default: () => ({
       location: "bottom",
     }),
+  },
+  wrapperClass: {
+    type: String,
+    default: "",
   },
 })
 

@@ -28,11 +28,7 @@ export class BulkGenerateService extends BaseService {
       where: {
         id: estimateIds,
       },
-      include: [
-        {
-          association: "receipt",
-        },
-      ],
+      include: ["receipt", "travelAuthorization"],
     })
     return estimatesWithReceipt
   }

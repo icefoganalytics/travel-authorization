@@ -5,6 +5,13 @@ import TravelSegmentsPolicy from "@/policies/travel-segments-policy"
 import GenericStatePolicy from "@/policies/travel-authorizations/generic-state-policy"
 
 export class SubmitStatePolicy extends GenericStatePolicy {
+  update(): boolean {
+    if (this.user.isAdmin) return true
+    if (this.record.supervisorEmail === this.user.email) return true
+
+    return false
+  }
+
   permittedAttributes(): Path[] {
     const attributes: Path[] = super.permittedAttributes()
 

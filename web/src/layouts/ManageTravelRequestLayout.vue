@@ -1,10 +1,5 @@
 <template>
   <div>
-    <SummaryHeaderPanel
-      ref="summaryHeaderPanel"
-      :travel-authorization-id="travelAuthorizationIdAsNumber"
-    />
-
     <v-tabs>
       <v-tab
         :to="{
@@ -38,16 +33,30 @@
       <!-- TODO: add in any tabs that you can normally see in manage mode -->
     </v-tabs>
 
-    <router-view @updated="refresh"></router-view>
+    <SummaryHeaderPanel
+      ref="summaryHeaderPanel"
+      :travel-authorization-id="travelAuthorizationIdAsNumber"
+      class="mt-6"
+    />
 
-    <v-row class="mt-md-10 mt-5">
-      <v-col>
-        <TravelAuthorizationActionLogsTable
-          ref="travelAuthorizationActionLogsTable"
-          :travel-authorization-id="travelAuthorizationIdAsNumber"
+    <router-view v-slot="{ Component }">
+      <div class="mt-6">
+        <component
+          :is="Component"
+          @updated="refresh"
         />
-      </v-col>
-    </v-row>
+      </div>
+    </router-view>
+
+    <HeaderActionsCard
+      title="Logs"
+      class="mt-6"
+    >
+      <TravelAuthorizationActionLogsTable
+        ref="travelAuthorizationActionLogsTable"
+        :travel-authorization-id="travelAuthorizationIdAsNumber"
+      />
+    </HeaderActionsCard>
   </div>
 </template>
 
@@ -56,6 +65,7 @@ import { computed, ref } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 import TravelAuthorizationActionLogsTable from "@/components/travel-authorization-action-logs/TravelAuthorizationActionLogsTable.vue"
 

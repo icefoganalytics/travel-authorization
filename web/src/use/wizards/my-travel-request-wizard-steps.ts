@@ -230,6 +230,4 @@ export const MY_TRAVEL_REQUEST_WIZARD_STEPS = Object.freeze(
   ].map(buildStep)
 )
 
-export const FIRST_STEP_ID = MY_TRAVEL_REQUEST_WIZARD_STEPS[0].id
-
 export default MY_TRAVEL_REQUEST_WIZARD_STEPS

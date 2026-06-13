@@ -3,81 +3,98 @@
     v-if="isNil(travelAuthorization)"
     type="card"
   />
-  <v-card v-else>
+  <HeaderActionsCard
+    v-else
+    title="Management"
+  >
     <v-form ref="form">
-      <v-card-text>
-        <v-row>
-          <v-col
-            cols="12"
-            md="4"
-            class="d-flex ga-2"
+      <v-row>
+        <v-col
+          cols="12"
+          md="4"
+          class="d-flex ga-2"
+        >
+          <ConditionalTooltipButton
+            class="flex-grow-1"
+            wrapper-class="d-flex flex-grow-1"
+            color="success"
+            :disabled="!canApproveOrDeny"
+            :loading="isLoadingTravelAuthorization"
+            tooltip-text="Only available when the expense claim is awaiting your approval."
+            @click="approveExpenseClaim"
           >
-            <v-btn
-              class="flex-grow-1"
-              color="success"
-              @click="approve"
-            >
-              Approve
-            </v-btn>
-            <v-btn
-              class="flex-grow-1"
-              color="error"
-              @click="deny"
-            >
-              Deny
-            </v-btn>
-          </v-col>
-          <v-col
-            cols="12"
-            md="6"
+            Approve
+          </ConditionalTooltipButton>
+          <ConditionalTooltipButton
+            class="flex-grow-1"
+            wrapper-class="d-flex flex-grow-1"
+            color="error"
+            :disabled="!canApproveOrDeny"
+            :loading="isLoadingTravelAuthorization"
+            tooltip-text="Only available when the expense claim is awaiting your approval."
+            @click="denyExpenseClaim"
           >
-            <UserEmailSearchableCombobox
-              v-model="travelAuthorization.supervisorEmail"
-              :rules="[required]"
-              label="Reassign to"
-              density="compact"
-              hide-details="auto"
-              required
-              variant="outlined"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="2"
+            Deny
+          </ConditionalTooltipButton>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <UserEmailSearchableCombobox
+            v-model="travelAuthorization.supervisorEmail"
+            :rules="[required]"
+            label="Reassign to"
+            density="compact"
+            hide-details="auto"
+            required
+            variant="outlined"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="2"
+        >
+          <v-btn
+            class="mt-0"
+            block
+            :loading="isLoadingTravelAuthorization"
+            @click="reassign"
           >
-            <v-btn
-              class="mt-0"
-              block
-              :loading="isLoadingTravelAuthorization"
-              @click="reassign"
-            >
-              Reassign
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-text>
+            Reassign
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-form>
-  </v-card>
+  </HeaderActionsCard>
 </template>
 
 <script setup lang="ts">
-import { nextTick, toRefs, useTemplateRef } from "vue"
+import { computed, nextTick, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
+import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 import { required } from "@/utils/validators"
+
+import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
 
 import useSnack from "@/use/use-snack"
 import travelAuthorizationApi from "@/api/travel-authorizations-api"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
+import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import UserEmailSearchableCombobox from "@/components/users/UserEmailSearchableCombobox.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number
 }>()
 
-const emit = defineEmits(["approved", "denied"])
+const emit = defineEmits<{
+  approved: [travelAuthorizationId: number]
+  denied: [travelAuthorizationId: number]
+}>()
 
 const { travelAuthorizationId } = toRefs(props)
 const {
@@ -85,7 +102,18 @@ const {
   policy,
   isLoading: isLoadingTravelAuthorization,
   save,
+  refresh,
 } = useTravelAuthorization(travelAuthorizationId)
+
+const canApproveOrDeny = computed(() => {
+  if (isNil(travelAuthorization.value)) return false
+
+  const { status } = travelAuthorization.value
+  return (
+    status === TravelAuthorizationStatuses.EXPENSE_CLAIM_SUBMITTED ||
+    status === TravelAuthorizationStatuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED
+  )
+})
 
 const form = useTemplateRef("form")
 const snack = useSnack()
@@ -119,25 +147,37 @@ async function reassign() {
   }
 }
 
-async function approve() {
+async function approveExpenseClaim() {
+  if (!blockedToTrueConfirm("Are you sure you want to approve this expense claim?")) {
+    return
+  }
+
   try {
     await travelAuthorizationApi.approveExpenseClaim(props.travelAuthorizationId)
-    snack.success("Travel authorization approved!")
+    await refresh()
+
+    snack.success("Expense claim approved!")
     emit("approved", props.travelAuthorizationId)
   } catch (error) {
-    console.error(`Failed to approve travel authorization: ${error}`, { error })
-    snack.error(`Failed to approve travel authorization: ${error}`)
+    console.error(`Failed to approve expense claim: ${error}`, { error })
+    snack.error(`Failed to approve expense claim: ${error}`)
   }
 }
 
-async function deny() {
+async function denyExpenseClaim() {
+  if (!blockedToTrueConfirm("Are you sure you want to deny this expense claim?")) {
+    return
+  }
+
   try {
-    await travelAuthorizationApi.deny(props.travelAuthorizationId)
-    snack.success("Travel authorization denied!")
+    await travelAuthorizationApi.denyExpenseClaim(props.travelAuthorizationId)
+    await refresh()
+
+    snack.success("Expense claim denied!")
     emit("denied", props.travelAuthorizationId)
   } catch (error) {
-    console.error(`Failed to deny travel authorization: ${error}`, { error })
-    snack.error(`Failed to deny travel authorization: ${error}`)
+    console.error(`Failed to deny expense claim: ${error}`, { error })
+    snack.error(`Failed to deny expense claim: ${error}`)
   }
 }
 </script>

@@ -11,22 +11,27 @@
     <template #top>
       <ExpenseEditDialog
         ref="editDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @saved="emitChangedAndRefresh"
       />
       <ExpenseDeleteDialog
         ref="deleteDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @deleted="emitChangedAndRefresh"
       />
       <ReceiptGenericPreviewDialog
         ref="receiptGenericPreviewDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @deleted="emitChangedAndRefresh"
       />
       <ReceiptImagePreviewDialog
         ref="receiptImagePreviewDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @deleted="emitChangedAndRefresh"
       />
       <ReceiptPdfPreviewDialog
         ref="receiptPdfPreviewDialogRef"
+        :route-query-suffix="routeQuerySuffix"
         @deleted="emitChangedAndRefresh"
       />
     </template>
@@ -36,11 +41,11 @@
     <template #item.cost="{ value }">
       {{ formatCurrency(value) }}
     </template>
-    <template #item.actions="{ value: actions, item }">
+    <template #item.actions="{ item }">
       <div class="d-flex">
         <v-col class="d-flex justify-end">
           <v-btn
-            v-if="actions.includes('edit')"
+            v-if="item.policy.update"
             variant="outlined"
             @click="showEditDialog(item.id)"
             >Edit</v-btn
@@ -62,7 +67,7 @@
           </v-btn>
 
           <v-btn
-            v-if="actions.includes('delete')"
+            v-if="item.policy.destroy"
             icon="mdi-close"
             size="small"
             variant="text"
@@ -80,9 +85,11 @@
           <td
             :class="totalRowClasses"
             colspan="2"
-          ></td>
+          >
+            <slot name="footerNote"></slot>
+          </td>
           <td :class="totalRowClasses">Total</td>
-          <td :class="totalRowClasses">{{ formatCurrency(totalAmount) }}</td>
+          <td :class="totalRowClasses">{{ formatCurrency(summaries.totalCost) }}</td>
           <td
             :class="totalRowClasses"
             colspan="1"
@@ -95,7 +102,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { isNil, sumBy } from "lodash"
+import { isNil } from "lodash"
 import { DateTime } from "luxon"
 
 import { formatCurrency } from "@/utils/formatters"
@@ -198,10 +205,7 @@ const expensesQuery = computed(() => ({
   page: page.value,
 }))
 
-const { expenses, totalCount, isLoading, refresh } = useExpenses(expensesQuery)
-
-// Will need to be calculated in the back-end if data is multi-page.
-const totalAmount = computed(() => sumBy(expenses.value, "cost"))
+const { expenses, totalCount, summaries, isLoading, refresh } = useExpenses(expensesQuery)
 
 function emitChangedAndRefresh() {
   emit("changed")

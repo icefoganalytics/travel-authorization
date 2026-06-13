@@ -4,6 +4,7 @@ import {
   type FiltersOptions,
   type Policy,
   type QueryOptions,
+  type Summaries,
   type WhereOptions,
 } from "@/api/base-api"
 
@@ -16,9 +17,13 @@ export type GeneralLedgerCoding = {
   updatedAt: string
 }
 
-export type GeneralLedgerCodingAsIndex = GeneralLedgerCoding
+export type GeneralLedgerCodingAsIndex = GeneralLedgerCoding & {
+  policy: Policy
+}
 
 export type GeneralLedgerCodingAsShow = GeneralLedgerCoding
+
+export type GeneralLedgerCodingSummaries = Summaries<"totalAmount">
 
 export type GeneralLedgerCodingWhereOptions = WhereOptions<
   GeneralLedgerCoding,
@@ -36,6 +41,7 @@ export const generalLedgerCodingsApi = {
   async list(params: GeneralLedgerCodingQueryOptions = {}): Promise<{
     generalLedgerCodings: GeneralLedgerCodingAsIndex[]
     totalCount: number
+    summaries: GeneralLedgerCodingSummaries
   }> {
     const { data } = await http.get("/api/general-ledger-codings", { params })
     return data

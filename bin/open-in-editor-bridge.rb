@@ -25,7 +25,7 @@ class OpenInEditorBridge
   LOG_FILE = File.join(PROJECT_ROOT, "tmp", "open-in-editor-bridge.log")
   CONTAINER_WEB_ROOT = ENV.fetch("OPEN_IN_EDITOR_CONTAINER_WEB_ROOT", "/usr/src/web")
   HOST_WEB_ROOT = ENV.fetch("OPEN_IN_EDITOR_HOST_WEB_ROOT", File.join(PROJECT_ROOT, "web"))
-  EDITOR_COMMAND = ENV.fetch("OPEN_IN_EDITOR_COMMAND", ENV.fetch("EDITOR", "windsurf"))
+  EDITOR_COMMAND = ENV.fetch("OPEN_IN_EDITOR_COMMAND", ENV.fetch("EDITOR", nil))
 
   def self.call(*args)
     new.call(*args)
@@ -90,6 +90,10 @@ class OpenInEditorBridge
   end
 
   def serve
+    if EDITOR_COMMAND.nil? || EDITOR_COMMAND.empty?
+      abort("No editor configured. Set OPEN_IN_EDITOR_COMMAND or EDITOR environment variable.")
+    end
+
     ensure_runtime_directory
     write_pid_file(Process.pid)
 
@@ -146,6 +150,7 @@ class OpenInEditorBridge
     end
 
     translated_target = translate_target(file)
+
     success = system(*editor_command_args, "--goto", translated_target)
 
     write_json_response(

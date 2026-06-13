@@ -1,0 +1,137 @@
+@startuml "Flow Chart, Travel Authorization Wizard UI Flow, 2026-06-12"
+
+title "Travel Authorization Wizard — Full UI Flow (All 16 Steps)"
+
+skinparam swimlaneWidth same
+skinparam activityBorderColor #555555
+skinparam activityBackgroundColor #FAFAFA
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #CCAA00
+skinparam arrowColor #444444
+
+|Traveller|
+|Supervisor / Admin|
+|Finance User|
+
+|Traveller|
+start
+
+:**[1] Trip Purpose** (edit-trip-purpose)
+Fill in purpose, destination, department
+→ Continue;
+
+:**[2] Trip Details** (edit-trip-details)
+Enter travel segments (From/To/Date/Method/Hotel)
+**Dates must be in the past**
+→ Continue;
+
+:**[3] Trip Estimates** (edit-trip-estimates)
+Add/review estimates (Accommodations, Transport, M&I)
+→ Continue;
+
+:**[4] Submit Travel Request** (submit-travel-request)
+Enter travel advance + supervisor email
+→ Submit to Supervisor (status: submitted);
+
+|Supervisor / Admin|
+
+:**[5] Supervisor Approval**
+Navigate to /manage-travel-requests/:id/details
+Click Approve in Management card
+(Vuetify dialog — safe for extension)
+→ status: approved;
+
+|Traveller|
+
+:Check status?
+→ toast: "Travel authorization approved!";
+
+:**[6] Traveller Details** (edit-traveller-details)
+Verify/fill legal name, DOB, address, emergency contact
+→ Continue;
+
+:**[7] Submit to Travel Desk** (submit-to-travel-desk)
+Review travel desk request form
+→ Submit to Travel Desk (status: booked);
+
+|Supervisor / Admin|
+
+:**[8–9] Flight Options**
+Navigate to /travel-desk
+Add flight options for the TA;
+
+|Traveller|
+
+:**[9] Rank Travel Solutions** (rank-travel-solutions)
+Rank flight options;
+
+|Supervisor / Admin|
+
+:**[10] Confirm Booking** (awaiting-travel-desk-booking)
+Confirm booking;
+
+|Traveller|
+
+:**[11] Confirm Travel Details** (confirm-travel-details)
+Update actual departure details
+→ Continue;
+
+:**[12] Submit Expenses** (submit-expenses)
+Prefill from Estimates
+Upload receipts for all non-M&I expenses
+//Receipts required — POST /api/expenses/:id/receipt//
+//AI workaround: DataTransfer injection into .d-none inputs//
+Add at least one G/L Coding row
+//e.g. 552-503010-0222-0006-09999//
+→ Submit to Supervisor (status: expense_claim_submitted);
+
+|Supervisor / Admin|
+
+:**[13] Approve Expense Claim** (awaiting-expense-claim-approval)
+Navigate to /manage-travel-requests/:id/expense
+Click Approve in Management card
+//Approve uses blockedToTrueConfirm() — use JS API instead://
+//POST /api/travel-authorizations/:id/approve-expense-claim//
+→ status: expense_claim_approved;
+
+|Traveller|
+
+:Check status?
+→ toast: "Expense claim approved by supervisor!";
+
+|Finance User|
+
+:**[14] Finance Review** (awaiting-finance-review-and-processing)
+Navigate to Expense Processing → /expense-processing/:id/expense
+Page sections: Traveler Expenses (Edit/View Receipt/Delete)
+Meals & Incidentals (Add Receipt) · Expense Totals · Coding · Management
+Review and edit expenses and coding rows;
+
+if (Finance action?) then (Approve)
+  :POST /api/travel-authorizations/:id/expense
+  //Approve uses blockedToTrueConfirm() — use JS API//
+  → status: expensed;
+elseif () then (Send Back\nto Traveler)
+  :Send Back to Traveler dialog (Vuetify — safe)
+  → status: expense_claim_traveller_changes_requested;
+  detach
+elseif () then (Send Back\nto Supervisor)
+  :Send Back to Supervisor dialog (Vuetify — safe)
+  → status: expense_claim_supervisor_changes_requested;
+  detach
+else (Deny)
+  :Deny dialog (blockedToTrueConfirm — use JS API)
+  → status: expense_claim_denied;
+  detach
+endif
+
+|Traveller|
+
+:**[15] Review Expenses** (review-expenses)
+Check status?
+→ toast: "Finance has processed your expense claim!"
+View approved expense summary with View Receipt links;
+
+stop
+
+@enduml

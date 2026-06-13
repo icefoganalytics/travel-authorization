@@ -80,13 +80,22 @@ import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 import PdfViewer from "@/components/common/PdfViewer.vue"
 
+const props = withDefaults(
+  defineProps<{
+    routeQuerySuffix?: string
+  }>(),
+  {
+    routeQuerySuffix: "",
+  }
+)
+
 const emit = defineEmits<{
   (event: "deleted"): void
 }>()
 
 const showDialog = ref(false)
 
-const expenseId = useRouteQuery("previewReceiptPdf", undefined, {
+const expenseId = useRouteQuery(`previewReceiptPdf${props.routeQuerySuffix}`, undefined, {
   transform: integerTransformer,
 })
 

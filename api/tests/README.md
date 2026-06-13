@@ -63,6 +63,8 @@ Guidelines:
 - In API test files, group imports by role: code under test and domain models/services first, then
   a blank line, then test support and factories.
 - Use descriptive variable names, such as `workflowStepPlayersAttributes`
+- Prefer numbered peer entities like `user1`, `user2`
+- Use expanded variable names (no abbreviations): `generalLedgerCoding1`, not `coding1`
 - Name policy-scoped query results with `scoped{Model}`, such as
   `scopedTravelDeskTravelRequests`
 - Assert database state with `findAll()` without redundant `where` clauses unless the filter is
@@ -80,12 +82,22 @@ Guidelines:
 - Do not add local `vi.restoreAllMocks()` hooks; `api/vite.config.mts` already enables mock
   cleanup with `clearMocks`, `mockReset`, and `restoreMocks`.
 
-For common factories, import from `@/factories`:
+Prefer common factories from `@/factories`:
 
 - `userFactory`
 - `travelAuthorizationFactory`
 - `expenseFactory`
+- `generalLedgerCodingFactory`
 - `travelSegmentFactory`
+
+**Admin users:** `User.isAdmin` is a virtual getter (`this.roles.includes("admin")`) with no setter. Fishery merges factory overrides with `lodash.mergeWith`, which reads property descriptors — getter-only properties are skipped at runtime, so passing `{ isAdmin: true }` to `userFactory.create()` has no effect. Use `roles: [User.Roles.ADMIN]` instead:
+
+```typescript
+import { User } from "@/models"
+
+const admin = await userFactory.create({ roles: [User.Roles.ADMIN] })
+const nonAdmin = await userFactory.create({ roles: [User.Roles.USER] })
+```
 
 Prefer one strong assertion:
 

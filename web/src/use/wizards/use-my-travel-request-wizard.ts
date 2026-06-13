@@ -2,28 +2,32 @@ import { computed, markRaw, reactive, toRefs, unref, watch, type Ref } from "vue
 import { useRouter, type NavigationFailure } from "vue-router"
 import { cloneDeep, isNil } from "lodash"
 
-import useTravelAuthorization, {
-  type TravelAuthorizationAsShow,
-  type TravelAuthorizationWizardStepNames,
-} from "@/use/use-travel-authorization"
+import { type TravelAuthorizationWizardStepNames } from "@/api/travel-authorizations-api"
+
+import useTravelAuthorizationWizard, {
+  type TravelAuthorizationWizardAsShow,
+} from "@/use/travel-authorizations/use-travel-authorization-wizard"
 
 import MY_TRAVEL_REQUEST_WIZARD_STEPS, {
   type WizardButtonProps,
   type WizardStep,
 } from "@/use/wizards/my-travel-request-wizard-steps"
 
+export type { WizardStep }
+
 type RouterPushResult = Promise<NavigationFailure | void | undefined>
 
 export type UseMyTravelRequestWizard = {
   steps: Ref<WizardStep[]>
   isReady: Ref<boolean>
+  wizardStepName: Ref<TravelAuthorizationWizardStepNames | null>
 
   currentStep: Ref<WizardStep | null>
   previousStep: Ref<WizardStep | null>
   nextStep: Ref<WizardStep | null>
 
   isLoading: Ref<boolean>
-  refresh: () => Promise<TravelAuthorizationAsShow>
+  refresh: () => Promise<TravelAuthorizationWizardAsShow>
 
   goToStep: (stepName: TravelAuthorizationWizardStepNames) => RouterPushResult
   goToPreviousStep: () => RouterPushResult
@@ -59,7 +63,11 @@ export function useMyTravelRequestWizard(
   })
 
   const { travelAuthorization, isLoading, refresh, save } =
-    useTravelAuthorization(travelAuthorizationIdRef)
+    useTravelAuthorizationWizard(travelAuthorizationIdRef)
+
+  const wizardStepName = computed<TravelAuthorizationWizardStepNames | null>(
+    () => travelAuthorization.value?.wizardStepName ?? null
+  )
 
   watch(
     () => cloneDeep(travelAuthorization.value),
@@ -199,6 +207,7 @@ export function useMyTravelRequestWizard(
 
   return {
     ...toRefs(state),
+    wizardStepName,
     currentStep,
     previousStep,
     nextStep,

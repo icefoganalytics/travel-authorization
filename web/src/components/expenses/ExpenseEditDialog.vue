@@ -104,9 +104,18 @@ import ExpenseTypeSelect from "@/components/expenses/ExpenseTypeSelect.vue"
 // TODO: consider if this should be a prop?
 const expenseTypes = [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION]
 
+const props = withDefaults(
+  defineProps<{
+    routeQuerySuffix?: string
+  }>(),
+  {
+    routeQuerySuffix: "",
+  }
+)
+
 const emit = defineEmits(["saved"])
 
-const expenseId = useRouteQuery("showExpenseEdit", undefined, {
+const expenseId = useRouteQuery(`showExpenseEdit${props.routeQuerySuffix}`, undefined, {
   transform: integerTransformer,
 })
 

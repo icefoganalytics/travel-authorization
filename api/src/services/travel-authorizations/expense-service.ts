@@ -19,6 +19,7 @@ export class ExpenseService extends BaseService {
     await db.transaction(async () => {
       await this.travelAuthorization.update({
         status: TravelAuthorization.Statuses.EXPENSED,
+        wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,

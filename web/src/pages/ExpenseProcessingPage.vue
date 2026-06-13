@@ -1,50 +1,28 @@
 <template>
   <div>
-    <div class="d-flex justify-space-between align-baseline">
-      <h2>Expense Processing</h2>
-    </div>
-    <v-row class="mt-2">
+    <v-card-title class="d-flex justify-space-between align-center py-0">
+      <h2 class="mb-0">Expense Processing</h2>
+    </v-card-title>
+    <v-row>
       <v-col>
-        <ExpensesProcessingCard
-          ref="expensesProcessingCardRef"
-          class="default"
-          @updated="refreshTravelAuthorizationsExpenseClaimApprovedCard"
-        />
+        <AwaitingFinanceReviewCard />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <TravelAuthorizationsExpenseClaimApprovedCard
-          ref="travelAuthorizationsExpenseClaimApprovedCardRef"
-          class="default mt-5"
-          @updated="refreshExpenseProcessingCard"
-        />
+        <ApprovedForTravelCard />
       </v-col>
     </v-row>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
-import ExpensesProcessingCard from "@/components/expenses/ExpensesProcessingCard.vue"
-import TravelAuthorizationsExpenseClaimApprovedCard from "@/components/travel-authorizations/finance/TravelAuthorizationsExpenseClaimApprovedCard.vue"
-
-const expensesProcessingCardRef = ref<InstanceType<typeof ExpensesProcessingCard> | null>(null)
-
-function refreshExpenseProcessingCard() {
-  expensesProcessingCardRef.value?.refresh()
-}
-
-const travelAuthorizationsExpenseClaimApprovedCardRef = ref<InstanceType<
-  typeof TravelAuthorizationsExpenseClaimApprovedCard
-> | null>(null)
-
-function refreshTravelAuthorizationsExpenseClaimApprovedCard() {
-  travelAuthorizationsExpenseClaimApprovedCardRef.value?.refresh()
-}
+import AwaitingFinanceReviewCard from "@/components/travel-authorizations/finance/AwaitingFinanceReviewCard.vue"
+import ApprovedForTravelCard from "@/components/travel-authorizations/finance/ApprovedForTravelCard.vue"
 
 const breadcrumbs = computed(() => [
   {

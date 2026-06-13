@@ -169,12 +169,6 @@ router
 
 // Stateful routes for travel authorizations
 router
-  .route("/api/travel-authorizations/:travelAuthorizationId/submit")
-  .post(TravelAuthorizations.SubmitController.create)
-router
-  .route("/api/travel-authorizations/:travelAuthorizationId/revert-to-draft")
-  .post(TravelAuthorizations.RevertToDraftController.create)
-router
   .route("/api/travel-authorizations/:travelAuthorizationId/approve")
   .post(TravelAuthorizations.ApproveController.create)
 router
@@ -184,11 +178,26 @@ router
   .route("/api/travel-authorizations/:travelAuthorizationId/deny")
   .post(TravelAuthorizations.DenyController.create)
 router
-  .route("/api/travel-authorizations/:travelAuthorizationId/expense-claim")
-  .post(TravelAuthorizations.ExpenseClaimController.create)
+  .route("/api/travel-authorizations/:travelAuthorizationId/deny-expense-claim")
+  .post(TravelAuthorizations.DenyExpenseClaimController.create)
 router
   .route("/api/travel-authorizations/:travelAuthorizationId/expense")
   .post(TravelAuthorizations.ExpenseController.create)
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/revert-to-draft")
+  .post(TravelAuthorizations.RevertToDraftController.create)
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/send-back-to-supervisor")
+  .post(TravelAuthorizations.SendBackToSupervisorController.create)
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/send-back-to-traveller")
+  .post(TravelAuthorizations.SendBackToTravellerController.create)
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/submit")
+  .post(TravelAuthorizations.SubmitController.create)
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/submit-expense-claim")
+  .post(TravelAuthorizations.SubmitExpenseClaimController.create)
 
 router
   .route("/api/travel-authorizations/:travelAuthorizationId/estimates/generate")
@@ -196,6 +205,10 @@ router
 router
   .route("/api/travel-authorizations/:travelAuthorizationId/expenses/prefill")
   .post(TravelAuthorizations.Expenses.PrefillController.create)
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/wizard")
+  .get(TravelAuthorizations.WizardController.show)
+  .patch(TravelAuthorizations.WizardController.update)
 
 router
   .route("/api/travel-desk-flight-options")

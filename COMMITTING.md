@@ -5,6 +5,7 @@
 Before writing your commit message, answer this:
 
 **Is this a multi-part or complex change?**
+
 - Yes → Use bullet points (see "When to use bullet points" below)
 - No → Use conversational prose (see "When NOT to use bullet points" below)
 
@@ -13,6 +14,7 @@ Then follow the sections below for format and details.
 ## Commit Message Checklist
 
 Before committing, verify:
+
 - [ ] Subject line describes outcome/why, not what was added
 - [ ] Subject line ends with a period
 - [ ] Used correct emoji (see Emoji guidance below)
@@ -31,6 +33,8 @@ Before committing, verify:
 - Bad: `:sparkles: Add travel authorization export button.` - describes what was built
 - Good: `:sparkles: Let users export travel authorizations from the details page.` - describes the outcome
 
+When the "what" needs to name the thing being added, pair it with the "why" in the same line: `Add [thing] to [outcome]`. For example, `:sparkles: Add status types to support finance reviewers flagging travel requests for revision.` The subject still ends with a period.
+
 **Simple commits:** Single line when the change is self-explanatory.
 **Complex commits:** Title line followed by one or two plain sentences explaining the non-obvious context: things the diff does not make immediately clear. Each sentence ends with a period.
 
@@ -42,9 +46,10 @@ Before committing, verify:
 
 Use bullet points for:
 
-- Multi-part changes with distinct items
+- Multi-part changes where each item needs its own justification
 - Complex changes needing detailed explanation
-- When multiple files or concepts are affected
+
+For minor secondary items bundled with a primary change, prefer a conversational "Also ..." sentence instead of bullet points. (See [Multi-concern commits](#multi-concern-commits).)
 
 Example:
 
@@ -83,6 +88,7 @@ Prepares older draft requests to resume at the correct wizard step after the ste
 - `:cherry_blossom:` - UI polish and cosmetic improvements
 - `:wrench:` - config and settings changes
 - `:memo:` - documentation and plan updates
+- `:tophat:` - diagrams and visual design assets (PlantUML `.wsd`, rendered images)
 - `:hammer:` - infrastructure and tooling changes, such as Docker or scripts
 - `:arrow_up:` - dependency, runtime, and version bumps
 - `:arrow_down:` - dependency downgrades
@@ -104,15 +110,25 @@ Never use `:lipstick:`; use `:cherry_blossom:` for cosmetic UI polish.
 
 ## Multi-concern commits
 
-When a commit addresses more than one concern, put the primary concern in the subject line and move secondary concerns into the body. Each sentence in the body ends with a period.
+When a commit addresses more than one concern, put the primary concern in the subject line and move secondary concerns into the body. Use a conversational "Also ..." sentence for secondary items rather than bullet points, unless each item genuinely needs its own justification.
 
-Example:
+Example with one secondary change:
 
 ```text
 :bug: Fix primary thing.
 
 Also fix secondary thing.
 ```
+
+Example with two minor secondary changes:
+
+```text
+:sparkles: Add primary feature to support some outcome.
+
+Also refactor the related constants to reduce redundancy, and fix some typos in the comments.
+```
+
+Each sentence in the body ends with a period.
 
 ## Commit body guidance
 
@@ -127,6 +143,34 @@ Focus on:
 - When a body mentions a failure or mismatch, name the concrete issue you actually observed when possible, such as a specific runtime version mismatch, instead of describing it only in generic terms
 
 Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
+
+For secondary cleanup items bundled with a primary change, a brief "Also do some general cleanup and code clarity alignment" is preferable to enumerating specific fixes. The diff already shows the details; the body should explain why, not what.
+
+### Renames and refactors (:truck:, :recycle:)
+
+Renames and refactors are especially prone to "what" bodies that list every renamed file, symbol, or target. Resist this. The diff already shows what moved where. Instead, explain what confusion or ambiguity the old naming caused and what the new naming makes clearer. Ask yourself: "What would someone misunderstand if they saw the old name without context?"
+
+Bad — lists mechanics instead of motivation:
+
+```text
+:truck: Rename ExpenseClaimService to SubmitExpenseClaimService.
+
+Updates the service class, controller, policy, and route to use the new name.
+The service now also accepts EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED as a source
+state and sets wizardStepName on the transition.
+```
+
+Good — explains why the old name was confusing and what improves:
+
+```text
+:truck: Rename ExpenseClaimService to SubmitExpenseClaimService.
+
+The old name did not describe the action, making it easy to confuse with other
+expense-claim services that approve, deny, or request changes. The new name aligns
+with the VerbExpenseClaim pattern and clarifies what the service does on sight.
+```
+
+Notice the good version says nothing about which files were renamed or what fields were added — the diff shows that. The body answers the question a future reader would actually have: "why was this renamed?"
 
 ## General rules
 

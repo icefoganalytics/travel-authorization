@@ -1,53 +1,69 @@
 <template>
   <v-card>
+    <v-card-title>
+      <h2 class="d-flex flex-column flex-md-row justify-space-between text-h5 mb-2">
+        <span>Trip Summary</span>
+        <span class="text-body-1 font-weight-bold"
+          >Travel Auth #{{ paddedTravelAuthorizationId }}</span
+        >
+      </h2>
+    </v-card-title>
     <v-card-text>
-      <v-row dense>
+      <v-row>
         <v-col
-          class="d-flex align-center justify-center justify-md-start"
-          :cols="mdAndUp ? undefined : 12"
+          cols="12"
+          md="6"
+          lg="3"
         >
-          <h2 class="mb-0">Travel</h2>
-        </v-col>
-        <v-col :cols="mdAndUp ? undefined : 12">
-          <DescriptionElement
-            label="Purpose"
-            :vertical="mdAndUp"
-          >
-            <TravelPurposeChip
-              v-show="travelPurposeId"
-              :travel-purpose-id="travelPurposeId"
+          <div class="text-caption font-weight-bold text-grey-darken-1 text-uppercase mb-1">
+            Traveler
+          </div>
+          <div class="font-weight-bold">
+            <UserChip
+              class="ml-n2"
+              :loading="isLoading"
+              :user-id="userId ?? currentUser.id"
+              variant="text"
             />
-          </DescriptionElement>
-        </v-col>
-        <v-col :cols="mdAndUp ? undefined : 12">
-          <LocationDescriptionElement
-            label="Final Destination"
-            :location-id="finalDestinationLocationId"
-            :vertical="mdAndUp"
-          />
-        </v-col>
-        <v-col :cols="mdAndUp ? undefined : 12">
-          <DescriptionElement
-            label="Depart"
-            :value="departureDate"
-            :vertical="mdAndUp"
-          />
-        </v-col>
-        <v-col :cols="mdAndUp ? undefined : 12">
-          <DescriptionElement
-            label="Return"
-            :value="returnDate"
-            :vertical="mdAndUp"
-          />
+          </div>
         </v-col>
         <v-col
-          class="d-flex align-center justify-center justify-md-start"
-          :cols="mdAndUp ? undefined : 12"
+          cols="12"
+          md="6"
+          lg="3"
         >
-          <UserChip
-            :loading="isLoading"
-            :user-id="userId ?? currentUser.id"
-          />
+          <div class="text-caption font-weight-bold text-grey-darken-1 text-uppercase mb-1">
+            Destination
+          </div>
+          <div class="font-weight-bold">{{ destinationText }}</div>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+          lg="3"
+        >
+          <div class="text-caption font-weight-bold text-grey-darken-1 text-uppercase mb-1">
+            Dates
+          </div>
+          <div class="font-weight-bold">{{ datesText }}</div>
+        </v-col>
+        <v-col
+          cols="12"
+          class="ga-2"
+        >
+          <div class="text-caption font-weight-bold text-grey-darken-1 text-uppercase">
+            Purpose of Travel
+          </div>
+          <div class="d-flex flex-wrap align-center ga-1">
+            <span class="font-weight-bold">{{ eventName }}</span>
+            <span>
+              (<TravelPurposeChip
+                class="font-weight-bold mx-0 px-0"
+                :travel-purpose-id="travelPurposeId"
+                variant="text"
+              />)
+            </span>
+          </div>
         </v-col>
       </v-row>
     </v-card-text>
@@ -55,15 +71,14 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs } from "vue"
-import { useDisplay } from "vuetify"
+import { computed, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import useCurrentUser from "@/use/use-current-user"
+import useLocation from "@/use/use-location"
 import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
-import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import UserChip from "@/components/users/UserChip.vue"
-import LocationDescriptionElement from "@/components/locations/LocationDescriptionElement.vue"
 import TravelPurposeChip from "@/components/travel-purposes/TravelPurposeChip.vue"
 
 const props = defineProps<{
@@ -72,8 +87,13 @@ const props = defineProps<{
 
 const { travelAuthorizationId } = toRefs(props)
 
+const paddedTravelAuthorizationId = computed(() =>
+  travelAuthorizationId.value.toString().padStart(4, "0")
+)
+
 const {
   travelPurposeId,
+  eventName,
   finalDestinationLocationId,
   departureDate,
   returnDate,
@@ -83,9 +103,23 @@ const {
   update,
 } = useTravelAuthorizationSummary(travelAuthorizationId)
 
-const { currentUser } = useCurrentUser<true>()
+const { location } = useLocation(finalDestinationLocationId)
 
-const { mdAndUp } = useDisplay()
+const destinationText = computed(() => {
+  if (isNil(location.value)) return "—"
+
+  return `${location.value.city} (${location.value.province})`
+})
+
+const datesText = computed(() => {
+  if (departureDate.value && returnDate.value) {
+    return `${departureDate.value} – ${returnDate.value}`
+  }
+
+  return departureDate.value ?? returnDate.value ?? "—"
+})
+
+const { currentUser } = useCurrentUser<true>()
 
 defineExpose({
   refresh,

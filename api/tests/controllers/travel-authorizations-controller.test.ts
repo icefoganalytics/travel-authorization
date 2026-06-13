@@ -84,8 +84,6 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         const newTravelAuthorizationAttributes = {
           ...travelAuthorizationFactory.attributesFor({
             userId: user.id,
-            wizardStepName: "edit-purpose-details",
-            status: TravelAuthorization.Statuses.DRAFT,
           }),
           travelSegmentEstimatesAttributes: [
             {
@@ -113,7 +111,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         expect(response.body).toEqual({
           travelAuthorization: expect.objectContaining({
             userId: user.id,
-            wizardStepName: "edit-purpose-details",
+            wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
             travelSegments: expect.arrayContaining([
               expect.objectContaining({
                 isActual: false,

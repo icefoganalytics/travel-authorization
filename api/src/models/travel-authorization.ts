@@ -38,8 +38,8 @@ import {
   buildIsBeforeTripEndQuery,
 } from "@/queries/travel-authorizations"
 
-// TODO: state management is going to be a bit deal for this project
-// we should do some aggressive data modeling an engineering before this becomes unmagable
+// TODO: state management is going to be a big deal for this project
+// we should do some aggressive data modeling and engineering before this becomes unmanageable
 // Statuses are sorted by presumed order of progression
 export enum TravelAuthorizationStatuses {
   // TODO: might want replace DELETED status with `deleted_at` field from Sequelize paranoid feature.
@@ -52,6 +52,8 @@ export enum TravelAuthorizationStatuses {
   DENIED = "denied",
   EXPENSE_CLAIM_SUBMITTED = "expense_claim_submitted",
   EXPENSE_CLAIM_APPROVED = "expense_claim_approved",
+  EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED = "expense_claim_traveller_changes_requested",
+  EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED = "expense_claim_supervisor_changes_requested",
   EXPENSE_CLAIM_DENIED = "expense_claim_denied",
   EXPENSED = "expensed",
   AWAITING_DIRECTOR_APPROVAL = "awaiting_director_approval",
@@ -188,8 +190,15 @@ export class TravelAuthorization extends BaseModel<
   })
   declare status: TravelAuthorizationStatuses | null
 
+  // TODO: make this non-nullable in the database then update here.
   @Attribute(DataTypes.STRING(255))
-  declare wizardStepName: string | null
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelAuthorizationWizardStepNames)],
+      msg: `Wizard step name must be one of: ${Object.values(TravelAuthorizationWizardStepNames).join(", ")}`,
+    },
+  })
+  declare wizardStepName: TravelAuthorizationWizardStepNames | null
 
   // TODO: consider making this supervisorId?
   @Attribute(DataTypes.STRING(255))

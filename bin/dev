@@ -74,7 +74,13 @@ class DevHelper
   end
 
   def run(*args, **kwargs)
-    compose(*%w[run --rm], *args, **kwargs)
+    compose_arguments = %w[run --rm]
+
+    if args[0] == "web"
+      compose_arguments << "--no-deps"
+    end
+
+    compose(*compose_arguments, *args, **kwargs)
   end
 
   def ps(*args, **kwargs)

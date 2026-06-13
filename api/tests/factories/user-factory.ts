@@ -24,10 +24,7 @@ export const userFactory = Factory.define<User>(({ params, onCreate }) => {
     status: User.Statuses.ACTIVE,
     firstName,
     lastName,
-    roles: faker.helpers.arrayElements(Object.values(User.Roles), {
-      min: 1,
-      max: 3,
-    }),
+    roles: [User.Roles.USER],
   })
 })
 

@@ -8,6 +8,8 @@ export type TravelAuthorizationStateFlags = {
   isBooked: boolean
   isExpenseClaimSubmitted: boolean
   isExpenseClaimApproved: boolean
+  isExpenseClaimTravellerChangesRequested: boolean
+  isExpenseClaimSupervisorChangesRequested: boolean
   isExpenseClaimDenied: boolean
   isExpensed: boolean
   // Travel Desk states

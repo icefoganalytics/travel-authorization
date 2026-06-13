@@ -1,6 +1,10 @@
 import { isNil } from "lodash"
 
-export function formatCurrency(amount, currency = "CAD") {
+export function formatCurrency(
+  amount: number | null | undefined,
+  currency = "CAD",
+  options: Intl.NumberFormatOptions = {}
+): string {
   if (isNil(amount)) {
     return ""
   }
@@ -12,6 +16,7 @@ export function formatCurrency(amount, currency = "CAD") {
     currency,
     minimumFractionDigits,
     maximumFractionDigits,
+    ...options,
   })
   return formatter.format(amount)
 }

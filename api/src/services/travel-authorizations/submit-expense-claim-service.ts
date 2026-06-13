@@ -5,8 +5,9 @@ import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 import { Users } from "@/services"
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
+import { type TravelAuthorizationStatuses } from "@/models/travel-authorization"
 
-export class ExpenseClaimService extends BaseService {
+export class SubmitExpenseClaimService extends BaseService {
   private travelAuthorization: TravelAuthorization
   private supervisorEmail: string
   private currentUser: User
@@ -23,9 +24,14 @@ export class ExpenseClaimService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorization> {
-    if (this.travelAuthorization.status !== TravelAuthorization.Statuses.APPROVED) {
+    if (
+      ![
+        TravelAuthorization.Statuses.APPROVED,
+        TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+      ].includes(this.travelAuthorization.status as TravelAuthorizationStatuses)
+    ) {
       throw new Error(
-        "Travel authorization must be in an approved state to submit an expense claim."
+        "Travel authorization must be in an approved or expense claim traveller changes requested state to submit an expense claim."
       )
     }
 
@@ -50,6 +56,7 @@ export class ExpenseClaimService extends BaseService {
       await this.travelAuthorization.update({
         supervisorEmail: this.supervisorEmail,
         status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
+        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
       })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
@@ -86,4 +93,4 @@ export class ExpenseClaimService extends BaseService {
   }
 }
 
-export default ExpenseClaimService
+export default SubmitExpenseClaimService

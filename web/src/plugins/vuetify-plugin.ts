@@ -4,6 +4,7 @@ import "vuetify/styles"
 
 import "@/assets/yk-style.css"
 import "@/assets/vuetify2-extensions.css"
+import "@/assets/vuetify3-tweaks.css" // Vuetify 3 CSS quirks that can't be fixed via defaults
 
 export default createVuetify({
   theme: {

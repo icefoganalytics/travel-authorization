@@ -37,6 +37,7 @@
           variant="outlined"
           required
           validate-on="blur"
+          @update:model-value="emit('update:eventName', $event)"
         />
       </v-col>
       <v-col
@@ -129,6 +130,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: "update:travelPurposeId", travelPurposeId: number): void
   (event: "update:finalDestinationLocationId", finalDestinationLocationId: number | null): void
+  (event: "update:eventName", eventName: string | null): void
 }>()
 
 const { travelAuthorizationId } = toRefs(props)

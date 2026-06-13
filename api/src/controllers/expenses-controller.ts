@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 
 import { Expense, TravelAuthorization } from "@/models"
 import { ExpensesPolicy } from "@/policies"
-import { CreateService } from "@/services/expenses"
+import { CreateService, IndexService } from "@/services/expenses"
 import { IndexSerializer, ShowSerializer } from "@/serializers/expenses"
 import BaseController from "@/controllers/base-controller"
 
@@ -18,20 +18,19 @@ export class ExpensesController extends BaseController<Expense> {
         ["expenseType", "ASC"],
       ])
 
-      const scopedExpenses = ExpensesPolicy.applyScope(scopes, this.currentUser)
-
-      const totalCount = await scopedExpenses.count({ where })
-      const expenses = await scopedExpenses.findAll({
+      const { expenses, totalCount, summaries } = await IndexService.perform(
         where,
-        include: ["receipt"],
-        limit: this.pagination.limit,
-        offset: this.pagination.offset,
+        scopes,
         order,
-      })
+        this.pagination.limit,
+        this.pagination.offset,
+        this.currentUser
+      )
       const serializedExpenses = IndexSerializer.perform(expenses, this.currentUser)
       return this.response.json({
         expenses: serializedExpenses,
         totalCount,
+        summaries,
       })
     } catch (error) {
       logger.error(`Error fetching expenses: ${error}`, { error })

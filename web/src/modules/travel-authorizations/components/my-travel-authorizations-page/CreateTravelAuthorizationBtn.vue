@@ -19,12 +19,9 @@ import {
   TravelSegmentAccommodationTypes,
   TravelSegmentTravelMethods,
 } from "@/api/travel-segments-api"
-import travelAuthorizationsApi, {
-  TravelAuthorizationStatuses,
-} from "@/api/travel-authorizations-api"
+import travelAuthorizationsApi from "@/api/travel-authorizations-api"
 
 import useCurrentUser from "@/use/use-current-user"
-import { FIRST_STEP_ID } from "@/use/wizards/my-travel-request-wizard-steps"
 
 withDefaults(
   defineProps<{
@@ -46,8 +43,6 @@ async function createAndGoToEditPage() {
   try {
     const { travelAuthorization } = await travelAuthorizationsApi.create({
       userId: currentUser.value.id,
-      wizardStepName: FIRST_STEP_ID,
-      status: TravelAuthorizationStatuses.DRAFT,
       travelSegmentEstimatesAttributes: [
         {
           isActual: false,

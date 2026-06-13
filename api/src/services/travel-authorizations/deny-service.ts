@@ -16,39 +16,24 @@ export class DenyService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorization> {
-    if (this.travelAuthorization.status === TravelAuthorization.Statuses.SUBMITTED) {
-      await db.transaction(async () => {
-        await this.travelAuthorization.update({
-          denialReason: this.denialReason,
-          status: TravelAuthorization.Statuses.DENIED,
-        })
-        await TravelAuthorizationActionLog.create({
-          travelAuthorizationId: this.travelAuthorization.id,
-          actorId: this.denier.id,
-          assigneeId: this.travelAuthorization.userId,
-          action: TravelAuthorizationActionLog.Actions.DENIED,
-        })
-      })
-    } else if (
-      this.travelAuthorization.status === TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED
-    ) {
-      await db.transaction(async () => {
-        await this.travelAuthorization.update({
-          denialReason: this.denialReason,
-          status: TravelAuthorization.Statuses.EXPENSE_CLAIM_DENIED,
-        })
-        await TravelAuthorizationActionLog.create({
-          travelAuthorizationId: this.travelAuthorization.id,
-          actorId: this.denier.id,
-          assigneeId: this.travelAuthorization.userId,
-          action: TravelAuthorizationActionLog.Actions.EXPENSE_CLAIM_DENIED,
-        })
-      })
-    } else {
+    if (this.travelAuthorization.status !== TravelAuthorization.Statuses.SUBMITTED) {
       throw new Error(
-        "Travel authorization must be in submitted or expense claim submitted state to deny."
+        "Travel authorization must be in submitted state to deny."
       )
     }
+
+    await db.transaction(async () => {
+      await this.travelAuthorization.update({
+        denialReason: this.denialReason,
+        status: TravelAuthorization.Statuses.DENIED,
+      })
+      await TravelAuthorizationActionLog.create({
+        travelAuthorizationId: this.travelAuthorization.id,
+        actorId: this.denier.id,
+        assigneeId: this.travelAuthorization.userId,
+        action: TravelAuthorizationActionLog.Actions.DENIED,
+      })
+    })
 
     return this.travelAuthorization.reloadWithScope("asShow")
   }
