@@ -105,6 +105,7 @@ services:
     tty: true
     volumes:
       - ./api:/usr/src/api
+      - end_to_end_tests_node_modules:/usr/src/api/node_modules
 
   api_wait:
     image: node:20.19.0-alpine3.21
@@ -157,3 +158,4 @@ services:
 volumes:
   db_data:
   db_trav_com_data:
+  end_to_end_tests_node_modules:
