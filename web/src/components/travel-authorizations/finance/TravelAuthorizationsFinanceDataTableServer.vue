@@ -7,7 +7,7 @@
     :items="travelAuthorizations"
     :loading="isLoading"
     :items-length="totalCount"
-    @click:row="goToExpenseProcessingDetailsPage"
+    v-bind="attrsWithRowClickFallback"
   >
     <template #item.name="{ item }">
       <span>{{ item.firstName }} {{ item.lastName }}</span>
@@ -27,8 +27,16 @@
   </v-data-table-server>
 </template>
 
+<script lang="ts">
+import { type TravelAuthorizationAsIndex } from "@/use/use-travel-authorizations"
+
+export type TravelAuthorizationTableRow = {
+  item: TravelAuthorizationAsIndex
+}
+</script>
+
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, useAttrs } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
@@ -39,7 +47,6 @@ import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-b
 
 import { type LocationAsReference } from "@/api/locations-api"
 import useTravelAuthorizations, {
-  type TravelAuthorizationAsIndex,
   type TravelAuthorizationQueryOptions,
   type TravelAuthorizationWhereOptions,
   type TravelAuthorizationFiltersOptions,
@@ -57,6 +64,13 @@ const props = withDefaults(
     routeQuerySuffix: "",
   }
 )
+
+const attrs = useAttrs()
+
+const attrsWithRowClickFallback = computed(() => ({
+  "onClick:row": goToExpenseProcessingDetailsPage,
+  ...attrs,
+}))
 
 const headers = [
   {
@@ -126,10 +140,6 @@ function formatFinalDestination(location: LocationAsReference | null) {
 }
 
 const router = useRouter()
-
-type TravelAuthorizationTableRow = {
-  item: TravelAuthorizationAsIndex
-}
 
 function goToExpenseProcessingDetailsPage(
   _event: unknown,

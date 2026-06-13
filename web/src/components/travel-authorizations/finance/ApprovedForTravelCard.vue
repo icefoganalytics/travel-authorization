@@ -28,6 +28,7 @@
         ref="travelAuthorizationsFinanceDataTable"
         :where="whereClause"
         route-query-suffix="ApprovedForTravel"
+        @click:row="goToExpenseProcessingEstimatesPage"
       />
     </v-card-text>
   </v-card>
@@ -35,11 +36,14 @@
 
 <script setup lang="ts">
 import { computed, useTemplateRef } from "vue"
+import { useRouter } from "vue-router"
 
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import TravelAuthorizationsFinanceDataTableServer from "@/components/travel-authorizations/finance/TravelAuthorizationsFinanceDataTableServer.vue"
+import TravelAuthorizationsFinanceDataTableServer, {
+  type TravelAuthorizationTableRow,
+} from "@/components/travel-authorizations/finance/TravelAuthorizationsFinanceDataTableServer.vue"
 
 const whereClause = computed(() => ({
   status: TravelAuthorizationStatuses.APPROVED,
@@ -49,5 +53,19 @@ const travelAuthorizationsFinanceDataTable = useTemplateRef("travelAuthorization
 
 function refreshTable() {
   travelAuthorizationsFinanceDataTable.value?.refresh()
+}
+
+const router = useRouter()
+
+async function goToExpenseProcessingEstimatesPage(
+  _event: unknown,
+  { item: travelAuthorization }: TravelAuthorizationTableRow
+) {
+  await router.push({
+    name: "expense-processing/ExpenseProcessingEstimatesPage",
+    params: {
+      travelAuthorizationId: travelAuthorization.id.toString(),
+    },
+  })
 }
 </script>
