@@ -1,10 +1,16 @@
 import { test, expect } from "@playwright/test"
 
+type HealthCheckResponse = {
+  dbHealth: {
+    database: string
+  }
+}
+
 test("health check endpoint responds", async ({ request }) => {
-  const response = await request.get("/health-check")
+  const response = await request.get("/api/health-check")
   expect(response.status()).toBe(200)
-  const body = await response.text()
-  expect(body).toContain("Health Check")
+  const body = (await response.json()) as HealthCheckResponse
+  expect(body.dbHealth.database).toBe("travel_test")
 })
 
 test("sign-in page renders", async ({ page }) => {
