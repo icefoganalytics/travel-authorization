@@ -5,7 +5,13 @@ services:
       DB_NAME: travel_test
       TRAVCOM_DB_NAME: trav_com_test
       DEFAULT_LOG_LEVEL: "warn"
+    depends_on:
+      - db
+      - db_trav_com
   end_to_end_tests:
+    depends_on:
+      web:
+        condition: service_started
     environment:
       DB_HOST: db
       DB_PORT: 5432
