@@ -30,4 +30,9 @@ Follow the workflow in agents/workflows/convert-js-api-to-typescript-workflow.md
 to convert web/src/api/travel-desk-rental-cars-api.js to TypeScript.
 ```
 
+```text
+Follow the workflow in agents/workflows/upload-pr-screenshots-workflow.md
+to add screenshots to a pull request.
+```
+
 See parent [agents/README.md](../README.md) for the broader agents directory overview.

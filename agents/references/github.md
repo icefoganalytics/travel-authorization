@@ -38,6 +38,16 @@ gh pr checkout 456     # checkout PR branch locally
 gh pr status      # status of current branch's PR
 ```
 
+## Pull Request Image Attachments
+
+Use GitHub `user-attachments/assets/...` links for pull request screenshots when possible. GitHub
+does not expose a public Representational State Transfer (REST) or GraphQL Application Programming
+Interface (API) for creating those attachments, so `gh api` alone cannot upload them. They must be
+created through GitHub's web user interface (UI) with a logged-in browser session.
+
+For the full screenshot upload process and repository formatting standards, follow
+[`agents/workflows/upload-pr-screenshots-workflow.md`](../workflows/upload-pr-screenshots-workflow.md).
+
 ## Authentication
 
 ```bash
