@@ -52,15 +52,17 @@ of duplicating test command examples.
 
 Pass Vitest flags after `--` so they are forwarded to the underlying test runner.
 
-**End-to-end tests** require the full app stack to be running first:
+**End-to-end tests** start the app stack in test mode, run against isolated test databases, and tear
+the stack down after the run:
 
 ```bash
-./bin/dev up                       # start the app stack
 ./bin/dev test end-to-end-tests    # run Playwright in Docker against the running stack
 ```
 
-The `end_to_end_tests` container connects to the running `web` service over Docker's internal
-network (`http://web:8080`). For interactive debugging, run `npm run test:e2e -- --headed` or
+The command starts the dependent services with the e2e test overlay in a separate Docker Compose
+project before running Playwright. The `end_to_end_tests` container connects to the `web` service over
+Docker's internal network (`http://web:8080`). For interactive debugging, run
+`npm run test:e2e -- --headed` or
 `npx playwright test --ui --config=end-to-end-tests/playwright.config.ts` from inside `api/`.
 
 ### Test Container Management

@@ -168,9 +168,12 @@ Tests run against the full development stack (frontend on port 8080).
 **Run locally (via Docker — matches CI):**
 
 ```bash
-dev up                            # start the app stack first
-dev test end-to-end-tests         # run in Docker (headless), uses test databases
+dev test end-to-end-tests         # starts the test-mode app stack, runs Playwright, then tears down
 ```
+
+This uses `docker-compose.e2e-test.yml` in a separate Docker Compose project so the application and
+Playwright runner use the test databases, not the development databases. The command removes the e2e
+stack after the run.
 
 **Run locally (native — for development and debugging):**
 
