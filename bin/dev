@@ -124,7 +124,16 @@ class DevHelper
   end
 
   def test_end_to_end(*args, **kwargs)
-    compose(*%w[-f docker-compose.e2e-test.yml run --rm end_to_end_tests npm run test:e2e], *args, **kwargs)
+    compose(
+      *%w[-p travel-authorization-e2e-test -f docker-compose.e2e-test.yml run --rm end_to_end_tests npm run test:e2e],
+      *args,
+      **kwargs.merge(execution_mode: WAIT_FOR_PROCESS)
+    )
+  ensure
+    compose(
+      *%w[-p travel-authorization-e2e-test -f docker-compose.e2e-test.yml down --remove-orphans],
+      **kwargs.merge(execution_mode: WAIT_FOR_PROCESS)
+    )
   end
 
   def psql(*args, **kwargs)
