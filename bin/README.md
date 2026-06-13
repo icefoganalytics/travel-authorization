@@ -65,6 +65,10 @@ Docker's internal network (`http://web:8080`). For interactive debugging, run
 `npm run test:e2e -- --headed` or
 `npx playwright test --ui --config=end-to-end-tests/playwright.config.ts` from inside `api/`.
 
+See `api/end-to-end-tests/README.md` for the current coverage boundary. The runnable suite currently
+enforces unauthenticated smoke checks; authenticated wizard coverage is present as skipped skeleton
+tests until Auth0 storage-state fixtures exist.
+
 ### Test Container Management
 
 **Only one test container can run at a time** — running two causes database deadlocks. Before starting

@@ -185,9 +185,14 @@ npx playwright install chromium
 npm run test:e2e                  # headless
 ```
 
+See `api/end-to-end-tests/README.md` for the current coverage boundary and local runner details.
+Continuous integration currently enforces unauthenticated smoke checks only; the full wizard spec is a
+skipped skeleton until Auth0 storage-state fixtures exist.
+
 **Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` and
-`expect` from `../fixtures` (not `@playwright/test` directly) to get the auto database cleanup fixture.
-Use `test()` (not `it()`). Prefer `page.getByRole` and `page.getByText` locators over CSS selectors.
+`expect` from `@playwright/test` so the test TypeScript configuration remaps them through the auto
+database cleanup fixture. Use `test()` (not `it()`). Prefer `page.getByRole` and `page.getByText`
+locators over CSS selectors.
 
 **Auth:** Most routes require Auth0 login. Tests that need authentication should use a shared
 storageState auth fixture (to be built) and are currently skipped.
