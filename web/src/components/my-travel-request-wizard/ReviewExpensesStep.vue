@@ -15,8 +15,9 @@
     <v-row>
       <v-col>
         <h3>Traveler Expenses</h3>
-        <ExpensesTable :travel-authorization-id="travelAuthorizationId" />
-        * Meals and Incidentals are not included in this table.
+        <ExpensesDataTableServer :where="expenseWhere">
+          <template #footerNote> * Meals and Incidentals are not included in this table. </template>
+        </ExpensesDataTableServer>
       </v-col>
     </v-row>
     <v-row>
@@ -45,10 +46,12 @@
 <script setup lang="ts">
 import { computed, toRefs } from "vue"
 
+import { ExpenseExpenseTypes, type ExpenseWhereOptions } from "@/use/use-expenses"
 import useTravelAuthorization, { TravelAuthorizationStatuses } from "@/use/use-travel-authorization"
 import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
-import ExpensesTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/ExpensesTable.vue"
+import ExpensesDataTableServer from "@/components/expenses/ExpensesDataTableServer.vue"
+
 import GeneralLedgerCodingsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/GeneralLedgerCodingsTable.vue"
 import MealsAndIncidentalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/MealsAndIncidentalsTable.vue"
 import TotalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/TotalsTable.vue"
@@ -62,6 +65,10 @@ const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 const isExpenseClaimDenied = computed(
   () => travelAuthorization.value?.status === TravelAuthorizationStatuses.EXPENSE_CLAIM_DENIED
 )
+const expenseWhere = computed<ExpenseWhereOptions>(() => ({
+  travelAuthorizationId: props.travelAuthorizationId,
+  expenseType: [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION],
+}))
 
 async function initialize(context: WizardStepComponentContext) {
   context.setEditableSteps([])
