@@ -50,30 +50,47 @@ Use one block per screenshot:
 For backend-only changes, use `N/A - backend changes only`. For UI changes that still need
 screenshots, leave a clear `TODO` under `# Screenshots` until screenshots are available.
 
-## Fallback Approach: Screenshot Branch
+## Fallback Approach: Manual User Upload
 
-Use a dedicated screenshot branch only when user attachments are not practical.
+Do not use a dedicated screenshot branch as the fallback. Branch-backed screenshot links are fragile:
+they break when the branch is deleted, they leave orphaned remote branches behind, and they make pull
+request descriptions depend on repository storage that is unrelated to the code review.
 
-1. Create a branch named for the pull request, for example
-   `assets/pr-123-screenshots-YYYYMMDDHHMM`.
-2. Upload screenshots under a path such as `docs/pr-123-screenshots/`.
-3. Reference screenshots with raw Uniform Resource Locators (URLs):
-   `https://raw.githubusercontent.com/OWNER/REPO/BRANCH/docs/pr-123-screenshots/file.png`.
-4. Update the pull request description or comment with those links.
-5. Verify the rendered screenshots load.
+If browser automation cannot access a logged-in GitHub session, prepare everything the user needs to
+upload manually:
 
-Do not delete the screenshot branch while raw links still point at it. Deleting the branch breaks the
-raw URLs.
+1. Create a temporary folder with clearly named screenshots, for example
+   `/tmp/opencode/pr-123-screenshots/`.
+2. Name each image with a stable ordering and descriptive slug, for example
+   `01-expense-processing-dashboard.png`.
+3. Draft the exact pull request screenshot text in repository style, leaving placeholders where the
+   user will paste GitHub-generated image tags.
+4. Tell the user to drag the images into the GitHub pull request editor in order.
+5. Tell the user to replace each placeholder with the generated `<img ...>` tag.
+6. Provide the local screenshot folder path and the complete markdown block to paste into the pull
+   request.
+
+Example fallback text to give the user:
+
+```markdown
+# Screenshots
+
+Expense Processing dashboard
+http://localhost:8080/expense-processing
+<!-- Drag 01-expense-processing-dashboard.png into GitHub and paste the generated <img ...> tag here. -->
+
+Finance review Expenses tab
+http://localhost:8080/expense-processing/11/expense
+<!-- Drag 02-finance-review-expenses-tab.png into GitHub and paste the generated <img ...> tag here. -->
+```
 
 ## Cleanup
 
-If switching from branch-backed links to `user-attachments/assets/...` links:
+If switching from any temporary or draft screenshot links to `user-attachments/assets/...` links:
 
 1. Upload the screenshots through the GitHub web UI first.
-2. Update the pull request so no markdown references the screenshot branch.
+2. Update the pull request so no markdown references temporary paths or placeholders.
 3. Verify the pull request renders the `user-attachments/assets/...` screenshots.
-4. Delete the screenshot branch.
-5. Verify the branch is gone with `gh api` or `gh pr view` as appropriate.
 
 ## Safety Notes
 
