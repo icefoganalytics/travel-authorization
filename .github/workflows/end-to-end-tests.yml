@@ -1,0 +1,93 @@
+name: End-to-End Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  end-to-end-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      POSTGRES_CACHE_VERSION: v1
+      MSSQL_CACHE_VERSION: v1
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: travel_test
+      DB_USER: app
+      DB_PASS: itsallgood
+      TRAVCOM_DB_HOST: localhost
+      TRAVCOM_DB_PORT: 1433
+      TRAVCOM_DB_NAME: trav_com_test
+      TRAVCOM_DB_USER: sa
+      TRAVCOM_DB_PASS: "DevPwd99!"
+      TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create api env file
+        # api/.env.development is gitignored; an empty file satisfies docker-compose's env_file
+        # directive — runtime values come from the x-default-environment anchor in the compose file.
+        run: touch api/.env.development
+
+      - name: Cache PostgreSQL data
+        uses: actions/cache@v4
+        with:
+          path: /tmp/e2e-test-db-postgres
+          key: ${{ runner.os }}-e2e-postgres-${{ env.POSTGRES_CACHE_VERSION }}-${{ hashFiles('api/src/db/migrations/**') }}
+
+      - name: Cache MSSQL data
+        uses: actions/cache@v4
+        with:
+          path: /tmp/e2e-test-db-mssql
+          key: ${{ runner.os }}-e2e-mssql-${{ env.MSSQL_CACHE_VERSION }}-${{ hashFiles('api/src/integrations/trav-com-integration/db/migrations/**') }}
+
+      - name: Prepare database directories
+        run: |
+          mkdir -p /tmp/e2e-test-db-postgres /tmp/e2e-test-db-mssql
+          sudo chown -R 999:999 /tmp/e2e-test-db-postgres
+          sudo chown -R 10001:0 /tmp/e2e-test-db-mssql
+
+      - name: Start application stack
+        run: docker compose -f docker-compose.development.yml -f docker-compose.e2e-test.yml up -d db db_trav_com api api_wait web
+
+      - name: Wait for web to be ready
+        run: |
+          echo "Waiting for http://localhost:8080 ..."
+          timeout 120 bash -c 'until curl -sf http://localhost:8080; do sleep 2; done'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        working-directory: api
+        run: npm install
+
+      - name: Install Playwright browsers
+        working-directory: api
+        run: npx playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        working-directory: api
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: api/playwright-report/
+          retention-days: 7

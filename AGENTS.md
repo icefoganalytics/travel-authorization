@@ -135,6 +135,45 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 - One strong assertion over many weak ones
 - Mock cleanup automatic via `vite.config.mts` — no manual `vi.restoreAllMocks()`
 
+### End-to-End Tests
+
+End-to-end tests use [Playwright](https://playwright.dev/) and live in `api/end-to-end-tests/`,
+a sibling of `api/tests/`. They share `api/tests/support/clean-database.ts` and
+`clean-trav-com-database.ts` directly via the `@/tests/support/` path alias — no duplication.
+Tests run against the full development stack (frontend on port 8080).
+
+**Run locally (via Docker — matches CI):**
+
+```bash
+dev test end-to-end-tests         # starts the test-mode app stack, runs Playwright, then tears down
+```
+
+This uses `docker-compose.e2e-test.yml` in a separate Docker Compose project so the application and
+Playwright runner use the test databases, not the development databases. The command removes the e2e
+stack after the run.
+
+**Run locally (native — for development and debugging):**
+
+```bash
+dev up                            # start the app stack first
+cd api
+npm install
+npx playwright install chromium
+npm run test:e2e                  # headless
+```
+
+See `api/end-to-end-tests/README.md` for the current coverage boundary and local runner details.
+Continuous integration currently enforces unauthenticated smoke checks only; the full wizard spec is a
+skipped skeleton until Auth0 storage-state fixtures exist.
+
+**Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` and
+`expect` from `@playwright/test` so the test TypeScript configuration remaps them through the auto
+database cleanup fixture. Use `test()` (not `it()`). Prefer `page.getByRole` and `page.getByText`
+locators over CSS selectors.
+
+**Auth:** Most routes require Auth0 login. Tests that need authentication should use a shared
+storageState auth fixture (to be built) and are currently skipped.
+
 ---
 
 ## Frontend Patterns & Conventions

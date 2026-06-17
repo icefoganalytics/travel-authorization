@@ -1,0 +1,32 @@
+services:
+  api:
+    environment:
+      NODE_ENV: test
+      DB_NAME: travel_test
+      TRAVCOM_DB_NAME: trav_com_test
+      DEFAULT_LOG_LEVEL: "warn"
+    depends_on:
+      - db
+      - db_trav_com
+  end_to_end_tests:
+    depends_on:
+      web:
+        condition: service_started
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: travel_test
+      DB_USER: app
+      DB_PASS: itsallgood
+      TRAVCOM_DB_HOST: db_trav_com
+      TRAVCOM_DB_PORT: 1433
+      TRAVCOM_DB_NAME: trav_com_test
+      TRAVCOM_DB_USER: sa
+      TRAVCOM_DB_PASS: "DevPwd99!"
+      TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
+  db:
+    volumes:
+      - /tmp/e2e-test-db-postgres:/var/lib/postgresql/data
+  db_trav_com:
+    volumes:
+      - /tmp/e2e-test-db-mssql:/var/opt/mssql/data

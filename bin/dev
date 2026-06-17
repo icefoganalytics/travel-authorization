@@ -112,6 +112,8 @@ class DevHelper
       test_api(*args.drop(1), **kwargs)
     elsif service == "web"
       test_web(*args.drop(1), **kwargs)
+    elsif service == "end-to-end-tests"
+      test_end_to_end(*args.drop(1), **kwargs)
     else
       test_api(*args, **kwargs)
     end
@@ -125,6 +127,19 @@ class DevHelper
   def test_web(*args, **kwargs)
     reformat_project_relative_path_filter_for_vitest!(args, "web/")
     run(*%w[test_web npm run test], *args, **kwargs)
+  end
+
+  def test_end_to_end(*args, **kwargs)
+    compose(
+      *%w[-p travel-authorization-e2e-test -f docker-compose.e2e-test.yml run --rm end_to_end_tests npm run test:e2e],
+      *args,
+      **kwargs.merge(execution_mode: WAIT_FOR_PROCESS)
+    )
+  ensure
+    compose(
+      *%w[-p travel-authorization-e2e-test -f docker-compose.e2e-test.yml down --remove-orphans],
+      **kwargs.merge(execution_mode: WAIT_FOR_PROCESS)
+    )
   end
 
   def psql(*args, **kwargs)
