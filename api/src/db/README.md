@@ -80,4 +80,4 @@ dev psql
 
 - `dev down -v` removes containers and drops the local database volume, so use it carefully.
 - The main API environment variable list, including database settings, lives in
-  [`../../config.ts`](../../config.ts).
+  [`../config.ts`](../config.ts).

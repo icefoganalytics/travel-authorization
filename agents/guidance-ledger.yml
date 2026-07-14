@@ -1,0 +1,17 @@
+shared_guidance:
+  package: github:klondikemarlen/marlens-skills-rules-and-tools
+  adopted: []
+  local_overrides:
+    - agents/workflows/convert-js-api-to-typescript-workflow.md
+    - agents/workflows/convert-js-plural-composable-to-typescript-workflow.md
+    - agents/workflows/convert-js-singular-composable-to-typescript-workflow.md
+    - agents/workflows/create-a-plan-workflow.md
+    - agents/workflows/github-issue-creation-workflow.md
+    - agents/workflows/git-workflow.md
+    - agents/templates/backend-index-serializer-template.md
+    - agents/templates/frontend-api-typescript-template.md
+  intentionally_local:
+    - Travel Authorization finance and approval workflow language
+    - local dev wrapper and Docker commands
+    - auth, roles, routes, UI labels, and page naming conventions
+    - deployment and release process details

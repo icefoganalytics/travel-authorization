@@ -146,7 +146,7 @@ The GitHub PR template provides the basic structure. Fill in each section follow
 - **Context:** Explain the problem, user reports, or motivation for the change. When linked to an issue, directly reference the specific issues/steps from the ticket (e.g., "STEP 1: Objectives list spacing is inconsistent"). Verify all issues from the ticket are addressed in the PR.
 - **Implementation:** List changes in numbered format. List primary issue fixes first (with step references if applicable), then optional cleanup relevant to end users. Bundle related changes under descriptive purposes. Exclude internal refactoring (component location changes, import updates) unless they impact user experience.
 - **Screenshots:** If the diff includes `web/src/pages/` or `web/src/components/`, write `TODO` and let the human add screenshots. Use `N/A - backend changes only` only when there are no UI changes.
-- **Testing Instructions:** Always start with the standard 3 steps using the dev wrapper commands (`dev test`, `dev up`), then add specific steps using exact UI labels verified from the code. Follow the `testing-instructions.md` workflow for detailed guidance.
+- **Testing Instructions:** Always start with the standard 3 steps using the dev wrapper commands (`dev test`, `dev up`), then add specific steps using exact UI labels verified from the code. Follow the `agents/workflows/testing-instructions-workflow.md` workflow for detailed guidance.
 - **Additional sections:** Do not add a `Validation`, `Checks`, or similar section unless the user
   explicitly requests it. Mention commands you ran in the final chat response instead.
 
