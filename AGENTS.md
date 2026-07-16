@@ -257,12 +257,3 @@ See [`COMMITTING.md`](COMMITTING.md) for detailed commit message, PR description
 ## Agent Workflow Patterns
 
 See [`agents/README.md`](agents/README.md) and [`agents/workflows/README.md`](agents/workflows/README.md) for available workflows and usage patterns.
-
-**Available workflows:**
-
-- `pull-request-management-workflow.md` - Creating and editing well-structured PRs
-- `convert-js-api-to-typescript-workflow.md` - Converting JavaScript APIs to TypeScript
-- `convert-js-plural-composable-to-typescript-workflow.md` - Converting composables to TypeScript
-- `convert-dialog-table-to-page-pattern-workflow.md` - Modernizing legacy UI patterns
-- `testing-instructions-workflow.md` - Writing QA testing instructions
-- `create-a-plan-workflow.md` - Creating structured implementation plans

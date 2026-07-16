@@ -40,7 +40,7 @@ Before starting, ensure:
 Before converting a plural composable, ensure backend serialization is in place:
 
 - [ ] Check if backend has IndexSerializer for the resource in `api/src/serializers/{resource}/`
-- [ ] If missing, create IndexSerializer using `agents/templates/backend-index-serializer.md`
+- [ ] If missing, create IndexSerializer using `agents/templates/backend-index-serializer-template.md`
 - [ ] Update controller to use IndexSerializer in index method: `IndexSerializer.perform(records, this.currentUser)`
 - [ ] Update API file to use AsIndex type for list method (not base model type)
 - [ ] Update serializer index to export IndexSerializer: `export { IndexSerializer, type ResourceAsIndex as AsIndex } from "./index-serializer"`
