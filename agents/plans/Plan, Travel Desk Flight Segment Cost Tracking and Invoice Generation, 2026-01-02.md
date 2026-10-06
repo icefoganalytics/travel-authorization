@@ -13,11 +13,11 @@ implemented on this branch.
 
 ## Planning Artifacts In This Folder
 
-- [Travel Desk Invoice Entity Relationship Diagram.wsd](/home/marlen/code/icefoganalytics/travel-authorization/agents/plans/Travel%20Desk%20Invoice%20Entity%20Relationship%20Diagram.wsd)
+- [Travel Desk Invoice Entity Relationship Diagram.wsd](<Travel Desk Invoice Entity Relationship Diagram.wsd>)
   PlantUML source for the proposed invoice data model.
-- [Travel Desk Invoice Entity Relationship Diagram.png](/home/marlen/code/icefoganalytics/travel-authorization/agents/plans/Travel%20Desk%20Invoice%20Entity%20Relationship%20Diagram.png)
+- [Travel Desk Invoice Entity Relationship Diagram.png](<Travel Desk Invoice Entity Relationship Diagram.png>)
   Rendered version of the ERD for quick review.
-- [Travel Desk Invoice Source Schema Reference.sql](/home/marlen/code/icefoganalytics/travel-authorization/agents/plans/Travel%20Desk%20Invoice%20Source%20Schema%20Reference.sql)
+- [Travel Desk Invoice Source Schema Reference.sql](<Travel Desk Invoice Source Schema Reference.sql>)
   External/source schema reference gathered during investigation.
 
 ## Current State

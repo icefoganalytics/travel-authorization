@@ -288,7 +288,7 @@ export type ResourceQueryOptions = QueryOptions<ResourceWhereOptions, ResourceFi
 - `get()`/`update()` return `ResourceAsShow` with policy
 - `create()` returns `ResourceAsShow` (with policy if applicable)
 
-See workflow: `frontend-api-conversion-example.md` for complete before/after conversion example.
+For the TypeScript API file structure template, see `agents/templates/frontend-api-typescript-template.md`.
 
 ---
 
@@ -362,7 +362,7 @@ export default resourcesApi
 
 ## Complete Example
 
-See template: `frontend-api-complete-example.md` for a complete before/after conversion example.
+For the TypeScript API file structure template, see `agents/templates/frontend-api-typescript-template.md`.
 
 ---
 
@@ -460,6 +460,3 @@ resourcesApi.list = debounceWithArgsCache(resourcesApi.list, {
 - `backend-show-serializer-template.md` - Show serializer template
 - `backend-serializer-index-template.md` - Serializer index file template
 - `frontend-api-typescript-template.md` - TypeScript API file structure template
-
-**Related Workflows:**
-- `frontend-api-conversion-example.md` - Complete before/after conversion example

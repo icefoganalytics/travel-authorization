@@ -105,7 +105,7 @@ export class GenerateController extends BaseController {
 
 For paginated list endpoints that need summary aggregates (totals), create an IndexService.
 
-See template: [`agents/templates/backend-index-service-template.md`](../../agents/templates/backend-index-service-template.md)
+See template: [`agents/templates/backend-index-service-template.md`](../../../agents/templates/backend-index-service-template.md)
 
 Key points:
 
