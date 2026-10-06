@@ -78,9 +78,9 @@ assignee="$(gh api user --jq .login)"
 gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
   -f "assignees[]=$assignee"
 gh label list --repo {owner}/{repo} --limit 100
+# Repeat `-f 'labels[]=<existing-label>'` for every applicable label.
 gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT \
-  -f 'labels[]=<existing-label-1>' \
-  -f 'labels[]=<existing-label-2>'
+  -f 'labels[]=<existing-label>'
 ```
 
 ## Process Steps
@@ -314,9 +314,9 @@ Immediately after creating a pull request:
 assignee="$(gh api user --jq .login)"
 gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
   -f "assignees[]=$assignee"
+# Repeat `-f 'labels[]=<existing-label>'` for every applicable label.
 gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT \
-  -f 'labels[]=<existing-label-1>' \
-  -f 'labels[]=<existing-label-2>'
+  -f 'labels[]=<existing-label>'
 ```
 
 ### 5. Edit Existing Pull Requests
