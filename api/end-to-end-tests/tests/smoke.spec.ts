@@ -2,28 +2,47 @@ import { expect } from "@playwright/test"
 
 import { test } from "../fixtures"
 
-test("API status endpoint responds", async ({ request }) => {
+test("when the API is available, it responds with status", async ({ request }) => {
+  // Arrange
   const apiBaseUrl = process.env["API_BASE_URL"] ?? "http://localhost:3000"
+
+  // Act
   const response = await request.get(`${apiBaseUrl}/_status`)
 
+  // Assert
   expect(response.status()).toBe(200)
 })
 
-test("sign-in page renders", async ({ page }) => {
-  await page.goto("/sign-in")
+test("when the sign-in page loads, it renders the Yukon Government heading", async ({ page }) => {
+  // Arrange
+  const signInPage = "/sign-in"
 
+  // Act
+  await page.goto(signInPage)
+
+  // Assert
   await expect(page.getByRole("heading", { name: "Yukon Government" }).first()).toBeVisible()
 })
 
-test("root redirects when unauthenticated", async ({ page }) => {
-  await page.goto("/")
+test("when the root route loads unauthenticated, it redirects to sign-in or Auth0", async ({ page }) => {
+  // Arrange
+  const rootPage = "/"
 
+  // Act
+  await page.goto(rootPage)
+
+  // Assert
   await expect(page).toHaveURL(/\/sign-in(?:[/?#]|$)|:\/\/[^/]*\.auth0\.com(?:[/?#]|$)/)
 })
 
-test.skip("authenticated travel authorization list loads", async ({ page }) => {
-  // Requires Auth0 test credentials.
-  // Implement a storageState auth fixture, then remove this skip.
-  await page.goto("/travel-authorizations")
-  await expect(page.getByRole("heading", { name: "Travel Authorizations" })).toBeVisible()
+test.skip("when authenticated, it shows the travel request list", async ({ page }) => {
+  // Arrange
+  // Requires Auth0 test credentials. Implement a storageState auth fixture, then remove this skip.
+  const travelRequestListPage = "/my-travel-requests"
+
+  // Act
+  await page.goto(travelRequestListPage)
+
+  // Assert
+  await expect(page.getByRole("heading", { name: "My Travel Requests" })).toBeVisible()
 })

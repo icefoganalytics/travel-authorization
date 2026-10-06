@@ -119,11 +119,9 @@ export async function cleanTravComDatabase() {
   }
 
   try {
-    await db
-      .query(cleanDatabaseQuery, {
-        type: QueryTypes.RAW,
-      })
-      .catch(console.error)
+    await db.query(cleanDatabaseQuery, {
+      type: QueryTypes.RAW,
+    })
     return true
   } catch (error) {
     logger.error(error)
