@@ -12,7 +12,6 @@
     <template #item.date="{ value }">
       {{ formatDate(value) }}
     </template>
-
   </v-data-table-server>
 </template>
 

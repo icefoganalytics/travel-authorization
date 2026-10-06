@@ -37,10 +37,14 @@ export async function up(knex: Knex): Promise<void> {
     FROM
       "StatisticsRecord"
     WHERE
-      dept IS NOT NULL AND TRIM(dept) != ''
-      AND "arrAirport" IS NOT NULL AND TRIM("arrAirport") != ''
-      AND "finalDestinationCity" IS NOT NULL AND TRIM("finalDestinationCity") != ''
-      AND "finalDestinationProvince" IS NOT NULL AND TRIM("finalDestinationProvince") != ''
+      dept IS NOT NULL
+      AND TRIM(dept) != ''
+      AND "arrAirport" IS NOT NULL
+      AND TRIM("arrAirport") != ''
+      AND "finalDestinationCity" IS NOT NULL
+      AND TRIM("finalDestinationCity") != ''
+      AND "finalDestinationProvince" IS NOT NULL
+      AND TRIM("finalDestinationProvince") != ''
       AND "totalTrips" IS NOT NULL
       AND "totalRoundTrips" IS NOT NULL
       AND "days" IS NOT NULL

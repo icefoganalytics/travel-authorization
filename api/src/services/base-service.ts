@@ -1,9 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HasNoArgsConstructor<T> = T extends { new (): any } ? true : false
 
-type CleanConstructorParameters<T extends typeof BaseService> = HasNoArgsConstructor<T> extends true
-  ? []
-  : ConstructorParameters<T>
+type CleanConstructorParameters<T extends typeof BaseService> =
+  HasNoArgsConstructor<T> extends true ? [] : ConstructorParameters<T>
 
 export class BaseService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars

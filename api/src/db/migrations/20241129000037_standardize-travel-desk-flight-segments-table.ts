@@ -24,8 +24,7 @@ export async function up(knex: Knex): Promise<void> {
   })
 
   await knex.raw(/* sql */ `
-    UPDATE
-      travel_desk_flight_segments
+    UPDATE travel_desk_flight_segments
     SET
       id = "flightSegmentID",
       flight_option_id = "flightOptionID",
@@ -66,8 +65,7 @@ export async function down(knex: Knex): Promise<void> {
   })
 
   await knex.raw(/* sql */ `
-    UPDATE
-      "travelDeskFlightSegment"
+    UPDATE "travelDeskFlightSegment"
     SET
       "flightRequestID" = id,
       "flightOptionID" = flight_option_id,

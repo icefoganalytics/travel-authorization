@@ -27,37 +27,48 @@ Every plan should follow this shape:
 - **Source**: [Link to the originating issue or PR]
 
 ## Problem Statement
+
 [What problem or opportunity — keep this brief, just enough to justify the work]
 
 ## Current State Analysis
+
 **Already Implemented:**
+
 - [What exists today]
 
 **Not Yet Implemented:**
+
 - [Gap bullets]
 
 ## Key Findings
+
 1. [Insights from exploring the codebase]
 
 ## Recommended Solution
 
 ### Phase 1: [Phase Name]
+
 **Implementation:** [Concrete code steps]
 **Benefits:** [Why this phase matters]
 
 ## Decision Factors
+
 1. [Trade-offs that drove the recommendation]
 
 ## Recommended Action
+
 [Ordered next steps]
 
 ## Files To Review
+
 1. `path/to/file` - [What to check]
 
 ## Out Of Scope
+
 - [Specifically excluded items]
 
 ## Related Issues
+
 - [Issue links]
 ```
 
@@ -94,6 +105,7 @@ Type, Title, Date.md
 ## Verification
 
 After writing a plan, verify it against the codebase:
+
 - Do the referenced files and paths actually exist?
 - Are statuses, model fields, and component imports verified against the current code?
 - Are the suggested status enum values actually present or confirmed missing?

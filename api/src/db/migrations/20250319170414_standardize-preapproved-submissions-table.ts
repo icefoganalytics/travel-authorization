@@ -23,9 +23,7 @@ export async function up(knex: Knex): Promise<void> {
   })
 
   // As we are not migrating the pre-approved submission data, we can't migrate the pre-approved documents either.
-  await knex.raw(/* sql */ `
-    TRUNCATE TABLE "preapprovedDocuments" RESTART IDENTITY CASCADE;
-  `)
+  await knex.raw(/* sql */ ` TRUNCATE TABLE "preapprovedDocuments" RESTART IDENTITY CASCADE; `)
 
   await knex.schema.alterTable("preapprovedDocuments", (table) => {
     table.integer("submission_id").notNullable()

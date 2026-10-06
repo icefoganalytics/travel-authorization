@@ -12,7 +12,6 @@ export async function initializeTravComDevelopment(): Promise<void> {
 
 export default initializeTravComDevelopment
 
-
 // Run via `dev ts-node ./src/initializers/40-initialize-trav-com-development.ts`
 if (require.main === module) {
   ;(async () => {

@@ -1,89 +1,89 @@
 import logger from "@/utils/logger"
 
-const EWS = require("node-ews");
-const schedule = require("node-schedule");
-const db = require("./queries");
-const environment = process.env.NODE_ENV || "staging";
-const config = require("./config/knexfile.js")[environment];
-const knex = require("knex")(config);
+const EWS = require("node-ews")
+const schedule = require("node-schedule")
+const db = require("./queries")
+const environment = process.env.NODE_ENV || "staging"
+const config = require("./config/knexfile.js")[environment]
+const knex = require("knex")(config)
 // const moment = require("moment");
 
 const ewsConfig = {
   username: process.env.EMAILER_USERNAME,
   password: process.env.EMAILER_PASSWORD,
-  host: process.env.EMAIL_HOST
-};
+  host: process.env.EMAIL_HOST,
+}
 
-const ews = new EWS(ewsConfig);
-ews.auth.toString = () => "auth";
+const ews = new EWS(ewsConfig)
+ews.auth.toString = () => "auth"
 
-const url = process.env.APP_URL + "recover/";
-const cron = require("node-cron");
+const url = process.env.APP_URL + "recover/"
+const cron = require("node-cron")
 
 function sendEmail(receiver: String, subject: String, body: String) {
-  const ewsArgs = getEmailConfig(receiver, subject, body);
+  const ewsArgs = getEmailConfig(receiver, subject, body)
 
-  const ewsChild = new EWS(ewsConfig);
+  const ewsChild = new EWS(ewsConfig)
 
   ewsChild
     .run("CreateItem", ewsArgs)
     .then((result: any) => {
-      logger.info(JSON.stringify(result));
+      logger.info(JSON.stringify(result))
     })
     .catch((err: any) => {
-      logger.info(err.stack);
-    });
+      logger.info(err.stack)
+    })
 }
 
 exports.sendEmail = function (receiver: String, subject: String, body: String) {
-  const ewsArgs = getEmailConfig(receiver, subject, body);
+  const ewsArgs = getEmailConfig(receiver, subject, body)
   ews
     .run("CreateItem", ewsArgs)
     .then((result: any) => {
-      logger.info(JSON.stringify(result));
+      logger.info(JSON.stringify(result))
     })
     .catch((err: any) => {
-      logger.info(err.stack);
-    });
-};
+      logger.info(err.stack)
+    })
+}
 
 exports.sendSuccessfulSubmit = function (receiver: String, code: String) {
-  const subject = "YG Travel Form Submitted";
-  const ewsArgs = getEmailConfig(receiver, subject, submittedFormEmailBody(code));
+  const subject = "YG Travel Form Submitted"
+  const ewsArgs = getEmailConfig(receiver, subject, submittedFormEmailBody(code))
   ews
     .run("CreateItem", ewsArgs)
     .then((result: any) => {
-      logger.info(JSON.stringify(result));
+      logger.info(JSON.stringify(result))
     })
     .catch((err: any) => {
-      logger.info(err.stack);
-    });
-};
+      logger.info(err.stack)
+    })
+}
 
 exports.sendSuccessfulUpdate = function (receiver: String, code: String) {
-  const subject = "YG Travel Form Updated";
-  const ewsArgs = getEmailConfig(receiver, subject, updatedFormEmailBody(code));
+  const subject = "YG Travel Form Updated"
+  const ewsArgs = getEmailConfig(receiver, subject, updatedFormEmailBody(code))
   ews
     .run("CreateItem", ewsArgs)
     .then((result: any) => {
-      logger.info(JSON.stringify(result));
+      logger.info(JSON.stringify(result))
     })
     .catch((err: any) => {
-      logger.info(err.stack);
-    });
-};
+      logger.info(err.stack)
+    })
+}
 
 function getEmailConfig(receiver: String, subject: String, body: String) {
   return {
     attributes: {
-      MessageDisposition: "SendAndSaveCopy"
+      MessageDisposition: "SendAndSaveCopy",
     },
     SavedItemFolderId: {
       DistinguishedFolderId: {
         attributes: {
-          Id: "sentitems"
-        }
-      }
+          Id: "sentitems",
+        },
+      },
     },
     Items: {
       Message: {
@@ -91,19 +91,19 @@ function getEmailConfig(receiver: String, subject: String, body: String) {
         Subject: subject,
         Body: {
           attributes: {
-            BodyType: "HTML"
+            BodyType: "HTML",
           },
-          $value: body
+          $value: body,
         },
         ToRecipients: {
           Mailbox: {
-            EmailAddress: receiver
-          }
+            EmailAddress: receiver,
+          },
         },
-        IsRead: "false"
-      }
-    }
-  };
+        IsRead: "false",
+      },
+    },
+  }
 }
 
 function submittedFormEmailBody(code: String) {
@@ -112,7 +112,7 @@ function submittedFormEmailBody(code: String) {
     url +
     code +
     `.`
-  );
+  )
 }
 
 function updatedFormEmailBody(code: String) {
@@ -121,7 +121,7 @@ function updatedFormEmailBody(code: String) {
     url +
     code +
     `.`
-  );
+  )
 }
 
 // function createReportForEmail(notices) {

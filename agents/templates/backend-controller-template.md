@@ -13,11 +13,7 @@ import logger from "@/utils/logger"
 
 import { SomeModel } from "@/models"
 import { SomeModelPolicy } from "@/policies"
-import {
-  CreateService,
-  UpdateService,
-  DestroyService,
-} from "@/services/some-models"
+import { CreateService, UpdateService, DestroyService } from "@/services/some-models"
 import { IndexSerializer, ShowSerializer } from "@/serializers/some-models"
 import BaseController from "@/controllers/base-controller"
 
@@ -119,11 +115,7 @@ export class SomeModelsController extends BaseController<SomeModel> {
       }
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-      const updatedModel = await UpdateService.perform(
-        model,
-        permittedAttributes,
-        this.currentUser
-      )
+      const updatedModel = await UpdateService.perform(model, permittedAttributes, this.currentUser)
       const serializedModel = ShowSerializer.perform(updatedModel)
       return this.response.json({
         someModel: serializedModel,
@@ -187,12 +179,12 @@ export default SomeModelsController
 
 Not every CRUD action is needed. Pick only the actions the resource requires:
 
-| Actions | Example | Pattern |
-|---------|---------|---------|
-| `index` only | `StopsController` | Read-only list, no serializers |
-| `index` + `show` | `LocationsController`, `TravelPurposesController` | Read-only, no policy checks |
-| `index` + `show` + `update` | `PerDiemsController`, `TravelAllowancesController` | Mutable, policy-gated |
-| Full CRUD | `TravelAuthorizationsController`, `ExpensesController`, `GeneralLedgerCodingsController` | All five actions |
+| Actions                     | Example                                                                                  | Pattern                        |
+| --------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------ |
+| `index` only                | `StopsController`                                                                        | Read-only list, no serializers |
+| `index` + `show`            | `LocationsController`, `TravelPurposesController`                                        | Read-only, no policy checks    |
+| `index` + `show` + `update` | `PerDiemsController`, `TravelAllowancesController`                                       | Mutable, policy-gated          |
+| Full CRUD                   | `TravelAuthorizationsController`, `ExpensesController`, `GeneralLedgerCodingsController` | All five actions               |
 
 For read-only reference data with no authorization, skip the policy entirely and use `Model.withScope()` directly:
 
@@ -269,6 +261,7 @@ export default SomeController
 ```
 
 All stateful action controllers:
+
 - Extend `BaseController` (no generic type parameter)
 - Have only a `create()` method
 - Route as `POST /api/:parentResource/:parentId/:action-name`

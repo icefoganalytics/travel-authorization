@@ -352,7 +352,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
             travelAuthorizationId: travelAuthorization.id,
             description: "Breakfast/Lunch/Dinner/Incidentals",
             date: new Date("2025-02-01 23:32:00"),
-            cost: 123.40,
+            cost: 123.4,
             currency: Expense.CurrencyTypes.CAD,
             type: Expense.Types.ESTIMATE,
             expenseType: Expense.ExpenseTypes.MEALS_AND_INCIDENTALS,
@@ -419,26 +419,28 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
-        expect(expensesAttributes).toEqual(expect.arrayContaining([
-          expect.objectContaining({
-            travelAuthorizationId: travelAuthorization.id,
-            description: "Personal Vehicle from Whitehorse to Faro",
-            date: new Date("2022-06-05 10:00:00"),
-            cost: 217.195,
-            currency: Expense.CurrencyTypes.CAD,
-            type: Expense.Types.ESTIMATE,
-            expenseType: Expense.ExpenseTypes.TRANSPORTATION,
-          }),
-          expect.objectContaining({
-            travelAuthorizationId: travelAuthorization.id,
-            description: "Personal Vehicle from Faro to Whitehorse",
-            date: new Date("2022-06-07 15:00:00"),
-            cost: 217.195,
-            currency: Expense.CurrencyTypes.CAD,
-            type: Expense.Types.ESTIMATE,
-            expenseType: Expense.ExpenseTypes.TRANSPORTATION,
-          }),
-        ]))
+        expect(expensesAttributes).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              travelAuthorizationId: travelAuthorization.id,
+              description: "Personal Vehicle from Whitehorse to Faro",
+              date: new Date("2022-06-05 10:00:00"),
+              cost: 217.195,
+              currency: Expense.CurrencyTypes.CAD,
+              type: Expense.Types.ESTIMATE,
+              expenseType: Expense.ExpenseTypes.TRANSPORTATION,
+            }),
+            expect.objectContaining({
+              travelAuthorizationId: travelAuthorization.id,
+              description: "Personal Vehicle from Faro to Whitehorse",
+              date: new Date("2022-06-07 15:00:00"),
+              cost: 217.195,
+              currency: Expense.CurrencyTypes.CAD,
+              type: Expense.Types.ESTIMATE,
+              expenseType: Expense.ExpenseTypes.TRANSPORTATION,
+            }),
+          ])
+        )
       })
     })
   })

@@ -97,7 +97,6 @@ travelDeskRouter.get(
 
         // @ts-expect-error - isn't worth fixing at this time
         form.travelRequest = form.travelDeskTravelRequest
-
       }
       res.status(200).json(formsJson)
     } catch (error: unknown) {

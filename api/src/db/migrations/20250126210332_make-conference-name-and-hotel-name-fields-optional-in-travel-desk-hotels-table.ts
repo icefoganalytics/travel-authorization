@@ -10,8 +10,9 @@ export async function up(knex: Knex): Promise<void> {
 export async function down(knex: Knex): Promise<void> {
   await knex.raw(/* sql */ `
     UPDATE travel_desk_hotels
-    SET conference_name = '',
-        conference_hotel_name = ''
+    SET
+      conference_name = '',
+      conference_hotel_name = ''
   `)
 
   await knex.schema.alterTable("travel_desk_hotels", (table) => {

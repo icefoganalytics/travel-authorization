@@ -10,12 +10,14 @@ auto_execution_mode: 1
 **WHY this workflow exists:** Creating effective GitHub issues requires consistent structure, clear problem descriptions, and actionable requirements. Poorly written issues lead to confusion, scope creep, and implementation delays.
 
 **WHAT this workflow produces:** Well-structured GitHub issues that include:
+
 - Clear problem descriptions or feature requests
 - Specific reproduction steps or requirements
 - Proper issue labeling and assignment
 - Screenshots/mockups when relevant
 
 **Decision Rules:**
+
 - **Use Existing Templates:** Always use the project's `.github/ISSUE_TEMPLATE/` templates
 - **Bug Reports:** Use `bug_report.md` template for defects and problems
 - **Feature Requests:** Use `feature_request.md` template for new functionality
@@ -39,6 +41,7 @@ auto_execution_mode: 1
 ## Step 2: Fill Out Template Fields
 
 **Bug Report Template Fields:**
+
 - **Describe the bug:** Clear, concise description of the problem
 - **To Reproduce:** Step-by-step reproduction instructions
 - **Expected behavior:** What should have happened
@@ -47,6 +50,7 @@ auto_execution_mode: 1
 - **Additional context:** Any relevant extra information
 
 **Feature Request Template Fields:**
+
 - **Relates to:** Related issues or documentation
 - **Context:** Problem description and user story
 - **Solution you'd like:** Clear description of desired outcome
@@ -58,12 +62,14 @@ auto_execution_mode: 1
 ## Step 3: Write Effective Context
 
 **For Bug Reports:**
+
 - Include exact error messages
 - Provide specific URLs or page names
 - Include browser console errors if applicable
 - Mention recent changes that might be related
 
 **For Feature Requests:**
+
 - Use user story format: "As a [role] I can [action] so that [benefit]"
 - Explain the business value or user benefit
 - Include mockups or examples if available
@@ -73,17 +79,20 @@ auto_execution_mode: 1
 ## Step 4: Add Labels and Assignment
 
 **Actual Project Labels:**
+
 - `bug` - Something isn't working
 - `enhancement` - Adds or modifies features to improve functionality or user experience
 - `refactor` - Improves code's internal structure without changing its behavior
 
 **Specialty Labels:**
+
 - `:cherry_blossom: ui/ux` - Improves user experience or beautifies the app
 - `:hammer: Tooling` - Something that makes it easier to produce high quality code
 - `:lock: security` - Issues or PRs related to security vulnerabilities or improvements
 - `:scroll: epic` - High-level feature or requirement that can be broken down into smaller tasks
 
 **GitHub Default Labels:**
+
 - `documentation` - Improvements or additions to documentation
 - `duplicate` - This issue or pull request already exists
 - `good first issue` - Good for newcomers
@@ -105,6 +114,7 @@ auto_execution_mode: 1
 **Labels:** `bug`, `:lock: security`
 
 **Body:**
+
 ```
 **Describe the bug**
 Current iframe-based silent authentication is causing issues with browser security policies and may become deprecated.
@@ -135,6 +145,7 @@ Relates to Auth0 documentation on refresh token rotation. Current implementation
 **Labels:** `enhancement`, `:cherry_blossom: ui/ux`
 
 **Body:**
+
 ```
 Relates to:
 - Issue 310: Supervisor Approval Re-assignment To Finance for Expense Processing
@@ -164,6 +175,7 @@ This would improve the finance review workflow and reduce back-and-forth between
 **Labels:** `refactor`
 
 **Body:**
+
 ```
 Relates to:
 - Issue 315: Improve Travel Estimate Calculation Accuracy
@@ -192,6 +204,7 @@ This improves travel estimate and expense review accuracy.
 ## Step 5: Create the Issue
 
 ### Option 1: Create via GitHub Web UI
+
 1. Go to https://github.com/icefoganalytics/travel-authorization/issues/new/choose
 2. Select appropriate template (Bug report or Feature request)
 3. Fill in fields following the examples above
@@ -201,6 +214,7 @@ This improves travel estimate and expense review accuracy.
 ### Option 2: Create via GitHub CLI API
 
 **For Bug Reports:**
+
 ```bash
 gh api repos/icefoganalytics/travel-authorization/issues --method POST \
   --field 'title=Bug: [Brief Description]' \
@@ -227,6 +241,7 @@ Steps to reproduce the behavior:
 ```
 
 **For Feature Requests:**
+
 ```bash
 gh api repos/icefoganalytics/travel-authorization/issues --method POST \
   --field 'title=Feature: [Brief Description]' \
@@ -250,6 +265,7 @@ gh api repos/icefoganalytics/travel-authorization/issues --method POST \
 ```
 
 **For Refactoring:**
+
 ```bash
 gh api repos/icefoganalytics/travel-authorization/issues --method POST \
   --field 'title=Refactor: [Brief Description]' \
@@ -273,6 +289,7 @@ gh api repos/icefoganalytics/travel-authorization/issues --method POST \
 ```
 
 **Important Notes for CLI:**
+
 - Use `--field 'labels[]=label1' --field 'labels[]=label2'` for multiple labels
 - Escape single quotes in body with `'"'"'` (e.g., `you'"'"'d`)
 - Use line breaks with `\n` for multi-line content
@@ -283,6 +300,7 @@ gh api repos/icefoganalytics/travel-authorization/issues --method POST \
 ## Quality Checklist
 
 **For Bug Reports:**
+
 - [ ] Bug description is clear and concise
 - [ ] Reproduction steps are numbered and specific
 - [ ] Expected vs actual behavior is clearly stated
@@ -292,6 +310,7 @@ gh api repos/icefoganalytics/travel-authorization/issues --method POST \
 - [ ] Recent changes mentioned if relevant
 
 **For Feature Requests:**
+
 - [ ] User story follows "As a [role] I can [action] so that [benefit]" format
 - [ ] Problem context is clearly explained
 - [ ] Solution description is specific and actionable
@@ -300,6 +319,7 @@ gh api repos/icefoganalytics/travel-authorization/issues --method POST \
 - [ ] Mockups or examples included when relevant
 
 **General:**
+
 - [ ] Appropriate labels assigned (type, priority, component)
 - [ ] Related issues or documentation linked
 - [ ] Title is descriptive and follows project conventions

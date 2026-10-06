@@ -8,18 +8,30 @@ export async function up(knex: Knex): Promise<void> {
 
   // Set deleted_at for duplicate roles
   await knex.raw(/* sql */ `
-    WITH ranked_roles AS (
-      SELECT id,
-            "name",
-            created_at,
-            ROW_NUMBER() OVER (PARTITION BY "name" ORDER BY created_at DESC) AS row_number
-      FROM "roles"
-      WHERE deleted_at IS NULL
-    )
+    WITH
+      ranked_roles AS (
+        SELECT
+          id,
+          "name",
+          created_at,
+          ROW_NUMBER() OVER (
+            PARTITION BY
+              "name"
+            ORDER BY
+              created_at DESC
+          ) AS row_number
+        FROM
+          "roles"
+        WHERE
+          deleted_at IS NULL
+      )
     UPDATE "roles"
-    SET deleted_at = NOW()
-    FROM ranked_roles
-    WHERE "roles".id = ranked_roles.id
+    SET
+      deleted_at = NOW()
+    FROM
+      ranked_roles
+    WHERE
+      "roles".id = ranked_roles.id
       AND ranked_roles.row_number > 1;
   `)
 

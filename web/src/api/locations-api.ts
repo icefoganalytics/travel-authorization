@@ -13,10 +13,7 @@ export type Location = {
 
 export type LocationAsIndex = Pick<Location, "id" | "city" | "province" | "createdAt" | "updatedAt">
 
-export type LocationAsShow = Pick<
-  Location,
-  "id" | "city" | "province" | "createdAt" | "updatedAt"
->
+export type LocationAsShow = Pick<Location, "id" | "city" | "province" | "createdAt" | "updatedAt">
 
 export type LocationAsReference = Pick<
   Location,

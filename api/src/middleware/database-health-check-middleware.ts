@@ -10,8 +10,7 @@ let lastHealthCheckTime = 0
 
 const HEALTH_CHECK_INTERVAL = 5 * 60 * 1000 // 5 minutes in milliseconds
 
-function shouldPerformHealthCheck(
-): boolean {
+function shouldPerformHealthCheck(): boolean {
   return Date.now() - lastHealthCheckTime >= HEALTH_CHECK_INTERVAL
 }
 

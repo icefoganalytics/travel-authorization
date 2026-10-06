@@ -17,9 +17,7 @@ export class DenyService extends BaseService {
 
   async perform(): Promise<TravelAuthorization> {
     if (this.travelAuthorization.status !== TravelAuthorization.Statuses.SUBMITTED) {
-      throw new Error(
-        "Travel authorization must be in submitted state to deny."
-      )
+      throw new Error("Travel authorization must be in submitted state to deny.")
     }
 
     await db.transaction(async () => {

@@ -36,9 +36,7 @@ describe("web/src/components/example/ExampleCard.vue", () => {
   describe("ExampleCard", () => {
     test("when the user saves, it emits the updated value", async () => {
       // Arrange
-
       // Act
-
       // Assert
     })
   })

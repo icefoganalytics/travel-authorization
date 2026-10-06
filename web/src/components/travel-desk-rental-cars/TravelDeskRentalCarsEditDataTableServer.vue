@@ -61,7 +61,6 @@
         />
       </div>
     </template>
-
   </v-data-table-server>
 </template>
 

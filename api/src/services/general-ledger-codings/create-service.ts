@@ -42,9 +42,7 @@ export class CreateService extends BaseService {
   }
 
   private async assertCodeIsValidInYgFinancialSystem(code: string): Promise<void> {
-    const account = await yukonGovernmentIntegration.finance.api.v1.fetchAccountInformation(
-      code
-    )
+    const account = await yukonGovernmentIntegration.finance.api.v1.fetchAccountInformation(code)
     if (isNil(account)) {
       throw new Error(`Account ${code} not found in Yukon Government financial system.`)
     }

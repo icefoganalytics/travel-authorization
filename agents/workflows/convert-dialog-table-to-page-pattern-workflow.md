@@ -8,6 +8,7 @@ auto_execution_mode: 1
 ## Intent
 
 **WHY this workflow exists:** Legacy components use inline dialogs for create/edit which causes:
+
 - Complex state management (dialog open/close, form data, validation)
 - Poor URL navigation (no bookmarkable edit links)
 - Mixed concerns (table + forms in one component)
@@ -16,12 +17,14 @@ auto_execution_mode: 1
 The page-based pattern separates concerns: tables display data, pages handle forms.
 
 **WHAT this workflow produces:** Four components that work together:
+
 1. **EditCard** - Wrapper with title and "New" button (navigates to NewPage). Naming: `{Model}EditCard.vue`.
 2. **EditDataTable** - Server-paginated table with edit/delete actions (edit navigates to EditPage). Naming: `{Model}EditDataTable.vue`.
 3. **NewPage** - Standalone page for creating new records. Naming: `{Model}NewPage.vue`.
 4. **EditPage** - Standalone page for editing existing records. Naming: `{Model}EditPage.vue`.
 
 **Decision Rules:**
+
 - **Props from router are strings:** Route params are always strings. Create `...AsNumber` computed for API calls.
 - **Where to put components:** EditCard/EditDataTable go in `web/src/components/{model-kebab-case}/`. NewPage/EditPage go in `web/src/pages/{parent-path}/{model-plural}/`.
 - **Parent ID handling:** For child entities, NewPage receives parentId. EditPage may only need the modelId (depends on whether you need parent context).
@@ -48,6 +51,7 @@ Before starting, ensure:
 ## Overview
 
 **Source Pattern (legacy):**
+
 ```
 RentalCarRequestTable.vue
 ├── TitleCard wrapper
@@ -57,6 +61,7 @@ RentalCarRequestTable.vue
 ```
 
 **Target Pattern (modern):**
+
 ```
 {Model}EditCard.vue (wrapper)
 ├── v-card with title
@@ -120,7 +125,7 @@ RentalCarRequestTable.vue
           title="Delete"
           icon
           color="red"
-          @click.stop="delete{Model}(item.id)"
+          @click.stop="delete { Model }(item.id)"
           ><v-icon>mdi-close</v-icon></v-btn
         >
       </div>
@@ -288,15 +293,8 @@ defineExpose({
       </v-btn>
     </v-card-title>
     <v-card-text>
-      <{Model}EditDataTable
-        ref="{model}EditDataTable"
-        :where="{
-          parentId: parentId,
-        }"
-        route-query-suffix="{Model}"
-        v-bind="$attrs"
-        @updated="emit('updated')"
-      />
+      <{Model}EditDataTable ref="{model}EditDataTable" :where="{ parentId: parentId, }"
+      route-query-suffix="{Model}" v-bind="$attrs" @updated="emit('updated')" />
     </v-card-text>
   </v-card>
 </template>
@@ -811,6 +809,7 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 ```
 
 **Concrete Example (rental cars under travel desk):**
+
 ```typescript
 {
   path: "travel-desk/:travelDeskTravelRequestId/rental-cars/new",
@@ -832,33 +831,34 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 
 ## Naming Conventions
 
-| Pattern | Naming | Example |
-|---------|--------|---------|
-| Edit Data Table | `{Model}EditDataTable.vue` | `TravelDeskRentalCarEditDataTable.vue` |
-| Edit Card (wrapper) | `{Model}EditCard.vue` | `TravelDeskRentalCarEditCard.vue` |
-| New Page | `{Model}NewPage.vue` | `TravelDeskRentalCarNewPage.vue` |
-| Edit Page | `{Model}EditPage.vue` | `TravelDeskRentalCarEditPage.vue` |
+| Pattern             | Naming                     | Example                                |
+| ------------------- | -------------------------- | -------------------------------------- |
+| Edit Data Table     | `{Model}EditDataTable.vue` | `TravelDeskRentalCarEditDataTable.vue` |
+| Edit Card (wrapper) | `{Model}EditCard.vue`      | `TravelDeskRentalCarEditCard.vue`      |
+| New Page            | `{Model}NewPage.vue`       | `TravelDeskRentalCarNewPage.vue`       |
+| Edit Page           | `{Model}EditPage.vue`      | `TravelDeskRentalCarEditPage.vue`      |
 
 ---
 
 ## Key Differences from Legacy Pattern
 
-| Aspect | Legacy Pattern | Modern Pattern |
-|--------|---------------|----------------|
-| Create/Edit UI | Inline dialogs in table | Separate pages (NewPage, EditPage) |
-| State Management | Local `data()` with tmpId | Composables with API calls |
-| Data Source | Props passed from parent | Server-side via composable |
-| Pagination | None (client-side) | Server-side with useRouteQuery |
-| Delete | Array splice | API call with confirmation |
-| Form Wrapper | TitleCard | HeaderActionsFormCard (pages) |
-| Navigation | None | Router links to New/Edit pages |
-| Breadcrumbs | None | useBreadcrumbs hook |
+| Aspect           | Legacy Pattern            | Modern Pattern                     |
+| ---------------- | ------------------------- | ---------------------------------- |
+| Create/Edit UI   | Inline dialogs in table   | Separate pages (NewPage, EditPage) |
+| State Management | Local `data()` with tmpId | Composables with API calls         |
+| Data Source      | Props passed from parent  | Server-side via composable         |
+| Pagination       | None (client-side)        | Server-side with useRouteQuery     |
+| Delete           | Array splice              | API call with confirmation         |
+| Form Wrapper     | TitleCard                 | HeaderActionsFormCard (pages)      |
+| Navigation       | None                      | Router links to New/Edit pages     |
+| Breadcrumbs      | None                      | useBreadcrumbs hook                |
 
 ---
 
 ## Checklist
 
 ### EditDataTable Component
+
 - [ ] Uses `<script setup lang="ts">`
 - [ ] Uses `defineProps<{...}>()` with proper TypeScript types
 - [ ] Uses `defineEmits<{ (event: "updated"): void }>()` call-signature syntax
@@ -879,6 +879,7 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 - [ ] Exposes refresh() method
 
 ### EditCard Component
+
 - [ ] Uses `<script setup lang="ts">`
 - [ ] Uses `defineProps<{...}>()` for required props including `returnTo?: string`
 - [ ] Uses `defineEmits<{ (event: "updated"): void }>()` call-signature syntax
@@ -891,6 +892,7 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 - [ ] Exposes refresh() method
 
 ### NewPage Component
+
 - [ ] Uses `<script setup lang="ts">`
 - [ ] Uses `defineProps<{ parentId: string }>()` (string type, not number)
 - [ ] Creates `parentIdAsNumber` computed using `parseInt()` (not `Number()`)
@@ -913,6 +915,7 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 - [ ] `breadcrumbs` is computed, then passed to `useBreadcrumbs(breadcrumbs)`
 
 ### EditPage Component
+
 - [ ] Uses `<script setup lang="ts">`
 - [ ] Uses `defineProps<{ {model}Id: string }>()` (string type, not number)
 - [ ] Creates `{model}IdAsNumber` computed using `parseInt()` (not `Number()`)
@@ -936,6 +939,7 @@ When the model belongs to a parent entity, nest routes under the parent's path:
 - [ ] `breadcrumbs` is computed, then passed to `useBreadcrumbs(breadcrumbs)`
 
 ### Routes
+
 - [ ] New page route defined with props: true
 - [ ] Edit page route defined with props: true
 - [ ] Route names follow `{model-plural}/{Model}NewPage` pattern

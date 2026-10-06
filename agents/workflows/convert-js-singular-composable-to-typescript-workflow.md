@@ -45,8 +45,7 @@ Before converting a singular composable, ensure backend serialization is in plac
 - [ ] Update serializer index to export ShowSerializer: `export { ShowSerializer, type ResourceAsShow as AsShow } from "./show-serializer"`
 - [ ] Ensure bundle export exists in main serializers index: `export * as Resources from "./resources"`
 
-**Why this is necessary:** The API must return properly typed responses (`ResourceAsShow`) for the composable to use correct types. Without backend serialization, the API returns the full model which may include fields not intended for detail views and lacks the serialization layer that sibling projects (wrap, elcc-data-management, traditional-knowledge) use consistently.
----
+## **Why this is necessary:** The API must return properly typed responses (`ResourceAsShow`) for the composable to use correct types. Without backend serialization, the API returns the full model which may include fields not intended for detail views and lacks the serialization layer that sibling projects (wrap, elcc-data-management, traditional-knowledge) use consistently.
 
 ## Conversion Steps
 
