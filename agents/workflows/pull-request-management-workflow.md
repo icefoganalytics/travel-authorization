@@ -73,11 +73,11 @@ EOF
 ```
 
 ```bash
-# Assign the required owner and one label selected from the current repository labels
+# Assign the required owner and replace labels with one selected from the current repository labels
 gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
   -f 'assignees[]=klondikemarlen'
 gh label list --repo {owner}/{repo}
-gh api repos/{owner}/{repo}/issues/NUMBER/labels -X POST \
+gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT \
   -f 'labels[]=<existing-label>'
 ```
 
@@ -305,12 +305,12 @@ Immediately after creating a pull request:
 
 1. Assign `@klondikemarlen`.
 2. Run `gh label list --repo {owner}/{repo}`.
-3. Apply one existing label that most narrowly matches the pull request's scope.
+3. Replace the PR's labels with one existing label that most narrowly matches the pull request's scope.
 
 ```bash
 gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
   -f 'assignees[]=klondikemarlen'
-gh api repos/{owner}/{repo}/issues/NUMBER/labels -X POST \
+gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT \
   -f 'labels[]=<existing-label>'
 ```
 
@@ -388,8 +388,8 @@ EOF
 
 ### 6. Refresh PR Ownership and Label
 
-Immediately after updating a pull request, repeat the ownership and label commands in
-[Section 5.1](#51-set-pr-ownership-and-label) so its metadata reflects the updated scope.
+Immediately after updating a pull request, repeat the ownership and label-replacement commands in
+[Section 5.1](#51-set-pr-ownership-and-label) so it retains exactly one label for its updated scope.
 
 ### 7. Quality Checklist
 
@@ -397,7 +397,7 @@ Before submitting:
 
 - [ ] PR created as draft
 - [ ] Assigned to `@klondikemarlen`
-- [ ] One appropriate existing label applied
+- [ ] Exactly one appropriate existing label applied
 - [ ] Title follows naming pattern
 - [ ] Context explains the "why"
 - [ ] Implementation lists all changes
