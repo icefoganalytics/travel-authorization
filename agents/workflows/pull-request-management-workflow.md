@@ -301,7 +301,7 @@ gh pr ready NUMBER --repo {owner}/{repo}
 
 ### 5.1 Set PR Ownership and Label
 
-After creating or updating a pull request:
+Immediately after creating a pull request:
 
 1. Assign `@klondikemarlen`.
 2. Run `gh label list --repo {owner}/{repo}`.
@@ -385,6 +385,11 @@ Investigation revealed that the status calculation was not considering condition
 EOF
 )"
 ```
+
+### 6. Refresh PR Ownership and Label
+
+Immediately after updating a pull request, repeat the ownership and label commands in
+[Section 5.1](#51-set-pr-ownership-and-label) so its metadata reflects the updated scope.
 
 ### 7. Quality Checklist
 
