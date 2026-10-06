@@ -11,7 +11,7 @@
     "ts-node": "ts-node -r tsconfig-paths/register",
     "knex": "ts-node -r tsconfig-paths/register ./node_modules/.bin/knex --knexfile src/config.d/knexfile.ts",
     "test": "vitest",
-    "test:e2e": "playwright test --config=end-to-end-tests/playwright.config.ts",
+    "test:e2e": "tsc -p end-to-end-tests/tsconfig.json --noEmit && eslint end-to-end-tests --ext .ts --ignore-path ../.gitignore && playwright test --config=end-to-end-tests/playwright.config.ts",
     "lint": "eslint . --ext .js,.ts --ignore-path ../.gitignore",
     "check-types": "tsc -p tests/tsconfig.json --noEmit"
   },
