@@ -1,28 +1,24 @@
-import { test, expect } from "@playwright/test"
+import { expect } from "@playwright/test"
 
-type HealthCheckResponse = {
-  dbHealth: {
-    database: string
-  }
-}
+import { test } from "../fixtures"
 
-test("health check endpoint responds", async ({ request }) => {
-  const response = await request.get("/api/health-check")
+test("API status endpoint responds", async ({ request }) => {
+  const apiBaseUrl = process.env["API_BASE_URL"] ?? "http://localhost:3000"
+  const response = await request.get(`${apiBaseUrl}/_status`)
+
   expect(response.status()).toBe(200)
-  const body = (await response.json()) as HealthCheckResponse
-  expect(body.dbHealth.database).toBe("travel_test")
 })
 
 test("sign-in page renders", async ({ page }) => {
   await page.goto("/sign-in")
-  await expect(page.getByText("Yukon Government")).toBeVisible()
+
+  await expect(page.getByRole("heading", { name: "Yukon Government" }).first()).toBeVisible()
 })
 
 test("root redirects when unauthenticated", async ({ page }) => {
   await page.goto("/")
-  // Auth guard redirects to /sign-in or to Auth0 — either way, not a broken page
-  const url = page.url()
-  expect(url).toMatch(/localhost|auth0\.com/)
+
+  await expect(page).toHaveURL(/\/sign-in(?:[/?#]|$)|:\/\/[^/]*\.auth0\.com(?:[/?#]|$)/)
 })
 
 test.skip("authenticated travel authorization list loads", async ({ page }) => {

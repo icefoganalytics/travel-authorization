@@ -16,7 +16,9 @@
  * @see agents/workflows/create-test-travel-request-workflow.md
  */
 
-import { test, expect, type Page } from "@playwright/test"
+import { expect, type Page } from "@playwright/test"
+
+import { test } from "../fixtures"
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -46,12 +48,17 @@ async function selectCombobox(page: Page, label: string, option: string) {
 // Wizard — Step 1–6: Traveller creates and submits a travel request
 // ---------------------------------------------------------------------------
 
-test.skip("traveller creates and submits a travel request to supervisor", async ({ browser }) => {
+test.skip("when a traveller submits a request, it awaits supervisor approval", async ({
+  browser,
+}) => {
+  // Arrange
   // Requires tests/.auth/traveller.json (Auth0 storageState).
   const travellerContext = await browser.newContext({
     storageState: "end-to-end-tests/tests/.auth/traveller.json",
   })
   const page = await travellerContext.newPage()
+
+  // Act
 
   // Step 2 — create a new request
   await page.goto("/my-travel-requests")
@@ -59,7 +66,12 @@ test.skip("traveller creates and submits a travel request to supervisor", async 
 
   // Extract the travel auth ID from the wizard URL
   await page.waitForURL(/\/my-travel-requests\/(\d+)\/wizard\/edit-trip-purpose/)
-  const travelAuthId = page.url().match(/my-travel-requests\/(\d+)\/wizard/)![1]
+  const travelAuthIdMatch = page.url().match(/my-travel-requests\/(\d+)\/wizard/)
+  if (!travelAuthIdMatch) {
+    throw new Error("Created travel request did not navigate to its wizard URL.")
+  }
+
+  const travelAuthId = travelAuthIdMatch[1]
 
   // Step 3 — Trip Purpose
   await selectCombobox(page, "Purpose", "Conference")
@@ -97,19 +109,20 @@ test.skip("traveller creates and submits a travel request to supervisor", async 
   await expectToast(page, "Travel request submitted.")
   await page.waitForURL(/awaiting-supervisor-approval/)
 
-  await travellerContext.close()
-  // Expose travelAuthId for downstream tests by returning it (use a shared file or env var in
-  // a real run — this test is a self-contained demonstration).
+  // Assert
   expect(travelAuthId).toBeTruthy()
+
+  await travellerContext.close()
 })
 
 // ---------------------------------------------------------------------------
 // Wizard — Step 7: Admin approves the travel request
 // ---------------------------------------------------------------------------
 
-test.skip("admin approves a travel request and traveller advances past supervisor step", async ({
+test.skip("when an admin approves a request, the traveller advances past supervisor approval", async ({
   browser,
 }) => {
+  // Arrange
   // Requires tests/.auth/admin.json and tests/.auth/traveller.json.
   //
   // In a real run, travelAuthId would come from a fixture or a shared state
@@ -120,6 +133,8 @@ test.skip("admin approves a travel request and traveller advances past superviso
     storageState: "end-to-end-tests/tests/.auth/admin.json",
   })
   const adminPage = await adminContext.newPage()
+
+  // Act
 
   await adminPage.goto(`/manage-travel-requests/${travelAuthId}/details`)
   await adminPage.getByRole("button", { name: "Approve" }).click()
@@ -139,6 +154,8 @@ test.skip("admin approves a travel request and traveller advances past superviso
   )
   await travellerPage.getByRole("button", { name: "Check status?" }).click()
   await expectToast(travellerPage, "Travel authorization approved!")
+
+  // Assert
   await travellerPage.waitForURL(/traveler-details/)
 
   await travellerContext.close()
@@ -148,9 +165,10 @@ test.skip("admin approves a travel request and traveller advances past superviso
 // Wizard — Steps 8–9: Traveller details and submit to travel desk
 // ---------------------------------------------------------------------------
 
-test.skip("traveller fills in traveler details and submits to travel desk", async ({
+test.skip("when a traveller completes their details, it is submitted to travel desk", async ({
   browser,
 }) => {
+  // Arrange
   // Requires tests/.auth/traveller.json.
   const travelAuthId = process.env["TRAVEL_AUTH_ID"] ?? "PLACEHOLDER"
 
@@ -158,6 +176,8 @@ test.skip("traveller fills in traveler details and submits to travel desk", asyn
     storageState: "end-to-end-tests/tests/.auth/traveller.json",
   })
   const page = await travellerContext.newPage()
+
+  // Act
 
   await page.goto(`/my-travel-requests/${travelAuthId}/wizard/traveler-details`)
 
@@ -173,6 +193,8 @@ test.skip("traveller fills in traveler details and submits to travel desk", asyn
 
   // Step 9 — Submit to Travel Desk
   await page.getByRole("button", { name: "Submit to Travel Desk" }).click()
+
+  // Assert
   await page.waitForURL(/awaiting-flight-options/)
 
   await travellerContext.close()
@@ -182,9 +204,10 @@ test.skip("traveller fills in traveler details and submits to travel desk", asyn
 // Wizard — Steps 12–13: Traveller submits expenses
 // ---------------------------------------------------------------------------
 
-test.skip("traveller submits expenses with prefill, receipts, and GL coding", async ({
+test.skip("when a traveller submits an expense claim, it includes prefill, receipts, and GL coding", async ({
   browser,
 }) => {
+  // Arrange
   // Requires tests/.auth/traveller.json.
   // Travel dates (2026-06-01 to 2026-06-04) must be in the past.
   const travelAuthId = process.env["TRAVEL_AUTH_ID"] ?? "PLACEHOLDER"
@@ -193,6 +216,8 @@ test.skip("traveller submits expenses with prefill, receipts, and GL coding", as
     storageState: "end-to-end-tests/tests/.auth/traveller.json",
   })
   const page = await travellerContext.newPage()
+
+  // Act
 
   await page.goto(`/my-travel-requests/${travelAuthId}/wizard/confirm-actual-travel-details`)
 
@@ -206,9 +231,9 @@ test.skip("traveller submits expenses with prefill, receipts, and GL coding", as
   // 2. Inject fake receipts via DataTransfer API — the real file picker is hidden
   await page.evaluate(() => {
     const pngBytes = new Uint8Array([
-      137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 2,
-      0, 0, 0, 144, 119, 83, 222, 0, 0, 0, 12, 73, 68, 65, 84, 8, 215, 99, 248, 15, 0, 0, 1, 1, 0,
-      5, 24, 213, 78, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
+      137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 2, 0,
+      0, 0, 144, 119, 83, 222, 0, 0, 0, 12, 73, 68, 65, 84, 8, 215, 99, 248, 15, 0, 0, 1, 1, 0, 5,
+      24, 213, 78, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
     ])
     const blob = new Blob([pngBytes], { type: "image/png" })
     const fileInputs = document.querySelectorAll<HTMLInputElement>("input[type='file'].d-none")
@@ -230,6 +255,8 @@ test.skip("traveller submits expenses with prefill, receipts, and GL coding", as
 
   // 4. Submit
   await page.getByRole("button", { name: "Submit to Supervisor" }).click()
+
+  // Assert
   await page.waitForURL(/awaiting-expense-claim-approval/)
 
   await travellerContext.close()
@@ -239,43 +266,70 @@ test.skip("traveller submits expenses with prefill, receipts, and GL coding", as
 // Wizard — Steps 13–15: Supervisor and finance approve the expense claim
 // ---------------------------------------------------------------------------
 
-test.skip("admin approves expense claim and finance processes expenses", async ({ browser }) => {
+test.skip("when finance processes an expense claim, the traveller can review expenses", async ({
+  browser,
+}) => {
+  // Arrange
   // Requires tests/.auth/admin.json and tests/.auth/traveller.json.
   const travelAuthId = process.env["TRAVEL_AUTH_ID"] ?? "PLACEHOLDER"
+  const apiBaseUrl = process.env["API_BASE_URL"] ?? "http://localhost:3000"
 
   const adminContext = await browser.newContext({
     storageState: "end-to-end-tests/tests/.auth/admin.json",
   })
   const adminPage = await adminContext.newPage()
 
+  // Act
+
   // Step 13 — Supervisor approves expense claim via API (avoids native window.confirm freeze)
   await adminPage.goto(`/manage-travel-requests/${travelAuthId}/expense`)
-  await adminPage.evaluate(async (id: string) => {
-    const app = (document.getElementById("app") as HTMLElement & { __vue_app__?: { config: { globalProperties: { $auth0: { getAccessTokenSilently(): Promise<string> } } } } }).__vue_app__
-    if (!app) throw new Error("Vue app not found")
-    const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
-    const response = await fetch(
-      `http://localhost:3000/api/travel-authorizations/${id}/approve-expense-claim`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      }
-    )
-    return response.json()
-  }, travelAuthId)
+  await adminPage.evaluate(
+    async ({ apiBaseUrl, travelAuthId }) => {
+      const app = (
+        document.getElementById("app") as HTMLElement & {
+          __vue_app__?: {
+            config: { globalProperties: { $auth0: { getAccessTokenSilently(): Promise<string> } } }
+          }
+        }
+      ).__vue_app__
+      if (!app) throw new Error("Vue app not found")
+      const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
+      const response = await fetch(
+        `${apiBaseUrl}/api/travel-authorizations/${travelAuthId}/approve-expense-claim`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        }
+      )
+      return response.json()
+    },
+    { apiBaseUrl, travelAuthId }
+  )
 
   // Step 14 — Finance processes expenses
   await adminPage.goto(`/expense-processing/${travelAuthId}/expense`)
-  await adminPage.evaluate(async (id: string) => {
-    const app = (document.getElementById("app") as HTMLElement & { __vue_app__?: { config: { globalProperties: { $auth0: { getAccessTokenSilently(): Promise<string> } } } } }).__vue_app__
-    if (!app) throw new Error("Vue app not found")
-    const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
-    const response = await fetch(`http://localhost:3000/api/travel-authorizations/${id}/expense`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    })
-    return response.json()
-  }, travelAuthId)
+  await adminPage.evaluate(
+    async ({ apiBaseUrl, travelAuthId }) => {
+      const app = (
+        document.getElementById("app") as HTMLElement & {
+          __vue_app__?: {
+            config: { globalProperties: { $auth0: { getAccessTokenSilently(): Promise<string> } } }
+          }
+        }
+      ).__vue_app__
+      if (!app) throw new Error("Vue app not found")
+      const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
+      const response = await fetch(
+        `${apiBaseUrl}/api/travel-authorizations/${travelAuthId}/expense`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        }
+      )
+      return response.json()
+    },
+    { apiBaseUrl, travelAuthId }
+  )
 
   await adminContext.close()
 
@@ -289,12 +343,12 @@ test.skip("admin approves expense claim and finance processes expenses", async (
     `/my-travel-requests/${travelAuthId}/wizard/awaiting-finance-review-and-processing`
   )
   await travellerPage.getByRole("button", { name: "Check status?" }).click()
+
+  // Assert
   await travellerPage.waitForURL(/review-expenses/)
 
   // Step 15 — Review Expenses — final state, status is "expensed"
-  await expect(
-    travellerPage.getByRole("heading", { name: "Review Expenses" })
-  ).toBeVisible()
+  await expect(travellerPage.getByRole("heading", { name: "Review Expenses" })).toBeVisible()
 
   await travellerContext.close()
 })
