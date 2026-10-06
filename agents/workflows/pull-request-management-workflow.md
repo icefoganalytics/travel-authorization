@@ -296,7 +296,7 @@ EOF
 To mark a draft PR as ready for review:
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/NUMBER -X PATCH -f draft=false
+gh pr ready NUMBER --repo {owner}/{repo}
 ```
 
 ### 5.1 Set PR Ownership and Label
