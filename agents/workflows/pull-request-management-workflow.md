@@ -25,6 +25,9 @@ auto_execution_mode: 1
 - **End-user relevance:** Only include changes that affect end users in the Implementation section. Internal refactoring (component location changes, import updates) should be excluded unless they impact user experience.
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
+- **Assignee:** Assign every pull request to `@klondikemarlen` immediately after creation or update.
+- **Label:** Query the repository's current labels and apply the one existing label that most narrowly describes the pull request's scope.
+- **Review requests:** Do not request reviewers. `@klondikemarlen` selects and requests reviewers manually.
 - **Testing instructions:** Follow the `testing-instructions-workflow.md` workflow for detailed guidance on writing testing instructions. Never guess UI labels or navigation paths.
 - **No extra sections:** Do not add sections beyond this workflow's PR body structure unless the
   user asks for them. Validation commands belong in the chat handoff, not in a PR body section.
@@ -67,6 +70,15 @@ TODO - add screenshots for UI changes
 4. <specific step>
 EOF
 )"
+```
+
+```bash
+# Assign the required owner and one label selected from the current repository labels
+gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
+  -f 'assignees[]=klondikemarlen'
+gh label list --repo {owner}/{repo}
+gh api repos/{owner}/{repo}/issues/NUMBER/labels -X POST \
+  -f 'labels[]=<existing-label>'
 ```
 
 ## Process Steps
@@ -287,6 +299,21 @@ To mark a draft PR as ready for review:
 gh api repos/{owner}/{repo}/pulls/NUMBER -X PATCH -f draft=false
 ```
 
+### 5.1 Set PR Ownership and Label
+
+After creating or updating a pull request:
+
+1. Assign `@klondikemarlen`.
+2. Run `gh label list --repo {owner}/{repo}`.
+3. Apply one existing label that most narrowly matches the pull request's scope.
+
+```bash
+gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
+  -f 'assignees[]=klondikemarlen'
+gh api repos/{owner}/{repo}/issues/NUMBER/labels -X POST \
+  -f 'labels[]=<existing-label>'
+```
+
 ### 5. Edit Existing Pull Requests
 
 When you need to update an existing PR (add context, fix title, update testing instructions):
@@ -364,6 +391,8 @@ EOF
 Before submitting:
 
 - [ ] PR created as draft
+- [ ] Assigned to `@klondikemarlen`
+- [ ] One appropriate existing label applied
 - [ ] Title follows naming pattern
 - [ ] Context explains the "why"
 - [ ] Implementation lists all changes
