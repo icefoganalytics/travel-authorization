@@ -9,6 +9,7 @@ existing Docker Compose test patterns and integrates with `dev test`.
 ## Current State Analysis
 
 **Already Implemented:**
+
 - ✅ `end-to-end-tests/` directory at repo root (branch `feature/e2e-testing-playwright`)
 - ✅ `end-to-end-tests/package.json` with `@playwright/test ^1.52.0` and run scripts
 - ✅ `end-to-end-tests/playwright.config.ts` — Chromium, `BASE_URL` env, screenshots/video on failure
@@ -21,6 +22,7 @@ existing Docker Compose test patterns and integrates with `dev test`.
 - ✅ Draft PR #394 open
 
 **Not Yet Implemented:**
+
 - ✅ Pin `@playwright/test` to exact `1.52.0` (must match Docker image version)
 - ✅ `end_to_end_tests` service in `docker-compose.development.yml`
 - ✅ `dev test end-to-end-tests` command in `bin/dev`
@@ -55,11 +57,14 @@ existing Docker Compose test patterns and integrates with `dev test`.
 ## Implementation Steps
 
 ### Step 1: Pin Playwright version and add Dockerfile ✅ (Dockerfile done)
+
 - `end-to-end-tests/package.json`: change `"@playwright/test": "^1.52.0"` → `"1.52.0"`
 - `end-to-end-tests/development.Dockerfile`: FROM playwright image, npm install ✅
 
 ### Step 2: Add `end_to_end_tests` Docker service
+
 In `docker-compose.development.yml`, after `test_web`:
+
 ```yaml
 end_to_end_tests:
   build:
@@ -74,8 +79,10 @@ end_to_end_tests:
 ```
 
 ### Step 3: Update `bin/dev`
+
 In `test` method, add `elsif service == "end-to-end-tests"` branch.
 Add `test_end_to_end` method:
+
 ```ruby
 def test_end_to_end(*args, **kwargs)
   run(*%w[--no-deps end_to_end_tests npm run test], *args, **kwargs)
@@ -83,7 +90,9 @@ end
 ```
 
 ### Step 4: Fix CI workflow
+
 Replace the failing step:
+
 ```yaml
 # Bad (file doesn't exist):
 run: cp api/.env.development.example api/.env.development
@@ -95,10 +104,12 @@ run: touch api/.env.development
 Also start `db_trav_com` to prevent API startup errors, and wait for it before proceeding.
 
 ### Step 5: Update docs
+
 - `AGENTS.md`: Replace raw npm commands with `dev test end-to-end-tests`
 - `bin/README.md`: Add `./bin/dev test end-to-end-tests` to Testing section
 
 ### Step 6: Commit, push, update PR
+
 - Commit with `:gear:` emoji
 - Push to `feature/e2e-testing-playwright`
 - Use `create-pull-request` skill to update PR #394

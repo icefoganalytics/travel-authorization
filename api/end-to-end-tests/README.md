@@ -6,7 +6,7 @@ Playwright end-to-end tests for the full application stack live here.
 
 The runnable test suite currently covers unauthenticated smoke checks only:
 
-- API health check responds and reports the test database.
+- API status endpoint responds.
 - Sign-in page renders.
 - Root route redirects unauthenticated users away from protected content.
 
@@ -23,11 +23,12 @@ Use the project wrapper from the repository root:
 ```
 
 The wrapper starts the application stack in test mode, runs Playwright, and tears the stack down after
-the run.
+the run. The stack uses Docker's internal network, so it does not publish host ports or affect a
+running development stack.
 
 ## Adding Tests
 
-Import `test` and `expect` from `@playwright/test`. The test TypeScript configuration remaps that
-module to `fixtures.ts`, which adds automatic database cleanup around every test.
+Import `test` from `../fixtures` and `expect` from `@playwright/test`. The fixture adds automatic
+database cleanup around every test.
 
 Prefer locators that match user-visible behavior, such as `page.getByRole()` and `page.getByText()`.

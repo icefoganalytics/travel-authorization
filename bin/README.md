@@ -88,14 +88,12 @@ Pass Vitest flags after `--` so they are forwarded to the underlying test runner
 the stack down after the run:
 
 ```bash
-./bin/dev test end-to-end-tests    # run Playwright in Docker against the running stack
+./bin/dev test end-to-end-tests    # run Playwright in Docker against the test stack
 ```
 
 The command starts the dependent services with the e2e test overlay in a separate Docker Compose
-project before running Playwright. The `end_to_end_tests` container connects to the `web` service over
-Docker's internal network (`http://web:8080`). For interactive debugging, run
-`npm run test:e2e -- --headed` or
-`npx playwright test --ui --config=end-to-end-tests/playwright.config.ts` from inside `api/`.
+project before running Playwright. The stack uses Docker's internal network and does not publish host
+ports, so it cannot conflict with a running development stack.
 
 See `api/end-to-end-tests/README.md` for the current coverage boundary. The runnable suite currently
 enforces unauthenticated smoke checks; authenticated wizard coverage is present as skipped skeleton
