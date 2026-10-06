@@ -25,9 +25,9 @@ auto_execution_mode: 1
 - **End-user relevance:** Only include changes that affect end users in the Implementation section. Internal refactoring (component location changes, import updates) should be excluded unless they impact user experience.
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
-- **Assignee:** Assign every pull request to `@klondikemarlen` immediately after creation or update.
-- **Label:** Query the repository's current labels and apply the one existing label that most narrowly describes the pull request's scope.
-- **Review requests:** Do not request reviewers. `@klondikemarlen` selects and requests reviewers manually.
+- **Assignee:** Assign every pull request to the authenticated GitHub user who generated it with AI immediately after creation or update.
+- **Labels:** Query current repository labels with `--limit 100`, then replace the PR labels with every existing label that accurately describes its scope.
+- **Review requests:** Do not request reviewers. The authenticated GitHub user selects and requests reviewers manually.
 - **Testing instructions:** Follow the `testing-instructions-workflow.md` workflow for detailed guidance on writing testing instructions. Never guess UI labels or navigation paths.
 - **No extra sections:** Do not add sections beyond this workflow's PR body structure unless the
   user asks for them. Validation commands belong in the chat handoff, not in a PR body section.
@@ -73,12 +73,14 @@ EOF
 ```
 
 ```bash
-# Assign the required owner and replace labels with one selected from the current repository labels
+# Assign the authenticated GitHub user and replace labels with every applicable current label
+assignee="$(gh api user --jq .login)"
 gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
-  -f 'assignees[]=klondikemarlen'
-gh label list --repo {owner}/{repo}
+  -f "assignees[]=$assignee"
+gh label list --repo {owner}/{repo} --limit 100
 gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT \
-  -f 'labels[]=<existing-label>'
+  -f 'labels[]=<existing-label-1>' \
+  -f 'labels[]=<existing-label-2>'
 ```
 
 ## Process Steps
@@ -303,15 +305,18 @@ gh pr ready NUMBER --repo {owner}/{repo}
 
 Immediately after creating a pull request:
 
-1. Assign `@klondikemarlen`.
-2. Run `gh label list --repo {owner}/{repo}`.
-3. Replace the PR's labels with one existing label that most narrowly matches the pull request's scope.
+1. Determine the authenticated GitHub user with `gh api user --jq .login`.
+2. Assign that user to the PR.
+3. Run `gh label list --repo {owner}/{repo} --limit 100`.
+4. Replace the PR labels with every existing label that accurately describes the pull request's scope.
 
 ```bash
+assignee="$(gh api user --jq .login)"
 gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
-  -f 'assignees[]=klondikemarlen'
+  -f "assignees[]=$assignee"
 gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT \
-  -f 'labels[]=<existing-label>'
+  -f 'labels[]=<existing-label-1>' \
+  -f 'labels[]=<existing-label-2>'
 ```
 
 ### 5. Edit Existing Pull Requests
@@ -388,16 +393,16 @@ EOF
 
 ### 6. Refresh PR Ownership and Label
 
-Immediately after updating a pull request, repeat the ownership and label-replacement commands in
-[Section 5.1](#51-set-pr-ownership-and-label) so it retains exactly one label for its updated scope.
+Immediately after updating a pull request, repeat the assignment and label-replacement commands in
+[Section 5.1](#51-set-pr-ownership-and-label) so its owner and labels match the updated scope.
 
 ### 7. Quality Checklist
 
 Before submitting:
 
 - [ ] PR created as draft
-- [ ] Assigned to `@klondikemarlen`
-- [ ] Exactly one appropriate existing label applied
+- [ ] Assigned to the authenticated GitHub user
+- [ ] All appropriate existing labels applied
 - [ ] Title follows naming pattern
 - [ ] Context explains the "why"
 - [ ] Implementation lists all changes
