@@ -78,9 +78,15 @@ assignee="$(gh api user --jq .login)"
 gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
   -f "assignees[]=$assignee"
 gh label list --repo {owner}/{repo} --limit 100
-# Repeat `-f 'labels[]=<existing-label>'` for every applicable label.
-gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT \
-  -f 'labels[]=<existing-label>'
+applicable_labels=(
+  "<existing-label-1>"
+  "<existing-label-2>"
+)
+label_fields=()
+for label in "${applicable_labels[@]}"; do
+  label_fields+=(-f "labels[]=$label")
+done
+gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT "${label_fields[@]}"
 ```
 
 ## Process Steps
@@ -314,9 +320,15 @@ Immediately after creating a pull request:
 assignee="$(gh api user --jq .login)"
 gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
   -f "assignees[]=$assignee"
-# Repeat `-f 'labels[]=<existing-label>'` for every applicable label.
-gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT \
-  -f 'labels[]=<existing-label>'
+applicable_labels=(
+  "<existing-label-1>"
+  "<existing-label-2>"
+)
+label_fields=()
+for label in "${applicable_labels[@]}"; do
+  label_fields+=(-f "labels[]=$label")
+done
+gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT "${label_fields[@]}"
 ```
 
 ### 5. Edit Existing Pull Requests
