@@ -173,7 +173,7 @@ class DevHelper
       **kwargs.merge(execution_mode: WAIT_FOR_PROCESS)
     )
     build_succeeded = preparation_succeeded && compose(
-      *%w[-p travel-authorization-e2e-test -f docker-compose.e2e-test.yml build api web end_to_end_tests],
+      *%w[-p travel-authorization-e2e-test -f docker-compose.e2e-test.yml build api web end_to_end_tests finance_api_stub],
       **kwargs.merge(execution_mode: WAIT_FOR_PROCESS)
     )
     test_succeeded = build_succeeded && compose(
