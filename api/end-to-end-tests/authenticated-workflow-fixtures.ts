@@ -3,15 +3,15 @@ import db from "@/db/db-client"
 export type AuthenticatedWorkflowAccounts = {
   traveller: {
     email: string
-    sub: string
+    auth0Subject: string
   }
   supervisor: {
     email: string
-    sub: string
+    auth0Subject: string
   }
   admin: {
     email: string
-    sub: string
+    auth0Subject: string
   }
 }
 
@@ -26,15 +26,15 @@ export function authenticatedWorkflowAccountsFromEnvironment(): AuthenticatedWor
   return {
     traveller: {
       email: requiredEnvironmentVariable("TRAVELLER_EMAIL"),
-      sub: requiredEnvironmentVariable("TRAVELLER_SUB"),
+      auth0Subject: requiredEnvironmentVariable("TRAVELLER_AUTH0_SUBJECT"),
     },
     supervisor: {
       email: requiredEnvironmentVariable("SUPERVISOR_EMAIL"),
-      sub: requiredEnvironmentVariable("SUPERVISOR_SUB"),
+      auth0Subject: requiredEnvironmentVariable("SUPERVISOR_AUTH0_SUBJECT"),
     },
     admin: {
       email: requiredEnvironmentVariable("ADMIN_EMAIL"),
-      sub: requiredEnvironmentVariable("ADMIN_SUB"),
+      auth0Subject: requiredEnvironmentVariable("ADMIN_AUTH0_SUBJECT"),
     },
   }
 }
@@ -48,7 +48,7 @@ async function createUser(
       INSERT INTO users (sub, email, status, first_name, last_name, roles)
       VALUES ($1, $2, 'active', 'End-to-End', 'Test User', $3)
     `,
-    { bind: [account.sub, account.email.toLowerCase(), roles] }
+    { bind: [account.auth0Subject, account.email.toLowerCase(), roles] }
   )
 }
 
