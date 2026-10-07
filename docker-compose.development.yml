@@ -35,8 +35,15 @@ services:
     init: true
     # stdin_open: true # equivalent of docker exec -i
     user: "${HOST_USER_ID:-0}:${HOST_GROUP_ID:-0}"
-    ports:
-      - "3000:3000"
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=local-gateway"
+      - "traefik.http.routers.${GATEWAY_ROUTER_PREFIX}-api.rule=Host(`api.${GATEWAY_HOSTNAME}`)"
+      - "traefik.http.routers.${GATEWAY_ROUTER_PREFIX}-api.entrypoints=web"
+      - "traefik.http.services.${GATEWAY_ROUTER_PREFIX}-api.loadbalancer.server.port=3000"
     volumes:
       - ./api:/usr/src/api
       - ./.gitignore:/usr/src/.gitignore
@@ -50,8 +57,15 @@ services:
       dockerfile: development.Dockerfile
     environment:
       <<: *default-environment
-    ports:
-      - "8080:8080"
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=local-gateway"
+      - "traefik.http.routers.${GATEWAY_ROUTER_PREFIX}-web.rule=Host(`${GATEWAY_HOSTNAME}`)"
+      - "traefik.http.routers.${GATEWAY_ROUTER_PREFIX}-web.entrypoints=web"
+      - "traefik.http.services.${GATEWAY_ROUTER_PREFIX}-web.loadbalancer.server.port=8080"
     volumes:
       - ./web:/usr/src/web
       - ./.gitignore:/usr/src/.gitignore
@@ -112,9 +126,13 @@ services:
       POSTGRES_USER: *default-db-user
       POSTGRES_PASSWORD: *default-db-password
       POSTGRES_DB: *default-db-name
-    restart: always
-    ports:
-      - "5432:5432"
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "local-gateway.tcp.driver=postgresql"
+      - "local-gateway.tcp.hostname=db.${GATEWAY_HOSTNAME}"
+      - "local-gateway.tcp.port=5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -126,8 +144,13 @@ services:
       MSSQL_SA_PASSWORD: *default-trav-com-db-password # requires secure password
       TZ: "UTC"
       ACCEPT_EULA: "Y"
-    ports:
-      - "1433:1433"
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "local-gateway.tcp.driver=sql_server"
+      - "local-gateway.tcp.hostname=db-trav-com.${GATEWAY_HOSTNAME}"
+      - "local-gateway.tcp.port=1433"
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
 
@@ -146,3 +169,8 @@ services:
 volumes:
   db_data:
   db_trav_com_data:
+
+networks:
+  local-gateway:
+    external: true
+    name: local-gateway
