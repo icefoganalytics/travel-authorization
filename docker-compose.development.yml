@@ -3,6 +3,8 @@ x-default-environment: &default-environment
   TZ: "UTC"
   AUTH0_DOMAIN: "https://dev-0tc6bn14.eu.auth0.com"
   AUTH0_AUDIENCE: testing
+  FRONTEND_URL: "http://${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+  VITE_API_BASE_URL: "http://api.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   DB_HOST: db
   DB_NAME: &default-db-name travel_development
   DB_PASS: &default-db-password itsallgood
@@ -113,7 +115,7 @@ services:
       - local-gateway
     labels:
       - "local-gateway.tcp.driver=postgresql"
-      - "local-gateway.tcp.hostname=db.${GATEWAY_HOSTNAME}"
+      - "local-gateway.tcp.hostname=db.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
       - "local-gateway.tcp.port=5432"
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -131,7 +133,7 @@ services:
       - local-gateway
     labels:
       - "local-gateway.tcp.driver=sql_server"
-      - "local-gateway.tcp.hostname=db-trav-com.${GATEWAY_HOSTNAME}"
+      - "local-gateway.tcp.hostname=db-trav-com.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
       - "local-gateway.tcp.port=1433"
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
