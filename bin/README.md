@@ -18,8 +18,9 @@ Basic usage:
 1. Run it as `./bin/dev ...` from the repo root.
 2. If you want to use `dev ...` instead, add `bin/` to your `PATH`.
 
-The wrapper starts or reuses the shared Local Development Gateway. Use the checkout-derived
-`*.travel-authorization.localhost` hostname rather than direct application ports.
+`./bin/dev up` starts or reuses the shared Local Development Gateway and applies the development
+gateway Compose overlay. Use the checkout-derived `*.travel-authorization.localhost` hostname
+rather than direct application ports.
 
 Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
 instead of the checkout-derived default.

@@ -20,9 +20,11 @@ TravelAuth is built with:
 - API: matching `api.` gateway hostname
 - Databases: gateway routes PostgreSQL on port 5432 and TravCom Microsoft SQL Server on port 1433
 
-The `dev` wrapper starts or reuses the shared Local Development Gateway and derives the hostname
-from the checkout name. The main checkout uses `http://travel-authorization.localhost`; a worktree
-named `issue-123` uses `http://issue-123.travel-authorization.localhost`.
+`./bin/dev up` starts or reuses the shared Local Development Gateway, then applies the
+development gateway Compose overlay. Database services remain attached to the gateway for routed
+client access; API and web apply browser routes only when started through `dev up`. The main
+checkout uses `http://travel-authorization.localhost`; a worktree named `issue-123` uses
+`http://issue-123.travel-authorization.localhost`.
 
 Set `GATEWAY_HOSTNAME` before invoking `dev` to override the derived hostname for a local
 environment.
@@ -30,7 +32,8 @@ environment.
 For a database client outside Compose, connect to `db.<gateway-hostname>:5432` for PostgreSQL or
 `db-trav-com.<gateway-hostname>:1433` for TravCom SQL Server. The gateway presents those TLS
 hostnames only on loopback; Compose services continue to use their internal `db` and `db_trav_com`
-aliases.
+aliases. PostgreSQL clients must require TLS. SQL Server clients must enable encryption and trust
+the local gateway certificate.
 
 See [web/README.md](./web/README.md) for frontend-specific guidance and
 [AGENTS.md](./AGENTS.md) for backend architecture and testing conventions.

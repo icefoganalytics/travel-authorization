@@ -35,15 +35,6 @@ services:
     init: true
     # stdin_open: true # equivalent of docker exec -i
     user: "${HOST_USER_ID:-0}:${HOST_GROUP_ID:-0}"
-    networks:
-      - default
-      - local-gateway
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=local-gateway"
-      - "traefik.http.routers.${GATEWAY_ROUTER_PREFIX}-api.rule=Host(`api.${GATEWAY_HOSTNAME}`)"
-      - "traefik.http.routers.${GATEWAY_ROUTER_PREFIX}-api.entrypoints=web"
-      - "traefik.http.services.${GATEWAY_ROUTER_PREFIX}-api.loadbalancer.server.port=3000"
     volumes:
       - ./api:/usr/src/api
       - ./.gitignore:/usr/src/.gitignore
@@ -57,15 +48,6 @@ services:
       dockerfile: development.Dockerfile
     environment:
       <<: *default-environment
-    networks:
-      - default
-      - local-gateway
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=local-gateway"
-      - "traefik.http.routers.${GATEWAY_ROUTER_PREFIX}-web.rule=Host(`${GATEWAY_HOSTNAME}`)"
-      - "traefik.http.routers.${GATEWAY_ROUTER_PREFIX}-web.entrypoints=web"
-      - "traefik.http.services.${GATEWAY_ROUTER_PREFIX}-web.loadbalancer.server.port=8080"
     volumes:
       - ./web:/usr/src/web
       - ./.gitignore:/usr/src/.gitignore

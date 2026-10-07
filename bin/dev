@@ -44,21 +44,17 @@ class DevHelper
   end
 
   def compose(*args, **kwargs)
-    succeeded = LocalDevelopmentGateway.with_running(ensure_running: args.first != "down") do
-      command = compose_command(*args, **kwargs)
-      puts "Running: #{command}" unless kwargs[:slient]
+    command = compose_command(*args, **kwargs)
+    puts "Running: #{command}" unless kwargs[:slient]
 
-      case kwargs[:execution_mode]
-      when WAIT_FOR_PROCESS
-        wait_for_process_with_logging(command)
-      else
-        system(command)
-      end
+    case kwargs[:execution_mode]
+    when WAIT_FOR_PROCESS
+      return true if wait_for_process_with_logging(command)
+
+      raise "Command failed: #{command}"
+    else
+      exec(command)
     end
-
-    return succeeded if succeeded
-
-    exit(1)
   end
 
   # Primary command wrappers
@@ -68,13 +64,23 @@ class DevHelper
 
   def up(*args, **kwargs)
     OpenInEditorBridge.with_running do
-      compose(*%w[up --remove-orphans --force-recreate], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      LocalDevelopmentGateway.with_running do
+        compose(
+          *%w[up --remove-orphans --force-recreate],
+          *args,
+          execution_mode: WAIT_FOR_PROCESS,
+          gateway: true,
+          **kwargs
+        )
+      end
     end
   end
 
   def down(*args, **kwargs)
     OpenInEditorBridge.with_running(ensure_running: false) do
-      compose(*%w[down --remove-orphans], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      LocalDevelopmentGateway.with_running(ensure_running: false) do
+        compose(*%w[down --remove-orphans], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      end
     end
   end
 
@@ -128,7 +134,9 @@ class DevHelper
 
   def test_api(*args, **kwargs)
     reformat_project_relative_path_filter_for_vitest!(args, "api/")
-    run(*%w[test_api npm run test], *args, **kwargs)
+    LocalDevelopmentGateway.with_running do
+      run(*%w[test_api npm run test], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+    end
   end
 
   def test_web(*args, **kwargs)
@@ -332,10 +340,15 @@ class DevHelper
 
   def compose_command(*args, **kwargs)
     environment = kwargs.delete(:environment) { "development" }
+    gateway = kwargs.delete(:gateway)
     pipe_input = kwargs.delete(:pipe_input)
 
     go_to_project_root = "cd #{project_root}"
     compose_file_args = ["-f docker-compose.#{environment}.yml"]
+
+    if gateway && environment == "development"
+      compose_file_args << "-f docker-compose.development.gateway.yml"
+    end
 
     if RUBY_PLATFORM =~ /linux/
       linux_override = "docker-compose.#{environment}.linux.yml"
@@ -366,10 +379,7 @@ class DevHelper
   end
 
   def dynamic_environment_variables
-    environment_variables = [
-      "GATEWAY_HOSTNAME=#{Shellwords.escape(gateway_hostname)}",
-      "GATEWAY_ROUTER_PREFIX=#{Shellwords.escape(gateway_router_prefix)}",
-    ]
+    environment_variables = ["GATEWAY_HOSTNAME=#{Shellwords.escape(gateway_hostname)}"]
 
     if RUBY_PLATFORM =~ /linux/
       environment_variables << %(HOST_USER_ID="#{user_id}")
@@ -383,22 +393,10 @@ class DevHelper
     configured_hostname = ENV.fetch("GATEWAY_HOSTNAME", "")
     return configured_hostname unless configured_hostname.empty?
 
-    worktree_name = File.basename(project_root)
-    project_name = File.basename(primary_worktree_root)
-    hostname_prefix = worktree_name == project_name ? project_name : "#{worktree_name}.#{project_name}"
+    checkout_name = File.basename(project_root).downcase.gsub(/[^a-z0-9]+/, "-")
+    return "travel-authorization.localhost" if checkout_name == "travel-authorization"
 
-    "#{hostname_prefix}.localhost"
-  end
-
-  def gateway_router_prefix
-    gateway_hostname.delete_suffix(".localhost").tr(".", "-")
-  end
-
-  def primary_worktree_root
-    git_common_directory =
-      `git -C #{Shellwords.escape(project_root)} rev-parse --path-format=absolute --git-common-dir`.strip
-
-    File.dirname(git_common_directory)
+    "#{checkout_name}.travel-authorization.localhost"
   end
 
   def take_over_needed?(file_or_directory)

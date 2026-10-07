@@ -1,0 +1,28 @@
+services:
+  api:
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=local-gateway"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.rule=Host(`api.${GATEWAY_HOSTNAME}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.service=${COMPOSE_PROJECT_NAME}-api"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-api.loadbalancer.server.port=3000"
+
+  web:
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=local-gateway"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-web.rule=Host(`${GATEWAY_HOSTNAME}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-web.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-web.service=${COMPOSE_PROJECT_NAME}-web"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-web.loadbalancer.server.port=8080"
+networks:
+  local-gateway:
+    external: true
+    name: local-gateway
