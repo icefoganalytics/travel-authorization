@@ -48,6 +48,10 @@ jobs:
       - name: Run end-to-end tests
         run: ./bin/dev test end-to-end-tests
 
+      - name: Restore database directory ownership
+        if: always()
+        run: sudo chown -R "$USER" /tmp/e2e-test-db-postgres /tmp/e2e-test-db-mssql
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
