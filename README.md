@@ -14,25 +14,26 @@ TravelAuth is built with:
 
 ## Key Services
 
-### Frontend
+### Local Services
 
-- Browser app: `http://localhost:8080`
-- See [web/README.md](./web/README.md) for frontend-specific guidance
+- Browser app: checkout-derived `*.travel-authorization.localhost` gateway hostname
+- API: matching `api.` gateway hostname
+- Databases: gateway routes PostgreSQL on port 5432 and TravCom Microsoft SQL Server on port 1433
 
-### API
+The `dev` wrapper starts or reuses the shared Local Development Gateway and derives the hostname
+from the checkout name. The main checkout uses `http://travel-authorization.localhost`; a worktree
+named `issue-123` uses `http://issue-123.travel-authorization.localhost`.
 
-- Browser entry point: `http://localhost:3000`
-- See [AGENTS.md](./AGENTS.md) for backend architecture and testing conventions
+Set `GATEWAY_HOSTNAME` before invoking `dev` to override the derived hostname for a local
+environment.
 
-### Database
+For a database client outside Compose, connect to `db.<gateway-hostname>:5432` for PostgreSQL or
+`db-trav-com.<gateway-hostname>:1433` for TravCom SQL Server. The gateway presents those TLS
+hostnames only on loopback; Compose services continue to use their internal `db` and `db_trav_com`
+aliases.
 
-- Database engine: [PostgreSQL](https://www.postgresql.org/docs/current/index.html)
-- Local orchestration: [Docker Compose](https://docs.docker.com/compose/)
-- Database CLI: `dev psql`
-
-### Mail Server
-
-- Local mail UI: `http://localhost:1080`
+See [web/README.md](./web/README.md) for frontend-specific guidance and
+[AGENTS.md](./AGENTS.md) for backend architecture and testing conventions.
 
 If you are new to the project, start here, then read:
 
@@ -47,37 +48,29 @@ If you are new to the project, start here, then read:
 1. Create any local environment files your setup requires.
    The main development values live in `.env.development` files that are not committed.
 
-2. Add the minimum Auth0 development values in `api/.env.development`:
+2. Install the Ruby development dependency:
+
+   ```bash
+   bundle install
+   ```
+
+3. Add the minimum Auth0 development values in `api/.env.development`:
 
    ```bash
    AUTH0_DOMAIN=https://dev-0tc6bn14.eu.auth0.com
    AUTH0_AUDIENCE=testing
    ```
 
-3. Start the full stack:
+4. Start the full stack:
 
    ```bash
    dev up
    ```
 
-4. Open the app at `http://localhost:8080`
-5. The backend API is available at `http://localhost:3000`
-6. The local mail viewer is available at `http://localhost:1080`
+5. Open the checkout-derived gateway hostname.
 
-If you do not use `dev`, use:
-
-```bash
-docker compose -f docker-compose.development.yml up
-```
-
-On Linux, include the Linux override file as well:
-
-```bash
-docker compose \
-  -f docker-compose.development.yml \
-  -f docker-compose.development.linux.yml \
-  up
-```
+Use `dev` rather than raw `docker compose` commands. The wrapper derives worktree-specific gateway
+hostnames, starts or reuses the gateway, and stops it only when no participating project remains.
 
 ## Common Commands
 
@@ -103,6 +96,8 @@ dev migrate make create-table-name
 - The `dev` wrapper is the preferred way to run local services and project commands.
 - `dev up` starts a small host-side editor bridge for Vue Devtools **Open in Editor**, and
   `dev down` stops it again.
+- The Local Development Gateway owns loopback ports 80, 5432, and 1433. Project services remain
+  internal to Docker and are reachable through their checkout-derived gateway hostnames.
 - Use `@/` import aliases for source imports in both API and web code.
 - Test files mirror source structure:
   `api/src/services/example.ts` -> `api/tests/services/example.test.ts`

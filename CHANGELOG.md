@@ -21,6 +21,10 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Changed
 
+- Routed local browser and database services through checkout-derived Local Development Gateway
+  hostnames instead of shared host ports.
+  Why? To let multiple worktrees run and test concurrently without competing for ports.
+
 - Standardized the reports page into a clearer layout with separate sections and tabs for tables, graphs, and print views, including a dedicated flight statistics table with server-side pagination and ordering.
   Why? To keep reports responsive as data grows and to make the structure of reports easier to understand.
 
