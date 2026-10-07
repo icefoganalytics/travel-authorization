@@ -132,11 +132,9 @@ test.describe("travel authorization wizard", () => {
 
     // Step 6 — Submit to Supervisor
     await page.getByLabel("Travel Advance").fill("0")
-    await selectCombobox(
-      page,
-      page.getByLabel("Submit to"),
-      accounts.supervisor.email
-    )
+    const supervisorField = page.getByLabel("Submit to")
+    await supervisorField.fill(accounts.supervisor.email)
+    await supervisorField.press("Enter")
     await page.getByRole("button", { name: "Submit to Supervisor" }).click()
     await expectToast(page, "Travel request submitted.")
     await page.waitForURL(/awaiting-supervisor-approval/)
@@ -165,7 +163,8 @@ test.describe("travel authorization wizard", () => {
 
     await adminPage.goto(`/manage-travel-requests/${travelAuthId}/details`)
     await adminPage.getByRole("button", { name: "Approve" }).click()
-    await adminPage.getByRole("button", { name: "Approve" }).click() // confirmation dialog
+    const approvalDialog = adminPage.getByRole("dialog")
+    await approvalDialog.getByRole("button", { name: "Approve" }).click()
     await expectToast(adminPage, "Travel authorization approved!")
 
     await adminContext.close()
@@ -247,6 +246,8 @@ test.describe("travel authorization wizard", () => {
     await page.goto(`/my-travel-requests/${travelAuthId}/wizard/confirm-actual-travel-details`)
 
     // Step 11 — Confirm Actual Travel Details
+    const actualTripOrigin = page.getByLabel("From").first()
+    await expect(actualTripOrigin).toHaveValue("Whitehorse (YT)")
     await page.getByRole("button", { name: "Continue" }).click()
 
     // Step 12 — Submit Expenses
