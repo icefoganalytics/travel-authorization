@@ -171,7 +171,7 @@ class DevHelper
     end_to_end_kwargs = kwargs.merge(environment: "e2e-test", execution_mode: WAIT_FOR_PROCESS)
     preparation_succeeded = compose(*%w[down --remove-orphans --volumes], **end_to_end_kwargs)
     build_succeeded = preparation_succeeded && compose(
-      *%w[build api web end_to_end_tests],
+      *%w[build api web end_to_end_tests finance_api_stub],
       **end_to_end_kwargs
     )
     test_succeeded = build_succeeded && compose(
