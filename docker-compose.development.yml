@@ -29,9 +29,7 @@ services:
     build:
       context: ./api
       dockerfile: development.Dockerfile
-    env_file:
-      - path: ./api/.env.development
-        required: false
+    env_file: ./api/.env.development
     environment:
       <<: *default-environment
       TS_NODE_HISTORY: /usr/src/api/.ts_node_repl_history
