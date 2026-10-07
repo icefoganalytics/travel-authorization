@@ -8,9 +8,14 @@ services:
       DB_NAME: travel_test
       TRAVCOM_DB_NAME: trav_com_test
       DEFAULT_LOG_LEVEL: "warn"
+      YUKON_GOVERNMENT_FINANCE_API_BASE_URL: http://finance_api_stub:3000
     depends_on:
-      - db
-      - db_trav_com
+      db:
+        condition: service_started
+      db_trav_com:
+        condition: service_started
+      finance_api_stub:
+        condition: service_healthy
   web:
     ports: !reset []
     volumes:
@@ -50,6 +55,17 @@ services:
       TRAVCOM_DB_USER: sa
       TRAVCOM_DB_PASS: "DevPwd99!"
       TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
+
+  finance_api_stub:
+    build:
+      context: ./api
+      dockerfile: end-to-end-tests/Dockerfile
+    command: node end-to-end-tests/finance-api-stub.js
+    healthcheck:
+      test: ["CMD", "node", "-e", 'fetch("http://localhost:3000/health").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))']
+      interval: 2s
+      timeout: 2s
+      retries: 30
   db:
     ports: !reset []
     volumes:
