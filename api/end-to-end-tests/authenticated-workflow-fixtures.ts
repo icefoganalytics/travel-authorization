@@ -72,6 +72,23 @@ async function seedAutomaticEstimateReferenceData(): Promise<void> {
   `)
 }
 
+export async function seedPostBookingTravelAuthorization(
+  travelAuthorizationId: string
+): Promise<void> {
+  await db.query(
+    `
+      UPDATE travel_authorizations
+      SET
+        status = $1,
+        wizard_step_name = $2
+      WHERE id = $3
+    `,
+    {
+      bind: ["booked", "confirm-actual-travel-details", travelAuthorizationId],
+    }
+  )
+}
+
 export async function seedAuthenticatedWorkflowData({
   traveller,
   supervisor,
