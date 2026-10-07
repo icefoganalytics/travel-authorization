@@ -14,9 +14,10 @@ The canonical command is:
 ./bin/dev test end-to-end-tests
 ```
 
-It creates a separate Docker Compose project with the end-to-end overlay, resets its test data and
-dependency volumes, rebuilds the application and Playwright runner images, runs the suite, then
-removes the isolated stack. Its containers communicate on Docker's internal network and publish no
+It creates a separate Docker Compose project with the end-to-end overlay, recreates dependency
+volumes, rebuilds the application and Playwright runner images, runs the suite, then removes the
+isolated stack. The fixture cleans the test databases before each test unless a stateful serial
+workflow explicitly opts out. Its containers communicate on Docker's internal network and publish no
 host ports.
 
 This makes the end-to-end environment independent of a developer's active stack and aligns local
