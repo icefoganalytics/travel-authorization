@@ -25,9 +25,9 @@ Use the project wrapper from the repository root:
 ./bin/dev test end-to-end-tests
 ```
 
-The wrapper resets the isolated stack and dependency volumes, rebuilds the application and runner
-images, runs Playwright, then tears the stack down. The stack uses Docker's internal network, so it
-does not publish host ports or affect a running development stack.
+The wrapper resets the standalone test stack and its named dependency volumes, rebuilds the
+application and runner images, runs Playwright, then tears the stack down. The stack uses Docker's
+internal network, so it does not publish host ports or affect a running development stack.
 
 ## Adding Tests
 

@@ -91,9 +91,9 @@ the stack down after the run:
 ./bin/dev test end-to-end-tests    # run Playwright in Docker against the test stack
 ```
 
-The command starts the dependent services with the e2e test overlay in a separate Docker Compose
-project before running Playwright. The stack uses Docker's internal network and does not publish host
-ports, so it cannot conflict with a running development stack.
+The command starts the dependent services from the standalone end-to-end configuration in a separate
+Docker Compose project before running Playwright. The stack uses Docker's internal network and does
+not publish host ports, so it cannot conflict with a running development stack.
 
 See `api/end-to-end-tests/README.md` for the current coverage boundary and authenticated-test
 prerequisites. The runnable suite currently enforces unauthenticated smoke checks; authenticated
