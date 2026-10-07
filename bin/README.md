@@ -97,7 +97,7 @@ ports, so it cannot conflict with a running development stack.
 
 See `api/end-to-end-tests/README.md` for the current coverage boundary. The runnable suite currently
 enforces unauthenticated smoke checks; authenticated wizard coverage is present as skipped skeleton
-tests until Auth0 storage-state fixtures exist.
+tests until Auth0 storage-state fixtures and `SUPERVISOR_EMAIL` for a selectable supervisor exist.
 
 ### Test Container Management
 

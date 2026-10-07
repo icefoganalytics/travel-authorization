@@ -156,7 +156,8 @@ publish host ports, and is removed after the run.
 
 See `api/end-to-end-tests/README.md` for the current coverage boundary and local runner details.
 Continuous integration currently enforces unauthenticated smoke checks only; the full wizard spec is a
-skipped skeleton until Auth0 storage-state fixtures exist.
+skipped skeleton until Auth0 storage-state fixtures and `SUPERVISOR_EMAIL` for a selectable supervisor
+exist.
 
 **Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` from
 `../fixtures` and `expect` from `@playwright/test` so each test cleans both test databases
