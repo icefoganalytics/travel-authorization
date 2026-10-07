@@ -1,10 +1,10 @@
 /**
  * Travel Authorization Wizard — full happy-path end-to-end tests.
  *
- * ALL TESTS ARE SKIPPED until the Auth0 storageState fixtures and a supervisor email exist:
+ * ALL TESTS ARE SKIPPED until Auth0 storage-state fixtures and deterministic test accounts exist:
  *   - tests/.auth/traveller.json
  *   - tests/.auth/admin.json
- *   - SUPERVISOR_EMAIL identifies a selectable supervisor
+ *   - Account environment variables documented in ../README.md
  *
  * Create the storage-state files in a global-setup.ts that logs in once per role, calls
  * `context.storageState({ path: 'end-to-end-tests/tests/.auth/<role>.json' })`,
