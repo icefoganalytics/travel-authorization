@@ -2,9 +2,13 @@ name: End-to-End Tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
+    types:
+      - ready_for_review
   workflow_dispatch:
 
 concurrency:
