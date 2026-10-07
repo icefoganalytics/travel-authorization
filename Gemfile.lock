@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    local-development-gateway (0.2.0)
+
+PLATFORMS
+  ruby
+  x86_64-linux
+
+DEPENDENCIES
+  local-development-gateway (~> 0.2)
+
+CHECKSUMS
+  local-development-gateway (0.2.0) sha256=bbce62ef48c3e14ff848fdc9bdbecf6e9342ebbdda4adffdc27b9237c9719f70
+
+BUNDLED WITH
+  4.0.3
