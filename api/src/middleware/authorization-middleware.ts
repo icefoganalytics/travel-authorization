@@ -68,12 +68,18 @@ export async function authorizationMiddleware(
     return next()
   }
 
-  // Step 2: check user cache
+  // Step 2: use the in-flight creation cache only while it still represents a persisted user.
   const cachedUser = userCache.get(token) as CachedUser
 
   if (cachedUser) {
-    req.user = await cachedUser.promise
-    return next()
+    const resolvedUser = await cachedUser.promise
+    const persistedUser = await User.findByPk(resolvedUser.id)
+    if (!isNil(persistedUser)) {
+      req.user = persistedUser
+      return next()
+    }
+
+    userCache.del(token)
   }
 
   try {

@@ -62,5 +62,36 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
         expect(users[0]).toHaveProperty("sub", auth0Subject)
       }
     )
+
+    test("when a cached user was deleted, it recreates the user", async () => {
+      // Arrange
+      const auth0Subject = "auth0|deleted-cached-user"
+      const userData: Auth0UserInfo = {
+        email: "deleted-cached-user@test.com",
+        firstName: "Deleted",
+        lastName: "Cached User",
+        auth0Subject,
+      }
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }
+      const res: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      }
+      const next: NextFunction = vi.fn()
+      vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue(userData)
+
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, next)
+      await User.destroy({ where: { sub: auth0Subject } })
+
+      // Act
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, next)
+
+      // Assert
+      const users = await User.findAll({ where: { sub: auth0Subject } })
+      expect(users).toHaveLength(1)
+    })
   })
 })
