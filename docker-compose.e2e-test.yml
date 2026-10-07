@@ -44,17 +44,9 @@ services:
       BASE_URL: http://localhost:8080
       API_BASE_URL: http://api:3000
       CI: "${CI:-}"
-      DB_HOST: db
-      DB_PORT: 5432
+      NODE_ENV: test
       DB_NAME: travel_test
-      DB_USER: app
-      DB_PASS: itsallgood
-      TRAVCOM_DB_HOST: db_trav_com
-      TRAVCOM_DB_PORT: 1433
       TRAVCOM_DB_NAME: trav_com_test
-      TRAVCOM_DB_USER: sa
-      TRAVCOM_DB_PASS: "DevPwd99!"
-      TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
 
   finance_api_stub:
     build:
