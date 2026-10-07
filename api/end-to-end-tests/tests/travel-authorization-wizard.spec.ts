@@ -22,6 +22,7 @@ import { expect, type Locator, type Page } from "@playwright/test"
 import {
   authenticatedWorkflowAccountsFromEnvironment,
   seedAuthenticatedWorkflowData,
+  seedPostBookingTravelAuthorization,
   type AuthenticatedWorkflowAccounts,
 } from "../authenticated-workflow-fixtures"
 import { cleanEndToEndDatabases, test } from "../fixtures"
@@ -251,6 +252,9 @@ test.describe("travel authorization wizard", () => {
     // Arrange
     // Requires tests/.auth/traveller.json.
     // Travel dates (2026-06-01 to 2026-06-04) must be in the past.
+    // Start this phase after the travel desk has booked the selected flight.
+    await seedPostBookingTravelAuthorization(travelAuthId)
+
     const travellerContext = await browser.newContext({
       storageState: "end-to-end-tests/tests/.auth/traveller.json",
     })
