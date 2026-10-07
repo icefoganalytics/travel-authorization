@@ -126,6 +126,7 @@ services:
       POSTGRES_USER: *default-db-user
       POSTGRES_PASSWORD: *default-db-password
       POSTGRES_DB: *default-db-name
+    restart: always
     networks:
       - default
       - local-gateway
