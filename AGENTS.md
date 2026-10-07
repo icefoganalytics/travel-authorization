@@ -41,7 +41,7 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 Everything goes through `./bin/dev` (Ruby wrapper). All commands run inside Docker containers — no local Node install needed.
 
 ```bash
-dev up                          # Start full stack (api:3000, web:8080, mail:1080)
+dev up                          # Start full stack through checkout-derived gateway hostnames
 dev up api                      # Start a single service
 dev down -v                     # Stop + wipe database volume
 dev psql                        # DB shell (travel_development)
@@ -66,6 +66,8 @@ dev api npm run check-types     # Backend-only type check
 npx prettier --check .          # From project root
 npx prettier --write .          # Auto-fix formatting
 ```
+
+See [README.md](README.md#local-services) for browser and TLS database gateway addresses.
 
 ### Conventions
 

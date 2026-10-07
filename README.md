@@ -26,8 +26,18 @@ client access; API and web apply browser routes only when started through `dev u
 checkout uses `http://travel-authorization.localhost`; a worktree named `issue-123` uses
 `http://issue-123.travel-authorization.localhost`.
 
+`dev api`, migrations, and tests also start or reuse the gateway before creating their Compose
+dependencies. The API connects directly to `db` without TLS; the gateway's TLS endpoint is for host
+clients, not the application's database connection. Browser API requests and API cross-origin
+settings use the same checkout-derived hostname.
+
 Set `GATEWAY_HOSTNAME` before invoking `dev` to override the derived hostname for a local
 environment.
+
+The development Auth0 application must allow `http://<gateway-hostname>` as a callback URL,
+logout URL, and web origin for each checkout you use. The existing `localhost:8080` entries do not
+authorize gateway hostnames. A missing callback entry produces Auth0's "Callback URL mismatch"
+page before login can complete.
 
 For a database client outside Compose, connect to `db.<gateway-hostname>:5432` for PostgreSQL or
 `db-trav-com.<gateway-hostname>:1433` for TravCom SQL Server. The gateway presents those TLS

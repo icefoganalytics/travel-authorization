@@ -29,7 +29,10 @@ To run the full app stack instead:
 dev up
 ```
 
-The web app is then available at `http://localhost:8080`.
+The web app is available at the checkout-derived gateway hostname documented in the root
+[README.md](../README.md#local-services). Compose supplies `VITE_API_BASE_URL` for the matching
+`api.` hostname; the API permits that checkout's browser origin. A standalone Vite server uses
+`http://localhost:3000` unless `VITE_API_BASE_URL` is set.
 When the full stack boots in Docker, the web service waits for the API `/_status` endpoint before
 starting.
 
@@ -69,8 +72,8 @@ If you use the repo-level `dev` wrapper, this is automatic:
 - `dev up` starts the bridge before Docker Compose boots the stack
 - `dev down` stops the bridge again
 
-If you run Docker Compose manually on Linux, include
-`docker-compose.development.linux.yml` so the container can resolve `host.docker.internal`.
+On Linux, `dev` includes `docker-compose.development.linux.yml` so the container can resolve
+`host.docker.internal`.
 
 The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
 

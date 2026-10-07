@@ -22,6 +22,10 @@ Basic usage:
 gateway Compose overlay. Use the checkout-derived `*.travel-authorization.localhost` hostname
 rather than direct application ports.
 
+Development `run` commands (including API commands, migrations, and tests) also ensure the gateway
+is running because their database dependencies use its external network. They wait for the child
+command so gateway lifecycle cleanup can run without removing other projects' routes.
+
 Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
 instead of the checkout-derived default.
 

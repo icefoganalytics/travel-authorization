@@ -22,7 +22,8 @@ Changes since v2025.9.15.1 that will be included in the next release.
 ### Changed
 
 - Routed local browser and database services through checkout-derived Local Development Gateway
-  hostnames with a `dev up` Compose overlay, leaving test and non-runtime commands isolated.
+  hostnames, including matching browser API and cross-origin settings. Development commands reuse
+  the gateway while application and test database connections retain their internal Docker aliases.
   Why? To let multiple worktrees run and test concurrently without competing for ports.
 
 - Standardized the reports page into a clearer layout with separate sections and tabs for tables, graphs, and print views, including a dedicated flight statistics table with server-side pagination and ordering.

@@ -95,7 +95,13 @@ class DevHelper
       compose_arguments << "--no-deps"
     end
 
-    compose(*compose_arguments, *args, **kwargs)
+    if kwargs.fetch(:environment, "development") != "development"
+      return compose(*compose_arguments, *args, **kwargs)
+    end
+
+    LocalDevelopmentGateway.with_running do
+      compose(*compose_arguments, *args, **kwargs, execution_mode: WAIT_FOR_PROCESS)
+    end
   end
 
   def ps(*args, **kwargs)
@@ -134,9 +140,7 @@ class DevHelper
 
   def test_api(*args, **kwargs)
     reformat_project_relative_path_filter_for_vitest!(args, "api/")
-    LocalDevelopmentGateway.with_running do
-      run(*%w[test_api npm run test], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
-    end
+    run(*%w[test_api npm run test], *args, **kwargs)
   end
 
   def test_web(*args, **kwargs)
