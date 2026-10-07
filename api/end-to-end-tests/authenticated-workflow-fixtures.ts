@@ -52,11 +52,32 @@ async function createUser(
   )
 }
 
+async function seedAutomaticEstimateReferenceData(): Promise<void> {
+  await db.query(`
+    INSERT INTO travel_allowances (allowance_type, amount, currency)
+    VALUES
+      ('maxium_aircraft_allowance', 1000, 'CAD'),
+      ('aircraft_allowance_per_segment', 350, 'CAD'),
+      ('distance_allowance_per_kilometer', 0.605, 'CAD'),
+      ('hotel_allowance_per_night', 250, 'CAD')
+  `)
+  await db.query(`
+    INSERT INTO per_diems (travel_region, claim_type, amount, currency)
+    VALUES
+      ('Canada', 'breakfast', 21.9, 'CAD'),
+      ('Canada', 'lunch', 22.15, 'CAD'),
+      ('Canada', 'dinner', 54.4, 'CAD'),
+      ('Canada', 'incidentals', 17.3, 'CAD'),
+      ('Canada', 'private_accommodations', 50, 'CAD')
+  `)
+}
+
 export async function seedAuthenticatedWorkflowData({
   traveller,
   supervisor,
   admin,
 }: AuthenticatedWorkflowAccounts): Promise<void> {
+  await seedAutomaticEstimateReferenceData()
   await db.query("INSERT INTO travel_purposes (purpose) VALUES ($1)", {
     bind: ["Conference"],
   })

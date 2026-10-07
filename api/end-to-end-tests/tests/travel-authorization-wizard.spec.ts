@@ -57,6 +57,21 @@ async function expectReceiptUploads(page: Page, receiptInputCount: number) {
   await expect(page.getByRole("button", { name: "View Receipt" })).toHaveCount(receiptInputCount)
 }
 
+async function expectActualTripOrigin(page: Page) {
+  await expect(page.getByLabel("From").first()).toHaveValue("Whitehorse (YT)")
+}
+
+async function prefilledExpenseReceiptInputCount(page: Page): Promise<number> {
+  const receiptInputs = page.locator("input[type='file'].d-none")
+  await expect(receiptInputs).not.toHaveCount(0)
+
+  return receiptInputs.count()
+}
+
+async function expectGeneralLedgerCoding(page: Page, code: string) {
+  await expect(page.getByRole("cell", { name: code })).toBeVisible()
+}
+
 test.describe("travel authorization wizard", () => {
   test.describe.configure({ mode: "serial" })
   test.use({ preserveDatabase: true })
@@ -246,8 +261,7 @@ test.describe("travel authorization wizard", () => {
     await page.goto(`/my-travel-requests/${travelAuthId}/wizard/confirm-actual-travel-details`)
 
     // Step 11 — Confirm Actual Travel Details
-    const actualTripOrigin = page.getByLabel("From").first()
-    await expect(actualTripOrigin).toHaveValue("Whitehorse (YT)")
+    await expectActualTripOrigin(page)
     await page.getByRole("button", { name: "Continue" }).click()
 
     // Step 12 — Submit Expenses
@@ -260,10 +274,8 @@ test.describe("travel authorization wizard", () => {
     await page.getByRole("button", { name: "Prefill", exact: true }).click()
     await prefillResponse
 
-    // Inject fake receipts via DataTransfer API — the real file picker is hidden.
-    const receiptInputs = page.locator("input[type='file'].d-none")
-    const receiptInputCount = await receiptInputs.count()
-
+    // Wait for the expense rows to render after the prefill request completes.
+    const receiptInputCount = await prefilledExpenseReceiptInputCount(page)
     await page.evaluate((expectedReceiptInputCount) => {
       const pngBytes = new Uint8Array([
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 2,
@@ -292,6 +304,7 @@ test.describe("travel authorization wizard", () => {
     await codingDialog.getByLabel("G/L code").fill("552-503010-0222-0006-09999")
     await codingDialog.getByLabel("Amount").fill("1")
     await codingDialog.getByRole("button", { name: "Save" }).click()
+    await expectGeneralLedgerCoding(page, "552-503010-0222-0006-09999")
 
     // Submit
     await page.getByRole("button", { name: "Submit to Supervisor" }).click()
