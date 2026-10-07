@@ -20,38 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
-    env:
-      POSTGRES_CACHE_VERSION: v1
-      MSSQL_CACHE_VERSION: v1
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache PostgreSQL data
-        uses: actions/cache@v4
-        with:
-          path: /tmp/e2e-test-db-postgres
-          key: ${{ runner.os }}-e2e-postgres-${{ env.POSTGRES_CACHE_VERSION }}-${{ hashFiles('api/src/db/migrations/**') }}
-
-      - name: Cache MSSQL data
-        uses: actions/cache@v4
-        with:
-          path: /tmp/e2e-test-db-mssql
-          key: ${{ runner.os }}-e2e-mssql-${{ env.MSSQL_CACHE_VERSION }}-${{ hashFiles('api/src/integrations/trav-com-integration/db/migrations/**') }}
-
-      - name: Prepare database directories
-        run: |
-          mkdir -p /tmp/e2e-test-db-postgres /tmp/e2e-test-db-mssql
-          sudo chown -R 999:999 /tmp/e2e-test-db-postgres
-          sudo chown -R 10001:0 /tmp/e2e-test-db-mssql
-
       - name: Run end-to-end tests
         run: ./bin/dev test end-to-end-tests
-
-      - name: Restore database directory ownership
-        if: always()
-        run: sudo chown -R "$USER" /tmp/e2e-test-db-postgres /tmp/e2e-test-db-mssql
 
       - name: Upload Playwright report
         if: failure()
