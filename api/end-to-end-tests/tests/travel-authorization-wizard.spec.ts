@@ -22,7 +22,7 @@ import { expect, type Locator, type Page } from "@playwright/test"
 import {
   authenticatedWorkflowAccountsFromEnvironment,
   seedAuthenticatedWorkflowData,
-  seedPostBookingTravelAuthorization,
+  seedBookedTravelDeskRequest,
   type AuthenticatedWorkflowAccounts,
 } from "../authenticated-workflow-fixtures"
 import { cleanEndToEndDatabases, test } from "../fixtures"
@@ -252,8 +252,8 @@ test.describe("travel authorization wizard", () => {
     // Arrange
     // Requires tests/.auth/traveller.json.
     // Travel dates (2026-06-01 to 2026-06-04) must be in the past.
-    // Start this phase after the travel desk has booked the selected flight.
-    await seedPostBookingTravelAuthorization(travelAuthId)
+    // Start from the persistent state created after travel-desk booking.
+    await seedBookedTravelDeskRequest(travelAuthId)
 
     const travellerContext = await browser.newContext({
       storageState: "end-to-end-tests/tests/.auth/traveller.json",
@@ -262,7 +262,8 @@ test.describe("travel authorization wizard", () => {
 
     // Act
 
-    await page.goto(`/my-travel-requests/${travelAuthId}/wizard/confirm-actual-travel-details`)
+    await page.goto(`/my-travel-requests/${travelAuthId}/wizard/awaiting-travel-start`)
+    await page.waitForURL(/confirm-actual-travel-details/)
 
     // Step 11 — Confirm Actual Travel Details
     await expectActualTripOrigin(page)
