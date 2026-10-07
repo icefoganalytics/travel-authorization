@@ -103,6 +103,7 @@ services:
       dockerfile: end-to-end-tests/Dockerfile
     command: /bin/true
     environment:
+      <<: *default-environment
       BASE_URL: http://web:8080
     tty: true
     volumes:
