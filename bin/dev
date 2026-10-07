@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 
-require "shellwords"
 require "rdoc"
+require "shellwords"
+
+require "bundler/setup"
+require "local_development_gateway"
 
 require_relative "./github_api"
 require_relative "./open-in-editor-bridge"
@@ -41,14 +44,16 @@ class DevHelper
   end
 
   def compose(*args, **kwargs)
-    command = compose_command(*args, **kwargs)
-    puts "Running: #{command}" unless kwargs[:slient]
+    LocalDevelopmentGateway.with_running(ensure_running: args.first != "down") do
+      command = compose_command(*args, **kwargs)
+      puts "Running: #{command}" unless kwargs[:slient]
 
-    case kwargs[:execution_mode]
-    when WAIT_FOR_PROCESS
-      wait_for_process_with_logging(command)
-    else
-      exec(command)
+      case kwargs[:execution_mode]
+      when WAIT_FOR_PROCESS
+        wait_for_process_with_logging(command)
+      else
+        exec(command)
+      end
     end
   end
 
@@ -357,11 +362,39 @@ class DevHelper
   end
 
   def dynamic_environment_variables
+    environment_variables = [
+      "GATEWAY_HOSTNAME=#{Shellwords.escape(gateway_hostname)}",
+      "GATEWAY_ROUTER_PREFIX=#{Shellwords.escape(gateway_router_prefix)}",
+    ]
+
     if RUBY_PLATFORM =~ /linux/
-      %(HOST_USER_ID="#{user_id}" HOST_GROUP_ID="#{group_id}")
-    else
-      ""
+      environment_variables << %(HOST_USER_ID="#{user_id}")
+      environment_variables << %(HOST_GROUP_ID="#{group_id}")
     end
+
+    environment_variables.join(" ")
+  end
+
+  def gateway_hostname
+    configured_hostname = ENV.fetch("GATEWAY_HOSTNAME", "")
+    return configured_hostname unless configured_hostname.empty?
+
+    worktree_name = File.basename(project_root)
+    project_name = File.basename(primary_worktree_root)
+    hostname_prefix = worktree_name == project_name ? project_name : "#{worktree_name}.#{project_name}"
+
+    "#{hostname_prefix}.localhost"
+  end
+
+  def gateway_router_prefix
+    gateway_hostname.delete_suffix(".localhost").tr(".", "-")
+  end
+
+  def primary_worktree_root
+    git_common_directory =
+      `git -C #{Shellwords.escape(project_root)} rev-parse --path-format=absolute --git-common-dir`.strip
+
+    File.dirname(git_common_directory)
   end
 
   def take_over_needed?(file_or_directory)
