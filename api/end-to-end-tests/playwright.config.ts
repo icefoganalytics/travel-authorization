@@ -7,7 +7,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: "html",
+  reporter: [["html", { open: "never" }]],
   use: {
     baseURL: process.env.BASE_URL ?? "http://localhost:8080",
     screenshot: "only-on-failure",

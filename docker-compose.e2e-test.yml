@@ -79,6 +79,7 @@ services:
       dockerfile: end-to-end-tests/Dockerfile
     user: "${HOST_USER_ID:-0}:${HOST_GROUP_ID:-0}"
     network_mode: service:web
+    shm_size: 1gb
     depends_on:
       web:
         condition: service_healthy
@@ -93,10 +94,10 @@ services:
       - ./.gitignore:/usr/src/.gitignore:ro
 
   finance_api_stub:
-    image: node:20.19.0-alpine3.21
-    command: node /finance-api-stub.js
-    volumes:
-      - ./api/end-to-end-tests/finance-api-stub.js:/finance-api-stub.js:ro
+    build:
+      context: ./api
+      dockerfile: end-to-end-tests/Dockerfile
+    command: npm run ts-node -- end-to-end-tests/finance-api-stub.ts
     healthcheck:
       test: ["CMD", "node", "-e", 'fetch("http://localhost:3000/health").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))']
       interval: 2s
