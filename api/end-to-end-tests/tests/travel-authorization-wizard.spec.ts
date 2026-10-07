@@ -38,10 +38,10 @@ async function expectToast(page: Page, text: string) {
   await expect(page.locator(`.v-snackbar:has-text("${text}")`)).toBeVisible()
 }
 
-/** Select a Vuetify combobox / autocomplete option. */
-async function selectCombobox(field: Locator, option: string) {
+/** Select a Vuetify combobox / autocomplete option from its overlay. */
+async function selectCombobox(page: Page, field: Locator, option: string) {
   await field.click()
-  await field.getByRole("option", { name: option }).click()
+  await page.getByRole("option", { name: option }).click()
 }
 
 function requiredEnvironmentVariable(name: string) {
@@ -87,27 +87,27 @@ test.describe("travel authorization wizard", () => {
     travelAuthId = travelAuthIdMatch[1]
 
     // Step 3 — Trip Purpose
-    await selectCombobox(page.getByLabel("Purpose"), "Conference")
+    await selectCombobox(page, page.getByLabel("Purpose"), "Conference")
     await page.getByLabel("Conference name").fill("Annual Tech Conference 2026")
     await page.getByLabel("In Territory?").getByRole("radio", { name: "No" }).click()
-    await selectCombobox(page.getByLabel("Final Destination"), "Vancouver (BC)")
+    await selectCombobox(page, page.getByLabel("Final Destination"), "Vancouver (BC)")
     await page.getByRole("button", { name: "Continue" }).click()
     await expectToast(page, "Travel request saved.")
 
     // Step 4 — Trip Details (dates must be in the past)
-    await selectCombobox(page.getByLabel("From").nth(0), "Whitehorse (YT)")
-    await selectCombobox(page.getByLabel("To").nth(0), "Vancouver (BC)")
+    await selectCombobox(page, page.getByLabel("From").nth(0), "Whitehorse (YT)")
+    await selectCombobox(page, page.getByLabel("To").nth(0), "Vancouver (BC)")
     await fillDate(page.getByLabel("Date").nth(0), "2026-06-01")
     await page.getByLabel("Time (24 hour)").nth(0).fill("08:00")
-    await selectCombobox(page.getByLabel("Travel Method").nth(0), "Aircraft")
-    await selectCombobox(page.getByLabel("Type of Accommodation"), "Hotel")
+    await selectCombobox(page, page.getByLabel("Travel Method").nth(0), "Aircraft")
+    await selectCombobox(page, page.getByLabel("Type of Accommodation"), "Hotel")
 
     // Return segment
-    await selectCombobox(page.getByLabel("From").nth(1), "Vancouver (BC)")
-    await selectCombobox(page.getByLabel("To").nth(1), "Whitehorse (YT)")
+    await selectCombobox(page, page.getByLabel("From").nth(1), "Vancouver (BC)")
+    await selectCombobox(page, page.getByLabel("To").nth(1), "Whitehorse (YT)")
     await fillDate(page.getByLabel("Date").nth(1), "2026-06-04")
     await page.getByLabel("Time (24 hour)").nth(1).fill("17:00")
-    await selectCombobox(page.getByLabel("Travel Method").nth(1), "Aircraft")
+    await selectCombobox(page, page.getByLabel("Travel Method").nth(1), "Aircraft")
 
     await page.getByRole("button", { name: "Continue" }).click()
     await expectToast(page, "Travel request saved.")
@@ -118,6 +118,7 @@ test.describe("travel authorization wizard", () => {
     // Step 6 — Submit to Supervisor
     await page.getByLabel("Travel Advance").fill("0")
     await selectCombobox(
+      page,
       page.getByLabel("Submit to"),
       requiredEnvironmentVariable("SUPERVISOR_EMAIL")
     )
@@ -195,8 +196,8 @@ test.describe("travel authorization wizard", () => {
     await page.getByLabel("Legal Last Name").fill("User")
     await fillDate(page.getByLabel("Birth Date"), "1990-05-01")
     await page.getByLabel("Address").fill("1234")
-    await selectCombobox(page.getByLabel("City"), "Whitehorse (YT)")
-    await selectCombobox(page.getByLabel("Province"), "Yukon")
+    await selectCombobox(page, page.getByLabel("City"), "Whitehorse (YT)")
+    await selectCombobox(page, page.getByLabel("Province"), "Yukon")
     await page.getByLabel("Postal Code").fill("A1B C2D")
     await page.getByRole("button", { name: "Continue" }).click()
 
