@@ -19,6 +19,11 @@
 
 import { expect, type Locator, type Page } from "@playwright/test"
 
+import {
+  authenticatedWorkflowAccountsFromEnvironment,
+  seedAuthenticatedWorkflowData,
+  type AuthenticatedWorkflowAccounts,
+} from "../authenticated-workflow-fixtures"
 import { cleanEndToEndDatabases, test } from "../fixtures"
 
 // ---------------------------------------------------------------------------
@@ -44,18 +49,26 @@ async function selectCombobox(page: Page, field: Locator, option: string) {
   await page.getByRole("option", { name: option }).click()
 }
 
-function requiredEnvironmentVariable(name: string) {
-  const value = process.env[name]
-  if (!value) throw new Error(`${name} must be configured for authenticated end-to-end tests`)
+async function expectReceiptUploads(page: Page, receiptInputCount: number) {
+  if (receiptInputCount === 0) {
+    throw new Error("Expected prefilled expenses to provide receipt inputs.")
+  }
 
-  return value
+  await expect(page.getByRole("button", { name: "View Receipt" })).toHaveCount(receiptInputCount)
 }
+
 test.describe("travel authorization wizard", () => {
   test.describe.configure({ mode: "serial" })
   test.use({ preserveDatabase: true })
-  test.beforeAll(cleanEndToEndDatabases)
 
+  let accounts: AuthenticatedWorkflowAccounts
   let travelAuthId: string
+
+  test.beforeAll(async () => {
+    accounts = authenticatedWorkflowAccountsFromEnvironment()
+    await cleanEndToEndDatabases()
+    await seedAuthenticatedWorkflowData(accounts)
+  })
 
   // ---------------------------------------------------------------------------
   // Wizard — Step 1–6: Traveller creates and submits a travel request
@@ -87,12 +100,14 @@ test.describe("travel authorization wizard", () => {
     travelAuthId = travelAuthIdMatch[1]
 
     // Step 3 — Trip Purpose
-    await selectCombobox(page, page.getByLabel("Purpose"), "Conference")
-    await page.getByLabel("Conference name").fill("Annual Tech Conference 2026")
-    await page.getByLabel("In Territory?").getByRole("radio", { name: "No" }).click()
-    await selectCombobox(page, page.getByLabel("Final Destination"), "Vancouver (BC)")
+    await selectCombobox(page, page.getByLabel("Purpose *"), "Conference")
+    await page
+      .getByLabel("Name of meeting/conference, mission, trade fair or course *")
+      .fill("Annual Tech Conference 2026")
+    await page.getByLabel("In Territory?").uncheck()
+    await selectCombobox(page, page.getByLabel("Final Destination *"), "Vancouver (BC)")
+    await page.getByLabel("Objectives *").fill("Attend sessions relevant to travel authorization.")
     await page.getByRole("button", { name: "Continue" }).click()
-    await expectToast(page, "Travel request saved.")
 
     // Step 4 — Trip Details (dates must be in the past)
     await selectCombobox(page, page.getByLabel("From").nth(0), "Whitehorse (YT)")
@@ -120,7 +135,7 @@ test.describe("travel authorization wizard", () => {
     await selectCombobox(
       page,
       page.getByLabel("Submit to"),
-      requiredEnvironmentVariable("SUPERVISOR_EMAIL")
+      accounts.supervisor.email
     )
     await page.getByRole("button", { name: "Submit to Supervisor" }).click()
     await expectToast(page, "Travel request submitted.")
@@ -192,13 +207,15 @@ test.describe("travel authorization wizard", () => {
     await page.goto(`/my-travel-requests/${travelAuthId}/wizard/edit-traveller-details`)
 
     // Step 8 — Traveler Details (form is pre-populated from the user's profile)
-    await page.getByLabel("Legal First Name").fill("Marlen")
-    await page.getByLabel("Legal Last Name").fill("User")
-    await fillDate(page.getByLabel("Birth Date"), "1990-05-01")
-    await page.getByLabel("Address").fill("1234")
-    await selectCombobox(page, page.getByLabel("City"), "Whitehorse (YT)")
-    await selectCombobox(page, page.getByLabel("Province"), "Yukon")
-    await page.getByLabel("Postal Code").fill("A1B C2D")
+    await page.getByLabel("Legal First Name *").fill("Marlen")
+    await page.getByLabel("Legal Last Name *").fill("User")
+    await fillDate(page.getByLabel("Birth Date *"), "1990-05-01")
+    await page.getByLabel("Address *").fill("1234")
+    await selectCombobox(page, page.getByLabel("City *"), "Whitehorse (YT)")
+    await page.getByLabel("Province *").fill("Yukon")
+    await page.getByLabel("Postal Code *").fill("Y1A 2C6")
+    await page.getByLabel("Business Phone *").fill("867-667-0000")
+    await page.getByLabel("Business Email *").fill(accounts.traveller.email)
     await page.getByRole("button", { name: "Continue" }).click()
 
     // Step 9 — Submit to Travel Desk
@@ -242,26 +259,31 @@ test.describe("travel authorization wizard", () => {
     await page.getByRole("button", { name: "Prefill", exact: true }).click()
     await prefillResponse
 
-    // Inject fake receipts via DataTransfer API — the real file picker is hidden
-    await page.evaluate(() => {
+    // Inject fake receipts via DataTransfer API — the real file picker is hidden.
+    const receiptInputs = page.locator("input[type='file'].d-none")
+    const receiptInputCount = await receiptInputs.count()
+
+    await page.evaluate((expectedReceiptInputCount) => {
       const pngBytes = new Uint8Array([
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 2,
         0, 0, 0, 144, 119, 83, 222, 0, 0, 0, 12, 73, 68, 65, 84, 8, 215, 99, 248, 15, 0, 0, 1, 1, 0,
         5, 24, 213, 78, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
       ])
-      const blob = new Blob([pngBytes], { type: "image/png" })
       const fileInputs = document.querySelectorAll<HTMLInputElement>("input[type='file'].d-none")
+      if (fileInputs.length !== expectedReceiptInputCount) {
+        throw new Error("Receipt inputs changed while preparing uploads.")
+      }
+
       for (let index = 0; index < fileInputs.length; index++) {
-        const file = new File([blob], `receipt_${index + 1}.png`, { type: "image/png" })
+        const file = new File([pngBytes], `receipt_${index + 1}.png`, { type: "image/png" })
         const dataTransfer = new DataTransfer()
         dataTransfer.items.add(file)
         fileInputs[index].files = dataTransfer.files
         fileInputs[index].dispatchEvent(new Event("change", { bubbles: true }))
       }
-    })
+    }, receiptInputCount)
 
-    // Wait for uploads to resolve — each expense row should show "View Receipt"
-    await expect(page.getByRole("button", { name: "View Receipt" }).first()).toBeVisible()
+    await expectReceiptUploads(page, receiptInputCount)
 
     // Add a GL coding row
     await page.getByRole("button", { name: "Add Coding" }).click()
