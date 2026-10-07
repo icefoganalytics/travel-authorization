@@ -1,13 +1,14 @@
 import axios from "axios"
 import { isEmpty, isNil } from "lodash"
 
-import { YUKON_GOVERNMENT_FINANCE_API_KEY } from "@/config"
+import {
+  YUKON_GOVERNMENT_FINANCE_API_BASE_URL,
+  YUKON_GOVERNMENT_FINANCE_API_KEY,
+} from "@/config"
 import parsePossiblyDoubleEncodedJson from "@/utils/parse-possibly-double-encoded-json"
 
-const baseURL = "https://api.gov.yk.ca"
-
 const yukonGovernmentApi = axios.create({
-  baseURL,
+  baseURL: YUKON_GOVERNMENT_FINANCE_API_BASE_URL,
   headers: {
     "Ocp-Apim-Subscription-Key": YUKON_GOVERNMENT_FINANCE_API_KEY,
   },
