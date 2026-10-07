@@ -13,8 +13,9 @@ The runnable test suite currently covers unauthenticated smoke checks only:
 `tests/travel-authorization-wizard.spec.ts` is a skipped skeleton for future authenticated workflow
 coverage. It documents the intended multi-user pattern, but it is not enforced by continuous
 integration until Auth0 storage-state fixtures exist. Unskipping it also requires
-`TRAVELLER_EMAIL`, `TRAVELLER_SUB`, `SUPERVISOR_EMAIL`, `SUPERVISOR_SUB`, `ADMIN_EMAIL`, and
-`ADMIN_SUB` for the deterministic test accounts.
+each deterministic account's email address and Auth0 user ID: `TRAVELLER_EMAIL`,
+`TRAVELLER_AUTH0_SUBJECT`, `SUPERVISOR_EMAIL`, `SUPERVISOR_AUTH0_SUBJECT`,
+`ADMIN_EMAIL`, and `ADMIN_AUTH0_SUBJECT`.
 
 ## Running Tests
 
