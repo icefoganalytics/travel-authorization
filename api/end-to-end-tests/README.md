@@ -12,7 +12,9 @@ The runnable test suite currently covers unauthenticated smoke checks only:
 
 `tests/travel-authorization-wizard.spec.ts` is a skipped skeleton for future authenticated workflow
 coverage. It documents the intended multi-user pattern, but it is not enforced by continuous
-integration until Auth0 storage-state fixtures and `SUPERVISOR_EMAIL` for a selectable supervisor exist.
+integration until Auth0 storage-state fixtures exist. Unskipping it also requires
+`TRAVELLER_EMAIL`, `TRAVELLER_SUB`, `SUPERVISOR_EMAIL`, `SUPERVISOR_SUB`, `ADMIN_EMAIL`, and
+`ADMIN_SUB` for the deterministic test accounts.
 
 ## Running Tests
 
@@ -30,7 +32,10 @@ does not publish host ports or affect a running development stack.
 
 Import `test` and, when needed, `cleanEndToEndDatabases` from `../fixtures`; import `expect` from
 `@playwright/test`. The fixture adds automatic database cleanup around every test. Stateful serial
-workflows can opt out with `test.use({ preserveDatabase: true })` and call
-`test.beforeAll(cleanEndToEndDatabases)` to reset the databases once before their shared lifecycle.
+workflows can opt out with `test.use({ preserveDatabase: true })`. Reset their databases once in
+`test.beforeAll`, then seed only the prerequisite rows through
+`authenticated-workflow-fixtures.ts`; it uses raw database queries so Playwright does not load
+decorated Sequelize models during test discovery.
 
-Prefer locators that match user-visible behavior, such as `page.getByRole()` and `page.getByText()`.
+Prefer locators that match user-visible behavior, such as `page.getByRole()`, `page.getByLabel()`,
+and `page.getByText()`.

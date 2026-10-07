@@ -95,9 +95,9 @@ The command starts the dependent services with the e2e test overlay in a separat
 project before running Playwright. The stack uses Docker's internal network and does not publish host
 ports, so it cannot conflict with a running development stack.
 
-See `api/end-to-end-tests/README.md` for the current coverage boundary. The runnable suite currently
-enforces unauthenticated smoke checks; authenticated wizard coverage is present as skipped skeleton
-tests until Auth0 storage-state fixtures and `SUPERVISOR_EMAIL` for a selectable supervisor exist.
+See `api/end-to-end-tests/README.md` for the current coverage boundary and authenticated-test
+prerequisites. The runnable suite currently enforces unauthenticated smoke checks; authenticated
+wizard coverage remains an explicit skipped skeleton.
 
 ### Test Container Management
 
