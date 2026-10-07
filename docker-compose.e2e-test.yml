@@ -16,6 +16,9 @@ services:
         condition: service_started
       finance_api_stub:
         condition: service_healthy
+  test_api:
+    env_file: !reset []
+    volumes: !reset []
   web:
     ports: !reset []
     volumes:
