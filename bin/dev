@@ -44,7 +44,7 @@ class DevHelper
   end
 
   def compose(*args, **kwargs)
-    LocalDevelopmentGateway.with_running(ensure_running: args.first != "down") do
+    succeeded = LocalDevelopmentGateway.with_running(ensure_running: args.first != "down") do
       command = compose_command(*args, **kwargs)
       puts "Running: #{command}" unless kwargs[:slient]
 
@@ -52,9 +52,11 @@ class DevHelper
       when WAIT_FOR_PROCESS
         wait_for_process_with_logging(command)
       else
-        exec(command)
+        system(command)
       end
     end
+
+    exit(1) unless succeeded
   end
 
   # Primary command wrappers
