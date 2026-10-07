@@ -56,7 +56,9 @@ class DevHelper
       end
     end
 
-    exit(1) unless succeeded
+    return succeeded if succeeded
+
+    exit(1)
   end
 
   # Primary command wrappers
