@@ -1,12 +1,33 @@
+name: travel-authorization-e2e-test
+
+x-application-environment: &application-environment
+  NODE_ENV: test
+  TZ: "UTC"
+  AUTH0_DOMAIN: "https://dev-0tc6bn14.eu.auth0.com"
+  AUTH0_AUDIENCE: testing
+  DB_HOST: db
+  DB_NAME: travel_test
+  DB_PASS: &database-password "e2e-test-password"
+  DB_USER: app
+  DB_PORT: 5432
+  DB_HEALTH_CHECK_INTERVAL_SECONDS: 5
+  DB_HEALTH_CHECK_TIMEOUT_SECONDS: 10
+  DB_HEALTH_CHECK_RETRIES: 3
+  DB_HEALTH_CHECK_START_PERIOD_SECONDS: 5
+  TRAVCOM_DB_HOST: db_trav_com
+  TRAVCOM_DB_USER: sa
+  TRAVCOM_DB_PASS: &travcom-database-password "DevPwd99!"
+  TRAVCOM_DB_NAME: trav_com_test
+  TRAVCOM_DB_PORT: 1433
+  TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
+
 services:
   api:
-    ports: !reset []
-    volumes:
-      - end_to_end_tests_api_node_modules:/usr/src/api/node_modules
+    build:
+      context: ./api
+      dockerfile: development.Dockerfile
     environment:
-      NODE_ENV: test
-      DB_NAME: travel_test
-      TRAVCOM_DB_NAME: trav_com_test
+      <<: *application-environment
       DEFAULT_LOG_LEVEL: "warn"
       YUKON_GOVERNMENT_FINANCE_API_BASE_URL: http://finance_api_stub:3000
     depends_on:
@@ -16,14 +37,23 @@ services:
         condition: service_started
       finance_api_stub:
         condition: service_healthy
-  test_api:
-    env_file: !reset []
-    volumes: !reset []
-  web:
-    ports: !reset []
+
+  api_wait:
+    image: node:20.19.0-alpine3.21
+    depends_on:
+      api:
+        condition: service_started
     volumes:
-      - end_to_end_tests_web_node_modules:/usr/src/web/node_modules
+      - ./bin/api-wait.mjs:/bin/api-wait.mjs:ro
+    entrypoint: ["node", "/bin/api-wait.mjs"]
+    restart: "no"
+
+  web:
+    build:
+      context: ./web
+      dockerfile: development.Dockerfile
     environment:
+      NODE_ENV: development
       VITE_API_BASE_URL: http://api:3000
     healthcheck:
       test:
@@ -37,39 +67,62 @@ services:
       timeout: 2s
       retries: 30
       start_period: 5s
+    depends_on:
+      api:
+        condition: service_started
+      api_wait:
+        condition: service_completed_successfully
+
   end_to_end_tests:
+    build:
+      context: ./api
+      dockerfile: end-to-end-tests/Dockerfile
     user: "${HOST_USER_ID:-0}:${HOST_GROUP_ID:-0}"
     network_mode: service:web
     depends_on:
       web:
         condition: service_healthy
     environment:
+      <<: *application-environment
       BASE_URL: http://localhost:8080
       API_BASE_URL: http://api:3000
       CI: "${CI:-}"
-      NODE_ENV: test
-      DB_NAME: travel_test
-      TRAVCOM_DB_NAME: trav_com_test
+    volumes:
+      - ./api:/usr/src/api
+      - end_to_end_tests_node_modules:/usr/src/api/node_modules
+      - ./.gitignore:/usr/src/.gitignore:ro
 
   finance_api_stub:
-    build:
-      context: ./api
-      dockerfile: end-to-end-tests/Dockerfile
-    command: node end-to-end-tests/finance-api-stub.js
+    image: node:20.19.0-alpine3.21
+    command: node /finance-api-stub.js
+    volumes:
+      - ./api/end-to-end-tests/finance-api-stub.js:/finance-api-stub.js:ro
     healthcheck:
       test: ["CMD", "node", "-e", 'fetch("http://localhost:3000/health").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))']
       interval: 2s
       timeout: 2s
       retries: 30
+
   db:
-    ports: !reset []
+    image: postgres:14.4
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: *database-password
+      POSTGRES_DB: travel_test
     volumes:
-      - /tmp/e2e-test-db-postgres:/var/lib/postgresql/data
+      - e2e_test_db_postgres:/var/lib/postgresql/data
+
   db_trav_com:
-    ports: !reset []
+    image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
+    user: root
+    environment:
+      MSSQL_SA_PASSWORD: *travcom-database-password
+      TZ: "UTC"
+      ACCEPT_EULA: "Y"
     volumes:
-      - /tmp/e2e-test-db-mssql:/var/opt/mssql/data
+      - e2e_test_db_mssql:/var/opt/mssql/data
 
 volumes:
-  end_to_end_tests_api_node_modules:
-  end_to_end_tests_web_node_modules:
+  e2e_test_db_postgres:
+  e2e_test_db_mssql:
+  end_to_end_tests_node_modules:

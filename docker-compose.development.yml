@@ -97,20 +97,6 @@ services:
     volumes:
       - ./web:/usr/src/web
 
-  end_to_end_tests:
-    build:
-      context: ./api
-      dockerfile: end-to-end-tests/Dockerfile
-    command: /bin/true
-    environment:
-      <<: *default-environment
-      BASE_URL: http://web:8080
-    tty: true
-    volumes:
-      - ./api:/usr/src/api
-      - end_to_end_tests_node_modules:/usr/src/api/node_modules
-      - ./.gitignore:/usr/src/.gitignore
-
   api_wait:
     image: node:20.19.0-alpine3.21
     depends_on:
@@ -157,4 +143,3 @@ services:
 volumes:
   db_data:
   db_trav_com_data:
-  end_to_end_tests_node_modules:
