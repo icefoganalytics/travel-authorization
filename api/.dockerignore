@@ -1,0 +1,6 @@
+node_modules
+.env*
+.envrc
+end-to-end-tests/tests/.auth
+playwright-report
+test-results
