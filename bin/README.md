@@ -18,13 +18,14 @@ Basic usage:
 1. Run it as `./bin/dev ...` from the repo root.
 2. If you want to use `dev ...` instead, add `bin/` to your `PATH`.
 
-`./bin/dev up` starts or reuses the shared Local Development Gateway and applies the development
-gateway Compose overlay. Use the checkout-derived `*.travel-authorization.localhost` hostname
-rather than direct application ports.
+All development `dev` commands apply `docker-compose.development.gateway.yml`, which defines
+browser and database gateway routing. Use the checkout-derived `*.travel-authorization.localhost`
+hostname rather than direct application ports.
 
-Development `run` commands (including API commands, migrations, and tests) also ensure the gateway
-is running because their database dependencies use its external network. They wait for the child
-command so gateway lifecycle cleanup can run without removing other projects' routes.
+`./bin/dev up` and development `run` commands (including API commands, migrations, and tests)
+ensure the gateway is running before starting dependencies. One-off containers disable Traefik
+discovery while database dependencies retain their gateway routes. Commands wait for the child
+process so gateway lifecycle cleanup does not remove other projects' routes.
 
 Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
 instead of the checkout-derived default.

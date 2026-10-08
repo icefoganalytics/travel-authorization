@@ -20,10 +20,12 @@ TravelAuth is built with:
 - API: matching `api.` gateway hostname
 - Databases: gateway routes PostgreSQL on port 5432 and TravCom Microsoft SQL Server on port 1433
 
-`./bin/dev up` starts or reuses the shared Local Development Gateway, then applies the
-development gateway Compose overlay. Database services remain attached to the gateway for routed
-client access; API and web apply browser routes only when started through `dev up`. The main
-checkout uses `http://travel-authorization.localhost`; a worktree named `issue-123` uses
+All development `dev` commands apply `docker-compose.development.gateway.yml`, which defines API,
+web, PostgreSQL, and TravCom gateway routing. `./bin/dev up` starts or reuses the shared Local
+Development Gateway before starting the stack. Dependency commands use the same overlay so they
+preserve database routes; one-off API and web containers disable Traefik discovery to avoid
+replacing the running browser/API backends. The main checkout uses
+`http://travel-authorization.localhost`; a worktree named `issue-123` uses
 `http://issue-123.travel-authorization.localhost`.
 
 `dev api`, migrations, and tests also start or reuse the gateway before creating their Compose
