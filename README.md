@@ -34,10 +34,24 @@ settings use the same checkout-derived hostname.
 Set `GATEWAY_HOSTNAME` before invoking `dev` to override the derived hostname for a local
 environment.
 
-The development Auth0 application must allow `http://<gateway-hostname>` as a callback URL,
-logout URL, and web origin for each checkout you use. The existing `localhost:8080` entries do not
-authorize gateway hostnames. A missing callback entry produces Auth0's "Callback URL mismatch"
-page before login can complete.
+Development and locally served production builds use Auth0 tenant `dev-0tc6bn14.eu.auth0.com`
+and client ID `3NjkPu1sSNJDDRzeyfPUnoNmS2VYwaUY`. In that application's settings, append these
+entries while preserving existing URLs:
+
+| Auth0 setting         | Main checkout                                   | Worktrees                                         |
+| --------------------- | ----------------------------------------------- | ------------------------------------------------- |
+| Allowed Callback URLs | `http://travel-authorization.localhost`         | `http://*.travel-authorization.localhost`         |
+| Allowed Logout URLs   | `http://travel-authorization.localhost/sign-in` | `http://*.travel-authorization.localhost/sign-in` |
+| Allowed Web Origins   | `http://travel-authorization.localhost`         | `http://*.travel-authorization.localhost`         |
+
+Auth0 includes allowed callback URLs in **Allowed Origins (CORS)**. Explicit CORS entries may
+use the same browser origins as **Allowed Web Origins**, without `/sign-in`. This Auth0 allowlist
+is separate from the API's cross-origin policy, which Compose configures for the browser hostname.
+A `GATEWAY_HOSTNAME` override outside this pattern needs corresponding entries. Save changes before
+retrying login; a missing callback entry produces Auth0's "Callback URL mismatch" page.
+
+The production configuration currently uses this client too. Create an independent production
+Auth0 environment before going live; worktree wildcard allowlists are for local development only.
 
 For a database client outside Compose, connect to `db.<gateway-hostname>:5432` for PostgreSQL or
 `db-trav-com.<gateway-hostname>:1433` for TravCom SQL Server. The gateway presents those TLS

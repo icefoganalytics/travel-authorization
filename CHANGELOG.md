@@ -24,6 +24,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 - Routed local browser and database services through checkout-derived Local Development Gateway
   hostnames, including matching browser API and cross-origin settings. Development commands reuse
   the gateway while application and test database connections retain their internal Docker aliases.
+  Development and locally served production builds use the same Auth0 client.
   Why? To let multiple worktrees run and test concurrently without competing for ports.
 
 - Standardized the reports page into a clearer layout with separate sections and tabs for tables, graphs, and print views, including a dedicated flight statistics table with server-side pagination and ordering.
