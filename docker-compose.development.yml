@@ -110,13 +110,6 @@ services:
       POSTGRES_USER: *default-db-user
       POSTGRES_PASSWORD: *default-db-password
       POSTGRES_DB: *default-db-name
-    networks:
-      - default
-      - local-gateway
-    labels:
-      - "local-gateway.tcp.driver=postgresql"
-      - "local-gateway.tcp.hostname=db.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
-      - "local-gateway.tcp.port=5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -128,13 +121,6 @@ services:
       MSSQL_SA_PASSWORD: *default-trav-com-db-password # requires secure password
       TZ: "UTC"
       ACCEPT_EULA: "Y"
-    networks:
-      - default
-      - local-gateway
-    labels:
-      - "local-gateway.tcp.driver=sql_server"
-      - "local-gateway.tcp.hostname=db-trav-com.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
-      - "local-gateway.tcp.port=1433"
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
 
@@ -153,8 +139,3 @@ services:
 volumes:
   db_data:
   db_trav_com_data:
-
-networks:
-  local-gateway:
-    external: true
-    name: local-gateway

@@ -22,6 +22,25 @@ services:
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-web.entrypoints=web"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-web.service=${COMPOSE_PROJECT_NAME}-web"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}-web.loadbalancer.server.port=8080"
+
+  db:
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "local-gateway.tcp.driver=postgresql"
+      - "local-gateway.tcp.hostname=db.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+      - "local-gateway.tcp.port=5432"
+
+  db_trav_com:
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "local-gateway.tcp.driver=sql_server"
+      - "local-gateway.tcp.hostname=db-trav-com.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+      - "local-gateway.tcp.port=1433"
+
 networks:
   local-gateway:
     external: true
