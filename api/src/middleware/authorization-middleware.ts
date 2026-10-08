@@ -7,8 +7,6 @@ import { User } from "@/models"
 
 import auth0Integration, { Auth0PayloadError } from "@/integrations/auth0-integration"
 
-import NodeCache from "node-cache"
-
 export type AuthorizationRequest = JwtRequest & {
   user?: User
 }
@@ -17,12 +15,7 @@ export type AuthorizedRequest = AuthorizationRequest & {
   user: User
 }
 
-interface CachedUser {
-  promise: Promise<User>
-  timestamp: number
-}
-
-const userCache = new NodeCache({ stdTTL: 60, checkperiod: 60 })
+const userCreationPromises = new Map<string, Promise<User>>()
 
 export async function ensureUserFromAuth0Token(token: string): Promise<User> {
   const { auth0Subject, email, firstName, lastName } = await auth0Integration.getUserInfo(token)
@@ -30,14 +23,6 @@ export async function ensureUserFromAuth0Token(token: string): Promise<User> {
 
   if (!isNil(user)) {
     return user
-  }
-
-  const existingUser = await User.findOne({
-    where: { sub: auth0Subject },
-  })
-
-  if (existingUser) {
-    return existingUser
   }
 
   const newUser = await User.create({
@@ -68,25 +53,20 @@ export async function authorizationMiddleware(
     return next()
   }
 
-  // Step 2: use the in-flight creation cache only while it still represents a persisted user.
-  const cachedUser = userCache.get(token) as CachedUser
-
-  if (cachedUser) {
-    const resolvedUser = await cachedUser.promise
-    const persistedUser = await User.findByPk(resolvedUser.id)
-    if (!isNil(persistedUser)) {
-      req.user = persistedUser
-      return next()
-    }
-
-    userCache.del(token)
-  }
+  let userCreationPromise = userCreationPromises.get(token)
 
   try {
-    const userCreationPromise = ensureUserFromAuth0Token(token)
-    userCache.set(token, { promise: userCreationPromise, timestamp: Date.now() })
+    if (isNil(userCreationPromise)) {
+      userCreationPromise = ensureUserFromAuth0Token(token)
+      userCreationPromises.set(token, userCreationPromise)
+    }
 
-    req.user = await userCreationPromise
+    const createdUser = await userCreationPromise
+    if (createdUser.sub !== req.auth?.sub) {
+      throw new Error("Created user does not match the authenticated subject.")
+    }
+
+    req.user = createdUser
     return next()
   } catch (error) {
     if (error instanceof Auth0PayloadError) {
@@ -94,6 +74,10 @@ export async function authorizationMiddleware(
       return res.status(502).json({ message: "External authorization api failed." })
     } else {
       return res.status(401).json({ message: "User authentication failed." })
+    }
+  } finally {
+    if (userCreationPromises.get(token) === userCreationPromise) {
+      userCreationPromises.delete(token)
     }
   }
 }
