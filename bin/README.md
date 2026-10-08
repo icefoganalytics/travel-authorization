@@ -95,9 +95,9 @@ The command starts the dependent services from the standalone end-to-end configu
 Docker Compose project before running Playwright. The stack uses Docker's internal network and does
 not publish host ports, so it cannot conflict with a running development stack.
 
-See `api/end-to-end-tests/README.md` for the current coverage boundary and authenticated-test
-prerequisites. The runnable suite currently enforces unauthenticated smoke checks; authenticated
-wizard coverage remains an explicit skipped skeleton.
+See `api/end-to-end-tests/README.md` for the coverage boundary and real-account prerequisites.
+The default suite runs three credential-free smoke tests; set `E2E_AUTHENTICATED=true` and select
+`-- --project authenticated-chromium` to exercise the full authenticated workflow.
 
 ### Test Container Management
 

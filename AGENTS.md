@@ -154,9 +154,9 @@ This uses `docker-compose.e2e-test.yml` so the application and Playwright runner
 not development databases. The test stack communicates through Docker's internal network, does not
 publish host ports, and is removed after the run.
 
-See `api/end-to-end-tests/README.md` for the current coverage boundary, local runner details, and
-authenticated-test prerequisites. Continuous integration currently enforces unauthenticated smoke
-checks only; the full wizard spec remains skipped until Auth0 storage-state fixtures exist.
+See `api/end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
+integration runs the credential-free smoke project. The complete authenticated wizard is executable
+with `E2E_AUTHENTICATED=true` and real Auth0 sessions; it is not enforced by continuous integration.
 
 **Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` from
 `../fixtures` and `expect` from `@playwright/test` so each test cleans both test databases

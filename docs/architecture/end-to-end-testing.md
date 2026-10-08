@@ -22,6 +22,7 @@ and publish no host ports.
 
 This makes the end-to-end environment independent of a developer's active stack and aligns local
 execution with continuous integration.
+
 ## Test Ownership and Runtime
 
 End-to-end tests are system tests, not API tests: the Playwright browser exercises the `web` service,
@@ -40,13 +41,13 @@ separate release-artifact smoke check only when the release pipeline needs to pr
 image and its production configuration. Keeping that concern separate avoids making every source
 change pay the production-image build cost.
 
-
 ## Coverage Contract
 
-Continuous integration currently enforces unauthenticated smoke coverage for the API status endpoint,
-the sign-in page, and the redirect away from protected content. The travel-authorization wizard is
-an intentionally skipped specification for authenticated coverage; it is not evidence of enforced
-behavior until Auth0 storage-state fixtures and deterministic accounts exist.
+Continuous integration enforces three credential-free smoke checks: API status, sign-in rendering,
+and unauthenticated redirection. The opt-in authenticated project exercises the complete travel
+authorization journey using real Auth0 accounts and UI actions, including booking and receipt
+uploads. Its setup verifies authenticated identities before seeding isolated prerequisite data.
+It is executable local coverage, not enforced continuous-integration coverage.
 
 ## Continuous Integration Policy
 
