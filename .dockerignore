@@ -5,3 +5,7 @@ npm-debug.log
 /now.*
 /*.now.*
 **/now.*
+
+api/end-to-end-tests/tests/.auth
+api/playwright-report
+api/test-results
