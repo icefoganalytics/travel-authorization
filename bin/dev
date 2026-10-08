@@ -69,7 +69,6 @@ class DevHelper
           *%w[up --remove-orphans --force-recreate],
           *args,
           execution_mode: WAIT_FOR_PROCESS,
-          gateway: true,
           **kwargs
         )
       end
@@ -98,6 +97,8 @@ class DevHelper
     if kwargs.fetch(:environment, "development") != "development"
       return compose(*compose_arguments, *args, **kwargs)
     end
+
+    compose_arguments.concat(%w[--label traefik.enable=false])
 
     LocalDevelopmentGateway.with_running do
       compose(*compose_arguments, *args, **kwargs, execution_mode: WAIT_FOR_PROCESS)
@@ -344,13 +345,12 @@ class DevHelper
 
   def compose_command(*args, **kwargs)
     environment = kwargs.delete(:environment) { "development" }
-    gateway = kwargs.delete(:gateway)
     pipe_input = kwargs.delete(:pipe_input)
 
     go_to_project_root = "cd #{project_root}"
     compose_file_args = ["-f docker-compose.#{environment}.yml"]
 
-    if gateway && environment == "development"
+    if environment == "development"
       compose_file_args << "-f docker-compose.development.gateway.yml"
     end
 
