@@ -168,19 +168,30 @@ class DevHelper
   end
 
   def test_end_to_end(*args, **kwargs)
+    end_to_end_project_options = %w[--project-name travel-authorization-e2e-test]
     end_to_end_kwargs = kwargs.merge(environment: "e2e-test", execution_mode: WAIT_FOR_PROCESS)
-    preparation_succeeded = compose(*%w[down --remove-orphans --volumes], **end_to_end_kwargs)
+    preparation_succeeded = compose(
+      *end_to_end_project_options,
+      *%w[down --remove-orphans --volumes],
+      **end_to_end_kwargs
+    )
     build_succeeded = preparation_succeeded && compose(
+      *end_to_end_project_options,
       *%w[build api web end_to_end_tests finance_api_stub],
       **end_to_end_kwargs
     )
     test_succeeded = build_succeeded && compose(
+      *end_to_end_project_options,
       *%w[run --rm end_to_end_tests npm run test:e2e],
       *args,
       **end_to_end_kwargs
     )
   ensure
-    cleanup_succeeded = compose(*%w[down --remove-orphans --volumes], **end_to_end_kwargs)
+    cleanup_succeeded = compose(
+      *end_to_end_project_options,
+      *%w[down --remove-orphans --volumes],
+      **end_to_end_kwargs
+    )
 
     exit 1 unless preparation_succeeded && build_succeeded && test_succeeded && cleanup_succeeded
   end
