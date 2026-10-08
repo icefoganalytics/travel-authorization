@@ -25,6 +25,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
   hostnames, including matching browser API and cross-origin settings. Development commands reuse
   the gateway while application and test database connections retain their internal Docker aliases.
   The gateway overlay includes both databases, and dependency commands preserve their routes.
+  Pinned the gateway dependency to the tested version for reproducible local startup.
   Development and locally served production builds use the same Auth0 client.
   Why? To let multiple worktrees run and test concurrently without competing for ports.
 
