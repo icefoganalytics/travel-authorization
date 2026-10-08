@@ -1,28 +1,14 @@
 /**
- * Travel Authorization Wizard — full happy-path end-to-end tests.
- *
- * ALL TESTS ARE SKIPPED until Auth0 storage-state fixtures and deterministic test accounts exist:
- *   - tests/.auth/traveller.json
- *   - tests/.auth/admin.json
- *   - Account environment variables documented in ../README.md
- *
- * Create the storage-state files in a global-setup.ts that logs in once per role, calls
- * `context.storageState({ path: 'end-to-end-tests/tests/.auth/<role>.json' })`,
- * and closes the context. Then wire globalSetup into playwright.config.ts.
- *
- * Multi-user pattern (from the workflow doc):
- *   Each role gets its own BrowserContext so both sessions coexist without
- *   displacing each other's Auth0 cookies.
- *
+ * Authenticated travel authorization workflow.
+ * Each account uses a separate browser context and a real Auth0 storage state.
  * @see agents/workflows/create-test-travel-request-workflow.md
  */
 
 import { expect, type Locator, type Page } from "@playwright/test"
 
 import {
-  authenticatedWorkflowAccountsFromEnvironment,
+  loadAuthenticatedWorkflowAccounts,
   seedAuthenticatedWorkflowData,
-  seedBookedTravelDeskRequest,
   type AuthenticatedWorkflowAccounts,
 } from "../authenticated-workflow-fixtures"
 import { cleanEndToEndDatabases, test } from "../fixtures"
@@ -46,8 +32,14 @@ async function expectToast(page: Page, text: string) {
 
 /** Select a Vuetify combobox / autocomplete option from its overlay. */
 async function selectCombobox(page: Page, field: Locator, option: string) {
-  await field.click()
-  await page.getByRole("option", { name: option }).click()
+  const input = field.and(page.locator("input"))
+  const menuId = await input.getAttribute("aria-controls")
+  await input.press("ArrowDown")
+  if (!menuId) {
+    throw new Error("The combobox did not identify its option menu.")
+  }
+  await page.locator(`[id="${menuId}"]`).getByRole("option", { name: option, exact: true }).click()
+  await input.press("Escape")
 }
 
 async function expectReceiptUploads(page: Page, receiptInputCount: number) {
@@ -59,7 +51,7 @@ async function expectReceiptUploads(page: Page, receiptInputCount: number) {
 }
 
 async function expectActualTripOrigin(page: Page) {
-  await expect(page.getByLabel("From").first()).toHaveValue("Whitehorse (YT)")
+  await expect(page.getByText("Whitehorse (YT)", { exact: true }).first()).toBeVisible()
 }
 
 async function prefilledExpenseReceiptInputCount(page: Page): Promise<number> {
@@ -73,26 +65,83 @@ async function expectGeneralLedgerCoding(page: Page, code: string) {
   await expect(page.getByRole("cell", { name: code })).toBeVisible()
 }
 
+async function createFlightOption(
+  page: Page,
+  legIndex: number,
+  departure: string,
+  arrival: string,
+  date: string
+) {
+  await page.getByRole("button", { name: "Add Flight Segment" }).click()
+  await page.getByLabel("Flight *", { exact: true }).fill(`AC ${123 + legIndex}`)
+  await page.getByLabel("Duration *", { exact: true }).fill("2h 30m")
+  await page.getByLabel("Depart From *", { exact: true }).fill(departure)
+  await page.getByLabel("Departure Date *", { exact: true }).fill(date)
+  await page.getByLabel("Departure Time *", { exact: true }).fill("08:00")
+  await page.getByLabel("Arrive To *", { exact: true }).fill(arrival)
+  await page.getByLabel("Arrival Date *", { exact: true }).fill(date)
+  await page.getByLabel("Arrival Time *", { exact: true }).fill("10:30")
+  await page.getByLabel("Status *", { exact: true }).fill("Confirmed")
+  await page.getByLabel("Class *", { exact: true }).fill("Economy")
+  // The editor debounces draft persistence; selection snapshots the persisted segment.
+  const requestId = new URL(page.url()).pathname.split("/")[2]
+  await page.waitForFunction(
+    ({ requestId, flightNumber }) => {
+      const draft = JSON.parse(
+        sessionStorage.getItem(
+          `travel-desk-travel-request-${requestId}-travel-desk-flight-segments-attributes`
+        ) ?? "[]"
+      ) as { flightNumber: string; class: string }[]
+      return draft.some(
+        (segment) => segment.flightNumber === flightNumber && segment.class === "Economy"
+      )
+    },
+    { requestId, flightNumber: `AC ${123 + legIndex}` }
+  )
+  await page.getByRole("checkbox", { name: "Select All", exact: true }).check()
+  await page.getByRole("button", { name: "Group Selected" }).click()
+  const dialog = page.getByRole("dialog")
+  await dialog.getByLabel("Leg *", { exact: true }).press("ArrowDown")
+  await page.getByRole("option").nth(legIndex).click()
+  await dialog.getByLabel("Cost *", { exact: true }).fill("350")
+  await dialog.getByRole("button", { name: "Create Flight Option" }).click()
+  await expect(dialog).not.toBeVisible()
+}
+
 test.describe("travel authorization wizard", () => {
   test.describe.configure({ mode: "serial" })
   test.use({ preserveDatabase: true })
 
   let accounts: AuthenticatedWorkflowAccounts
   let travelAuthId: string
+  let travelDeskRequestId: string
 
   test.beforeAll(async () => {
-    accounts = authenticatedWorkflowAccountsFromEnvironment()
+    accounts = loadAuthenticatedWorkflowAccounts()
     await cleanEndToEndDatabases()
     await seedAuthenticatedWorkflowData(accounts)
+  })
+
+  test("when authenticated, the traveller sees their travel request list", async ({ browser }) => {
+    // Arrange
+    const context = await browser.newContext({
+      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+    })
+    const page = await context.newPage()
+
+    // Act
+    await page.goto("/my-travel-requests")
+
+    // Assert
+    await expect(page.getByRole("heading", { name: "My Travel Requests" })).toBeVisible()
+    await context.close()
   })
 
   // ---------------------------------------------------------------------------
   // Wizard — Step 1–6: Traveller creates and submits a travel request
   // ---------------------------------------------------------------------------
 
-  test.skip("when a traveller submits a request, it awaits supervisor approval", async ({
-    browser,
-  }) => {
+  test("when a traveller submits a request, it awaits supervisor approval", async ({ browser }) => {
     // Arrange
     // Requires tests/.auth/traveller.json (Auth0 storageState).
     const travellerContext = await browser.newContext({
@@ -116,47 +165,61 @@ test.describe("travel authorization wizard", () => {
     travelAuthId = travelAuthIdMatch[1]
 
     // Step 3 — Trip Purpose
-    await selectCombobox(page, page.getByLabel("Purpose *"), "Conference")
+    await selectCombobox(page, page.getByLabel("Purpose *", { exact: true }), "Conference")
     await page
-      .getByLabel("Name of meeting/conference, mission, trade fair or course *")
+      .getByLabel("Name of meeting/conference, mission, trade fair or course *", { exact: true })
       .fill("Annual Tech Conference 2026")
-    await page.getByLabel("In Territory?").uncheck()
-    await selectCombobox(page, page.getByLabel("Final Destination *"), "Vancouver (BC)")
-    await page.getByLabel("Objectives *").fill("Attend sessions relevant to travel authorization.")
+    await page.getByLabel("In Territory?", { exact: true }).uncheck()
+    await selectCombobox(
+      page,
+      page.getByLabel("Final Destination *", { exact: true }),
+      "Vancouver (BC)"
+    )
+    await page
+      .getByLabel("Objectives *", { exact: true })
+      .fill("Attend sessions relevant to travel authorization.")
     await page.getByRole("button", { name: "Continue" }).click()
 
     // Step 4 — Trip Details (dates must be in the past)
-    await selectCombobox(page, page.getByLabel("From").nth(0), "Whitehorse (YT)")
-    await selectCombobox(page, page.getByLabel("To").nth(0), "Vancouver (BC)")
-    await fillDate(page.getByLabel("Date").nth(0), "2026-06-01")
-    await page.getByLabel("Time (24 hour)").nth(0).fill("08:00")
-    await selectCombobox(page, page.getByLabel("Travel Method").nth(0), "Aircraft")
-    await selectCombobox(page, page.getByLabel("Type of Accommodation"), "Hotel")
+    await selectCombobox(page, page.getByLabel("From", { exact: true }).nth(0), "Whitehorse (YT)")
+    await selectCombobox(page, page.getByLabel("To", { exact: true }).nth(0), "Vancouver (BC)")
+    await fillDate(page.getByLabel("Date", { exact: true }).nth(0), "2026-06-01")
+    await page.getByLabel("Time (24 hour)", { exact: true }).nth(0).fill("08:00")
+    await selectCombobox(page, page.getByLabel("Travel Method", { exact: true }).nth(0), "Aircraft")
+    await selectCombobox(
+      page,
+      page.getByLabel("Type of Accommodation", { exact: true }).first(),
+      "Hotel"
+    )
 
     // Return segment
-    await selectCombobox(page, page.getByLabel("From").nth(1), "Vancouver (BC)")
-    await selectCombobox(page, page.getByLabel("To").nth(1), "Whitehorse (YT)")
-    await fillDate(page.getByLabel("Date").nth(1), "2026-06-04")
-    await page.getByLabel("Time (24 hour)").nth(1).fill("17:00")
-    await selectCombobox(page, page.getByLabel("Travel Method").nth(1), "Aircraft")
+    await selectCombobox(page, page.getByLabel("From", { exact: true }).nth(1), "Vancouver (BC)")
+    await selectCombobox(page, page.getByLabel("To", { exact: true }).nth(1), "Whitehorse (YT)")
+    await fillDate(page.getByLabel("Date", { exact: true }).nth(1), "2026-06-04")
+    await page.getByLabel("Time (24 hour)", { exact: true }).nth(1).fill("17:00")
+    await selectCombobox(page, page.getByLabel("Travel Method", { exact: true }).nth(1), "Aircraft")
 
     await page.getByRole("button", { name: "Continue" }).click()
     await expectToast(page, "Travel request saved.")
+    await expect(page).toHaveURL(/generate-estimate/)
+    await expect(
+      page.getByRole("cell", { name: "Hotel in Vancouver", exact: true }).first()
+    ).toBeVisible()
 
     // Step 5 — Trip Estimates (use defaults or pre-populated rows)
     await page.getByRole("button", { name: "Continue" }).click()
+    await expect(page).toHaveURL(/submit-to-supervisor/)
 
     // Step 6 — Submit to Supervisor
-    await page.getByLabel("Travel Advance").fill("0")
-    const supervisorField = page.getByLabel("Submit to")
-    await supervisorField.fill(accounts.supervisor.email)
+    await page.getByLabel("Travel Advance *", { exact: true }).fill("0")
+    const supervisorField = page.getByLabel("Submit to *", { exact: true })
+    await supervisorField.fill(accounts.admin.email)
     await supervisorField.press("Enter")
     await page.getByRole("button", { name: "Submit to Supervisor" }).click()
     await expectToast(page, "Travel request submitted.")
-    await page.waitForURL(/awaiting-supervisor-approval/)
 
     // Assert
-    expect(travelAuthId).toBeTruthy()
+    await expect(page).toHaveURL(/awaiting-supervisor-approval/)
 
     await travellerContext.close()
   })
@@ -165,7 +228,7 @@ test.describe("travel authorization wizard", () => {
   // Wizard — Step 7: Admin approves the travel request
   // ---------------------------------------------------------------------------
 
-  test.skip("when an admin approves a request, the traveller advances past supervisor approval", async ({
+  test("when an admin approves a request, the traveller advances past supervisor approval", async ({
     browser,
   }) => {
     // Arrange
@@ -174,6 +237,15 @@ test.describe("travel authorization wizard", () => {
       storageState: "end-to-end-tests/tests/.auth/admin.json",
     })
     const adminPage = await adminContext.newPage()
+    const travellerContext = await browser.newContext({
+      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+    })
+    const travellerPage = await travellerContext.newPage()
+
+    await travellerPage.goto(
+      `/my-travel-requests/${travelAuthId}/wizard/awaiting-supervisor-approval`
+    )
+    await expect(travellerPage.getByRole("button", { name: "Check status?" })).toBeVisible()
 
     // Act
 
@@ -186,14 +258,6 @@ test.describe("travel authorization wizard", () => {
     await adminContext.close()
 
     // Traveller checks status
-    const travellerContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/traveller.json",
-    })
-    const travellerPage = await travellerContext.newPage()
-
-    await travellerPage.goto(
-      `/my-travel-requests/${travelAuthId}/wizard/awaiting-supervisor-approval`
-    )
     await travellerPage.getByRole("button", { name: "Check status?" }).click()
     await travellerPage.waitForURL(/edit-traveller-details/)
 
@@ -207,7 +271,7 @@ test.describe("travel authorization wizard", () => {
   // Wizard — Steps 8–9: Traveller details and submit to travel desk
   // ---------------------------------------------------------------------------
 
-  test.skip("when a traveller completes their details, it is submitted to travel desk", async ({
+  test("when a traveller completes their details, it is submitted to travel desk", async ({
     browser,
   }) => {
     // Arrange
@@ -222,19 +286,35 @@ test.describe("travel authorization wizard", () => {
     await page.goto(`/my-travel-requests/${travelAuthId}/wizard/edit-traveller-details`)
 
     // Step 8 — Traveler Details (form is pre-populated from the user's profile)
-    await page.getByLabel("Legal First Name *").fill("Marlen")
-    await page.getByLabel("Legal Last Name *").fill("User")
-    await fillDate(page.getByLabel("Birth Date *"), "1990-05-01")
-    await page.getByLabel("Address *").fill("1234")
-    await selectCombobox(page, page.getByLabel("City *"), "Whitehorse (YT)")
-    await page.getByLabel("Province *").fill("Yukon")
-    await page.getByLabel("Postal Code *").fill("Y1A 2C6")
-    await page.getByLabel("Business Phone *").fill("867-667-0000")
-    await page.getByLabel("Business Email *").fill(accounts.traveller.email)
+    await page.getByLabel("Legal First Name *", { exact: true }).fill("Marlen")
+    await page.getByLabel("Legal Last Name *", { exact: true }).fill("User")
+    await fillDate(page.getByLabel("Birth Date *", { exact: true }), "1990-05-01")
+    await page.getByLabel("Address *", { exact: true }).fill("1234")
+    await selectCombobox(page, page.getByLabel("City *", { exact: true }), "Whitehorse (YT)")
+    await page.getByLabel("Province *", { exact: true }).fill("Yukon")
+    await page.getByLabel("Postal Code *", { exact: true }).fill("Y1A 2C6")
+    await page.getByLabel("Business Phone *", { exact: true }).fill("867-667-0000")
+    await page.getByLabel("Business Email *", { exact: true }).fill(accounts.traveller.email)
     await page.getByRole("button", { name: "Continue" }).click()
+    await expect(page).toHaveURL(/submit-to-travel-desk/)
+    await expect(
+      page.getByRole("heading", { name: "Travel Information", exact: true })
+    ).toBeVisible()
 
     // Step 9 — Submit to Travel Desk
-    await page.getByRole("button", { name: "Submit" }).click()
+    const [submittedRequest] = await Promise.all([
+      page.waitForResponse((response) =>
+        /\/api\/travel-desk-travel-requests\/\d+\/submit$/.test(new URL(response.url()).pathname)
+      ),
+      page.getByRole("button", { name: "Submit", exact: true }).click(),
+    ])
+    const requestIdMatch = submittedRequest
+      .url()
+      .match(/travel-desk-travel-requests\/(\d+)\/submit/)
+    if (!submittedRequest.ok() || !requestIdMatch) {
+      throw new Error("Travel desk submission did not return a successful request.")
+    }
+    travelDeskRequestId = requestIdMatch[1]
 
     // Assert
     await page.waitForURL(/awaiting-flight-options/)
@@ -242,19 +322,80 @@ test.describe("travel authorization wizard", () => {
     await travellerContext.close()
   })
 
+  test("when the traveller ranks flight options, travel desk can complete booking", async ({
+    browser,
+  }) => {
+    // Arrange
+    test.setTimeout(90_000)
+    const adminContext = await browser.newContext({
+      storageState: "end-to-end-tests/tests/.auth/admin.json",
+    })
+    const adminPage = await adminContext.newPage()
+    const travellerContext = await browser.newContext({
+      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+    })
+    const travellerPage = await travellerContext.newPage()
+
+    // Act
+    await adminPage.goto(`/travel-desk/${travelDeskRequestId}/manage-flight-segments`)
+    await createFlightOption(adminPage, 0, "Whitehorse (YT)", "Vancouver (BC)", "2026-06-01")
+    await travellerPage.goto(`/my-travel-requests/${travelAuthId}/wizard/awaiting-flight-options`)
+    await expect(
+      travellerPage.getByRole("button", { name: "Check status?", exact: true })
+    ).toBeVisible()
+    await createFlightOption(adminPage, 1, "Vancouver (BC)", "Whitehorse (YT)", "2026-06-04")
+    await adminPage.goto(`/travel-desk/${travelDeskRequestId}/edit/review-manage-booking`)
+    await adminPage.getByRole("button", { name: "Send to Traveler", exact: true }).click()
+    await expect(adminPage).toHaveURL(/\/travel-desk$/)
+
+    await travellerPage.getByRole("button", { name: "Check status?", exact: true }).click()
+    await expect(travellerPage).toHaveURL(/rank-flight-options/)
+    const preferences = travellerPage.getByLabel("Preference", { exact: true })
+    await expect(preferences).toHaveCount(2)
+    for (let index = 0; index < 2; index++) {
+      await selectCombobox(travellerPage, preferences.nth(index), "1")
+    }
+    await travellerPage.getByRole("button", { name: "Submit Option Rankings", exact: true }).click()
+    await expect(travellerPage).toHaveURL(/awaiting-booking-confirmation/)
+
+    await adminPage.goto(`/travel-desk/${travelDeskRequestId}/edit/trip-information`)
+    await adminPage.getByLabel("Invoice Number *", { exact: true }).fill("E2E-394")
+    await adminPage.getByLabel("PNR Document *", { exact: true }).setInputFiles({
+      name: "booking.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from(
+        "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCAyMDAgMjAwXSA+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDQgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjE4NgolJUVPRgo=",
+        "base64"
+      ),
+    })
+    await adminPage.getByRole("button", { name: "Save Trip Information" }).click()
+    await expectToast(adminPage, "Passenger name record saved successfully")
+    await adminPage.goto(`/travel-desk/${travelDeskRequestId}/edit/review-manage-booking`)
+    await adminPage.getByRole("button", { name: "Booking Complete", exact: true }).click()
+    await adminPage
+      .getByRole("dialog")
+      .getByRole("button", { name: "Confirm", exact: true })
+      .click()
+    await expectToast(adminPage, "Travel request booked.")
+    await travellerPage.getByRole("button", { name: "Check status?", exact: true }).click()
+
+    // Assert
+    await expect(travellerPage).toHaveURL(/confirm-actual-travel-details/)
+    await adminContext.close()
+    await travellerContext.close()
+  })
+
   // ---------------------------------------------------------------------------
   // Wizard — Steps 12–13: Traveller submits expenses
   // ---------------------------------------------------------------------------
 
-  test.skip("when a traveller submits an expense claim, it includes prefill, receipts, and GL coding", async ({
+  test("when a traveller submits an expense claim, it includes prefill, receipts, and GL coding", async ({
     browser,
   }) => {
     // Arrange
     // Requires tests/.auth/traveller.json.
     // Travel dates (2026-06-01 to 2026-06-04) must be in the past.
     // Start from the persistent state created after travel-desk booking.
-    await seedBookedTravelDeskRequest(travelAuthId)
-
     const travellerContext = await browser.newContext({
       storageState: "end-to-end-tests/tests/.auth/traveller.json",
     })
@@ -281,33 +422,29 @@ test.describe("travel authorization wizard", () => {
 
     // Wait for the expense rows to render after the prefill request completes.
     const receiptInputCount = await prefilledExpenseReceiptInputCount(page)
-    await page.evaluate((expectedReceiptInputCount) => {
-      const pngBytes = new Uint8Array([
-        137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 2,
-        0, 0, 0, 144, 119, 83, 222, 0, 0, 0, 12, 73, 68, 65, 84, 8, 215, 99, 248, 15, 0, 0, 1, 1, 0,
-        5, 24, 213, 78, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
-      ])
-      const fileInputs = document.querySelectorAll<HTMLInputElement>("input[type='file'].d-none")
-      if (fileInputs.length !== expectedReceiptInputCount) {
-        throw new Error("Receipt inputs changed while preparing uploads.")
-      }
-
-      for (let index = 0; index < fileInputs.length; index++) {
-        const file = new File([pngBytes], `receipt_${index + 1}.png`, { type: "image/png" })
-        const dataTransfer = new DataTransfer()
-        dataTransfer.items.add(file)
-        fileInputs[index].files = dataTransfer.files
-        fileInputs[index].dispatchEvent(new Event("change", { bubbles: true }))
-      }
-    }, receiptInputCount)
+    const receipt = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVQIHWP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC",
+      "base64"
+    )
+    for (let index = 0; index < receiptInputCount; index++) {
+      const fileChooserPromise = page.waitForEvent("filechooser")
+      await page.getByRole("button", { name: "Add Receipt", exact: true }).first().click()
+      const fileChooser = await fileChooserPromise
+      await fileChooser.setFiles({
+        name: `receipt-${index + 1}.png`,
+        mimeType: "image/png",
+        buffer: receipt,
+      })
+      await expect(page.getByRole("button", { name: "View Receipt" })).toHaveCount(index + 1)
+    }
 
     await expectReceiptUploads(page, receiptInputCount)
 
     // Add a GL coding row
     await page.getByRole("button", { name: "Add Coding" }).click()
     const codingDialog = page.getByRole("dialog")
-    await codingDialog.getByLabel("G/L code").fill("552-503010-0222-0006-09999")
-    await codingDialog.getByLabel("Amount").fill("1")
+    await codingDialog.getByLabel("G/L code", { exact: true }).fill("552-503010-0222-0006-09999")
+    await codingDialog.getByLabel("Amount", { exact: true }).fill("1")
     await codingDialog.getByRole("button", { name: "Save" }).click()
     await expectGeneralLedgerCoding(page, "552-503010-0222-0006-09999")
 
@@ -324,13 +461,11 @@ test.describe("travel authorization wizard", () => {
   // Wizard — Steps 13–15: Supervisor and finance approve the expense claim
   // ---------------------------------------------------------------------------
 
-  test.skip("when finance processes an expense claim, the traveller can review expenses", async ({
+  test("when finance processes an expense claim, the traveller can review expenses", async ({
     browser,
   }) => {
     // Arrange
     // Requires tests/.auth/admin.json and tests/.auth/traveller.json.
-    const apiBaseUrl = process.env["API_BASE_URL"] ?? "http://localhost:3000"
-
     const adminContext = await browser.newContext({
       storageState: "end-to-end-tests/tests/.auth/admin.json",
     })
@@ -338,63 +473,11 @@ test.describe("travel authorization wizard", () => {
 
     // Act
 
-    // Step 13 — Supervisor approves expense claim via API (avoids native window.confirm freeze)
+    // Step 13 — Supervisor approves through the native confirmation.
     await adminPage.goto(`/manage-travel-requests/${travelAuthId}/expense`)
-    await adminPage.evaluate(
-      async ({ apiBaseUrl, travelAuthId }) => {
-        const app = (
-          document.getElementById("app") as HTMLElement & {
-            __vue_app__?: {
-              config: {
-                globalProperties: { $auth0: { getAccessTokenSilently(): Promise<string> } }
-              }
-            }
-          }
-        ).__vue_app__
-        if (!app) throw new Error("Vue app not found")
-        const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
-        const response = await fetch(
-          `${apiBaseUrl}/api/travel-authorizations/${travelAuthId}/approve-expense-claim`,
-          {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-          }
-        )
-        return response.json()
-      },
-      { apiBaseUrl, travelAuthId }
-    )
-
-    // Step 14 — Finance processes expenses
-    await adminPage.goto(`/expense-processing/${travelAuthId}/expense`)
-    await adminPage.evaluate(
-      async ({ apiBaseUrl, travelAuthId }) => {
-        const app = (
-          document.getElementById("app") as HTMLElement & {
-            __vue_app__?: {
-              config: {
-                globalProperties: { $auth0: { getAccessTokenSilently(): Promise<string> } }
-              }
-            }
-          }
-        ).__vue_app__
-        if (!app) throw new Error("Vue app not found")
-        const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
-        const response = await fetch(
-          `${apiBaseUrl}/api/travel-authorizations/${travelAuthId}/expense`,
-          {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-          }
-        )
-        return response.json()
-      },
-      { apiBaseUrl, travelAuthId }
-    )
-
-    await adminContext.close()
-
-    // Traveller checks final status
+    adminPage.once("dialog", (dialog) => dialog.accept())
+    await adminPage.getByRole("button", { name: "Approve", exact: true }).click()
+    await expectToast(adminPage, "Expense claim approved!")
     const travellerContext = await browser.newContext({
       storageState: "end-to-end-tests/tests/.auth/traveller.json",
     })
@@ -403,13 +486,31 @@ test.describe("travel authorization wizard", () => {
     await travellerPage.goto(
       `/my-travel-requests/${travelAuthId}/wizard/awaiting-finance-review-and-processing`
     )
+    await expect(
+      travellerPage.getByRole("button", { name: "Check status?", exact: true })
+    ).toBeVisible()
+
+    // Step 14 — Finance processes expenses through the same user-facing controls.
+    await adminPage.goto(`/expense-processing/${travelAuthId}/expense`)
+    adminPage.once("dialog", (dialog) => dialog.accept())
+    await adminPage.getByRole("button", { name: "Approve", exact: true }).click()
+    await expectToast(adminPage, "Travel authorization expensed!")
+
+    await adminContext.close()
+
+    // Traveller checks final status
     await travellerPage.getByRole("button", { name: "Check status?" }).click()
 
     // Assert
     await travellerPage.waitForURL(/review-expenses/)
 
     // Step 15 — Review Expenses — final state, status is "expensed"
-    await expect(travellerPage.getByRole("heading", { name: "Review Expenses" })).toBeVisible()
+    await expect(
+      travellerPage.getByRole("row", {
+        name: "Transportation Aircraft from Whitehorse to Vancouver 1-June-2026 $350.00 View Receipt",
+        exact: true,
+      })
+    ).toBeVisible()
 
     await travellerContext.close()
   })

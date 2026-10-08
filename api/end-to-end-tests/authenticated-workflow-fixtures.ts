@@ -1,11 +1,10 @@
+import { readFileSync } from "node:fs"
+import path from "node:path"
+
 import db from "@/db/db-client"
 
 export type AuthenticatedWorkflowAccounts = {
   traveller: {
-    email: string
-    auth0Subject: string
-  }
-  supervisor: {
     email: string
     auth0Subject: string
   }
@@ -15,28 +14,9 @@ export type AuthenticatedWorkflowAccounts = {
   }
 }
 
-function requiredEnvironmentVariable(name: string): string {
-  const value = process.env[name]
-  if (!value) throw new Error(`${name} must be configured for authenticated end-to-end tests`)
-
-  return value
-}
-
-export function authenticatedWorkflowAccountsFromEnvironment(): AuthenticatedWorkflowAccounts {
-  return {
-    traveller: {
-      email: requiredEnvironmentVariable("TRAVELLER_EMAIL"),
-      auth0Subject: requiredEnvironmentVariable("TRAVELLER_AUTH0_SUBJECT"),
-    },
-    supervisor: {
-      email: requiredEnvironmentVariable("SUPERVISOR_EMAIL"),
-      auth0Subject: requiredEnvironmentVariable("SUPERVISOR_AUTH0_SUBJECT"),
-    },
-    admin: {
-      email: requiredEnvironmentVariable("ADMIN_EMAIL"),
-      auth0Subject: requiredEnvironmentVariable("ADMIN_AUTH0_SUBJECT"),
-    },
-  }
+export function loadAuthenticatedWorkflowAccounts(): AuthenticatedWorkflowAccounts {
+  const accountsPath = path.join(__dirname, "tests", ".auth", "accounts.json")
+  return JSON.parse(readFileSync(accountsPath, "utf8")) as AuthenticatedWorkflowAccounts
 }
 
 async function createUser(
@@ -45,8 +25,8 @@ async function createUser(
 ): Promise<void> {
   await db.query(
     `
-      INSERT INTO users (sub, email, status, first_name, last_name, roles)
-      VALUES ($1, $2, 'active', 'End-to-End', 'Test User', $3)
+      INSERT INTO users (sub, email, status, first_name, last_name, department, roles)
+      VALUES ($1, $2, 'active', 'End-to-End', 'Test User', 'E2E TEST DEPARTMENT', $3)
     `,
     { bind: [account.auth0Subject, account.email.toLowerCase(), roles] }
   )
@@ -72,43 +52,17 @@ async function seedAutomaticEstimateReferenceData(): Promise<void> {
   `)
 }
 
-export async function seedBookedTravelDeskRequest(travelAuthorizationId: string): Promise<void> {
-  await db.query(
-    `
-      UPDATE travel_desk_travel_requests
-      SET status = $1
-      WHERE travel_authorization_id = $2
-    `,
-    {
-      bind: ["booked", travelAuthorizationId],
-    }
-  )
-  await db.query(
-    `
-      UPDATE travel_authorizations
-      SET wizard_step_name = $1
-      WHERE id = $2
-    `,
-    {
-      bind: ["awaiting-travel-start", travelAuthorizationId],
-    }
-  )
-}
-
 export async function seedAuthenticatedWorkflowData({
   traveller,
-  supervisor,
   admin,
 }: AuthenticatedWorkflowAccounts): Promise<void> {
   await seedAutomaticEstimateReferenceData()
   await db.query("INSERT INTO travel_purposes (purpose) VALUES ($1)", {
     bind: ["Conference"],
   })
-  await db.query(
-    "INSERT INTO locations (city, province) VALUES ($1, $2), ($3, $4)",
-    { bind: ["Whitehorse", "YT", "Vancouver", "BC"] }
-  )
+  await db.query("INSERT INTO locations (city, province) VALUES ($1, $2), ($3, $4)", {
+    bind: ["Whitehorse", "YT", "Vancouver", "BC"],
+  })
   await createUser(traveller, "user")
-  await createUser(supervisor, "user")
   await createUser(admin, "admin,finance_user")
 }
