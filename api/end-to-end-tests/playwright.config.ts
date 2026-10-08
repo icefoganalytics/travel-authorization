@@ -16,7 +16,27 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testMatch: /smoke\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
+    ...(process.env.E2E_AUTHENTICATED === "true"
+      ? [
+          {
+            name: "authentication",
+            testMatch: /auth\.setup\.ts/,
+            use: {
+              ...devices["Desktop Chrome"],
+              screenshot: "off" as const,
+              video: "off" as const,
+            },
+          },
+          {
+            name: "authenticated-chromium",
+            testMatch: /travel-authorization-wizard\.spec\.ts/,
+            dependencies: ["authentication"],
+            use: { ...devices["Desktop Chrome"] },
+          },
+        ]
+      : []),
   ],
 })
