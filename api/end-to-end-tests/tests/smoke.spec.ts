@@ -24,7 +24,9 @@ test("when the sign-in page loads, it renders the Yukon Government heading", asy
   await expect(page.getByRole("heading", { name: "Yukon Government" }).first()).toBeVisible()
 })
 
-test("when the root route loads unauthenticated, it redirects to sign-in or Auth0", async ({ page }) => {
+test("when the root route loads unauthenticated, it redirects to sign-in or Auth0", async ({
+  page,
+}) => {
   // Arrange
   const rootPage = "/"
 
@@ -33,16 +35,4 @@ test("when the root route loads unauthenticated, it redirects to sign-in or Auth
 
   // Assert
   await expect(page).toHaveURL(/\/sign-in(?:[/?#]|$)|:\/\/[^/]*\.auth0\.com(?:[/?#]|$)/)
-})
-
-test.skip("when authenticated, it shows the travel request list", async ({ page }) => {
-  // Arrange
-  // Requires Auth0 test credentials. Implement a storageState auth fixture, then remove this skip.
-  const travelRequestListPage = "/my-travel-requests"
-
-  // Act
-  await page.goto(travelRequestListPage)
-
-  // Assert
-  await expect(page.getByRole("heading", { name: "My Travel Requests" })).toBeVisible()
 })
