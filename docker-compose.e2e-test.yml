@@ -88,6 +88,11 @@ services:
       BASE_URL: http://localhost:8080
       API_BASE_URL: http://api:3000
       CI: "${CI:-}"
+      E2E_AUTHENTICATED: "${E2E_AUTHENTICATED:-false}"
+      TRAVELLER_EMAIL: "${TRAVELLER_EMAIL:-}"
+      TRAVELLER_PASSWORD: "${TRAVELLER_PASSWORD:-}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-}"
     volumes:
       - ./api:/usr/src/api
       - end_to_end_tests_node_modules:/usr/src/api/node_modules
@@ -99,7 +104,13 @@ services:
       dockerfile: end-to-end-tests/Dockerfile
     command: npm run ts-node -- end-to-end-tests/finance-api-stub.ts
     healthcheck:
-      test: ["CMD", "node", "-e", 'fetch("http://localhost:3000/health").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))']
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          'fetch("http://localhost:3000/health").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))',
+        ]
       interval: 2s
       timeout: 2s
       retries: 30
