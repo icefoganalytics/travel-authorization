@@ -8,7 +8,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  local-development-gateway (~> 0.2)
+  local-development-gateway (= 0.2.0)
 
 CHECKSUMS
   local-development-gateway (0.2.0) sha256=bbce62ef48c3e14ff848fdc9bdbecf6e9342ebbdda4adffdc27b9237c9719f70
