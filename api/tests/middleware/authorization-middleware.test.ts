@@ -1,6 +1,7 @@
 import { Response, NextFunction } from "express"
 import { User } from "@/models"
 import { auth0Integration, type Auth0UserInfo } from "@/integrations/auth0-integration"
+import { userFactory } from "@/factories"
 import {
   authorizationMiddleware,
   type AuthorizationRequest,
@@ -13,57 +14,40 @@ vi.mock("@/utils/logger")
 
 describe("api/src/middleware/authorization-middleware.ts", () => {
   describe(".authorizationMiddleware", () => {
-    test.each([
-      [1, "auth0|00001"],
-      [2, "auth0|00002"],
-      [3, "auth0|00003"],
-      [4, "auth0|00004"],
-      [5, "auth0|00005"],
-      [10, "auth0|00006"],
-      [50, "auth0|00007"],
-      [100, "auth0|00008"],
-    ])(
-      "when create %i users, only one user should be created",
-      async (attempts: number, auth0Subject: string) => {
-        // Arrange
-        const userData: Auth0UserInfo = {
-          email: "dupe@test.com",
-          firstName: "dupe",
-          lastName: "UNKNOWN",
-          auth0Subject: auth0Subject,
-        }
-
-        const req: Partial<AuthorizationRequest> = {
-          headers: {
-            authorization: auth0Subject,
-          },
-          auth: { sub: auth0Subject },
-        }
-
-        const res: Partial<Response> = {
-          status: vi.fn().mockReturnThis(),
-          json: vi.fn(),
-        }
-
-        const next: NextFunction = vi.fn()
-
-        vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue(userData)
-
-        const authorizationsRequestPromises = Array.from({ length: attempts }, async () => {
-          await authorizationMiddleware(req as AuthorizationRequest, res as Response, next)
-        })
-
-        // Act
-        await Promise.all(authorizationsRequestPromises)
-
-        // Assert
-        const users = await User.findAll({ where: { sub: auth0Subject } })
-        expect(users.length).toEqual(1)
-        expect(users[0]).toHaveProperty("sub", auth0Subject)
+    test("when concurrent requests create the same user, only one authenticated user persists", async () => {
+      // Arrange
+      const attempts = 100
+      const auth0Subject = "auth0|concurrent-creation"
+      const userData: Auth0UserInfo = {
+        email: "dupe@test.com",
+        firstName: "dupe",
+        lastName: "UNKNOWN",
+        auth0Subject,
       }
-    )
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }
+      const res: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      }
+      const next: NextFunction = vi.fn()
+      vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue(userData)
 
-    test("when a cached user was deleted, it recreates the user", async () => {
+      // Act
+      await Promise.all(
+        Array.from({ length: attempts }, () =>
+          authorizationMiddleware(req as AuthorizationRequest, res as Response, next)
+        )
+      )
+
+      // Assert
+      const users = await User.findAll({ where: { sub: auth0Subject } })
+      expect(users).toEqual([expect.objectContaining({ sub: auth0Subject })])
+    })
+
+    test("when a previously created user was deleted, it recreates the authenticated user", async () => {
       // Arrange
       const auth0Subject = "auth0|deleted-cached-user"
       const userData: Auth0UserInfo = {
@@ -87,11 +71,139 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
       await User.destroy({ where: { sub: auth0Subject } })
 
       // Act
-      await authorizationMiddleware(req as AuthorizationRequest, res as Response, next)
+      const nextRequest: Partial<AuthorizationRequest> = {
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }
+      await authorizationMiddleware(nextRequest as AuthorizationRequest, res as Response, next)
+
+      // Assert
+      expect(nextRequest.user).toEqual(expect.objectContaining({ sub: auth0Subject }))
+    })
+
+    test("when another account reuses a deleted user's ID, concurrent requests retain the original identity", async () => {
+      // Arrange
+      const auth0Subject = "auth0|recycled-user-id"
+      const userData: Auth0UserInfo = {
+        email: "recycled-user-id@test.com",
+        firstName: "Recycled",
+        lastName: "User ID",
+        auth0Subject,
+      }
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }
+      const res: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      }
+      vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue(userData)
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, vi.fn())
+      const user1 = req.user
+      if (user1 === undefined) {
+        throw new Error("Initial request did not authenticate a user.")
+      }
+
+      await User.destroy({ where: { id: user1.id }, force: true })
+      await userFactory.create({
+        id: user1.id,
+        sub: "auth0|replacement-admin",
+        roles: [User.Roles.ADMIN],
+      })
+      const requests: Partial<AuthorizationRequest>[] = Array.from({ length: 20 }, () => ({
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }))
+
+      // Act
+      await Promise.all(
+        requests.map((request) =>
+          authorizationMiddleware(request as AuthorizationRequest, res as Response, vi.fn())
+        )
+      )
 
       // Assert
       const users = await User.findAll({ where: { sub: auth0Subject } })
-      expect(users).toHaveLength(1)
+      expect({
+        persistedUsers: users,
+        attachedUsers: requests.map((request) => request.user),
+      }).toEqual({
+        persistedUsers: [expect.objectContaining({ sub: auth0Subject, roles: [User.Roles.USER] })],
+        attachedUsers: Array.from({ length: requests.length }, () =>
+          expect.objectContaining({ sub: auth0Subject, roles: [User.Roles.USER] })
+        ),
+      })
+    })
+
+    test("when user creation fails, a later request can authenticate after recovery", async () => {
+      // Arrange
+      const auth0Subject = "auth0|retry-creation"
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }
+      let status: number | undefined
+      const res: Partial<Response> = {
+        status: vi.fn((statusCode: number) => {
+          status = statusCode
+          return res as Response
+        }),
+        json: vi.fn(),
+      }
+      const userInfo = vi.spyOn(auth0Integration, "getUserInfo")
+      userInfo.mockRejectedValueOnce(new Error("Auth0 temporarily unavailable"))
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, vi.fn())
+      userInfo.mockResolvedValue({
+        auth0Subject,
+        email: "retry-creation@test.com",
+        firstName: "Retry",
+        lastName: "Creation",
+      })
+
+      // Act
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, vi.fn())
+
+      // Assert
+      expect({ initialStatus: status, authenticatedUser: req.user }).toEqual({
+        initialStatus: 401,
+        authenticatedUser: expect.objectContaining({ sub: auth0Subject }),
+      })
+    })
+
+    test("when Auth0 returns another subject, the request is not authenticated", async () => {
+      // Arrange
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: "different-subject-token" },
+        auth: { sub: "auth0|expected-subject" },
+      }
+      let status: number | undefined
+      let forwarded = false
+      const res: Partial<Response> = {
+        status: vi.fn((statusCode: number) => {
+          status = statusCode
+          return res as Response
+        }),
+        json: vi.fn(),
+      }
+      vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue({
+        auth0Subject: "auth0|unexpected-subject",
+        email: "unexpected-subject@test.com",
+        firstName: "Unexpected",
+        lastName: "Subject",
+      })
+
+      // Act
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, () => {
+        forwarded = true
+      })
+
+      // Assert
+      expect({ status, forwarded, attachedUser: req.user }).toEqual({
+        status: 401,
+        forwarded: false,
+        attachedUser: undefined,
+      })
     })
   })
 })
