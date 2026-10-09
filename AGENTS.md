@@ -71,7 +71,7 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
 
 ### Conventions
 
-- Use `@/` import alias for src directory (both API and web)
+- Use absolute `@/` imports for internal modules (both API and web), never relative module imports
 - Database: snake_case, Models: camelCase (Sequelize handles mapping)
 - Test files mirror source structure: `api/src/services/example.ts` → `api/tests/services/example.test.ts`
 - On Linux, the dev wrapper auto-includes `.linux.yml` override for `host.docker.internal:host-gateway`
@@ -163,7 +163,7 @@ Configure four distinct Auth0 accounts through the eight `E2E_` repository Actio
 Fork pull requests run only credential-free smoke coverage; GitHub does not expose repository secrets.
 
 **Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` from
-`../fixtures` and `expect` from `@playwright/test` so each test cleans both test databases
+`@/end-to-end-tests/fixtures` and `expect` from `@playwright/test` so each test cleans both test databases
 automatically. Use `test()` (not `it()`). Prefer user-visible `page.getByRole()`,
 `page.getByLabel()`, and `page.getByText()` locators over CSS selectors.
 
