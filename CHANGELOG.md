@@ -43,7 +43,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Fixed
 
-- Traveler flight rankings are now visible directly during booking review, including rejected options and their explanations, without expanding flight-request rows.
+- Traveler flight rankings are now visible directly during booking review, including rejected options and their explanations, without expanding flight-request rows. Each leg shows five options per page with independent page navigation.
   Why? To let Travel Desk staff review the traveler's preferences before finalizing a booking.
 
 - Travel request and approvals behavior:
