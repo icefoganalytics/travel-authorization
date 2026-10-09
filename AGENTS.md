@@ -90,6 +90,7 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
 - When using acronyms in prose (commit messages, comments, docs), spell out the full term first at least once per block of text before using the acronym.
 - Number similar entities: `user1`, `user2` for clarity (not `existingUser`, `newUser`)
 - Expanded code style: one thing per line, avoid terse functional chains
+- Use explicit `if`/`else` instead of ternary expressions.
 - Guard clauses with blank line after each
 - Hoist magic numbers to named `const`
 - Error paths: `console.error(...)` before `snack.error(...)`
