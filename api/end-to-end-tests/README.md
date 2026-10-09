@@ -63,6 +63,8 @@ visits auto-imported wizard components.
 
 ## Adding Tests
 
+Wrap every `test()` in a meaningful `test.describe()` suite, grouped by workflow or behavior.
+
 Import `test` and, when needed, `cleanEndToEndDatabases` from `../fixtures`; import `expect` from
 `@playwright/test`. The fixture adds automatic database cleanup around every test. Stateful serial
 workflows can opt out with `test.use({ preserveDatabase: true })`. Reset their databases once in
