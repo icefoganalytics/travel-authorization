@@ -14,7 +14,6 @@ pids
 *.pid
 *.seed
 *.pid.lock
-/tmp/open-in-editor-bridge.*
 
 # Local-only environment files
 
