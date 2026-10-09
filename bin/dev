@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
 
-require "shellwords"
+gem "open-in-editor-bridge", "~> 0.2.0"
+
+require "open_in_editor_bridge"
 require "rdoc"
+require "shellwords"
 
 require_relative "./github_api"
-require_relative "./open-in-editor-bridge"
 require_relative "./pull-request-editor"
 
 class DevHelper
@@ -58,12 +60,23 @@ class DevHelper
   end
 
   def up(*args, **kwargs)
-    OpenInEditorBridge.with_running do
-      compose(*%w[up --remove-orphans --force-recreate], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+    configure_editor_bridge
+    compose_arguments = %w[up --remove-orphans --force-recreate] + args
+
+    if detached_startup?(args)
+      OpenInEditorBridge.call("--ensure-running")
+      succeeded = compose(*compose_arguments, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      OpenInEditorBridge.call("--shutdown") unless succeeded
+      succeeded
+    else
+      OpenInEditorBridge.with_running do
+        compose(*compose_arguments, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      end
     end
   end
 
   def down(*args, **kwargs)
+    configure_editor_bridge
     OpenInEditorBridge.with_running(ensure_running: false) do
       compose(*%w[down --remove-orphans], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
     end
@@ -304,6 +317,18 @@ class DevHelper
   end
 
   private
+
+  def configure_editor_bridge
+    ENV["OPEN_IN_EDITOR_PROJECT_ROOT"] = project_root
+    ENV["OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS"] ||= "0.0.0.0"
+    ENV["OPEN_IN_EDITOR_SESSION_ID"] = OpenInEditorBridge.session_id
+  end
+
+  def detached_startup?(args)
+    args.any? do |argument|
+      %w[-d --detach --detach=true --wait --wait=true].include?(argument)
+    end
+  end
 
   def wait_for_process_with_logging(command)
     system(command)
