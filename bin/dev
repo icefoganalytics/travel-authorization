@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require "digest"
 require "rdoc"
 require "shellwords"
 
@@ -399,8 +400,17 @@ class DevHelper
     configured_hostname = ENV.fetch("GATEWAY_HOSTNAME", "")
     return configured_hostname unless configured_hostname.empty?
 
-    checkout_name = File.basename(project_root).downcase.gsub(/[^a-z0-9]+/, "-")
-    return "travel-authorization.localhost" if checkout_name == "travel-authorization"
+    directory_name = File.basename(project_root)
+    return "travel-authorization.localhost" if directory_name == "travel-authorization"
+
+    checkout_name = directory_name.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-+|-+\z/, "")
+
+    if checkout_name != directory_name || checkout_name.length > 63
+      checkout_digest = Digest::SHA256.hexdigest(directory_name)[0, 12]
+      checkout_prefix = checkout_name[0, 50].sub(/-+\z/, "")
+      checkout_prefix = "worktree" if checkout_prefix.empty?
+      checkout_name = "#{checkout_prefix}-#{checkout_digest}"
+    end
 
     "#{checkout_name}.travel-authorization.localhost"
   end
