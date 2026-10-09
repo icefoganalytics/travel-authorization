@@ -168,7 +168,7 @@ class DevHelper
   end
 
   def test_end_to_end(*args, **kwargs)
-    end_to_end_project_options = %w[--project-name travel-authorization-e2e-test]
+    end_to_end_project_options = %w[--project-name travel-authorization-e2e-test --profile end-to-end-tests]
     end_to_end_kwargs = kwargs.merge(environment: "e2e-test", execution_mode: WAIT_FOR_PROCESS)
     preparation_succeeded = compose(
       *end_to_end_project_options,
@@ -411,14 +411,22 @@ class DevHelper
     pipe_input = kwargs.delete(:pipe_input)
 
     go_to_project_root = "cd #{project_root}"
-    compose_file_args = ["-f docker-compose.#{environment}.yml"]
+    if environment == "e2e-test"
+      compose_file_args = [
+        "-f docker-compose.development.yml",
+        "-f docker-compose.e2e-test.yml",
+      ]
+      linux_override = "docker-compose.development.linux.yml"
+    else
+      compose_file_args = ["-f docker-compose.#{environment}.yml"]
+      linux_override = "docker-compose.#{environment}.linux.yml"
+    end
 
     if environment == "development"
       compose_file_args << "-f docker-compose.development.gateway.yml"
     end
 
     if RUBY_PLATFORM =~ /linux/
-      linux_override = "docker-compose.#{environment}.linux.yml"
       linux_override_path = File.join(project_root, linux_override)
       compose_file_args << "-f #{linux_override}" if File.exist?(linux_override_path)
     end
