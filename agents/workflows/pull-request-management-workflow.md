@@ -25,6 +25,9 @@ auto_execution_mode: 1
 - **End-user relevance:** Only include changes that affect end users in the Implementation section. Internal refactoring (component location changes, import updates) should be excluded unless they impact user experience.
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
+- **Assignee:** Assign every pull request to the authenticated GitHub user who generated it with AI immediately after creation or update.
+- **Labels:** TravelAuth owns the complete pull request label set. Replace it with every existing label that accurately describes its current scope.
+- **Review requests:** Do not request reviewers. The authenticated GitHub user selects and requests reviewers manually.
 - **Testing instructions:** Follow the `testing-instructions-workflow.md` workflow for detailed guidance on writing testing instructions. Never guess UI labels or navigation paths.
 - **No extra sections:** Do not add sections beyond this workflow's PR body structure unless the
   user asks for them. Validation commands belong in the chat handoff, not in a PR body section.
@@ -68,6 +71,12 @@ TODO - add screenshots for UI changes
 EOF
 )"
 ```
+
+### Repository Metadata
+
+Immediately after creating or updating a pull request, follow the
+[shared Repository Metadata procedure](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/pull-request-management-workflow.md#repository-metadata).
+Apply the TravelAuth policies above and use its full-label replacement (`PUT`) path.
 
 ## Process Steps
 
@@ -284,7 +293,7 @@ EOF
 To mark a draft PR as ready for review:
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/NUMBER -X PATCH -f draft=false
+gh pr ready NUMBER --repo {owner}/{repo}
 ```
 
 ### 5. Edit Existing Pull Requests
@@ -364,6 +373,8 @@ EOF
 Before submitting:
 
 - [ ] PR created as draft
+- [ ] Assigned to the authenticated GitHub user
+- [ ] All appropriate existing labels applied
 - [ ] Title follows naming pattern
 - [ ] Context explains the "why"
 - [ ] Implementation lists all changes
