@@ -13,7 +13,7 @@ development tasks.
 bundle install
 ```
 
-The gateway dependency is pinned in [Gemfile](../Gemfile) for reproducible local startup.
+All Ruby development dependencies use full exact version pins in [Gemfile](../Gemfile) for reproducible local startup.
 
 Basic usage:
 
