@@ -36,6 +36,10 @@ The web app is available at the checkout-derived gateway hostname documented in 
 When the full stack boots in Docker, the web service waits for the API `/_status` endpoint before
 starting.
 
+Vite prints `Open Travel Authorization: http://<gateway-hostname>/` when its server starts.
+Compose passes `GATEWAY_HOSTNAME` into the web container so this URL matches the checkout-derived
+hostname or an explicit override, rather than the container-local `localhost:8080` address.
+
 ## Common Commands
 
 Run web commands from the `web/` directory or through the repo-level `dev` wrapper:

@@ -27,6 +27,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
   The gateway overlay includes both databases, and dependency commands preserve their routes.
   Pinned the gateway dependency to the tested version for reproducible local startup.
   Development and locally served production builds use the same Auth0 client.
+  Frontend startup output prints the routed app URL for the active checkout.
   Why? To let multiple worktrees run and test concurrently without competing for ports.
 
 - Standardized the reports page into a clearer layout with separate sections and tabs for tables, graphs, and print views, including a dedicated flight statistics table with server-side pagination and ordering.
