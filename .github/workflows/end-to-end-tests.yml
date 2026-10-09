@@ -25,6 +25,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run end-to-end tests
+        env:
+          E2E_AUTHENTICATED: "true"
+          TRAVELLER_EMAIL: ${{ secrets.E2E_TRAVELLER_EMAIL }}
+          TRAVELLER_PASSWORD: ${{ secrets.E2E_TRAVELLER_PASSWORD }}
+          SUPERVISOR_EMAIL: ${{ secrets.E2E_SUPERVISOR_EMAIL }}
+          SUPERVISOR_PASSWORD: ${{ secrets.E2E_SUPERVISOR_PASSWORD }}
+          TRAVEL_DESK_EMAIL: ${{ secrets.E2E_TRAVEL_DESK_EMAIL }}
+          TRAVEL_DESK_PASSWORD: ${{ secrets.E2E_TRAVEL_DESK_PASSWORD }}
+          FINANCE_EMAIL: ${{ secrets.E2E_FINANCE_EMAIL }}
+          FINANCE_PASSWORD: ${{ secrets.E2E_FINANCE_PASSWORD }}
         run: ./bin/dev test end-to-end-tests
 
       - name: Upload Playwright report
