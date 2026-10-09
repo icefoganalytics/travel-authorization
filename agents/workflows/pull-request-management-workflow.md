@@ -26,7 +26,7 @@ auto_execution_mode: 1
 - **Screenshots:** If frontend files changed, write `TODO` and let the human add screenshots. Only use `N/A - backend changes only` when there are truly no UI changes.
 - **Draft mode:** Always create PRs as drafts first
 - **Assignee:** Assign every pull request to the authenticated GitHub user who generated it with AI immediately after creation or update.
-- **Labels:** Query current repository labels with `--limit 100`, then replace the PR labels with every existing label that accurately describes its scope.
+- **Labels:** TravelAuth owns the complete pull request label set. Replace it with every existing label that accurately describes its current scope.
 - **Review requests:** Do not request reviewers. The authenticated GitHub user selects and requests reviewers manually.
 - **Testing instructions:** Follow the `testing-instructions-workflow.md` workflow for detailed guidance on writing testing instructions. Never guess UI labels or navigation paths.
 - **No extra sections:** Do not add sections beyond this workflow's PR body structure unless the
@@ -72,22 +72,11 @@ EOF
 )"
 ```
 
-```bash
-# Assign the authenticated GitHub user and replace labels with every applicable current label
-assignee="$(gh api user --jq .login)"
-gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
-  -f "assignees[]=$assignee"
-gh label list --repo {owner}/{repo} --limit 100
-applicable_labels=(
-  "<existing-label-1>"
-  "<existing-label-2>"
-)
-label_fields=()
-for label in "${applicable_labels[@]}"; do
-  label_fields+=(-f "labels[]=$label")
-done
-gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT "${label_fields[@]}"
-```
+### Repository Metadata
+
+Immediately after creating or updating a pull request, follow the
+[shared Repository Metadata procedure](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/pull-request-management-workflow.md#repository-metadata).
+Apply the TravelAuth policies above and use its full-label replacement (`PUT`) path.
 
 ## Process Steps
 
@@ -307,30 +296,6 @@ To mark a draft PR as ready for review:
 gh pr ready NUMBER --repo {owner}/{repo}
 ```
 
-### 5.1 Set PR Ownership and Label
-
-Immediately after creating a pull request:
-
-1. Determine the authenticated GitHub user with `gh api user --jq .login`.
-2. Assign that user to the PR.
-3. Run `gh label list --repo {owner}/{repo} --limit 100`.
-4. Replace the PR labels with every existing label that accurately describes the pull request's scope.
-
-```bash
-assignee="$(gh api user --jq .login)"
-gh api repos/{owner}/{repo}/issues/NUMBER/assignees -X POST \
-  -f "assignees[]=$assignee"
-applicable_labels=(
-  "<existing-label-1>"
-  "<existing-label-2>"
-)
-label_fields=()
-for label in "${applicable_labels[@]}"; do
-  label_fields+=(-f "labels[]=$label")
-done
-gh api repos/{owner}/{repo}/issues/NUMBER/labels -X PUT "${label_fields[@]}"
-```
-
 ### 5. Edit Existing Pull Requests
 
 When you need to update an existing PR (add context, fix title, update testing instructions):
@@ -402,11 +367,6 @@ Investigation revealed that the status calculation was not considering condition
 EOF
 )"
 ```
-
-### 6. Refresh PR Ownership and Label
-
-Immediately after updating a pull request, repeat the assignment and label-replacement commands in
-[Section 5.1](#51-set-pr-ownership-and-label) so its owner and labels match the updated scope.
 
 ### 7. Quality Checklist
 
