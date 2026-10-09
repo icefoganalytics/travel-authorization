@@ -13,6 +13,8 @@ development tasks.
 bundle install
 ```
 
+The gateway dependency is pinned in [Gemfile](../Gemfile) for reproducible local startup.
+
 Basic usage:
 
 1. Run it as `./bin/dev ...` from the repo root.

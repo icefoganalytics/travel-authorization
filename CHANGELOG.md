@@ -21,20 +21,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Changed
 
-- Routed local browser and database services through checkout-derived Local Development Gateway
-  hostnames, including matching browser API and cross-origin settings. Development commands reuse
-  the gateway while application and test database connections retain their internal Docker aliases.
-  The gateway overlay includes both databases, and dependency commands preserve their routes.
-  Pinned the gateway dependency to the tested version for reproducible local startup.
-  Development and locally served production builds use the same Auth0 client.
-  Frontend startup prints the routed URL under the gateway and the actual local URL otherwise.
-  Open in Editor uses the published shared bridge with checkout-specific sessions, including after
-  detached or `up --wait` startup, without per-checkout host ports or repository runtime files.
-  Service-creating Compose fallback commands start or reuse the gateway even on a clean Docker
-  installation.
-  Derived worktree hostnames remain valid DNS labels for long or punctuation-heavy names.
-  Compose project names also avoid normalization collisions while preserving valid existing names.
-  Why? To let multiple worktrees run and test concurrently without competing for ports.
+- Developer improvements for running multiple worktrees without port conflicts.
 
 - Standardized the reports page into a clearer layout with separate sections and tabs for tables, graphs, and print views, including a dedicated flight statistics table with server-side pagination and ordering.
   Why? To keep reports responsive as data grows and to make the structure of reports easier to understand.
