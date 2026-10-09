@@ -150,13 +150,13 @@ Tests run against the full application stack in a separate Docker Compose projec
 dev test end-to-end-tests         # starts the test-mode app stack, runs Playwright, then tears down
 ```
 
-This uses `docker-compose.e2e-test.yml` so the application and Playwright runner use test databases,
-not development databases. The test stack communicates through Docker's internal network, does not
-publish host ports, and is removed after the run.
+This overlays `docker-compose.e2e-test.yml` onto the shared development service definitions so the
+application and Playwright runner use test databases, not development databases. The separate test
+stack communicates through Docker's internal network, publishes no host ports, and is removed after the run.
 
 See `api/end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
-integration runs the credential-free smoke project. The complete authenticated wizard is executable
-with `E2E_AUTHENTICATED=true` and real Auth0 sessions; it is not enforced by continuous integration.
+integration requests smoke checks and the authenticated wizard with `E2E_AUTHENTICATED=true`.
+Configure four distinct Auth0 accounts through the eight `E2E_` repository Actions secrets.
 
 **Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` from
 `../fixtures` and `expect` from `@playwright/test` so each test cleans both test databases

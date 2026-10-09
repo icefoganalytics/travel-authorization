@@ -10,7 +10,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Added
 
-- Isolated Playwright smoke checks and opt-in, real-account coverage of the travel authorization, flight booking, and expense approval journey.
+- Isolated Playwright smoke checks and role-separated, real-account coverage of the travel authorization, flight booking, and expense approval journey.
   Why? To reduce repeated release QA while keeping test cleanup separate from development data.
 
 - Flight statistics reporting feature that introduces a new flight statistics data model and synchronization process, including a background job with progress and failure tracking.
