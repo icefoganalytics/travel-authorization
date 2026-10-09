@@ -46,7 +46,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Fixed
 
-- Prevented stale authorization identities after user deletion or numeric ID reuse; concurrent first-login requests now share only in-flight creation.
+- Prevented stale authorization identities after user deletion or numeric ID reuse; concurrent first-login requests now share in-flight creation by verified Auth0 subject, even with different access tokens.
   Why? To keep each request attached to its verified Auth0 subject when users are replaced.
 
 - Travel request and approvals behavior:
