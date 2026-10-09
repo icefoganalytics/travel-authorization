@@ -6,6 +6,17 @@ import { defineConfig } from "vite"
 import vue from "@vitejs/plugin-vue"
 import vuetify from "vite-plugin-vuetify"
 
+const gatewayUrlLogger = {
+  name: "gateway-url-logger",
+  apply: "serve",
+  configureServer(server) {
+    server.httpServer?.once("listening", () => {
+      const hostname = process.env.GATEWAY_HOSTNAME || "travel-authorization.localhost"
+      console.log(`\n  Open Travel Authorization: http://${hostname}/`)
+    })
+  },
+}
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -14,6 +25,7 @@ export default defineConfig({
         labs: true,
       },
     }),
+    gatewayUrlLogger,
   ],
   build: {
     outDir: "./dist",
