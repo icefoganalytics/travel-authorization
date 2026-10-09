@@ -43,7 +43,7 @@ export default defineConfig({
     proxy: {
       // Forward editor-open requests to a host-side bridge so the host editor launches.
       "/__open-in-editor": {
-        target: "http://host.docker.internal:3333",
+        target: `http://host.docker.internal:${process.env.OPEN_IN_EDITOR_BRIDGE_PORT || "3333"}`,
       },
     },
   },

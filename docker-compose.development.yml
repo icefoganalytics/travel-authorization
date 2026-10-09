@@ -4,6 +4,7 @@ x-default-environment: &default-environment
   AUTH0_DOMAIN: "https://dev-0tc6bn14.eu.auth0.com"
   AUTH0_AUDIENCE: testing
   GATEWAY_HOSTNAME: "${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+  OPEN_IN_EDITOR_BRIDGE_PORT: "${OPEN_IN_EDITOR_BRIDGE_PORT:-0}"
   FRONTEND_URL: "http://${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   VITE_API_BASE_URL: "http://api.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   DB_HOST: db
