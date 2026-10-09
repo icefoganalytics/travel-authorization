@@ -66,7 +66,7 @@ TODO - add screenshots for UI changes
 
 1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
-3. Log in to the app at http://localhost:8080.
+3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
 4. <specific step>
 EOF
 )"
@@ -142,7 +142,7 @@ Relates to:
 
 1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
-3. Log in to the app at http://localhost:8080.
+3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
 4. <Specific testing step>
 ```
 
@@ -239,7 +239,7 @@ git diff main...HEAD --name-only | rg '^web/src/(components|pages)/'
 ```markdown
 1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
-3. Log in to the app at http://localhost:8080.
+3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
 ```
 
 **Then add specific steps:**
@@ -360,7 +360,7 @@ Investigation revealed that the status calculation was not considering condition
 
 1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
-3. Log in to the app at http://localhost:8080.
+3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
 4. Navigate to **Travel Authorizations**.
 5. Create a new travel authorization requiring conditional approval.
 6. Submit the request and verify correct status display.
@@ -394,7 +394,7 @@ Keep test command examples centralized:
 - **Tests:** use the canonical commands in `bin/README.md`
 - **Type checking:** `dev api npm run check-types` and `dev web npm run check-types`
 - **App startup:** `dev up`
-- **Login URL:** http://localhost:8080
+- **Login URL:** the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`)
 
 ### Code Quality Standards
 
@@ -440,7 +440,7 @@ Investigation revealed that the status calculation was not considering condition
 
 1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
-3. Log in to the app at http://localhost:8080.
+3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
 4. Navigate to **Travel Authorizations**.
 5. Create a new travel authorization requiring conditional approval.
 6. Submit the request and verify correct status display.
@@ -476,7 +476,7 @@ The current system only supports screen viewing and printing, making it difficul
 
 1. Run the relevant test suite using the canonical commands in `bin/README.md`.
 2. Boot the app via `dev up`.
-3. Log in to the app at http://localhost:8080.
+3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
 4. Navigate to an existing travel authorization.
 5. Click the **Export to PDF** button.
 6. Verify the PDF downloads correctly with all authorization details.
