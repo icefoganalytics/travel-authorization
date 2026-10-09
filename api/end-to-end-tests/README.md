@@ -68,6 +68,11 @@ Wrap every `test()` in a meaningful `test.describe()` suite, grouped by workflow
 Keep each test focused on one outcome and assert the actual result directly. Use separate tests
 instead of combining independent checks into assertion-only objects.
 
+Put reusable browser actions in `support/` and plain Fishery data builders in `factories/`, not
+inside spec files. Encoded upload fixtures live in `data/`; factories decode them once. Keep
+workflow assertions in the specs; support actions own the synchronization needed to perform
+their operation.
+
 Import `test` and, when needed, `cleanEndToEndDatabases` from `../fixtures`; import `expect` from
 `@playwright/test`. The fixture adds automatic database cleanup around every test. Stateful serial
 workflows can opt out with `test.use({ preserveDatabase: true })`. Reset their databases once in
