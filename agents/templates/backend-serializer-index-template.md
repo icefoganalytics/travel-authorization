@@ -1,20 +1,15 @@
 # Backend Serializer Index Template
 
 ## Purpose
+
 Barrel export file for bundling serializer exports from a resource directory.
 
 ## Template
 
 ```typescript
-export {
-  IndexSerializer,
-  type ResourceAsIndex as AsIndex,
-} from "./index-serializer"
+export { IndexSerializer, type ResourceAsIndex as AsIndex } from "./index-serializer"
 
-export {
-  ShowSerializer,
-  type ResourceAsShow as AsShow,
-} from "./show-serializer"
+export { ShowSerializer, type ResourceAsShow as AsShow } from "./show-serializer"
 ```
 
 ## Instructions
@@ -40,10 +35,7 @@ Replace `Resources` with the PascalCase plural form of your resource name (e.g.,
 
 ```typescript
 // api/src/serializers/per-diems/index.ts
-export {
-  IndexSerializer,
-  type PerDiemAsIndex as AsIndex,
-} from "./index-serializer"
+export { IndexSerializer, type PerDiemAsIndex as AsIndex } from "./index-serializer"
 
 // api/src/serializers/index.ts
 export * as PerDiems from "./per-diems"

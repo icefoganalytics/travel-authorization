@@ -43,9 +43,7 @@ export type Resource = {
 /** Keep in sync with api/src/serializers/{resource}/index-serializer.ts */
 export type ResourceAsIndex = Pick<
   Resource,
-  | "id"
-  | "field1"
-  | "field2"
+  "id" | "field1" | "field2"
   // ... all fields to expose in list views
 >
 
@@ -55,12 +53,7 @@ export type ResourceAsShow = Resource & {
 }
 
 /** Kept in sync with api/src/serializers/{resource}/reference-serializer.ts */
-export type ResourceAsReference = Pick<
-  Resource,
-  | "id"
-  | "field1"
-  | "field2"
->
+export type ResourceAsReference = Pick<Resource, "id" | "field1" | "field2">
 
 // If backend has NO serializer, create alias:
 // export type ResourceAsIndex = Resource
@@ -77,11 +70,7 @@ export type ResourcePolicy = Policy
 
 export type ResourceWhereOptions = WhereOptions<
   Resource,
-  | "id"
-  | "foreignKeyId"
-  | "field1"
-  | "field2"
-  | "status"
+  "id" | "foreignKeyId" | "field1" | "field2" | "status"
 >
 
 /** must match model scopes */
@@ -89,10 +78,7 @@ export type ResourceFiltersOptions = FiltersOptions<{
   search: string
 }>
 
-export type ResourceQueryOptions = QueryOptions<
-  ResourceWhereOptions,
-  ResourceFiltersOptions
->
+export type ResourceQueryOptions = QueryOptions<ResourceWhereOptions, ResourceFiltersOptions>
 
 // Step 6: Define API methods with proper serializer return types
 
@@ -144,6 +130,7 @@ export default resourcesApi
 ```
 
 **Type ordering convention:**
+
 1. Enums (legacy constants + TypeScript enums)
 2. Base model type (`Resource`)
 3. `ResourceAsIndex`, `ResourceAsShow`, `ResourceAsReference`
@@ -153,6 +140,7 @@ export default resourcesApi
 7. API methods
 
 **Key patterns:**
+
 - Import base-api types (FiltersOptions, Policy, QueryOptions, WhereOptions)
 - Convert Object.freeze to TypeScript enums with deprecated comments
 - Use Pick<> to define AsIndex/AsShow from backend serializers

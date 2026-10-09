@@ -6,16 +6,13 @@ export async function up(knex: Knex): Promise<void> {
   })
 
   await knex.raw(/* sql */ `
-    UPDATE
-      travel_desk_flight_options
+    UPDATE travel_desk_flight_options
     SET
       traveler_id = travel_authorizations.user_id
     FROM
       travel_authorizations
-    INNER JOIN travel_desk_travel_requests
-      ON travel_authorizations.id = travel_desk_travel_requests.travel_authorization_id
-    INNER JOIN travel_desk_flight_requests
-      ON travel_desk_travel_requests.id = travel_desk_flight_requests.travel_request_id
+      INNER JOIN travel_desk_travel_requests ON travel_authorizations.id = travel_desk_travel_requests.travel_authorization_id
+      INNER JOIN travel_desk_flight_requests ON travel_desk_travel_requests.id = travel_desk_flight_requests.travel_request_id
     WHERE
       travel_desk_flight_options.flight_request_id = travel_desk_flight_requests.id;
   `)

@@ -151,8 +151,8 @@ export class TravelDeskFlightRequest extends Model<
     this.addScope("withoutFlightOptions", () => {
       const flightRequestIdsWithOptionsQuery = sql`
         (
-          SELECT
-            DISTINCT "flight_request_id"
+          SELECT DISTINCT
+            "flight_request_id"
           FROM
             "travel_desk_flight_options"
           WHERE

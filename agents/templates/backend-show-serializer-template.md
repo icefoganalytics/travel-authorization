@@ -10,9 +10,7 @@ import BaseSerializer from "@/serializers/base-serializer"
 
 export type ResourceAsShow = Pick<
   Resource,
-  | "id"
-  | "field1"
-  | "field2"
+  "id" | "field1" | "field2"
   // ... all fields to expose in detail views
 >
 

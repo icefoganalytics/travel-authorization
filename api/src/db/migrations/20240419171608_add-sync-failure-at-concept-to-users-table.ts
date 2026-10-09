@@ -8,7 +8,8 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.raw(/* sql */ `
     UPDATE users
-    SET last_sync_success_at = last_employee_directory_sync_at
+    SET
+      last_sync_success_at = last_employee_directory_sync_at
   `)
 
   await knex.schema.alterTable("users", (table) => {
@@ -23,7 +24,8 @@ export async function down(knex: Knex): Promise<void> {
 
   await knex.raw(/* sql */ `
     UPDATE users
-    SET last_employee_directory_sync_at = last_sync_success_at
+    SET
+      last_employee_directory_sync_at = last_sync_success_at
   `)
 
   await knex.schema.alterTable("users", (table) => {

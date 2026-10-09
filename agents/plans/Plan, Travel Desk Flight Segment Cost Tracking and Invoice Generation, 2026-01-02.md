@@ -1,6 +1,7 @@
 # Plan, Travel Desk Flight Segment Cost Tracking and Invoice Generation, 2026-01-02
 
 Related GitHub issue:
+
 - https://github.com/icefoganalytics/travel-authorization/issues/314
 
 ## Purpose
@@ -33,6 +34,7 @@ implemented on this branch.
   attachment association.
 
 Relevant migration:
+
 - `20260105143528_migrate-pnr-documents-to-attachments-and-add-invoice-number-to-travel-requests.ts`
 
 ### Not Yet Implemented
@@ -61,6 +63,7 @@ invoice line items, or product types.
 `travel_desk_travel_requests` remains the core parent record for this feature.
 
 Relevant existing column:
+
 - `invoice_number` - nullable string added during the PNR migration work
 
 ### New Tables
@@ -69,60 +72,60 @@ Relevant existing column:
 
 Lookup table for invoice item categories.
 
-| Column | Type | Constraints |
-|--------|------|-------------|
-| `id` | serial4 | PK |
-| `name` | varchar(255) | NOT NULL, UNIQUE |
-| `description` | text | nullable |
-| `created_at` | timestamptz | NOT NULL |
-| `updated_at` | timestamptz | NOT NULL |
-| `deleted_at` | timestamptz | nullable |
+| Column        | Type         | Constraints      |
+| ------------- | ------------ | ---------------- |
+| `id`          | serial4      | PK               |
+| `name`        | varchar(255) | NOT NULL, UNIQUE |
+| `description` | text         | nullable         |
+| `created_at`  | timestamptz  | NOT NULL         |
+| `updated_at`  | timestamptz  | NOT NULL         |
+| `deleted_at`  | timestamptz  | nullable         |
 
 #### 2. `travel_desk_invoices`
 
 Invoice header linked to a travel request.
 
-| Column | Type | Constraints |
-|--------|------|-------------|
-| `id` | serial4 | PK |
-| `travel_desk_travel_request_id` | int4 | FK, NOT NULL |
-| `invoice_number` | varchar(255) | nullable |
-| `booking_date` | date | nullable |
-| `invoice_date` | date | nullable |
-| `record_locator` | varchar(255) | nullable |
-| `client_number` | varchar(255) | nullable |
-| `client_name` | varchar(255) | nullable |
-| `department` | varchar(255) | nullable |
-| `iata_number` | varchar(255) | nullable |
-| `booking_agent_name` | varchar(255) | nullable |
-| `ticketing_agent_name` | varchar(255) | nullable |
-| `fares_amount` | decimal(10,2) | nullable |
-| `taxes_amount` | decimal(10,2) | nullable |
-| `penalties_amount` | decimal(10,2) | nullable |
-| `gross_amount` | decimal(10,2) | nullable |
-| `commissions_amount` | decimal(10,2) | nullable |
-| `created_at` | timestamptz | NOT NULL |
-| `updated_at` | timestamptz | NOT NULL |
-| `deleted_at` | timestamptz | nullable |
+| Column                          | Type          | Constraints  |
+| ------------------------------- | ------------- | ------------ |
+| `id`                            | serial4       | PK           |
+| `travel_desk_travel_request_id` | int4          | FK, NOT NULL |
+| `invoice_number`                | varchar(255)  | nullable     |
+| `booking_date`                  | date          | nullable     |
+| `invoice_date`                  | date          | nullable     |
+| `record_locator`                | varchar(255)  | nullable     |
+| `client_number`                 | varchar(255)  | nullable     |
+| `client_name`                   | varchar(255)  | nullable     |
+| `department`                    | varchar(255)  | nullable     |
+| `iata_number`                   | varchar(255)  | nullable     |
+| `booking_agent_name`            | varchar(255)  | nullable     |
+| `ticketing_agent_name`          | varchar(255)  | nullable     |
+| `fares_amount`                  | decimal(10,2) | nullable     |
+| `taxes_amount`                  | decimal(10,2) | nullable     |
+| `penalties_amount`              | decimal(10,2) | nullable     |
+| `gross_amount`                  | decimal(10,2) | nullable     |
+| `commissions_amount`            | decimal(10,2) | nullable     |
+| `created_at`                    | timestamptz   | NOT NULL     |
+| `updated_at`                    | timestamptz   | NOT NULL     |
+| `deleted_at`                    | timestamptz   | nullable     |
 
 #### 3. `travel_desk_invoice_items`
 
 Individual line items on an invoice.
 
-| Column | Type | Constraints |
-|--------|------|-------------|
-| `id` | serial4 | PK |
-| `travel_desk_invoice_id` | int4 | FK, NOT NULL |
-| `travel_desk_product_type_id` | int4 | FK, NOT NULL |
-| `travel_desk_flight_segment_id` | int4 | FK, nullable |
-| `passenger_name` | varchar(255) | nullable |
-| `ticket_number` | varchar(255) | nullable |
-| `description` | varchar(255) | nullable |
-| `gross_amount` | decimal(10,2) | NOT NULL |
-| `sale_type` | varchar(255) | NOT NULL |
-| `created_at` | timestamptz | NOT NULL |
-| `updated_at` | timestamptz | NOT NULL |
-| `deleted_at` | timestamptz | nullable |
+| Column                          | Type          | Constraints  |
+| ------------------------------- | ------------- | ------------ |
+| `id`                            | serial4       | PK           |
+| `travel_desk_invoice_id`        | int4          | FK, NOT NULL |
+| `travel_desk_product_type_id`   | int4          | FK, NOT NULL |
+| `travel_desk_flight_segment_id` | int4          | FK, nullable |
+| `passenger_name`                | varchar(255)  | nullable     |
+| `ticket_number`                 | varchar(255)  | nullable     |
+| `description`                   | varchar(255)  | nullable     |
+| `gross_amount`                  | decimal(10,2) | NOT NULL     |
+| `sale_type`                     | varchar(255)  | NOT NULL     |
+| `created_at`                    | timestamptz   | NOT NULL     |
+| `updated_at`                    | timestamptz   | NOT NULL     |
+| `deleted_at`                    | timestamptz   | nullable     |
 
 ## Proposed Application Work
 

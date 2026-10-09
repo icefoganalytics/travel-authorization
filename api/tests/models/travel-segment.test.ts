@@ -160,7 +160,9 @@ describe("api/src/models/travel-segment.ts", () => {
     test("when the departureOn is null, departureAt is null", () => {
       const travelSegment = travelSegmentFactory.build({ departureOn: null })
 
-      expect(travelSegment.departureAtWithTimeFallback(TravelSegment.FallbackTimes.BEGINNING_OF_DAY)).toBeNull()
+      expect(
+        travelSegment.departureAtWithTimeFallback(TravelSegment.FallbackTimes.BEGINNING_OF_DAY)
+      ).toBeNull()
     })
 
     test("when the departure time is null, time falls back to the beginning of the day", () => {
@@ -169,9 +171,9 @@ describe("api/src/models/travel-segment.ts", () => {
         departureTime: null,
       })
 
-      expect(travelSegment.departureAtWithTimeFallback(TravelSegment.FallbackTimes.BEGINNING_OF_DAY)).toEqual(
-        new Date("2021-01-01T00:00:00")
-      )
+      expect(
+        travelSegment.departureAtWithTimeFallback(TravelSegment.FallbackTimes.BEGINNING_OF_DAY)
+      ).toEqual(new Date("2021-01-01T00:00:00"))
     })
 
     test("when the departure time is null, time falls back to the end of the day", () => {
@@ -180,9 +182,9 @@ describe("api/src/models/travel-segment.ts", () => {
         departureTime: null,
       })
 
-      expect(travelSegment.departureAtWithTimeFallback(TravelSegment.FallbackTimes.END_OF_DAY)).toEqual(
-        new Date("2021-01-01T23:59:59")
-      )
+      expect(
+        travelSegment.departureAtWithTimeFallback(TravelSegment.FallbackTimes.END_OF_DAY)
+      ).toEqual(new Date("2021-01-01T23:59:59"))
     })
   })
 })

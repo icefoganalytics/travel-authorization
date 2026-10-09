@@ -29,7 +29,10 @@ export type TravelDeskRentalCarAsShow = Pick<
 >
 
 export class ShowSerializer extends BaseSerializer<TravelDeskRentalCar> {
-  constructor(protected record: TravelDeskRentalCar, protected currentUser: User) {
+  constructor(
+    protected record: TravelDeskRentalCar,
+    protected currentUser: User
+  ) {
     super(record)
   }
 

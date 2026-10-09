@@ -125,7 +125,11 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["update:modelValue", "update:numberTravelers", "update:isOpenForAnyTraveler"])
+const emit = defineEmits([
+  "update:modelValue",
+  "update:numberTravelers",
+  "update:isOpenForAnyTraveler",
+])
 
 const exactTravelerKnown = ref(true)
 const travelerName = ref(undefined)

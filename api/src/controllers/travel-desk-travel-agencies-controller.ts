@@ -69,7 +69,10 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
       }
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const travelDeskTravelAgency = await CreateService.perform(permittedAttributes, this.currentUser)
+      const travelDeskTravelAgency = await CreateService.perform(
+        permittedAttributes,
+        this.currentUser
+      )
       return this.response.status(201).json({ travelDeskTravelAgency })
     } catch (error) {
       logger.error("Error creating travel desk travel agency" + error)
@@ -136,7 +139,9 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
     return TravelDeskTravelAgency.findByPk(this.params.travelDeskTravelAgencyId)
   }
 
-  private buildPolicy(travelDeskTravelAgency: TravelDeskTravelAgency = TravelDeskTravelAgency.build()) {
+  private buildPolicy(
+    travelDeskTravelAgency: TravelDeskTravelAgency = TravelDeskTravelAgency.build()
+  ) {
     return new TravelDeskTravelAgenciesPolicy(this.currentUser, travelDeskTravelAgency)
   }
 }

@@ -20,7 +20,10 @@ export type TravelDeskOtherTransportationAsIndex = Pick<
 >
 
 export class IndexSerializer extends BaseSerializer<TravelDeskOtherTransportation> {
-  constructor(protected record: TravelDeskOtherTransportation, protected currentUser: User) {
+  constructor(
+    protected record: TravelDeskOtherTransportation,
+    protected currentUser: User
+  ) {
     super(record)
   }
 

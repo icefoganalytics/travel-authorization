@@ -23,14 +23,7 @@ describe("api/src/services/general-ledger-codings/index-service.ts", () => {
         })
 
         // Act
-        const result = await IndexService.perform(
-          {},
-          [],
-          undefined,
-          10,
-          0,
-          user
-        )
+        const result = await IndexService.perform({}, [], undefined, 10, 0, user)
 
         // Assert
         expect(result).toEqual({
@@ -108,14 +101,7 @@ describe("api/src/services/general-ledger-codings/index-service.ts", () => {
         })
 
         // Act
-        const result = await IndexService.perform(
-          {},
-          [],
-          [["id", "ASC"]],
-          1,
-          1,
-          user
-        )
+        const result = await IndexService.perform({}, [], [["id", "ASC"]], 1, 1, user)
 
         // Assert
         expect(result).toEqual({
@@ -138,14 +124,7 @@ describe("api/src/services/general-ledger-codings/index-service.ts", () => {
         })
 
         // Act
-        const result = await IndexService.perform(
-          {},
-          [],
-          undefined,
-          10,
-          0,
-          user
-        )
+        const result = await IndexService.perform({}, [], undefined, 10, 0, user)
 
         // Assert
         expect(result).toEqual({
@@ -182,14 +161,7 @@ describe("api/src/services/general-ledger-codings/index-service.ts", () => {
         })
 
         // Act — otherUser can only see their own records
-        const result = await IndexService.perform(
-          {},
-          [],
-          undefined,
-          10,
-          0,
-          otherUser
-        )
+        const result = await IndexService.perform({}, [], undefined, 10, 0, otherUser)
 
         // Assert
         expect(result).toEqual({

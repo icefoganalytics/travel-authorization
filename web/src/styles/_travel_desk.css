@@ -113,7 +113,7 @@
   z-index: 99;
 }
 
-.questions-column {  
-  height: 76rem;  
+.questions-column {
+  height: 76rem;
   overflow-y: auto;
 }

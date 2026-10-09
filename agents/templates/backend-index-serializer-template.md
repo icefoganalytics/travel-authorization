@@ -9,9 +9,7 @@ import BaseSerializer from "@/serializers/base-serializer"
 
 export type ResourceAsIndex = Pick<
   Resource,
-  | "id"
-  | "field1"
-  | "field2"
+  "id" | "field1" | "field2"
   // ... all fields to expose in list views
 >
 
@@ -61,6 +59,7 @@ return this.response.status(200).json({
 **Important:** When updating a controller to use IndexSerializer, ensure the import order follows the controller import ordering pattern:
 
 Within internal imports for controllers, group by conceptual distance:
+
 - Utilities (logger, config)
 - Models
 - Policies
@@ -69,6 +68,7 @@ Within internal imports for controllers, group by conceptual distance:
 - Controllers
 
 **Correct order:**
+
 ```typescript
 import { isNil } from "lodash"
 
@@ -82,6 +82,8 @@ import BaseController from "@/controllers/base-controller"
 **Important:** No blank lines between internal imports when they're in the same conceptual group (Models, Serializers, Controllers). Blank lines only between different conceptual groups.
 
 **Incorrect order (Controllers before Serializers):**
+
 ```typescript
 import BaseController from "@/controllers/base-controller"
 import { IndexSerializer } from "@/serializers/resources"
+```

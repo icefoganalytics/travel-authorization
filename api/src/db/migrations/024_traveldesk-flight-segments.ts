@@ -1,34 +1,32 @@
-import * as knex from "knex";
+import * as knex from "knex"
 
 exports.up = function (knex: knex.Knex, Promise: any) {
-  return knex.schema
-    .createTable("travelDeskFlightSegment", function (t) {
-      t.increments("flightSegmentID").notNullable().primary();
-      // t.integer("requestID").unsigned().notNullable();
-      // t.foreign("requestID").references("requestID").inTable("travelDeskTravelRequest").onDelete("CASCADE");    
-      
-      t.string("flightNumber")
+  return knex.schema.createTable("travelDeskFlightSegment", function (t) {
+    t.increments("flightSegmentID").notNullable().primary()
+    // t.integer("requestID").unsigned().notNullable();
+    // t.foreign("requestID").references("requestID").inTable("travelDeskTravelRequest").onDelete("CASCADE");
 
-      t.datetime("departDate");
-      t.string("departLocation");
-      t.datetime("arriveDate");
-      t.string("arriveLocation");
+    t.string("flightNumber")
 
-      t.string("duration");
-      t.string("status");
-      t.string("class");
+    t.datetime("departDate")
+    t.string("departLocation")
+    t.datetime("arriveDate")
+    t.string("arriveLocation")
 
-      t.integer("sortOrder").unsigned().notNullable();
+    t.string("duration")
+    t.string("status")
+    t.string("class")
 
-      t.integer("flightOptionID").unsigned().notNullable();
-      t.foreign("flightOptionID").references("flightOptionID").inTable("travelDeskFlightOption").onDelete("CASCADE");    
+    t.integer("sortOrder").unsigned().notNullable()
 
-
-
-    });
-};
+    t.integer("flightOptionID").unsigned().notNullable()
+    t.foreign("flightOptionID")
+      .references("flightOptionID")
+      .inTable("travelDeskFlightOption")
+      .onDelete("CASCADE")
+  })
+}
 
 exports.down = function (knex: knex.Knex, Promise: any) {
-  return knex.schema    
-    .dropTable("travelDeskFlightSegment");
-};
+  return knex.schema.dropTable("travelDeskFlightSegment")
+}

@@ -10,12 +10,14 @@ auto_execution_mode: 1
 **WHY this workflow exists:** JavaScript API files lack type safety, making refactoring risky and IDE support limited. TypeScript conversion provides compile-time type checking, better autocomplete, and documents the API contract.
 
 **WHAT this workflow produces:** A TypeScript API file with:
+
 - Typed model definitions matching backend
 - Enums for status/type constants (with deprecated Object.freeze for backward compatibility)
 - Typed query options (WhereOptions, FiltersOptions, QueryOptions)
 - Properly typed API methods with return types using AsIndex/AsShow pattern
 
 **Decision Rule:** When in doubt about a type, check the backend model first (`api/src/models/{model}.ts`), then backend serializers (`api/src/serializers/{model}/`). The frontend types must match what the backend actually returns.
+
 - **Association rule:** If the frontend response includes related records that are not part of the base model, prefer adding or aligning backend serializers and then mirror those `AsIndex` / `AsShow` shapes in the frontend API file instead of inventing ad hoc nested types locally.
 
 ## Reference Files
@@ -140,6 +142,7 @@ export const TYPES = Object.freeze({
 **Step 1: Check if backend serializers exist**
 
 Look in `api/src/serializers/{resource-name}/`:
+
 - `index-serializer.ts` - for list endpoint
 - `show-serializer.ts` - for get/update endpoints
 
@@ -221,14 +224,14 @@ export type TravelDeskHotel = {
 
 **Type Mapping:**
 
-| Backend Type | Frontend Type |
-|-------------|---------------|
-| `number` / `INTEGER` | `number` |
-| `string` / `STRING` / `TEXT` | `string` |
-| `boolean` / `BOOLEAN` | `boolean` |
-| `Date` / `DATEONLY` / `DATE` | `string` (ISO format) |
-| `null` optional | `T \| null` |
-| Enum | Use the defined enum type |
+| Backend Type                 | Frontend Type             |
+| ---------------------------- | ------------------------- |
+| `number` / `INTEGER`         | `number`                  |
+| `string` / `STRING` / `TEXT` | `string`                  |
+| `boolean` / `BOOLEAN`        | `boolean`                 |
+| `Date` / `DATEONLY` / `DATE` | `string` (ISO format)     |
+| `null` optional              | `T \| null`               |
+| Enum                         | Use the defined enum type |
 
 **Important:** Exclude `deletedAt` from frontend types - it's almost never exposed in API responses and is only used internally for soft deletes.
 
@@ -456,6 +459,7 @@ resourcesApi.list = debounceWithArgsCache(resourcesApi.list, {
 **Reference Files:** `travel-desk-flight-requests-api.ts`, `travel-desk-hotels-api.ts`, `expenses-api.ts`, `per-diems-api.ts`, `flight-reconciliations-api.ts`
 
 **Related Templates:**
+
 - `backend-index-serializer-template.md` - Index serializer template
 - `backend-show-serializer-template.md` - Show serializer template
 - `backend-serializer-index-template.md` - Serializer index file template

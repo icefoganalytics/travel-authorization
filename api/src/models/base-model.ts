@@ -17,7 +17,6 @@ import searchFieldsByTermsFactory from "@/utils/search-fields-by-terms-factory"
 // Type for the static side of BaseModel, including custom static methods
 export type BaseModelConstructor<M extends BaseModelMeta> = typeof BaseModelMeta & ModelStatic<M>
 
-
 // BaseModelMeta only holds static methods so it structurally identical to Model to satisfy TypeScript's override check
 // See api/node_modules/@sequelize/core/lib/model.d.ts -> Model
 abstract class BaseModelMeta<

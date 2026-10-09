@@ -30,8 +30,7 @@ approvals obtained by switching between user accounts.
 - **Session switching required at approval steps:** Auth0 cookies are shared across all tabs in
   the same browser profile. Logging in as admin displaces the traveller session in every tab. At
   each approval step you must sign in as admin, perform the approval, then sign back in as the
-  traveller before clicking **Check status?**. The JS `loginWithRedirect` call (see Steps 7 and
-  13) is the fastest way to switch back without navigating away.
+  traveller before clicking **Check status?**. The JS `loginWithRedirect` call (see Steps 7 and 13) is the fastest way to switch back without navigating away.
 - **Expense prefill exists:** When you reach the Submit Expenses step the app offers to prefill
   expenses from the estimates already created in Step 3. Always use prefill — it saves time.
 - **Coding rows are required before Submit Expenses Continue is enabled:** Add at least one General
@@ -41,10 +40,10 @@ approvals obtained by switching between user accounts.
 
 ## Accounts & URLs
 
-| Role | Env var | Used for |
-|---|---|---|
-| Traveller | `$TRAVELLER_EMAIL` / `$TRAVELLER_PASSWORD` | All wizard steps as the traveller |
-| Admin / Supervisor | `$ADMIN_EMAIL` / `$ADMIN_PASSWORD` | Approvals (Steps 7, 13), Finance review (Step 14) |
+| Role               | Env var                                    | Used for                                          |
+| ------------------ | ------------------------------------------ | ------------------------------------------------- |
+| Traveller          | `$TRAVELLER_EMAIL` / `$TRAVELLER_PASSWORD` | All wizard steps as the traveller                 |
+| Admin / Supervisor | `$ADMIN_EMAIL` / `$ADMIN_PASSWORD`         | Approvals (Steps 7, 13), Finance review (Step 14) |
 
 Credentials are stored in `.envrc` (not committed). Run `direnv allow` after filling them in.
 
@@ -52,12 +51,12 @@ App base URL: `http://localhost:8080`
 
 ### Key admin URLs
 
-| Purpose | URL |
-|---|---|
-| Travel request details + approval | `/manage-travel-requests/:id/details` |
+| Purpose                                  | URL                                   |
+| ---------------------------------------- | ------------------------------------- |
+| Travel request details + approval        | `/manage-travel-requests/:id/details` |
 | Expense claim details + finance approval | `/manage-travel-requests/:id/expense` |
-| Finance expense processing | `/expense-processing/:id/expense` |
-| Travel desk (flight options) | `/travel-desk` |
+| Finance expense processing               | `/expense-processing/:id/expense`     |
+| Travel desk (flight options)             | `/travel-desk`                        |
 
 ---
 
@@ -82,15 +81,15 @@ App base URL: `http://localhost:8080`
 
 Fill in the purpose form:
 
-| Field | Value |
-|---|---|
-| Purpose | `Conference` |
-| Conference name | `Annual Tech Conference 2026` |
-| In Territory? | `No` |
-| Final Destination | `Vancouver (BC)` |
-| Objectives | `Attend conference sessions and meet with program stakeholders.` |
-| Department | *(your department, or leave default)* |
-| Branch | *(leave default)* |
+| Field             | Value                                                            |
+| ----------------- | ---------------------------------------------------------------- |
+| Purpose           | `Conference`                                                     |
+| Conference name   | `Annual Tech Conference 2026`                                    |
+| In Territory?     | `No`                                                             |
+| Final Destination | `Vancouver (BC)`                                                 |
+| Objectives        | `Attend conference sessions and meet with program stakeholders.` |
+| Department        | _(your department, or leave default)_                            |
+| Branch            | _(leave default)_                                                |
 
 Click **Continue**.
 
@@ -104,33 +103,33 @@ Travel type: **Round trip** (default).
 
 ### Depart segment
 
-| Field | Value |
-|---|---|
-| From | `Whitehorse (YT)` |
-| To | `Vancouver (BC)` |
-| Date | First Monday of the current month, e.g. `2026-06-01` |
-| Time | `08:00` |
-| Travel Method | `Aircraft` |
-| Type of Accommodation | `Hotel` |
+| Field                 | Value                                                |
+| --------------------- | ---------------------------------------------------- |
+| From                  | `Whitehorse (YT)`                                    |
+| To                    | `Vancouver (BC)`                                     |
+| Date                  | First Monday of the current month, e.g. `2026-06-01` |
+| Time                  | `08:00`                                              |
+| Travel Method         | `Aircraft`                                           |
+| Type of Accommodation | `Hotel`                                              |
 
 ### Return segment
 
-| Field | Value |
-|---|---|
-| From | `Vancouver (BC)` |
-| To | `Whitehorse (YT)` |
-| Date | 3 days after depart, e.g. `2026-06-04` |
-| Time | `17:00` |
-| Travel Method | `Aircraft` |
+| Field         | Value                                  |
+| ------------- | -------------------------------------- |
+| From          | `Vancouver (BC)`                       |
+| To            | `Whitehorse (YT)`                      |
+| Date          | 3 days after depart, e.g. `2026-06-04` |
+| Time          | `17:00`                                |
+| Travel Method | `Aircraft`                             |
 
 ### Additional trip detail fields in the current UI
 
 After both segment dates are filled, **Travel Days** is calculated automatically. Fill these fields
 before continuing if they are present:
 
-| Field | Value |
-|---|---|
-| Days on non-travel status | `0` |
+| Field                        | Value                                    |
+| ---------------------------- | ---------------------------------------- |
+| Days on non-travel status    | `0`                                      |
 | Expected Date return to work | Day after return date, e.g. `2026-06-05` |
 
 ### How to enter date values (AI note)
@@ -168,11 +167,11 @@ Click **Continue**.
 
 Review the summary. Fill in the Approvals section:
 
-| Field | Value |
-|---|---|
-| Travel Advance | `0` |
-| Pre-approved travel | *(leave blank)* |
-| Submit to | `$ADMIN_EMAIL` |
+| Field               | Value           |
+| ------------------- | --------------- |
+| Travel Advance      | `0`             |
+| Pre-approved travel | _(leave blank)_ |
+| Submit to           | `$ADMIN_EMAIL`  |
 
 The **Submit to** field accepts direct email entry; a dropdown option may not appear when typing the
 full address, but submission can still succeed if the email resolves server-side.
@@ -211,10 +210,10 @@ Sign back in as the traveller. The fastest way without navigating away from the 
 
 ```javascript
 // Run in the browser console on the wizard tab
-const auth0 = document.getElementById('app').__vue_app__.config.globalProperties.$auth0
+const auth0 = document.getElementById("app").__vue_app__.config.globalProperties.$auth0
 auth0.loginWithRedirect({
-  authorizationParams: { prompt: 'login', login_hint: '$TRAVELLER_EMAIL' },
-  appState: { target: '/my-travel-requests/:id/wizard/awaiting-supervisor-approval' }
+  authorizationParams: { prompt: "login", login_hint: "$TRAVELLER_EMAIL" },
+  appState: { target: "/my-travel-requests/:id/wizard/awaiting-supervisor-approval" },
 })
 ```
 
@@ -232,16 +231,16 @@ The form is pre-populated from the user's profile. The header reads "Travel Desk
 Traveler Details". Current URLs may use Canadian spelling in the path:
 `/my-travel-requests/:id/wizard/edit-traveller-details`. Verify and fill in:
 
-| Field | Test value (pre-filled) |
-|---|---|
-| Legal First Name | `Marlen` |
-| Legal Middle Name | *(blank)* |
-| Legal Last Name | `User` |
-| Birth Date | `1990-05-01` |
-| Address | `1234` |
-| City | `Whitehorse (YT)` |
-| Province | `Yukon` |
-| Postal Code | `A1B C2D` |
+| Field             | Test value (pre-filled) |
+| ----------------- | ----------------------- |
+| Legal First Name  | `Marlen`                |
+| Legal Middle Name | _(blank)_               |
+| Legal Last Name   | `User`                  |
+| Birth Date        | `1990-05-01`            |
+| Address           | `1234`                  |
+| City              | `Whitehorse (YT)`       |
+| Province          | `Yukon`                 |
+| Postal Code       | `A1B C2D`               |
 
 Scroll down to fill in the emergency contact fields if required. Click **Continue**.
 
@@ -260,7 +259,7 @@ An admin/travel-desk user must provide flight options. Log in as the admin accou
 (`$ADMIN_EMAIL` / `$ADMIN_PASSWORD`) and navigate to the **Travel Desk** admin panel to add
 flight options, then return to the traveller window and rank them.
 
-*(This step may vary depending on whether the app is in a state where travel desk is active.)*
+_(This step may vary depending on whether the app is in a state where travel desk is active.)_
 
 ---
 
@@ -292,15 +291,19 @@ This step requires:
    the file picker:
 
    ```javascript
-   const pngBytes = new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,2,0,0,0,144,119,83,222,0,0,0,12,73,68,65,84,8,215,99,248,15,0,0,1,1,0,5,24,213,78,0,0,0,0,73,69,78,68,174,66,96,130])
-   const blob = new Blob([pngBytes], { type: 'image/png' })
+   const pngBytes = new Uint8Array([
+     137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 2, 0,
+     0, 0, 144, 119, 83, 222, 0, 0, 0, 12, 73, 68, 65, 84, 8, 215, 99, 248, 15, 0, 0, 1, 1, 0, 5,
+     24, 213, 78, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
+   ])
+   const blob = new Blob([pngBytes], { type: "image/png" })
    const fileInputs = document.querySelectorAll('input[type="file"].d-none')
    for (let i = 0; i < fileInputs.length; i++) {
-     const file = new File([blob], `receipt_${i+1}.png`, { type: 'image/png' })
+     const file = new File([blob], `receipt_${i + 1}.png`, { type: "image/png" })
      const dt = new DataTransfer()
      dt.items.add(file)
      fileInputs[i].files = dt.files
-     fileInputs[i].dispatchEvent(new Event('change', { bubbles: true }))
+     fileInputs[i].dispatchEvent(new Event("change", { bubbles: true }))
    }
    ```
 
@@ -336,13 +339,16 @@ click **Approve** in the Management card, and confirm the native dialog manually
 
 ```javascript
 // Run in the browser console while signed in as admin
-(async () => {
-  const app = document.getElementById('app').__vue_app__
+;(async () => {
+  const app = document.getElementById("app").__vue_app__
   const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
-  const resp = await fetch('http://localhost:3000/api/travel-authorizations/:id/approve-expense-claim', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-  })
+  const resp = await fetch(
+    "http://localhost:3000/api/travel-authorizations/:id/approve-expense-claim",
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    }
+  )
   const body = await resp.json()
   console.log(body.travelAuthorization.status, body.travelAuthorization.wizardStepName)
 })()
@@ -371,13 +377,13 @@ The wizard shows "Awaiting Finance Review And Processing" with a **Check status?
 
 The **Expenses** tab is the full-form finance review page. It contains:
 
-| Section | What the finance user can do |
-|---|---|
-| **Traveler Expenses** | View accommodations & transportation; **View Receipt** links |
-| **Meals and Incidentals** | View M&I rows; **Add Receipt** if not uploaded |
-| **Expense Totals** | Read-only subtotal / travel advance / total claim |
-| **Coding** | Add / edit / delete G/L coding rows |
-| **Finance Management** | **Approve**, **Deny**, **Send Back to Traveler**, **Send Back to Supervisor** |
+| Section                   | What the finance user can do                                                  |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| **Traveler Expenses**     | View accommodations & transportation; **View Receipt** links                  |
+| **Meals and Incidentals** | View M&I rows; **Add Receipt** if not uploaded                                |
+| **Expense Totals**        | Read-only subtotal / travel advance / total claim                             |
+| **Coding**                | Add / edit / delete G/L coding rows                                           |
+| **Finance Management**    | **Approve**, **Deny**, **Send Back to Traveler**, **Send Back to Supervisor** |
 
 #### Approve (mark as expensed)
 
@@ -385,12 +391,12 @@ The **Approve** button calls `POST /api/travel-authorizations/:id/expense` via
 `blockedToTrueConfirm()` (native dialog). Use the API directly to avoid freezing the extension:
 
 ```javascript
-(async () => {
-  const app = document.getElementById('app').__vue_app__
+;(async () => {
+  const app = document.getElementById("app").__vue_app__
   const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
-  const resp = await fetch('http://localhost:3000/api/travel-authorizations/9/expense', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+  const resp = await fetch("http://localhost:3000/api/travel-authorizations/9/expense", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   })
   const body = await resp.json()
   console.log(body.travelAuthorization.status, body.travelAuthorization.wizardStepName)
@@ -457,14 +463,14 @@ repository:
         "/snap/bin/chromium",
         "--isolated",
         "--output-dir",
-        "/tmp/opencode/playwright-mcp-output"
+        "/tmp/opencode/playwright-mcp-output",
       ],
       "enabled": true,
       "env": {
-        "BROWSER": "chromium"
-      }
-    }
-  }
+        "BROWSER": "chromium",
+      },
+    },
+  },
 }
 ```
 
@@ -497,17 +503,17 @@ When converting this workflow to Playwright:
   const adminContext = await browser.newContext()
   const adminPage = await adminContext.newPage()
   // ... log in as admin via Auth0 ...
-  await adminContext.storageState({ path: 'tests/.auth/admin.json' })
+  await adminContext.storageState({ path: "tests/.auth/admin.json" })
   await adminContext.close()
 
   const travellerContext = await browser.newContext()
   // ... log in as traveller ...
-  await travellerContext.storageState({ path: 'tests/.auth/traveller.json' })
+  await travellerContext.storageState({ path: "tests/.auth/traveller.json" })
   await travellerContext.close()
 
   // In each test:
-  const adminCtx = await browser.newContext({ storageState: 'tests/.auth/admin.json' })
-  const travellerCtx = await browser.newContext({ storageState: 'tests/.auth/traveller.json' })
+  const adminCtx = await browser.newContext({ storageState: "tests/.auth/admin.json" })
+  const travellerCtx = await browser.newContext({ storageState: "tests/.auth/traveller.json" })
   ```
 
 - **Date fields:** Use `page.fill('[placeholder="YYYY-MM-DD"]', '2026-06-01')` combined with

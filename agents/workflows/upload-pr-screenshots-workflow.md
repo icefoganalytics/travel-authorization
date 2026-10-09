@@ -77,10 +77,12 @@ Example fallback text to give the user:
 
 Expense Processing dashboard
 http://localhost:8080/expense-processing
+
 <!-- Drag 01-expense-processing-dashboard.png into GitHub and paste the generated <img ...> tag here. -->
 
 Finance review Expenses tab
 http://localhost:8080/expense-processing/11/expense
+
 <!-- Drag 02-finance-review-expenses-tab.png into GitHub and paste the generated <img ...> tag here. -->
 ```
 

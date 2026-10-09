@@ -82,10 +82,7 @@ class TravelDeskFlightOption extends Model<
   // Validators
   @ModelValidator
   flightPreferenceOrderAndAdditionalInformationConsistency() {
-    if (
-      this.flightPreferenceOrder === DOES_NOT_WORK &&
-      isEmpty(this.additionalInformation)
-    ) {
+    if (this.flightPreferenceOrder === DOES_NOT_WORK && isEmpty(this.additionalInformation)) {
       throw new Error(
         "Additional information is required when flight preference order is 'Does not work'"
       )

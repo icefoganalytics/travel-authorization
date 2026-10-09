@@ -5,10 +5,7 @@ export class DestroyService extends BaseService {
   private generalLedgerCoding: GeneralLedgerCoding
   private currentUser: User
 
-  constructor(
-    generalLedgerCoding: GeneralLedgerCoding,
-    currentUser: User
-  ) {
+  constructor(generalLedgerCoding: GeneralLedgerCoding, currentUser: User) {
     super()
     this.generalLedgerCoding = generalLedgerCoding
     this.currentUser = currentUser
