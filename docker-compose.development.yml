@@ -95,6 +95,59 @@ services:
     volumes:
       - ./web:/usr/src/web
 
+  end_to_end_tests:
+    image: travel-authorization-e2e-tests
+    build:
+      context: ./api
+      dockerfile: end-to-end-tests/Dockerfile
+    user: "${HOST_USER_ID:-0}:${HOST_GROUP_ID:-0}"
+    network_mode: service:web
+    shm_size: 1gb
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      <<: *default-environment
+      NODE_ENV: test
+      DB_NAME: travel_test
+      TRAVCOM_DB_NAME: trav_com_test
+      DEFAULT_LOG_LEVEL: "warn"
+      BASE_URL: http://localhost:8080
+      API_BASE_URL: http://api:3000
+      CI: "${CI:-}"
+      E2E_AUTHENTICATED: "${E2E_AUTHENTICATED:-false}"
+      TRAVELLER_EMAIL: "${TRAVELLER_EMAIL:-}"
+      TRAVELLER_PASSWORD: "${TRAVELLER_PASSWORD:-}"
+      SUPERVISOR_EMAIL: "${SUPERVISOR_EMAIL:-}"
+      SUPERVISOR_PASSWORD: "${SUPERVISOR_PASSWORD:-}"
+      TRAVEL_DESK_EMAIL: "${TRAVEL_DESK_EMAIL:-}"
+      TRAVEL_DESK_PASSWORD: "${TRAVEL_DESK_PASSWORD:-}"
+      FINANCE_EMAIL: "${FINANCE_EMAIL:-}"
+      FINANCE_PASSWORD: "${FINANCE_PASSWORD:-}"
+    volumes:
+      - ./api:/usr/src/api
+      - end_to_end_tests_node_modules:/usr/src/api/node_modules
+      - ./.gitignore:/usr/src/.gitignore:ro
+    profiles:
+      - end-to-end-tests
+
+  finance_api_stub:
+    image: travel-authorization-e2e-tests
+    command: npm run ts-node -- end-to-end-tests/finance-api-stub.ts
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          'fetch("http://localhost:3000/health").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    profiles:
+      - end-to-end-tests
+
   api_wait:
     image: node:20.19.0-alpine3.21
     depends_on:
@@ -141,3 +194,4 @@ services:
 volumes:
   db_data:
   db_trav_com_data:
+  end_to_end_tests_node_modules:
