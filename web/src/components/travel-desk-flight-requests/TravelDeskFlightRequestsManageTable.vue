@@ -15,6 +15,7 @@
           :where="{
             flightRequestId: item.id,
           }"
+          :route-query-suffix="`FlightOptions${item.id}`"
         />
       </td>
     </template>
