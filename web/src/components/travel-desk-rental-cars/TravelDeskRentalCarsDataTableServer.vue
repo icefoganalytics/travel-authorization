@@ -39,7 +39,6 @@
     <template #item.dropOffDate="{ value }">
       {{ formatDate(value) }}
     </template>
-
   </v-data-table-server>
 </template>
 

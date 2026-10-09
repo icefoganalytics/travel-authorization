@@ -119,11 +119,15 @@ export class StateFlagsSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private isExpenseClaimTravellerChangesRequested() {
-    return this.record.status === TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED
+    return (
+      this.record.status === TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED
+    )
   }
 
   private isExpenseClaimSupervisorChangesRequested() {
-    return this.record.status === TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED
+    return (
+      this.record.status === TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED
+    )
   }
 
   private isExpenseClaimDenied() {

@@ -16,8 +16,8 @@ export function dbToForm(dbForm: any) {
     summary: dbForm.summary,
     supervisorEmail: dbForm.supervisoremail,
     status: dbForm.status,
-    stops: [{}]
-  };
+    stops: [{}],
+  }
   for (let stop of dbForm.stops) {
     webForm.stops.push({
       travelFrom: stop.travelfrom,
@@ -25,17 +25,17 @@ export function dbToForm(dbForm: any) {
       departureTime: stop.departuretime,
       departureDate: stop.departuredate,
       transport: stop.transport,
-      estimate: stop.estimate
-    });
+      estimate: stop.estimate,
+    })
   }
-  return webForm;
+  return webForm
 }
 
 export function formToDb(webForm: any) {
   let dbForm = {
     general: {},
-    stops: [{}]
-  };
+    stops: [{}],
+  }
   dbForm.general = {
     firstname: webForm.firstName,
     lastname: webForm.lastName,
@@ -53,8 +53,8 @@ export function formToDb(webForm: any) {
     eventname: webForm.eventName,
     summary: webForm.summary,
     supervisoremail: webForm.supervisorEmail,
-    status: webForm.status
-  };
+    status: webForm.status,
+  }
   for (let stop of webForm.stops) {
     dbForm.stops.push({
       travelFrom: stop.travelfrom,
@@ -62,8 +62,8 @@ export function formToDb(webForm: any) {
       departureTime: stop.departuretime,
       departureDate: stop.departuredate,
       transport: stop.transport,
-      estimate: stop.estimate
-    });
+      estimate: stop.estimate,
+    })
   }
-  return dbForm;
+  return dbForm
 }

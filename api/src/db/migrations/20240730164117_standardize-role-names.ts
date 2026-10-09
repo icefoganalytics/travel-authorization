@@ -2,8 +2,7 @@ import { Knex } from "knex"
 
 export async function up(knex: Knex): Promise<void> {
   await knex.raw(/* sql */ `
-    UPDATE
-      roles
+    UPDATE roles
     SET
       "name" = CASE "name"
         WHEN 'pat_admin' THEN 'pre_approved_travel_admin'
@@ -15,8 +14,7 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   await knex.raw(/* sql */ `
-    UPDATE
-      roles
+    UPDATE roles
     SET
       "name" = CASE "name"
         WHEN 'pre_approved_travel_admin' THEN 'pat_admin'

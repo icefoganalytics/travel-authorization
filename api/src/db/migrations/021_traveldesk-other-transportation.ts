@@ -1,30 +1,30 @@
-import * as knex from "knex";
+import * as knex from "knex"
 
 exports.up = function (knex: knex.Knex, Promise: any) {
-  return knex.schema
-    .createTable("travelDeskOtherTransportation", function (t) {
-      t.increments("transportationID").notNullable().primary();
-      t.integer("requestID").unsigned().notNullable();
-      t.foreign("requestID").references("requestID").inTable("travelDeskTravelRequest").onDelete("CASCADE");    
-            
-      t.string("depart").notNullable(); 
-      t.string("arrive").notNullable();  
-      
-      t.string("transportationType");
+  return knex.schema.createTable("travelDeskOtherTransportation", function (t) {
+    t.increments("transportationID").notNullable().primary()
+    t.integer("requestID").unsigned().notNullable()
+    t.foreign("requestID")
+      .references("requestID")
+      .inTable("travelDeskTravelRequest")
+      .onDelete("CASCADE")
 
-      t.date("date").notNullable();
+    t.string("depart").notNullable()
+    t.string("arrive").notNullable()
 
-      t.string("additionalNotes");
+    t.string("transportationType")
 
-      t.string("status").notNullable();
+    t.date("date").notNullable()
 
-      t.string("reservedTranspInfo");
-      t.string("booking");
+    t.string("additionalNotes")
 
-    });
-};
+    t.string("status").notNullable()
+
+    t.string("reservedTranspInfo")
+    t.string("booking")
+  })
+}
 
 exports.down = function (knex: knex.Knex, Promise: any) {
-  return knex.schema    
-    .dropTable("travelDeskOtherTransportation");
-};
+  return knex.schema.dropTable("travelDeskOtherTransportation")
+}

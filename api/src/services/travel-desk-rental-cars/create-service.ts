@@ -7,7 +7,10 @@ import BaseService from "@/services/base-service"
 type Attributes = Partial<TravelDeskRentalCar>
 
 export class CreateService extends BaseService {
-  constructor(protected attributes: Attributes, protected currentUser: User) {
+  constructor(
+    protected attributes: Attributes,
+    protected currentUser: User
+  ) {
     super()
   }
 

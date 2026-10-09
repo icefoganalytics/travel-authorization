@@ -63,7 +63,11 @@ export class BulkReplaceService extends BaseService {
     TravelSegmentAttributes,
     "travelAuthorizationId" | "segmentNumber" | "modeOfTransport"
   >[] {
-    for (const { travelAuthorizationId, segmentNumber, modeOfTransport } of travelSegmentsAttributes) {
+    for (const {
+      travelAuthorizationId,
+      segmentNumber,
+      modeOfTransport,
+    } of travelSegmentsAttributes) {
       if (isNil(travelAuthorizationId)) {
         throw new Error("Travel authorization ID is required.")
       }

@@ -83,7 +83,10 @@ export class TravelAllowancesController extends BaseController<TravelAllowance> 
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelAllowance = ShowSerializer.perform(updatedTravelAllowance, this.currentUser)
+      const serializedTravelAllowance = ShowSerializer.perform(
+        updatedTravelAllowance,
+        this.currentUser
+      )
       return this.response.status(200).json({
         travelAllowance: serializedTravelAllowance,
         policy,

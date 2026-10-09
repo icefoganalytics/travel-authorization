@@ -1,12 +1,12 @@
 namespace Express {
   export interface Request {
-    user?: any;
-    store?: any;
-    oidc?: any;
+    user?: any
+    store?: any
+    oidc?: any
 
-    isAuthenticated(): boolean;
+    isAuthenticated(): boolean
 
     // express-fileupload
-    files?: Record<string, any>;
+    files?: Record<string, any>
   }
 }

@@ -9,7 +9,12 @@ export async function up(knex: Knex): Promise<void> {
 export async function down(knex: Knex): Promise<void> {
   await knex.raw(/* sql */ `
     UPDATE travel_authorizations
-    SET benefits = SUBSTRING(benefits FROM 1 FOR 255)
+    SET
+      benefits = SUBSTRING(
+        benefits
+        FROM
+          1 FOR 255
+      )
   `)
 
   await knex.schema.alterTable("travel_authorizations", (table) => {

@@ -46,15 +46,13 @@ import { Knex } from "knex"
 
 export async function up(knex: Knex): Promise<void> {
   await knex.raw(/* sql */ `
-    UPDATE
-      travel_authorizations
+    UPDATE travel_authorizations
     SET
       wizard_step_name = CASE
       -- Draft States
-      WHEN travel_authorizations.status = 'draft'
-        AND travel_authorizations.purpose_id IS NULL THEN
-        'edit-purpose-details'
-      WHEN travel_authorizations.status = 'draft'
+        WHEN travel_authorizations.status = 'draft'
+        AND travel_authorizations.purpose_id IS NULL THEN 'edit-purpose-details'
+        WHEN travel_authorizations.status = 'draft'
         AND travel_authorizations.purpose_id IS NOT NULL
         AND NOT EXISTS (
           SELECT
@@ -62,16 +60,17 @@ export async function up(knex: Knex): Promise<void> {
           FROM
             travel_segments
           WHERE
-            travel_segments.travel_authorization_id = travel_authorizations.id) THEN
-        'edit-trip-details'
-      WHEN travel_authorizations.status = 'draft'
+            travel_segments.travel_authorization_id = travel_authorizations.id
+        ) THEN 'edit-trip-details'
+        WHEN travel_authorizations.status = 'draft'
         AND EXISTS (
           SELECT
             1
           FROM
             travel_segments
           WHERE
-            travel_segments.travel_authorization_id = travel_authorizations.id)
+            travel_segments.travel_authorization_id = travel_authorizations.id
+        )
         AND NOT EXISTS (
           SELECT
             1
@@ -79,9 +78,9 @@ export async function up(knex: Knex): Promise<void> {
             expenses
           WHERE
             expenses.travel_authorization_id = travel_authorizations.id
-            AND expenses.type = 'Estimate') THEN
-        'generate-estimate'
-      WHEN travel_authorizations.status = 'draft'
+            AND expenses.type = 'Estimate'
+        ) THEN 'generate-estimate'
+        WHEN travel_authorizations.status = 'draft'
         AND EXISTS (
           SELECT
             1
@@ -89,27 +88,24 @@ export async function up(knex: Knex): Promise<void> {
             expenses
           WHERE
             expenses.travel_authorization_id = travel_authorizations.id
-            AND expenses.type = 'Estimate') THEN
-        'submit-to-supervisor'
+            AND expenses.type = 'Estimate'
+        ) THEN 'submit-to-supervisor'
         -- Supervisor Review
-      WHEN travel_authorizations.status IN ('submitted' , 'awaiting_director_approval') THEN
-        'awaiting-supervisor-approval'
-      WHEN travel_authorizations.status = 'change_requested' THEN
-        'edit-purpose-details'
-      WHEN travel_authorizations.status = 'denied' THEN
-        'review-trip-details'
+        WHEN travel_authorizations.status IN ('submitted', 'awaiting_director_approval') THEN 'awaiting-supervisor-approval'
+        WHEN travel_authorizations.status = 'change_requested' THEN 'edit-purpose-details'
+        WHEN travel_authorizations.status = 'denied' THEN 'review-trip-details'
         -- Approved but No Travel Desk Request
-      WHEN travel_authorizations.status = 'approved'
+        WHEN travel_authorizations.status = 'approved'
         AND NOT EXISTS (
           SELECT
             1
           FROM
             travel_desk_travel_requests
           WHERE
-            travel_desk_travel_requests.travel_authorization_id = travel_authorizations.id) THEN
-        'edit-traveller-details'
+            travel_desk_travel_requests.travel_authorization_id = travel_authorizations.id
+        ) THEN 'edit-traveller-details'
         -- Approved but Travel Desk Request not submitted
-      WHEN travel_authorizations.status = 'approved'
+        WHEN travel_authorizations.status = 'approved'
         AND EXISTS (
           SELECT
             1
@@ -117,10 +113,10 @@ export async function up(knex: Knex): Promise<void> {
             travel_desk_travel_requests
           WHERE
             travel_desk_travel_requests.travel_authorization_id = travel_authorizations.id
-            AND travel_desk_travel_requests.status = 'draft') THEN
-        'submit-to-travel-desk'
+            AND travel_desk_travel_requests.status = 'draft'
+        ) THEN 'submit-to-travel-desk'
         -- Submitted to Travel Desk (Awaiting Flight Options)
-      WHEN travel_authorizations.status = 'approved'
+        WHEN travel_authorizations.status = 'approved'
         AND EXISTS (
           SELECT
             1
@@ -128,10 +124,10 @@ export async function up(knex: Knex): Promise<void> {
             travel_desk_travel_requests
           WHERE
             travel_desk_travel_requests.travel_authorization_id = travel_authorizations.id
-            AND travel_desk_travel_requests.status = 'submitted') THEN
-        'awaiting-flight-options'
+            AND travel_desk_travel_requests.status = 'submitted'
+        ) THEN 'awaiting-flight-options'
         -- Flight Options Provided but Not Ranked
-      WHEN travel_authorizations.status = 'approved'
+        WHEN travel_authorizations.status = 'approved'
         AND EXISTS (
           SELECT
             1
@@ -139,10 +135,10 @@ export async function up(knex: Knex): Promise<void> {
             travel_desk_travel_requests
           WHERE
             travel_desk_travel_requests.travel_authorization_id = travel_authorizations.id
-            AND travel_desk_travel_requests.status = 'options_provided') THEN
-        'rank-flight-options'
+            AND travel_desk_travel_requests.status = 'options_provided'
+        ) THEN 'rank-flight-options'
         -- Flight Options Ranked but Not Booked
-      WHEN travel_authorizations.status = 'approved'
+        WHEN travel_authorizations.status = 'approved'
         AND EXISTS (
           SELECT
             1
@@ -150,25 +146,18 @@ export async function up(knex: Knex): Promise<void> {
             travel_desk_travel_requests
           WHERE
             travel_desk_travel_requests.travel_authorization_id = travel_authorizations.id
-            AND travel_desk_travel_requests.status = 'options_ranked') THEN
-        'awaiting-booking-confirmation'
+            AND travel_desk_travel_requests.status = 'options_ranked'
+        ) THEN 'awaiting-booking-confirmation'
         -- Catch-all for Approved Travel
-      WHEN travel_authorizations.status = 'approved' THEN
-        'review-trip-details'
+        WHEN travel_authorizations.status = 'approved' THEN 'review-trip-details'
         -- Travel Booked
-      WHEN travel_authorizations.status = 'booked' THEN
-        'awaiting-travel-start'
+        WHEN travel_authorizations.status = 'booked' THEN 'awaiting-travel-start'
         -- Expense Submission
-      WHEN travel_authorizations.status = 'expensed' THEN
-        'submit-expenses'
-      WHEN travel_authorizations.status = 'expense_claim_submitted' THEN
-        'review-expenses'
-      WHEN travel_authorizations.status = 'expense_claim_approved' THEN
-        'review-expenses'
-      WHEN travel_authorizations.status = 'expense_claim_denied' THEN
-        'submit-expenses'
-      ELSE
-        'UNKNOWN'
+        WHEN travel_authorizations.status = 'expensed' THEN 'submit-expenses'
+        WHEN travel_authorizations.status = 'expense_claim_submitted' THEN 'review-expenses'
+        WHEN travel_authorizations.status = 'expense_claim_approved' THEN 'review-expenses'
+        WHEN travel_authorizations.status = 'expense_claim_denied' THEN 'submit-expenses'
+        ELSE 'UNKNOWN'
       END
   `)
 }

@@ -2,8 +2,7 @@ import { Knex } from "knex"
 
 export async function up(knex: Knex): Promise<void> {
   await knex.raw(/* sql */ `
-    UPDATE
-      travel_desk_questions
+    UPDATE travel_desk_questions
     SET
       request_type = CASE request_type
         WHEN 'Flight' THEN 'flight'
@@ -17,8 +16,7 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   await knex.raw(/* sql */ `
-    UPDATE
-      travel_desk_questions
+    UPDATE travel_desk_questions
     SET
       request_type = CASE request_type
         WHEN 'flight' THEN 'Flight'

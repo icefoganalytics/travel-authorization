@@ -5,12 +5,7 @@ import {
   Model,
   type CreationOptional,
 } from "@sequelize/core"
-import {
-  Attribute,
-  AutoIncrement,
-  PrimaryKey,
-  Table,
-} from "@sequelize/core/decorators-legacy"
+import { Attribute, AutoIncrement, PrimaryKey, Table } from "@sequelize/core/decorators-legacy"
 
 @Table({
   tableName: "distanceMatrix",

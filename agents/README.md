@@ -60,6 +60,7 @@ process (workflows) or output (templates) — they are pure "know this" content 
 gets wrong or doesn't know at all.
 
 Examples:
+
 - A tool that renamed itself after the model's training cut-off.
 - A project-specific convention that varies from the default.
 - A lookup pattern (e.g., "how to find a GitHub issue number by topic").

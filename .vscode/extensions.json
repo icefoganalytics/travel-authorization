@@ -10,7 +10,7 @@
     "jebbs.plantuml",
     "qwtel.sqlite-viewer",
     "thebearingedge.vscode-sql-lit",
-    "vue.volar",
+    "vue.volar"
   ],
   // List of extensions recommended by VS Code that should not be recommended for users of this workspace.
   "unwantedRecommendations": []

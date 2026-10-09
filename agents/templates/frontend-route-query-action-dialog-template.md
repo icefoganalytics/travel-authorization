@@ -157,8 +157,8 @@ defineExpose({
 
 ## When to use this over the create or edit templates
 
-| Template | Use case | Route query type | Record load |
-|---|---|---|---|
-| create template | Creating a new record on a parent | boolean | No |
-| edit template | Editing an existing record | integer | Yes (composable) |
-| **action template** | Performing an action on a record | integer | No |
+| Template            | Use case                          | Route query type | Record load      |
+| ------------------- | --------------------------------- | ---------------- | ---------------- |
+| create template     | Creating a new record on a parent | boolean          | No               |
+| edit template       | Editing an existing record        | integer          | Yes (composable) |
+| **action template** | Performing an action on a record  | integer          | No               |

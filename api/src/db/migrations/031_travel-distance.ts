@@ -1,14 +1,14 @@
-import * as knex from "knex";
+import * as knex from "knex"
 
 export const up = function (knex: knex.Knex, Promise: any) {
   return knex.schema.createTable("distanceMatrix", function (t) {
-    t.increments("id").notNullable().primary();
-    t.string("origin");
-    t.string("destination");
-    t.float("kilometers");
-  });
-};
+    t.increments("id").notNullable().primary()
+    t.string("origin")
+    t.string("destination")
+    t.float("kilometers")
+  })
+}
 
 export const down = function (knex: knex.Knex, Promise: any) {
-  return knex.schema.dropTable("distanceMatrix");
-};
+  return knex.schema.dropTable("distanceMatrix")
+}

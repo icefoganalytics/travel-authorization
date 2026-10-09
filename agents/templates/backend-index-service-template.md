@@ -69,21 +69,17 @@ export class IndexService extends BaseService {
     scopedModel: ModelStatic<Model>,
     where: WhereOptions<Attributes<Model>>
   ): Promise<number> {
-    const totalField = await scopedModel.aggregate<number | null, Model>(
-      "fieldName",
-      "SUM",
-      {
-        where,
-        // Query enhancers
-        plain: true,
-        // @ts-expect-error Not in AggregateOptions type but supported at runtime
-        includeIgnoreAttributes: false,
-        limit: null,
-        offset: null,
-        order: null,
-        attributes: [],
-      }
-    )
+    const totalField = await scopedModel.aggregate<number | null, Model>("fieldName", "SUM", {
+      where,
+      // Query enhancers
+      plain: true,
+      // @ts-expect-error Not in AggregateOptions type but supported at runtime
+      includeIgnoreAttributes: false,
+      limit: null,
+      offset: null,
+      order: null,
+      attributes: [],
+    })
     return totalField ?? 0
   }
 }
@@ -123,14 +119,7 @@ describe("api/src/services/model/index-service.ts", () => {
         // ... create records via factories
 
         // Act
-        const result = await IndexService.perform(
-          {},
-          [],
-          undefined,
-          10,
-          0,
-          user
-        )
+        const result = await IndexService.perform({}, [], undefined, 10, 0, user)
 
         // Assert
         expect(result).toEqual({

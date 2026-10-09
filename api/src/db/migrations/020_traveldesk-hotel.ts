@@ -1,32 +1,32 @@
-import * as knex from "knex";
+import * as knex from "knex"
 
 exports.up = function (knex: knex.Knex, Promise: any) {
-  return knex.schema
-    .createTable("travelDeskHotel", function (t) {
-      t.increments("hotelID").notNullable().primary();
-      t.integer("requestID").unsigned().notNullable();
-      t.foreign("requestID").references("requestID").inTable("travelDeskTravelRequest").onDelete("CASCADE");    
-      
-      t.string("city");
+  return knex.schema.createTable("travelDeskHotel", function (t) {
+    t.increments("hotelID").notNullable().primary()
+    t.integer("requestID").unsigned().notNullable()
+    t.foreign("requestID")
+      .references("requestID")
+      .inTable("travelDeskTravelRequest")
+      .onDelete("CASCADE")
 
-      t.boolean("rsvConferenceHotel")
-      t.string("conferenceName");         
-      t.string("conferenceHotelName");
+    t.string("city")
 
-      t.date("checkIn")
-      t.date("checkOut")
+    t.boolean("rsvConferenceHotel")
+    t.string("conferenceName")
+    t.string("conferenceHotelName")
 
-      t.string("additionalInformation");     
+    t.date("checkIn")
+    t.date("checkOut")
 
-      t.string("status").notNullable();
+    t.string("additionalInformation")
 
-      t.string("reservedHotelInfo");
-      t.string("booking");
+    t.string("status").notNullable()
 
-    });
-};
+    t.string("reservedHotelInfo")
+    t.string("booking")
+  })
+}
 
 exports.down = function (knex: knex.Knex, Promise: any) {
-  return knex.schema    
-    .dropTable("travelDeskHotel");
-};
+  return knex.schema.dropTable("travelDeskHotel")
+}
