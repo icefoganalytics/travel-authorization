@@ -24,9 +24,19 @@ x-default-environment: &default-environment
   RELEASE_TAG: "${RELEASE_TAG:-development}"
   GIT_COMMIT_HASH: "${GIT_COMMIT_HASH:-not-set}"
 
+x-end-to-end-environment: &end-to-end-environment
+  <<: *default-environment
+  NODE_ENV: test
+  DB_HOST: end_to_end_db
+  DB_NAME: travel_test
+  TRAVCOM_DB_HOST: end_to_end_db_trav_com
+  TRAVCOM_DB_NAME: trav_com_test
+  DEFAULT_LOG_LEVEL: "warn"
+  YUKON_GOVERNMENT_FINANCE_API_BASE_URL: http://finance_api_stub:3000
+
 services:
-  api:
-    build:
+  api: &api-service
+    build: &api-build
       context: ./api
       dockerfile: development.Dockerfile
     env_file: ./api/.env.development
@@ -43,9 +53,11 @@ services:
       - ./.prettierrc.yaml:/usr/src/.prettierrc.yaml
     depends_on:
       - db
+    profiles:
+      - development
 
-  web:
-    build:
+  web: &web-service
+    build: &web-build
       context: ./web
       dockerfile: development.Dockerfile
     environment:
@@ -61,11 +73,11 @@ services:
         condition: service_started
       api_wait:
         condition: service_completed_successfully
+    profiles:
+      - development
 
   test_api:
-    build:
-      context: ./api
-      dockerfile: development.Dockerfile
+    build: *api-build
     command: /bin/true
     env_file:
       - ./api/.env.development
@@ -82,11 +94,11 @@ services:
     depends_on:
       - db
       - db_trav_com
+    profiles:
+      - development
 
   test_web:
-    build:
-      context: ./web
-      dockerfile: development.Dockerfile
+    build: *web-build
     command: /bin/true
     environment:
       <<: *default-environment
@@ -94,6 +106,8 @@ services:
     tty: true
     volumes:
       - ./web:/usr/src/web
+    profiles:
+      - development
 
   end_to_end_tests:
     image: travel-authorization-e2e-tests
@@ -101,19 +115,15 @@ services:
       context: ./api
       dockerfile: end-to-end-tests/Dockerfile
     user: "${HOST_USER_ID:-0}:${HOST_GROUP_ID:-0}"
-    network_mode: service:web
+    network_mode: service:end_to_end_web
     shm_size: 1gb
     depends_on:
-      web:
+      end_to_end_web:
         condition: service_healthy
     environment:
-      <<: *default-environment
-      NODE_ENV: test
-      DB_NAME: travel_test
-      TRAVCOM_DB_NAME: trav_com_test
-      DEFAULT_LOG_LEVEL: "warn"
+      <<: *end-to-end-environment
       BASE_URL: http://localhost:8080
-      API_BASE_URL: http://api:3000
+      API_BASE_URL: http://end_to_end_api:3000
       CI: "${CI:-}"
       E2E_AUTHENTICATED: "${E2E_AUTHENTICATED:-false}"
       TRAVELLER_EMAIL: "${TRAVELLER_EMAIL:-}"
@@ -157,19 +167,23 @@ services:
       - ./bin/api-wait.mjs:/bin/api-wait.mjs:ro
     entrypoint: ["node", "/bin/api-wait.mjs"]
     restart: "no"
+    profiles:
+      - development
 
-  db:
+  db: &postgresql-service
     image: "postgres:14.4"
-    environment:
+    environment: &postgresql-environment
       <<: *default-environment
       POSTGRES_USER: *default-db-user
       POSTGRES_PASSWORD: *default-db-password
       POSTGRES_DB: *default-db-name
     volumes:
       - db_data:/var/lib/postgresql/data
+    profiles:
+      - development
 
   # Represents an external database for TravCom (a.k.a. Travel Computer Systems)
-  db_trav_com:
+  db_trav_com: &trav-com-service
     image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
     user: root
     environment:
@@ -188,6 +202,81 @@ services:
       start_period: 10s
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
+    profiles:
+      - development
+
+  end_to_end_api:
+    <<: *api-service
+    env_file: []
+    environment: *end-to-end-environment
+    ports: []
+    volumes: []
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          'fetch("http://localhost:3000/_status").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 90
+      start_period: 5s
+    depends_on:
+      end_to_end_db:
+        condition: service_started
+      end_to_end_db_trav_com:
+        condition: service_healthy
+      finance_api_stub:
+        condition: service_healthy
+    profiles:
+      - end-to-end-tests
+
+  end_to_end_web:
+    <<: *web-service
+    environment:
+      <<: *end-to-end-environment
+      VITE_API_BASE_URL: http://end_to_end_api:3000
+    ports: []
+    volumes: []
+    depends_on:
+      end_to_end_api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          'fetch("http://localhost:8080").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+      start_period: 5s
+    profiles:
+      - end-to-end-tests
+
+  end_to_end_db:
+    <<: *postgresql-service
+    environment:
+      <<: *postgresql-environment
+      DB_NAME: travel_test
+      POSTGRES_DB: travel_test
+    ports: []
+    volumes:
+      - end_to_end_db_data:/var/lib/postgresql/data
+    profiles:
+      - end-to-end-tests
+
+  end_to_end_db_trav_com:
+    <<: *trav-com-service
+    ports: []
+    volumes:
+      - end_to_end_db_trav_com_data:/var/opt/mssql/data
+    profiles:
+      - end-to-end-tests
 
   # For easily generating large PlantUML diagrams
   # Not relevant to production environment.
@@ -205,3 +294,5 @@ volumes:
   db_data:
   db_trav_com_data:
   end_to_end_tests_node_modules:
+  end_to_end_db_data:
+  end_to_end_db_trav_com_data:
