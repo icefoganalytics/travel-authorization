@@ -26,7 +26,7 @@ jobs:
 
       - name: Run end-to-end tests
         env:
-          E2E_AUTHENTICATED: "true"
+          E2E_AUTHENTICATED: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           TRAVELLER_EMAIL: ${{ secrets.E2E_TRAVELLER_EMAIL }}
           TRAVELLER_PASSWORD: ${{ secrets.E2E_TRAVELLER_PASSWORD }}
           SUPERVISOR_EMAIL: ${{ secrets.E2E_SUPERVISOR_EMAIL }}
