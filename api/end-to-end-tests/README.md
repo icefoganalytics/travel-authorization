@@ -42,7 +42,9 @@ reports how to refresh the saved state.
 If Auth0 presents a CAPTCHA, sign in normally and supply the corresponding real storage state;
 the suite does not bypass challenges. Do not commit, upload, or share credentials or session files.
 
-Continuous integration requests both smoke and authenticated coverage with `E2E_AUTHENTICATED=true`.
+For same-repository pull requests, main pushes, and manual runs, continuous integration requests both
+smoke and authenticated coverage with `E2E_AUTHENTICATED=true`. Fork pull requests run smoke coverage
+only because GitHub does not provide repository secrets to those events.
 Configure the eight repository Actions secrets using the local variable names above with an `E2E_`
 prefix, for example `E2E_SUPERVISOR_EMAIL` and `E2E_SUPERVISOR_PASSWORD`. Missing credentials fail
 authentication setup; they do not silently skip the workflow. Screenshots and videos are disabled
