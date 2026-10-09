@@ -43,8 +43,8 @@ they affect clarity, consistency, or future safety.
    - Tests should mirror source structure and use `test`, not `it`.
    - Tests should include `// Arrange`, `// Act`, and `// Assert`.
    - Prefer Fishery factories for data setup.
-   - Keep assertions focused; combine related state checks into one `toEqual` when that gives a
-     clearer failure.
+   - Keep assertions focused; assert returned values and persisted records directly with `toEqual`.
+   - Split independent outcomes into separate tests instead of bundling them into synthetic objects.
    - Use `expect(spy).not.toHaveBeenCalled()` for negative spy assertions.
 
 6. **Check simplicity**

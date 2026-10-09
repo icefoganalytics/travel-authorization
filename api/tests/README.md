@@ -58,6 +58,8 @@ Guidelines:
 - Use explicit `// Arrange`, `// Act`, and `// Assert` comments
 - Prefer numbered peer entities like `user1`, `user2`
 - Prefer one strong assertion with `toEqual(...)` over many low-signal assertions
+- Assert returned values and persisted records directly; do not construct synthetic objects to bundle
+  independent outcomes. Use separate tests for those outcomes.
 - Test names should describe condition and outcome: `"when [condition], it [expected behavior]"`
 - Use Fishery factories for test data
 - In API test files, group imports by role: code under test and domain models/services first, then
