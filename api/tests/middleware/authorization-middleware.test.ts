@@ -47,13 +47,46 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
 
       // Assert
       const users = await User.findAll({ where: { sub: auth0Subject } })
-      expect({
-        persistedUsers: users,
-        attachedUserIds: requests.map((request) => request.user?.id),
-      }).toEqual({
-        persistedUsers: [expect.objectContaining({ sub: auth0Subject })],
-        attachedUserIds: Array.from({ length: attempts }, () => users[0]?.id),
+      expect(users).toEqual([expect.objectContaining({ sub: auth0Subject })])
+    })
+
+    test("when concurrent tokens authenticate the same subject, every request attaches the persisted user", async () => {
+      // Arrange
+      const attempts = 100
+      const auth0Subject = "auth0|concurrent-request-identity"
+      const requests: Partial<AuthorizationRequest>[] = Array.from(
+        { length: attempts },
+        (_, index) => ({
+          headers: { authorization: `Bearer concurrent-token-${index}` },
+          auth: { sub: auth0Subject },
+        })
+      )
+      const res: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      }
+      vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue({
+        auth0Subject,
+        email: "concurrent-request-identity@test.com",
+        firstName: "Concurrent",
+        lastName: "Identity",
       })
+
+      // Act
+      await Promise.all(
+        requests.map((request) =>
+          authorizationMiddleware(request as AuthorizationRequest, res as Response, vi.fn())
+        )
+      )
+
+      // Assert
+      const user = await User.findOne({ where: { sub: auth0Subject } })
+      if (user === null) {
+        throw new Error("Concurrent requests did not persist their authenticated user.")
+      }
+      expect(requests.map((request) => request.user?.id)).toEqual(
+        Array.from({ length: attempts }, () => user.id)
+      )
     })
 
     test("when a previously created user was deleted, it recreates the authenticated user", async () => {
@@ -90,7 +123,7 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
       expect(nextRequest.user).toEqual(expect.objectContaining({ sub: auth0Subject }))
     })
 
-    test("when another account reuses a deleted user's ID, concurrent requests retain the original identity", async () => {
+    test("when another account reuses a deleted user's ID, the persisted user retains the original identity and permissions", async () => {
       // Arrange
       const auth0Subject = "auth0|recycled-user-id"
       const userData: Auth0UserInfo = {
@@ -134,20 +167,71 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
 
       // Assert
       const users = await User.findAll({ where: { sub: auth0Subject } })
-      expect({
-        persistedUsers: users,
-        attachedUsers: requests.map((request) => request.user),
-      }).toEqual({
-        persistedUsers: [expect.objectContaining({ sub: auth0Subject, roles: [User.Roles.USER] })],
-        attachedUsers: Array.from({ length: requests.length }, () =>
-          expect.objectContaining({ sub: auth0Subject, roles: [User.Roles.USER] })
-        ),
-      })
+      expect(users).toEqual([
+        expect.objectContaining({ sub: auth0Subject, roles: [User.Roles.USER] }),
+      ])
     })
 
-    test("when user creation fails, a later request can authenticate after recovery", async () => {
+    test("when another account reuses a deleted user's ID, concurrent requests attach the recreated user's identity and permissions", async () => {
       // Arrange
-      const auth0Subject = "auth0|retry-creation"
+      const auth0Subject = "auth0|recycled-request-identity"
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }
+      const res: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      }
+      vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue({
+        auth0Subject,
+        email: "recycled-request-identity@test.com",
+        firstName: "Recycled",
+        lastName: "Identity",
+      })
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, vi.fn())
+      const user1 = req.user
+      if (user1 === undefined) {
+        throw new Error("Initial request did not authenticate a user.")
+      }
+
+      await User.destroy({ where: { id: user1.id }, force: true })
+      await userFactory.create({
+        id: user1.id,
+        sub: "auth0|replacement-admin",
+        roles: [User.Roles.ADMIN],
+      })
+      const requests: Partial<AuthorizationRequest>[] = Array.from({ length: 20 }, () => ({
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }))
+
+      // Act
+      await Promise.all(
+        requests.map((request) =>
+          authorizationMiddleware(request as AuthorizationRequest, res as Response, vi.fn())
+        )
+      )
+
+      // Assert
+      const user2 = await User.findOne({ where: { sub: auth0Subject } })
+      if (user2 === null) {
+        throw new Error("Concurrent requests did not recreate their authenticated user.")
+      }
+      expect(requests.map((request) => request.user)).toEqual(
+        Array.from({ length: requests.length }, () =>
+          expect.objectContaining({
+            id: user2.id,
+            sub: auth0Subject,
+            roles: [User.Roles.USER],
+          })
+        )
+      )
+    })
+
+    test("when user creation fails, it responds unauthorized", async () => {
+      // Arrange
+      const auth0Subject = "auth0|failed-creation"
       const req: Partial<AuthorizationRequest> = {
         headers: { authorization: auth0Subject },
         auth: { sub: auth0Subject },
@@ -158,6 +242,28 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
           status = statusCode
           return res as Response
         }),
+        json: vi.fn(),
+      }
+      vi.spyOn(auth0Integration, "getUserInfo").mockRejectedValue(
+        new Error("Auth0 temporarily unavailable")
+      )
+
+      // Act
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, vi.fn())
+
+      // Assert
+      expect(status).toEqual(401)
+    })
+
+    test("when user creation fails, a later request can authenticate after recovery", async () => {
+      // Arrange
+      const auth0Subject = "auth0|retry-creation"
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: auth0Subject },
+        auth: { sub: auth0Subject },
+      }
+      const res: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
         json: vi.fn(),
       }
       const userInfo = vi.spyOn(auth0Integration, "getUserInfo")
@@ -174,20 +280,16 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
       await authorizationMiddleware(req as AuthorizationRequest, res as Response, vi.fn())
 
       // Assert
-      expect({ initialStatus: status, authenticatedUser: req.user }).toEqual({
-        initialStatus: 401,
-        authenticatedUser: expect.objectContaining({ sub: auth0Subject }),
-      })
+      expect(req.user).toEqual(expect.objectContaining({ sub: auth0Subject }))
     })
 
-    test("when Auth0 returns another subject, the request is not authenticated", async () => {
+    test("when Auth0 returns another subject, it responds unauthorized", async () => {
       // Arrange
       const req: Partial<AuthorizationRequest> = {
         headers: { authorization: "different-subject-token" },
         auth: { sub: "auth0|expected-subject" },
       }
       let status: number | undefined
-      let forwarded = false
       const res: Partial<Response> = {
         status: vi.fn((statusCode: number) => {
           status = statusCode
@@ -203,16 +305,59 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
       })
 
       // Act
-      await authorizationMiddleware(req as AuthorizationRequest, res as Response, () => {
-        forwarded = true
-      })
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, vi.fn())
 
       // Assert
-      expect({ status, forwarded, attachedUser: req.user }).toEqual({
-        status: 401,
-        forwarded: false,
-        attachedUser: undefined,
+      expect(status).toEqual(401)
+    })
+
+    test("when Auth0 returns another subject, it does not forward the request", async () => {
+      // Arrange
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: "different-subject-token" },
+        auth: { sub: "auth0|expected-subject" },
+      }
+      const res: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      }
+      const next: NextFunction = vi.fn()
+      vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue({
+        auth0Subject: "auth0|unexpected-subject",
+        email: "unexpected-subject@test.com",
+        firstName: "Unexpected",
+        lastName: "Subject",
       })
+
+      // Act
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, next)
+
+      // Assert
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    test("when Auth0 returns another subject, it does not attach that user's identity", async () => {
+      // Arrange
+      const req: Partial<AuthorizationRequest> = {
+        headers: { authorization: "different-subject-token" },
+        auth: { sub: "auth0|expected-subject" },
+      }
+      const res: Partial<Response> = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      }
+      vi.spyOn(auth0Integration, "getUserInfo").mockResolvedValue({
+        auth0Subject: "auth0|unexpected-subject",
+        email: "unexpected-subject@test.com",
+        firstName: "Unexpected",
+        lastName: "Subject",
+      })
+
+      // Act
+      await authorizationMiddleware(req as AuthorizationRequest, res as Response, vi.fn())
+
+      // Assert
+      expect(req.user).toEqual(undefined)
     })
   })
 })
