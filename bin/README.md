@@ -5,6 +5,10 @@
 The `dev` command is a small helper around Docker Compose plus a few TravelAuth-specific
 development tasks.
 
+The wrapper selects the `development` profile by default. Direct Docker Compose commands against
+`docker-compose.development.yml` must enable that profile explicitly; the end-to-end test command
+selects its own profile instead.
+
 ## Set Up `dev`
 
 `dev` requires Ruby 3.2 or newer and the repository Ruby dependencies:
@@ -91,9 +95,10 @@ the stack down after the run:
 ./bin/dev test end-to-end-tests    # run Playwright in Docker against the test stack
 ```
 
-The command overlays end-to-end isolation onto the development Compose service definitions and
-starts the dependent services in a separate project before running Playwright. The stack uses
-Docker's internal network and publishes no host ports, so it cannot conflict with a development stack.
+The command selects the `end-to-end-tests` profile in `docker-compose.development.yml` and starts
+dedicated application and database services in a separate project before running Playwright. YAML
+anchors share the development builds and service settings; no separate end-to-end Compose file is
+needed. The test stack publishes no host ports, so it cannot conflict with a development stack.
 
 See `api/end-to-end-tests/README.md` for the coverage boundary and real-account prerequisites.
 The default suite runs three credential-free smoke tests; set `E2E_AUTHENTICATED=true` and select

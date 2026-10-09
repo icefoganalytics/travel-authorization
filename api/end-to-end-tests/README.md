@@ -52,10 +52,14 @@ during authentication. Workflow artifacts can contain test-account details; keep
 Both API-context and root release-context builds exclude authentication states and Playwright artifacts.
 
 The wrapper forces the `travel-authorization-e2e-test` Compose project even when
-`COMPOSE_PROJECT_NAME` is set. It overlays test isolation onto the shared development service
-definitions, resets that separate stack and its named volumes, rebuilds all application and runner
-images, runs Playwright, and tears down on success or failure.
-The API waits for a successful SQL Server query before starting TravCom initialization.
+`COMPOSE_PROJECT_NAME` is set. It selects the `end-to-end-tests` profile from
+`docker-compose.development.yml`, resets that separate stack and its named volumes, rebuilds all
+application and runner images, runs Playwright, and tears down on success or failure. Dedicated
+test services reuse development builds and service settings through YAML anchors, without
+development environment files or application bind mounts. Normal wrapper commands select the
+`development` profile.
+The API waits for a successful SQL Server query before starting TravCom initialization. The test
+frontend waits for the API status endpoint, and the runner waits for the frontend health check.
 The stack uses Docker's internal network without host ports; the runner shares the frontend's
 network namespace so the real Auth0 callback remains `http://localhost:8080`.
 Vuetify is excluded from Vite dependency optimization to prevent page reloads when a cold stack first

@@ -14,14 +14,19 @@ The canonical command is:
 ./bin/dev test end-to-end-tests
 ```
 
-It overlays `docker-compose.e2e-test.yml` onto the shared development service definitions in a
-separate Docker Compose project, recreates its named volumes, rebuilds the application and
-Playwright runner images, runs the suite, then removes the isolated stack. The fixture cleans the
-test databases before each test unless a stateful serial workflow explicitly opts out. Its containers
-communicate on Docker's internal network and publish no host ports.
+It selects the `end-to-end-tests` profile in `docker-compose.development.yml` and a separate Docker
+Compose project, recreates its named volumes, rebuilds the application and Playwright runner
+images, runs the suite, then removes the isolated stack. Dedicated test services reuse development
+builds and service settings through YAML anchors; no separate end-to-end Compose file is needed.
+The fixture cleans test databases before each test unless a stateful serial workflow opts out.
+The API waits for SQL Server readiness, the frontend waits for API readiness, and the runner waits
+for frontend readiness. Test containers communicate internally and publish no host ports.
 
 This makes the end-to-end environment independent of a developer's active stack and aligns local
 execution with continuous integration.
+
+Normal wrapper commands select the `development` profile. Inactive development services retain
+their local environment-file requirements without requiring those files during end-to-end runs.
 
 ## Test Ownership and Runtime
 
@@ -60,7 +65,7 @@ draft development while preserving an explicit verification path.
 
 - `api/end-to-end-tests/README.md` is the source of truth for current test coverage, authenticated
   prerequisites, test fixtures, and locator conventions.
-- `bin/dev`, `docker-compose.e2e-test.yml`, and `.github/workflows/end-to-end-tests.yml` define the
+- `bin/dev`, `docker-compose.development.yml`, and `.github/workflows/end-to-end-tests.yml` define the
   current execution behavior.
 - The Playwright specifications under `api/end-to-end-tests/tests/` are the executable coverage
   evidence.

@@ -151,9 +151,11 @@ Tests run against the full application stack in a separate Docker Compose projec
 dev test end-to-end-tests         # starts the test-mode app stack, runs Playwright, then tears down
 ```
 
-This overlays `docker-compose.e2e-test.yml` onto the shared development service definitions so the
-application and Playwright runner use test databases, not development databases. The separate test
-stack communicates through Docker's internal network, publishes no host ports, and is removed after the run.
+The `end-to-end-tests` profile in `docker-compose.development.yml` selects dedicated test services
+that reuse development builds and service settings through YAML anchors. The wrapper selects a
+separate project; the application and runner use test databases, not development databases. The
+test stack publishes no host ports and is removed after the run. Normal wrapper commands select
+the `development` profile.
 
 See `api/end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
 integration requests smoke checks and the authenticated wizard with `E2E_AUTHENTICATED=true`.
