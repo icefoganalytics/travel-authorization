@@ -8,7 +8,7 @@ require "socket"
 require "uri"
 
 class OpenInEditorBridge
-  DEFAULT_PORT = "3333"
+  DEFAULT_PORT = 3333
   HEALTH_PATH = "/health"
   OPEN_IN_EDITOR_PATH = "/__open-in-editor"
   RESPONSE_PHRASES = {
@@ -18,10 +18,11 @@ class OpenInEditorBridge
     405 => "Method Not Allowed",
     500 => "Internal Server Error",
   }.freeze
-
-  PORT = ENV.fetch("OPEN_IN_EDITOR_BRIDGE_PORT", DEFAULT_PORT).to_i
+  CONFIGURED_PORT = ENV["OPEN_IN_EDITOR_BRIDGE_PORT"]&.to_i
   PROJECT_ROOT = File.expand_path("..", __dir__)
   PID_FILE = File.join(PROJECT_ROOT, "tmp", "open-in-editor-bridge.pid")
+  PORT_FILE = File.join(PROJECT_ROOT, "tmp", "open-in-editor-bridge.port")
+  LOCK_FILE = File.join(PROJECT_ROOT, "tmp", "open-in-editor-bridge.lock")
   LOG_FILE = File.join(PROJECT_ROOT, "tmp", "open-in-editor-bridge.log")
   CONTAINER_WEB_ROOT = ENV.fetch("OPEN_IN_EDITOR_CONTAINER_WEB_ROOT", "/usr/src/web")
   HOST_WEB_ROOT = ENV.fetch("OPEN_IN_EDITOR_HOST_WEB_ROOT", File.join(PROJECT_ROOT, "web"))
@@ -31,13 +32,21 @@ class OpenInEditorBridge
     new.call(*args)
   end
 
-  def self.with_running(ensure_running: true)
-    call("--ensure-running") if ensure_running
+  def self.port
+    new.send(:port)
+  end
+
+  def self.with_running(ensure_running: true, keep_running: false)
+    started_here = call("--ensure-running") if ensure_running
+    completed = false
 
     begin
-      yield
+      result = yield
+      completed = true
+      result
     ensure
-      call("--shutdown")
+      shutdown = completed ? !keep_running : started_here
+      call("--shutdown") if shutdown
     end
   end
 
@@ -59,34 +68,55 @@ class OpenInEditorBridge
   private
 
   def ensure_running
-    pid = running_pid
-    return puts("Editor bridge already running on port #{PORT} (pid #{pid}).") if pid
+    with_state_lock do
+      pid = running_pid
+      if pid
+        puts "Editor bridge already running on port #{bound_port} (pid #{pid})."
+        return false
+      end
 
-    ensure_runtime_directory
-    pid = Process.spawn(*server_process_command, out: LOG_FILE, err: LOG_FILE, pgroup: true)
-    Process.detach(pid)
+      if EDITOR_COMMAND.nil? || EDITOR_COMMAND.empty?
+        warn "No editor configured; editor bridge will not be started."
+        return false
+      end
 
-    sleep(0.2)
+      ensure_runtime_directory
+      requested_port = CONFIGURED_PORT || 0
+      environment = { "OPEN_IN_EDITOR_BRIDGE_PORT" => requested_port.to_s }
+      pid = Process.spawn(environment, *server_process_command, out: LOG_FILE, err: LOG_FILE, pgroup: true)
+      Process.detach(pid)
 
-    if process_running?(pid)
-      write_pid_file(pid)
-      puts "Started editor bridge on port #{PORT}."
-    else
-      warn "Failed to start editor bridge. See #{LOG_FILE}."
+      port = wait_for_bound_port(pid)
+      if port.nil?
+        Process.kill("TERM", -pid) if process_running?(pid)
+        delete_state_files(pid)
+        warn "Failed to start editor bridge. See #{LOG_FILE}."
+        return false
+      end
+
+      puts "Started editor bridge on port #{port}."
+      true
     end
   end
 
   def shutdown
-    pid = running_pid
+    with_state_lock do
+      pid = running_pid
+      return unless pid
 
-    return unless pid
+      Process.kill("TERM", -pid)
+      delete_state_files(pid)
+      puts "Stopped editor bridge."
+    rescue Errno::ESRCH
+      delete_state_files(pid)
+    end
+  end
 
-    Process.kill("TERM", -pid)
-    delete_pid_file
-
-    puts "Stopped editor bridge."
-  rescue Errno::ESRCH
-    delete_pid_file
+  def port
+    with_state_lock do
+      pid = running_pid
+      pid ? bound_port : 0
+    end
   end
 
   def serve
@@ -95,9 +125,9 @@ class OpenInEditorBridge
     end
 
     ensure_runtime_directory
+    @server = TCPServer.new("0.0.0.0", CONFIGURED_PORT || DEFAULT_PORT)
     write_pid_file(Process.pid)
-
-    @server = TCPServer.new("0.0.0.0", PORT)
+    write_port_file(@server.addr[1])
     @running = true
 
     install_signal_handlers
@@ -112,7 +142,7 @@ class OpenInEditorBridge
     end
   ensure
     @server&.close
-    delete_pid_file
+    delete_state_files(Process.pid)
   end
 
   def handle_request(socket)
@@ -187,12 +217,27 @@ class OpenInEditorBridge
     FileUtils.mkdir_p(File.dirname(PID_FILE))
   end
 
+  def with_state_lock
+    ensure_runtime_directory
+    File.open(LOCK_FILE, File::RDWR | File::CREAT, 0o600) do |lock|
+      lock.flock(File::LOCK_EX)
+      yield
+    end
+  end
+
   def write_pid_file(pid)
     File.write(PID_FILE, "#{pid}\n")
   end
 
-  def delete_pid_file
-    File.delete(PID_FILE) if File.exist?(PID_FILE)
+  def write_port_file(port)
+    File.write(PORT_FILE, "#{port}\n")
+  end
+
+  def delete_state_files(pid = nil)
+    if pid.nil? || (File.exist?(PID_FILE) && File.read(PID_FILE).strip == pid.to_s)
+      File.delete(PID_FILE) if File.exist?(PID_FILE)
+      File.delete(PORT_FILE) if File.exist?(PORT_FILE)
+    end
   end
 
   def server_process_command
@@ -261,12 +306,34 @@ class OpenInEditorBridge
     return nil unless File.exist?(PID_FILE)
 
     pid = Integer(File.read(PID_FILE).strip)
-    return pid if process_running?(pid)
+    return pid if process_running?(pid) && bound_port.positive?
 
-    delete_pid_file
+    delete_state_files(pid)
     nil
   rescue ArgumentError
-    delete_pid_file
+    delete_state_files
+    nil
+  end
+
+  def bound_port
+    return 0 unless File.exist?(PORT_FILE)
+
+    port = Integer(File.read(PORT_FILE).strip)
+    port.between?(1, 65_535) ? port : 0
+  rescue ArgumentError
+    0
+  end
+
+  def wait_for_bound_port(pid)
+    50.times do
+      return nil unless process_running?(pid)
+
+      port = bound_port
+      return port if port.positive?
+
+      sleep(0.1)
+    end
+
     nil
   end
 

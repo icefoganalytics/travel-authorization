@@ -63,7 +63,8 @@ class DevHelper
   end
 
   def up(*args, **kwargs)
-    OpenInEditorBridge.with_running do
+    detached = args.any? { |argument| %w[-d --detach --detach=true].include?(argument) }
+    OpenInEditorBridge.with_running(keep_running: detached) do
       LocalDevelopmentGateway.with_running do
         compose(
           *%w[up --remove-orphans --force-recreate],
@@ -384,6 +385,7 @@ class DevHelper
 
   def dynamic_environment_variables
     environment_variables = ["GATEWAY_HOSTNAME=#{Shellwords.escape(gateway_hostname)}"]
+    environment_variables << "OPEN_IN_EDITOR_BRIDGE_PORT=#{OpenInEditorBridge.port}"
 
     if RUBY_PLATFORM =~ /linux/
       environment_variables << %(HOST_USER_ID="#{user_id}")
