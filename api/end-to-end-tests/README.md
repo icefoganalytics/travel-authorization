@@ -53,6 +53,7 @@ The wrapper forces the `travel-authorization-e2e-test` Compose project even when
 `COMPOSE_PROJECT_NAME` is set. It overlays test isolation onto the shared development service
 definitions, resets that separate stack and its named volumes, rebuilds all application and runner
 images, runs Playwright, and tears down on success or failure.
+The API waits for a successful SQL Server query before starting TravCom initialization.
 The stack uses Docker's internal network without host ports; the runner shares the frontend's
 network namespace so the real Auth0 callback remains `http://localhost:8080`.
 Vuetify is excluded from Vite dependency optimization to prevent page reloads when a cold stack first
