@@ -3,15 +3,16 @@ import path from "node:path"
 
 import db from "@/db/db-client"
 
+export type AuthenticatedWorkflowAccount = {
+  email: string
+  auth0Subject: string
+}
+
 export type AuthenticatedWorkflowAccounts = {
-  traveller: {
-    email: string
-    auth0Subject: string
-  }
-  admin: {
-    email: string
-    auth0Subject: string
-  }
+  traveller: AuthenticatedWorkflowAccount
+  supervisor: AuthenticatedWorkflowAccount
+  travelDesk: AuthenticatedWorkflowAccount
+  finance: AuthenticatedWorkflowAccount
 }
 
 export function loadAuthenticatedWorkflowAccounts(): AuthenticatedWorkflowAccounts {
@@ -19,10 +20,7 @@ export function loadAuthenticatedWorkflowAccounts(): AuthenticatedWorkflowAccoun
   return JSON.parse(readFileSync(accountsPath, "utf8")) as AuthenticatedWorkflowAccounts
 }
 
-async function createUser(
-  account: AuthenticatedWorkflowAccounts["traveller"],
-  roles: string
-): Promise<void> {
+async function createUser(account: AuthenticatedWorkflowAccount, roles: string): Promise<void> {
   await db.query(
     `
       INSERT INTO users (sub, email, status, first_name, last_name, department, roles)
@@ -54,7 +52,9 @@ async function seedAutomaticEstimateReferenceData(): Promise<void> {
 
 export async function seedAuthenticatedWorkflowData({
   traveller,
-  admin,
+  supervisor,
+  travelDesk,
+  finance,
 }: AuthenticatedWorkflowAccounts): Promise<void> {
   await seedAutomaticEstimateReferenceData()
   await db.query("INSERT INTO travel_purposes (purpose) VALUES ($1)", {
@@ -64,5 +64,7 @@ export async function seedAuthenticatedWorkflowData({
     bind: ["Whitehorse", "YT", "Vancouver", "BC"],
   })
   await createUser(traveller, "user")
-  await createUser(admin, "admin,finance_user")
+  await createUser(supervisor, "user")
+  await createUser(travelDesk, "travel_desk_user")
+  await createUser(finance, "finance_user")
 }
