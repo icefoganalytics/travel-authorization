@@ -27,6 +27,8 @@ preserve database routes; one-off API and web containers disable Traefik discove
 replacing the running browser/API backends. The main checkout uses
 `http://travel-authorization.localhost`; a worktree named `issue-123` uses
 `http://issue-123.travel-authorization.localhost`.
+Derived worktree labels trim surrounding separators and use a bounded prefix plus a stable digest
+when the directory name needs normalization or exceeds the 63-character DNS label limit.
 
 `dev api`, migrations, and tests also start or reuse the gateway before creating their Compose
 dependencies. The API connects directly to `db` without TLS; the gateway's TLS endpoint is for host

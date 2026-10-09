@@ -36,9 +36,10 @@ The web app is available at the checkout-derived gateway hostname documented in 
 When the full stack boots in Docker, the web service waits for the API `/_status` endpoint before
 starting.
 
-Vite prints `Open Travel Authorization: http://<gateway-hostname>/` when its server starts.
-Compose passes `GATEWAY_HOSTNAME` into the web container so this URL matches the checkout-derived
-hostname or an explicit override, rather than the container-local `localhost:8080` address.
+When `GATEWAY_HOSTNAME` is set, Vite prints
+`Open Travel Authorization: http://<gateway-hostname>/` when its server starts. Compose supplies
+the checkout-derived hostname or an explicit override. Without that variable, standalone Vite
+prints its actual local address instead.
 
 ## Common Commands
 
@@ -73,13 +74,18 @@ the container. This project handles that by:
 
 If you use the repo-level `dev` wrapper, this is automatic:
 
-- `dev up` starts the bridge before Docker Compose boots the stack
-- `dev down` stops the bridge again
+- `dev up` allocates a checkout-local bridge port and passes it to Vite's editor proxy.
+- `dev up -d` keeps the bridge running after detached startup completes.
+- `dev down` stops only that checkout's bridge; other worktrees remain available.
 
 On Linux, `dev` includes `docker-compose.development.linux.yml` so the container can resolve
 `host.docker.internal`.
 
 The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
+
+The bridge records its PID and selected port under the checkout's `tmp/` directory. Set
+`OPEN_IN_EDITOR_BRIDGE_PORT` before `dev up` only if you need a specific free host port; concurrent
+checkouts must use different ports.
 
 ## Sample Travelport Text
 
