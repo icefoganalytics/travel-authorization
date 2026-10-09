@@ -64,7 +64,7 @@ class DevHelper
   end
 
   def up(*args, **kwargs)
-    detached = args.any? { |argument| %w[-d --detach --detach=true].include?(argument) }
+    detached = args.any? { |argument| %w[-d --detach --detach=true --wait --wait=true].include?(argument) }
     OpenInEditorBridge.with_running(keep_running: detached) do
       LocalDevelopmentGateway.with_running do
         compose(
