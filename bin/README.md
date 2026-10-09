@@ -22,10 +22,11 @@ All development `dev` commands apply `docker-compose.development.gateway.yml`, w
 browser and database gateway routing. Use the checkout-derived `*.travel-authorization.localhost`
 hostname rather than direct application ports.
 
-`./bin/dev up` and development `run` commands (including API commands, migrations, and tests)
-ensure the gateway is running before starting dependencies. One-off containers disable Traefik
-discovery while database dependencies retain their gateway routes. Commands wait for the child
-process so gateway lifecycle cleanup does not remove other projects' routes.
+`./bin/dev up`, development `run` commands (including API commands, migrations, and tests), and
+Compose fallback commands `create`, `start`, `restart`, `scale`, and `watch` ensure the gateway is
+running before creating or starting services. One-off containers disable Traefik discovery while
+database dependencies retain their gateway routes. Commands wait for the child process so gateway
+lifecycle cleanup does not remove other projects' routes.
 
 Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
 instead of the checkout-derived default.

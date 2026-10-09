@@ -75,7 +75,7 @@ the container. This project handles that by:
 If you use the repo-level `dev` wrapper, this is automatic:
 
 - `dev up` allocates a checkout-local bridge port and passes it to Vite's editor proxy.
-- `dev up -d` keeps the bridge running after detached startup completes.
+- `dev up -d` and `dev up --wait` keep the bridge running after detached startup completes.
 - `dev down` stops only that checkout's bridge; other worktrees remain available.
 
 On Linux, `dev` includes `docker-compose.development.linux.yml` so the container can resolve
@@ -83,9 +83,9 @@ On Linux, `dev` includes `docker-compose.development.linux.yml` so the container
 
 The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
 
-The bridge records its PID and selected port under the checkout's `tmp/` directory. Set
-`OPEN_IN_EDITOR_BRIDGE_PORT` before `dev up` only if you need a specific free host port; concurrent
-checkouts must use different ports.
+The bridge records its PID and selected port under the checkout's `tmp/` directory; its runtime
+files are ignored by Git. Set `OPEN_IN_EDITOR_BRIDGE_PORT` before `dev up` only if you need a
+specific free host port; concurrent checkouts must use different ports.
 
 ## Sample Travelport Text
 
