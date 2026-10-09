@@ -39,6 +39,11 @@ class DevHelper
     method = COMMAND_TO_METHOD.fetch(command, command)
     if args.length.positive? && respond_to?(method)
       public_send(method, *args.drop(1), **kwargs)
+    elsif kwargs.fetch(:environment, "development") == "development" &&
+      %w[create start restart scale watch].include?(command)
+      LocalDevelopmentGateway.with_running do
+        compose(*args, **kwargs, execution_mode: WAIT_FOR_PROCESS)
+      end
     else
       compose(*args, **kwargs)
     end
