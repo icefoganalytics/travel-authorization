@@ -43,6 +43,9 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Fixed
 
+- Traveler flight rankings are now visible directly during booking review, including rejected options and their explanations, without expanding flight-request rows.
+  Why? To let Travel Desk staff review the traveler's preferences before finalizing a booking.
+
 - Travel request and approvals behavior:
 
   - Fixed multi-city and one-way trip attributes not bubbling correctly on initial load.
