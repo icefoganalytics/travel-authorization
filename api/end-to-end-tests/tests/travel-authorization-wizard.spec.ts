@@ -4,109 +4,19 @@
  * @see agents/workflows/create-test-travel-request-workflow.md
  */
 
-import { expect, type Locator, type Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
 import {
   loadAuthenticatedWorkflowAccounts,
   seedAuthenticatedWorkflowData,
   type AuthenticatedWorkflowAccounts,
 } from "../authenticated-workflow-fixtures"
+import flightOptionFactory from "../factories/flight-option-factory"
+import { bookingFileFactory } from "../factories/upload-file-factories"
 import { cleanEndToEndDatabases, test } from "../fixtures"
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Fill a Vuetify date-picker text field and trigger Vue reactivity. */
-async function fillDate(field: Locator, value: string) {
-  await field.click()
-  await field.selectText()
-  await field.fill(value)
-  await field.press("Tab")
-}
-
-/** Wait for a Vuetify snackbar containing the given text. */
-async function expectToast(page: Page, text: string) {
-  await expect(page.locator(`.v-snackbar:has-text("${text}")`)).toBeVisible()
-}
-
-/** Select a Vuetify combobox / autocomplete option from its overlay. */
-async function selectCombobox(page: Page, field: Locator, option: string) {
-  const input = field.and(page.locator("input"))
-  const menuId = await input.getAttribute("aria-controls")
-  await input.press("ArrowDown")
-  if (!menuId) {
-    throw new Error("The combobox did not identify its option menu.")
-  }
-  await page.locator(`[id="${menuId}"]`).getByRole("option", { name: option, exact: true }).click()
-  await input.press("Escape")
-}
-
-async function expectReceiptUploads(page: Page, receiptInputCount: number) {
-  if (receiptInputCount === 0) {
-    throw new Error("Expected prefilled expenses to provide receipt inputs.")
-  }
-
-  await expect(page.getByRole("button", { name: "View Receipt" })).toHaveCount(receiptInputCount)
-}
-
-async function expectActualTripOrigin(page: Page) {
-  await expect(page.getByText("Whitehorse (YT)", { exact: true }).first()).toBeVisible()
-}
-
-async function prefilledExpenseReceiptInputCount(page: Page): Promise<number> {
-  const receiptInputs = page.locator("input[type='file'].d-none")
-  await expect(receiptInputs).not.toHaveCount(0)
-
-  return receiptInputs.count()
-}
-
-async function expectGeneralLedgerCoding(page: Page, code: string) {
-  await expect(page.getByRole("cell", { name: code })).toBeVisible()
-}
-
-async function createFlightOption(
-  page: Page,
-  legIndex: number,
-  departure: string,
-  arrival: string,
-  date: string
-) {
-  await page.getByRole("button", { name: "Add Flight Segment" }).click()
-  await page.getByLabel("Flight *", { exact: true }).fill(`AC ${123 + legIndex}`)
-  await page.getByLabel("Duration *", { exact: true }).fill("2h 30m")
-  await page.getByLabel("Depart From *", { exact: true }).fill(departure)
-  await page.getByLabel("Departure Date *", { exact: true }).fill(date)
-  await page.getByLabel("Departure Time *", { exact: true }).fill("08:00")
-  await page.getByLabel("Arrive To *", { exact: true }).fill(arrival)
-  await page.getByLabel("Arrival Date *", { exact: true }).fill(date)
-  await page.getByLabel("Arrival Time *", { exact: true }).fill("10:30")
-  await page.getByLabel("Status *", { exact: true }).fill("Confirmed")
-  await page.getByLabel("Class *", { exact: true }).fill("Economy")
-  // The editor debounces draft persistence; selection snapshots the persisted segment.
-  const requestId = new URL(page.url()).pathname.split("/")[2]
-  await page.waitForFunction(
-    ({ requestId, flightNumber }) => {
-      const draft = JSON.parse(
-        sessionStorage.getItem(
-          `travel-desk-travel-request-${requestId}-travel-desk-flight-segments-attributes`
-        ) ?? "[]"
-      ) as { flightNumber: string; class: string }[]
-      return draft.some(
-        (segment) => segment.flightNumber === flightNumber && segment.class === "Economy"
-      )
-    },
-    { requestId, flightNumber: `AC ${123 + legIndex}` }
-  )
-  await page.getByRole("checkbox", { name: "Select All", exact: true }).check()
-  await page.getByRole("button", { name: "Group Selected" }).click()
-  const dialog = page.getByRole("dialog")
-  await dialog.getByLabel("Leg *", { exact: true }).press("ArrowDown")
-  await page.getByRole("option").nth(legIndex).click()
-  await dialog.getByLabel("Cost *", { exact: true }).fill("350")
-  await dialog.getByRole("button", { name: "Create Flight Option" }).click()
-  await expect(dialog).not.toBeVisible()
-}
+import createFlightOption from "../support/create-flight-option"
+import { fillDate, selectCombobox } from "../support/form-inputs"
+import uploadExpenseReceipts from "../support/upload-expense-receipts"
 
 test.describe("travel authorization wizard", () => {
   test.describe.configure({ mode: "serial" })
@@ -200,7 +110,9 @@ test.describe("travel authorization wizard", () => {
     await selectCombobox(page, page.getByLabel("Travel Method", { exact: true }).nth(1), "Aircraft")
 
     await page.getByRole("button", { name: "Continue" }).click()
-    await expectToast(page, "Travel request saved.")
+    await expect(
+      page.locator(".v-snackbar").filter({ hasText: "Travel request saved." })
+    ).toBeVisible()
     await expect(page).toHaveURL(/generate-estimate/)
     await expect(
       page.getByRole("cell", { name: "Hotel in Vancouver", exact: true }).first()
@@ -216,7 +128,9 @@ test.describe("travel authorization wizard", () => {
     await supervisorField.fill(accounts.supervisor.email)
     await supervisorField.press("Enter")
     await page.getByRole("button", { name: "Submit to Supervisor" }).click()
-    await expectToast(page, "Travel request submitted.")
+    await expect(
+      page.locator(".v-snackbar").filter({ hasText: "Travel request submitted." })
+    ).toBeVisible()
 
     // Assert
     await expect(page).toHaveURL(/awaiting-supervisor-approval/)
@@ -253,7 +167,9 @@ test.describe("travel authorization wizard", () => {
     await supervisorPage.getByRole("button", { name: "Approve" }).click()
     const approvalDialog = supervisorPage.getByRole("dialog")
     await approvalDialog.getByRole("button", { name: "Approve" }).click()
-    await expectToast(supervisorPage, "Travel authorization approved!")
+    await expect(
+      supervisorPage.locator(".v-snackbar").filter({ hasText: "Travel authorization approved!" })
+    ).toBeVisible()
 
     await supervisorContext.close()
 
@@ -335,15 +251,24 @@ test.describe("travel authorization wizard", () => {
       storageState: "end-to-end-tests/tests/.auth/traveller.json",
     })
     const travellerPage = await travellerContext.newPage()
+    const outboundFlightOption = flightOptionFactory.build()
+    const returnFlightOption = flightOptionFactory.build({
+      legIndex: 1,
+      departFrom: "Vancouver (BC)",
+      departureDate: "2026-06-04",
+      arriveTo: "Whitehorse (YT)",
+      arrivalDate: "2026-06-04",
+    })
+    const bookingFile = bookingFileFactory.build()
 
     // Act
     await travelDeskPage.goto(`/travel-desk/${travelDeskRequestId}/manage-flight-segments`)
-    await createFlightOption(travelDeskPage, 0, "Whitehorse (YT)", "Vancouver (BC)", "2026-06-01")
+    await createFlightOption(travelDeskPage, outboundFlightOption)
     await travellerPage.goto(`/my-travel-requests/${travelAuthId}/wizard/awaiting-flight-options`)
     await expect(
       travellerPage.getByRole("button", { name: "Check status?", exact: true })
     ).toBeVisible()
-    await createFlightOption(travelDeskPage, 1, "Vancouver (BC)", "Whitehorse (YT)", "2026-06-04")
+    await createFlightOption(travelDeskPage, returnFlightOption)
     await travelDeskPage.goto(`/travel-desk/${travelDeskRequestId}/edit/review-manage-booking`)
     await travelDeskPage.getByRole("button", { name: "Send to Traveler", exact: true }).click()
     await expect(travelDeskPage).toHaveURL(/\/travel-desk$/)
@@ -360,23 +285,22 @@ test.describe("travel authorization wizard", () => {
 
     await travelDeskPage.goto(`/travel-desk/${travelDeskRequestId}/edit/trip-information`)
     await travelDeskPage.getByLabel("Invoice Number *", { exact: true }).fill("E2E-394")
-    await travelDeskPage.getByLabel("PNR Document *", { exact: true }).setInputFiles({
-      name: "booking.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from(
-        "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCAyMDAgMjAwXSA+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDQgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjE4NgolJUVPRgo=",
-        "base64"
-      ),
-    })
+    await travelDeskPage.getByLabel("PNR Document *", { exact: true }).setInputFiles(bookingFile)
     await travelDeskPage.getByRole("button", { name: "Save Trip Information" }).click()
-    await expectToast(travelDeskPage, "Passenger name record saved successfully")
+    await expect(
+      travelDeskPage
+        .locator(".v-snackbar")
+        .filter({ hasText: "Passenger name record saved successfully" })
+    ).toBeVisible()
     await travelDeskPage.goto(`/travel-desk/${travelDeskRequestId}/edit/review-manage-booking`)
     await travelDeskPage.getByRole("button", { name: "Booking Complete", exact: true }).click()
     await travelDeskPage
       .getByRole("dialog")
       .getByRole("button", { name: "Confirm", exact: true })
       .click()
-    await expectToast(travelDeskPage, "Travel request booked.")
+    await expect(
+      travelDeskPage.locator(".v-snackbar").filter({ hasText: "Travel request booked." })
+    ).toBeVisible()
     await travellerPage.getByRole("button", { name: "Check status?", exact: true }).click()
 
     // Assert
@@ -407,7 +331,7 @@ test.describe("travel authorization wizard", () => {
     await page.waitForURL(/confirm-actual-travel-details/)
 
     // Step 11 — Confirm Actual Travel Details
-    await expectActualTripOrigin(page)
+    await expect(page.getByText("Whitehorse (YT)", { exact: true }).first()).toBeVisible()
     await page.getByRole("button", { name: "Continue" }).click()
 
     // Step 12 — Submit Expenses
@@ -421,24 +345,8 @@ test.describe("travel authorization wizard", () => {
     await prefillResponse
 
     // Wait for the expense rows to render after the prefill request completes.
-    const receiptInputCount = await prefilledExpenseReceiptInputCount(page)
-    const receipt = Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVQIHWP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC",
-      "base64"
-    )
-    for (let index = 0; index < receiptInputCount; index++) {
-      const fileChooserPromise = page.waitForEvent("filechooser")
-      await page.getByRole("button", { name: "Add Receipt", exact: true }).first().click()
-      const fileChooser = await fileChooserPromise
-      await fileChooser.setFiles({
-        name: `receipt-${index + 1}.png`,
-        mimeType: "image/png",
-        buffer: receipt,
-      })
-      await expect(page.getByRole("button", { name: "View Receipt" })).toHaveCount(index + 1)
-    }
-
-    await expectReceiptUploads(page, receiptInputCount)
+    const receiptInputCount = await uploadExpenseReceipts(page)
+    await expect(page.getByRole("button", { name: "View Receipt" })).toHaveCount(receiptInputCount)
 
     // Add a GL coding row
     await page.getByRole("button", { name: "Add Coding" }).click()
@@ -446,7 +354,7 @@ test.describe("travel authorization wizard", () => {
     await codingDialog.getByLabel("G/L code", { exact: true }).fill("552-503010-0222-0006-09999")
     await codingDialog.getByLabel("Amount", { exact: true }).fill("1")
     await codingDialog.getByRole("button", { name: "Save" }).click()
-    await expectGeneralLedgerCoding(page, "552-503010-0222-0006-09999")
+    await expect(page.getByRole("cell", { name: "552-503010-0222-0006-09999" })).toBeVisible()
 
     // Submit
     await page.getByRole("button", { name: "Submit to Supervisor" }).click()
@@ -477,7 +385,9 @@ test.describe("travel authorization wizard", () => {
     await supervisorPage.goto(`/manage-travel-requests/${travelAuthId}/expense`)
     supervisorPage.once("dialog", (dialog) => dialog.accept())
     await supervisorPage.getByRole("button", { name: "Approve", exact: true }).click()
-    await expectToast(supervisorPage, "Expense claim approved!")
+    await expect(
+      supervisorPage.locator(".v-snackbar").filter({ hasText: "Expense claim approved!" })
+    ).toBeVisible()
     await supervisorContext.close()
 
     const travellerContext = await browser.newContext({
@@ -500,7 +410,9 @@ test.describe("travel authorization wizard", () => {
     await financePage.goto(`/expense-processing/${travelAuthId}/expense`)
     financePage.once("dialog", (dialog) => dialog.accept())
     await financePage.getByRole("button", { name: "Approve", exact: true }).click()
-    await expectToast(financePage, "Travel authorization expensed!")
+    await expect(
+      financePage.locator(".v-snackbar").filter({ hasText: "Travel authorization expensed!" })
+    ).toBeVisible()
 
     await financeContext.close()
 
