@@ -77,10 +77,14 @@ inside spec files. Encoded upload fixtures live in `data/`; factories decode the
 workflow assertions in the specs; support actions own the synchronization needed to perform
 their operation.
 
-Import `test` and, when needed, `cleanEndToEndDatabases` from `../fixtures`; import `expect` from
-`@playwright/test`. The fixture adds automatic database cleanup around every test. Stateful serial
-workflows can opt out with `test.use({ preserveDatabase: true })`. Reset their databases once in
-`test.beforeAll`, then seed only the prerequisite rows through
+Use absolute `@/` imports for internal modules: `@/end-to-end-tests/...` for end-to-end test code
+and `@/tests/support/...` for shared test helpers. The existing TypeScript alias resolves both
+API-root and source paths; do not use relative module imports.
+
+Import `test` and, when needed, `cleanEndToEndDatabases` from `@/end-to-end-tests/fixtures`;
+import `expect` from `@playwright/test`. The fixture adds automatic database cleanup around every
+test. Stateful serial workflows can opt out with `test.use({ preserveDatabase: true })`.
+Reset their databases once in `test.beforeAll`, then seed only the prerequisite rows through
 `authenticated-workflow-fixtures.ts`; it uses raw database queries so Playwright does not load
 decorated Sequelize models during test discovery.
 
