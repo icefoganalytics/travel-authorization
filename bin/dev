@@ -411,6 +411,7 @@ class DevHelper
 
   def dynamic_environment_variables
     environment_variables = ["GATEWAY_HOSTNAME=#{Shellwords.escape(gateway_hostname)}"]
+    environment_variables << "COMPOSE_PROJECT_NAME=#{Shellwords.escape(compose_project_name)}"
     session_id = OpenInEditorBridge.new(project_root: project_root).session_id
     environment_variables << "OPEN_IN_EDITOR_SESSION_ID=#{session_id}"
 
@@ -422,12 +423,28 @@ class DevHelper
     environment_variables.join(" ")
   end
 
+  def compose_project_name
+    configured_name = ENV.fetch("COMPOSE_PROJECT_NAME", "")
+    return configured_name unless configured_name.empty?
+
+    directory_name = File.basename(project_root)
+    return directory_name if /\A[a-z0-9][a-z0-9_-]*\z/.match?(directory_name)
+
+    checkout_name
+  end
+
   def gateway_hostname
     configured_hostname = ENV.fetch("GATEWAY_HOSTNAME", "")
     return configured_hostname unless configured_hostname.empty?
 
     directory_name = File.basename(project_root)
     return "travel-authorization.localhost" if directory_name == "travel-authorization"
+
+    "#{checkout_name}.travel-authorization.localhost"
+  end
+
+  def checkout_name
+    directory_name = File.basename(project_root)
 
     checkout_name = directory_name.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-+|-+\z/, "")
 
@@ -438,7 +455,7 @@ class DevHelper
       checkout_name = "#{checkout_prefix}-#{checkout_digest}"
     end
 
-    "#{checkout_name}.travel-authorization.localhost"
+    checkout_name
   end
 
   def take_over_needed?(file_or_directory)
