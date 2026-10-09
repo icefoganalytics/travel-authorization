@@ -157,6 +157,7 @@ stack communicates through Docker's internal network, publishes no host ports, a
 See `api/end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
 integration requests smoke checks and the authenticated wizard with `E2E_AUTHENTICATED=true`.
 Configure four distinct Auth0 accounts through the eight `E2E_` repository Actions secrets.
+Fork pull requests run only credential-free smoke coverage; GitHub does not expose repository secrets.
 
 **Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` from
 `../fixtures` and `expect` from `@playwright/test` so each test cleans both test databases

@@ -48,6 +48,7 @@ authorization journey using four distinct Auth0 accounts and UI actions, includi
 uploads. Its setup verifies authenticated identities before seeding isolated prerequisite data with
 actor-specific application permissions. The eight `E2E_` repository Actions secrets provide each
 actor's email and password; missing credentials fail setup rather than skipping coverage.
+Fork pull requests run only smoke coverage because GitHub withholds repository secrets from those events.
 
 ## Continuous Integration Policy
 
