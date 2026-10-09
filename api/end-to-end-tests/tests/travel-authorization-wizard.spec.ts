@@ -10,13 +10,13 @@ import {
   loadAuthenticatedWorkflowAccounts,
   seedAuthenticatedWorkflowData,
   type AuthenticatedWorkflowAccounts,
-} from "../authenticated-workflow-fixtures"
-import flightOptionFactory from "../factories/flight-option-factory"
-import { bookingFileFactory } from "../factories/upload-file-factories"
-import { cleanEndToEndDatabases, test } from "../fixtures"
-import createFlightOption from "../support/create-flight-option"
-import { fillDate, selectCombobox } from "../support/form-inputs"
-import uploadExpenseReceipts from "../support/upload-expense-receipts"
+} from "@/end-to-end-tests/authenticated-workflow-fixtures"
+import flightOptionFactory from "@/end-to-end-tests/factories/flight-option-factory"
+import { bookingFileFactory } from "@/end-to-end-tests/factories/upload-file-factories"
+import { cleanEndToEndDatabases, test } from "@/end-to-end-tests/fixtures"
+import createFlightOption from "@/end-to-end-tests/support/create-flight-option"
+import { fillDate, selectCombobox } from "@/end-to-end-tests/support/form-inputs"
+import uploadExpenseReceipts from "@/end-to-end-tests/support/upload-expense-receipts"
 
 test.describe("travel authorization wizard", () => {
   test.describe.configure({ mode: "serial" })
