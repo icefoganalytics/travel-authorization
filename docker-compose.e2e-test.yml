@@ -11,7 +11,7 @@ services:
       db:
         condition: service_started
       db_trav_com:
-        condition: service_started
+        condition: service_healthy
       finance_api_stub:
         condition: service_healthy
     ports: !reset []
