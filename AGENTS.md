@@ -219,6 +219,9 @@ v-data-table sortBy → useVuetifySortByToSafeRouteQuery (serializes as "key_ord
 
 ## General Concerns
 
+Reuse existing shared libraries rather than copying or reimplementing their behavior.
+Keep project-specific configuration in this repository.
+
 ### Security
 
 - Auth0 for authentication (requires third-party cookies in dev)

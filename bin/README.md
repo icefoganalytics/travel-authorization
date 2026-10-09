@@ -7,7 +7,7 @@ development tasks.
 
 ## Set Up `dev`
 
-`dev` requires Ruby and the repository Ruby dependencies:
+`dev` requires Ruby 3.2 or newer and the repository Ruby dependencies:
 
 ```bash
 bundle install
@@ -30,6 +30,12 @@ lifecycle cleanup does not remove other projects' routes.
 
 Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
 instead of the checkout-derived default.
+
+Compose project names preserve valid directory names and use the hashed checkout label when
+normalization would otherwise collide. Set `COMPOSE_PROJECT_NAME` to select an explicit project.
+
+Host editor integration uses the shared `open-in-editor-bridge` gem. See
+[Open In Editor](../web/README.md#open-in-editor) for checkout sessions and configuration.
 
 ## Common Commands
 

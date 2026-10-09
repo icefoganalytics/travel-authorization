@@ -79,7 +79,7 @@ If you are new to the project, start here, then read:
 1. Create any local environment files your setup requires.
    The main development values live in `.env.development` files that are not committed.
 
-2. Install the Ruby development dependency:
+2. Install the Ruby development dependencies:
 
    ```bash
    bundle install
@@ -125,8 +125,8 @@ dev migrate make create-table-name
 - Database tables use `snake_case`; models use `camelCase`.
 - Auth0 in development requires third-party cookies to be allowed in the browser.
 - The `dev` wrapper is the preferred way to run local services and project commands.
-- `dev up` starts a small host-side editor bridge for Vue Devtools **Open in Editor**, and
-  `dev down` stops it again.
+- `dev up` uses the shared `open-in-editor-bridge` gem for Vue Devtools **Open in Editor**;
+  `dev down` releases only this checkout's session. See [web/README.md](./web/README.md#open-in-editor).
 - The Local Development Gateway owns loopback ports 80, 5432, and 1433. Project services remain
   internal to Docker and are reachable through their checkout-derived gateway hostnames.
 - Use `@/` import aliases for source imports in both API and web code.

@@ -66,26 +66,29 @@ What these are for:
 ## Open In Editor
 
 When the frontend runs in Docker, Vue Devtools cannot launch your host editor directly from inside
-the container. This project handles that by:
+the container. The shared [open-in-editor-bridge gem](https://github.com/klondikemarlen/open-in-editor-bridge)
+translates container paths to the requesting checkout and launches its configured host editor.
 
-- proxying Vite `"/__open-in-editor"` requests from the container to a small host-side bridge
-- translating container paths like `/usr/src/web/...` back to your host checkout path
-- launching `$EDITOR` on the host, or returning an error if no editor is configured.
+The repo-level `dev` wrapper manages this automatically:
 
-If you use the repo-level `dev` wrapper, this is automatic:
-
-- `dev up` allocates a checkout-local bridge port and passes it to Vite's editor proxy.
-- `dev up -d` and `dev up --wait` keep the bridge running after detached startup completes.
-- `dev down` stops only that checkout's bridge; other worktrees remain available.
+- `dev up` acquires a foreground checkout lease and releases it when Compose exits.
+- `dev up -d` and `dev up --wait` retain a persistent checkout registration until `dev down`.
+- Compose passes `OPEN_IN_EDITOR_SESSION_ID` to Vite, which adds it to editor proxy requests.
+- `dev down` releases only that checkout's persistent registration; other checkouts remain available.
+- With no `OPEN_IN_EDITOR_COMMAND` or `EDITOR`, the application starts without an editor bridge.
+- Without a configured checkout session, Vite rejects editor requests rather than selecting another checkout.
 
 On Linux, `dev` includes `docker-compose.development.linux.yml` so the container can resolve
-`host.docker.internal`.
+`host.docker.internal`. Checkouts share port `3333`; set `OPEN_IN_EDITOR_BRIDGE_PORT` consistently
+across them to use another port. The gem stores private runtime state outside the repository.
 
-The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
+The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`. The wrapper defaults
+`OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS` to `0.0.0.0` so Docker can reach the host listener. This also
+allows other reachable network peers to invoke the editor: use a trusted development network with
+host firewall restrictions, or select a specific Docker-reachable host interface. All checkouts
+sharing a listener must use the same bind address, port, and runtime directory.
 
-The bridge records its PID and selected port under the checkout's `tmp/` directory; its runtime
-files are ignored by Git. Set `OPEN_IN_EDITOR_BRIDGE_PORT` before `dev up` only if you need a
-specific free host port; concurrent checkouts must use different ports.
+Stop older project-local bridges before reusing their port; they cannot share the gem's listener.
 
 ## Sample Travelport Text
 

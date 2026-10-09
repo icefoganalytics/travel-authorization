@@ -28,10 +28,12 @@ Changes since v2025.9.15.1 that will be included in the next release.
   Pinned the gateway dependency to the tested version for reproducible local startup.
   Development and locally served production builds use the same Auth0 client.
   Frontend startup prints the routed URL under the gateway and the actual local URL otherwise.
-  Open in Editor uses checkout-local ports and paths, including after detached or `up --wait`
-  startup, without leaving unignored runtime files. Service-creating Compose fallback commands
-  start or reuse the gateway even on a clean Docker installation.
+  Open in Editor uses the published shared bridge with checkout-specific sessions, including after
+  detached or `up --wait` startup, without per-checkout host ports or repository runtime files.
+  Service-creating Compose fallback commands start or reuse the gateway even on a clean Docker
+  installation.
   Derived worktree hostnames remain valid DNS labels for long or punctuation-heavy names.
+  Compose project names also avoid normalization collisions while preserving valid existing names.
   Why? To let multiple worktrees run and test concurrently without competing for ports.
 
 - Standardized the reports page into a clearer layout with separate sections and tabs for tables, graphs, and print views, including a dedicated flight statistics table with server-side pagination and ordering.
