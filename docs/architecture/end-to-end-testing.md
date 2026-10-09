@@ -14,11 +14,11 @@ The canonical command is:
 ./bin/dev test end-to-end-tests
 ```
 
-It creates a separate Docker Compose project from a standalone end-to-end configuration, recreates
-its named dependency volumes, rebuilds the application and Playwright runner images, runs the suite,
-then removes the isolated stack. The fixture cleans the test databases before each test unless a
-stateful serial workflow explicitly opts out. Its containers communicate on Docker's internal network
-and publish no host ports.
+It overlays `docker-compose.e2e-test.yml` onto the shared development service definitions in a
+separate Docker Compose project, recreates its named volumes, rebuilds the application and
+Playwright runner images, runs the suite, then removes the isolated stack. The fixture cleans the
+test databases before each test unless a stateful serial workflow explicitly opts out. Its containers
+communicate on Docker's internal network and publish no host ports.
 
 This makes the end-to-end environment independent of a developer's active stack and aligns local
 execution with continuous integration.
@@ -43,11 +43,11 @@ change pay the production-image build cost.
 
 ## Coverage Contract
 
-Continuous integration enforces three credential-free smoke checks: API status, sign-in rendering,
-and unauthenticated redirection. The opt-in authenticated project exercises the complete travel
-authorization journey using real Auth0 accounts and UI actions, including booking and receipt
-uploads. Its setup verifies authenticated identities before seeding isolated prerequisite data.
-It is executable local coverage, not enforced continuous-integration coverage.
+Continuous integration requests the three smoke checks and the complete authenticated travel
+authorization journey using four distinct Auth0 accounts and UI actions, including booking and receipt
+uploads. Its setup verifies authenticated identities before seeding isolated prerequisite data with
+actor-specific application permissions. The eight `E2E_` repository Actions secrets provide each
+actor's email and password; missing credentials fail setup rather than skipping coverage.
 
 ## Continuous Integration Policy
 
