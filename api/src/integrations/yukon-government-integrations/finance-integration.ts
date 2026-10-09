@@ -1,10 +1,7 @@
 import axios from "axios"
 import { isEmpty, isNil } from "lodash"
 
-import {
-  YUKON_GOVERNMENT_FINANCE_API_BASE_URL,
-  YUKON_GOVERNMENT_FINANCE_API_KEY,
-} from "@/config"
+import { YUKON_GOVERNMENT_FINANCE_API_BASE_URL, YUKON_GOVERNMENT_FINANCE_API_KEY } from "@/config"
 import parsePossiblyDoubleEncodedJson from "@/utils/parse-possibly-double-encoded-json"
 
 const yukonGovernmentApi = axios.create({
