@@ -213,7 +213,7 @@ test.describe("travel authorization wizard", () => {
     // Step 6 — Submit to Supervisor
     await page.getByLabel("Travel Advance *", { exact: true }).fill("0")
     const supervisorField = page.getByLabel("Submit to *", { exact: true })
-    await supervisorField.fill(accounts.admin.email)
+    await supervisorField.fill(accounts.supervisor.email)
     await supervisorField.press("Enter")
     await page.getByRole("button", { name: "Submit to Supervisor" }).click()
     await expectToast(page, "Travel request submitted.")
@@ -225,18 +225,18 @@ test.describe("travel authorization wizard", () => {
   })
 
   // ---------------------------------------------------------------------------
-  // Wizard — Step 7: Admin approves the travel request
+  // Wizard — Step 7: Supervisor approves the travel request
   // ---------------------------------------------------------------------------
 
-  test("when an admin approves a request, the traveller advances past supervisor approval", async ({
+  test("when a supervisor approves a request, the traveller advances past supervisor approval", async ({
     browser,
   }) => {
     // Arrange
-    // Requires tests/.auth/admin.json and tests/.auth/traveller.json.
-    const adminContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/admin.json",
+    // Requires tests/.auth/supervisor.json and tests/.auth/traveller.json.
+    const supervisorContext = await browser.newContext({
+      storageState: "end-to-end-tests/tests/.auth/supervisor.json",
     })
-    const adminPage = await adminContext.newPage()
+    const supervisorPage = await supervisorContext.newPage()
     const travellerContext = await browser.newContext({
       storageState: "end-to-end-tests/tests/.auth/traveller.json",
     })
@@ -249,13 +249,13 @@ test.describe("travel authorization wizard", () => {
 
     // Act
 
-    await adminPage.goto(`/manage-travel-requests/${travelAuthId}/details`)
-    await adminPage.getByRole("button", { name: "Approve" }).click()
-    const approvalDialog = adminPage.getByRole("dialog")
+    await supervisorPage.goto(`/manage-travel-requests/${travelAuthId}/details`)
+    await supervisorPage.getByRole("button", { name: "Approve" }).click()
+    const approvalDialog = supervisorPage.getByRole("dialog")
     await approvalDialog.getByRole("button", { name: "Approve" }).click()
-    await expectToast(adminPage, "Travel authorization approved!")
+    await expectToast(supervisorPage, "Travel authorization approved!")
 
-    await adminContext.close()
+    await supervisorContext.close()
 
     // Traveller checks status
     await travellerPage.getByRole("button", { name: "Check status?" }).click()
@@ -327,26 +327,26 @@ test.describe("travel authorization wizard", () => {
   }) => {
     // Arrange
     test.setTimeout(90_000)
-    const adminContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/admin.json",
+    const travelDeskContext = await browser.newContext({
+      storageState: "end-to-end-tests/tests/.auth/travelDesk.json",
     })
-    const adminPage = await adminContext.newPage()
+    const travelDeskPage = await travelDeskContext.newPage()
     const travellerContext = await browser.newContext({
       storageState: "end-to-end-tests/tests/.auth/traveller.json",
     })
     const travellerPage = await travellerContext.newPage()
 
     // Act
-    await adminPage.goto(`/travel-desk/${travelDeskRequestId}/manage-flight-segments`)
-    await createFlightOption(adminPage, 0, "Whitehorse (YT)", "Vancouver (BC)", "2026-06-01")
+    await travelDeskPage.goto(`/travel-desk/${travelDeskRequestId}/manage-flight-segments`)
+    await createFlightOption(travelDeskPage, 0, "Whitehorse (YT)", "Vancouver (BC)", "2026-06-01")
     await travellerPage.goto(`/my-travel-requests/${travelAuthId}/wizard/awaiting-flight-options`)
     await expect(
       travellerPage.getByRole("button", { name: "Check status?", exact: true })
     ).toBeVisible()
-    await createFlightOption(adminPage, 1, "Vancouver (BC)", "Whitehorse (YT)", "2026-06-04")
-    await adminPage.goto(`/travel-desk/${travelDeskRequestId}/edit/review-manage-booking`)
-    await adminPage.getByRole("button", { name: "Send to Traveler", exact: true }).click()
-    await expect(adminPage).toHaveURL(/\/travel-desk$/)
+    await createFlightOption(travelDeskPage, 1, "Vancouver (BC)", "Whitehorse (YT)", "2026-06-04")
+    await travelDeskPage.goto(`/travel-desk/${travelDeskRequestId}/edit/review-manage-booking`)
+    await travelDeskPage.getByRole("button", { name: "Send to Traveler", exact: true }).click()
+    await expect(travelDeskPage).toHaveURL(/\/travel-desk$/)
 
     await travellerPage.getByRole("button", { name: "Check status?", exact: true }).click()
     await expect(travellerPage).toHaveURL(/rank-flight-options/)
@@ -358,9 +358,9 @@ test.describe("travel authorization wizard", () => {
     await travellerPage.getByRole("button", { name: "Submit Option Rankings", exact: true }).click()
     await expect(travellerPage).toHaveURL(/awaiting-booking-confirmation/)
 
-    await adminPage.goto(`/travel-desk/${travelDeskRequestId}/edit/trip-information`)
-    await adminPage.getByLabel("Invoice Number *", { exact: true }).fill("E2E-394")
-    await adminPage.getByLabel("PNR Document *", { exact: true }).setInputFiles({
+    await travelDeskPage.goto(`/travel-desk/${travelDeskRequestId}/edit/trip-information`)
+    await travelDeskPage.getByLabel("Invoice Number *", { exact: true }).fill("E2E-394")
+    await travelDeskPage.getByLabel("PNR Document *", { exact: true }).setInputFiles({
       name: "booking.pdf",
       mimeType: "application/pdf",
       buffer: Buffer.from(
@@ -368,20 +368,20 @@ test.describe("travel authorization wizard", () => {
         "base64"
       ),
     })
-    await adminPage.getByRole("button", { name: "Save Trip Information" }).click()
-    await expectToast(adminPage, "Passenger name record saved successfully")
-    await adminPage.goto(`/travel-desk/${travelDeskRequestId}/edit/review-manage-booking`)
-    await adminPage.getByRole("button", { name: "Booking Complete", exact: true }).click()
-    await adminPage
+    await travelDeskPage.getByRole("button", { name: "Save Trip Information" }).click()
+    await expectToast(travelDeskPage, "Passenger name record saved successfully")
+    await travelDeskPage.goto(`/travel-desk/${travelDeskRequestId}/edit/review-manage-booking`)
+    await travelDeskPage.getByRole("button", { name: "Booking Complete", exact: true }).click()
+    await travelDeskPage
       .getByRole("dialog")
       .getByRole("button", { name: "Confirm", exact: true })
       .click()
-    await expectToast(adminPage, "Travel request booked.")
+    await expectToast(travelDeskPage, "Travel request booked.")
     await travellerPage.getByRole("button", { name: "Check status?", exact: true }).click()
 
     // Assert
     await expect(travellerPage).toHaveURL(/confirm-actual-travel-details/)
-    await adminContext.close()
+    await travelDeskContext.close()
     await travellerContext.close()
   })
 
@@ -461,23 +461,25 @@ test.describe("travel authorization wizard", () => {
   // Wizard — Steps 13–15: Supervisor and finance approve the expense claim
   // ---------------------------------------------------------------------------
 
-  test("when finance processes an expense claim, the traveller can review expenses", async ({
+  test("when a supervisor and finance approve an expense claim, the traveller can review expenses", async ({
     browser,
   }) => {
     // Arrange
-    // Requires tests/.auth/admin.json and tests/.auth/traveller.json.
-    const adminContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/admin.json",
+    // Requires tests/.auth/supervisor.json, tests/.auth/finance.json, and tests/.auth/traveller.json.
+    const supervisorContext = await browser.newContext({
+      storageState: "end-to-end-tests/tests/.auth/supervisor.json",
     })
-    const adminPage = await adminContext.newPage()
+    const supervisorPage = await supervisorContext.newPage()
 
     // Act
 
     // Step 13 — Supervisor approves through the native confirmation.
-    await adminPage.goto(`/manage-travel-requests/${travelAuthId}/expense`)
-    adminPage.once("dialog", (dialog) => dialog.accept())
-    await adminPage.getByRole("button", { name: "Approve", exact: true }).click()
-    await expectToast(adminPage, "Expense claim approved!")
+    await supervisorPage.goto(`/manage-travel-requests/${travelAuthId}/expense`)
+    supervisorPage.once("dialog", (dialog) => dialog.accept())
+    await supervisorPage.getByRole("button", { name: "Approve", exact: true }).click()
+    await expectToast(supervisorPage, "Expense claim approved!")
+    await supervisorContext.close()
+
     const travellerContext = await browser.newContext({
       storageState: "end-to-end-tests/tests/.auth/traveller.json",
     })
@@ -491,12 +493,16 @@ test.describe("travel authorization wizard", () => {
     ).toBeVisible()
 
     // Step 14 — Finance processes expenses through the same user-facing controls.
-    await adminPage.goto(`/expense-processing/${travelAuthId}/expense`)
-    adminPage.once("dialog", (dialog) => dialog.accept())
-    await adminPage.getByRole("button", { name: "Approve", exact: true }).click()
-    await expectToast(adminPage, "Travel authorization expensed!")
+    const financeContext = await browser.newContext({
+      storageState: "end-to-end-tests/tests/.auth/finance.json",
+    })
+    const financePage = await financeContext.newPage()
+    await financePage.goto(`/expense-processing/${travelAuthId}/expense`)
+    financePage.once("dialog", (dialog) => dialog.accept())
+    await financePage.getByRole("button", { name: "Approve", exact: true }).click()
+    await expectToast(financePage, "Travel authorization expensed!")
 
-    await adminContext.close()
+    await financeContext.close()
 
     // Traveller checks final status
     await travellerPage.getByRole("button", { name: "Check status?" }).click()
