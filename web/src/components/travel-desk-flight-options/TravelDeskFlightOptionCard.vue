@@ -35,6 +35,15 @@
           />
         </v-col>
       </v-row>
+      <v-textarea
+        v-if="flightOption.additionalInformation"
+        label="Additional Information"
+        :model-value="flightOption.additionalInformation"
+        variant="outlined"
+        rows="2"
+        auto-grow
+        readonly
+      />
       <v-row class="mb-4">
         <v-col
           cols="12"
@@ -82,9 +91,11 @@ const { travelDeskFlightSegments, isLoading } = useTravelDeskFlightSegments(
 )
 
 const flightPreferenceOrderText = computed(() => {
-  return props.flightOption.flightPreferenceOrder === DOES_NOT_WORK
-    ? "Does Not Work"
-    : props.flightOption.flightPreferenceOrder
+  if (props.flightOption.flightPreferenceOrder === DOES_NOT_WORK) {
+    return "Does Not Work"
+  }
+
+  return props.flightOption.flightPreferenceOrder ?? "Not Ranked"
 })
 </script>
 
