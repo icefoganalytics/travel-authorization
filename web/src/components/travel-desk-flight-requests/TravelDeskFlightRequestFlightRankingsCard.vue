@@ -35,6 +35,7 @@
           </p>
           <TravelDeskFlightOptionsDataIterator
             :where="{ flightRequestId: travelDeskFlightRequest.id }"
+            :route-query-suffix="`FlightOptions${travelDeskFlightRequest.id}`"
           />
         </section>
       </div>
