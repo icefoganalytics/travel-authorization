@@ -7,12 +7,38 @@ development tasks.
 
 ## Set Up `dev`
 
-`dev` requires Ruby.
+`dev` requires Ruby 3.2 or newer and the published
+[`open-in-editor-bridge`](https://github.com/klondikemarlen/open-in-editor-bridge) gem:
+
+```bash
+gem install open-in-editor-bridge --version "~> 0.2.0"
+```
+
+Install the gem for the Ruby selected by your shell/version manager. `dev` loads the gem directly;
+Bundler is not required.
 
 Basic usage:
 
 1. Run it as `./bin/dev ...` from the repo root.
 2. If you want to use `dev ...` instead, add `bin/` to your `PATH`.
+
+### Open in Editor
+
+Set `OPEN_IN_EDITOR_COMMAND` or `EDITOR` to your host editor command before starting the stack.
+The gem appends `--goto` and translates `/usr/src/web` paths to this checkout's `web/` directory,
+even when `dev` is invoked from another directory.
+
+Foreground `dev up` releases its bridge lease when Compose exits. Detached startup (`-d`,
+`--detach`, or `--wait`) keeps a persistent registration until `dev down` releases it.
+Multiple checkouts share the listener; Compose and Vite forward the checkout session ID so editor
+requests target the correct checkout. Stopping one checkout does not stop another's registration.
+
+The wrapper defaults `OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS` to `0.0.0.0` so Docker containers can
+reach the host. Editor requests are unauthenticated: use a trusted development network and host
+firewall restrictions, or set a specific Docker-reachable host interface. Do not expose the bridge
+publicly. `OPEN_IN_EDITOR_BRIDGE_PORT` defaults to `3333` and is forwarded to the frontend proxy.
+All checkouts sharing a listener must agree on its port, bind address, and
+`OPEN_IN_EDITOR_BRIDGE_RUNTIME_DIR`. The gem manages shared runtime state outside the checkout.
 
 ## Common Commands
 

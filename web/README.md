@@ -60,19 +60,26 @@ What these are for:
 When the frontend runs in Docker, Vue Devtools cannot launch your host editor directly from inside
 the container. This project handles that by:
 
-- proxying Vite `"/__open-in-editor"` requests from the container to a small host-side bridge
+- proxying Vite `"/__open-in-editor"` requests to the published `open-in-editor-bridge` gem, including
+  this checkout's session ID so simultaneous worktrees open files in the correct editor
 - translating container paths like `/usr/src/web/...` back to your host checkout path
 - launching `$EDITOR` on the host, or returning an error if no editor is configured.
 
-If you use the repo-level `dev` wrapper, this is automatic:
+Install the Ruby/gem prerequisites and configure your editor via
+[Set Up `dev`](../bin/README.md#set-up-dev). If you use the repo-level wrapper:
 
-- `dev up` starts the bridge before Docker Compose boots the stack
-- `dev down` stops the bridge again
+- foreground `dev up` keeps the bridge lease until Compose exits
+- detached `dev up` (`-d`, `--detach`, or `--wait`) keeps its registration until `dev down`
+- `dev down` releases only this checkout's registration, leaving other checkouts active
 
 If you run Docker Compose manually on Linux, include
 `docker-compose.development.linux.yml` so the container can resolve `host.docker.internal`.
 
 The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
+See [Open in Editor](../bin/README.md#open-in-editor) for listener configuration and trusted-network
+requirements. For manual Compose startup, register the checkout with the gem CLI and export its
+`OPEN_IN_EDITOR_SESSION_ID`; the [gem README](https://github.com/klondikemarlen/open-in-editor-bridge)
+documents that lifecycle.
 
 ## Sample Travelport Text
 

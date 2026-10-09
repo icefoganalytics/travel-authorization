@@ -44,6 +44,8 @@ If you are new to the project, start here, then read:
 
 ## Quick Start
 
+Install the Ruby and editor-bridge gem prerequisites in [Set Up `dev`](./bin/README.md#set-up-dev).
+
 1. Create any local environment files your setup requires.
    The main development values live in `.env.development` files that are not committed.
 
@@ -101,8 +103,8 @@ dev migrate make create-table-name
 - Database tables use `snake_case`; models use `camelCase`.
 - Auth0 in development requires third-party cookies to be allowed in the browser.
 - The `dev` wrapper is the preferred way to run local services and project commands.
-- `dev up` starts a small host-side editor bridge for Vue Devtools **Open in Editor**, and
-  `dev down` stops it again.
+- `dev up` registers this checkout with the published editor-bridge gem for Vue Devtools
+  **Open in Editor**; `dev down` releases that registration without stopping other checkouts.
 - Use `@/` import aliases for source imports in both API and web code.
 - Test files mirror source structure:
   `api/src/services/example.ts` -> `api/tests/services/example.test.ts`
@@ -150,7 +152,9 @@ If Vue Devtools **Open in Editor** fails while running the frontend in Docker:
 - Prefer `dev up` over raw `docker compose up` so the host-side bridge starts automatically.
 - On Linux, make sure you also include `docker-compose.development.linux.yml` when running Docker
   Compose manually.
-- The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
+- Install the gem and configure your editor as described in
+  [Open in Editor](./bin/README.md#open-in-editor). The bridge prefers `OPEN_IN_EDITOR_COMMAND`,
+  then `EDITOR`, and returns an error if neither is set.
 
 ## Build And Deploy
 
