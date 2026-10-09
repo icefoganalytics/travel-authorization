@@ -3,12 +3,15 @@ import path from "node:path"
 
 import { expect, test } from "@playwright/test"
 
-import { authenticateAccount, authenticationDirectory, readAccountEmail } from "../authentication"
-
 import type {
   AuthenticatedWorkflowAccount,
   AuthenticatedWorkflowAccounts,
-} from "../authenticated-workflow-fixtures"
+} from "@/end-to-end-tests/authenticated-workflow-fixtures"
+import {
+  authenticateAccount,
+  authenticationDirectory,
+  readAccountEmail,
+} from "@/end-to-end-tests/authentication"
 
 const authenticationTimeout = 120_000
 

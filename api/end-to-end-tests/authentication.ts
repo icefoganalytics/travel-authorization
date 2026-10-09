@@ -9,7 +9,7 @@ import db from "@/db/db-client"
 import type {
   AuthenticatedWorkflowAccount,
   AuthenticatedWorkflowAccounts,
-} from "./authenticated-workflow-fixtures"
+} from "@/end-to-end-tests/authenticated-workflow-fixtures"
 
 export const authenticationDirectory = path.join(__dirname, "tests", ".auth")
 

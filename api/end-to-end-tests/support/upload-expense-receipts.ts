@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test"
 
-import { receiptFileFactory } from "../factories/upload-file-factories"
+import { receiptFileFactory } from "@/end-to-end-tests/factories/upload-file-factories"
 
 export async function uploadExpenseReceipts(page: Page): Promise<number> {
   const receiptInputs = page.locator("input[type='file'].d-none")

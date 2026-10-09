@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test"
 
-import { test } from "../fixtures"
+import { test } from "@/end-to-end-tests/fixtures"
 
 test.describe("unauthenticated smoke checks", () => {
   test("when the API is available, it responds with status", async ({ request }) => {

@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test"
 
-import type { FlightOptionAttributes } from "../factories/flight-option-factory"
+import type { FlightOptionAttributes } from "@/end-to-end-tests/factories/flight-option-factory"
 
 type FlightSegmentDraft = {
   flightNumber: string
