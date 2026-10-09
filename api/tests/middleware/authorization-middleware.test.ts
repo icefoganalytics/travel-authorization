@@ -14,7 +14,7 @@ vi.mock("@/utils/logger")
 
 describe("api/src/middleware/authorization-middleware.ts", () => {
   describe(".authorizationMiddleware", () => {
-    test("when concurrent requests create the same user, only one authenticated user persists", async () => {
+    test("when concurrent tokens authenticate the same subject, one user identity persists", async () => {
       // Arrange
       const attempts = 100
       const auth0Subject = "auth0|concurrent-creation"
@@ -24,10 +24,13 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
         lastName: "UNKNOWN",
         auth0Subject,
       }
-      const req: Partial<AuthorizationRequest> = {
-        headers: { authorization: auth0Subject },
-        auth: { sub: auth0Subject },
-      }
+      const requests: Partial<AuthorizationRequest>[] = Array.from(
+        { length: attempts },
+        (_, index) => ({
+          headers: { authorization: `Bearer concurrent-token-${index}` },
+          auth: { sub: auth0Subject },
+        })
+      )
       const res: Partial<Response> = {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
@@ -37,14 +40,20 @@ describe("api/src/middleware/authorization-middleware.ts", () => {
 
       // Act
       await Promise.all(
-        Array.from({ length: attempts }, () =>
-          authorizationMiddleware(req as AuthorizationRequest, res as Response, next)
+        requests.map((request) =>
+          authorizationMiddleware(request as AuthorizationRequest, res as Response, next)
         )
       )
 
       // Assert
       const users = await User.findAll({ where: { sub: auth0Subject } })
-      expect(users).toEqual([expect.objectContaining({ sub: auth0Subject })])
+      expect({
+        persistedUsers: users,
+        attachedUserIds: requests.map((request) => request.user?.id),
+      }).toEqual({
+        persistedUsers: [expect.objectContaining({ sub: auth0Subject })],
+        attachedUserIds: Array.from({ length: attempts }, () => users[0]?.id),
+      })
     })
 
     test("when a previously created user was deleted, it recreates the authenticated user", async () => {

@@ -44,25 +44,29 @@ export async function authorizationMiddleware(
   next: NextFunction
 ) {
   const token = req.headers.authorization || ""
+  const auth0Subject = req.auth?.sub
+  if (isNil(auth0Subject)) {
+    return res.status(401).json({ message: "User authentication failed." })
+  }
 
   // Step 1: check database for user
-  const user = await User.findOne({ where: { sub: req.auth?.sub } })
+  const user = await User.findOne({ where: { sub: auth0Subject } })
 
   if (!isNil(user)) {
     req.user = user
     return next()
   }
 
-  let userCreationPromise = userCreationPromises.get(token)
+  let userCreationPromise = userCreationPromises.get(auth0Subject)
 
   try {
     if (isNil(userCreationPromise)) {
       userCreationPromise = ensureUserFromAuth0Token(token)
-      userCreationPromises.set(token, userCreationPromise)
+      userCreationPromises.set(auth0Subject, userCreationPromise)
     }
 
     const createdUser = await userCreationPromise
-    if (createdUser.sub !== req.auth?.sub) {
+    if (createdUser.sub !== auth0Subject) {
       throw new Error("Created user does not match the authenticated subject.")
     }
 
@@ -76,8 +80,8 @@ export async function authorizationMiddleware(
       return res.status(401).json({ message: "User authentication failed." })
     }
   } finally {
-    if (userCreationPromises.get(token) === userCreationPromise) {
-      userCreationPromises.delete(token)
+    if (userCreationPromises.get(auth0Subject) === userCreationPromise) {
+      userCreationPromises.delete(auth0Subject)
     }
   }
 }
