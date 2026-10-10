@@ -25,8 +25,14 @@ for frontend readiness. Test containers communicate internally and publish no ho
 This makes the end-to-end environment independent of a developer's active stack and aligns local
 execution with continuous integration.
 
-Normal wrapper commands select the `development` profile. Inactive development services retain
-their local environment-file requirements without requiring those files during end-to-end runs.
+Development services run by default without a profile. Profiles are reserved for optional unit-test,
+end-to-end, and design services. The development API loads its local environment file when present;
+Compose can also validate the isolated end-to-end run without that local file. The wrapper targets
+the test runner and its dependencies explicitly, so default development services are not started
+in the test project.
+The end-to-end frontend reuses the standard web build with test-only API routing, no development
+bind mounts or gateway attachment, and a readiness check. The `test_web` unit-test runner does not
+serve the application.
 
 ## Test Ownership and Runtime
 

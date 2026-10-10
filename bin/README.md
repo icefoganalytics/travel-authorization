@@ -10,9 +10,9 @@ leave option semantics to Docker Compose and shared gems rather than adding comp
 Use the normal repository-root setup and let missing prerequisites fail clearly instead of
 adding alternate startup paths or dependency-discovery workarounds.
 
-The wrapper selects the `development` profile by default. Direct Docker Compose commands against
-`docker-compose.development.yml` must enable that profile explicitly; the end-to-end test command
-selects its own profile instead.
+Development services run by default, without a profile. Profiles are reserved for optional
+`tests`, `end-to-end-tests`, and `design` services. Explicit `./bin/dev test api` and
+`./bin/dev test web` commands activate their unit-test runner automatically.
 
 ## Set Up `dev`
 

@@ -81,8 +81,8 @@ The wrapper forces the `travel-authorization-e2e-test` Compose project even when
 `COMPOSE_PROJECT_NAME` is set. It selects the `end-to-end-tests` profile from
 `docker-compose.development.yml`, resets that isolated stack and its named volumes, rebuilds the
 application and runner images, runs Playwright, and tears down on success or failure. The runner
-image installs this package alone and does not install the API manifest. Normal wrapper commands
-select the `development` profile.
+image installs this package alone and does not install the API manifest. Development services run
+by default without a profile; unit-test runners and design tools are optional profiled services.
 
 The API waits for a successful SQL Server query before starting TravCom initialization. The test
 frontend waits for the API status endpoint, and the runner waits for the frontend health check. The
