@@ -40,7 +40,9 @@ services:
     build: &api-build
       context: ./api
       dockerfile: development.Dockerfile
-    env_file: ./api/.env.development
+    env_file:
+      - path: ./api/.env.development
+        required: false
     environment:
       <<: *default-environment
       TS_NODE_HISTORY: /usr/src/api/.ts_node_repl_history
@@ -54,8 +56,6 @@ services:
       - ./.prettierrc.yaml:/usr/src/.prettierrc.yaml
     depends_on:
       - db
-    profiles:
-      - development
 
   web: &web-service
     build: &web-build
@@ -74,8 +74,6 @@ services:
         condition: service_started
       api_wait:
         condition: service_completed_successfully
-    profiles:
-      - development
 
   test_api:
     build: *api-build
@@ -96,7 +94,7 @@ services:
       - db
       - db_trav_com
     profiles:
-      - development
+      - tests
 
   test_web:
     build: *web-build
@@ -108,7 +106,7 @@ services:
     volumes:
       - ./web:/usr/src/web
     profiles:
-      - development
+      - tests
 
   end_to_end_tests:
     image: travel-authorization-e2e-tests
@@ -168,8 +166,6 @@ services:
       - ./bin/api-wait.mjs:/bin/api-wait.mjs:ro
     entrypoint: ["node", "/bin/api-wait.mjs"]
     restart: "no"
-    profiles:
-      - development
 
   db: &postgresql-service
     image: "postgres:14.4"
@@ -180,8 +176,6 @@ services:
       POSTGRES_DB: *default-db-name
     volumes:
       - db_data:/var/lib/postgresql/data
-    profiles:
-      - development
 
   # Represents an external database for TravCom (a.k.a. Travel Computer Systems)
   db_trav_com: &trav-com-service
@@ -193,8 +187,6 @@ services:
       ACCEPT_EULA: "Y"
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
-    profiles:
-      - development
 
   end_to_end_api:
     <<: *api-service
