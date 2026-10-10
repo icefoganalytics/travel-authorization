@@ -186,7 +186,7 @@ class DevHelper
     )
     test_succeeded = build_succeeded && compose(
       *end_to_end_project_options,
-      *%w[run --rm end_to_end_tests npm run test:e2e],
+      *%w[run --rm end_to_end_tests npm test],
       *args,
       **end_to_end_kwargs
     )
