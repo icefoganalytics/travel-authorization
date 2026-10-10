@@ -60,5 +60,10 @@ export default defineConfig({
   },
   test: {
     globals: true, // https://vitest.dev/config/#globals
+    server: {
+      deps: {
+        inline: ["vuetify"],
+      },
+    },
   },
 })
