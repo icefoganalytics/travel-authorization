@@ -155,8 +155,8 @@ dev test end-to-end-tests         # starts the test-mode app stack, runs Playwri
 The `end-to-end-tests` profile in `docker-compose.development.yml` selects dedicated test services
 that reuse development builds and service settings through YAML anchors. The wrapper selects a
 separate project; the application and runner use test databases, not development databases. The
-test stack publishes no host ports and is removed after the run. Normal wrapper commands select
-the `development` profile.
+test stack publishes no host ports and is removed after the run. Development services run by
+default without a profile; only optional test and design services use profiles.
 
 See `end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
 integration requests smoke checks and the authenticated wizard with `E2E_AUTHENTICATED=true`.

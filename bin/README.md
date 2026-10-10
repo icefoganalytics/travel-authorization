@@ -5,9 +5,9 @@
 The `dev` command is a small helper around Docker Compose plus a few TravelAuth-specific
 development tasks.
 
-The wrapper selects the `development` profile by default. Direct Docker Compose commands against
-`docker-compose.development.yml` must enable that profile explicitly; the end-to-end test command
-selects its own profile instead.
+Development services run by default, without a profile. Profiles are reserved for optional
+`tests`, `end-to-end-tests`, and `design` services. Explicit `./bin/dev test api` and
+`./bin/dev test web` commands activate their unit-test runner automatically.
 
 ## Set Up `dev`
 
