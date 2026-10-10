@@ -419,8 +419,8 @@ class DevHelper
     linux_override = "docker-compose.#{environment}.linux.yml"
 
     if environment == "development"
-      profile = kwargs.delete(:profile) { "development" }
-      compose_file_args << "--profile #{profile}"
+      profile = kwargs.delete(:profile)
+      compose_file_args << "--profile #{profile}" if profile
     end
 
     if environment == "development"
