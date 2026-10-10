@@ -89,12 +89,18 @@ frontend waits for the API status endpoint, and the runner waits for the fronten
 stack uses Docker's internal network without host ports; the runner shares the frontend's network
 namespace so the real Auth0 callback remains `http://localhost:8080`.
 
+The end-to-end profile does not start or attach to the development gateway. It keeps the backend
+frontend URL at `http://localhost:8080` and applies SQL readiness only to its isolated TravCom
+service. CI installs the root Ruby dependencies before invoking the wrapper.
+
 ## Adding Tests
 
 Wrap every `test()` in a meaningful `test.describe()` suite, grouped by workflow or behavior.
 
 Keep each test focused on one outcome and assert the actual result directly. Use separate tests
 instead of combining independent checks into assertion-only objects.
+Serial browser stages may retain direct checkpoint assertions for their one transition. Use a
+reasoned per-test `allow-multiple-expects` alignment exemption rather than aggregating results.
 
 Put reusable browser actions in `support/` and plain Fishery data builders in `factories/`, not
 inside spec files. Encoded upload fixtures live in `data/`; factories decode them once. Keep
