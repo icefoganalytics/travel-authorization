@@ -30,7 +30,7 @@ coverage
 # Playwright artifacts
 playwright-report/
 test-results/
-api/end-to-end-tests/tests/.auth/
+end-to-end-tests/tests/.auth/
 
 # nyc test coverage
 .nyc_output
