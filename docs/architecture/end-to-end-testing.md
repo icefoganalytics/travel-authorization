@@ -16,8 +16,12 @@ The canonical command is:
 
 It selects the `end-to-end-tests` profile in `docker-compose.development.yml` and a separate Docker
 Compose project, recreates its named volumes, rebuilds the application and Playwright runner
-images, runs the suite, then removes the isolated stack. Dedicated test services reuse development
-builds and service settings through YAML anchors; no separate end-to-end Compose file is needed.
+images, runs the suite, then removes the isolated stack. Application variants reuse development
+builds and service settings through YAML anchors. The standard `db` and `db_trav_com` services
+run in this separate project, with `DB_NAME=travel_test` and `TRAVCOM_DB_NAME=trav_com_test`
+supplied only to E2E Compose commands. Database volumes are project-scoped; no duplicate database
+services or separate end-to-end Compose file are needed. The wrapper omits the development gateway
+overlay, so the reused databases cannot register development routes.
 The fixture cleans test databases before each test unless a stateful serial workflow opts out.
 The API waits for SQL Server readiness, the frontend waits for API readiness, and the runner waits
 for frontend readiness. Test containers communicate internally and publish no host ports.
@@ -28,8 +32,8 @@ execution with continuous integration.
 Development services run by default without a profile. Profiles are reserved for optional unit-test,
 end-to-end, and design services. The development API loads its local environment file when present;
 Compose can also validate the isolated end-to-end run without that local file. The wrapper targets
-the test runner and its dependencies explicitly, so default development services are not started
-in the test project.
+the test runner and its dependencies explicitly. Standard database services run in the isolated
+project, but normal development API, frontend, and readiness services are not started there.
 The end-to-end frontend reuses the standard web build with test-only API routing, no development
 bind mounts or gateway attachment, and a readiness check. The `test_web` unit-test runner does not
 serve the application.

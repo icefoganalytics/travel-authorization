@@ -96,8 +96,11 @@ the stack down after the run:
 ```
 
 The command selects the `end-to-end-tests` profile in `docker-compose.development.yml` and starts
-dedicated application and database services in a separate project before running Playwright. YAML
-anchors share the development builds and service settings; no separate end-to-end Compose file is
+dedicated application services plus the standard `db` and `db_trav_com` services in a separate
+project before running Playwright. It supplies `DB_NAME=travel_test` and
+`TRAVCOM_DB_NAME=trav_com_test` only to its Compose commands and omits the development gateway
+overlay. Database volumes are project-scoped; normal development names remain unchanged. YAML
+anchors share application settings; no separate end-to-end Compose file or database variants are
 needed. The test stack publishes no host ports, so it cannot conflict with a development stack.
 
 See `end-to-end-tests/README.md` for the standalone package, coverage boundary, and real-account prerequisites.

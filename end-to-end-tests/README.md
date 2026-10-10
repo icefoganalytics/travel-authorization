@@ -84,14 +84,21 @@ application and runner images, runs Playwright, and tears down on success or fai
 image installs this package alone and does not install the API manifest. Development services run
 by default without a profile; unit-test runners and design tools are optional profiled services.
 
+The test project reuses the standard `db` and `db_trav_com` service definitions and volume keys.
+Every E2E Compose command supplies `DB_NAME=travel_test` and `TRAVCOM_DB_NAME=trav_com_test`,
+overriding ambient database names without changing the calling shell. Compose prefixes the volumes
+with the isolated project name; development still defaults to `travel_development` and
+`trav_com_development`.
+
 The API waits for a successful SQL Server query before starting TravCom initialization. The test
 frontend waits for the API status endpoint, and the runner waits for the frontend health check. The
 stack uses Docker's internal network without host ports; the runner shares the frontend's network
 namespace so the real Auth0 callback remains `http://localhost:8080`.
 
-The end-to-end profile does not start or attach to the development gateway. It keeps the backend
-frontend URL at `http://localhost:8080` and applies SQL readiness only to its isolated TravCom
-service. CI installs the root Ruby dependencies before invoking the wrapper.
+The wrapper omits the development gateway overlay for E2E commands, so reused database containers
+have no gateway attachment or routing labels. The shared TravCom service has a SQL readiness check;
+the E2E API waits for it without changing normal API startup dependencies. The Auth0 callback stays
+at `http://localhost:8080`. CI installs the root Ruby dependencies before invoking the wrapper.
 
 ## Adding Tests
 
