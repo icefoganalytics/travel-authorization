@@ -74,7 +74,8 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
 - Use `@/` import alias for src directory (both API and web)
 - Database: snake_case, Models: camelCase (Sequelize handles mapping)
 - Test files mirror source structure: `api/src/services/example.ts` → `api/tests/services/example.test.ts`
-- On Linux, the dev wrapper auto-includes `.linux.yml` override for `host.docker.internal:host-gateway`
+- On Linux, the dev wrapper includes an optional `docker-compose.<environment>.linux.yml` when present.
+- For editor-enabled startup, the gem's Compose adapter supplies `host.docker.internal:host-gateway` and read-only Vite integration mounts; no editor-specific Linux override is needed.
 
 ---
 
