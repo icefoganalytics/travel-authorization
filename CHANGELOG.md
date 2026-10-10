@@ -25,7 +25,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Changed
 
-- Developer improvements for running multiple worktrees without port conflicts; standard development services start without profile selection, with profiles reserved for optional tests and design tools.
+- Developer improvements for running multiple worktrees without port conflicts; standard development services start without profile selection, with profiles reserved for optional tests and design tools. Browser tests reuse the standard database services in an isolated project instead of maintaining duplicate definitions.
 
 - Developer improvements for opening container files in the correct checkout with less project-local tooling.
 
