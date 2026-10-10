@@ -89,6 +89,16 @@ class DevHelper
     end
   end
 
+  def stop(*args, **kwargs)
+    if kwargs.fetch(:environment, "development") != "development"
+      return compose("stop", *args, **kwargs)
+    end
+
+    LocalDevelopmentGateway.with_running(ensure_running: false) do
+      compose("stop", *args, **kwargs, execution_mode: WAIT_FOR_PROCESS)
+    end
+  end
+
   def logs(*args, **kwargs)
     compose(*%w[logs -f], *args, **kwargs)
   end
