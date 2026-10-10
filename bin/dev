@@ -4,6 +4,8 @@ require "digest"
 require "rdoc"
 require "shellwords"
 
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
+
 require "bundler/setup"
 require "local_development_gateway"
 require "open_in_editor_bridge"
@@ -65,27 +67,35 @@ class DevHelper
 
   def up(*args, **kwargs)
     configure_editor_bridge
-    editor_command = ENV.fetch("OPEN_IN_EDITOR_COMMAND", ENV["EDITOR"])
+    compose_arguments = %w[up --remove-orphans --force-recreate]
+    compose_arguments << "-d" if args.include?("--wait") || args.include?("--wait=true")
 
-    if editor_command.nil? || editor_command.empty?
-      warn "No editor configured; editor bridge will not be started."
-      return start_development_services(*args, **kwargs)
-    end
+    LocalDevelopmentGateway.with_running do
+      unless editor_bridge_enabled?
+        warn "No editor configured; editor bridge will not be started."
+        return compose(*compose_arguments, *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      end
 
-    detached = args.any? { |argument| %w[-d --detach --detach=true --wait --wait=true].include?(argument) }
-    OpenInEditorBridge.with_running do
-      result = start_development_services(*args, **kwargs)
-      OpenInEditorBridge.call("--ensure-running") if detached
-      result
+      OpenInEditorBridge.compose(
+        *compose_arguments,
+        *args,
+        compose_options: compose_file_options(**kwargs),
+        env: ENV.to_h.merge(compose_environment),
+        project_root: project_root
+      )
     end
   end
 
   def down(*args, **kwargs)
     configure_editor_bridge
-    OpenInEditorBridge.with_running(ensure_running: false) do
-      LocalDevelopmentGateway.with_running(ensure_running: false) do
-        compose(*%w[down --remove-orphans], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
-      end
+    LocalDevelopmentGateway.with_running(ensure_running: false) do
+      OpenInEditorBridge.compose(
+        *%w[down --remove-orphans],
+        *args,
+        compose_options: compose_file_options(**kwargs),
+        env: ENV.to_h.merge(compose_environment),
+        project_root: project_root
+      )
     end
   end
 
@@ -344,19 +354,11 @@ class DevHelper
   private
 
   def configure_editor_bridge
-    ENV["OPEN_IN_EDITOR_PROJECT_ROOT"] = project_root
     ENV["OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS"] ||= "0.0.0.0"
   end
 
-  def start_development_services(*args, **kwargs)
-    LocalDevelopmentGateway.with_running do
-      compose(
-        *%w[up --remove-orphans --force-recreate],
-        *args,
-        execution_mode: WAIT_FOR_PROCESS,
-        **kwargs
-      )
-    end
+  def editor_bridge_enabled?
+    !ENV.fetch("OPEN_IN_EDITOR_COMMAND", ENV["EDITOR"]).to_s.empty?
   end
 
   def wait_for_process_with_logging(command)
@@ -376,23 +378,11 @@ class DevHelper
   end
 
   def compose_command(*args, **kwargs)
-    environment = kwargs.delete(:environment) { "development" }
     pipe_input = kwargs.delete(:pipe_input)
 
     go_to_project_root = "cd #{project_root}"
-    compose_file_args = ["-f docker-compose.#{environment}.yml"]
-
-    if environment == "development"
-      compose_file_args << "-f docker-compose.development.gateway.yml"
-    end
-
-    if RUBY_PLATFORM =~ /linux/
-      linux_override = "docker-compose.#{environment}.linux.yml"
-      linux_override_path = File.join(project_root, linux_override)
-      compose_file_args << "-f #{linux_override}" if File.exist?(linux_override_path)
-    end
-
-    bootstrap_docker = "docker compose #{compose_file_args.join(' ')} #{args.join(' ')}"
+    compose_file_args = compose_file_options(**kwargs)
+    bootstrap_docker = "docker compose #{compose_file_args.shelljoin} #{args.join(' ')}"
 
     if pipe_input
       shell_safe_pipe_input = Shellwords.escape(pipe_input)
@@ -410,22 +400,34 @@ class DevHelper
     end
   end
 
+  def compose_file_options(environment: "development", **kwargs)
+    options = ["-f", "docker-compose.#{environment}.yml"]
+    options.concat(["-f", "docker-compose.development.gateway.yml"]) if environment == "development"
+
+    options
+  end
+
   def project_root
     @project_root ||= File.absolute_path("#{__dir__}/..")
   end
 
-  def dynamic_environment_variables
-    environment_variables = ["GATEWAY_HOSTNAME=#{Shellwords.escape(gateway_hostname)}"]
-    environment_variables << "COMPOSE_PROJECT_NAME=#{Shellwords.escape(compose_project_name)}"
-    session_id = OpenInEditorBridge.new(project_root: project_root).session_id
-    environment_variables << "OPEN_IN_EDITOR_SESSION_ID=#{session_id}"
+  def compose_environment
+    variables = {
+      "GATEWAY_HOSTNAME" => gateway_hostname,
+      "COMPOSE_PROJECT_NAME" => compose_project_name,
+      "OPEN_IN_EDITOR_BRIDGE_ENABLED" => editor_bridge_enabled?.to_s,
+    }
 
     if RUBY_PLATFORM =~ /linux/
-      environment_variables << %(HOST_USER_ID="#{user_id}")
-      environment_variables << %(HOST_GROUP_ID="#{group_id}")
+      variables["HOST_USER_ID"] = user_id
+      variables["HOST_GROUP_ID"] = group_id
     end
 
-    environment_variables.join(" ")
+    variables
+  end
+
+  def dynamic_environment_variables
+    compose_environment.map { |name, value| "#{name}=#{Shellwords.escape(value)}" }.join(" ")
   end
 
   def compose_project_name
