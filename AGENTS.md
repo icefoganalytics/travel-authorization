@@ -140,9 +140,10 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 
 ### End-to-End Tests
 
-End-to-end tests use [Playwright](https://playwright.dev/) and live in `api/end-to-end-tests/`,
-a sibling of `api/tests/`. They share `api/tests/support/clean-database.ts` and
-`clean-trav-com-database.ts` directly via the `@/tests/support/` path alias — no duplication.
+End-to-end tests use [Playwright](https://playwright.dev/) and live in the top-level
+`end-to-end-tests/` package alongside `api/` and `web/`. The package owns its dependencies,
+configuration, and Docker runner. It shares `api/tests/support/clean-database.ts` and
+`clean-trav-com-database.ts` directly via the `@/tests/support/` alias — no duplication.
 Tests run against the full application stack in a separate Docker Compose project.
 
 **Run locally (via Docker — matches CI):**
@@ -157,19 +158,19 @@ separate project; the application and runner use test databases, not development
 test stack publishes no host ports and is removed after the run. Normal wrapper commands select
 the `development` profile.
 
-See `api/end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
+See `end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
 integration requests smoke checks and the authenticated wizard with `E2E_AUTHENTICATED=true`.
 Configure four distinct Auth0 accounts through the eight `E2E_` repository Actions secrets.
 Fork pull requests run only credential-free smoke coverage; GitHub does not expose repository secrets.
 
-**Adding tests:** Place new `*.spec.ts` files in `api/end-to-end-tests/tests/`. Import `test` from
+**Adding tests:** Place new `*.spec.ts` files in `end-to-end-tests/tests/`. Import `test` from
 `@/end-to-end-tests/fixtures` and `expect` from `@playwright/test` so each test cleans both test databases
 automatically. Use `test()` (not `it()`). Prefer user-visible `page.getByRole()`,
 `page.getByLabel()`, and `page.getByText()` locators over CSS selectors.
 
 **Auth:** Most routes require Auth0 login. Authenticated specs need a shared `storageState` fixture
 and deterministic database prerequisites. Keep the detailed account configuration and model-free
-seeding pattern in `api/end-to-end-tests/README.md`.
+seeding pattern in `end-to-end-tests/README.md`.
 
 ---
 

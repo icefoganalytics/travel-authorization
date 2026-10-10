@@ -1,6 +1,30 @@
 # End-to-End Tests
 
-Playwright end-to-end tests for the full application stack live here.
+Playwright end-to-end tests for the full application stack live in this standalone top-level npm
+package.
+
+## Package Ownership
+
+This package owns its end-to-end sources, fixtures, Playwright configuration, TypeScript and ESLint
+configuration, dependency manifest and lockfile, and runner image. The database-cleanup fixture
+imports the existing API helpers through `@/tests/support/*`; cleanup logic and API clients are not
+duplicated here.
+
+Its TypeScript aliases map `@/end-to-end-tests/*` to this package, `@/tests/support/*` to the shared
+API test-support directory, and `@/*` to the API source tree used by those helpers. The Docker
+runner installs only this package's dependency manifest under `/usr/src/node_modules` and includes
+the small API-source closure needed by shared helpers. It does not install the API manifest; normal
+Node ancestor module lookup shares the runner-owned dependencies with the copied API helpers.
+
+## Package Scripts
+
+- `npm test` runs type-checking, linting, then Playwright.
+- `npm run check-types` runs the package's strict TypeScript check.
+- `npm run lint` lints package TypeScript using the repository ignore rules.
+- `npm run ts-node -- finance-api-stub.ts` runs the finance API stub.
+
+Use the repository wrapper for the isolated full-stack environment. It forwards options after `--`
+to Playwright.
 
 ## Current Coverage
 
@@ -10,10 +34,12 @@ The default suite runs three credential-free smoke checks:
 - Sign-in page renders.
 - Root route redirects unauthenticated users away from protected content.
 
-The opt-in authenticated suite uses real Auth0 sessions and exercises the complete traveller,
-supervisor, travel-desk, and finance journey: request submission and approval, flight options and
-rankings, PNR upload and booking, actual travel details, expense prefill and receipts, GL coding,
-and final expense review. It does not bypass authentication or seed workflow transitions.
+The opt-in authenticated suite exercises the traveller, supervisor, travel-desk, and finance journey:
+request submission and approval, flight options and rankings, booking, actual travel details,
+expense prefill and receipts, GL coding, and final expense review. It requires four distinct real
+Auth0 identities and the application's required booking-policy and review prerequisites. The suite
+does not bypass authentication, grant policy access, seed workflow transitions, or waive required
+review.
 
 ## Running Tests
 
@@ -53,17 +79,15 @@ Both API-context and root release-context builds exclude authentication states a
 
 The wrapper forces the `travel-authorization-e2e-test` Compose project even when
 `COMPOSE_PROJECT_NAME` is set. It selects the `end-to-end-tests` profile from
-`docker-compose.development.yml`, resets that separate stack and its named volumes, rebuilds all
-application and runner images, runs Playwright, and tears down on success or failure. Dedicated
-test services reuse development builds and service settings through YAML anchors, without
-development environment files or application bind mounts. Normal wrapper commands select the
-`development` profile.
+`docker-compose.development.yml`, resets that isolated stack and its named volumes, rebuilds the
+application and runner images, runs Playwright, and tears down on success or failure. The runner
+image installs this package alone and does not install the API manifest. Normal wrapper commands
+select the `development` profile.
+
 The API waits for a successful SQL Server query before starting TravCom initialization. The test
-frontend waits for the API status endpoint, and the runner waits for the frontend health check.
-The stack uses Docker's internal network without host ports; the runner shares the frontend's
-network namespace so the real Auth0 callback remains `http://localhost:8080`.
-Vuetify is excluded from Vite dependency optimization to prevent page reloads when a cold stack first
-visits auto-imported wizard components.
+frontend waits for the API status endpoint, and the runner waits for the frontend health check. The
+stack uses Docker's internal network without host ports; the runner shares the frontend's network
+namespace so the real Auth0 callback remains `http://localhost:8080`.
 
 ## Adding Tests
 
@@ -77,9 +101,9 @@ inside spec files. Encoded upload fixtures live in `data/`; factories decode the
 workflow assertions in the specs; support actions own the synchronization needed to perform
 their operation.
 
-Use absolute `@/` imports for internal modules: `@/end-to-end-tests/...` for end-to-end test code
-and `@/tests/support/...` for shared test helpers. The existing TypeScript alias resolves both
-API-root and source paths; do not use relative module imports.
+Use the package-owned absolute import aliases: `@/end-to-end-tests/...` for E2E files and
+`@/tests/support/...` for the shared API test helpers. Do not duplicate those helpers or replace the
+package aliases with relative imports.
 
 Import `test` and, when needed, `cleanEndToEndDatabases` from `@/end-to-end-tests/fixtures`;
 import `expect` from `@playwright/test`. The fixture adds automatic database cleanup around every

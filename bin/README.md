@@ -100,7 +100,7 @@ dedicated application and database services in a separate project before running
 anchors share the development builds and service settings; no separate end-to-end Compose file is
 needed. The test stack publishes no host ports, so it cannot conflict with a development stack.
 
-See `api/end-to-end-tests/README.md` for the coverage boundary and real-account prerequisites.
+See `end-to-end-tests/README.md` for the standalone package, coverage boundary, and real-account prerequisites.
 The default suite runs three credential-free smoke tests; set `E2E_AUTHENTICATED=true` and select
 `-- --project authenticated-chromium` to exercise the full authenticated workflow.
 
