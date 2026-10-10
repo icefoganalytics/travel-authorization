@@ -7,7 +7,7 @@ x-default-environment: &default-environment
   FRONTEND_URL: "http://${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   VITE_API_BASE_URL: "http://api.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   DB_HOST: db
-  DB_NAME: &default-db-name travel_development
+  DB_NAME: &default-db-name "${DB_NAME:-travel_development}"
   DB_PASS: &default-db-password itsallgood
   DB_USER: &default-db-user app
   DB_PORT: 5432
@@ -18,7 +18,7 @@ x-default-environment: &default-environment
   TRAVCOM_DB_HOST: db_trav_com
   TRAVCOM_DB_USER: sa
   TRAVCOM_DB_PASS: &default-trav-com-db-password "DevPwd99!"
-  TRAVCOM_DB_NAME: trav_com_development
+  TRAVCOM_DB_NAME: "${TRAVCOM_DB_NAME:-trav_com_development}"
   TRAVCOM_DB_PORT: 1433
   TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
   RELEASE_TAG: "${RELEASE_TAG:-development}"
@@ -28,10 +28,6 @@ x-end-to-end-environment: &end-to-end-environment
   <<: *default-environment
   NODE_ENV: test
   FRONTEND_URL: http://localhost:8080
-  DB_HOST: end_to_end_db
-  DB_NAME: travel_test
-  TRAVCOM_DB_HOST: end_to_end_db_trav_com
-  TRAVCOM_DB_NAME: trav_com_test
   DEFAULT_LOG_LEVEL: "warn"
   YUKON_GOVERNMENT_FINANCE_API_BASE_URL: http://finance_api_stub:3000
 
@@ -167,9 +163,9 @@ services:
     entrypoint: ["node", "/bin/api-wait.mjs"]
     restart: "no"
 
-  db: &postgresql-service
+  db:
     image: "postgres:14.4"
-    environment: &postgresql-environment
+    environment:
       <<: *default-environment
       POSTGRES_USER: *default-db-user
       POSTGRES_PASSWORD: *default-db-password
@@ -178,13 +174,23 @@ services:
       - db_data:/var/lib/postgresql/data
 
   # Represents an external database for TravCom (a.k.a. Travel Computer Systems)
-  db_trav_com: &trav-com-service
+  db_trav_com:
     image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
     user: root
     environment:
       MSSQL_SA_PASSWORD: *default-trav-com-db-password # requires secure password
       TZ: "UTC"
       ACCEPT_EULA: "Y"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" -b',
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+      start_period: 10s
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
 
@@ -207,9 +213,9 @@ services:
       retries: 90
       start_period: 5s
     depends_on:
-      end_to_end_db:
+      db:
         condition: service_started
-      end_to_end_db_trav_com:
+      db_trav_com:
         condition: service_healthy
       finance_api_stub:
         condition: service_healthy
@@ -241,36 +247,6 @@ services:
     profiles:
       - end-to-end-tests
 
-  end_to_end_db:
-    <<: *postgresql-service
-    environment:
-      <<: *postgresql-environment
-      DB_NAME: travel_test
-      POSTGRES_DB: travel_test
-    ports: []
-    volumes:
-      - end_to_end_db_data:/var/lib/postgresql/data
-    profiles:
-      - end-to-end-tests
-
-  end_to_end_db_trav_com:
-    <<: *trav-com-service
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" -b',
-        ]
-      interval: 2s
-      timeout: 5s
-      retries: 60
-      start_period: 10s
-    ports: []
-    volumes:
-      - end_to_end_db_trav_com_data:/var/opt/mssql/data
-    profiles:
-      - end-to-end-tests
-
   # For easily generating large PlantUML diagrams
   # Not relevant to production environment.
   # Accessible at http://localhost:9999
@@ -287,5 +263,3 @@ volumes:
   db_data:
   db_trav_com_data:
   end_to_end_tests_node_modules:
-  end_to_end_db_data:
-  end_to_end_db_trav_com_data:
