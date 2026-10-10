@@ -12,6 +12,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 - Isolated Playwright smoke checks and role-separated, real-account coverage of the travel authorization, flight booking, and expense approval journey.
   Why? To reduce repeated release QA while keeping test cleanup separate from development data.
+  The standalone top-level `end-to-end-tests/` package owns its runner and dependencies while reusing existing database-cleanup helpers.
 
 - Flight statistics reporting feature that introduces a new flight statistics data model and synchronization process, including a background job with progress and failure tracking.
   Why? To give administrators and finance staff a reliable, self-service view of flight volumes, durations, and patterns for reconciliation and planning.

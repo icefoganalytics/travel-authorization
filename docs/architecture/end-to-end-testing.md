@@ -32,8 +32,15 @@ their local environment-file requirements without requiring those files during e
 
 End-to-end tests are system tests, not API tests: the Playwright browser exercises the `web` service,
 which calls the `api` service and its isolated `travel_test` and `trav_com_test` databases. The
-runner is stored in `api/end-to-end-tests/` because it reuses the API package's test tooling and
-database-cleanup support. Its location does not make it an API-only test suite.
+standalone top-level `end-to-end-tests/` package sits alongside `api/` and `web/` and owns its
+dependencies, scripts, configuration, and Dockerfile. It imports the existing API database clients
+and cleanup helpers through absolute aliases rather than duplicating their behavior.
+
+The runner builds from the repository root, installs only the end-to-end dependency manifest under
+`/usr/src/node_modules`, and copies the small API-source closure needed by those helpers. Shared
+helpers resolve runner-owned dependencies through normal Node ancestor lookup; the API manifest is
+not installed in this image. Authentication state, reports, host dependencies, and environment files
+are excluded from the root build context.
 
 The Docker Compose project owns the complete test stack. Tests must not depend on a separately
 started frontend or backend, because that can point a run at development data or a different build.
@@ -63,11 +70,11 @@ draft development while preserving an explicit verification path.
 
 ## Authority
 
-- `api/end-to-end-tests/README.md` is the source of truth for current test coverage, authenticated
+- `end-to-end-tests/README.md` is the source of truth for current test coverage, authenticated
   prerequisites, test fixtures, and locator conventions.
 - `bin/dev`, `docker-compose.development.yml`, and `.github/workflows/end-to-end-tests.yml` define the
   current execution behavior.
-- The Playwright specifications under `api/end-to-end-tests/tests/` are the executable coverage
+- The Playwright specifications under `end-to-end-tests/tests/` are the executable coverage
   evidence.
 
 ## Publication Boundary
