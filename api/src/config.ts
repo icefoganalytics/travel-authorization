@@ -36,6 +36,8 @@ export const DB_PORT = parseInt(process.env.DB_PORT || "1433")
 
 export const AZURE_KEY = process.env.AZURE_KEY || ""
 export const YUKON_GOVERNMENT_FINANCE_API_KEY = process.env.YUKON_GOVERNMENT_FINANCE_API_KEY || ""
+export const YUKON_GOVERNMENT_FINANCE_API_BASE_URL =
+  process.env.YUKON_GOVERNMENT_FINANCE_API_BASE_URL || "https://api.gov.yk.ca"
 
 export const DB_CONFIG = {
   client: "postgres",

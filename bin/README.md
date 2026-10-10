@@ -5,6 +5,10 @@
 The `dev` command is a small helper around Docker Compose plus a few TravelAuth-specific
 development tasks.
 
+Development services run by default, without a profile. Profiles are reserved for optional
+`tests`, `end-to-end-tests`, and `design` services. Explicit `./bin/dev test api` and
+`./bin/dev test web` commands activate their unit-test runner automatically.
+
 ## Set Up `dev`
 
 `dev` requires Ruby 3.2 or newer and the repository Ruby dependencies:
@@ -83,6 +87,25 @@ of duplicating test command examples.
 ```
 
 Pass Vitest flags after `--` so they are forwarded to the underlying test runner.
+
+**End-to-end tests** start the app stack in test mode, run against isolated test databases, and tear
+the stack down after the run:
+
+```bash
+./bin/dev test end-to-end-tests    # run Playwright in Docker against the test stack
+```
+
+The command selects the `end-to-end-tests` profile in `docker-compose.development.yml` and starts
+dedicated application services plus the standard `db` and `db_trav_com` services in a separate
+project before running Playwright. It supplies `DB_NAME=travel_test` and
+`TRAVCOM_DB_NAME=trav_com_test` only to its Compose commands and omits the development gateway
+overlay. Database volumes are project-scoped; normal development names remain unchanged. YAML
+anchors share application settings; no separate end-to-end Compose file or database variants are
+needed. The test stack publishes no host ports, so it cannot conflict with a development stack.
+
+See `end-to-end-tests/README.md` for the standalone package, coverage boundary, and real-account prerequisites.
+The default suite runs three credential-free smoke tests; set `E2E_AUTHENTICATED=true` and select
+`-- --project authenticated-chromium` to exercise the full authenticated workflow.
 
 ### Test Container Management
 

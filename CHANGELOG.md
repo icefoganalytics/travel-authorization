@@ -10,6 +10,10 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Added
 
+- Isolated Playwright smoke checks and role-separated, real-account coverage of the travel authorization, flight booking, and expense approval journey.
+  Why? To reduce repeated release QA while keeping test cleanup separate from development data.
+  The standalone top-level `end-to-end-tests/` package owns its runner and dependencies while reusing existing database-cleanup helpers.
+
 - Flight statistics reporting feature that introduces a new flight statistics data model and synchronization process, including a background job with progress and failure tracking.
   Why? To give administrators and finance staff a reliable, self-service view of flight volumes, durations, and patterns for reconciliation and planning.
 
@@ -21,7 +25,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Changed
 
-- Developer improvements for running multiple worktrees without port conflicts.
+- Developer improvements for running multiple worktrees without port conflicts; standard development services start without profile selection, with profiles reserved for optional tests and design tools. Browser tests reuse the standard database services in an isolated project instead of maintaining duplicate definitions.
 
 - Standardized the reports page into a clearer layout with separate sections and tabs for tables, graphs, and print views, including a dedicated flight statistics table with server-side pagination and ordering.
   Why? To keep reports responsive as data grows and to make the structure of reports easier to understand.
@@ -42,6 +46,9 @@ Changes since v2025.9.15.1 that will be included in the next release.
   Why? To align the codebase with current patterns and make contributor workflows more consistent.
 
 ### Fixed
+
+- Prevented stale authorization identities after user deletion or numeric ID reuse; concurrent first-login requests now share in-flight creation by verified Auth0 subject, even with different access tokens.
+  Why? To keep each request attached to its verified Auth0 subject when users are replaced.
 
 - Travel request and approvals behavior:
 

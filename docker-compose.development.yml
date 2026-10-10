@@ -7,7 +7,7 @@ x-default-environment: &default-environment
   FRONTEND_URL: "http://${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   VITE_API_BASE_URL: "http://api.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   DB_HOST: db
-  DB_NAME: &default-db-name travel_development
+  DB_NAME: &default-db-name "${DB_NAME:-travel_development}"
   DB_PASS: &default-db-password itsallgood
   DB_USER: &default-db-user app
   DB_PORT: 5432
@@ -18,19 +18,27 @@ x-default-environment: &default-environment
   TRAVCOM_DB_HOST: db_trav_com
   TRAVCOM_DB_USER: sa
   TRAVCOM_DB_PASS: &default-trav-com-db-password "DevPwd99!"
-  TRAVCOM_DB_NAME: trav_com_development
+  TRAVCOM_DB_NAME: "${TRAVCOM_DB_NAME:-trav_com_development}"
   TRAVCOM_DB_PORT: 1433
   TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
   RELEASE_TAG: "${RELEASE_TAG:-development}"
   GIT_COMMIT_HASH: "${GIT_COMMIT_HASH:-not-set}"
 
+x-end-to-end-environment: &end-to-end-environment
+  <<: *default-environment
+  NODE_ENV: test
+  FRONTEND_URL: http://localhost:8080
+  DEFAULT_LOG_LEVEL: "warn"
+  YUKON_GOVERNMENT_FINANCE_API_BASE_URL: http://finance_api_stub:3000
+
 services:
-  api:
-    build:
+  api: &api-service
+    build: &api-build
       context: ./api
       dockerfile: development.Dockerfile
     env_file:
-      - ./api/.env.development
+      - path: ./api/.env.development
+        required: false
     environment:
       <<: *default-environment
       TS_NODE_HISTORY: /usr/src/api/.ts_node_repl_history
@@ -45,8 +53,8 @@ services:
     depends_on:
       - db
 
-  web:
-    build:
+  web: &web-service
+    build: &web-build
       context: ./web
       dockerfile: development.Dockerfile
     environment:
@@ -64,9 +72,7 @@ services:
         condition: service_completed_successfully
 
   test_api:
-    build:
-      context: ./api
-      dockerfile: development.Dockerfile
+    build: *api-build
     command: /bin/true
     env_file:
       - ./api/.env.development
@@ -83,11 +89,11 @@ services:
     depends_on:
       - db
       - db_trav_com
+    profiles:
+      - tests
 
   test_web:
-    build:
-      context: ./web
-      dockerfile: development.Dockerfile
+    build: *web-build
     command: /bin/true
     environment:
       <<: *default-environment
@@ -95,6 +101,57 @@ services:
     tty: true
     volumes:
       - ./web:/usr/src/web
+    profiles:
+      - tests
+
+  end_to_end_tests:
+    image: travel-authorization-e2e-tests
+    build:
+      context: .
+      dockerfile: end-to-end-tests/Dockerfile
+    user: "${HOST_USER_ID:-0}:${HOST_GROUP_ID:-0}"
+    network_mode: service:end_to_end_web
+    shm_size: 1gb
+    depends_on:
+      end_to_end_web:
+        condition: service_healthy
+    environment:
+      <<: *end-to-end-environment
+      BASE_URL: http://localhost:8080
+      API_BASE_URL: http://end_to_end_api:3000
+      CI: "${CI:-}"
+      E2E_AUTHENTICATED: "${E2E_AUTHENTICATED:-false}"
+      TRAVELLER_EMAIL: "${TRAVELLER_EMAIL:-}"
+      TRAVELLER_PASSWORD: "${TRAVELLER_PASSWORD:-}"
+      SUPERVISOR_EMAIL: "${SUPERVISOR_EMAIL:-}"
+      SUPERVISOR_PASSWORD: "${SUPERVISOR_PASSWORD:-}"
+      TRAVEL_DESK_EMAIL: "${TRAVEL_DESK_EMAIL:-}"
+      TRAVEL_DESK_PASSWORD: "${TRAVEL_DESK_PASSWORD:-}"
+      FINANCE_EMAIL: "${FINANCE_EMAIL:-}"
+      FINANCE_PASSWORD: "${FINANCE_PASSWORD:-}"
+    volumes:
+      - ./end-to-end-tests:/usr/src/end-to-end-tests
+      - end_to_end_tests_node_modules:/usr/src/node_modules
+      - ./.gitignore:/usr/src/.gitignore:ro
+    profiles:
+      - end-to-end-tests
+
+  finance_api_stub:
+    image: travel-authorization-e2e-tests
+    command: npm run ts-node -- finance-api-stub.ts
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          'fetch("http://localhost:3000/health").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    profiles:
+      - end-to-end-tests
 
   api_wait:
     image: node:20.19.0-alpine3.21
@@ -124,8 +181,71 @@ services:
       MSSQL_SA_PASSWORD: *default-trav-com-db-password # requires secure password
       TZ: "UTC"
       ACCEPT_EULA: "Y"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" -b',
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+      start_period: 10s
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
+
+  end_to_end_api:
+    <<: *api-service
+    env_file: []
+    environment: *end-to-end-environment
+    ports: []
+    volumes: []
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          'fetch("http://localhost:3000/_status").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 90
+      start_period: 5s
+    depends_on:
+      db:
+        condition: service_started
+      db_trav_com:
+        condition: service_healthy
+      finance_api_stub:
+        condition: service_healthy
+    profiles:
+      - end-to-end-tests
+
+  end_to_end_web:
+    <<: *web-service
+    environment:
+      <<: *end-to-end-environment
+      VITE_API_BASE_URL: http://end_to_end_api:3000
+    ports: []
+    volumes: []
+    depends_on:
+      end_to_end_api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          'fetch("http://localhost:8080").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+      start_period: 5s
+    profiles:
+      - end-to-end-tests
 
   # For easily generating large PlantUML diagrams
   # Not relevant to production environment.
@@ -142,3 +262,4 @@ services:
 volumes:
   db_data:
   db_trav_com_data:
+  end_to_end_tests_node_modules:

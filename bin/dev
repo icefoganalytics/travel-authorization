@@ -150,6 +150,8 @@ class DevHelper
       test_api(*args.drop(1), **kwargs)
     elsif service == "web"
       test_web(*args.drop(1), **kwargs)
+    elsif service == "end-to-end-tests"
+      test_end_to_end(*args.drop(1), **kwargs)
     else
       test_api(*args, **kwargs)
     end
@@ -163,6 +165,39 @@ class DevHelper
   def test_web(*args, **kwargs)
     reformat_project_relative_path_filter_for_vitest!(args, "web/")
     run(*%w[test_web npm run test], *args, **kwargs)
+  end
+
+  def test_end_to_end(*args, **kwargs)
+    end_to_end_project_options = %w[--project-name travel-authorization-e2e-test]
+    end_to_end_kwargs = kwargs.merge(
+      environment: "development",
+      profile: "end-to-end-tests",
+      execution_mode: WAIT_FOR_PROCESS
+    )
+    preparation_succeeded = compose(
+      *end_to_end_project_options,
+      *%w[down --remove-orphans --volumes],
+      **end_to_end_kwargs
+    )
+    build_succeeded = preparation_succeeded && compose(
+      *end_to_end_project_options,
+      *%w[build end_to_end_api end_to_end_web end_to_end_tests finance_api_stub],
+      **end_to_end_kwargs
+    )
+    test_succeeded = build_succeeded && compose(
+      *end_to_end_project_options,
+      *%w[run --rm end_to_end_tests npm test],
+      *args,
+      **end_to_end_kwargs
+    )
+  ensure
+    cleanup_succeeded = compose(
+      *end_to_end_project_options,
+      *%w[down --remove-orphans --volumes],
+      **end_to_end_kwargs
+    )
+
+    exit 1 unless preparation_succeeded && build_succeeded && test_succeeded && cleanup_succeeded
   end
 
   def psql(*args, **kwargs)
@@ -378,21 +413,30 @@ class DevHelper
   def compose_command(*args, **kwargs)
     environment = kwargs.delete(:environment) { "development" }
     pipe_input = kwargs.delete(:pipe_input)
+    profile = kwargs.delete(:profile)
 
     go_to_project_root = "cd #{project_root}"
     compose_file_args = ["-f docker-compose.#{environment}.yml"]
+    linux_override = "docker-compose.#{environment}.linux.yml"
 
     if environment == "development"
+      compose_file_args << "--profile #{profile}" if profile
+    end
+
+    if environment == "development" && profile != "end-to-end-tests"
       compose_file_args << "-f docker-compose.development.gateway.yml"
     end
 
     if RUBY_PLATFORM =~ /linux/
-      linux_override = "docker-compose.#{environment}.linux.yml"
       linux_override_path = File.join(project_root, linux_override)
       compose_file_args << "-f #{linux_override}" if File.exist?(linux_override_path)
     end
 
     bootstrap_docker = "docker compose #{compose_file_args.join(' ')} #{args.join(' ')}"
+    environment_variables = dynamic_environment_variables
+    if profile == "end-to-end-tests"
+      environment_variables += " DB_NAME=travel_test TRAVCOM_DB_NAME=trav_com_test"
+    end
 
     if pipe_input
       shell_safe_pipe_input = Shellwords.escape(pipe_input)
@@ -400,12 +444,12 @@ class DevHelper
 
       <<~BASH
         #{go_to_project_root} && \
-        #{pipe_input_to_compose} #{dynamic_environment_variables} #{bootstrap_docker}
+        #{pipe_input_to_compose} #{environment_variables} #{bootstrap_docker}
       BASH
     else
       <<~BASH
         #{go_to_project_root} && \
-        #{dynamic_environment_variables} #{bootstrap_docker}
+        #{environment_variables} #{bootstrap_docker}
       BASH
     end
   end

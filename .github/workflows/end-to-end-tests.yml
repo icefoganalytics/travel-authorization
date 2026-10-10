@@ -1,0 +1,52 @@
+name: End-to-End Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - ready_for_review
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  end-to-end-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby and wrapper dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2.2"
+          bundler-cache: true
+
+      - name: Run end-to-end tests
+        env:
+          E2E_AUTHENTICATED: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+          TRAVELLER_EMAIL: ${{ secrets.E2E_TRAVELLER_EMAIL }}
+          TRAVELLER_PASSWORD: ${{ secrets.E2E_TRAVELLER_PASSWORD }}
+          SUPERVISOR_EMAIL: ${{ secrets.E2E_SUPERVISOR_EMAIL }}
+          SUPERVISOR_PASSWORD: ${{ secrets.E2E_SUPERVISOR_PASSWORD }}
+          TRAVEL_DESK_EMAIL: ${{ secrets.E2E_TRAVEL_DESK_EMAIL }}
+          TRAVEL_DESK_PASSWORD: ${{ secrets.E2E_TRAVEL_DESK_PASSWORD }}
+          FINANCE_EMAIL: ${{ secrets.E2E_FINANCE_EMAIL }}
+          FINANCE_PASSWORD: ${{ secrets.E2E_FINANCE_PASSWORD }}
+        run: ./bin/dev test end-to-end-tests
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: end-to-end-tests/playwright-report/
+          retention-days: 7

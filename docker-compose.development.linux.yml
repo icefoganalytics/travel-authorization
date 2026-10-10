@@ -1,4 +1,6 @@
 services:
   web:
-    extra_hosts:
+    extra_hosts: &development-extra-hosts
       - "host.docker.internal:host-gateway"
+  end_to_end_web:
+    extra_hosts: *development-extra-hosts

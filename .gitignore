@@ -27,6 +27,11 @@ lib-cov
 coverage
 *.lcov
 
+# Playwright artifacts
+playwright-report/
+test-results/
+end-to-end-tests/tests/.auth/
+
 # nyc test coverage
 .nyc_output
 

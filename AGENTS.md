@@ -71,7 +71,7 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
 
 ### Conventions
 
-- Use `@/` import alias for src directory (both API and web)
+- Use absolute `@/` imports for internal modules (both API and web), never relative module imports
 - Database: snake_case, Models: camelCase (Sequelize handles mapping)
 - Test files mirror source structure: `api/src/services/example.ts` → `api/tests/services/example.test.ts`
 - On Linux, the dev wrapper auto-includes `.linux.yml` override for `host.docker.internal:host-gateway`
@@ -90,6 +90,7 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
 - When using acronyms in prose (commit messages, comments, docs), spell out the full term first at least once per block of text before using the acronym.
 - Number similar entities: `user1`, `user2` for clarity (not `existingUser`, `newUser`)
 - Expanded code style: one thing per line, avoid terse functional chains
+- Use explicit `if`/`else` instead of ternary expressions.
 - Guard clauses with blank line after each
 - Hoist magic numbers to named `const`
 - Error paths: `console.error(...)` before `snack.error(...)`
@@ -136,6 +137,41 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 - Use `test()`, not `it()`
 - One strong assertion over many weak ones
 - Mock cleanup automatic via `vite.config.mts` — no manual `vi.restoreAllMocks()`
+
+### End-to-End Tests
+
+End-to-end tests use [Playwright](https://playwright.dev/) and live in the top-level
+`end-to-end-tests/` package alongside `api/` and `web/`. The package owns its dependencies,
+configuration, and Docker runner. It shares `api/tests/support/clean-database.ts` and
+`clean-trav-com-database.ts` directly via the `@/tests/support/` alias — no duplication.
+Tests run against the full application stack in a separate Docker Compose project.
+
+**Run locally (via Docker — matches CI):**
+
+```bash
+dev test end-to-end-tests         # starts the test-mode app stack, runs Playwright, then tears down
+```
+
+The `end-to-end-tests` profile in `docker-compose.development.yml` selects application and runner
+variants that reuse development builds through YAML anchors. The wrapper reuses the standard
+`db` and `db_trav_com` services in a separate project, supplying test database names only to its
+Compose commands. It omits the development gateway overlay; containers and database volumes are
+project-scoped and removed after the run. Development services run by default without a profile;
+only optional test and design services use profiles.
+
+See `end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
+integration requests smoke checks and the authenticated wizard with `E2E_AUTHENTICATED=true`.
+Configure four distinct Auth0 accounts through the eight `E2E_` repository Actions secrets.
+Fork pull requests run only credential-free smoke coverage; GitHub does not expose repository secrets.
+
+**Adding tests:** Place new `*.spec.ts` files in `end-to-end-tests/tests/`. Import `test` from
+`@/end-to-end-tests/fixtures` and `expect` from `@playwright/test` so each test cleans both test databases
+automatically. Use `test()` (not `it()`). Prefer user-visible `page.getByRole()`,
+`page.getByLabel()`, and `page.getByText()` locators over CSS selectors.
+
+**Auth:** Most routes require Auth0 login. Authenticated specs need a shared `storageState` fixture
+and deterministic database prerequisites. Keep the detailed account configuration and model-free
+seeding pattern in `end-to-end-tests/README.md`.
 
 ---
 

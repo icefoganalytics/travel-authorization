@@ -1,0 +1,38 @@
+{
+  "name": "travel-authorization-end-to-end-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "npm run check-types && npm run lint && playwright test",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint . --ext .ts --ignore-path ../.gitignore",
+    "ts-node": "ts-node -r tsconfig-paths/register"
+  },
+  "dependencies": {
+    "@sequelize/core": "7.0.0-alpha.46",
+    "@sequelize/mssql": "7.0.0-alpha.46",
+    "@sequelize/postgres": "7.0.0-alpha.46",
+    "dotenv": "16.4.5",
+    "lodash": "4.17.21",
+    "luxon": "3.5.0",
+    "pg": "8.16.2",
+    "pg-minify": "1.6.5",
+    "tedious": "18.3.0",
+    "winston": "3.13.0",
+    "winston-cloudwatch": "6.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.60.0",
+    "@types/lodash": "4.17.19",
+    "@types/luxon": "3.4.2",
+    "@types/node": "20.16.5",
+    "@typescript-eslint/eslint-plugin": "7.7.1",
+    "@typescript-eslint/parser": "7.7.1",
+    "eslint": "8.57.0",
+    "eslint-config-prettier": "9.1.0",
+    "fishery": "2.2.2",
+    "ts-node": "10.9.1",
+    "tsconfig-paths": "4.2.0",
+    "typescript": "5.6.2"
+  }
+}
