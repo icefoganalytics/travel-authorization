@@ -80,7 +80,7 @@ class DevHelper
         *compose_arguments,
         *args,
         compose_options: compose_file_options(**kwargs),
-        env: ENV.to_h.merge(compose_environment),
+        env: ENV.to_h.merge(compose_environment(editor_bridge: true)),
         project_root: project_root
       )
     end
@@ -416,11 +416,11 @@ class DevHelper
     @project_root ||= File.absolute_path("#{__dir__}/..")
   end
 
-  def compose_environment
+  def compose_environment(editor_bridge: false)
     variables = {
       "GATEWAY_HOSTNAME" => gateway_hostname,
       "COMPOSE_PROJECT_NAME" => compose_project_name,
-      "OPEN_IN_EDITOR_BRIDGE_ENABLED" => editor_bridge_enabled?.to_s,
+      "OPEN_IN_EDITOR_BRIDGE_ENABLED" => editor_bridge.to_s,
     }
 
     if RUBY_PLATFORM =~ /linux/
