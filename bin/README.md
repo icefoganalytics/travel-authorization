@@ -29,8 +29,12 @@ ensure the gateway is running before creating or starting services. One-off cont
 Traefik discovery while database dependencies retain their gateway routes. Commands wait for the
 child process so gateway lifecycle cleanup does not remove other projects' routes.
 
-Fallback Compose commands pass through without gateway lifecycle handling. Initialize the gateway
-with `./bin/dev up` before using them, and use `./bin/dev down` for gateway cleanup.
+`./bin/dev stop` waits for the selected services to stop, then removes the gateway only if no
+running workloads remain attached. It never starts an absent gateway and retains stopped application
+containers and editor registrations; use `./bin/dev down` for full teardown.
+
+Other fallback Compose commands pass through without gateway lifecycle handling. Initialize the
+gateway with `./bin/dev up` before using them, and use `./bin/dev stop` or `./bin/dev down` for cleanup.
 
 Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
 instead of the checkout-derived default.
@@ -49,6 +53,7 @@ Host editor integration uses the shared `open-in-editor-bridge` gem. See
 ./bin/dev up
 ./bin/dev up api
 ./bin/dev up web
+./bin/dev stop
 ./bin/dev down
 ./bin/dev logs
 ./bin/dev ps
