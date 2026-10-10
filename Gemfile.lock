@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    local-development-gateway (0.2.0)
+    open-in-editor-bridge (0.2.0)
+
+PLATFORMS
+  ruby
+  x86_64-linux
+
+DEPENDENCIES
+  local-development-gateway (= 0.2.0)
+  open-in-editor-bridge (= 0.2.0)
+
+CHECKSUMS
+  local-development-gateway (0.2.0) sha256=bbce62ef48c3e14ff848fdc9bdbecf6e9342ebbdda4adffdc27b9237c9719f70
+  open-in-editor-bridge (0.2.0) sha256=90551938eccda575b2a9b43b24df80bc08d0d37e477a776c72a974c1a0df5b78
+
+BUNDLED WITH
+  4.0.3

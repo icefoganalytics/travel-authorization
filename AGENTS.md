@@ -41,7 +41,7 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 Everything goes through `./bin/dev` (Ruby wrapper). All commands run inside Docker containers — no local Node install needed.
 
 ```bash
-dev up                          # Start full stack (api:3000, web:8080, mail:1080)
+dev up                          # Start full stack through checkout-derived gateway hostnames
 dev up api                      # Start a single service
 dev down -v                     # Stop + wipe database volume
 dev psql                        # DB shell (travel_development)
@@ -66,6 +66,8 @@ dev api npm run check-types     # Backend-only type check
 npx prettier --check .          # From project root
 npx prettier --write .          # Auto-fix formatting
 ```
+
+See [README.md](README.md#local-services) for browser and TLS database gateway addresses.
 
 ### Conventions
 
@@ -217,6 +219,9 @@ v-data-table sortBy → useVuetifySortByToSafeRouteQuery (serializes as "key_ord
 
 ## General Concerns
 
+Reuse existing shared libraries rather than copying or reimplementing their behavior.
+Keep project-specific configuration in this repository.
+
 ### Security
 
 - Auth0 for authentication (requires third-party cookies in dev)
@@ -252,7 +257,8 @@ See [`COMMITTING.md`](COMMITTING.md) for detailed commit message, PR description
 - Time-based versioning: `vYYYY.MM.DD.i`
 - Origin-only work stays under `## [Unreleased]` — never create version headings for origin-only releases
 - Write entries in user-facing language (what changed and why), not internal class or file names
-- Pure refactors and test-only changes may be omitted per PR and summarized later as a single "developer improvements" bullet during release preparation
+- Mention non-user-facing changes briefly, such as a single outcome-focused "developer improvements" bullet.
+- Keep technical details in the project knowledge base (nearest README or reference), not changelog entries.
 
 ## Agent Workflow Patterns
 

@@ -5,11 +5,12 @@ export const GIT_COMMIT_HASH = import.meta.env.VUE_APP_GIT_COMMIT_HASH
 
 const dynamicConfigs = {
   development: {
-    API_BASE_URL: "http://localhost:3000",
+    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
     AUTH0_DOMAIN: "https://dev-0tc6bn14.eu.auth0.com",
-    AUTH0_CLIENT_ID: "ZHjPOeCwYBov6eR1lxGOVYhYi4VPV8eU",
+    AUTH0_CLIENT_ID: "3NjkPu1sSNJDDRzeyfPUnoNmS2VYwaUY",
     AUTH0_AUDIENCE: "testing",
   },
+  // NOTE: independent production environment should be created before going live
   production: {
     API_BASE_URL: window.location.origin,
     AUTH0_DOMAIN: "https://dev-0tc6bn14.eu.auth0.com",
@@ -19,7 +20,7 @@ const dynamicConfigs = {
   local_production: {
     API_BASE_URL: window.location.origin,
     AUTH0_DOMAIN: "https://dev-0tc6bn14.eu.auth0.com",
-    AUTH0_CLIENT_ID: "ZHjPOeCwYBov6eR1lxGOVYhYi4VPV8eU",
+    AUTH0_CLIENT_ID: "3NjkPu1sSNJDDRzeyfPUnoNmS2VYwaUY",
     AUTH0_AUDIENCE: "testing",
   },
 }

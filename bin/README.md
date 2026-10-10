@@ -7,12 +7,43 @@ development tasks.
 
 ## Set Up `dev`
 
-`dev` requires Ruby.
+`dev` requires Ruby 3.2 or newer and the repository Ruby dependencies:
+
+```bash
+bundle install
+```
+
+All Ruby development dependencies use full exact version pins in [Gemfile](../Gemfile) for reproducible local startup.
 
 Basic usage:
 
 1. Run it as `./bin/dev ...` from the repo root.
 2. If you want to use `dev ...` instead, add `bin/` to your `PATH`.
+
+All development `dev` commands apply `docker-compose.development.gateway.yml`, which defines
+browser and database gateway routing. Use the checkout-derived `*.travel-authorization.localhost`
+hostname rather than direct application ports.
+
+`./bin/dev up` and development `run` commands (including API commands, migrations, and tests)
+ensure the gateway is running before creating or starting services. One-off containers disable
+Traefik discovery while database dependencies retain their gateway routes. Commands wait for the
+child process so gateway lifecycle cleanup does not remove other projects' routes.
+
+`./bin/dev stop` waits for the selected services to stop, then removes the gateway only if no
+running workloads remain attached. It never starts an absent gateway and retains stopped application
+containers and editor registrations; use `./bin/dev down` for full teardown.
+
+Other fallback Compose commands pass through without gateway lifecycle handling. Initialize the
+gateway with `./bin/dev up` before using them, and use `./bin/dev stop` or `./bin/dev down` for cleanup.
+
+Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
+instead of the checkout-derived default.
+
+Compose project names preserve valid directory names and use the hashed checkout label when
+normalization would otherwise collide. Set `COMPOSE_PROJECT_NAME` to select an explicit project.
+
+Host editor integration uses the shared `open-in-editor-bridge` gem. See
+[Open In Editor](../web/README.md#open-in-editor) for checkout sessions and configuration.
 
 ## Common Commands
 
@@ -22,6 +53,7 @@ Basic usage:
 ./bin/dev up
 ./bin/dev up api
 ./bin/dev up web
+./bin/dev stop
 ./bin/dev down
 ./bin/dev logs
 ./bin/dev ps

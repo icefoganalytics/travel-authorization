@@ -1,0 +1,47 @@
+services:
+  api:
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=local-gateway"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.rule=Host(`api.${GATEWAY_HOSTNAME}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.service=${COMPOSE_PROJECT_NAME}-api"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-api.loadbalancer.server.port=3000"
+
+  web:
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=local-gateway"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-web.rule=Host(`${GATEWAY_HOSTNAME}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-web.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-web.service=${COMPOSE_PROJECT_NAME}-web"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-web.loadbalancer.server.port=8080"
+
+  db:
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "local-gateway.tcp.driver=postgresql"
+      - "local-gateway.tcp.hostname=db.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+      - "local-gateway.tcp.port=5432"
+
+  db_trav_com:
+    networks:
+      - default
+      - local-gateway
+    labels:
+      - "local-gateway.tcp.driver=sql_server"
+      - "local-gateway.tcp.hostname=db-trav-com.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+      - "local-gateway.tcp.port=1433"
+
+networks:
+  local-gateway:
+    external: true
+    name: local-gateway
