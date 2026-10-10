@@ -396,6 +396,7 @@ class DevHelper
 
   def compose_command(*args, **kwargs)
     pipe_input = kwargs.delete(:pipe_input)
+    profile = kwargs.delete(:profile)
 
     go_to_project_root = "cd #{project_root}"
     compose_file_args = compose_file_options(**kwargs)
