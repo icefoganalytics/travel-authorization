@@ -80,7 +80,9 @@ The repo-level `dev` wrapper manages this automatically:
 - The plugin owns editor request routing; no session environment variable or custom proxy rewrite
   is needed.
 - With no `OPEN_IN_EDITOR_COMMAND` or `EDITOR`, the application starts without the editor plugin
-  or bridge. The wrapper derives `OPEN_IN_EDITOR_BRIDGE_ENABLED` for this development-only opt-in.
+  or bridge. The wrapper sets `OPEN_IN_EDITOR_BRIDGE_ENABLED` only for adapter-backed startup.
+- Ordinary Compose commands, including `dev web npm run start`, run without editor integration;
+  use `dev up web` when the frontend needs the gem's editor mounts.
 - Production builds and test-mode Vite configurations do not load the mounted plugin.
 - `dev down` releases only this checkout's persistent registration; other checkouts remain available.
 
