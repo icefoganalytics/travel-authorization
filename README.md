@@ -175,12 +175,11 @@ login depends on third-party cookies.
 
 If Vue Devtools **Open in Editor** fails while running the frontend in Docker:
 
-- Prefer `dev up` over raw `docker compose up` so the host-side bridge starts automatically.
-- On Linux, make sure you also include `docker-compose.development.linux.yml` when running Docker
-  Compose manually.
-- Install the gem and configure your editor as described in
-  [Open in Editor](./bin/README.md#open-in-editor). The bridge prefers `OPEN_IN_EDITOR_COMMAND`,
-  then `EDITOR`, and returns an error if neither is set.
+- Prefer `dev up` over raw `docker compose up`: the gem's Compose adapter supplies the host bridge,
+  host-gateway entry, and mounted Vite plugin.
+- Run `bundle install` and configure `OPEN_IN_EDITOR_COMMAND` or `EDITOR` as described in
+  [Open in Editor](./web/README.md#open-in-editor). Without an editor, the application starts with
+  editor integration disabled.
 
 ## Build And Deploy
 

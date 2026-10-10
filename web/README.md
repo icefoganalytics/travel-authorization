@@ -71,16 +71,21 @@ translates container paths to the requesting checkout and launches its configure
 
 The repo-level `dev` wrapper manages this automatically:
 
-- `dev up` acquires a foreground checkout lease and releases it when Compose exits.
-- `dev up -d` and `dev up --wait` retain a persistent checkout registration until `dev down`.
-- Compose passes `OPEN_IN_EDITOR_SESSION_ID` to Vite, which adds it to editor proxy requests.
-- `dev down` releases only that checkout's persistent registration; other checkouts remain available.
-- With no `OPEN_IN_EDITOR_COMMAND` or `EDITOR`, the application starts without an editor bridge.
-- Without a configured checkout session, Vite rejects editor requests rather than selecting another checkout.
+- `dev up` uses the gem's Compose adapter to acquire a foreground checkout lease and release it
+  when Compose exits.
+- `dev up -d`, `dev up --detach`, and `dev up --wait` retain a persistent checkout registration
+  until a successful `dev down`. A failed teardown retains the registration.
+- The adapter adds the Docker host-gateway entry and mounts the gem's Vite plugin and checkout
+  manifest read-only. Only these two files enter the container, not private broker credentials.
+- The plugin owns editor request routing; no session environment variable or custom proxy rewrite
+  is needed.
+- With no `OPEN_IN_EDITOR_COMMAND` or `EDITOR`, the application starts without the editor plugin
+  or bridge. The wrapper derives `OPEN_IN_EDITOR_BRIDGE_ENABLED` for this development-only opt-in.
+- Production builds and test-mode Vite configurations do not load the mounted plugin.
+- `dev down` releases only this checkout's persistent registration; other checkouts remain available.
 
-On Linux, `dev` includes `docker-compose.development.linux.yml` so the container can resolve
-`host.docker.internal`. Checkouts share port `3333`; set `OPEN_IN_EDITOR_BRIDGE_PORT` consistently
-across them to use another port. The gem stores private runtime state outside the repository.
+Checkouts share port `3333`; set `OPEN_IN_EDITOR_BRIDGE_PORT` consistently across them to use
+another port. The gem stores private runtime state outside the repository.
 
 The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`. The wrapper defaults
 `OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS` to `0.0.0.0` so Docker can reach the host listener. This also

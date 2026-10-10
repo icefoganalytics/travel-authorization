@@ -42,8 +42,12 @@ instead of the checkout-derived default.
 Compose project names preserve valid directory names and use the hashed checkout label when
 normalization would otherwise collide. Set `COMPOSE_PROJECT_NAME` to select an explicit project.
 
-Host editor integration uses the shared `open-in-editor-bridge` gem. See
-[Open In Editor](../web/README.md#open-in-editor) for checkout sessions and configuration.
+Host editor integration uses `open-in-editor-bridge` 0.3.0, installed by `bundle install` for the
+active Ruby. The wrapper selects this checkout's Gemfile and project root even when invoked
+outside the repository. Configure `OPEN_IN_EDITOR_COMMAND` or `EDITOR` before `dev up`.
+See [Open In Editor](../web/README.md#open-in-editor) for lifecycle, shared-runtime, and
+trusted-network configuration. Use `dev up`, not raw Compose, to create containers with the
+gem's editor mounts.
 
 ## Common Commands
 
