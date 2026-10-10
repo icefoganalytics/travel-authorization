@@ -37,9 +37,12 @@ Match the existing pull request style in this repository:
 # Screenshots
 
 Short screenshot caption
-http://localhost:8080/path-being-shown
+http://<gateway-hostname>/path-being-shown
 <img width="1845" height="986" alt="image" src="https://github.com/user-attachments/assets/..." />
 ```
+
+Replace `<gateway-hostname>` with the checkout-derived hostname shown by Vite at startup; use the
+`GATEWAY_HOSTNAME` value when that override is set.
 
 Use one block per screenshot:
 
@@ -76,12 +79,12 @@ Example fallback text to give the user:
 # Screenshots
 
 Expense Processing dashboard
-http://localhost:8080/expense-processing
+http://<gateway-hostname>/expense-processing
 
 <!-- Drag 01-expense-processing-dashboard.png into GitHub and paste the generated <img ...> tag here. -->
 
 Finance review Expenses tab
-http://localhost:8080/expense-processing/11/expense
+http://<gateway-hostname>/expense-processing/11/expense
 
 <!-- Drag 02-finance-review-expenses-tab.png into GitHub and paste the generated <img ...> tag here. -->
 ```

@@ -29,10 +29,10 @@ To run the full app stack instead:
 dev up
 ```
 
-The API is then available at `http://localhost:3000`.
-
-If you want to inspect API responses in a browser while developing, log in through the frontend at
-`http://localhost:8080` first, then open `http://localhost:3000`.
+The API is available through the gateway at `http://api.<gateway-hostname>` (without a port
+binding). Replace `<gateway-hostname>` with the checkout-derived hostname shown by Vite at startup;
+if `GATEWAY_HOSTNAME` is set, use that value. The matching browser origin is
+`http://<gateway-hostname>`. Log in through that browser origin before inspecting API responses.
 
 ## Common Commands
 

@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
 
-gem "open-in-editor-bridge", "~> 0.2.0"
-
-require "open_in_editor_bridge"
+require "digest"
 require "rdoc"
 require "shellwords"
+
+require "bundler/setup"
+require "local_development_gateway"
+require "open_in_editor_bridge"
 
 require_relative "./github_api"
 require_relative "./pull-request-editor"
@@ -48,7 +50,9 @@ class DevHelper
 
     case kwargs[:execution_mode]
     when WAIT_FOR_PROCESS
-      wait_for_process_with_logging(command)
+      return true if wait_for_process_with_logging(command)
+
+      raise "Command failed: #{command}"
     else
       exec(command)
     end
@@ -61,24 +65,37 @@ class DevHelper
 
   def up(*args, **kwargs)
     configure_editor_bridge
-    compose_arguments = %w[up --remove-orphans --force-recreate] + args
+    editor_command = ENV.fetch("OPEN_IN_EDITOR_COMMAND", ENV["EDITOR"])
 
-    if detached_startup?(args)
-      OpenInEditorBridge.call("--ensure-running")
-      succeeded = compose(*compose_arguments, execution_mode: WAIT_FOR_PROCESS, **kwargs)
-      OpenInEditorBridge.call("--shutdown") unless succeeded
-      succeeded
-    else
-      OpenInEditorBridge.with_running do
-        compose(*compose_arguments, execution_mode: WAIT_FOR_PROCESS, **kwargs)
-      end
+    if editor_command.nil? || editor_command.empty?
+      warn "No editor configured; editor bridge will not be started."
+      return start_development_services(*args, **kwargs)
+    end
+
+    detached = args.any? { |argument| %w[-d --detach --detach=true --wait --wait=true].include?(argument) }
+    OpenInEditorBridge.with_running do
+      result = start_development_services(*args, **kwargs)
+      OpenInEditorBridge.call("--ensure-running") if detached
+      result
     end
   end
 
   def down(*args, **kwargs)
     configure_editor_bridge
     OpenInEditorBridge.with_running(ensure_running: false) do
-      compose(*%w[down --remove-orphans], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      LocalDevelopmentGateway.with_running(ensure_running: false) do
+        compose(*%w[down --remove-orphans], *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+      end
+    end
+  end
+
+  def stop(*args, **kwargs)
+    if kwargs.fetch(:environment, "development") != "development"
+      return compose("stop", *args, **kwargs)
+    end
+
+    LocalDevelopmentGateway.with_running(ensure_running: false) do
+      compose("stop", *args, **kwargs, execution_mode: WAIT_FOR_PROCESS)
     end
   end
 
@@ -93,7 +110,15 @@ class DevHelper
       compose_arguments << "--no-deps"
     end
 
-    compose(*compose_arguments, *args, **kwargs)
+    if kwargs.fetch(:environment, "development") != "development"
+      return compose(*compose_arguments, *args, **kwargs)
+    end
+
+    compose_arguments.concat(%w[--label traefik.enable=false])
+
+    LocalDevelopmentGateway.with_running do
+      compose(*compose_arguments, *args, **kwargs, execution_mode: WAIT_FOR_PROCESS)
+    end
   end
 
   def ps(*args, **kwargs)
@@ -321,12 +346,16 @@ class DevHelper
   def configure_editor_bridge
     ENV["OPEN_IN_EDITOR_PROJECT_ROOT"] = project_root
     ENV["OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS"] ||= "0.0.0.0"
-    ENV["OPEN_IN_EDITOR_SESSION_ID"] = OpenInEditorBridge.session_id
   end
 
-  def detached_startup?(args)
-    args.any? do |argument|
-      %w[-d --detach --detach=true --wait --wait=true].include?(argument)
+  def start_development_services(*args, **kwargs)
+    LocalDevelopmentGateway.with_running do
+      compose(
+        *%w[up --remove-orphans --force-recreate],
+        *args,
+        execution_mode: WAIT_FOR_PROCESS,
+        **kwargs
+      )
     end
   end
 
@@ -352,6 +381,10 @@ class DevHelper
 
     go_to_project_root = "cd #{project_root}"
     compose_file_args = ["-f docker-compose.#{environment}.yml"]
+
+    if environment == "development"
+      compose_file_args << "-f docker-compose.development.gateway.yml"
+    end
 
     if RUBY_PLATFORM =~ /linux/
       linux_override = "docker-compose.#{environment}.linux.yml"
@@ -382,11 +415,52 @@ class DevHelper
   end
 
   def dynamic_environment_variables
+    environment_variables = ["GATEWAY_HOSTNAME=#{Shellwords.escape(gateway_hostname)}"]
+    environment_variables << "COMPOSE_PROJECT_NAME=#{Shellwords.escape(compose_project_name)}"
+    session_id = OpenInEditorBridge.new(project_root: project_root).session_id
+    environment_variables << "OPEN_IN_EDITOR_SESSION_ID=#{session_id}"
+
     if RUBY_PLATFORM =~ /linux/
-      %(HOST_USER_ID="#{user_id}" HOST_GROUP_ID="#{group_id}")
-    else
-      ""
+      environment_variables << %(HOST_USER_ID="#{user_id}")
+      environment_variables << %(HOST_GROUP_ID="#{group_id}")
     end
+
+    environment_variables.join(" ")
+  end
+
+  def compose_project_name
+    configured_name = ENV.fetch("COMPOSE_PROJECT_NAME", "")
+    return configured_name unless configured_name.empty?
+
+    directory_name = File.basename(project_root)
+    return directory_name if /\A[a-z0-9][a-z0-9_-]*\z/.match?(directory_name)
+
+    checkout_name
+  end
+
+  def gateway_hostname
+    configured_hostname = ENV.fetch("GATEWAY_HOSTNAME", "")
+    return configured_hostname unless configured_hostname.empty?
+
+    directory_name = File.basename(project_root)
+    return "travel-authorization.localhost" if directory_name == "travel-authorization"
+
+    "#{checkout_name}.travel-authorization.localhost"
+  end
+
+  def checkout_name
+    directory_name = File.basename(project_root)
+
+    checkout_name = directory_name.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-+|-+\z/, "")
+
+    if checkout_name != directory_name || checkout_name.length > 63
+      checkout_digest = Digest::SHA256.hexdigest(directory_name)[0, 12]
+      checkout_prefix = checkout_name[0, 50].sub(/-+\z/, "")
+      checkout_prefix = "worktree" if checkout_prefix.empty?
+      checkout_name = "#{checkout_prefix}-#{checkout_digest}"
+    end
+
+    checkout_name
   end
 
   def take_over_needed?(file_or_directory)

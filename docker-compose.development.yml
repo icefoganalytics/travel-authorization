@@ -3,6 +3,9 @@ x-default-environment: &default-environment
   TZ: "UTC"
   AUTH0_DOMAIN: "https://dev-0tc6bn14.eu.auth0.com"
   AUTH0_AUDIENCE: testing
+  GATEWAY_HOSTNAME: "${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+  FRONTEND_URL: "http://${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+  VITE_API_BASE_URL: "http://api.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   DB_HOST: db
   DB_NAME: &default-db-name travel_development
   DB_PASS: &default-db-password itsallgood
@@ -35,8 +38,6 @@ services:
     init: true
     # stdin_open: true # equivalent of docker exec -i
     user: "${HOST_USER_ID:-0}:${HOST_GROUP_ID:-0}"
-    ports:
-      - "3000:3000"
     volumes:
       - ./api:/usr/src/api
       - ./.gitignore:/usr/src/.gitignore
@@ -50,10 +51,8 @@ services:
       dockerfile: development.Dockerfile
     environment:
       <<: *default-environment
-      OPEN_IN_EDITOR_SESSION_ID: "${OPEN_IN_EDITOR_SESSION_ID:-}"
       OPEN_IN_EDITOR_BRIDGE_PORT: "${OPEN_IN_EDITOR_BRIDGE_PORT:-3333}"
-    ports:
-      - "8080:8080"
+      OPEN_IN_EDITOR_SESSION_ID: "${OPEN_IN_EDITOR_SESSION_ID:-}"
     volumes:
       - ./web:/usr/src/web
       - ./.gitignore:/usr/src/.gitignore
@@ -114,9 +113,6 @@ services:
       POSTGRES_USER: *default-db-user
       POSTGRES_PASSWORD: *default-db-password
       POSTGRES_DB: *default-db-name
-    restart: always
-    ports:
-      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -128,8 +124,6 @@ services:
       MSSQL_SA_PASSWORD: *default-trav-com-db-password # requires secure password
       TZ: "UTC"
       ACCEPT_EULA: "Y"
-    ports:
-      - "1433:1433"
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
 

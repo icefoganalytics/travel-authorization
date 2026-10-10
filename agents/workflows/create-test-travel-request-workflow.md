@@ -47,7 +47,8 @@ approvals obtained by switching between user accounts.
 
 Credentials are stored in `.envrc` (not committed). Run `direnv allow` after filling them in.
 
-App base URL: `http://localhost:8080`
+Browser URL: use the address printed by Vite at startup (`Open Travel Authorization: ...`). It uses
+the checkout-derived hostname; set `GATEWAY_HOSTNAME` before `dev up` to override it.
 
 ### Key admin URLs
 
@@ -62,7 +63,7 @@ App base URL: `http://localhost:8080`
 
 ## Step 1 — Log in as the traveller
 
-1. Navigate to `http://localhost:8080`.
+1. Open the browser URL printed by Vite at startup.
 2. Log in as the traveller account (`$TRAVELLER_EMAIL` / `$TRAVELLER_PASSWORD`).
 3. Confirm you land on the Dashboard.
 
@@ -342,13 +343,11 @@ click **Approve** in the Management card, and confirm the native dialog manually
 ;(async () => {
   const app = document.getElementById("app").__vue_app__
   const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
-  const resp = await fetch(
-    "http://localhost:3000/api/travel-authorizations/:id/approve-expense-claim",
-    {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    }
-  )
+  const { API_BASE_URL } = await import("/src/config.js")
+  const resp = await fetch(`${API_BASE_URL}/api/travel-authorizations/:id/approve-expense-claim`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+  })
   const body = await resp.json()
   console.log(body.travelAuthorization.status, body.travelAuthorization.wizardStepName)
 })()
@@ -394,7 +393,8 @@ The **Approve** button calls `POST /api/travel-authorizations/:id/expense` via
 ;(async () => {
   const app = document.getElementById("app").__vue_app__
   const token = await app.config.globalProperties.$auth0.getAccessTokenSilently()
-  const resp = await fetch("http://localhost:3000/api/travel-authorizations/9/expense", {
+  const { API_BASE_URL } = await import("/src/config.js")
+  const resp = await fetch(`${API_BASE_URL}/api/travel-authorizations/9/expense`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   })

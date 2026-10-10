@@ -29,9 +29,17 @@ To run the full app stack instead:
 dev up
 ```
 
-The web app is then available at `http://localhost:8080`.
+The web app is available at the checkout-derived gateway hostname documented in the root
+[README.md](../README.md#local-services). Compose supplies `VITE_API_BASE_URL` for the matching
+`api.` hostname; the API permits that checkout's browser origin. A standalone Vite server uses
+`http://localhost:3000` unless `VITE_API_BASE_URL` is set.
 When the full stack boots in Docker, the web service waits for the API `/_status` endpoint before
 starting.
+
+When `GATEWAY_HOSTNAME` is set, Vite prints
+`Open Travel Authorization: http://<gateway-hostname>/` when its server starts. Compose supplies
+the checkout-derived hostname or an explicit override. Without that variable, standalone Vite
+prints its actual local address instead.
 
 ## Common Commands
 
@@ -58,28 +66,29 @@ What these are for:
 ## Open In Editor
 
 When the frontend runs in Docker, Vue Devtools cannot launch your host editor directly from inside
-the container. This project handles that by:
+the container. The shared [open-in-editor-bridge gem](https://github.com/klondikemarlen/open-in-editor-bridge)
+translates container paths to the requesting checkout and launches its configured host editor.
 
-- proxying Vite `"/__open-in-editor"` requests to the published `open-in-editor-bridge` gem, including
-  this checkout's session ID so simultaneous worktrees open files in the correct editor
-- translating container paths like `/usr/src/web/...` back to your host checkout path
-- launching `$EDITOR` on the host, or returning an error if no editor is configured.
+The repo-level `dev` wrapper manages this automatically:
 
-Install the Ruby/gem prerequisites and configure your editor via
-[Set Up `dev`](../bin/README.md#set-up-dev). If you use the repo-level wrapper:
+- `dev up` acquires a foreground checkout lease and releases it when Compose exits.
+- `dev up -d` and `dev up --wait` retain a persistent checkout registration until `dev down`.
+- Compose passes `OPEN_IN_EDITOR_SESSION_ID` to Vite, which adds it to editor proxy requests.
+- `dev down` releases only that checkout's persistent registration; other checkouts remain available.
+- With no `OPEN_IN_EDITOR_COMMAND` or `EDITOR`, the application starts without an editor bridge.
+- Without a configured checkout session, Vite rejects editor requests rather than selecting another checkout.
 
-- foreground `dev up` keeps the bridge lease until Compose exits
-- detached `dev up` (`-d`, `--detach`, or `--wait`) keeps its registration until `dev down`
-- `dev down` releases only this checkout's registration, leaving other checkouts active
+On Linux, `dev` includes `docker-compose.development.linux.yml` so the container can resolve
+`host.docker.internal`. Checkouts share port `3333`; set `OPEN_IN_EDITOR_BRIDGE_PORT` consistently
+across them to use another port. The gem stores private runtime state outside the repository.
 
-If you run Docker Compose manually on Linux, include
-`docker-compose.development.linux.yml` so the container can resolve `host.docker.internal`.
+The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`. The wrapper defaults
+`OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS` to `0.0.0.0` so Docker can reach the host listener. This also
+allows other reachable network peers to invoke the editor: use a trusted development network with
+host firewall restrictions, or select a specific Docker-reachable host interface. All checkouts
+sharing a listener must use the same bind address, port, and runtime directory.
 
-The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`, and returns an error if neither is set.
-See [Open in Editor](../bin/README.md#open-in-editor) for listener configuration and trusted-network
-requirements. For manual Compose startup, register the checkout with the gem CLI and export its
-`OPEN_IN_EDITOR_SESSION_ID`; the [gem README](https://github.com/klondikemarlen/open-in-editor-bridge)
-documents that lifecycle.
+Stop older project-local bridges before reusing their port; they cannot share the gem's listener.
 
 ## Sample Travelport Text
 

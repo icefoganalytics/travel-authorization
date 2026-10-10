@@ -98,7 +98,7 @@ Use this structure:
 
 1. Run the relevant test suite using the canonical commands in [`bin/README.md`](../../bin/README.md#testing).
 2. Boot the app via `./bin/dev up`.
-3. Log in to the app at http://localhost:8080.
+3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
 
 ## Test Case 1: [Descriptive scenario name]
 

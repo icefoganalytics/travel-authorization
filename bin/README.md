@@ -7,38 +7,43 @@ development tasks.
 
 ## Set Up `dev`
 
-`dev` requires Ruby 3.2 or newer and the published
-[`open-in-editor-bridge`](https://github.com/klondikemarlen/open-in-editor-bridge) gem:
+`dev` requires Ruby 3.2 or newer and the repository Ruby dependencies:
 
 ```bash
-gem install open-in-editor-bridge --version "~> 0.2.0"
+bundle install
 ```
 
-Install the gem for the Ruby selected by your shell/version manager. `dev` loads the gem directly;
-Bundler is not required.
+All Ruby development dependencies use full exact version pins in [Gemfile](../Gemfile) for reproducible local startup.
 
 Basic usage:
 
 1. Run it as `./bin/dev ...` from the repo root.
 2. If you want to use `dev ...` instead, add `bin/` to your `PATH`.
 
-### Open in Editor
+All development `dev` commands apply `docker-compose.development.gateway.yml`, which defines
+browser and database gateway routing. Use the checkout-derived `*.travel-authorization.localhost`
+hostname rather than direct application ports.
 
-Set `OPEN_IN_EDITOR_COMMAND` or `EDITOR` to your host editor command before starting the stack.
-The gem appends `--goto` and translates `/usr/src/web` paths to this checkout's `web/` directory,
-even when `dev` is invoked from another directory.
+`./bin/dev up` and development `run` commands (including API commands, migrations, and tests)
+ensure the gateway is running before creating or starting services. One-off containers disable
+Traefik discovery while database dependencies retain their gateway routes. Commands wait for the
+child process so gateway lifecycle cleanup does not remove other projects' routes.
 
-Foreground `dev up` releases its bridge lease when Compose exits. Detached startup (`-d`,
-`--detach`, or `--wait`) keeps a persistent registration until `dev down` releases it.
-Multiple checkouts share the listener; Compose and Vite forward the checkout session ID so editor
-requests target the correct checkout. Stopping one checkout does not stop another's registration.
+`./bin/dev stop` waits for the selected services to stop, then removes the gateway only if no
+running workloads remain attached. It never starts an absent gateway and retains stopped application
+containers and editor registrations; use `./bin/dev down` for full teardown.
 
-The wrapper defaults `OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS` to `0.0.0.0` so Docker containers can
-reach the host. Editor requests are unauthenticated: use a trusted development network and host
-firewall restrictions, or set a specific Docker-reachable host interface. Do not expose the bridge
-publicly. `OPEN_IN_EDITOR_BRIDGE_PORT` defaults to `3333` and is forwarded to the frontend proxy.
-All checkouts sharing a listener must agree on its port, bind address, and
-`OPEN_IN_EDITOR_BRIDGE_RUNTIME_DIR`. The gem manages shared runtime state outside the checkout.
+Other fallback Compose commands pass through without gateway lifecycle handling. Initialize the
+gateway with `./bin/dev up` before using them, and use `./bin/dev stop` or `./bin/dev down` for cleanup.
+
+Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
+instead of the checkout-derived default.
+
+Compose project names preserve valid directory names and use the hashed checkout label when
+normalization would otherwise collide. Set `COMPOSE_PROJECT_NAME` to select an explicit project.
+
+Host editor integration uses the shared `open-in-editor-bridge` gem. See
+[Open In Editor](../web/README.md#open-in-editor) for checkout sessions and configuration.
 
 ## Common Commands
 
@@ -48,6 +53,7 @@ All checkouts sharing a listener must agree on its port, bind address, and
 ./bin/dev up
 ./bin/dev up api
 ./bin/dev up web
+./bin/dev stop
 ./bin/dev down
 ./bin/dev logs
 ./bin/dev ps

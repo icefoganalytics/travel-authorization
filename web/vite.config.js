@@ -6,6 +6,19 @@ import { defineConfig } from "vite"
 import vue from "@vitejs/plugin-vue"
 import vuetify from "vite-plugin-vuetify"
 
+const gatewayUrlLogger = {
+  name: "gateway-url-logger",
+  apply: "serve",
+  configureServer(server) {
+    const hostname = process.env.GATEWAY_HOSTNAME
+    if (!hostname) return
+
+    server.httpServer?.once("listening", () => {
+      console.log(`\n  Open Travel Authorization: http://${hostname}/`)
+    })
+  },
+}
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -14,6 +27,7 @@ export default defineConfig({
         labs: true,
       },
     }),
+    gatewayUrlLogger,
   ],
   build: {
     outDir: "./dist",
@@ -32,14 +46,13 @@ export default defineConfig({
       // Forward editor-open requests to a host-side bridge so the host editor launches.
       "/__open-in-editor": {
         target: `http://host.docker.internal:${process.env.OPEN_IN_EDITOR_BRIDGE_PORT || "3333"}`,
-        rewrite: (requestPath) => {
-          const requestUrl = new URL(requestPath, "http://host.docker.internal")
+        bypass() {
+          if (!process.env.OPEN_IN_EDITOR_SESSION_ID) return false
+        },
+        rewrite(path) {
           const sessionId = process.env.OPEN_IN_EDITOR_SESSION_ID
-
-          if (sessionId) {
-            requestUrl.searchParams.set("session", sessionId)
-          }
-
+          const requestUrl = new URL(path, "http://host.docker.internal")
+          requestUrl.searchParams.set("session", sessionId)
           return `${requestUrl.pathname}${requestUrl.search}`
         },
       },
