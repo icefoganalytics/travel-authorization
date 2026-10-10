@@ -53,6 +53,7 @@ test.describe("travel authorization wizard", () => {
 
   test("when a traveller submits a request, it awaits supervisor approval", async ({ browser }) => {
     // Arrange
+    // marlens-test-alignment: allow-multiple-expects -- Checkpoints and submission verify one serial wizard stage.
     // Requires tests/.auth/traveller.json (Auth0 storageState).
     const travellerContext = await browser.newContext({
       storageState: "./tests/.auth/traveller.json",
@@ -146,6 +147,7 @@ test.describe("travel authorization wizard", () => {
     browser,
   }) => {
     // Arrange
+    // marlens-test-alignment: allow-multiple-expects -- Approval and traveller refresh verify one cross-account transition.
     // Requires tests/.auth/supervisor.json and tests/.auth/traveller.json.
     const supervisorContext = await browser.newContext({
       storageState: "./tests/.auth/supervisor.json",
@@ -191,6 +193,7 @@ test.describe("travel authorization wizard", () => {
     browser,
   }) => {
     // Arrange
+    // marlens-test-alignment: allow-multiple-expects -- Details and submission verify one serial travel-desk handoff.
     // Requires tests/.auth/traveller.json.
     const travellerContext = await browser.newContext({
       storageState: "./tests/.auth/traveller.json",
@@ -242,6 +245,7 @@ test.describe("travel authorization wizard", () => {
     browser,
   }) => {
     // Arrange
+    // marlens-test-alignment: allow-multiple-expects -- Ranking and booking checkpoints verify one serial booking journey.
     test.setTimeout(90_000)
     const travelDeskContext = await browser.newContext({
       storageState: "./tests/.auth/travelDesk.json",
@@ -317,6 +321,7 @@ test.describe("travel authorization wizard", () => {
     browser,
   }) => {
     // Arrange
+    // marlens-test-alignment: allow-multiple-expects -- Prefill, receipts, and coding are prerequisites of one expense submission.
     // Requires tests/.auth/traveller.json.
     // Travel dates (2026-06-01 to 2026-06-04) must be in the past.
     // Start from the persistent state created after travel-desk booking.
@@ -373,6 +378,7 @@ test.describe("travel authorization wizard", () => {
     browser,
   }) => {
     // Arrange
+    // marlens-test-alignment: allow-multiple-expects -- Approval checkpoints verify one serial expense-review journey.
     // Requires tests/.auth/supervisor.json, tests/.auth/finance.json, and tests/.auth/traveller.json.
     const supervisorContext = await browser.newContext({
       storageState: "./tests/.auth/supervisor.json",
