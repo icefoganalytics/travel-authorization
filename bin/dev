@@ -404,6 +404,11 @@ class DevHelper
     options = ["-f", "docker-compose.#{environment}.yml"]
     options.concat(["-f", "docker-compose.development.gateway.yml"]) if environment == "development"
 
+    if RUBY_PLATFORM =~ /linux/
+      linux_override = "docker-compose.#{environment}.linux.yml"
+      options.concat(["-f", linux_override]) if File.exist?(File.join(project_root, linux_override))
+    end
+
     options
   end
 
