@@ -35,7 +35,7 @@ test.describe("travel authorization wizard", () => {
   test("when authenticated, the traveller sees their travel request list", async ({ browser }) => {
     // Arrange
     const context = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+      storageState: "./tests/.auth/traveller.json",
     })
     const page = await context.newPage()
 
@@ -55,7 +55,7 @@ test.describe("travel authorization wizard", () => {
     // Arrange
     // Requires tests/.auth/traveller.json (Auth0 storageState).
     const travellerContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+      storageState: "./tests/.auth/traveller.json",
     })
     const page = await travellerContext.newPage()
 
@@ -148,11 +148,11 @@ test.describe("travel authorization wizard", () => {
     // Arrange
     // Requires tests/.auth/supervisor.json and tests/.auth/traveller.json.
     const supervisorContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/supervisor.json",
+      storageState: "./tests/.auth/supervisor.json",
     })
     const supervisorPage = await supervisorContext.newPage()
     const travellerContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+      storageState: "./tests/.auth/traveller.json",
     })
     const travellerPage = await travellerContext.newPage()
 
@@ -193,7 +193,7 @@ test.describe("travel authorization wizard", () => {
     // Arrange
     // Requires tests/.auth/traveller.json.
     const travellerContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+      storageState: "./tests/.auth/traveller.json",
     })
     const page = await travellerContext.newPage()
 
@@ -244,11 +244,11 @@ test.describe("travel authorization wizard", () => {
     // Arrange
     test.setTimeout(90_000)
     const travelDeskContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/travelDesk.json",
+      storageState: "./tests/.auth/travelDesk.json",
     })
     const travelDeskPage = await travelDeskContext.newPage()
     const travellerContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+      storageState: "./tests/.auth/traveller.json",
     })
     const travellerPage = await travellerContext.newPage()
     const outboundFlightOption = flightOptionFactory.build()
@@ -321,7 +321,7 @@ test.describe("travel authorization wizard", () => {
     // Travel dates (2026-06-01 to 2026-06-04) must be in the past.
     // Start from the persistent state created after travel-desk booking.
     const travellerContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+      storageState: "./tests/.auth/traveller.json",
     })
     const page = await travellerContext.newPage()
 
@@ -375,7 +375,7 @@ test.describe("travel authorization wizard", () => {
     // Arrange
     // Requires tests/.auth/supervisor.json, tests/.auth/finance.json, and tests/.auth/traveller.json.
     const supervisorContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/supervisor.json",
+      storageState: "./tests/.auth/supervisor.json",
     })
     const supervisorPage = await supervisorContext.newPage()
 
@@ -391,7 +391,7 @@ test.describe("travel authorization wizard", () => {
     await supervisorContext.close()
 
     const travellerContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/traveller.json",
+      storageState: "./tests/.auth/traveller.json",
     })
     const travellerPage = await travellerContext.newPage()
 
@@ -404,7 +404,7 @@ test.describe("travel authorization wizard", () => {
 
     // Step 14 — Finance processes expenses through the same user-facing controls.
     const financeContext = await browser.newContext({
-      storageState: "end-to-end-tests/tests/.auth/finance.json",
+      storageState: "./tests/.auth/finance.json",
     })
     const financePage = await financeContext.newPage()
     await financePage.goto(`/expense-processing/${travelAuthId}/expense`)
