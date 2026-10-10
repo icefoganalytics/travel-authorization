@@ -413,17 +413,17 @@ class DevHelper
   def compose_command(*args, **kwargs)
     environment = kwargs.delete(:environment) { "development" }
     pipe_input = kwargs.delete(:pipe_input)
+    profile = kwargs.delete(:profile)
 
     go_to_project_root = "cd #{project_root}"
     compose_file_args = ["-f docker-compose.#{environment}.yml"]
     linux_override = "docker-compose.#{environment}.linux.yml"
 
     if environment == "development"
-      profile = kwargs.delete(:profile)
       compose_file_args << "--profile #{profile}" if profile
     end
 
-    if environment == "development"
+    if environment == "development" && profile != "end-to-end-tests"
       compose_file_args << "-f docker-compose.development.gateway.yml"
     end
 
@@ -433,6 +433,10 @@ class DevHelper
     end
 
     bootstrap_docker = "docker compose #{compose_file_args.join(' ')} #{args.join(' ')}"
+    environment_variables = dynamic_environment_variables
+    if profile == "end-to-end-tests"
+      environment_variables += " DB_NAME=travel_test TRAVCOM_DB_NAME=trav_com_test"
+    end
 
     if pipe_input
       shell_safe_pipe_input = Shellwords.escape(pipe_input)
@@ -440,12 +444,12 @@ class DevHelper
 
       <<~BASH
         #{go_to_project_root} && \
-        #{pipe_input_to_compose} #{dynamic_environment_variables} #{bootstrap_docker}
+        #{pipe_input_to_compose} #{environment_variables} #{bootstrap_docker}
       BASH
     else
       <<~BASH
         #{go_to_project_root} && \
-        #{dynamic_environment_variables} #{bootstrap_docker}
+        #{environment_variables} #{bootstrap_docker}
       BASH
     end
   end
