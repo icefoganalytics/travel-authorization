@@ -12,7 +12,7 @@ import travelDeskFlightOptionsApi from "@/api/travel-desk-flight-options-api"
 /**
  * Provides reactive state management for travel desk flight options with API integration.
  *
- * @param {TravelDeskFlightOptionsQueryOptions} [options=ref({})] - Configuration options containing filters and pagination settings for fetching travel desk flight options.
+ * @param {TravelDeskFlightOptionsQueryOptions | Ref<TravelDeskFlightOptionsQueryOptions>} [options=ref({})] - Configuration options containing filters and pagination settings for fetching travel desk flight options.
  * @param {Object} [{ skipWatchIf = () => false }={}] - Configuration to conditionally skip API calls.
  * @param {Function} [skipWatchIf] - Function that returns a boolean to determine if fetching should be skipped.
  * @returns {{
