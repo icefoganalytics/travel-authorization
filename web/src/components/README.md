@@ -30,6 +30,14 @@ here instead of expanding top-level project documentation.
 - Use `v-if` for straightforward conditional rendering instead of computed component selection.
 - Reduce nesting when wrappers such as extra `v-card-text` elements add no behavior.
 
+## Collection Pagination
+
+Use [EnhancedPagination](common/EnhancedPagination.vue) with
+[useRouteQueryPagination](../use/utils/use-route-query-pagination.ts) for card and list collections.
+Bind `page` and `perPage` to the API query and any `v-data-iterator`, and pass `totalCount` to the pager.
+Expose `defaultPerPage` for configurable collection defaults. Use a unique `routeQuerySuffix` for
+each collection so its page and page-size URL state do not affect neighboring collections.
+
 ## Naming
 
 Use `{Model}{Purpose}{VuetifyComponent}.vue`.
