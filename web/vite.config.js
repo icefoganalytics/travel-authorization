@@ -19,8 +19,8 @@ const gatewayUrlLogger = {
   },
 }
 
-export default defineConfig({
-  plugins: [
+export default defineConfig(async ({ command, mode }) => {
+  const plugins = [
     vue(),
     vuetify({
       autoImport: {
@@ -28,37 +28,36 @@ export default defineConfig({
       },
     }),
     gatewayUrlLogger,
-  ],
-  build: {
-    outDir: "./dist",
-    emptyOutDir: true,
-  },
-  resolve: {
-    alias: {
-      "@/tests/support": fileURLToPath(new URL("./tests/support", import.meta.url)),
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+  ]
+
+  if (
+    command === "serve" &&
+    mode === "development" &&
+    process.env.OPEN_IN_EDITOR_BRIDGE_ENABLED === "true"
+  ) {
+    const integrationPath = "/open-in-editor-bridge/vite.mjs"
+    const { default: openInEditorBridge } = await import(integrationPath)
+    plugins.push(openInEditorBridge())
+  }
+
+  return {
+    plugins,
+    build: {
+      outDir: "./dist",
+      emptyOutDir: true,
     },
-    extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
-  },
-  server: {
-    port: 8080,
-    proxy: {
-      // Forward editor-open requests to a host-side bridge so the host editor launches.
-      "/__open-in-editor": {
-        target: `http://host.docker.internal:${process.env.OPEN_IN_EDITOR_BRIDGE_PORT || "3333"}`,
-        bypass() {
-          if (!process.env.OPEN_IN_EDITOR_SESSION_ID) return false
-        },
-        rewrite(path) {
-          const sessionId = process.env.OPEN_IN_EDITOR_SESSION_ID
-          const requestUrl = new URL(path, "http://host.docker.internal")
-          requestUrl.searchParams.set("session", sessionId)
-          return `${requestUrl.pathname}${requestUrl.search}`
-        },
+    resolve: {
+      alias: {
+        "@/tests/support": fileURLToPath(new URL("./tests/support", import.meta.url)),
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
+      extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
     },
-  },
-  test: {
-    globals: true, // https://vitest.dev/config/#globals
-  },
+    server: {
+      port: 8080,
+    },
+    test: {
+      globals: true, // https://vitest.dev/config/#globals
+    },
+  }
 })
