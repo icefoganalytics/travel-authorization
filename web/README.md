@@ -81,8 +81,8 @@ The repo-level `dev` wrapper manages this automatically:
   manifest read-only. Only these two files enter the container, not private broker credentials.
 - The plugin owns editor request routing; no session environment variable or custom proxy rewrite
   is needed.
-- With no `OPEN_IN_EDITOR_COMMAND` or `EDITOR`, the application starts without the editor plugin
-  or bridge. The wrapper sets `OPEN_IN_EDITOR_BRIDGE_ENABLED` only for adapter-backed startup.
+- Configure `OPEN_IN_EDITOR_COMMAND` or `EDITOR` before `dev up`; a missing editor fails with the
+  gem's configuration error. Only adapter-backed startup enables `OPEN_IN_EDITOR_BRIDGE_ENABLED`.
 - Ordinary Compose commands, including `dev web npm run start`, run without editor integration;
   use `dev up web` when the frontend needs the gem's editor mounts.
 - Production builds and test-mode Vite configurations do not load the mounted plugin.
