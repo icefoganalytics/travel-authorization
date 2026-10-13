@@ -73,8 +73,10 @@ The repo-level `dev` wrapper manages this automatically:
 
 - `dev up` uses the gem's Compose adapter to acquire a foreground checkout lease and release it
   when Compose exits.
-- `dev up -d`, `dev up --detach`, and `dev up --wait` retain a persistent checkout registration
-  until a successful `dev down`. A failed teardown retains the registration.
+- `dev up -d` and `dev up --detach` retain a persistent checkout registration until a successful
+  `dev down`. A failed teardown retains the registration.
+- Use `dev up -d --wait` to wait for readiness while retaining editor registration. The wrapper
+  forwards options unchanged; it does not infer detached mode from `--wait`.
 - The adapter adds the Docker host-gateway entry and mounts the gem's Vite plugin and checkout
   manifest read-only. Only these two files enter the container, not private broker credentials.
 - The plugin owns editor request routing; no session environment variable or custom proxy rewrite

@@ -5,6 +5,9 @@
 The `dev` command is a small helper around Docker Compose plus a few TravelAuth-specific
 development tasks.
 
+Keep `dev` thin and readable. Prefer direct calls and pass caller options through unchanged;
+leave option semantics to Docker Compose and shared gems rather than adding compatibility parsing.
+
 ## Set Up `dev`
 
 `dev` requires Ruby 3.2 or newer and the repository Ruby dependencies:
