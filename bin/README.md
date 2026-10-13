@@ -10,9 +10,9 @@ leave option semantics to Docker Compose and shared gems rather than adding comp
 Use the normal repository-root setup and let missing prerequisites fail clearly instead of
 adding alternate startup paths or dependency-discovery workarounds.
 
-Development services run by default, without a profile. Profiles are reserved for optional
-`tests`, `end-to-end-tests`, and `design` services. Explicit `./bin/dev test api` and
-`./bin/dev test web` commands activate their unit-test runner automatically.
+Development services run by default, without a profile. Profiles are reserved for optional unit-test
+and design services. Explicit `./bin/dev test api` and `./bin/dev test web` commands activate their
+unit-test runner automatically.
 
 ## Set Up `dev`
 
@@ -95,26 +95,36 @@ of duplicating test command examples.
 ./bin/dev test api -- --grep "travel desk"
 ```
 
-Pass Vitest flags after `--` so they are forwarded to the underlying test runner.
+Pass Vitest and Playwright flags after `--` so they are forwarded to the underlying test runner.
 
-**End-to-end tests** start the app stack in test mode, run against isolated test databases, and tear
-the stack down after the run:
+**End-to-end tests** run Playwright against an isolated application stack:
 
 ```bash
-./bin/dev test end-to-end-tests    # run Playwright in Docker against the test stack
+./bin/dev e2e test
 ```
 
-The command selects the `end-to-end-tests` profile in `docker-compose.development.yml` and starts
-dedicated application services plus the standard `db` and `db_trav_com` services in a separate
-project before running Playwright. It supplies `DB_NAME=travel_test` and
-`TRAVCOM_DB_NAME=trav_com_test` only to its Compose commands and omits the development gateway
-overlay. Database volumes are project-scoped; normal development names remain unchanged. YAML
-anchors share application settings; no separate end-to-end Compose file or database variants are
-needed. The test stack publishes no host ports, so it cannot conflict with a development stack.
+The wrapper composes `docker-compose.development.yml` with
+`docker-compose.e2e-test.yml` in the fixed `travel-authorization-e2e-test` project. The overlay uses
+the standard `api`, `web`, `db`, and `db_trav_com` service names and the `end_to_end_tests` runner;
+database volumes and test data remain isolated from development. It does not apply the development
+gateway overlay, publish host ports, mount the development source directories, or load development
+environment files. The web application and runner use an internal network while preserving the
+Auth0 callback URL `http://localhost:8080`. The wrapper removes the isolated project and its volumes
+before and after each run, including failed runs.
 
-See `end-to-end-tests/README.md` for the standalone package, coverage boundary, and real-account prerequisites.
-The default suite runs three credential-free smoke tests; set `E2E_AUTHENTICATED=true` and select
-`-- --project authenticated-chromium` to exercise the full authenticated workflow.
+The default suite contains three credential-free smoke tests. Set `E2E_AUTHENTICATED=true` to
+include all 15 discovered tests; authenticated coverage requires four distinct real Auth0 accounts
+and the existing booking-policy and review prerequisites. It does not bypass those requirements.
+Set the local account variables described in
+[`end-to-end-tests/README.md`](../end-to-end-tests/README.md#running-tests).
+For example:
+
+```bash
+E2E_AUTHENTICATED=true ./bin/dev e2e test
+./bin/dev e2e test -- --grep "sign-in page"
+```
+
+See [`end-to-end-tests/README.md`](../end-to-end-tests/README.md) for coverage and account setup.
 
 ### Test Container Management
 

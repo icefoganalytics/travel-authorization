@@ -23,10 +23,8 @@ Node ancestor module lookup shares the runner-owned dependencies with the copied
 - `npm run lint` lints package TypeScript using the repository ignore rules.
 - `npm run ts-node -- finance-api-stub.ts` runs the finance API stub.
 
-Use the repository wrapper for the isolated full-stack environment. It forwards options after `--`
-to Playwright.
-
-## Current Coverage
+Use `./bin/dev e2e test` from the repository root for the isolated full-stack environment. Arguments
+after `--` are forwarded to Playwright.
 
 The default suite runs three credential-free smoke checks:
 
@@ -34,27 +32,34 @@ The default suite runs three credential-free smoke checks:
 - Sign-in page renders.
 - Root route redirects unauthenticated users away from protected content.
 
-The opt-in authenticated suite exercises the traveller, supervisor, travel-desk, and finance journey:
-request submission and approval, flight options and rankings, booking, actual travel details,
-expense prefill and receipts, GL coding, and final expense review. It requires four distinct real
-Auth0 identities and the application's required booking-policy and review prerequisites. The suite
-does not bypass authentication, grant policy access, seed workflow transitions, or waive required
-review.
+Set `E2E_AUTHENTICATED=true` to include all 15 discovered tests, including the authenticated
+traveller, supervisor, travel-desk, and finance journey: request submission and approval, flight
+options and rankings, booking, actual travel details, expense prefill and receipts, GL coding, and
+final expense review. This coverage requires four distinct real Auth0 identities and the
+application's existing booking-policy and review prerequisites. It does not bypass authentication,
+grant policy access, seed workflow transitions, or waive required review.
 
 ## Running Tests
 
-Use the project wrapper from the repository root:
+Run the smoke suite locally without account credentials:
 
 ```bash
-./bin/dev test end-to-end-tests
+./bin/dev e2e test
 ```
 
-To run authenticated coverage, provide each actor's email and password in your local, unversioned
-environment: `TRAVELLER_EMAIL` / `TRAVELLER_PASSWORD`, `SUPERVISOR_EMAIL` / `SUPERVISOR_PASSWORD`,
-`TRAVEL_DESK_EMAIL` / `TRAVEL_DESK_PASSWORD`, and `FINANCE_EMAIL` / `FINANCE_PASSWORD`. Then run:
+Pass Playwright options after `--`, for example:
 
 ```bash
-E2E_AUTHENTICATED=true ./bin/dev test end-to-end-tests -- --project authenticated-chromium
+./bin/dev e2e test -- --grep "sign-in page"
+```
+
+To opt in to authenticated coverage, provide each actor's email and password through your local,
+unversioned environment: `TRAVELLER_EMAIL` / `TRAVELLER_PASSWORD`, `SUPERVISOR_EMAIL` /
+`SUPERVISOR_PASSWORD`, `TRAVEL_DESK_EMAIL` / `TRAVEL_DESK_PASSWORD`, and `FINANCE_EMAIL` /
+`FINANCE_PASSWORD`. Then run:
+
+```bash
+E2E_AUTHENTICATED=true ./bin/dev e2e test
 ```
 
 All four accounts must have distinct Auth0 subjects. The isolated database gives the traveller and
@@ -68,37 +73,32 @@ reports how to refresh the saved state.
 If Auth0 presents a CAPTCHA, sign in normally and supply the corresponding real storage state;
 the suite does not bypass challenges. Do not commit, upload, or share credentials or session files.
 
-For same-repository pull requests, main pushes, and manual runs, continuous integration requests both
-smoke and authenticated coverage with `E2E_AUTHENTICATED=true`. Fork pull requests run smoke coverage
-only because GitHub does not provide repository secrets to those events.
+For same-repository pull requests, main pushes, and manual runs, continuous integration sets
+`E2E_AUTHENTICATED=true` and requests smoke and authenticated coverage. Fork pull requests run the
+credential-free smoke suite because GitHub does not provide repository secrets to those events.
 Configure the eight repository Actions secrets using the local variable names above with an `E2E_`
 prefix, for example `E2E_SUPERVISOR_EMAIL` and `E2E_SUPERVISOR_PASSWORD`. Missing credentials fail
-authentication setup; they do not silently skip the workflow. Screenshots and videos are disabled
-during authentication. Workflow artifacts can contain test-account details; keep them private.
+authentication setup; they do not silently skip coverage. Screenshots and videos are disabled
+during authentication. Failure artifacts can contain test-account details; keep them private.
 Both API-context and root release-context builds exclude authentication states and Playwright artifacts.
 
-The wrapper forces the `travel-authorization-e2e-test` Compose project even when
-`COMPOSE_PROJECT_NAME` is set. It selects the `end-to-end-tests` profile from
-`docker-compose.development.yml`, resets that isolated stack and its named volumes, rebuilds the
-application and runner images, runs Playwright, and tears down on success or failure. The runner
-image installs this package alone and does not install the API manifest. Development services run
-by default without a profile; unit-test runners and design tools are optional profiled services.
+## Isolated Compose Stack
 
-The test project reuses the standard `db` and `db_trav_com` service definitions and volume keys.
-Every E2E Compose command supplies `DB_NAME=travel_test` and `TRAVCOM_DB_NAME=trav_com_test`,
-overriding ambient database names without changing the calling shell. Compose prefixes the volumes
-with the isolated project name; development still defaults to `travel_development` and
-`trav_com_development`.
+The wrapper fixes the Compose project name to `travel-authorization-e2e-test`, regardless of
+`COMPOSE_PROJECT_NAME`, and combines `docker-compose.development.yml` with
+`docker-compose.e2e-test.yml`. The overlay uses the standard `api`, `web`, `db`, and `db_trav_com`
+service names plus the `end_to_end_tests` runner. Database volumes and test data are isolated by
+project; the development database names and stack remain unchanged.
 
-The API waits for a successful SQL Server query before starting TravCom initialization. The test
-frontend waits for the API status endpoint, and the runner waits for the frontend health check. The
-stack uses Docker's internal network without host ports; the runner shares the frontend's network
-namespace so the real Auth0 callback remains `http://localhost:8080`.
+The test stack uses Docker's internal network, publishes no host ports, and keeps the Auth0 callback
+at `http://localhost:8080` by sharing the web service's network namespace with the runner. It does
+not apply the development gateway overlay, mount development source directories, or load development
+environment files. The overlay adds test-only SQL readiness without changing normal development
+startup dependencies. The runner image installs this package alone, not the API manifest; CI installs
+the root Ruby dependencies before invoking the same wrapper command used locally.
 
-The wrapper omits the development gateway overlay for E2E commands, so reused database containers
-have no gateway attachment or routing labels. The shared TravCom service has a SQL readiness check;
-the E2E API waits for it without changing normal API startup dependencies. The Auth0 callback stays
-at `http://localhost:8080`. CI installs the root Ruby dependencies before invoking the wrapper.
+Before each run, the wrapper resets the isolated project and volumes. It runs the test command and
+removes the project and volumes afterward on both success and failure.
 
 ## Adding Tests
 

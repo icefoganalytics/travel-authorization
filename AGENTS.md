@@ -130,7 +130,8 @@ Route → BaseController (instance) → Service (.perform()) → Model/Sequelize
 
 ### Testing
 
-See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use the `dev test ...` commands, not service-shell package commands.
+See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use the repository wrapper,
+not service-shell package commands.
 
 - Fishery factories imported from `@/factories`
 - Triple `describe`: file path → class → method
@@ -141,38 +142,21 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 
 ### End-to-End Tests
 
-End-to-end tests use [Playwright](https://playwright.dev/) and live in the top-level
-`end-to-end-tests/` package alongside `api/` and `web/`. The package owns its dependencies,
-configuration, and Docker runner. It shares `api/tests/support/clean-database.ts` and
-`clean-trav-com-database.ts` directly via the `@/tests/support/` alias — no duplication.
-Tests run against the full application stack in a separate Docker Compose project.
+End-to-end tests use [Playwright](https://playwright.dev/) in the standalone top-level
+`end-to-end-tests/` package. Run them locally with `./bin/dev e2e test`; the default suite contains
+three credential-free smoke tests. Set `E2E_AUTHENTICATED=true` to opt in to the authenticated
+coverage, which requires four distinct real Auth0 accounts and all documented application policy
+prerequisites.
 
-**Run locally (via Docker — matches CI):**
-
-```bash
-dev test end-to-end-tests         # starts the test-mode app stack, runs Playwright, then tears down
-```
-
-The `end-to-end-tests` profile in `docker-compose.development.yml` selects application and runner
-variants that reuse development builds through YAML anchors. The wrapper reuses the standard
-`db` and `db_trav_com` services in a separate project, supplying test database names only to its
-Compose commands. It omits the development gateway overlay; containers and database volumes are
-project-scoped and removed after the run. Development services run by default without a profile;
-only optional test and design services use profiles.
-
-See `end-to-end-tests/README.md` for coverage and real-account prerequisites. Continuous
-integration requests smoke checks and the authenticated wizard with `E2E_AUTHENTICATED=true`.
-Configure four distinct Auth0 accounts through the eight `E2E_` repository Actions secrets.
-Fork pull requests run only credential-free smoke coverage; GitHub does not expose repository secrets.
+The E2E wrapper runs the standard application and database services in an isolated Compose project
+using `docker-compose.e2e-test.yml`. See [`end-to-end-tests/README.md`](end-to-end-tests/README.md)
+for test coverage, authentication setup, and stack behavior. See [`bin/README.md`](bin/README.md#testing)
+for canonical commands.
 
 **Adding tests:** Place new `*.spec.ts` files in `end-to-end-tests/tests/`. Import `test` from
 `@/end-to-end-tests/fixtures` and `expect` from `@playwright/test` so each test cleans both test databases
 automatically. Use `test()` (not `it()`). Prefer user-visible `page.getByRole()`,
 `page.getByLabel()`, and `page.getByText()` locators over CSS selectors.
-
-**Auth:** Most routes require Auth0 login. Authenticated specs need a shared `storageState` fixture
-and deterministic database prerequisites. Keep the detailed account configuration and model-free
-seeding pattern in `end-to-end-tests/README.md`.
 
 ---
 

@@ -8,35 +8,33 @@ running development stack.
 
 ## Architecture Boundary
 
-The canonical command is:
+Run end-to-end tests locally and in continuous integration with:
 
 ```bash
-./bin/dev test end-to-end-tests
+./bin/dev e2e test
 ```
 
-It selects the `end-to-end-tests` profile in `docker-compose.development.yml` and a separate Docker
-Compose project, recreates its named volumes, rebuilds the application and Playwright runner
-images, runs the suite, then removes the isolated stack. Application variants reuse development
-builds and service settings through YAML anchors. The standard `db` and `db_trav_com` services
-run in this separate project, with `DB_NAME=travel_test` and `TRAVCOM_DB_NAME=trav_com_test`
-supplied only to E2E Compose commands. Database volumes are project-scoped; no duplicate database
-services or separate end-to-end Compose file are needed. The wrapper omits the development gateway
-overlay, so the reused databases cannot register development routes.
+The wrapper combines `docker-compose.development.yml` and `docker-compose.e2e-test.yml` in the
+fixed `travel-authorization-e2e-test` project. The overlay uses the standard `api`, `web`, `db`, and
+`db_trav_com` service names, plus the `end_to_end_tests` runner; there are no separate application
+variants or profile activation. The isolated project uses separate database volumes and test
+database names, leaving a running development stack and its data untouched.
+
+The E2E stack omits the development gateway overlay, publishes no host ports, mounts no development
+source directories, and does not load development environment files. The runner shares the web
+service's network namespace so the real Auth0 callback remains `http://localhost:8080`. Normal
+development retains its required environment-file configuration; test-only SQL readiness is defined
+by the E2E overlay and does not change the normal API startup dependency.
+
+The wrapper resets the isolated project before the run and removes its services and volumes after
+success or failure. The default suite runs three credential-free smoke tests; setting
+`E2E_AUTHENTICATED=true` includes all 15 discovered tests and requires the real accounts and
+application policy prerequisites described in
+[`end-to-end-tests/README.md`](../../end-to-end-tests/README.md).
 The fixture cleans test databases before each test unless a stateful serial workflow opts out.
-The API waits for SQL Server readiness, the frontend waits for API readiness, and the runner waits
-for frontend readiness. Test containers communicate internally and publish no host ports.
 
 This makes the end-to-end environment independent of a developer's active stack and aligns local
-execution with continuous integration.
-
-Development services run by default without a profile. Profiles are reserved for optional unit-test,
-end-to-end, and design services. The development API loads its local environment file when present;
-Compose can also validate the isolated end-to-end run without that local file. The wrapper targets
-the test runner and its dependencies explicitly. Standard database services run in the isolated
-project, but normal development API, frontend, and readiness services are not started there.
-The end-to-end frontend reuses the standard web build with test-only API routing, no development
-bind mounts or gateway attachment, and a readiness check. The `test_web` unit-test runner does not
-serve the application.
+execution with continuous integration. The same wrapper command is used in CI.
 
 ## Test Ownership and Runtime
 
@@ -57,35 +55,29 @@ started frontend or backend, because that can point a run at development data or
 The stack builds the existing development images so local and continuous-integration runs exercise
 the same source configuration.
 
-The root [`Dockerfile`](../../Dockerfile) is the release image: it compiles the API and web
-application into one production container. It is not the current pull-request test target. Add a
-separate release-artifact smoke check only when the release pipeline needs to prove that compiled
-image and its production configuration. Keeping that concern separate avoids making every source
-change pay the production-image build cost.
-
 ## Coverage Contract
 
-Continuous integration requests the three smoke checks and the complete authenticated travel
-authorization journey using four distinct Auth0 accounts and UI actions, including booking and receipt
-uploads. Its setup verifies authenticated identities before seeding isolated prerequisite data with
-actor-specific application permissions. The eight `E2E_` repository Actions secrets provide each
-actor's email and password; missing credentials fail setup rather than skipping coverage.
-Fork pull requests run only smoke coverage because GitHub withholds repository secrets from those events.
+Same-repository pull requests, pushes to `main`, and manual runs set `E2E_AUTHENTICATED=true` and
+request the three smoke checks plus the complete authenticated journey with four distinct Auth0
+accounts and UI actions, including booking and receipt uploads. Setup verifies authenticated
+identities before seeding isolated prerequisite data with actor-specific application permissions.
+The eight `E2E_` repository Actions secrets provide each actor's email and password. Missing
+credentials fail setup rather than silently skipping coverage. Fork pull requests run only the
+credential-free smoke checks because GitHub withholds repository secrets from those events.
 
 ## Continuous Integration Policy
 
 The end-to-end workflow runs for pushes to `main` and when a pull request is marked ready for review.
-It can also be started manually with GitHub Actions. This limits costly browser-stack runs during
-draft development while preserving an explicit verification path.
+It can also be started manually with GitHub Actions. It runs `./bin/dev e2e test`, matching the local
+command.
 
-## Authority
+## Executable References
 
-- `end-to-end-tests/README.md` is the source of truth for current test coverage, authenticated
-  prerequisites, test fixtures, and locator conventions.
-- `bin/dev`, `docker-compose.development.yml`, and `.github/workflows/end-to-end-tests.yml` define the
-  current execution behavior.
-- The Playwright specifications under `end-to-end-tests/tests/` are the executable coverage
-  evidence.
+- [`bin/README.md`](../../bin/README.md#testing) documents the canonical command and flags.
+- [`end-to-end-tests/README.md`](../../end-to-end-tests/README.md) documents coverage, credentials,
+  policy prerequisites, and isolation.
+- The Compose files and workflow define the stack, secret policy, triggers, and failure artifacts;
+  Playwright configuration and specifications define executable coverage.
 
 ## Publication Boundary
 
