@@ -44,7 +44,24 @@ vi.mock("@/use/use-travel-desk-flight-segments", () => {
   }
 })
 
-async function renderFlightOptions(pages: Record<string, number> = { Leg1: 2 }) {
+async function renderFlightOptions(
+  pages: Record<string, number> = { Leg1: 2 },
+  {
+    defaultPerPage,
+    perPages = {},
+  }: {
+    defaultPerPage?: number
+    perPages?: Record<string, number>
+  } = {}
+) {
+  const routeQuery: Record<string, string> = {}
+  for (const [leg, page] of Object.entries(pages)) {
+    routeQuery[`pageFlightOptions${leg}`] = String(page)
+  }
+  for (const [leg, perPage] of Object.entries(perPages)) {
+    routeQuery[`perPageFlightOptions${leg}`] = String(perPage)
+  }
+
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/", component: { render: () => null } }],
@@ -56,6 +73,7 @@ async function renderFlightOptions(pages: Record<string, number> = { Leg1: 2 }) 
         Object.keys(pages).map((leg) =>
           h(TravelDeskFlightOptionsDataIterator, {
             routeQuerySuffix: `FlightOptions${leg}`,
+            defaultPerPage,
           })
         )
       ),
@@ -64,9 +82,7 @@ async function renderFlightOptions(pages: Record<string, number> = { Leg1: 2 }) 
   app.use(router)
   await router.push({
     path: "/",
-    query: Object.fromEntries(
-      Object.entries(pages).map(([leg, page]) => [`pageFlightOptions${leg}`, String(page)])
-    ),
+    query: routeQuery,
   })
   await router.isReady()
   return renderToString(app)
@@ -77,6 +93,10 @@ function selectedPages(html: string) {
     html.matchAll(/<button[^>]*aria-current="true"[^>]*>([\s\S]*?)<\/button>/g),
     ([, content]) => content.replace(/<[^>]*>/g, "").trim()
   )
+}
+
+function renderedPreferences(html: string) {
+  return Array.from(html.matchAll(/<input[^>]*value="(\d+)"[^>]*>/g), ([, value]) => value)
 }
 
 describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.vue", () => {
@@ -93,10 +113,7 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
 
     // Assert
     expect(selectedPages(html)).toEqual(["2"])
-    expect(html).toContain('value="6"')
-    expect(html).toContain('value="10"')
-    expect(html).not.toContain('value="1"')
-    expect(html).not.toContain('value="12"')
+    expect(renderedPreferences(html)).toEqual(["6", "7", "8", "9", "10"])
   })
 
   test("keeps each leg's selected page independent", async () => {
@@ -105,8 +122,39 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
 
     // Assert
     expect(selectedPages(html)).toEqual(["2", "1"])
-    expect(html).toContain('value="6"')
-    expect(html).toContain('value="1"')
+    expect(renderedPreferences(html)).toEqual(["6", "7", "8", "9", "10", "1", "2", "3", "4", "5"])
+  })
+
+  test("uses the caller's page size for the server rows and page controls", async () => {
+    // Act
+    const html = await renderFlightOptions({ Leg1: 2 }, { defaultPerPage: 3 })
+
+    // Assert
+    expect(selectedPages(html)).toEqual(["2"])
+    expect(renderedPreferences(html)).toEqual(["4", "5", "6"])
+    expect(html).toContain('aria-label="Go to page 4"')
+  })
+
+  test("restores the URL page size instead of the caller's default", async () => {
+    // Act
+    const html = await renderFlightOptions(
+      { Leg1: 2 },
+      { defaultPerPage: 4, perPages: { Leg1: 2 } }
+    )
+
+    // Assert
+    expect(selectedPages(html)).toEqual(["2"])
+    expect(renderedPreferences(html)).toEqual(["3", "4"])
+    expect(html).toContain('aria-label="Go to page 6"')
+  })
+
+  test("keeps each leg's page size independent", async () => {
+    // Act
+    const html = await renderFlightOptions({ Leg1: 2, Leg2: 2 }, { perPages: { Leg1: 3, Leg2: 4 } })
+
+    // Assert
+    expect(selectedPages(html)).toEqual(["2", "2"])
+    expect(renderedPreferences(html)).toEqual(["4", "5", "6", "5", "6", "7", "8"])
   })
 
   test("distinguishes rejected and unranked options and shows the rejection explanation", async () => {

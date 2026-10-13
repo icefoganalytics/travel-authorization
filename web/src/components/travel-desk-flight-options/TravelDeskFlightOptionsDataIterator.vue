@@ -13,9 +13,9 @@
   <v-data-iterator
     v-else
     v-model:page="page"
+    v-model:items-per-page="perPage"
     :items="travelDeskFlightOptions"
     :items-length="totalCount"
-    :items-per-page="PER_PAGE"
   >
     <template #default="{ items }">
       <TravelDeskFlightOptionCard
@@ -28,47 +28,52 @@
     <template #no-data>
       <p>No flight options available.</p>
     </template>
-    <template #footer="{ pageCount }">
-      <v-pagination
-        v-if="pageCount > 1"
+    <template #footer>
+      <EnhancedPagination
+        v-if="totalCount > perPage"
         v-model="page"
-        :length="pageCount"
+        v-model:per-page="perPage"
+        :total-count="totalCount"
         class="mt-4"
       />
     </template>
   </v-data-iterator>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, watch } from "vue"
 
-import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import type {
+  TravelDeskFlightOptionFiltersOptions,
+  TravelDeskFlightOptionWhereOptions,
+} from "@/api/travel-desk-flight-options-api"
+import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 import useTravelDeskFlightOptions from "@/use/use-travel-desk-flight-options"
 
+import EnhancedPagination from "@/components/common/EnhancedPagination.vue"
 import TravelDeskFlightOptionCard from "@/components/travel-desk-flight-options/TravelDeskFlightOptionCard.vue"
 
-const props = defineProps({
-  where: {
-    type: Object,
-    default: () => ({}),
-  },
-  filters: {
-    type: Object,
-    default: () => ({}),
-  },
-  routeQuerySuffix: {
-    type: String,
-    required: true,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    where?: TravelDeskFlightOptionWhereOptions
+    filters?: TravelDeskFlightOptionFiltersOptions
+    routeQuerySuffix: string
+    defaultPerPage?: number
+  }>(),
+  {
+    where: () => ({}),
+    filters: () => ({}),
+    defaultPerPage: 5,
+  }
+)
 
-const PER_PAGE = 5
-const page = useRouteQuery(`page${props.routeQuerySuffix}`, "1", {
-  transform: integerTransformer,
+const { page, perPage } = useRouteQueryPagination({
+  perPage: props.defaultPerPage,
+  routeQuerySuffix: props.routeQuerySuffix,
 })
 
 watch(
-  [() => props.where, () => props.filters],
+  [() => props.where, () => props.filters, perPage],
   () => {
     page.value = 1
   },
@@ -79,7 +84,7 @@ const travelDeskFlightOptionsQuery = computed(() => ({
   where: props.where,
   filters: props.filters,
   page: page.value,
-  perPage: PER_PAGE,
+  perPage: perPage.value,
 }))
 const { travelDeskFlightOptions, totalCount, isLoading, isErrored } = useTravelDeskFlightOptions(
   travelDeskFlightOptionsQuery
