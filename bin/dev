@@ -67,17 +67,20 @@ class DevHelper
 
   def up(*args, **kwargs)
     configure_editor_bridge
-    compose_arguments = %w[up --remove-orphans --force-recreate]
-    compose_arguments << "-d" if args.include?("--wait") || args.include?("--wait=true")
 
     LocalDevelopmentGateway.with_running do
       unless editor_bridge_enabled?
         warn "No editor configured; editor bridge will not be started."
-        return compose(*compose_arguments, *args, execution_mode: WAIT_FOR_PROCESS, **kwargs)
+        return compose(
+          *%w[up --remove-orphans --force-recreate],
+          *args,
+          execution_mode: WAIT_FOR_PROCESS,
+          **kwargs
+        )
       end
 
       OpenInEditorBridge.compose(
-        *compose_arguments,
+        *%w[up --remove-orphans --force-recreate],
         *args,
         compose_options: compose_file_options(**kwargs),
         env: ENV.to_h.merge(compose_environment(editor_bridge: true)),
