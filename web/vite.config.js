@@ -58,6 +58,11 @@ export default defineConfig(async ({ command, mode }) => {
     },
     test: {
       globals: true, // https://vitest.dev/config/#globals
+      server: {
+        deps: {
+          inline: ["vuetify"],
+        },
+      },
     },
   }
 })

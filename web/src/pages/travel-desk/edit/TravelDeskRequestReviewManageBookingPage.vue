@@ -73,6 +73,10 @@
         </v-card-text>
       </v-card>
 
+      <TravelDeskFlightRequestFlightRankingsCard
+        :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
+      />
+
       <div class="d-flex flex-column flex-md-row ga-2 my-4">
         <v-btn
           v-if="isDraftState"
@@ -153,6 +157,7 @@ import useSnack from "@/use/use-snack"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
 import SectionHeader from "@/components/common/SectionHeader.vue"
+import TravelDeskFlightRequestFlightRankingsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestFlightRankingsCard.vue"
 import TravelDeskTravelRequestConfirmBookingDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestConfirmBookingDialog.vue"
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
 
