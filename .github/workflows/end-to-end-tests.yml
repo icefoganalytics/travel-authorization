@@ -41,7 +41,7 @@ jobs:
           TRAVEL_DESK_PASSWORD: ${{ secrets.E2E_TRAVEL_DESK_PASSWORD }}
           FINANCE_EMAIL: ${{ secrets.E2E_FINANCE_EMAIL }}
           FINANCE_PASSWORD: ${{ secrets.E2E_FINANCE_PASSWORD }}
-        run: ./bin/dev test end-to-end-tests
+        run: ./bin/dev e2e test
 
       - name: Upload Playwright report
         if: failure()
