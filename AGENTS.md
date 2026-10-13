@@ -71,7 +71,7 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
 
 ### Conventions
 
-- Use `@/` import alias for src directory (both API and web)
+- Use absolute `@/` imports for internal modules (both API and web), never relative module imports
 - Database: snake_case, Models: camelCase (Sequelize handles mapping)
 - Test files mirror source structure: `api/src/services/example.ts` → `api/tests/services/example.test.ts`
 - On Linux, the dev wrapper includes an optional `docker-compose.<environment>.linux.yml` when present.
@@ -91,6 +91,7 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
 - When using acronyms in prose (commit messages, comments, docs), spell out the full term first at least once per block of text before using the acronym.
 - Number similar entities: `user1`, `user2` for clarity (not `existingUser`, `newUser`)
 - Expanded code style: one thing per line, avoid terse functional chains
+- Use explicit `if`/`else` instead of ternary expressions.
 - Guard clauses with blank line after each
 - Hoist magic numbers to named `const`
 - Error paths: `console.error(...)` before `snack.error(...)`
@@ -129,7 +130,8 @@ Route → BaseController (instance) → Service (.perform()) → Model/Sequelize
 
 ### Testing
 
-See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use the `dev test ...` commands, not service-shell package commands.
+See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use the repository wrapper,
+not service-shell package commands.
 
 - Fishery factories imported from `@/factories`
 - Triple `describe`: file path → class → method
@@ -137,6 +139,24 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 - Use `test()`, not `it()`
 - One strong assertion over many weak ones
 - Mock cleanup automatic via `vite.config.mts` — no manual `vi.restoreAllMocks()`
+
+### End-to-End Tests
+
+End-to-end tests use [Playwright](https://playwright.dev/) in the standalone top-level
+`end-to-end-tests/` package. Run them locally with `./bin/dev e2e test`; the default suite contains
+three credential-free smoke tests. Set `E2E_AUTHENTICATED=true` to opt in to the authenticated
+coverage, which requires four distinct real Auth0 accounts and all documented application policy
+prerequisites.
+
+The E2E wrapper runs the standard application and database services in an isolated Compose project
+using `docker-compose.e2e-test.yml`. See [`end-to-end-tests/README.md`](end-to-end-tests/README.md)
+for test coverage, authentication setup, and stack behavior. See [`bin/README.md`](bin/README.md#testing)
+for canonical commands.
+
+**Adding tests:** Place new `*.spec.ts` files in `end-to-end-tests/tests/`. Import `test` from
+`@/end-to-end-tests/fixtures` and `expect` from `@playwright/test` so each test cleans both test databases
+automatically. Use `test()` (not `it()`). Prefer user-visible `page.getByRole()`,
+`page.getByLabel()`, and `page.getByText()` locators over CSS selectors.
 
 ---
 

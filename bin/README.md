@@ -10,6 +10,10 @@ leave option semantics to Docker Compose and shared gems rather than adding comp
 Use the normal repository-root setup and let missing prerequisites fail clearly instead of
 adding alternate startup paths or dependency-discovery workarounds.
 
+Development services run by default, without a profile. Profiles are reserved for optional unit-test
+and design services. Explicit `./bin/dev test api` and `./bin/dev test web` commands activate their
+unit-test runner automatically.
+
 ## Set Up `dev`
 
 `dev` requires Ruby 3.2 or newer and the repository Ruby dependencies:
@@ -91,7 +95,36 @@ of duplicating test command examples.
 ./bin/dev test api -- --grep "travel desk"
 ```
 
-Pass Vitest flags after `--` so they are forwarded to the underlying test runner.
+Pass Vitest and Playwright flags after `--` so they are forwarded to the underlying test runner.
+
+**End-to-end tests** run Playwright against an isolated application stack:
+
+```bash
+./bin/dev e2e test
+```
+
+The wrapper composes `docker-compose.development.yml` with
+`docker-compose.e2e-test.yml` in the fixed `travel-authorization-e2e-test` project. The overlay uses
+the standard `api`, `web`, `db`, and `db_trav_com` service names and the `end_to_end_tests` runner;
+database volumes and test data remain isolated from development. It does not apply the development
+gateway overlay, publish host ports, mount the development source directories, or load development
+environment files. The web application and runner use an internal network while preserving the
+Auth0 callback URL `http://localhost:8080`. The wrapper removes the isolated project and its volumes
+before and after each run, including failed runs.
+
+The default suite contains three credential-free smoke tests. Set `E2E_AUTHENTICATED=true` to
+include all 15 discovered tests; authenticated coverage requires four distinct real Auth0 accounts
+and the existing booking-policy and review prerequisites. It does not bypass those requirements.
+Set the local account variables described in
+[`end-to-end-tests/README.md`](../end-to-end-tests/README.md#running-tests).
+For example:
+
+```bash
+E2E_AUTHENTICATED=true ./bin/dev e2e test
+./bin/dev e2e test -- --grep "sign-in page"
+```
+
+See [`end-to-end-tests/README.md`](../end-to-end-tests/README.md) for coverage and account setup.
 
 ### Test Container Management
 

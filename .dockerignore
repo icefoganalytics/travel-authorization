@@ -5,3 +5,10 @@ npm-debug.log
 /now.*
 /*.now.*
 **/now.*
+
+**/.auth
+**/playwright-report
+**/test-results
+**/node_modules
+**/.env*
+**/.envrc*

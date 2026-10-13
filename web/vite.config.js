@@ -42,6 +42,10 @@ export default defineConfig(async ({ command, mode }) => {
 
   return {
     plugins,
+    optimizeDeps: {
+      // Auto-imported components are discovered on navigation; avoid optimizer-triggered reloads.
+      exclude: ["vuetify"],
+    },
     build: {
       outDir: "./dist",
       emptyOutDir: true,

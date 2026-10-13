@@ -7,7 +7,7 @@ x-default-environment: &default-environment
   FRONTEND_URL: "http://${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   VITE_API_BASE_URL: "http://api.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   DB_HOST: db
-  DB_NAME: &default-db-name travel_development
+  DB_NAME: &default-db-name "${DB_NAME:-travel_development}"
   DB_PASS: &default-db-password itsallgood
   DB_USER: &default-db-user app
   DB_PORT: 5432
@@ -18,7 +18,7 @@ x-default-environment: &default-environment
   TRAVCOM_DB_HOST: db_trav_com
   TRAVCOM_DB_USER: sa
   TRAVCOM_DB_PASS: &default-trav-com-db-password "DevPwd99!"
-  TRAVCOM_DB_NAME: trav_com_development
+  TRAVCOM_DB_NAME: "${TRAVCOM_DB_NAME:-trav_com_development}"
   TRAVCOM_DB_PORT: 1433
   TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
   RELEASE_TAG: "${RELEASE_TAG:-development}"
@@ -26,7 +26,7 @@ x-default-environment: &default-environment
 
 services:
   api:
-    build:
+    build: &api-build
       context: ./api
       dockerfile: development.Dockerfile
     env_file:
@@ -46,7 +46,7 @@ services:
       - db
 
   web:
-    build:
+    build: &web-build
       context: ./web
       dockerfile: development.Dockerfile
     environment:
@@ -63,9 +63,7 @@ services:
         condition: service_completed_successfully
 
   test_api:
-    build:
-      context: ./api
-      dockerfile: development.Dockerfile
+    build: *api-build
     command: /bin/true
     env_file:
       - ./api/.env.development
@@ -82,11 +80,11 @@ services:
     depends_on:
       - db
       - db_trav_com
+    profiles:
+      - tests
 
   test_web:
-    build:
-      context: ./web
-      dockerfile: development.Dockerfile
+    build: *web-build
     command: /bin/true
     environment:
       <<: *default-environment
@@ -94,6 +92,8 @@ services:
     tty: true
     volumes:
       - ./web:/usr/src/web
+    profiles:
+      - tests
 
   api_wait:
     image: node:20.19.0-alpine3.21

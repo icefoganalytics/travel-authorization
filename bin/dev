@@ -155,6 +155,17 @@ class DevHelper
     end
   end
 
+  ##
+  # Runs the browser end-to-end suite in an isolated Compose project.
+  def e2e(subcommand = nil, *args, **kwargs)
+    unless subcommand == "test"
+      warn "Usage: ./bin/dev e2e test [-- <Playwright arguments>]"
+      exit 2
+    end
+
+    test_end_to_end(*args, **kwargs)
+  end
+
   def test_api(*args, **kwargs)
     reformat_project_relative_path_filter_for_vitest!(args, "api/")
     run(*%w[test_api npm run test], *args, **kwargs)
@@ -164,6 +175,54 @@ class DevHelper
     reformat_project_relative_path_filter_for_vitest!(args, "web/")
     run(*%w[test_web npm run test], *args, **kwargs)
   end
+
+  def test_end_to_end(*args, **kwargs)
+    end_to_end_project_options = %w[--project-name travel-authorization-e2e-test]
+    end_to_end_kwargs = kwargs.merge(
+      environment: "e2e-test",
+      execution_mode: WAIT_FOR_PROCESS
+    )
+
+    preparation_succeeded = false
+    build_succeeded = false
+    test_succeeded = false
+    cleanup_succeeded = false
+
+    begin
+      preparation_succeeded = e2e_compose(
+        *end_to_end_project_options,
+        *%w[down --remove-orphans --volumes],
+        **end_to_end_kwargs
+      )
+
+      if preparation_succeeded
+        build_succeeded = e2e_compose(
+          *end_to_end_project_options,
+          *%w[build api web end_to_end_tests finance_api_stub],
+          **end_to_end_kwargs
+        )
+      end
+
+      if preparation_succeeded && build_succeeded
+        playwright_arguments = args.map { |argument| Shellwords.escape(argument) }
+        test_succeeded = e2e_compose(
+          *end_to_end_project_options,
+          *%w[run --rm end_to_end_tests npm test],
+          *playwright_arguments,
+          **end_to_end_kwargs
+        )
+      end
+    ensure
+      cleanup_succeeded = e2e_compose(
+        *end_to_end_project_options,
+        *%w[down --remove-orphans --volumes],
+        **end_to_end_kwargs
+      )
+    end
+
+    exit 1 unless preparation_succeeded && build_succeeded && test_succeeded && cleanup_succeeded
+  end
+  private :test_end_to_end
 
   def psql(*args, **kwargs)
     compose(
@@ -366,7 +425,11 @@ class DevHelper
     compose_file_args = compose_file_options(**kwargs)
     bootstrap_docker = "docker compose #{compose_file_args.shelljoin} #{args.join(' ')}"
     environment_variables =
-      dynamic_environment_variables.map { |name, value| "#{name}=#{Shellwords.escape(value)}" }.join(" ")
+      if kwargs.fetch(:environment, "development") == "e2e-test"
+        e2e_environment_variables
+      else
+        dynamic_environment_variables.map { |name, value| "#{name}=#{Shellwords.escape(value)}" }.join(" ")
+      end
 
     if pipe_input
       shell_safe_pipe_input = Shellwords.escape(pipe_input)
@@ -384,9 +447,17 @@ class DevHelper
     end
   end
 
-  def compose_file_options(environment: "development", **kwargs)
+  def compose_file_options(environment: "development", profile: nil, **kwargs)
+    if environment == "e2e-test"
+      return ["-f", "docker-compose.development.yml", "-f", "docker-compose.e2e-test.yml",
+              "--profile", "e2e-test"]
+    end
+
     options = ["-f", "docker-compose.#{environment}.yml"]
-    options.concat(["-f", "docker-compose.development.gateway.yml"]) if environment == "development"
+    if environment == "development"
+      options.concat(["--profile", profile]) if profile
+      options.concat(["-f", "docker-compose.development.gateway.yml"])
+    end
 
     if RUBY_PLATFORM =~ /linux/
       linux_override = "docker-compose.#{environment}.linux.yml"
@@ -413,6 +484,19 @@ class DevHelper
     end
 
     variables
+  end
+
+  def e2e_environment_variables
+    return "" unless RUBY_PLATFORM =~ /linux/
+
+    %(HOST_USER_ID="#{user_id}" HOST_GROUP_ID="#{group_id}")
+  end
+
+  def e2e_compose(*args, **kwargs)
+    compose(*args, **kwargs)
+  rescue StandardError => error
+    warn error.message
+    false
   end
 
   def compose_project_name

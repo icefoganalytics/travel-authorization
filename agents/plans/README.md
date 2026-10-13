@@ -12,6 +12,12 @@ ls agents/plans/*.md | grep -v README
 
 Then read any plan that matches the scope of the work.
 
+## Plan Lifecycle
+
+Plans are pre-implementation working documents. Delete a completed plan rather than retaining
+historical implementation steps. Preserve only durable project knowledge in the
+[knowledge base](../../docs/README.md).
+
 ## Creating a Plan
 
 Follow the [create-a-plan-workflow](../workflows/create-a-plan-workflow.md) for guidance on writing,
