@@ -45,6 +45,8 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Fixed
 
+- Prevented RubyGems unresolved-specification warnings during development commands, including `dev down`, without removing installed gems.
+
 - Travel request and approvals behavior:
 
   - Fixed multi-city and one-way trip attributes not bubbling correctly on initial load.

@@ -20,6 +20,9 @@ bundle install
 
 All Ruby development dependencies use full exact version pins in [Gemfile](../Gemfile) for reproducible local startup.
 
+The wrapper activates Bundler before loading Ruby libraries. Preserve that order to avoid
+unresolved-specification warnings from globally installed RDoc dependencies.
+
 Basic usage:
 
 1. Run it as `./bin/dev ...` from the repo root.
