@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
 
+# Activate locked dependencies before libraries can load globally installed gems.
+require "bundler/setup"
+
 require "digest"
 require "rdoc"
 require "shellwords"
 
-require "bundler/setup"
 require "local_development_gateway"
 require "open_in_editor_bridge"
 
