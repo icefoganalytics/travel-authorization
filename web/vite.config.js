@@ -48,7 +48,7 @@ export default defineConfig(async ({ command, mode }) => {
     },
     resolve: {
       alias: {
-        "@/tests/support": fileURLToPath(new URL("./tests/support", import.meta.url)),
+        "@/tests": fileURLToPath(new URL("./tests", import.meta.url)),
         "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
       extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
