@@ -13,6 +13,7 @@ See [../../bin/README.md](../../bin/README.md#testing) for the canonical web tes
 web/tests/
 ├── factories/     # Typed API response fixture factories
 ├── support/       # Reusable test helpers
+├── setup.ts       # Vuetify prerequisites and automatic wrapper cleanup
 ├── tsconfig.json  # Test TypeScript configuration
 └── README.md
 ```
@@ -29,6 +30,13 @@ Guidelines:
 3. Prefer Arrange/Act/Assert comments in tests with meaningful setup
 4. Focus assertions on what the user sees, what events emit, and what API calls happen
 5. Prefer reusable helpers in `web/tests/support/` instead of duplicating mock setup
+6. Use Vue Test Utils `mount` with jsdom and the shared `mockRouter` and `mockVuetify` helpers
+7. Keep scenario data and mount options inline; reserve `beforeEach` for shared mock defaults
+8. Mock API boundaries when exercising components with their real composables and children
+9. Use `flushPromises` for asynchronous rendering and assert directly on DOM controls or public component contracts
+
+`tests/setup.ts` enables `enableAutoUnmount(afterEach)`, so wrappers are cleaned up automatically.
+Explicitly unmount a wrapper only when unmounting is the behavior under test.
 
 Example shape:
 
@@ -53,6 +61,8 @@ Use `build` or `buildList` for the shared shape and keep scenario-specific value
 ## Current Support Files
 
 - `web/tests/support/simple-dedent.js` - simple string helper used by tests
+- `web/tests/support/mock-router.ts` - memory-history router for mounted component tests
+- `web/tests/support/mock-vuetify.ts` - real Vuetify components and directives for mounted tests
 
 As the frontend test suite grows, prefer adding shared mocks and setup helpers under
 `web/tests/support/` rather than embedding them repeatedly in test files.
