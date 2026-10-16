@@ -3,18 +3,19 @@ import { renderToString } from "@vue/server-renderer"
 import { createMemoryHistory, createRouter } from "vue-router"
 import { createVuetify } from "vuetify"
 
-import type { TravelDeskFlightOptionsQueryOptions } from "@/api/travel-desk-flight-options-api"
+import type {
+  TravelDeskFlightOption,
+  TravelDeskFlightOptionsQueryOptions,
+} from "@/api/travel-desk-flight-options-api"
+
+import travelDeskFlightOptionFactory from "@/tests/factories/travel-desk-flight-option-factory"
 
 import TravelDeskFlightOptionsDataIterator from "@/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.vue"
 
-const { flightOptions } = vi.hoisted(() => ({
-  flightOptions: Array.from({ length: 12 }, (_, index) => ({
-    id: index + 1,
-    cost: String(300 + index),
-    flightPreferenceOrder: String(index + 1) as string | null,
-    additionalInformation: null as string | null,
-  })),
-}))
+const { flightOptions } = vi.hoisted(() => {
+  const flightOptions: TravelDeskFlightOption[] = []
+  return { flightOptions }
+})
 
 vi.mock("@/api/http-client", () => ({
   default: {},
@@ -101,9 +102,10 @@ function renderedPreferences(html: string) {
 
 describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.vue", () => {
   beforeEach(() => {
+    travelDeskFlightOptionFactory.rewindSequence()
+    flightOptions.splice(0, flightOptions.length, ...travelDeskFlightOptionFactory.buildList(12))
     flightOptions.forEach((option, index) => {
       option.flightPreferenceOrder = String(index + 1)
-      option.additionalInformation = null
     })
   })
 
