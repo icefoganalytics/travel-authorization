@@ -11,6 +11,7 @@ See [../../bin/README.md](../../bin/README.md#testing) for the canonical web tes
 
 ```text
 web/tests/
+├── factories/     # Typed API response fixture factories
 ├── support/       # Reusable test helpers
 ├── tsconfig.json  # Test TypeScript configuration
 └── README.md
@@ -42,6 +43,12 @@ describe("web/src/components/example/ExampleCard.vue", () => {
   })
 })
 ```
+
+## Fixture Factories
+
+Use Fishery factories under `web/tests/factories/` to build complete frontend API response objects.
+Type each factory with the corresponding frontend API type rather than a backend database model.
+Use `build` or `buildList` for the shared shape and keep scenario-specific values in the test setup.
 
 ## Current Support Files
 
