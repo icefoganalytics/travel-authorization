@@ -24,6 +24,8 @@ The `BaseController` provides the magic that lets those methods map to an approp
   `POST /api/resources`, and so on.
 - Controllers coordinate requests, policy checks, service calls, and serializer responses.
 - Authorization uses `this.buildPolicy()` and policy scopes.
+- Record construction for state-dependent checks follows the
+  [policy record-context contract](../policies/README.md#state-dependent-policies).
 - Serializers format returned records instead of returning raw Sequelize models when association
   data is part of the response.
 

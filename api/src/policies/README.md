@@ -120,10 +120,16 @@ export class AccessGrantPolicy extends BasePolicy<AccessGrant> {
 
 Keep these allow-lists in the policy instead of duplicating them in controllers.
 
-Creation allow-lists must follow the server's initial workflow state, not a status supplied by the
-client. Travel authorization creation always permits draft details and estimated trip segments;
-the service assigns the initial draft status and wizard step. Update allow-lists still follow the
-persisted record's current state.
+## State-Dependent Policies
+
+State-dependent policies select actions and permitted fields from the record's effective workflow
+state. Creation-specific attributes, such as administrator owner selection, augment those fields
+without replacing state dispatch. Missing or unmapped states retain the generic policy's field
+and update restrictions.
+
+The creation caller must initialize the policy record with the server-owned starting state before
+authorization and attribute filtering. Service or database defaults run too late to supply this
+context. For updates, use the persisted record's state rather than a state submitted in the payload.
 
 ## Local Rules
 
