@@ -25,8 +25,8 @@ services:
 
   db:
     networks:
-      - default
-      - local-gateway
+      default: {}
+      local-gateway: {}
     labels:
       - "local-gateway.tcp.driver=postgresql"
       - "local-gateway.tcp.hostname=db.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
@@ -34,8 +34,8 @@ services:
 
   db_trav_com:
     networks:
-      - default
-      - local-gateway
+      default: {}
+      local-gateway: {}
     labels:
       - "local-gateway.tcp.driver=sql_server"
       - "local-gateway.tcp.hostname=db-trav-com.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"

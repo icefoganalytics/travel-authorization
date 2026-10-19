@@ -6,7 +6,7 @@ x-default-environment: &default-environment
   GATEWAY_HOSTNAME: "${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   FRONTEND_URL: "http://${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
   VITE_API_BASE_URL: "http://api.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
-  DB_HOST: db
+  DB_HOST: "${COMPOSE_PROJECT_NAME}-db"
   DB_NAME: &default-db-name travel_development
   DB_PASS: &default-db-password itsallgood
   DB_USER: &default-db-user app
@@ -15,7 +15,7 @@ x-default-environment: &default-environment
   DB_HEALTH_CHECK_TIMEOUT_SECONDS: 10
   DB_HEALTH_CHECK_RETRIES: 3
   DB_HEALTH_CHECK_START_PERIOD_SECONDS: 5
-  TRAVCOM_DB_HOST: db_trav_com
+  TRAVCOM_DB_HOST: "${COMPOSE_PROJECT_NAME}-db_trav_com"
   TRAVCOM_DB_USER: sa
   TRAVCOM_DB_PASS: &default-trav-com-db-password "DevPwd99!"
   TRAVCOM_DB_NAME: trav_com_development
@@ -114,6 +114,10 @@ services:
       POSTGRES_DB: *default-db-name
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      default:
+        aliases:
+          - "${COMPOSE_PROJECT_NAME}-db"
 
   # Represents an external database for TravCom (a.k.a. Travel Computer Systems)
   db_trav_com:
@@ -125,6 +129,10 @@ services:
       ACCEPT_EULA: "Y"
     volumes:
       - db_trav_com_data:/var/opt/mssql/data
+    networks:
+      default:
+        aliases:
+          - "${COMPOSE_PROJECT_NAME}-db_trav_com"
 
   # For easily generating large PlantUML diagrams
   # Not relevant to production environment.
