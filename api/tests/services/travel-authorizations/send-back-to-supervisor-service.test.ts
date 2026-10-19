@@ -6,7 +6,7 @@ import SendBackToSupervisorService from "@/services/travel-authorizations/send-b
 describe("api/src/services/travel-authorizations/send-back-to-supervisor-service.ts", () => {
   describe("SendBackToSupervisorService", () => {
     describe("#perform", () => {
-      test("when sending back to supervisor from EXPENSE_CLAIM_APPROVED state, it correctly updates travel authorization state and wizard step", async () => {
+      test("when finance requests supervisor corrections, it routes the traveller to supervisor approval", async () => {
         // Arrange
         const financeUser = await userFactory.create({
           roles: ["finance_user"],
@@ -25,7 +25,7 @@ describe("api/src/services/travel-authorizations/send-back-to-supervisor-service
         // Act
         const updatedTravelAuthorization = await SendBackToSupervisorService.perform(
           travelAuthorization,
-          "Needs corrections to GL coding",
+          "Needs corrections to general ledger coding",
           financeUser
         )
 
@@ -34,8 +34,7 @@ describe("api/src/services/travel-authorizations/send-back-to-supervisor-service
           expect.objectContaining({
             id: travelAuthorization.id,
             status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
-            wizardStepName:
-              TravelAuthorization.WizardStepNames.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
+            wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
           })
         )
       })
