@@ -125,6 +125,41 @@ that single Vitest instance run them sequentially.
 
 ### Database Operations
 
+The project pins [Local Development Gateway 0.2.2](https://github.com/icefoganalytics/local-development-gateway/tree/v0.2.2).
+Its [development/test connection contract](https://github.com/icefoganalytics/local-development-gateway/blob/v0.2.2/README.md#canonical-development-and-test-compose-pattern)
+separates private application aliases from encrypted desktop routes. API, migration, and test
+containers use `${COMPOSE_PROJECT_NAME}-db` and `${COMPOSE_PROJECT_NAME}-db_trav_com`; test containers
+retain `travel_test` and `trav_com_test`. Both databases have private aliases and gateway ingress,
+with no published database ports in the development base.
+
+After adopting this configuration, run `bundle install`, then recreate this checkout's database
+and consumer services with `./bin/dev up -d db db_trav_com api web`. Keep existing named volumes.
+A new installed gem can reuse an older healthy shared router: inspect its active library mount
+with `docker inspect local-gateway-database-router-1` and compare it with
+`bundle info local-development-gateway --path`. Coordinate any shared-router restart with other
+projects; it interrupts their database sessions.
+
+Use `./bin/dev config` to inspect the merged configuration locally without publishing credentials.
+All current development wrapper commands, including tests, select the gateway overlay.
+For a base-only configuration check, retain the same `COMPOSE_PROJECT_NAME` and render
+`docker compose -f docker-compose.development.yml config`. Both forms must preserve qualified
+hosts and private aliases without publishing database ports. If a base-only command recreates
+dependencies, run `./bin/dev up -d db db_trav_com` afterward to restore gateway attachments.
+
+Verify real consumers rather than relying only on a database-local console:
+
+- From the API and test contexts, query PostgreSQL with
+  `SELECT current_database(), inet_server_addr();` and SQL Server with
+  `SELECT DB_NAME(), @@SERVERNAME;`. Compare with the explicitly selected database containers;
+  test contexts must select the test databases.
+- Keep another checkout running, stop only the owned database, and verify its consumer fails
+  rather than selecting the other checkout. Restore the owned service afterward.
+- Connect through each desktop hostname with encryption and SNI enabled; verify its identity,
+  cancel a PostgreSQL `pg_sleep` query, and confirm that session remains usable.
+
+The commands below deliberately select this checkout's PostgreSQL container and use its local
+connection. They do not pass through desktop routing.
+
 ```bash
 ./bin/dev psql
 ./bin/dev psql-query "SELECT COUNT(*) FROM users;"
