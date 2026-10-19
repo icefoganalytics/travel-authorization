@@ -10,19 +10,15 @@ import {
 import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/travel-authorizations-controller.ts", () => {
-  let user: User
-
-  beforeEach(async () => {
-    user = await userFactory.create({
-      roles: [User.Roles.USER],
-    })
-    mockCurrentUser(user)
-  })
-
   describe("TravelAuthorizationsController", () => {
     describe("#index - GET /api/travel-authorizations", () => {
       test("when travel desk travel request is null, returns 200 and serializes without error", async () => {
         // Arrange
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
+        mockCurrentUser(user)
+
         const travelAuthorization1 = await travelAuthorizationFactory.create({
           userId: user.id,
           status: TravelAuthorization.Statuses.DRAFT,
@@ -79,12 +75,16 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
     })
 
     describe("#create - POST /api/travel-authorizations", () => {
-      test("when authorized and travel authorization creation is successful", async () => {
+      test("when status is omitted, it creates a draft with the submitted estimated trip segments", async () => {
         // Arrange
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
+        mockCurrentUser(user)
+
         const newTravelAuthorizationAttributes = {
-          ...travelAuthorizationFactory.attributesFor({
-            userId: user.id,
-          }),
+          userId: user.id,
+          eventName: "Travel planning meeting",
           travelSegmentEstimatesAttributes: [
             {
               isActual: false,
@@ -111,8 +111,10 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         expect(response.body).toEqual({
           travelAuthorization: expect.objectContaining({
             userId: user.id,
+            eventName: "Travel planning meeting",
+            status: TravelAuthorization.Statuses.DRAFT,
             wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
-            travelSegments: expect.arrayContaining([
+            travelSegments: [
               expect.objectContaining({
                 isActual: false,
                 segmentNumber: 1,
@@ -125,7 +127,56 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
                 modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
                 accommodationType: null,
               }),
-            ]),
+            ],
+          }),
+        })
+      })
+
+      test("when workflow state is supplied, it still creates a draft with the submitted details", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
+        mockCurrentUser(user)
+
+        const newTravelAuthorizationAttributes = {
+          userId: user.id,
+          eventName: "One-way site visit",
+          tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
+          status: TravelAuthorization.Statuses.EXPENSED,
+          wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
+          travelSegmentEstimatesAttributes: [
+            {
+              isActual: false,
+              segmentNumber: 1,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+              accommodationType: null,
+            },
+          ],
+        }
+
+        // Act
+        const response = await request()
+          .post("/api/travel-authorizations")
+          .send(newTravelAuthorizationAttributes)
+
+        // Assert
+        expect(response.status).toEqual(201)
+        expect(response.body).toEqual({
+          travelAuthorization: expect.objectContaining({
+            userId: user.id,
+            eventName: "One-way site visit",
+            tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
+            status: TravelAuthorization.Statuses.DRAFT,
+            wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
+            travelSegments: [
+              expect.objectContaining({
+                isActual: false,
+                segmentNumber: 1,
+                modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+                accommodationType: null,
+              }),
+            ],
           }),
         })
       })
