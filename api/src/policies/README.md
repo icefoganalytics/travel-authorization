@@ -120,6 +120,11 @@ export class AccessGrantPolicy extends BasePolicy<AccessGrant> {
 
 Keep these allow-lists in the policy instead of duplicating them in controllers.
 
+Creation allow-lists must follow the server's initial workflow state, not a status supplied by the
+client. Travel authorization creation always permits draft details and estimated trip segments;
+the service assigns the initial draft status and wizard step. Update allow-lists still follow the
+persisted record's current state.
+
 ## Local Rules
 
 - Prefer `PolicyFactory(Model)` for new or updated policies

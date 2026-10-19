@@ -49,6 +49,7 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 - Travel request and approvals behavior:
 
+  - Preserved entered trip details and estimated trip segments when starting a new travel request.
   - Fixed multi-city and one-way trip attributes not bubbling correctly on initial load.
   - Corrected the calculation of days on non-travel status for one-way trips.
   - Fixed refresh behavior on the approvals card so updated data is shown.
