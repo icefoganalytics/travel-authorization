@@ -3,9 +3,20 @@
     ref="travelDeskFlightRequestsEditTable"
     v-model:expanded="expanded"
     :show-expand="showFlightOptions"
-    expand-on-click
   >
-    <!-- TODO: consider having a dedicated page for flight options preference order with drag to order? -->
+    <template #header.data-table-expand>
+      <span>Options and Rankings</span>
+    </template>
+    <template #item.data-table-expand="{ internalItem, isExpanded, toggleExpand }">
+      <v-btn
+        variant="text"
+        color="primary"
+        :aria-expanded="isExpanded(internalItem)"
+        @click.stop="toggleExpand(internalItem)"
+      >
+        {{ isExpanded(internalItem) ? "Hide Options and Rankings" : "View Options and Rankings" }}
+      </v-btn>
+    </template>
     <template #expanded-row="{ columns, item }">
       <td
         :colspan="columns.length"

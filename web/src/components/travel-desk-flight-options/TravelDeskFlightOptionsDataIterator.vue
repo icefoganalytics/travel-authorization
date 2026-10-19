@@ -72,13 +72,10 @@ const { page, perPage } = useRouteQueryPagination({
   routeQuerySuffix: props.routeQuerySuffix,
 })
 
-watch(
-  [() => props.where, () => props.filters, perPage],
-  () => {
-    page.value = 1
-  },
-  { deep: true }
-)
+// Table row slots recreate equivalent query objects while restoring an expanded row.
+watch([() => JSON.stringify(props.where), () => JSON.stringify(props.filters), perPage], () => {
+  page.value = 1
+})
 
 const travelDeskFlightOptionsQuery = computed(() => ({
   where: props.where,
