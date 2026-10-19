@@ -46,8 +46,7 @@ export class TravelAuthorizationsPolicy extends PolicyFactory(TravelAuthorizatio
   }
 
   permittedAttributesForCreate(): Path[] {
-    const draftStatePolicy = new DraftStatePolicy(this.user, this.record)
-    const permittedAttributes: Path[] = ["slug", ...draftStatePolicy.permittedAttributes()]
+    const permittedAttributes: Path[] = ["slug", ...this.permittedAttributes()]
 
     if (this.user.isAdmin) {
       permittedAttributes.push("userId", {

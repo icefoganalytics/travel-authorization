@@ -180,6 +180,70 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           }),
         })
       })
+
+      test("when an administrator supplies null status and traveller attributes, it creates an initialized draft", async () => {
+        // Arrange
+        const traveller = await userFactory.create({
+          email: "selected-traveller@example.com",
+        })
+        const admin = await userFactory.create({
+          roles: [User.Roles.ADMIN],
+        })
+        mockCurrentUser(admin)
+
+        const newTravelAuthorizationAttributes = {
+          userAttributes: {
+            email: traveller.email,
+          },
+          status: null,
+          eventName: "Managed travel request",
+          travelSegmentEstimatesAttributes: [
+            {
+              isActual: false,
+              segmentNumber: 1,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+              accommodationType: TravelSegment.AccommodationTypes.HOTEL,
+            },
+            {
+              isActual: false,
+              segmentNumber: 2,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+              accommodationType: null,
+            },
+          ],
+        }
+
+        // Act
+        const response = await request()
+          .post("/api/travel-authorizations")
+          .send(newTravelAuthorizationAttributes)
+
+        // Assert
+        expect(response.status).toEqual(201)
+        expect(response.body).toEqual({
+          travelAuthorization: expect.objectContaining({
+            userId: traveller.id,
+            createdBy: admin.id,
+            eventName: "Managed travel request",
+            status: TravelAuthorization.Statuses.DRAFT,
+            wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
+            travelSegments: [
+              expect.objectContaining({
+                isActual: false,
+                segmentNumber: 1,
+                modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+                accommodationType: TravelSegment.AccommodationTypes.HOTEL,
+              }),
+              expect.objectContaining({
+                isActual: false,
+                segmentNumber: 2,
+                modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+                accommodationType: null,
+              }),
+            ],
+          }),
+        })
+      })
     })
   })
 })

@@ -119,7 +119,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
     })
 
     describe("#permitAttributesForCreate", () => {
-      test("when a traveller supplies workflow and ownership fields, it preserves only draft details", () => {
+      test("when the policy record is draft, it filters traveller workflow and ownership fields", () => {
         // Arrange
         const user = userFactory.build({
           id: 1,
@@ -127,7 +127,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         })
         const travelAuthorization = travelAuthorizationFactory.build({
           userId: user.id,
-          status: TravelAuthorization.Statuses.EXPENSED,
+          status: TravelAuthorization.Statuses.DRAFT,
         })
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
         const attributes = {
@@ -150,7 +150,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         })
       })
 
-      test("when status is null, an administrator can preserve draft details for the selected traveller", () => {
+      test("when the policy record is draft, an administrator can select the traveller", () => {
         // Arrange
         const admin = userFactory.build({
           id: 1,
@@ -158,7 +158,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         })
         const travelAuthorization = travelAuthorizationFactory.build({
           userId: 2,
-          status: null,
+          status: TravelAuthorization.Statuses.DRAFT,
         })
         const policy = new TravelAuthorizationsPolicy(admin, travelAuthorization)
         const attributes = {
@@ -176,6 +176,52 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
           eventName: "Travel planning meeting",
           userId: 2,
         })
+      })
+
+      test("when the policy record is approved, it permits actual-trip details instead of draft fields", () => {
+        // Arrange
+        const user = userFactory.build({
+          roles: [User.Roles.USER],
+        })
+        const travelAuthorization = travelAuthorizationFactory.build({
+          status: TravelAuthorization.Statuses.APPROVED,
+        })
+        const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          eventName: "Not a draft edit",
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
+          status: TravelAuthorization.Statuses.DRAFT,
+        }
+
+        // Act
+        const permittedAttributes = policy.permitAttributesForCreate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({
+          tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
+        })
+      })
+
+      test("when the policy record has no initial state, it does not infer draft permissions", () => {
+        // Arrange
+        const user = userFactory.build({
+          roles: [User.Roles.USER],
+        })
+        const travelAuthorization = travelAuthorizationFactory.build({
+          status: null,
+        })
+        const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          eventName: "Not permitted without an initialized state",
+          status: TravelAuthorization.Statuses.DRAFT,
+        }
+
+        // Act
+        const permittedAttributes = policy.permitAttributesForCreate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({})
       })
     })
   })
