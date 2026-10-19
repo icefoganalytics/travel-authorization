@@ -32,22 +32,32 @@ export function useTravelDeskFlightOptions(options = ref({}), { skipWatchIf = ()
     isErrored: false,
   })
 
+  // Only the most recently started request may update the shared UI state.
+  let latestRequestId = 0
+
   async function fetch() {
+    const requestId = ++latestRequestId
     state.isLoading = true
     try {
       const { travelDeskFlightOptions, totalCount } = await travelDeskFlightOptionsApi.list(
         unref(options)
       )
-      state.isErrored = false
-      state.travelDeskFlightOptions = travelDeskFlightOptions
-      state.totalCount = totalCount
+      if (requestId === latestRequestId) {
+        state.isErrored = false
+        state.travelDeskFlightOptions = travelDeskFlightOptions
+        state.totalCount = totalCount
+      }
       return travelDeskFlightOptions
     } catch (error) {
       console.error("Failed to fetch travel desk flight options:", error)
-      state.isErrored = true
+      if (requestId === latestRequestId) {
+        state.isErrored = true
+      }
       throw error
     } finally {
-      state.isLoading = false
+      if (requestId === latestRequestId) {
+        state.isLoading = false
+      }
     }
   }
 
