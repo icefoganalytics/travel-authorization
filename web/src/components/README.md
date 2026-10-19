@@ -37,6 +37,9 @@ Use [EnhancedPagination](common/EnhancedPagination.vue) with
 Bind `page` and `perPage` to the API query and any `v-data-iterator`, and pass `totalCount` to the pager.
 Expose `defaultPerPage` for configurable collection defaults. Use a unique `routeQuerySuffix` for
 each collection so its page and page-size URL state do not affect neighboring collections.
+Invalid URL pagination values recover to the caller's valid defaults; page sizes cannot exceed
+the API limit. When a collection can fetch overlapping pages, only the latest request should update
+the displayed records and loading/error state.
 
 ## Naming
 
