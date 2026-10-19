@@ -6,6 +6,10 @@ description: Create a complete end-to-end test travel request through the My Tra
 
 See also: [Flow Chart, Travel Authorization Wizard UI Flow, 2026-06-12](<../../_Design/Flow Chart, Travel Authorization Wizard UI Flow, 2026-06-12.wsd>)
 
+For booking-review QA, follow this workflow through Step 10, then use
+[Test Traveller Flight Rankings](test-traveller-flight-rankings-workflow.md). Stop before booking
+completion unless the scenario also requires a passenger name record (PNR), invoicing, or expenses.
+
 ## Intent
 
 **WHY this workflow exists:** The travel authorization wizard has 16 steps and requires two
@@ -22,9 +26,9 @@ approvals obtained by switching between user accounts.
 - **Travel dates MUST be in the past:** The Submit Expenses step's Continue button stays disabled
   until `lastTravelSegment.departureOn < new Date()`. Always use dates from earlier in the current
   month (e.g. first week), never future dates.
-- **Use triple-click + type for date fields, never `form_input`:** `form_input` sets the DOM value
-  but does not fire Vue's input event, so the date never registers. Triple-click the field to
-  select all text, then type the date in `YYYY-MM-DD` format.
+- **Reactive inputs:** Replace existing text using selection and typing, not only a DOM clear.
+  Commit date edits with blur and verify the displayed value before continuing. Wait for the
+  destination step and its loaded form, not a sidebar label that appears on every wizard step.
 - **Accounts:** User = `$TRAVELLER_EMAIL`. Supervisor/Admin = `$ADMIN_EMAIL`. Never use the admin
   account for the traveller role or vice versa.
 - **Session switching required at approval steps:** Auth0 cookies are shared across all tabs in
@@ -46,6 +50,9 @@ approvals obtained by switching between user accounts.
 | Admin / Supervisor | `$ADMIN_EMAIL` / `$ADMIN_PASSWORD`         | Approvals (Steps 7, 13), Finance review (Step 14) |
 
 Credentials are stored in `.envrc` (not committed). Run `direnv allow` after filling them in.
+Never print credential values or commit authentication state. Follow the shared
+[`browser-qa` skill](skill://browser-qa) for isolated browser ownership and protected-login handoff.
+Use real UI controls for this workflow; API or database fixture creation is not equivalent evidence.
 
 Browser URL: use the address printed by Vite at startup (`Open Travel Authorization: ...`). It uses
 the checkout-derived hostname; set `GATEWAY_HOSTNAME` before `dev up` to override it.
@@ -72,7 +79,7 @@ the checkout-derived hostname; set `GATEWAY_HOSTNAME` before `dev up` to overrid
 ## Step 2 — Create a new travel request
 
 1. In the left sidebar, click **My Travel Requests**.
-2. Click **New Request** (top-right of the list).
+2. Click **New Travel Request** (top-right of the list).
 3. Note the new Travel Auth ID from the URL. Current wizard URLs use
    `/my-travel-requests/:id/wizard/edit-purpose-details` for the first step.
 
@@ -89,8 +96,6 @@ Fill in the purpose form:
 | In Territory?     | `No`                                                             |
 | Final Destination | `Vancouver (BC)`                                                 |
 | Objectives        | `Attend conference sessions and meet with program stakeholders.` |
-| Department        | _(your department, or leave default)_                            |
-| Branch            | _(leave default)_                                                |
 
 Click **Continue**.
 
@@ -218,8 +223,9 @@ auth0.loginWithRedirect({
 })
 ```
 
-Enter the traveller password on the Auth0 page. After redirect, click **Check status?**. Toast:
-"Travel authorization approved!" Wizard advances to Traveler Details.
+Enter the traveller password on the Auth0 page. Wait for the authenticated application to load,
+then return to the saved wizard URL if login lands on the Dashboard. Click **Check status?**.
+Verify that the wizard advances to **Traveler Details**.
 
 > **Playwright:** Use a second `browser.newContext({ storageState: 'tests/.auth/admin.json' })`
 > for the admin — it gets its own cookie jar and never disturbs the traveller context.
@@ -228,39 +234,83 @@ Enter the traveller password on the Auth0 page. After redirect, click **Check st
 
 ## Step 8 — Traveler Details (Wizard Step 6)
 
-The form is pre-populated from the user's profile. The header reads "Travel Desk Request /
-Traveler Details". Current URLs may use Canadian spelling in the path:
-`/my-travel-requests/:id/wizard/edit-traveller-details`. Verify and fill in:
+The header reads **Travel Desk Request / Traveler Details**. The URL uses
+`/my-travel-requests/:id/wizard/edit-traveller-details`. Verify any profile-prefilled values;
+otherwise use fictional test details:
 
-| Field             | Test value (pre-filled) |
-| ----------------- | ----------------------- |
-| Legal First Name  | `Marlen`                |
-| Legal Middle Name | _(blank)_               |
-| Legal Last Name   | `User`                  |
-| Birth Date        | `1990-05-01`            |
-| Address           | `1234`                  |
-| City              | `Whitehorse (YT)`       |
-| Province          | `Yukon`                 |
-| Postal Code       | `A1B C2D`               |
+| Field             | Example test value                     |
+| ----------------- | -------------------------------------- |
+| Legal First Name  | `Marlen`                               |
+| Legal Middle Name | _(blank)_                              |
+| Legal Last Name   | `User`                                 |
+| Birth Date        | `1990-05-01`                           |
+| Address           | `1234`                                 |
+| City              | `Whitehorse (YT)`                      |
+| Province          | `Yukon`                                |
+| Postal Code       | `Y1A 1A1`                              |
+| Business Phone    | `867-555-0100`                         |
+| Business Email    | The configured traveller account email |
 
-Scroll down to fill in the emergency contact fields if required. Click **Continue**.
+Select the exact **City** match and fill **Province** explicitly if it is empty. Click **Continue**
+and verify `/my-travel-requests/:id/wizard/submit-to-travel-desk`.
 
 ---
 
 ## Step 9 — Submit to Travel Desk (Wizard Step 7)
 
-Review travel desk form (flight preferences, hotel preferences). Click **Submit to Travel Desk**.
-Wizard advances to Step 8 (Awaiting Flight Options).
+Review the flight, hotel, and other transportation requests, then click **Submit**.
+Verify `/my-travel-requests/:id/wizard/awaiting-flight-options` and the **Awaiting Flight Options**
+message.
 
 ---
 
 ## Step 10 — Flight Options (Wizard Steps 8–9, admin action)
 
-An admin/travel-desk user must provide flight options. Log in as the admin account
-(`$ADMIN_EMAIL` / `$ADMIN_PASSWORD`) and navigate to the **Travel Desk** admin panel to add
-flight options, then return to the traveller window and rank them.
+### Provide Options as the Administrator
 
-_(This step may vary depending on whether the app is in a state where travel desk is active.)_
+1. Sign in as the configured administrator and open **Travel Desk**.
+2. Find the row by its Travel Auth number and click **Edit**. Record the Travel Desk request ID from
+   `/travel-desk/:travelDeskTravelRequestId/edit`; it is not the Travel Auth ID.
+3. Open **2. Travel Request (Booking)**, then **Manage Flight Options - Travelport™**.
+4. In **Paste Text Here**, enter one fictional flight alternative in the supported Travelport format:
+
+   ```text
+   Air North 4N501
+   Departure: 05 Oct 08:00 Whitehorse Arpt (YXY) Terminal: M
+   Arrival: 05 Oct 10:00 Vancouver Intl Arpt (YVR) Terminal: M
+   Duration: 2 Hour(s) 0 Minutes
+   Status: Confirmed
+   Class: Y
+   ```
+
+5. Click **Import Flight Segments**. In the pending segment, verify **Flight**, departure/arrival
+   locations, dates, times, duration, status, and class against the intended test trip.
+   Yearless imported dates resolve to the next occurrence, so explicitly correct **Departure Date**
+   and **Arrival Date** for a past test trip. Commit the edits and verify they remain before grouping.
+6. Select that segment's checkbox, then **Group Selected**. In **Add Flight Option**, select the
+   matching **Leg**, enter **Cost**, and click **Create Flight Option**.
+7. Verify a saved group appears under **Flight Options Groupings** with the correct leg, cost,
+   flight, and dates. Group each alternative before importing the next. Repeat with distinct flight
+   numbers, times, and costs; reverse the route for the return leg.
+8. Provide at least one alternative for each flight request. Use the additional counts specified by
+   the [rankings QA workflow](test-traveller-flight-rankings-workflow.md#test-data) when testing paging.
+9. Click **Return to Travel Request**, then **5. Review and Manage Booking** and **Send to Traveler**.
+   Verify the request leaves the submitted state and waits for traveler rankings.
+
+### Rank Options as the Traveller
+
+1. Sign back in as the traveller and return to the saved **Awaiting Flight Options** wizard URL.
+2. Click **Check status?**. Verify `/my-travel-requests/:id/wizard/rank-flight-options` and wait for
+   both legs and their options to load.
+3. Choose each option's **Preference**. For a rejected option, select **Does Not Work** and enter
+   its explanation in **Additional Information**. Use the scenario's expected ranking values.
+4. Click **Submit Option Rankings**. Verify
+   `/my-travel-requests/:id/wizard/awaiting-booking-confirmation` and **Awaiting Booking**.
+
+For rankings-only QA, stop here and switch to the administrator for the
+[booking-review checks](test-traveller-flight-rankings-workflow.md#review-checks). Do not upload a PNR
+or mark booking complete just to inspect preferences. The later steps cover the separate
+post-booking and expense workflow.
 
 ---
 
@@ -432,11 +482,9 @@ The canonical step names (used as URL segments) are defined in the
 
 All wizard URLs follow the pattern `/my-travel-requests/:id/wizard/:stepName`.
 
-> **Navigation rule:** Always advance the wizard by clicking the **Continue** /
-> **Submit** / **Check status?** / **Back** buttons in the UI. Never navigate by
-> typing a URL directly — the wizard's Continue buttons perform server-side state
-> transitions that bare URL navigation skips, which leaves the wizard in an
-> inconsistent state.
+> **Navigation rule:** Use **Continue**, **Submit**, **Check status?**, and **Back** for wizard state
+> transitions. A direct URL may resume a known saved step after authentication, but does not replace
+> a submission, approval, or other transition. Do not skip prerequisites by changing the URL.
 
 ---
 
@@ -485,8 +533,11 @@ Important local setup notes:
   `Browser is already in use for ~/.cache/ms-playwright-mcp/...`.
 - Use `--output-dir /tmp/opencode/playwright-mcp-output` so MCP snapshots, console logs, and network
   logs do not spam the repository. Keep `.playwright-mcp/` ignored in `.gitignore` as a fallback.
-- Firefox is not a reliable fallback on this workstation: the system Firefox binary failed under
-  Playwright, and Playwright-managed Firefox is not supported on `ubuntu26.04-x64`.
+- Those Playwright-specific launch failures do not establish that Firefox automation is unavailable.
+  When Firefox is requested, check installed Firefox/Geckodriver support before declaring a blocker.
+  A real provider login and the workflow through traveler ranking submission have also been exercised
+  using installed Firefox with Geckodriver, without installing language bindings. Follow the shared
+  browser-QA guidance; do not change provider protections or introduce a project-owned browser runtime.
 
 Use MCP for exploratory browser inspection, snapshots, and small UI interactions. For this full
 multi-user workflow, prefer a direct Playwright script with separate browser contexts or persistent
