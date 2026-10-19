@@ -2,6 +2,7 @@
   <v-pagination
     v-model="page"
     :length="totalPages"
+    :density="isExtraSmallDisplay ? 'compact' : 'default'"
   />
 </template>
 
@@ -11,6 +12,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { useDisplay } from "vuetify"
 
 const page = defineModel<number>({
   required: true,
@@ -24,6 +26,8 @@ const perPage = defineModel<number>("perPage", {
 const props = defineProps<{
   totalCount: number
 }>()
+
+const { xs: isExtraSmallDisplay } = useDisplay()
 
 const totalPages = computed(() => Math.ceil(props.totalCount / perPage.value))
 </script>
