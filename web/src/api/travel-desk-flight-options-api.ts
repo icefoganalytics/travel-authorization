@@ -16,7 +16,7 @@ export type TravelDeskFlightOption = {
   cost: string
   leg: string
   duration: string
-  flightPreferenceOrder: string | null
+  flightPreferenceOrder: number | null
   additionalInformation: string | null
   createdAt: string
   updatedAt: string

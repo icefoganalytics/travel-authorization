@@ -1,7 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils"
 import { VPagination, VTextField } from "vuetify/components"
 
-import travelDeskFlightOptionsApi from "@/api/travel-desk-flight-options-api"
+import travelDeskFlightOptionsApi, { DOES_NOT_WORK } from "@/api/travel-desk-flight-options-api"
 import travelDeskFlightSegmentsApi from "@/api/travel-desk-flight-segments-api"
 
 import { mockRouter, mockVuetify } from "@/tests/support"
@@ -31,7 +31,7 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
     describe("pagination", () => {
       test("when mounting on page two, renders every server-provided option without slicing again", async () => {
         // Arrange
-        const flightOptions = ["6", "7", "8", "9", "10"].map((flightPreferenceOrder) =>
+        const flightOptions = [6, 7, 8, 9, 10].map((flightPreferenceOrder) =>
           travelDeskFlightOptionFactory.build({ flightPreferenceOrder })
         )
         travelDeskFlightOptionsApiMock.list.mockResolvedValue({
@@ -115,7 +115,7 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         // Arrange
         const flightOptions = travelDeskFlightOptionFactory.buildList(12)
         flightOptions.forEach((flightOption, index) => {
-          flightOption.flightPreferenceOrder = String(index + 1)
+          flightOption.flightPreferenceOrder = index + 1
         })
         travelDeskFlightOptionsApiMock.list.mockImplementation(
           async ({ page = 1, perPage = 5 } = {}) => {
@@ -163,7 +163,7 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         // Arrange
         const flightOptions = travelDeskFlightOptionFactory.buildList(12)
         flightOptions.forEach((flightOption, index) => {
-          flightOption.flightPreferenceOrder = String(index + 1)
+          flightOption.flightPreferenceOrder = index + 1
         })
         travelDeskFlightOptionsApiMock.list.mockImplementation(
           async ({ page = 1, perPage = 5 } = {}) => {
@@ -267,7 +267,8 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
       test("when an option is rejected and another is unranked, displays distinct preferences", async () => {
         // Arrange
         const rejectedOption = travelDeskFlightOptionFactory.build({
-          flightPreferenceOrder: "Does Not Work",
+          flightPreferenceOrder: DOES_NOT_WORK,
+          additionalInformation: "Arrives too late for the meeting.",
         })
         const unrankedOption = travelDeskFlightOptionFactory.build({
           flightPreferenceOrder: null,
@@ -304,7 +305,7 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
       test("when a rejected option has an explanation, displays the traveler's note", async () => {
         // Arrange
         const rejectedOption = travelDeskFlightOptionFactory.build({
-          flightPreferenceOrder: "Does Not Work",
+          flightPreferenceOrder: DOES_NOT_WORK,
           additionalInformation: "Arrives too late for the meeting.",
         })
         travelDeskFlightOptionsApiMock.list.mockResolvedValue({
