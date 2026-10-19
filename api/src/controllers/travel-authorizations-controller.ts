@@ -185,6 +185,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
   private buildTravelAuthorization() {
     const attributes = this.request.body
     const travelAuthorization = TravelAuthorization.build(attributes)
+    travelAuthorization.status = TravelAuthorization.Statuses.DRAFT
     return travelAuthorization
   }
 

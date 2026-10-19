@@ -5,201 +5,223 @@ import { travelAuthorizationFactory, userFactory } from "@/factories"
 
 describe("api/src/policies/travel-authorizations-policy.ts", () => {
   describe("TravelAuthorizationsPolicy", () => {
-    describe("#permittedAttributes", () => {
-      test("when record is draft, returns correct attributes", async () => {
+    describe("#permitAttributesForUpdate", () => {
+      test("when a request is draft, it preserves trip details but excludes workflow changes", () => {
+        // Arrange
         const user = userFactory.build()
         const travelAuthorization = travelAuthorizationFactory.build({
           status: TravelAuthorization.Statuses.DRAFT,
         })
-
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          eventName: "Updated trip purpose",
+          status: TravelAuthorization.Statuses.EXPENSED,
+          wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
+        }
 
-        expect(policy.permittedAttributes()).toEqual([
-          "preApprovalProfileId",
-          "purposeId",
-          "firstName",
-          "lastName",
-          "department",
-          "division",
-          "branch",
-          "unit",
-          "email",
-          "mailcode",
-          "daysOffTravelStatusEstimate",
-          "dateBackToWorkEstimate",
-          "travelDurationEstimate",
-          "travelAdvance",
-          "eventName",
-          "summary",
-          "benefits",
-          "supervisorEmail",
-          "approved",
-          "requestChange",
-          "denialReason",
-          "tripTypeEstimate",
-          "travelAdvanceInCents",
-          "allTravelWithinTerritory",
-          {
-            travelSegmentEstimatesAttributes: expect.any(Array),
-          },
-        ])
+        // Act
+        const permittedAttributes = policy.permitAttributesForUpdate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({
+          eventName: "Updated trip purpose",
+        })
       })
 
-      test("when record is submitted, and user is regular user, returns correct attributes", () => {
-        const user = userFactory.build({ roles: [User.Roles.USER] })
+      test("when a request is submitted, it rejects a traveller's trip and workflow edits", () => {
+        // Arrange
+        const user = userFactory.build({
+          roles: [User.Roles.USER],
+        })
         const travelAuthorization = travelAuthorizationFactory.build({
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
-
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          eventName: "Not editable after submission",
+          status: TravelAuthorization.Statuses.DRAFT,
+          wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
+        }
 
-        expect(policy.permittedAttributes()).toEqual([])
+        // Act
+        const permittedAttributes = policy.permitAttributesForUpdate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({})
       })
 
-      test("when record is submitted, and user is admin, returns correct attributes", () => {
-        const admin = userFactory.build({ roles: [User.Roles.ADMIN] })
+      test("when a request is submitted, it permits administrator trip edits without workflow changes", () => {
+        // Arrange
+        const admin = userFactory.build({
+          roles: [User.Roles.ADMIN],
+        })
         const travelAuthorization = travelAuthorizationFactory.build({
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
-
         const policy = new TravelAuthorizationsPolicy(admin, travelAuthorization)
+        const attributes = {
+          eventName: "Corrected trip purpose",
+          status: TravelAuthorization.Statuses.DRAFT,
+          wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
+        }
 
-        expect(policy.permittedAttributes()).toEqual([
-          "preApprovalProfileId",
-          "purposeId",
-          "firstName",
-          "lastName",
-          "department",
-          "division",
-          "branch",
-          "unit",
-          "email",
-          "mailcode",
-          "daysOffTravelStatusEstimate",
-          "dateBackToWorkEstimate",
-          "travelDurationEstimate",
-          "travelAdvance",
-          "eventName",
-          "summary",
-          "benefits",
-          "supervisorEmail",
-          "approved",
-          "requestChange",
-          "denialReason",
-          "tripTypeEstimate",
-          "travelAdvanceInCents",
-          "allTravelWithinTerritory",
-          {
-            travelSegmentEstimatesAttributes: expect.any(Array),
-          },
-        ])
+        // Act
+        const permittedAttributes = policy.permitAttributesForUpdate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({
+          eventName: "Corrected trip purpose",
+        })
       })
 
-      test("when record is approved, returns correct attributes", () => {
-        const user = userFactory.build({ roles: [User.Roles.USER] })
+      test("when a request is approved, it permits actual-trip details but not estimated-trip edits", () => {
+        // Arrange
+        const user = userFactory.build({
+          roles: [User.Roles.USER],
+        })
         const travelAuthorization = travelAuthorizationFactory.build({
           status: TravelAuthorization.Statuses.APPROVED,
         })
-
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+          eventName: "Not editable after approval",
+        }
 
-        expect(policy.permittedAttributes()).toEqual([
-          "daysOffTravelStatusActual",
-          "dateBackToWorkActual",
-          "travelDurationActual",
-          "tripTypeActual",
-          {
-            travelSegmentActualsAttributes: expect.any(Array),
-          },
-        ])
+        // Act
+        const permittedAttributes = policy.permitAttributesForUpdate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({
+          tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
+        })
       })
 
-      test("when record has an unspecified status, returns correct attributes", () => {
+      test("when a request has no workflow state, it does not accept trip or workflow edits", () => {
+        // Arrange
         const user = userFactory.build()
         const travelAuthorization = travelAuthorizationFactory.build({
           status: null,
         })
-
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          eventName: "Not editable without a workflow state",
+          status: TravelAuthorization.Statuses.DRAFT,
+        }
 
-        expect(policy.permittedAttributes()).toEqual([])
+        // Act
+        const permittedAttributes = policy.permitAttributesForUpdate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({})
       })
     })
 
-    describe("#permittedAttributesForCreate", () => {
-      test("when record is draft, and user is admin, creation attributes include user attributes and userId", () => {
-        const admin = userFactory.build({ roles: [User.Roles.ADMIN] })
+    describe("#permitAttributesForCreate", () => {
+      test("when the policy record is draft, it filters traveller workflow and ownership fields", () => {
+        // Arrange
+        const user = userFactory.build({
+          id: 1,
+          roles: [User.Roles.USER],
+        })
         const travelAuthorization = travelAuthorizationFactory.build({
+          userId: user.id,
           status: TravelAuthorization.Statuses.DRAFT,
         })
-
-        const policy = new TravelAuthorizationsPolicy(admin, travelAuthorization)
-
-        expect(policy.permittedAttributesForCreate()).toEqual(
-          expect.arrayContaining([
-            "userId",
-            expect.objectContaining({
-              userAttributes: expect.any(Array),
-            }),
-          ])
-        )
-      })
-
-      test("when record is draft, and user is not an admin, creation attributes do not include user attributes and userId", () => {
-        const user = userFactory.build({ roles: [User.Roles.USER] })
-        const travelAuthorization = travelAuthorizationFactory.build({
-          status: TravelAuthorization.Statuses.DRAFT,
-        })
-
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          eventName: "Travel planning meeting",
+          userId: 2,
+          userAttributes: {
+            email: "another-traveller@example.com",
+          },
+          createdBy: 2,
+          status: TravelAuthorization.Statuses.EXPENSED,
+          wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
+        }
 
-        expect(policy.permittedAttributesForCreate()).not.toEqual(
-          expect.arrayContaining(["userId", "userAttributes"])
-        )
+        // Act
+        const permittedAttributes = policy.permitAttributesForCreate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({
+          eventName: "Travel planning meeting",
+        })
       })
 
-      test("when record is submitted, returns correct creation attributes", () => {
-        const admin = userFactory.build({ roles: [User.Roles.ADMIN] })
-        const travelAuthorization = travelAuthorizationFactory.build({
-          status: TravelAuthorization.Statuses.SUBMITTED,
+      test("when the policy record is draft, an administrator can select the traveller", () => {
+        // Arrange
+        const admin = userFactory.build({
+          id: 1,
+          roles: [User.Roles.ADMIN],
         })
-
+        const travelAuthorization = travelAuthorizationFactory.build({
+          userId: 2,
+          status: TravelAuthorization.Statuses.DRAFT,
+        })
         const policy = new TravelAuthorizationsPolicy(admin, travelAuthorization)
+        const attributes = {
+          eventName: "Travel planning meeting",
+          userId: 2,
+          status: null,
+          wizardStepName: TravelAuthorization.WizardStepNames.REVIEW_EXPENSES,
+        }
 
-        expect(policy.permittedAttributesForCreate()).toEqual([
-          "slug",
-          "preApprovalProfileId",
-          "purposeId",
-          "firstName",
-          "lastName",
-          "department",
-          "division",
-          "branch",
-          "unit",
-          "email",
-          "mailcode",
-          "daysOffTravelStatusEstimate",
-          "dateBackToWorkEstimate",
-          "travelDurationEstimate",
-          "travelAdvance",
-          "eventName",
-          "summary",
-          "benefits",
-          "supervisorEmail",
-          "approved",
-          "requestChange",
-          "denialReason",
-          "tripTypeEstimate",
-          "travelAdvanceInCents",
-          "allTravelWithinTerritory",
-          {
-            travelSegmentEstimatesAttributes: expect.any(Array),
-          },
-          "userId",
-          {
-            userAttributes: expect.any(Array),
-          },
-        ])
+        // Act
+        const permittedAttributes = policy.permitAttributesForCreate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({
+          eventName: "Travel planning meeting",
+          userId: 2,
+        })
+      })
+
+      test("when the policy record is approved, it permits actual-trip details instead of draft fields", () => {
+        // Arrange
+        const user = userFactory.build({
+          roles: [User.Roles.USER],
+        })
+        const travelAuthorization = travelAuthorizationFactory.build({
+          status: TravelAuthorization.Statuses.APPROVED,
+        })
+        const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          eventName: "Not a draft edit",
+          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+          tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
+          status: TravelAuthorization.Statuses.DRAFT,
+        }
+
+        // Act
+        const permittedAttributes = policy.permitAttributesForCreate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({
+          tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
+        })
+      })
+
+      test("when the policy record has no initial state, it does not infer draft permissions", () => {
+        // Arrange
+        const user = userFactory.build({
+          roles: [User.Roles.USER],
+        })
+        const travelAuthorization = travelAuthorizationFactory.build({
+          status: null,
+        })
+        const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          eventName: "Not permitted without an initialized state",
+          status: TravelAuthorization.Statuses.DRAFT,
+        }
+
+        // Act
+        const permittedAttributes = policy.permitAttributesForCreate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual({})
       })
     })
   })

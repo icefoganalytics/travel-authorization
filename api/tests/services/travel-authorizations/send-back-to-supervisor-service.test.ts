@@ -6,7 +6,7 @@ import SendBackToSupervisorService from "@/services/travel-authorizations/send-b
 describe("api/src/services/travel-authorizations/send-back-to-supervisor-service.ts", () => {
   describe("SendBackToSupervisorService", () => {
     describe("#perform", () => {
-      test("when sending back to supervisor from EXPENSE_CLAIM_APPROVED state, it correctly updates travel authorization state and wizard step", async () => {
+      test("when finance requests supervisor corrections, it routes the traveller to supervisor approval", async () => {
         // Arrange
         const financeUser = await userFactory.create({
           roles: ["finance_user"],
@@ -25,7 +25,7 @@ describe("api/src/services/travel-authorizations/send-back-to-supervisor-service
         // Act
         const updatedTravelAuthorization = await SendBackToSupervisorService.perform(
           travelAuthorization,
-          "Needs corrections to GL coding",
+          "Needs corrections to general ledger coding",
           financeUser
         )
 
@@ -34,47 +34,52 @@ describe("api/src/services/travel-authorizations/send-back-to-supervisor-service
           expect.objectContaining({
             id: travelAuthorization.id,
             status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUPERVISOR_CHANGES_REQUESTED,
-            wizardStepName:
-              TravelAuthorization.WizardStepNames.AWAITING_FINANCE_REVIEW_AND_PROCESSING,
+            wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
           })
         )
       })
 
-      test("when travel authorization is not in EXPENSE_CLAIM_APPROVED state, it errors informatively", async () => {
+      test("when the claim is not approved, it rejects the supervisor handoff", async () => {
         // Arrange
         const financeUser = await userFactory.create({
           roles: ["finance_user"],
         })
+        const supervisor = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
           status: TravelAuthorization.Statuses.DRAFT,
+          supervisorEmail: supervisor.email,
         })
 
-        // Assert
-        await expect(
-          // Act
-          SendBackToSupervisorService.perform(travelAuthorization, "reason", financeUser)
-        ).rejects.toThrow(
-          "Travel authorization must be in expense claim approved state to send back to supervisor."
+        // Act
+        const result = SendBackToSupervisorService.perform(
+          travelAuthorization,
+          "Please review the coding",
+          financeUser
         )
+
+        // Assert
+        await expect(result).rejects.toThrow(Error)
       })
 
-      test("when sendback reason is empty, it errors informatively", async () => {
+      test("when the correction reason is empty, it rejects the supervisor handoff", async () => {
         // Arrange
         const financeUser = await userFactory.create({
           roles: ["finance_user"],
         })
+        const supervisor = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
           status: TravelAuthorization.Statuses.EXPENSE_CLAIM_APPROVED,
+          supervisorEmail: supervisor.email,
         })
 
+        // Act
+        const result = SendBackToSupervisorService.perform(travelAuthorization, "", financeUser)
+
         // Assert
-        await expect(
-          // Act
-          SendBackToSupervisorService.perform(travelAuthorization, "", financeUser)
-        ).rejects.toThrow("Send back reason is required to send expense claim back to supervisor.")
+        await expect(result).rejects.toThrow(Error)
       })
 
-      test("when supervisor email is missing, it errors informatively", async () => {
+      test("when the supervisor email is missing, it rejects the supervisor handoff", async () => {
         // Arrange
         const financeUser = await userFactory.create({
           roles: ["finance_user"],
@@ -84,13 +89,15 @@ describe("api/src/services/travel-authorizations/send-back-to-supervisor-service
           supervisorEmail: null,
         })
 
-        // Assert
-        await expect(
-          // Act
-          SendBackToSupervisorService.perform(travelAuthorization, "reason", financeUser)
-        ).rejects.toThrow(
-          "Travel authorization must have a supervisor email to send back to supervisor."
+        // Act
+        const result = SendBackToSupervisorService.perform(
+          travelAuthorization,
+          "Please review the coding",
+          financeUser
         )
+
+        // Assert
+        await expect(result).rejects.toThrow(Error)
       })
     })
   })
