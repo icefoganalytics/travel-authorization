@@ -49,8 +49,8 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 - Prevented RubyGems unresolved-specification warnings during development commands, including `dev down`, without removing installed gems.
 
-- Traveler flight rankings are now visible directly during booking review, including rejected options and their explanations, without expanding flight-request rows. Each leg has independent page navigation and a configurable page size (five options by default). Saved page links recover when options are removed, and pagination remains usable on small screens.
-  Why? To let Travel Desk staff review the traveler's preferences before finalizing a booking.
+- Made existing traveler flight rankings easier to find with labeled controls in Flight Requests and a booking-review link to that section. The shared options view shows rejection explanations and supports configurable pagination, saved page recovery, and small screens.
+  Why? To help Travel Desk staff find the traveler's preferences without introducing a second rankings view.
 
 - Travel request and approvals behavior:
 
