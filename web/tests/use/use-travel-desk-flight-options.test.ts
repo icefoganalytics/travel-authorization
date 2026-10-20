@@ -21,42 +21,6 @@ type TravelDeskFlightOptionsResponse = {
   totalCount: number
 }
 
-function createDeferredPromise<T>() {
-  let resolvePromise: ((value: T | PromiseLike<T>) => void) | undefined
-  let rejectPromise: ((reason?: unknown) => void) | undefined
-  const promise = new Promise<T>((resolve, reject) => {
-    resolvePromise = resolve
-    rejectPromise = reject
-  })
-  if (isUndefined(resolvePromise) || isUndefined(rejectPromise)) {
-    throw new Error("Deferred promise callbacks must be initialized")
-  }
-
-  return {
-    promise,
-    resolve: resolvePromise,
-    reject: rejectPromise,
-  }
-}
-
-function rejectWhenAborted<T>(
-  request: { promise: Promise<T>; reject: (reason?: unknown) => void },
-  signal: AbortSignal | undefined
-) {
-  if (isUndefined(signal)) {
-    throw new Error("An abort signal must be provided")
-  }
-
-  const rejectAsCanceled = () => request.reject(new CanceledError("canceled"))
-  if (signal.aborted) {
-    rejectAsCanceled()
-  } else {
-    signal.addEventListener("abort", rejectAsCanceled, { once: true })
-  }
-
-  return request.promise
-}
-
 describe("web/src/use/use-travel-desk-flight-options.js", () => {
   const travelDeskFlightOptionsApiMock = vi.mocked(travelDeskFlightOptionsApi)
   let scope: EffectScope | undefined
@@ -69,17 +33,21 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
   describe("useTravelDeskFlightOptions", () => {
     test("when the query changes during a request, cancels the stale request", async () => {
       // Arrange
-      const staleRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      const latestRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       let staleSignal: AbortSignal | undefined
       travelDeskFlightOptionsApiMock.list
-        .mockImplementationOnce((_params, requestOptions = {}) => {
-          staleSignal = requestOptions.signal
-          return rejectWhenAborted(staleRequest, staleSignal)
+        .mockImplementationOnce((_params, { signal } = {}) => {
+          if (isUndefined(signal)) {
+            throw new Error("Expected a request abort signal")
+          }
+
+          staleSignal = signal
+          return new Promise<TravelDeskFlightOptionsResponse>((_resolve, reject) => {
+            signal.addEventListener("abort", () => reject(new CanceledError("canceled")), {
+              once: true,
+            })
+          })
         })
-        .mockImplementationOnce((_params, requestOptions = {}) =>
-          rejectWhenAborted(latestRequest, requestOptions.signal)
-        )
+        .mockReturnValueOnce(new Promise<TravelDeskFlightOptionsResponse>(() => {}))
 
       const options = ref({ page: 1, perPage: 10 })
       const shouldSkipWatch = ref(true)
@@ -106,16 +74,22 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
 
     test("when a replacement request is pending, keeps it active", async () => {
       // Arrange
-      const staleRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      const latestRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       let latestSignal: AbortSignal | undefined
       travelDeskFlightOptionsApiMock.list
-        .mockImplementationOnce((_params, requestOptions = {}) =>
-          rejectWhenAborted(staleRequest, requestOptions.signal)
-        )
-        .mockImplementationOnce((_params, requestOptions = {}) => {
-          latestSignal = requestOptions.signal
-          return rejectWhenAborted(latestRequest, latestSignal)
+        .mockImplementationOnce((_params, { signal } = {}) => {
+          if (isUndefined(signal)) {
+            throw new Error("Expected a request abort signal")
+          }
+
+          return new Promise<TravelDeskFlightOptionsResponse>((_resolve, reject) => {
+            signal.addEventListener("abort", () => reject(new CanceledError("canceled")), {
+              once: true,
+            })
+          })
+        })
+        .mockImplementationOnce((_params, { signal } = {}) => {
+          latestSignal = signal
+          return new Promise<TravelDeskFlightOptionsResponse>(() => {})
         })
 
       const options = ref({ page: 1, perPage: 10 })
@@ -143,15 +117,19 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
 
     test("when a replacement request is pending, keeps the latest request loading", async () => {
       // Arrange
-      const staleRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      const latestRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       travelDeskFlightOptionsApiMock.list
-        .mockImplementationOnce((_params, requestOptions = {}) =>
-          rejectWhenAborted(staleRequest, requestOptions.signal)
-        )
-        .mockImplementationOnce((_params, requestOptions = {}) =>
-          rejectWhenAborted(latestRequest, requestOptions.signal)
-        )
+        .mockImplementationOnce((_params, { signal } = {}) => {
+          if (isUndefined(signal)) {
+            throw new Error("Expected a request abort signal")
+          }
+
+          return new Promise<TravelDeskFlightOptionsResponse>((_resolve, reject) => {
+            signal.addEventListener("abort", () => reject(new CanceledError("canceled")), {
+              once: true,
+            })
+          })
+        })
+        .mockReturnValueOnce(new Promise<TravelDeskFlightOptionsResponse>(() => {}))
 
       const options = ref({ page: 1, perPage: 10 })
       const shouldSkipWatch = ref(true)
@@ -183,9 +161,11 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
 
     test("when the latest request succeeds, displays its results and clears loading", async () => {
       // Arrange
-      const request = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       const latestOption = travelDeskFlightOptionFactory.build({ id: 202 })
-      travelDeskFlightOptionsApiMock.list.mockReturnValueOnce(request.promise)
+      travelDeskFlightOptionsApiMock.list.mockResolvedValueOnce({
+        travelDeskFlightOptions: [latestOption],
+        totalCount: 20,
+      })
 
       const shouldSkipWatch = ref(true)
       scope = effectScope()
@@ -199,12 +179,7 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
       }
 
       // Act
-      const latestFetch = composable.fetch()
-      request.resolve({
-        travelDeskFlightOptions: [latestOption],
-        totalCount: 20,
-      })
-      await latestFetch
+      await composable.fetch()
       await flushPromises()
 
       // Assert
@@ -218,11 +193,18 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
 
     test("when the effect scope is disposed during a request, cancels it", async () => {
       // Arrange
-      const pendingRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       let requestSignal: AbortSignal | undefined
-      travelDeskFlightOptionsApiMock.list.mockImplementationOnce((_params, requestOptions = {}) => {
-        requestSignal = requestOptions.signal
-        return rejectWhenAborted(pendingRequest, requestSignal)
+      travelDeskFlightOptionsApiMock.list.mockImplementationOnce((_params, { signal } = {}) => {
+        if (isUndefined(signal)) {
+          throw new Error("Expected a request abort signal")
+        }
+
+        requestSignal = signal
+        return new Promise<TravelDeskFlightOptionsResponse>((_resolve, reject) => {
+          signal.addEventListener("abort", () => reject(new CanceledError("canceled")), {
+            once: true,
+          })
+        })
       })
 
       const shouldSkipWatch = ref(true)
@@ -247,10 +229,17 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
 
     test("when the effect scope is disposed during a request, does not mark it errored", async () => {
       // Arrange
-      const pendingRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      travelDeskFlightOptionsApiMock.list.mockImplementationOnce((_params, requestOptions = {}) =>
-        rejectWhenAborted(pendingRequest, requestOptions.signal)
-      )
+      travelDeskFlightOptionsApiMock.list.mockImplementationOnce((_params, { signal } = {}) => {
+        if (isUndefined(signal)) {
+          throw new Error("Expected a request abort signal")
+        }
+
+        return new Promise<TravelDeskFlightOptionsResponse>((_resolve, reject) => {
+          signal.addEventListener("abort", () => reject(new CanceledError("canceled")), {
+            once: true,
+          })
+        })
+      })
 
       const shouldSkipWatch = ref(true)
       scope = effectScope()
