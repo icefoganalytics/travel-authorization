@@ -47,8 +47,13 @@ gateway with `./bin/dev up` before using them, and use `./bin/dev stop` or `./bi
 Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
 instead of the checkout-derived default.
 
-Compose project names preserve valid directory names and use the hashed checkout label when
-normalization would otherwise collide. Set `COMPOSE_PROJECT_NAME` to select an explicit project.
+Compose project names preserve valid directory names up to 51 characters. Longer or normalized
+names use a bounded prefix and stable digest, leaving room for the longest database alias.
+Browser hostnames retain their separate 63-character label limit.
+Set `COMPOSE_PROJECT_NAME` to select an explicit project of at most 51 characters; longer overrides
+fail before Compose runs rather than silently selecting different volumes.
+If an existing checkout's derived project name changes, preserve its data before adopting the new
+identity; the old named volumes remain under the previous project name.
 
 Host editor integration uses `open-in-editor-bridge` 0.3.0, installed by `bundle install` for the
 active Ruby. Run `dev` from the repository root so Bundler finds the project's Gemfile normally.
@@ -157,8 +162,8 @@ Verify real consumers rather than relying only on a database-local console:
 - Connect through each desktop hostname with encryption and SNI enabled; verify its identity,
   cancel a PostgreSQL `pg_sleep` query, and confirm that session remains usable.
 
-The commands below deliberately select this checkout's PostgreSQL container and use its local
-connection. They do not pass through desktop routing.
+The `psql` commands below deliberately select this checkout's PostgreSQL container and use its
+local connection. Migrations run from the API through the qualified private alias.
 
 ```bash
 ./bin/dev psql
