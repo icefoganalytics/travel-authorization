@@ -13,8 +13,6 @@ require "open_in_editor_bridge"
 require_relative "./github_api"
 require_relative "./pull-request-editor"
 
-ENV["OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS"] ||= "0.0.0.0"
-
 class DevHelper
   # Support dashes in command names
   COMMAND_TO_METHOD = {
