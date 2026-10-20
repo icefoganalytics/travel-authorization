@@ -82,6 +82,7 @@
               item-value="cityUniqueLegacy"
               :rules="[required]"
               variant="outlined"
+              @update:province="travelDeskTravelRequest.province = $event"
             />
           </v-col>
           <v-col

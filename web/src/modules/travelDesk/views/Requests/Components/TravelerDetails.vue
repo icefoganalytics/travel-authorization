@@ -76,6 +76,7 @@
               :error="travelerState.cityErr"
               label="City"
               variant="outlined"
+              @update:province="$emit('update:province', $event)"
             />
           </v-col>
           <v-col cols="2">
@@ -214,6 +215,7 @@ export default {
       default: () => ({}),
     },
   },
+  emits: ["update:province"],
   data() {
     return {
       admin: false,

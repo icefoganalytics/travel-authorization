@@ -5,7 +5,7 @@
     :loading="isLoading"
     auto-select-first
     v-bind="$attrs"
-    @update:model-value="emit('update:modelValue', $event)"
+    @update:model-value="emitLocation"
   />
 </template>
 
@@ -36,7 +36,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["update:modelValue"])
+const emit = defineEmits(["update:modelValue", "update:province"])
 
 const byProvinceFilter = computed(() => {
   if (props.inTerritory) {
@@ -71,4 +71,16 @@ const formattedLocations = computed(() => {
     }
   })
 })
+
+/** @param {number | string | null} value */
+function emitLocation(value) {
+  emit("update:modelValue", value)
+
+  const selectedLocation = formattedLocations.value.find((location) => {
+    return location.value === value || location.cityUniqueLegacy === value
+  })
+  if (selectedLocation) {
+    emit("update:province", selectedLocation.province)
+  }
+}
 </script>
