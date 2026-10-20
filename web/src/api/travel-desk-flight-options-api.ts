@@ -36,12 +36,16 @@ export type TravelDeskFlightOptionsQueryOptions = QueryOptions<
 >
 
 export const travelDeskFlightOptionsApi = {
-  async list(params: TravelDeskFlightOptionsQueryOptions = {}): Promise<{
+  async list(
+    params: TravelDeskFlightOptionsQueryOptions = {},
+    { signal }: { signal?: AbortSignal } = {}
+  ): Promise<{
     travelDeskFlightOptions: TravelDeskFlightOption[]
     totalCount: number
   }> {
     const { data } = await http.get("/api/travel-desk-flight-options", {
       params,
+      signal,
     })
     return data
   },

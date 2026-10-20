@@ -1,3 +1,4 @@
+import { CanceledError } from "axios"
 import { flushPromises } from "@vue/test-utils"
 import { effectScope, nextTick, ref, type EffectScope } from "vue"
 
@@ -34,6 +35,22 @@ function createDeferredPromise<T>() {
   }
 }
 
+function rejectWhenAborted<T>(
+  request: { promise: Promise<T>; reject: (reason?: unknown) => void },
+  signal: AbortSignal | undefined
+) {
+  if (!signal) throw new Error("An abort signal must be provided")
+
+  const rejectAsCanceled = () => request.reject(new CanceledError("canceled"))
+  if (signal.aborted) {
+    rejectAsCanceled()
+  } else {
+    signal.addEventListener("abort", rejectAsCanceled, { once: true })
+  }
+
+  return request.promise
+}
+
 describe("web/src/use/use-travel-desk-flight-options.js", () => {
   const travelDeskFlightOptionsApiMock = vi.mocked(travelDeskFlightOptionsApi)
   let scope: EffectScope | undefined
@@ -48,15 +65,24 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
   })
 
   describe("useTravelDeskFlightOptions", () => {
-    test("when an older page request completes last, keeps the newer page results", async () => {
+    test("cancels stale query requests and displays the latest results", async () => {
       // Arrange
       const earlierRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       const laterRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      const earlierOption = travelDeskFlightOptionFactory.build({ id: 101 })
       const laterOption = travelDeskFlightOptionFactory.build({ id: 202 })
+      let earlierSignal: AbortSignal | undefined
+      let laterSignal: AbortSignal | undefined
+      const consoleError = vi.spyOn(console, "error")
+
       travelDeskFlightOptionsApiMock.list
-        .mockReturnValueOnce(earlierRequest.promise)
-        .mockReturnValueOnce(laterRequest.promise)
+        .mockImplementationOnce((_params, requestOptions = {}) => {
+          earlierSignal = requestOptions.signal
+          return rejectWhenAborted(earlierRequest, earlierSignal)
+        })
+        .mockImplementationOnce((_params, requestOptions = {}) => {
+          laterSignal = requestOptions.signal
+          return rejectWhenAborted(laterRequest, laterSignal)
+        })
 
       const options = ref({ page: 1, perPage: 10 })
       const shouldSkipWatch = ref(true)
@@ -69,65 +95,20 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
       if (!composable) throw new Error("Composable must run inside its effect scope")
 
       // Act
+      const earlierFetch = composable.fetch()
+      options.value.page = 2
       shouldSkipWatch.value = false
       await nextTick()
-      options.value.page = 2
-      await nextTick()
-
-      laterRequest.resolve({
-        travelDeskFlightOptions: [laterOption],
-        totalCount: 20,
-      })
-      await flushPromises()
-      earlierRequest.resolve({
-        travelDeskFlightOptions: [earlierOption],
-        totalCount: 10,
-      })
-      await flushPromises()
+      await expect(earlierFetch).resolves.toEqual([])
 
       // Assert
-      expect(composable.travelDeskFlightOptions.value).toEqual([laterOption])
-      expect(composable.totalCount.value).toBe(20)
-      expect(composable.isErrored.value).toBe(false)
-      expect(composable.isLoading.value).toBe(false)
-    })
-
-    test("when an older page request completes during a newer request, keeps loading", async () => {
-      // Arrange
-      const earlierRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      const laterRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      const laterOption = travelDeskFlightOptionFactory.build({ id: 202 })
-      travelDeskFlightOptionsApiMock.list
-        .mockReturnValueOnce(earlierRequest.promise)
-        .mockReturnValueOnce(laterRequest.promise)
-
-      const options = ref({ page: 1, perPage: 10 })
-      const shouldSkipWatch = ref(true)
-      scope = effectScope()
-      const composable = scope.run(() =>
-        useTravelDeskFlightOptions(options, {
-          skipWatchIf: () => shouldSkipWatch.value,
-        })
-      )
-      if (!composable) throw new Error("Composable must run inside its effect scope")
-
-      shouldSkipWatch.value = false
-      await nextTick()
-      options.value.page = 2
-      await nextTick()
-
-      // Act
-      earlierRequest.resolve({
-        travelDeskFlightOptions: [travelDeskFlightOptionFactory.build({ id: 101 })],
-        totalCount: 10,
-      })
-      await flushPromises()
-
-      // Assert
+      expect(earlierSignal?.aborted).toBe(true)
+      expect(laterSignal?.aborted).toBe(false)
       expect(composable.travelDeskFlightOptions.value).toEqual([])
       expect(composable.totalCount.value).toBe(0)
       expect(composable.isErrored.value).toBe(false)
       expect(composable.isLoading.value).toBe(true)
+      expect(consoleError).not.toHaveBeenCalled()
 
       laterRequest.resolve({
         travelDeskFlightOptions: [laterOption],
@@ -137,50 +118,67 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
 
       expect(composable.travelDeskFlightOptions.value).toEqual([laterOption])
       expect(composable.totalCount.value).toBe(20)
+      expect(composable.isErrored.value).toBe(false)
       expect(composable.isLoading.value).toBe(false)
     })
 
-    test("when an older request fails, it does not set the current error state", async () => {
+    test("aborts pending requests on scope disposal without surfacing cancellation", async () => {
       // Arrange
-      const earlierRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      const laterRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
-      const laterOption = travelDeskFlightOptionFactory.build({ id: 202 })
-      travelDeskFlightOptionsApiMock.list
-        .mockReturnValueOnce(earlierRequest.promise)
-        .mockReturnValueOnce(laterRequest.promise)
+      const pendingRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
+      let requestSignal: AbortSignal | undefined
+      const consoleError = vi.spyOn(console, "error")
+      travelDeskFlightOptionsApiMock.list.mockImplementationOnce((_params, requestOptions = {}) => {
+        requestSignal = requestOptions.signal
+        return rejectWhenAborted(pendingRequest, requestSignal)
+      })
 
-      const options = ref({ page: 1, perPage: 10 })
       const shouldSkipWatch = ref(true)
       scope = effectScope()
       const composable = scope.run(() =>
-        useTravelDeskFlightOptions(options, {
+        useTravelDeskFlightOptions(ref({ page: 1, perPage: 10 }), {
           skipWatchIf: () => shouldSkipWatch.value,
         })
       )
       if (!composable) throw new Error("Composable must run inside its effect scope")
 
-      const earlierFetch = composable.fetch()
-      const laterFetch = composable.fetch()
-      const requestError = new Error("Earlier page failed")
+      const pendingFetch = composable.fetch()
 
       // Act
-      earlierRequest.reject(requestError)
-      await expect(earlierFetch).rejects.toBe(requestError)
+      scope.stop()
+      await expect(pendingFetch).resolves.toEqual([])
 
       // Assert
+      expect(requestSignal?.aborted).toBe(true)
       expect(composable.isErrored.value).toBe(false)
-      expect(composable.isLoading.value).toBe(true)
+      expect(consoleError).not.toHaveBeenCalled()
+    })
 
-      laterRequest.resolve({
-        travelDeskFlightOptions: [laterOption],
-        totalCount: 20,
-      })
-      await expect(laterFetch).resolves.toEqual([laterOption])
+    test("when an API request fails, preserves the error for its caller", async () => {
+      // Arrange
+      const requestError = new Error("Flight options request failed")
+      const consoleError = vi.spyOn(console, "error")
+      travelDeskFlightOptionsApiMock.list.mockRejectedValueOnce(requestError)
 
-      expect(composable.travelDeskFlightOptions.value).toEqual([laterOption])
-      expect(composable.totalCount.value).toBe(20)
-      expect(composable.isErrored.value).toBe(false)
+      const scopeOptions = ref({ page: 1, perPage: 10 })
+      const shouldSkipWatch = ref(true)
+      scope = effectScope()
+      const composable = scope.run(() =>
+        useTravelDeskFlightOptions(scopeOptions, {
+          skipWatchIf: () => shouldSkipWatch.value,
+        })
+      )
+      if (!composable) throw new Error("Composable must run inside its effect scope")
+
+      // Act
+      await expect(composable.fetch()).rejects.toBe(requestError)
+
+      // Assert
+      expect(composable.isErrored.value).toBe(true)
       expect(composable.isLoading.value).toBe(false)
+      expect(consoleError).toHaveBeenCalledWith(
+        "Failed to fetch travel desk flight options:",
+        requestError
+      )
     })
   })
 })

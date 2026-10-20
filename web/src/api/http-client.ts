@@ -37,6 +37,10 @@ httpClient.interceptors.request.use(async (config) => {
 
 // Any status codes that falls outside the range of 2xx causes this function to trigger
 httpClient.interceptors.response.use(null, async (error) => {
+  if (axios.isCancel(error)) {
+    throw error
+  }
+
   if (error?.error === "login_required") {
     throw new ApiError("You must be logged in to access this endpoint", 401)
   } else if (error?.response?.data?.message) {

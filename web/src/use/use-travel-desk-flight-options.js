@@ -1,4 +1,5 @@
-import { reactive, toRefs, ref, unref, watch } from "vue"
+import { isCancel } from "axios"
+import { onScopeDispose, reactive, toRefs, ref, unref, watch } from "vue"
 
 import travelDeskFlightOptionsApi from "@/api/travel-desk-flight-options-api"
 
@@ -32,30 +33,43 @@ export function useTravelDeskFlightOptions(options = ref({}), { skipWatchIf = ()
     isErrored: false,
   })
 
-  // Only the most recently started request may update the shared UI state.
-  let latestRequestId = 0
+  let requestController
 
   async function fetch() {
-    const requestId = ++latestRequestId
+    requestController?.abort()
+    const controller = new AbortController()
+    requestController = controller
+
     state.isLoading = true
     try {
       const { travelDeskFlightOptions, totalCount } = await travelDeskFlightOptionsApi.list(
-        unref(options)
+        unref(options),
+        { signal: controller.signal }
       )
-      if (requestId === latestRequestId) {
-        state.isErrored = false
-        state.travelDeskFlightOptions = travelDeskFlightOptions
-        state.totalCount = totalCount
+      if (controller.signal.aborted) {
+        return state.travelDeskFlightOptions
       }
+
+      state.isErrored = false
+      state.travelDeskFlightOptions = travelDeskFlightOptions
+      state.totalCount = totalCount
       return travelDeskFlightOptions
     } catch (error) {
-      console.error("Failed to fetch travel desk flight options:", error)
-      if (requestId === latestRequestId) {
-        state.isErrored = true
+      if (controller.signal.aborted) {
+        return state.travelDeskFlightOptions
       }
+
+      if (isCancel(error)) {
+        state.isErrored = false
+        return state.travelDeskFlightOptions
+      }
+
+      console.error("Failed to fetch travel desk flight options:", error)
+      state.isErrored = true
       throw error
     } finally {
-      if (requestId === latestRequestId) {
+      // A superseded request must not hide its replacement's loading state.
+      if (!controller.signal.aborted) {
         state.isLoading = false
       }
     }
@@ -64,12 +78,20 @@ export function useTravelDeskFlightOptions(options = ref({}), { skipWatchIf = ()
   watch(
     () => [skipWatchIf(), unref(options)],
     async ([skip]) => {
-      if (skip) return
+      if (skip) {
+        requestController?.abort()
+        state.isLoading = false
+        return
+      }
 
       await fetch()
     },
     { deep: true, immediate: true }
   )
+
+  onScopeDispose(() => {
+    requestController?.abort()
+  })
 
   return {
     ...toRefs(state),
