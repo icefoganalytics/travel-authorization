@@ -56,8 +56,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     await flushPromises()
 
     // Assert
-    const expandedOptionCard = wrapper.getComponent(TravelDeskFlightOptionCard)
-    const preferenceInput = expandedOptionCard.get("input").element
+    const preferenceInput = wrapper.getComponent(TravelDeskFlightOptionCard).get("input").element
     expect(preferenceInput.value).toBe("2")
   })
 
@@ -142,8 +141,9 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     await flushPromises()
 
     // Assert
-    const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-    const preferenceInputs = optionCards.map((card) => card.get("input").element)
+    const preferenceInputs = wrapper
+      .findAllComponents(TravelDeskFlightOptionCard)
+      .map((card) => card.get("input").element)
     expect(preferenceInputs).toEqual([
       expect.objectContaining({
         value: "6",

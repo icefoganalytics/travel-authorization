@@ -57,8 +57,9 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        const preferenceInputs = wrapper
+          .findAllComponents(TravelDeskFlightOptionCard)
+          .map((card) => card.get("input").element)
         expect(preferenceInputs).toEqual([
           expect.objectContaining({
             value: "6",
@@ -136,8 +137,9 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        const preferenceInputs = wrapper
+          .findAllComponents(TravelDeskFlightOptionCard)
+          .map((card) => card.get("input").element)
         expect(preferenceInputs).toEqual([
           expect.objectContaining({
             value: "6",
@@ -192,8 +194,9 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        const preferenceInputs = wrapper
+          .findAllComponents(TravelDeskFlightOptionCard)
+          .map((card) => card.get("input").element)
         expect(preferenceInputs).toEqual([
           expect.objectContaining({
             value: "4",
@@ -245,8 +248,9 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        const preferenceInputs = wrapper
+          .findAllComponents(TravelDeskFlightOptionCard)
+          .map((card) => card.get("input").element)
         expect(preferenceInputs).toEqual([
           expect.objectContaining({
             value: "3",
@@ -310,8 +314,9 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        const preferenceInputs = wrapper
+          .findAllComponents(TravelDeskFlightOptionCard)
+          .map((card) => card.get("input").element)
         expect(preferenceInputs).toEqual([
           expect.objectContaining({
             value: "Does Not Work",
