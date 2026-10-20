@@ -59,17 +59,24 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
 
         // Assert
         const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const firstPreferenceInput = optionCards[0].get("input").element
-        const secondPreferenceInput = optionCards[1].get("input").element
-        const thirdPreferenceInput = optionCards[2].get("input").element
-        const fourthPreferenceInput = optionCards[3].get("input").element
-        const fifthPreferenceInput = optionCards[4].get("input").element
-        expect(optionCards).toHaveLength(5)
-        expect(firstPreferenceInput.value).toBe("6")
-        expect(secondPreferenceInput.value).toBe("7")
-        expect(thirdPreferenceInput.value).toBe("8")
-        expect(fourthPreferenceInput.value).toBe("9")
-        expect(fifthPreferenceInput.value).toBe("10")
+        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        expect(preferenceInputs).toEqual([
+          expect.objectContaining({
+            value: "6",
+          }),
+          expect.objectContaining({
+            value: "7",
+          }),
+          expect.objectContaining({
+            value: "8",
+          }),
+          expect.objectContaining({
+            value: "9",
+          }),
+          expect.objectContaining({
+            value: "10",
+          }),
+        ])
       })
 
       test("when advancing the first leg, leaves the second leg on its selected page", async () => {
@@ -155,13 +162,18 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
 
         // Assert
         const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const firstPreferenceInput = optionCards[0].get("input").element
-        const secondPreferenceInput = optionCards[1].get("input").element
-        const thirdPreferenceInput = optionCards[2].get("input").element
-        expect(optionCards).toHaveLength(3)
-        expect(firstPreferenceInput.value).toBe("4")
-        expect(secondPreferenceInput.value).toBe("5")
-        expect(thirdPreferenceInput.value).toBe("6")
+        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        expect(preferenceInputs).toEqual([
+          expect.objectContaining({
+            value: "4",
+          }),
+          expect.objectContaining({
+            value: "5",
+          }),
+          expect.objectContaining({
+            value: "6",
+          }),
+        ])
       })
 
       test("when the URL overrides the caller's page size, restores the URL-sized server page", async () => {
@@ -203,11 +215,15 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
 
         // Assert
         const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const firstPreferenceInput = optionCards[0].get("input").element
-        const secondPreferenceInput = optionCards[1].get("input").element
-        expect(optionCards).toHaveLength(2)
-        expect(firstPreferenceInput.value).toBe("3")
-        expect(secondPreferenceInput.value).toBe("4")
+        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        expect(preferenceInputs).toEqual([
+          expect.objectContaining({
+            value: "3",
+          }),
+          expect.objectContaining({
+            value: "4",
+          }),
+        ])
       })
 
       test("when both legs have URL page sizes, keeps their page counts independent", async () => {
@@ -359,10 +375,15 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
 
         // Assert
         const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
-        const rejectedPreferenceInput = optionCards[0].get("input").element
-        const unrankedPreferenceInput = optionCards[1].get("input").element
-        expect(rejectedPreferenceInput.value).toBe("Does Not Work")
-        expect(unrankedPreferenceInput.value).toBe("Not Ranked")
+        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        expect(preferenceInputs).toEqual([
+          expect.objectContaining({
+            value: "Does Not Work",
+          }),
+          expect.objectContaining({
+            value: "Not Ranked",
+          }),
+        ])
       })
 
       test("when a rejected option has an explanation, displays the traveler's note", async () => {
