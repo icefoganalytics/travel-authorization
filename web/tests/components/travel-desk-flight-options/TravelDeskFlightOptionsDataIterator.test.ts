@@ -261,6 +261,56 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
           wrapper.findAllComponents(VPagination).map((pager) => pager.props("length"))
         ).toEqual([4, 3])
       })
+
+      test("when all options fit on one page, keeps the pager visible with navigation disabled", async () => {
+        // Arrange
+        travelDeskFlightOptionsApiMock.list.mockResolvedValue({
+          travelDeskFlightOptions: travelDeskFlightOptionFactory.buildList(2),
+          totalCount: 2,
+        })
+        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
+        await router.push("/")
+        await router.isReady()
+
+        // Act
+        const wrapper = mount(TravelDeskFlightOptionsDataIterator, {
+          props: { routeQuerySuffix: "FlightOptions1" },
+          global: { plugins: [vuetify, router] },
+        })
+        await flushPromises()
+
+        // Assert
+        expect(wrapper.get('button[aria-current="true"]').text()).toBe("1")
+        expect(
+          wrapper.get('button[aria-label="Previous page"]').attributes("disabled")
+        ).toBeDefined()
+        expect(wrapper.get('button[aria-label="Next page"]').attributes("disabled")).toBeDefined()
+      })
+
+      test("when there are no options, keeps the empty message and disabled pager visible", async () => {
+        // Arrange
+        travelDeskFlightOptionsApiMock.list.mockResolvedValue({
+          travelDeskFlightOptions: [],
+          totalCount: 0,
+        })
+        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
+        await router.push("/")
+        await router.isReady()
+
+        // Act
+        const wrapper = mount(TravelDeskFlightOptionsDataIterator, {
+          props: { routeQuerySuffix: "FlightOptions1" },
+          global: { plugins: [vuetify, router] },
+        })
+        await flushPromises()
+
+        // Assert
+        expect(wrapper.text()).toContain("No flight options available.")
+        expect(
+          wrapper.get('button[aria-label="Previous page"]').attributes("disabled")
+        ).toBeDefined()
+        expect(wrapper.get('button[aria-label="Next page"]').attributes("disabled")).toBeDefined()
+      })
     })
 
     describe("traveler preferences", () => {

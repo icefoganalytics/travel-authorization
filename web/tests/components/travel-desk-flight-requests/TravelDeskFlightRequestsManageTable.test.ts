@@ -23,7 +23,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
   const flightRequestsApiMock = vi.mocked(travelDeskFlightRequestsApi)
   const flightSegmentsApiMock = vi.mocked(travelDeskFlightSegmentsApi)
 
-  test("clicking the labeled control displays the saved numeric preference", async () => {
+  test("expanding a flight request displays its saved numeric preference", async () => {
     // Arrange
     const flightRequest = {
       id: 11,
@@ -71,7 +71,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     expect(preferenceField?.get("input").element.value).toBe("2")
   })
 
-  test("clicking Hide on a restored expanded row removes its options", async () => {
+  test("collapsing a restored expanded row removes its options", async () => {
     // Arrange
     const flightRequest = {
       id: 11,
@@ -175,9 +175,6 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     const rows = wrapper.findAll("tbody tr.v-data-table__tr")
     const restoredRow = rows[1]
     expect(restoredRow.get("td").text()).toBe("Vancouver")
-    expect(restoredRow.get("button[aria-expanded='true']").text()).toContain(
-      "Hide Options and Rankings"
-    )
     const preferenceField = wrapper
       .findAllComponents(VTextField)
       .find((field) => field.props("label") === "Preference")

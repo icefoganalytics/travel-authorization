@@ -30,7 +30,6 @@
     </template>
     <template #footer>
       <EnhancedPagination
-        v-if="totalCount > perPage"
         v-model="page"
         v-model:per-page="perPage"
         :total-count="totalCount"
