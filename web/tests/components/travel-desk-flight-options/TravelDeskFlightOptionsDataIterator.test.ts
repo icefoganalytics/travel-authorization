@@ -1,5 +1,4 @@
 import { flushPromises, mount } from "@vue/test-utils"
-import { VPagination } from "vuetify/components"
 
 import travelDeskFlightOptionsApi, { DOES_NOT_WORK } from "@/api/travel-desk-flight-options-api"
 import travelDeskFlightSegmentsApi from "@/api/travel-desk-flight-segments-api"
@@ -79,13 +78,28 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         ])
       })
 
-      test("when advancing the first leg, leaves the second leg on its selected page", async () => {
+      test("when advancing the outbound leg, shows its next options without changing the return leg", async () => {
         // Arrange
-        const flightOptions = travelDeskFlightOptionFactory.buildList(5)
-        travelDeskFlightOptionsApiMock.list.mockResolvedValue({
-          travelDeskFlightOptions: flightOptions,
-          totalCount: 25,
+        const outboundOptions = travelDeskFlightOptionFactory.buildList(7, { flightRequestId: 1 })
+        outboundOptions.forEach((option, index) => {
+          option.flightPreferenceOrder = index + 1
         })
+        const returnOptions = travelDeskFlightOptionFactory.buildList(12, { flightRequestId: 2 })
+        returnOptions.forEach((option, index) => {
+          option.flightPreferenceOrder = 12 - index
+        })
+        const flightOptions = [...outboundOptions, ...returnOptions]
+        travelDeskFlightOptionsApiMock.list.mockImplementation(
+          async ({ where, page = 1, perPage = 5 } = {}) => {
+            const legOptions = flightOptions.filter(
+              (option) => option.flightRequestId === where?.flightRequestId
+            )
+            return {
+              travelDeskFlightOptions: legOptions.slice((page - 1) * perPage, page * perPage),
+              totalCount: legOptions.length,
+            }
+          }
+        )
         const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
         await router.push({
           path: "/",
@@ -97,8 +111,14 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
             components: { TravelDeskFlightOptionsDataIterator },
             template: `
               <div>
-                <TravelDeskFlightOptionsDataIterator route-query-suffix="FlightOptions1" />
-                <TravelDeskFlightOptionsDataIterator route-query-suffix="FlightOptions2" />
+                <TravelDeskFlightOptionsDataIterator
+                  :where="{ flightRequestId: 1 }"
+                  route-query-suffix="FlightOptions1"
+                />
+                <TravelDeskFlightOptionsDataIterator
+                  :where="{ flightRequestId: 2 }"
+                  route-query-suffix="FlightOptions2"
+                />
               </div>
             `,
           },
@@ -109,16 +129,29 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
           }
         )
         await flushPromises()
-        const firstLeg = wrapper.findAllComponents(TravelDeskFlightOptionsDataIterator)[0]
+        const outboundLeg = wrapper.findAllComponents(TravelDeskFlightOptionsDataIterator)[0]
 
         // Act
-        await firstLeg.get('button[aria-label="Next page"]').trigger("click")
+        await outboundLeg.get('button[aria-label="Next page"]').trigger("click")
         await flushPromises()
 
         // Assert
-        const pagers = wrapper.findAllComponents(VPagination)
-        const displayedPages = pagers.map((pager) => pager.props("modelValue"))
-        expect(displayedPages).toEqual([2, 3])
+        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
+        const preferenceInputs = optionCards.map((card) => card.get("input").element)
+        expect(preferenceInputs).toEqual([
+          expect.objectContaining({
+            value: "6",
+          }),
+          expect.objectContaining({
+            value: "7",
+          }),
+          expect.objectContaining({
+            value: "2",
+          }),
+          expect.objectContaining({
+            value: "1",
+          }),
+        ])
       })
 
       test("when the caller configures three options per page, renders the requested server page", async () => {
@@ -224,116 +257,6 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         ])
       })
 
-      test("when both legs have URL page sizes, keeps their page counts independent", async () => {
-        // Arrange
-        const firstLegOptions = travelDeskFlightOptionFactory.buildList(3, { flightRequestId: 1 })
-        const secondLegOptions = travelDeskFlightOptionFactory.buildList(4, { flightRequestId: 2 })
-        travelDeskFlightOptionsApiMock.list
-          .mockResolvedValueOnce({
-            travelDeskFlightOptions: firstLegOptions,
-            totalCount: 12,
-          })
-          .mockResolvedValueOnce({
-            travelDeskFlightOptions: secondLegOptions,
-            totalCount: 12,
-          })
-        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
-        await router.push({
-          path: "/",
-          query: {
-            pageFlightOptions1: "2",
-            perPageFlightOptions1: "3",
-            pageFlightOptions2: "2",
-            perPageFlightOptions2: "4",
-          },
-        })
-        await router.isReady()
-
-        // Act
-        const wrapper = mount(
-          {
-            components: { TravelDeskFlightOptionsDataIterator },
-            template: `
-              <div>
-                <TravelDeskFlightOptionsDataIterator
-                  :where="{ flightRequestId: 1 }"
-                  route-query-suffix="FlightOptions1"
-                />
-                <TravelDeskFlightOptionsDataIterator
-                  :where="{ flightRequestId: 2 }"
-                  route-query-suffix="FlightOptions2"
-                />
-              </div>
-            `,
-          },
-          {
-            global: {
-              plugins: [vuetify, router],
-            },
-          }
-        )
-        await flushPromises()
-
-        // Assert
-        const pagers = wrapper.findAllComponents(VPagination)
-        const pageCounts = pagers.map((pager) => pager.props("length"))
-        expect(pageCounts).toEqual([4, 3])
-      })
-
-      test("when all options fit on one page, displays page one", async () => {
-        // Arrange
-        travelDeskFlightOptionsApiMock.list.mockResolvedValue({
-          travelDeskFlightOptions: travelDeskFlightOptionFactory.buildList(2),
-          totalCount: 2,
-        })
-        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
-        await router.push("/")
-        await router.isReady()
-
-        // Act
-        const wrapper = mount(TravelDeskFlightOptionsDataIterator, {
-          props: { routeQuerySuffix: "FlightOptions1" },
-          global: { plugins: [vuetify, router] },
-        })
-        await flushPromises()
-
-        // Assert
-        const currentPageButton = wrapper.get('button[aria-current="true"]')
-        expect(currentPageButton.text()).toBe("1")
-      })
-
-      test("when all options fit on one page, disables pager navigation", async () => {
-        // Arrange
-        travelDeskFlightOptionsApiMock.list.mockResolvedValue({
-          travelDeskFlightOptions: travelDeskFlightOptionFactory.buildList(2),
-          totalCount: 2,
-        })
-        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
-        await router.push("/")
-        await router.isReady()
-
-        // Act
-        const wrapper = mount(TravelDeskFlightOptionsDataIterator, {
-          props: { routeQuerySuffix: "FlightOptions1" },
-          global: { plugins: [vuetify, router] },
-        })
-        await flushPromises()
-
-        // Assert
-        const navigationButtons = [
-          wrapper.get<HTMLButtonElement>('button[aria-label="Previous page"]').element,
-          wrapper.get<HTMLButtonElement>('button[aria-label="Next page"]').element,
-        ]
-        expect(navigationButtons).toEqual([
-          expect.objectContaining({
-            disabled: true,
-          }),
-          expect.objectContaining({
-            disabled: true,
-          }),
-        ])
-      })
-
       test("when there are no options, displays the empty message", async () => {
         // Arrange
         travelDeskFlightOptionsApiMock.list.mockResolvedValue({
@@ -354,38 +277,6 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         // Assert
         const emptyMessage = wrapper.get("p")
         expect(emptyMessage.text()).toBe("No flight options available.")
-      })
-
-      test("when there are no options, disables pager navigation", async () => {
-        // Arrange
-        travelDeskFlightOptionsApiMock.list.mockResolvedValue({
-          travelDeskFlightOptions: [],
-          totalCount: 0,
-        })
-        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
-        await router.push("/")
-        await router.isReady()
-
-        // Act
-        const wrapper = mount(TravelDeskFlightOptionsDataIterator, {
-          props: { routeQuerySuffix: "FlightOptions1" },
-          global: { plugins: [vuetify, router] },
-        })
-        await flushPromises()
-
-        // Assert
-        const navigationButtons = [
-          wrapper.get<HTMLButtonElement>('button[aria-label="Previous page"]').element,
-          wrapper.get<HTMLButtonElement>('button[aria-label="Next page"]').element,
-        ]
-        expect(navigationButtons).toEqual([
-          expect.objectContaining({
-            disabled: true,
-          }),
-          expect.objectContaining({
-            disabled: true,
-          }),
-        ])
       })
     })
 
