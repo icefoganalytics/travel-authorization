@@ -27,13 +27,15 @@ Guidelines:
 
 1. Use `test`, not `it`
 2. Use nested `describe` blocks with the full file path at the outer level
-3. Prefer Arrange/Act/Assert comments in tests with meaningful setup
-4. Focus assertions on what the user sees, what events emit, and what API calls happen
-5. Prefer reusable helpers in `web/tests/support/` instead of duplicating mock setup
+3. Name tests `when [condition], [behavior]` and use ordered `// Arrange`, `// Act`, and `// Assert` sections
+4. Focus each test on one observable behavior, such as rendered controls, emitted events, or a query contract
+5. Reuse infrastructure from `web/tests/support/`; keep each scenario's data, mounting, and actions inline
 6. Use Vue Test Utils `mount` with jsdom and the shared `mockRouter` and `mockVuetify` helpers
 7. Keep scenario data and mount options inline; reserve `beforeEach` for shared mock defaults
 8. Mock API boundaries when exercising components with their real composables and children
 9. Use `flushPromises` for asynchronous rendering and assert directly on DOM controls or public component contracts
+10. Keep assertions in the final Assert section; await operations or explicit request signals in Act
+11. Let the Vitest configuration reset mocks; use teardown only for real non-mock resources such as effect scopes
 
 `tests/setup.ts` enables `enableAutoUnmount(afterEach)`, so wrappers are cleaned up automatically.
 Explicitly unmount a wrapper only when unmounting is the behavior under test.
@@ -51,6 +53,28 @@ describe("web/src/components/example/ExampleCard.vue", () => {
   })
 })
 ```
+
+## Readable Assertions
+
+The final assertion should make the expected behavior obvious without tracing a query or transformation.
+Select the relevant card, input, event, or returned state into an explanatory variable immediately
+above its expectation. Prefer `get`/`getComponent` for controls that must exist so a missing control
+fails directly, rather than allowing optional chaining to produce `undefined`.
+
+- Scope repeated fields to the relevant component or card before selecting a control. Avoid collecting
+  every text field, filtering by its label, and mapping values into a separate summary array.
+- Keep `expect` targets direct: an input's value, an emitted event, a real query object, or the
+  composable's returned state. Put literal expected values beside the assertion.
+- Prefer one meaningful assertion for one contract. Clear direct assertions may cover related facts
+  that jointly prove that contract; split independently meaningful outcomes into separate scenarios.
+- Do not construct synthetic objects or add query-summary helpers to bundle unrelated expectations.
+- Keep actions before Assert. Do not assert an intermediate state, perform more actions, and then
+  continue asserting in the same test. Use separate named scenarios for distinct transitions.
+- Keep native promise-error matchers. When invoking the subject is the assertion, `// Act / Assert`
+  is appropriate; do not add a redundant assertion or no-op action to separate the phases.
+
+These conventions follow the same mounted-component and scenario-oriented approach as WRAP while
+keeping TravelAuth's existing Fishery factories and shared router/Vuetify setup.
 
 ## Fixture Factories
 
