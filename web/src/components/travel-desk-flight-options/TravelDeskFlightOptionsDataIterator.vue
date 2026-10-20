@@ -86,13 +86,4 @@ const travelDeskFlightOptionsQuery = computed(() => ({
 const { travelDeskFlightOptions, totalCount, isLoading, isErrored } = useTravelDeskFlightOptions(
   travelDeskFlightOptionsQuery
 )
-
-watch([isLoading, totalCount], () => {
-  if (isLoading.value || isErrored.value) return
-
-  const lastPage = Math.max(1, Math.ceil(totalCount.value / perPage.value))
-  if (page.value > lastPage) {
-    page.value = lastPage
-  }
-})
 </script>

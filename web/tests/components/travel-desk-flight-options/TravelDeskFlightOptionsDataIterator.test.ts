@@ -69,53 +69,6 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         ])
       })
 
-      test("when a saved page is no longer available, renders the remaining options from the last page", async () => {
-        // Arrange
-        const flightOptions = travelDeskFlightOptionFactory.buildList(3)
-        flightOptions.forEach((flightOption, index) => {
-          flightOption.flightPreferenceOrder = index + 1
-        })
-        travelDeskFlightOptionsApiMock.list.mockImplementation(
-          async ({ page = 1, perPage = 5 } = {}) => {
-            const firstOptionIndex = (page - 1) * perPage
-            return {
-              travelDeskFlightOptions: flightOptions.slice(
-                firstOptionIndex,
-                firstOptionIndex + perPage
-              ),
-              totalCount: flightOptions.length,
-            }
-          }
-        )
-        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
-        await router.push({
-          path: "/",
-          query: { pageFlightOptions1: "2" },
-        })
-        await router.isReady()
-
-        // Act
-        const wrapper = mount(TravelDeskFlightOptionsDataIterator, {
-          props: {
-            routeQuerySuffix: "FlightOptions1",
-          },
-          global: {
-            plugins: [vuetify, router],
-          },
-        })
-        await flushPromises()
-
-        // Assert
-        const preferenceFields = wrapper
-          .findAllComponents(VTextField)
-          .filter((field) => field.props("label") === "Preference")
-        expect(preferenceFields.map((field) => field.get("input").element.value)).toEqual([
-          "1",
-          "2",
-          "3",
-        ])
-      })
-
       test("when advancing the first leg, leaves the second leg on its selected page", async () => {
         // Arrange
         const flightOptions = travelDeskFlightOptionFactory.buildList(5)

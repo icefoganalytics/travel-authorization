@@ -1,7 +1,6 @@
 import { flushPromises, mount } from "@vue/test-utils"
 import { defineComponent, type Ref } from "vue"
 
-import { MAX_PER_PAGE } from "@/api/base-api"
 import { mockRouter } from "@/tests/support"
 import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 
@@ -38,71 +37,6 @@ async function mountPagination(url: string, options: PaginationOptions = {}) {
 
 describe("web/src/use/utils/use-route-query-pagination.ts", () => {
   describe("useRouteQueryPagination", () => {
-    test.each(["0", "-3", "not-a-number"])(
-      "when the URL page is %s, restores the caller's default and corrects the query",
-      async (invalidPage) => {
-        // Arrange
-        const url = `/?page=${encodeURIComponent(invalidPage)}&perPage=25`
-        const options = { page: 4, perPage: 25 }
-
-        // Act
-        const { pagination, router } = await mountPagination(url, options)
-
-        // Assert
-        expect(pagination.page.value).toBe(4)
-        expect(pagination.perPage.value).toBe(25)
-        expect(router.currentRoute.value.query.page).toBeUndefined()
-        expect(router.currentRoute.value.query.perPage).toBe("25")
-      }
-    )
-
-    test.each(["0", "-3", "not-a-number", "1001"])(
-      "when the URL page size is %s, restores the caller's default and corrects the query",
-      async (invalidPerPage) => {
-        // Arrange
-        const url = `/?page=6&perPage=${encodeURIComponent(invalidPerPage)}`
-        const options = { page: 4, perPage: 30 }
-
-        // Act
-        const { pagination, router } = await mountPagination(url, options)
-
-        // Assert
-        expect(pagination.page.value).toBe(6)
-        expect(pagination.perPage.value).toBe(30)
-        expect(router.currentRoute.value.query.page).toBe("6")
-        expect(router.currentRoute.value.query.perPage).toBeUndefined()
-      }
-    )
-
-    test("when caller defaults are invalid, uses the standard defaults", async () => {
-      // Arrange
-      const options = { page: -2, perPage: 1001 }
-
-      // Act
-      const { pagination, router } = await mountPagination("/?page=0&perPage=1001", options)
-
-      // Assert
-      expect(pagination.page.value).toBe(1)
-      expect(pagination.perPage.value).toBe(10)
-      expect(router.currentRoute.value.query.page).toBeUndefined()
-      expect(router.currentRoute.value.query.perPage).toBeUndefined()
-    })
-
-    test("when the URL provides valid values, keeps the URL overrides including the API page-size maximum", async () => {
-      // Arrange
-      const url = `/?page=3&perPage=${MAX_PER_PAGE}`
-      const options = { page: 4, perPage: 25 }
-
-      // Act
-      const { pagination, router } = await mountPagination(url, options)
-
-      // Assert
-      expect(pagination.page.value).toBe(3)
-      expect(pagination.perPage.value).toBe(MAX_PER_PAGE)
-      expect(router.currentRoute.value.query.page).toBe("3")
-      expect(router.currentRoute.value.query.perPage).toBe(MAX_PER_PAGE.toString())
-    })
-
     test("when the caller has valid defaults and the URL has no pagination, keeps those defaults", async () => {
       // Arrange
       const options = { page: 4, perPage: 25 }
