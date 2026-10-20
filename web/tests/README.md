@@ -67,6 +67,9 @@ fails directly, rather than allowing optional chaining to produce `undefined`.
   every text field, filtering by its label, and mapping values into a separate summary array.
 - Keep `expect` targets direct: an input's value, an emitted event, a real query object, or the
   composable's returned state. Put literal expected values beside the assertion.
+- Component tests should verify application outcomes after user actions: the correct records,
+  saved preferences, or recovery messages are visible. Do not duplicate framework coverage for
+  pager model props, page-count arithmetic, or built-in disabled-button behavior.
 - Use exactly one meaningful `expect(...)` per test, in the final Assert section. Assert a real
   returned object or ordered collection for a coupled contract; split independent outcomes into
   separate scenarios. Expectations inside synchronization callbacks also count.
