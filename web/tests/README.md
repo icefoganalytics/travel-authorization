@@ -67,6 +67,9 @@ fails directly, rather than allowing optional chaining to produce `undefined`.
   composable's returned state. Put literal expected values beside the assertion.
 - Prefer one meaningful assertion for one contract. Clear direct assertions may cover related facts
   that jointly prove that contract; split independently meaningful outcomes into separate scenarios.
+- For a rendered collection, assert its exact ordered contents with one `toEqual` array, using
+  `expect.objectContaining` for relevant DOM properties. Select the controls before `expect`;
+  avoid separate length and per-item assertions for the same collection outcome.
 - Do not construct synthetic objects or add query-summary helpers to bundle unrelated expectations.
 - Keep actions before Assert. Do not assert an intermediate state, perform more actions, and then
   continue asserting in the same test. Use separate named scenarios for distinct transitions.
