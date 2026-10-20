@@ -66,7 +66,7 @@ What these are for:
 ## Open In Editor
 
 When the frontend runs in Docker, Vue Devtools cannot launch your host editor directly from inside
-the container. The shared [open-in-editor-bridge gem](https://github.com/klondikemarlen/open-in-editor-bridge)
+the container. The shared [open-in-editor-bridge 0.5.0 gem](https://github.com/klondikemarlen/open-in-editor-bridge/tree/v0.5.0)
 translates container paths to the requesting checkout and launches its configured host editor.
 
 The repo-level `dev` wrapper manages this automatically:
@@ -75,8 +75,8 @@ The repo-level `dev` wrapper manages this automatically:
   when Compose exits.
 - `dev up -d` and `dev up --detach` retain a persistent checkout registration until a successful
   `dev down`. A failed teardown retains the registration.
-- Use `dev up -d --wait` to wait for readiness while retaining editor registration. The wrapper
-  forwards options unchanged; it does not infer detached mode from `--wait`.
+- `dev up --wait` also retains registration after readiness-based startup returns; adding `-d`
+  is optional. The gem owns this lifecycle classification; the wrapper forwards options unchanged.
 - The adapter adds the Docker host-gateway entry and mounts the gem's Vite plugin and checkout
   manifest read-only. Only these two files enter the container, not private broker credentials.
 - The plugin owns editor request routing; no session environment variable or custom proxy rewrite
@@ -91,11 +91,14 @@ The repo-level `dev` wrapper manages this automatically:
 Checkouts share port `3333`; set `OPEN_IN_EDITOR_BRIDGE_PORT` consistently across them to use
 another port. The gem stores private runtime state outside the repository.
 
-The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`. The wrapper defaults
-`OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS` to `0.0.0.0` so Docker can reach the host listener. This also
-allows other reachable network peers to invoke the editor: use a trusted development network with
-host firewall restrictions, or select a specific Docker-reachable host interface. All checkouts
-sharing a listener must use the same bind address, port, and runtime directory.
+The bridge prefers `OPEN_IN_EDITOR_COMMAND`, then `EDITOR`. With no bind override, the gem's
+Compose adapter selects `0.0.0.0` for both startup and teardown without changing the caller's
+environment. This also allows other reachable network peers to invoke the editor: use a trusted
+development network with host firewall restrictions, or set `OPEN_IN_EDITOR_BRIDGE_BIND_ADDRESS`
+to a narrower Docker-reachable host interface. Explicit settings are preserved; explicit loopback
+startup fails clearly rather than being overridden. Standalone CLI and low-level Ruby entrypoints
+still default to `127.0.0.1`. All checkouts sharing a listener must use the same bind address, port,
+and runtime directory.
 
 Stop older project-local bridges before reusing their port; they cannot share the gem's listener.
 

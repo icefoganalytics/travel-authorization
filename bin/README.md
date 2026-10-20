@@ -55,8 +55,9 @@ fail before Compose runs rather than silently selecting different volumes.
 If an existing checkout's derived project name changes, preserve its data before adopting the new
 identity; the old named volumes remain under the previous project name.
 
-Host editor integration uses `open-in-editor-bridge` 0.3.0, installed by `bundle install` for the
-active Ruby. Run `dev` from the repository root so Bundler finds the project's Gemfile normally.
+Host editor integration uses `open-in-editor-bridge` 0.5.0, installed by `bundle install` for the
+active Ruby. The gem's Compose adapter owns its Docker-reachable bind default; the wrapper adds no
+bind policy. Run `dev` from the repository root so Bundler finds the project's Gemfile normally.
 Configure `OPEN_IN_EDITOR_COMMAND` or `EDITOR` before `dev up`; the gem reports a missing editor.
 See [Open In Editor](../web/README.md#open-in-editor) for lifecycle, shared-runtime, and
 trusted-network configuration. Use `dev up`, not raw Compose, to create containers with the
