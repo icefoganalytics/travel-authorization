@@ -31,9 +31,10 @@ Derived worktree labels trim surrounding separators and use a bounded prefix plu
 when the directory name needs normalization or exceeds the 63-character DNS label limit.
 
 `dev api`, migrations, and tests also start or reuse the gateway before creating their Compose
-dependencies. The API connects directly to `db` without TLS; the gateway's TLS endpoint is for host
-clients, not the application's database connection. Browser API requests and API cross-origin
-settings use the same checkout-derived hostname.
+dependencies. Internal PostgreSQL connections use `${COMPOSE_PROJECT_NAME}-db`; TravCom SQL Server
+connections use `${COMPOSE_PROJECT_NAME}-db_trav_com`. These aliases exist only on the checkout's
+private network, preventing accidental cross-worktree database selection on the shared gateway
+network. Each concurrent checkout must have a distinct Compose project name.
 
 Set `GATEWAY_HOSTNAME` before invoking `dev` to override the derived hostname for a local
 environment.
@@ -59,9 +60,14 @@ Auth0 environment before going live; worktree wildcard allowlists are for local 
 
 For a database client outside Compose, connect to `db.<gateway-hostname>:5432` for PostgreSQL or
 `db-trav-com.<gateway-hostname>:1433` for TravCom SQL Server. The gateway presents those TLS
-hostnames only on loopback; Compose services continue to use their internal `db` and `db_trav_com`
-aliases. PostgreSQL clients must require TLS. SQL Server clients must enable encryption and trust
-the local gateway certificate.
+hostnames only on loopback; they are not internal application hostnames. PostgreSQL clients must
+require TLS and send Server Name Indication (SNI). SQL Server clients must enable encryption, send
+the hostname through SNI, and trust the development certificate. PostgreSQL TLS terminates at the
+gateway; internal PostgreSQL connections remain direct and unencrypted. Database-local commands
+select the intended container explicitly and use its local connection.
+
+See [Database Operations](./bin/README.md#database-operations) for the pinned gateway contract,
+restart requirements, and consumer identity checks.
 
 See [web/README.md](./web/README.md) for frontend-specific guidance and
 [AGENTS.md](./AGENTS.md) for backend architecture and testing conventions.

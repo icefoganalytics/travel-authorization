@@ -45,6 +45,8 @@ Changes since v2025.9.15.1 that will be included in the next release.
 
 ### Fixed
 
+- Developer improvements prevent accidental database connections to another worktree while preserving encrypted desktop access.
+
 - Prevented RubyGems unresolved-specification warnings during development commands, including `dev down`, without removing installed gems.
 
 - Travel request and approvals behavior:
