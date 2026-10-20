@@ -6,6 +6,7 @@ import travelDeskFlightSegmentsApi from "@/api/travel-desk-flight-segments-api"
 
 import { mockRouter, mockVuetify } from "@/tests/support"
 import travelDeskFlightOptionFactory from "@/tests/factories/travel-desk-flight-option-factory"
+import travelDeskFlightRequestFactory from "@/tests/factories/travel-desk-flight-request-factory"
 
 import TravelDeskFlightRequestsManageTable from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageTable.vue"
 import TravelDeskFlightOptionCard from "@/components/travel-desk-flight-options/TravelDeskFlightOptionCard.vue"
@@ -25,17 +26,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
 
   test("when expanding a flight request, displays its saved numeric preference", async () => {
     // Arrange
-    const flightRequest = {
-      id: 11,
-      travelRequestId: 1,
-      departLocation: "Whitehorse",
-      arriveLocation: "Vancouver",
-      datePreference: "2026-11-01",
-      timePreference: "Anytime",
-      seatPreference: "Any",
-      createdAt: "2026-10-01T00:00:00.000Z",
-      updatedAt: "2026-10-01T00:00:00.000Z",
-    }
+    const flightRequest = travelDeskFlightRequestFactory.build({ id: 11 })
     flightRequestsApiMock.list.mockResolvedValue({
       travelDeskFlightRequests: [flightRequest],
       totalCount: 1,
@@ -72,17 +63,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
 
   test("when collapsing a restored expanded row, removes its options", async () => {
     // Arrange
-    const flightRequest = {
-      id: 11,
-      travelRequestId: 1,
-      departLocation: "Whitehorse",
-      arriveLocation: "Vancouver",
-      datePreference: "2026-11-01",
-      timePreference: "Anytime",
-      seatPreference: "Any",
-      createdAt: "2026-10-01T00:00:00.000Z",
-      updatedAt: "2026-10-01T00:00:00.000Z",
-    }
+    const flightRequest = travelDeskFlightRequestFactory.build({ id: 11 })
     flightRequestsApiMock.list.mockResolvedValue({
       travelDeskFlightRequests: [flightRequest],
       totalCount: 1,
@@ -118,28 +99,13 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
 
   test("when restoring an expanded flight request, displays its saved options page", async () => {
     // Arrange
-    const whitehorseToVancouver = {
-      id: 11,
-      travelRequestId: 1,
-      departLocation: "Whitehorse",
-      arriveLocation: "Vancouver",
-      datePreference: "2026-11-01",
-      timePreference: "Anytime",
-      seatPreference: "Any",
-      createdAt: "2026-10-01T00:00:00.000Z",
-      updatedAt: "2026-10-01T00:00:00.000Z",
-    }
-    const vancouverToWhitehorse = {
+    const whitehorseToVancouver = travelDeskFlightRequestFactory.build({ id: 11 })
+    const vancouverToWhitehorse = travelDeskFlightRequestFactory.build({
       id: 12,
-      travelRequestId: 1,
       departLocation: "Vancouver",
       arriveLocation: "Whitehorse",
       datePreference: "2026-11-03",
-      timePreference: "Anytime",
-      seatPreference: "Any",
-      createdAt: "2026-10-01T00:00:00.000Z",
-      updatedAt: "2026-10-01T00:00:00.000Z",
-    }
+    })
     flightRequestsApiMock.list.mockResolvedValue({
       travelDeskFlightRequests: [whitehorseToVancouver, vancouverToWhitehorse],
       totalCount: 2,
