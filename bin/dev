@@ -31,6 +31,7 @@ class DevHelper
 
   REPLACE_PROCESS = "replace_process"
   WAIT_FOR_PROCESS = "wait_for_process"
+  MAX_COMPOSE_PROJECT_NAME_LENGTH = 63 - "-db_trav_com".length
 
   # External Interface
   def self.call(*args)
@@ -418,13 +419,23 @@ class DevHelper
   end
 
   def compose_project_name
+    max_length = MAX_COMPOSE_PROJECT_NAME_LENGTH
     configured_name = ENV.fetch("COMPOSE_PROJECT_NAME", "")
-    return configured_name unless configured_name.empty?
+    unless configured_name.empty?
+      if configured_name.length > max_length
+        raise ArgumentError,
+              "COMPOSE_PROJECT_NAME must be at most #{max_length} characters for database DNS."
+      end
+
+      return configured_name
+    end
 
     directory_name = File.basename(project_root)
-    return directory_name if /\A[a-z0-9][a-z0-9_-]*\z/.match?(directory_name)
+    if directory_name.length <= max_length && /\A[a-z0-9][a-z0-9_-]*\z/.match?(directory_name)
+      return directory_name
+    end
 
-    checkout_name
+    checkout_name(max_length: max_length)
   end
 
   def gateway_hostname
@@ -437,14 +448,14 @@ class DevHelper
     "#{checkout_name}.travel-authorization.localhost"
   end
 
-  def checkout_name
+  def checkout_name(max_length: 63)
     directory_name = File.basename(project_root)
 
     checkout_name = directory_name.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-+|-+\z/, "")
 
-    if checkout_name != directory_name || checkout_name.length > 63
+    if checkout_name != directory_name || checkout_name.length > max_length
       checkout_digest = Digest::SHA256.hexdigest(directory_name)[0, 12]
-      checkout_prefix = checkout_name[0, 50].sub(/-+\z/, "")
+      checkout_prefix = checkout_name[0, max_length - checkout_digest.length - 1].sub(/-+\z/, "")
       checkout_prefix = "worktree" if checkout_prefix.empty?
       checkout_name = "#{checkout_prefix}-#{checkout_digest}"
     end
