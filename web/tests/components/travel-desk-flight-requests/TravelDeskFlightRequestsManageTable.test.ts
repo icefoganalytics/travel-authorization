@@ -23,7 +23,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
   const flightRequestsApiMock = vi.mocked(travelDeskFlightRequestsApi)
   const flightSegmentsApiMock = vi.mocked(travelDeskFlightSegmentsApi)
 
-  test("expanding a flight request displays its saved numeric preference", async () => {
+  test("when expanding a flight request, displays its saved numeric preference", async () => {
     // Arrange
     const flightRequest = {
       id: 11,
@@ -71,7 +71,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     expect(preferenceField?.get("input").element.value).toBe("2")
   })
 
-  test("collapsing a restored expanded row removes its options", async () => {
+  test("when collapsing a restored expanded row, removes its options", async () => {
     // Arrange
     const flightRequest = {
       id: 11,
@@ -118,7 +118,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     ).toBe(false)
   })
 
-  test("a restored query expands the matching flight request and restores its options page", async () => {
+  test("when restoring an expanded flight request, displays its saved options page", async () => {
     // Arrange
     const whitehorseToVancouver = {
       id: 11,
@@ -165,6 +165,7 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     })
     await router.isReady()
 
+    // Act
     const wrapper = mount(TravelDeskFlightRequestsManageTable, {
       props: { showFlightOptions: true },
       global: { plugins: [vuetify, router] },
