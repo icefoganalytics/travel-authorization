@@ -42,6 +42,11 @@ Guidelines:
 `tests/setup.ts` enables `enableAutoUnmount(afterEach)`, so wrappers are cleaned up automatically.
 Explicitly unmount a wrapper only when unmounting is the behavior under test.
 
+Component tests use Vue Test Utils with real Vuetify controls. Add
+`// @vitest-environment jsdom` to the test file; utility tests keep the default Node environment.
+Mock external API boundaries, not the form's location-selection logic, and unmount attached
+components after each test.
+
 Example shape:
 
 ```typescript
