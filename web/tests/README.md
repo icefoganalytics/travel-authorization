@@ -23,6 +23,8 @@ web/tests/
 Frontend tests should mirror the source structure as closely as practical and focus on user-visible
 behavior.
 
+<!-- marlens-test-alignment: one-direct-expect -->
+
 Guidelines:
 
 1. Use `test`, not `it`
@@ -65,8 +67,9 @@ fails directly, rather than allowing optional chaining to produce `undefined`.
   every text field, filtering by its label, and mapping values into a separate summary array.
 - Keep `expect` targets direct: an input's value, an emitted event, a real query object, or the
   composable's returned state. Put literal expected values beside the assertion.
-- Prefer one meaningful assertion for one contract. Clear direct assertions may cover related facts
-  that jointly prove that contract; split independently meaningful outcomes into separate scenarios.
+- Use exactly one meaningful `expect(...)` per test, in the final Assert section. Assert a real
+  returned object or ordered collection for a coupled contract; split independent outcomes into
+  separate scenarios. Expectations inside synchronization callbacks also count.
 - For a rendered collection, assert its exact ordered contents with one `toEqual` array, using
   `expect.objectContaining` for relevant DOM properties. Select the controls before `expect`;
   avoid separate length and per-item assertions for the same collection outcome.
