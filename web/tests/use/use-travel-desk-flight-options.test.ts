@@ -67,17 +67,52 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
   })
 
   describe("useTravelDeskFlightOptions", () => {
-    test("when the query changes during a request, cancels the stale request and keeps the latest request loading", async () => {
+    test("when the query changes during a request, cancels the stale request", async () => {
       // Arrange
       const staleRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       const latestRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       let staleSignal: AbortSignal | undefined
-      let latestSignal: AbortSignal | undefined
       travelDeskFlightOptionsApiMock.list
         .mockImplementationOnce((_params, requestOptions = {}) => {
           staleSignal = requestOptions.signal
           return rejectWhenAborted(staleRequest, staleSignal)
         })
+        .mockImplementationOnce((_params, requestOptions = {}) =>
+          rejectWhenAborted(latestRequest, requestOptions.signal)
+        )
+
+      const options = ref({ page: 1, perPage: 10 })
+      const shouldSkipWatch = ref(true)
+      scope = effectScope()
+      const composable = scope.run(() =>
+        useTravelDeskFlightOptions(options, {
+          skipWatchIf: () => shouldSkipWatch.value,
+        })
+      )
+      if (isUndefined(composable)) {
+        throw new Error("Composable must run inside its effect scope")
+      }
+
+      // Act
+      const staleFetch = composable.fetch()
+      options.value.page = 2
+      shouldSkipWatch.value = false
+      await nextTick()
+      await staleFetch
+
+      // Assert
+      expect(staleSignal).toMatchObject({ aborted: true })
+    })
+
+    test("when a replacement request is pending, keeps it active", async () => {
+      // Arrange
+      const staleRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
+      const latestRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
+      let latestSignal: AbortSignal | undefined
+      travelDeskFlightOptionsApiMock.list
+        .mockImplementationOnce((_params, requestOptions = {}) =>
+          rejectWhenAborted(staleRequest, requestOptions.signal)
+        )
         .mockImplementationOnce((_params, requestOptions = {}) => {
           latestSignal = requestOptions.signal
           return rejectWhenAborted(latestRequest, latestSignal)
@@ -103,12 +138,47 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
       await staleFetch
 
       // Assert
-      expect(staleSignal).toMatchObject({ aborted: true })
       expect(latestSignal).toMatchObject({ aborted: false })
-      expect(composable.travelDeskFlightOptions.value).toEqual([])
-      expect(composable.totalCount.value).toBe(0)
-      expect(composable.isErrored.value).toBe(false)
-      expect(composable.isLoading.value).toBe(true)
+    })
+
+    test("when a replacement request is pending, keeps the latest request loading", async () => {
+      // Arrange
+      const staleRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
+      const latestRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
+      travelDeskFlightOptionsApiMock.list
+        .mockImplementationOnce((_params, requestOptions = {}) =>
+          rejectWhenAborted(staleRequest, requestOptions.signal)
+        )
+        .mockImplementationOnce((_params, requestOptions = {}) =>
+          rejectWhenAborted(latestRequest, requestOptions.signal)
+        )
+
+      const options = ref({ page: 1, perPage: 10 })
+      const shouldSkipWatch = ref(true)
+      scope = effectScope()
+      const composable = scope.run(() =>
+        useTravelDeskFlightOptions(options, {
+          skipWatchIf: () => shouldSkipWatch.value,
+        })
+      )
+      if (isUndefined(composable)) {
+        throw new Error("Composable must run inside its effect scope")
+      }
+
+      // Act
+      const staleFetch = composable.fetch()
+      options.value.page = 2
+      shouldSkipWatch.value = false
+      await nextTick()
+      await staleFetch
+
+      // Assert
+      expect(composable).toMatchObject({
+        travelDeskFlightOptions: { value: [] },
+        totalCount: { value: 0 },
+        isErrored: { value: false },
+        isLoading: { value: true },
+      })
     })
 
     test("when the latest request succeeds, displays its results and clears loading", async () => {
@@ -138,13 +208,15 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
       await flushPromises()
 
       // Assert
-      expect(composable.travelDeskFlightOptions.value).toEqual([latestOption])
-      expect(composable.totalCount.value).toBe(20)
-      expect(composable.isErrored.value).toBe(false)
-      expect(composable.isLoading.value).toBe(false)
+      expect(composable).toMatchObject({
+        travelDeskFlightOptions: { value: [latestOption] },
+        totalCount: { value: 20 },
+        isErrored: { value: false },
+        isLoading: { value: false },
+      })
     })
 
-    test("when the effect scope is disposed during a request, cancels it without marking an error", async () => {
+    test("when the effect scope is disposed during a request, cancels it", async () => {
       // Arrange
       const pendingRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
       let requestSignal: AbortSignal | undefined
@@ -171,7 +243,35 @@ describe("web/src/use/use-travel-desk-flight-options.js", () => {
 
       // Assert
       expect(requestSignal).toMatchObject({ aborted: true })
-      expect(composable.isErrored.value).toBe(false)
+    })
+
+    test("when the effect scope is disposed during a request, does not mark it errored", async () => {
+      // Arrange
+      const pendingRequest = createDeferredPromise<TravelDeskFlightOptionsResponse>()
+      travelDeskFlightOptionsApiMock.list.mockImplementationOnce((_params, requestOptions = {}) =>
+        rejectWhenAborted(pendingRequest, requestOptions.signal)
+      )
+
+      const shouldSkipWatch = ref(true)
+      scope = effectScope()
+      const composable = scope.run(() =>
+        useTravelDeskFlightOptions(ref({ page: 1, perPage: 10 }), {
+          skipWatchIf: () => shouldSkipWatch.value,
+        })
+      )
+      if (isUndefined(composable)) {
+        throw new Error("Composable must run inside its effect scope")
+      }
+      const pendingFetch = composable.fetch()
+
+      // Act
+      scope.stop()
+      await pendingFetch
+
+      // Assert
+      expect(composable).toMatchObject({
+        isErrored: { value: false },
+      })
     })
 
     test("when an API request fails, preserves the error for its caller", async () => {

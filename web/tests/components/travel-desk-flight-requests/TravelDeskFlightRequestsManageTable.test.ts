@@ -116,6 +116,65 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     expect(optionCards).toEqual([])
   })
 
+  test("when restoring an expanded flight request, marks its row as expanded", async () => {
+    // Arrange
+    const whitehorseToVancouver = {
+      id: 11,
+      travelRequestId: 1,
+      departLocation: "Whitehorse",
+      arriveLocation: "Vancouver",
+      datePreference: "2026-11-01",
+      timePreference: "Anytime",
+      seatPreference: "Any",
+      createdAt: "2026-10-01T00:00:00.000Z",
+      updatedAt: "2026-10-01T00:00:00.000Z",
+    }
+    const vancouverToWhitehorse = {
+      id: 12,
+      travelRequestId: 1,
+      departLocation: "Vancouver",
+      arriveLocation: "Whitehorse",
+      datePreference: "2026-11-03",
+      timePreference: "Anytime",
+      seatPreference: "Any",
+      createdAt: "2026-10-01T00:00:00.000Z",
+      updatedAt: "2026-10-01T00:00:00.000Z",
+    }
+    flightRequestsApiMock.list.mockResolvedValue({
+      travelDeskFlightRequests: [whitehorseToVancouver, vancouverToWhitehorse],
+      totalCount: 2,
+    })
+    flightOptionsApiMock.list.mockResolvedValue({
+      travelDeskFlightOptions: travelDeskFlightOptionFactory.buildList(7, {
+        flightRequestId: 12,
+      }),
+      totalCount: 7,
+    })
+    flightSegmentsApiMock.list.mockResolvedValue({
+      travelDeskFlightSegments: [],
+      totalCount: 0,
+    })
+    const router = mockRouter([{ path: "/", component: TravelDeskFlightRequestsManageTable }])
+    await router.push({
+      path: "/",
+      query: { expandTravelDeskFlightRequest: "12", pageFlightOptions12: "2" },
+    })
+    await router.isReady()
+
+    // Act
+    const wrapper = mount(TravelDeskFlightRequestsManageTable, {
+      props: { showFlightOptions: true },
+      global: { plugins: [vuetify, router] },
+    })
+    await flushPromises()
+
+    // Assert
+    const flightRequestRows = wrapper.findAll("tbody tr.v-data-table__tr")
+    const returnLegRow = flightRequestRows[1]
+    const expansionButton = returnLegRow.get("button[aria-expanded]")
+    expect(expansionButton.attributes("aria-expanded")).toBe("true")
+  })
+
   test("when restoring an expanded flight request, displays its saved options page", async () => {
     // Arrange
     const whitehorseToVancouver = {
@@ -171,11 +230,15 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     await flushPromises()
 
     // Assert
-    const rows = wrapper.findAll("tbody tr.v-data-table__tr")
-    const restoredFlightRequestRow = rows[1]
-    const restoredOptionCard = wrapper.getComponent(TravelDeskFlightOptionCard)
-    const preferenceInput = restoredOptionCard.get("input").element
-    expect(restoredFlightRequestRow.get("td").text()).toBe("Vancouver")
-    expect(preferenceInput.value).toBe("6")
+    const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
+    const preferenceInputs = optionCards.map((card) => card.get("input").element)
+    expect(preferenceInputs).toEqual([
+      expect.objectContaining({
+        value: "6",
+      }),
+      expect.objectContaining({
+        value: "7",
+      }),
+    ])
   })
 })

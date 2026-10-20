@@ -116,11 +116,9 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const firstLegPager = firstLeg.getComponent(VPagination)
-        const secondLeg = wrapper.findAllComponents(TravelDeskFlightOptionsDataIterator)[1]
-        const secondLegPager = secondLeg.getComponent(VPagination)
-        expect(firstLegPager.props("modelValue")).toBe(2)
-        expect(secondLegPager.props("modelValue")).toBe(3)
+        const pagers = wrapper.findAllComponents(VPagination)
+        const displayedPages = pagers.map((pager) => pager.props("modelValue"))
+        expect(displayedPages).toEqual([2, 3])
       })
 
       test("when the caller configures three options per page, renders the requested server page", async () => {
@@ -277,13 +275,12 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const firstPager = wrapper.findAllComponents(VPagination)[0]
-        const secondPager = wrapper.findAllComponents(VPagination)[1]
-        expect(firstPager.props("length")).toBe(4)
-        expect(secondPager.props("length")).toBe(3)
+        const pagers = wrapper.findAllComponents(VPagination)
+        const pageCounts = pagers.map((pager) => pager.props("length"))
+        expect(pageCounts).toEqual([4, 3])
       })
 
-      test("when all options fit on one page, keeps the pager visible with navigation disabled", async () => {
+      test("when all options fit on one page, displays page one", async () => {
         // Arrange
         travelDeskFlightOptionsApiMock.list.mockResolvedValue({
           travelDeskFlightOptions: travelDeskFlightOptionFactory.buildList(2),
@@ -302,18 +299,42 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
 
         // Assert
         const currentPageButton = wrapper.get('button[aria-current="true"]')
-        const previousPageButton = wrapper.get<HTMLButtonElement>(
-          'button[aria-label="Previous page"]'
-        ).element
-        const nextPageButton = wrapper.get<HTMLButtonElement>(
-          'button[aria-label="Next page"]'
-        ).element
         expect(currentPageButton.text()).toBe("1")
-        expect(previousPageButton.disabled).toBe(true)
-        expect(nextPageButton.disabled).toBe(true)
       })
 
-      test("when there are no options, keeps the empty message and disabled pager visible", async () => {
+      test("when all options fit on one page, disables pager navigation", async () => {
+        // Arrange
+        travelDeskFlightOptionsApiMock.list.mockResolvedValue({
+          travelDeskFlightOptions: travelDeskFlightOptionFactory.buildList(2),
+          totalCount: 2,
+        })
+        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
+        await router.push("/")
+        await router.isReady()
+
+        // Act
+        const wrapper = mount(TravelDeskFlightOptionsDataIterator, {
+          props: { routeQuerySuffix: "FlightOptions1" },
+          global: { plugins: [vuetify, router] },
+        })
+        await flushPromises()
+
+        // Assert
+        const navigationButtons = [
+          wrapper.get<HTMLButtonElement>('button[aria-label="Previous page"]').element,
+          wrapper.get<HTMLButtonElement>('button[aria-label="Next page"]').element,
+        ]
+        expect(navigationButtons).toEqual([
+          expect.objectContaining({
+            disabled: true,
+          }),
+          expect.objectContaining({
+            disabled: true,
+          }),
+        ])
+      })
+
+      test("when there are no options, displays the empty message", async () => {
         // Arrange
         travelDeskFlightOptionsApiMock.list.mockResolvedValue({
           travelDeskFlightOptions: [],
@@ -332,15 +353,39 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
 
         // Assert
         const emptyMessage = wrapper.get("p")
-        const previousPageButton = wrapper.get<HTMLButtonElement>(
-          'button[aria-label="Previous page"]'
-        ).element
-        const nextPageButton = wrapper.get<HTMLButtonElement>(
-          'button[aria-label="Next page"]'
-        ).element
         expect(emptyMessage.text()).toBe("No flight options available.")
-        expect(previousPageButton.disabled).toBe(true)
-        expect(nextPageButton.disabled).toBe(true)
+      })
+
+      test("when there are no options, disables pager navigation", async () => {
+        // Arrange
+        travelDeskFlightOptionsApiMock.list.mockResolvedValue({
+          travelDeskFlightOptions: [],
+          totalCount: 0,
+        })
+        const router = mockRouter([{ path: "/", component: TravelDeskFlightOptionsDataIterator }])
+        await router.push("/")
+        await router.isReady()
+
+        // Act
+        const wrapper = mount(TravelDeskFlightOptionsDataIterator, {
+          props: { routeQuerySuffix: "FlightOptions1" },
+          global: { plugins: [vuetify, router] },
+        })
+        await flushPromises()
+
+        // Assert
+        const navigationButtons = [
+          wrapper.get<HTMLButtonElement>('button[aria-label="Previous page"]').element,
+          wrapper.get<HTMLButtonElement>('button[aria-label="Next page"]').element,
+        ]
+        expect(navigationButtons).toEqual([
+          expect.objectContaining({
+            disabled: true,
+          }),
+          expect.objectContaining({
+            disabled: true,
+          }),
+        ])
       })
     })
 
