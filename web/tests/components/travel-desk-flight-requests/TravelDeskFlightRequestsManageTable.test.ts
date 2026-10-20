@@ -1,5 +1,4 @@
 import { flushPromises, mount } from "@vue/test-utils"
-import { VTextField } from "vuetify/components"
 
 import travelDeskFlightOptionsApi from "@/api/travel-desk-flight-options-api"
 import travelDeskFlightRequestsApi from "@/api/travel-desk-flight-requests-api"
@@ -9,6 +8,7 @@ import { mockRouter, mockVuetify } from "@/tests/support"
 import travelDeskFlightOptionFactory from "@/tests/factories/travel-desk-flight-option-factory"
 
 import TravelDeskFlightRequestsManageTable from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsManageTable.vue"
+import TravelDeskFlightOptionCard from "@/components/travel-desk-flight-options/TravelDeskFlightOptionCard.vue"
 
 vi.mock("@/api/http-client", () => ({
   default: {},
@@ -65,10 +65,9 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     await flushPromises()
 
     // Assert
-    const preferenceField = wrapper
-      .findAllComponents(VTextField)
-      .find((field) => field.props("label") === "Preference")
-    expect(preferenceField?.get("input").element.value).toBe("2")
+    const expandedOptionCard = wrapper.getComponent(TravelDeskFlightOptionCard)
+    const preferenceInput = expandedOptionCard.get("input").element
+    expect(preferenceInput.value).toBe("2")
   })
 
   test("when collapsing a restored expanded row, removes its options", async () => {
@@ -113,9 +112,8 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
     await flushPromises()
 
     // Assert
-    expect(
-      wrapper.findAllComponents(VTextField).some((field) => field.props("label") === "Preference")
-    ).toBe(false)
+    const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
+    expect(optionCards).toEqual([])
   })
 
   test("when restoring an expanded flight request, displays its saved options page", async () => {
@@ -174,11 +172,10 @@ describe("web/src/components/travel-desk-flight-requests/TravelDeskFlightRequest
 
     // Assert
     const rows = wrapper.findAll("tbody tr.v-data-table__tr")
-    const restoredRow = rows[1]
-    expect(restoredRow.get("td").text()).toBe("Vancouver")
-    const preferenceField = wrapper
-      .findAllComponents(VTextField)
-      .find((field) => field.props("label") === "Preference")
-    expect(preferenceField?.get("input").element.value).toBe("6")
+    const restoredFlightRequestRow = rows[1]
+    const restoredOptionCard = wrapper.getComponent(TravelDeskFlightOptionCard)
+    const preferenceInput = restoredOptionCard.get("input").element
+    expect(restoredFlightRequestRow.get("td").text()).toBe("Vancouver")
+    expect(preferenceInput.value).toBe("6")
   })
 })

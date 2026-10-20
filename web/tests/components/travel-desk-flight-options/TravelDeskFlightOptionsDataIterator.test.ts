@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils"
-import { VPagination, VTextField } from "vuetify/components"
+import { VPagination } from "vuetify/components"
 
 import travelDeskFlightOptionsApi, { DOES_NOT_WORK } from "@/api/travel-desk-flight-options-api"
 import travelDeskFlightSegmentsApi from "@/api/travel-desk-flight-segments-api"
@@ -8,6 +8,7 @@ import { mockRouter, mockVuetify } from "@/tests/support"
 import travelDeskFlightOptionFactory from "@/tests/factories/travel-desk-flight-option-factory"
 
 import TravelDeskFlightOptionsDataIterator from "@/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.vue"
+import TravelDeskFlightOptionCard from "@/components/travel-desk-flight-options/TravelDeskFlightOptionCard.vue"
 
 vi.mock("@/api/http-client", () => ({
   default: {},
@@ -57,16 +58,18 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const preferenceFields = wrapper
-          .findAllComponents(VTextField)
-          .filter((field) => field.props("label") === "Preference")
-        expect(preferenceFields.map((field) => field.get("input").element.value)).toEqual([
-          "6",
-          "7",
-          "8",
-          "9",
-          "10",
-        ])
+        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
+        const firstPreferenceInput = optionCards[0].get("input").element
+        const secondPreferenceInput = optionCards[1].get("input").element
+        const thirdPreferenceInput = optionCards[2].get("input").element
+        const fourthPreferenceInput = optionCards[3].get("input").element
+        const fifthPreferenceInput = optionCards[4].get("input").element
+        expect(optionCards).toHaveLength(5)
+        expect(firstPreferenceInput.value).toBe("6")
+        expect(secondPreferenceInput.value).toBe("7")
+        expect(thirdPreferenceInput.value).toBe("8")
+        expect(fourthPreferenceInput.value).toBe("9")
+        expect(fifthPreferenceInput.value).toBe("10")
       })
 
       test("when advancing the first leg, leaves the second leg on its selected page", async () => {
@@ -106,9 +109,11 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        expect(
-          wrapper.findAll('button[aria-current="true"]').map((button) => button.text())
-        ).toEqual(["2", "3"])
+        const firstLegPager = firstLeg.getComponent(VPagination)
+        const secondLeg = wrapper.findAllComponents(TravelDeskFlightOptionsDataIterator)[1]
+        const secondLegPager = secondLeg.getComponent(VPagination)
+        expect(firstLegPager.props("modelValue")).toBe(2)
+        expect(secondLegPager.props("modelValue")).toBe(3)
       })
 
       test("when the caller configures three options per page, renders the requested server page", async () => {
@@ -149,14 +154,14 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const preferenceFields = wrapper
-          .findAllComponents(VTextField)
-          .filter((field) => field.props("label") === "Preference")
-        expect(preferenceFields.map((field) => field.get("input").element.value)).toEqual([
-          "4",
-          "5",
-          "6",
-        ])
+        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
+        const firstPreferenceInput = optionCards[0].get("input").element
+        const secondPreferenceInput = optionCards[1].get("input").element
+        const thirdPreferenceInput = optionCards[2].get("input").element
+        expect(optionCards).toHaveLength(3)
+        expect(firstPreferenceInput.value).toBe("4")
+        expect(secondPreferenceInput.value).toBe("5")
+        expect(thirdPreferenceInput.value).toBe("6")
       })
 
       test("when the URL overrides the caller's page size, restores the URL-sized server page", async () => {
@@ -197,13 +202,12 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const preferenceFields = wrapper
-          .findAllComponents(VTextField)
-          .filter((field) => field.props("label") === "Preference")
-        expect(preferenceFields.map((field) => field.get("input").element.value)).toEqual([
-          "3",
-          "4",
-        ])
+        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
+        const firstPreferenceInput = optionCards[0].get("input").element
+        const secondPreferenceInput = optionCards[1].get("input").element
+        expect(optionCards).toHaveLength(2)
+        expect(firstPreferenceInput.value).toBe("3")
+        expect(secondPreferenceInput.value).toBe("4")
       })
 
       test("when both legs have URL page sizes, keeps their page counts independent", async () => {
@@ -257,9 +261,10 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        expect(
-          wrapper.findAllComponents(VPagination).map((pager) => pager.props("length"))
-        ).toEqual([4, 3])
+        const firstPager = wrapper.findAllComponents(VPagination)[0]
+        const secondPager = wrapper.findAllComponents(VPagination)[1]
+        expect(firstPager.props("length")).toBe(4)
+        expect(secondPager.props("length")).toBe(3)
       })
 
       test("when all options fit on one page, keeps the pager visible with navigation disabled", async () => {
@@ -280,11 +285,16 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        expect(wrapper.get('button[aria-current="true"]').text()).toBe("1")
-        expect(
-          wrapper.get('button[aria-label="Previous page"]').attributes("disabled")
-        ).toBeDefined()
-        expect(wrapper.get('button[aria-label="Next page"]').attributes("disabled")).toBeDefined()
+        const currentPageButton = wrapper.get('button[aria-current="true"]')
+        const previousPageButton = wrapper.get<HTMLButtonElement>(
+          'button[aria-label="Previous page"]'
+        ).element
+        const nextPageButton = wrapper.get<HTMLButtonElement>(
+          'button[aria-label="Next page"]'
+        ).element
+        expect(currentPageButton.text()).toBe("1")
+        expect(previousPageButton.disabled).toBe(true)
+        expect(nextPageButton.disabled).toBe(true)
       })
 
       test("when there are no options, keeps the empty message and disabled pager visible", async () => {
@@ -305,11 +315,16 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        expect(wrapper.text()).toContain("No flight options available.")
-        expect(
-          wrapper.get('button[aria-label="Previous page"]').attributes("disabled")
-        ).toBeDefined()
-        expect(wrapper.get('button[aria-label="Next page"]').attributes("disabled")).toBeDefined()
+        const emptyMessage = wrapper.get("p")
+        const previousPageButton = wrapper.get<HTMLButtonElement>(
+          'button[aria-label="Previous page"]'
+        ).element
+        const nextPageButton = wrapper.get<HTMLButtonElement>(
+          'button[aria-label="Next page"]'
+        ).element
+        expect(emptyMessage.text()).toBe("No flight options available.")
+        expect(previousPageButton.disabled).toBe(true)
+        expect(nextPageButton.disabled).toBe(true)
       })
     })
 
@@ -343,13 +358,11 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        const preferenceFields = wrapper
-          .findAllComponents(VTextField)
-          .filter((field) => field.props("label") === "Preference")
-        expect(preferenceFields.map((field) => field.get("input").element.value)).toEqual([
-          "Does Not Work",
-          "Not Ranked",
-        ])
+        const optionCards = wrapper.findAllComponents(TravelDeskFlightOptionCard)
+        const rejectedPreferenceInput = optionCards[0].get("input").element
+        const unrankedPreferenceInput = optionCards[1].get("input").element
+        expect(rejectedPreferenceInput.value).toBe("Does Not Work")
+        expect(unrankedPreferenceInput.value).toBe("Not Ranked")
       })
 
       test("when a rejected option has an explanation, displays the traveler's note", async () => {
@@ -378,7 +391,8 @@ describe("web/src/components/travel-desk-flight-options/TravelDeskFlightOptionsD
         await flushPromises()
 
         // Assert
-        expect(wrapper.get("textarea").element.value).toEqual("Arrives too late for the meeting.")
+        const rejectionNote = wrapper.get("textarea").element
+        expect(rejectionNote.value).toBe("Arrives too late for the meeting.")
       })
     })
   })

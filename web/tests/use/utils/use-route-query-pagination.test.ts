@@ -1,48 +1,40 @@
 import { flushPromises, mount } from "@vue/test-utils"
+import { isUndefined } from "lodash"
 import { defineComponent, type Ref } from "vue"
 
 import { mockRouter } from "@/tests/support"
 import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 
-type PaginationOptions = Parameters<typeof useRouteQueryPagination>[0]
 type PaginationState = {
   page: Ref<number>
   perPage: Ref<number>
 }
 
-async function mountPagination(url: string, options: PaginationOptions = {}) {
-  const router = mockRouter([{ path: "/", component: { render: () => null } }])
-  await router.push(url)
-  await router.isReady()
-
-  let pagination: PaginationState | undefined
-  const host = defineComponent({
-    setup() {
-      pagination = useRouteQueryPagination(options)
-      return () => null
-    },
-  })
-  mount(host, {
-    global: {
-      plugins: [router],
-    },
-  })
-
-  if (pagination === undefined) throw new Error("Pagination composable was not mounted")
-
-  await flushPromises()
-
-  return { pagination, router }
-}
-
 describe("web/src/use/utils/use-route-query-pagination.ts", () => {
   describe("useRouteQueryPagination", () => {
-    test("when the caller has valid defaults and the URL has no pagination, keeps those defaults", async () => {
+    test("when the URL has no pagination, keeps the caller's valid defaults", async () => {
       // Arrange
-      const options = { page: 4, perPage: 25 }
+      const router = mockRouter([{ path: "/", component: { render: () => null } }])
+      await router.push("/")
+      await router.isReady()
 
+      let pagination: PaginationState | undefined
+      const host = defineComponent({
+        setup() {
+          pagination = useRouteQueryPagination({ page: 4, perPage: 25 })
+          return () => null
+        },
+      })
       // Act
-      const { pagination, router } = await mountPagination("/", options)
+      mount(host, {
+        global: {
+          plugins: [router],
+        },
+      })
+      if (isUndefined(pagination)) {
+        throw new Error("Pagination composable was not mounted")
+      }
+      await flushPromises()
 
       // Assert
       expect(pagination.page.value).toBe(4)
@@ -53,10 +45,26 @@ describe("web/src/use/utils/use-route-query-pagination.ts", () => {
 
     test("when the pager writes new values, updates the corresponding URL query values", async () => {
       // Arrange
-      const { pagination, router } = await mountPagination("/", {
-        page: 4,
-        perPage: 25,
+      const router = mockRouter([{ path: "/", component: { render: () => null } }])
+      await router.push("/")
+      await router.isReady()
+
+      let pagination: PaginationState | undefined
+      const host = defineComponent({
+        setup() {
+          pagination = useRouteQueryPagination({ page: 4, perPage: 25 })
+          return () => null
+        },
       })
+      mount(host, {
+        global: {
+          plugins: [router],
+        },
+      })
+      if (isUndefined(pagination)) {
+        throw new Error("Pagination composable was not mounted")
+      }
+      await flushPromises()
 
       // Act
       pagination.page.value = 6
@@ -70,7 +78,7 @@ describe("web/src/use/utils/use-route-query-pagination.ts", () => {
       expect(router.currentRoute.value.query.perPage).toBe("60")
     })
 
-    test("when collections use suffixes, keeps their URL state independent", async () => {
+    test("when one collection page changes, preserves the other collection's URL state", async () => {
       // Arrange
       const router = mockRouter([{ path: "/", component: { render: () => null } }])
       await router.push("/?pageTraveller=2&perPageTraveller=5&pageFlights=4&perPageFlights=9")
@@ -90,8 +98,11 @@ describe("web/src/use/utils/use-route-query-pagination.ts", () => {
           plugins: [router],
         },
       })
-      if (travellerPagination === undefined || flightsPagination === undefined) {
-        throw new Error("Pagination composables were not mounted")
+      if (isUndefined(travellerPagination)) {
+        throw new Error("Traveller pagination composable was not mounted")
+      }
+      if (isUndefined(flightsPagination)) {
+        throw new Error("Flights pagination composable was not mounted")
       }
       await flushPromises()
 
