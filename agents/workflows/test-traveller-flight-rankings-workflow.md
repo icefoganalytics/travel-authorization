@@ -54,7 +54,8 @@ Sign in as the administrator and open the prepared request through **Travel Desk
 5. Refresh. Verify the outbound row remains expanded on page **2**. The URL should retain
    `expandTravelDeskFlightRequest=<outbound-id>` and `pageFlightOptions<outbound-id>=2`.
 6. Click **View Options and Rankings** for the return row. Verify its two saved preferences are
-   `2` and `1`. Switch back to the outbound row and verify its page **2** selection is retained.
+   `2` and `1`, with a visible single-page pager and disabled previous/next controls. Switch back to
+   the outbound row and verify its page **2** selection is retained.
 7. Click **Hide Options and Rankings**. Verify the alternatives disappear and the control returns
    to **View Options and Rankings**. Reopen it and verify its saved page is retained.
 8. At phone width, verify the entry link and option pager fit the document. The flight-request table
@@ -72,6 +73,8 @@ Use disposable options belonging only to this QA request:
   rather than a numeric rank or rejection.
 - Set `perPageFlightOptions<flight-request-id>=3` in the booking URL. Verify three options per page
   and the corresponding page count survive refresh. Restore the default after the check.
+- On a flight request with no options, verify **No flight options available.** and a visible pager
+  with disabled previous/next controls.
 
 The [iterator regressions](../../web/tests/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.test.ts),
 [request-cancellation regressions](../../web/tests/use/use-travel-desk-flight-options.test.ts), and
