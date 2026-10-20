@@ -59,9 +59,11 @@ describe("web/src/components/example/ExampleCard.vue", () => {
 ## Readable Assertions
 
 The final assertion should make the expected behavior obvious without tracing a query or transformation.
-Select the relevant card, input, event, or returned state into an explanatory variable immediately
-above its expectation. Prefer `get`/`getComponent` for controls that must exist so a missing control
-fails directly, rather than allowing optional chaining to produce `undefined`.
+Select the final input, event, collection, or returned state into an explanatory variable immediately
+above its expectation. Combine straightforward lookup and selection chains; keep an intermediate
+variable only when it is reused or clarifies the scenario. Prefer `get`/`getComponent` for controls
+that must exist so a missing control fails directly, rather than allowing optional chaining to
+produce `undefined`.
 
 - Scope repeated fields to the relevant component or card before selecting a control. Avoid collecting
   every text field, filtering by its label, and mapping values into a separate summary array.
