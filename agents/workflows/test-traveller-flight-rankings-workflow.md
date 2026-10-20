@@ -42,8 +42,8 @@ screens and URLs; do not assume they match or reuse an ID from a previous sessio
 
 Sign in as the administrator and open the prepared request through **Travel Desk** → **Edit**.
 
-1. Open **5. Review and Manage Booking**. Verify **View Flight Options and Rankings** is the entry
-   point and there is no separate rankings collection on this page.
+1. Open **5. Review and Manage Booking**. Verify the status says that the traveler has ranked their
+   options and **Review Traveler Rankings** links to the existing view, without a second collection.
 2. Follow that link. Verify **2. Travel Request (Booking)** opens at `#flight-requests`, with the
    **2. Flight Requests** heading visible below the application bar.
 3. Click **View Options and Rankings** for the outbound row. Verify the first five alternatives
@@ -67,22 +67,16 @@ stage. Do not mark the booking complete just to review rankings.
 
 Use disposable options belonging only to this QA request:
 
-- Before the traveler assigns preferences, the administrator's existing options view should show
-  **Not Ranked** rather than a numeric rank or rejection. This is a separate pre-submission state,
-  not one of the completed rankings above.
+- Before the traveler assigns preferences, booking review should explain that staff are waiting for
+  the traveler and offer **View Flight Options**. The existing options view should show **Not Ranked**
+  rather than a numeric rank or rejection.
 - Set `perPageFlightOptions<flight-request-id>=3` in the booking URL. Verify three options per page
   and the corresponding page count survive refresh. Restore the default after the check.
-- Open a saved URL with `pageFlightOptions<flight-request-id>=-2` and
-  `perPageFlightOptions<flight-request-id>=0`. Verify valid default pagination, loaded options, and a
-  finite pager. A page size above the API limit of `1000` should also recover to the caller's default.
-- On a separate disposable later-page collection, remove enough options through the flight workspace
-  to invalidate that page. Reopen its saved URL and verify the last available page, not a false empty
-  state. Do not delete the main scenario's alternatives while another reviewer needs them.
 
 The [iterator regressions](../../web/tests/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.test.ts),
-[request-race regressions](../../web/tests/use/use-travel-desk-flight-options.test.ts), and
-[URL-boundary regressions](../../web/tests/use/utils/use-route-query-pagination.test.ts) cover the
-corresponding deterministic cases. A fixture test is not proof of real provider login or a submitted
+[request-cancellation regressions](../../web/tests/use/use-travel-desk-flight-options.test.ts), and
+[independent URL-state regressions](../../web/tests/use/utils/use-route-query-pagination.test.ts)
+cover the corresponding deterministic cases. A fixture test is not proof of real provider login or a submitted
 traveler-to-Travel-Desk workflow.
 
 ## Handoff
