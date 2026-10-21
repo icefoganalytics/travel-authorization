@@ -13,6 +13,9 @@ here instead of expanding top-level project documentation.
 - Prefer explicit props over relying on `$attrs` for meaningful component API behavior.
 - Keep shared context in the parent when practical, and pass it down rather than refetching the
   same record in multiple children.
+- Keep dependent-field rules in the specific form or card: watch its city field to update its
+  province, rather than adding form-specific side effects to a shared location selector.
+- Do not overwrite saved dependent fields when loading or replacing the form's record.
 - Keep date-only form state as date-only values in the UI, and do datetime conversion only at the
   save boundary.
 - Prefer simple one-way helpers over writable proxy computeds when a value is only needed for
