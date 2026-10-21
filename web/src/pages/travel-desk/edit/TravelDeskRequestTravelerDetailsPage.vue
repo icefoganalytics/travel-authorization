@@ -212,7 +212,6 @@
                 item-value="cityUniqueLegacy"
                 :rules="[required]"
                 variant="outlined"
-                @update:province="travelDeskTravelRequest.province = $event"
               />
             </v-col>
             <v-col
@@ -297,7 +296,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watchEffect } from "vue"
+import { computed, watch, watchEffect } from "vue"
 import { isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
@@ -319,6 +318,18 @@ const props = defineProps<{
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 const { travelDeskTravelRequest, isLoading, save, refresh } = useTravelDeskTravelRequest(
   travelDeskTravelRequestIdAsNumber
+)
+
+watch(
+  [travelDeskTravelRequest, () => travelDeskTravelRequest.value?.city],
+  ([request, city], [previousRequest]) => {
+    if (isNil(request) || request !== previousRequest || isNil(city)) return
+
+    const province = city.match(/\(([^()]+)\)$/)?.[1]
+    if (isNil(province)) return
+
+    request.province = province
+  }
 )
 
 const dobMaxDate = computed(() => {

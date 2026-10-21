@@ -186,6 +186,25 @@ describe("web/src/components/travel-desk-travel-requests/TravelerDetailsFormCard
         expect(provinceInput(wrapper).element.value).toBe("Saved province")
       })
 
+      test("when a saved request replaces the form state, its province is retained", async () => {
+        // Arrange
+        const request = reactive({ ...travelDeskTravelRequest })
+        const wrapper = mountForm(request)
+        await flushPromises()
+        await selectCity(wrapper, "Vancouver (BC)")
+
+        // Act
+        await wrapper.setProps({
+          modelValue: reactive({
+            ...travelDeskTravelRequest,
+            province: "Saved province",
+          }),
+        })
+
+        // Assert
+        expect(provinceInput(wrapper).element.value).toBe("Saved province")
+      })
+
       test("when locations finish loading after a manual edit, the edit is retained", async () => {
         // Arrange
         vi.mocked(locationsApi.list).mockImplementation(async () => {

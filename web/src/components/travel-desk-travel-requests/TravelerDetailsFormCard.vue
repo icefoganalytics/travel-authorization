@@ -82,7 +82,6 @@
               item-value="cityUniqueLegacy"
               :rules="[required]"
               variant="outlined"
-              @update:province="travelDeskTravelRequest.province = $event"
             />
           </v-col>
           <v-col
@@ -248,6 +247,19 @@ import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.
 const travelDeskTravelRequest = defineModel<TravelDeskTravelRequest>({
   required: true,
 })
+
+watch(
+  [travelDeskTravelRequest, () => travelDeskTravelRequest.value.city],
+  ([request, city], [previousRequest]) => {
+    if (request !== previousRequest || isNil(city)) return
+
+    // The legacy city value includes the province: "Whitehorse (YT)".
+    const province = city.match(/\(([^()]+)\)$/)?.[1]
+    if (isNil(province)) return
+
+    request.province = province
+  }
+)
 
 const formattedTravelAuthorizationId = computed(() => {
   return travelDeskTravelRequest.value.travelAuthorizationId.toString().padStart(4, "0")

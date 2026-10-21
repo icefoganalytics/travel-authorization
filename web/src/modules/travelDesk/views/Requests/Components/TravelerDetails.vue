@@ -76,7 +76,6 @@
               :error="travelerState.cityErr"
               label="City"
               variant="outlined"
-              @update:province="$emit('update:province', $event)"
             />
           </v-col>
           <v-col cols="2">
@@ -194,6 +193,9 @@
 </template>
 
 <script>
+import { watch } from "vue"
+import { isNil } from "lodash"
+
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 
@@ -216,6 +218,19 @@ export default {
     },
   },
   emits: ["update:province"],
+  setup(props, { emit }) {
+    watch(
+      [() => props.travelerDetails, () => props.travelerDetails.city],
+      ([request, city], [previousRequest]) => {
+        if (props.readonly || request !== previousRequest || isNil(city)) return
+
+        const province = city.match(/\(([^()]+)\)$/)?.[1]
+        if (isNil(province)) return
+
+        emit("update:province", province)
+      }
+    )
+  },
   data() {
     return {
       admin: false,
