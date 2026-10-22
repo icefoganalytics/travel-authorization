@@ -15,6 +15,7 @@ here instead of expanding top-level project documentation.
   same record in multiple children.
 - Keep dependent-field rules in the specific form or card: watch its city field to update its
   province, rather than adding form-specific side effects to a shared location selector.
+  Share repeated value parsing through pure utilities; keep state updates in the form watcher.
 - Do not overwrite saved dependent fields when loading or replacing the form's record.
 - Keep date-only form state as date-only values in the UI, and do datetime conversion only at the
   save boundary.
