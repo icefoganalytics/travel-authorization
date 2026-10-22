@@ -196,6 +196,8 @@
 import { watch } from "vue"
 import { isNil } from "lodash"
 
+import extractProvinceFromCity from "@/utils/extract-province-from-city"
+
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 
@@ -224,7 +226,7 @@ export default {
       ([request, city], [previousRequest]) => {
         if (props.readonly || request !== previousRequest || isNil(city)) return
 
-        const province = city.match(/\(([^()]+)\)$/)?.[1]
+        const province = extractProvinceFromCity(city)
         if (isNil(province)) return
 
         emit("update:province", province)

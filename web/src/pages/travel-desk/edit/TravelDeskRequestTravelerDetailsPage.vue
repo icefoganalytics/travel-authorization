@@ -300,6 +300,7 @@ import { computed, watch, watchEffect } from "vue"
 import { isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
+import extractProvinceFromCity from "@/utils/extract-province-from-city"
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -325,7 +326,7 @@ watch(
   ([request, city], [previousRequest]) => {
     if (isNil(request) || request !== previousRequest || isNil(city)) return
 
-    const province = city.match(/\(([^()]+)\)$/)?.[1]
+    const province = extractProvinceFromCity(city)
     if (isNil(province)) return
 
     request.province = province

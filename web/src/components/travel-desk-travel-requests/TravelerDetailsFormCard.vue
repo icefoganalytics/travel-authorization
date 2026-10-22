@@ -226,6 +226,7 @@
 import { computed, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
+import extractProvinceFromCity from "@/utils/extract-province-from-city"
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 import { type TravelDeskTravelRequest } from "@/api/travel-desk-travel-requests-api"
 
@@ -253,8 +254,7 @@ watch(
   ([request, city], [previousRequest]) => {
     if (request !== previousRequest || isNil(city)) return
 
-    // The legacy city value includes the province: "Whitehorse (YT)".
-    const province = city.match(/\(([^()]+)\)$/)?.[1]
+    const province = extractProvinceFromCity(city)
     if (isNil(province)) return
 
     request.province = province
