@@ -55,6 +55,7 @@
       </v-card>
 
       <TravelDeskFlightRequestsManageCard
+        id="flight-requests"
         class="mt-6"
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
         show-flight-options
@@ -185,17 +186,17 @@ function buildReturnTo(hash: string) {
 }
 
 watch(
-  routeHash,
-  (newRouteHash) => {
-    if (isNil(newRouteHash) || newRouteHash.length === 0) return
+  [routeHash, isLoading],
+  ([newRouteHash, loading]) => {
+    if (loading || isNil(newRouteHash) || newRouteHash.length === 0) return
 
     goTo(newRouteHash, {
       easing: "easeInOutCubic",
-      offset: 75,
+      offset: -75,
       duration: 300,
     })
   },
-  { flush: "post" }
+  { immediate: true, flush: "post" }
 )
 
 const breadcrumbs = computed(() => [

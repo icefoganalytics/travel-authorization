@@ -42,6 +42,18 @@
         />
       </div>
     </template>
+    <template #header.data-table-expand="expandHeaderProps">
+      <slot
+        name="header.data-table-expand"
+        v-bind="expandHeaderProps"
+      ></slot>
+    </template>
+    <template #item.data-table-expand="expandItemProps">
+      <slot
+        name="item.data-table-expand"
+        v-bind="expandItemProps"
+      ></slot>
+    </template>
     <template #expanded-row="expandedRowProps">
       <slot
         name="expanded-row"

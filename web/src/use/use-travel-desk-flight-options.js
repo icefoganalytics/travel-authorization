@@ -1,4 +1,5 @@
-import { reactive, toRefs, ref, unref, watch } from "vue"
+import { isCancel } from "axios"
+import { onScopeDispose, reactive, toRefs, ref, unref, watch } from "vue"
 
 import travelDeskFlightOptionsApi from "@/api/travel-desk-flight-options-api"
 
@@ -12,7 +13,7 @@ import travelDeskFlightOptionsApi from "@/api/travel-desk-flight-options-api"
 /**
  * Provides reactive state management for travel desk flight options with API integration.
  *
- * @param {TravelDeskFlightOptionsQueryOptions} [options=ref({})] - Configuration options containing filters and pagination settings for fetching travel desk flight options.
+ * @param {TravelDeskFlightOptionsQueryOptions | Ref<TravelDeskFlightOptionsQueryOptions>} [options=ref({})] - Configuration options containing filters and pagination settings for fetching travel desk flight options.
  * @param {Object} [{ skipWatchIf = () => false }={}] - Configuration to conditionally skip API calls.
  * @param {Function} [skipWatchIf] - Function that returns a boolean to determine if fetching should be skipped.
  * @returns {{
@@ -32,34 +33,65 @@ export function useTravelDeskFlightOptions(options = ref({}), { skipWatchIf = ()
     isErrored: false,
   })
 
+  let requestController
+
   async function fetch() {
+    requestController?.abort()
+    const controller = new AbortController()
+    requestController = controller
+
     state.isLoading = true
     try {
       const { travelDeskFlightOptions, totalCount } = await travelDeskFlightOptionsApi.list(
-        unref(options)
+        unref(options),
+        { signal: controller.signal }
       )
+      if (controller.signal.aborted) {
+        return state.travelDeskFlightOptions
+      }
+
       state.isErrored = false
       state.travelDeskFlightOptions = travelDeskFlightOptions
       state.totalCount = totalCount
       return travelDeskFlightOptions
     } catch (error) {
+      if (controller.signal.aborted) {
+        return state.travelDeskFlightOptions
+      }
+
+      if (isCancel(error)) {
+        state.isErrored = false
+        return state.travelDeskFlightOptions
+      }
+
       console.error("Failed to fetch travel desk flight options:", error)
       state.isErrored = true
       throw error
     } finally {
-      state.isLoading = false
+      // A superseded request must not hide its replacement's loading state.
+      if (!controller.signal.aborted) {
+        state.isLoading = false
+      }
     }
   }
 
   watch(
     () => [skipWatchIf(), unref(options)],
     async ([skip]) => {
-      if (skip) return
+      if (skip) {
+        requestController?.abort()
+        state.isLoading = false
+        return
+      }
 
       await fetch()
     },
     { deep: true, immediate: true }
   )
+
+  onScopeDispose(() => {
+    requestController?.abort()
+  })
 
   return {
     ...toRefs(state),

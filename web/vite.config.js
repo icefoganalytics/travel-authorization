@@ -48,7 +48,7 @@ export default defineConfig(async ({ command, mode }) => {
     },
     resolve: {
       alias: {
-        "@/tests/support": fileURLToPath(new URL("./tests/support", import.meta.url)),
+        "@/tests": fileURLToPath(new URL("./tests", import.meta.url)),
         "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
       extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
@@ -57,7 +57,19 @@ export default defineConfig(async ({ command, mode }) => {
       port: 8080,
     },
     test: {
+      environment: "jsdom",
       globals: true, // https://vitest.dev/config/#globals
+      server: {
+        deps: {
+          inline: ["vuetify"],
+        },
+      },
+      setupFiles: ["./tests/setup.ts"],
+      clearMocks: true,
+      mockReset: true,
+      restoreMocks: true,
+      unstubEnvs: true,
+      unstubGlobals: true,
     },
   }
 })

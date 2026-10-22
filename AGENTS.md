@@ -257,7 +257,9 @@ See [`COMMITTING.md`](COMMITTING.md) for detailed commit message, PR description
 - Single canonical `CHANGELOG.md` in origin repository
 - Time-based versioning: `vYYYY.MM.DD.i`
 - Origin-only work stays under `## [Unreleased]` — never create version headings for origin-only releases
-- Write entries in user-facing language (what changed and why), not internal class or file names
+- Keep the changelog in Markdown, grouped by Added, Changed, Fixed, or Removed as applicable.
+- Use concise release-note entries: name the affected task, what users can do or what now works, and any material limitation. Follow WRAP's outcome-focused prose, not its YAML storage format.
+- Fold the reason into the outcome when useful; omit separate "Why?" paragraphs, promotional claims, and implementation inventories.
 - Mention non-user-facing changes briefly, such as a single outcome-focused "developer improvements" bullet.
 - Keep technical details in the project knowledge base (nearest README or reference), not changelog entries.
 

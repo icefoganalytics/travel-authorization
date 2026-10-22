@@ -42,19 +42,12 @@
             Waiting for the traveler to rank flight options before booking can be finalized.
           </v-alert>
           <v-alert
-            v-else-if="isOptionsRankedState && !hasInvoiceNumber"
-            type="warning"
-            variant="outlined"
-          >
-            Upload a PNR with an invoice number before marking the booking complete.
-          </v-alert>
-          <v-alert
-            v-else-if="isOptionsRankedState && hasInvoiceNumber"
+            v-else-if="isOptionsRankedState"
             type="info"
             variant="outlined"
           >
-            The traveler has ranked their options. Review the itinerary, then mark the booking
-            complete when finalized.
+            The traveler has ranked their flight options. Review their preferences before finalizing
+            the booking.
           </v-alert>
           <v-alert
             v-else-if="isBookedState || isCompleteState"
@@ -69,6 +62,40 @@
             variant="outlined"
           >
             Unhandled state: {{ travelDeskTravelRequest.status }}
+          </v-alert>
+          <v-btn
+            v-if="isOptionsRankedState"
+            class="mt-4"
+            variant="outlined"
+            prepend-icon="mdi-format-list-numbered"
+            :to="{
+              name: 'travel-desk/edit/TravelDeskRequestTravelRequestPage',
+              params: { travelDeskTravelRequestId },
+              hash: '#flight-requests',
+            }"
+          >
+            Review Traveler Rankings
+          </v-btn>
+          <v-btn
+            v-else
+            class="mt-4"
+            variant="outlined"
+            prepend-icon="mdi-format-list-numbered"
+            :to="{
+              name: 'travel-desk/edit/TravelDeskRequestTravelRequestPage',
+              params: { travelDeskTravelRequestId },
+              hash: '#flight-requests',
+            }"
+          >
+            View Flight Options
+          </v-btn>
+          <v-alert
+            v-if="isOptionsRankedState && !hasInvoiceNumber"
+            class="mt-4"
+            type="warning"
+            variant="outlined"
+          >
+            Upload a PNR with an invoice number before marking the booking complete.
           </v-alert>
         </v-card-text>
       </v-card>
