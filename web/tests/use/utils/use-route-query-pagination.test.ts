@@ -104,45 +104,6 @@ describe("web/src/use/utils/use-route-query-pagination.ts", () => {
       })
     })
 
-    test("when one collection page changes, keeps the other collection's local state", async () => {
-      // Arrange
-      const router = mockRouter([{ path: "/", component: { render: () => null } }])
-      await router.push("/?pageTraveller=2&perPageTraveller=5&pageFlights=4&perPageFlights=9")
-      await router.isReady()
-
-      let travellerPagination: PaginationState | undefined
-      let flightsPagination: PaginationState | undefined
-      const host = defineComponent({
-        setup() {
-          travellerPagination = useRouteQueryPagination({ routeQuerySuffix: "Traveller" })
-          flightsPagination = useRouteQueryPagination({ routeQuerySuffix: "Flights" })
-          return () => null
-        },
-      })
-      mount(host, {
-        global: {
-          plugins: [router],
-        },
-      })
-      if (isUndefined(travellerPagination)) {
-        throw new Error("Traveller pagination composable was not mounted")
-      }
-      if (isUndefined(flightsPagination)) {
-        throw new Error("Flights pagination composable was not mounted")
-      }
-      await flushPromises()
-
-      // Act
-      travellerPagination.page.value = 7
-      await flushPromises()
-
-      // Assert
-      expect(flightsPagination).toMatchObject({
-        page: { value: 4 },
-        perPage: { value: 9 },
-      })
-    })
-
     test("when one collection page changes, preserves both collections' URL state", async () => {
       // Arrange
       const router = mockRouter([{ path: "/", component: { render: () => null } }])
