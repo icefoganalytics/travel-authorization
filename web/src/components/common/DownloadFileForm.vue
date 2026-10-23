@@ -11,7 +11,6 @@
       name="HOISTABLE_AUTHORIZATION_TOKEN"
       :value="accessToken"
     />
-    <slot name="fields" />
     <v-btn
       :block="smAndDown"
       :color="color"
