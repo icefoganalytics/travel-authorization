@@ -1,10 +1,6 @@
 # Services
 
-For the shared backend feature workflow, see the
-[Express Light Rail backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md)
-and its
-[code-organization reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md).
-Project-local service and data-access conventions remain authoritative.
+Load the direct [packaged backend workflow](skill://express-light-rail/workflow.md) and its linked [code-organization reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md) before this local overlay. Other clients use the [corresponding backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release. The root [shared-source contract](../../../AGENTS.md#shared-standards-and-local-authority) governs availability and conflicts; project-local service and data-access conventions remain authoritative.
 
 ## Local Pattern
 

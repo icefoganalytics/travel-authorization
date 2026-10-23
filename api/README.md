@@ -61,7 +61,7 @@ That file defines the loaded environment files and the supported API configurati
 
 ## Shared Backend Library Adoption
 
-Use the [shared backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) for conceptual rails, not as permission to replace TravelAuth's controller, policy, serializer, or service bases. Those local contracts and PostgreSQL/Knex migrations remain authoritative.
+Load the direct [packaged backend workflow](skill://express-light-rail/workflow.md) before applying local guidance; other clients resolve the [corresponding workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release under the root [shared-base contract](../AGENTS.md#shared-standards-and-local-authority). These conceptual rails do not authorize replacing TravelAuth's controller, policy, serializer, or service bases. Those local contracts and PostgreSQL/Knex migrations remain authoritative.
 
 The current lockfile resolves Express **4.18.2**, `@sequelize/core` and `@sequelize/postgres` **7.0.0-alpha.46**, and Knex **3.0.1**. The development API container resolved the same packages on Node **20.19.0**. Recheck the actual environment with `./bin/dev api node --version` and `./bin/dev api npm ls express @sequelize/core @sequelize/postgres knex express-light-rail --depth=0`; declaration ranges alone are not install evidence. `express-light-rail` is neither declared nor locked here and was absent from that installed dependency listing.
 

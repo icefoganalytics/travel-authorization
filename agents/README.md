@@ -4,7 +4,7 @@ TravelAuth keeps project-specific workflows, templates, references, and plans he
 
 ## Start From the Task
 
-Read [AGENTS.md](../AGENTS.md), then the closest subsystem README and the relevant workflow or template. Directory READMEs are discovery aids; read the actual owner before acting.
+Start at [AGENTS.md's shared-base declaration](../AGENTS.md#shared-standards-and-local-authority). Load the task-relevant direct shared workflow before the local workflow or subsystem README's deltas; do not re-enter a selecting skill from its overlay. Use the root source-availability and conflict rules. Directory READMEs are discovery aids, not replacement standards.
 
 | Task                                | Shared owner                                                                                                                                                                                                                                                   | TravelAuth authority                                                                                                                                |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |

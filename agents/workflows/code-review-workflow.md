@@ -4,7 +4,9 @@ description: Review TravelAuth TypeScript changes for correctness, maintainabili
 
 # Code Review Workflow
 
-Use the [shared code-review workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/code-review-workflow.md) for scope discovery, evidence-first findings, simplicity review, and the findings/location/risk/fix output contract. Apply the TravelAuth checks below alongside [AGENTS.md](../../AGENTS.md); local conventions remain authoritative where the shared default differs.
+**Shared base:** Load the direct [packaged code-review workflow](skill://code-review/workflow.md) first; other clients must read the [corresponding workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/code-review-workflow.md) in their verified shared release. Do not invoke the selecting code-review skill from this overlay.
+
+**Local overlay:** Apply only the TravelAuth checks below alongside [AGENTS.md](../../AGENTS.md#shared-standards-and-local-authority). Its source-availability and explicit conflict-decision rules apply; preserve current local conventions rather than silently overriding them.
 
 ## TravelAuth Contract Checks
 

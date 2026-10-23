@@ -2,13 +2,9 @@
 
 This is the TravelAuth backend test suite, using Vitest and Fishery factories.
 
-For the shared backend feature workflow, see the
-[Express Light Rail backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md).
-For scenario-oriented verification, see the shared
-[code-organization reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#scenario-oriented-verification).
-For reusable factory traits and test service shape, see the shared
-[test-factory-traits-and-service-shape workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/skills/test-factory-traits-and-service-shape/workflow.md).
-The project’s test commands, helpers, and conventions below remain authoritative for TravelAuth.
+Load the direct [packaged review workflow](skill://code-review/workflow.md) and its [Scenario-Oriented Verification reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#scenario-oriented-verification) before applying this test overlay. For reusable factory traits, load the direct [factory workflow](skill://test-factory-traits-and-service-shape/workflow.md) when relevant. Other clients resolve the corresponding sources in their verified shared release, as described in the root [shared-base declaration](../../AGENTS.md#shared-standards-and-local-authority).
+
+The commands, helpers, import grouping, and assertion conventions below remain TravelAuth deltas. The direct HTTP status/body pair intentionally exposes one coupled response without a new matcher dependency; it is not two independent outcomes or permission to bundle assertions into synthetic objects. Preserve current local precedence and obtain an explicit owner decision for a genuine conflicting rule.
 
 ## Running Tests
 
