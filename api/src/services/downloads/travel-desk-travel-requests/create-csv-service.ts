@@ -19,9 +19,11 @@ export class CreateCsvService extends BaseService {
       )
     )
 
+    const headers = Object.values(TravelDeskTravelRequestReportHeaders)
+
     return writeToBuffer(csvRows, {
       alwaysWriteHeaders: true,
-      headers: Object.values(TravelDeskTravelRequestReportHeaders),
+      headers,
       includeEndRowDelimiter: true,
       rowDelimiter: "\r\n",
       writeBOM: true,
