@@ -2,6 +2,8 @@
 
 This template is for creating show serializers for backend controllers.
 
+The shared [serializer template](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/templates/backend/express-light-rail/serializer-template.md) covers explicit response projections. This TravelAuth version retains the `BaseSerializer` class, `perform()` entrypoint, user context, eager-loaded association handling, and `AsShow` contract required by the current backend.
+
 ```typescript
 import { isUndefined, pick } from "lodash"
 

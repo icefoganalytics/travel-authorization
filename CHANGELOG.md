@@ -20,7 +20,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Report filters use autocomplete selections and show how many filters are active. Filter selections are saved in the URL for bookmarking and sharing.
 - Reports have separate table, graph, and print views. Flight statistics tables load and sort one page at a time.
 - User administration includes a mailcode field and updated user search and editing controls.
-- Developer improvements: isolated checkout service and database routes, correct-checkout editor access with gem-owned Docker defaults that survives readiness-based startup, and quieter RubyGems startup. Updated test tooling and contributor guidance; removed unused components and dependencies. Web tests share HTTP isolation and component cleanup following WRAP's conventions.
+- Developer improvements: isolated checkout service and database routes, correct-checkout editor access with gem-owned Docker defaults that survives readiness-based startup, and quieter RubyGems startup. Updated test tooling and contributor guidance; removed unused components and dependencies. Web tests share HTTP isolation and component cleanup following WRAP's conventions. Agent guidance now loads verified shared workflow sources before local overlays while preserving TravelAuth's contracts and development commands.
 
 ### Fixed
 

@@ -72,13 +72,11 @@ Every plan should follow this shape:
 - [Issue links]
 ```
 
-## Principles
+## Planning Guidance
 
-- **Programmer-facing.** Describe concrete code changes, rollout slices, validation steps, and cleanup. Keep business context brief — just enough to explain why the implementation matters. Avoid stakeholder-friendly narratives, roadmap prose, and status-report docs.
-- **Sliceable.** Break work into phases that can land, be reviewed, and be verified independently. Group by dependency direction or subsystem boundaries, not by arbitrary file counts. Make it clear what can ship now, what depends on earlier slices, and what should be deleted instead of migrated.
-- **Current.** Update the plan as slices land so the remaining scope stays concise and accurate. End the plan with cleanup work for temporary scaffolding, compatibility code, or migration-only docs.
-- **Minimal.** Include only what helps complete the work. Less is more. Prefer removing unnecessary steps, scaffolding, and stale scope over expanding forever.
-- **Preserve hard-to-rediscover references.** Keep known-good inputs, verified sample values, or validated domain references when they materially help future work.
+Use the shared [Outcome-First Planning Workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/outcome-first-planning-workflow.md) for framing the user outcome, fit-checking examples, aligning with existing project patterns, and bounding implementation risk.
+
+This local overlay defines TravelAuth plan ownership and format: keep plans in `agents/plans/`, use the structure above, and follow the local source-link and naming conventions below. The shared outcome-first template does not replace these project-specific planning conventions.
 
 ## Source Link
 

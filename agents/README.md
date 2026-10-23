@@ -1,90 +1,31 @@
 # AI Agents & Workflows
 
-This directory contains AI workflows and planning documents for TravelAuth.
+TravelAuth keeps project-specific workflows, templates, references, and plans here. Reusable standards belong to [Marlens Skills, Rules, and Tools](https://github.com/klondikemarlen/marlens-skills-rules-and-tools); these directories are overlays, not an alternative shared-skills implementation.
 
-## Important
+## Start From the Task
 
-Directory READMEs under `agents/` are primarily discovery documents.
+Start at [AGENTS.md's shared-base declaration](../AGENTS.md#shared-standards-and-local-authority). Load the task-relevant direct shared workflow before the local workflow or subsystem README's deltas; do not re-enter a selecting skill from its overlay. Use the root source-availability and conflict rules. Directory READMEs are discovery aids, not replacement standards.
 
-Agents should use these READMEs to find relevant workflows or plans, then read the underlying files
-directly. The individual workflow and plan files are the source of truth for task-specific
-instructions.
+| Task                                | Shared owner                                                                                                                                                                                                                                                   | TravelAuth authority                                                                                                                                |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Delivery, review, and pull requests | [Feature delivery](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/feature-workflow.md), [review](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/code-review-workflow.md) | [COMMITTING.md](../COMMITTING.md), [PR overlay](workflows/pull-request-management-workflow.md), [review overlay](workflows/code-review-workflow.md) |
+| Backend features                    | [Backend rails](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md)                                                                                                              | [API overview](../api/README.md), source-adjacent controller/policy/service/serializer READMEs, [local examples](templates/README.md)               |
+| Tests                               | [Scenario-oriented verification](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#scenario-oriented-verification)                                                                     | [API tests](../api/tests/README.md), [UI tests](../web/tests/README.md), [wrapper commands](../bin/README.md#testing)                               |
+| Documentation and plans             | [Knowledge-base workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/project-knowledge-base-workflow.md)                                                                                                        | Nearest subsystem README; [plans](plans/README.md) for accepted rollout/design decisions                                                            |
 
-## Directory Structure
+The [shared precedence reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/guidance-precedence-reference.md) defines the base/overlay relationship. Existing local import/type/test conventions and runtime bases remain in force; following shared conceptual rails does not adopt the `express-light-rail` package.
 
-```text
-agents/
-├── README.md
-├── plans/
-│   └── *.md
-├── references/
-│   ├── README.md
-│   └── *.md
-├── templates/
-│   ├── README.md
-│   └── *.md
-└── workflows/
-    ├── README.md
-    └── *.md
-```
+## Discover Local Material
 
-## Workflows
+- [Workflows](workflows/README.md): project procedures and thin shared entrypoints. PR descriptions, testing instructions, and screenshots continue through the existing [PR overlay](workflows/pull-request-management-workflow.md); [#417](https://github.com/icefoganalytics/travel-authorization/issues/417) owns screenshot reconciliation.
+- [Templates](templates/README.md): concrete local output shapes, including API, serializer, factory, and dialog contracts. Keep an example when it answers a TravelAuth question that shared concepts do not.
+- [References](references/README.md): project facts and constraints. Retain durable knowledge while it explains a current decision; do not delete it merely because it is old.
+- [Plans](plans/README.md): exploratory designs and staged implementation decisions, not active runtime or QA proof.
 
-Workflows are process guidance — step-by-step instructions for complex, multi-step tasks. They cover
-the "how": conversion patterns, review checklists, PR structure, testing instructions.
+Discover files in the relevant directory rather than maintaining another complete static catalog. Keep command authority in [bin/README.md](../bin/README.md) and architectural responsibilities beside their subsystem.
 
-Use [workflows/README.md](./workflows/README.md) to discover the right workflow, then read the
-actual workflow file before acting.
+## Corrections and Learner Routing
 
-For pull request work, agents should usually use:
+Reusable style, workflow, template, and verification improvements go to the [shared owner](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues). TravelAuth domain behavior, authorization, integrations, local commands, and project-specific corrections stay in [this repository](https://github.com/icefoganalytics/travel-authorization/issues).
 
-- `pull-request-management-workflow.md` for PR title and body structure
-- `testing-instructions-workflow.md` for detailed, reviewer-friendly validation steps
-- the project conventions in [AGENTS.md](../AGENTS.md) for code style and broader repo rules
-
-## Templates
-
-Templates show the "what" — end-state code examples for recurring patterns (serializers, factories,
-API modules, dialogs). They are the concrete output a workflow should produce.
-
-Use [templates/README.md](./templates/README.md) to discover the available templates, then read the
-actual template file before using it.
-
-Together, **workflows + templates replace what other tools call "skills"**: process in the workflow,
-end state in the template.
-
-## References
-
-References augment or correct the model's knowledge with project-specific facts. They are not
-process (workflows) or output (templates) — they are pure "know this" content for topics the model
-gets wrong or doesn't know at all.
-
-Examples:
-
-- A tool that renamed itself after the model's training cut-off.
-- A project-specific convention that varies from the default.
-- A lookup pattern (e.g., "how to find a GitHub issue number by topic").
-
-Reference files are expected to become obsolete as models improve. Delete them when the model no
-longer needs the hint.
-
-Use [references/README.md](./references/README.md) for detailed guidance, then read the individual
-reference file whose topic matches your current task.
-
-## Plans
-
-Plans are a separate category — exploratory, multi-phase implementation documents. They are not
-workflows or templates. Plans frame the problem, stage the rollout, and capture schema decisions
-before any code is written.
-
-Use [plans/README.md](./plans/README.md) for naming and structure guidance before creating a new
-plan.
-
-## Best Practices
-
-1. Keep `agents/workflows/*.md` as the single source of truth for workflow behavior.
-2. Treat directory READMEs as indexes, not full task instructions.
-3. Use descriptive workflow names.
-4. Create new dated plan files instead of overwriting older implementation plans.
-5. Prefer discovery guidance over static file inventories in directory READMEs.
-6. Delete reference files when the model no longer needs them — they are temporary by design.
+Use the shared [learner-coverage procedure](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/feature-workflow.md#learner-coverage-during-issue-triage) for evidence-backed coverage decisions. A proposal or prose rule is not an installed verifier, and a plan or historical review is not current runtime QA.

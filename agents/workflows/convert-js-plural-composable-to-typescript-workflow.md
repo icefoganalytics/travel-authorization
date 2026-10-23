@@ -5,6 +5,8 @@ auto_execution_mode: 1
 
 # Convert JavaScript Plural Composable to TypeScript Workflow
 
+Use the shared [TypeScript Migration Slice Workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/typescript-migration-slice-workflow.md) for general slice boundaries, contract-first migration, validation, and cleanup. This local workflow keeps the TravelAuth plural-composable, `AsIndex`, query-option, and legacy-enum compatibility conventions.
+
 ## Intent
 
 **WHY this workflow exists:** JavaScript composables use JSDoc for typing which is verbose and error-prone. TypeScript provides better type inference, cleaner syntax, and catches errors at compile time rather than runtime.

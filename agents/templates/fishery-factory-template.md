@@ -7,6 +7,8 @@ Template for creating TravelAuth test factories under `api/tests/factories/`.
 Use this template when adding or modernizing a factory so the new file matches existing TravelAuth
 factory patterns.
 
+The shared [test factory template](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/templates/backend/express-light-rail/test-factory-template.md) covers valid defaults and unique values. This local Fishery/Sequelize template is the authoritative TravelAuth pattern for `onCreate`, nested association persistence, `BaseFactory` helpers, and factory exports.
+
 ## Simple Factory
 
 Use plain `Factory.define<T>()` when the factory does not need custom helper methods.
