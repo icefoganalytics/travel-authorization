@@ -10,6 +10,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Added
 
+- Selecting a city now fills in the province on Travel Desk traveller forms, while keeping it editable.
 - Flight statistics reports show flight volumes and durations in tables and graphs, with printing and CSV export.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.
@@ -22,8 +23,6 @@ Changes planned for the next release, since v2025.9.15.1.
 - Developer improvements: isolated checkout service and database routes, correct-checkout editor access with gem-owned Docker defaults that survives readiness-based startup, and quieter RubyGems startup. Updated test tooling and contributor guidance; removed unused components and dependencies.
 
 ### Fixed
-
-- Selecting a city now fills in the province on Travel Desk traveller forms, while keeping it editable.
 
 - Travel Desk staff can follow **Review Traveller Rankings** from booking review to the existing flight requests, then use **View Options and Rankings** to see saved preferences and rejection explanations.
 - Flight options are paginated separately for each leg, with five options per page by default. Page selections survive refresh, controls remain visible for single-page and empty results, and navigation fits phone-width screens.
