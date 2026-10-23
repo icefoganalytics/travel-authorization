@@ -296,10 +296,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watchEffect } from "vue"
+import { computed, watch, watchEffect } from "vue"
 import { isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
+import extractProvinceFromCity from "@/utils/extract-province-from-city"
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
@@ -318,6 +319,18 @@ const props = defineProps<{
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 const { travelDeskTravelRequest, isLoading, save, refresh } = useTravelDeskTravelRequest(
   travelDeskTravelRequestIdAsNumber
+)
+
+watch(
+  [travelDeskTravelRequest, () => travelDeskTravelRequest.value?.city],
+  ([request, city], [previousRequest]) => {
+    if (isNil(request) || request !== previousRequest || isNil(city)) return
+
+    const province = extractProvinceFromCity(city)
+    if (isNil(province)) return
+
+    request.province = province
+  }
 )
 
 const dobMaxDate = computed(() => {

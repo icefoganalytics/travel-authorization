@@ -10,6 +10,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Added
 
+- Selecting a city now fills in the province on Travel Desk traveller forms, while keeping it editable.
 - Flight statistics reports show flight volumes and durations in tables and graphs, with printing and CSV export.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.

@@ -1,7 +1,7 @@
 # Web Testing Guide
 
-This directory contains the frontend test support files for the Travel Authorization web
-application.
+This directory contains the frontend Vitest suite for Travel Authorization. Component tests use
+Vue Test Utils with real Vuetify controls. The suite uses jsdom by default.
 
 ## Running Tests
 
@@ -11,9 +11,12 @@ See [../../bin/README.md](../../bin/README.md#testing) for the canonical web tes
 
 ```text
 web/tests/
-├── factories/     # Typed API response fixture factories
-├── support/       # Reusable test helpers
-├── setup.ts       # Vuetify prerequisites and automatic wrapper cleanup
+├── components/    # Component behavior tests, mirroring web/src/components
+├── factories/     # Fishery factories typed to frontend API entities
+├── modules/       # Tests mirroring legacy web/src/modules components
+├── support/       # Reusable browser and Vuetify test infrastructure
+├── utils/         # Utility behavior tests
+├── setup.ts       # Shared environment setup and teardown
 ├── tsconfig.json  # Test TypeScript configuration
 └── README.md
 ```
@@ -41,6 +44,10 @@ Guidelines:
 
 `tests/setup.ts` enables `enableAutoUnmount(afterEach)`, so wrappers are cleaned up automatically.
 Explicitly unmount a wrapper only when unmounting is the behavior under test.
+
+Use `mockVuetify()` from `@/tests/support`
+in each mount's `global.plugins`. `tests/setup.ts` owns browser polyfills, HTTP isolation,
+automatic wrapper unmounting, and attached-DOM cleanup; do not repeat that infrastructure in specs.
 
 Example shape:
 
