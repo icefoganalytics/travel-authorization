@@ -46,8 +46,12 @@ Guidelines:
 Explicitly unmount a wrapper only when unmounting is the behavior under test.
 
 Use `mockVuetify()` from `@/tests/support`
-in each mount's `global.plugins`. `tests/setup.ts` owns browser polyfills, HTTP isolation,
-automatic wrapper unmounting, and attached-DOM cleanup; do not repeat that infrastructure in specs.
+in each mount's `global.plugins`. `tests/setup.ts` installs `ResizeObserver`, initializes the
+visual viewport in `beforeAll`, resets HTTP mock defaults in `beforeEach`, and enables automatic
+wrapper unmounting. Do not repeat that infrastructure or clear the entire document in specs.
+
+Use `mockHttpClient()` from `@/tests/support` when a test needs to inspect or override the
+shared HTTP mock. It provides typed Axios methods; do not replace it with an empty client object.
 
 Example shape:
 
@@ -105,6 +109,8 @@ Use `build` or `buildList` for the shared shape and keep scenario-specific value
 - `web/tests/support/simple-dedent.js` - simple string helper used by tests
 - `web/tests/support/mock-router.ts` - memory-history router for mounted component tests
 - `web/tests/support/mock-vuetify.ts` - real Vuetify components and directives for mounted tests
+- `web/tests/support/mock-http-client.ts` - typed Axios mock with per-test defaults
+- `web/tests/support/mock-visual-viewport.ts` - browser viewport support for Vuetify overlays
 
 As the frontend test suite grows, prefer adding shared mocks and setup helpers under
 `web/tests/support/` rather than embedding them repeatedly in test files.
