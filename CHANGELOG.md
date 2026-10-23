@@ -24,6 +24,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
+- Travel Desk request lists, printed reports, and CSV exports show consistent services and statuses. Printing and exporting include every selected request rather than only the first page.
 - Travel Desk staff can follow **Review Traveller Rankings** from booking review to the existing flight requests, then use **View Options and Rankings** to see saved preferences and rejection explanations.
 - Flight options are paginated separately for each leg, with five options per page by default. Page selections survive refresh, controls remain visible for single-page and empty results, and navigation fits phone-width screens.
 - Starting a new travel request preserves entered trip details and estimated trip segments.
