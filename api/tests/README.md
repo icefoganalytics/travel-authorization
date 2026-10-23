@@ -1,14 +1,23 @@
 # API Tests
 
-This directory contains the backend test suite for TravelAuth using Vitest and Fishery factories.
+This is the TravelAuth backend test suite, using Vitest and Fishery factories.
+
+For the shared backend feature workflow, see the
+[Express Light Rail backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md).
+For scenario-oriented verification, see the shared
+[code-organization reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#scenario-oriented-verification).
+For reusable factory traits and test service shape, see the shared
+[test-factory-traits-and-service-shape workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/skills/test-factory-traits-and-service-shape/workflow.md).
+The project’s test commands, helpers, and conventions below remain authoritative for TravelAuth.
 
 ## Running Tests
 
-See [../../bin/README.md](../../bin/README.md#testing) for the canonical API test commands and test container management guidelines.
+See [../../bin/README.md](../../bin/README.md#testing) for canonical API test commands and test
+container management guidelines.
 
 ## Test Structure
 
-Tests should mirror `api/src/`:
+Tests mirror `api/src/`:
 
 - `api/src/models/user.ts` -> `api/tests/models/user.test.ts`
 - `api/src/services/travel-authorizations/create-service.ts` ->
@@ -33,56 +42,42 @@ api/tests/
 If a source file moves, move its mirrored test file too. If a source file is deleted, delete the
 stale test.
 
-## Test Pattern
+## Local Test Conventions
 
-Prefer this structure:
-
-```typescript
-describe("api/src/services/example/create-service.ts", () => {
-  describe("CreateService", () => {
-    describe(".perform", () => {
-      test("when the input is valid, it creates the record", async () => {
-        // Arrange
-        // Act
-        // Assert
-      })
-    })
-  })
-})
-```
-
-Guidelines:
-
-- Use `test`, not `it`
-- Use nested `describe` blocks: file path -> class/model -> method
-- Use explicit `// Arrange`, `// Act`, and `// Assert` comments
-- Prefer numbered peer entities like `user1`, `user2`
-- Prefer one strong assertion with `toEqual(...)` over many low-signal assertions
-- Test names should describe condition and outcome: `"when [condition], it [expected behavior]"`
-- Use Fishery factories for test data
-- In API test files, group imports by role: code under test and domain models/services first, then
-  a blank line, then test support and factories.
-- Use descriptive variable names, such as `workflowStepPlayersAttributes`
-- Prefer numbered peer entities like `user1`, `user2`
-- Use expanded variable names (no abbreviations): `generalLedgerCoding1`, not `coding1`
+- Use nested `describe` blocks in the order file path -> class/model -> method.
+- Use `test`, not `it`, with names describing the condition and outcome:
+  `"when [condition], it [expected behavior]"`.
+- Structure scenarios with explicit `// Arrange`, `// Act`, and `// Assert` comments.
+- Keep scenario-specific persisted records in each test's Arrange section; shared setup should not
+  hide the scenario's starting state.
+- In API test files, import code under test and domain models/services first, then a blank line,
+  then test support and factories.
+- Use descriptive variable names and numbered peer entities such as `user1`, `user2`.
 - Name policy-scoped query results with `scoped{Model}`, such as
-  `scopedTravelDeskTravelRequests`
+  `scopedTravelDeskTravelRequests`.
+- For non-HTTP results, prefer one strong assertion with `toEqual(...)` over many low-signal
+  assertions.
 - Assert database state with `findAll()` without redundant `where` clauses unless the filter is
-  under test
-- Use negative spy assertions such as `expect(spy).not.toHaveBeenCalled()`
-- Avoid `not.toHaveBeenCalledWith(...)`
-- Controller tests should use `mockCurrentUser(user)` and `request()` from `@/support`
-- Controller response assertions should prefer the double-expect pattern so failures are readable:
-  first assert `response.status`, then assert `response.body`.
-- Controller happy-path tests should prefer the real controller -> service -> serializer pipeline
-  when the risk is that serializers cannot parse service results.
-- Mock service methods for narrow controller error paths, not for the serialization proof.
-- When adding controller coverage for related endpoints, keep edge-case coverage parallel unless the
-  routes intentionally differ: happy path, service failure, authorization denial, and not-found.
-- Do not add local `vi.restoreAllMocks()` hooks; `api/vite.config.mts` already enables mock
-  cleanup with `clearMocks`, `mockReset`, and `restoreMocks`.
+  under test.
+- Use negative spy assertions such as `expect(spy).not.toHaveBeenCalled()`; avoid
+  `not.toHaveBeenCalledWith(...)`.
+- Do not add local `vi.restoreAllMocks()` hooks; `api/vite.config.mts` already enables mock cleanup
+  with `clearMocks`, `mockReset`, and `restoreMocks`.
 
-Prefer common factories from `@/factories`:
+### Controller Tests
+
+- Use `mockCurrentUser(user)` and `request()` from `@/support`.
+- Assert `response.status` first, then assert `response.body` directly with `toEqual(...)`.
+- Keep an HTTP status/body test focused on that response; cover persisted outcomes in a separate
+  service or behavior test.
+- Prefer the real controller -> service -> serializer path for happy-path coverage when it proves
+  the serializer can parse service results. Mock service methods for narrow controller error paths.
+- When related endpoints share a contract, keep happy path, service failure, authorization denial,
+  and not-found coverage parallel unless their routes intentionally differ.
+
+## Factories
+
+Prefer Fishery factories from `@/factories`:
 
 - `userFactory`
 - `travelAuthorizationFactory`
@@ -90,65 +85,37 @@ Prefer common factories from `@/factories`:
 - `generalLedgerCodingFactory`
 - `travelSegmentFactory`
 
-**Admin users:** `User.isAdmin` is a virtual getter (`this.roles.includes("admin")`) with no setter. Fishery merges factory overrides with `lodash.mergeWith`, which reads property descriptors — getter-only properties are skipped at runtime, so passing `{ isAdmin: true }` to `userFactory.create()` has no effect. Use `roles: [User.Roles.ADMIN]` instead:
+**Admin users:** `User.isAdmin` is a virtual getter (`this.roles.includes("admin")`) with no setter.
+Fishery merges factory overrides with `lodash.mergeWith`, which skips getter-only properties at
+runtime, so passing `{ isAdmin: true }` to `userFactory.create()` has no effect. Use `roles` instead:
 
 ```typescript
 import { User } from "@/models"
+
+import { userFactory } from "@/factories"
 
 const admin = await userFactory.create({ roles: [User.Roles.ADMIN] })
 const nonAdmin = await userFactory.create({ roles: [User.Roles.USER] })
 ```
 
-Prefer one strong assertion:
-
-```typescript
-expect(scopedRecords).toEqual([
-  expect.objectContaining({
-    id: record1.id,
-  }),
-])
-```
-
-Avoid many low-signal assertions:
-
-```typescript
-expect(result).toHaveLength(1)
-expect(result[0].id).toEqual(record1.id)
-```
+If you need a new factory, follow the reusable
+[`agents/templates/fishery-factory-template.md`](../../agents/templates/fishery-factory-template.md).
 
 ## Test Lifecycle Notes
 
-Vitest configuration loads the API test setup in roughly this order:
+Vitest config runs global setup before the test files and then loads the per-file setup:
 
-1. `api/vite.config.mts` loads config and setup wiring
-2. `api/tests/global-setup.ts` prepares database state, migrations, and base seeds
-3. `api/tests/setup.ts` runs per-file setup and cleanup hooks
-4. The requested test file executes
+1. `api/tests/global-setup.ts` runs `npm run initializers`.
+2. `api/tests/setup.ts` runs before each test file, cleans the application and TravCom databases
+   before each test, and resets mocked Axios after each test.
+3. The requested test file executes.
 
 Keep per-file setup lightweight. Expensive initialization belongs in global setup.
 
-## Factories
-
-Prefer Fishery factories from `@/factories` for creating test data.
-
-Examples:
-
-```typescript
-import { travelAuthorizationFactory, userFactory } from "@/factories"
-
-const user = await userFactory.create()
-const travelAuthorization = await travelAuthorizationFactory.create({
-  userId: user.id,
-})
-```
-
-If you need a new factory, follow the reusable template in
-[`agents/templates/fishery-factory-template.md`](../../agents/templates/fishery-factory-template.md).
-
 ## Editor Helper
 
-If you use the `create-test-file` extension, this workspace config still helps generate mirrored
-test paths:
+For the `create-test-file` extension, add this configuration to your editor settings to generate
+mirrored test paths:
 
 ```json
 {

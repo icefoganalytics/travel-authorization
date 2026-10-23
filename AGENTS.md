@@ -75,6 +75,7 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
 - Do not use `@ts-expect-error` without asking first; if permitted, always include a comment
   explaining the gap
 - No abbreviations in code: use full descriptive names.
+- Expanded code style: one thing per line, avoid terse functional chains.
 - Spell out acronyms in prose at least once per block; use numbered peer entities such as `user1`, `user2`.
 - Separate guard clauses with a blank line; hoist magic numbers to named `const`.
 - Error paths: `console.error(...)` before `snack.error(...)`
@@ -123,6 +124,7 @@ Use [api/tests/README.md](api/tests/README.md) for the backend test overlay and 
 
 - TypeScript only - no `any`, `@ts-expect-error`, `@ts-ignore`
 - Vue 3 + Vuetify 3
+- Use the backend naming, expanded-style, and guard-spacing conventions above.
 - **Props:** TypeScript generic `defineProps<{ prop: type }>()` with `withDefaults()` when defaults needed
 - **setTimeout:** Use `number` type, not `NodeJS.Timeout`
 - **Loading:** Use `isNil(data)` instead of boolean `isLoading` flags

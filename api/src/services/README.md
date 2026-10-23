@@ -1,116 +1,35 @@
 # Services
 
-Services provide a place to put logic for model create/read/update/delete (CRUD) actions.
-If the codebase isn't using an object relational mapper (ORM), such as Sequelize, they also provide a pattern for model retrieval and lookups.
-
-A standard usage example might look like this:
-
-```typescript
-class FormsController {
-  create() {
-    return FormService.create(this.request.body, this.currentUser)
-      .then((form) => {
-        return this.response.status(201).json({ form })
-      })
-      .catch((error) => {
-        return this.response.status(422).json({ message: `Form submission failed: ${error}` })
-      })
-  }
-}
-```
-
-In the above example, the controller handles the mapping of the action, while the actual model changes occur in the service.
-
-The service should, for convenience, expose static methods, that call internal instance methods.
+For the shared backend feature workflow, see the
+[Express Light Rail backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md)
+and its
+[code-organization reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md).
+Project-local service and data-access conventions remain authoritative.
 
 ## Local Pattern
 
-- Business logic belongs in services that extend `BaseService`.
-- Call services via static methods such as `ServiceName.perform(args)`.
-- Do not instantiate services directly at call sites.
-- Services may call other services; keep controllers focused on request orchestration.
+- Put reusable or multi-step business logic in services that extend `BaseService`.
+- Implement the action as an instance `perform()` method. `BaseService.perform(...)` constructs the
+  service with the supplied arguments and invokes that instance method.
+- Call action services through `ServiceName.perform(...)`; do not instantiate them at call sites.
+- Keep controllers focused on request orchestration, authorization, status codes, and response shape.
+- Organize related action services under domain directories and export them through the existing
+  service index files.
 
-## Scaling
+For example, [`BulkGenerateService`](./estimates/bulk-generate-service.ts) receives its arguments
+through the inherited static `perform()` method, then performs the work in its instance method.
 
-A pattern that supports very good scaling is to have per-action classes.
+## IndexService Pattern
 
-e.g.
+For paginated list endpoints that include summary aggregates, use an `IndexService`.
 
-```bash
-services/
-|-- index.ts
-|-- estimates/
-    |-- index.ts
-    |-- bulk-generate.ts
-```
-
-With a class like
-
-```typescript
-// services/estimates/bulk-generate.ts
-export class BulkGenerate extends BaseService {
-  private formId: number
-
-  constructor(formId: number) {
-    super()
-    this.formId = formId
-  }
-
-  static async perform(formId: number): Promise<Expense[]> {
-    const instance = new this(formId)
-    return instance.perform()
-  }
-
-  async perform(): Promise<Expense[]> {
-    // some action
-  }
-}
-```
-
-Exported in estimates as:
-
-```typescript
-// services/estimates/index.ts
-export * from "./bulk-generate"
-```
-
-Imported in services as
-
-```typescript
-// services/index.ts
-// Namespaced services
-export * as estimates from "./estimates"
-```
-
-The usages of this would be
-
-```typescript
-import { BulkGenerate } from "@/services/estimates"
-// OR import { estimates } from "@/services"
-
-export class GenerateController extends BaseController {
-  async create() {
-    return BulkGenerate.perform(this.formId).then((estimates) => {
-      // OR estimates.BulkGenerate.perform
-      return this.response.status(201).json({
-        estimates,
-        message: "Generated estimates",
-      })
-    })
-  }
-}
-```
-
-## IndexService pattern
-
-For paginated list endpoints that need summary aggregates (totals), create an IndexService.
-
-See template: [`agents/templates/backend-index-service-template.md`](../../../agents/templates/backend-index-service-template.md)
+See the local [IndexService template](../../../agents/templates/backend-index-service-template.md).
 
 Key points:
 
-- Accept `where`, `scopes`, `order`, `limit`, `offset`, `currentUser` in the constructor.
-- Call `Model.count()` and `Model.findAll()` through the scoped model (from `Policy.applyScope`).
-- Compute summaries in a separate `computeSummaries()` → `compute{Summary}()` pipeline.
-- Use `.aggregate()` with `includeIgnoreAttributes: false`, `plain: true`, and `?? 0` when
-  the policy scope produces a JOIN (same internal pattern as `Model.count()`).
+- Accept `where`, `scopes`, `order`, `limit`, `offset`, and `currentUser` in the constructor.
+- Call `Model.count()` and `Model.findAll()` through the scoped model returned by
+  `Policy.applyScope`.
+- Compute summaries through a separate `computeSummaries()` → `compute{Summary}()` pipeline.
+- When a policy scope produces a JOIN, use `.aggregate()` with `includeIgnoreAttributes: false`,
+  `plain: true`, and `?? 0`, following the local template.
