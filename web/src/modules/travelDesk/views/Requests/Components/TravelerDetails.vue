@@ -193,6 +193,11 @@
 </template>
 
 <script>
+import { watch } from "vue"
+import { isNil } from "lodash"
+
+import extractProvinceFromCity from "@/utils/extract-province-from-city"
+
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TitleCard from "@/modules/travelDesk/views/Common/TitleCard.vue"
 
@@ -213,6 +218,19 @@ export default {
       type: Object,
       default: () => ({}),
     },
+  },
+  setup(props) {
+    watch(
+      [() => props.travelerDetails, () => props.travelerDetails.city],
+      ([request, city], [previousRequest]) => {
+        if (props.readonly || request !== previousRequest || isNil(city)) return
+
+        const province = extractProvinceFromCity(city)
+        if (isNil(province)) return
+
+        request.province = province
+      }
+    )
   },
   data() {
     return {

@@ -226,6 +226,7 @@
 import { computed, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
+import extractProvinceFromCity from "@/utils/extract-province-from-city"
 import { isPhoneNumber, isEmail, required } from "@/utils/validators"
 import { type TravelDeskTravelRequest } from "@/api/travel-desk-travel-requests-api"
 
@@ -247,6 +248,18 @@ import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.
 const travelDeskTravelRequest = defineModel<TravelDeskTravelRequest>({
   required: true,
 })
+
+watch(
+  [travelDeskTravelRequest, () => travelDeskTravelRequest.value.city],
+  ([request, city], [previousRequest]) => {
+    if (request !== previousRequest || isNil(city)) return
+
+    const province = extractProvinceFromCity(city)
+    if (isNil(province)) return
+
+    request.province = province
+  }
+)
 
 const formattedTravelAuthorizationId = computed(() => {
   return travelDeskTravelRequest.value.travelAuthorizationId.toString().padStart(4, "0")

@@ -9,9 +9,6 @@ import travelDeskFlightOptionFactory from "@/tests/factories/travel-desk-flight-
 import TravelDeskFlightOptionsDataIterator from "@/components/travel-desk-flight-options/TravelDeskFlightOptionsDataIterator.vue"
 import TravelDeskFlightOptionCard from "@/components/travel-desk-flight-options/TravelDeskFlightOptionCard.vue"
 
-vi.mock("@/api/http-client", () => ({
-  default: {},
-}))
 vi.mock("@/api/travel-desk-flight-options-api")
 vi.mock("@/api/travel-desk-flight-segments-api")
 

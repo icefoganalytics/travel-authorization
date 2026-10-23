@@ -6,13 +6,10 @@ import travelDeskTravelRequestsApi, {
 import vueI18nPlugin from "@/plugins/vue-i18n-plugin"
 
 import { mockRouter, mockVuetify } from "@/tests/support"
-import travelDeskTravelRequestFactory from "@/tests/factories/travel-desk-travel-request-factory"
+import { travelDeskTravelRequestAsIndexFactory } from "@/tests/factories"
 
 import TravelDeskTravelRequestsManageDataTableServer from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsManageDataTableServer.vue"
 
-vi.mock("@/api/http-client", () => ({
-  default: {},
-}))
 vi.mock("@/api/travel-desk-travel-requests-api")
 vi.mock("@auth0/auth0-vue", () => ({
   useAuth0: () => ({
@@ -41,7 +38,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
     // Arrange
     requestsApiMock.list.mockResolvedValue({
       travelDeskTravelRequests: [
-        travelDeskTravelRequestFactory.build({
+        travelDeskTravelRequestAsIndexFactory.build({
           status: TravelDeskTravelRequestStatuses.BOOKED,
           travelDeskOfficer: null,
           isBooked: true,
@@ -71,7 +68,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
     // Arrange
     requestsApiMock.list.mockResolvedValue({
       travelDeskTravelRequests: [
-        travelDeskTravelRequestFactory.build({
+        travelDeskTravelRequestAsIndexFactory.build({
           status: TravelDeskTravelRequestStatuses.SUBMITTED,
           travelDeskOfficer: null,
         }),
@@ -100,7 +97,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
     // Arrange
     requestsApiMock.list.mockResolvedValue({
       travelDeskTravelRequests: [
-        travelDeskTravelRequestFactory.build({
+        travelDeskTravelRequestAsIndexFactory.build({
           status: TravelDeskTravelRequestStatuses.SUBMITTED,
           travelDeskOfficer: "Assigned Desk Agent",
         }),
@@ -129,7 +126,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
     // Arrange
     requestsApiMock.list.mockResolvedValue({
       travelDeskTravelRequests: [
-        travelDeskTravelRequestFactory.build({
+        travelDeskTravelRequestAsIndexFactory.build({
           requestedOptions: "flight, hotel, rental car",
         }),
       ],

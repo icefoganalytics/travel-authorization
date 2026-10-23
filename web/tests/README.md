@@ -1,7 +1,7 @@
 # Web Testing Guide
 
-This directory contains the frontend test support files for the Travel Authorization web
-application.
+This directory contains the frontend Vitest suite for Travel Authorization. Component tests use
+Vue Test Utils with real Vuetify controls. The suite uses jsdom by default.
 
 ## Running Tests
 
@@ -11,9 +11,12 @@ See [../../bin/README.md](../../bin/README.md#testing) for the canonical web tes
 
 ```text
 web/tests/
-├── factories/     # Typed API response fixture factories
-├── support/       # Reusable test helpers
-├── setup.ts       # Vuetify prerequisites and automatic wrapper cleanup
+├── components/    # Component behavior tests, mirroring web/src/components
+├── factories/     # Fishery factories typed to frontend API entities
+├── modules/       # Tests mirroring legacy web/src/modules components
+├── support/       # Reusable browser and Vuetify test infrastructure
+├── utils/         # Utility behavior tests
+├── setup.ts       # Shared environment setup and teardown
 ├── tsconfig.json  # Test TypeScript configuration
 └── README.md
 ```
@@ -41,6 +44,14 @@ Guidelines:
 
 `tests/setup.ts` enables `enableAutoUnmount(afterEach)`, so wrappers are cleaned up automatically.
 Explicitly unmount a wrapper only when unmounting is the behavior under test.
+
+Use `mockVuetify()` from `@/tests/support`
+in each mount's `global.plugins`. `tests/setup.ts` installs `ResizeObserver`, initializes the
+visual viewport in `beforeAll`, resets HTTP mock defaults in `beforeEach`, and enables automatic
+wrapper unmounting. Do not repeat that infrastructure or clear the entire document in specs.
+
+Use `mockHttpClient()` from `@/tests/support` when a test needs to inspect or override the
+shared HTTP mock. It provides typed Axios methods; do not replace it with an empty client object.
 
 Example shape:
 
@@ -98,6 +109,8 @@ Use `build` or `buildList` for the shared shape and keep scenario-specific value
 - `web/tests/support/simple-dedent.js` - simple string helper used by tests
 - `web/tests/support/mock-router.ts` - memory-history router for mounted component tests
 - `web/tests/support/mock-vuetify.ts` - real Vuetify components and directives for mounted tests
+- `web/tests/support/mock-http-client.ts` - typed Axios mock with per-test defaults
+- `web/tests/support/mock-visual-viewport.ts` - browser viewport support for Vuetify overlays
 
 As the frontend test suite grows, prefer adding shared mocks and setup helpers under
 `web/tests/support/` rather than embedding them repeatedly in test files.
