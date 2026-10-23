@@ -22,9 +22,9 @@ vi.mock("puppeteer", () => ({
   },
 }))
 
-import { generatePdf } from "@/utils/generate-pdf"
+import { generatePdf } from "@/lib/generate-pdf"
 
-describe("api/src/utils/generate-pdf.ts", () => {
+describe("api/src/lib/generate-pdf.ts", () => {
   describe("generatePdf", () => {
     test("when rendering fails, closes the browser before rejecting", async () => {
       // Arrange

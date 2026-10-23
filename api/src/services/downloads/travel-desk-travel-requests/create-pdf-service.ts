@@ -1,7 +1,7 @@
 import { DateTime } from "luxon"
 
 import templateClient from "@/templates/template-client"
-import { generatePdf } from "@/utils/generate-pdf"
+import { generatePdf } from "@/lib/generate-pdf"
 
 import {
   type TravelDeskTravelRequestAsReport,
