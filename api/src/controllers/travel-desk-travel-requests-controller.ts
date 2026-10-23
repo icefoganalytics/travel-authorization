@@ -4,7 +4,7 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequestsPolicy } from "@/policies"
-import { UpdateService } from "@/services/travel-desk-travel-requests"
+import { IndexService, UpdateService } from "@/services/travel-desk-travel-requests"
 import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-travel-requests"
 
 import BaseController from "@/controllers/base-controller"
@@ -22,38 +22,14 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
         [col("isBooked"), "asc"],
         [col("isAssignedToCurrentUser"), "desc"],
       ])
-      const scopedTravelDeskTravelRequests = TravelDeskTravelRequestsPolicy.applyScope(
+      const { travelDeskTravelRequests, totalCount } = await IndexService.perform(
+        where,
         scopes,
+        order,
+        this.pagination.limit,
+        this.pagination.offset,
         this.currentUser
       )
-
-      const totalCount = await scopedTravelDeskTravelRequests.count({ where })
-      const travelDeskTravelRequests = await scopedTravelDeskTravelRequests.findAll({
-        where,
-        order,
-        limit: this.pagination.limit,
-        offset: this.pagination.offset,
-        include: [
-          "flightRequests",
-          "hotels",
-          "otherTransportations",
-          "passengerNameRecordDocument",
-          "rentalCars",
-          {
-            association: "travelAuthorization",
-            required: true,
-            include: [
-              "user",
-              {
-                association: "travelSegments",
-                separate: true,
-                order: [["segmentNumber", "ASC"]],
-                include: ["departureLocation", "arrivalLocation"],
-              },
-            ],
-          },
-        ],
-      })
       const serializedTravelDeskTravelRequests = IndexSerializer.perform(
         travelDeskTravelRequests,
         this.currentUser

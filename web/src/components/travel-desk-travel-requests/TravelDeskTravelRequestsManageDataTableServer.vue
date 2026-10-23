@@ -15,13 +15,11 @@
     <template #top>
       <div class="d-flex mb-4">
         <v-spacer />
-        <TravelDeskTravelRequestsPrintDialog
+        <TravelDeskTravelRequestsPrintButton
           :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
-          :activator-props="{
-            class: 'my-0 mr-4',
-            color: 'primary',
-            disabled: isEmpty(selectedTravelDeskTravelRequestIds),
-          }"
+          :disabled="isEmpty(selectedTravelDeskTravelRequestIds)"
+          class="my-0 mr-4"
+          color="primary"
         />
         <TravelDeskTravelRequestsExportToCsvButton
           :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
@@ -140,7 +138,7 @@ import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to
 import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
 
 import TravelDeskTravelRequestsExportToCsvButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsExportToCsvButton.vue"
-import TravelDeskTravelRequestsPrintDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsPrintDialog.vue"
+import TravelDeskTravelRequestsPrintButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsPrintButton.vue"
 
 const headers = [
   { title: "TA #", key: "travelAuthorizationId" },
