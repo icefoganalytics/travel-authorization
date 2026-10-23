@@ -38,7 +38,6 @@ export const travelDeskTravelRequestFactory = Factory.define<TravelDeskTravelReq
       isInternationalTravel: false,
       createdAt: timestamp,
       updatedAt: timestamp,
-
     }
   }
 )
