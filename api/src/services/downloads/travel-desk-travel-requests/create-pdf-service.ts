@@ -23,9 +23,10 @@ export class CreatePdfService extends BaseService {
       pages.push(this.rows.slice(rowIndex, rowIndex + ROWS_PER_PAGE))
     }
 
+    const headers = Object.values(TravelDeskTravelRequestReportHeaders)
     const logoDataUri = `data:image/svg+xml;base64,${templateClient.loadAsset("assets/yukon.svg")}`
     const htmlDocument = templateClient.render("travel-desk-travel-requests/report.html", {
-      headers: Object.values(TravelDeskTravelRequestReportHeaders),
+      headers,
       logoDataUri,
       pages,
     })
