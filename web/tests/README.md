@@ -1,7 +1,7 @@
 # Web Testing Guide
 
 This directory contains the frontend Vitest suite for Travel Authorization. Component tests use
-Vue Test Utils with real Vuetify controls in jsdom; utility tests keep the default Node environment.
+Vue Test Utils with real Vuetify controls. The suite uses jsdom by default.
 
 ## Running Tests
 
@@ -20,8 +20,6 @@ web/tests/
 ├── tsconfig.json  # Test TypeScript configuration
 └── README.md
 ```
-
-<!-- marlens-test-alignment: one-direct-expect -->
 
 ## Writing Tests
 
@@ -47,7 +45,7 @@ Guidelines:
 `tests/setup.ts` enables `enableAutoUnmount(afterEach)`, so wrappers are cleaned up automatically.
 Explicitly unmount a wrapper only when unmounting is the behavior under test.
 
-Add `// @vitest-environment jsdom` to component specs. Use `mockVuetify()` from `@/tests/support`
+Use `mockVuetify()` from `@/tests/support`
 in each mount's `global.plugins`. `tests/setup.ts` owns browser polyfills, HTTP isolation,
 automatic wrapper unmounting, and attached-DOM cleanup; do not repeat that infrastructure in specs.
 
