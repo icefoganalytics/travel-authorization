@@ -10,10 +10,6 @@ import travelDeskFlightOptionsApi, {
 import travelDeskFlightOptionFactory from "@/tests/factories/travel-desk-flight-option-factory"
 import { useTravelDeskFlightOptions } from "@/use/use-travel-desk-flight-options"
 
-vi.mock("@/api/http-client", () => ({
-  default: {},
-}))
-
 vi.mock("@/api/travel-desk-flight-options-api")
 
 type TravelDeskFlightOptionsResponse = {
