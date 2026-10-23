@@ -11,6 +11,9 @@ import { travelDeskTravelRequestAsIndexFactory } from "@/tests/factories"
 import TravelDeskTravelRequestsManageDataTableServer from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsManageDataTableServer.vue"
 
 vi.mock("@/api/travel-desk-travel-requests-api")
+vi.mock("@/config", () => ({
+  API_BASE_URL: "http://api.example.test",
+}))
 vi.mock("@auth0/auth0-vue", () => ({
   useAuth0: () => ({
     getAccessTokenSilently: vi.fn(),
