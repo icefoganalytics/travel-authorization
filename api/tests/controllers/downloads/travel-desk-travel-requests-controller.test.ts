@@ -10,13 +10,13 @@ import {
 
 import { mockCurrentUser, request } from "@/support"
 
-const SELECTED_REQUEST_COUNT = 12
+const SELECTED_REQUEST_COUNT = 25
 const NONEXISTENT_REQUEST_ID = 999999999
 
 describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.ts", () => {
   describe("TravelDeskTravelRequestsController", () => {
     describe("#create", () => {
-      test("when an ID query spans twelve requests, it exports every matching row in the requested order", async () => {
+      test("when an indexed ID query exceeds twenty values, it exports every matching row in the requested order", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         mockCurrentUser(user1)
