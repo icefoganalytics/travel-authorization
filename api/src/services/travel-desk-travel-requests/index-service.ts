@@ -1,5 +1,4 @@
 import { type Attributes, type WhereOptions } from "@sequelize/core"
-import { isUndefined } from "lodash"
 
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type TravelDeskTravelRequest, type User } from "@/models"
@@ -26,6 +25,8 @@ export class IndexService extends BaseService {
       this.scopes,
       this.currentUser
     )
+
+    const totalCount = await scopedTravelDeskTravelRequests.count({ where: this.where })
     const travelDeskTravelRequests = await scopedTravelDeskTravelRequests.findAll({
       where: this.where,
       order: this.order,
@@ -52,10 +53,6 @@ export class IndexService extends BaseService {
         },
       ],
     })
-    let totalCount = travelDeskTravelRequests.length
-    if (!isUndefined(this.limit)) {
-      totalCount = await scopedTravelDeskTravelRequests.count({ where: this.where })
-    }
 
     return {
       travelDeskTravelRequests,
