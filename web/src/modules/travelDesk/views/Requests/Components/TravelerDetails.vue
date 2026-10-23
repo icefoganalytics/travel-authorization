@@ -219,8 +219,7 @@ export default {
       default: () => ({}),
     },
   },
-  emits: ["update:province"],
-  setup(props, { emit }) {
+  setup(props) {
     watch(
       [() => props.travelerDetails, () => props.travelerDetails.city],
       ([request, city], [previousRequest]) => {
@@ -229,7 +228,7 @@ export default {
         const province = extractProvinceFromCity(city)
         if (isNil(province)) return
 
-        emit("update:province", province)
+        request.province = province
       }
     )
   },

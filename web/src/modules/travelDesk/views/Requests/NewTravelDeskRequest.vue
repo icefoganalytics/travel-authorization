@@ -43,7 +43,6 @@
                 :traveler-details="travelerDetails"
                 :traveler-state="state"
                 :readonly="false"
-                @update:province="travelerDetails.province = $event"
               />
 
               <TitleCard
