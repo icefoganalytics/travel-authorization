@@ -7,6 +7,7 @@ RUN npm install -g npm@10.8.2
 FROM base-node AS api-build-stage
 
 ENV NODE_ENV=development
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 WORKDIR /usr/src/api
 
@@ -19,6 +20,7 @@ COPY api ./
 RUN npm run build
 
 RUN mkdir -p dist/db/seeds/data && cp src/db/seeds/data/*.csv dist/db/seeds/data/
+COPY api/src/templates ./dist/templates
 
 # Stage 2 - web build - requires development environment to install vue-cli-service
 FROM base-node AS web-build-stage
@@ -55,7 +57,7 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 ARG RELEASE_TAG
