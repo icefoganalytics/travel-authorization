@@ -1,27 +1,18 @@
 import { enableAutoUnmount } from "@vue/test-utils"
 import ResizeObserver from "resize-observer-polyfill"
 
+import { mockHttpClient } from "@/tests/support/mock-http-client"
 import { mockVisualViewport } from "@/tests/support/mock-visual-viewport"
 
-vi.mock("@/api/http-client", () => ({
-  default: {},
-}))
+// Vuetify's layout composables observe mounted elements.
+globalThis.ResizeObserver = ResizeObserver
 
 beforeAll(() => {
-  if (typeof window === "undefined") {
-    return
-  }
-
-  globalThis.ResizeObserver = ResizeObserver
   mockVisualViewport()
 })
 
-enableAutoUnmount(afterEach)
-
-afterEach(() => {
-  if (typeof document === "undefined") {
-    return
-  }
-
-  document.body.replaceChildren()
+beforeEach(() => {
+  mockHttpClient()
 })
+
+enableAutoUnmount(afterEach)
