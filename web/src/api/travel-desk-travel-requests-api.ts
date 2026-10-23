@@ -161,7 +161,15 @@ export const travelDeskTravelRequestsApi = {
       travelDeskTravelRequests.push(...nextTravelDeskTravelRequests)
     }
 
-    if (travelDeskTravelRequests.length !== travelDeskTravelRequestIds.length) {
+    const missingRequestIds = new Set(travelDeskTravelRequestIds)
+    for (const request of travelDeskTravelRequests) {
+      missingRequestIds.delete(request.id)
+    }
+
+    if (
+      travelDeskTravelRequests.length !== travelDeskTravelRequestIds.length ||
+      missingRequestIds.size > 0
+    ) {
       throw new Error("Some selected travel desk requests are no longer available.")
     }
 

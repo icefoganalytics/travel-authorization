@@ -2,7 +2,7 @@
   <v-dialog
     v-model="showDialog"
     persistent
-    max-width="950px"
+    max-width="1200px"
     @keydown.esc="close"
     @update:model-value="closeIfFalse"
   >
@@ -272,3 +272,26 @@ function closeIfFalse(value: boolean | null) {
   close()
 }
 </script>
+
+<style scoped>
+:deep(tbody td) {
+  font-size: 7.5pt !important;
+  border: 1px solid #666666 !important;
+}
+
+:deep(thead th) {
+  border: 1px solid #333334 !important;
+  border-bottom: 2px solid #333334 !important;
+  text-align: center !important;
+  font-size: 9pt !important;
+  color: #111111 !important;
+}
+
+:deep(table) {
+  border: 2px solid #333334;
+}
+
+.travel-desk-report-form-footer {
+  display: none;
+}
+</style>
