@@ -59,6 +59,12 @@ export default defineConfig(async ({ command, mode }) => {
     test: {
       environment: "jsdom",
       globals: true, // https://vitest.dev/config/#globals
+      setupFiles: ["./tests/setup.ts"],
+      clearMocks: true,
+      mockReset: true,
+      restoreMocks: true,
+      unstubEnvs: true,
+      unstubGlobals: true,
       server: {
         deps: {
           inline: ["vuetify"],
