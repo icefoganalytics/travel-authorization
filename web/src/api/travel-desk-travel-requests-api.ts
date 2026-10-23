@@ -1,6 +1,5 @@
 import http from "@/api/http-client"
 import {
-  MAX_PER_PAGE,
   type FiltersOptions,
   type Policy,
   type QueryOptions,
@@ -134,46 +133,6 @@ export const travelDeskTravelRequestsApi = {
       params,
     })
     return data
-  },
-
-  async listSelected(
-    travelDeskTravelRequestIds: number[]
-  ): Promise<TravelDeskTravelRequestAsIndex[]> {
-    if (travelDeskTravelRequestIds.length === 0) return []
-
-    const query: TravelDeskTravelRequestsQueryOptions = {
-      where: {
-        id: travelDeskTravelRequestIds,
-      },
-      order: [["id", "ASC"]],
-      page: 1,
-      perPage: MAX_PER_PAGE,
-    }
-    const { travelDeskTravelRequests, totalCount } = await travelDeskTravelRequestsApi.list(query)
-    const totalPages = Math.ceil(totalCount / MAX_PER_PAGE)
-
-    for (let page = 2; page <= totalPages; page++) {
-      const { travelDeskTravelRequests: nextTravelDeskTravelRequests } =
-        await travelDeskTravelRequestsApi.list({
-          ...query,
-          page,
-        })
-      travelDeskTravelRequests.push(...nextTravelDeskTravelRequests)
-    }
-
-    const missingRequestIds = new Set(travelDeskTravelRequestIds)
-    for (const request of travelDeskTravelRequests) {
-      missingRequestIds.delete(request.id)
-    }
-
-    if (
-      travelDeskTravelRequests.length !== travelDeskTravelRequestIds.length ||
-      missingRequestIds.size > 0
-    ) {
-      throw new Error("Some selected travel desk requests are no longer available.")
-    }
-
-    return travelDeskTravelRequests
   },
 
   async get(
