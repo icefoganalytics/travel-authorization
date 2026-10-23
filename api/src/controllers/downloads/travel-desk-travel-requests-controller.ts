@@ -1,6 +1,8 @@
 import { DateTime } from "luxon"
+import { isEmpty } from "lodash"
 
 import logger from "@/utils/logger"
+import { type TravelDeskTravelRequest } from "@/models"
 import { IndexService } from "@/services/travel-desk-travel-requests"
 import { CreateCsvService } from "@/services/downloads/travel-desk-travel-requests/create-csv-service"
 import { CreatePdfService } from "@/services/downloads/travel-desk-travel-requests/create-pdf-service"
@@ -10,48 +12,32 @@ import {
 } from "@/serializers/travel-desk-travel-requests/report-serializer"
 import BaseController from "@/controllers/base-controller"
 
-const INVALID_SELECTION_MESSAGE = "Invalid travel desk travel request selection"
 const NOT_FOUND_MESSAGE = "Travel desk travel requests were not found"
 const UNSUPPORTED_FORMAT_MESSAGE = "Unsupported report format"
 const DOWNLOAD_FAILURE_MESSAGE = "Failed to create travel desk travel requests download"
 
-export class TravelDeskTravelRequestsController extends BaseController {
+export class TravelDeskTravelRequestsController extends BaseController<TravelDeskTravelRequest> {
   async create() {
     const format = this.query.format
     if (format !== "csv" && format !== "pdf") {
       return this.response.status(422).json({ message: UNSUPPORTED_FORMAT_MESSAGE })
     }
 
-    const requestBody: unknown = this.request.body
-    let selectedIdsInput: unknown = undefined
-    if (
-      typeof requestBody === "object" &&
-      requestBody !== null &&
-      "travelDeskTravelRequestIds" in requestBody
-    ) {
-      selectedIdsInput = requestBody.travelDeskTravelRequestIds
-    }
-
-    const selectedIds = parseSelectedIds(selectedIdsInput)
-    if (selectedIds === null) {
-      return this.response.status(422).json({ message: INVALID_SELECTION_MESSAGE })
-    }
-
     try {
+      const where = this.buildWhere()
+      const scopes = this.buildFilterScopes()
+      const order = this.buildOrder([["id", "ASC"]])
+
+      // Reports include all matches rather than only the current list page.
       const { travelDeskTravelRequests } = await IndexService.perform(
-        { id: selectedIds },
-        [],
-        [["id", "ASC"]],
+        where,
+        scopes,
+        order,
         undefined,
         undefined,
         this.currentUser
       )
-      const missingSelectedIds = new Set(selectedIds)
-      for (const travelDeskTravelRequest of travelDeskTravelRequests) {
-        missingSelectedIds.delete(travelDeskTravelRequest.id)
-      }
-
-      if (travelDeskTravelRequests.length !== selectedIds.length || missingSelectedIds.size > 0) {
+      if (isEmpty(travelDeskTravelRequests)) {
         return this.response.status(404).json({ message: NOT_FOUND_MESSAGE })
       }
 
@@ -90,33 +76,6 @@ export class TravelDeskTravelRequestsController extends BaseController {
 
     return CreatePdfService.perform(rows)
   }
-}
-
-function parseSelectedIds(input: unknown): number[] | null {
-  let selectedIdsInput = input
-  if (typeof selectedIdsInput === "string") {
-    try {
-      selectedIdsInput = JSON.parse(selectedIdsInput)
-    } catch {
-      return null
-    }
-  }
-
-  if (!isSelectedIds(selectedIdsInput)) return null
-
-  return selectedIdsInput
-}
-
-function isSelectedIds(input: unknown): input is number[] {
-  return (
-    Array.isArray(input) &&
-    input.length > 0 &&
-    input.every(
-      (selectedId: unknown) =>
-        typeof selectedId === "number" && Number.isSafeInteger(selectedId) && selectedId > 0
-    ) &&
-    new Set(input).size === input.length
-  )
 }
 
 export default TravelDeskTravelRequestsController

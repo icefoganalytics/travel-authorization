@@ -4,25 +4,23 @@
     :disabled="travelDeskTravelRequestIds.length === 0"
     text="Print Report"
     prepend-icon="mdi-printer"
-  >
-    <template #fields>
-      <input
-        type="hidden"
-        name="travelDeskTravelRequestIds"
-        :value="JSON.stringify(travelDeskTravelRequestIds)"
-      />
-    </template>
-  </DownloadFileForm>
+  />
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue"
+
 import { reportsApi } from "@/api/downloads/travel-desk-travel-requests"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 
-defineProps<{
+const props = defineProps<{
   travelDeskTravelRequestIds: number[]
 }>()
 
-const downloadUrl = reportsApi.downloadPath("pdf")
+const downloadUrl = computed(() =>
+  reportsApi.downloadPath("pdf", {
+    where: { id: props.travelDeskTravelRequestIds },
+  })
+)
 </script>
