@@ -4,6 +4,8 @@
 
 Barrel export file for bundling serializer exports from a resource directory.
 
+The shared [serializer index template](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/templates/backend/serializer-index-template.md) describes typed index/show/reference projections. This local template instead governs TravelAuth's serializer barrel exports and `AsIndex`/`AsShow` aliases; keep the local bundle-export requirement.
+
 ## Template
 
 ```typescript

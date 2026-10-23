@@ -4,71 +4,19 @@ description: Review TravelAuth TypeScript changes for correctness, maintainabili
 
 # Code Review Workflow
 
-Use this workflow when reviewing a branch, pull request, or local diff. Lead with concrete bugs,
-regressions, missing tests, and maintainability risks. Style comments are only worth raising when
-they affect clarity, consistency, or future safety.
+Use the [shared code-review workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/code-review-workflow.md) for scope discovery, evidence-first findings, simplicity review, and the findings/location/risk/fix output contract. Apply the TravelAuth checks below alongside [AGENTS.md](../../AGENTS.md); local conventions remain authoritative where the shared default differs.
 
-## Review Steps
+## TravelAuth Contract Checks
 
-1. **Understand the scope**
+- **Backend:** Check resource-scoped policies, collection scopes, and serializer shapes against frontend API types. Create/update/show responses must load required associations before serialization. Follow the [controller](../../api/src/controllers/README.md), [policy](../../api/src/policies/README.md), and [serializer](../../api/src/serializers/README.md) contracts.
+- **Database:** Preserve PostgreSQL/Knex migration up/down behavior, existing data, nullable/default semantics, and Sequelize model mapping. Shared backend concepts do not authorize replacing local bases or upgrading dependencies.
+- **TypeScript:** Keep the root prohibition on `any`, `@ts-ignore`, `@ts-expect-error`, and non-null assertions, including its explicit backend permission boundary. Prefer existing API/serializer/composable types and real narrowing.
+- **Frontend:** Check route/layout nesting, breadcrumbs, return paths, data-presence loading, Vuetify 3 form refs (`submit()` and `useTemplateRef()` where applicable), and unique route-query suffixes for co-located tables/dialogs. Use the [component overlay](../../web/src/components/README.md).
+- **Tests:** Follow [API](../../api/tests/README.md) or [UI](../../web/tests/README.md) conventions for mirrored source paths, nested `describe`, `test`, Arrange/Act/Assert comments, Fishery setup, direct assertions, and automatic mock cleanup. Keep negative spy assertions as `not.toHaveBeenCalled()`. The API's direct status/body pair and UI's one-direct-expect convention remain distinct; do not silently replace either with shared defaults.
 
-   - Read the request, issue, PR body, or plan.
-   - Check `git status` and the changed files.
-   - Identify whether the change is backend, frontend, migration, test-only, documentation-only, or
-     cross-cutting.
-
-2. **Check behavior and contracts**
-
-   - Verify controllers return the serializer shape expected by frontend API types.
-   - Confirm create, update, and show responses reload required associations before serialization.
-   - Check policies and scopes for access leaks, missing admin handling, or over-restrictive joins.
-   - For migrations, confirm up/down paths, data preservation, and nullable/default behavior.
-
-3. **Check TypeScript strictness**
-
-   - No `any`, `@ts-ignore`, `@ts-expect-error`, or non-null assertions.
-   - Use explicit guards, optional chaining, and nullish coalescing where data can be missing.
-   - Prefer existing API response, serializer, and composable types over local one-off shapes.
-
-4. **Check frontend behavior**
-
-   - Verify route placement, layout nesting, breadcrumbs, and return paths match the intended flow.
-   - Confirm loading state is based on data presence where practical.
-   - Check form refs use Vuetify 3 patterns, including `submit()` and `useTemplateRef()` where
-     applicable.
-   - Ensure route-query state uses unique suffixes when multiple tables or dialogs share a page.
-
-5. **Check tests**
-
-   - Tests should mirror source structure and use `test`, not `it`.
-   - Tests should include `// Arrange`, `// Act`, and `// Assert`.
-   - Prefer Fishery factories for data setup.
-   - Keep assertions focused; combine related state checks into one `toEqual` when that gives a
-     clearer failure.
-   - Use `expect(spy).not.toHaveBeenCalled()` for negative spy assertions.
-
-6. **Check simplicity**
-   - Flag new helpers, abstractions, options, or comments that do not solve a real current problem.
-   - Prefer local fixes over broad refactors when the requested change is narrow.
-   - Confirm old code was deleted when a replacement makes it unreachable.
-
-## Output Format
-
-List findings first, ordered by severity. Each finding should include a file and line reference,
-the risk, and the concrete fix.
-
-```text
-[severity] Short finding title
-File: path/to/file.ts:42
-Risk: What can break or mislead users/developers.
-Fix: One concrete change.
-```
-
-After findings, include open questions or assumptions. If there are no findings, say that clearly
-and mention any test gaps or residual risk.
+[Draft #394](https://github.com/icefoganalytics/travel-authorization/pull/394) also changes the test-review wording. Preserve its direct returned-value/persisted-record assertion intent and separate independent outcomes; do not reintroduce the generic review body when integrating that branch.
 
 ## Related Workflows
 
-- [`./pull-request-management-workflow.md`](./pull-request-management-workflow.md) - Create and update pull requests
-- [`./testing-instructions-workflow.md`](./testing-instructions-workflow.md) - Generate reviewer-friendly validation
-  steps
+- [Pull request overlay](pull-request-management-workflow.md): description, metadata, draft/readiness, and evidence placement.
+- [Testing instructions](testing-instructions-workflow.md): TravelAuth setup and reproducible validation steps.

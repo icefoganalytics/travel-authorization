@@ -1,15 +1,10 @@
 ---
-description: Workflow for planning and executing a batch of JavaScript-to-TypeScript migrations
-auto_execution_mode: 1
+description: TravelAuth-specific requirements for JavaScript-to-TypeScript migration slices
 ---
 
 # TypeScript Migration Slice Workflow
 
-Use this workflow to scope and execute one batch of the remaining JavaScript-to-TypeScript migration work.
-
-## Slice Name
-
-`[Short batch name]`
+Use the shared [TypeScript Migration Slice Workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/typescript-migration-slice-workflow.md) as the authoritative process and slice template. Add these TravelAuth-specific fields and checks to the shared template:
 
 ## Plan Alignment
 
@@ -17,41 +12,23 @@ Use this workflow to scope and execute one batch of the remaining JavaScript-to-
 - Branch state checked against: `git diff --name-status origin/main...HEAD`
 - Why this slice now:
 
-## In-Scope Files
-
-- `path/to/file.js` -> `path/to/file.ts`
-
-## Files To Delete Or Merge Instead Of Convert
-
-- `path/to/file.js` - `[why it should be deleted or folded into another module]`
-
-## Contract Sources
+## Backend Contract Sources
 
 - Backend model:
 - Backend serializer:
 - Existing TypeScript reference files:
 
-## Migration Notes
+## TravelAuth Migration Notes
 
 - Shared types to export:
 - Imports or barrels to update:
 - Runtime edge cases to preserve:
 - Expected backend cleanup, if any:
 
-## Validation Plan
+## Local Validation
 
 - Type-check:
 - Lint:
 - Targeted tests:
 
-## Done Criteria
-
-- [ ] All in-scope files converted, merged, or deleted
-- [ ] No stale `.js` imports remain for this slice
-- [ ] Type exports line up with consumers
-- [ ] Validation complete or explicitly deferred
-
-## Follow-Up Candidates
-
-- `next/path.js`
-- `another/next/file.js`
+Confirm serializer-aligned frontend types and exports match the backend contract. Use the canonical [test commands in `bin/README.md`](../../bin/README.md#testing) for local verification.

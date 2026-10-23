@@ -5,6 +5,8 @@ auto_execution_mode: 1
 
 # Convert JavaScript API to TypeScript Workflow
 
+Use the shared [TypeScript Migration Slice Workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/typescript-migration-slice-workflow.md) for general slice boundaries, contract-first migration, validation, and cleanup. This local workflow keeps the TravelAuth API-specific model, serializer, enum-compatibility, and query-option conventions.
+
 ## Intent
 
 **WHY this workflow exists:** JavaScript API files lack type safety, making refactoring risky and IDE support limited. TypeScript conversion provides compile-time type checking, better autocomplete, and documents the API contract.

@@ -2,6 +2,8 @@
 
 This template shows the structure of a converted TypeScript API file.
 
+The shared [frontend API template](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/templates/frontend/api-typescript-template.md) covers the general model, serializer-aligned response, query, and API method shapes. This local example additionally preserves TravelAuth enum/legacy-constant compatibility, summaries, and exact type-ordering conventions.
+
 ```typescript
 import http from "@/api/http-client"
 import {

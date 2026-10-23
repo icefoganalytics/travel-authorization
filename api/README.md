@@ -59,6 +59,22 @@ The source of truth for supported API environment variables is:
 
 That file defines the loaded environment files and the supported API configuration surface.
 
+## Shared Backend Library Adoption
+
+Use the [shared backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) for conceptual rails, not as permission to replace TravelAuth's controller, policy, serializer, or service bases. Those local contracts and PostgreSQL/Knex migrations remain authoritative.
+
+The current lockfile resolves Express **4.18.2**, `@sequelize/core` and `@sequelize/postgres` **7.0.0-alpha.46**, and Knex **3.0.1**. The development API container resolved the same packages on Node **20.19.0**. Recheck the actual environment with `./bin/dev api node --version` and `./bin/dev api npm ls express @sequelize/core @sequelize/postgres knex express-light-rail --depth=0`; declaration ranges alone are not install evidence. `express-light-rail` is neither declared nor locked here and was absent from that installed dependency listing.
+
+Published [`express-light-rail@0.3.0` metadata](https://registry.npmjs.org/express-light-rail/0.3.0) requires Node `>=22`, Express `^4.21.2`, and `@sequelize/core` `^7.0.0-alpha.43`. The observed Node and Express versions do not meet those requirements. The Sequelize peer range is not proof that TravelAuth's alpha.46 models, associations, transactions, or dialect behavior work with the library.
+
+Before a separately accepted base-replacement change:
+
+1. Select a published artifact and verify its actual engines/peers against the resolved runtime and installed dependency tree, including the PostgreSQL dialect. Plan any required upgrades separately.
+2. Prove compatibility with local request helpers, resource-scoped policies, pagination/order limits, serializers and association preloads, action-service transactions, and existing error middleware; retain Auth0 and integration boundaries.
+3. Exercise representative controller/service/serializer behavior and test setup through the [canonical wrapper](../bin/README.md#testing). Do not infer compatibility from matching names or peer ranges.
+
+[Upstream adoption/patterns](https://github.com/klondikemarlen/express-light-rail/issues/4), [browser-safe contracts](https://github.com/klondikemarlen/express-light-rail/issues/5), and [opt-in tooling](https://github.com/klondikemarlen/express-light-rail/issues/6) own the related library work. Issue #425 changes guidance only: no package installation, runtime upgrade, or base replacement.
+
 ## Related Docs
 
 - [../README.md](../README.md) - repo-level overview and quick start

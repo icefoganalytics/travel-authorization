@@ -2,9 +2,17 @@
 
 Full-stack travel authorization and approval system for the Yukon Government.
 
-This file follows the format from https://agents.md/ for AI agent documentation.
+This is the project overlay on [Marlens Skills, Rules, and Tools](https://github.com/klondikemarlen/marlens-skills-rules-and-tools). Read the linked shared owner before applying its guidance; a link does not install a skill or activate a verifier.
 
-**Documentation philosophy:** Focus on patterns, conventions, and architecture rather than documenting specific features or domain models. Less is more: prefer the smallest guidance that fully solves the problem. A thing is complete not when there is nothing left to add, but when there is nothing left to take away. When guidance becomes specific to a subsystem, move it into the nearest `README.md` or `agents/` workflow and link from here instead of letting this file become a dumping ground.
+## Shared Standards and Local Authority
+
+- [Guidance precedence](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/guidance-precedence-reference.md) governs the shared base. TravelAuth's local contracts, commands, and explicit conventions below remain authoritative; shared guidance is not a retroactive migration.
+- [Human readability](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#human-readability) owns descriptive names, expanded control flow, guard clauses, and maintainability. Keep subsystem details in their nearest README rather than duplicating that standard here.
+- [Backend rails](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) supply the generic route/controller/policy/service/serializer model. Use the local backend READMEs and bases; [library adoption prerequisites](api/README.md#shared-backend-library-adoption) are a separate compatibility gate.
+- [Feature delivery](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/feature-workflow.md) supplies issue-to-merge discipline. [COMMITTING.md](COMMITTING.md) and the [local PR overlay](agents/workflows/pull-request-management-workflow.md) own TravelAuth's contribution and description contracts.
+- [Agent discovery](agents/README.md) routes tasks to shared owners and local overlays, including learner ownership.
+
+Preserve the import, type, and test conventions below until explicitly reconciled. [Draft #394](https://github.com/icefoganalytics/travel-authorization/pull/394) owns further import/export and test-policy changes; do not restore copied generic workflow text when integrating it. [#417](https://github.com/icefoganalytics/travel-authorization/issues/417) owns screenshot-workflow reconciliation; use the existing local PR/screenshot entrypoints rather than creating parallel instructions. Async composable proposals are not adopted policy and do not authorize form or composable rewrites.
 
 ## Technology Stack
 
@@ -38,34 +46,13 @@ This file follows the format from https://agents.md/ for AI agent documentation.
 
 ### Commands
 
-Everything goes through `./bin/dev` (Ruby wrapper). All commands run inside Docker containers — no local Node install needed.
+Everything goes through `./bin/dev` (Ruby wrapper); development and test commands run inside Docker. [bin/README.md](bin/README.md) owns actual commands, gateway lifecycle, database selection, and test-container isolation. Use its [testing section](bin/README.md#testing), not service-shell package commands. Only one API test container may run at a time.
 
-```bash
-dev up                          # Start full stack through checkout-derived gateway hostnames
-dev up api                      # Start a single service
-dev down -v                     # Stop + wipe database volume
-dev psql                        # DB shell (travel_development)
-dev psql-query "SELECT ..."     # Run SQL directly
-dev migrate up                  # Run Knex migrations
-dev migrate down                # Rollback
-dev migrate make create-table-name
+The standard PR setup remains:
 
-dev test                        # All API tests (default)
-dev test api                    # Same
-dev test web                    # All web tests
-dev test api -- --run tests/services/example.test.ts   # Single file
-dev test api -- --grep "pattern"                       # Filter by name
-
-# CRITICAL: Only one test container at a time. Two concurrent test runs
-# will deadlock on the database. Check with: docker ps | grep test_
-
-dev check-types                 # Runs both api + web type checks
-dev web npm run check-types     # Frontend-only type check
-dev api npm run check-types     # Backend-only type check
-
-npx prettier --check .          # From project root
-npx prettier --write .          # Auto-fix formatting
-```
+1. Run the relevant test suite using the [canonical commands](bin/README.md#testing).
+2. Boot the app via `./bin/dev up`.
+3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
 
 See [README.md](README.md#local-services) for browser and TLS database gateway addresses.
 
@@ -87,12 +74,9 @@ See [README.md](README.md#local-services) for browser and TLS database gateway a
   asking first
 - Do not use `@ts-expect-error` without asking first; if permitted, always include a comment
   explaining the gap
-- No abbreviations: full descriptive names (`workflow` not `wf`)
-- When using acronyms in prose (commit messages, comments, docs), spell out the full term first at least once per block of text before using the acronym.
-- Number similar entities: `user1`, `user2` for clarity (not `existingUser`, `newUser`)
-- Expanded code style: one thing per line, avoid terse functional chains
-- Guard clauses with blank line after each
-- Hoist magic numbers to named `const`
+- No abbreviations in code: use full descriptive names.
+- Spell out acronyms in prose at least once per block; use numbered peer entities such as `user1`, `user2`.
+- Separate guard clauses with a blank line; hoist magic numbers to named `const`.
 - Error paths: `console.error(...)` before `snack.error(...)`
 - camelCase for variables/functions, PascalCase for classes/types
 - Prettier formatting: no semicolons, double quotes, printWidth 100, ES5 trailing commas
@@ -129,14 +113,7 @@ Route → BaseController (instance) → Service (.perform()) → Model/Sequelize
 
 ### Testing
 
-See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use the `dev test ...` commands, not service-shell package commands.
-
-- Fishery factories imported from `@/factories`
-- Triple `describe`: file path → class → method
-- AAA comments (`// Arrange`, `// Act`, `// Assert`)
-- Use `test()`, not `it()`
-- One strong assertion over many weak ones
-- Mock cleanup automatic via `vite.config.mts` — no manual `vi.restoreAllMocks()`
+Use [api/tests/README.md](api/tests/README.md) for the backend test overlay and [web/tests/README.md](web/tests/README.md) for the frontend test contract. They retain TravelAuth's Fishery setup, mirrored paths, nested `describe` hierarchy, `test()` naming, Arrange/Act/Assert comments, assertion conventions, and automatic mock cleanup.
 
 ---
 
@@ -146,7 +123,6 @@ See [`bin/README.md`](bin/README.md#testing) for canonical test commands. Use th
 
 - TypeScript only - no `any`, `@ts-expect-error`, `@ts-ignore`
 - Vue 3 + Vuetify 3
-- No abbreviations, expanded style, guard clauses (same as backend)
 - **Props:** TypeScript generic `defineProps<{ prop: type }>()` with `withDefaults()` when defaults needed
 - **setTimeout:** Use `number` type, not `NodeJS.Timeout`
 - **Loading:** Use `isNil(data)` instead of boolean `isLoading` flags
@@ -242,12 +218,12 @@ See [`COMMITTING.md`](COMMITTING.md) for detailed commit message, PR description
 
 **Pre-submission:**
 
-- All tests pass via `dev test`
-- Type checking passes via `dev check-types`
-- Prettier formatting passes: `npx prettier --check .`
+- All tests pass via `dev test`.
+- Type checking passes via `dev check-types`.
+- Prettier formatting passes: `npx prettier --check .`.
 - No `@ts-ignore`, `@ts-expect-error`, or `any` types
 - Follow naming conventions (no abbreviations)
-- Write tests for new functionality (AAA pattern)
+- Follow the affected test directory's local setup and assertion contract.
 - Never `git push --force` on main branch
 
 ---

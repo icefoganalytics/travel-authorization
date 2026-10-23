@@ -2,6 +2,8 @@
 
 This template is for creating index serializers for backend controllers.
 
+The shared [serializer template](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/templates/backend/express-light-rail/serializer-template.md) covers explicit response projections. This TravelAuth version retains the `BaseSerializer` class, `perform()` entrypoint, user context, and `AsIndex` contract required by the current backend.
+
 ```typescript
 import { pick } from "lodash"
 import { Resource, User } from "@/models"
