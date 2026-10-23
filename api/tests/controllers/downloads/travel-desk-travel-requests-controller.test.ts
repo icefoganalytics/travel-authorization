@@ -2,6 +2,8 @@ import Papa from "papaparse"
 import qs from "qs"
 
 import { TravelDeskTravelRequest, User } from "@/models"
+import { CreatePdfService } from "@/services/downloads/travel-desk-travel-requests/create-pdf-service"
+
 import {
   travelAuthorizationFactory,
   travelDeskTravelRequestFactory,
@@ -216,6 +218,33 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         })
         const officerNames = parsedCsv.data.map((row) => row["Travel Desk Officer"])
         expect(officerNames).toEqual(["Booked Officer", "Draft Officer"])
+      })
+
+      test("when PDF generation fails, it returns an unprocessable response without download headers", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        mockCurrentUser(user1)
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create()
+        vi.spyOn(CreatePdfService, "perform").mockRejectedValueOnce(
+          new Error("PDF rendering failed")
+        )
+
+        // Act
+        const response = await request()
+          .post("/api/downloads/travel-desk-travel-requests")
+          .query({ format: "pdf", where: { id: [travelDeskTravelRequest.id] } })
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message: "Failed to create travel desk travel requests download",
+        })
+        expect(response.headers["content-disposition"]).toBeUndefined()
       })
 
       test("when a query cannot be processed, it returns an unprocessable response", async () => {

@@ -42,39 +42,37 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
       }
 
       const reportRows = ReportSerializer.perform(travelDeskTravelRequests, this.currentUser)
-      const fileBuffer = await this.createFile(format, reportRows)
-      const date = DateTime.now().toFormat("yyyy-LL-dd")
-
       if (format === "csv") {
-        this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
-        this.response.setHeader(
-          "Content-Disposition",
-          `attachment; filename="Export, Travel Desk Requests, ${date}.csv"`
-        )
+        return await this.respondWithCsv(reportRows)
       } else {
-        this.response.setHeader("Content-Type", "application/pdf")
-        this.response.setHeader(
-          "Content-Disposition",
-          `inline; filename="Travel Desk Report, ${date}.pdf"`
-        )
+        return await this.respondWithPdf(reportRows)
       }
-
-      return this.response.status(200).send(fileBuffer)
     } catch (error) {
       logger.error(`${DOWNLOAD_FAILURE_MESSAGE}: ${error}`, { error })
       return this.response.status(422).json({ message: DOWNLOAD_FAILURE_MESSAGE })
     }
   }
 
-  private createFile(
-    format: "csv" | "pdf",
-    rows: TravelDeskTravelRequestAsReport[]
-  ): Promise<Buffer> {
-    if (format === "csv") {
-      return CreateCsvService.perform(rows)
-    }
+  private async respondWithCsv(rows: TravelDeskTravelRequestAsReport[]) {
+    const fileBuffer = await CreateCsvService.perform(rows)
+    const date = DateTime.now().toFormat("yyyy-LL-dd")
+    const fileName = `Export, Travel Desk Requests, ${date}.csv`
 
-    return CreatePdfService.perform(rows)
+    this.response.attachment(fileName)
+    this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
+
+    return this.response.status(200).send(fileBuffer)
+  }
+
+  private async respondWithPdf(rows: TravelDeskTravelRequestAsReport[]) {
+    const fileBuffer = await CreatePdfService.perform(rows)
+    const date = DateTime.now().toFormat("yyyy-LL-dd")
+    const fileName = `Travel Desk Report, ${date}.pdf`
+
+    this.response.setHeader("Content-Type", "application/pdf")
+    this.response.setHeader("Content-Disposition", `inline; filename="${fileName}"`)
+
+    return this.response.status(200).send(fileBuffer)
   }
 }
 
