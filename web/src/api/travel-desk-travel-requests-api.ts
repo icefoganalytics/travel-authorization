@@ -58,10 +58,12 @@ export type TravelDeskTravelRequest = {
   updatedAt: string
 }
 
-export type TravelDeskTravelRequestAsIndex = TravelDeskTravelRequest & {
+export type TravelDeskTravelRequestAsIndex = Omit<TravelDeskTravelRequest, "birthDate"> & {
   userDisplayName: string
   department: string
   branch: string
+  isAssignedToCurrentUser: boolean
+  isBooked: boolean
   travelStartDate: string
   travelEndDate: string
   locationsTraveled: string

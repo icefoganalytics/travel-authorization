@@ -1,112 +1,28 @@
 <template>
-  <v-btn
-    v-bind="$attrs"
-    :loading="isLoading"
-    @click="exportToCsv"
+  <DownloadFileForm
+    :download-url="downloadUrl"
+    :disabled="travelDeskTravelRequestIds.length === 0"
   >
     <template #default>
-      <slot> Export To CSV </slot>
+      <slot>Export To CSV</slot>
     </template>
-  </v-btn>
+  </DownloadFileForm>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
-import { useI18n } from "vue-i18n"
-import { ExportToCsv } from "export-to-csv"
-import { isNil, isEmpty } from "lodash"
-import { DateTime } from "luxon"
 
-import useTravelDeskTravelRequests, {
-  TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
-} from "@/use/use-travel-desk-travel-requests"
+import { reportsApi } from "@/api/downloads/travel-desk-travel-requests"
 
-const props = defineProps({
-  travelDeskTravelRequestIds: {
-    type: Array,
-    default: () => [],
-  },
-})
+import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 
-const { t } = useI18n()
+const props = defineProps<{
+  travelDeskTravelRequestIds: number[]
+}>()
 
-const travelDeskTravelRequestsQuery = computed(() => {
-  return {
-    where: {
-      id: props.travelDeskTravelRequestIds,
-    },
-  }
-})
-const { travelDeskTravelRequests, isLoading } = useTravelDeskTravelRequests(
-  travelDeskTravelRequestsQuery,
-  {
-    skipWatchIf: () =>
-      isNil(props.travelDeskTravelRequestIds) || isEmpty(props.travelDeskTravelRequestIds),
-  }
-)
-
-// TODO: move to back-end see https://github.com/icefoganalytics/internal-data-portal/blob/main/api/src/controllers/download/datasets-controller.ts
-async function exportToCsv() {
-  const csvInfo = travelDeskTravelRequests.value.map((travelDeskTravelRequest) => {
-    const {
-      createdAt,
-      userDisplayName,
-      department,
-      branch,
-      travelStartDate,
-      travelEndDate,
-      locationsTraveled,
-      requestedOptions,
-      status,
-      travelDeskOfficer,
-    } = travelDeskTravelRequest
-
-    const submissionDate = createdAt.slice(0, 10)
-
-    const formattedStatus = determineStatus(status, travelDeskOfficer)
-    const formattedTravelDeskOfficer = travelDeskOfficer ?? ""
-
-    return {
-      ["Submit Date"]: submissionDate,
-      ["Name"]: userDisplayName,
-      ["Department"]: department,
-      ["Branch"]: branch,
-      ["Travel Start Date"]: travelStartDate,
-      ["Travel End Date"]: travelEndDate,
-      ["Location"]: locationsTraveled,
-      ["Requested"]: requestedOptions,
-      ["Status"]: formattedStatus,
-      ["Travel Desk Officer"]: formattedTravelDeskOfficer,
-    }
+const downloadUrl = computed(() =>
+  reportsApi.downloadPath("csv", {
+    where: { id: props.travelDeskTravelRequestIds },
   })
-
-  const timestamp = DateTime.now().toFormat("yyyy-LL-dd")
-
-  const options = {
-    fieldSeparator: ",",
-    quoteStrings: '"',
-    decimalSeparator: ".",
-    showLabels: true,
-    showTitle: false,
-    title: "",
-    // TODO: use better, or new library to get _ (underscores) out of file name
-    filename: `Export, Travel Desk Requests, ${timestamp}`,
-    useTextFile: false,
-    useBom: true,
-    useKeysAsHeaders: true,
-  }
-  const csvExporter = new ExportToCsv(options)
-  csvExporter.generateCsv(csvInfo)
-}
-
-function determineStatus(status, travelDeskOfficer) {
-  if (
-    status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED &&
-    (isNil(travelDeskOfficer) || isEmpty(travelDeskOfficer))
-  ) {
-    return "Not Started"
-  }
-
-  return t(`travel_desk_travel_request.status.${status}`, status)
-}
+)
 </script>

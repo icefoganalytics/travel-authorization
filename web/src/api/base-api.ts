@@ -1,3 +1,5 @@
+import qs from "qs"
+
 // Keep in sync with api/src/controllers/base-controller.ts#ModelOrder
 export type ModelOrder =
   | [string, string]
@@ -31,3 +33,11 @@ export type Policy = {
 
 // Keep in sync with api/src/controllers/base-controller.ts
 export const MAX_PER_PAGE = 1000
+
+export function serializeQuery(params: object): string {
+  return qs.stringify(params, {
+    arrayFormat: "indices",
+    strictNullHandling: true,
+    allowEmptyArrays: true,
+  })
+}
