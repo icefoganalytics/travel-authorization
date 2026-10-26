@@ -120,3 +120,6 @@ export const DB_HEALTH_CHECK_START_PERIOD_SECONDS = parseInt(
 export const APP_ROOT_PATH = path.resolve(__dirname, "..")
 export const SOURCE_ROOT_PATH =
   NODE_ENV === "production" ? path.join(APP_ROOT_PATH, "dist") : path.join(APP_ROOT_PATH, "src")
+export const TEMPLATE_ROOT_PATH = path.join(SOURCE_ROOT_PATH, "templates")
+
+export const VUESQUE_TEMPLATE_DELIMINATOR_REGEX = /{{([\s\S]+?)}}/g
