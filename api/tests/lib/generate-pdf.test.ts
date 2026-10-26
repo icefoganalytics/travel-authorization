@@ -1,33 +1,13 @@
-const browserState = vi.hoisted(() => ({ connected: false }))
+import { mockPuppeteer } from "@/support/mock-puppeteer"
 
-vi.mock("puppeteer", () => ({
-  default: {
-    async launch() {
-      browserState.connected = true
-
-      return {
-        async newPage() {
-          return {
-            async setJavaScriptEnabled() {},
-            async setContent() {
-              throw new Error("Rendering failed")
-            },
-          }
-        },
-        async close() {
-          browserState.connected = false
-        },
-      }
-    },
-  },
-}))
-
-import { generatePdf } from "@/lib/generate-pdf"
+import generatePdf from "@/lib/generate-pdf"
 
 describe("api/src/lib/generate-pdf.ts", () => {
   describe("generatePdf", () => {
     test("when rendering fails, closes the browser before rejecting", async () => {
       // Arrange
+      const { browserState, page } = mockPuppeteer()
+      page.setContent.mockRejectedValueOnce(new Error("Rendering failed"))
       const htmlDocument = "<!doctype html><html><body>Report</body></html>"
 
       // Act
