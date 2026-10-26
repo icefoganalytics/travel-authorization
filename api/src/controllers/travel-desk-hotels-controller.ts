@@ -53,8 +53,9 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         })
       }
 
+      const serializedTravelDeskHotel = IndexSerializer.perform(travelDeskHotel, this.currentUser)
       return this.response.json({
-        travelDeskHotel,
+        travelDeskHotel: serializedTravelDeskHotel,
         policy,
       })
     } catch (error) {
@@ -77,8 +78,12 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
       const newTravelDeskHotel = await CreateService.perform(permittedAttributes, this.currentUser)
+      const serializedTravelDeskHotel = IndexSerializer.perform(
+        newTravelDeskHotel,
+        this.currentUser
+      )
       return this.response.status(201).json({
-        travelDeskHotel: newTravelDeskHotel,
+        travelDeskHotel: serializedTravelDeskHotel,
         policy,
       })
     } catch (error) {
@@ -111,8 +116,12 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskHotel = IndexSerializer.perform(
+        updatedTravelDeskHotel,
+        this.currentUser
+      )
       return this.response.json({
-        travelDeskHotel: updatedTravelDeskHotel,
+        travelDeskHotel: serializedTravelDeskHotel,
         policy,
       })
     } catch (error) {
