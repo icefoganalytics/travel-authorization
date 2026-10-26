@@ -17,6 +17,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Changed
 
+- Travel Desk download controls show loading indicators while unavailable or preparing a file.
 - Report filters use autocomplete selections and show how many filters are active. Filter selections are saved in the URL for bookmarking and sharing.
 - Reports have separate table, graph, and print views. Flight statistics tables load and sort one page at a time.
 - User administration includes a mailcode field and updated user search and editing controls.
