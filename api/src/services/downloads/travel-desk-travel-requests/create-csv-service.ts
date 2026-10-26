@@ -1,19 +1,34 @@
+import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
+import { isEmpty } from "lodash"
 import { writeToBuffer } from "fast-csv"
 
-import {
-  TravelDeskTravelRequestReportHeaders,
-  type TravelDeskTravelRequestAsReport,
-} from "@/serializers/travel-desk-travel-requests/report-serializer"
+import { type ModelOrder } from "@/controllers/base-controller"
+import { type TravelDeskTravelRequest, type User } from "@/models"
+import { TravelDeskTravelRequestReportHeaders } from "@/serializers/travel-desk-travel-requests"
 import neutralizeSpreadsheetFormula from "@/utils/neutralize-spreadsheet-formula"
 import BaseService from "@/services/base-service"
+import { LoadReportRowsService } from "@/services/downloads/travel-desk-travel-requests/load-report-rows-service"
 
 export class CreateCsvService extends BaseService {
-  constructor(private rows: TravelDeskTravelRequestAsReport[]) {
+  constructor(
+    private scopedTravelDeskTravelRequests: ModelStatic<TravelDeskTravelRequest>,
+    private where: WhereOptions<Attributes<TravelDeskTravelRequest>>,
+    private order: ModelOrder[] | undefined,
+    private currentUser: User
+  ) {
     super()
   }
 
-  async perform(): Promise<Buffer> {
-    const csvRows = this.rows.map((row) =>
+  async perform(): Promise<Buffer | undefined> {
+    const serializedTravelDeskTravelRequests = await LoadReportRowsService.perform(
+      this.scopedTravelDeskTravelRequests,
+      this.where,
+      this.order,
+      this.currentUser
+    )
+    if (isEmpty(serializedTravelDeskTravelRequests)) return undefined
+
+    const csvRows = serializedTravelDeskTravelRequests.map((row) =>
       Object.fromEntries(
         Object.entries(row).map(([header, value]) => [header, neutralizeSpreadsheetFormula(value)])
       )
