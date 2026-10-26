@@ -65,6 +65,12 @@ Edits use the current resource APIs and state actions; the legacy `/api/travelde
 router is removed. During options review, an owner may update only a question's response, not its
 text, type, or request identity. Existing booking permissions are unchanged.
 
+Travel Desk resource responses serialize explicit public fields rather than ORM association graphs.
+Flight-request and flight-option lists retain their nested options and segments; their individual
+show/create/update responses are flat. Submit, options-provided, options-ranked, and book actions
+return the request show contract, including `hasPassengerNameRecordDocument`. Associations loaded
+only for permission checks are not returned.
+
 ## Environment Variables
 
 The source of truth for supported API environment variables is:

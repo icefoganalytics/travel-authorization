@@ -39,13 +39,15 @@ describe("api/src/controllers/travel-desk-questions-controller.ts", () => {
         // Assert
         expect(response.status).toEqual(200)
         expect(response.body).toEqual({
-          travelDeskQuestion: expect.objectContaining({
+          travelDeskQuestion: {
             id: question.id,
             travelRequestId: travelDeskTravelRequest.id,
             requestType: "flight",
             question: "Window or aisle?",
             response: "Window, please.",
-          }),
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+          },
         })
       })
 

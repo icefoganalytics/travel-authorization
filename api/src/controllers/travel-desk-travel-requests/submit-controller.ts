@@ -3,6 +3,7 @@ import { isNil } from "lodash"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequestsPolicy } from "@/policies"
 import { SubmitService } from "@/services/travel-desk-travel-requests"
+import { ShowSerializer } from "@/serializers/travel-desk-travel-requests"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -27,9 +28,17 @@ export class SubmitController extends BaseController {
         permittedAttributes,
         this.currentUser
       )
-      return this.response
-        .status(200)
-        .json({ travelDeskTravelRequest: updatedTravelDeskTravelRequest })
+      const updatedTravelDeskTravelRequestWithDocument =
+        await updatedTravelDeskTravelRequest.reload({
+          include: ["passengerNameRecordDocument"],
+        })
+      const serializedTravelDeskTravelRequest = ShowSerializer.perform(
+        updatedTravelDeskTravelRequestWithDocument,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        travelDeskTravelRequest: serializedTravelDeskTravelRequest,
+      })
     } catch (error) {
       return this.response
         .status(422)
