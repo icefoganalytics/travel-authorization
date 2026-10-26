@@ -1,6 +1,5 @@
 import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
-import { isUndefined } from "lodash"
 
 import logger from "@/utils/logger"
 import { type TravelDeskTravelRequest } from "@/models"
@@ -49,11 +48,6 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
       order,
       this.currentUser
     )
-    if (isUndefined(fileBuffer)) {
-      return this.response.status(404).json({
-        message: "Travel desk travel requests were not found",
-      })
-    }
 
     const fileName = this.buildFileName("csv")
 
@@ -74,11 +68,6 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
       order,
       this.currentUser
     )
-    if (isUndefined(fileBuffer)) {
-      return this.response.status(404).json({
-        message: "Travel desk travel requests were not found",
-      })
-    }
 
     const fileName = this.buildFileName("pdf")
 

@@ -196,7 +196,7 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         ])
       })
 
-      test("when the query matches no requests, it returns a generic not-found response", async () => {
+      test("when the query matches no requests, it returns an unprocessable response without download headers", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         mockCurrentUser(user1)
@@ -207,13 +207,14 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
           .query({ format: "csv", where: { id: [NONEXISTENT_REQUEST_ID] } })
 
         // Assert
-        expect(response.status).toEqual(404)
+        expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: "Travel desk travel requests were not found",
+          message: "Failed to create travel desk travel requests download",
         })
+        expect(response.headers["content-disposition"]).toBeUndefined()
       })
 
-      test("when a PDF query matches only an inaccessible request, it returns not found", async () => {
+      test("when a PDF query matches only an inaccessible request, it returns an unprocessable response without download headers", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         const user2 = await userFactory.create({ roles: [User.Roles.USER] })
@@ -231,10 +232,11 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
           .query({ format: "pdf", where: { id: [foreignRequest.id] } })
 
         // Assert
-        expect(response.status).toEqual(404)
+        expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: "Travel desk travel requests were not found",
+          message: "Failed to create travel desk travel requests download",
         })
+        expect(response.headers["content-disposition"]).toBeUndefined()
       })
 
       test("when where, filter scopes, and order are combined, it exports the matching rows in scope-defined order", async () => {

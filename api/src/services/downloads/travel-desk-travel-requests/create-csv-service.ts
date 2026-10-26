@@ -19,14 +19,16 @@ export class CreateCsvService extends BaseService {
     super()
   }
 
-  async perform(): Promise<Buffer | undefined> {
+  async perform(): Promise<Buffer> {
     const serializedTravelDeskTravelRequests = await IndexService.perform(
       this.scopedTravelDeskTravelRequests,
       this.where,
       this.order,
       this.currentUser
     )
-    if (isEmpty(serializedTravelDeskTravelRequests)) return undefined
+    if (isEmpty(serializedTravelDeskTravelRequests)) {
+      throw new Error("Travel desk travel requests were not found")
+    }
 
     const csvRows = serializedTravelDeskTravelRequests.map((row) =>
       Object.fromEntries(
