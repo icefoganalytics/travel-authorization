@@ -11,12 +11,10 @@ import BaseController from "@/controllers/base-controller"
 
 export class TravelDeskTravelRequestsController extends BaseController<TravelDeskTravelRequest> {
   async create() {
-    const format = this.query.format
-
     try {
-      if (format === "csv") {
+      if (this.query.format === "csv") {
         return await this.respondWithCsv()
-      } else if (format === "pdf") {
+      } else if (this.query.format === "pdf") {
         return await this.respondWithPdf()
       } else {
         return this.response.status(422).json({
