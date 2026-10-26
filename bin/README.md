@@ -185,6 +185,40 @@ LIMIT 5;
 SQL
 ```
 
+#### Export and Import a Development Database
+
+With the source checkout's PostgreSQL service running, export its application database to a host file:
+
+```bash
+./bin/dev db --export "/tmp/travel source.dump"
+./bin/dev psql-query "SELECT COUNT(*) FROM users;"
+```
+
+Export takes a consistent, read-only PostgreSQL snapshot. The custom-format archive contains schema, migration state, application data, constraints, and sequences. New backup files are owner-only readable/writable; keep all backups private and out of version control.
+
+**Import replaces the destination checkout's development database, including target-only tables and records.** Stop its API and any other writers, close database-client sessions, and export any target data you need to preserve before importing. Only restore trusted backups. A restore failure after database replacement can leave the destination empty; retain the target backup until verification succeeds.
+
+From the destination worktree:
+
+```bash
+./bin/dev stop api
+./bin/dev up -d db
+# Wait until PostgreSQL accepts this query before continuing.
+./bin/dev psql-query "SELECT current_database();"
+./bin/dev db --export "/tmp/travel target before import.dump"
+./bin/dev db --import "/tmp/travel source.dump"
+./bin/dev psql-query "SELECT COUNT(*) FROM users;"
+./bin/dev up -d api web
+```
+
+Compare a known record through `dev psql-query` in both checkouts. A destination-only edit must not change the source; importing the source archive again replaces that edit. Each checkout retains its own physical database volume.
+
+Both commands select the current checkout's Compose `db` container directly and use its configured `POSTGRES_DB` and `POSTGRES_USER`. They do not discover another checkout, share data directories, or transfer TravCom SQL Server, test, or production databases. PostgreSQL and Docker failures remain visible with nonzero exit status. Existing `dev db COMMAND ...` execution is unchanged:
+
+```bash
+./bin/dev db printenv POSTGRES_DB
+```
+
 ### GitHub Helpers
 
 ```bash
