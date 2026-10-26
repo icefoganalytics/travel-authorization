@@ -3,7 +3,8 @@ import { isNil } from "lodash"
 
 import { TravelDeskQuestion, TravelDeskTravelRequest } from "@/models"
 import { TravelDeskQuestionsPolicy } from "@/policies"
-import { CreateService } from "@/services/travel-desk-questions"
+import { CreateService, UpdateService } from "@/services/travel-desk-questions"
+import { IndexSerializer } from "@/serializers/travel-desk-questions"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -26,8 +27,12 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         offset: this.pagination.offset,
         order: [nullResponsesFirstOrder, ["updatedAt", "DESC"]],
       })
-      return this.response.status(200).json({
+      const serializedTravelDeskQuestions = IndexSerializer.perform(
         travelDeskQuestions,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        travelDeskQuestions: serializedTravelDeskQuestions,
         totalCount,
       })
     } catch (error) {
@@ -53,8 +58,12 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         })
       }
 
-      return this.response.status(200).json({
+      const serializedTravelDeskQuestion = IndexSerializer.perform(
         travelDeskQuestion,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        travelDeskQuestion: serializedTravelDeskQuestion,
         policy,
       })
     } catch (error) {
@@ -79,8 +88,12 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskQuestion = IndexSerializer.perform(
+        newTravelDeskQuestion,
+        this.currentUser
+      )
       return this.response.status(201).json({
-        travelDeskQuestion: newTravelDeskQuestion,
+        travelDeskQuestion: serializedTravelDeskQuestion,
       })
     } catch (error) {
       return this.response.status(422).json({
@@ -104,11 +117,19 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
           .status(403)
           .json({ message: "You are not authorized to update this travel desk question." })
       }
-
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-      const updatedTravelDeskQuestion = await travelDeskQuestion.update(permittedAttributes)
+
+      const updatedTravelDeskQuestion = await UpdateService.perform(
+        travelDeskQuestion,
+        permittedAttributes,
+        this.currentUser
+      )
+      const serializedTravelDeskQuestion = IndexSerializer.perform(
+        updatedTravelDeskQuestion,
+        this.currentUser
+      )
       return this.response.status(200).json({
-        travelDeskQuestion: updatedTravelDeskQuestion,
+        travelDeskQuestion: serializedTravelDeskQuestion,
       })
     } catch (error) {
       return this.response.status(422).json({
