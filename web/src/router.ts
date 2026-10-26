@@ -3,8 +3,6 @@ import { authGuard } from "@auth0/auth0-vue"
 
 import useRouteHistory from "@/use/use-route-history"
 
-import travelDeskRouter from "@/modules/travelDesk/router"
-
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -47,6 +45,19 @@ const routes: RouteRecordRaw[] = [
             name: "my-travel-requests/MyTravelRequestWizardPage",
             component: () => import("@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"),
             props: true,
+          },
+          {
+            path: "travel-requests",
+            name: "travel-requests/TravelDeskRequestsPage",
+            component: () => import("@/pages/travel-requests/TravelDeskRequestsPage.vue"),
+          },
+          {
+            path: "travel-requests/:travelAuthorizationId/travel-desk",
+            name: "travel-requests/TravelDeskRequestPage",
+            component: () => import("@/pages/travel-requests/TravelDeskRequestPage.vue"),
+            props: (route) => ({
+              travelAuthorizationId: Number(route.params.travelAuthorizationId),
+            }),
           },
           {
             path: "travel-requests/:travelAuthorizationId",
@@ -534,8 +545,6 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-
-  ...travelDeskRouter,
 
   {
     name: "SignInPage",
