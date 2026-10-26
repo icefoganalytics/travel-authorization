@@ -1,4 +1,3 @@
-export { IndexService } from "./index-service"
 export { CreateService } from "./create-service"
 export { UpdateService } from "./update-service"
 
