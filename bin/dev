@@ -11,6 +11,7 @@ require "local_development_gateway"
 require "open_in_editor_bridge"
 
 require_relative "./github_api"
+require_relative "./lib/database/all"
 require_relative "./pull-request-editor"
 
 class DevHelper
@@ -189,8 +190,38 @@ class DevHelper
     psql(*args, pipe_input: query, **kwargs)
   end
 
+  ##
+  # Run a command in the database container, or export/import its development database.
+  # Examples:
+  #   dev db printenv POSTGRES_DB
+  #   dev db --export /tmp/travel-development.dump
+  #   dev db --import /tmp/travel-development.dump
+  #
+  # Import replaces the development database. Stop the API and other writers first.
   def db(*args, **kwargs)
-    compose(*%w[exec db], *args, **kwargs)
+    case args.first
+    when "--export", "--import"
+      action, backup_path = args
+      unless args.length == 2 && !backup_path.empty?
+        raise ArgumentError, "Usage: dev db #{action} BACKUP_PATH"
+      end
+
+      unless kwargs.fetch(:environment, "development") == "development"
+        raise ArgumentError, "Database export/import is only available for development."
+      end
+
+      compose_options = compose_file_options(**kwargs)
+      environment = dynamic_environment_variables
+      Database::Command.call(
+        action.delete_prefix("--"),
+        backup_path,
+        project_root:,
+        compose_options:,
+        environment:
+      )
+    else
+      compose(*%w[exec db], *args, **kwargs)
+    end
   end
 
   def debug
