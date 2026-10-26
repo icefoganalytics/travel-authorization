@@ -1,21 +1,29 @@
+import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
-import { isEmpty } from "lodash"
+import { isUndefined } from "lodash"
 
 import logger from "@/utils/logger"
 import { type TravelDeskTravelRequest } from "@/models"
-import { IndexService } from "@/services/travel-desk-travel-requests"
+import { TravelDeskTravelRequestsPolicy } from "@/policies"
 import { CreateCsvService } from "@/services/downloads/travel-desk-travel-requests/create-csv-service"
 import { CreatePdfService } from "@/services/downloads/travel-desk-travel-requests/create-pdf-service"
-import { ReportSerializer } from "@/serializers/travel-desk-travel-requests"
-import BaseController from "@/controllers/base-controller"
+import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 
 export class TravelDeskTravelRequestsController extends BaseController<TravelDeskTravelRequest> {
   async create() {
     try {
+      const where = this.buildWhere()
+      const scopes = this.buildFilterScopes()
+      const order = this.buildOrder([["id", "ASC"]])
+      const scopedTravelDeskTravelRequests = TravelDeskTravelRequestsPolicy.applyScope(
+        scopes,
+        this.currentUser
+      )
+
       if (this.query.format === "csv") {
-        return await this.respondWithCsv()
+        return await this.respondWithCsv(scopedTravelDeskTravelRequests, where, order)
       } else if (this.query.format === "pdf") {
-        return await this.respondWithPdf()
+        return await this.respondWithPdf(scopedTravelDeskTravelRequests, where, order)
       } else {
         return this.response.status(422).json({
           message: "Unsupported report format",
@@ -30,37 +38,23 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
     }
   }
 
-  private async loadSerializedTravelDeskTravelRequests() {
-    const where = this.buildWhere()
-    const scopes = this.buildFilterScopes()
-    const order = this.buildOrder([["id", "ASC"]])
-
-    // Reports include all matches rather than only the current list page.
-    const { travelDeskTravelRequests } = await IndexService.perform(
+  private async respondWithCsv(
+    scopedTravelDeskTravelRequests: ModelStatic<TravelDeskTravelRequest>,
+    where: WhereOptions<Attributes<TravelDeskTravelRequest>>,
+    order: ModelOrder[] | undefined
+  ) {
+    const fileBuffer = await CreateCsvService.perform(
+      scopedTravelDeskTravelRequests,
       where,
-      scopes,
       order,
-      undefined,
-      undefined,
       this.currentUser
     )
-    const serializedTravelDeskTravelRequests = ReportSerializer.perform(
-      travelDeskTravelRequests,
-      this.currentUser
-    )
-
-    return serializedTravelDeskTravelRequests
-  }
-
-  private async respondWithCsv() {
-    const serializedTravelDeskTravelRequests = await this.loadSerializedTravelDeskTravelRequests()
-    if (isEmpty(serializedTravelDeskTravelRequests)) {
+    if (isUndefined(fileBuffer)) {
       return this.response.status(404).json({
         message: "Travel desk travel requests were not found",
       })
     }
 
-    const fileBuffer = await CreateCsvService.perform(serializedTravelDeskTravelRequests)
     const fileName = this.buildFileName("csv")
 
     this.response.attachment(fileName)
@@ -69,15 +63,23 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
     return this.response.status(200).send(fileBuffer)
   }
 
-  private async respondWithPdf() {
-    const serializedTravelDeskTravelRequests = await this.loadSerializedTravelDeskTravelRequests()
-    if (isEmpty(serializedTravelDeskTravelRequests)) {
+  private async respondWithPdf(
+    scopedTravelDeskTravelRequests: ModelStatic<TravelDeskTravelRequest>,
+    where: WhereOptions<Attributes<TravelDeskTravelRequest>>,
+    order: ModelOrder[] | undefined
+  ) {
+    const fileBuffer = await CreatePdfService.perform(
+      scopedTravelDeskTravelRequests,
+      where,
+      order,
+      this.currentUser
+    )
+    if (isUndefined(fileBuffer)) {
       return this.response.status(404).json({
         message: "Travel desk travel requests were not found",
       })
     }
 
-    const fileBuffer = await CreatePdfService.perform(serializedTravelDeskTravelRequests)
     const fileName = this.buildFileName("pdf")
 
     this.response.setHeader("Content-Type", "application/pdf")
