@@ -9,11 +9,17 @@
     </v-btn>
     <h1 class="text-h4 mb-4">Travel Desk Request</h1>
     <v-skeleton-loader
-      v-if="isLoading || requestIsLoading"
+      v-if="
+        (isLoading && isNil(travelAuthorization)) ||
+        (requestIsLoading && isNil(travelDeskTravelRequest))
+      "
       type="card"
     />
     <v-alert
-      v-else-if="isErrored || requestIsErrored"
+      v-else-if="
+        (isErrored && isNil(travelAuthorization)) ||
+        (requestIsErrored && isNil(travelDeskTravelRequest))
+      "
       type="error"
     >
       The Travel Desk Request could not be loaded.
@@ -52,13 +58,34 @@
       <TravelDeskTravelRequestEditCard
         v-if="canUpdate && isDraft"
         :travel-desk-travel-request-id="travelDeskTravelRequest.id"
+        :return-to="returnTo"
       />
-      <v-card
-        v-else-if="isDraft"
-        class="mb-4"
+      <div
+        v-else
+        class="d-flex flex-column ga-4 my-4"
       >
-        <v-card-text>Travel information editing is not available to your account.</v-card-text>
-      </v-card>
+        <v-card>
+          <v-card-title>Rental Car Requests</v-card-title>
+          <TravelDeskRentalCarsDataTableServer
+            :where="{ travelRequestId: travelDeskTravelRequest.id }"
+            route-query-suffix="ReviewRentalCars"
+          />
+        </v-card>
+        <v-card>
+          <v-card-title>Hotel Requests</v-card-title>
+          <TravelDeskHotelsDataTableServer
+            :where="{ travelRequestId: travelDeskTravelRequest.id }"
+            route-query-suffix="ReviewHotels"
+          />
+        </v-card>
+        <v-card>
+          <v-card-title>Other Transportation Requests</v-card-title>
+          <TravelDeskOtherTransportationsDataTableServer
+            :where="{ travelRequestId: travelDeskTravelRequest.id }"
+            route-query-suffix="ReviewOtherTransportations"
+          />
+        </v-card>
+      </div>
       <v-card
         v-if="isOptionsProvided"
         class="mb-4"
@@ -153,8 +180,15 @@
       </div>
       <div
         v-if="isOptionsProvided && isRequestOwner"
-        class="mt-4"
+        class="d-flex ga-2 mt-4"
       >
+        <v-btn
+          :loading="isSaving"
+          :disabled="questionsAreLoading || questionsErrored"
+          @click="saveReviewResponses"
+        >
+          Save Responses
+        </v-btn>
         <v-btn
           color="primary"
           :loading="isSaving"
@@ -188,6 +222,7 @@
 
 <script setup lang="ts">
 import { computed, ref, toRefs, useTemplateRef, watch } from "vue"
+import { useRoute } from "vue-router"
 import { isNil } from "lodash"
 
 import travelDeskQuestionsApi, { type TravelDeskQuestion } from "@/api/travel-desk-questions-api"
@@ -204,6 +239,9 @@ import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
 import TravelDeskFlightRequestFlightOptionsOrderCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestFlightOptionsOrderCard.vue"
 import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
+import TravelDeskHotelsDataTableServer from "@/components/travel-desk-hotels/TravelDeskHotelsDataTableServer.vue"
+import TravelDeskOtherTransportationsDataTableServer from "@/components/travel-desk-other-transportations/TravelDeskOtherTransportationsDataTableServer.vue"
+import TravelDeskRentalCarsDataTableServer from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsDataTableServer.vue"
 import TravelerDetailsCard from "@/components/travel-desk-travel-requests/TravelerDetailsCard.vue"
 import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/TravelerDetailsFormCard.vue"
 import TravelDeskTravelRequestEditCard from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestEditCard.vue"
@@ -211,6 +249,8 @@ import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-des
 
 const props = defineProps<{ travelAuthorizationId: number }>()
 const { travelAuthorizationId } = toRefs(props)
+const route = useRoute()
+const returnTo = computed(() => route.fullPath)
 const { currentUser } = useCurrentUser()
 const {
   travelAuthorization,
@@ -337,6 +377,28 @@ async function submitDraft() {
   }
 }
 
+async function saveQuestionResponses() {
+  for (const question of travelDeskQuestions.value) {
+    await travelDeskQuestionsApi.update(question.id, { response: question.response })
+  }
+}
+
+async function saveReviewResponses() {
+  if (!isRequestOwner.value || !isOptionsProvided.value) return
+  if (questionsAreLoading.value || questionsErrored.value) return
+
+  isSaving.value = true
+  try {
+    await saveQuestionResponses()
+    snack.success("Responses saved.")
+  } catch (error) {
+    console.error(error)
+    snack.error(`Failed to save Travel Desk responses: ${error}`)
+  } finally {
+    isSaving.value = false
+  }
+}
+
 async function rankOptions() {
   if (!isRequestOwner.value || !isOptionsProvided.value) return
   if (questionsAreLoading.value || questionsErrored.value) return
@@ -361,9 +423,7 @@ async function rankOptions() {
     const rankingsSaved = await flightOptionsOrderCard.value?.save()
     if (!rankingsSaved) return
 
-    for (const question of travelDeskQuestions.value) {
-      await travelDeskQuestionsApi.update(question.id, { response: question.response })
-    }
+    await saveQuestionResponses()
     await travelDeskTravelRequestsApi.optionsRanked(travelDeskTravelRequest.value.id)
     await Promise.all([fetchAuthorization(), refreshRequest()])
   } catch (error) {
