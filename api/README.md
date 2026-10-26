@@ -59,6 +59,8 @@ Both formats use `Export, Travel Desk Requests, YYYY-MM-DD` filenames with the a
 
 Query arrays support up to 1,000 entries, with at most 1,500 query parameters overall. Oversized queries are rejected instead of silently changing the selection.
 
+Controllers pass policy-scoped models and query options to the export services. Shared report loading owns the required associations and serialization; exports do not run the list's total-count query.
+
 The reusable Puppeteer renderer lives in [`src/lib/generate-pdf.ts`](src/lib/generate-pdf.ts) and owns the browser lifecycle without Travel Desk dependencies. The report service owns PDF options, escaped local templates, and the embedded logo. CSV generation uses `fast-csv`, a UTF-8 byte-order mark, and spreadsheet-formula neutralization.
 
 Both development and production images provide system Chromium through `PUPPETEER_EXECUTABLE_PATH` and disable Puppeteer's bundled browser download. The production build copies `src/templates` into `dist/templates`. Keep Chromium and Puppeteer compatible, and exercise an actual generated PDF when changing either dependency or image.
