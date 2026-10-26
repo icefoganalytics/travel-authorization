@@ -63,8 +63,7 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
     }
 
     const fileBuffer = await CreateCsvService.perform(serializedTravelDeskTravelRequests)
-    const date = DateTime.now().toFormat("yyyy-LL-dd")
-    const fileName = `Export, Travel Desk Requests, ${date}.csv`
+    const fileName = this.buildFileName("csv")
 
     this.response.attachment(fileName)
     this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
@@ -81,13 +80,18 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
     }
 
     const fileBuffer = await CreatePdfService.perform(serializedTravelDeskTravelRequests)
-    const date = DateTime.now().toFormat("yyyy-LL-dd")
-    const fileName = `Travel Desk Report, ${date}.pdf`
+    const fileName = this.buildFileName("pdf")
 
     this.response.setHeader("Content-Type", "application/pdf")
     this.response.setHeader("Content-Disposition", `inline; filename="${fileName}"`)
 
     return this.response.status(200).send(fileBuffer)
+  }
+
+  private buildFileName(format: "csv" | "pdf") {
+    const date = DateTime.now().toFormat("yyyy-MM-dd")
+
+    return `Export, Travel Desk Requests, ${date}.${format}`
   }
 }
 
