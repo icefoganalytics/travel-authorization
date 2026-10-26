@@ -4,7 +4,7 @@ import { readFileSync } from "fs"
 import { template, type TemplateOptions } from "lodash"
 
 import { TEMPLATE_ROOT_PATH, VUESQUE_TEMPLATE_DELIMINATOR_REGEX } from "@/config"
-import generatePdf, { type GeneratePdfOptions } from "@/lib/generate-pdf"
+import pdfClient, { type PdfOptions } from "@/lib/pdf-client"
 
 export class TemplateClient {
   constructor(
@@ -20,8 +20,8 @@ export class TemplateClient {
     return compiledTemplate(data)
   }
 
-  htmlToPdf(htmlDocument: string, options: GeneratePdfOptions = {}) {
-    return generatePdf(htmlDocument, options)
+  htmlToPdf(htmlDocument: string, options: PdfOptions = {}) {
+    return pdfClient.htmlToPdf(htmlDocument, options)
   }
 
   loadAsset(assetRelativePath: string) {
