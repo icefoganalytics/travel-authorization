@@ -3,8 +3,6 @@ import { authGuard } from "@auth0/auth0-vue"
 
 import useRouteHistory from "@/use/use-route-history"
 
-import travelDeskRouter from "@/modules/travelDesk/router"
-
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -49,6 +47,19 @@ const routes: RouteRecordRaw[] = [
             props: true,
           },
           {
+            path: "travel-requests",
+            name: "travel-requests/TravelDeskRequestsPage",
+            component: () => import("@/pages/travel-requests/TravelDeskRequestsPage.vue"),
+          },
+          {
+            path: "travel-requests/:travelAuthorizationId/travel-desk",
+            name: "travel-requests/TravelDeskRequestPage",
+            component: () => import("@/pages/travel-requests/TravelDeskRequestPage.vue"),
+            props: (route) => ({
+              travelAuthorizationId: Number(route.params.travelAuthorizationId),
+            }),
+          },
+          {
             path: "travel-requests/:travelAuthorizationId",
             component: () => import("@/layouts/TravelRequestLayout.vue"),
             props: true,
@@ -74,9 +85,7 @@ const routes: RouteRecordRaw[] = [
                 path: "edit-trip-details-redirect-by-state",
                 name: "travel-requests/TravelRequestEditTripDetailsRedirectByStatePage",
                 component: () =>
-                  import(
-                    "@/pages/travel-requests/TravelRequestEditTripDetailsRedirectByStatePage.vue"
-                  ),
+                  import("@/pages/travel-requests/TravelRequestEditTripDetailsRedirectByStatePage.vue"),
                 props: true,
               },
               {
@@ -104,18 +113,14 @@ const routes: RouteRecordRaw[] = [
                 path: "estimate/edit",
                 name: "EditTravelAuthorizationEstimatePage",
                 component: () =>
-                  import(
-                    "@/modules/travel-authorizations/pages/EditTravelAuthorizationEstimatePage.vue"
-                  ),
+                  import("@/modules/travel-authorizations/pages/EditTravelAuthorizationEstimatePage.vue"),
                 props: true,
               },
               {
                 path: "expense/edit",
                 name: "EditTravelAuthorizationExpensePage",
                 component: () =>
-                  import(
-                    "@/modules/travel-authorizations/pages/EditTravelAuthorizationExpensePage.vue"
-                  ),
+                  import("@/modules/travel-authorizations/pages/EditTravelAuthorizationExpensePage.vue"),
                 props: true,
               },
             ],
@@ -182,45 +187,35 @@ const routes: RouteRecordRaw[] = [
                 path: "edit-purpose-details",
                 name: "manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage",
                 component: () =>
-                  import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage.vue"
-                  ),
+                  import("@/pages/manage-travel-requests/ManageTravelRequestEditPurposeDetailsPage.vue"),
                 props: true,
               },
               {
                 path: "edit-trip-details-redirect-by-state",
                 name: "manage-travel-requests/ManageTravelRequestEditTripDetailsRedirectByStatePage",
                 component: () =>
-                  import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsRedirectByStatePage.vue"
-                  ),
+                  import("@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsRedirectByStatePage.vue"),
                 props: true,
               },
               {
                 path: "edit-trip-details-estimates",
                 name: "manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage",
                 component: () =>
-                  import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage.vue"
-                  ),
+                  import("@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsEstimatesPage.vue"),
                 props: true,
               },
               {
                 path: "edit-trip-details-actuals",
                 name: "manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage",
                 component: () =>
-                  import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage.vue"
-                  ),
+                  import("@/pages/manage-travel-requests/ManageTravelRequestEditTripDetailsActualsPage.vue"),
                 props: true,
               },
               {
                 path: "edit-approval-details",
                 name: "manage-travel-requests/ManageTravelRequestEditApprovalDetailsPage",
                 component: () =>
-                  import(
-                    "@/pages/manage-travel-requests/ManageTravelRequestEditApprovalDetailsPage.vue"
-                  ),
+                  import("@/pages/manage-travel-requests/ManageTravelRequestEditApprovalDetailsPage.vue"),
                 props: true,
               },
               {
@@ -289,9 +284,7 @@ const routes: RouteRecordRaw[] = [
             path: "travel-pre-approval-submissions/:travelAuthorizationPreApprovalSubmissionId/edit",
             name: "travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage",
             component: () =>
-              import(
-                "@/pages/travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage.vue"
-              ),
+              import("@/pages/travel-pre-approval-submissions/TravelPreApprovalSubmissionEditPage.vue"),
             props: true,
           },
           {
@@ -390,18 +383,14 @@ const routes: RouteRecordRaw[] = [
             name: "travel-desk/other-transportations/TravelDeskOtherTransportationNewPage",
             path: "travel-desk/:travelDeskTravelRequestId/other-transportations/new",
             component: () =>
-              import(
-                "@/pages/travel-desk/other-transportations/TravelDeskOtherTransportationNewPage.vue"
-              ),
+              import("@/pages/travel-desk/other-transportations/TravelDeskOtherTransportationNewPage.vue"),
             props: true,
           },
           {
             name: "travel-desk/other-transportations/TravelDeskOtherTransportationEditPage",
             path: "travel-desk/:travelDeskTravelRequestId/other-transportations/:travelDeskOtherTransportationId/edit",
             component: () =>
-              import(
-                "@/pages/travel-desk/other-transportations/TravelDeskOtherTransportationEditPage.vue"
-              ),
+              import("@/pages/travel-desk/other-transportations/TravelDeskOtherTransportationEditPage.vue"),
             props: true,
           },
           {
@@ -534,8 +523,6 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-
-  ...travelDeskRouter,
 
   {
     name: "SignInPage",

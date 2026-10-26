@@ -39,8 +39,9 @@ const travelDeskFlightRequestsQuery = computed(() => ({
   where: {
     travelRequestId: props.travelDeskTravelRequestId,
   },
+  perPage: -1,
 }))
-const { travelDeskFlightRequests, isLoading } = useTravelDeskFlightRequests(
+const { travelDeskFlightRequests, totalCount, isLoading, isErrored } = useTravelDeskFlightRequests(
   travelDeskFlightRequestsQuery
 )
 
@@ -61,6 +62,17 @@ function buildFlightRequestDescription(travelDeskFlightRequest) {
 const travelDeskFlightOptionPreferenceOrderFormCards = ref([])
 
 async function save() {
+  if (
+    isLoading.value ||
+    isErrored.value ||
+    travelDeskFlightRequests.value.length === 0 ||
+    totalCount.value !== travelDeskFlightRequests.value.length ||
+    travelDeskFlightOptionPreferenceOrderFormCards.value.length !==
+      travelDeskFlightRequests.value.length
+  ) {
+    return false
+  }
+
   let result = true
   for (const travelDeskFlightOptionPreferenceOrderFormCard of travelDeskFlightOptionPreferenceOrderFormCards.value) {
     result &&= await travelDeskFlightOptionPreferenceOrderFormCard.save()

@@ -1,6 +1,7 @@
 import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { isNil } from "lodash"
 
+import { type Policy } from "@/api/base-api"
 import travelDeskTravelRequestsApi, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
   type TravelDeskTravelRequestAsShow,
@@ -18,10 +19,12 @@ export function useTravelDeskTravelRequest(
 ) {
   const state = reactive<{
     travelDeskTravelRequest: TravelDeskTravelRequestAsShow | null
+    policy: Policy | null
     isLoading: boolean
     isErrored: boolean
   }>({
     travelDeskTravelRequest: null,
+    policy: null,
     isLoading: false,
     isErrored: false,
   })
@@ -34,9 +37,10 @@ export function useTravelDeskTravelRequest(
 
     state.isLoading = true
     try {
-      const { travelDeskTravelRequest } = await travelDeskTravelRequestsApi.get(staticId)
+      const { travelDeskTravelRequest, policy } = await travelDeskTravelRequestsApi.get(staticId)
       state.isErrored = false
       state.travelDeskTravelRequest = travelDeskTravelRequest
+      state.policy = policy
       return travelDeskTravelRequest
     } catch (error) {
       console.error(`Failed to fetch travel desk travel request: ${error}`, { error })

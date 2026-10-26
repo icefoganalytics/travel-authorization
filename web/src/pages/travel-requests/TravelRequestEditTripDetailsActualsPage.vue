@@ -90,7 +90,7 @@ useBreadcrumbs([
   {
     title: "Travel Requests",
     to: {
-      name: "TravelRequests",
+      name: "travel-requests/TravelDeskRequestsPage",
     },
   },
   {

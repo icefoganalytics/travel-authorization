@@ -42,6 +42,7 @@ import {
   TravelDeskQuestionsController,
   TravelDeskRentalCarsController,
   TravelDeskTravelAgenciesController,
+  TravelDeskTravelAuthorizations,
   TravelDeskTravelRequests,
   TravelDeskTravelRequestsController,
   TravelPurposesController,
@@ -58,7 +59,6 @@ import {
 import { migrateRouter } from "./migrate-router"
 import { formRouter } from "./form-router"
 import { userRouter } from "./users-router"
-import { travelDeskRouter } from "./traveldesk-router"
 import { lookupRouter } from "./lookup-router"
 import { lookupTableRouter } from "./lookup-tables-router"
 //// END LEGACY IMPORTS
@@ -85,7 +85,6 @@ router.use("/api/lookup-tables", databaseHealthCheckMiddleware, lookupTableRoute
 
 router.use("/api/form", databaseHealthCheckMiddleware, formRouter)
 router.use("/api/user", databaseHealthCheckMiddleware, userRouter)
-router.use("/api/traveldesk", databaseHealthCheckMiddleware, travelDeskRouter)
 //// END LEGACY ROUTES
 
 // api routes
@@ -160,6 +159,9 @@ router
   .get(TravelAllowancesController.show)
   .patch(TravelAllowancesController.update)
 
+router
+  .route("/api/travel-desk/travel-authorizations")
+  .get(TravelDeskTravelAuthorizations.IndexController.index)
 router
   .route("/api/travel-authorizations")
   .get(TravelAuthorizationsController.index)

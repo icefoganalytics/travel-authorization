@@ -116,10 +116,10 @@ const travelDeskFlightOptionsQuery = computed(() => ({
   where: {
     flightRequestId: props.travelDeskFlightRequestId,
   },
+  perPage: -1,
 }))
-const { travelDeskFlightOptions, isLoading, refresh } = useTravelDeskFlightOptions(
-  travelDeskFlightOptionsQuery
-)
+const { travelDeskFlightOptions, totalCount, isLoading, isErrored, refresh } =
+  useTravelDeskFlightOptions(travelDeskFlightOptionsQuery)
 const { smAndDown } = useDisplay()
 
 const formId = uniqueId("travel-desk-flight-option-preference-order-form-")
@@ -156,6 +156,15 @@ const snack = useSnack()
 
 async function save() {
   if (isNil(form.value)) return false
+  if (
+    isLoading.value ||
+    isErrored.value ||
+    travelDeskFlightOptions.value.length === 0 ||
+    totalCount.value !== travelDeskFlightOptions.value.length
+  ) {
+    snack.warning("All flight options must be loaded before saving preferences.")
+    return false
+  }
 
   const { valid } = await form.value.validate()
   if (!valid) {

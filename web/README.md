@@ -63,6 +63,20 @@ What these are for:
 - `npm run lint`: run frontend linting
 - `npm run check-types`: run frontend type checking
 
+## Travel Desk Request Workflows
+
+`/travel-requests` is the Travel Desk request list, separate from the traveller wizard under
+`/my-travel-requests` and the officer queue under `/travel-desk`. System administrators can list
+all authorizations; other accounts can list only their own. A department-administrator role does
+not grant department-wide access here.
+
+The request page at `/travel-requests/:travelAuthorizationId/travel-desk` requires the persisted
+Travel Desk request created during authorization approval. It reuses the traveler form and
+per-resource travel editors. Draft saving and submission follow the request update policy.
+Owners review options and answer questions while options are provided; submitting rankings
+requires all questions and preference forms to save successfully. Booked itinerary viewing uses
+the Travel Desk request ID, not the authorization ID.
+
 ## Open In Editor
 
 When the frontend runs in Docker, Vue Devtools cannot launch your host editor directly from inside

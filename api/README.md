@@ -51,6 +51,20 @@ npm run check-types
 
 See [../bin/README.md](../bin/README.md#testing) for the canonical test commands.
 
+## Travel Desk Request Cutover
+
+`GET /api/travel-desk/travel-authorizations` supplies the paginated authorization list for the
+separate Travel Desk request workflow. System administrators see all records; all other accounts,
+including department administrators, see only their own authorizations. Client filters only narrow
+that visibility. This collection does not change supervisor or finance visibility in the general
+authorization API.
+
+The list returns planned segment dates, with historical stop fallback, and the persisted request's
+own ID, status, and invoice number. Request creation and employee prefill remain part of approval.
+Edits use the current resource APIs and state actions; the legacy `/api/traveldesk` aggregate
+router is removed. During options review, an owner may update only a question's response, not its
+text, type, or request identity. Existing booking permissions are unchanged.
+
 ## Environment Variables
 
 The source of truth for supported API environment variables is:

@@ -18,7 +18,7 @@ export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion)
   }
 
   update(): boolean {
-    return this.travelDeskTravelRequestsPolicy.update()
+    return this.travelDeskTravelRequestsPolicy.update() || this.canAnswerReviewQuestion
   }
 
   destroy(): boolean {
@@ -26,6 +26,10 @@ export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion)
   }
 
   permittedAttributesForUpdate(): Path[] {
+    if (!this.travelDeskTravelRequestsPolicy.update() && this.canAnswerReviewQuestion) {
+      return ["response"]
+    }
+
     return ["requestType", "question", "response"]
   }
 
@@ -58,6 +62,18 @@ export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion)
         },
       ],
     }
+  }
+
+  private get canAnswerReviewQuestion(): boolean {
+    const { travelAuthorization, status } = this.travelDeskTravelRequest
+    if (isUndefined(travelAuthorization)) {
+      throw new Error("Travel authorization is required")
+    }
+
+    return (
+      travelAuthorization.userId === this.user.id &&
+      status === TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
+    )
   }
 
   private get travelDeskTravelRequest(): TravelDeskTravelRequest {
