@@ -189,8 +189,45 @@ class DevHelper
     psql(*args, pipe_input: query, **kwargs)
   end
 
+  ##
+  # Run a database-container command, or export/import the development database.
+  # Import replaces target data. Stop its writers and export a backup first.
   def db(*args, **kwargs)
-    compose(*%w[exec db], *args, **kwargs)
+    action, backup_path = args
+    unless %w[--export --import].include?(action)
+      return compose(*%w[exec db], *args, **kwargs)
+    end
+
+    unless args.length == 2 && !backup_path.empty?
+      raise ArgumentError, "Usage: dev db #{action} BACKUP_PATH"
+    end
+
+    unless kwargs.fetch(:environment, "development") == "development"
+      raise ArgumentError, "Database export/import is only available for development."
+    end
+
+    backup_path = File.expand_path(backup_path)
+
+    if action == "--export"
+      script = <<~SH
+        export PGPASSWORD="$POSTGRES_PASSWORD"
+        exec pg_dump --format=custom --username="$POSTGRES_USER" --dbname="$POSTGRES_DB"
+      SH
+      command = compose_command("exec -T db sh -ec #{script.shellescape}", **kwargs)
+      success = system(command, out: [backup_path, "wb", 0600])
+    else
+      script = <<~SH
+        export PGPASSWORD="$POSTGRES_PASSWORD"
+        dropdb --username="$POSTGRES_USER" -- "$POSTGRES_DB"
+        createdb --username="$POSTGRES_USER" --template=template0 -- "$POSTGRES_DB"
+        exec pg_restore --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" \
+          --no-owner --exit-on-error --single-transaction
+      SH
+      command = compose_command("exec -T db sh -ec #{script.shellescape}", **kwargs)
+      success = system(command, in: backup_path)
+    end
+
+    exit($?.exitstatus || 1) unless success
   end
 
   def debug
