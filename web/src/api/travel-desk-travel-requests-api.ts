@@ -58,7 +58,37 @@ export type TravelDeskTravelRequest = {
   updatedAt: string
 }
 
-export type TravelDeskTravelRequestAsIndex = Omit<TravelDeskTravelRequest, "birthDate"> & {
+/** Keep in sync with api/src/serializers/travel-desk-travel-requests/index-serializer.ts */
+export type TravelDeskTravelRequestAsIndex = Pick<
+  TravelDeskTravelRequest,
+  | "id"
+  | "travelAuthorizationId"
+  | "travelAgencyId"
+  | "invoiceNumber"
+  | "legalFirstName"
+  | "legalMiddleName"
+  | "legalLastName"
+  | "strAddress"
+  | "city"
+  | "province"
+  | "postalCode"
+  | "passportCountry"
+  | "passportNum"
+  | "travelPurpose"
+  | "travelLocation"
+  | "travelNotes"
+  | "busPhone"
+  | "busEmail"
+  | "travelContact"
+  | "travelPhone"
+  | "travelEmail"
+  | "additionalInformation"
+  | "travelDeskOfficer"
+  | "isInternationalTravel"
+  | "status"
+  | "createdAt"
+  | "updatedAt"
+> & {
   userDisplayName: string
   department: string
   branch: string
