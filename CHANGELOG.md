@@ -17,7 +17,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Changed
 
-- Travel Desk request lists, PDF reports, and CSV exports show consistent services and statuses. Server-generated downloads apply the same filters and permissions as the request list and include every matching authorized request, including selections larger than twenty requests.
+- Travel Desk request lists, PDF reports, and CSV exports show consistent services and statuses. Server-generated downloads apply the same filters and permissions as the request list and include every matching authorized request, including selections larger than twenty requests. Unavailable selections return the same error response as failed downloads.
 - Travel Desk download controls show loading indicators while unavailable or preparing a file.
 - Report filters use autocomplete selections and show how many filters are active. Filter selections are saved in the URL for bookmarking and sharing.
 - Reports have separate table, graph, and print views. Flight statistics tables load and sort one page at a time.
