@@ -1,37 +1,28 @@
-import { type Attributes, type WhereOptions } from "@sequelize/core"
+import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type TravelDeskTravelRequest, type User } from "@/models"
-import { type BaseScopeOptions, TravelDeskTravelRequestsPolicy } from "@/policies"
+import {
+  ReportSerializer,
+  type TravelDeskTravelRequestAsReport,
+} from "@/serializers/travel-desk-travel-requests"
 import BaseService from "@/services/base-service"
 
 export class IndexService extends BaseService {
   constructor(
+    private scopedTravelDeskTravelRequests: ModelStatic<TravelDeskTravelRequest>,
     private where: WhereOptions<Attributes<TravelDeskTravelRequest>>,
-    private scopes: BaseScopeOptions[],
     private order: ModelOrder[] | undefined,
-    private limit: number | undefined,
-    private offset: number | undefined,
     private currentUser: User
   ) {
     super()
   }
 
-  async perform(): Promise<{
-    travelDeskTravelRequests: TravelDeskTravelRequest[]
-    totalCount: number
-  }> {
-    const scopedTravelDeskTravelRequests = TravelDeskTravelRequestsPolicy.applyScope(
-      this.scopes,
-      this.currentUser
-    )
-
-    const totalCount = await scopedTravelDeskTravelRequests.count({ where: this.where })
-    const travelDeskTravelRequests = await scopedTravelDeskTravelRequests.findAll({
+  async perform(): Promise<TravelDeskTravelRequestAsReport[]> {
+    // Exports include every match, without list pagination or a total-count query.
+    const travelDeskTravelRequests = await this.scopedTravelDeskTravelRequests.findAll({
       where: this.where,
       order: this.order,
-      limit: this.limit,
-      offset: this.offset,
       include: [
         "flightRequests",
         "hotels",
@@ -53,11 +44,12 @@ export class IndexService extends BaseService {
         },
       ],
     })
-
-    return {
+    const serializedTravelDeskTravelRequests = ReportSerializer.perform(
       travelDeskTravelRequests,
-      totalCount,
-    }
+      this.currentUser
+    )
+
+    return serializedTravelDeskTravelRequests
   }
 }
 

@@ -1,26 +1,47 @@
+import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
+import { isEmpty } from "lodash"
 import { DateTime } from "luxon"
 
+import { type ModelOrder } from "@/controllers/base-controller"
+import { type TravelDeskTravelRequest, type User } from "@/models"
 import templateClient from "@/templates/template-client"
-import { generatePdf } from "@/lib/generate-pdf"
 
 import {
   type TravelDeskTravelRequestAsReport,
   TravelDeskTravelRequestReportHeaders,
 } from "@/serializers/travel-desk-travel-requests/report-serializer"
 import BaseService from "@/services/base-service"
+import { IndexService } from "@/services/downloads/travel-desk-travel-requests/index-service"
 
 const ROWS_PER_PAGE = 10
 
 export class CreatePdfService extends BaseService {
-  constructor(private rows: TravelDeskTravelRequestAsReport[]) {
+  constructor(
+    private scopedTravelDeskTravelRequests: ModelStatic<TravelDeskTravelRequest>,
+    private where: WhereOptions<Attributes<TravelDeskTravelRequest>>,
+    private order: ModelOrder[] | undefined,
+    private currentUser: User
+  ) {
     super()
   }
 
-  async perform(): Promise<Buffer> {
+  async perform(): Promise<Buffer | undefined> {
+    const serializedTravelDeskTravelRequests = await IndexService.perform(
+      this.scopedTravelDeskTravelRequests,
+      this.where,
+      this.order,
+      this.currentUser
+    )
+    if (isEmpty(serializedTravelDeskTravelRequests)) return undefined
+
     const pages: TravelDeskTravelRequestAsReport[][] = []
 
-    for (let rowIndex = 0; rowIndex < this.rows.length; rowIndex += ROWS_PER_PAGE) {
-      pages.push(this.rows.slice(rowIndex, rowIndex + ROWS_PER_PAGE))
+    for (
+      let rowIndex = 0;
+      rowIndex < serializedTravelDeskTravelRequests.length;
+      rowIndex += ROWS_PER_PAGE
+    ) {
+      pages.push(serializedTravelDeskTravelRequests.slice(rowIndex, rowIndex + ROWS_PER_PAGE))
     }
 
     const headers = Object.values(TravelDeskTravelRequestReportHeaders)
@@ -33,7 +54,7 @@ export class CreatePdfService extends BaseService {
 
     const printedAt = DateTime.utc().toFormat("yyyy-MM-dd HH:mm 'UTC'")
 
-    return generatePdf(htmlDocument, {
+    return templateClient.htmlToPdf(htmlDocument, {
       format: "letter",
       landscape: true,
       preferCSSPageSize: true,
