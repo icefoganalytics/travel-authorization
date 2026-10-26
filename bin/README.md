@@ -18,7 +18,7 @@ adding alternate startup paths or dependency-discovery workarounds.
 bundle install
 ```
 
-All Ruby development dependencies use full exact version pins in [Gemfile](../Gemfile) for reproducible local startup.
+All Ruby development dependencies use full exact version pins in [Gemfile](../Gemfile) for reproducible local startup. RDoc is an explicit dependency for generated `dev help`, rather than an assumed Ruby default gem. Its native dependencies require a C compiler, `make`, and development headers for the active Ruby.
 
 The wrapper activates Bundler before loading Ruby libraries. Preserve that order to avoid
 unresolved-specification warnings from globally installed RDoc dependencies.
