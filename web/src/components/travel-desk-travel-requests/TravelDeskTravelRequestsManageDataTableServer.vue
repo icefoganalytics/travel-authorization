@@ -17,13 +17,11 @@
         <v-spacer />
         <TravelDeskTravelRequestsPrintButton
           :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
-          :disabled="isEmpty(selectedTravelDeskTravelRequestIds)"
           class="my-0 mr-4"
           color="primary"
         />
         <TravelDeskTravelRequestsExportToCsvButton
           :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
-          :disabled="isEmpty(selectedTravelDeskTravelRequestIds)"
           class="my-0"
           color="primary"
         >
@@ -121,7 +119,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { isEmpty } from "lodash"
 
 import formatDate from "@/utils/format-date"
 import formatTravelDeskTravelRequestStatus from "@/utils/format-travel-desk-travel-request-status"

@@ -1,7 +1,7 @@
 <template>
   <DownloadFileForm
     :download-url="downloadUrl"
-    :disabled="travelDeskTravelRequestIds.length === 0"
+    :loading="travelDeskTravelRequestIds.length === 0"
     text="Print Report"
     prepend-icon="mdi-printer"
   />
