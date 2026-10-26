@@ -5,14 +5,13 @@ import { DateTime } from "luxon"
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type TravelDeskTravelRequest, type User } from "@/models"
 import templateClient from "@/templates/template-client"
-import { generatePdf } from "@/lib/generate-pdf"
 
 import {
   type TravelDeskTravelRequestAsReport,
   TravelDeskTravelRequestReportHeaders,
 } from "@/serializers/travel-desk-travel-requests/report-serializer"
 import BaseService from "@/services/base-service"
-import { LoadReportRowsService } from "@/services/downloads/travel-desk-travel-requests/load-report-rows-service"
+import { IndexService } from "@/services/downloads/travel-desk-travel-requests/index-service"
 
 const ROWS_PER_PAGE = 10
 
@@ -27,7 +26,7 @@ export class CreatePdfService extends BaseService {
   }
 
   async perform(): Promise<Buffer | undefined> {
-    const serializedTravelDeskTravelRequests = await LoadReportRowsService.perform(
+    const serializedTravelDeskTravelRequests = await IndexService.perform(
       this.scopedTravelDeskTravelRequests,
       this.where,
       this.order,
@@ -55,7 +54,7 @@ export class CreatePdfService extends BaseService {
 
     const printedAt = DateTime.utc().toFormat("yyyy-MM-dd HH:mm 'UTC'")
 
-    return generatePdf(htmlDocument, {
+    return templateClient.htmlToPdf(htmlDocument, {
       format: "letter",
       landscape: true,
       preferCSSPageSize: true,

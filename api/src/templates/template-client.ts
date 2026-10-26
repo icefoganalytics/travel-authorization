@@ -1,24 +1,37 @@
-import { readFileSync } from "node:fs"
-import { join } from "node:path"
+import { join } from "path"
+import { readFileSync } from "fs"
 
-import { template } from "lodash"
+import { template, type TemplateOptions } from "lodash"
+
+import { TEMPLATE_ROOT_PATH, VUESQUE_TEMPLATE_DELIMINATOR_REGEX } from "@/config"
+import generatePdf, { type GeneratePdfOptions } from "@/lib/generate-pdf"
 
 export class TemplateClient {
-  constructor(private templateRootPath: string = __dirname) {}
+  constructor(
+    private rootPath: string,
+    private options: TemplateOptions
+  ) {}
 
-  render(templateRelativePath: string, data: Record<string, unknown>): string {
-    const templatePath = join(this.templateRootPath, templateRelativePath)
-    const templateSource = readFileSync(templatePath, "utf8")
+  render(templateRelativePath: string, data: Record<string, unknown>) {
+    const templatePath = join(this.rootPath, templateRelativePath)
+    const templateString = readFileSync(templatePath, "utf8")
+    const compiledTemplate = template(templateString, this.options)
 
-    return template(templateSource)(data)
+    return compiledTemplate(data)
   }
 
-  loadAsset(assetRelativePath: string): string {
-    const assetPath = join(this.templateRootPath, assetRelativePath)
+  htmlToPdf(htmlDocument: string, options: GeneratePdfOptions = {}) {
+    return generatePdf(htmlDocument, options)
+  }
+
+  loadAsset(assetRelativePath: string) {
+    const assetPath = join(this.rootPath, assetRelativePath)
     return readFileSync(assetPath, "base64")
   }
 }
 
-const templateClient = new TemplateClient()
+const templateClient = new TemplateClient(TEMPLATE_ROOT_PATH, {
+  interpolate: VUESQUE_TEMPLATE_DELIMINATOR_REGEX,
+})
 
 export default templateClient
