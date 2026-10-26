@@ -1,6 +1,11 @@
 import puppeteer, { type PDFOptions } from "puppeteer"
 
-export async function generatePdf(htmlDocument: string, options: PDFOptions = {}): Promise<Buffer> {
+export type GeneratePdfOptions = PDFOptions
+
+export async function generatePdf(
+  htmlDocument: string,
+  options: GeneratePdfOptions = {}
+): Promise<Buffer> {
   const browser = await puppeteer.launch({
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
     headless: "shell",

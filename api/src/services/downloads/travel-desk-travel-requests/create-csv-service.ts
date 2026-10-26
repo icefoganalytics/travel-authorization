@@ -7,7 +7,7 @@ import { type TravelDeskTravelRequest, type User } from "@/models"
 import { TravelDeskTravelRequestReportHeaders } from "@/serializers/travel-desk-travel-requests"
 import neutralizeSpreadsheetFormula from "@/utils/neutralize-spreadsheet-formula"
 import BaseService from "@/services/base-service"
-import { LoadReportRowsService } from "@/services/downloads/travel-desk-travel-requests/load-report-rows-service"
+import { IndexService } from "@/services/downloads/travel-desk-travel-requests/index-service"
 
 export class CreateCsvService extends BaseService {
   constructor(
@@ -20,7 +20,7 @@ export class CreateCsvService extends BaseService {
   }
 
   async perform(): Promise<Buffer | undefined> {
-    const serializedTravelDeskTravelRequests = await LoadReportRowsService.perform(
+    const serializedTravelDeskTravelRequests = await IndexService.perform(
       this.scopedTravelDeskTravelRequests,
       this.where,
       this.order,

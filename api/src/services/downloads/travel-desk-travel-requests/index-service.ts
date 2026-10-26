@@ -8,7 +8,7 @@ import {
 } from "@/serializers/travel-desk-travel-requests"
 import BaseService from "@/services/base-service"
 
-export class LoadReportRowsService extends BaseService {
+export class IndexService extends BaseService {
   constructor(
     private scopedTravelDeskTravelRequests: ModelStatic<TravelDeskTravelRequest>,
     private where: WhereOptions<Attributes<TravelDeskTravelRequest>>,
@@ -53,4 +53,4 @@ export class LoadReportRowsService extends BaseService {
   }
 }
 
-export default LoadReportRowsService
+export default IndexService
