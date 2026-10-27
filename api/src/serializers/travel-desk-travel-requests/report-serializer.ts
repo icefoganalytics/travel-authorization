@@ -51,6 +51,8 @@ export class ReportSerializer extends BaseSerializer<TravelDeskTravelRequest> {
     status: TravelDeskTravelRequest["status"],
     travelDeskOfficer: TravelDeskTravelRequest["travelDeskOfficer"]
   ): string {
+    // TODO: Consider an explicit "Not Started" status; inferring workflow state
+    // from the absence of an assigned officer is ambiguous.
     if (status === TravelDeskTravelRequest.Statuses.SUBMITTED && isEmpty(travelDeskOfficer)) {
       return "Not Started"
     }
