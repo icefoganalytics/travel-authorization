@@ -15,6 +15,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.
 - A separate local Travelport booking-feed simulator and read-only source lookup support booking integration development without production or VPN access. Existing integrations remain usable without Travelport settings.
+- Travel Desk staff can generate invoices from explicitly selected booking-feed flights and service fees, enter flight prices and additional charges, link request-local flight segments, and save or edit multiple invoices. Administrators can manage invoice product types.
 
 ### Changed
 

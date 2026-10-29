@@ -306,6 +306,12 @@ const routes: RouteRecordRaw[] = [
             props: true,
           },
           {
+            name: "travel-desk/TravelDeskInvoicesPage",
+            path: "travel-desk/:travelDeskTravelRequestId/invoices",
+            component: () => import("@/pages/travel-desk/TravelDeskInvoicesPage.vue"),
+            props: true,
+          },
+          {
             path: "travel-desk/:travelDeskTravelRequestId/edit",
             component: () => import("@/layouts/travel-desk/TravelDeskRequestEditLayout.vue"),
             props: true,
@@ -504,6 +510,11 @@ const routes: RouteRecordRaw[] = [
             path: "administration/travel-agencies",
             name: "administration/TravelAgenciesPage",
             component: () => import("@/pages/administration/TravelAgenciesPage.vue"),
+          },
+          {
+            path: "administration/travel-desk-product-types",
+            name: "administration/TravelDeskProductTypesPage",
+            component: () => import("@/pages/administration/TravelDeskProductTypesPage.vue"),
           },
           {
             path: "administration/travel-agencies/new",

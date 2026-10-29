@@ -101,7 +101,21 @@
         </v-row>
       </v-card-text>
 
-      <v-card-actions>
+      <v-card-actions class="flex-wrap ga-2">
+        <v-btn
+          v-if="canManageInvoices"
+          :to="{
+            name: 'travel-desk/TravelDeskInvoicesPage',
+            params: {
+              travelDeskTravelRequestId,
+            },
+          }"
+          prepend-icon="mdi-receipt-text"
+          color="primary"
+          variant="outlined"
+        >
+          Invoices
+        </v-btn>
         <v-btn
           v-if="hasInvoiceNumber"
           color="primary"
@@ -131,6 +145,7 @@ import { computed, ref } from "vue"
 import { isNil } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useCurrentUser from "@/use/use-current-user"
 import useTravelDeskTravelRequest, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
 } from "@/use/use-travel-desk-travel-request"
@@ -151,6 +166,9 @@ import TravelerDetailsCard from "@/components/travel-desk-travel-requests/Travel
 const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
+
+const { isAdmin, isTravelDeskUser } = useCurrentUser()
+const canManageInvoices = computed(() => isAdmin.value || isTravelDeskUser.value)
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 const { travelDeskTravelRequest } = useTravelDeskTravelRequest(travelDeskTravelRequestIdAsNumber)

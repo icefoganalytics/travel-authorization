@@ -38,7 +38,10 @@ import {
   TravelDeskFlightRequestsController,
   TravelDeskFlightSegmentsController,
   TravelDeskHotelsController,
+  TravelDeskInvoices,
+  TravelDeskInvoicesController,
   TravelDeskOtherTransportationsController,
+  TravelDeskProductTypesController,
   TravelDeskQuestionsController,
   TravelDeskRentalCarsController,
   TravelDeskTravelAgenciesController,
@@ -318,6 +321,29 @@ router
     "/api/travel-desk-travel-requests/:travelDeskTravelRequestId/passenger-name-record-document"
   )
   .post(TravelDeskTravelRequests.PassengerNameRecordDocumentController.create)
+router
+  .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/invoice-bookings")
+  .get(TravelDeskInvoices.BookingsController.index)
+
+router
+  .route("/api/travel-desk-invoices")
+  .get(TravelDeskInvoicesController.index)
+  .post(TravelDeskInvoicesController.create)
+router
+  .route("/api/travel-desk-invoices/:travelDeskInvoiceId")
+  .get(TravelDeskInvoicesController.show)
+  .patch(TravelDeskInvoicesController.update)
+  .delete(TravelDeskInvoicesController.destroy)
+
+router
+  .route("/api/travel-desk-product-types")
+  .get(TravelDeskProductTypesController.index)
+  .post(TravelDeskProductTypesController.create)
+router
+  .route("/api/travel-desk-product-types/:travelDeskProductTypeId")
+  .get(TravelDeskProductTypesController.show)
+  .patch(TravelDeskProductTypesController.update)
+  .delete(TravelDeskProductTypesController.destroy)
 
 router.route("/api/locations").get(LocationsController.index)
 router.route("/api/locations/:locationId").get(LocationsController.show)
