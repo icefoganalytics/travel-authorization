@@ -3,7 +3,7 @@ import templateClient from "@/templates/template-client"
 describe("api/src/templates/template-client.ts", () => {
   describe("TemplateClient", () => {
     describe(".render", () => {
-      test("when a report cell contains HTML, renders it as text instead of an executable element", () => {
+      test("when a report cell contains HTML, it renders it as text instead of an executable element", () => {
         // Arrange
         const logoDataUri = `data:image/svg+xml;base64,${templateClient.loadAsset("assets/yukon.svg")}`
         const pages = [[{ Name: '<img src=x onerror="alert(1)">' }]]

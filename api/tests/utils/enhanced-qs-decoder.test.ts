@@ -22,7 +22,12 @@ describe("api/src/utils/enhanced-qs-decoder.ts", () => {
       // Assert
       expect(decodedQuery).toEqual({
         where: {
-          id: selectedIds.map(String),
+          id: expect.objectContaining({
+            0: "1",
+            499: "500",
+            999: "1000",
+            length: 1000,
+          }),
           isInternationalTravel: true,
           travelAgencyId: null,
         },

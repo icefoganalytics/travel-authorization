@@ -2,7 +2,7 @@ import neutralizeSpreadsheetFormula from "@/utils/neutralize-spreadsheet-formula
 
 describe("api/src/utils/neutralize-spreadsheet-formula.ts", () => {
   describe("neutralizeSpreadsheetFormula", () => {
-    test("when cells contain formula prefixes, neutralizes them while preserving ordinary text", () => {
+    test("when cells contain formula prefixes, it neutralizes them while preserving ordinary text", () => {
       // Arrange
       const cells = [
         "=1+1",

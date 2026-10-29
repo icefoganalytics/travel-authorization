@@ -29,7 +29,6 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         })
         mockCurrentUser(user1)
         const selectedIds: number[] = []
-        const expectedRows: Record<string, string>[] = []
         for (let requestIndex = 0; requestIndex < SELECTED_REQUEST_COUNT; requestIndex += 1) {
           const travelAuthorization = await travelAuthorizationFactory
             .associations({ user: user1 })
@@ -43,18 +42,6 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
               travelDeskOfficer,
             })
           selectedIds.push(travelDeskTravelRequest.id)
-          expectedRows.unshift({
-            "Submit Date": "2026-10-01",
-            Name: "Jane Traveller",
-            Department: "Finance",
-            Branch: "Travel",
-            "Travel Start Date": "",
-            "Travel End Date": "",
-            Location: "",
-            Requested: "",
-            Status: "Draft",
-            "Travel Desk Officer": travelDeskOfficer,
-          })
         }
         const unselectedTravelAuthorization = await travelAuthorizationFactory
           .associations({ user: user1 })
@@ -78,8 +65,45 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         })
 
         // Assert
+        const expectedRowFields = {
+          "Submit Date": "2026-10-01",
+          Name: "Jane Traveller",
+          Department: "Finance",
+          Branch: "Travel",
+          "Travel Start Date": "",
+          "Travel End Date": "",
+          Location: "",
+          Requested: "",
+          Status: "Draft",
+        }
         expect(response.status).toEqual(200)
-        expect(parsedCsv.data).toEqual(expectedRows)
+        expect(parsedCsv.data).toEqual([
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 25" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 24" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 23" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 22" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 21" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 20" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 19" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 18" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 17" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 16" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 15" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 14" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 13" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 12" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 11" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 10" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 09" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 08" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 07" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 06" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 05" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 04" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 03" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 02" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 01" },
+        ])
       })
 
       test("when a native form uses a status query, it downloads matching requests without an ID payload", async () => {
