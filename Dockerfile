@@ -68,8 +68,6 @@ ENV GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
 # Ensures dates/times are consistently formated as UTC
 # Conversion to local time should happen in the UI
 ENV TZ=UTC
-# Disables SSL certificate validation
-ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 
 ENV NODE_ENV=production
 USER node
