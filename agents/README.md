@@ -17,7 +17,7 @@ The [shared precedence reference](https://github.com/klondikemarlen/marlens-skil
 
 ## Discover Local Material
 
-- [Workflows](workflows/README.md): project procedures and thin shared entrypoints. PR descriptions, testing instructions, and screenshots continue through the existing [PR overlay](workflows/pull-request-management-workflow.md); [#417](https://github.com/icefoganalytics/travel-authorization/issues/417) owns screenshot reconciliation.
+- [Workflows](workflows/README.md): project procedures and thin shared entrypoints. PR descriptions, testing instructions, and screenshots continue through the existing [PR overlay](workflows/pull-request-management-workflow.md); the [screenshot overlay](workflows/upload-pr-screenshots-workflow.md) retains local formatting and optionality over the shared upload procedure.
 - [Templates](templates/README.md): concrete local output shapes, including API, serializer, factory, and dialog contracts. Keep an example when it answers a TravelAuth question that shared concepts do not.
 - [References](references/README.md): project facts and constraints. Retain durable knowledge while it explains a current decision; do not delete it merely because it is old.
 - [Plans](plans/README.md): exploratory designs and staged implementation decisions, not active runtime or QA proof.

@@ -94,6 +94,46 @@ export const TRAV_COM_INITIALIZER_PATH = path.join(
   "integrations/trav-com-integration/initializers"
 )
 
+export const TRAVELPORT_DB_NAME = process.env.TRAVELPORT_DB_NAME || ""
+export const TRAVELPORT_DB_USER = process.env.TRAVELPORT_DB_USER || ""
+export const TRAVELPORT_DB_PASS = process.env.TRAVELPORT_DB_PASS || ""
+export const TRAVELPORT_DB_HOST = process.env.TRAVELPORT_DB_HOST || ""
+export const TRAVELPORT_DB_PORT = parseInt(process.env.TRAVELPORT_DB_PORT || "1433")
+export const TRAVELPORT_DB_TRUST_SERVER_CERTIFICATE_ENABLED =
+  process.env.TRAVELPORT_DB_TRUST_SERVER_CERTIFICATE_ENABLED === "true"
+
+export const TRAVELPORT_DB_CONFIG = {
+  client: "mssql",
+  connection: {
+    host: TRAVELPORT_DB_HOST,
+    user: TRAVELPORT_DB_USER,
+    password: TRAVELPORT_DB_PASS,
+    database: TRAVELPORT_DB_NAME,
+    port: TRAVELPORT_DB_PORT,
+    options: {
+      encrypt: true,
+      trustServerCertificate: TRAVELPORT_DB_TRUST_SERVER_CERTIFICATE_ENABLED,
+    },
+  },
+  pool: { min: 0, max: 10, idleTimeoutMillis: 1000 },
+  migrations: {
+    schemaName: "dbo",
+    tableName: "knex_migrations",
+    directory: path.resolve(__dirname, "./integrations/travelport-integration/db/migrations"),
+  },
+  seeds: {
+    directory: path.resolve(
+      __dirname,
+      `./integrations/travelport-integration/db/seeds/${NODE_ENV}`
+    ),
+  },
+}
+
+export const TRAVELPORT_INITIALIZER_PATH = path.join(
+  __dirname,
+  "integrations/travelport-integration/initializers"
+)
+
 export const RELEASE_TAG = process.env.RELEASE_TAG || ""
 export const GIT_COMMIT_HASH = process.env.GIT_COMMIT_HASH || ""
 
