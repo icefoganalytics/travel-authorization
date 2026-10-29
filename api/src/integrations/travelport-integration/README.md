@@ -10,6 +10,8 @@ import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
 const events = await TravelOrderEvent.findAllByRecordLocator("ZZ0001")
 ```
 
+Import this module directly rather than re-exporting it from the shared integrations barrel. Loading the source models requires Travelport configuration; unrelated application routes and integrations must remain usable before that connection is configured.
+
 The lookup returns every matching source event with its passengers, air reservation segments, and optional service-fee transaction. Collection associations are loaded independently so multiple passengers do not multiply flight segments. An unknown locator returns an empty array. History ordering is deterministic for inspection, not a rule for selecting the current booking.
 
 Keep source events separate until the consuming workflow has an authoritative selection rule. Booking (`B`) and fare (`F`) events can carry itinerary snapshots; ticketing (`T`) events can carry fees with no PNR version or flight segments. Do not discard unversioned ticketing events or passive `GK` segments, sum every historical fee, or reinterpret database arrival order as reservation-version order. Decimal service-fee values retain their database precision.
