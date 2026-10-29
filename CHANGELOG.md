@@ -14,6 +14,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Flight statistics reports show flight volumes and durations in tables and graphs, with printing and CSV export.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.
+- A separate local Travelport booking-feed simulator and read-only source lookup support booking integration development without production or VPN access. Existing integrations remain usable without Travelport settings.
 
 ### Changed
 
