@@ -30,7 +30,7 @@ class DevHelper
 
   REPLACE_PROCESS = "replace_process"
   WAIT_FOR_PROCESS = "wait_for_process"
-  MAX_COMPOSE_PROJECT_NAME_LENGTH = 63 - "-db_trav_com".length
+  MAX_COMPOSE_PROJECT_NAME_LENGTH = 63 - "-db_travelport".length
 
   # External Interface
   def self.call(*args)
