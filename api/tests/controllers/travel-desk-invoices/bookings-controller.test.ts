@@ -29,6 +29,29 @@ describe("api/src/controllers/travel-desk-invoices/bookings-controller.ts", () =
         })
       })
 
+      test("when the travel request no longer exists, it returns not found before looking up the source", async () => {
+        // Arrange
+        const officer = await userFactory.create({
+          roles: [User.Roles.TRAVEL_DESK_USER],
+        })
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        await travelRequest.destroy({
+          force: true,
+        })
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/invoice-bookings?recordLocator=INVALID`
+        )
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Travel desk travel request not found.",
+        })
+      })
+
       test("when editing without a locator, it returns only this request's live local flight segments", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
