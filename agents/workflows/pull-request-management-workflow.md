@@ -20,10 +20,11 @@ Do not add report sections unless the maintainer requests them.
 - **Implementation:** Use a concise numbered list of user-visible outcomes, with the primary fix
   first. Exclude internal file inventories and refactors without a user-visible effect.
 - **Screenshots:** Preserve existing images, generated attachment URLs, captions, and their placement
-  when refreshing text. Keep historical captures labeled honestly. For UI changes without supplied
-  images, leave `TODO` for the human unless capture is requested; otherwise use
-  `N/A - backend changes only`. Follow the [screenshot workflow](upload-pr-screenshots-workflow.md)
-  for caption, route, image order and any requested capture/upload.
+  when refreshing text. Keep historical captures labeled honestly. Follow the
+  [screenshot overlay](upload-pr-screenshots-workflow.md) and its direct shared workflow for requested
+  or required agent capture/upload, helper and session discovery, caption + route + image format,
+  and separate saved/rendered verification. Optional captioned placeholders do not alone block merge;
+  report genuine missing prerequisites without handing routine upload back to the human.
 - **Testing Instructions:** Follow the [local testing workflow](testing-instructions-workflow.md).
   Retain TravelAuth's three setup steps, then describe reproducible user actions and expected
   outcomes with verified UI labels. Link the [canonical commands](../../bin/README.md#testing)

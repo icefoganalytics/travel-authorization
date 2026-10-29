@@ -21,6 +21,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Reports have separate table, graph, and print views. Flight statistics tables load and sort one page at a time.
 - User administration includes a mailcode field and updated user search and editing controls.
 - Developer improvements: isolated checkout service and database routes, explicit PostgreSQL data transfers between worktrees, correct-checkout editor access with gem-owned Docker defaults that survives readiness-based startup, and warning-free Ruby wrapper startup with explicitly bundled help dependencies. Updated test tooling and contributor guidance; removed unused components and dependencies. Web tests share HTTP isolation and component cleanup following WRAP's conventions. Agent guidance now loads verified shared workflow sources before local overlays while preserving TravelAuth's contracts and development commands.
+- Requested PR screenshots follow the shared agent-operated capture/upload workflow while preserving existing images, TravelAuth captions and app routes, and optional screenshot placeholders.
 
 ### Fixed
 
