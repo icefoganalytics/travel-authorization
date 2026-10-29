@@ -196,6 +196,18 @@ top-level `.env` file with the required production values.
 At minimum, that includes database configuration plus any external integration values required for
 the path you are testing.
 
+The production image uses Node.js's default TLS certificate validation. Remove any deployment
+override that sets `NODE_TLS_REJECT_UNAUTHORIZED=0`; untrusted certificates must fail rather than
+silently bypass verification. Before rollout, check the certificate chains and hostnames used by
+outbound integrations, including Auth0 and the Yukon Government APIs.
+
+For an integration signed by a private certificate authority (CA), mount its approved PEM CA bundle
+read-only inside the container and set `NODE_EXTRA_CA_CERTS` to that container path. Recreate the
+application container after changing the bundle or setting: Node reads additional CAs at startup.
+Fix incomplete chains, expired certificates, and hostname mismatches at the endpoint. Adding a CA
+does not make an expired certificate or incorrect hostname valid. Do not restore the global
+verification bypass as a fallback.
+
 ## Documentation
 
 Use the nearest README or workflow for area-specific guidance instead of expanding this file with
