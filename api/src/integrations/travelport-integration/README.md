@@ -10,7 +10,7 @@ import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
 const events = await TravelOrderEvent.findAllByRecordLocator("ZZ0001")
 ```
 
-Import this module directly rather than re-exporting it from the shared integrations barrel. Loading the source models requires Travelport configuration; unrelated application routes and integrations must remain usable before that connection is configured.
+The reader creates its connection and registers the source models on its first query, not when the module is imported. Unrelated application routes remain usable without Travelport credentials. Keep the integration out of the shared integrations barrel; access the source through its explicit boundary.
 
 The lookup returns every matching source event with its passengers, air reservation segments, and optional service-fee transaction. Collection associations are loaded independently so multiple passengers do not multiply flight segments. An unknown locator returns an empty array. History ordering is deterministic for inspection, not a rule for selecting the current booking.
 
@@ -41,4 +41,4 @@ Only the deployed production application connects to the real booking-feed datab
 
 The production initializer returns before loading source database initialization actions. It must not create, migrate, or seed production-owned source objects. Production network routing, credentials, and install-specific selection semantics cannot be verified from the local simulator; validate them in the deployed environment without enabling simulator initialization there.
 
-Source schema migrations and synthetic seeds belong only to local development and test setup. Do not add writes to the booking lookup or repoint TravCom's initialization at this source. Request linkage, itinerary UI cutover, and invoice generation remain separate consumer work under #293/#314.
+Source schema migrations and synthetic seeds belong only to local development and test setup. Do not add writes to the booking lookup or repoint TravCom's initialization at this source. The invoice consumer reads an explicitly selected booking event and selected fee events into an immutable application-owned snapshot; see the [invoice implementation contract](../../../../agents/plans/Plan,%20Travel%20Desk%20Flight%20Segment%20Cost%20Tracking%20and%20Invoice%20Generation,%202026-01-02.md). Request linkage and legacy itinerary cutover remain separate work under #293.
