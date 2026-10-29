@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Out-of-Territory Travel Desk Report</title>
+    <style>
+      @page {
+        size: letter landscape;
+        margin: 10mm 8mm 15mm;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: #202020;
+        font-family: Arial, sans-serif;
+      }
+
+      .report-page {
+        width: 100%;
+      }
+
+      .report-page + .report-page {
+        break-before: page;
+      }
+
+      .report-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 10px;
+        border-bottom: 2px solid #f2a900;
+        padding: 0 0 8px;
+      }
+
+      .report-heading img {
+        width: 82px;
+        height: auto;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 7.5pt;
+      }
+
+      th,
+      td {
+        border: 1px solid #777;
+        padding: 4px 3px;
+        text-align: left;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+      }
+
+      th {
+        background: #eeeeee;
+        font-weight: 700;
+      }
+
+      tr {
+        break-inside: avoid;
+      }
+
+      th:nth-child(1),
+      th:nth-child(5),
+      th:nth-child(6) {
+        width: 8%;
+      }
+
+      th:nth-child(2) {
+        width: 12%;
+      }
+
+      th:nth-child(3) {
+        width: 11%;
+      }
+
+      th:nth-child(4) {
+        width: 10%;
+      }
+
+      th:nth-child(7) {
+        width: 14%;
+      }
+
+      th:nth-child(8),
+      th:nth-child(9) {
+        width: 9%;
+      }
+
+      th:nth-child(10) {
+        width: 11%;
+      }
+    </style>
+  </head>
+  <body>
+    <% pages.forEach((page) => { %>
+    <section class="report-page">
+      <header class="report-heading">
+        <img
+          src="<%- logoDataUri %>"
+          alt="Yukon Government"
+        />
+        <h1>Out-of-Territory Travel Desk Report</h1>
+      </header>
+      <table>
+        <thead>
+          <tr>
+            <% headers.forEach((header) => { %>
+            <th scope="col"><%- header %></th>
+            <% }) %>
+          </tr>
+        </thead>
+        <tbody>
+          <% page.forEach((row) => { %>
+          <tr>
+            <% headers.forEach((header) => { %>
+            <td><%- row[header] %></td>
+            <% }) %>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+    <% }) %>
+  </body>
+</html>

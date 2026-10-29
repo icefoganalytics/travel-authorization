@@ -8,24 +8,20 @@
     :items="travelDeskTravelRequests"
     :items-length="totalCount"
     :loading="isLoading"
-    :item-class="itemRowBackground"
+    :row-props="itemRowProps"
     multi-sort
     show-select
   >
     <template #top>
       <div class="d-flex mb-4">
         <v-spacer />
-        <PrintTravelDeskReport
+        <TravelDeskTravelRequestsPrintButton
           :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
-          :activator-props="{
-            class: 'my-0 mr-4',
-            color: 'primary',
-            disabled: isEmpty(selectedTravelDeskTravelRequestIds),
-          }"
+          class="my-0 mr-4"
+          color="primary"
         />
         <TravelDeskTravelRequestsExportToCsvButton
           :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
-          :disabled="isEmpty(selectedTravelDeskTravelRequestIds)"
           class="my-0"
           color="primary"
         >
@@ -61,43 +57,35 @@
       {{ value }}
     </template>
 
-    <template #item.requested="{ item }">
-      {{ determineRequestedOptions(item) }}
+    <template #item.requestedOptions="{ value }">
+      {{ value }}
     </template>
 
-    <template #item.status="{ item, value }">
-      <template
-        v-if="
-          (value === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED &&
-            isNil(item.travelDeskOfficer)) ||
-          isEmpty(item.travelDeskOfficer)
-        "
+    <template #item.status="{ item }">
+      {{ formatTravelDeskTravelRequestStatus(item, t) }}
+      <v-icon
+        v-if="item.status === TravelDeskTravelRequestStatuses.SUBMITTED"
+        color="error"
       >
-        Not started <v-icon class="red--text">mdi-flag</v-icon>
-      </template>
-      <template v-else>
-        {{ t(`travel_desk_travel_request.status.${value}`, value) }}
-        <v-icon
-          v-if="value === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.SUBMITTED"
-          class="red--text"
-          >mdi-flag</v-icon
-        >
-        <v-icon
-          v-else-if="value === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.OPTIONS_RANKED"
-          class="yellow--text"
-          >mdi-flag</v-icon
-        >
-        <v-icon
-          v-else-if="value === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED"
-          class="green--text"
-          >mdi-checkbox-marked</v-icon
-        >
-      </template>
+        mdi-flag
+      </v-icon>
+      <v-icon
+        v-else-if="item.status === TravelDeskTravelRequestStatuses.OPTIONS_RANKED"
+        color="warning"
+      >
+        mdi-flag
+      </v-icon>
+      <v-icon
+        v-else-if="item.status === TravelDeskTravelRequestStatuses.BOOKED"
+        color="success"
+      >
+        mdi-checkbox-marked
+      </v-icon>
     </template>
 
     <template #item.edit="{ item }">
       <v-btn
-        v-if="item.status === TRAVEL_DESK_TRAVEL_REQUEST_STATUSES.BOOKED"
+        v-if="item.status === TravelDeskTravelRequestStatuses.BOOKED"
         prepend-icon="mdi-eye"
         color="primary"
         min-width="6rem"
@@ -128,24 +116,28 @@
   </v-data-table-server>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { isNil, isEmpty } from "lodash"
 
 import formatDate from "@/utils/format-date"
+import formatTravelDeskTravelRequestStatus from "@/utils/format-travel-desk-travel-request-status"
 
-import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import {
+  type TravelDeskTravelRequestAsIndex,
+  type TravelDeskTravelRequestsQueryOptions,
+  TravelDeskTravelRequestStatuses,
+} from "@/api/travel-desk-travel-requests-api"
+
+import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
-import useTravelDeskTravelRequests, {
-  TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
-} from "@/use/use-travel-desk-travel-requests"
+import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
 
 import TravelDeskTravelRequestsExportToCsvButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsExportToCsvButton.vue"
-import PrintTravelDeskReport from "@/modules/travelDesk/views/Common/PrintTravelDeskReport.vue"
+import TravelDeskTravelRequestsPrintButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsPrintButton.vue"
 
-const headers = ref([
+const headers = [
   { title: "TA #", key: "travelAuthorizationId" },
   { title: "Submit Date", key: "createdAt" },
   { title: "Name", key: "userDisplayName", sortable: false },
@@ -154,16 +146,15 @@ const headers = ref([
   { title: "Travel Start Date", key: "travelStartDate" },
   { title: "Travel End Date", key: "travelEndDate", sortable: false },
   { title: "Locations Traveled", key: "locationsTraveled", sortable: false },
-  { title: "Requested", key: "requested", sortable: false },
+  { title: "Requested", key: "requestedOptions", sortable: false },
   { title: "Status", key: "status" },
   { title: "Travel Desk Officer", key: "travelDeskOfficer" },
   { title: "Actions", key: "edit", sortable: false, align: "start" },
-])
+] as const
 
 const { t } = useI18n()
 
-const page = useRouteQuery("page", "1", { transform: integerTransformer })
-const perPage = useRouteQuery("perPage", "15", { transform: integerTransformer })
+const { page, perPage } = useRouteQueryPagination({ perPage: 15 })
 
 const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
   {
@@ -173,7 +164,7 @@ const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
 ])
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
-const travelDeskTravelRequestsQuery = computed(() => {
+const travelDeskTravelRequestsQuery = computed<TravelDeskTravelRequestsQueryOptions>(() => {
   return {
     order: order.value,
     page: page.value,
@@ -184,32 +175,14 @@ const { travelDeskTravelRequests, totalCount, isLoading } = useTravelDeskTravelR
   travelDeskTravelRequestsQuery
 )
 
-const selectedTravelDeskTravelRequestIds = ref([])
+const selectedTravelDeskTravelRequestIds = ref<number[]>([])
 
-function determineRequestedOptions(travelDeskTravelRequest) {
-  const requested = []
-
-  if (!isEmpty(travelDeskTravelRequest.flightRequests)) {
-    requested.push("flight")
+function itemRowProps({ item }: { item: TravelDeskTravelRequestAsIndex }) {
+  return {
+    class: {
+      "bg-red-lighten-5": item.isAssignedToCurrentUser,
+    },
   }
-
-  if (!isEmpty(travelDeskTravelRequest.hotels)) {
-    requested.push("hotel")
-  }
-
-  if (!isEmpty(travelDeskTravelRequest.rentalCars)) {
-    requested.push("rental car")
-  }
-
-  if (!isEmpty(travelDeskTravelRequest.otherTransportations)) {
-    requested.push("transportation")
-  }
-
-  return requested.join(", ")
-}
-
-function itemRowBackground(item) {
-  return item.isAssignedToCurrentUser > 0 ? "red lighten-5" : ""
 }
 </script>
 

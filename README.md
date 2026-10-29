@@ -201,6 +201,7 @@ the path you are testing.
 Use the nearest README or workflow for area-specific guidance instead of expanding this file with
 detailed implementation instructions.
 
+- [Project knowledge base](/docs/README.md) - durable project knowledge and architecture references
 - [AGENTS.md](./AGENTS.md) - project-wide conventions, architecture, and PR guidance
 - [api/README.md](./api/README.md) - API service overview and usage
 - [web/README.md](./web/README.md) - web service overview and usage

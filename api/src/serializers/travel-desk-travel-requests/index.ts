@@ -4,3 +4,9 @@ export {
   ReferenceSerializer,
   type TravelDeskTravelRequestAsReference as AsReference,
 } from "./reference-serializer"
+
+export {
+  ReportSerializer,
+  TravelDeskTravelRequestReportHeaders,
+  type TravelDeskTravelRequestAsReport,
+} from "./report-serializer"

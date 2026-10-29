@@ -26,7 +26,6 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
         scopes,
         this.currentUser
       )
-
       const totalCount = await scopedTravelDeskTravelRequests.count({ where })
       const travelDeskTravelRequests = await scopedTravelDeskTravelRequests.findAll({
         where,
