@@ -1,8 +1,8 @@
 <template>
   <v-data-table-server
     v-model="selectedTravelDeskTravelRequestIds"
-    v-model:page="page"
-    v-model:items-per-page="perPage"
+    v-model:page="pageQuery"
+    v-model:items-per-page="perPageQuery"
     v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelDeskTravelRequests"
@@ -16,12 +16,12 @@
       <div class="d-flex mb-4">
         <v-spacer />
         <TravelDeskTravelRequestsPrintButton
-          :query-options="reportQuery"
+          :query-options="travelDeskTravelRequestsDownloadQueryOptions"
           class="my-0 mr-4"
           color="primary"
         />
         <TravelDeskTravelRequestsExportToCsvButton
-          :query-options="reportQuery"
+          :query-options="travelDeskTravelRequestsDownloadQueryOptions"
           class="my-0"
           color="primary"
         >
@@ -130,7 +130,7 @@ import {
   TravelDeskTravelRequestStatuses,
 } from "@/api/travel-desk-travel-requests-api"
 
-import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
@@ -155,7 +155,12 @@ const headers = [
 
 const { t } = useI18n()
 
-const { page, perPage } = useRouteQueryPagination({ perPage: 15 })
+const pageQuery = useRouteQuery<string, number>("page", "1", {
+  transform: integerTransformer,
+})
+const perPageQuery = useRouteQuery<string, number>("perPage", "15", {
+  transform: integerTransformer,
+})
 
 const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
   {
@@ -168,8 +173,8 @@ const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 const travelDeskTravelRequestsQuery = computed<TravelDeskTravelRequestsQueryOptions>(() => {
   return {
     order: order.value,
-    page: page.value,
-    perPage: perPage.value,
+    page: pageQuery.value,
+    perPage: perPageQuery.value,
   }
 })
 const { travelDeskTravelRequests, totalCount, isLoading } = useTravelDeskTravelRequests(
@@ -177,19 +182,21 @@ const { travelDeskTravelRequests, totalCount, isLoading } = useTravelDeskTravelR
 )
 
 const selectedTravelDeskTravelRequestIds = ref<number[]>([])
-const reportQuery = computed<TravelDeskTravelRequestsQueryOptions>(() => {
-  const queryOptions: TravelDeskTravelRequestsQueryOptions = {
-    order: order.value,
-  }
-
-  if (!isEmpty(selectedTravelDeskTravelRequestIds.value)) {
-    queryOptions.where = {
-      id: selectedTravelDeskTravelRequestIds.value,
+const travelDeskTravelRequestsDownloadQueryOptions = computed<TravelDeskTravelRequestsQueryOptions>(
+  () => {
+    const downloadQueryOptions: TravelDeskTravelRequestsQueryOptions = {
+      order: order.value,
     }
-  }
 
-  return queryOptions
-})
+    if (!isEmpty(selectedTravelDeskTravelRequestIds.value)) {
+      downloadQueryOptions.where = {
+        id: selectedTravelDeskTravelRequestIds.value,
+      }
+    }
+
+    return downloadQueryOptions
+  }
+)
 
 function itemRowProps({ item }: { item: TravelDeskTravelRequestAsIndex }) {
   return {
