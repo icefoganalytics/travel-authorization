@@ -1,7 +1,6 @@
 <template>
   <DownloadFileForm
     :download-url="downloadUrl"
-    :disabled="travelDeskTravelRequestIds.length === 0"
     text="Print Report"
     prepend-icon="mdi-printer"
   />
@@ -11,16 +10,13 @@
 import { computed } from "vue"
 
 import { reportsApi } from "@/api/downloads/travel-desk-travel-requests"
+import { type TravelDeskTravelRequestsQueryOptions } from "@/api/travel-desk-travel-requests-api"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 
 const props = defineProps<{
-  travelDeskTravelRequestIds: number[]
+  queryOptions?: TravelDeskTravelRequestsQueryOptions
 }>()
 
-const downloadUrl = computed(() =>
-  reportsApi.downloadPath("pdf", {
-    where: { id: props.travelDeskTravelRequestIds },
-  })
-)
+const downloadUrl = computed(() => reportsApi.downloadPath("pdf", props.queryOptions))
 </script>

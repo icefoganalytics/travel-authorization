@@ -12,7 +12,7 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
   async create() {
     try {
       const where = this.buildWhere()
-      const scopes = this.buildFilterScopes()
+      const scopes = this.buildFilterScopes(["includeTravelStartDateAttribute"])
       const order = this.buildOrder([["id", "ASC"]])
       const scopedTravelDeskTravelRequests = TravelDeskTravelRequestsPolicy.applyScope(
         scopes,

@@ -16,12 +16,12 @@
       <div class="d-flex mb-4">
         <v-spacer />
         <TravelDeskTravelRequestsPrintButton
-          :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
+          :query-options="reportQuery"
           class="my-0 mr-4"
           color="primary"
         />
         <TravelDeskTravelRequestsExportToCsvButton
-          :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
+          :query-options="reportQuery"
           class="my-0"
           color="primary"
         >
@@ -117,6 +117,7 @@
 </template>
 
 <script setup lang="ts">
+import { isEmpty } from "lodash"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 
@@ -176,6 +177,19 @@ const { travelDeskTravelRequests, totalCount, isLoading } = useTravelDeskTravelR
 )
 
 const selectedTravelDeskTravelRequestIds = ref<number[]>([])
+const reportQuery = computed<TravelDeskTravelRequestsQueryOptions>(() => {
+  const queryOptions: TravelDeskTravelRequestsQueryOptions = {
+    order: order.value,
+  }
+
+  if (!isEmpty(selectedTravelDeskTravelRequestIds.value)) {
+    queryOptions.where = {
+      id: selectedTravelDeskTravelRequestIds.value,
+    }
+  }
+
+  return queryOptions
+})
 
 function itemRowProps({ item }: { item: TravelDeskTravelRequestAsIndex }) {
   return {

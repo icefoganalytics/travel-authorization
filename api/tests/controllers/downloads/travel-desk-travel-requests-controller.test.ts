@@ -106,6 +106,86 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         ])
       })
 
+      test("when no IDs are specified, it exports every visible request beyond a list page in the requested order", async () => {
+        // Arrange
+        const user1 = await userFactory.create({
+          roles: [User.Roles.USER],
+          firstName: "Jane",
+          lastName: "Traveller",
+          department: "Finance",
+          branch: "Travel",
+        })
+        mockCurrentUser(user1)
+        const requestCount = 16
+        for (let requestIndex = 0; requestIndex < requestCount; requestIndex += 1) {
+          const travelAuthorization = await travelAuthorizationFactory
+            .associations({ user: user1 })
+            .create()
+          await travelDeskTravelRequestFactory.associations({ travelAuthorization }).create({
+            createdAt: new Date("2026-10-01T12:00:00.000Z"),
+            status: TravelDeskTravelRequest.Statuses.DRAFT,
+            travelDeskOfficer: `Officer ${String(requestIndex + 1).padStart(2, "0")}`,
+          })
+        }
+        const user2 = await userFactory.create({ roles: [User.Roles.USER] })
+        const hiddenTravelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user2 })
+          .create()
+        await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization: hiddenTravelAuthorization })
+          .create({ travelDeskOfficer: "Hidden Officer" })
+        const query = qs.stringify({
+          format: "csv",
+          order: [
+            ["travelStartDate", "ASC"],
+            ["id", "DESC"],
+          ],
+        })
+
+        // Act
+        const response = await request()
+          .post("/api/downloads/travel-desk-travel-requests")
+          .query(query)
+          .type("form")
+          .send({})
+        const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
+          header: true,
+          skipEmptyLines: true,
+        })
+
+        // Assert
+        const expectedRowFields = {
+          "Submit Date": "2026-10-01",
+          Name: "Jane Traveller",
+          Department: "Finance",
+          Branch: "Travel",
+          "Travel Start Date": "",
+          "Travel End Date": "",
+          Location: "",
+          Requested: "",
+          Status: "Draft",
+        }
+        expect(response.status).toEqual(200)
+        expect(parsedCsv.data).toEqual([
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 16" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 15" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 14" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 13" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 12" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 11" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 10" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 09" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 08" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 07" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 06" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 05" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 04" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 03" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 02" },
+          { ...expectedRowFields, "Travel Desk Officer": "Officer 01" },
+        ])
+      })
+
       test("when a native form uses a status query, it downloads matching requests without an ID payload", async () => {
         // Arrange
         const user1 = await userFactory.create({
