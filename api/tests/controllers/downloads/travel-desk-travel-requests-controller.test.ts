@@ -466,7 +466,7 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         ])
       })
 
-      test("when an ID query includes another user's request, it exports only policy-visible rows", async () => {
+      test("when a large form selection includes inaccessible and unselected requests, it exports only selected policy-visible rows", async () => {
         // Arrange
         const user1 = await userFactory.create({
           roles: [User.Roles.USER],
@@ -493,11 +493,24 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         const foreignRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization2 })
           .create({ travelDeskOfficer: "Hidden Officer" })
+        const travelAuthorization3 = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create()
+        await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization: travelAuthorization3 })
+          .create({ travelDeskOfficer: "Unselected Officer" })
+        const selectedIds = [
+          ownRequest.id,
+          foreignRequest.id,
+          ...Array.from({ length: 998 }, (_, index) => NONEXISTENT_REQUEST_ID + index),
+        ]
+        const query = qs.stringify({ where: { id: selectedIds } })
 
         // Act
         const response = await request()
-          .post("/api/downloads/travel-desk-travel-requests")
-          .query({ format: "csv", where: { id: [ownRequest.id, foreignRequest.id] } })
+          .post("/api/downloads/travel-desk-travel-requests?format=csv")
+          .type("form")
+          .send({ query })
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -636,6 +649,103 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
             Requested: "",
             Status: "Draft",
             "Travel Desk Officer": "Draft Officer",
+          },
+        ])
+      })
+
+      test("when sort values tie, it groups unbooked requests and current-user assignments like the list", async () => {
+        // Arrange
+        const user1 = await userFactory.create({
+          roles: [User.Roles.USER],
+          firstName: "Jane",
+          lastName: "Traveller",
+          department: "Finance",
+          branch: "Travel",
+        })
+        mockCurrentUser(user1)
+        const travelAuthorization1 = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create()
+        const request1 = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization: travelAuthorization1 })
+          .create({
+            createdAt: new Date("2026-10-01T12:00:00.000Z"),
+            status: TravelDeskTravelRequest.Statuses.DRAFT,
+            travelDeskOfficer: "Other Officer",
+          })
+        const travelAuthorization2 = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create()
+        const request2 = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization: travelAuthorization2 })
+          .create({
+            createdAt: new Date("2026-10-01T12:00:00.000Z"),
+            status: TravelDeskTravelRequest.Statuses.DRAFT,
+            travelDeskOfficer: user1.displayName,
+          })
+        const travelAuthorization3 = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create()
+        const request3 = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization: travelAuthorization3 })
+          .create({
+            createdAt: new Date("2026-10-01T12:00:00.000Z"),
+            status: TravelDeskTravelRequest.Statuses.BOOKED,
+            travelDeskOfficer: user1.displayName,
+          })
+        const query = qs.stringify({
+          where: { id: [request1.id, request2.id, request3.id] },
+          order: [["createdAt", "ASC"]],
+        })
+
+        // Act
+        const response = await request()
+          .post("/api/downloads/travel-desk-travel-requests?format=csv")
+          .type("form")
+          .send({ query })
+        const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
+          header: true,
+          skipEmptyLines: true,
+        })
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(parsedCsv.data).toEqual([
+          {
+            "Submit Date": "2026-10-01",
+            Name: "Jane Traveller",
+            Department: "Finance",
+            Branch: "Travel",
+            "Travel Start Date": "",
+            "Travel End Date": "",
+            Location: "",
+            Requested: "",
+            Status: "Draft",
+            "Travel Desk Officer": "Jane Traveller",
+          },
+          {
+            "Submit Date": "2026-10-01",
+            Name: "Jane Traveller",
+            Department: "Finance",
+            Branch: "Travel",
+            "Travel Start Date": "",
+            "Travel End Date": "",
+            Location: "",
+            Requested: "",
+            Status: "Draft",
+            "Travel Desk Officer": "Other Officer",
+          },
+          {
+            "Submit Date": "2026-10-01",
+            Name: "Jane Traveller",
+            Department: "Finance",
+            Branch: "Travel",
+            "Travel Start Date": "",
+            "Travel End Date": "",
+            Location: "",
+            Requested: "",
+            Status: "Booked",
+            "Travel Desk Officer": "Jane Traveller",
           },
         ])
       })

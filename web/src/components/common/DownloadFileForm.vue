@@ -1,6 +1,6 @@
 <template>
   <v-form
-    ref="downloadForm"
+    ref="formRef"
     :action="downloadUrl"
     method="post"
     target="_blank"
@@ -10,6 +10,11 @@
       type="hidden"
       name="HOISTABLE_AUTHORIZATION_TOKEN"
       :value="accessToken"
+    />
+    <input
+      type="hidden"
+      name="query"
+      :value="serializedQueryOptions"
     />
     <v-btn
       :block="smAndDown"
@@ -28,8 +33,10 @@
 <script setup lang="ts">
 import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
-import { nextTick, ref, useTemplateRef } from "vue"
+import { computed, nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
+
+import { serializeQuery } from "@/api/base-api"
 
 const props = withDefaults(
   defineProps<{
@@ -38,12 +45,14 @@ const props = withDefaults(
     prependIcon?: string
     color?: string
     loading?: boolean
+    queryOptions?: Record<string, unknown>
   }>(),
   {
     text: "Download File",
     prependIcon: "mdi-download",
     color: "primary",
     loading: false,
+    queryOptions: () => ({}),
   }
 )
 
@@ -53,23 +62,24 @@ const emit = defineEmits<{
 
 const { getAccessTokenSilently } = useAuth0()
 
-const downloadForm = useTemplateRef("downloadForm")
+const formRef = useTemplateRef("formRef")
 const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
+const serializedQueryOptions = computed(() => serializeQuery(props.queryOptions))
 
 async function getAccessTokenAndSubmit() {
   if (props.loading || isDownloading.value) return
 
-  if (isNil(downloadForm.value)) {
+  if (isNil(formRef.value)) {
     throw new Error("Form element is not available")
   }
 
   isDownloading.value = true
   try {
     accessToken.value = await getAccessTokenSilently()
-    await nextTick() // Wait for accessToken to be updated in the DOM
+    await nextTick()
 
-    downloadForm.value.submit()
+    formRef.value.submit()
 
     await nextTick()
     emit("downloaded")

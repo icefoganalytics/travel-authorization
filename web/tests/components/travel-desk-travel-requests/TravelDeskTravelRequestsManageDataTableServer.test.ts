@@ -1,4 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils"
+import qs from "qs"
 
 import { TravelDeskTravelRequestStatuses } from "@/api/travel-desk-travel-requests-api"
 
@@ -151,5 +152,71 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
       .get(`tbody tr td:nth-child(${requestedColumnIndex + 1})`)
       .text()
     expect(requestedServices).toBe("flight, hotel, rental car")
+  })
+
+  test("when a request is selected, report forms submit its ID and list order without pagination", async () => {
+    // Arrange
+    const httpClientMock = mockHttpClient()
+    httpClientMock.get.mockResolvedValue({
+      data: {
+        travelDeskTravelRequests: [travelDeskTravelRequestAsIndexFactory.build({ id: 25 })],
+        totalCount: 1,
+      },
+    })
+    const router = mockRouter(routes)
+    await router.push("/?page=2&perPage=5")
+    await router.isReady()
+    const wrapper = mount(TravelDeskTravelRequestsManageDataTableServer, {
+      global: { plugins: [vuetify, router] },
+    })
+    await flushPromises()
+
+    // Act
+    await wrapper.get('tbody input[type="checkbox"]').trigger("click")
+    await flushPromises()
+    const formQueries = wrapper.findAll("form").map((form) => {
+      const queryInput = form.get<HTMLInputElement>('input[name="query"]')
+      return qs.parse(queryInput.element.value)
+    })
+
+    // Assert
+    expect(formQueries).toEqual([
+      { where: { id: ["25"] }, order: [["travelStartDate", "ASC"]] },
+      { where: { id: ["25"] }, order: [["travelStartDate", "ASC"]] },
+    ])
+  })
+
+  test("when selection is cleared, both report forms restore all matching requests", async () => {
+    // Arrange
+    const httpClientMock = mockHttpClient()
+    httpClientMock.get.mockResolvedValue({
+      data: {
+        travelDeskTravelRequests: [travelDeskTravelRequestAsIndexFactory.build({ id: 25 })],
+        totalCount: 1,
+      },
+    })
+    const router = mockRouter(routes)
+    await router.push("/")
+    await router.isReady()
+    const wrapper = mount(TravelDeskTravelRequestsManageDataTableServer, {
+      global: { plugins: [vuetify, router] },
+    })
+    await flushPromises()
+    await wrapper.get('tbody input[type="checkbox"]').trigger("click")
+    await flushPromises()
+
+    // Act
+    await wrapper.get('tbody input[type="checkbox"]').trigger("click")
+    await flushPromises()
+    const formQueries = wrapper.findAll("form").map((form) => {
+      const queryInput = form.get<HTMLInputElement>('input[name="query"]')
+      return qs.parse(queryInput.element.value)
+    })
+
+    // Assert
+    expect(formQueries).toEqual([
+      { order: [["travelStartDate", "ASC"]] },
+      { order: [["travelStartDate", "ASC"]] },
+    ])
   })
 })

@@ -1,8 +1,8 @@
 <template>
   <v-data-table-server
     v-model="selectedTravelDeskTravelRequestIds"
-    v-model:page="pageQuery"
-    v-model:items-per-page="perPageQuery"
+    v-model:page="page"
+    v-model:items-per-page="perPage"
     v-model:sort-by="sortBy"
     :headers="headers"
     :items="travelDeskTravelRequests"
@@ -155,10 +155,10 @@ const headers = [
 
 const { t } = useI18n()
 
-const pageQuery = useRouteQuery<string, number>("page", "1", {
+const page = useRouteQuery<string, number>("page", "1", {
   transform: integerTransformer,
 })
-const perPageQuery = useRouteQuery<string, number>("perPage", "15", {
+const perPage = useRouteQuery<string, number>("perPage", "15", {
   transform: integerTransformer,
 })
 
@@ -173,8 +173,8 @@ const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 const travelDeskTravelRequestsQuery = computed<TravelDeskTravelRequestsQueryOptions>(() => {
   return {
     order: order.value,
-    page: pageQuery.value,
-    perPage: perPageQuery.value,
+    page: page.value,
+    perPage: perPage.value,
   }
 })
 const { travelDeskTravelRequests, totalCount, isLoading } = useTravelDeskTravelRequests(

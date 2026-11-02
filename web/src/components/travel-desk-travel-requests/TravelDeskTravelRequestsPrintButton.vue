@@ -1,6 +1,7 @@
 <template>
   <DownloadFileForm
     :download-url="downloadUrl"
+    :query-options="queryOptions"
     text="Print Report"
     prepend-icon="mdi-printer"
   />
@@ -14,9 +15,9 @@ import { type TravelDeskTravelRequestsQueryOptions } from "@/api/travel-desk-tra
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 
-const props = defineProps<{
+defineProps<{
   queryOptions?: TravelDeskTravelRequestsQueryOptions
 }>()
 
-const downloadUrl = computed(() => reportsApi.downloadPath("pdf", props.queryOptions))
+const downloadUrl = computed(() => reportsApi.downloadPath("pdf"))
 </script>
