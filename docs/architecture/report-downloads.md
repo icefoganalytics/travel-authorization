@@ -18,6 +18,8 @@ Controllers pass policy-scoped models and query options to the export services. 
 
 The [template client](/api/src/templates/template-client.ts) uses the configured template root and WRAP's `{{ ... }}` interpolation. Its `htmlToPdf` method delegates to the reusable [PDF client](/api/src/lib/pdf-client.ts) through `pdfClient.htmlToPdf(htmlDocument, options)`. `PdfClient` owns Puppeteer configuration, rendering, and browser cleanup without Travel Desk dependencies. The [PDF service](/api/src/services/downloads/travel-desk-travel-requests/create-pdf-service.ts) owns report layout and PDF options, escaped local templates, and the embedded logo. The [CSV service](/api/src/services/downloads/travel-desk-travel-requests/create-csv-service.ts) uses `fast-csv`, a UTF-8 byte-order mark, and spreadsheet-formula neutralization.
 
+Letter-landscape PDFs paginate one continuous table according to rendered row heights. Branding and column headings repeat on every page; rows stay together when they fit on a page. Column widths and text size remain fixed, with the print timestamp and page numbering in the footer.
+
 ## Runtime Packaging
 
 Both [development](/api/development.Dockerfile) and [production](/Dockerfile) images provide system Chromium through `PUPPETEER_EXECUTABLE_PATH` and disable Puppeteer's bundled browser download. The production build copies `src/templates` into `dist/templates`. Keep Chromium and Puppeteer compatible, and exercise an actual generated PDF when changing either dependency or image.
