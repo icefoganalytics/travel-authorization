@@ -1,7 +1,7 @@
 <template>
   <DownloadFileForm
     :download-url="downloadUrl"
-    :loading="travelDeskTravelRequestIds.length === 0"
+    :disabled="travelDeskTravelRequestIds.length === 0"
   >
     <template #default>
       <slot>Export To CSV</slot>

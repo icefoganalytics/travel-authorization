@@ -37,6 +37,84 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
     },
   ]
 
+  test("when no requests are selected, shows unavailable download controls without busy indicators", async () => {
+    // Arrange
+    requestsApiMock.list.mockResolvedValue({
+      travelDeskTravelRequests: [travelDeskTravelRequestAsIndexFactory.build()],
+      totalCount: 1,
+    })
+    const router = mockRouter(routes)
+    await router.push("/")
+    await router.isReady()
+
+    // Act
+    const wrapper = mount(TravelDeskTravelRequestsManageDataTableServer, {
+      global: { plugins: [vuetify, router, vueI18nPlugin] },
+    })
+    await flushPromises()
+
+    // Assert
+    const downloadControls = wrapper.findAll<HTMLButtonElement>('form button[type="submit"]')
+    expect(
+      downloadControls.map((button) => ({
+        text: button.text(),
+        disabled: button.element.disabled,
+        loading: button.classes("v-btn--loading"),
+      }))
+    ).toEqual([
+      {
+        text: "Print Report",
+        disabled: true,
+        loading: false,
+      },
+      {
+        text: "Export To Excel",
+        disabled: true,
+        loading: false,
+      },
+    ])
+  })
+
+  test("when a request is selected, enables both download controls", async () => {
+    // Arrange
+    requestsApiMock.list.mockResolvedValue({
+      travelDeskTravelRequests: [travelDeskTravelRequestAsIndexFactory.build()],
+      totalCount: 1,
+    })
+    const router = mockRouter(routes)
+    await router.push("/")
+    await router.isReady()
+    const wrapper = mount(TravelDeskTravelRequestsManageDataTableServer, {
+      global: { plugins: [vuetify, router, vueI18nPlugin] },
+    })
+    await flushPromises()
+
+    // Act
+    await wrapper.get('tbody input[type="checkbox"]').trigger("click")
+    await flushPromises()
+
+    // Assert
+    const downloadControls = wrapper.findAll<HTMLButtonElement>('form button[type="submit"]')
+    expect(
+      downloadControls.map((button) => ({
+        text: button.text(),
+        disabled: button.element.disabled,
+        loading: button.classes("v-btn--loading"),
+      }))
+    ).toEqual([
+      {
+        text: "Print Report",
+        disabled: false,
+        loading: false,
+      },
+      {
+        text: "Export To Excel",
+        disabled: false,
+        loading: false,
+      },
+    ])
+  })
+
   test("when a booked request has no officer, displays its booked status", async () => {
     // Arrange
     requestsApiMock.list.mockResolvedValue({

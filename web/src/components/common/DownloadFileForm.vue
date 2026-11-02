@@ -14,6 +14,7 @@
     <v-btn
       :block="smAndDown"
       :color="color"
+      :disabled="disabled"
       :prepend-icon="prependIcon"
       :loading="loading || isDownloading"
       type="submit"
@@ -39,12 +40,14 @@ const props = withDefaults(
     downloadUrl: string
     prependIcon?: string
     color?: string
+    disabled?: boolean
     loading?: boolean
   }>(),
   {
     text: "Download File",
     prependIcon: "mdi-download",
     color: "primary",
+    disabled: false,
     loading: false,
   }
 )
@@ -60,7 +63,7 @@ const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
 
 async function getAccessTokenAndSubmit() {
-  if (props.loading || isDownloading.value) return
+  if (props.disabled || props.loading || isDownloading.value) return
 
   if (isNil(downloadForm.value)) {
     throw new Error("Form element is not available")
