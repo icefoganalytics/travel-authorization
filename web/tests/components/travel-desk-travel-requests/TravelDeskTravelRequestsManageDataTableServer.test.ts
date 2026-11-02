@@ -1,28 +1,14 @@
 import { flushPromises, mount } from "@vue/test-utils"
 
-import travelDeskTravelRequestsApi, {
-  TravelDeskTravelRequestStatuses,
-} from "@/api/travel-desk-travel-requests-api"
-import vueI18nPlugin from "@/plugins/vue-i18n-plugin"
+import { TravelDeskTravelRequestStatuses } from "@/api/travel-desk-travel-requests-api"
 
-import { mockRouter, mockVuetify } from "@/tests/support"
+import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
 import { travelDeskTravelRequestAsIndexFactory } from "@/tests/factories"
 
 import TravelDeskTravelRequestsManageDataTableServer from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsManageDataTableServer.vue"
 
-vi.mock("@/api/travel-desk-travel-requests-api")
-vi.mock("@/config", () => ({
-  API_BASE_URL: "http://api.example.test",
-}))
-vi.mock("@auth0/auth0-vue", () => ({
-  useAuth0: () => ({
-    getAccessTokenSilently: vi.fn(),
-  }),
-}))
-
 describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequestsManageDataTableServer.vue", () => {
   const vuetify = mockVuetify()
-  const requestsApiMock = vi.mocked(travelDeskTravelRequestsApi)
   const routes = [
     { path: "/", component: TravelDeskTravelRequestsManageDataTableServer },
     {
@@ -39,15 +25,18 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
 
   test("when a booked request has no officer, displays its booked status", async () => {
     // Arrange
-    requestsApiMock.list.mockResolvedValue({
-      travelDeskTravelRequests: [
-        travelDeskTravelRequestAsIndexFactory.build({
-          status: TravelDeskTravelRequestStatuses.BOOKED,
-          travelDeskOfficer: null,
-          isBooked: true,
-        }),
-      ],
-      totalCount: 1,
+    const httpClientMock = mockHttpClient()
+    httpClientMock.get.mockResolvedValue({
+      data: {
+        travelDeskTravelRequests: [
+          travelDeskTravelRequestAsIndexFactory.build({
+            status: TravelDeskTravelRequestStatuses.BOOKED,
+            travelDeskOfficer: null,
+            isBooked: true,
+          }),
+        ],
+        totalCount: 1,
+      },
     })
     const router = mockRouter(routes)
     await router.push("/")
@@ -55,7 +44,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
 
     // Act
     const wrapper = mount(TravelDeskTravelRequestsManageDataTableServer, {
-      global: { plugins: [vuetify, router, vueI18nPlugin] },
+      global: { plugins: [vuetify, router] },
     })
     await flushPromises()
 
@@ -69,14 +58,17 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
 
   test("when a submitted request has no officer, displays that work has not started", async () => {
     // Arrange
-    requestsApiMock.list.mockResolvedValue({
-      travelDeskTravelRequests: [
-        travelDeskTravelRequestAsIndexFactory.build({
-          status: TravelDeskTravelRequestStatuses.SUBMITTED,
-          travelDeskOfficer: null,
-        }),
-      ],
-      totalCount: 1,
+    const httpClientMock = mockHttpClient()
+    httpClientMock.get.mockResolvedValue({
+      data: {
+        travelDeskTravelRequests: [
+          travelDeskTravelRequestAsIndexFactory.build({
+            status: TravelDeskTravelRequestStatuses.SUBMITTED,
+            travelDeskOfficer: null,
+          }),
+        ],
+        totalCount: 1,
+      },
     })
     const router = mockRouter(routes)
     await router.push("/")
@@ -84,7 +76,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
 
     // Act
     const wrapper = mount(TravelDeskTravelRequestsManageDataTableServer, {
-      global: { plugins: [vuetify, router, vueI18nPlugin] },
+      global: { plugins: [vuetify, router] },
     })
     await flushPromises()
 
@@ -98,14 +90,17 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
 
   test("when a submitted request has an officer, preserves its submitted status", async () => {
     // Arrange
-    requestsApiMock.list.mockResolvedValue({
-      travelDeskTravelRequests: [
-        travelDeskTravelRequestAsIndexFactory.build({
-          status: TravelDeskTravelRequestStatuses.SUBMITTED,
-          travelDeskOfficer: "Assigned Desk Agent",
-        }),
-      ],
-      totalCount: 1,
+    const httpClientMock = mockHttpClient()
+    httpClientMock.get.mockResolvedValue({
+      data: {
+        travelDeskTravelRequests: [
+          travelDeskTravelRequestAsIndexFactory.build({
+            status: TravelDeskTravelRequestStatuses.SUBMITTED,
+            travelDeskOfficer: "Assigned Desk Agent",
+          }),
+        ],
+        totalCount: 1,
+      },
     })
     const router = mockRouter(routes)
     await router.push("/")
@@ -113,7 +108,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
 
     // Act
     const wrapper = mount(TravelDeskTravelRequestsManageDataTableServer, {
-      global: { plugins: [vuetify, router, vueI18nPlugin] },
+      global: { plugins: [vuetify, router] },
     })
     await flushPromises()
 
@@ -127,13 +122,16 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
 
   test("when services come from the serialized index, displays them without nested associations", async () => {
     // Arrange
-    requestsApiMock.list.mockResolvedValue({
-      travelDeskTravelRequests: [
-        travelDeskTravelRequestAsIndexFactory.build({
-          requestedOptions: "flight, hotel, rental car",
-        }),
-      ],
-      totalCount: 1,
+    const httpClientMock = mockHttpClient()
+    httpClientMock.get.mockResolvedValue({
+      data: {
+        travelDeskTravelRequests: [
+          travelDeskTravelRequestAsIndexFactory.build({
+            requestedOptions: "flight, hotel, rental car",
+          }),
+        ],
+        totalCount: 1,
+      },
     })
     const router = mockRouter(routes)
     await router.push("/")
@@ -141,7 +139,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelRequest
 
     // Act
     const wrapper = mount(TravelDeskTravelRequestsManageDataTableServer, {
-      global: { plugins: [vuetify, router, vueI18nPlugin] },
+      global: { plugins: [vuetify, router] },
     })
     await flushPromises()
 
