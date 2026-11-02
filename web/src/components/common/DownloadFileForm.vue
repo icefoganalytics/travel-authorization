@@ -31,8 +31,6 @@ import { isNil } from "lodash"
 import { nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
 
-import { type VForm } from "vuetify/components"
-
 const props = withDefaults(
   defineProps<{
     text?: string
@@ -55,7 +53,7 @@ const emit = defineEmits<{
 
 const { getAccessTokenSilently } = useAuth0()
 
-const downloadForm = useTemplateRef<InstanceType<typeof VForm>>("downloadForm")
+const downloadForm = useTemplateRef("downloadForm")
 const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
 
