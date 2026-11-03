@@ -1,7 +1,6 @@
 import { col, type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
 
-import enhancedQsDecoder from "@/utils/enhanced-qs-decoder"
 import logger from "@/utils/logger"
 import { type TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequestsPolicy } from "@/policies"
@@ -12,18 +11,6 @@ import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 export class TravelDeskTravelRequestsController extends BaseController<TravelDeskTravelRequest> {
   async create() {
     try {
-      const bodyQuery = this.request.body?.query
-      if (bodyQuery !== undefined && typeof bodyQuery !== "string") {
-        throw new TypeError("Download query must be a string")
-      }
-
-      if (typeof bodyQuery === "string") {
-        Object.assign(this.request.query, {
-          ...enhancedQsDecoder(bodyQuery),
-          ...this.request.query,
-        })
-      }
-
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes([
         "includeIsBookedAttribute",

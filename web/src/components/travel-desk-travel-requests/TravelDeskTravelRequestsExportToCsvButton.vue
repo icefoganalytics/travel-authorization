@@ -1,8 +1,5 @@
 <template>
-  <DownloadFileForm
-    :download-url="downloadUrl"
-    :query-options="queryOptions"
-  >
+  <DownloadFileForm :download-url="downloadUrl">
     <template #default>
       <slot>Export To CSV</slot>
     </template>
@@ -17,9 +14,9 @@ import { type TravelDeskTravelRequestsQueryOptions } from "@/api/travel-desk-tra
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 
-defineProps<{
+const props = defineProps<{
   queryOptions?: TravelDeskTravelRequestsQueryOptions
 }>()
 
-const downloadUrl = computed(() => reportsApi.downloadPath("csv"))
+const downloadUrl = computed(() => reportsApi.downloadPath("csv", props.queryOptions))
 </script>

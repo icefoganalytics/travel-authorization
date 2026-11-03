@@ -11,11 +11,6 @@
       name="HOISTABLE_AUTHORIZATION_TOKEN"
       :value="accessToken"
     />
-    <input
-      type="hidden"
-      name="query"
-      :value="serializedQueryOptions"
-    />
     <v-btn
       :block="smAndDown"
       :color="color"
@@ -33,10 +28,8 @@
 <script setup lang="ts">
 import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
-import { computed, nextTick, ref, useTemplateRef } from "vue"
+import { nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
-
-import { serializeQuery } from "@/api/base-api"
 
 const props = withDefaults(
   defineProps<{
@@ -45,14 +38,12 @@ const props = withDefaults(
     prependIcon?: string
     color?: string
     loading?: boolean
-    queryOptions?: Record<string, unknown>
   }>(),
   {
     text: "Download File",
     prependIcon: "mdi-download",
     color: "primary",
     loading: false,
-    queryOptions: () => ({}),
   }
 )
 
@@ -65,7 +56,6 @@ const { getAccessTokenSilently } = useAuth0()
 const formRef = useTemplateRef("formRef")
 const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
-const serializedQueryOptions = computed(() => serializeQuery(props.queryOptions))
 
 async function getAccessTokenAndSubmit() {
   if (props.loading || isDownloading.value) return
@@ -77,7 +67,7 @@ async function getAccessTokenAndSubmit() {
   isDownloading.value = true
   try {
     accessToken.value = await getAccessTokenSilently()
-    await nextTick()
+    await nextTick() // Wait for accessToken to be updated in the DOM
 
     formRef.value.submit()
 

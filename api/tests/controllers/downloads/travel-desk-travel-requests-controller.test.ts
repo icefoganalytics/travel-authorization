@@ -466,75 +466,7 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         ])
       })
 
-      test("when a large form selection includes inaccessible and unselected requests, it exports only selected policy-visible rows", async () => {
-        // Arrange
-        const user1 = await userFactory.create({
-          roles: [User.Roles.USER],
-          firstName: "Jane",
-          lastName: "Traveller",
-          department: "Finance",
-          branch: "Travel",
-        })
-        const user2 = await userFactory.create({ roles: [User.Roles.USER] })
-        mockCurrentUser(user1)
-        const travelAuthorization1 = await travelAuthorizationFactory
-          .associations({ user: user1 })
-          .create()
-        const ownRequest = await travelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorization1 })
-          .create({
-            createdAt: new Date("2026-10-01T12:00:00.000Z"),
-            status: TravelDeskTravelRequest.Statuses.DRAFT,
-            travelDeskOfficer: "Visible Officer",
-          })
-        const travelAuthorization2 = await travelAuthorizationFactory
-          .associations({ user: user2 })
-          .create()
-        const foreignRequest = await travelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorization2 })
-          .create({ travelDeskOfficer: "Hidden Officer" })
-        const travelAuthorization3 = await travelAuthorizationFactory
-          .associations({ user: user1 })
-          .create()
-        await travelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorization3 })
-          .create({ travelDeskOfficer: "Unselected Officer" })
-        const selectedIds = [
-          ownRequest.id,
-          foreignRequest.id,
-          ...Array.from({ length: 998 }, (_, index) => NONEXISTENT_REQUEST_ID + index),
-        ]
-        const query = qs.stringify({ where: { id: selectedIds } })
-
-        // Act
-        const response = await request()
-          .post("/api/downloads/travel-desk-travel-requests?format=csv")
-          .type("form")
-          .send({ query })
-        const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
-          header: true,
-          skipEmptyLines: true,
-        })
-
-        // Assert
-        expect(response.status).toEqual(200)
-        expect(parsedCsv.data).toEqual([
-          {
-            "Submit Date": "2026-10-01",
-            Name: "Jane Traveller",
-            Department: "Finance",
-            Branch: "Travel",
-            "Travel Start Date": "",
-            "Travel End Date": "",
-            Location: "",
-            Requested: "",
-            Status: "Draft",
-            "Travel Desk Officer": "Visible Officer",
-          },
-        ])
-      })
-
-      test("when the query matches no requests, it returns an unprocessable response without download headers", async () => {
+      test("when the query matches no requests, it returns an unprocessable response", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         mockCurrentUser(user1)
@@ -549,10 +481,23 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         expect(response.body).toEqual({
           message: "Failed to create travel desk travel requests download",
         })
+      })
+
+      test("when the CSV query matches no requests, it does not set download headers", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        mockCurrentUser(user1)
+
+        // Act
+        const response = await request()
+          .post("/api/downloads/travel-desk-travel-requests")
+          .query({ format: "csv", where: { id: [NONEXISTENT_REQUEST_ID] } })
+
+        // Assert
         expect(response.headers["content-disposition"]).toBeUndefined()
       })
 
-      test("when a PDF query matches only an inaccessible request, it returns an unprocessable response without download headers", async () => {
+      test("when a PDF query matches only an inaccessible request, it returns an unprocessable response", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         const user2 = await userFactory.create({ roles: [User.Roles.USER] })
@@ -574,6 +519,26 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         expect(response.body).toEqual({
           message: "Failed to create travel desk travel requests download",
         })
+      })
+
+      test("when a PDF query matches only an inaccessible request, it does not set download headers", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        const user2 = await userFactory.create({ roles: [User.Roles.USER] })
+        mockCurrentUser(user1)
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user2 })
+          .create()
+        const foreignRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create()
+
+        // Act
+        const response = await request()
+          .post("/api/downloads/travel-desk-travel-requests")
+          .query({ format: "pdf", where: { id: [foreignRequest.id] } })
+
+        // Assert
         expect(response.headers["content-disposition"]).toBeUndefined()
       })
 
@@ -694,15 +659,15 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
             travelDeskOfficer: user1.displayName,
           })
         const query = qs.stringify({
+          format: "csv",
           where: { id: [request1.id, request2.id, request3.id] },
           order: [["createdAt", "ASC"]],
         })
 
         // Act
         const response = await request()
-          .post("/api/downloads/travel-desk-travel-requests?format=csv")
-          .type("form")
-          .send({ query })
+          .post("/api/downloads/travel-desk-travel-requests")
+          .query(query)
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -750,7 +715,7 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         ])
       })
 
-      test("when PDF generation fails, it returns an unprocessable response without download headers", async () => {
+      test("when PDF generation fails, it returns an unprocessable response", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         mockCurrentUser(user1)
@@ -774,6 +739,28 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         expect(response.body).toEqual({
           message: "Failed to create travel desk travel requests download",
         })
+      })
+
+      test("when PDF generation fails, it does not set download headers", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        mockCurrentUser(user1)
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create()
+        vi.spyOn(CreatePdfService, "perform").mockRejectedValueOnce(
+          new Error("PDF rendering failed")
+        )
+
+        // Act
+        const response = await request()
+          .post("/api/downloads/travel-desk-travel-requests")
+          .query({ format: "pdf", where: { id: [travelDeskTravelRequest.id] } })
+
+        // Assert
         expect(response.headers["content-disposition"]).toBeUndefined()
       })
 
