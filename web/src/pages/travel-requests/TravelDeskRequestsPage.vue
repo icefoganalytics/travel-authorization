@@ -22,6 +22,7 @@
       :loading="isLoading"
       item-value="id"
       hide-default-footer
+      must-sort
     >
       <template #item.name="{ item }">
         {{ item.firstName ?? "" }} {{ item.lastName ?? "" }}
