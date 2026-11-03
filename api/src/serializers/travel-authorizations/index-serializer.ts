@@ -63,6 +63,9 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const serializedTravelDeskTravelRequest =
       this.serializeTravelDeskTravelRequest(travelDeskTravelRequest)
 
+    const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
+    const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
+
     const finalDestinationLocation = this.buildFinalDestinationLocation()
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
@@ -81,8 +84,8 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
       finalDestination: finalDestinationLocation,
-      departingAt: this.departingAt?.toISOString(),
-      returningAt: this.returningAt?.toISOString(),
+      departingAt: departingAt?.toISOString(),
+      returningAt: returningAt?.toISOString(),
       phase: this.determinePhase(),
       action: this.determineAction(),
       firstName: this.traveller.firstName,
@@ -348,22 +351,26 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return this.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.COMPLETE
   }
 
-  private get departingAt(): Date | null | undefined {
-    const firstTravelSegment = this.firstTravelSegment
+  private buildDepartingAt(
+    firstTravelSegment: TravelSegment | undefined,
+    stops: Stop[]
+  ): Date | null | undefined {
     const departingAt = firstTravelSegment?.departureAt
     if (!isNil(departingAt)) return departingAt
 
-    const firstStop = first(this.stops)
+    const firstStop = first(stops)
 
     return firstStop?.departureAt
   }
 
-  private get returningAt(): Date | null | undefined {
-    const lastTravelSegment = this.lastTravelSegment
+  private buildReturningAt(
+    lastTravelSegment: TravelSegment | undefined,
+    stops: Stop[]
+  ): Date | null | undefined {
     const returningAt = lastTravelSegment?.departureAt
     if (!isNil(returningAt)) return returningAt
 
-    const lastStop = last(this.stops)
+    const lastStop = last(stops)
 
     return lastStop?.departureAt
   }
