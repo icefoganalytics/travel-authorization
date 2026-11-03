@@ -62,25 +62,10 @@
     </template>
 
     <template #item.status="{ item }">
-      {{ formatTravelDeskTravelRequestStatus(item, t) }}
-      <v-icon
-        v-if="item.status === TravelDeskTravelRequestStatuses.SUBMITTED"
-        color="error"
-      >
-        mdi-flag
-      </v-icon>
-      <v-icon
-        v-else-if="item.status === TravelDeskTravelRequestStatuses.OPTIONS_RANKED"
-        color="warning"
-      >
-        mdi-flag
-      </v-icon>
-      <v-icon
-        v-else-if="item.status === TravelDeskTravelRequestStatuses.BOOKED"
-        color="success"
-      >
-        mdi-checkbox-marked
-      </v-icon>
+      <TravelDeskTravelRequestStatusSpan
+        :status="item.status"
+        :travel-desk-officer="item.travelDeskOfficer"
+      />
     </template>
 
     <template #item.edit="{ item }">
@@ -119,10 +104,8 @@
 <script setup lang="ts">
 import { isEmpty } from "lodash"
 import { computed, ref } from "vue"
-import { useI18n } from "vue-i18n"
 
 import formatDate from "@/utils/format-date"
-import formatTravelDeskTravelRequestStatus from "@/utils/format-travel-desk-travel-request-status"
 
 import {
   type TravelDeskTravelRequestAsIndex,
@@ -137,6 +120,7 @@ import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
 
 import TravelDeskTravelRequestsExportToCsvButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsExportToCsvButton.vue"
 import TravelDeskTravelRequestsPrintButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsPrintButton.vue"
+import TravelDeskTravelRequestStatusSpan from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestStatusSpan.vue"
 
 const headers = [
   { title: "TA #", key: "travelAuthorizationId" },
@@ -152,8 +136,6 @@ const headers = [
   { title: "Travel Desk Officer", key: "travelDeskOfficer" },
   { title: "Actions", key: "edit", sortable: false, align: "start" },
 ] as const
-
-const { t } = useI18n()
 
 const page = useRouteQuery<string, number>("page", "1", {
   transform: integerTransformer,
