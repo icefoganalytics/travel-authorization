@@ -1,6 +1,8 @@
 import { TravelAuthorization, TravelDeskTravelRequest, TravelSegment, User } from "@/models"
 import {
   expenseFactory,
+  locationFactory,
+  stopFactory,
   travelAuthorizationFactory,
   travelDeskTravelRequestFactory,
   travelSegmentFactory,
@@ -71,6 +73,124 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
             totalCount: 2,
           })
         )
+      })
+
+      test("when an authorization has a request and connecting segments, it includes the persisted request identity and unique locations", async () => {
+        // Arrange
+        const user1 = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
+        mockCurrentUser(user1)
+        const travelAuthorization1 = await travelAuthorizationFactory
+          .associations({
+            user: user1,
+          })
+          .create()
+        const travelAuthorization2 = await travelAuthorizationFactory
+          .associations({
+            user: user1,
+          })
+          .create()
+        await travelDeskTravelRequestFactory
+          .associations({
+            travelAuthorization: travelAuthorization2,
+          })
+          .create()
+        const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
+          .associations({
+            travelAuthorization: travelAuthorization1,
+          })
+          .create({
+            status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
+            invoiceNumber: "INV-426",
+          })
+        const location1 = await locationFactory.create()
+        const location2 = await locationFactory.create()
+        await travelSegmentFactory
+          .associations({
+            travelAuthorization: travelAuthorization1,
+            departureLocation: location1,
+            arrivalLocation: location2,
+          })
+          .create({
+            segmentNumber: 1,
+          })
+        await travelSegmentFactory
+          .associations({
+            travelAuthorization: travelAuthorization1,
+            departureLocation: location2,
+            arrivalLocation: location1,
+          })
+          .create({
+            segmentNumber: 2,
+          })
+
+        // Act
+        const response = await request()
+          .get("/api/travel-authorizations")
+          .query({
+            where: {
+              id: travelAuthorization1.id,
+            },
+          })
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          totalCount: 1,
+          travelAuthorizations: [
+            expect.objectContaining({
+              id: travelAuthorization1.id,
+              locationIds: [location1.id, location2.id],
+              travelDeskTravelRequest: {
+                id: travelDeskTravelRequest1.id,
+                status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
+                invoiceNumber: "INV-426",
+              },
+            }),
+          ],
+        })
+      })
+
+      test("when an authorization predates travel segments, it retains its stop dates and locations", async () => {
+        // Arrange
+        const user1 = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
+        mockCurrentUser(user1)
+        const travelAuthorization1 = await travelAuthorizationFactory
+          .associations({
+            user: user1,
+          })
+          .create()
+        const location1 = await locationFactory.create()
+        await stopFactory
+          .associations({
+            travelAuthorization: travelAuthorization1,
+            location: location1,
+          })
+          .create({
+            departureDate: "2020-03-04",
+            departureTime: "07:15:00",
+          })
+
+        // Act
+        const response = await request().get("/api/travel-authorizations")
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          totalCount: 1,
+          travelAuthorizations: [
+            expect.objectContaining({
+              id: travelAuthorization1.id,
+              departingAt: new Date("2020-03-04T07:15:00").toISOString(),
+              returningAt: new Date("2020-03-04T07:15:00").toISOString(),
+              locationIds: [location1.id],
+              travelDeskTravelRequest: null,
+            }),
+          ],
+        })
       })
     })
 

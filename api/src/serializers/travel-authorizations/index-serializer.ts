@@ -2,6 +2,7 @@ import { isEmpty, isNil, last, first, pick, isUndefined, sumBy } from "lodash"
 
 import {
   Expense,
+  Stop,
   TravelAuthorization,
   TravelDeskTravelRequest,
   TravelSegment,
@@ -41,6 +42,8 @@ export type TravelAuthorizationIndexView = Pick<
 } & {
   // Associations
   finalDestination: Locations.AsReference | null
+  locationIds: number[]
+  travelDeskTravelRequest: Pick<TravelDeskTravelRequest, "id" | "status" | "invoiceNumber"> | null
 } & TravelAuthorizationStateFlagsView
 
 export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
@@ -52,7 +55,11 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   perform(): TravelAuthorizationIndexView {
-    const { travelSegments } = this.record
+    const { stops, travelSegments } = this.record
+    if (isUndefined(stops)) {
+      throw new Error("Expected stops association to be pre-loaded.")
+    }
+
     if (isUndefined(travelSegments)) {
       throw new Error("Expected travelSegments association to be pre-loaded.")
     }
@@ -61,6 +68,14 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
 
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
+    const locationIds = this.buildLocationIds(travelSegments, stops)
+    const departingAt = this.firstTravelSegment?.departureAt ?? first(stops)?.departureAt
+    const returningAt = this.lastTravelSegment?.departureAt ?? last(stops)?.departureAt
+    const request = this.travelDeskTravelRequest
+    let serializedTravelDeskTravelRequest = null
+    if (!isNil(request)) {
+      serializedTravelDeskTravelRequest = pick(request, ["id", "status", "invoiceNumber"])
+    }
 
     return {
       ...pick(this.record, [
@@ -76,8 +91,8 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
       finalDestination: finalDestinationLocation,
-      departingAt: this.firstTravelSegment?.departureAt?.toISOString(),
-      returningAt: this.lastTravelSegment?.departureAt?.toISOString(),
+      departingAt: departingAt?.toISOString(),
+      returningAt: returningAt?.toISOString(),
       phase: this.determinePhase(),
       action: this.determineAction(),
       firstName: this.traveller.firstName,
@@ -86,8 +101,33 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       branch: this.traveller.branch,
       isTravelling: this.isTravelling(),
       unprocessedExpenseCount,
+      locationIds,
+      travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       ...stateFlagsAttributes,
     }
+  }
+
+  private buildLocationIds(travelSegments: TravelSegment[], stops: Stop[]): number[] {
+    const locationIds = new Set<number>()
+    if (travelSegments.length > 0) {
+      for (const travelSegment of travelSegments) {
+        if (!isNil(travelSegment.departureLocationId)) {
+          locationIds.add(travelSegment.departureLocationId)
+        }
+
+        if (!isNil(travelSegment.arrivalLocationId)) {
+          locationIds.add(travelSegment.arrivalLocationId)
+        }
+      }
+    } else {
+      for (const stop of stops) {
+        if (!isNil(stop.locationId)) {
+          locationIds.add(stop.locationId)
+        }
+      }
+    }
+
+    return Array.from(locationIds)
   }
 
   private buildFinalDestinationLocation() {
