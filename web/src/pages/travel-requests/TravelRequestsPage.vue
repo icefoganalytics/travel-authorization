@@ -7,7 +7,7 @@
     <template #header-actions>
       <RefreshTableButton @click="refreshTable" />
     </template>
-    <TravelDeskRequestsDataTableServer ref="travelDeskRequestsTable" />
+    <TravelRequestsDataTableServer ref="travelRequestsDataTable" />
   </HeaderActionsCard>
 </template>
 
@@ -18,19 +18,19 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import TravelDeskRequestsDataTableServer from "@/components/travel-desk-travel-requests/TravelDeskRequestsDataTableServer.vue"
+import TravelRequestsDataTableServer from "@/components/travel-requests/TravelRequestsDataTableServer.vue"
 
-const travelDeskRequestsTable = useTemplateRef("travelDeskRequestsTable")
+const travelRequestsDataTable = useTemplateRef("travelRequestsDataTable")
 
 async function refreshTable() {
-  await travelDeskRequestsTable.value?.refresh()
+  await travelRequestsDataTable.value?.refresh()
 }
 
 useBreadcrumbs([
   {
     title: "Travel Requests",
     to: {
-      name: "travel-requests/TravelDeskRequestsPage",
+      name: "travel-requests/TravelRequestsPage",
     },
   },
 ])

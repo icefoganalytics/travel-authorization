@@ -48,8 +48,8 @@ const routes: RouteRecordRaw[] = [
           },
           {
             path: "travel-requests",
-            name: "travel-requests/TravelDeskRequestsPage",
-            component: () => import("@/pages/travel-requests/TravelDeskRequestsPage.vue"),
+            name: "travel-requests/TravelRequestsPage",
+            component: () => import("@/pages/travel-requests/TravelRequestsPage.vue"),
           },
           {
             path: "travel-requests/:travelAuthorizationId/travel-desk",

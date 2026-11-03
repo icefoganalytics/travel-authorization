@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-btn
-      :to="{ name: 'travel-requests/TravelDeskRequestsPage' }"
+      :to="{ name: 'travel-requests/TravelRequestsPage' }"
       prepend-icon="mdi-arrow-left"
       variant="text"
     >

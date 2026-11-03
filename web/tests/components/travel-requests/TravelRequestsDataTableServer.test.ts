@@ -3,10 +3,10 @@ import { flushPromises, mount } from "@vue/test-utils"
 import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
 import useCurrentUser from "@/use/use-current-user"
 
-import TravelDeskRequestsDataTableServer from "@/components/travel-desk-travel-requests/TravelDeskRequestsDataTableServer.vue"
+import TravelRequestsDataTableServer from "@/components/travel-requests/TravelRequestsDataTableServer.vue"
 
-describe("web/src/components/travel-desk-travel-requests/TravelDeskRequestsDataTableServer.vue", () => {
-  describe("TravelDeskRequestsDataTableServer", () => {
+describe("web/src/components/travel-requests/TravelRequestsDataTableServer.vue", () => {
+  describe("TravelRequestsDataTableServer", () => {
     test("when the request ID differs from the authorization ID, its action opens the authorization's request page", async () => {
       // Arrange
       const httpClient = mockHttpClient()
@@ -66,7 +66,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskRequestsDataT
       const router = mockRouter([
         {
           path: "/",
-          component: TravelDeskRequestsDataTableServer,
+          component: TravelRequestsDataTableServer,
         },
         {
           path: "/travel-requests/:travelAuthorizationId/travel-desk",
@@ -81,7 +81,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskRequestsDataT
       const navigation = vi.spyOn(router, "push")
 
       // Act
-      const wrapper = mount(TravelDeskRequestsDataTableServer, {
+      const wrapper = mount(TravelRequestsDataTableServer, {
         global: {
           plugins: [mockVuetify(), router],
         },

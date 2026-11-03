@@ -16,7 +16,7 @@
         v-if="isErrored"
         type="error"
       >
-        Travel Desk Requests could not be loaded.
+        Travel Requests could not be loaded.
       </v-alert>
     </template>
     <template #item.name="{ item }">
@@ -140,6 +140,7 @@ const headers = [
   },
 ] as const
 
+// Preserve existing query keys so bookmarked Travel Requests URLs retain their table state.
 const { page, perPage } = useRouteQueryPagination({
   perPage: props.defaultPerPage,
   routeQuerySuffix: "TravelDesk",
