@@ -5,9 +5,7 @@ import { Path } from "@/utils/deep-pick"
 import { User, TravelDeskQuestion, TravelDeskTravelRequest } from "@/models"
 import BasePolicy, { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
-import GenericStatePolicy from "@/policies/travel-desk-questions/generic-state-policy"
-import OptionsProvidedStatePolicy from "@/policies/travel-desk-questions/options-provided-state-policy"
-import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
+import { TravelDeskQuestions, TravelDeskTravelRequestsPolicy } from "@/policies"
 
 export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion) {
   show(): boolean {
@@ -66,9 +64,9 @@ export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion)
   protected get policyByState(): BasePolicy<TravelDeskQuestion> {
     switch (this.travelDeskTravelRequest.status) {
       case TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED:
-        return new OptionsProvidedStatePolicy(this.user, this.record)
+        return new TravelDeskQuestions.OptionsProvidedStatePolicy(this.user, this.record)
       default:
-        return new GenericStatePolicy(this.user, this.record)
+        return new TravelDeskQuestions.GenericStatePolicy(this.user, this.record)
     }
   }
 

@@ -1,5 +1,5 @@
 import { Path } from "@/utils/deep-pick"
-import GenericStatePolicy from "@/policies/travel-desk-questions/generic-state-policy"
+import { GenericStatePolicy } from "@/policies/travel-desk-questions"
 
 export class OptionsProvidedStatePolicy extends GenericStatePolicy {
   update(): boolean {

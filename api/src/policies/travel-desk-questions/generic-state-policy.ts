@@ -3,7 +3,7 @@ import { isUndefined } from "lodash"
 import { Path } from "@/utils/deep-pick"
 import { TravelAuthorization, TravelDeskQuestion, TravelDeskTravelRequest } from "@/models"
 import PolicyFactory from "@/policies/policy-factory"
-import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
+import { TravelDeskTravelRequestsPolicy } from "@/policies"
 
 export class GenericStatePolicy extends PolicyFactory(TravelDeskQuestion) {
   update(): boolean {
