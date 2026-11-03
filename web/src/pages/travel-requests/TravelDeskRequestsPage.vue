@@ -1,16 +1,14 @@
 <template>
-  <v-container>
-    <v-card-title class="d-flex align-center pt-0 mb-3 ga-2">
-      <h1 class="text-h4 mb-0">Travel Desk Requests</h1>
-      <v-spacer />
+  <HeaderActionsCard
+    title="Travel Requests"
+    header-tag="h2"
+    header-class="text-h4 mb-0"
+  >
+    <template #header-actions>
       <RefreshTableButton @click="refreshTable" />
-    </v-card-title>
-    <v-card>
-      <v-card-text>
-        <TravelDeskRequestsDataTableServer ref="travelDeskRequestsTable" />
-      </v-card-text>
-    </v-card>
-  </v-container>
+    </template>
+    <TravelDeskRequestsDataTableServer ref="travelDeskRequestsTable" />
+  </HeaderActionsCard>
 </template>
 
 <script setup lang="ts">
@@ -18,6 +16,7 @@ import { useTemplateRef } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
+import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
 import TravelDeskRequestsDataTableServer from "@/components/travel-desk-travel-requests/TravelDeskRequestsDataTableServer.vue"
 
@@ -29,10 +28,16 @@ async function refreshTable() {
 
 useBreadcrumbs([
   {
-    title: "Travel Desk Requests",
+    title: "Travel Requests",
     to: {
       name: "travel-requests/TravelDeskRequestsPage",
     },
   },
 ])
 </script>
+
+<style scoped>
+:deep(tbody tr:nth-of-type(even)) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+</style>

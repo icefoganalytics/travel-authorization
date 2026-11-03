@@ -61,7 +61,7 @@
             travelAuthorizationId: item.id,
           },
         }"
-        variant="text"
+        variant="outlined"
       >
         {{ requestActionLabel(item.travelDeskTravelRequest?.status) }}
       </v-btn>

@@ -5,7 +5,7 @@
       prepend-icon="mdi-arrow-left"
       variant="text"
     >
-      Travel Desk Requests
+      Travel Requests
     </v-btn>
     <h1 class="text-h4 mb-4">Travel Desk Request</h1>
     <TravelDeskTravelAuthorizationRequestGuard
