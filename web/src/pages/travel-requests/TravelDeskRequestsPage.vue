@@ -44,7 +44,8 @@
         </div>
       </template>
       <template #item.status="{ item }">
-        {{ t(`global.status.${item.status}`, item.status) }}
+        <template v-if="item.status">{{ t(`global.status.${item.status}`, item.status) }}</template>
+        <template v-else>—</template>
       </template>
       <template #item.travelDeskTravelRequest="{ item }">
         <template v-if="item.travelDeskTravelRequest">
