@@ -12,7 +12,12 @@
     >
       Travel Desk Requests could not be loaded.
     </v-alert>
+    <v-skeleton-loader
+      v-if="isLoading && totalCount === 0"
+      type="table"
+    />
     <v-data-table-server
+      v-else
       v-model:page="page"
       v-model:items-per-page="perPage"
       v-model:sort-by="sortBy"
@@ -74,6 +79,7 @@
       </template>
     </v-data-table-server>
     <EnhancedPagination
+      v-if="!isLoading || totalCount > 0"
       v-model="page"
       v-model:per-page="perPage"
       :total-count="totalCount"
