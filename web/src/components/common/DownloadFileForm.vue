@@ -1,6 +1,6 @@
 <template>
   <v-form
-    ref="downloadForm"
+    ref="formRef"
     :action="downloadUrl"
     method="post"
     target="_blank"
@@ -15,7 +15,6 @@
       :block="smAndDown"
       :color="color"
       :prepend-icon="prependIcon"
-      :disabled="disabled || loading || isDownloading"
       :loading="loading || isDownloading"
       type="submit"
     >
@@ -32,8 +31,6 @@ import { isNil } from "lodash"
 import { nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
 
-import { type VForm } from "vuetify/components"
-
 const props = withDefaults(
   defineProps<{
     text?: string
@@ -41,14 +38,12 @@ const props = withDefaults(
     prependIcon?: string
     color?: string
     loading?: boolean
-    disabled?: boolean
   }>(),
   {
     text: "Download File",
     prependIcon: "mdi-download",
     color: "primary",
     loading: false,
-    disabled: false,
   }
 )
 
@@ -58,14 +53,14 @@ const emit = defineEmits<{
 
 const { getAccessTokenSilently } = useAuth0()
 
-const downloadForm = useTemplateRef<InstanceType<typeof VForm>>("downloadForm")
+const formRef = useTemplateRef("formRef")
 const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
 
 async function getAccessTokenAndSubmit() {
-  if (props.disabled || props.loading || isDownloading.value) return
+  if (props.loading || isDownloading.value) return
 
-  if (isNil(downloadForm.value)) {
+  if (isNil(formRef.value)) {
     throw new Error("Form element is not available")
   }
 
@@ -74,7 +69,7 @@ async function getAccessTokenAndSubmit() {
     accessToken.value = await getAccessTokenSilently()
     await nextTick() // Wait for accessToken to be updated in the DOM
 
-    downloadForm.value.submit()
+    formRef.value.submit()
 
     await nextTick()
     emit("downloaded")

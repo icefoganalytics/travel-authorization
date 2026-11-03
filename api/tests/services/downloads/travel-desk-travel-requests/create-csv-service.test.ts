@@ -1,4 +1,3 @@
-import { isUndefined } from "lodash"
 import Papa from "papaparse"
 
 import { TravelDeskTravelRequest, User } from "@/models"
@@ -42,9 +41,6 @@ describe("api/src/services/downloads/travel-desk-travel-requests/create-csv-serv
           undefined,
           user1
         )
-        if (isUndefined(csvBuffer)) {
-          throw new Error("Expected a CSV download for the visible request")
-        }
         const parsedCsv = Papa.parse<Record<string, string>>(csvBuffer.toString("utf-8"), {
           header: true,
           skipEmptyLines: true,
@@ -65,6 +61,23 @@ describe("api/src/services/downloads/travel-desk-travel-requests/create-csv-serv
             "Travel Desk Officer": "",
           },
         ])
+      })
+
+      test("when the query matches no requests, it rejects the export", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        const scopedTravelDeskTravelRequests = TravelDeskTravelRequestsPolicy.applyScope([], user1)
+
+        // Act
+        const result = CreateCsvService.perform(
+          scopedTravelDeskTravelRequests,
+          {},
+          undefined,
+          user1
+        )
+
+        // Assert
+        await expect(result).rejects.toThrow(Error)
       })
     })
   })

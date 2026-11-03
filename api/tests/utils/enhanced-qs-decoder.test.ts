@@ -1,19 +1,27 @@
+import { times } from "lodash"
 import qs from "qs"
 
 import { enhancedQsDecoder } from "@/utils/enhanced-qs-decoder"
 
 describe("api/src/utils/enhanced-qs-decoder.ts", () => {
   describe("enhancedQsDecoder", () => {
-    test("when a query contains one thousand indexed IDs and query options, it preserves the complete typed query", () => {
+    test("when an indexed array has 1000 values and other query options, it preserves the complete typed query", () => {
       // Arrange
-      const selectedIds = Array.from({ length: 1000 }, (_, index) => index + 1)
+      const requestIds = times(1000, (index) => String(index + 1))
       const query = qs.stringify(
         {
-          where: { id: selectedIds, isInternationalTravel: true, travelAgencyId: null },
           order: [["id", "DESC"]],
           format: "csv",
+          where: {
+            id: requestIds,
+            isInternationalTravel: false,
+            travelAgencyId: null,
+          },
         },
-        { arrayFormat: "indices", strictNullHandling: true }
+        {
+          arrayFormat: "indices",
+          strictNullHandling: true,
+        }
       )
 
       // Act
@@ -21,30 +29,32 @@ describe("api/src/utils/enhanced-qs-decoder.ts", () => {
 
       // Assert
       expect(decodedQuery).toEqual({
-        where: {
-          id: selectedIds.map(String),
-          isInternationalTravel: true,
-          travelAgencyId: null,
-        },
         order: [["id", "DESC"]],
         format: "csv",
+        where: {
+          id: requestIds,
+          isInternationalTravel: false,
+          travelAgencyId: null,
+        },
       })
     })
 
-    test.each([1000, 999999999])(
-      "when an array index is %i, it rejects the out-of-range query",
-      (arrayIndex) => {
-        // Arrange
-        const query = `where[id][${arrayIndex}]=1`
-
-        // Act / Assert
-        expect(() => enhancedQsDecoder(query)).toThrow(RangeError)
-      }
-    )
-
-    test("when a query exceeds fifteen hundred parameters, it rejects it instead of truncating values", () => {
+    test("when an indexed array exceeds 1000 values, it rejects the query instead of changing its shape", () => {
       // Arrange
-      const query = Array.from({ length: 1501 }, (_, index) => `field${index}=value`).join("&")
+      const requestIds = times(1001, (index) => String(index + 1))
+      const query = qs.stringify({
+        where: {
+          id: requestIds,
+        },
+      })
+
+      // Act / Assert
+      expect(() => enhancedQsDecoder(query)).toThrow(RangeError)
+    })
+
+    test("when a query exceeds 1500 parameters, it rejects the query instead of silently truncating values", () => {
+      // Arrange
+      const query = times(1501, (index) => `field${index}=value`).join("&")
 
       // Act / Assert
       expect(() => enhancedQsDecoder(query)).toThrow(RangeError)

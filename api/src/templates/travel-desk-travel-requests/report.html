@@ -19,12 +19,14 @@
         font-family: Arial, sans-serif;
       }
 
-      .report-page {
-        width: 100%;
+      thead {
+        display: table-header-group;
+        break-inside: avoid;
       }
 
-      .report-page + .report-page {
-        break-before: page;
+      .report-title {
+        border: 0;
+        padding: 0;
       }
 
       .report-heading {
@@ -72,67 +74,75 @@
         break-inside: avoid;
       }
 
-      th:nth-child(1),
-      th:nth-child(5),
-      th:nth-child(6) {
+      col:nth-child(1),
+      col:nth-child(5),
+      col:nth-child(6) {
         width: 8%;
       }
 
-      th:nth-child(2) {
+      col:nth-child(2) {
         width: 12%;
       }
 
-      th:nth-child(3) {
+      col:nth-child(3) {
         width: 11%;
       }
 
-      th:nth-child(4) {
+      col:nth-child(4) {
         width: 10%;
       }
 
-      th:nth-child(7) {
+      col:nth-child(7) {
         width: 14%;
       }
 
-      th:nth-child(8),
-      th:nth-child(9) {
+      col:nth-child(8),
+      col:nth-child(9) {
         width: 9%;
       }
 
-      th:nth-child(10) {
+      col:nth-child(10) {
         width: 11%;
       }
     </style>
   </head>
   <body>
-    <% pages.forEach((page) => { %>
-    <section class="report-page">
-      <header class="report-heading">
-        <img
-          src="<%- logoDataUri %>"
-          alt="Yukon Government"
-        />
-        <h1>Out-of-Territory Travel Desk Report</h1>
-      </header>
-      <table>
-        <thead>
-          <tr>
-            <% headers.forEach((header) => { %>
-            <th scope="col"><%- header %></th>
-            <% }) %>
-          </tr>
-        </thead>
-        <tbody>
-          <% page.forEach((row) => { %>
-          <tr>
-            <% headers.forEach((header) => { %>
-            <td><%- row[header] %></td>
-            <% }) %>
-          </tr>
+    <table>
+      <colgroup>
+        <% headers.forEach(() => { %>
+        <col />
+        <% }) %>
+      </colgroup>
+      <thead>
+        <tr>
+          <td
+            class="report-title"
+            colspan="<%- headers.length %>"
+          >
+            <header class="report-heading">
+              <img
+                src="<%- logoDataUri %>"
+                alt="Yukon Government"
+              />
+              <h1>Out-of-Territory Travel Desk Report</h1>
+            </header>
+          </td>
+        </tr>
+        <tr>
+          <% headers.forEach((header) => { %>
+          <th scope="col"><%- header %></th>
           <% }) %>
-        </tbody>
-      </table>
-    </section>
-    <% }) %>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach((row) => { %>
+        <tr>
+          <% headers.forEach((header) => { %>
+          <td><%- row[header] %></td>
+          <% }) %>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
   </body>
 </html>

@@ -1,0 +1,93 @@
+import { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.createTable("TravelOrderEvent", (table) => {
+    table.integer("TravelOrderIdentifier").primary().notNullable()
+    table.integer("PnrBfVersionNbr").nullable()
+    table.specificType("EventType", "char(1)").nullable()
+    table.specificType("RecordLocator", "char(6)").nullable()
+    table.specificType("HostEventTimeStamp", "datetime").nullable()
+    table.specificType("CrsDescription", "char(9)").nullable()
+    table.specificType("DatabaseTimeStamp", "datetime").notNullable().defaultTo(knex.fn.now())
+    table.specificType("TransactionPseudo", "char(4)").nullable()
+    table.specificType("TransactionAgent", "char(8)").nullable()
+    table.specificType("OwningAgencyPseudo", "char(4)").nullable()
+    table.specificType("OriginalBookingLocation", "char(5)").nullable()
+    table.decimal("CreatingAgencyIata", 18, 0).nullable()
+    table.specificType("PnrCreationDate", "datetime").nullable()
+    table.specificType("PnrPurgeDate", "datetime").nullable()
+    table.specificType("OwningAgencyName", "varchar(24)").nullable()
+    table.specificType("TransactionAgencyName", "varchar(24)").nullable()
+    table.specificType("LastActionAgentID", "char(7)").nullable()
+  })
+
+  await knex.schema.createTable("Passenger", (table) => {
+    table.integer("TravelOrderIdentifier").notNullable()
+    table.integer("LastNameElement").notNullable()
+    table.integer("PassengerElement").notNullable()
+    table.integer("AbsoluteNameElement").nullable()
+    table.specificType("FirstName", "varchar(55)").nullable()
+    table.specificType("LastName", "varchar(55)").nullable()
+    table.specificType("NameRemark", "varchar(55)").nullable()
+    table.primary(["TravelOrderIdentifier", "LastNameElement", "PassengerElement"])
+    table
+      .foreign("TravelOrderIdentifier")
+      .references("TravelOrderIdentifier")
+      .inTable("TravelOrderEvent")
+  })
+
+  await knex.schema.createTable("AirRsrvSeg", (table) => {
+    table.integer("TravelOrderIdentifier").notNullable()
+    table.integer("AirSegmentNbr").notNullable()
+    table.specificType("SegmentStatus", "char(2)").nullable()
+    table.specificType("DepartureDate", "char(10)").nullable()
+    table.specificType("DepartureTime", "char(5)").nullable()
+    table.specificType("CarrierCode", "char(3)").nullable()
+    table.specificType("BoardPoint", "char(5)").nullable()
+    table.specificType("OffPoint", "char(5)").nullable()
+    table.specificType("FlightNbr", "char(4)").nullable()
+    table.specificType("BookingCode", "char(2)").nullable()
+    table.specificType("ArrivalTime", "char(5)").nullable()
+    table.integer("ChangeOfDay").nullable()
+    table.specificType("ConnectionIndicator", "char(1)").nullable()
+    table.specificType("JourneyTime", "char(5)").nullable()
+    table.specificType("DepartureTerminal", "char(2)").nullable()
+    table.specificType("ArrivalTerminal", "char(2)").nullable()
+    table.specificType("RecordLocator", "char(6)").nullable()
+    table.specificType("EquipmentType", "char(3)").nullable()
+    table.specificType("Mileage", "varchar(5)").nullable()
+    table.specificType("ClassOfServDesc", "varchar(32)").nullable()
+    table.specificType("ChangeOfGaugeIndicator", "char(1)").nullable()
+    table.primary(["TravelOrderIdentifier", "AirSegmentNbr"])
+    table.index(["TravelOrderIdentifier"], "Travel_Order_Event_Air_Segment")
+    table
+      .foreign("TravelOrderIdentifier")
+      .references("TravelOrderIdentifier")
+      .inTable("TravelOrderEvent")
+  })
+
+  await knex.schema.createTable("SFTrans", (table) => {
+    table.integer("TravelOrderIdentifier").primary().notNullable()
+    table.specificType("SFActiveVoidStatus", "char(1)").nullable()
+    table.specificType("SFDocumentNbr", "char(13)").nullable()
+    table.specificType("NameOnServiceFee", "varchar(55)").nullable()
+    table.specificType("SFIssueDate", "char(10)").nullable()
+    table.specificType("SFCurrencyCode", "char(3)").nullable()
+    table.decimal("ServiceFeeAmount", 18, 3).nullable()
+    table.decimal("SFCommissionAmount", 18, 3).nullable()
+    table.specificType("RelatedTicketDocumentNbr", "char(13)").nullable()
+    table.specificType("RelatedInvoiceNbr", "varchar(10)").nullable()
+    table.specificType("RecordLocator", "char(6)").nullable()
+    table
+      .foreign("TravelOrderIdentifier")
+      .references("TravelOrderIdentifier")
+      .inTable("TravelOrderEvent")
+  })
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTableIfExists("SFTrans")
+  await knex.schema.dropTableIfExists("AirRsrvSeg")
+  await knex.schema.dropTableIfExists("Passenger")
+  await knex.schema.dropTableIfExists("TravelOrderEvent")
+}

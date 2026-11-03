@@ -18,10 +18,10 @@ TravelAuth is built with:
 
 - Browser app: checkout-derived `*.travel-authorization.localhost` gateway hostname
 - API: matching `api.` gateway hostname
-- Databases: gateway routes PostgreSQL on port 5432 and TravCom Microsoft SQL Server on port 1433
+- Databases: gateway routes PostgreSQL on port 5432 and the TravCom and Travelport Microsoft SQL Server simulators on port 1433
 
 All development `dev` commands apply `docker-compose.development.gateway.yml`, which defines API,
-web, PostgreSQL, and TravCom gateway routing. `./bin/dev up` starts or reuses the shared Local
+web, PostgreSQL, TravCom, and Travelport gateway routing. `./bin/dev up` starts or reuses the shared Local
 Development Gateway before starting the stack. Dependency commands use the same overlay so they
 preserve database routes; one-off API and web containers disable Traefik discovery to avoid
 replacing the running browser/API backends. The main checkout uses
@@ -32,9 +32,10 @@ when the directory name needs normalization or exceeds the 63-character DNS labe
 
 `dev api`, migrations, and tests also start or reuse the gateway before creating their Compose
 dependencies. Internal PostgreSQL connections use `${COMPOSE_PROJECT_NAME}-db`; TravCom SQL Server
-connections use `${COMPOSE_PROJECT_NAME}-db_trav_com`. These aliases exist only on the checkout's
-private network, preventing accidental cross-worktree database selection on the shared gateway
-network. Each concurrent checkout must have a distinct Compose project name.
+connections use `${COMPOSE_PROJECT_NAME}-db_trav_com`; Travelport uses
+`${COMPOSE_PROJECT_NAME}-db_travelport`. These aliases exist only on the checkout's private
+network, preventing accidental cross-worktree database selection on the shared gateway network.
+Each concurrent checkout must have a distinct Compose project name.
 
 Set `GATEWAY_HOSTNAME` before invoking `dev` to override the derived hostname for a local
 environment.

@@ -94,6 +94,7 @@ export default {
       booked: "Booked",
       complete: "Complete",
       draft: "Draft",
+      not_started: "Not Started",
       options_provided: "Options Provided",
       options_ranked: "Options Ranked",
       submitted: "Submitted",

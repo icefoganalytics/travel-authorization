@@ -1,20 +1,10 @@
 # Controllers
 
-These files map api routes to services.
-See https://guides.rubyonrails.org/routing.html#crud-verbs-and-actions
+Controllers connect Express routes to request handling and response shaping. Load the direct [packaged backend workflow](skill://express-light-rail/workflow.md) before this local overlay. Other clients use the [corresponding backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release. Follow the root [shared-source and local-precedence contract](../../../AGENTS.md#shared-standards-and-local-authority), not a selector that can re-enter local workflow selection.
 
-e.g.
-
-```typescript
-router.route("/api/forms").post(FormsController.create)
-```
-
-maps the `/api/forms` POST endpoint to the `FormsController#create` instance method.
-
-Controllers are advantageous because they provide a suite of helper methods to access various request methods. .e.g. `currentUser`, or `params`. They also provide a location to perform policy checks.
-
-Controllers should implement the BaseController, and provide instance methods.
-The `BaseController` provides the magic that lets those methods map to an appropriate route.
+`BaseController` exposes static route-handler accessors such as `.index` and `.create`. Each
+accessor constructs a controller instance and calls its matching instance action method. Route
+handlers therefore use `Controller.create`, while controller classes implement `async create()`.
 
 ## Local Pattern
 
@@ -38,57 +28,20 @@ The `BaseController` provides the magic that lets those methods map to an approp
   ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``.
 - Use consistent error messages: `"Failed to [action] [resource]: ${error}"`.
 
-## Namespacing
+## Namespaced Actions
 
-If you need an action that generates estimates for a given form, a POST route `/api/forms/:formId/estimates/generate` is the best way to avoid future conflicts and refactors. To implement this you need to "namespace/modularize" the controller. Generally speaking, it is more flexible to keep all routes as CRUD actions, and nest controllers as needed, than it is to add custom routes to a given controller.
-
-e.g. `Forms.Estimates.GenerateController.create` is preferred to `FormsController#generateEstimates` because once you start using non-CRUD actions, your controllers will quickly expand beyond human readability and comprehension. Opting to use PascalCase for namespaces as that is the best way to avoid conflicts with local variables.
-
-This is how you would create a namespaced controller:
-
-```bash
-api/
-|-- src/
-|   |-- controllers/
-|       |-- forms/
-|           |-- estimates/
-|               |-- generate-controller.ts
-|       |-- index.ts
-```
+Keep custom resource actions in nested controllers with resource-shaped routes instead of adding
+custom methods to a parent controller. For example, the existing estimate-generation action lives
+in [`GenerateController`](./travel-authorizations/estimates/generate-controller.ts) and is routed
+through the `TravelAuthorizations.Estimates` namespace:
 
 ```typescript
-// api/src/controllers/forms/estimates/generate-controller.ts
-import BaseController from "@/base-controller"
-
-export class GenerateController extends BaseController {
-  static create() {
-    // Logic for generating estimates here...
-  }
-}
+router
+  .route("/api/travel-authorizations/:travelAuthorizationId/estimates/generate")
+  .post(TravelAuthorizations.Estimates.GenerateController.create)
 ```
 
-```typescript
-// api/src/controllers/forms/estimates/index.ts
-export { GenerateController } from "./generate-controller"
-```
-
-```typescript
-// api/src/controllers/forms/index.ts
-export * as Estimates from "./estimates"
-```
-
-```typescript
-// api/src/controllers/index.ts
-export * as Forms from "./forms"
-```
-
-```typescript
-// api/src/routes/index.ts
-import { Router } from "express"
-
-import { Forms } from "@/controllers"
-
-const router = Router()
-
-router.post("/api/forms/:formId/estimates/generate", Forms.Estimates.GenerateController.create)
-```
+The controller implements this as an instance `async create()` method; `BaseController.create`
+provides the static route-handler accessor. Preserve the PascalCase namespace re-exports through
+`api/src/controllers/index.ts`, `api/src/controllers/travel-authorizations/index.ts`, and
+`api/src/controllers/travel-authorizations/estimates/index.ts`.
