@@ -11,15 +11,15 @@ export class OptionsProvidedStatePolicy extends GenericStatePolicy {
   }
 
   permittedAttributes(): Path[] {
-    if (this.user.isAdmin) return ["requestType", "question", "response"]
+    const permittedAttributes: Path[] = []
 
-    if (this.travelAuthorization.supervisorEmail === this.user.email) {
-      return ["requestType", "question", "response"]
+    if (this.user.isAdmin || this.travelAuthorization.supervisorEmail === this.user.email) {
+      permittedAttributes.push("requestType", "question", "response")
+    } else if (this.travelAuthorization.userId === this.user.id) {
+      permittedAttributes.push("response")
     }
 
-    if (this.travelAuthorization.userId === this.user.id) return ["response"]
-
-    return []
+    return permittedAttributes
   }
 }
 
