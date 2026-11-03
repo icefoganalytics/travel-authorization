@@ -72,37 +72,37 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { ref } from "vue"
-import { isNil } from "lodash"
+<script setup lang="ts">
+import { ref, useTemplateRef } from "vue"
+import { cloneDeep, isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
-import travelDeskQuestionsApi from "@/api/travel-desk-questions-api"
+import travelDeskQuestionsApi, { type TravelDeskQuestion } from "@/api/travel-desk-questions-api"
 
-import useRouteQuery from "@/use/utils/use-route-query"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 import useSnack from "@/use/use-snack"
 
 import RequestTypeSelect from "@/components/travel-desk-questions/RequestTypeSelect.vue"
 
-const props = defineProps({
-  attributes: {
-    type: Object,
-    default: () => ({}),
-  },
-})
-
-const emit = defineEmits(["created"])
-
-const travelDeskQuestion = ref({
-  ...props.attributes,
-})
+const props = withDefaults(
+  defineProps<{
+    attributes?: Partial<TravelDeskQuestion>
+  }>(),
+  {
+    attributes: () => ({}),
+  }
+)
+const emit = defineEmits<{
+  created: [questionId: number]
+}>()
+const travelDeskQuestion = ref<Partial<TravelDeskQuestion>>(cloneDeep(props.attributes))
 
 const snack = useSnack()
-const showDialog = useRouteQuery("showTravelDeskQuestionCreate", "false", { transform: Boolean })
-
-/** @type {import("vue").Ref<InstanceType<typeof import("vuetify/components").VForm> | null>} */
-const form = ref(null)
+const showDialog = useRouteQuery<string, boolean>("showTravelDeskQuestionCreate", "false", {
+  transform: booleanTransformer,
+})
+const form = useTemplateRef("form")
 const isLoading = ref(false)
 
 function hide() {
@@ -137,9 +137,7 @@ async function createAndHide() {
 }
 
 function resetQuestion() {
-  travelDeskQuestion.value = {
-    ...props.attributes,
-  }
+  travelDeskQuestion.value = cloneDeep(props.attributes)
 }
 </script>
 

@@ -14,7 +14,7 @@
     <template #top>
       <TravelDeskQuestionEditDialog
         ref="travelDeskQuestionEditDialog"
-        @saved="refresh"
+        @saved="refreshAndEmitUpdated"
       />
     </template>
 
@@ -77,6 +77,9 @@ const props = defineProps({
     default: "",
   },
 })
+const emit = defineEmits<{
+  updated: []
+}>()
 
 const headers = [
   {
@@ -122,6 +125,11 @@ const { travelDeskQuestions, totalCount, isLoading, refresh } =
 
 const travelDeskQuestionEditDialog = useTemplateRef("travelDeskQuestionEditDialog")
 
+async function refreshAndEmitUpdated() {
+  await refresh()
+  emit("updated")
+}
+
 function showEditDialog(questionId: number) {
   travelDeskQuestionEditDialog.value?.show(questionId)
 }
@@ -136,7 +144,7 @@ async function deleteQuestion(questionId: number) {
   try {
     await travelDeskQuestionsApi.delete(questionId)
     snack.success("Question deleted successfully")
-    await refresh()
+    await refreshAndEmitUpdated()
   } catch (error) {
     console.error(error)
   } finally {

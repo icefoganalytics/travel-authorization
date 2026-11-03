@@ -9,7 +9,7 @@
           :attributes="{
             travelRequestId: travelDeskTravelRequestId,
           }"
-          @created="refresh"
+          @created="refreshAndEmitUpdated"
         />
       </div>
       <TravelDeskQuestionsEditDataTableServer
@@ -18,28 +18,36 @@
           travelRequestId: travelDeskTravelRequestId,
         }"
         route-query-suffix="TravelDeskQuestion"
+        @updated="emit('updated')"
       />
     </v-card-text>
   </v-card>
 </template>
 
-<script setup>
-import { ref } from "vue"
+<script setup lang="ts">
+import { useTemplateRef } from "vue"
 
 import TravelDeskQuestionCreateDialog from "@/components/travel-desk-questions/TravelDeskQuestionCreateDialog.vue"
 import TravelDeskQuestionsEditDataTableServer from "@/components/travel-desk-questions/TravelDeskQuestionsEditDataTableServer.vue"
 
-defineProps({
-  travelDeskTravelRequestId: {
-    type: Number,
-    required: true,
-  },
-})
+defineProps<{
+  travelDeskTravelRequestId: number
+}>()
+const emit = defineEmits<{
+  updated: []
+}>()
+const travelDeskQuestionsEditDataTable = useTemplateRef("travelDeskQuestionsEditDataTable")
 
-/** @type {import("vue").Ref<InstanceType<typeof TravelDeskQuestionsEditDataTableServer> | null>} */
-const travelDeskQuestionsEditDataTable = ref(null)
-
-function refresh() {
-  travelDeskQuestionsEditDataTable.value?.refresh()
+async function refresh() {
+  await travelDeskQuestionsEditDataTable.value?.refresh()
 }
+
+async function refreshAndEmitUpdated() {
+  await refresh()
+  emit("updated")
+}
+
+defineExpose({
+  refresh,
+})
 </script>

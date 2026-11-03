@@ -40,19 +40,29 @@
           :invoice-number="completeTravelDeskTravelRequest.invoiceNumber"
         />
       </template>
+      <TravelDeskQuestionsManageCard
+        v-if="canUpdate"
+        ref="questionsManageCard"
+        class="mt-4"
+        :travel-desk-travel-request-id="completeTravelDeskTravelRequest.id"
+        @updated="optionsReviewCard?.refresh()"
+      />
       <TravelDeskTravelRequestOptionsReviewCard
         v-if="isOptionsProvided"
+        ref="optionsReviewCard"
+        class="mt-4"
         :travel-desk-travel-request-id="completeTravelDeskTravelRequest.id"
         :status="completeTravelDeskTravelRequest.status"
         :is-request-owner="isRequestOwner"
         @ranked="travelDeskTravelRequest = $event"
+        @responses-saved="questionsManageCard?.refresh()"
       />
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs } from "vue"
+import { computed, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
 import { type TravelAuthorizationAsShow } from "@/api/travel-authorizations-api"
@@ -61,6 +71,7 @@ import { TravelDeskTravelRequestStatuses } from "@/api/travel-desk-travel-reques
 import useCurrentUser from "@/use/use-current-user"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
+import TravelDeskQuestionsManageCard from "@/components/travel-desk-questions/TravelDeskQuestionsManageCard.vue"
 import TravelerDetailsCard from "@/components/travel-desk-travel-requests/TravelerDetailsCard.vue"
 import TravelDeskTravelRequestDraftFormCard from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestDraftFormCard.vue"
 import TravelDeskTravelRequestOptionsReviewCard from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestOptionsReviewCard.vue"
@@ -80,6 +91,8 @@ const {
   isErrored,
   refresh: refreshRequest,
 } = useTravelDeskTravelRequest(travelDeskTravelRequestId)
+const questionsManageCard = useTemplateRef("questionsManageCard")
+const optionsReviewCard = useTemplateRef("optionsReviewCard")
 
 const completeTravelDeskTravelRequest = computed(() => {
   const request = travelDeskTravelRequest.value

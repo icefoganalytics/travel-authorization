@@ -124,6 +124,7 @@ const props = defineProps<{
 const { travelDeskTravelRequestId } = toRefs(props)
 const emit = defineEmits<{
   ranked: [request: TravelDeskTravelRequestAsShow]
+  responsesSaved: []
 }>()
 const questionsOptions = computed(() => ({
   where: {
@@ -136,6 +137,7 @@ const {
   totalCount: questionTotalCount,
   isLoading: questionsAreLoading,
   isErrored: questionsErrored,
+  refresh: refreshQuestions,
 } = useTravelDeskQuestions(questionsOptions)
 const hasCompleteQuestions = computed(
   () => questionTotalCount.value === travelDeskQuestions.value.length
@@ -203,6 +205,7 @@ async function saveReviewResponses() {
   try {
     await saveQuestionResponses(travelDeskQuestions.value)
     snack.success("Responses saved.")
+    emit("responsesSaved")
   } catch (error) {
     console.error(error)
     snack.error(`Failed to save Travel Desk responses: ${error}`)
@@ -244,4 +247,8 @@ async function rankOptions() {
     isSaving.value = false
   }
 }
+
+defineExpose({
+  refresh: refreshQuestions,
+})
 </script>
