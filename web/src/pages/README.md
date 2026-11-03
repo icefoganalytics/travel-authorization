@@ -107,5 +107,6 @@ const routes = [
 
 - Prefer page names that reflect the user-facing concept first, then the state or variant
 - Keep route names aligned with the file path when practical
+- Keep section ownership distinct in page and component names: Travel Requests lists travel authorizations, while Travel Desk manages booking requests. Linking between these workflows does not make their list surfaces interchangeable.
 - When a flow naturally branches into dedicated routeable screens, prefer separate pages over
   overloading one page with large conditional sections
