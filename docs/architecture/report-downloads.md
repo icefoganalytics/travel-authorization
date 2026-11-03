@@ -10,6 +10,8 @@ With no rows selected, both download controls omit the `where[id]` filter and in
 
 Both formats use `Export, Travel Desk Requests, YYYY-MM-DD` filenames with the appropriate `.csv` or `.pdf` extension.
 
+The [shared query decoder](/api/src/utils/enhanced-qs-decoder.ts) preserves indexed arrays of up to 1,000 values alongside other query options, with a limit of 1,500 parameters overall. Queries exceeding either limit are rejected instead of silently truncating values or changing an array into an object. Boolean and null decoding is unchanged.
+
 ## Data Loading and Generation
 
 Controllers pass policy-scoped models and query options to the export services. The download namespace's unpaginated [IndexService](/api/src/services/downloads/travel-desk-travel-requests/index-service.ts) owns the required associations and serialization; exports do not run the list's total-count query.
