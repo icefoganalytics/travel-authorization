@@ -1,3 +1,4 @@
+import { times } from "lodash"
 import Papa from "papaparse"
 import qs from "qs"
 
@@ -35,158 +36,18 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
           createdAt: new Date("2026-10-01T12:00:00.000Z"),
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
-        const travelDeskTravelRequest1 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[0] })
-          .create({
-            travelDeskOfficer: "Officer 01",
-          })
-        const travelDeskTravelRequest2 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[1] })
-          .create({
-            travelDeskOfficer: "Officer 02",
-          })
-        const travelDeskTravelRequest3 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[2] })
-          .create({
-            travelDeskOfficer: "Officer 03",
-          })
-        const travelDeskTravelRequest4 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[3] })
-          .create({
-            travelDeskOfficer: "Officer 04",
-          })
-        const travelDeskTravelRequest5 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[4] })
-          .create({
-            travelDeskOfficer: "Officer 05",
-          })
-        const travelDeskTravelRequest6 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[5] })
-          .create({
-            travelDeskOfficer: "Officer 06",
-          })
-        const travelDeskTravelRequest7 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[6] })
-          .create({
-            travelDeskOfficer: "Officer 07",
-          })
-        const travelDeskTravelRequest8 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[7] })
-          .create({
-            travelDeskOfficer: "Officer 08",
-          })
-        const travelDeskTravelRequest9 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[8] })
-          .create({
-            travelDeskOfficer: "Officer 09",
-          })
-        const travelDeskTravelRequest10 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[9] })
-          .create({
-            travelDeskOfficer: "Officer 10",
-          })
-        const travelDeskTravelRequest11 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[10] })
-          .create({
-            travelDeskOfficer: "Officer 11",
-          })
-        const travelDeskTravelRequest12 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[11] })
-          .create({
-            travelDeskOfficer: "Officer 12",
-          })
-        const travelDeskTravelRequest13 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[12] })
-          .create({
-            travelDeskOfficer: "Officer 13",
-          })
-        const travelDeskTravelRequest14 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[13] })
-          .create({
-            travelDeskOfficer: "Officer 14",
-          })
-        const travelDeskTravelRequest15 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[14] })
-          .create({
-            travelDeskOfficer: "Officer 15",
-          })
-        const travelDeskTravelRequest16 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[15] })
-          .create({
-            travelDeskOfficer: "Officer 16",
-          })
-        const travelDeskTravelRequest17 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[16] })
-          .create({
-            travelDeskOfficer: "Officer 17",
-          })
-        const travelDeskTravelRequest18 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[17] })
-          .create({
-            travelDeskOfficer: "Officer 18",
-          })
-        const travelDeskTravelRequest19 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[18] })
-          .create({
-            travelDeskOfficer: "Officer 19",
-          })
-        const travelDeskTravelRequest20 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[19] })
-          .create({
-            travelDeskOfficer: "Officer 20",
-          })
-        const travelDeskTravelRequest21 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[20] })
-          .create({
-            travelDeskOfficer: "Officer 21",
-          })
-        const travelDeskTravelRequest22 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[21] })
-          .create({
-            travelDeskOfficer: "Officer 22",
-          })
-        const travelDeskTravelRequest23 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[22] })
-          .create({
-            travelDeskOfficer: "Officer 23",
-          })
-        const travelDeskTravelRequest24 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[23] })
-          .create({
-            travelDeskOfficer: "Officer 24",
-          })
-        const travelDeskTravelRequest25 = await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[24] })
-          .create({
-            travelDeskOfficer: "Officer 25",
-          })
-        const selectedIds = [
-          travelDeskTravelRequest1.id,
-          travelDeskTravelRequest2.id,
-          travelDeskTravelRequest3.id,
-          travelDeskTravelRequest4.id,
-          travelDeskTravelRequest5.id,
-          travelDeskTravelRequest6.id,
-          travelDeskTravelRequest7.id,
-          travelDeskTravelRequest8.id,
-          travelDeskTravelRequest9.id,
-          travelDeskTravelRequest10.id,
-          travelDeskTravelRequest11.id,
-          travelDeskTravelRequest12.id,
-          travelDeskTravelRequest13.id,
-          travelDeskTravelRequest14.id,
-          travelDeskTravelRequest15.id,
-          travelDeskTravelRequest16.id,
-          travelDeskTravelRequest17.id,
-          travelDeskTravelRequest18.id,
-          travelDeskTravelRequest19.id,
-          travelDeskTravelRequest20.id,
-          travelDeskTravelRequest21.id,
-          travelDeskTravelRequest22.id,
-          travelDeskTravelRequest23.id,
-          travelDeskTravelRequest24.id,
-          travelDeskTravelRequest25.id,
-        ]
+        const selectedIds: number[] = []
+        for (const requestIndex of times(SELECTED_REQUEST_COUNT)) {
+          const travelDeskTravelRequest = await draftTravelDeskTravelRequestFactory
+            .associations({
+              travelAuthorization: travelAuthorizations[requestIndex],
+            })
+            .create({
+              travelDeskOfficer: `Officer ${String(requestIndex + 1).padStart(2, "0")}`,
+            })
+          selectedIds.push(travelDeskTravelRequest.id)
+        }
+
         const unselectedTravelAuthorization = await travelAuthorizationFactory
           .associations({ user: user1 })
           .create()
@@ -268,86 +129,16 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
           createdAt: new Date("2026-10-01T12:00:00.000Z"),
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[0] })
-          .create({
-            travelDeskOfficer: "Officer 01",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[1] })
-          .create({
-            travelDeskOfficer: "Officer 02",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[2] })
-          .create({
-            travelDeskOfficer: "Officer 03",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[3] })
-          .create({
-            travelDeskOfficer: "Officer 04",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[4] })
-          .create({
-            travelDeskOfficer: "Officer 05",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[5] })
-          .create({
-            travelDeskOfficer: "Officer 06",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[6] })
-          .create({
-            travelDeskOfficer: "Officer 07",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[7] })
-          .create({
-            travelDeskOfficer: "Officer 08",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[8] })
-          .create({
-            travelDeskOfficer: "Officer 09",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[9] })
-          .create({
-            travelDeskOfficer: "Officer 10",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[10] })
-          .create({
-            travelDeskOfficer: "Officer 11",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[11] })
-          .create({
-            travelDeskOfficer: "Officer 12",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[12] })
-          .create({
-            travelDeskOfficer: "Officer 13",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[13] })
-          .create({
-            travelDeskOfficer: "Officer 14",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[14] })
-          .create({
-            travelDeskOfficer: "Officer 15",
-          })
-        await draftTravelDeskTravelRequestFactory
-          .associations({ travelAuthorization: travelAuthorizations[15] })
-          .create({
-            travelDeskOfficer: "Officer 16",
-          })
+        for (const requestIndex of times(requestCount)) {
+          await draftTravelDeskTravelRequestFactory
+            .associations({
+              travelAuthorization: travelAuthorizations[requestIndex],
+            })
+            .create({
+              travelDeskOfficer: `Officer ${String(requestIndex + 1).padStart(2, "0")}`,
+            })
+        }
+
         const user2 = await userFactory.create({ roles: [User.Roles.USER] })
         const hiddenTravelAuthorization = await travelAuthorizationFactory
           .associations({ user: user2 })
