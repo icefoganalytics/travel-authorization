@@ -29,7 +29,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
-- Travel Requests uses the current traveler form and resource APIs for draft submission, options review, and itinerary viewing. Department administrators no longer receive special department-wide access to this list.
+- Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Non-system-admin users see only their own requests.
 - Travel Desk staff can follow **Review Traveller Rankings** from booking review to the existing flight requests, then use **View Options and Rankings** to see saved preferences and rejection explanations.
 - Flight options are paginated separately for each leg, with five options per page by default. Page selections survive refresh, controls remain visible for single-page and empty results, and navigation fits phone-width screens.
 - Starting a new travel request preserves entered trip details and estimated trip segments.
