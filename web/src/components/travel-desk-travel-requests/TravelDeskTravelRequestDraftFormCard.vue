@@ -49,12 +49,15 @@ defineProps<{
   travelDeskTravelRequestId: number
   returnTo: string
 }>()
+
 const travelDeskTravelRequest = defineModel<TravelDeskTravelRequestAsShow>({
   required: true,
 })
+
 const emit = defineEmits<{
   submitted: []
 }>()
+
 const snack = useSnack()
 const isSaving = ref(false)
 const saveError = ref("")

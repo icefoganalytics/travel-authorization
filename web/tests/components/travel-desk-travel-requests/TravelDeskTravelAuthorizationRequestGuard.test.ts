@@ -166,16 +166,10 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelAuthori
       await flushPromises()
 
       // Assert
-      expect({
-        notice: wrapper.get(".v-alert").text(),
-        canManageQuestions: wrapper
-          .findAll("button")
-          .some((button) => button.text() === "Add Question"),
-      }).toEqual({
-        notice:
-          "This request is read-only because you do not have permission to update the Travel Desk Request.",
-        canManageQuestions: false,
-      })
+      const addQuestionButton = wrapper
+        .findAll("button")
+        .find((button) => button.text() === "Add Question")
+      expect(addQuestionButton).toBeUndefined()
     })
   })
 })

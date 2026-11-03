@@ -2,6 +2,7 @@ import { isEmpty, isNil, last, first, pick, isUndefined, sumBy } from "lodash"
 
 import {
   Expense,
+  Location,
   Stop,
   TravelAuthorization,
   TravelDeskTravelRequest,
@@ -14,7 +15,7 @@ import {
   StateFlagsSerializer,
   type TravelAuthorizationStateFlagsView,
 } from "@/serializers/travel-authorizations/state-flags-serializer"
-import { Locations } from "@/serializers"
+import { Locations, TravelDeskTravelRequests } from "@/serializers"
 
 export type TravelAuthorizationIndexView = Pick<
   TravelAuthorization,
@@ -42,8 +43,8 @@ export type TravelAuthorizationIndexView = Pick<
 } & {
   // Associations
   finalDestination: Locations.AsReference | null
-  locationIds: number[]
-  travelDeskTravelRequest: Pick<TravelDeskTravelRequest, "id" | "status" | "invoiceNumber"> | null
+  locations: Locations.AsReference[]
+  travelDeskTravelRequest: TravelDeskTravelRequests.AsSummary | null
 } & TravelAuthorizationStateFlagsView
 
 export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
@@ -55,7 +56,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   perform(): TravelAuthorizationIndexView {
-    const { stops, travelSegments } = this.record
+    const { stops, travelSegments, travelDeskTravelRequest } = this.record
     if (isUndefined(stops)) {
       throw new Error("Expected stops association to be pre-loaded.")
     }
@@ -64,17 +65,20 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       throw new Error("Expected travelSegments association to be pre-loaded.")
     }
 
+    if (isUndefined(travelDeskTravelRequest)) {
+      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
+    }
+
     const finalDestinationLocation = this.buildFinalDestinationLocation()
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
 
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
-    const locationIds = this.buildLocationIds(travelSegments, stops)
-    const departingAt = this.firstTravelSegment?.departureAt ?? first(stops)?.departureAt
-    const returningAt = this.lastTravelSegment?.departureAt ?? last(stops)?.departureAt
-    const request = this.travelDeskTravelRequest
+    const locations = this.buildLocations(travelSegments, stops)
+    const serializedLocations = Locations.ReferenceSerializer.perform(locations)
     let serializedTravelDeskTravelRequest = null
-    if (!isNil(request)) {
-      serializedTravelDeskTravelRequest = pick(request, ["id", "status", "invoiceNumber"])
+    if (!isNil(travelDeskTravelRequest)) {
+      serializedTravelDeskTravelRequest =
+        TravelDeskTravelRequests.SummarySerializer.perform(travelDeskTravelRequest)
     }
 
     return {
@@ -91,8 +95,8 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
       finalDestination: finalDestinationLocation,
-      departingAt: departingAt?.toISOString(),
-      returningAt: returningAt?.toISOString(),
+      departingAt: this.departingAt?.toISOString(),
+      returningAt: this.returningAt?.toISOString(),
       phase: this.determinePhase(),
       action: this.determineAction(),
       firstName: this.traveller.firstName,
@@ -101,33 +105,41 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       branch: this.traveller.branch,
       isTravelling: this.isTravelling(),
       unprocessedExpenseCount,
-      locationIds,
+      locations: serializedLocations,
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       ...stateFlagsAttributes,
     }
   }
 
-  private buildLocationIds(travelSegments: TravelSegment[], stops: Stop[]): number[] {
-    const locationIds = new Set<number>()
+  private buildLocations(travelSegments: TravelSegment[], stops: Stop[]): Location[] {
+    const locations = new Map<number, Location>()
     if (travelSegments.length > 0) {
-      for (const travelSegment of travelSegments) {
-        if (!isNil(travelSegment.departureLocationId)) {
-          locationIds.add(travelSegment.departureLocationId)
+      for (const { departureLocation, arrivalLocation } of travelSegments) {
+        if (isUndefined(departureLocation) || isUndefined(arrivalLocation)) {
+          throw new Error("Expected travel segment locations to be pre-loaded.")
         }
 
-        if (!isNil(travelSegment.arrivalLocationId)) {
-          locationIds.add(travelSegment.arrivalLocationId)
+        if (!isNil(departureLocation)) {
+          locations.set(departureLocation.id, departureLocation)
+        }
+
+        if (!isNil(arrivalLocation)) {
+          locations.set(arrivalLocation.id, arrivalLocation)
         }
       }
     } else {
-      for (const stop of stops) {
-        if (!isNil(stop.locationId)) {
-          locationIds.add(stop.locationId)
+      for (const { location } of stops) {
+        if (isUndefined(location)) {
+          throw new Error("Expected stop location association to be pre-loaded.")
+        }
+
+        if (!isNil(location)) {
+          locations.set(location.id, location)
         }
       }
     }
 
-    return Array.from(locationIds)
+    return Array.from(locations.values())
   }
 
   private buildFinalDestinationLocation() {
@@ -319,6 +331,23 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
 
   private travelDeskIsComplete() {
     return this.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.COMPLETE
+  }
+
+  private get departingAt(): Date | null | undefined {
+    return this.firstTravelSegment?.departureAt ?? first(this.stops)?.departureAt
+  }
+
+  private get returningAt(): Date | null | undefined {
+    return this.lastTravelSegment?.departureAt ?? last(this.stops)?.departureAt
+  }
+
+  private get stops(): Stop[] {
+    const { stops } = this.record
+    if (isUndefined(stops)) {
+      throw new Error("Expected stops association to be pre-loaded")
+    }
+
+    return stops
   }
 
   private get firstTravelSegment(): TravelSegment | undefined {

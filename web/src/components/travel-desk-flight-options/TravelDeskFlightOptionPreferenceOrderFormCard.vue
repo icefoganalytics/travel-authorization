@@ -118,6 +118,7 @@ const travelDeskFlightOptionsQuery = computed(() => ({
   },
   perPage: -1,
 }))
+
 const { travelDeskFlightOptions, totalCount, isLoading, isErrored, refresh } =
   useTravelDeskFlightOptions(travelDeskFlightOptionsQuery)
 const { smAndDown } = useDisplay()

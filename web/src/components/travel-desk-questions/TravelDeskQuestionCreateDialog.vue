@@ -93,15 +93,19 @@ const props = withDefaults(
     attributes: () => ({}),
   }
 )
+
 const emit = defineEmits<{
   created: [questionId: number]
 }>()
+
 const travelDeskQuestion = ref<Partial<TravelDeskQuestion>>(cloneDeep(props.attributes))
 
 const snack = useSnack()
+
 const showDialog = useRouteQuery<string, boolean>("showTravelDeskQuestionCreate", "false", {
   transform: booleanTransformer,
 })
+
 const form = useTemplateRef("form")
 const isLoading = ref(false)
 

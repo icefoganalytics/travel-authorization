@@ -145,7 +145,7 @@ export type TravelAuthorizationAsIndex = Pick<
   unprocessedExpenseCount: number
   // Associations
   finalDestination: LocationAsReference | null
-  locationIds: number[]
+  locations: LocationAsReference[]
   travelDeskTravelRequest: Pick<TravelDeskTravelRequest, "id" | "status" | "invoiceNumber"> | null
 } & TravelAuthorizationStateFlags
 

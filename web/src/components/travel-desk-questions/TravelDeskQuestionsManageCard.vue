@@ -33,9 +33,11 @@ import TravelDeskQuestionsEditDataTableServer from "@/components/travel-desk-que
 defineProps<{
   travelDeskTravelRequestId: number
 }>()
+
 const emit = defineEmits<{
   updated: []
 }>()
+
 const travelDeskQuestionsEditDataTable = useTemplateRef("travelDeskQuestionsEditDataTable")
 
 async function refresh() {

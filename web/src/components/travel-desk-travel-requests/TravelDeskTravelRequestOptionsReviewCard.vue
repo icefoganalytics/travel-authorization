@@ -121,17 +121,21 @@ const props = defineProps<{
   isRequestOwner: boolean
   status: TravelDeskTravelRequestStatuses
 }>()
-const { travelDeskTravelRequestId } = toRefs(props)
+
 const emit = defineEmits<{
   ranked: [request: TravelDeskTravelRequestAsShow]
   responsesSaved: []
 }>()
+
+const { travelDeskTravelRequestId } = toRefs(props)
+
 const questionsOptions = computed(() => ({
   where: {
     travelRequestId: travelDeskTravelRequestId.value,
   },
   perPage: -1,
 }))
+
 const {
   travelDeskQuestions,
   totalCount: questionTotalCount,
@@ -139,24 +143,29 @@ const {
   isErrored: questionsErrored,
   refresh: refreshQuestions,
 } = useTravelDeskQuestions(questionsOptions)
+
 const hasCompleteQuestions = computed(
   () => questionTotalCount.value === travelDeskQuestions.value.length
 )
+
 const flightRequestsOptions = computed(() => ({
   where: {
     travelRequestId: travelDeskTravelRequestId.value,
   },
   perPage: -1,
 }))
+
 const {
   travelDeskFlightRequests,
   totalCount: flightRequestTotalCount,
   isLoading: flightRequestsAreLoading,
   isErrored: flightRequestsErrored,
 } = useTravelDeskFlightRequests(flightRequestsOptions)
+
 const hasCompleteFlightRequests = computed(
   () => flightRequestTotalCount.value === travelDeskFlightRequests.value.length
 )
+
 const isSaving = ref(false)
 const snack = useSnack()
 const flightOptionsOrderCard = useTemplateRef("flightOptionsOrderCard")
@@ -169,6 +178,7 @@ const questionsUnavailableReason = computed(() => {
 
   return ""
 })
+
 const rankingsUnavailableReason = computed(() => {
   if (questionsUnavailableReason.value) {
     return "Reload the request to load all Travel Desk questions before submitting rankings."

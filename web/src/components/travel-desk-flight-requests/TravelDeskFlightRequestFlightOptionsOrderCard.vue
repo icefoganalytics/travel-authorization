@@ -41,6 +41,7 @@ const travelDeskFlightRequestsQuery = computed(() => ({
   },
   perPage: -1,
 }))
+
 const { travelDeskFlightRequests, totalCount, isLoading, isErrored } = useTravelDeskFlightRequests(
   travelDeskFlightRequestsQuery
 )

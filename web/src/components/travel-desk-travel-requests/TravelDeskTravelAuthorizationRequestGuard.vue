@@ -45,10 +45,13 @@ const props = defineProps<{
   travelAuthorizationId: number
   returnTo: string
 }>()
+
 const { travelAuthorizationId } = toRefs(props)
+
 const { travelAuthorization, isLoading, isErrored } = useTravelAuthorization(travelAuthorizationId)
+
 const activeTravelAuthorization = computed(() => {
-  if (travelAuthorization.value?.id !== Number(travelAuthorizationId.value)) return null
+  if (travelAuthorization.value?.id !== travelAuthorizationId.value) return null
 
   return travelAuthorization.value
 })

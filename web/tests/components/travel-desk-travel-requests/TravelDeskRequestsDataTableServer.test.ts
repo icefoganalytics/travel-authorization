@@ -18,7 +18,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskRequestsDataT
         purposeText: "Conference",
         departingAt: "2026-11-10",
         returningAt: "2026-11-12",
-        locationIds: [],
+        locations: [],
         status: "approved",
         travelDeskTravelRequest: {
           id: 900,
@@ -78,6 +78,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskRequestsDataT
       ])
       await router.push("/")
       await router.isReady()
+      const navigation = vi.spyOn(router, "push")
 
       // Act
       const wrapper = mount(TravelDeskRequestsDataTableServer, {
@@ -86,8 +87,10 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskRequestsDataT
         },
       })
       await flushPromises()
-      await wrapper.get("tbody tr a").trigger("click")
-      await flushPromises()
+      await wrapper.get("tbody tr a").trigger("click", {
+        button: 0,
+      })
+      await navigation.mock.results[0].value
 
       // Assert
       expect(router.currentRoute.value.fullPath).toEqual("/travel-requests/287/travel-desk")

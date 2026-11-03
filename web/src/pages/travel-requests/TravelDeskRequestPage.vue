@@ -25,7 +25,10 @@ import TravelDeskTravelAuthorizationRequestGuard from "@/components/travel-desk-
 const props = defineProps<{
   travelAuthorizationId: number | string
 }>()
+
 const route = useRoute()
+
 const returnTo = computed(() => route.fullPath)
+
 const travelAuthorizationId = computed(() => Number(props.travelAuthorizationId))
 </script>

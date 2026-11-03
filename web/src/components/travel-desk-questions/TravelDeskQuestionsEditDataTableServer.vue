@@ -77,6 +77,7 @@ const props = defineProps({
     default: "",
   },
 })
+
 const emit = defineEmits<{
   updated: []
 }>()
@@ -106,6 +107,7 @@ const { t } = useI18n()
 const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformer,
 })
+
 const defaultPerPageAsString = computed(() => String(props.defaultPerPage))
 const perPage = useRouteQuery<string, number>(
   `perPage${props.routeQuerySuffix}`,
@@ -114,12 +116,14 @@ const perPage = useRouteQuery<string, number>(
     transform: integerTransformer,
   }
 )
+
 const travelDeskQuestionsQuery = computed(() => ({
   where: props.where,
   filters: props.filters,
   page: page.value,
   perPage: perPage.value,
 }))
+
 const { travelDeskQuestions, totalCount, isLoading, refresh } =
   useTravelDeskQuestions(travelDeskQuestionsQuery)
 
@@ -135,6 +139,7 @@ function showEditDialog(questionId: number) {
 }
 
 const isDeleting = ref(false)
+
 const snack = useSnack()
 
 async function deleteQuestion(questionId: number) {

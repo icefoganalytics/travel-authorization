@@ -82,6 +82,7 @@ const props = defineProps<{
   travelAuthorization: TravelAuthorizationAsShow
   returnTo: string
 }>()
+
 const { travelDeskTravelRequestId } = toRefs(props)
 const { currentUser } = useCurrentUser()
 const {
@@ -91,6 +92,7 @@ const {
   isErrored,
   refresh: refreshRequest,
 } = useTravelDeskTravelRequest(travelDeskTravelRequestId)
+
 const questionsManageCard = useTemplateRef("questionsManageCard")
 const optionsReviewCard = useTemplateRef("optionsReviewCard")
 
@@ -100,14 +102,17 @@ const completeTravelDeskTravelRequest = computed(() => {
 
   return request
 })
+
 const canUpdate = computed(() => requestPolicy.value?.update === true)
 const isDraft = computed(
   () => completeTravelDeskTravelRequest.value?.status === TravelDeskTravelRequestStatuses.DRAFT
 )
+
 const isOptionsProvided = computed(
   () =>
     completeTravelDeskTravelRequest.value?.status ===
     TravelDeskTravelRequestStatuses.OPTIONS_PROVIDED
 )
+
 const isRequestOwner = computed(() => props.travelAuthorization.userId === currentUser.value?.id)
 </script>

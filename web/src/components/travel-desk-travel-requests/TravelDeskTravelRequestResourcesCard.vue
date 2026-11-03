@@ -47,6 +47,7 @@ const props = defineProps<{
   status: TravelDeskTravelRequestStatuses
   invoiceNumber: string | null
 }>()
+
 const itineraryDialog = useTemplateRef("itineraryDialog")
 
 function openBookedItinerary() {

@@ -141,7 +141,18 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           travelAuthorizations: [
             expect.objectContaining({
               id: travelAuthorization1.id,
-              locationIds: [location1.id, location2.id],
+              locations: [
+                expect.objectContaining({
+                  id: location1.id,
+                  city: location1.city,
+                  province: location1.province,
+                }),
+                expect.objectContaining({
+                  id: location2.id,
+                  city: location2.city,
+                  province: location2.province,
+                }),
+              ],
               travelDeskTravelRequest: {
                 id: travelDeskTravelRequest1.id,
                 status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
@@ -186,7 +197,13 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
               id: travelAuthorization1.id,
               departingAt: new Date("2020-03-04T07:15:00").toISOString(),
               returningAt: new Date("2020-03-04T07:15:00").toISOString(),
-              locationIds: [location1.id],
+              locations: [
+                expect.objectContaining({
+                  id: location1.id,
+                  city: location1.city,
+                  province: location1.province,
+                }),
+              ],
               travelDeskTravelRequest: null,
             }),
           ],
