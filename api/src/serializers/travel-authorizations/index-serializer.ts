@@ -57,29 +57,15 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
 
   perform(): TravelAuthorizationIndexView {
     const { stops, travelSegments, travelDeskTravelRequest } = this.record
-    if (isUndefined(stops)) {
-      throw new Error("Expected stops association to be pre-loaded.")
-    }
 
-    if (isUndefined(travelSegments)) {
-      throw new Error("Expected travelSegments association to be pre-loaded.")
-    }
+    const serializedLocations = this.serializeLocations(travelSegments, stops)
 
-    if (isUndefined(travelDeskTravelRequest)) {
-      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
-    }
+    const serializedTravelDeskTravelRequest =
+      this.serializeTravelDeskTravelRequest(travelDeskTravelRequest)
 
     const finalDestinationLocation = this.buildFinalDestinationLocation()
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
-
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
-    const locations = this.buildLocations(travelSegments, stops)
-    const serializedLocations = Locations.ReferenceSerializer.perform(locations)
-    let serializedTravelDeskTravelRequest = null
-    if (!isNil(travelDeskTravelRequest)) {
-      serializedTravelDeskTravelRequest =
-        TravelDeskTravelRequests.SummarySerializer.perform(travelDeskTravelRequest)
-    }
 
     return {
       ...pick(this.record, [
@@ -109,6 +95,35 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       ...stateFlagsAttributes,
     }
+  }
+
+  private serializeLocations(
+    travelSegments: TravelSegment[] | undefined,
+    stops: Stop[] | undefined
+  ): Locations.AsReference[] {
+    if (isUndefined(stops)) {
+      throw new Error("Expected stops association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelSegments)) {
+      throw new Error("Expected travelSegments association to be pre-loaded.")
+    }
+
+    const locations = this.buildLocations(travelSegments, stops)
+
+    return Locations.ReferenceSerializer.perform(locations)
+  }
+
+  private serializeTravelDeskTravelRequest(
+    travelDeskTravelRequest: TravelDeskTravelRequest | null | undefined
+  ): TravelDeskTravelRequests.AsSummary | null {
+    if (isUndefined(travelDeskTravelRequest)) {
+      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
+    }
+
+    if (isNil(travelDeskTravelRequest)) return null
+
+    return TravelDeskTravelRequests.SummarySerializer.perform(travelDeskTravelRequest)
   }
 
   private buildLocations(travelSegments: TravelSegment[], stops: Stop[]): Location[] {
@@ -334,11 +349,23 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private get departingAt(): Date | null | undefined {
-    return this.firstTravelSegment?.departureAt ?? first(this.stops)?.departureAt
+    const firstTravelSegment = this.firstTravelSegment
+    const departingAt = firstTravelSegment?.departureAt
+    if (!isNil(departingAt)) return departingAt
+
+    const firstStop = first(this.stops)
+
+    return firstStop?.departureAt
   }
 
   private get returningAt(): Date | null | undefined {
-    return this.lastTravelSegment?.departureAt ?? last(this.stops)?.departureAt
+    const lastTravelSegment = this.lastTravelSegment
+    const returningAt = lastTravelSegment?.departureAt
+    if (!isNil(returningAt)) return returningAt
+
+    const lastStop = last(this.stops)
+
+    return lastStop?.departureAt
   }
 
   private get stops(): Stop[] {
