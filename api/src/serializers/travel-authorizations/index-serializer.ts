@@ -355,7 +355,13 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     firstTravelSegment: TravelSegment | undefined,
     stops: Stop[]
   ): Date | null | undefined {
-    const departingAt = firstTravelSegment?.departureAt
+    if (isNil(firstTravelSegment)) {
+      const firstStop = first(stops)
+
+      return firstStop?.departureAt
+    }
+
+    const departingAt = firstTravelSegment.departureAt
     if (!isNil(departingAt)) return departingAt
 
     const firstStop = first(stops)
@@ -367,7 +373,13 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     lastTravelSegment: TravelSegment | undefined,
     stops: Stop[]
   ): Date | null | undefined {
-    const returningAt = lastTravelSegment?.departureAt
+    if (isNil(lastTravelSegment)) {
+      const lastStop = last(stops)
+
+      return lastStop?.departureAt
+    }
+
+    const returningAt = lastTravelSegment.departureAt
     if (!isNil(returningAt)) return returningAt
 
     const lastStop = last(stops)
