@@ -3,17 +3,23 @@ import { GenericStatePolicy } from "@/policies/travel-desk-questions"
 
 export class OptionsProvidedStatePolicy extends GenericStatePolicy {
   update(): boolean {
-    if (super.update()) return true
+    if (this.user.isAdmin) return true
+    if (this.travelAuthorization.supervisorEmail === this.user.email) return true
+    if (this.travelAuthorization.userId === this.user.id) return true
 
-    return this.travelAuthorization.userId === this.user.id
+    return false
   }
 
   permittedAttributes(): Path[] {
-    if (!super.update() && this.travelAuthorization.userId === this.user.id) {
-      return ["response"]
+    if (this.user.isAdmin) return ["requestType", "question", "response"]
+
+    if (this.travelAuthorization.supervisorEmail === this.user.email) {
+      return ["requestType", "question", "response"]
     }
 
-    return super.permittedAttributes()
+    if (this.travelAuthorization.userId === this.user.id) return ["response"]
+
+    return []
   }
 }
 
