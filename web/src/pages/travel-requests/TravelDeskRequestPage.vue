@@ -146,13 +146,19 @@
                 v-for="question in travelDeskQuestions"
                 :key="question.id"
               >
-                <v-list-item-title>{{ question.question }}</v-list-item-title>
+                <p class="mb-2">{{ question.question }}</p>
                 <v-textarea
                   v-model="question.response"
                   label="Response"
-                  :disabled="!isRequestOwner"
+                  :readonly="!isRequestOwner"
                   rows="2"
                 />
+                <p
+                  v-if="!isRequestOwner"
+                  class="text-caption"
+                >
+                  Only the request owner can update responses.
+                </p>
               </v-list-item>
             </v-list>
             <p v-else-if="!questionsAreLoading && !questionsErrored">
@@ -182,28 +188,23 @@
         v-if="isOptionsProvided && isRequestOwner"
         class="d-flex ga-2 mt-4"
       >
-        <v-btn
-          :loading="isSaving"
-          :disabled="questionsAreLoading || questionsErrored"
+        <ConditionalTooltipButton
+          :loading="isSaving || questionsAreLoading"
+          :disabled="reviewResponsesUnavailableReason.length > 0"
+          :tooltip-text="reviewResponsesUnavailableReason"
           @click="saveReviewResponses"
         >
           Save Responses
-        </v-btn>
-        <v-btn
+        </ConditionalTooltipButton>
+        <ConditionalTooltipButton
           color="primary"
-          :loading="isSaving"
-          :disabled="
-            questionsAreLoading ||
-            questionsErrored ||
-            flightRequestsAreLoading ||
-            flightRequestsErrored ||
-            !hasCompleteFlightRequests ||
-            travelDeskFlightRequests.length === 0
-          "
+          :loading="isSaving || questionsAreLoading || flightRequestsAreLoading"
+          :disabled="rankingsUnavailableReason.length > 0"
+          :tooltip-text="rankingsUnavailableReason"
           @click="rankOptions"
         >
           Submit Rankings
-        </v-btn>
+        </ConditionalTooltipButton>
       </div>
       <v-btn
         v-if="
@@ -237,6 +238,7 @@ import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
 
+import ConditionalTooltipButton from "@/components/common/ConditionalTooltipButton.vue"
 import TravelDeskFlightRequestFlightOptionsOrderCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestFlightOptionsOrderCard.vue"
 import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
 import TravelDeskHotelsDataTableServer from "@/components/travel-desk-hotels/TravelDeskHotelsDataTableServer.vue"
@@ -247,7 +249,9 @@ import TravelerDetailsFormCard from "@/components/travel-desk-travel-requests/Tr
 import TravelDeskTravelRequestEditCard from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestEditCard.vue"
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
 
-const props = defineProps<{ travelAuthorizationId: number }>()
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 const { travelAuthorizationId } = toRefs(props)
 const route = useRoute()
 const returnTo = computed(() => route.fullPath)
@@ -277,6 +281,8 @@ watch(
   async (id) => {
     if (isNil(id)) {
       travelDeskQuestions.value = []
+      questionsAreLoading.value = false
+      questionsErrored.value = false
       return
     }
 
@@ -285,9 +291,13 @@ watch(
 
     try {
       const result = await travelDeskQuestionsApi.list({
-        where: { travelRequestId: id },
+        where: {
+          travelRequestId: id,
+        },
         perPage: -1,
       })
+      if (id !== requestId.value) return
+
       if (result.totalCount > result.travelDeskQuestions.length) {
         questionsErrored.value = true
         travelDeskQuestions.value = []
@@ -295,18 +305,26 @@ watch(
         travelDeskQuestions.value = result.travelDeskQuestions
       }
     } catch (error) {
+      if (id !== requestId.value) return
+
       console.error(error)
       travelDeskQuestions.value = []
       questionsErrored.value = true
     } finally {
-      questionsAreLoading.value = false
+      if (id === requestId.value) {
+        questionsAreLoading.value = false
+      }
     }
   },
-  { immediate: true }
+  {
+    immediate: true,
+  }
 )
 
 const flightRequestOptions = computed(() => ({
-  where: { travelRequestId: requestId.value },
+  where: {
+    travelRequestId: requestId.value,
+  },
   perPage: -1,
 }))
 const {
@@ -328,17 +346,40 @@ const isRequestOwner = computed(() => travelAuthorization.value?.userId === curr
 const hasCompleteFlightRequests = computed(
   () => flightRequestTotalCount.value === travelDeskFlightRequests.value.length
 )
+const reviewResponsesUnavailableReason = computed(() => {
+  if (questionsErrored.value) {
+    return "Reload the request to load all Travel Desk questions before saving responses."
+  }
+
+  return ""
+})
+const rankingsUnavailableReason = computed(() => {
+  if (questionsErrored.value) {
+    return "Reload the request to load all Travel Desk questions before submitting rankings."
+  }
+
+  if (
+    !flightRequestsAreLoading.value &&
+    (flightRequestsErrored.value || !hasCompleteFlightRequests.value)
+  ) {
+    return "Reload the request to load all flight requests before submitting rankings."
+  }
+
+  if (!flightRequestsAreLoading.value && travelDeskFlightRequests.value.length === 0) {
+    return "No flight requests are available to rank."
+  }
+
+  return ""
+})
 const isSaving = ref(false)
 const saveError = ref("")
 const travelerForm = useTemplateRef("travelerForm")
 const flightOptionsOrderCard = useTemplateRef("flightOptionsOrderCard")
-const itineraryDialog = ref<InstanceType<
-  typeof TravelDeskTravelRequestPrintItineraryDialog
-> | null>(null)
+const itineraryDialog = useTemplateRef("itineraryDialog")
 const snack = useSnack()
 
 async function saveDraft() {
-  if (!canUpdate.value) return
+  if (isSaving.value || !canUpdate.value || !isDraft.value) return
 
   isSaving.value = true
   saveError.value = ""
@@ -354,7 +395,8 @@ async function saveDraft() {
 }
 
 async function submitDraft() {
-  if (!canUpdate.value || !isDraft.value || isNil(travelerForm.value)) return
+  if (isSaving.value || !canUpdate.value || !isDraft.value || isNil(travelerForm.value)) return
+
   const validation = await travelerForm.value.validate()
   if (!validation.valid) {
     snack.error("Form validation failed. Please complete the required fields.")
@@ -379,12 +421,14 @@ async function submitDraft() {
 
 async function saveQuestionResponses() {
   for (const question of travelDeskQuestions.value) {
-    await travelDeskQuestionsApi.update(question.id, { response: question.response })
+    await travelDeskQuestionsApi.update(question.id, {
+      response: question.response,
+    })
   }
 }
 
 async function saveReviewResponses() {
-  if (!isRequestOwner.value || !isOptionsProvided.value) return
+  if (isSaving.value || !isRequestOwner.value || !isOptionsProvided.value) return
   if (questionsAreLoading.value || questionsErrored.value) return
 
   isSaving.value = true
@@ -400,7 +444,7 @@ async function saveReviewResponses() {
 }
 
 async function rankOptions() {
-  if (!isRequestOwner.value || !isOptionsProvided.value) return
+  if (isSaving.value || !isRequestOwner.value || !isOptionsProvided.value) return
   if (questionsAreLoading.value || questionsErrored.value) return
   if (
     flightRequestsAreLoading.value ||

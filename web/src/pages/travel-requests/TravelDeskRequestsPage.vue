@@ -27,10 +27,12 @@
         {{ item.firstName ?? "" }} {{ item.lastName ?? "" }}
       </template>
       <template #item.departingAt="{ item }">
-        {{ item.departingAt ? formatDate(item.departingAt) : "—" }}
+        <template v-if="item.departingAt">{{ formatDate(item.departingAt) }}</template>
+        <template v-else>—</template>
       </template>
       <template #item.returningAt="{ item }">
-        {{ item.returningAt ? formatDate(item.returningAt) : "—" }}
+        <template v-if="item.returningAt">{{ formatDate(item.returningAt) }}</template>
+        <template v-else>—</template>
       </template>
       <template #item.locationIds="{ item }">
         <div class="d-flex flex-wrap ga-1">
@@ -42,20 +44,26 @@
         </div>
       </template>
       <template #item.status="{ item }">
-        {{ formatStatus(item.status) }}
+        {{ t(`global.status.${item.status}`, item.status) }}
       </template>
       <template #item.travelDeskTravelRequest="{ item }">
-        {{
-          item.travelDeskTravelRequest
-            ? formatStatus(item.travelDeskTravelRequest.status)
-            : "Not created"
-        }}
+        <template v-if="item.travelDeskTravelRequest">
+          {{
+            t(
+              `travel_desk_travel_request.status.${item.travelDeskTravelRequest.status}`,
+              item.travelDeskTravelRequest.status
+            )
+          }}
+        </template>
+        <template v-else>Not created</template>
       </template>
       <template #item.actions="{ item }">
         <v-btn
           :to="{
             name: 'travel-requests/TravelDeskRequestPage',
-            params: { travelAuthorizationId: item.id },
+            params: {
+              travelAuthorizationId: item.id,
+            },
           }"
           variant="text"
         >
@@ -73,6 +81,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 
 import formatDate from "@/utils/format-date"
 import { type TravelDeskTravelAuthorizationsQueryOptions } from "@/api/travel-desk-travel-authorizations-api"
@@ -85,20 +94,63 @@ import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-b
 import EnhancedPagination from "@/components/common/EnhancedPagination.vue"
 import LocationChip from "@/components/locations/LocationChip.vue"
 
+const { t } = useI18n()
 const headers = [
-  { title: "Travel Auth #", key: "id" },
-  { title: "Traveller", key: "name", sortable: false },
-  { title: "Purpose", key: "purposeText", sortable: false },
-  { title: "Departure", key: "departingAt", sortable: false },
-  { title: "Return", key: "returningAt", sortable: false },
-  { title: "Locations", key: "locationIds", sortable: false },
-  { title: "Authorization Status", key: "status" },
-  { title: "Travel Desk Status", key: "travelDeskTravelRequest", sortable: false },
-  { title: "Actions", key: "actions", sortable: false },
+  {
+    title: "Travel Auth #",
+    key: "id",
+  },
+  {
+    title: "Traveller",
+    key: "name",
+    sortable: false,
+  },
+  {
+    title: "Purpose",
+    key: "purposeText",
+    sortable: false,
+  },
+  {
+    title: "Departure",
+    key: "departingAt",
+    sortable: false,
+  },
+  {
+    title: "Return",
+    key: "returningAt",
+    sortable: false,
+  },
+  {
+    title: "Locations",
+    key: "locationIds",
+    sortable: false,
+  },
+  {
+    title: "Authorization Status",
+    key: "status",
+  },
+  {
+    title: "Travel Desk Status",
+    key: "travelDeskTravelRequest",
+    sortable: false,
+  },
+  {
+    title: "Actions",
+    key: "actions",
+    sortable: false,
+  },
 ] as const
 
-const { page, perPage } = useRouteQueryPagination({ perPage: 15, routeQuerySuffix: "TravelDesk" })
-const sortBy = useVuetifySortByToSafeRouteQuery("travelDeskSortBy", [{ key: "id", order: "desc" }])
+const { page, perPage } = useRouteQueryPagination({
+  perPage: 15,
+  routeQuerySuffix: "TravelDesk",
+})
+const sortBy = useVuetifySortByToSafeRouteQuery("travelDeskSortBy", [
+  {
+    key: "id",
+    order: "desc",
+  },
+])
 const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 const queryOptions = computed<TravelDeskTravelAuthorizationsQueryOptions>(() => ({
   page: page.value,
@@ -107,10 +159,6 @@ const queryOptions = computed<TravelDeskTravelAuthorizationsQueryOptions>(() => 
 }))
 const { travelAuthorizations, totalCount, isLoading, isErrored } =
   useTravelDeskTravelAuthorizations(queryOptions)
-
-function formatStatus(status: string) {
-  return status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
 
 function requestActionLabel(status: TravelDeskTravelRequestStatuses | undefined) {
   if (status === TravelDeskTravelRequestStatuses.DRAFT) return "Submit Travel Desk Request"
