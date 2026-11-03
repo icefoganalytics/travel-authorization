@@ -79,6 +79,7 @@ Before a separately accepted base-replacement change:
 
 - [../README.md](../README.md) - repo-level overview and quick start
 - [../AGENTS.md](../AGENTS.md) - project-wide conventions and architecture
+- [Report download architecture](/docs/architecture/report-downloads.md) - Travel Desk export contracts, generation, and runtime packaging
 - [tests/README.md](./tests/README.md) - API testing guide
 - [src/db/README.md](./src/db/README.md) - migrations, seeds, and database workflow
 - [src/controllers/README.md](./src/controllers/README.md) - controller patterns

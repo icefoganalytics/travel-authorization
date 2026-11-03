@@ -15,11 +15,11 @@
       :block="smAndDown"
       :color="color"
       :prepend-icon="prependIcon"
-      :loading="loading"
+      :loading="loading || isDownloading"
       type="submit"
     >
       <template #default>
-        {{ text }}
+        <slot>{{ text }}</slot>
       </template>
     </v-btn>
   </v-form>
@@ -28,12 +28,10 @@
 <script setup lang="ts">
 import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
-import { ref, nextTick } from "vue"
+import { nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
 
-import { type VForm } from "vuetify/components"
-
-withDefaults(
+const props = withDefaults(
   defineProps<{
     text?: string
     downloadUrl: string
@@ -55,11 +53,13 @@ const emit = defineEmits<{
 
 const { getAccessTokenSilently } = useAuth0()
 
-const formRef = ref<InstanceType<typeof VForm> | null>(null)
+const formRef = useTemplateRef("formRef")
 const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
 
 async function getAccessTokenAndSubmit() {
+  if (props.loading || isDownloading.value) return
+
   if (isNil(formRef.value)) {
     throw new Error("Form element is not available")
   }

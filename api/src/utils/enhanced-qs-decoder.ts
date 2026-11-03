@@ -2,6 +2,9 @@ import qs from "qs"
 
 export function enhancedQsDecoder(params: string) {
   return qs.parse(params, {
+    arrayLimit: 1000,
+    parameterLimit: 1500,
+    throwOnLimitExceeded: true,
     strictNullHandling: true,
     decoder(str, defaultDecoder, charset, type) {
       if (type === "value") {

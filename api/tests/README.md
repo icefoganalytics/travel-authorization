@@ -66,6 +66,8 @@ stale test.
 - Assert `response.status` first, then assert `response.body` directly with `toEqual(...)`.
 - Keep an HTTP status/body test focused on that response; cover persisted outcomes in a separate
   service or behavior test.
+- Keep download-header assertions in separate focused tests rather than adding them to the
+  status/body response test.
 - Prefer the real controller -> service -> serializer path for happy-path coverage when it proves
   the serializer can parse service results. Mock service methods for narrow controller error paths.
 - When related endpoints share a contract, keep happy path, service failure, authorization denial,

@@ -73,6 +73,7 @@ Examples:
 - Use Vuetify utility classes instead of custom CSS when available, such as `d-flex`,
   `align-center`, `bg-white`, and `h-full`.
 - Remove redundant CSS that Vuetify already provides.
+- Use `:loading` only for in-flight work. Avoid unexplained disabled buttons; when an action must be unavailable, use [`ConditionalTooltipButton`](common/ConditionalTooltipButton.vue) with tooltip text explaining the reason.
 - Use `formRef.value.submit()` instead of `formRef.value.$el.submit()`.
 - Prefer gap classes such as `ga-2` and `ga-3` over margin classes for flex spacing.
 - Avoid `v-list-item-title` and `v-list-item-subtitle` for text that needs to wrap; use regular
