@@ -2,9 +2,9 @@ import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
-import { UpdateService, CreateService, DestroyService } from "@/services/travel-authorizations"
 import { TravelAuthorization } from "@/models"
 import { TravelAuthorizationsPolicy } from "@/policies"
+import { UpdateService, CreateService, DestroyService } from "@/services/travel-authorizations"
 import { IndexSerializer, ShowSerializer } from "@/serializers/travel-authorizations"
 import BaseController from "@/controllers/base-controller"
 
@@ -12,12 +12,21 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
   async index() {
     try {
       const where = this.buildWhere()
-      const scopes = this.buildFilterScopes()
+      const scopes = this.buildFilterScopes([
+        "includeTravelerNameAttribute",
+        "includePurposeTextAttribute",
+        "includeDepartingAtAttribute",
+        "includeReturningAtAttribute",
+        "includeTravelDeskStatusAttribute",
+      ])
       const order = this.buildOrder([
         ["updatedAt", "DESC"],
+        ["id", "ASC"],
         ["stops", "departureDate", "ASC"],
         ["stops", "departureTime", "ASC"],
+        ["stops", "id", "ASC"],
         ["travelSegments", "segmentNumber", "ASC"],
+        ["travelSegments", "id", "ASC"],
       ])
       const scopedTravelAuthorizations = TravelAuthorizationsPolicy.applyScope(
         scopes,

@@ -58,7 +58,6 @@ import {
 import { migrateRouter } from "./migrate-router"
 import { formRouter } from "./form-router"
 import { userRouter } from "./users-router"
-import { travelDeskRouter } from "./traveldesk-router"
 import { lookupRouter } from "./lookup-router"
 import { lookupTableRouter } from "./lookup-tables-router"
 //// END LEGACY IMPORTS
@@ -85,7 +84,6 @@ router.use("/api/lookup-tables", databaseHealthCheckMiddleware, lookupTableRoute
 
 router.use("/api/form", databaseHealthCheckMiddleware, formRouter)
 router.use("/api/user", databaseHealthCheckMiddleware, userRouter)
-router.use("/api/traveldesk", databaseHealthCheckMiddleware, travelDeskRouter)
 //// END LEGACY ROUTES
 
 // api routes

@@ -1,6 +1,7 @@
 import {
   DataTypes,
   Op,
+  sql,
   type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
@@ -36,6 +37,8 @@ import {
   buildIsPastTripQuery,
   buildIsActiveTripQuery,
   buildIsBeforeTripEndQuery,
+  buildDepartingAtQuery,
+  buildReturningAtQuery,
 } from "@/queries/travel-authorizations"
 
 // TODO: state management is going to be a big deal for this project
@@ -402,6 +405,76 @@ export class TravelAuthorization extends BaseModel<
   }
 
   static establishScopes(): void {
+    this.addScope("includeTravelerNameAttribute", () => {
+      const travelerNameQuery = sql`
+        (
+          SELECT
+            COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')
+          FROM
+            users
+          WHERE
+            users.id = "TravelAuthorization".user_id
+        )
+      `
+      return {
+        attributes: {
+          include: [[travelerNameQuery, "travelerName"]],
+        },
+      }
+    })
+    this.addScope("includePurposeTextAttribute", () => {
+      const purposeTextQuery = sql`
+        COALESCE(
+          (
+            SELECT
+              purpose
+            FROM
+              travel_purposes
+            WHERE
+              travel_purposes.id = "TravelAuthorization".purpose_id
+          ),
+          ''
+        )
+      `
+      return {
+        attributes: {
+          include: [[purposeTextQuery, "purposeText"]],
+        },
+      }
+    })
+    this.addScope("includeDepartingAtAttribute", () => {
+      const departingAtQuery = buildDepartingAtQuery()
+      return {
+        attributes: {
+          include: [[departingAtQuery, "departingAt"]],
+        },
+      }
+    })
+    this.addScope("includeReturningAtAttribute", () => {
+      const returningAtQuery = buildReturningAtQuery()
+      return {
+        attributes: {
+          include: [[returningAtQuery, "returningAt"]],
+        },
+      }
+    })
+    this.addScope("includeTravelDeskStatusAttribute", () => {
+      const travelDeskStatusQuery = sql`
+        (
+          SELECT
+            status
+          FROM
+            travel_desk_travel_requests
+          WHERE
+            travel_authorization_id = "TravelAuthorization".id
+        )
+      `
+      return {
+        attributes: {
+          include: [[travelDeskStatusQuery, "travelDeskStatus"]],
+        },
+      }
+    })
     this.addScope("asShow", {
       include: [
         "expenses",

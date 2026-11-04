@@ -1,5 +1,7 @@
-export { buildIsBeforeTripEndQuery } from "./build-is-before-trip-end-query"
+export { buildDepartingAtQuery } from "./build-departing-at-query"
 export { buildIsActiveTripQuery } from "./build-is-active-trip-query"
+export { buildIsBeforeTripEndQuery } from "./build-is-before-trip-end-query"
 export { buildIsPastTripQuery } from "./build-is-past-trip-query"
 export { buildIsTravellingQuery } from "./build-is-travelling-query"
 export { buildIsUpcomingTripQuery } from "./build-is-upcoming-trip-query"
+export { buildReturningAtQuery } from "./build-returning-at-query"

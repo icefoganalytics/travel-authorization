@@ -30,4 +30,5 @@ export { YgEmployeesPolicy } from "./yg-employees-policy"
 // Bundled exports
 export * as Expenses from "./expenses"
 export * as TravelAuthorizations from "./travel-authorizations"
+export * as TravelDeskQuestions from "./travel-desk-questions"
 export * as TravelDeskTravelRequests from "./travel-desk-travel-requests"

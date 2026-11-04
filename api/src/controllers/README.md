@@ -18,6 +18,9 @@ handlers therefore use `Controller.create`, while controller classes implement `
   [policy record-context contract](../policies/README.md#state-dependent-policies).
 - Serializers format returned records instead of returning raw Sequelize models when association
   data is part of the response.
+- Declare derived list attributes with explicit named model scopes passed to
+  `buildFilterScopes([...])`; keep requested ordering in `buildOrder()` rather than using it to
+  construct scopes dynamically.
 
 ## Response Pattern
 
