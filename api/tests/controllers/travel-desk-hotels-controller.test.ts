@@ -66,6 +66,38 @@ describe("api/src/controllers/travel-desk-hotels-controller.ts", () => {
           },
         })
       })
+
+      test("when another traveller updates a hotel, it rejects the update", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        const user2 = await userFactory.create({ roles: [User.Roles.USER] })
+        mockCurrentUser(user1)
+        const travelAuthorization1 = await travelAuthorizationFactory
+          .associations({ user: user2 })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
+        const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization: travelAuthorization1 })
+          .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
+        const travelDeskHotel1 = await TravelDeskHotel.create({
+          travelRequestId: travelDeskTravelRequest1.id,
+          city: "Whitehorse",
+          isDedicatedConferenceHotelAvailable: false,
+          checkIn: "2026-11-10",
+          checkOut: "2026-11-12",
+          status: TravelDeskHotel.Statuses.REQUESTED,
+        })
+
+        // Act
+        const response = await request()
+          .patch(`/api/travel-desk-hotels/${travelDeskHotel1.id}`)
+          .send({ additionalInformation: "Prefer a quiet room" })
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message: "You are not authorized to update this travel desk hotel.",
+        })
+      })
     })
   })
 })

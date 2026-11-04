@@ -17,7 +17,7 @@ import { mockCurrentUser, request } from "@/support"
 describe("api/src/controllers/travel-desk-flight-segments-controller.ts", () => {
   describe("TravelDeskFlightSegmentsController", () => {
     describe("index", () => {
-      test("when a flight option has segments, it returns the explicit segment fields in order", async () => {
+      test("when a flight option has a segment, it returns the explicit segment fields", async () => {
         // Arrange
         const adminUser = await userFactory.create({ roles: [User.Roles.ADMIN] })
         mockCurrentUser(adminUser)
@@ -294,6 +294,22 @@ describe("api/src/controllers/travel-desk-flight-segments-controller.ts", () => 
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
           },
+        })
+      })
+
+      test("when required segment attributes are missing, it returns the service error", async () => {
+        // Arrange
+        const adminUser = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        mockCurrentUser(adminUser)
+
+        // Act
+        const response = await request().post("/api/travel-desk-flight-segments").send({})
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message:
+            "Failed to create travel desk flight segment: Error: Flight option ID is required.",
         })
       })
     })

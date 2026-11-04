@@ -4,10 +4,7 @@ import logger from "@/utils/logger"
 import { TravelDeskFlightOption } from "@/models"
 import { TravelDeskFlightOptionsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-flight-options"
-import {
-  IndexSerializer as FlightOptionIndexSerializer,
-  ShowSerializer as FlightOptionShowSerializer,
-} from "@/serializers/travel-desk-flight-options"
+import { TravelDeskFlightOptions } from "@/serializers"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -29,7 +26,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         include: ["flightSegments"],
       })
       const serializedTravelDeskFlightOptions =
-        FlightOptionIndexSerializer.perform(travelDeskFlightOptions)
+        TravelDeskFlightOptions.IndexSerializer.perform(travelDeskFlightOptions)
       return this.response.status(200).json({
         travelDeskFlightOptions: serializedTravelDeskFlightOptions,
         totalCount,
@@ -59,7 +56,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
       }
 
       const serializedTravelDeskFlightOption =
-        FlightOptionShowSerializer.perform(travelDeskFlightOption)
+        TravelDeskFlightOptions.ShowSerializer.perform(travelDeskFlightOption)
       return this.response.status(200).json({
         travelDeskFlightOption: serializedTravelDeskFlightOption,
         policy,
@@ -87,7 +84,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         this.currentUser
       )
       const serializedTravelDeskFlightOption =
-        FlightOptionShowSerializer.perform(travelDeskFlightOption)
+        TravelDeskFlightOptions.ShowSerializer.perform(travelDeskFlightOption)
       return this.response.status(201).json({
         travelDeskFlightOption: serializedTravelDeskFlightOption,
       })
@@ -120,7 +117,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskFlightOption = FlightOptionShowSerializer.perform(
+      const serializedTravelDeskFlightOption = TravelDeskFlightOptions.ShowSerializer.perform(
         updatedTravelDeskFlightOption
       )
 

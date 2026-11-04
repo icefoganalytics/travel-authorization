@@ -36,6 +36,30 @@ describe("api/src/controllers/travel-desk-travel-agencies-controller.ts", () => 
           },
         })
       })
+
+      test("when a traveller updates an agency, it rejects the update", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        mockCurrentUser(user1)
+        const travelDeskTravelAgency1 = await TravelDeskTravelAgency.create({
+          agencyName: "Northern Travel",
+          contactName: "Morgan Lee",
+          contactEmail: "morgan@example.com",
+          contactPhoneNumber: "867-555-0134",
+          agencyInfo: "Main office",
+        })
+
+        // Act
+        const response = await request()
+          .patch(`/api/travel-desk-travel-agencies/${travelDeskTravelAgency1.id}`)
+          .send({ agencyInfo: "Unauthorized replacement" })
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message: "You are not authorized to update this travel desk travel agency",
+        })
+      })
     })
   })
 })
