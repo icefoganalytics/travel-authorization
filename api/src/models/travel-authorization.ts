@@ -36,6 +36,7 @@ import {
   buildIsPastTripQuery,
   buildIsActiveTripQuery,
   buildIsBeforeTripEndQuery,
+  buildListSortAttributeQuery,
 } from "@/queries/travel-authorizations"
 
 // TODO: state management is going to be a big deal for this project
@@ -402,6 +403,16 @@ export class TravelAuthorization extends BaseModel<
   }
 
   static establishScopes(): void {
+    this.addScope("includeListSortAttribute", (field: string) => {
+      const query = buildListSortAttributeQuery(field)
+      if (query === undefined) return {}
+
+      return {
+        attributes: {
+          include: [[query, field]],
+        },
+      }
+    })
     this.addScope("asShow", {
       include: [
         "expenses",

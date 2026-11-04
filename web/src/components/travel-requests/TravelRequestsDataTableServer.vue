@@ -42,7 +42,7 @@
     <template #item.status="{ item }">
       {{ formatAuthorizationStatus(item.status) }}
     </template>
-    <template #item.travelDeskTravelRequest="{ item }">
+    <template #item.travelDeskStatus="{ item }">
       <span v-if="item.travelDeskTravelRequest">
         {{
           t(
@@ -103,27 +103,22 @@ const headers = [
   {
     title: "Traveller",
     key: "name",
-    sortable: false,
   },
   {
     title: "Purpose",
     key: "purposeText",
-    sortable: false,
   },
   {
     title: "Departure",
     key: "departingAt",
-    sortable: false,
   },
   {
     title: "Return",
     key: "returningAt",
-    sortable: false,
   },
   {
     title: "Locations",
     key: "locations",
-    sortable: false,
   },
   {
     title: "Authorization Status",
@@ -131,8 +126,7 @@ const headers = [
   },
   {
     title: "Travel Desk Status",
-    key: "travelDeskTravelRequest",
-    sortable: false,
+    key: "travelDeskStatus",
   },
   {
     title: "Actions",

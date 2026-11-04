@@ -5,6 +5,7 @@ import {
   stopFactory,
   travelAuthorizationFactory,
   travelDeskTravelRequestFactory,
+  travelPurposeFactory,
   travelSegmentFactory,
   userFactory,
 } from "@/factories"
@@ -209,6 +210,203 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           ],
         })
       })
+
+      test.each([
+        { field: "name", direction: "ASC", positions: [1, 2] },
+        { field: "name", direction: "DESC", positions: [0, 1] },
+        { field: "purposeText", direction: "ASC", positions: [1, 2] },
+        { field: "purposeText", direction: "DESC", positions: [0, 1] },
+        { field: "travelDeskStatus", direction: "ASC", positions: [1, 0] },
+        { field: "travelDeskStatus", direction: "DESC", positions: [2, 0] },
+        { field: "name", direction: "ASC", positions: [2], page: 2, perPage: 1 },
+      ])(
+        "when sorting $field $direction, it orders authorized rows before limiting with stable ties",
+        async ({ field, direction, positions, page = 1, perPage = 2 }) => {
+          // Arrange
+          const user = await userFactory.create({ roles: [User.Roles.USER] })
+          mockCurrentUser(user)
+          const travelAuthorizations: TravelAuthorization[] = []
+          for (const firstName of ["Zulu", "Alpha", "Alpha"]) {
+            const traveller = await userFactory.create({ firstName, lastName: "Traveller" })
+            const purpose = await travelPurposeFactory.create({ purpose: firstName })
+            const travelAuthorization = travelAuthorizationFactory
+              .associations({ user: traveller, purpose })
+              .build({
+                supervisorEmail: user.email,
+                updatedAt: new Date("2020-01-01T00:00:00Z"),
+              })
+            await travelAuthorization.save({ silent: true })
+            travelAuthorizations.push(travelAuthorization)
+          }
+          await travelDeskTravelRequestFactory.create({
+            travelAuthorizationId: travelAuthorizations[0].id,
+            status: TravelDeskTravelRequest.Statuses.SUBMITTED,
+          })
+          await travelDeskTravelRequestFactory.create({
+            travelAuthorizationId: travelAuthorizations[1].id,
+            status: TravelDeskTravelRequest.Statuses.DRAFT,
+          })
+          await travelAuthorizationFactory.create()
+
+          // Act
+          const response = await request().get("/api/travel-authorizations").query({
+            "order[0][0]": field,
+            "order[0][1]": direction,
+            page,
+            perPage,
+          })
+
+          // Assert
+          expect(response.status).toEqual(200)
+          expect(response.body).toEqual({
+            totalCount: 3,
+            travelAuthorizations: positions.map((position) =>
+              expect.objectContaining({ id: travelAuthorizations[position].id })
+            ),
+          })
+        }
+      )
+
+      test.each([
+        { field: "departingAt", direction: "ASC", position: 0, date: "2020-02-01T00:00:00" },
+        { field: "departingAt", direction: "DESC", position: 2, date: "2020-04-01T00:00:00" },
+        { field: "returningAt", direction: "ASC", position: 2, date: "2020-05-01T00:00:00" },
+        { field: "returningAt", direction: "DESC", position: 1, date: "2020-07-15T00:00:00" },
+      ])(
+        "when sorting $field $direction, it uses boundary segments and stop fallback before pagination",
+        async ({ field, direction, position, date }) => {
+          // Arrange
+          const user = await userFactory.create({ roles: [User.Roles.USER] })
+          mockCurrentUser(user)
+          const travelAuthorizations = await travelAuthorizationFactory
+            .associations({ user })
+            .createList(3)
+          for (const [index, travelAuthorization] of travelAuthorizations.entries()) {
+            await stopFactory.create({
+              travelAuthorizationId: travelAuthorization.id,
+              departureDate: `2020-0${index + 2}-01`,
+              departureTime: null,
+            })
+            await stopFactory.create({
+              travelAuthorizationId: travelAuthorization.id,
+              departureDate: `2020-0${7 - index}-01`,
+              departureTime: null,
+            })
+          }
+          // Boundary dates are null: do not silently choose the interior dated segment.
+          await travelSegmentFactory.create({
+            travelAuthorizationId: travelAuthorizations[0].id,
+            segmentNumber: 1,
+            departureOn: null,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: travelAuthorizations[0].id,
+            segmentNumber: 2,
+            departureOn: "2020-01-01",
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: travelAuthorizations[0].id,
+            segmentNumber: 3,
+            departureOn: null,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: travelAuthorizations[1].id,
+            segmentNumber: 1,
+            departureOn: "2020-02-15",
+            departureTime: null,
+          })
+          await travelSegmentFactory.create({
+            travelAuthorizationId: travelAuthorizations[1].id,
+            segmentNumber: 2,
+            departureOn: "2020-07-15",
+            departureTime: null,
+          })
+
+          // Act
+          const response = await request().get("/api/travel-authorizations").query({
+            "order[0][0]": field,
+            "order[0][1]": direction,
+            perPage: 1,
+          })
+
+          // Assert
+          expect(response.status).toEqual(200)
+          expect(response.body).toEqual({
+            totalCount: 3,
+            travelAuthorizations: [
+              expect.objectContaining({
+                id: travelAuthorizations[position].id,
+                [field]: new Date(date).toISOString(),
+              }),
+            ],
+          })
+        }
+      )
+
+      test.each([
+        { direction: "ASC", positions: [0, 1] },
+        { direction: "DESC", positions: [2, 1] },
+      ])(
+        "when sorting locations $direction, it compares the displayed deduplicated sequence including stop fallback",
+        async ({ direction, positions }) => {
+          // Arrange
+          const user = await userFactory.create({ roles: [User.Roles.USER] })
+          mockCurrentUser(user)
+          const travelAuthorizations = await travelAuthorizationFactory
+            .associations({ user })
+            .createList(3)
+          const location1 = await locationFactory.create({ city: "Alpha", province: "YT" })
+          const location2 = await locationFactory.create({ city: "Beta", province: "YT" })
+          const location3 = await locationFactory.create({ city: "Zulu", province: "YT" })
+          for (const [index, arrivalLocation] of [location2, location3].entries()) {
+            await travelSegmentFactory
+              .associations({ departureLocation: location1, arrivalLocation })
+              .create({
+                travelAuthorizationId: travelAuthorizations[index].id,
+                segmentNumber: 1,
+              })
+            await travelSegmentFactory
+              .associations({ departureLocation: arrivalLocation, arrivalLocation: location1 })
+              .create({
+                travelAuthorizationId: travelAuthorizations[index].id,
+                segmentNumber: 2,
+              })
+          }
+          await stopFactory
+            .associations({ location: location3 })
+            .create({ travelAuthorizationId: travelAuthorizations[2].id })
+          // Stops must not override locations when segments exist.
+          await stopFactory
+            .associations({ location: location3 })
+            .create({ travelAuthorizationId: travelAuthorizations[0].id })
+          const locationsByAuthorization = [
+            [location1, location2],
+            [location1, location3],
+            [location3],
+          ]
+
+          // Act
+          const response = await request().get("/api/travel-authorizations").query({
+            "order[0][0]": "locations",
+            "order[0][1]": direction,
+            perPage: 2,
+          })
+
+          // Assert
+          expect(response.status).toEqual(200)
+          expect(response.body).toEqual({
+            totalCount: 3,
+            travelAuthorizations: positions.map((position) =>
+              expect.objectContaining({
+                id: travelAuthorizations[position].id,
+                locations: locationsByAuthorization[position].map((location) =>
+                  expect.objectContaining({ id: location.id })
+                ),
+              })
+            ),
+          })
+        }
+      )
     })
 
     describe("#create - POST /api/travel-authorizations", () => {

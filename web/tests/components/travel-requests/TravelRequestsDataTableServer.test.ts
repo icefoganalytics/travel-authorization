@@ -155,5 +155,189 @@ describe("web/src/components/travel-requests/TravelRequestsDataTableServer.vue",
       const requestAction = wrapper.get("tbody tr").find("a")
       expect(requestAction.exists()).toBe(false)
     })
+
+    test.each([
+      ["Travel Auth #", "id"],
+      ["Traveller", "name"],
+      ["Purpose", "purposeText"],
+      ["Departure", "departingAt"],
+      ["Return", "returningAt"],
+      ["Locations", "locations"],
+      ["Authorization Status", "status"],
+      ["Travel Desk Status", "travelDeskStatus"],
+    ])("when the user sorts by %s, it requests that order from the server", async (title, key) => {
+      // Arrange
+      const httpClient = mockHttpClient()
+      useCurrentUser().reset()
+      httpClient.get.mockResolvedValueOnce({
+        data: {
+          user: {
+            id: 42,
+            roles: [],
+          },
+        },
+      })
+      await useCurrentUser().fetch()
+      httpClient.get.mockResolvedValue({
+        data: {
+          travelAuthorizations: [],
+          totalCount: 0,
+        },
+      })
+      const router = mockRouter([
+        {
+          path: "/",
+          component: {
+            template: "<div />",
+          },
+        },
+      ])
+      await router.push("/?perPageTravelDesk=25")
+      await router.isReady()
+      const wrapper = mount(TravelRequestsDataTableServer, {
+        global: {
+          plugins: [mockVuetify(), router],
+        },
+      })
+      await flushPromises()
+
+      // Act
+      const sortHeader = wrapper.findAll("th").find((header) => header.text() === title)
+      if (!sortHeader) {
+        throw new Error(`Missing ${title} header`)
+      }
+
+      await sortHeader.trigger("click")
+      await flushPromises()
+
+      // Assert
+      const sortedRequest = httpClient.get.mock.lastCall
+      expect(sortedRequest).toEqual([
+        "/api/travel-authorizations",
+        {
+          params: {
+            page: 1,
+            perPage: 25,
+            order: [[key, "ASC"]],
+            where: {
+              userId: 42,
+            },
+          },
+        },
+      ])
+    })
+
+    test("when the user sorts by traveller, the bookmark retains the sort and other query state", async () => {
+      // Arrange
+      const httpClient = mockHttpClient()
+      useCurrentUser().reset()
+      httpClient.get.mockResolvedValueOnce({
+        data: {
+          user: {
+            id: 42,
+            roles: [],
+          },
+        },
+      })
+      await useCurrentUser().fetch()
+      httpClient.get.mockResolvedValue({
+        data: {
+          travelAuthorizations: [],
+          totalCount: 0,
+        },
+      })
+      const router = mockRouter([
+        {
+          path: "/",
+          component: {
+            template: "<div />",
+          },
+        },
+      ])
+      await router.push("/?perPageTravelDesk=25&context=travel-requests")
+      await router.isReady()
+      const wrapper = mount(TravelRequestsDataTableServer, {
+        global: {
+          plugins: [mockVuetify(), router],
+        },
+      })
+      await flushPromises()
+      const navigation = vi.spyOn(router, "replace")
+
+      // Act
+      await wrapper.get("th:nth-child(2)").trigger("click")
+      await flushPromises()
+      await navigation.mock.results[0].value
+
+      // Assert
+      const bookmarkedQuery = router.currentRoute.value.query
+      expect(bookmarkedQuery).toEqual({
+        perPageTravelDesk: "25",
+        context: "travel-requests",
+        travelDeskSortBy: ["name_asc"],
+      })
+    })
+
+    test("when a bookmark sorts by traveller descending, it restores the server query", async () => {
+      // Arrange
+      const httpClient = mockHttpClient()
+      useCurrentUser().reset()
+      httpClient.get.mockResolvedValueOnce({
+        data: {
+          user: {
+            id: 42,
+            roles: [],
+          },
+        },
+      })
+      await useCurrentUser().fetch()
+      httpClient.get.mockResolvedValue({
+        data: {
+          travelAuthorizations: [],
+          totalCount: 100,
+        },
+      })
+      const router = mockRouter([
+        {
+          path: "/",
+          component: {
+            template: "<div />",
+          },
+        },
+      ])
+      await router.push({
+        path: "/",
+        query: {
+          pageTravelDesk: "3",
+          perPageTravelDesk: "25",
+          travelDeskSortBy: "name_desc",
+        },
+      })
+      await router.isReady()
+
+      // Act
+      mount(TravelRequestsDataTableServer, {
+        global: {
+          plugins: [mockVuetify(), router],
+        },
+      })
+      await flushPromises()
+
+      // Assert
+      const restoredRequest = httpClient.get.mock.lastCall
+      expect(restoredRequest).toEqual([
+        "/api/travel-authorizations",
+        {
+          params: {
+            page: 3,
+            perPage: 25,
+            order: [["name", "DESC"]],
+            where: {
+              userId: 42,
+            },
+          },
+        },
+      ])
+    })
   })
 })
