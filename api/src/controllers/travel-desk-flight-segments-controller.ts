@@ -4,6 +4,7 @@ import logger from "@/utils/logger"
 import { TravelDeskFlightSegment } from "@/models"
 import { TravelDeskFlightSegmentsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-flight-segments"
+import { TravelDeskFlightSegments } from "@/serializers"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -26,8 +27,10 @@ export class TravelDeskFlightSegmentsController extends BaseController<TravelDes
         offset: this.pagination.offset,
         order,
       })
+      const serializedTravelDeskFlightSegments =
+        TravelDeskFlightSegments.IndexSerializer.perform(travelDeskFlightSegments)
       return this.response.status(200).json({
-        travelDeskFlightSegments,
+        travelDeskFlightSegments: serializedTravelDeskFlightSegments,
         totalCount,
       })
     } catch (error) {
@@ -54,8 +57,10 @@ export class TravelDeskFlightSegmentsController extends BaseController<TravelDes
         })
       }
 
+      const serializedTravelDeskFlightSegment =
+        TravelDeskFlightSegments.IndexSerializer.perform(travelDeskFlightSegment)
       return this.response.status(200).json({
-        travelDeskFlightSegment,
+        travelDeskFlightSegment: serializedTravelDeskFlightSegment,
         policy,
       })
     } catch (error) {
@@ -81,8 +86,10 @@ export class TravelDeskFlightSegmentsController extends BaseController<TravelDes
         this.currentUser
       )
 
+      const serializedTravelDeskFlightSegment =
+        TravelDeskFlightSegments.IndexSerializer.perform(travelDeskFlightSegment)
       return this.response.status(201).json({
-        travelDeskFlightSegment,
+        travelDeskFlightSegment: serializedTravelDeskFlightSegment,
       })
     } catch (error) {
       logger.error(`Error creating travel desk flight segment: ${error}`, { error })
@@ -114,8 +121,11 @@ export class TravelDeskFlightSegmentsController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskFlightSegment = TravelDeskFlightSegments.IndexSerializer.perform(
+        updatedTravelDeskFlightSegment
+      )
       return this.response.status(200).json({
-        travelDeskFlightSegment: updatedTravelDeskFlightSegment,
+        travelDeskFlightSegment: serializedTravelDeskFlightSegment,
       })
     } catch (error) {
       logger.error(`Error updating travel desk flight segment: ${error}`, { error })

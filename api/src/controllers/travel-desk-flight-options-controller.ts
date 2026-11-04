@@ -4,6 +4,7 @@ import logger from "@/utils/logger"
 import { TravelDeskFlightOption } from "@/models"
 import { TravelDeskFlightOptionsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-flight-options"
+import { TravelDeskFlightOptions } from "@/serializers"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -24,8 +25,10 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         order,
         include: ["flightSegments"],
       })
+      const serializedTravelDeskFlightOptions =
+        TravelDeskFlightOptions.IndexSerializer.perform(travelDeskFlightOptions)
       return this.response.status(200).json({
-        travelDeskFlightOptions,
+        travelDeskFlightOptions: serializedTravelDeskFlightOptions,
         totalCount,
       })
     } catch (error) {
@@ -52,8 +55,10 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         })
       }
 
+      const serializedTravelDeskFlightOption =
+        TravelDeskFlightOptions.ShowSerializer.perform(travelDeskFlightOption)
       return this.response.status(200).json({
-        travelDeskFlightOption,
+        travelDeskFlightOption: serializedTravelDeskFlightOption,
         policy,
       })
     } catch (error) {
@@ -78,8 +83,10 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskFlightOption =
+        TravelDeskFlightOptions.ShowSerializer.perform(travelDeskFlightOption)
       return this.response.status(201).json({
-        travelDeskFlightOption,
+        travelDeskFlightOption: serializedTravelDeskFlightOption,
       })
     } catch (error) {
       return this.response.status(422).json({
@@ -105,10 +112,17 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
       }
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-      await UpdateService.perform(travelDeskFlightOption, permittedAttributes, this.currentUser)
+      const updatedTravelDeskFlightOption = await UpdateService.perform(
+        travelDeskFlightOption,
+        permittedAttributes,
+        this.currentUser
+      )
+      const serializedTravelDeskFlightOption = TravelDeskFlightOptions.ShowSerializer.perform(
+        updatedTravelDeskFlightOption
+      )
 
       return this.response.status(200).json({
-        travelDeskFlightOption,
+        travelDeskFlightOption: serializedTravelDeskFlightOption,
       })
     } catch (error) {
       logger.error(`Error updating travel desk flight option: ${error}`, { error })

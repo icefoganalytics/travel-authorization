@@ -60,8 +60,12 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         })
       }
 
-      return this.response.json({
+      const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
         travelDeskOtherTransportation,
+        this.currentUser
+      )
+      return this.response.json({
+        travelDeskOtherTransportation: serializedTravelDeskOtherTransportation,
         policy,
       })
     } catch (error) {
@@ -87,8 +91,12 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
+        newTravelDeskOtherTransportation,
+        this.currentUser
+      )
       return this.response.status(201).json({
-        travelDeskOtherTransportation: newTravelDeskOtherTransportation,
+        travelDeskOtherTransportation: serializedTravelDeskOtherTransportation,
         policy,
       })
     } catch (error) {
@@ -121,8 +129,12 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
+        updatedTravelDeskOtherTransportation,
+        this.currentUser
+      )
       return this.response.status(200).json({
-        travelDeskOtherTransportation: updatedTravelDeskOtherTransportation,
+        travelDeskOtherTransportation: serializedTravelDeskOtherTransportation,
         policy,
       })
     } catch (error) {

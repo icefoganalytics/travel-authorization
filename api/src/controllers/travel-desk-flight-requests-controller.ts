@@ -3,6 +3,7 @@ import { isNil } from "lodash"
 import { TravelDeskFlightRequest, TravelDeskTravelRequest } from "@/models"
 import { TravelDeskFlightRequestsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-flight-requests"
+import { TravelDeskFlightRequests } from "@/serializers"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -30,8 +31,10 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
           },
         ],
       })
+      const serializedTravelDeskFlightRequests =
+        TravelDeskFlightRequests.IndexSerializer.perform(travelDeskFlightRequests)
       return this.response.status(200).json({
-        travelDeskFlightRequests,
+        travelDeskFlightRequests: serializedTravelDeskFlightRequests,
         totalCount,
       })
     } catch (error) {
@@ -58,8 +61,10 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
         })
       }
 
+      const serializedTravelDeskFlightRequest =
+        TravelDeskFlightRequests.ShowSerializer.perform(travelDeskFlightRequest)
       return this.response.status(200).json({
-        travelDeskFlightRequest,
+        travelDeskFlightRequest: serializedTravelDeskFlightRequest,
         policy,
       })
     } catch (error) {
@@ -85,8 +90,11 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskFlightRequest = TravelDeskFlightRequests.ShowSerializer.perform(
+        newTravelDeskFlightRequest
+      )
       return this.response.status(201).json({
-        travelDeskFlightRequest: newTravelDeskFlightRequest,
+        travelDeskFlightRequest: serializedTravelDeskFlightRequest,
         policy,
       })
     } catch (error) {
@@ -119,8 +127,11 @@ export class TravelDeskFlightRequestsController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskFlightRequest = TravelDeskFlightRequests.ShowSerializer.perform(
+        updatedTravelDeskFlightRequest
+      )
       return this.response.status(200).json({
-        travelDeskFlightRequest: updatedTravelDeskFlightRequest,
+        travelDeskFlightRequest: serializedTravelDeskFlightRequest,
         policy,
       })
     } catch (error) {

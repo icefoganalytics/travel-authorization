@@ -25,8 +25,8 @@ handlers therefore use `Controller.create`, while controller classes implement `
 ## Response Pattern
 
 - Return policy information in create/update responses when callers need it: `{ record, policy }`.
-- When create/update/show responses need association data beyond the base model, reload with the
-  required includes and serialize the response.
+- Serialize mutation-service results directly; the service owns the final reload and required response includes under the [service return contract](../services/README.md#local-pattern).
+- Load associations for ordinary show responses in the controller's record query.
 - Log real failures with structured error context:
   ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``.
 - Use consistent error messages: `"Failed to [action] [resource]: ${error}"`.
