@@ -108,6 +108,7 @@ import travelDeskTravelRequestsApi, {
   TravelDeskTravelRequestStatuses,
   type TravelDeskTravelRequestAsShow,
 } from "@/api/travel-desk-travel-requests-api"
+
 import useSnack from "@/use/use-snack"
 import useTravelDeskFlightRequests from "@/use/use-travel-desk-flight-requests"
 import useTravelDeskQuestions from "@/use/use-travel-desk-questions"
@@ -187,8 +188,6 @@ const rankingsUnavailableReason = computed(() => {
   if (flightRequestsErrored.value || !hasCompleteFlightRequests.value) {
     return "Reload the request to load all flight requests before submitting rankings."
   }
-  if (travelDeskFlightRequests.value.length === 0)
-    return "No flight requests are available to rank."
 
   return ""
 })
