@@ -283,6 +283,22 @@ describe("api/src/controllers/travel-desk-flight-options-controller.ts", () => {
           },
         })
       })
+
+      test("when required option attributes are missing, it returns the service error", async () => {
+        // Arrange
+        const adminUser = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        mockCurrentUser(adminUser)
+
+        // Act
+        const response = await request().post("/api/travel-desk-flight-options").send({})
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message:
+            "Failed to create travel desk flight option: Error: Flight request ID is required.",
+        })
+      })
     })
 
     describe("update", () => {

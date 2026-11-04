@@ -103,6 +103,30 @@ describe("api/src/controllers/travel-desk-travel-requests/options-provided-contr
           message: "You are not authorized to provide options for this travel desk request.",
         })
       })
+
+      test("when the request has not been submitted, it returns the transition error", async () => {
+        // Arrange
+        const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
+        mockCurrentUser(user)
+
+        // Act
+        const response = await request()
+          .post(`/api/travel-desk-travel-requests/${travelDeskTravelRequest.id}/options-provided`)
+          .send({})
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message:
+            "Failed to provide options for travel desk request: Error: Travel desk travel request must be in submitted state to provide options.",
+        })
+      })
     })
   })
 })

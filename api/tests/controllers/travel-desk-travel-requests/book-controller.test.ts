@@ -85,6 +85,54 @@ describe("api/src/controllers/travel-desk-travel-requests/book-controller.ts", (
         expect(response.status).toEqual(404)
         expect(response.body).toEqual({ message: "Travel desk request not found." })
       })
+
+      test("when the traveller tries to book their own request, it denies the action", async () => {
+        // Arrange
+        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const travelAuthorization = await travelAuthorizationFactory.associations({ user }).create({
+          status: TravelAuthorization.Statuses.APPROVED,
+          supervisorEmail: "supervisor@example.com",
+        })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.OPTIONS_RANKED })
+        mockCurrentUser(user)
+
+        // Act
+        const response = await request()
+          .post(`/api/travel-desk-travel-requests/${travelDeskTravelRequest.id}/book`)
+          .send({})
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message: "You are not authorized to book this travel desk request.",
+        })
+      })
+
+      test("when options have not been ranked, it returns the transition error", async () => {
+        // Arrange
+        const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.SUBMITTED })
+        mockCurrentUser(user)
+
+        // Act
+        const response = await request()
+          .post(`/api/travel-desk-travel-requests/${travelDeskTravelRequest.id}/book`)
+          .send({})
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message:
+            "Failed to book travel desk request: Error: Travel desk travel request must be in options ranked state to complete booking.",
+        })
+      })
     })
   })
 })

@@ -85,6 +85,57 @@ describe("api/src/controllers/travel-desk-travel-requests/submit-controller.ts",
         expect(response.status).toEqual(404)
         expect(response.body).toEqual({ message: "Travel desk request not found." })
       })
+
+      test("when another traveller submits the request, it denies the action", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        const user2 = await userFactory.create({ roles: [User.Roles.USER] })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create({
+            status: TravelAuthorization.Statuses.APPROVED,
+            supervisorEmail: "supervisor@example.com",
+          })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
+        mockCurrentUser(user2)
+
+        // Act
+        const response = await request()
+          .post(`/api/travel-desk-travel-requests/${travelDeskTravelRequest.id}/submit`)
+          .send({})
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message: "You are not authorized to submit this travel desk request.",
+        })
+      })
+
+      test("when the request is already submitted, it returns the transition error", async () => {
+        // Arrange
+        const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.SUBMITTED })
+        mockCurrentUser(user)
+
+        // Act
+        const response = await request()
+          .post(`/api/travel-desk-travel-requests/${travelDeskTravelRequest.id}/submit`)
+          .send({})
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message:
+            "Failed to submit travel desk request: Error: Travel desk travel request must be in draft state to be submitted.",
+        })
+      })
     })
   })
 })

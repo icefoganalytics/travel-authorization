@@ -262,6 +262,29 @@ describe("api/src/controllers/travel-desk-flight-requests-controller.ts", () => 
           },
         })
       })
+
+      test("when required flight attributes are missing, it returns the service error", async () => {
+        // Arrange
+        const adminUser = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        mockCurrentUser(adminUser)
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: adminUser })
+          .create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create()
+
+        // Act
+        const response = await request().post("/api/travel-desk-flight-requests").send({
+          travelRequestId: travelDeskTravelRequest.id,
+        })
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message: "Flight request creation failed: Error: Depart location is required.",
+        })
+      })
     })
 
     describe("update", () => {

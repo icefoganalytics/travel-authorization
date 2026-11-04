@@ -2,8 +2,7 @@ import { isUndefined, pick } from "lodash"
 
 import { TravelDeskFlightRequest } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
-import { IndexSerializer as FlightOptionIndexSerializer } from "@/serializers/travel-desk-flight-options"
-import type { TravelDeskFlightOptionAsIndex } from "@/serializers/travel-desk-flight-options/index-serializer"
+import { TravelDeskFlightOptions } from "@/serializers"
 
 export type TravelDeskFlightRequestAsIndex = Pick<
   TravelDeskFlightRequest,
@@ -17,17 +16,17 @@ export type TravelDeskFlightRequestAsIndex = Pick<
   | "createdAt"
   | "updatedAt"
 > & {
-  flightOptions: TravelDeskFlightOptionAsIndex[]
+  flightOptions: TravelDeskFlightOptions.AsIndex[]
 }
 
 export class IndexSerializer extends BaseSerializer<TravelDeskFlightRequest> {
   perform(): TravelDeskFlightRequestAsIndex {
     const { flightOptions } = this.record
     if (isUndefined(flightOptions)) {
-      throw new Error("Expected flightOptions association to be pre-loaded.")
+      throw new Error("Expected flightOptions association to be preloaded.")
     }
 
-    const serializedFlightOptions = FlightOptionIndexSerializer.perform(flightOptions)
+    const serializedFlightOptions = TravelDeskFlightOptions.IndexSerializer.perform(flightOptions)
 
     return {
       ...pick(this.record, [
