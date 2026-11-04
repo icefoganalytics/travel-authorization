@@ -185,11 +185,10 @@ describe("web/src/components/travel-requests/TravelRequestsDataTableServer.vue",
 
     test.each([
       ["Travel Auth #", "id"],
-      ["Traveller", "name"],
+      ["Traveller", "travelerName"],
       ["Purpose", "purposeText"],
       ["Departure", "departingAt"],
       ["Return", "returningAt"],
-      ["Locations", "locations"],
       ["Authorization Status", "status"],
       ["Travel Desk Status", "travelDeskStatus"],
     ])("when the user sorts by %s, it requests that order from the server", async (title, key) => {
@@ -301,7 +300,7 @@ describe("web/src/components/travel-requests/TravelRequestsDataTableServer.vue",
       expect(bookmarkedQuery).toEqual({
         perPageTravelDesk: "25",
         context: "travel-requests",
-        travelDeskSortBy: ["name_asc"],
+        travelDeskSortBy: ["travelerName_asc"],
       })
     })
 
@@ -337,7 +336,7 @@ describe("web/src/components/travel-requests/TravelRequestsDataTableServer.vue",
         query: {
           pageTravelDesk: "3",
           perPageTravelDesk: "25",
-          travelDeskSortBy: "name_desc",
+          travelDeskSortBy: "travelerName_desc",
         },
       })
       await router.isReady()
@@ -358,7 +357,7 @@ describe("web/src/components/travel-requests/TravelRequestsDataTableServer.vue",
           params: {
             page: 3,
             perPage: 25,
-            order: [["name", "DESC"]],
+            order: [["travelerName", "DESC"]],
             where: {
               userId: 42,
             },

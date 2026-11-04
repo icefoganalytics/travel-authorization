@@ -39,7 +39,6 @@ import {
   buildIsBeforeTripEndQuery,
   buildDepartingAtQuery,
   buildReturningAtQuery,
-  buildLocationsQuery,
 } from "@/queries/travel-authorizations"
 
 // TODO: state management is going to be a big deal for this project
@@ -419,7 +418,7 @@ export class TravelAuthorization extends BaseModel<
       `
       return {
         attributes: {
-          include: [[travelerNameQuery, "name"]],
+          include: [[travelerNameQuery, "travelerName"]],
         },
       }
     })
@@ -456,14 +455,6 @@ export class TravelAuthorization extends BaseModel<
       return {
         attributes: {
           include: [[returningAtQuery, "returningAt"]],
-        },
-      }
-    })
-    this.addScope("includeLocationsAttribute", () => {
-      const locationsQuery = buildLocationsQuery()
-      return {
-        attributes: {
-          include: [[locationsQuery, "locations"]],
         },
       }
     })

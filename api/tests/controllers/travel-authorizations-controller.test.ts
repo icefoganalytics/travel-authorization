@@ -1,4 +1,5 @@
 import { TravelAuthorization, TravelDeskTravelRequest, TravelSegment, User } from "@/models"
+
 import {
   expenseFactory,
   locationFactory,
@@ -212,13 +213,13 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
       })
 
       test.each([
-        { field: "name", direction: "ASC", positions: [1, 2] },
-        { field: "name", direction: "DESC", positions: [0, 1] },
+        { field: "travelerName", direction: "ASC", positions: [1, 2] },
+        { field: "travelerName", direction: "DESC", positions: [0, 1] },
         { field: "purposeText", direction: "ASC", positions: [1, 2] },
         { field: "purposeText", direction: "DESC", positions: [0, 1] },
         { field: "travelDeskStatus", direction: "ASC", positions: [1, 0] },
         { field: "travelDeskStatus", direction: "DESC", positions: [2, 0] },
-        { field: "name", direction: "ASC", positions: [2], page: 2, perPage: 1 },
+        { field: "travelerName", direction: "ASC", positions: [2], page: 2, perPage: 1 },
       ])(
         "when sorting $field $direction, it orders authorized rows before limiting with stable ties",
         async ({ field, direction, positions, page = 1, perPage = 2 }) => {
@@ -339,71 +340,6 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
                 [field]: new Date(date).toISOString(),
               }),
             ],
-          })
-        }
-      )
-
-      test.each([
-        { direction: "ASC", positions: [0, 1] },
-        { direction: "DESC", positions: [2, 1] },
-      ])(
-        "when sorting locations $direction, it compares the displayed deduplicated sequence including stop fallback",
-        async ({ direction, positions }) => {
-          // Arrange
-          const user = await userFactory.create({ roles: [User.Roles.USER] })
-          mockCurrentUser(user)
-          const travelAuthorizations = await travelAuthorizationFactory
-            .associations({ user })
-            .createList(3)
-          const location1 = await locationFactory.create({ city: "Alpha", province: "YT" })
-          const location2 = await locationFactory.create({ city: "Beta", province: "YT" })
-          const location3 = await locationFactory.create({ city: "Zulu", province: "YT" })
-          for (const [index, arrivalLocation] of [location2, location3].entries()) {
-            await travelSegmentFactory
-              .associations({ departureLocation: location1, arrivalLocation })
-              .create({
-                travelAuthorizationId: travelAuthorizations[index].id,
-                segmentNumber: 1,
-              })
-            await travelSegmentFactory
-              .associations({ departureLocation: arrivalLocation, arrivalLocation: location1 })
-              .create({
-                travelAuthorizationId: travelAuthorizations[index].id,
-                segmentNumber: 2,
-              })
-          }
-          await stopFactory
-            .associations({ location: location3 })
-            .create({ travelAuthorizationId: travelAuthorizations[2].id })
-          // Stops must not override locations when segments exist.
-          await stopFactory
-            .associations({ location: location3 })
-            .create({ travelAuthorizationId: travelAuthorizations[0].id })
-          const locationsByAuthorization = [
-            [location1, location2],
-            [location1, location3],
-            [location3],
-          ]
-
-          // Act
-          const response = await request().get("/api/travel-authorizations").query({
-            "order[0][0]": "locations",
-            "order[0][1]": direction,
-            perPage: 2,
-          })
-
-          // Assert
-          expect(response.status).toEqual(200)
-          expect(response.body).toEqual({
-            totalCount: 3,
-            travelAuthorizations: positions.map((position) =>
-              expect.objectContaining({
-                id: travelAuthorizations[position].id,
-                locations: locationsByAuthorization[position].map((location) =>
-                  expect.objectContaining({ id: location.id })
-                ),
-              })
-            ),
           })
         }
       )

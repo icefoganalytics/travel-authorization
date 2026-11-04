@@ -2,9 +2,9 @@ import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
-import { UpdateService, CreateService, DestroyService } from "@/services/travel-authorizations"
 import { TravelAuthorization } from "@/models"
 import { TravelAuthorizationsPolicy } from "@/policies"
+import { UpdateService, CreateService, DestroyService } from "@/services/travel-authorizations"
 import { IndexSerializer, ShowSerializer } from "@/serializers/travel-authorizations"
 import BaseController from "@/controllers/base-controller"
 
@@ -17,7 +17,6 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
         "includePurposeTextAttribute",
         "includeDepartingAtAttribute",
         "includeReturningAtAttribute",
-        "includeLocationsAttribute",
         "includeTravelDeskStatusAttribute",
       ])
       const order = this.buildOrder([

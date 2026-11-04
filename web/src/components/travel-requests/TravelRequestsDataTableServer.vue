@@ -20,7 +20,7 @@
         Travel Requests could not be loaded.
       </v-alert>
     </template>
-    <template #item.name="{ item }">
+    <template #item.travelerName="{ item }">
       {{ item.firstName ?? "" }} {{ item.lastName ?? "" }}
     </template>
     <template #item.departingAt="{ item }">
@@ -107,7 +107,7 @@ const headers = [
   },
   {
     title: "Traveller",
-    key: "name",
+    key: "travelerName",
   },
   {
     title: "Purpose",
@@ -124,6 +124,7 @@ const headers = [
   {
     title: "Locations",
     key: "locations",
+    sortable: false,
   },
   {
     title: "Authorization Status",
