@@ -1,12 +1,5 @@
 <template>
   <v-container>
-    <v-btn
-      :to="{ name: 'travel-requests/TravelRequestsPage' }"
-      prepend-icon="mdi-arrow-left"
-      variant="text"
-    >
-      Travel Requests
-    </v-btn>
     <h1 class="text-h4 mb-4">Travel Desk Request</h1>
     <v-skeleton-loader
       v-if="isNil(travelDeskTravelRequest)"
@@ -64,6 +57,7 @@ import { isNil } from "lodash"
 
 import { TravelDeskTravelRequestStatuses } from "@/api/travel-desk-travel-requests-api"
 
+import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelDeskTravelRequest from "@/use/use-travel-desk-travel-request"
@@ -109,4 +103,23 @@ const isOptionsProvided = computed(
 )
 
 const isRequestOwner = computed(() => travelAuthorization.value?.userId === currentUser.value?.id)
+
+const breadcrumbs = computed(() => [
+  {
+    title: "Travel Requests",
+    to: {
+      name: "travel-requests/TravelRequestsPage",
+    },
+  },
+  {
+    title: "Travel Desk Request",
+    to: {
+      name: "travel-requests/TravelRequestTravelDeskPage",
+      params: {
+        travelAuthorizationId: props.travelAuthorizationId,
+      },
+    },
+  },
+])
+useBreadcrumbs(breadcrumbs)
 </script>
