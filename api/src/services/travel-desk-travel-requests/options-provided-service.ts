@@ -45,7 +45,7 @@ export class OptionsProvidedService extends BaseService {
       })
 
       return this.travelDeskTravelRequest.reload({
-        include: ["travelAuthorization"],
+        include: ["travelAuthorization", "passengerNameRecordDocument"],
       })
     })
   }

@@ -21,7 +21,7 @@ export class OptionsRankedService extends BaseService {
       status: TravelDeskTravelRequest.Statuses.OPTIONS_RANKED,
     })
     return this.travelDeskTravelRequest.reload({
-      include: ["travelAuthorization"],
+      include: ["travelAuthorization", "passengerNameRecordDocument"],
     })
   }
 }

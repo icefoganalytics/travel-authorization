@@ -38,7 +38,7 @@ export class BookService extends BaseService {
       })
 
       return this.travelDeskTravelRequest.reload({
-        include: ["travelAuthorization"],
+        include: ["travelAuthorization", "passengerNameRecordDocument"],
       })
     })
   }
