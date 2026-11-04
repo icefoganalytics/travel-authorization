@@ -5,10 +5,10 @@ import useCurrentUser from "@/use/use-current-user"
 import { travelDeskTravelRequestFactory } from "@/tests/factories"
 import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
 
-import TravelDeskTravelAuthorizationRequestGuard from "@/components/travel-desk-travel-requests/TravelDeskTravelAuthorizationRequestGuard.vue"
+import TravelRequestTravelDeskPage from "@/pages/travel-requests/TravelRequestTravelDeskPage.vue"
 
-describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelAuthorizationRequestGuard.vue", () => {
-  describe("TravelDeskTravelAuthorizationRequestGuard", () => {
+describe("web/src/pages/travel-requests/TravelRequestTravelDeskPage.vue", () => {
+  describe("TravelRequestTravelDeskPage", () => {
     test("when a supervisor can update the request, they can open question creation from its details", async () => {
       // Arrange
       const httpClient = mockHttpClient()
@@ -69,6 +69,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelAuthori
       const router = mockRouter([
         {
           path: "/",
+          name: "travel-requests/TravelRequestsPage",
           component: {
             template: "<div />",
           },
@@ -76,10 +77,9 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelAuthori
       ])
       await router.push("/")
       await router.isReady()
-      const wrapper = mount(TravelDeskTravelAuthorizationRequestGuard, {
+      const wrapper = mount(TravelRequestTravelDeskPage, {
         props: {
-          travelAuthorizationId: 287,
-          returnTo: "/",
+          travelAuthorizationId: "287",
         },
         attachTo: document.body,
         global: {
@@ -145,6 +145,7 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelAuthori
       const router = mockRouter([
         {
           path: "/",
+          name: "travel-requests/TravelRequestsPage",
           component: {
             template: "<div />",
           },
@@ -154,10 +155,9 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelAuthori
       await router.isReady()
 
       // Act
-      const wrapper = mount(TravelDeskTravelAuthorizationRequestGuard, {
+      const wrapper = mount(TravelRequestTravelDeskPage, {
         props: {
           travelAuthorizationId: 287,
-          returnTo: "/",
         },
         global: {
           plugins: [mockVuetify(), router],
@@ -170,6 +170,94 @@ describe("web/src/components/travel-desk-travel-requests/TravelDeskTravelAuthori
         .findAll("button")
         .find((button) => button.text() === "Add Question")
       expect(addQuestionButton).toBeUndefined()
+    })
+
+    test("when the owner reviews provided options, response and ranking actions remain available", async () => {
+      // Arrange
+      const httpClient = mockHttpClient()
+      useCurrentUser().reset()
+      const travelDeskTravelRequest = travelDeskTravelRequestFactory.build({
+        id: 900,
+        travelAuthorizationId: 287,
+        status: TravelDeskTravelRequestStatuses.OPTIONS_PROVIDED,
+      })
+      httpClient.get.mockImplementation(async (url) => {
+        if (url === "/api/current-user") {
+          return {
+            data: {
+              user: {
+                id: 42,
+                roles: [],
+              },
+            },
+          }
+        }
+        if (url === "/api/travel-authorizations/287") {
+          return {
+            data: {
+              travelAuthorization: {
+                id: 287,
+                userId: 42,
+                travelDeskTravelRequest: {
+                  id: 900,
+                },
+              },
+            },
+          }
+        }
+        if (url === "/api/travel-desk-travel-requests/900") {
+          return {
+            data: {
+              travelDeskTravelRequest,
+              policy: {
+                update: false,
+              },
+            },
+          }
+        }
+
+        return {
+          data: {
+            travelDeskQuestions: [],
+            travelDeskFlightRequests: [],
+            travelDeskFlightOptions: [],
+            travelDeskRentalCars: [],
+            travelDeskHotels: [],
+            travelDeskOtherTransportations: [],
+            totalCount: 0,
+          },
+        }
+      })
+      await useCurrentUser().fetch()
+      const router = mockRouter([
+        {
+          path: "/",
+          name: "travel-requests/TravelRequestsPage",
+          component: {
+            template: "<div />",
+          },
+        },
+      ])
+      await router.push("/")
+      await router.isReady()
+
+      // Act
+      const wrapper = mount(TravelRequestTravelDeskPage, {
+        props: {
+          travelAuthorizationId: "287",
+        },
+        global: {
+          plugins: [mockVuetify(), router],
+        },
+      })
+      await flushPromises()
+
+      // Assert
+      const ownerReviewActions = wrapper
+        .findAll("button")
+        .map((button) => button.text())
+        .filter((text) => text === "Save Responses" || text === "Submit Rankings")
+      expect(ownerReviewActions).toEqual(["Save Responses", "Submit Rankings"])
     })
   })
 })

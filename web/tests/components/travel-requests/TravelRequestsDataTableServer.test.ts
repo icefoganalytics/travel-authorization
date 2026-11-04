@@ -70,7 +70,7 @@ describe("web/src/components/travel-requests/TravelRequestsDataTableServer.vue",
         },
         {
           path: "/travel-requests/:travelAuthorizationId/travel-desk",
-          name: "travel-requests/TravelDeskRequestPage",
+          name: "travel-requests/TravelRequestTravelDeskPage",
           component: {
             template: "<div />",
           },
@@ -94,6 +94,66 @@ describe("web/src/components/travel-requests/TravelRequestsDataTableServer.vue",
 
       // Assert
       expect(router.currentRoute.value.fullPath).toEqual("/travel-requests/287/travel-desk")
+    })
+
+    test("when an authorization has no Travel Desk request, it does not offer a request action", async () => {
+      // Arrange
+      const httpClient = mockHttpClient()
+      useCurrentUser().reset()
+      httpClient.get.mockImplementation(async (url) => {
+        if (url === "/api/current-user") {
+          return {
+            data: {
+              user: {
+                id: 42,
+                roles: [],
+              },
+            },
+          }
+        }
+
+        return {
+          data: {
+            travelAuthorizations: [
+              {
+                id: 287,
+                firstName: "Taylor",
+                lastName: "Traveller",
+                purposeText: "Conference",
+                departingAt: "2026-11-10",
+                returningAt: "2026-11-12",
+                locations: [],
+                status: "draft",
+                travelDeskTravelRequest: null,
+              },
+            ],
+            totalCount: 1,
+          },
+        }
+      })
+      await useCurrentUser().fetch()
+      const router = mockRouter([
+        {
+          path: "/",
+          component: {
+            template: "<div />",
+          },
+        },
+      ])
+      await router.push("/")
+      await router.isReady()
+
+      // Act
+      const wrapper = mount(TravelRequestsDataTableServer, {
+        global: {
+          plugins: [mockVuetify(), router],
+        },
+      })
+      await flushPromises()
+
+      // Assert
+      const requestAction = wrapper.get("tbody tr").find("a")
+      expect(requestAction.exists()).toBe(false)
     })
   })
 })

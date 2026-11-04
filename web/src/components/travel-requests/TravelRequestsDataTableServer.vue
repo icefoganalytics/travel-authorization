@@ -55,8 +55,9 @@
     </template>
     <template #item.actions="{ item }">
       <v-btn
+        v-if="item.travelDeskTravelRequest"
         :to="{
-          name: 'travel-requests/TravelDeskRequestPage',
+          name: 'travel-requests/TravelRequestTravelDeskPage',
           params: {
             travelAuthorizationId: item.id,
           },
