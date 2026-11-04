@@ -109,5 +109,6 @@ const routes = [
 - Keep route names aligned with the file path when practical
 - Keep section ownership distinct in page and component names: Travel Requests lists travel authorizations, while Travel Desk manages booking requests. Linking between these workflows does not make their list surfaces interchangeable.
 - The authorization-keyed Travel Requests detail page owns record loading and workflow composition. Sidebar visibility defines intended entry points; backend policies enforce access, without a separate access-guard component for this flow.
+- Use the shared breadcrumbs for parent-page navigation rather than a separate back button to the same destination.
 - When a flow naturally branches into dedicated routeable screens, prefer separate pages over
   overloading one page with large conditional sections
