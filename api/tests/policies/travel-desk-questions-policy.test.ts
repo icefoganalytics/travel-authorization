@@ -1,6 +1,6 @@
 import { TravelDeskQuestion, TravelDeskTravelRequest, User } from "@/models"
 
-import { TravelDeskQuestionsPolicy } from "@/policies"
+import TravelDeskQuestionsPolicy from "@/policies/travel-desk-questions-policy"
 
 import {
   travelAuthorizationFactory,
