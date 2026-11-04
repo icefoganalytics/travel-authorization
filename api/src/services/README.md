@@ -9,6 +9,7 @@ Load the direct [packaged backend workflow](skill://express-light-rail/workflow.
   service with the supplied arguments and invokes that instance method.
 - Call action services through `ServiceName.perform(...)`; do not instantiate them at call sites.
 - Keep controllers focused on request orchestration, authorization, status codes, and response shape.
+- Return serialization-ready models from mutation services. When response associations require a reload, make `return record.reload({ include: [...] })` the final service step, preserving required caller associations and existing transaction boundaries; controllers should not reload the result again.
 - Organize related action services under domain directories and export them through the existing
   service index files.
 
