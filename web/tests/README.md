@@ -37,7 +37,7 @@ Guidelines:
 5. Reuse infrastructure from `web/tests/support/`; keep each scenario's data, mounting, and actions inline
 6. Use Vue Test Utils `mount` with jsdom and the shared `mockRouter` and `mockVuetify` helpers
 7. Keep scenario data and mount options inline; reserve `beforeEach` for shared mock defaults
-8. Mock API boundaries when exercising components with their real composables and children
+8. Mock the shared HTTP boundary when exercising components; keep their real API modules, composables, and children
 9. Use `flushPromises` for asynchronous rendering and assert directly on DOM controls or public component contracts
 10. Keep assertions in the final Assert section; await operations or explicit request signals in Act
 11. Let the Vitest configuration reset mocks; use teardown only for real non-mock resources such as effect scopes
@@ -45,13 +45,12 @@ Guidelines:
 `tests/setup.ts` enables `enableAutoUnmount(afterEach)`, so wrappers are cleaned up automatically.
 Explicitly unmount a wrapper only when unmounting is the behavior under test.
 
-Use `mockVuetify()` from `@/tests/support`
-in each mount's `global.plugins`. `tests/setup.ts` installs `ResizeObserver`, initializes the
-visual viewport in `beforeAll`, resets HTTP mock defaults in `beforeEach`, and enables automatic
-wrapper unmounting. Do not repeat that infrastructure or clear the entire document in specs.
+Use `mockVuetify()` from `@/tests/support` in each mount's `global.plugins`. `tests/setup.ts` registers i18n globally, installs `ResizeObserver`, initializes the visual viewport in `beforeAll`, resets HTTP and injected Auth0 mock defaults in `beforeEach`, and enables automatic wrapper unmounting. Test API URLs are configured there as well. Do not repeat that infrastructure or clear the entire document in specs.
 
 Use `mockHttpClient()` from `@/tests/support` when a test needs to inspect or override the
 shared HTTP mock. It provides typed Axios methods; do not replace it with an empty client object.
+
+Use `mockAuth0()` from `@/tests/support` when a test needs to override token acquisition. It provides a mock through Auth0's injection key, so components keep using the real `useAuth0()` composable without per-test module mocks.
 
 Example shape:
 

@@ -3,10 +3,9 @@ import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
 import { User, TravelDeskQuestion, TravelDeskTravelRequest } from "@/models"
-import TravelDeskTravelRequestsPolicy from "@/policies/travel-desk-travel-requests-policy"
-
+import BasePolicy, { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
-import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
+import { TravelDeskQuestions, TravelDeskTravelRequestsPolicy } from "@/policies"
 
 export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion) {
   show(): boolean {
@@ -18,23 +17,19 @@ export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion)
   }
 
   update(): boolean {
-    return this.travelDeskTravelRequestsPolicy.update() || this.canAnswerReviewQuestion
+    return this.policyByState.update()
   }
 
   destroy(): boolean {
     return this.travelDeskTravelRequestsPolicy.update()
   }
 
-  permittedAttributesForUpdate(): Path[] {
-    if (!this.travelDeskTravelRequestsPolicy.update() && this.canAnswerReviewQuestion) {
-      return ["response"]
-    }
-
-    return ["requestType", "question", "response"]
+  permittedAttributes(): Path[] {
+    return this.policyByState.permittedAttributes()
   }
 
   permittedAttributesForCreate(): Path[] {
-    return ["travelRequestId", ...this.permittedAttributesForUpdate()]
+    return ["travelRequestId", ...this.permittedAttributes()]
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelDeskQuestion>> {
@@ -54,7 +49,9 @@ export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion)
                   {
                     supervisorEmail: user.email,
                   },
-                  { userId: user.id },
+                  {
+                    userId: user.id,
+                  },
                 ],
               },
             },
@@ -64,16 +61,13 @@ export class TravelDeskQuestionsPolicy extends PolicyFactory(TravelDeskQuestion)
     }
   }
 
-  private get canAnswerReviewQuestion(): boolean {
-    const { travelAuthorization, status } = this.travelDeskTravelRequest
-    if (isUndefined(travelAuthorization)) {
-      throw new Error("Travel authorization is required")
+  protected get policyByState(): BasePolicy<TravelDeskQuestion> {
+    switch (this.travelDeskTravelRequest.status) {
+      case TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED:
+        return new TravelDeskQuestions.OptionsProvidedStatePolicy(this.user, this.record)
+      default:
+        return new TravelDeskQuestions.GenericStatePolicy(this.user, this.record)
     }
-
-    return (
-      travelAuthorization.userId === this.user.id &&
-      status === TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
-    )
   }
 
   private get travelDeskTravelRequest(): TravelDeskTravelRequest {

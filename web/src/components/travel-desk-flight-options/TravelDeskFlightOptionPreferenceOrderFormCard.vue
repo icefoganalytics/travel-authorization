@@ -39,7 +39,7 @@
               :hide-details="smAndDown"
               variant="outlined"
               required
-              @update:model-value="updateAndswapIfAlreadyInUse(flightOption, $event)"
+              @update:model-value="updateAndSwapIfAlreadyInUse(flightOption, $event)"
             />
           </v-col>
 
@@ -118,13 +118,14 @@ const travelDeskFlightOptionsQuery = computed(() => ({
   },
   perPage: -1,
 }))
+
 const { travelDeskFlightOptions, totalCount, isLoading, isErrored, refresh } =
   useTravelDeskFlightOptions(travelDeskFlightOptionsQuery)
 const { smAndDown } = useDisplay()
 
 const formId = uniqueId("travel-desk-flight-option-preference-order-form-")
 
-function updateAndswapIfAlreadyInUse(flightOption, newPreference) {
+function updateAndSwapIfAlreadyInUse(flightOption, newPreference) {
   if (newPreference === DOES_NOT_WORK) {
     flightOption.flightPreferenceOrder = newPreference
     return
@@ -137,7 +138,9 @@ function updateAndswapIfAlreadyInUse(flightOption, newPreference) {
   if (flightOptionWithSamePreference && oldPreference !== DOES_NOT_WORK) {
     flightOptionWithSamePreference.flightPreferenceOrder = oldPreference
   } else if (flightOptionWithSamePreference && oldPreference === DOES_NOT_WORK) {
-    const allPreferences = new Set(times(travelDeskFlightOptions.value.length, (i) => i + 1))
+    const allPreferences = new Set(
+      times(travelDeskFlightOptions.value.length, (index) => index + 1)
+    )
     const usedPreferences = new Set(
       travelDeskFlightOptions.value.map((option) => option.flightPreferenceOrder)
     )

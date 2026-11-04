@@ -42,7 +42,6 @@ import {
   TravelDeskQuestionsController,
   TravelDeskRentalCarsController,
   TravelDeskTravelAgenciesController,
-  TravelDeskTravelAuthorizations,
   TravelDeskTravelRequests,
   TravelDeskTravelRequestsController,
   TravelPurposesController,
@@ -159,9 +158,6 @@ router
   .get(TravelAllowancesController.show)
   .patch(TravelAllowancesController.update)
 
-router
-  .route("/api/travel-desk/travel-authorizations")
-  .get(TravelDeskTravelAuthorizations.IndexController.index)
 router
   .route("/api/travel-authorizations")
   .get(TravelAuthorizationsController.index)

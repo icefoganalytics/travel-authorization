@@ -4,6 +4,10 @@ export {
   ReferenceSerializer,
   type TravelDeskTravelRequestAsReference as AsReference,
 } from "./reference-serializer"
+export {
+  SummarySerializer,
+  type TravelDeskTravelRequestAsSummary as AsSummary,
+} from "./summary-serializer"
 
 export {
   ReportSerializer,

@@ -192,19 +192,19 @@ export class IndexSerializer extends BaseSerializer<TravelDeskTravelRequest> {
     const requested = []
 
     if (!isEmpty(travelDeskTravelRequest.flightRequests)) {
-      requested.push("flight")
+      requested.push("Flight")
     }
 
     if (!isEmpty(travelDeskTravelRequest.hotels)) {
-      requested.push("hotel")
+      requested.push("Hotel")
     }
 
     if (!isEmpty(travelDeskTravelRequest.rentalCars)) {
-      requested.push("rental car")
+      requested.push("Rental Car")
     }
 
     if (!isEmpty(travelDeskTravelRequest.otherTransportations)) {
-      requested.push("transportation")
+      requested.push("Transportation")
     }
 
     return requested.join(", ")

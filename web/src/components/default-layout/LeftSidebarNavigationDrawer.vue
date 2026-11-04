@@ -79,7 +79,7 @@ const travelRequestsListItem: ListItem = {
   key: "travelRequests",
   title: "Travel Requests",
   to: {
-    name: "travel-requests/TravelDeskRequestsPage",
+    name: "travel-requests/TravelRequestsPage",
   },
   prependIcon: "mdi-file-document-edit",
 }

@@ -95,7 +95,7 @@ describe("api/src/serializers/travel-desk-travel-requests/report-serializer.ts",
         ])
       })
 
-      test("when a booked request has no officer, preserves its booked status", async () => {
+      test("when a booked request has no officer, it preserves its booked status", async () => {
         // Arrange
         const user1 = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory

@@ -51,26 +51,6 @@ npm run check-types
 
 See [../bin/README.md](../bin/README.md#testing) for the canonical test commands.
 
-## Travel Desk Request Cutover
-
-`GET /api/travel-desk/travel-authorizations` supplies the paginated authorization list for the
-separate Travel Desk request workflow. System administrators see all records; all other accounts,
-including department administrators, see only their own authorizations. Client filters only narrow
-that visibility. This collection does not change supervisor or finance visibility in the general
-authorization API.
-
-The list returns planned segment dates, with historical stop fallback, and the persisted request's
-own ID, status, and invoice number. Request creation and employee prefill remain part of approval.
-Edits use the current resource APIs and state actions; the legacy `/api/traveldesk` aggregate
-router is removed. During options review, an owner may update only a question's response, not its
-text, type, or request identity. Existing booking permissions are unchanged.
-
-Travel Desk resource responses serialize explicit public fields rather than ORM association graphs.
-Flight-request and flight-option lists retain their nested options and segments; their individual
-show/create/update responses are flat. Submit, options-provided, options-ranked, and book actions
-return the request show contract, including `hasPassengerNameRecordDocument`. Associations loaded
-only for permission checks are not returned.
-
 ## Environment Variables
 
 The source of truth for supported API environment variables is:
@@ -78,6 +58,22 @@ The source of truth for supported API environment variables is:
 - [`src/config.ts`](./src/config.ts)
 
 That file defines the loaded environment files and the supported API configuration surface.
+
+## Shared Backend Library Adoption
+
+Load the direct [packaged backend workflow](skill://express-light-rail/workflow.md) before applying local guidance; other clients resolve the [corresponding workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release under the root [shared-base contract](../AGENTS.md#shared-standards-and-local-authority). These conceptual rails do not authorize replacing TravelAuth's controller, policy, serializer, or service bases. Those local contracts and PostgreSQL/Knex migrations remain authoritative.
+
+The current lockfile resolves Express **4.18.2**, `@sequelize/core` and `@sequelize/postgres` **7.0.0-alpha.46**, and Knex **3.0.1**. The development API container resolved the same packages on Node **20.19.0**. Recheck the actual environment with `./bin/dev api node --version` and `./bin/dev api npm ls express @sequelize/core @sequelize/postgres knex express-light-rail --depth=0`; declaration ranges alone are not install evidence. `express-light-rail` is neither declared nor locked here and was absent from that installed dependency listing.
+
+Published [`express-light-rail@0.3.0` metadata](https://registry.npmjs.org/express-light-rail/0.3.0) requires Node `>=22`, Express `^4.21.2`, and `@sequelize/core` `^7.0.0-alpha.43`. The observed Node and Express versions do not meet those requirements. The Sequelize peer range is not proof that TravelAuth's alpha.46 models, associations, transactions, or dialect behavior work with the library.
+
+Before a separately accepted base-replacement change:
+
+1. Select a published artifact and verify its actual engines/peers against the resolved runtime and installed dependency tree, including the PostgreSQL dialect. Plan any required upgrades separately.
+2. Prove compatibility with local request helpers, resource-scoped policies, pagination/order limits, serializers and association preloads, action-service transactions, and existing error middleware; retain Auth0 and integration boundaries.
+3. Exercise representative controller/service/serializer behavior and test setup through the [canonical wrapper](../bin/README.md#testing). Do not infer compatibility from matching names or peer ranges.
+
+[Upstream adoption/patterns](https://github.com/klondikemarlen/express-light-rail/issues/4), [browser-safe contracts](https://github.com/klondikemarlen/express-light-rail/issues/5), and [opt-in tooling](https://github.com/klondikemarlen/express-light-rail/issues/6) own the related library work. Issue #425 changes guidance only: no package installation, runtime upgrade, or base replacement.
 
 ## Related Docs
 

@@ -41,6 +41,7 @@ const travelDeskFlightRequestsQuery = computed(() => ({
   },
   perPage: -1,
 }))
+
 const { travelDeskFlightRequests, totalCount, isLoading, isErrored } = useTravelDeskFlightRequests(
   travelDeskFlightRequestsQuery
 )
@@ -65,7 +66,6 @@ async function save() {
   if (
     isLoading.value ||
     isErrored.value ||
-    travelDeskFlightRequests.value.length === 0 ||
     totalCount.value !== travelDeskFlightRequests.value.length ||
     travelDeskFlightOptionPreferenceOrderFormCards.value.length !==
       travelDeskFlightRequests.value.length

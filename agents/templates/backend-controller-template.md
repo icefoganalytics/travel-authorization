@@ -2,6 +2,8 @@
 
 Controllers follow Rails-style RESTful conventions mapped to Express routes.
 
+The shared [Express controller template](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/templates/backend/express-light-rail/controller-template.md) demonstrates thin function-based handlers. This class-based template is the TravelAuth override: controllers extend `BaseController`, use the controller/service/policy/serializer contracts shown here, and route state transitions as namespaced `create()` actions.
+
 ## Full CRUD Controller
 
 Use for top-level resources that need the full set of list/show/create/update/delete actions.

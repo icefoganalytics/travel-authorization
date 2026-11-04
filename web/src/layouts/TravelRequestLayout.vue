@@ -82,7 +82,7 @@ useBreadcrumbs([
   {
     title: "Travel Requests",
     to: {
-      name: "travel-requests/TravelDeskRequestsPage",
+      name: "travel-requests/TravelRequestsPage",
     },
   },
 ])

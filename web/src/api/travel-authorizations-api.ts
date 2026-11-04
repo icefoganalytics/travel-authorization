@@ -11,7 +11,10 @@ import { type ExpenseAsReference } from "@/api/expenses-api"
 import { type LocationAsReference } from "@/api/locations-api"
 import { type StopAsReference } from "@/api/stops-api"
 import { type TravelAuthorizationStateFlags } from "@/api/travel-authorizations-state-flags-api"
-import { type TravelDeskTravelRequestAsReference } from "@/api/travel-desk-travel-requests-api"
+import {
+  type TravelDeskTravelRequest,
+  type TravelDeskTravelRequestAsReference,
+} from "@/api/travel-desk-travel-requests-api"
 import { type TravelPurposeAsReference } from "@/api/travel-purposes-api"
 import { type TravelSegment, type TravelSegmentAsReference } from "@/api/travel-segments-api"
 import { type UserAsReference } from "@/api/users-api"
@@ -142,6 +145,8 @@ export type TravelAuthorizationAsIndex = Pick<
   unprocessedExpenseCount: number
   // Associations
   finalDestination: LocationAsReference | null
+  locations: LocationAsReference[]
+  travelDeskTravelRequest: Pick<TravelDeskTravelRequest, "id" | "status" | "invoiceNumber"> | null
 } & TravelAuthorizationStateFlags
 
 /** Keep in sync with api/src/serializers/travel-authorizations/show-serializer.ts */

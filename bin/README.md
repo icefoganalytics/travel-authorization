@@ -18,7 +18,7 @@ adding alternate startup paths or dependency-discovery workarounds.
 bundle install
 ```
 
-All Ruby development dependencies use full exact version pins in [Gemfile](../Gemfile) for reproducible local startup.
+All Ruby development dependencies use full exact version pins in [Gemfile](../Gemfile) for reproducible local startup. RDoc is an explicit dependency for generated `dev help`, rather than an assumed Ruby default gem. Its native dependencies require a C compiler, `make`, and development headers for the active Ruby.
 
 The wrapper activates Bundler before loading Ruby libraries. Preserve that order to avoid
 unresolved-specification warnings from globally installed RDoc dependencies.
@@ -47,10 +47,10 @@ gateway with `./bin/dev up` before using them, and use `./bin/dev stop` or `./bi
 Set `GATEWAY_HOSTNAME` before invoking `dev` to use an explicit local browser and database hostname
 instead of the checkout-derived default.
 
-Compose project names preserve valid directory names up to 51 characters. Longer or normalized
+Compose project names preserve valid directory names up to 49 characters. Longer or normalized
 names use a bounded prefix and stable digest, leaving room for the longest database alias.
 Browser hostnames retain their separate 63-character label limit.
-Set `COMPOSE_PROJECT_NAME` to select an explicit project of at most 51 characters; longer overrides
+Set `COMPOSE_PROJECT_NAME` to select an explicit project of at most 49 characters; longer overrides
 fail before Compose runs rather than silently selecting different volumes.
 If an existing checkout's derived project name changes, preserve its data before adopting the new
 identity; the old named volumes remain under the previous project name.
@@ -134,12 +134,14 @@ that single Vitest instance run them sequentially.
 The project pins [Local Development Gateway 0.2.2](https://github.com/icefoganalytics/local-development-gateway/tree/v0.2.2).
 Its [development/test connection contract](https://github.com/icefoganalytics/local-development-gateway/blob/v0.2.2/README.md#canonical-development-and-test-compose-pattern)
 separates private application aliases from encrypted desktop routes. API, migration, and test
-containers use `${COMPOSE_PROJECT_NAME}-db` and `${COMPOSE_PROJECT_NAME}-db_trav_com`; test containers
-retain `travel_test` and `trav_com_test`. Both databases have private aliases and gateway ingress,
-with no published database ports in the development base.
+containers use `${COMPOSE_PROJECT_NAME}-db`, `${COMPOSE_PROJECT_NAME}-db_trav_com`, and
+`${COMPOSE_PROJECT_NAME}-db_travelport`; test containers retain `travel_test`, `trav_com_test`,
+and `travelport_test`. All three databases have private aliases and gateway ingress, with no
+published database ports in the development base. Travelport uses a synthetic local source;
+only the deployed production application connects to the real booking-feed database.
 
 After adopting this configuration, run `bundle install`, then recreate this checkout's database
-and consumer services with `./bin/dev up -d db db_trav_com api web`. Keep existing named volumes.
+and consumer services with `./bin/dev up -d db db_trav_com db_travelport api web`. Keep existing named volumes.
 A new installed gem can reuse an older healthy shared router: inspect its active library mount
 with `docker inspect local-gateway-database-router-1` and compare it with
 `bundle info local-development-gateway --path`. Coordinate any shared-router restart with other
@@ -150,7 +152,7 @@ All current development wrapper commands, including tests, select the gateway ov
 For a base-only configuration check, retain the same `COMPOSE_PROJECT_NAME` and render
 `docker compose -f docker-compose.development.yml config`. Both forms must preserve qualified
 hosts and private aliases without publishing database ports. If a base-only command recreates
-dependencies, run `./bin/dev up -d db db_trav_com` afterward to restore gateway attachments.
+dependencies, run `./bin/dev up -d db db_trav_com db_travelport` afterward to restore gateway attachments.
 
 Verify real consumers rather than relying only on a database-local console:
 
@@ -183,6 +185,40 @@ FROM users
 ORDER BY id DESC
 LIMIT 5;
 SQL
+```
+
+#### Export and Import a Development Database
+
+With the source checkout's PostgreSQL service running, export its application database to a host file:
+
+```bash
+./bin/dev db --export "/tmp/travel source.dump"
+./bin/dev psql-query "SELECT COUNT(*) FROM users;"
+```
+
+Export takes a consistent, read-only PostgreSQL snapshot. The custom-format archive contains schema, migration state, application data, constraints, and sequences. New backup files are owner-only readable/writable; keep all backups private and out of version control.
+
+**Import replaces the destination checkout's development database, including target-only tables and records.** Stop its API and any other writers, close database-client sessions, and export any target data you need to preserve before importing. Only restore trusted backups. A restore failure after database replacement can leave the destination empty; retain the target backup until verification succeeds.
+
+From the destination worktree:
+
+```bash
+./bin/dev stop api
+./bin/dev up -d db
+# Wait until PostgreSQL accepts this query before continuing.
+./bin/dev psql-query "SELECT current_database();"
+./bin/dev db --export "/tmp/travel target before import.dump"
+./bin/dev db --import "/tmp/travel source.dump"
+./bin/dev psql-query "SELECT COUNT(*) FROM users;"
+./bin/dev up -d api web
+```
+
+Compare a known record through `dev psql-query` in both checkouts. A destination-only edit must not change the source; importing the source archive again replaces that edit. Each checkout retains its own physical database volume.
+
+Both commands select the current checkout's Compose `db` container directly and use its configured `POSTGRES_DB` and `POSTGRES_USER`. They do not discover another checkout, share data directories, or transfer TravCom SQL Server, test, or production databases. PostgreSQL and Docker failures remain visible with nonzero exit status. Existing `dev db COMMAND ...` execution is unchanged:
+
+```bash
+./bin/dev db printenv POSTGRES_DB
 ```
 
 ### GitHub Helpers

@@ -14,7 +14,7 @@
     <template #top>
       <TravelDeskQuestionEditDialog
         ref="travelDeskQuestionEditDialog"
-        @saved="refresh"
+        @saved="refreshAndEmitUpdated"
       />
     </template>
 
@@ -78,6 +78,10 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits<{
+  updated: []
+}>()
+
 const headers = [
   {
     title: "Request Type",
@@ -103,6 +107,7 @@ const { t } = useI18n()
 const page = useRouteQuery<string, number>(`page${props.routeQuerySuffix}`, "1", {
   transform: integerTransformer,
 })
+
 const defaultPerPageAsString = computed(() => String(props.defaultPerPage))
 const perPage = useRouteQuery<string, number>(
   `perPage${props.routeQuerySuffix}`,
@@ -111,22 +116,30 @@ const perPage = useRouteQuery<string, number>(
     transform: integerTransformer,
   }
 )
+
 const travelDeskQuestionsQuery = computed(() => ({
   where: props.where,
   filters: props.filters,
   page: page.value,
   perPage: perPage.value,
 }))
+
 const { travelDeskQuestions, totalCount, isLoading, refresh } =
   useTravelDeskQuestions(travelDeskQuestionsQuery)
 
 const travelDeskQuestionEditDialog = useTemplateRef("travelDeskQuestionEditDialog")
+
+async function refreshAndEmitUpdated() {
+  await refresh()
+  emit("updated")
+}
 
 function showEditDialog(questionId: number) {
   travelDeskQuestionEditDialog.value?.show(questionId)
 }
 
 const isDeleting = ref(false)
+
 const snack = useSnack()
 
 async function deleteQuestion(questionId: number) {
@@ -136,7 +149,7 @@ async function deleteQuestion(questionId: number) {
   try {
     await travelDeskQuestionsApi.delete(questionId)
     snack.success("Question deleted successfully")
-    await refresh()
+    await refreshAndEmitUpdated()
   } catch (error) {
     console.error(error)
   } finally {

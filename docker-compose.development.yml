@@ -21,6 +21,12 @@ x-default-environment: &default-environment
   TRAVCOM_DB_NAME: trav_com_development
   TRAVCOM_DB_PORT: 1433
   TRAVCOM_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
+  TRAVELPORT_DB_HOST: "${COMPOSE_PROJECT_NAME}-db_travelport"
+  TRAVELPORT_DB_USER: sa
+  TRAVELPORT_DB_PASS: &default-travelport-db-password "DevPwd99!"
+  TRAVELPORT_DB_NAME: travelport_development
+  TRAVELPORT_DB_PORT: 1433
+  TRAVELPORT_DB_TRUST_SERVER_CERTIFICATE_ENABLED: "true"
   RELEASE_TAG: "${RELEASE_TAG:-development}"
   GIT_COMMIT_HASH: "${GIT_COMMIT_HASH:-not-set}"
 
@@ -44,6 +50,7 @@ services:
       - ./.prettierrc.yaml:/usr/src/.prettierrc.yaml
     depends_on:
       - db
+      - db_travelport
 
   web:
     build:
@@ -74,6 +81,7 @@ services:
       NODE_ENV: test
       DB_NAME: travel_test
       TRAVCOM_DB_NAME: trav_com_test
+      TRAVELPORT_DB_NAME: travelport_test
       DEFAULT_LOG_LEVEL: "info"
     tty: true
     volumes:
@@ -82,6 +90,7 @@ services:
     depends_on:
       - db
       - db_trav_com
+      - db_travelport
 
   test_web:
     build:
@@ -134,6 +143,22 @@ services:
         aliases:
           - "${COMPOSE_PROJECT_NAME}-db_trav_com"
 
+  # Synthetic Travelport source simulator. Production connects to its externally configured source.
+  db_travelport:
+    image: mcr.microsoft.com/mssql/server:2019-CU28-ubuntu-20.04
+    user: root
+    environment:
+      MSSQL_SA_PASSWORD: *default-travelport-db-password
+      TZ: "UTC"
+      ACCEPT_EULA: "Y"
+      MSSQL_COLLATION: SQL_Latin1_General_CP1_CI_AS
+    volumes:
+      - db_travelport_data:/var/opt/mssql/data
+    networks:
+      default:
+        aliases:
+          - "${COMPOSE_PROJECT_NAME}-db_travelport"
+
   # For easily generating large PlantUML diagrams
   # Not relevant to production environment.
   # Accessible at http://localhost:9999
@@ -149,3 +174,4 @@ services:
 volumes:
   db_data:
   db_trav_com_data:
+  db_travelport_data:

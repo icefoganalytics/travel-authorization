@@ -1,0 +1,2 @@
+TravelOrderIdentifier,SFActiveVoidStatus,SFDocumentNbr,NameOnServiceFee,SFIssueDate,SFCurrencyCode,ServiceFeeAmount,SFCommissionAmount,RelatedTicketDocumentNbr,RelatedInvoiceNbr,RecordLocator
+100008,A,,,,CAD,42.125,,,,ZZ0001

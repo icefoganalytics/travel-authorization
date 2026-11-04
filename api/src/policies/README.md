@@ -127,6 +127,8 @@ state. Creation-specific attributes, such as administrator owner selection, augm
 without replacing state dispatch. Missing or unmapped states retain the generic policy's field
 and update restrictions.
 
+State-specific action grants and field allow-lists must be explicit. Do not let a permissive generic/base-policy result implicitly authorize a restricted state; deny actions and permit no fields for actors outside its grants.
+
 The creation caller must initialize the policy record with the server-owned starting state before
 authorization and attribute filtering. Service or database defaults run too late to supply this
 context. For updates, use the persisted record's state rather than a state submitted in the payload.

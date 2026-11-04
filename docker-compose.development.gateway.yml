@@ -41,6 +41,15 @@ services:
       - "local-gateway.tcp.hostname=db-trav-com.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
       - "local-gateway.tcp.port=1433"
 
+  db_travelport:
+    networks:
+      default: {}
+      local-gateway: {}
+    labels:
+      - "local-gateway.tcp.driver=sql_server"
+      - "local-gateway.tcp.hostname=db-travelport.${GATEWAY_HOSTNAME:-travel-authorization.localhost}"
+      - "local-gateway.tcp.port=1433"
+
 networks:
   local-gateway:
     external: true

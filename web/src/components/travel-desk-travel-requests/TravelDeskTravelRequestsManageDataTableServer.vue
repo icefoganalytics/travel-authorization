@@ -16,14 +16,12 @@
       <div class="d-flex mb-4">
         <v-spacer />
         <TravelDeskTravelRequestsPrintButton
-          :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
-          :disabled="isEmpty(selectedTravelDeskTravelRequestIds)"
+          :query-options="travelDeskTravelRequestsDownloadQueryOptions"
           class="my-0 mr-4"
           color="primary"
         />
         <TravelDeskTravelRequestsExportToCsvButton
-          :travel-desk-travel-request-ids="selectedTravelDeskTravelRequestIds"
-          :disabled="isEmpty(selectedTravelDeskTravelRequestIds)"
+          :query-options="travelDeskTravelRequestsDownloadQueryOptions"
           class="my-0"
           color="primary"
         >
@@ -64,25 +62,10 @@
     </template>
 
     <template #item.status="{ item }">
-      {{ formatTravelDeskTravelRequestStatus(item, t) }}
-      <v-icon
-        v-if="item.status === TravelDeskTravelRequestStatuses.SUBMITTED"
-        color="error"
-      >
-        mdi-flag
-      </v-icon>
-      <v-icon
-        v-else-if="item.status === TravelDeskTravelRequestStatuses.OPTIONS_RANKED"
-        color="warning"
-      >
-        mdi-flag
-      </v-icon>
-      <v-icon
-        v-else-if="item.status === TravelDeskTravelRequestStatuses.BOOKED"
-        color="success"
-      >
-        mdi-checkbox-marked
-      </v-icon>
+      <TravelDeskTravelRequestStatusSpan
+        :status="item.status"
+        :travel-desk-officer="item.travelDeskOfficer"
+      />
     </template>
 
     <template #item.edit="{ item }">
@@ -119,12 +102,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
-import { useI18n } from "vue-i18n"
 import { isEmpty } from "lodash"
+import { computed, ref } from "vue"
 
 import formatDate from "@/utils/format-date"
-import formatTravelDeskTravelRequestStatus from "@/utils/format-travel-desk-travel-request-status"
 
 import {
   type TravelDeskTravelRequestAsIndex,
@@ -132,13 +113,14 @@ import {
   TravelDeskTravelRequestStatuses,
 } from "@/api/travel-desk-travel-requests-api"
 
-import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
+import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useTravelDeskTravelRequests from "@/use/use-travel-desk-travel-requests"
 
 import TravelDeskTravelRequestsExportToCsvButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsExportToCsvButton.vue"
 import TravelDeskTravelRequestsPrintButton from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestsPrintButton.vue"
+import TravelDeskTravelRequestStatusSpan from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestStatusSpan.vue"
 
 const headers = [
   { title: "TA #", key: "travelAuthorizationId" },
@@ -155,9 +137,12 @@ const headers = [
   { title: "Actions", key: "edit", sortable: false, align: "start" },
 ] as const
 
-const { t } = useI18n()
-
-const { page, perPage } = useRouteQueryPagination({ perPage: 15 })
+const page = useRouteQuery<string, number>("page", "1", {
+  transform: integerTransformer,
+})
+const perPage = useRouteQuery<string, number>("perPage", "15", {
+  transform: integerTransformer,
+})
 
 const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
   {
@@ -179,6 +164,21 @@ const { travelDeskTravelRequests, totalCount, isLoading } = useTravelDeskTravelR
 )
 
 const selectedTravelDeskTravelRequestIds = ref<number[]>([])
+const travelDeskTravelRequestsDownloadQueryOptions = computed<TravelDeskTravelRequestsQueryOptions>(
+  () => {
+    const downloadQueryOptions: TravelDeskTravelRequestsQueryOptions = {
+      order: order.value,
+    }
+
+    if (!isEmpty(selectedTravelDeskTravelRequestIds.value)) {
+      downloadQueryOptions.where = {
+        id: selectedTravelDeskTravelRequestIds.value,
+      }
+    }
+
+    return downloadQueryOptions
+  }
+)
 
 function itemRowProps({ item }: { item: TravelDeskTravelRequestAsIndex }) {
   return {
