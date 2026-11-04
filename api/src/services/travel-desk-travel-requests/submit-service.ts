@@ -25,7 +25,7 @@ export class SubmitService extends BaseService {
       })
 
       return this.travelDeskTravelRequest.reload({
-        include: ["travelAuthorization"],
+        include: ["travelAuthorization", "passengerNameRecordDocument"],
       })
     })
   }

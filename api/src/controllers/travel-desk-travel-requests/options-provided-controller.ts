@@ -28,12 +28,8 @@ export class OptionsProvidedController extends BaseController<TravelDeskTravelRe
         permittedAttributes,
         this.currentUser
       )
-      const updatedTravelDeskTravelRequestWithDocument =
-        await updatedTravelDeskTravelRequest.reload({
-          include: ["passengerNameRecordDocument"],
-        })
       const serializedTravelDeskTravelRequest = ShowSerializer.perform(
-        updatedTravelDeskTravelRequestWithDocument,
+        updatedTravelDeskTravelRequest,
         this.currentUser
       )
       return this.response.status(200).json({
