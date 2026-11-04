@@ -1,93 +1,6 @@
 import { sql, type Literal } from "@sequelize/core"
 
-export function buildListSortAttributeQuery(field: string): Literal | undefined {
-  switch (field) {
-    case "name":
-      return sql`
-        (
-          SELECT
-            COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')
-          FROM
-            users
-          WHERE
-            users.id = "TravelAuthorization".user_id
-        )
-      `
-    case "purposeText":
-      return sql`
-        COALESCE(
-          (
-            SELECT
-              purpose
-            FROM
-              travel_purposes
-            WHERE
-              travel_purposes.id = "TravelAuthorization".purpose_id
-          ),
-          ''
-        )
-      `
-    case "departingAt":
-      return buildBoundaryDepartureQuery(false)
-    case "returningAt":
-      return buildBoundaryDepartureQuery(true)
-    case "locations":
-      return buildLocationsQuery()
-    case "travelDeskStatus":
-      return sql`
-        (
-          SELECT
-            status
-          FROM
-            travel_desk_travel_requests
-          WHERE
-            travel_authorization_id = "TravelAuthorization".id
-        )
-      `
-    default:
-      return undefined
-  }
-}
-
-function buildBoundaryDepartureQuery(isReturning: boolean): Literal {
-  const direction = isReturning ? sql`DESC` : sql`ASC`
-
-  // Select the boundary segment first: a missing date falls back to the boundary stop,
-  // not to another dated segment. Null times mean midnight, just like departureAt.
-  return sql`
-    COALESCE(
-      (
-        SELECT
-          departure_on + COALESCE(departure_time, '00:00:00'::time)
-        FROM
-          travel_segments
-        WHERE
-          travel_authorization_id = "TravelAuthorization".id
-        ORDER BY
-          segment_number ${direction},
-          id ${direction}
-        LIMIT
-          1
-      ),
-      (
-        SELECT
-          departure_date + COALESCE(departure_time, '00:00:00'::time)
-        FROM
-          stops
-        WHERE
-          travel_authorization_id = "TravelAuthorization".id
-        ORDER BY
-          departure_date ${direction},
-          departure_time ${direction},
-          id ${direction}
-        LIMIT
-          1
-      )
-    )
-  `
-}
-
-function buildLocationsQuery(): Literal {
+export function buildLocationsQuery(): Literal {
   // Match the serializer's insertion-ordered Map: segment departure then arrival,
   // deduplicated by location identity. Stops are used only when no segments exist.
   // PostgreSQL arrays compare label by label, including subsequent destinations.
@@ -172,4 +85,4 @@ function buildLocationsQuery(): Literal {
   `
 }
 
-export default buildListSortAttributeQuery
+export default buildLocationsQuery

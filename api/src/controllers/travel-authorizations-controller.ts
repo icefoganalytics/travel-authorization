@@ -6,19 +6,20 @@ import { UpdateService, CreateService, DestroyService } from "@/services/travel-
 import { TravelAuthorization } from "@/models"
 import { TravelAuthorizationsPolicy } from "@/policies"
 import { IndexSerializer, ShowSerializer } from "@/serializers/travel-authorizations"
-import BaseController, { type ModelOrder } from "@/controllers/base-controller"
+import BaseController from "@/controllers/base-controller"
 
 export class TravelAuthorizationsController extends BaseController<TravelAuthorization> {
   async index() {
     try {
       const where = this.buildWhere()
-      const scopes = this.buildFilterScopes()
-      const requestedOrder = this.query.order as unknown as ModelOrder[] | undefined
-      for (const [field] of requestedOrder ?? []) {
-        if (typeof field === "string") {
-          scopes.push({ method: ["includeListSortAttribute", field] })
-        }
-      }
+      const scopes = this.buildFilterScopes([
+        "includeTravelerNameAttribute",
+        "includePurposeTextAttribute",
+        "includeDepartingAtAttribute",
+        "includeReturningAtAttribute",
+        "includeLocationsAttribute",
+        "includeTravelDeskStatusAttribute",
+      ])
       const order = this.buildOrder([
         ["updatedAt", "DESC"],
         ["id", "ASC"],
