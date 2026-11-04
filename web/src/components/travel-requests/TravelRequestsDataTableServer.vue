@@ -10,6 +10,7 @@
     :hide-default-footer="!isReady || (isLoading && totalCount === 0)"
     item-value="id"
     must-sort
+    @dblclick:row="goToRequestPage"
   >
     <template #top>
       <v-alert
@@ -73,6 +74,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
+import { useRouter } from "vue-router"
 import { isNil } from "lodash"
 
 import formatDate from "@/utils/format-date"
@@ -80,7 +82,10 @@ import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
-import { type TravelAuthorizationQueryOptions } from "@/api/travel-authorizations-api"
+import {
+  type TravelAuthorizationAsIndex,
+  type TravelAuthorizationQueryOptions,
+} from "@/api/travel-authorizations-api"
 import { TravelDeskTravelRequestStatuses } from "@/api/travel-desk-travel-requests-api"
 
 import useCurrentUser from "@/use/use-current-user"
@@ -193,6 +198,22 @@ function requestActionLabel(status: TravelDeskTravelRequestStatuses | undefined)
   if (status === TravelDeskTravelRequestStatuses.OPTIONS_PROVIDED) return "Review Travel Options"
 
   return "View Request"
+}
+
+const router = useRouter()
+
+function goToRequestPage(
+  _event: MouseEvent,
+  { item: travelAuthorization }: { item: TravelAuthorizationAsIndex }
+) {
+  if (isNil(travelAuthorization.travelDeskTravelRequest)) return
+
+  return router.push({
+    name: "travel-requests/TravelRequestTravelDeskPage",
+    params: {
+      travelAuthorizationId: travelAuthorization.id,
+    },
+  })
 }
 
 defineExpose({
