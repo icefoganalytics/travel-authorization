@@ -1,10 +1,10 @@
 import { TravelDeskTravelRequest } from "@/models"
-import { ValidationError } from "@sequelize/core"
 
 describe("api/src/models/travel-desk-travel-request.ts", () => {
   describe("TravelDeskTravelRequest", () => {
     describe("validations - allInternationalTravelFieldsOrNone", () => {
       test("when is international travel, and passport country and passport number are not null, it is valid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           isInternationalTravel: true,
           passportCountry: "India",
@@ -23,11 +23,12 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
-        await expect(travelDeskTravelRequest.validate()).resolves.toBeTruthy()
+        // Act / Assert
+        await expect(travelDeskTravelRequest.validate()).resolves.toBe(travelDeskTravelRequest)
       })
 
       test("when is international travel, and passport country is null, it is invalid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           isInternationalTravel: true,
           passportCountry: null,
@@ -46,13 +47,14 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
+        // Act / Assert
         await expect(travelDeskTravelRequest.validate()).rejects.toThrow(
           /Passport country and number are required for international travel/
         )
       })
 
       test("when is international travel, and passport number is null, it is invalid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           isInternationalTravel: true,
           passportCountry: "India",
@@ -71,13 +73,14 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
+        // Act / Assert
         await expect(travelDeskTravelRequest.validate()).rejects.toThrow(
           /Passport country and number are required for international travel/
         )
       })
 
       test("when is not international travel, and passport country and passport number are null, it is valid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           isInternationalTravel: false,
           passportCountry: null,
@@ -96,11 +99,12 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
-        await expect(travelDeskTravelRequest.validate()).resolves.toBeTruthy()
+        // Act / Assert
+        await expect(travelDeskTravelRequest.validate()).resolves.toBe(travelDeskTravelRequest)
       })
 
       test("when is not international travel, and passport country is not null, it is invalid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           isInternationalTravel: false,
           passportCountry: "India",
@@ -119,13 +123,14 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
+        // Act / Assert
         await expect(travelDeskTravelRequest.validate()).rejects.toThrow(
           /Passport country and number are only permitted for international travel/
         )
       })
 
       test("when is not international travel, and passport number is not null, it is invalid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           isInternationalTravel: false,
           passportCountry: null,
@@ -144,7 +149,7 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
+        // Act / Assert
         await expect(travelDeskTravelRequest.validate()).rejects.toThrow(
           /Passport country and number are only permitted for international travel/
         )
@@ -153,6 +158,7 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
 
     describe("validations - allTravelContactFieldsOrNone", () => {
       test("when travel contact enabled, and travel contact email and travel contact phone are not null, it is valid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           travelContact: true,
           travelEmail: "Jon.Doe@test.com",
@@ -171,11 +177,12 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
-        await expect(travelDeskTravelRequest.validate()).resolves.toBeTruthy()
+        // Act / Assert
+        await expect(travelDeskTravelRequest.validate()).resolves.toBe(travelDeskTravelRequest)
       })
 
       test("when travel contact enabled, and travel contact email is null, it is invalid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           travelContact: true,
           travelEmail: null,
@@ -194,13 +201,14 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
+        // Act / Assert
         await expect(travelDeskTravelRequest.validate()).rejects.toThrow(
           /Travel phone and email are required if travel contact is true/
         )
       })
 
       test("when travel contact enabled, and travel contact phone is null, it is invalid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           travelContact: true,
           travelEmail: "John.Doe@test.com",
@@ -219,13 +227,14 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
+        // Act / Assert
         await expect(travelDeskTravelRequest.validate()).rejects.toThrow(
           /Travel phone and email are required if travel contact is true/
         )
       })
 
       test("when travel contact disabled, and travel contact email and travel contact phone are null, it is valid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           travelContact: false,
           travelEmail: null,
@@ -244,11 +253,12 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
-        await expect(travelDeskTravelRequest.validate()).resolves.toBeTruthy()
+        // Act / Assert
+        await expect(travelDeskTravelRequest.validate()).resolves.toBe(travelDeskTravelRequest)
       })
 
       test("when travel contact disabled, and travel contact email is not null, it is invalid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           travelContact: false,
           travelEmail: "John.Doe@test.com",
@@ -267,13 +277,14 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
+        // Act / Assert
         await expect(travelDeskTravelRequest.validate()).rejects.toThrow(
           /Travel phone and email are only permitted if travel contact is true/
         )
       })
 
       test("when travel contact disabled, and travel contact phone is not null, it is invalid", async () => {
+        // Arrange
         const travelDeskTravelRequest = new TravelDeskTravelRequest({
           travelContact: false,
           travelEmail: null,
@@ -292,7 +303,7 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
           status: TravelDeskTravelRequest.Statuses.DRAFT,
         })
 
-        expect.assertions(1)
+        // Act / Assert
         await expect(travelDeskTravelRequest.validate()).rejects.toThrow(
           /Travel phone and email are only permitted if travel contact is true/
         )
