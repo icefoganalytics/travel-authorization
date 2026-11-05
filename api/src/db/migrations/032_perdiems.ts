@@ -1,6 +1,6 @@
 import * as knex from "knex"
 
-export const up = function (knex: knex.Knex, Promise: any) {
+export const up = function (knex: knex.Knex) {
   return knex.schema.createTable("perDiems", function (t) {
     t.increments("id").notNullable().primary()
     t.string("claim")
@@ -10,6 +10,6 @@ export const up = function (knex: knex.Knex, Promise: any) {
   })
 }
 
-export const down = function (knex: knex.Knex, Promise: any) {
+export const down = function (knex: knex.Knex) {
   return knex.schema.dropTable("perDiems")
 }
