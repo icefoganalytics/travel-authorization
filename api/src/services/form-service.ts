@@ -1,14 +1,22 @@
+import { CreationAttributes } from "@sequelize/core"
 import { isNull, minBy } from "lodash"
 
 import logger from "@/utils/logger"
-import { Expense, TravelAuthorization } from "@/models"
+import { Expense, Stop, TravelAuthorization } from "@/models"
 import ExpensesService from "./expenses-service"
 import StopsService from "./stops-service"
+
+type LegacyFormInput = CreationAttributes<TravelAuthorization> & {
+  stops: CreationAttributes<Stop>[]
+  expenses: CreationAttributes<Expense>[]
+  estimates: CreationAttributes<Expense>[]
+  departureDate?: string
+}
 
 // DEPRECATED: superseded by the TravelAuthorizationsService
 export class FormService {
   //returns form
-  async getForm(slug: string): Promise<any | undefined> {
+  async getForm(slug: string): Promise<TravelAuthorization | undefined> {
     logger.warn(
       "This method is deprecated, and will be removed in a future version. Please use Form.findByPK instead, see FormsController#show"
     )
@@ -25,34 +33,32 @@ export class FormService {
       const expenses = await this.getExpenses(form.id)
       const estimates = await this.getEstimates(form.id)
 
-      // @ts-ignore - not worth fixing as code is deprecated
-      form.estimates = estimates
+      Object.assign(form, { estimates })
       form.expenses = expenses
 
       const { stops } = form
       const earliestStop = minBy(stops, "departureDate")
-      // @ts-ignore - not worth fixing as code is deprecated
-      form.departureDate = earliestStop?.departureDate
+      Object.assign(form, { departureDate: earliestStop?.departureDate })
 
       return form
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.info(error)
       return undefined
     }
   }
 
-  async saveForm(userId: number, form: any): Promise<any | undefined> {
+  async saveForm(userId: number, form: LegacyFormInput): Promise<boolean> {
     logger.warn(
       "This method is deprecated, and will be removed in a future version. Please use FormsService#update instead."
     )
     try {
-      let stops = form.stops
-      let expenses = form.expenses
-      let estimates = form.estimates
+      const stops = form.stops
+      const expenses = form.expenses
+      const estimates = form.estimates
 
-      delete form.stops
-      delete form.expenses
-      delete form.estimates
+      delete (form as Partial<LegacyFormInput>).stops
+      delete (form as Partial<LegacyFormInput>).expenses
+      delete (form as Partial<LegacyFormInput>).estimates
       delete form.departureDate
 
       form.userId = userId
@@ -60,7 +66,7 @@ export class FormService {
 
       logger.info(form)
 
-      const [returnedForm, _] = await TravelAuthorization.upsert(form, {
+      const [returnedForm] = await TravelAuthorization.upsert(form, {
         conflictFields: ["slug"],
       })
       const id = returnedForm.id
@@ -70,13 +76,13 @@ export class FormService {
       await this.saveEstimates(id, estimates)
 
       return true
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.info(error)
       return false
     }
   }
 
-  async getExpenses(travelAuthorizationId: number): Promise<any[] | undefined> {
+  async getExpenses(travelAuthorizationId: number): Promise<Expense[] | undefined> {
     try {
       return Expense.findAll({
         where: {
@@ -84,23 +90,26 @@ export class FormService {
           type: Expense.Types.EXPENSE,
         },
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.info(error)
       return undefined
     }
   }
 
-  async saveExpenses(travelAuthorizationId: number, expenses: any): Promise<Boolean> {
+  async saveExpenses(
+    travelAuthorizationId: number,
+    expenses: CreationAttributes<Expense>[]
+  ): Promise<boolean> {
     try {
       await ExpensesService.bulkReplace(travelAuthorizationId, expenses)
       return true
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.info(error)
       return false
     }
   }
 
-  async getEstimates(travelAuthorizationId: number): Promise<any[] | undefined> {
+  async getEstimates(travelAuthorizationId: number): Promise<Expense[] | undefined> {
     try {
       return Expense.findAll({
         where: {
@@ -108,51 +117,49 @@ export class FormService {
           type: Expense.Types.ESTIMATE,
         },
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.info(error)
       return undefined
     }
   }
 
-  async saveEstimates(travelAuthorizationId: number, estimates: any): Promise<Boolean> {
+  async saveEstimates(
+    travelAuthorizationId: number,
+    estimates: CreationAttributes<Expense>[]
+  ): Promise<boolean> {
     logger.warn("DEPRECATED: use saveEstimates instead.")
     return this.saveExpenses(travelAuthorizationId, estimates)
   }
 
-  async submitForm(userId: number, form: any): Promise<Boolean> {
+  async submitForm(userId: number, form: LegacyFormInput): Promise<boolean> {
     logger.warn(
       "This method is deprecated, and will be removed in a future version. Please use FormsService#create instead."
     )
     try {
-      let stops = form.stops
-      delete form.stops
+      const stops = form.stops
+      delete (form as Partial<LegacyFormInput>).stops
 
-      let expenses = form.expenses
-      delete form.expenses
+      const expenses = form.expenses
+      delete (form as Partial<LegacyFormInput>).expenses
 
-      let estimates = form.estimates
-      delete form.estimates
+      const estimates = form.estimates
+      delete (form as Partial<LegacyFormInput>).estimates
 
       delete form.departureDate
 
-      // This is where we would check if the form is valid
-      if (true) {
-        form.userId = userId
-        form.status = TravelAuthorization.Statuses.SUBMITTED
+      form.userId = userId
+      form.status = TravelAuthorization.Statuses.SUBMITTED
 
-        const [returnedForm, _] = await TravelAuthorization.upsert(form, {
-          conflictFields: ["slug"],
-        })
-        const id = returnedForm.id
+      const [returnedForm] = await TravelAuthorization.upsert(form, {
+        conflictFields: ["slug"],
+      })
+      const id = returnedForm.id
 
-        await StopsService.bulkReplace(id, stops)
-        await this.saveExpenses(id, expenses)
-        await this.saveEstimates(id, estimates)
-        return true
-      } else {
-        throw new Error("Form is missing required fields")
-      }
-    } catch (error: any) {
+      await StopsService.bulkReplace(id, stops)
+      await this.saveExpenses(id, expenses)
+      await this.saveEstimates(id, estimates)
+      return true
+    } catch (error: unknown) {
       logger.info(error)
       return false
     }

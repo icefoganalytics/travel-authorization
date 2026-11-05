@@ -1,4 +1,4 @@
-import db from "@/db/db-client"
+import "@/db/db-client"
 import BaseService from "@/services/base-service"
 
 import { TravelAuthorization, User } from "@/models"
