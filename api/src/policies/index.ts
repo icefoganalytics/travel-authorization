@@ -21,6 +21,7 @@ export { TravelDeskOtherTransportationsPolicy } from "./travel-desk-other-transp
 export { TravelDeskQuestionsPolicy } from "./travel-desk-questions-policy"
 export { TravelDeskRentalCarsPolicy } from "./travel-desk-rental-cars-policy"
 export { TravelDeskTravelAgenciesPolicy } from "./travel-desk-travel-agencies-policy"
+export { TravelDeskProductTypesPolicy } from "./travel-desk-product-types-policy"
 export { TravelDeskTravelRequestsPolicy } from "./travel-desk-travel-requests-policy"
 export { TravelSegmentsPolicy } from "./travel-segments-policy"
 export { UsersPolicy } from "./users-policy"

@@ -68,10 +68,8 @@ export class TravelDeskTravelRequest extends Model<
   @Attribute(DataTypes.INTEGER)
   declare travelAgencyId: number | null
 
-  // TODO: rename this to something externalRecordIdentifier in the future.
-  // It will be used to link to external systems like TravCom or the new Travel datadump from Travelport.
-  // I believe it coresponds to the RecordLocator field in the new Travel datadump and will be used
-  // to generate invoices.
+  // Legacy TravCom invoice number, not a Travelport record locator.
+  // Booking-feed invoice references are stored separately on TravelDeskInvoice.
   @Attribute(DataTypes.STRING(255))
   declare invoiceNumber: string | null
 

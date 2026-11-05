@@ -11,11 +11,6 @@ import {
   NODE_ENV,
 } from "@/config"
 
-if (TRAVELPORT_DB_NAME === "") throw new Error("database name is unset.")
-if (TRAVELPORT_DB_USER === "") throw new Error("database username is unset.")
-if (TRAVELPORT_DB_PASS === "") throw new Error("database password is unset.")
-if (TRAVELPORT_DB_HOST === "") throw new Error("database host is unset.")
-
 export const SEQUELIZE_CONFIG: Options<MsSqlDialect> = {
   dialect: MsSqlDialect,
   server: TRAVELPORT_DB_HOST,
@@ -35,6 +30,16 @@ export const SEQUELIZE_CONFIG: Options<MsSqlDialect> = {
   define: { timestamps: false, paranoid: false },
 }
 
-export const db = new Sequelize(SEQUELIZE_CONFIG)
+let database: Sequelize<MsSqlDialect> | undefined
 
-export default db
+export function getDatabase(): Sequelize<MsSqlDialect> {
+  if (database !== undefined) return database
+
+  if (TRAVELPORT_DB_NAME === "") throw new Error("database name is unset.")
+  if (TRAVELPORT_DB_USER === "") throw new Error("database username is unset.")
+  if (TRAVELPORT_DB_PASS === "") throw new Error("database password is unset.")
+  if (TRAVELPORT_DB_HOST === "") throw new Error("database host is unset.")
+
+  database = new Sequelize(SEQUELIZE_CONFIG)
+  return database
+}
