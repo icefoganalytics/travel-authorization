@@ -1,6 +1,6 @@
 import * as knex from "knex"
 
-exports.up = function (knex: knex.Knex, Promise: any) {
+exports.up = function (knex: knex.Knex) {
   return knex.schema.createTable("flightReconciliation", function (t) {
     t.increments("reconcileID").notNullable().primary()
     t.integer("invoiceID").unsigned().notNullable()
@@ -10,6 +10,6 @@ exports.up = function (knex: knex.Knex, Promise: any) {
   })
 }
 
-exports.down = function (knex: knex.Knex, Promise: any) {
+exports.down = function (knex: knex.Knex) {
   return knex.schema.dropTable("flightReconciliation")
 }
