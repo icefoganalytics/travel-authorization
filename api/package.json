@@ -11,7 +11,7 @@
     "ts-node": "ts-node -r tsconfig-paths/register",
     "knex": "ts-node -r tsconfig-paths/register ./node_modules/.bin/knex --knexfile src/config.d/knexfile.ts",
     "test": "vitest",
-    "lint": "eslint . --ext .js,.ts --ignore-path ../.gitignore",
+    "lint": "eslint . --ext .js,.ts,.mts --ignore-path ../.gitignore",
     "check-types": "tsc -p tests/tsconfig.json --noEmit"
   },
   "author": "Michael Johnson",
