@@ -1,26 +1,10 @@
 import { Model } from "@sequelize/core"
 import { isPromise } from "util/types"
 
-type RemainingConstructorParameters<C extends new (...args: any[]) => any> = C extends new (
-  head: any,
-  ...tail: infer TT
-) => any
-  ? TT
-  : []
+/** Preserve synchronous and asynchronous serializer return types. */
+type MaybePromise<R> = [R] extends [Promise<infer Value>] ? Promise<Value> : R
 
-/**
- * For a function type F, returns either:
- *    - Promise<R> if `F` returns `Promise<R>`, or
- *    - R if `F` returns a non-promise type `R`
- */
-type MaybePromiseOf<F extends (...args: any[]) => any> =
-  ReturnType<F> extends Promise<infer R> ? Promise<R> : ReturnType<F>
-
-/**
- * Same logic, but returns an array type or `Promise<array>`.
- */
-type MaybePromiseOfArray<F extends (...args: any[]) => any> =
-  ReturnType<F> extends Promise<infer R> ? Promise<R[]> : ReturnType<F>[]
+type MaybePromiseArray<R> = [R] extends [Promise<infer Value>] ? Promise<Value[]> : R[]
 
 /**
  * BaseSerializer is a generic class that provides a common interface for all serializers.
@@ -55,43 +39,43 @@ export class BaseSerializer<M extends Model> {
   constructor(protected record: M) {}
 
   // Overload for handling a single record
-  static perform<T extends BaseSerializer<any>, C extends new (...args: any[]) => T>(
-    this: C,
-    ...args: ConstructorParameters<C>
-  ): MaybePromiseOf<InstanceType<C>["perform"]>
+  static perform<M extends Model, Args extends unknown[], Result>(
+    this: new (record: M, ...args: Args) => { perform(): Result },
+    record: M,
+    ...args: Args
+  ): MaybePromise<Result>
 
   // Overload for handling an array of records
-  static perform<T extends BaseSerializer<any>, C extends new (...args: any[]) => T>(
-    this: C,
-    ...args: [ConstructorParameters<C>[0][], ...RemainingConstructorParameters<C>]
-  ): MaybePromiseOfArray<InstanceType<C>["perform"]>
+  static perform<M extends Model, Args extends unknown[], Result>(
+    this: new (record: M, ...args: Args) => { perform(): Result },
+    records: M[],
+    ...args: Args
+  ): MaybePromiseArray<Result>
 
   // Implementation of the perform method
-  static perform<T extends BaseSerializer<any>, C extends new (...args: any[]) => T>(
-    this: C,
-    ...args:
-      | ConstructorParameters<C>
-      | [ConstructorParameters<C>[0][], ...RemainingConstructorParameters<C>]
-  ): MaybePromiseOf<InstanceType<C>["perform"]> | MaybePromiseOfArray<InstanceType<C>["perform"]> {
-    if (Array.isArray(args[0])) {
-      const records = args[0] as ConstructorParameters<C>[0][]
-      const results = records.map((record) => {
-        const instance = new this(record, ...args.slice(1))
+  static perform<M extends Model, Args extends unknown[], Result>(
+    this: new (record: M, ...args: Args) => { perform(): Result },
+    recordOrRecords: M | M[],
+    ...args: Args
+  ): MaybePromise<Result> | MaybePromiseArray<Result> {
+    if (Array.isArray(recordOrRecords)) {
+      const results = recordOrRecords.map((record) => {
+        const instance = new this(record, ...args)
         return instance.perform()
       })
       if (!isPromise(results[0])) {
-        return results as MaybePromiseOfArray<InstanceType<C>["perform"]>
+        return results as MaybePromiseArray<Result>
       }
 
-      return Promise.all(results) as MaybePromiseOfArray<InstanceType<C>["perform"]>
+      return Promise.all(results) as MaybePromiseArray<Result>
     } else {
-      const instance = new this(...args)
+      const instance = new this(recordOrRecords, ...args)
       const result = instance.perform()
       if (!isPromise(result)) {
-        return result as MaybePromiseOf<InstanceType<C>["perform"]>
+        return result as MaybePromise<Result>
       }
 
-      return Promise.resolve(result) as MaybePromiseOf<InstanceType<C>["perform"]>
+      return Promise.resolve(result) as MaybePromise<Result>
     }
   }
 

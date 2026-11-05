@@ -1,12 +1,15 @@
-namespace Express {
-  export interface Request {
-    user?: any
-    store?: any
-    oidc?: any
+import type { User } from "@/models"
 
-    isAuthenticated(): boolean
+import "express-fileupload"
+import "express-openid-connect"
 
-    // express-fileupload
-    files?: Record<string, any>
+declare global {
+  namespace Express {
+    export interface Request {
+      user?: User
+      store?: unknown
+
+      isAuthenticated(): boolean
+    }
   }
 }

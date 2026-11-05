@@ -1,7 +1,7 @@
 import * as knex from "knex"
 import moment from "moment"
 
-exports.up = function (knex: knex.Knex, Promise: any) {
+exports.up = function (knex: knex.Knex) {
   const format = "YYYY-MM-DD"
 
   return knex.schema
@@ -24,7 +24,7 @@ exports.up = function (knex: knex.Knex, Promise: any) {
     })
 }
 
-exports.down = function (knex: knex.Knex, Promise: any) {
+exports.down = function (knex: knex.Knex) {
   return knex.schema
     .alterTable("preapproved", function (t) {
       t.dropForeign("preTSubID")
