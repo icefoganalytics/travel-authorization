@@ -1,5 +1,18 @@
-export function dbToForm(dbForm: any) {
-  let webForm = {
+type LegacyStop = {
+  travelfrom: unknown
+  travelto: unknown
+  departuretime: unknown
+  departuredate: unknown
+  transport: unknown
+  estimate: unknown
+}
+
+type LegacyForm = Record<string, unknown> & {
+  stops: LegacyStop[]
+}
+
+export function dbToForm(dbForm: LegacyForm) {
+  const webForm = {
     firstName: dbForm.firstname,
     lastName: dbForm.lastname,
     department: dbForm.department,
@@ -18,7 +31,7 @@ export function dbToForm(dbForm: any) {
     status: dbForm.status,
     stops: [{}],
   }
-  for (let stop of dbForm.stops) {
+  for (const stop of dbForm.stops) {
     webForm.stops.push({
       travelFrom: stop.travelfrom,
       travelTo: stop.travelto,
@@ -31,8 +44,8 @@ export function dbToForm(dbForm: any) {
   return webForm
 }
 
-export function formToDb(webForm: any) {
-  let dbForm = {
+export function formToDb(webForm: LegacyForm) {
+  const dbForm = {
     general: {},
     stops: [{}],
   }
@@ -55,7 +68,7 @@ export function formToDb(webForm: any) {
     supervisoremail: webForm.supervisorEmail,
     status: webForm.status,
   }
-  for (let stop of webForm.stops) {
+  for (const stop of webForm.stops) {
     dbForm.stops.push({
       travelFrom: stop.travelfrom,
       travelTo: stop.travelto,

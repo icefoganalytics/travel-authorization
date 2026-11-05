@@ -1,4 +1,4 @@
-export function nullIfEmpty(value: any) {
+export function nullIfEmpty<T>(value: T): T | null {
   if (value) return value
   return null
 }
