@@ -17,6 +17,7 @@ import TravelAuthorizationPreApproval from "./travel-authorization-pre-approval"
 import TravelAuthorizationPreApprovalDocument from "./travel-authorization-pre-approval-document"
 import TravelAuthorizationPreApprovalProfile from "./travel-authorization-pre-approval-profile"
 import TravelAuthorizationPreApprovalSubmission from "./travel-authorization-pre-approval-submission"
+import TravelDeskBookingEvent from "./travel-desk-booking-event"
 import TravelDeskFlightOption from "./travel-desk-flight-option"
 import TravelDeskFlightRequest from "./travel-desk-flight-request"
 import TravelDeskFlightSegment from "./travel-desk-flight-segment"
@@ -50,6 +51,7 @@ db.addModels([
   TravelAuthorizationPreApprovalDocument,
   TravelAuthorizationPreApprovalProfile,
   TravelAuthorizationPreApprovalSubmission,
+  TravelDeskBookingEvent,
   TravelDeskFlightOption,
   TravelDeskFlightRequest,
   TravelDeskFlightSegment,
@@ -116,6 +118,7 @@ export {
   TravelAuthorizationPreApprovalDocument,
   TravelAuthorizationPreApprovalProfile,
   TravelAuthorizationPreApprovalSubmission,
+  TravelDeskBookingEvent,
   TravelDeskFlightOption,
   TravelDeskFlightRequest,
   TravelDeskFlightSegment,

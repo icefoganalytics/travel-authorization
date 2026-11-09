@@ -7,6 +7,7 @@ import {
 } from "@sequelize/core"
 import { Attribute, HasMany, HasOne, Table } from "@sequelize/core/decorators-legacy"
 
+import { getDatabase } from "@/integrations/travelport-integration/db/db-client"
 import AirReservationSegment from "@/integrations/travelport-integration/models/air-reservation-segment"
 import Passenger from "@/integrations/travelport-integration/models/passenger"
 import ServiceFeeTransaction from "@/integrations/travelport-integration/models/service-fee-transaction"
@@ -100,6 +101,16 @@ export class TravelOrderEvent extends Model<
   declare serviceFeeTransaction?: NonAttribute<ServiceFeeTransaction | null>
 
   static async findAllByRecordLocator(recordLocator: string): Promise<TravelOrderEvent[]> {
+    const database = getDatabase()
+    if (!this.isInitialized()) {
+      database.addModels([
+        TravelOrderEvent,
+        Passenger,
+        AirReservationSegment,
+        ServiceFeeTransaction,
+      ])
+    }
+
     return this.findAll({
       where: { recordLocator },
       include: [
