@@ -33,17 +33,6 @@ export const SEQUELIZE_CONFIG: Options<MsSqlDialect> = {
   },
 }
 
-let database: Sequelize<MsSqlDialect> | undefined
+export const db = new Sequelize(SEQUELIZE_CONFIG)
 
-export function getDatabase(): Sequelize<MsSqlDialect> {
-  if (database !== undefined) return database
-
-  if (TRAVELPORT_DB_NAME === "") throw new Error("database name is unset.")
-  if (TRAVELPORT_DB_USER === "") throw new Error("database username is unset.")
-  if (TRAVELPORT_DB_PASS === "") throw new Error("database password is unset.")
-  if (TRAVELPORT_DB_HOST === "") throw new Error("database host is unset.")
-
-  database = new Sequelize(SEQUELIZE_CONFIG)
-
-  return database
-}
+export default db
