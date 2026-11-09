@@ -33,16 +33,16 @@ describe("api/src/controllers/travel-desk-flight-options-controller.ts", () => {
             seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
           })
         const optionCreatedAt = new Date("2026-10-01T12:00:00.000Z")
-        const travelDeskFlightOption = await travelDeskFlightOptionFactory.create({
-          flightRequest: travelDeskFlightRequest,
-          traveler: adminUser,
-          cost: "700.00",
-          leg: "Whitehorse -> Vancouver",
-          duration: "2 hours",
-          flightPreferenceOrder: 1,
-          additionalInformation: null,
-          createdAt: optionCreatedAt,
-        })
+        const travelDeskFlightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest: travelDeskFlightRequest, traveler: adminUser })
+          .create({
+            cost: "700.00",
+            leg: "Whitehorse -> Vancouver",
+            duration: "2 hours",
+            flightPreferenceOrder: 1,
+            additionalInformation: null,
+            createdAt: optionCreatedAt,
+          })
         const segmentCreatedAt = new Date("2026-10-03T12:00:00.000Z")
         await travelDeskFlightSegmentFactory
           .associations({ flightOption: travelDeskFlightOption })
@@ -124,16 +124,16 @@ describe("api/src/controllers/travel-desk-flight-options-controller.ts", () => {
             seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
           })
         const createdAt = new Date("2026-10-01T12:00:00.000Z")
-        const travelDeskFlightOption = await travelDeskFlightOptionFactory.create({
-          flightRequest: travelDeskFlightRequest,
-          traveler: adminUser,
-          cost: "700.00",
-          leg: "Whitehorse -> Vancouver",
-          duration: "2 hours",
-          flightPreferenceOrder: 1,
-          additionalInformation: null,
-          createdAt,
-        })
+        const travelDeskFlightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest: travelDeskFlightRequest, traveler: adminUser })
+          .create({
+            cost: "700.00",
+            leg: "Whitehorse -> Vancouver",
+            duration: "2 hours",
+            flightPreferenceOrder: 1,
+            additionalInformation: null,
+            createdAt,
+          })
 
         // Act
         const response = await request().get(
@@ -184,15 +184,15 @@ describe("api/src/controllers/travel-desk-flight-options-controller.ts", () => {
             timePreference: TravelDeskFlightRequest.TimePreferences.AM,
             seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
           })
-        const travelDeskFlightOption = await travelDeskFlightOptionFactory.create({
-          flightRequest: travelDeskFlightRequest,
-          traveler,
-          cost: "700.00",
-          leg: "Whitehorse -> Vancouver",
-          duration: "2 hours",
-          flightPreferenceOrder: 1,
-          additionalInformation: null,
-        })
+        const travelDeskFlightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest: travelDeskFlightRequest, traveler })
+          .create({
+            cost: "700.00",
+            leg: "Whitehorse -> Vancouver",
+            duration: "2 hours",
+            flightPreferenceOrder: 1,
+            additionalInformation: null,
+          })
 
         // Act
         const response = await request().get(
@@ -323,16 +323,16 @@ describe("api/src/controllers/travel-desk-flight-options-controller.ts", () => {
             seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
           })
         const createdAt = new Date("2026-10-01T12:00:00.000Z")
-        const travelDeskFlightOption = await travelDeskFlightOptionFactory.create({
-          flightRequest: travelDeskFlightRequest,
-          traveler: adminUser,
-          cost: "700.00",
-          leg: "Whitehorse -> Vancouver",
-          duration: "2 hours",
-          flightPreferenceOrder: 1,
-          additionalInformation: null,
-          createdAt,
-        })
+        const travelDeskFlightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest: travelDeskFlightRequest, traveler: adminUser })
+          .create({
+            cost: "700.00",
+            leg: "Whitehorse -> Vancouver",
+            duration: "2 hours",
+            flightPreferenceOrder: 1,
+            additionalInformation: null,
+            createdAt,
+          })
 
         // Act
         const response = await request()

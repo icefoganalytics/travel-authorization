@@ -20,10 +20,9 @@ describe("api/src/controllers/travel-desk-other-transportations-controller.ts", 
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
         mockCurrentUser(user1)
-        const travelAuthorization1 = await travelAuthorizationFactory.create({
-          user: user1,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
+        const travelAuthorization1 = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
         const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization1 })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
@@ -76,10 +75,9 @@ describe("api/src/controllers/travel-desk-other-transportations-controller.ts", 
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         const user2 = await userFactory.create({ roles: [User.Roles.USER] })
         mockCurrentUser(user1)
-        const travelAuthorization1 = await travelAuthorizationFactory.create({
-          user: user2,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
+        const travelAuthorization1 = await travelAuthorizationFactory
+          .associations({ user: user2 })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
         const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization1 })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })

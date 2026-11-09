@@ -17,8 +17,7 @@ describe("api/src/controllers/expenses-controller.ts", () => {
     describe("#create - POST /api/expenses", () => {
       test("when authorized and expense creation succeeds, it returns the created expense", async () => {
         // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          user,
+        const travelAuthorization = await travelAuthorizationFactory.associations({ user }).create({
           status: TravelAuthorization.Statuses.DRAFT,
         })
         const newExpenseAttributes = expenseFactory.build({
