@@ -42,7 +42,7 @@
     <v-row>
       <v-col>
         <h3>Meals and Incidentals</h3>
-        <ExpenseClaimSubmitMealsAndIncidentalsDataTable
+        <ExpenseClaimSubmitMealsAndIncidentalsDataTableServer
           ref="mealsAndIncidentalsTable"
           :travel-authorization-id="travelAuthorizationId"
         />
@@ -67,9 +67,10 @@
           />
         </div>
 
-        <GeneralLedgerCodingsEditDataTable
+        <GeneralLedgerCodingsEditDataTableServer
           ref="codingsTable"
-          :travel-authorization-id="travelAuthorizationId"
+          :where="codingsWhere"
+          route-query-suffix="Codings"
           @changed="refreshCodingsChangedDependencies"
         />
       </v-col>
@@ -98,13 +99,13 @@ import useExpenses, { ExpenseTypes, ExpenseExpenseTypes } from "@/use/use-expens
 import useTravelSegments from "@/use/use-travel-segments"
 import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
-import ExpenseClaimSubmitMealsAndIncidentalsDataTable from "@/components/expenses/ExpenseClaimSubmitMealsAndIncidentalsDataTable.vue"
+import ExpenseClaimSubmitMealsAndIncidentalsDataTableServer from "@/components/expenses/ExpenseClaimSubmitMealsAndIncidentalsDataTableServer.vue"
 import ExpenseClaimSubmitTotalsCard from "@/components/expenses/ExpenseClaimSubmitTotalsCard.vue"
 import ExpenseCreateDialog from "@/components/expenses/ExpenseCreateDialog.vue"
 import ExpensePrefillDialog from "@/components/expenses/ExpensePrefillDialog.vue"
 import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
 import GeneralLedgerCodingWizardCreateDialog from "@/components/general-ledger-codings/GeneralLedgerCodingWizardCreateDialog.vue"
-import GeneralLedgerCodingsEditDataTable from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTable.vue"
+import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
 import TravelAuthorizationExpenseApprovalForm from "@/components/travel-authorizations/expenses/TravelAuthorizationExpenseApprovalForm.vue"
 
 const props = defineProps<{
@@ -122,6 +123,10 @@ const isExpenseClaimTravellerChangesRequested = computed(
 const expenseWhere = computed(() => ({
   travelAuthorizationId: props.travelAuthorizationId,
   expenseType: [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION],
+}))
+
+const codingsWhere = computed(() => ({
+  travelAuthorizationId: props.travelAuthorizationId,
 }))
 
 const expenseOptions = computed(() => ({

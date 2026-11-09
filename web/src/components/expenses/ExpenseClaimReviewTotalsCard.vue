@@ -43,7 +43,6 @@
 </template>
 
 <script setup lang="ts">
-import { sumBy } from "lodash"
 import { computed, toRefs } from "vue"
 
 import { formatCurrency } from "@/utils/formatters"
@@ -64,12 +63,12 @@ const expenseOptions = computed(() => ({
     travelAuthorizationId: props.travelAuthorizationId,
     type: ExpenseTypes.EXPENSE,
   },
+  perPage: 1,
 }))
-const { expenses, isLoading: isLoadingExpenses } = useExpenses(expenseOptions)
+const { summaries, isLoading: isLoadingExpenses } = useExpenses(expenseOptions)
 
 const isLoading = computed(() => isLoadingExpenses.value || isLoadingTravelAuthorization.value)
-// Will need to be calculated in the back-end if data is multi-page.
-const subTotalClaim = computed(() => sumBy(expenses.value, "cost"))
+const subTotalClaim = computed(() => summaries.value.totalCost)
 const travelAdvance = computed(() => {
   const travelAdvanceInCents = travelAuthorization.value?.travelAdvanceInCents ?? 0
   return Number(travelAdvanceInCents) / 100.0

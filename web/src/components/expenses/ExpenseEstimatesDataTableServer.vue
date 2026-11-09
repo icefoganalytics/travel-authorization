@@ -34,18 +34,22 @@
 import { computed, ref } from "vue"
 
 import { formatCurrency, formatDate } from "@/utils/formatters"
-
-import { ExpenseTypes } from "@/api/expenses-api"
-
-import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
 import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+
+import {
+  ExpenseTypes,
+  type ExpenseWhereOptions,
+  type ExpenseFiltersOptions,
+} from "@/api/expenses-api"
+
 import useExpenses from "@/use/use-expenses"
 
 const props = withDefaults(
   defineProps<{
-    where?: Record<string, unknown>
-    filters?: Record<string, unknown>
+    where?: ExpenseWhereOptions
+    filters?: ExpenseFiltersOptions
     routeQuerySuffix?: string
   }>(),
   {
@@ -74,20 +78,9 @@ const headers = ref([
   },
 ])
 
-const page = useRouteQuery<string | undefined, number | undefined>(
-  `page${props.routeQuerySuffix}`,
-  "1",
-  {
-    transform: integerTransformer,
-  }
-)
-const perPage = useRouteQuery<string | undefined, number | undefined>(
-  `perPage${props.routeQuerySuffix}`,
-  "10",
-  {
-    transform: integerTransformer,
-  }
-)
+const { page, perPage } = useRouteQueryPagination({
+  routeQuerySuffix: props.routeQuerySuffix,
+})
 const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
   {
     key: "date",

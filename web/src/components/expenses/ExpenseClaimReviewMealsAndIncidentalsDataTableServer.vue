@@ -1,8 +1,11 @@
 <template>
-  <v-data-table
+  <v-data-table-server
+    v-model:page="page"
+    v-model:items-per-page="perPage"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="expenses"
-    :items-per-page="10"
+    :items-length="totalCount"
     :loading="isLoading"
   >
     <template #item.date="{ value }">
@@ -22,14 +25,16 @@
         </tr>
       </tfoot>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
-import { sumBy } from "lodash"
 import { computed, ref } from "vue"
 
 import { formatCurrency, formatDate } from "@/utils/formatters"
+import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import useExpenses, {
   ExpenseTypes,
@@ -41,14 +46,28 @@ const props = defineProps<{
   travelAuthorizationId: number
 }>()
 
+const { page, perPage } = useRouteQueryPagination({
+  routeQuerySuffix: "MealsAndIncidentals",
+})
+const sortBy = useVuetifySortByToSafeRouteQuery("sortByMealsAndIncidentals", [
+  {
+    key: "date",
+    order: "asc",
+  },
+])
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
+
 const expenseOptions = computed<ExpenseQueryOptions>(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
     type: ExpenseTypes.EXPENSE,
-    expenseType: [ExpenseExpenseTypes.MEALS_AND_INCIDENTALS, ExpenseExpenseTypes.NON_TRAVEL_STATUS],
+    expenseType: ExpenseExpenseTypes.MEALS_AND_INCIDENTALS,
   },
+  order: order.value,
+  page: page.value,
+  perPage: perPage.value,
 }))
-const { expenses, isLoading, fetch: refresh } = useExpenses(expenseOptions)
+const { expenses, totalCount, summaries, isLoading } = useExpenses(expenseOptions)
 
 const headers = ref([
   { title: "Date", key: "date" },
@@ -62,10 +81,5 @@ const currencyFormatOptions = {
   maximumFractionDigits: 2,
 }
 
-// Will need to be calculated in the back-end if data is multi-page.
-const totalAmount = computed(() => sumBy(expenses.value, "cost"))
-
-defineExpose({
-  refresh,
-})
+const totalAmount = computed(() => summaries.value.totalCost)
 </script>

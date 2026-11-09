@@ -1,7 +1,10 @@
 <template>
   <div>
     <HeaderActionsCard title="Estimates">
-      <EstimatesDataTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <ExpenseEstimatesDataTableServer
+        :where="estimatesWhere"
+        route-query-suffix="Estimates"
+      />
     </HeaderActionsCard>
   </div>
 </template>
@@ -13,13 +16,16 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
-import EstimatesDataTable from "@/components/expenses/EstimatesDataTable.vue"
+import ExpenseEstimatesDataTableServer from "@/components/expenses/ExpenseEstimatesDataTableServer.vue"
 
 const props = defineProps<{
   travelAuthorizationId: string
 }>()
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+const estimatesWhere = computed(() => ({
+  travelAuthorizationId: travelAuthorizationIdAsNumber.value,
+}))
 
 useBreadcrumbs([
   {

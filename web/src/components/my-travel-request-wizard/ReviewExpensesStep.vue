@@ -23,7 +23,7 @@
     <v-row>
       <v-col>
         <h3>Meals and Incidentals</h3>
-        <ExpenseClaimReviewMealsAndIncidentalsDataTable
+        <ExpenseClaimReviewMealsAndIncidentalsDataTableServer
           :travel-authorization-id="travelAuthorizationId"
         />
       </v-col>
@@ -38,7 +38,7 @@
     <v-row>
       <v-col>
         <h3>Coding</h3>
-        <GeneralLedgerCodingsDataTable :travel-authorization-id="travelAuthorizationId" />
+        <GeneralLedgerCodingsDataTableServer :travel-authorization-id="travelAuthorizationId" />
       </v-col>
       <v-col cols="4"></v-col>
     </v-row>
@@ -52,10 +52,10 @@ import { ExpenseExpenseTypes, type ExpenseWhereOptions } from "@/use/use-expense
 import useTravelAuthorization, { TravelAuthorizationStatuses } from "@/use/use-travel-authorization"
 import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
-import ExpenseClaimReviewMealsAndIncidentalsDataTable from "@/components/expenses/ExpenseClaimReviewMealsAndIncidentalsDataTable.vue"
+import ExpenseClaimReviewMealsAndIncidentalsDataTableServer from "@/components/expenses/ExpenseClaimReviewMealsAndIncidentalsDataTableServer.vue"
 import ExpenseClaimReviewTotalsCard from "@/components/expenses/ExpenseClaimReviewTotalsCard.vue"
 import ExpensesDataTableServer from "@/components/expenses/ExpensesDataTableServer.vue"
-import GeneralLedgerCodingsDataTable from "@/components/general-ledger-codings/GeneralLedgerCodingsDataTable.vue"
+import GeneralLedgerCodingsDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsDataTableServer.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number
