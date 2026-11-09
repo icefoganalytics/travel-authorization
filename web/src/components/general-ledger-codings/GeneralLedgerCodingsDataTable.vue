@@ -19,18 +19,15 @@
   </v-data-table>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { sumBy } from "lodash"
 import { computed, ref } from "vue"
 
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
 const generalLedgerCodingOptions = computed(() => ({
   where: {
@@ -46,7 +43,7 @@ const headers = ref([
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 
-function formatCurrency(amount) {
+function formatCurrency(amount: number) {
   const formatter = new Intl.NumberFormat("en-CA", {
     style: "currency",
     currency: "CAD",

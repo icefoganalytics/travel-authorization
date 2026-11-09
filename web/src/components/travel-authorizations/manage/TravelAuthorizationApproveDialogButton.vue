@@ -25,7 +25,7 @@
         <v-card-text :loading="isLoading">
           <p>
             Approve travel of {{ requestorDisplayName }} to
-            <LocationChip :location-id="travelLocationId" />
+            <LocationChip :location-id="travelLocationId ?? undefined" />
             <template v-if="travelAuthorization?.eventName">
               for {{ travelAuthorization.eventName }}
             </template>

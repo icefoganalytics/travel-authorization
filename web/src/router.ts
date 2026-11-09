@@ -111,14 +111,14 @@ const routes: RouteRecordRaw[] = [
                 path: "estimate/edit",
                 name: "EditTravelAuthorizationEstimatePage",
                 component: () =>
-                  import("@/modules/travel-authorizations/pages/EditTravelAuthorizationEstimatePage.vue"),
+                  import("@/pages/travel-requests/EditTravelAuthorizationEstimatePage.vue"),
                 props: true,
               },
               {
                 path: "expense/edit",
                 name: "EditTravelAuthorizationExpensePage",
                 component: () =>
-                  import("@/modules/travel-authorizations/pages/EditTravelAuthorizationExpensePage.vue"),
+                  import("@/pages/travel-requests/EditTravelAuthorizationExpensePage.vue"),
                 props: true,
               },
             ],

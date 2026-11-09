@@ -1,26 +1,23 @@
 <template>
   <div>
     <HeaderActionsCard title="Estimates">
-      <EstimatesTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <EstimatesDataTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
     </HeaderActionsCard>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
-import EstimatesTable from "@/modules/travel-authorizations/components/read-travel-authorization-estimate-page/EstimatesTable.vue"
+import EstimatesDataTable from "@/components/expenses/EstimatesDataTable.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: string
+}>()
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 

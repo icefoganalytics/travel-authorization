@@ -71,7 +71,7 @@
       "
     >
       <v-col>
-        <ManagementCard
+        <TravelAuthorizationExpenseManagementCard
           :travel-authorization-id="travelAuthorizationIdAsNumber"
           @approved="goToManageTravelRequests"
           @denied="goToManageTravelRequests"
@@ -98,7 +98,7 @@ import GeneralLedgerCodingCreateDialog from "@/components/general-ledger-codings
 import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
 
 import TravelAuthorizationExpenseTotalsCard from "@/components/travel-authorizations/expenses/TravelAuthorizationExpenseTotalsCard.vue"
-import ManagementCard from "@/modules/travel-authorizations/components/manage-travel-authorization-expense-page/ManagementCard.vue"
+import TravelAuthorizationExpenseManagementCard from "@/components/travel-authorizations/expenses/TravelAuthorizationExpenseManagementCard.vue"
 
 const props = defineProps<{
   travelAuthorizationId: string

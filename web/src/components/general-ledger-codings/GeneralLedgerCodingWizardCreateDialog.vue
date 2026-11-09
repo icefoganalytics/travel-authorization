@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from "vue"
+import { ref, watch, nextTick, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
 import { type VForm } from "vuetify/components"
@@ -110,7 +110,6 @@ const props = defineProps<{
   travelAuthorizationId: number
 }>()
 
-// TODO: switch to `created: [void]` syntax in vue 3
 const emit = defineEmits<{
   (event: "created"): void
 }>()
@@ -125,7 +124,7 @@ const generalLedgerCoding = ref({
   amount: 0.0,
 })
 
-const form = ref<InstanceType<typeof VForm> | null>(null)
+const form = useTemplateRef<InstanceType<typeof VForm>>("form")
 const snack = useSnack()
 const isLoading = ref(false)
 

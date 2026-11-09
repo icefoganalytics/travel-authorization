@@ -65,28 +65,28 @@
   </v-data-table>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { sumBy } from "lodash"
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, ref, useTemplateRef } from "vue"
 
 import { formatCurrency } from "@/utils/formatters"
 
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 
-import GeneralLedgerCodingDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingDeleteDialog.vue"
-import GeneralLedgerCodingEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingEditDialog.vue"
+import GeneralLedgerCodingDeleteDialog from "@/components/general-ledger-codings/GeneralLedgerCodingDeleteDialog.vue"
+import GeneralLedgerCodingEditDialog from "@/components/general-ledger-codings/GeneralLedgerCodingEditDialog.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-const emit = defineEmits(["changed"])
+const emit = defineEmits<{
+  changed: []
+}>()
 
-const editDialog = ref(null)
-const deleteDialog = ref(null)
+const editDialog = useTemplateRef<InstanceType<typeof GeneralLedgerCodingEditDialog>>("editDialog")
+const deleteDialog =
+  useTemplateRef<InstanceType<typeof GeneralLedgerCodingDeleteDialog>>("deleteDialog")
 
 const generalLedgerCodingOptions = computed(() => ({
   where: {
@@ -116,12 +116,12 @@ async function emitChangedAndRefresh() {
   await refresh()
 }
 
-function showDeleteDialog(item) {
-  deleteDialog.value.show(item.id)
+function showDeleteDialog(item: { id: number }) {
+  deleteDialog.value?.show(item.id)
 }
 
-function showEditDialog(item) {
-  editDialog.value.show(item.id)
+function showEditDialog(item: { id: number }) {
+  editDialog.value?.show(item.id)
 }
 
 defineExpose({

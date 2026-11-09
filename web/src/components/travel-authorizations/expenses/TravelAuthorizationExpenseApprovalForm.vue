@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, toRefs } from "vue"
+import { computed, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 import { type VForm } from "vuetify/components"
 
@@ -103,7 +103,7 @@ async function refresh() {
   ])
 }
 
-const form = ref<InstanceType<typeof VForm> | null>(null)
+const form = useTemplateRef<InstanceType<typeof VForm>>("form")
 const snack = useSnack()
 
 async function requestApprovalForExpenseClaim() {

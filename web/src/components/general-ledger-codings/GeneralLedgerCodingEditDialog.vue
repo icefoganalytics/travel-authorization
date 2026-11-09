@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue"
+import { nextTick, ref, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
@@ -107,7 +107,7 @@ const generalLedgerCodingId = useRouteQuery("showEdit", undefined, {
 })
 const { generalLedgerCoding, isLoading } = useGeneralLedgerCoding(generalLedgerCodingId)
 
-const form = ref<InstanceType<typeof VForm> | null>(null)
+const form = useTemplateRef<InstanceType<typeof VForm>>("form")
 const snack = useSnack()
 
 async function updateAndClose() {

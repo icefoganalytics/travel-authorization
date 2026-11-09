@@ -23,28 +23,29 @@
   </v-data-table>
 </template>
 
-<script setup>
-import { sumBy } from "lodash"
+<script setup lang="ts">
 import { computed, ref } from "vue"
 import { DateTime } from "luxon"
+import { sumBy } from "lodash"
 
-import useExpenses, { TYPES, EXPENSE_TYPES } from "@/use/use-expenses"
+import useExpenses, {
+  ExpenseTypes,
+  ExpenseExpenseTypes,
+  type ExpenseQueryOptions,
+} from "@/use/use-expenses"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-const expenseOptions = computed(() => ({
+const expenseOptions = computed<ExpenseQueryOptions>(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
-    type: TYPES.EXPENSE,
-    expenseType: [EXPENSE_TYPES.MEALS_AND_INCIDENTALS, EXPENSE_TYPES.NON_TRAVEL_STATUS],
+    type: ExpenseTypes.EXPENSE,
+    expenseType: ExpenseExpenseTypes.MEALS_AND_INCIDENTALS,
   },
 }))
-const { expenses, isLoading, fetch: refresh } = useExpenses(expenseOptions)
+const { expenses, isLoading } = useExpenses(expenseOptions)
 
 const headers = ref([
   { title: "Date", key: "date" },
@@ -57,19 +58,15 @@ const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
 // Will need to be calculated in the back-end if data is multi-page.
 const totalAmount = computed(() => sumBy(expenses.value, "cost"))
 
-function formatDate(date) {
-  return DateTime.fromISO(date, { zone: "utc" }).toFormat("d-LLLL-yyyy")
+function formatDate(date: string | null) {
+  return DateTime.fromISO(date ?? "", { zone: "utc" }).toFormat("d-LLLL-yyyy")
 }
 
-function formatCurrency(amount) {
+function formatCurrency(amount: number) {
   const formatter = new Intl.NumberFormat("en-CA", {
     style: "currency",
     currency: "CAD",
   })
   return formatter.format(amount)
 }
-
-defineExpose({
-  refresh,
-})
 </script>

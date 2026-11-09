@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue"
+import { nextTick, ref, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
 import { type VForm } from "vuetify/components"
@@ -135,7 +135,7 @@ watch(
   }
 )
 
-const form = ref<InstanceType<typeof VForm> | null>(null)
+const form = useTemplateRef<InstanceType<typeof VForm>>("form")
 const isLoading = ref(false)
 const snack = useSnack()
 
