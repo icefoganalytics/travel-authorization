@@ -13,6 +13,64 @@ import { mockCurrentUser, request } from "@/support"
 describe("api/src/controllers/travel-desk-flight-segments-controller.ts", () => {
   describe("TravelDeskFlightSegmentsController", () => {
     describe("index", () => {
+      test("when filtering for a travel request, it returns only its live local flight segments", async () => {
+        // Arrange
+        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const otherRequest = await travelDeskTravelRequestFactory.create()
+        const flightRequest1 = await travelDeskFlightRequestFactory
+          .associations({ travelRequest })
+          .create()
+        const flightRequest2 = await travelDeskFlightRequestFactory
+          .associations({ travelRequest: otherRequest })
+          .create()
+        const flightOption1 = await travelDeskFlightOptionFactory
+          .associations({ flightRequest: flightRequest1, traveler: officer })
+          .create()
+        const flightOption2 = await travelDeskFlightOptionFactory
+          .associations({ flightRequest: flightRequest2, traveler: officer })
+          .create()
+        const segment = await travelDeskFlightSegmentFactory
+          .associations({ flightOption: flightOption1 })
+          .create({
+            flightNumber: "ZZ1001",
+            departAt: new Date("2030-01-01T12:00:00Z"),
+            departLocation: "YXY",
+            arriveAt: new Date("2030-01-01T14:00:00Z"),
+            arriveLocation: "YVR",
+          })
+        await travelDeskFlightSegmentFactory
+          .associations({ flightOption: flightOption2 })
+          .create({ flightNumber: "ZZ2002" })
+        const deletedSegment = await travelDeskFlightSegmentFactory
+          .associations({ flightOption: flightOption1 })
+          .create({ flightNumber: "ZZ3003" })
+        await deletedSegment.destroy()
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request()
+          .get("/api/travel-desk-flight-segments")
+          .query({ filters: { forTravelRequest: travelRequest.id }, perPage: -1 })
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          travelDeskFlightSegments: [
+            expect.objectContaining({
+              id: segment.id,
+              flightOptionId: flightOption1.id,
+              flightNumber: "ZZ1001",
+              departLocation: "YXY",
+              arriveLocation: "YVR",
+              departAt: "2030-01-01T12:00:00.000Z",
+              arriveAt: "2030-01-01T14:00:00.000Z",
+            }),
+          ],
+          totalCount: 1,
+        })
+      })
+
       test("when a flight option has a segment, it returns the explicit segment fields", async () => {
         // Arrange
         const adminUser = await userFactory.create({ roles: [User.Roles.ADMIN] })

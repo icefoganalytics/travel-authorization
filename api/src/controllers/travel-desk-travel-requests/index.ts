@@ -6,3 +6,5 @@ export { SubmitController } from "./submit-controller"
 
 // Sub-resource endpoints
 export { PassengerNameRecordDocumentController } from "./passenger-name-record-document-controller"
+export { TravelDeskBookingEventsController } from "./travel-desk-booking-events-controller"
+export { TravelDeskInvoicesController } from "./travel-desk-invoices-controller"
