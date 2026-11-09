@@ -28,6 +28,11 @@ dev migrate make create-table-name
 
 TravelAuth uses [Knex migrations](https://knexjs.org/guide/migrations.html#migration-cli).
 
+Define migration entrypoints with named `up` and `down` function declarations:
+`export function up(...)` and `export function down(...)`. Use `export async function`
+when the migration awaits database operations, rather than assigning functions to `exports`
+or exported constants.
+
 Database tables use `snake_case`, while application models use `camelCase`. When you add or update
 columns, keep that mapping in mind.
 
