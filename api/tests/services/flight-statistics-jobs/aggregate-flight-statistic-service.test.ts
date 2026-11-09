@@ -4,7 +4,7 @@ import { flightStatisticFactory } from "@/factories"
 import {
   accountsReceivableInvoiceFactory,
   accountsReceivableInvoiceDetailFactory,
-  cityFactory,
+  createCity,
   segmentFactory,
 } from "@/integrations/trav-com-integration/tests/factories"
 
@@ -34,12 +34,12 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
             ticketNumber: "393940",
           })
 
-        const departureCity = await cityFactory.create({
+        const departureCity = await createCity({
           cityCode: "YXY",
           cityName: "WHITEHORSE",
           state: "YT",
         })
-        const arrivalCity = await cityFactory.create({
+        const arrivalCity = await createCity({
           cityCode: "YVR",
           cityName: "VANCOUVER INTL",
           state: "BC",
@@ -129,12 +129,12 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
             ticketNumber: "123456",
           })
 
-        const departureCity = await cityFactory.create({
+        const departureCity = await createCity({
           cityCode: "YXY",
           cityName: "WHITEHORSE",
           state: "YT",
         })
-        const arrivalCity = await cityFactory.create({
+        const arrivalCity = await createCity({
           cityCode: destinationAirportCode,
           cityName: destinationCity,
           state: destinationProvince,
@@ -200,12 +200,12 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
             ticketNumber: "123456",
           })
 
-        const whitehorse = await cityFactory.create({
+        const whitehorse = await createCity({
           cityCode: "YXY",
           cityName: "WHITEHORSE",
           state: "YT",
         })
-        const vancouver = await cityFactory.create({
+        const vancouver = await createCity({
           cityCode: "YVR",
           cityName: "VANCOUVER INTL",
           state: "BC",
@@ -298,12 +298,12 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
             ticketNumber: "123456",
           })
 
-        const departureCity = await cityFactory.create({
+        const departureCity = await createCity({
           cityCode: "YXY",
           cityName: "WHITEHORSE",
           state: "YT",
         })
-        const arrivalCity = await cityFactory.create({
+        const arrivalCity = await createCity({
           cityCode: "YVR",
           cityName: "VANCOUVER INTL",
           state: "BC",
@@ -357,7 +357,7 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
             ticketNumber: "123456",
           })
 
-        await cityFactory.create({
+        await createCity({
           cityCode: "YVR",
           cityName: "VANCOUVER INTL",
           state: "BC",
@@ -402,9 +402,8 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
           departmentMailcode: "A-9",
         })
 
-        // Assert
+        // Act / Assert
         await expect(
-          // Act
           AggregateFlightStatisticService.perform(accountsReceivableInvoice)
         ).rejects.toThrow("Expect details association to be preloaded")
       })
@@ -423,9 +422,8 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
           ],
         })
 
-        // Assert
+        // Act / Assert
         await expect(
-          // Act
           AggregateFlightStatisticService.perform(accountsReceivableInvoice)
         ).rejects.toThrow("Expect segments association to be preloaded")
       })
@@ -466,9 +464,8 @@ describe("api/src/services/flight-statistics-jobs/aggregate-flight-statistic-ser
           ],
         })
 
-        // Assert
+        // Act / Assert
         await expect(
-          // Act
           AggregateFlightStatisticService.perform(accountsReceivableInvoice)
         ).rejects.toThrow("Expect arrivalCity association to be preloaded")
       })
