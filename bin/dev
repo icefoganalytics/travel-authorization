@@ -158,11 +158,11 @@ class DevHelper
   end
 
   def lint_api(*args, **kwargs)
-    compose(*%w[run --rm --no-deps -T api npm run lint -- --no-fix], *args, **kwargs)
+    compose(*%w[run --rm --no-deps -T api npm run lint -- --no-fix], *args, **kwargs, include_gateway: false)
   end
 
   def lint_web(*args, **kwargs)
-    compose(*%w[run --rm --no-deps -T web npm run lint -- --no-fix], *args, **kwargs)
+    compose(*%w[run --rm --no-deps -T web npm run lint -- --no-fix], *args, **kwargs, include_gateway: false)
   end
 
   def test(*args, **kwargs)
@@ -435,9 +435,11 @@ class DevHelper
     end
   end
 
-  def compose_file_options(environment: "development", **kwargs)
+  def compose_file_options(environment: "development", include_gateway: true, **kwargs)
     options = ["-f", "docker-compose.#{environment}.yml"]
-    options.concat(["-f", "docker-compose.development.gateway.yml"]) if environment == "development"
+    if environment == "development" && include_gateway
+      options.concat(["-f", "docker-compose.development.gateway.yml"])
+    end
 
     if RUBY_PLATFORM =~ /linux/
       linux_override = "docker-compose.#{environment}.linux.yml"
