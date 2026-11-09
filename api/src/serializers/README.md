@@ -21,6 +21,12 @@ Serializers are used in controllers to convert from a database representation to
 - Use `AsShow` for show serializer types.
 - Follow the shape `{Model}AsIndex` and `{Model}AsShow`.
 - Avoid older view names such as `TableView` for new serializer types.
+- Extend `BaseSerializer<Model>` and implement the instance `perform()` method. Inherit its
+  static `perform(record)` / `perform(records)` entrypoint; do not reimplement array mapping.
+- Use `IndexSerializer` for index responses and `ShowSerializer` for show, create, and update
+  responses. Keep their contracts independent, even when their fields currently match.
+- Use an owning resource's `ReferenceSerializer` for nested associations. Pass association arrays
+  directly to its inherited `perform()` method.
 
 ## Index File Export Order
 
@@ -39,14 +45,16 @@ e.g. Usage in a Controller might look like this
 
 ```typescript
 export class FormsController extends BaseController {
-  index() {
-    return Form.findAll({
-      where: { userId: this.currentUser.id },
+  async index() {
+    const forms = await Form.findAll({
+      where: {
+        userId: this.currentUser.id,
+      },
       include: ["stops", "purpose"],
-    }).then((forms) => {
-      const serializedForms = FormSerializer.asTable(forms)
-      return this.response.json({ forms: serializedForms })
     })
+    const serializedForms = IndexSerializer.perform(forms)
+
+    return this.response.json({ forms: serializedForms })
   }
 }
 ```

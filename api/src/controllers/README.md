@@ -6,19 +6,31 @@ Controllers connect Express routes to request handling and response shaping. Loa
 accessor constructs a controller instance and calls its matching instance action method. Route
 handlers therefore use `Controller.create`, while controller classes implement `async create()`.
 
+## Shared Controller Standards
+
+Use the shared [Error Ownership and Local Recovery](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#error-ownership-and-local-recovery),
+[Text Validation Ownership](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#text-validation-ownership),
+and [Service Orchestration Readability](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#service-orchestration-readability)
+guidance for response ownership, validation, policy-to-service handoffs, and response-ready records.
+Use [Function Action Names](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#function-action-names)
+for concrete, resource-qualified helper names. The rules below retain TravelAuth-specific contracts
+and deliberate exceptions.
+
 ## Local Pattern
 
-- RESTful controllers extend `BaseController`.
-- Standard CRUD actions are `index()`, `show()`, `create()`, `update()`, and `destroy()`.
-- Routes follow the usual resource shape: `GET /api/resources`, `GET /api/resources/:id`,
-  `POST /api/resources`, and so on.
-- Controllers coordinate requests, policy checks, service calls, and serializer responses.
+- Controllers extend `BaseController` and authorize through `this.buildPolicy()` and policy scopes.
+- Nested record loaders take the already-loaded parent model and scope the lookup by that model's
+  identifier rather than re-reading the parent route parameter.
+- TravelAuth uses named service imports from the deepest matching resource path, such as
+  `@/services/travel-desk-invoices`, as a local exception to the shared namespace-bundle preference.
 - Import a controller's own resource serializers by name from the resource path, such as `import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-flight-options"`, rather than through the root serializer namespace.
-- Authorization uses `this.buildPolicy()` and policy scopes.
+- Use Lodash type predicates for query-value guards, such as `isString(recordLocator)`, and pass
+  the narrowed value onward without coercing invalid inputs.
 - Record construction for state-dependent checks follows the
   [policy record-context contract](../policies/README.md#state-dependent-policies).
-- Serializers format returned records instead of returning raw Sequelize models when association
-  data is part of the response.
+- Every public action uses a top-level `try`/`catch`.
+- In index actions, group `where`, `scopes`, `order`, and the policy-scoped model in that order.
+  Separate this preparation from `count` and the paginated query with a blank line.
 - Declare derived list attributes with explicit named model scopes passed to
   `buildFilterScopes([...])`; keep requested ordering in `buildOrder()` rather than using it to
   construct scopes dynamically.
