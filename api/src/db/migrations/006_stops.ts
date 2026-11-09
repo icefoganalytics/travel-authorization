@@ -1,6 +1,6 @@
 import * as knex from "knex"
 
-exports.up = function (knex: knex.Knex) {
+export function up(knex: knex.Knex) {
   return knex.schema.createTable("stops", function (t) {
     t.increments("id").notNullable().primary()
     t.integer("taid").notNullable()
@@ -11,6 +11,6 @@ exports.up = function (knex: knex.Knex) {
   })
 }
 
-exports.down = function (knex: knex.Knex) {
+export function down(knex: knex.Knex) {
   return knex.schema.dropTable("stops")
 }

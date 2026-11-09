@@ -1,6 +1,6 @@
 import * as knex from "knex"
 
-exports.up = function (knex: knex.Knex) {
+export function up(knex: knex.Knex) {
   return knex.schema
     .createTable("preapprovedDocuments", function (t) {
       t.increments("preTDocID").notNullable().primary()
@@ -16,7 +16,7 @@ exports.up = function (knex: knex.Knex) {
     })
 }
 
-exports.down = function (knex: knex.Knex) {
+export function down(knex: knex.Knex) {
   return knex.schema
     .alterTable("user", function (t) {
       t.dropColumn("department")

@@ -1,6 +1,6 @@
 import * as knex from "knex"
 
-export const up = function (knex: knex.Knex) {
+export function up(knex: knex.Knex) {
   return knex.schema.createTable("YgDepartments", function (t) {
     t.increments("id").notNullable().primary()
     t.dateTime("update_date").notNullable()
@@ -13,6 +13,6 @@ export const up = function (knex: knex.Knex) {
   })
 }
 
-export const down = function (knex: knex.Knex) {
+export function down(knex: knex.Knex) {
   return knex.schema.dropTable("YgDepartments")
 }

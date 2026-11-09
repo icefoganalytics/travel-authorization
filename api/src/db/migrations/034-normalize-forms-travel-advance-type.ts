@@ -1,6 +1,6 @@
 import * as knex from "knex"
 
-exports.up = async function (knex: knex.Knex) {
+export async function up(knex: knex.Knex) {
   await knex.schema.alterTable("forms", function (table) {
     table.integer("travelAdvanceInCents")
   })
@@ -13,7 +13,7 @@ exports.up = async function (knex: knex.Knex) {
   `)
 }
 
-exports.down = async function (knex: knex.Knex) {
+export async function down(knex: knex.Knex) {
   // Move data back from the new column to the old one, and convert to dollars.
   await knex.raw(`
     UPDATE "forms"
