@@ -26,6 +26,9 @@
           <p>
             Approve travel of {{ requestorDisplayName }} to
             <LocationChip :location-id="travelLocationId" />
+            <template v-if="travelAuthorization?.eventName">
+              for {{ travelAuthorization.eventName }}
+            </template>
             ?
           </p>
         </v-card-text>
@@ -89,7 +92,9 @@ const emit = defineEmits(["approved"])
 const route = useRoute()
 const router = useRouter()
 const snack = useSnack()
-const { isLoading, approve } = useTravelAuthorization(props.travelAuthorizationId)
+const { travelAuthorization, isLoading, approve } = useTravelAuthorization(
+  props.travelAuthorizationId
+)
 
 const form = ref(null)
 const showDialog = ref(route.query.showApprove === "true")
