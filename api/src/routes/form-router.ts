@@ -98,6 +98,11 @@ formRouter.post(
 
       if (!form || (form && form.userId === user.id)) {
         const result = await formService.saveForm(user.id, req.body)
+
+        if (form === undefined) {
+          throw new Error("Cannot audit a saved form that was not found.")
+        }
+
         if (result) {
           auditService.log(user.id, form.id, "Save", "Form saved successfully.")
           res.status(200).json("Form saved")
@@ -137,6 +142,10 @@ formRouter.post(
         if (!form || (form && form.userId === user.id)) {
           const result = await formService.submitForm(user.id, req.body)
           if (result) {
+            if (form === undefined) {
+              throw new Error("Cannot audit a submitted form that was not found.")
+            }
+
             auditService.log(user.id, form.id, "Submit", "Form submitted successfully.")
             res.status(200).json("Form submitted")
           } else {

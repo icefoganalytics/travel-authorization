@@ -136,7 +136,7 @@ ownerRouter.put(
     let newArray = []
     // const editArray = [];
 
-    newArray = newOwnerAlias.map((alias: any) => {
+    newArray = newOwnerAlias.map((alias: Record<string, unknown>) => {
       return {
         OwnerId: ownerId,
         ...alias,
@@ -147,7 +147,7 @@ ownerRouter.put(
       .insert(newArray)
       .into("boat.OwnerAlias")
       .returning("*")
-      .then((rows: any) => {
+      .then((rows) => {
         return rows
       })
 
@@ -178,11 +178,11 @@ ownerRouter.post("/", async (req: Request, res: Response) => {
     .insert(owner)
     .into("boat.owner")
     .returning("*")
-    .then(async (rows: any) => {
+    .then(async (rows) => {
       const newOwner = rows[0]
 
       if (ownerAlias.length) {
-        const newOwnerAlias = ownerAlias.map((alias: any) => ({
+        const newOwnerAlias = ownerAlias.map((alias: Record<string, unknown>) => ({
           ...alias,
           OwnerId: newOwner.Id,
         }))
@@ -191,7 +191,7 @@ ownerRouter.post("/", async (req: Request, res: Response) => {
           .insert(newOwnerAlias)
           .into("boat.OwnerAlias")
           .returning("*")
-          .then((rows: any) => {
+          .then((rows) => {
             return rows
           })
       }

@@ -1,6 +1,6 @@
 import * as knex from "knex"
 
-exports.up = async function (knex: knex.Knex) {
+export async function up(knex: knex.Knex) {
   // replace any ids saved as forms.purpose with the correct string.
   await knex.raw(`
     UPDATE "forms"
@@ -23,7 +23,7 @@ exports.up = async function (knex: knex.Knex) {
   `)
 }
 
-exports.down = async function (knex: knex.Knex) {
+export async function down(knex: knex.Knex) {
   // update old purpose field with value from travelPurpose table
   await knex.raw(`
     UPDATE "forms"
