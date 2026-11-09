@@ -1,7 +1,7 @@
-FROM node:20.20.2-alpine3.23
+FROM node:24.22.2-alpine3.23
 
 RUN apk add --no-cache \
-    chromium \
+    chromium=149.0.7827.53-r0 \
     nss \
     freetype \
     harfbuzz \

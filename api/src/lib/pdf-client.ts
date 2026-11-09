@@ -1,9 +1,12 @@
-import puppeteer, { type PDFOptions } from "puppeteer"
+import type { PDFOptions } from "puppeteer" with { "resolution-mode": "import" }
 
 export type PdfOptions = PDFOptions
 
 export class PdfClient {
   async htmlToPdf(htmlDocument: string, options: PdfOptions = {}): Promise<Buffer> {
+    // TypeScript's Node16 mode rejects static ESM imports from this CommonJS module.
+    const { default: puppeteer } = await import("puppeteer")
+
     const browser = await puppeteer.launch({
       executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
       headless: "shell",
