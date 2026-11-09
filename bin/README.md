@@ -88,7 +88,7 @@ gem's editor mounts.
 
 ### Linting
 
-Run non-fixing lint in disposable, non-interactive Docker containers without starting application or database dependencies. Lint uses the normal shared gateway setup:
+Run non-fixing lint in disposable, non-interactive Docker containers without starting application or database dependencies. First complete the [project setup](../README.md), including starting the development stack with `./bin/dev up` so the shared gateway network exists:
 
 ```bash
 ./bin/dev lint api
@@ -97,7 +97,7 @@ Run non-fixing lint in disposable, non-interactive Docker containers without sta
 
 With no service argument, `./bin/dev lint` selects the API. Additional arguments are forwarded to the package's lint script. Both commands cover the service's maintained source and tests, including API migrations and declarations and Vue single-file components. They retain the existing rules, ignore paths, and warning policy. Web lint uses syntax-aware parsing because its enabled rules do not require TypeScript project information; `check-types` remains a separate check. The broader web ESLint toolchain upgrade is tracked in [#374](https://github.com/icefoganalytics/travel-authorization/issues/374).
 
-Prepare development images, local environment files, and bind-mounted dependencies using the [project setup](../README.md). Each service's `.omp-verifier.json` binds `verifier:project-lint` to the same `bin/dev lint` entrypoint, following WRAP and ELCC Data Management. Lint starts or reuses the shared gateway and uses this checkout's normal Compose configuration. Worktrees retain their separate Compose projects and source mounts. The wrapper passes `--no-fix`, preserves ESLint's exit status, and runs the normal gateway cleanup afterward.
+Each service's `.omp-verifier.json` binds `verifier:project-lint` to the same `bin/dev lint` entrypoint, following WRAP and ELCC Data Management. The lint helpers call Compose directly with this checkout's normal configuration; they do not start or stop the shared gateway. Worktrees retain their separate Compose projects and source mounts. The wrapper passes `--no-fix` and preserves ESLint's exit status. If the shared gateway network is absent, Compose fails before ESLint starts; restore the development setup before retrying.
 
 For service lint verification, run `omp-verifier automatic api/.omp-verifier.json web/.omp-verifier.json --reporter text`. These configuration paths select both services' complete lint scope, not just changed files. An unrestricted `omp-verifier verify verifier:project-lint` also discovers Ruby and shell sources; their lint tooling is not declared here. Missing declarations, unavailable Docker tooling, and timeouts are `BLOCKED`, not passing checks.
 
