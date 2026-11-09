@@ -24,10 +24,7 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         limit: this.pagination.limit,
         offset: this.pagination.offset,
       })
-      const serializedTravelDeskTravelAgencies = IndexSerializer.perform(
-        travelDeskTravelAgencies,
-        this.currentUser
-      )
+      const serializedTravelDeskTravelAgencies = IndexSerializer.perform(travelDeskTravelAgencies)
       return this.response.json({
         travelDeskTravelAgencies: serializedTravelDeskTravelAgencies,
         totalCount,
@@ -56,10 +53,7 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         })
       }
 
-      const serializedTravelDeskTravelAgency = IndexSerializer.perform(
-        travelDeskTravelAgency,
-        this.currentUser
-      )
+      const serializedTravelDeskTravelAgency = IndexSerializer.perform(travelDeskTravelAgency)
       return this.response.json({
         travelDeskTravelAgency: serializedTravelDeskTravelAgency,
         policy,
@@ -86,10 +80,7 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskTravelAgency = IndexSerializer.perform(
-        travelDeskTravelAgency,
-        this.currentUser
-      )
+      const serializedTravelDeskTravelAgency = IndexSerializer.perform(travelDeskTravelAgency)
       return this.response.status(201).json({
         travelDeskTravelAgency: serializedTravelDeskTravelAgency,
       })
@@ -124,8 +115,7 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         this.currentUser
       )
       const serializedTravelDeskTravelAgency = IndexSerializer.perform(
-        updatedTravelDeskTravelAgency,
-        this.currentUser
+        updatedTravelDeskTravelAgency
       )
       return this.response.json({
         travelDeskTravelAgency: serializedTravelDeskTravelAgency,

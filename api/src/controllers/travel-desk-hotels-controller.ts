@@ -24,7 +24,7 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         limit: this.pagination.limit,
         offset: this.pagination.offset,
       })
-      const serializedTravelDeskHotels = IndexSerializer.perform(travelDeskHotels, this.currentUser)
+      const serializedTravelDeskHotels = IndexSerializer.perform(travelDeskHotels)
       return this.response.status(200).json({
         travelDeskHotels: serializedTravelDeskHotels,
         totalCount,
@@ -53,7 +53,7 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         })
       }
 
-      const serializedTravelDeskHotel = IndexSerializer.perform(travelDeskHotel, this.currentUser)
+      const serializedTravelDeskHotel = IndexSerializer.perform(travelDeskHotel)
       return this.response.json({
         travelDeskHotel: serializedTravelDeskHotel,
         policy,
@@ -78,10 +78,7 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
       const newTravelDeskHotel = await CreateService.perform(permittedAttributes, this.currentUser)
-      const serializedTravelDeskHotel = IndexSerializer.perform(
-        newTravelDeskHotel,
-        this.currentUser
-      )
+      const serializedTravelDeskHotel = IndexSerializer.perform(newTravelDeskHotel)
       return this.response.status(201).json({
         travelDeskHotel: serializedTravelDeskHotel,
         policy,
@@ -116,10 +113,7 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskHotel = IndexSerializer.perform(
-        updatedTravelDeskHotel,
-        this.currentUser
-      )
+      const serializedTravelDeskHotel = IndexSerializer.perform(updatedTravelDeskHotel)
       return this.response.json({
         travelDeskHotel: serializedTravelDeskHotel,
         policy,

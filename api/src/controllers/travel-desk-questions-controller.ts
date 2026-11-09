@@ -27,10 +27,7 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         offset: this.pagination.offset,
         order: [nullResponsesFirstOrder, ["updatedAt", "DESC"]],
       })
-      const serializedTravelDeskQuestions = IndexSerializer.perform(
-        travelDeskQuestions,
-        this.currentUser
-      )
+      const serializedTravelDeskQuestions = IndexSerializer.perform(travelDeskQuestions)
       return this.response.status(200).json({
         travelDeskQuestions: serializedTravelDeskQuestions,
         totalCount,
@@ -58,10 +55,7 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         })
       }
 
-      const serializedTravelDeskQuestion = IndexSerializer.perform(
-        travelDeskQuestion,
-        this.currentUser
-      )
+      const serializedTravelDeskQuestion = IndexSerializer.perform(travelDeskQuestion)
       return this.response.status(200).json({
         travelDeskQuestion: serializedTravelDeskQuestion,
         policy,
@@ -88,10 +82,7 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskQuestion = IndexSerializer.perform(
-        newTravelDeskQuestion,
-        this.currentUser
-      )
+      const serializedTravelDeskQuestion = IndexSerializer.perform(newTravelDeskQuestion)
       return this.response.status(201).json({
         travelDeskQuestion: serializedTravelDeskQuestion,
       })
@@ -124,10 +115,7 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskQuestion = IndexSerializer.perform(
-        updatedTravelDeskQuestion,
-        this.currentUser
-      )
+      const serializedTravelDeskQuestion = IndexSerializer.perform(updatedTravelDeskQuestion)
       return this.response.status(200).json({
         travelDeskQuestion: serializedTravelDeskQuestion,
       })

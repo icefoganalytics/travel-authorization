@@ -29,8 +29,7 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         offset: this.pagination.offset,
       })
       const serializedTravelDeskOtherTransportations = IndexSerializer.perform(
-        travelDeskOtherTransportations,
-        this.currentUser
+        travelDeskOtherTransportations
       )
       return this.response.status(200).json({
         travelDeskOtherTransportations: serializedTravelDeskOtherTransportations,
@@ -61,8 +60,7 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
       }
 
       const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
-        travelDeskOtherTransportation,
-        this.currentUser
+        travelDeskOtherTransportation
       )
       return this.response.json({
         travelDeskOtherTransportation: serializedTravelDeskOtherTransportation,
@@ -92,8 +90,7 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         this.currentUser
       )
       const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
-        newTravelDeskOtherTransportation,
-        this.currentUser
+        newTravelDeskOtherTransportation
       )
       return this.response.status(201).json({
         travelDeskOtherTransportation: serializedTravelDeskOtherTransportation,
@@ -130,8 +127,7 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         this.currentUser
       )
       const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
-        updatedTravelDeskOtherTransportation,
-        this.currentUser
+        updatedTravelDeskOtherTransportation
       )
       return this.response.status(200).json({
         travelDeskOtherTransportation: serializedTravelDeskOtherTransportation,
