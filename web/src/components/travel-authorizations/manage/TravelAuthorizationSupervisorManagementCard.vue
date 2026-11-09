@@ -6,7 +6,7 @@
           v-if="isLoading"
           type="button"
         />
-        <ApproveTravelRequestDialogButton
+        <TravelAuthorizationApproveDialogButton
           v-else
           :travel-authorization-id="travelAuthorizationId"
           :requestor-display-name="requestorDisplayName"
@@ -14,7 +14,7 @@
           :travel-location-id="travelLocationId"
           @approved="refreshAndEmit('approved')"
         />
-        <DenyTravelRequestDialogButton
+        <TravelAuthorizationDenyDialogButton
           :travel-authorization-id="travelAuthorizationId"
           :is-disabled="isDisabled"
           button-classes="ml-md-2"
@@ -36,41 +36,49 @@
   </HeaderActionsCard>
 </template>
 
-<script setup>
-import { computed } from "vue"
+<script setup lang="ts">
+import { computed, toRefs } from "vue"
+import { isNil } from "lodash"
 
-import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import {
+  TravelAuthorizationStatuses,
+  TravelAuthorizationTripTypes,
+} from "@/api/travel-authorizations-api"
+
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import ApproveTravelRequestDialogButton from "@/modules/travel-authorizations/components/manage-travel-authorization-details-page/ApproveTravelRequestDialogButton.vue"
-import DenyTravelRequestDialogButton from "@/modules/travel-authorizations/components/manage-travel-authorization-details-page/DenyTravelRequestDialogButton.vue"
 import ReAssignButtonDialog from "@/components/travel-authorizations/manage/ReAssignButtonDialog.vue"
+import TravelAuthorizationApproveDialogButton from "@/components/travel-authorizations/manage/TravelAuthorizationApproveDialogButton.vue"
+import TravelAuthorizationDenyDialogButton from "@/components/travel-authorizations/manage/TravelAuthorizationDenyDialogButton.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
 
-const emit = defineEmits(["approved", "denied"])
+const emit = defineEmits<{
+  (event: "approved" | "denied"): void
+}>()
 
-const { travelAuthorization, isLoading, refresh, STATUSES } = useTravelAuthorization(
-  props.travelAuthorizationId
-)
+const { travelAuthorizationId } = toRefs(props)
+const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
 
 const isDisabled = computed(() => {
-  return isLoading.value || travelAuthorization.value.status !== STATUSES.SUBMITTED
+  return (
+    isLoading.value || travelAuthorization.value?.status !== TravelAuthorizationStatuses.SUBMITTED
+  )
 })
 
 const travelLocationId = computed(() => {
+  if (isNil(travelAuthorization.value)) return null
+
   const { travelSegments, tripTypeActual, tripTypeEstimate } = travelAuthorization.value
   const tripType = tripTypeActual ?? tripTypeEstimate
   const matchingTravelSegments = travelSegments.filter(
     (segment) => segment.isActual === Boolean(tripTypeActual)
   )
   const finalDestinationSegment =
-    tripType === TRIP_TYPES.ROUND_TRIP
+    tripType === TravelAuthorizationTripTypes.ROUND_TRIP
       ? matchingTravelSegments.at(-2)
       : matchingTravelSegments.at(-1)
 
@@ -78,11 +86,10 @@ const travelLocationId = computed(() => {
 })
 
 const requestorDisplayName = computed(() => {
-  const { displayName } = travelAuthorization.value.user
-  return displayName
+  return travelAuthorization.value?.user?.displayName ?? ""
 })
 
-async function refreshAndEmit(eventName) {
+async function refreshAndEmit(eventName: "approved" | "denied") {
   await refresh()
   emit(eventName)
 }

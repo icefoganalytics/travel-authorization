@@ -10,7 +10,7 @@
     @click:row="goToMyTravelRequestWizardStep"
   >
     <template #top>
-      <DeleteTravelAuthorizationDialog
+      <TravelAuthorizationDeleteDialog
         ref="deleteDialog"
         @deleted="refresh"
       />
@@ -42,27 +42,27 @@
         >Delete</v-btn
       >
       <!-- Add call-to-action for this page: web/src/pages/my-travel-requests/AwaitingRequestBookingPage.vue -->
-      <SubmitTravelDeskRequestButton
+      <TravelAuthorizationSubmitTravelDeskRequestButton
         v-else-if="actions.includes('submit_travel_desk_request')"
         :travel-authorization-id="item.id"
       />
-      <TravelDeskOptionsProvidedButton
+      <TravelAuthorizationRankTravelDeskOptionsButton
         v-else-if="actions.includes('travel_desk_rank_options')"
         :travel-authorization-id="item.id"
       />
-      <SubmitExpenseClaimButton
+      <TravelAuthorizationSubmitExpenseClaimButton
         v-else-if="actions.includes('submit_expense_claim')"
         :travel-authorization-id="item.id"
       />
-      <ViewItineraryButton
+      <TravelAuthorizationViewItineraryButton
         v-else-if="actions.includes('view_itinerary')"
         :travel-authorization-id="item.id"
       />
-      <AddExpenseButton
+      <TravelAuthorizationAddExpenseButton
         v-else-if="actions.includes('add_expense')"
         :travel-authorization-id="item.id"
       />
-      <SubmitPoolVehicleRequestButton
+      <TravelAuthorizationSubmitPoolVehicleRequestButton
         v-else-if="actions.includes('submit_pool_vehicle_request')"
         :travel-authorization-id="item.id"
       />
@@ -72,13 +72,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, useTemplateRef } from "vue"
 import { useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { isNil, isEmpty } from "lodash"
 
 import formatDate from "@/utils/format-date"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 
 import { type LocationAsReference } from "@/api/locations-api"
 import useCurrentUser from "@/use/use-current-user"
@@ -87,15 +89,13 @@ import useTravelAuthorizations, {
   TravelAuthorizationStatuses,
 } from "@/use/use-travel-authorizations"
 
-import AddExpenseButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/AddExpenseButton.vue"
-import DeleteTravelAuthorizationDialog from "@/modules/travel-authorizations/components/my-travel-authorizations-table/DeleteTravelAuthorizationDialog.vue"
-import TravelDeskOptionsProvidedButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/TravelDeskOptionsProvidedButton.vue"
-import SubmitExpenseClaimButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/SubmitExpenseClaimButton.vue"
-import SubmitPoolVehicleRequestButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/SubmitPoolVehicleRequestButton.vue"
-import SubmitTravelDeskRequestButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/SubmitTravelDeskRequestButton.vue"
-import ViewItineraryButton from "@/modules/travel-authorizations/components/my-travel-authorizations-table/ViewItineraryButton.vue"
-import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
-import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+import TravelAuthorizationAddExpenseButton from "@/components/travel-authorizations/my/TravelAuthorizationAddExpenseButton.vue"
+import TravelAuthorizationDeleteDialog from "@/components/travel-authorizations/my/TravelAuthorizationDeleteDialog.vue"
+import TravelAuthorizationRankTravelDeskOptionsButton from "@/components/travel-authorizations/my/TravelAuthorizationRankTravelDeskOptionsButton.vue"
+import TravelAuthorizationSubmitExpenseClaimButton from "@/components/travel-authorizations/my/TravelAuthorizationSubmitExpenseClaimButton.vue"
+import TravelAuthorizationSubmitPoolVehicleRequestButton from "@/components/travel-authorizations/my/TravelAuthorizationSubmitPoolVehicleRequestButton.vue"
+import TravelAuthorizationSubmitTravelDeskRequestButton from "@/components/travel-authorizations/my/TravelAuthorizationSubmitTravelDeskRequestButton.vue"
+import TravelAuthorizationViewItineraryButton from "@/components/travel-authorizations/my/TravelAuthorizationViewItineraryButton.vue"
 
 const props = withDefaults(
   defineProps<{
@@ -215,7 +215,8 @@ function formatPhase(value: string) {
   return t(`global.phase.${value}`, "Unknown")
 }
 
-const deleteDialog = ref<InstanceType<typeof DeleteTravelAuthorizationDialog> | null>(null)
+const deleteDialog =
+  useTemplateRef<InstanceType<typeof TravelAuthorizationDeleteDialog>>("deleteDialog")
 
 function showDeleteDialog(item: TravelAuthorizationAsIndex) {
   deleteDialog.value?.show(item.id)
@@ -226,4 +227,3 @@ defineExpose({
 })
 </script>
 
-<style scoped></style>

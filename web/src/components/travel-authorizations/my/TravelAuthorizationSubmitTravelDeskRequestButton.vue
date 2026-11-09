@@ -15,11 +15,8 @@
   </v-btn>
 </template>
 
-<script setup>
-defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+<script setup lang="ts">
+defineProps<{
+  travelAuthorizationId: number
+}>()
 </script>

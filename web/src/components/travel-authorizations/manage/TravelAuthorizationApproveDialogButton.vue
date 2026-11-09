@@ -55,53 +55,47 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { ref, nextTick, watch } from "vue"
+<script setup lang="ts">
+import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
+import { type VForm } from "vuetify/components"
 
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import LocationChip from "@/components/locations/LocationChip.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-  isDisabled: {
-    type: Boolean,
-    default: false,
-  },
-  requestorDisplayName: {
-    type: String,
-    required: true,
-  },
-  travelLocationId: {
-    type: Number,
-    default: null,
-  },
-  buttonClasses: {
-    type: [String, Array, Object],
-    default: null,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    travelAuthorizationId: number
+    isDisabled?: boolean
+    requestorDisplayName: string
+    travelLocationId?: number | null
+    buttonClasses?: string | string[] | Record<string, boolean> | null
+  }>(),
+  {
+    isDisabled: false,
+    travelLocationId: null,
+    buttonClasses: null,
+  }
+)
 
-const emit = defineEmits(["approved"])
+const emit = defineEmits<{
+  approved: []
+}>()
 
 const route = useRoute()
 const router = useRouter()
 const snack = useSnack()
-const { travelAuthorization, isLoading, approve } = useTravelAuthorization(
-  props.travelAuthorizationId
-)
+const { travelAuthorizationId } = toRefs(props)
+const { travelAuthorization, isLoading, approve } = useTravelAuthorization(travelAuthorizationId)
 
-const form = ref(null)
+const form = useTemplateRef<InstanceType<typeof VForm>>("form")
 const showDialog = ref(route.query.showApprove === "true")
 
 function close() {
   showDialog.value = false
-  form.value.resetValidation()
+  form.value?.resetValidation()
 }
 
 async function approveAndClose() {
@@ -113,7 +107,8 @@ async function approveAndClose() {
     emit("approved")
     snack("Travel authorization approved!", { color: "success" })
   } catch (error) {
-    snack(error.message, { color: "error" })
+    console.error(error)
+    snack.error(error instanceof Error ? error.message : String(error))
   }
 }
 

@@ -4,7 +4,7 @@
       <h2 class="mb-0">My Travel Requests</h2>
       <v-spacer />
       <RefreshTableButton @click="refreshTable" />
-      <CreateTravelAuthorizationButton class="my-0" />
+      <TravelAuthorizationCreateButton class="my-0" />
     </v-card-title>
 
     <v-card class="default">
@@ -15,16 +15,18 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue"
+<script setup lang="ts">
+import { useTemplateRef } from "vue"
 
 import { useBreadcrumbs } from "@/use/use-breadcrumbs"
 
 import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue"
-import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
-import MyTravelAuthorizationsDataTableServer from "@/modules/travel-authorizations/components/MyTravelAuthorizationsDataTableServer.vue"
+import MyTravelAuthorizationsDataTableServer from "@/components/travel-authorizations/my/MyTravelAuthorizationsDataTableServer.vue"
+import TravelAuthorizationCreateButton from "@/components/travel-authorizations/my/TravelAuthorizationCreateButton.vue"
 
-const myTravelAuthorizationsTable = ref(null)
+const myTravelAuthorizationsTable = useTemplateRef<
+  InstanceType<typeof MyTravelAuthorizationsDataTableServer>
+>("myTravelAuthorizationsTable")
 
 async function refreshTable() {
   await myTravelAuthorizationsTable.value?.refresh()

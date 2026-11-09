@@ -60,50 +60,51 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { ref, nextTick, watch } from "vue"
+<script setup lang="ts">
+import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
+import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 
 import useSnack from "@/use/use-snack"
 import { useTravelAuthorization } from "@/use/use-travel-authorization"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-  isDisabled: {
-    type: Boolean,
-    default: false,
-  },
-  buttonClasses: {
-    type: [String, Array, Object],
-    default: null,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    travelAuthorizationId: number
+    isDisabled?: boolean
+    buttonClasses?: string | string[] | Record<string, boolean> | null
+  }>(),
+  {
+    isDisabled: false,
+    buttonClasses: null,
+  }
+)
 
-const emit = defineEmits(["denied"])
+const emit = defineEmits<{
+  denied: []
+}>()
 
 const route = useRoute()
 const router = useRouter()
 const snack = useSnack()
-const { isLoading, deny } = useTravelAuthorization(props.travelAuthorizationId)
+const { travelAuthorizationId } = toRefs(props)
+const { isLoading, deny } = useTravelAuthorization(travelAuthorizationId)
 
-const form = ref(null)
+const form = useTemplateRef<InstanceType<typeof VForm>>("form")
 const showDialog = ref(route.query.showDeny === "true")
-const denialReason = ref(null)
+const denialReason = ref<string | null>(null)
 
 function close() {
   showDialog.value = false
-  form.value.resetValidation()
+  form.value?.resetValidation()
 }
 
 async function denyAndClose() {
   try {
     await deny({
-      denialReason: denialReason.value,
+      denialReason: denialReason.value ?? undefined,
     })
     close()
     snack("Travel authorization denied.", { color: "success" })
@@ -111,7 +112,8 @@ async function denyAndClose() {
       emit("denied")
     })
   } catch (error) {
-    snack(error.message, { color: "error" })
+    console.error(error)
+    snack.error(error instanceof Error ? error.message : String(error))
   }
 }
 
@@ -119,7 +121,7 @@ watch(
   () => showDialog.value,
   (newShowDialog) => {
     if (newShowDialog) {
-      router.push({ query: { showDeny: newShowDialog } })
+      router.push({ query: { showDeny: "true" } })
     } else {
       router.push({ query: { showDeny: undefined } })
     }
