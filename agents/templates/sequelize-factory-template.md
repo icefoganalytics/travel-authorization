@@ -1,6 +1,6 @@
 # Sequelize Factory Template
 
-Use Factory Shark 2.0.0 for application-model factories under `api/tests/factories/`. Keep plain-object web fixtures in their existing Fishery library. The [API test guide](../../api/tests/README.md#factories) owns fixture setup and relationship boundaries.
+Use Factory Shark 2.1.0 for application-model factories under `api/tests/factories/`. Keep plain-object web fixtures in their existing Fishery library. The [API test guide](../../api/tests/README.md#factories) owns fixture setup and relationship boundaries.
 
 ## Factory With Parent Relationships
 
@@ -69,7 +69,7 @@ Use the existing [expense factory](../../api/tests/factories/expense-factory.ts)
 ## Attributes, Hooks, and Lists
 
 - `factory.build(overrides).dataValues` provides unsaved attributes for request payloads.
-- Create a list with an explicit loop; reuse one configured builder so its sequence advances. New builders have independent sequences.
+- Use `factory.createList(count, overrides)` for persisted lists, including configured chains such as `.associations({ user }).createList(count)`. Items are created sequentially on the same builder; new configured builders have independent sequences.
 - Use `afterCreate` for an explicit association reload or an opt-in persisted relationship trait, not for saving the parent again.
 - Let validation and database errors propagate with their original details; do not replace them with an attribute dump.
 - Keep `Buffer` values as attributes. Verify exact bytes through both build and persisted reload when changing binary fixtures.
