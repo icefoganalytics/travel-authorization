@@ -26,6 +26,7 @@ handlers therefore use `Controller.create`, while controller classes implement `
 ## Response Pattern
 
 - Return policy information in create/update responses when callers need it: `{ record, policy }`.
+- Use `IndexSerializer` for collections and `ShowSerializer` for single-record show, create, and update responses, even when their current fields are identical.
 - Serialize mutation-service results directly; the service owns any required final reload and response includes under the [service return contract](../services/README.md#local-pattern).
 - Load associations for ordinary show responses in the controller's record query.
 - Log real failures with structured error context:
