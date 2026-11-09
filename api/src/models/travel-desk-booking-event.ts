@@ -50,14 +50,14 @@ export type BookingEventSnapshot = {
   bookingFileVersionNumber: number | null
   eventType: string | null
   recordLocator: string | null
-  crsDescription: string | null
+  reservationSystemDescription: string | null
   databaseTimestamp: string
   hostEventTimestamp: string | null
-  pnrCreationDate: string | null
+  passengerNameRecordCreatedAt: string | null
   owningAgencyName: string | null
   transactionAgencyName: string | null
   transactionAgent: string | null
-  creatingAgencyIata: string | null
+  creatingAgencyInternationalAirTransportAssociationNumber: string | null
   passengers: BookingPassenger[]
   airReservationSegments: BookingSegment[]
   serviceFeeTransaction: BookingServiceFee | null
@@ -88,7 +88,7 @@ export class TravelDeskBookingEvent extends Model<
   declare recordLocator: string | null
 
   @Attribute(DataTypes.STRING(255))
-  declare crsDescription: string | null
+  declare reservationSystemDescription: string | null
 
   @Attribute(DataTypes.DATE)
   @NotNull
@@ -98,7 +98,7 @@ export class TravelDeskBookingEvent extends Model<
   declare hostEventTimestamp: Date | null
 
   @Attribute(DataTypes.DATE)
-  declare pnrCreationDate: Date | null
+  declare passengerNameRecordCreatedAt: Date | null
 
   @Attribute(DataTypes.STRING(255))
   declare owningAgencyName: string | null
@@ -110,7 +110,7 @@ export class TravelDeskBookingEvent extends Model<
   declare transactionAgent: string | null
 
   @Attribute(DataTypes.STRING(255))
-  declare creatingAgencyIata: string | null
+  declare creatingAgencyInternationalAirTransportAssociationNumber: string | null
 
   @Attribute(DataTypes.JSONB)
   @NotNull

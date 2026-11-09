@@ -59,6 +59,9 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             PnrBfVersionNbr: 8,
             EventType: "B",
             DatabaseTimeStamp: "2030-01-01T12:00:00",
+            CrsDescription: "Galileo",
+            PnrCreationDate: "2030-01-01T10:00:00",
+            CreatingAgencyIata: "12345678",
           },
           {
             TravelOrderIdentifier: 910002,
@@ -104,6 +107,9 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             bookingFileVersionNumber: 8,
             eventType: "B",
             recordLocator: "SRC001",
+            reservationSystemDescription: "Galileo",
+            passengerNameRecordCreatedAt: "2030-01-01T10:00:00.000Z",
+            creatingAgencyInternationalAirTransportAssociationNumber: "12345678",
             passengers: [
               { lastNameElement: 1, passengerElement: 1, firstName: "Ada", lastName: "Example" },
             ],
