@@ -1,5 +1,3 @@
-import qs from "qs"
-
 import {
   TravelDeskFlightOption,
   TravelDeskFlightRequest,
@@ -64,7 +62,7 @@ describe("api/src/controllers/travel-desk-flight-options-controller.ts", () => {
         // Act
         const response = await request()
           .get("/api/travel-desk-flight-options")
-          .query(qs.stringify({ where: { id: travelDeskFlightOption.id } }))
+          .query({ where: { id: travelDeskFlightOption.id } })
 
         // Assert
         expect(response.status).toEqual(200)
