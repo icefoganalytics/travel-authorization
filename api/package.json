@@ -44,7 +44,7 @@
     "papaparse": "^5.4.1",
     "pg": "^8.11.5",
     "pg-minify": "^1.6.5",
-    "puppeteer": "24.43.1",
+    "puppeteer": "25.1.0",
     "qs": "^6.15.1",
     "sqlite3": "^5.0.8",
     "tedious": "^18.3.0",
