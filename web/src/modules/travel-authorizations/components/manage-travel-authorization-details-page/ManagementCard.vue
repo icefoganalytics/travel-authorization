@@ -38,9 +38,8 @@
 
 <script setup>
 import { computed } from "vue"
-import { isEmpty } from "lodash"
 
-import useTravelAuthorization from "@/use/use-travel-authorization"
+import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import ApproveTravelRequestDialogButton from "@/modules/travel-authorizations/components/manage-travel-authorization-details-page/ApproveTravelRequestDialogButton.vue"
@@ -65,11 +64,17 @@ const isDisabled = computed(() => {
 })
 
 const travelLocationId = computed(() => {
-  const { travelSegments } = travelAuthorization.value
-  if (isEmpty(travelSegments)) return null
+  const { travelSegments, tripTypeActual, tripTypeEstimate } = travelAuthorization.value
+  const tripType = tripTypeActual ?? tripTypeEstimate
+  const matchingTravelSegments = travelSegments.filter(
+    (segment) => segment.isActual === Boolean(tripTypeActual)
+  )
+  const finalDestinationSegment =
+    tripType === TRIP_TYPES.ROUND_TRIP
+      ? matchingTravelSegments.at(-2)
+      : matchingTravelSegments.at(-1)
 
-  const lastTravelSegment = travelSegments[travelSegments.length - 1]
-  return lastTravelSegment.departureLocationId
+  return finalDestinationSegment?.arrivalLocationId ?? null
 })
 
 const requestorDisplayName = computed(() => {
