@@ -1,6 +1,7 @@
 import { Attachment, TravelAuthorization, TravelDeskTravelRequest, User } from "@/models"
 
 import {
+  attachmentFactory,
   travelAuthorizationFactory,
   travelDeskTravelRequestFactory,
   userFactory,
@@ -19,7 +20,7 @@ describe("api/src/controllers/travel-desk-travel-requests/submit-controller.ts",
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
-        await Attachment.create({
+        await attachmentFactory.create({
           targetId: travelDeskTravelRequest.id,
           targetType: Attachment.TargetTypes.TravelDeskTravelRequest,
           name: "passenger-name-record.pdf",

@@ -2,6 +2,7 @@ import { TravelAuthorization, TravelDeskHotel, TravelDeskTravelRequest, User } f
 
 import {
   travelAuthorizationFactory,
+  travelDeskHotelFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
@@ -20,19 +21,20 @@ describe("api/src/controllers/travel-desk-hotels-controller.ts", () => {
         const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization1 })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
-        const travelDeskHotel1 = await TravelDeskHotel.create({
-          travelRequestId: travelDeskTravelRequest1.id,
-          city: "Whitehorse",
-          isDedicatedConferenceHotelAvailable: false,
-          conferenceName: null,
-          conferenceHotelName: null,
-          checkIn: "2026-11-10",
-          checkOut: "2026-11-12",
-          additionalInformation: "Near the airport",
-          status: TravelDeskHotel.Statuses.REQUESTED,
-          reservedHotelInfo: null,
-          booking: null,
-        })
+        const travelDeskHotel1 = await travelDeskHotelFactory
+          .associations({ travelRequest: travelDeskTravelRequest1 })
+          .create({
+            city: "Whitehorse",
+            isDedicatedConferenceHotelAvailable: false,
+            conferenceName: null,
+            conferenceHotelName: null,
+            checkIn: "2026-11-10",
+            checkOut: "2026-11-12",
+            additionalInformation: "Near the airport",
+            status: TravelDeskHotel.Statuses.REQUESTED,
+            reservedHotelInfo: null,
+            booking: null,
+          })
 
         // Act
         const response = await request()
@@ -78,14 +80,15 @@ describe("api/src/controllers/travel-desk-hotels-controller.ts", () => {
         const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization1 })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
-        const travelDeskHotel1 = await TravelDeskHotel.create({
-          travelRequestId: travelDeskTravelRequest1.id,
-          city: "Whitehorse",
-          isDedicatedConferenceHotelAvailable: false,
-          checkIn: "2026-11-10",
-          checkOut: "2026-11-12",
-          status: TravelDeskHotel.Statuses.REQUESTED,
-        })
+        const travelDeskHotel1 = await travelDeskHotelFactory
+          .associations({ travelRequest: travelDeskTravelRequest1 })
+          .create({
+            city: "Whitehorse",
+            isDedicatedConferenceHotelAvailable: false,
+            checkIn: "2026-11-10",
+            checkOut: "2026-11-12",
+            status: TravelDeskHotel.Statuses.REQUESTED,
+          })
 
         // Act
         const response = await request()

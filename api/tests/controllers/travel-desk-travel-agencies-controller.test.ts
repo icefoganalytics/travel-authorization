@@ -1,6 +1,6 @@
-import { TravelDeskTravelAgency, User } from "@/models"
+import { User } from "@/models"
 
-import { userFactory } from "@/factories"
+import { travelDeskTravelAgencyFactory, userFactory } from "@/factories"
 import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/travel-desk-travel-agencies-controller.ts", () => {
@@ -10,7 +10,7 @@ describe("api/src/controllers/travel-desk-travel-agencies-controller.ts", () => 
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         mockCurrentUser(user1)
-        const travelDeskTravelAgency1 = await TravelDeskTravelAgency.create({
+        const travelDeskTravelAgency1 = await travelDeskTravelAgencyFactory.create({
           agencyName: "Northern Travel",
           contactName: "Morgan Lee",
           contactEmail: "morgan@example.com",
@@ -41,7 +41,7 @@ describe("api/src/controllers/travel-desk-travel-agencies-controller.ts", () => 
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         mockCurrentUser(user1)
-        const travelDeskTravelAgency1 = await TravelDeskTravelAgency.create({
+        const travelDeskTravelAgency1 = await travelDeskTravelAgencyFactory.create({
           agencyName: "Northern Travel",
           contactName: "Morgan Lee",
           contactEmail: "morgan@example.com",

@@ -1,12 +1,10 @@
-import {
-  TravelDeskFlightOption,
-  TravelDeskFlightRequest,
-  TravelDeskFlightSegment,
-  User,
-} from "@/models"
+import { TravelDeskFlightRequest, User } from "@/models"
 
 import {
   travelAuthorizationFactory,
+  travelDeskFlightOptionFactory,
+  travelDeskFlightRequestFactory,
+  travelDeskFlightSegmentFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
@@ -26,40 +24,42 @@ describe("api/src/controllers/travel-desk-flight-requests-controller.ts", () => 
           .associations({ travelAuthorization })
           .create()
         const createdAt = new Date("2026-10-01T12:00:00.000Z")
-        const travelDeskFlightRequest = await TravelDeskFlightRequest.create({
-          travelRequestId: travelDeskTravelRequest.id,
-          departLocation: "Whitehorse",
-          arriveLocation: "Vancouver",
-          datePreference: "2026-10-27",
-          timePreference: TravelDeskFlightRequest.TimePreferences.AM,
-          seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
-          createdAt,
-        })
+        const travelDeskFlightRequest = await travelDeskFlightRequestFactory
+          .associations({ travelRequest: travelDeskTravelRequest })
+          .create({
+            departLocation: "Whitehorse",
+            arriveLocation: "Vancouver",
+            datePreference: "2026-10-27",
+            timePreference: TravelDeskFlightRequest.TimePreferences.AM,
+            seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
+            createdAt,
+          })
         const flightOptionCreatedAt = new Date("2026-10-03T12:00:00.000Z")
-        const travelDeskFlightOption = await TravelDeskFlightOption.create({
-          flightRequestId: travelDeskFlightRequest.id,
-          travelerId: adminUser.id,
-          cost: "700.00",
-          leg: "Whitehorse -> Vancouver",
-          duration: "2 hours",
-          flightPreferenceOrder: 1,
-          additionalInformation: null,
-          createdAt: flightOptionCreatedAt,
-        })
+        const travelDeskFlightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest: travelDeskFlightRequest, traveler: adminUser })
+          .create({
+            cost: "700.00",
+            leg: "Whitehorse -> Vancouver",
+            duration: "2 hours",
+            flightPreferenceOrder: 1,
+            additionalInformation: null,
+            createdAt: flightOptionCreatedAt,
+          })
         const segmentCreatedAt = new Date("2026-10-05T12:00:00.000Z")
-        await TravelDeskFlightSegment.create({
-          flightOptionId: travelDeskFlightOption.id,
-          flightNumber: "YT101",
-          departAt: new Date("2026-10-27T15:00:00.000Z"),
-          departLocation: "Whitehorse",
-          arriveAt: new Date("2026-10-27T18:00:00.000Z"),
-          arriveLocation: "Vancouver",
-          duration: "3 hours",
-          status: "Confirmed",
-          class: "Economy",
-          sortOrder: 2,
-          createdAt: segmentCreatedAt,
-        })
+        await travelDeskFlightSegmentFactory
+          .associations({ flightOption: travelDeskFlightOption })
+          .create({
+            flightNumber: "YT101",
+            departAt: new Date("2026-10-27T15:00:00.000Z"),
+            departLocation: "Whitehorse",
+            arriveAt: new Date("2026-10-27T18:00:00.000Z"),
+            arriveLocation: "Vancouver",
+            duration: "3 hours",
+            status: "Confirmed",
+            class: "Economy",
+            sortOrder: 2,
+            createdAt: segmentCreatedAt,
+          })
 
         // Act
         const response = await request()
@@ -130,15 +130,16 @@ describe("api/src/controllers/travel-desk-flight-requests-controller.ts", () => 
           .associations({ travelAuthorization })
           .create()
         const createdAt = new Date("2026-10-01T12:00:00.000Z")
-        const travelDeskFlightRequest = await TravelDeskFlightRequest.create({
-          travelRequestId: travelDeskTravelRequest.id,
-          departLocation: "Whitehorse",
-          arriveLocation: "Vancouver",
-          datePreference: "2026-10-27",
-          timePreference: TravelDeskFlightRequest.TimePreferences.AM,
-          seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
-          createdAt,
-        })
+        const travelDeskFlightRequest = await travelDeskFlightRequestFactory
+          .associations({ travelRequest: travelDeskTravelRequest })
+          .create({
+            departLocation: "Whitehorse",
+            arriveLocation: "Vancouver",
+            datePreference: "2026-10-27",
+            timePreference: TravelDeskFlightRequest.TimePreferences.AM,
+            seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
+            createdAt,
+          })
 
         // Act
         const response = await request().get(
@@ -179,14 +180,15 @@ describe("api/src/controllers/travel-desk-flight-requests-controller.ts", () => 
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create()
-        const travelDeskFlightRequest = await TravelDeskFlightRequest.create({
-          travelRequestId: travelDeskTravelRequest.id,
-          departLocation: "Whitehorse",
-          arriveLocation: "Vancouver",
-          datePreference: "2026-10-27",
-          timePreference: TravelDeskFlightRequest.TimePreferences.AM,
-          seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
-        })
+        const travelDeskFlightRequest = await travelDeskFlightRequestFactory
+          .associations({ travelRequest: travelDeskTravelRequest })
+          .create({
+            departLocation: "Whitehorse",
+            arriveLocation: "Vancouver",
+            datePreference: "2026-10-27",
+            timePreference: TravelDeskFlightRequest.TimePreferences.AM,
+            seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
+          })
 
         // Act
         const response = await request().get(
@@ -297,15 +299,16 @@ describe("api/src/controllers/travel-desk-flight-requests-controller.ts", () => 
           .associations({ travelAuthorization })
           .create()
         const createdAt = new Date("2026-10-01T12:00:00.000Z")
-        const travelDeskFlightRequest = await TravelDeskFlightRequest.create({
-          travelRequestId: travelDeskTravelRequest.id,
-          departLocation: "Whitehorse",
-          arriveLocation: "Vancouver",
-          datePreference: "2026-10-27",
-          timePreference: TravelDeskFlightRequest.TimePreferences.AM,
-          seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
-          createdAt,
-        })
+        const travelDeskFlightRequest = await travelDeskFlightRequestFactory
+          .associations({ travelRequest: travelDeskTravelRequest })
+          .create({
+            departLocation: "Whitehorse",
+            arriveLocation: "Vancouver",
+            datePreference: "2026-10-27",
+            timePreference: TravelDeskFlightRequest.TimePreferences.AM,
+            seatPreference: TravelDeskFlightRequest.SeatPreferencesTypes.WINDOW,
+            createdAt,
+          })
 
         // Act
         const response = await request()

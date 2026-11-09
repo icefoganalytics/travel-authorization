@@ -7,6 +7,7 @@ import {
 
 import {
   travelAuthorizationFactory,
+  travelDeskOtherTransportationFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
@@ -25,17 +26,18 @@ describe("api/src/controllers/travel-desk-other-transportations-controller.ts", 
         const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization1 })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
-        const travelDeskOtherTransportation1 = await TravelDeskOtherTransportation.create({
-          travelRequestId: travelDeskTravelRequest1.id,
-          depart: "Whitehorse",
-          arrive: "Dawson City",
-          transportationType: TravelDeskOtherTransportation.TransportationTypes.BUS,
-          date: "2026-11-10",
-          additionalNotes: "Morning departure",
-          status: TravelDeskOtherTransportation.Statuses.REQUESTED,
-          reservedTransportationInfo: null,
-          booking: null,
-        })
+        const travelDeskOtherTransportation1 = await travelDeskOtherTransportationFactory
+          .associations({ travelRequest: travelDeskTravelRequest1 })
+          .create({
+            depart: "Whitehorse",
+            arrive: "Dawson City",
+            transportationType: TravelDeskOtherTransportation.TransportationTypes.BUS,
+            date: "2026-11-10",
+            additionalNotes: "Morning departure",
+            status: TravelDeskOtherTransportation.Statuses.REQUESTED,
+            reservedTransportationInfo: null,
+            booking: null,
+          })
 
         // Act
         const response = await request()
@@ -79,14 +81,15 @@ describe("api/src/controllers/travel-desk-other-transportations-controller.ts", 
         const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization1 })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
-        const travelDeskOtherTransportation1 = await TravelDeskOtherTransportation.create({
-          travelRequestId: travelDeskTravelRequest1.id,
-          depart: "Whitehorse",
-          arrive: "Dawson City",
-          transportationType: TravelDeskOtherTransportation.TransportationTypes.BUS,
-          date: "2026-11-10",
-          status: TravelDeskOtherTransportation.Statuses.REQUESTED,
-        })
+        const travelDeskOtherTransportation1 = await travelDeskOtherTransportationFactory
+          .associations({ travelRequest: travelDeskTravelRequest1 })
+          .create({
+            depart: "Whitehorse",
+            arrive: "Dawson City",
+            transportationType: TravelDeskOtherTransportation.TransportationTypes.BUS,
+            date: "2026-11-10",
+            status: TravelDeskOtherTransportation.Statuses.REQUESTED,
+          })
 
         // Act
         const response = await request()

@@ -2,6 +2,7 @@ import { TravelAuthorization, TravelDeskQuestion, TravelDeskTravelRequest, User 
 
 import {
   travelAuthorizationFactory,
+  travelDeskQuestionFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
@@ -14,15 +15,15 @@ describe("api/src/controllers/travel-desk-questions-controller.ts", () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         const user2 = await userFactory.create({ roles: [User.Roles.USER] })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          userId: user1.id,
-          supervisorEmail: user2.email,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          status: TravelDeskTravelRequest.Statuses.SUBMITTED,
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create({
+            supervisorEmail: user2.email,
+            status: TravelAuthorization.Statuses.APPROVED,
+          })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.SUBMITTED })
         mockCurrentUser(user2)
 
         // Act
@@ -52,19 +53,18 @@ describe("api/src/controllers/travel-desk-questions-controller.ts", () => {
       test("when the owner answers during options review, it preserves the question and request identity", async () => {
         // Arrange
         const user = await userFactory.create({ roles: [User.Roles.USER] })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          userId: user.id,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
-        })
-        const question = await TravelDeskQuestion.create({
-          travelRequestId: travelDeskTravelRequest.id,
-          requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
-          question: "Window or aisle?",
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED })
+        const question = await travelDeskQuestionFactory
+          .associations({ travelRequest: travelDeskTravelRequest })
+          .create({
+            requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
+            question: "Window or aisle?",
+          })
         mockCurrentUser(user)
 
         // Act
@@ -94,20 +94,21 @@ describe("api/src/controllers/travel-desk-questions-controller.ts", () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         const user2 = await userFactory.create({ roles: [User.Roles.USER] })
-        const travelAuthorization1 = await travelAuthorizationFactory.create({
-          userId: user1.id,
-          supervisorEmail: user2.email,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
-        const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory.create({
-          travelAuthorizationId: travelAuthorization1.id,
-          status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
-        })
-        const travelDeskQuestion1 = await TravelDeskQuestion.create({
-          travelRequestId: travelDeskTravelRequest1.id,
-          requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
-          question: "Window or aisle?",
-        })
+        const travelAuthorization1 = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create({
+            supervisorEmail: user2.email,
+            status: TravelAuthorization.Statuses.APPROVED,
+          })
+        const travelDeskTravelRequest1 = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization: travelAuthorization1 })
+          .create({ status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED })
+        const travelDeskQuestion1 = await travelDeskQuestionFactory
+          .associations({ travelRequest: travelDeskTravelRequest1 })
+          .create({
+            requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
+            question: "Window or aisle?",
+          })
         mockCurrentUser(user2)
 
         // Act
@@ -137,19 +138,18 @@ describe("api/src/controllers/travel-desk-questions-controller.ts", () => {
       test("when the owner has finished options review, it rejects further response updates", async () => {
         // Arrange
         const user = await userFactory.create({ roles: [User.Roles.USER] })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          userId: user.id,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          status: TravelDeskTravelRequest.Statuses.OPTIONS_RANKED,
-        })
-        const question = await TravelDeskQuestion.create({
-          travelRequestId: travelDeskTravelRequest.id,
-          requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
-          question: "Window or aisle?",
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.OPTIONS_RANKED })
+        const question = await travelDeskQuestionFactory
+          .associations({ travelRequest: travelDeskTravelRequest })
+          .create({
+            requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
+            question: "Window or aisle?",
+          })
         mockCurrentUser(user)
 
         // Act
@@ -168,19 +168,18 @@ describe("api/src/controllers/travel-desk-questions-controller.ts", () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         const user2 = await userFactory.create({ roles: [User.Roles.USER] })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          userId: user2.id,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
-        })
-        const question = await TravelDeskQuestion.create({
-          travelRequestId: travelDeskTravelRequest.id,
-          requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
-          question: "Window or aisle?",
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user2 })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED })
+        const question = await travelDeskQuestionFactory
+          .associations({ travelRequest: travelDeskTravelRequest })
+          .create({
+            requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
+            question: "Window or aisle?",
+          })
         mockCurrentUser(user1)
 
         // Act
@@ -200,19 +199,18 @@ describe("api/src/controllers/travel-desk-questions-controller.ts", () => {
       test("when the owner can only answer review questions, it rejects deleting a question", async () => {
         // Arrange
         const user = await userFactory.create({ roles: [User.Roles.USER] })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          userId: user.id,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
-        })
-        const question = await TravelDeskQuestion.create({
-          travelRequestId: travelDeskTravelRequest.id,
-          requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
-          question: "Window or aisle?",
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({ status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED })
+        const question = await travelDeskQuestionFactory
+          .associations({ travelRequest: travelDeskTravelRequest })
+          .create({
+            requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
+            question: "Window or aisle?",
+          })
         mockCurrentUser(user)
 
         // Act
