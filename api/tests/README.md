@@ -102,7 +102,7 @@ Factory Shark 2.0.0 owns model construction, `belongsTo` creation, and persisten
 
 Create `hasMany` and `hasOne` records explicitly after their parent, then reload the association when the subject needs it. Keep recurring relationship setup in an opt-in factory trait rather than a generic recursive saver. For unsaved request attributes, use `factory.build(overrides).dataValues`; create lists with an explicit loop. New configured builders have independent sequences, so use one builder per list and explicit IDs where a scenario requires stable identities.
 
-TravCom integration factories retain Fishery; its keyless city model cannot use Factory Shark's documented `id`-primary-key contract. Web plain-object fixtures also retain Fishery and must not import API models.
+TravCom invoice, detail, and segment fixtures also use Factory Shark. Its keyless city model uses `createCity` from the integration's fixture bundle; create cities explicitly and pass their `cityCode` values to segments. Do not invent primary keys or alter the external schema to fit a fixture library. Web plain-object fixtures retain Fishery and must not import API models.
 
 ## Test Lifecycle Notes
 
