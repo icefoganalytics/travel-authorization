@@ -33,7 +33,7 @@ Templates are useful when a task follows a repeated local pattern and benefits f
 Example:
 
 ```text
-Follow the template in agents/templates/fishery-factory-template.md
+Follow the template in agents/templates/sequelize-factory-template.md
 to add a new factory under api/tests/factories/.
 ```
 
