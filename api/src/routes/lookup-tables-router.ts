@@ -1,11 +1,7 @@
 import express, { Request, Response } from "express"
 import { ReturnValidationErrors } from "../middleware"
-import { DB_CONFIG } from "../config"
-import knex from "knex"
 import logger from "@/utils/logger"
 import { DistanceMatrixService } from "../services"
-
-knex(DB_CONFIG)
 
 export const lookupTableRouter = express.Router()
 const distanceMatrixService = new DistanceMatrixService()
