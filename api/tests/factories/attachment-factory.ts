@@ -1,4 +1,5 @@
 import { Factory } from "fishery"
+import { isNil } from "lodash"
 
 import { Attachment } from "@/models"
 
@@ -16,7 +17,7 @@ export const attachmentFactory = Factory.define<Attachment>(
     })
 
     const { targetId, targetType } = params
-    if (targetId === undefined || targetType === undefined) {
+    if (isNil(targetId) || isNil(targetType)) {
       throw new Error("Attachment factory requires targetId and targetType.")
     }
 
