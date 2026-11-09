@@ -279,11 +279,9 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           // Arrange
           const user = await userFactory.create({ roles: [User.Roles.USER] })
           mockCurrentUser(user)
-          const travellerAuthorizationFactory = travelAuthorizationFactory.associations({ user })
-          const travelAuthorizations: TravelAuthorization[] = []
-          for (let index = 0; index < 3; index++) {
-            travelAuthorizations.push(await travellerAuthorizationFactory.create())
-          }
+          const travelAuthorizations = await travelAuthorizationFactory
+            .associations({ user })
+            .createList(3)
           for (const [index, travelAuthorization] of travelAuthorizations.entries()) {
             await stopFactory.create({
               travelAuthorizationId: travelAuthorization.id,

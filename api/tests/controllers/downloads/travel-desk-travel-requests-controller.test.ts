@@ -2,7 +2,7 @@ import { times } from "lodash"
 import Papa from "papaparse"
 import qs from "qs"
 
-import { TravelAuthorization, TravelDeskTravelRequest, User } from "@/models"
+import { TravelDeskTravelRequest, User } from "@/models"
 import { CreatePdfService } from "@/services/downloads/travel-desk-travel-requests/create-pdf-service"
 
 import {
@@ -29,13 +29,9 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
           branch: "Travel",
         })
         mockCurrentUser(user1)
-        const travellerAuthorizationFactory = travelAuthorizationFactory.associations({
-          user: user1,
-        })
-        const travelAuthorizations: TravelAuthorization[] = []
-        for (let requestIndex = 0; requestIndex < SELECTED_REQUEST_COUNT; requestIndex++) {
-          travelAuthorizations.push(await travellerAuthorizationFactory.create())
-        }
+        const travelAuthorizations = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .createList(SELECTED_REQUEST_COUNT)
         const draftTravelDeskTravelRequestFactory = travelDeskTravelRequestFactory.params({
           createdAt: new Date("2026-10-01T12:00:00.000Z"),
           status: TravelDeskTravelRequest.Statuses.DRAFT,
@@ -126,13 +122,9 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         })
         mockCurrentUser(user1)
         const requestCount = 16
-        const travellerAuthorizationFactory = travelAuthorizationFactory.associations({
-          user: user1,
-        })
-        const travelAuthorizations: TravelAuthorization[] = []
-        for (let requestIndex = 0; requestIndex < requestCount; requestIndex++) {
-          travelAuthorizations.push(await travellerAuthorizationFactory.create())
-        }
+        const travelAuthorizations = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .createList(requestCount)
         const draftTravelDeskTravelRequestFactory = travelDeskTravelRequestFactory.params({
           createdAt: new Date("2026-10-01T12:00:00.000Z"),
           status: TravelDeskTravelRequest.Statuses.DRAFT,
