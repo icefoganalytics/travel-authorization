@@ -1,6 +1,6 @@
 # Services
 
-Load the direct [packaged backend workflow](skill://express-light-rail/workflow.md) and its linked [code-organization reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md) before this local overlay. Other clients use the [corresponding backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release. The root [shared-source contract](../../../AGENTS.md#shared-standards-and-local-authority) governs availability and conflicts; project-local service and data-access conventions remain authoritative.
+Load the direct [packaged backend workflow](skill://express-api/workflow.md) and its linked [code-organization reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md) before this local overlay. Other clients use the [corresponding backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release. The root [shared-source contract](../../../AGENTS.md#shared-standards-and-local-authority) governs availability and conflicts; project-local service and data-access conventions remain authoritative.
 
 ## Local Pattern
 
@@ -9,6 +9,7 @@ Load the direct [packaged backend workflow](skill://express-light-rail/workflow.
   service with the supplied arguments and invokes that instance method.
 - Call action services through `ServiceName.perform(...)`; do not instantiate them at call sites.
 - Keep controllers focused on request orchestration, authorization, status codes, and response shape.
+- Return serialization-ready models from mutation services. When response associations require a reload, make `return record.reload({ include: [...] })` the final service step, preserving required caller associations and existing transaction boundaries; controllers should not reload the result again.
 - Organize related action services under domain directories and export them through the existing
   service index files.
 

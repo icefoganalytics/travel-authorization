@@ -1,8 +1,10 @@
 import { isNil } from "lodash"
 
+import logger from "@/utils/logger"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequestsPolicy } from "@/policies"
 import { SubmitService } from "@/services/travel-desk-travel-requests"
+import { ShowSerializer } from "@/serializers/travel-desk-travel-requests"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -27,10 +29,15 @@ export class SubmitController extends BaseController {
         permittedAttributes,
         this.currentUser
       )
-      return this.response
-        .status(200)
-        .json({ travelDeskTravelRequest: updatedTravelDeskTravelRequest })
+      const serializedTravelDeskTravelRequest = ShowSerializer.perform(
+        updatedTravelDeskTravelRequest,
+        this.currentUser
+      )
+      return this.response.status(200).json({
+        travelDeskTravelRequest: serializedTravelDeskTravelRequest,
+      })
     } catch (error) {
+      logger.error(`Failed to submit travel desk request: ${error}`, { error })
       return this.response
         .status(422)
         .json({ message: `Failed to submit travel desk request: ${error}` })

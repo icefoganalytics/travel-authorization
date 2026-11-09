@@ -1,6 +1,6 @@
 # Controllers
 
-Controllers connect Express routes to request handling and response shaping. Load the direct [packaged backend workflow](skill://express-light-rail/workflow.md) before this local overlay. Other clients use the [corresponding backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release. Follow the root [shared-source and local-precedence contract](../../../AGENTS.md#shared-standards-and-local-authority), not a selector that can re-enter local workflow selection.
+Controllers connect Express routes to request handling and response shaping. Load the direct [packaged backend workflow](skill://express-api/workflow.md) before this local overlay. Other clients use the [corresponding backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release. Follow the root [shared-source and local-precedence contract](../../../AGENTS.md#shared-standards-and-local-authority), not a selector that can re-enter local workflow selection.
 
 `BaseController` exposes static route-handler accessors such as `.index` and `.create`. Each
 accessor constructs a controller instance and calls its matching instance action method. Route
@@ -13,6 +13,7 @@ handlers therefore use `Controller.create`, while controller classes implement `
 - Routes follow the usual resource shape: `GET /api/resources`, `GET /api/resources/:id`,
   `POST /api/resources`, and so on.
 - Controllers coordinate requests, policy checks, service calls, and serializer responses.
+- Import a controller's own resource serializers by name from the resource path, such as `import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-flight-options"`, rather than through the root serializer namespace.
 - Authorization uses `this.buildPolicy()` and policy scopes.
 - Record construction for state-dependent checks follows the
   [policy record-context contract](../policies/README.md#state-dependent-policies).
@@ -25,8 +26,9 @@ handlers therefore use `Controller.create`, while controller classes implement `
 ## Response Pattern
 
 - Return policy information in create/update responses when callers need it: `{ record, policy }`.
-- When create/update/show responses need association data beyond the base model, reload with the
-  required includes and serialize the response.
+- Use `IndexSerializer` for collections and `ShowSerializer` for single-record show, create, and update responses, even when their current fields are identical.
+- Serialize mutation-service results directly; the service owns any required final reload and response includes under the [service return contract](../services/README.md#local-pattern).
+- Load associations for ordinary show responses in the controller's record query.
 - Log real failures with structured error context:
   ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``.
 - Use consistent error messages: `"Failed to [action] [resource]: ${error}"`.

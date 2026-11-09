@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 import { TravelDeskHotel, TravelDeskTravelRequest } from "@/models"
 import { TravelDeskHotelsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-hotels"
-import { IndexSerializer } from "@/serializers/travel-desk-hotels"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-hotels"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -24,7 +24,7 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         limit: this.pagination.limit,
         offset: this.pagination.offset,
       })
-      const serializedTravelDeskHotels = IndexSerializer.perform(travelDeskHotels, this.currentUser)
+      const serializedTravelDeskHotels = IndexSerializer.perform(travelDeskHotels)
       return this.response.status(200).json({
         travelDeskHotels: serializedTravelDeskHotels,
         totalCount,
@@ -53,8 +53,9 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         })
       }
 
+      const serializedTravelDeskHotel = ShowSerializer.perform(travelDeskHotel)
       return this.response.json({
-        travelDeskHotel,
+        travelDeskHotel: serializedTravelDeskHotel,
         policy,
       })
     } catch (error) {
@@ -77,8 +78,9 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
       const newTravelDeskHotel = await CreateService.perform(permittedAttributes, this.currentUser)
+      const serializedTravelDeskHotel = ShowSerializer.perform(newTravelDeskHotel)
       return this.response.status(201).json({
-        travelDeskHotel: newTravelDeskHotel,
+        travelDeskHotel: serializedTravelDeskHotel,
         policy,
       })
     } catch (error) {
@@ -111,8 +113,9 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskHotel = ShowSerializer.perform(updatedTravelDeskHotel)
       return this.response.json({
-        travelDeskHotel: updatedTravelDeskHotel,
+        travelDeskHotel: serializedTravelDeskHotel,
         policy,
       })
     } catch (error) {

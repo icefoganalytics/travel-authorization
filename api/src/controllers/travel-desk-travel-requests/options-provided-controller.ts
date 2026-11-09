@@ -1,8 +1,10 @@
 import { isNil } from "lodash"
 
+import logger from "@/utils/logger"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequests } from "@/policies"
 import { OptionsProvidedService } from "@/services/travel-desk-travel-requests"
+import { ShowSerializer } from "@/serializers/travel-desk-travel-requests"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -27,10 +29,15 @@ export class OptionsProvidedController extends BaseController<TravelDeskTravelRe
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskTravelRequest = ShowSerializer.perform(
+        updatedTravelDeskTravelRequest,
+        this.currentUser
+      )
       return this.response.status(200).json({
-        travelDeskTravelRequest: updatedTravelDeskTravelRequest,
+        travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       })
     } catch (error) {
+      logger.error(`Failed to provide options for travel desk request: ${error}`, { error })
       return this.response
         .status(422)
         .json({ message: `Failed to provide options for travel desk request: ${error}` })

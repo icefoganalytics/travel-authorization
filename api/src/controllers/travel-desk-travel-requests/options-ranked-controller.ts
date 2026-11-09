@@ -1,8 +1,10 @@
 import { isNil } from "lodash"
 
+import logger from "@/utils/logger"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequests } from "@/policies"
 import { OptionsRankedService } from "@/services/travel-desk-travel-requests"
+import { ShowSerializer } from "@/serializers/travel-desk-travel-requests"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -25,10 +27,15 @@ export class OptionsRankedController extends BaseController<TravelDeskTravelRequ
         travelDeskTravelRequest,
         this.currentUser
       )
+      const serializedTravelDeskTravelRequest = ShowSerializer.perform(
+        updatedTravelDeskTravelRequest,
+        this.currentUser
+      )
       return this.response.status(200).json({
-        travelDeskTravelRequest: updatedTravelDeskTravelRequest,
+        travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       })
     } catch (error) {
+      logger.error(`Failed to rank options for travel desk request: ${error}`, { error })
       return this.response
         .status(422)
         .json({ message: `Failed to rank options for travel desk request: ${error}` })

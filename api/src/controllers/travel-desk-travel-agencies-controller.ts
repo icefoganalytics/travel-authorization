@@ -3,7 +3,9 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 import { TravelDeskTravelAgency } from "@/models"
 import { TravelDeskTravelAgenciesPolicy } from "@/policies"
-import { CreateService } from "@/services/travel-desk-travel-agencies"
+import { CreateService, UpdateService } from "@/services/travel-desk-travel-agencies"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-travel-agencies"
+
 import BaseController from "@/controllers/base-controller"
 
 export class TravelDeskTravelAgenciesController extends BaseController<TravelDeskTravelAgency> {
@@ -22,8 +24,9 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         limit: this.pagination.limit,
         offset: this.pagination.offset,
       })
+      const serializedTravelDeskTravelAgencies = IndexSerializer.perform(travelDeskTravelAgencies)
       return this.response.json({
-        travelDeskTravelAgencies,
+        travelDeskTravelAgencies: serializedTravelDeskTravelAgencies,
         totalCount,
       })
     } catch (error) {
@@ -50,7 +53,11 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         })
       }
 
-      return this.response.json({ travelDeskTravelAgency, policy })
+      const serializedTravelDeskTravelAgency = ShowSerializer.perform(travelDeskTravelAgency)
+      return this.response.json({
+        travelDeskTravelAgency: serializedTravelDeskTravelAgency,
+        policy,
+      })
     } catch (error) {
       logger.error("Error fetching travel desk travel agency" + error)
       return this.response.status(400).json({
@@ -67,13 +74,16 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
           message: "You are not authorized to create travel desk travel agencies",
         })
       }
-
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
+
       const travelDeskTravelAgency = await CreateService.perform(
         permittedAttributes,
         this.currentUser
       )
-      return this.response.status(201).json({ travelDeskTravelAgency })
+      const serializedTravelDeskTravelAgency = ShowSerializer.perform(travelDeskTravelAgency)
+      return this.response.status(201).json({
+        travelDeskTravelAgency: serializedTravelDeskTravelAgency,
+      })
     } catch (error) {
       logger.error("Error creating travel desk travel agency" + error)
       return this.response.status(422).json({
@@ -99,8 +109,15 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
       }
 
       const permittedAttributes = policy.permitAttributes(this.request.body)
-      await travelDeskTravelAgency.update(permittedAttributes)
-      return this.response.json({ travelDeskTravelAgency })
+      const updatedTravelDeskTravelAgency = await UpdateService.perform(
+        travelDeskTravelAgency,
+        permittedAttributes,
+        this.currentUser
+      )
+      const serializedTravelDeskTravelAgency = ShowSerializer.perform(updatedTravelDeskTravelAgency)
+      return this.response.json({
+        travelDeskTravelAgency: serializedTravelDeskTravelAgency,
+      })
     } catch (error) {
       logger.error("Error updating travel desk travel agency" + error)
       return this.response.status(422).json({

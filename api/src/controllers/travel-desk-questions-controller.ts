@@ -3,7 +3,8 @@ import { isNil } from "lodash"
 
 import { TravelDeskQuestion, TravelDeskTravelRequest } from "@/models"
 import { TravelDeskQuestionsPolicy } from "@/policies"
-import { CreateService } from "@/services/travel-desk-questions"
+import { CreateService, UpdateService } from "@/services/travel-desk-questions"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-questions"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -26,8 +27,9 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         offset: this.pagination.offset,
         order: [nullResponsesFirstOrder, ["updatedAt", "DESC"]],
       })
+      const serializedTravelDeskQuestions = IndexSerializer.perform(travelDeskQuestions)
       return this.response.status(200).json({
-        travelDeskQuestions,
+        travelDeskQuestions: serializedTravelDeskQuestions,
         totalCount,
       })
     } catch (error) {
@@ -53,8 +55,9 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         })
       }
 
+      const serializedTravelDeskQuestion = ShowSerializer.perform(travelDeskQuestion)
       return this.response.status(200).json({
-        travelDeskQuestion,
+        travelDeskQuestion: serializedTravelDeskQuestion,
         policy,
       })
     } catch (error) {
@@ -79,8 +82,9 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         permittedAttributes,
         this.currentUser
       )
+      const serializedTravelDeskQuestion = ShowSerializer.perform(newTravelDeskQuestion)
       return this.response.status(201).json({
-        travelDeskQuestion: newTravelDeskQuestion,
+        travelDeskQuestion: serializedTravelDeskQuestion,
       })
     } catch (error) {
       return this.response.status(422).json({
@@ -104,11 +108,16 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
           .status(403)
           .json({ message: "You are not authorized to update this travel desk question." })
       }
-
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-      const updatedTravelDeskQuestion = await travelDeskQuestion.update(permittedAttributes)
+
+      const updatedTravelDeskQuestion = await UpdateService.perform(
+        travelDeskQuestion,
+        permittedAttributes,
+        this.currentUser
+      )
+      const serializedTravelDeskQuestion = ShowSerializer.perform(updatedTravelDeskQuestion)
       return this.response.status(200).json({
-        travelDeskQuestion: updatedTravelDeskQuestion,
+        travelDeskQuestion: serializedTravelDeskQuestion,
       })
     } catch (error) {
       return this.response.status(422).json({

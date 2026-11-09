@@ -32,6 +32,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 - Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns order the full authorized result set, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
 - Owners can complete Travel Desk options review for requests without flights once all review data has loaded.
+- Travel Desk API responses use explicit fields without permission-check association data. Workflow actions return the same request details and passenger-document availability as request viewing.
 - Travel Desk staff can follow **Review Traveller Rankings** from booking review to the existing flight requests, then use **View Options and Rankings** to see saved preferences and rejection explanations.
 - Flight options are paginated separately for each leg, with five options per page by default. Page selections survive refresh, controls remain visible for single-page and empty results, and navigation fits phone-width screens.
 - Starting a new travel request preserves entered trip details and estimated trip segments.
