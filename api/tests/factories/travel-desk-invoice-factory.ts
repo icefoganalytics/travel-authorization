@@ -28,14 +28,14 @@ export const travelDeskInvoiceFactory = Factory.define<TravelDeskInvoice>(
           bookingFileVersionNumber: 1,
           eventType: "B",
           recordLocator,
-          crsDescription: null,
+          reservationSystemDescription: null,
           databaseTimestamp: "2026-01-01T00:00:00.000Z",
           hostEventTimestamp: null,
-          pnrCreationDate: null,
+          passengerNameRecordCreatedAt: null,
           owningAgencyName: null,
           transactionAgencyName: null,
           transactionAgent: null,
-          creatingAgencyIata: null,
+          creatingAgencyInternationalAirTransportAssociationNumber: null,
           passengers: [],
           airReservationSegments: [
             {
