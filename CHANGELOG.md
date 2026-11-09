@@ -28,7 +28,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Requested PR screenshots follow the shared agent-operated capture/upload workflow while preserving existing images, TravelAuth captions and app routes, and optional screenshot placeholders.
 - Contributor guidance links the shared worktree workflow and documents TravelAuth's worktree naming and Docker commands.
 - API and web lint run through non-fixing Docker commands usable by OMP Verifier, using the normal shared development gateway. API lint covers historical migrations without changing database operations; web lint no longer builds unused TypeScript programs. The API no longer installs unused OpenID Connect middleware.
-- Development, test, and production containers use Node 22, with aligned Sequelize core and dialect versions ready for Factory Shark compatibility qualification.
+- Development, test, and production containers use pinned Node 24 LTS, with aligned Sequelize dependencies for Factory Shark qualification and a matched Puppeteer/Chromium release family for PDF reports.
 
 ### Fixed
 

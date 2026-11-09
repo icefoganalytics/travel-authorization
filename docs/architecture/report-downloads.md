@@ -24,4 +24,8 @@ Letter-landscape PDFs paginate one continuous table according to rendered row he
 
 ## Runtime Packaging
 
-Both [development](/api/development.Dockerfile) and [production](/Dockerfile) images provide system Chromium through `PUPPETEER_EXECUTABLE_PATH` and disable Puppeteer's bundled browser download. The production build copies `src/templates` into `dist/templates`. Keep Chromium and Puppeteer compatible, and exercise an actual generated PDF when changing either dependency or image.
+Both [development](/api/development.Dockerfile) and [production](/Dockerfile) images use Node 24.22.2 LTS and pin Alpine Chromium **149.0.7827.53-r0**, exposed through `PUPPETEER_EXECUTABLE_PATH`. Puppeteer's bundled browser download is disabled. Puppeteer **25.1.0** targets Chrome for Testing **149.0.7827.22** according to its [supported-browser table](https://pptr.dev/supported-browsers); Alpine supplies a different patch in the same release family, not that exact tested binary.
+
+The API compiles to CommonJS with TypeScript's `node16` module mode. That mode rejects a static import of Puppeteer 25's ESM API with `TS1479`, even though Node 24 can load this package with `require()`. `PdfClient` therefore uses native `import()` inside `htmlToPdf`, preserving Puppeteer's types without changing the application's module format.
+
+The production build copies `src/templates` into `dist/templates`. When changing Node, Puppeteer, Chromium, or either image, rebuild both images and render the report template through `PdfClient` in each. Check installed versions, PDF content, repeated headings, pagination, and browser cleanup; a successful HTTP startup or mocked Puppeteer test does not establish browser compatibility.
