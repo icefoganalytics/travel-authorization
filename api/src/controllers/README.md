@@ -13,6 +13,7 @@ handlers therefore use `Controller.create`, while controller classes implement `
 - Routes follow the usual resource shape: `GET /api/resources`, `GET /api/resources/:id`,
   `POST /api/resources`, and so on.
 - Controllers coordinate requests, policy checks, service calls, and serializer responses.
+- Import a controller's own resource serializers by name from the resource path, such as `import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-flight-options"`, rather than through the root serializer namespace.
 - Authorization uses `this.buildPolicy()` and policy scopes.
 - Record construction for state-dependent checks follows the
   [policy record-context contract](../policies/README.md#state-dependent-policies).
