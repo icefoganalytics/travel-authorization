@@ -1,5 +1,6 @@
 import { isNil } from "lodash"
 
+import logger from "@/utils/logger"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequestsPolicy } from "@/policies"
 import { SubmitService } from "@/services/travel-desk-travel-requests"
@@ -36,6 +37,7 @@ export class SubmitController extends BaseController {
         travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       })
     } catch (error) {
+      logger.error(`Failed to submit travel desk request: ${error}`, { error })
       return this.response
         .status(422)
         .json({ message: `Failed to submit travel desk request: ${error}` })

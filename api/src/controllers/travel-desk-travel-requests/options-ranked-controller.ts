@@ -1,5 +1,6 @@
 import { isNil } from "lodash"
 
+import logger from "@/utils/logger"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequests } from "@/policies"
 import { OptionsRankedService } from "@/services/travel-desk-travel-requests"
@@ -34,6 +35,7 @@ export class OptionsRankedController extends BaseController<TravelDeskTravelRequ
         travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       })
     } catch (error) {
+      logger.error(`Failed to rank options for travel desk request: ${error}`, { error })
       return this.response
         .status(422)
         .json({ message: `Failed to rank options for travel desk request: ${error}` })

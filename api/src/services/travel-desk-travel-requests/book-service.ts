@@ -16,6 +16,11 @@ export class BookService extends BaseService {
   }
 
   async perform(): Promise<TravelDeskTravelRequest> {
+    const { travelAuthorization } = this.travelDeskTravelRequest
+    if (isUndefined(travelAuthorization)) {
+      throw new Error("Expected travelAuthorization association to be pre-loaded.")
+    }
+
     if (this.travelDeskTravelRequest.status !== TravelDeskTravelRequest.Statuses.OPTIONS_RANKED) {
       throw new Error(
         "Travel desk travel request must be in options ranked state to complete booking."
@@ -27,11 +32,6 @@ export class BookService extends BaseService {
         ...this.attributes,
         status: TravelDeskTravelRequest.Statuses.BOOKED,
       })
-
-      const { travelAuthorization } = this.travelDeskTravelRequest
-      if (isUndefined(travelAuthorization)) {
-        throw new Error("Expected travelAuthorization association to be pre-loaded.")
-      }
 
       await travelAuthorization.update({
         wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_TRAVEL_START,

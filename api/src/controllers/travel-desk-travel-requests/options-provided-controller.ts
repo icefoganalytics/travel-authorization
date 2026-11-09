@@ -1,5 +1,6 @@
 import { isNil } from "lodash"
 
+import logger from "@/utils/logger"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequests } from "@/policies"
 import { OptionsProvidedService } from "@/services/travel-desk-travel-requests"
@@ -36,6 +37,7 @@ export class OptionsProvidedController extends BaseController<TravelDeskTravelRe
         travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       })
     } catch (error) {
+      logger.error(`Failed to provide options for travel desk request: ${error}`, { error })
       return this.response
         .status(422)
         .json({ message: `Failed to provide options for travel desk request: ${error}` })

@@ -22,6 +22,11 @@ export class OptionsProvidedService extends BaseService {
   }
 
   async perform(): Promise<TravelDeskTravelRequest> {
+    const { travelAuthorization } = this.travelDeskTravelRequest
+    if (isUndefined(travelAuthorization)) {
+      throw new Error("Expected travelAuthorization association to be pre-loaded.")
+    }
+
     if (this.travelDeskTravelRequest.status !== TravelDeskTravelRequest.Statuses.SUBMITTED) {
       throw new Error("Travel desk travel request must be in submitted state to provide options.")
     }
@@ -34,11 +39,6 @@ export class OptionsProvidedService extends BaseService {
         ...this.attributes,
         status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
       })
-
-      const { travelAuthorization } = this.travelDeskTravelRequest
-      if (isUndefined(travelAuthorization)) {
-        throw new Error("Expected travelAuthorization association to be pre-loaded.")
-      }
 
       await travelAuthorization.update({
         wizardStepName: TravelAuthorization.WizardStepNames.RANK_FLIGHT_OPTIONS,
