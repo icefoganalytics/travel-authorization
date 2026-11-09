@@ -108,18 +108,24 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           })
         const location1 = await locationFactory.create()
         const location2 = await locationFactory.create()
-        await travelSegmentFactory.create({
-          travelAuthorization: travelAuthorization1,
-          departureLocation: location1,
-          arrivalLocation: location2,
-          segmentNumber: 1,
-        })
-        await travelSegmentFactory.create({
-          travelAuthorization: travelAuthorization1,
-          departureLocation: location2,
-          arrivalLocation: location1,
-          segmentNumber: 2,
-        })
+        await travelSegmentFactory
+          .associations({
+            travelAuthorization: travelAuthorization1,
+            departureLocation: location1,
+            arrivalLocation: location2,
+          })
+          .create({
+            segmentNumber: 1,
+          })
+        await travelSegmentFactory
+          .associations({
+            travelAuthorization: travelAuthorization1,
+            departureLocation: location2,
+            arrivalLocation: location1,
+          })
+          .create({
+            segmentNumber: 2,
+          })
 
         // Act
         const response = await request()
@@ -171,12 +177,15 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           })
           .create()
         const location1 = await locationFactory.create()
-        await stopFactory.create({
-          travelAuthorization: travelAuthorization1,
-          location: location1,
-          departureDate: "2020-03-04",
-          departureTime: "07:15:00",
-        })
+        await stopFactory
+          .associations({
+            travelAuthorization: travelAuthorization1,
+            location: location1,
+          })
+          .create({
+            departureDate: "2020-03-04",
+            departureTime: "07:15:00",
+          })
 
         // Act
         const response = await request().get("/api/travel-authorizations")
@@ -270,9 +279,10 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           // Arrange
           const user = await userFactory.create({ roles: [User.Roles.USER] })
           mockCurrentUser(user)
+          const travellerAuthorizationFactory = travelAuthorizationFactory.associations({ user })
           const travelAuthorizations: TravelAuthorization[] = []
           for (let index = 0; index < 3; index++) {
-            travelAuthorizations.push(await travelAuthorizationFactory.create({ user }))
+            travelAuthorizations.push(await travellerAuthorizationFactory.create())
           }
           for (const [index, travelAuthorization] of travelAuthorizations.entries()) {
             await stopFactory.create({

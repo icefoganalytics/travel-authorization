@@ -22,11 +22,14 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       const approver = await userFactory.create()
       const user = await userFactory.create()
       const purpose = await travelPurposeFactory.create()
-      const travelAuthorization = await travelAuthorizationFactory.create({
-        purpose,
-        user,
-        status: TravelAuthorization.Statuses.SUBMITTED,
-      })
+      const travelAuthorization = await travelAuthorizationFactory
+        .associations({
+          purpose,
+          user,
+        })
+        .create({
+          status: TravelAuthorization.Statuses.SUBMITTED,
+        })
       for (let index = 0; index < 3; index++) {
         await travelSegmentFactory.create({ travelAuthorizationId: travelAuthorization.id })
       }
@@ -49,11 +52,14 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       const approver = await userFactory.create()
       const user = await userFactory.create()
       const purpose = await travelPurposeFactory.create()
-      const travelAuthorization = await travelAuthorizationFactory.create({
-        purpose,
-        user,
-        status: TravelAuthorization.Statuses.APPROVED,
-      })
+      const travelAuthorization = await travelAuthorizationFactory
+        .associations({
+          purpose,
+          user,
+        })
+        .create({
+          status: TravelAuthorization.Statuses.APPROVED,
+        })
       for (let index = 0; index < 3; index++) {
         await travelSegmentFactory.create({ travelAuthorizationId: travelAuthorization.id })
       }
@@ -76,11 +82,14 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       const approver = await userFactory.create()
       const user = await userFactory.create()
       const purpose = await travelPurposeFactory.create()
-      const travelAuthorization = await travelAuthorizationFactory.create({
-        purpose,
-        user,
-        status: TravelAuthorization.Statuses.SUBMITTED,
-      })
+      const travelAuthorization = await travelAuthorizationFactory
+        .associations({
+          purpose,
+          user,
+        })
+        .create({
+          status: TravelAuthorization.Statuses.SUBMITTED,
+        })
       for (let index = 0; index < 3; index++) {
         await travelSegmentFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -118,11 +127,14 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       const approver = await userFactory.create()
       const user = await userFactory.create()
       const purpose = await travelPurposeFactory.create()
-      const travelAuthorization = await travelAuthorizationFactory.create({
-        purpose,
-        user,
-        status: TravelAuthorization.Statuses.SUBMITTED,
-      })
+      const travelAuthorization = await travelAuthorizationFactory
+        .associations({
+          purpose,
+          user,
+        })
+        .create({
+          status: TravelAuthorization.Statuses.SUBMITTED,
+        })
       for (let index = 0; index < 3; index++) {
         await travelSegmentFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -144,11 +156,14 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       const approver = await userFactory.create()
       const user = await userFactory.create()
       const purpose = await travelPurposeFactory.create()
-      const travelAuthorization = await travelAuthorizationFactory.create({
-        purpose,
-        user,
-        status: TravelAuthorization.Statuses.SUBMITTED,
-      })
+      const travelAuthorization = await travelAuthorizationFactory
+        .associations({
+          purpose,
+          user,
+        })
+        .create({
+          status: TravelAuthorization.Statuses.SUBMITTED,
+        })
       for (let index = 0; index < 3; index++) {
         await travelSegmentFactory.create({
           travelAuthorizationId: travelAuthorization.id,
@@ -157,11 +172,14 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       }
       await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
 
-      const previousTravelAuthorizationForUser = await travelAuthorizationFactory.create({
-        purpose,
-        user,
-        status: TravelAuthorization.Statuses.EXPENSED,
-      })
+      const previousTravelAuthorizationForUser = await travelAuthorizationFactory
+        .associations({
+          purpose,
+          user,
+        })
+        .create({
+          status: TravelAuthorization.Statuses.EXPENSED,
+        })
       const previousTravelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
         travelAuthorizationId: previousTravelAuthorizationForUser.id,
         birthDate: "1990-01-01",

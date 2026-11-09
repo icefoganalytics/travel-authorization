@@ -12,24 +12,30 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
       })
       const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
       const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
-      const travelSegment1 = await travelSegmentFactory.create({
-        travelAuthorization,
-        departureLocation: whitehorse,
-        arrivalLocation: vancouver,
-        segmentNumber: 1,
-        departureOn: new Date("2022-06-05"),
-        modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-      })
-      const travelSegment2 = await travelSegmentFactory.create({
-        travelAuthorization,
-        departureLocation: vancouver,
-        arrivalLocation: whitehorse,
-        segmentNumber: 2,
-        departureOn: new Date("2022-06-07"),
-        modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        accommodationType: null,
-      })
+      const travelSegment1 = await travelSegmentFactory
+        .associations({
+          travelAuthorization,
+          departureLocation: whitehorse,
+          arrivalLocation: vancouver,
+        })
+        .create({
+          segmentNumber: 1,
+          departureOn: new Date("2022-06-05"),
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: TravelSegment.AccommodationTypes.HOTEL,
+        })
+      const travelSegment2 = await travelSegmentFactory
+        .associations({
+          travelAuthorization,
+          departureLocation: vancouver,
+          arrivalLocation: whitehorse,
+        })
+        .create({
+          segmentNumber: 2,
+          departureOn: new Date("2022-06-07"),
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: null,
+        })
       const travelSegments = [travelSegment1, travelSegment2]
 
       // Act
@@ -48,15 +54,18 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
       })
       const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
       const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
-      const travelSegment1 = await travelSegmentFactory.create({
-        travelAuthorization,
-        departureLocation: whitehorse,
-        arrivalLocation: vancouver,
-        segmentNumber: 1,
-        departureOn: new Date("2022-06-05"),
-        modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-      })
+      const travelSegment1 = await travelSegmentFactory
+        .associations({
+          travelAuthorization,
+          departureLocation: whitehorse,
+          arrivalLocation: vancouver,
+        })
+        .create({
+          segmentNumber: 1,
+          departureOn: new Date("2022-06-05"),
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: TravelSegment.AccommodationTypes.HOTEL,
+        })
       const travelSegments = [travelSegment1]
 
       // Act
@@ -79,24 +88,30 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
         city: "Grande Prairie",
         province: "AB",
       })
-      const travelSegment1 = await travelSegmentFactory.create({
-        travelAuthorization,
-        departureLocation: whitehorse,
-        arrivalLocation: vancouver,
-        segmentNumber: 1,
-        departureOn: new Date("2022-06-05"),
-        modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-      })
-      const travelSegment2 = await travelSegmentFactory.create({
-        travelAuthorization,
-        departureLocation: vancouver,
-        arrivalLocation: grandePrairie,
-        segmentNumber: 2,
-        departureOn: new Date("2022-06-07"),
-        modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        accommodationType: null,
-      })
+      const travelSegment1 = await travelSegmentFactory
+        .associations({
+          travelAuthorization,
+          departureLocation: whitehorse,
+          arrivalLocation: vancouver,
+        })
+        .create({
+          segmentNumber: 1,
+          departureOn: new Date("2022-06-05"),
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: TravelSegment.AccommodationTypes.HOTEL,
+        })
+      const travelSegment2 = await travelSegmentFactory
+        .associations({
+          travelAuthorization,
+          departureLocation: vancouver,
+          arrivalLocation: grandePrairie,
+        })
+        .create({
+          segmentNumber: 2,
+          departureOn: new Date("2022-06-07"),
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: null,
+        })
       const travelSegments = [travelSegment1, travelSegment2]
 
       // Act

@@ -14,10 +14,9 @@ describe("api/src/controllers/travel-desk-travel-requests/options-ranked-control
       test("when the action succeeds, it returns the request show contract and its document flag", async () => {
         // Arrange
         const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          user,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create({ status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED })
@@ -92,10 +91,9 @@ describe("api/src/controllers/travel-desk-travel-requests/options-ranked-control
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
         const user2 = await userFactory.create({ roles: [User.Roles.ADMIN] })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          user: user1,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user1 })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create({ status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED })
@@ -116,10 +114,9 @@ describe("api/src/controllers/travel-desk-travel-requests/options-ranked-control
       test("when options have not been provided, it returns the transition error", async () => {
         // Arrange
         const user = await userFactory.create({ roles: [User.Roles.USER] })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          user,
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user })
+          .create({ status: TravelAuthorization.Statuses.APPROVED })
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create({ status: TravelDeskTravelRequest.Statuses.SUBMITTED })

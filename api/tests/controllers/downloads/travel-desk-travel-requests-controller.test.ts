@@ -29,9 +29,12 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
           branch: "Travel",
         })
         mockCurrentUser(user1)
+        const travellerAuthorizationFactory = travelAuthorizationFactory.associations({
+          user: user1,
+        })
         const travelAuthorizations: TravelAuthorization[] = []
         for (let requestIndex = 0; requestIndex < SELECTED_REQUEST_COUNT; requestIndex++) {
-          travelAuthorizations.push(await travelAuthorizationFactory.create({ user: user1 }))
+          travelAuthorizations.push(await travellerAuthorizationFactory.create())
         }
         const draftTravelDeskTravelRequestFactory = travelDeskTravelRequestFactory.params({
           createdAt: new Date("2026-10-01T12:00:00.000Z"),
@@ -123,9 +126,12 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         })
         mockCurrentUser(user1)
         const requestCount = 16
+        const travellerAuthorizationFactory = travelAuthorizationFactory.associations({
+          user: user1,
+        })
         const travelAuthorizations: TravelAuthorization[] = []
         for (let requestIndex = 0; requestIndex < requestCount; requestIndex++) {
-          travelAuthorizations.push(await travelAuthorizationFactory.create({ user: user1 }))
+          travelAuthorizations.push(await travellerAuthorizationFactory.create())
         }
         const draftTravelDeskTravelRequestFactory = travelDeskTravelRequestFactory.params({
           createdAt: new Date("2026-10-01T12:00:00.000Z"),

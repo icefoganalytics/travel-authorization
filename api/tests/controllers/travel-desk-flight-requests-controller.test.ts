@@ -35,16 +35,16 @@ describe("api/src/controllers/travel-desk-flight-requests-controller.ts", () => 
             createdAt,
           })
         const flightOptionCreatedAt = new Date("2026-10-03T12:00:00.000Z")
-        const travelDeskFlightOption = await travelDeskFlightOptionFactory.create({
-          flightRequest: travelDeskFlightRequest,
-          traveler: adminUser,
-          cost: "700.00",
-          leg: "Whitehorse -> Vancouver",
-          duration: "2 hours",
-          flightPreferenceOrder: 1,
-          additionalInformation: null,
-          createdAt: flightOptionCreatedAt,
-        })
+        const travelDeskFlightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest: travelDeskFlightRequest, traveler: adminUser })
+          .create({
+            cost: "700.00",
+            leg: "Whitehorse -> Vancouver",
+            duration: "2 hours",
+            flightPreferenceOrder: 1,
+            additionalInformation: null,
+            createdAt: flightOptionCreatedAt,
+          })
         const segmentCreatedAt = new Date("2026-10-05T12:00:00.000Z")
         await travelDeskFlightSegmentFactory
           .associations({ flightOption: travelDeskFlightOption })

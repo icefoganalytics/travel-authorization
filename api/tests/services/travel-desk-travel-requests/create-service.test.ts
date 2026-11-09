@@ -34,11 +34,14 @@ describe("api/src/services/travel-desk-travel-requests/create-service.ts", () =>
         const currentUser = await userFactory.create()
         const user = await userFactory.create()
         const purpose = await travelPurposeFactory.create()
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          purpose,
-          user,
-          status: TravelAuthorization.Statuses.SUBMITTED,
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({
+            purpose,
+            user,
+          })
+          .create({
+            status: TravelAuthorization.Statuses.SUBMITTED,
+          })
 
         yukonGovernmentIntegrationMock.fetchEmployee.mockResolvedValue({
           full_name: "John.Doe",
@@ -111,11 +114,14 @@ describe("api/src/services/travel-desk-travel-requests/create-service.ts", () =>
         const currentUser = await userFactory.create()
         const user = await userFactory.create()
         const purpose = await travelPurposeFactory.create()
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          purpose,
-          user,
-          status: TravelAuthorization.Statuses.SUBMITTED,
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({
+            purpose,
+            user,
+          })
+          .create({
+            status: TravelAuthorization.Statuses.SUBMITTED,
+          })
 
         yukonGovernmentIntegrationMock.fetchEmployee.mockResolvedValue(null)
 
@@ -160,11 +166,14 @@ describe("api/src/services/travel-desk-travel-requests/create-service.ts", () =>
         const currentUser = await userFactory.create()
         const user = await userFactory.create()
         const purpose = await travelPurposeFactory.create()
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          purpose,
-          user,
-          status: TravelAuthorization.Statuses.SUBMITTED,
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({
+            purpose,
+            user,
+          })
+          .create({
+            status: TravelAuthorization.Statuses.SUBMITTED,
+          })
         const travelSegment1 = await travelSegmentFactory.create({
           travelAuthorizationId: travelAuthorization.id,
           segmentNumber: 1,
@@ -214,11 +223,14 @@ describe("api/src/services/travel-desk-travel-requests/create-service.ts", () =>
         const currentUser = await userFactory.create()
         const user = await userFactory.create()
         const purpose = await travelPurposeFactory.create()
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          purpose,
-          user,
-          status: TravelAuthorization.Statuses.SUBMITTED,
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({
+            purpose,
+            user,
+          })
+          .create({
+            status: TravelAuthorization.Statuses.SUBMITTED,
+          })
 
         yukonGovernmentIntegrationMock.fetchEmployee.mockResolvedValue(null)
         const prefillFlightRequestsServicePerformSpy = vi.spyOn(
