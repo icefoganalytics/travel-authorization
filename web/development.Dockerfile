@@ -1,4 +1,4 @@
-FROM node:20.19.0-alpine3.21
+FROM node:22.23.4-alpine3.23
 
 WORKDIR /usr/src/web
 
