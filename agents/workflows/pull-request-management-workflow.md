@@ -25,10 +25,7 @@ Do not add report sections unless the maintainer requests them.
   or required agent capture/upload, helper and session discovery, caption + route + image format,
   and separate saved/rendered verification. Optional captioned placeholders do not alone block merge;
   report genuine missing prerequisites without handing routine upload back to the human.
-- **Testing Instructions:** Follow the [local testing workflow](testing-instructions-workflow.md).
-  Retain TravelAuth's three setup steps, then describe reproducible user actions and expected
-  outcomes with verified UI labels. Link the [canonical commands](../../bin/README.md#testing)
-  instead of maintaining another command inventory.
+- **Testing Instructions:** Follow the [local testing workflow](testing-instructions-workflow.md). Put **Quality Assurance Team Checks** first and **Developer Setup (Local Only)** afterward when needed. State deployment, role, and data prerequisites before QA actions; keep focused wrapper checks, local startup, and fixture preparation in the developer section. Link the [canonical commands](../../bin/README.md#testing) instead of maintaining another command inventory.
 
 Keep self-review, commands run, current-head verification, learner triage, and merge evidence in the
 session or an existing designated record. Do not append routine report comments or replace genuine

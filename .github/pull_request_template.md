@@ -18,7 +18,12 @@ TODO
 
 # Testing Instructions
 
-1. Run the test suite via `dev test` (or `dev test_api`)
-2. Boot the app via `dev up`
-3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`)
-4.
+<!-- Follow /agents/workflows/testing-instructions-workflow.md. Put QA actions and prerequisites first; local developer setup/checks follow. Keep execution reports in the session or designated evidence record. -->
+
+## Quality Assurance Team Checks
+
+1. TODO
+
+## Developer Setup (Local Only)
+
+TODO

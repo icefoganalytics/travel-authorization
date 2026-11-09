@@ -1,154 +1,34 @@
 ---
-description: Generate comprehensive testing instructions for pull requests
+description: Write reviewer-facing TravelAuth checks with separate local developer setup
 ---
 
 # Testing Instructions Workflow
 
-This workflow guides you through creating comprehensive, accurate testing instructions for a pull
-request.
+Load the direct [shared Testing Instructions Workflow](skill://test-guide/workflow.md) first, then apply this TravelAuth overlay. Other clients resolve the [corresponding shared workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/testing-instructions-workflow.md) in their verified release under the [root source-availability contract](/AGENTS.md#shared-standards-and-local-authority).
 
-## Intent
+## Audience and Setup
 
-**WHY this workflow exists:** Pull requests need clear, actionable testing instructions that
-reviewers can follow to validate changes. Without proper testing instructions, PR validation
-becomes inconsistent and error-prone.
+The [PR template](/.github/pull_request_template.md) owns section names and order. Follow WRAP's audience separation: **Quality Assurance Team Checks** first, then **Developer Setup (Local Only)** when needed.
 
-**WHAT this workflow produces:**
+Before QA actions, identify the target environment containing the change, required role, and suitable existing records. A PR branch or local smoke does not establish deployment. Explain how to find records by observable properties through the UI; do not require shared-environment reviewers to seed databases, know local fixture IDs, or manufacture a large dataset. If the deployment, access, or records are unavailable, name the missing prerequisite and the owner who can supply it, mark that scenario **BLOCKED**, and continue independent checks.
 
-- Comprehensive testing instructions with exact UI element names
-- Sequential test cases covering happy paths, edge cases, and error conditions
-- Proper formatting following TravelAuth project standards
-- Navigation paths and verification steps for each test scenario
+Keep TravelAuth's local preparation in the developer section: run the relevant focused checks through the [canonical wrapper](/bin/README.md#testing), start the app with `./bin/dev up` when needed, and use the browser URL printed by Vite (honors `GATEWAY_HOSTNAME`). Only one API test container may run at a time. Keep isolated fixture preparation and exact boundary checks here, separate from QA actions; do not discard required checks when separating audiences.
 
-**Decision Rules:**
+## TravelAuth Formatting
 
-- **Always verify UI element names:** Never guess button names, tab names, or labels. Search the
-  Vue code.
-- **Use exact formatting:** Follow the established bold formatting and sequential numbering
-  patterns.
-- **Cover the real user workflow:** Include creation, editing, saving, return paths, and refresh
-  validation where relevant.
-- **Be specific:** Include exact navigation paths, field labels, route expectations, and expected
-  outcomes.
-- **Start with the TravelAuth standard setup:** Begin every Testing Instructions section with the
-  standard three setup steps from `AGENTS.md`.
+- Use numbered **Test Case N: Description** headings when multiple scenarios need separation, nested under the template's QA section.
+- Continue action numbering across QA test cases. Developer instructions form a separate sequence.
+- Bold source-verified UI labels, use navigation arrows (`→`), and put exact URLs, values, and messages in backticks.
+- Give each step one main action with its visible expected result nearby. Preserve the scenario's intended transitions and unchanged behavior; verify return paths and refresh persistence where relevant.
+- Verify labels, routes, permissions, and available actions against the PR's checkout, not an older or unrelated checkout.
 
-## Process
+## Evidence Placement
 
-### Step 1: Understand the PR changes
+Keep commands already run, pass counts, generated-artifact inspections, self-review, and release status in the session or existing designated evidence record, not as execution reports in the PR description or routine comments. The description contains reviewer actions, expected outcomes, material prerequisites, and useful evidence links. Never present renderer smoke coverage as authenticated browser acceptance.
 
-Read the PR description and diff to understand:
-
-- what feature or bug is being addressed
-- what specific functionality changed
-- what edge cases need testing
-- any concerns or reviewer questions already raised
-
-Identify the main test scenarios that need coverage.
-
-### Step 2: Find actual UI element names from Vue code
-
-**CRITICAL:** Always verify exact button names, tab names, and UI element labels from the actual
-Vue components. Never guess or assume names.
-
-#### Finding button text and labels
-
-```bash
-rg -n "v-btn|label=|title=" web/src -g "*.vue"
-rg -n ">Save|>Back|>Return|>Submit|>Edit" web/src -g "*.vue"
-rg -n "v-tab|tabs =" web/src -g "*.vue"
-```
-
-#### Finding navigation structure
-
-```bash
-rg -n "name: \".*Page|to: \\{|router" web/src/router.ts web/src -g "*.vue" -g "*.ts"
-rg -n "breadcrumb|breadcrumbs|v-list-item" web/src -g "*.vue"
-```
-
-### Step 3: Verify routes and return paths
-
-Read the relevant route definitions and page components to understand:
-
-- exact route names and URLs
-- which tab or page a Back or Return button should target
-- whether direct URLs, refreshes, and nested edit pages should keep the user in the same flow
-
-### Step 4: Structure test cases
-
-Break testing into logical scenarios:
-
-- **Test Case 1:** Main happy path
-- **Test Case 2:** Important edit/save variations
-- **Test Case 3:** Navigation and return-path behavior
-- **Test Case 4:** Error handling or edge cases, if relevant
-
-Each test case should:
-
-- have a clear descriptive heading
-- test one specific aspect of the functionality
-- include explicit verification steps with expected outcomes
-
-### Step 5: Write testing instructions using the standard format
-
-Use this structure:
-
-```markdown
-# Testing Instructions
-
-1. Run the relevant test suite using the canonical commands in [`bin/README.md`](../../bin/README.md#testing).
-2. Boot the app via `./bin/dev up`.
-3. Log in using the browser URL printed by Vite at startup (honors `GATEWAY_HOSTNAME`).
-
-## Test Case 1: [Descriptive scenario name]
-
-4. From the main app Dashboard, [first action].
-5. Click **[Exact Button Name]**.
-6. Fill in [form details]:
-   - **[Field Label]**: [Instructions or example value]
-7. Click **[Submit Button Name]**.
-8. Verify [expected outcome].
-```
-
-### Step 6: Follow formatting guidelines
-
-1. **Bold all UI elements:** `**Travel Desk**`, `**Edit**`, `**Traveler Details** tab`
-2. **Use exact button text:** Search the code to find the actual text
-3. **Sequential numbering:** Continue numbering across all test cases
-4. **Navigation arrows:** Use `→` for navigation paths
-5. **Specific locations:** Say where the user starts, such as "from the main app Dashboard" or
-   "via the left sidebar nav"
-6. **Clear verification steps:** Use "Verify that..." or "Verify success message: `...`"
-7. **Inline code for exact values:** Use backticks for URLs, IDs, field values, and exact messages
-
-### Step 7: Include all meaningful scenarios
-
-Ensure coverage of:
-
-- main happy path functionality
-- edit/save behavior
-- return/back navigation
-- refresh/direct URL behavior when relevant
-- edge cases or blocked states called out by the PR
-
-### Step 8: Review and validate
-
-Before finalizing:
-
-- [ ] All UI element names match actual code
-- [ ] Navigation paths are accurate
-- [ ] All test cases have clear expected outcomes
-- [ ] Sequential numbering is correct
-- [ ] Bold formatting is applied to UI elements
-- [ ] Each test case covers a distinct scenario
+Validate a guidance-only change by applying it to a representative PR instruction rewrite and checking prerequisites, labels, action order, numbering, and preserved coverage. This checks the instructions, not unexercised application behavior. For application QA, report only checks actually exercised and name any unavailable prerequisites.
 
 ## Related Workflows
 
-- [`./pull-request-management-workflow.md`](./pull-request-management-workflow.md) - Create and update pull requests
-- [`./github-issue-creation-workflow.md`](./github-issue-creation-workflow.md) - Create and enhance GitHub issues
-
-## Tips
-
-- When in doubt about UI element names, check the code first
-- Prefer route names and labels from the current branch, not older screenshots
-- For tabbed flows, always test direct URL entry, tab switching, and nested edit return paths
+- [Pull request management](pull-request-management-workflow.md)
+- [Shared browser QA](skill://browser-qa/workflow.md)

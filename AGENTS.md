@@ -14,6 +14,7 @@ This is the project overlay on [Marlens Skills, Rules, and Tools](https://github
 | Backend authoring     | [Backend workflow](skill://express-light-rail/workflow.md)                                                                                                                                                                                                                                                                                                      | [API overview](api/README.md) and source-adjacent controller/policy/service/serializer READMEs               |
 | Test authoring/review | [Code review workflow](skill://code-review/workflow.md) and its [Scenario-Oriented Verification reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#scenario-oriented-verification); [factory workflow](skill://test-factory-traits-and-service-shape/workflow.md) when needed | [API tests](api/tests/README.md), [UI tests](web/tests/README.md)                                            |
 | Pull requests         | Existing [PR overlay's direct shared delegation](agents/workflows/pull-request-management-workflow.md)                                                                                                                                                                                                                                                          | [COMMITTING.md](COMMITTING.md), local description/metadata policies, and [canonical commands](bin/README.md) |
+| Testing instructions  | [Testing Instructions Workflow](skill://test-guide/workflow.md)                                                                                                                                                                                                                                                                                                 | [TravelAuth testing overlay](agents/workflows/testing-instructions-workflow.md)                              |
 
 **Apply:** Load only the task-relevant direct shared workflow document first, then its local deltas. Do not invoke the selecting skill again from an overlay: it can route back to that same overlay. Other clients must resolve the corresponding workflow/reference files in their verified shared release; the GitHub owner links are discovery aids, not installed-version evidence.
 
@@ -59,7 +60,7 @@ Preserve the import, type, and test conventions below until explicitly reconcile
 
 Everything goes through `./bin/dev` (Ruby wrapper); development and test commands run inside Docker. [bin/README.md](bin/README.md) owns actual commands, gateway lifecycle, database selection, and test-container isolation. Use its [testing section](bin/README.md#testing), not service-shell package commands. Only one API test container may run at a time.
 
-The standard PR setup remains:
+PR testing instructions follow the [testing overlay](agents/workflows/testing-instructions-workflow.md): **Quality Assurance Team Checks** first, with target environment, role, and data prerequisites before actions. Put local preparation under **Developer Setup (Local Only)** afterward when needed:
 
 1. Run the relevant test suite using the [canonical commands](bin/README.md#testing).
 2. Boot the app via `./bin/dev up`.
