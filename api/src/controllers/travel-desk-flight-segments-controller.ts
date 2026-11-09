@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 import { TravelDeskFlightSegment } from "@/models"
 import { TravelDeskFlightSegmentsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-flight-segments"
-import { IndexSerializer } from "@/serializers/travel-desk-flight-segments"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-flight-segments"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -56,7 +56,7 @@ export class TravelDeskFlightSegmentsController extends BaseController<TravelDes
         })
       }
 
-      const serializedTravelDeskFlightSegment = IndexSerializer.perform(travelDeskFlightSegment)
+      const serializedTravelDeskFlightSegment = ShowSerializer.perform(travelDeskFlightSegment)
       return this.response.status(200).json({
         travelDeskFlightSegment: serializedTravelDeskFlightSegment,
         policy,
@@ -84,7 +84,7 @@ export class TravelDeskFlightSegmentsController extends BaseController<TravelDes
         this.currentUser
       )
 
-      const serializedTravelDeskFlightSegment = IndexSerializer.perform(travelDeskFlightSegment)
+      const serializedTravelDeskFlightSegment = ShowSerializer.perform(travelDeskFlightSegment)
       return this.response.status(201).json({
         travelDeskFlightSegment: serializedTravelDeskFlightSegment,
       })
@@ -118,7 +118,7 @@ export class TravelDeskFlightSegmentsController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskFlightSegment = IndexSerializer.perform(
+      const serializedTravelDeskFlightSegment = ShowSerializer.perform(
         updatedTravelDeskFlightSegment
       )
       return this.response.status(200).json({

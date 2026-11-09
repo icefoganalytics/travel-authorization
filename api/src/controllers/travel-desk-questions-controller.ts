@@ -4,7 +4,7 @@ import { isNil } from "lodash"
 import { TravelDeskQuestion, TravelDeskTravelRequest } from "@/models"
 import { TravelDeskQuestionsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-questions"
-import { IndexSerializer } from "@/serializers/travel-desk-questions"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-questions"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -55,7 +55,7 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         })
       }
 
-      const serializedTravelDeskQuestion = IndexSerializer.perform(travelDeskQuestion)
+      const serializedTravelDeskQuestion = ShowSerializer.perform(travelDeskQuestion)
       return this.response.status(200).json({
         travelDeskQuestion: serializedTravelDeskQuestion,
         policy,
@@ -82,7 +82,7 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskQuestion = IndexSerializer.perform(newTravelDeskQuestion)
+      const serializedTravelDeskQuestion = ShowSerializer.perform(newTravelDeskQuestion)
       return this.response.status(201).json({
         travelDeskQuestion: serializedTravelDeskQuestion,
       })
@@ -115,7 +115,7 @@ export class TravelDeskQuestionsController extends BaseController<TravelDeskQues
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskQuestion = IndexSerializer.perform(updatedTravelDeskQuestion)
+      const serializedTravelDeskQuestion = ShowSerializer.perform(updatedTravelDeskQuestion)
       return this.response.status(200).json({
         travelDeskQuestion: serializedTravelDeskQuestion,
       })

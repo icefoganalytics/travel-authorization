@@ -5,7 +5,7 @@ import logger from "@/utils/logger"
 import { TravelDeskOtherTransportation, TravelDeskTravelRequest } from "@/models"
 import { TravelDeskOtherTransportationsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-other-transportations"
-import { IndexSerializer } from "@/serializers/travel-desk-other-transportations"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-other-transportations"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -59,7 +59,7 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         })
       }
 
-      const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
+      const serializedTravelDeskOtherTransportation = ShowSerializer.perform(
         travelDeskOtherTransportation
       )
       return this.response.json({
@@ -89,7 +89,7 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
+      const serializedTravelDeskOtherTransportation = ShowSerializer.perform(
         newTravelDeskOtherTransportation
       )
       return this.response.status(201).json({
@@ -126,7 +126,7 @@ export class TravelDeskOtherTransportationsController extends BaseController<Tra
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskOtherTransportation = IndexSerializer.perform(
+      const serializedTravelDeskOtherTransportation = ShowSerializer.perform(
         updatedTravelDeskOtherTransportation
       )
       return this.response.status(200).json({

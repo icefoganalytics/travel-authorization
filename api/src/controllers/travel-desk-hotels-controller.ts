@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 import { TravelDeskHotel, TravelDeskTravelRequest } from "@/models"
 import { TravelDeskHotelsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-hotels"
-import { IndexSerializer } from "@/serializers/travel-desk-hotels"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-hotels"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -53,7 +53,7 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         })
       }
 
-      const serializedTravelDeskHotel = IndexSerializer.perform(travelDeskHotel)
+      const serializedTravelDeskHotel = ShowSerializer.perform(travelDeskHotel)
       return this.response.json({
         travelDeskHotel: serializedTravelDeskHotel,
         policy,
@@ -78,7 +78,7 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
       const newTravelDeskHotel = await CreateService.perform(permittedAttributes, this.currentUser)
-      const serializedTravelDeskHotel = IndexSerializer.perform(newTravelDeskHotel)
+      const serializedTravelDeskHotel = ShowSerializer.perform(newTravelDeskHotel)
       return this.response.status(201).json({
         travelDeskHotel: serializedTravelDeskHotel,
         policy,
@@ -113,7 +113,7 @@ export class TravelDeskHotelsController extends BaseController<TravelDeskHotel> 
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskHotel = IndexSerializer.perform(updatedTravelDeskHotel)
+      const serializedTravelDeskHotel = ShowSerializer.perform(updatedTravelDeskHotel)
       return this.response.json({
         travelDeskHotel: serializedTravelDeskHotel,
         policy,

@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 import { TravelDeskTravelAgency } from "@/models"
 import { TravelDeskTravelAgenciesPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-travel-agencies"
-import { IndexSerializer } from "@/serializers/travel-desk-travel-agencies"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-travel-agencies"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -53,7 +53,7 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         })
       }
 
-      const serializedTravelDeskTravelAgency = IndexSerializer.perform(travelDeskTravelAgency)
+      const serializedTravelDeskTravelAgency = ShowSerializer.perform(travelDeskTravelAgency)
       return this.response.json({
         travelDeskTravelAgency: serializedTravelDeskTravelAgency,
         policy,
@@ -80,7 +80,7 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskTravelAgency = IndexSerializer.perform(travelDeskTravelAgency)
+      const serializedTravelDeskTravelAgency = ShowSerializer.perform(travelDeskTravelAgency)
       return this.response.status(201).json({
         travelDeskTravelAgency: serializedTravelDeskTravelAgency,
       })
@@ -114,9 +114,7 @@ export class TravelDeskTravelAgenciesController extends BaseController<TravelDes
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskTravelAgency = IndexSerializer.perform(
-        updatedTravelDeskTravelAgency
-      )
+      const serializedTravelDeskTravelAgency = ShowSerializer.perform(updatedTravelDeskTravelAgency)
       return this.response.json({
         travelDeskTravelAgency: serializedTravelDeskTravelAgency,
       })
