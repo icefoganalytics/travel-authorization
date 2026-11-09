@@ -6,13 +6,15 @@
     :loading="isLoading"
   >
     <template #item.amount="{ value }">
-      {{ formatCurrency(value) }}
+      {{ formatCurrency(value, "CAD", currencyFormatOptions) }}
     </template>
     <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses">Total</td>
-          <td :class="totalRowClasses">{{ formatCurrency(totalAmount) }}</td>
+          <td :class="totalRowClasses">
+            {{ formatCurrency(totalAmount, "CAD", currencyFormatOptions) }}
+          </td>
         </tr>
       </tfoot>
     </template>
@@ -22,6 +24,8 @@
 <script setup lang="ts">
 import { sumBy } from "lodash"
 import { computed, ref } from "vue"
+
+import { formatCurrency } from "@/utils/formatters"
 
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 
@@ -42,12 +46,8 @@ const headers = ref([
   { title: "Amount", key: "amount" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
-
-function formatCurrency(amount: number) {
-  const formatter = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  })
-  return formatter.format(amount)
+const currencyFormatOptions = {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 }
 </script>

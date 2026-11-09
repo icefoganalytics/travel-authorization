@@ -6,17 +6,19 @@
     :loading="isLoading"
   >
     <template #item.date="{ value }">
-      {{ formatDate(value) }}
+      {{ formatDate(value, "d-LLLL-yyyy", { zone: "utc" }) }}
     </template>
     <template #item.cost="{ value }">
-      {{ formatCurrency(value) }}
+      {{ formatCurrency(value, "CAD", currencyFormatOptions) }}
     </template>
     <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses"></td>
           <td :class="totalRowClasses">Total</td>
-          <td :class="totalRowClasses">{{ formatCurrency(totalAmount) }}</td>
+          <td :class="totalRowClasses">
+            {{ formatCurrency(totalAmount, "CAD", currencyFormatOptions) }}
+          </td>
         </tr>
       </tfoot>
     </template>
@@ -26,7 +28,8 @@
 <script setup lang="ts">
 import { sumBy } from "lodash"
 import { computed, ref } from "vue"
-import { DateTime } from "luxon"
+
+import { formatCurrency, formatDate } from "@/utils/formatters"
 
 import useExpenses, {
   ExpenseTypes,
@@ -54,21 +57,13 @@ const headers = ref([
 ])
 
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
+const currencyFormatOptions = {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+}
 
 // Will need to be calculated in the back-end if data is multi-page.
 const totalAmount = computed(() => sumBy(expenses.value, "cost"))
-
-function formatDate(date: string | null) {
-  return DateTime.fromISO(date ?? "", { zone: "utc" }).toFormat("d-LLLL-yyyy")
-}
-
-function formatCurrency(amount: number) {
-  const formatter = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  })
-  return formatter.format(amount)
-}
 
 defineExpose({
   refresh,

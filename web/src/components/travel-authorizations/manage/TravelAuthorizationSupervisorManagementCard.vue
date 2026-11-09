@@ -86,7 +86,10 @@ const travelLocationId = computed(() => {
 })
 
 const requestorDisplayName = computed(() => {
-  return travelAuthorization.value?.user?.displayName ?? ""
+  const displayName = travelAuthorization.value?.user?.displayName
+  if (isNil(displayName)) return ""
+
+  return displayName
 })
 
 async function refreshAndEmit(eventName: "approved" | "denied") {
