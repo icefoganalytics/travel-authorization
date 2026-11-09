@@ -75,7 +75,7 @@ stale test.
 
 ## Factories
 
-Prefer Fishery factories from `@/factories`:
+Arrange persisted records through Fishery factories from `@/factories`, not direct model `create` or `bulkCreate` calls. Add a factory when one is missing; keep scenario-specific values and relationships explicit in each test. Examples:
 
 - `userFactory`
 - `travelAuthorizationFactory`
