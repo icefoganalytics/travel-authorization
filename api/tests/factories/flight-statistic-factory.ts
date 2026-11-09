@@ -1,4 +1,4 @@
-import { Factory } from "fishery"
+import FactoryShark from "factory-shark"
 import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { FlightStatistic } from "@/models"
@@ -71,19 +71,8 @@ const DEPARTMENT_MAILCODES = [
   "Z-1",
 ] as const
 
-export const flightStatisticFactory = Factory.define<FlightStatistic>(({ onCreate }) => {
-  onCreate((flightStatistic) => {
-    try {
-      return flightStatistic.save()
-    } catch (error) {
-      console.error(error)
-      throw new Error(
-        `Could not create FlightStatistic with attributes: ${JSON.stringify(flightStatistic.dataValues, null, 2)}`
-      )
-    }
-  })
-
-  return FlightStatistic.build({
+export const flightStatisticFactory = FactoryShark.define(FlightStatistic, () => {
+  return {
     departmentMailcode: faker.helpers.arrayElement(DEPARTMENT_MAILCODES),
     destinationAirportCode: faker.string.alpha(3).toUpperCase(),
     destinationCity: faker.location.city().toUpperCase(),
@@ -97,7 +86,7 @@ export const flightStatisticFactory = Factory.define<FlightStatistic>(({ onCreat
     averageDurationDays: faker.number.float({ min: 1, max: 30, precision: 2 }),
     averageExpensesPerDay: faker.number.float({ min: 0, max: 500, precision: 2 }),
     averageRoundTripFlightCost: faker.number.float({ min: 0, max: 5000, precision: 2 }),
-  })
+  }
 })
 
 export default flightStatisticFactory

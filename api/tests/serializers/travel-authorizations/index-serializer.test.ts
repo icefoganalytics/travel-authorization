@@ -11,32 +11,23 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
       test("when travel authorization is pending approval, and travelling is complete the travel action is blank", async () => {
         // Arrange
         const currentUser = await userFactory.create()
-        const travelSegment = travelSegmentFactory.build({
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          status: TravelAuthorization.Statuses.SUBMITTED,
+        })
+        await travelSegmentFactory.create({
+          travelAuthorizationId: travelAuthorization.id,
           departureOn: faker.date.past(),
         })
-        const travelAuthorization = await travelAuthorizationFactory
-          .associations({
-            travelSegments: [travelSegment],
-          })
-          .transient({
-            include: [
-              "expenses",
-              "purpose",
-              {
-                association: "stops",
-                include: ["location"],
-              },
-              "travelDeskTravelRequest",
-              {
-                association: "travelSegments",
-                include: ["departureLocation", "arrivalLocation"],
-              },
-              "user",
-            ],
-          })
-          .create({
-            status: TravelAuthorization.Statuses.SUBMITTED,
-          })
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            { association: "stops", include: ["location"] },
+            "travelDeskTravelRequest",
+            { association: "travelSegments", include: ["departureLocation", "arrivalLocation"] },
+            "user",
+          ],
+        })
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -53,33 +44,24 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
       test("when travel authorization is approved, and travelling is complete, the travel action includes submit_expense_claim", async () => {
         // Arrange
         const currentUser = await userFactory.create()
-        const travelSegment = travelSegmentFactory.build({
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          status: TravelAuthorization.Statuses.APPROVED,
+        })
+        await travelSegmentFactory.create({
+          travelAuthorizationId: travelAuthorization.id,
           departureOn: faker.date.past(),
           modeOfTransport: TravelSegment.TravelMethods.POOL_VEHICLE,
         })
-        const travelAuthorization = await travelAuthorizationFactory
-          .associations({
-            travelSegments: [travelSegment],
-          })
-          .transient({
-            include: [
-              "expenses",
-              "purpose",
-              {
-                association: "stops",
-                include: ["location"],
-              },
-              "travelDeskTravelRequest",
-              {
-                association: "travelSegments",
-                include: ["departureLocation", "arrivalLocation"],
-              },
-              "user",
-            ],
-          })
-          .create({
-            status: TravelAuthorization.Statuses.APPROVED,
-          })
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            { association: "stops", include: ["location"] },
+            "travelDeskTravelRequest",
+            { association: "travelSegments", include: ["departureLocation", "arrivalLocation"] },
+            "user",
+          ],
+        })
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)

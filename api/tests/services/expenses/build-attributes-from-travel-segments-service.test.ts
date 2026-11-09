@@ -67,38 +67,34 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
 
     describe(".perform", () => {
       test("when provided some travel segments, and a expense type to create, builds the appropriate expense attributes", async () => {
+        // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
         const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
-        const travelSegment1 = await travelSegmentFactory
-          .associations({
-            travelAuthorization,
-            departureLocation: whitehorse,
-            arrivalLocation: vancouver,
-          })
-          .create({
-            segmentNumber: 1,
-            departureOn: new Date("2022-06-05"),
-            departureTime: Stop.BEGINNING_OF_DAY,
-            modeOfTransport: Stop.TravelMethods.AIRCRAFT,
-            accommodationType: Stop.AccommodationTypes.HOTEL,
-          })
-        const travelSegment2 = await travelSegmentFactory
-          .associations({
-            travelAuthorization,
-            departureLocation: vancouver,
-            arrivalLocation: whitehorse,
-          })
-          .create({
-            segmentNumber: 2,
-            departureOn: new Date("2022-06-07"),
-            departureTime: "15:00:00",
-            modeOfTransport: Stop.TravelMethods.AIRCRAFT,
-            accommodationType: null,
-          })
+        const travelSegment1 = await travelSegmentFactory.create({
+          travelAuthorization,
+          departureLocation: whitehorse,
+          arrivalLocation: vancouver,
+          segmentNumber: 1,
+          departureOn: new Date("2022-06-05"),
+          departureTime: Stop.BEGINNING_OF_DAY,
+          modeOfTransport: Stop.TravelMethods.AIRCRAFT,
+          accommodationType: Stop.AccommodationTypes.HOTEL,
+        })
+        const travelSegment2 = await travelSegmentFactory.create({
+          travelAuthorization,
+          departureLocation: vancouver,
+          arrivalLocation: whitehorse,
+          segmentNumber: 2,
+          departureOn: new Date("2022-06-07"),
+          departureTime: "15:00:00",
+          modeOfTransport: Stop.TravelMethods.AIRCRAFT,
+          accommodationType: null,
+        })
 
+        // Act
         const expensesAttributes = await BuildAttributesFromTravelSegmentsService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
@@ -106,6 +102,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
+        // Assert
         expect(expensesAttributes).toEqual([
           expect.objectContaining({
             travelAuthorizationId: travelAuthorization.id,
@@ -174,38 +171,34 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
       })
 
       test("when provided some travel segments, and a expense type to create, and when times are not specified, it defaults to full day times when building the expense attributes", async () => {
+        // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
         const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
-        const travelSegment1 = await travelSegmentFactory
-          .associations({
-            travelAuthorization,
-            departureLocation: whitehorse,
-            arrivalLocation: vancouver,
-          })
-          .create({
-            segmentNumber: 1,
-            departureOn: new Date("2022-06-05"),
-            departureTime: null,
-            modeOfTransport: Stop.TravelMethods.AIRCRAFT,
-            accommodationType: Stop.AccommodationTypes.HOTEL,
-          })
-        const travelSegment2 = await travelSegmentFactory
-          .associations({
-            travelAuthorization,
-            departureLocation: vancouver,
-            arrivalLocation: whitehorse,
-          })
-          .create({
-            segmentNumber: 2,
-            departureOn: new Date("2022-06-07"),
-            departureTime: null,
-            modeOfTransport: Stop.TravelMethods.AIRCRAFT,
-            accommodationType: null,
-          })
+        const travelSegment1 = await travelSegmentFactory.create({
+          travelAuthorization,
+          departureLocation: whitehorse,
+          arrivalLocation: vancouver,
+          segmentNumber: 1,
+          departureOn: new Date("2022-06-05"),
+          departureTime: null,
+          modeOfTransport: Stop.TravelMethods.AIRCRAFT,
+          accommodationType: Stop.AccommodationTypes.HOTEL,
+        })
+        const travelSegment2 = await travelSegmentFactory.create({
+          travelAuthorization,
+          departureLocation: vancouver,
+          arrivalLocation: whitehorse,
+          segmentNumber: 2,
+          departureOn: new Date("2022-06-07"),
+          departureTime: null,
+          modeOfTransport: Stop.TravelMethods.AIRCRAFT,
+          accommodationType: null,
+        })
 
+        // Act
         const expensesAttributes = await BuildAttributesFromTravelSegmentsService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
@@ -213,6 +206,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
+        // Assert
         expect(expensesAttributes).toEqual([
           expect.objectContaining({
             travelAuthorizationId: travelAuthorization.id,
@@ -281,38 +275,34 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
       })
 
       test("when provided some travel segments, and a expense type to create, and when departure time is late in the day, no claims are generated for that day when building the expense attributes", async () => {
+        // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
         const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
         const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
-        const travelSegment1 = await travelSegmentFactory
-          .associations({
-            travelAuthorization,
-            departureLocation: whitehorse,
-            arrivalLocation: vancouver,
-          })
-          .create({
-            segmentNumber: 1,
-            departureOn: new Date("2025-01-31"),
-            departureTime: "22:47:00",
-            modeOfTransport: Stop.TravelMethods.AIRCRAFT,
-            accommodationType: Stop.AccommodationTypes.HOTEL,
-          })
-        const travelSegment2 = await travelSegmentFactory
-          .associations({
-            travelAuthorization,
-            departureLocation: vancouver,
-            arrivalLocation: whitehorse,
-          })
-          .create({
-            segmentNumber: 2,
-            departureOn: new Date("2025-02-01"),
-            departureTime: "23:32:00",
-            modeOfTransport: Stop.TravelMethods.AIRCRAFT,
-            accommodationType: null,
-          })
+        const travelSegment1 = await travelSegmentFactory.create({
+          travelAuthorization,
+          departureLocation: whitehorse,
+          arrivalLocation: vancouver,
+          segmentNumber: 1,
+          departureOn: new Date("2025-01-31"),
+          departureTime: "22:47:00",
+          modeOfTransport: Stop.TravelMethods.AIRCRAFT,
+          accommodationType: Stop.AccommodationTypes.HOTEL,
+        })
+        const travelSegment2 = await travelSegmentFactory.create({
+          travelAuthorization,
+          departureLocation: vancouver,
+          arrivalLocation: whitehorse,
+          segmentNumber: 2,
+          departureOn: new Date("2025-02-01"),
+          departureTime: "23:32:00",
+          modeOfTransport: Stop.TravelMethods.AIRCRAFT,
+          accommodationType: null,
+        })
 
+        // Act
         const expensesAttributes = await BuildAttributesFromTravelSegmentsService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
@@ -320,6 +310,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
+        // Assert
         expect(expensesAttributes).toEqual([
           expect.objectContaining({
             travelAuthorizationId: travelAuthorization.id,
@@ -361,6 +352,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
       })
 
       test("when provided some travel segments, and a expense type to create, and when travel method is personal vehicle, and trip type is round-trip, correctly generates the transportantion allowance from the distance matrix when building the expense attributes", async () => {
+        // Arrange
         await perDiemFactory.create({
           claimType: PerDiem.ClaimTypes.LUNCH,
           travelRegion: PerDiem.TravelRegions.YUKON,
@@ -385,33 +377,28 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
         })
         const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
         const faro = await locationFactory.create({ city: "Faro", province: "YT" })
-        const travelSegment1 = await travelSegmentFactory
-          .associations({
-            travelAuthorization,
-            departureLocation: whitehorse,
-            arrivalLocation: faro,
-          })
-          .create({
-            segmentNumber: 1,
-            departureOn: new Date("2022-06-05"),
-            departureTime: "10:00:00",
-            modeOfTransport: Stop.TravelMethods.PERSONAL_VEHICLE,
-            accommodationType: Stop.AccommodationTypes.HOTEL,
-          })
-        const travelSegment2 = await travelSegmentFactory
-          .associations({
-            travelAuthorization,
-            departureLocation: faro,
-            arrivalLocation: whitehorse,
-          })
-          .create({
-            segmentNumber: 2,
-            departureOn: new Date("2022-06-07"),
-            departureTime: "15:00:00",
-            modeOfTransport: Stop.TravelMethods.PERSONAL_VEHICLE,
-            accommodationType: null,
-          })
+        const travelSegment1 = await travelSegmentFactory.create({
+          travelAuthorization,
+          departureLocation: whitehorse,
+          arrivalLocation: faro,
+          segmentNumber: 1,
+          departureOn: new Date("2022-06-05"),
+          departureTime: "10:00:00",
+          modeOfTransport: Stop.TravelMethods.PERSONAL_VEHICLE,
+          accommodationType: Stop.AccommodationTypes.HOTEL,
+        })
+        const travelSegment2 = await travelSegmentFactory.create({
+          travelAuthorization,
+          departureLocation: faro,
+          arrivalLocation: whitehorse,
+          segmentNumber: 2,
+          departureOn: new Date("2022-06-07"),
+          departureTime: "15:00:00",
+          modeOfTransport: Stop.TravelMethods.PERSONAL_VEHICLE,
+          accommodationType: null,
+        })
 
+        // Act
         const expensesAttributes = await BuildAttributesFromTravelSegmentsService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
@@ -419,6 +406,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
+        // Assert
         expect(expensesAttributes).toEqual(
           expect.arrayContaining([
             expect.objectContaining({

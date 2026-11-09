@@ -15,12 +15,13 @@ describe("api/src/controllers/expenses-controller.ts", () => {
 
   describe("ExpensesController", () => {
     describe("#create - POST /api/expenses", () => {
-      test("when authorized and expense creation is successful", async () => {
+      test("when authorized and expense creation succeeds, it returns the created expense", async () => {
         // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.associations({ user }).create({
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          user,
           status: TravelAuthorization.Statuses.DRAFT,
         })
-        const newExpenseAttributes = expenseFactory.attributesFor({
+        const newExpenseAttributes = expenseFactory.build({
           travelAuthorizationId: travelAuthorization.id,
           type: Expense.Types.ESTIMATE,
           currency: Expense.CurrencyTypes.CAD,
@@ -28,7 +29,7 @@ describe("api/src/controllers/expenses-controller.ts", () => {
           description: "Hotel in Vancouver",
           cost: 250.0,
           date: new Date("2023-12-22"),
-        })
+        }).dataValues
 
         // Act
         const response = await request().post("/api/expenses").send(newExpenseAttributes)

@@ -2,7 +2,7 @@ import { times } from "lodash"
 import Papa from "papaparse"
 import qs from "qs"
 
-import { TravelDeskTravelRequest, User } from "@/models"
+import { TravelAuthorization, TravelDeskTravelRequest, User } from "@/models"
 import { CreatePdfService } from "@/services/downloads/travel-desk-travel-requests/create-pdf-service"
 
 import {
@@ -29,9 +29,10 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
           branch: "Travel",
         })
         mockCurrentUser(user1)
-        const travelAuthorizations = await travelAuthorizationFactory
-          .associations({ user: user1 })
-          .createList(SELECTED_REQUEST_COUNT)
+        const travelAuthorizations: TravelAuthorization[] = []
+        for (let requestIndex = 0; requestIndex < SELECTED_REQUEST_COUNT; requestIndex++) {
+          travelAuthorizations.push(await travelAuthorizationFactory.create({ user: user1 }))
+        }
         const draftTravelDeskTravelRequestFactory = travelDeskTravelRequestFactory.params({
           createdAt: new Date("2026-10-01T12:00:00.000Z"),
           status: TravelDeskTravelRequest.Statuses.DRAFT,
@@ -122,9 +123,10 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         })
         mockCurrentUser(user1)
         const requestCount = 16
-        const travelAuthorizations = await travelAuthorizationFactory
-          .associations({ user: user1 })
-          .createList(requestCount)
+        const travelAuthorizations: TravelAuthorization[] = []
+        for (let requestIndex = 0; requestIndex < requestCount; requestIndex++) {
+          travelAuthorizations.push(await travelAuthorizationFactory.create({ user: user1 }))
+        }
         const draftTravelDeskTravelRequestFactory = travelDeskTravelRequestFactory.params({
           createdAt: new Date("2026-10-01T12:00:00.000Z"),
           status: TravelDeskTravelRequest.Statuses.DRAFT,

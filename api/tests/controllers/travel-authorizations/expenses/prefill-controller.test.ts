@@ -24,7 +24,8 @@ describe("api/src/controllers/travel-authorizations/expenses/prefill-controller.
   describe("POST /api/travel-authorizations/:travelAuthorizationId/expenses/prefill", () => {
     test("when the current user is authorized and expense prefill is successful, it serializes prefilled expenses", async () => {
       // Arrange
-      const travelAuthorization = await travelAuthorizationFactory.associations({ user }).create({
+      const travelAuthorization = await travelAuthorizationFactory.create({
+        user,
         status: TravelAuthorization.Statuses.DRAFT,
       })
       await perDiemFactory.create({
@@ -79,20 +80,17 @@ describe("api/src/controllers/travel-authorizations/expenses/prefill-controller.
       })
       const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
       const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
-      await travelSegmentFactory
-        .associations({
-          travelAuthorization,
-          departureLocation: whitehorse,
-          arrivalLocation: vancouver,
-        })
-        .create({
-          isActual: true,
-          segmentNumber: 1,
-          departureOn: new Date("2022-06-05"),
-          departureTime: Stop.BEGINNING_OF_DAY,
-          modeOfTransport: Stop.TravelMethods.POOL_VEHICLE,
-          accommodationType: null,
-        })
+      await travelSegmentFactory.create({
+        travelAuthorization,
+        departureLocation: whitehorse,
+        arrivalLocation: vancouver,
+        isActual: true,
+        segmentNumber: 1,
+        departureOn: new Date("2022-06-05"),
+        departureTime: Stop.BEGINNING_OF_DAY,
+        modeOfTransport: Stop.TravelMethods.POOL_VEHICLE,
+        accommodationType: null,
+      })
 
       // Act
       const response = await request()
@@ -137,7 +135,8 @@ describe("api/src/controllers/travel-authorizations/expenses/prefill-controller.
         // Arrange
         setLogLevel("silent")
 
-        const travelAuthorization = await travelAuthorizationFactory.associations({ user }).create({
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          user,
           status: TravelAuthorization.Statuses.DRAFT,
         })
 
@@ -162,13 +161,10 @@ describe("api/src/controllers/travel-authorizations/expenses/prefill-controller.
       const otherUser = await userFactory.create({
         roles: [User.Roles.USER],
       })
-      const travelAuthorization = await travelAuthorizationFactory
-        .associations({
-          user: otherUser,
-        })
-        .create({
-          status: TravelAuthorization.Statuses.SUBMITTED,
-        })
+      const travelAuthorization = await travelAuthorizationFactory.create({
+        user: otherUser,
+        status: TravelAuthorization.Statuses.SUBMITTED,
+      })
 
       // Act
       const response = await request()

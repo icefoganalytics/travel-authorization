@@ -23,14 +23,12 @@ describe("api/src/policies/travel-desk-questions-policy.ts", () => {
           userId: 43,
           supervisorEmail: "supervisor@example.test",
         })
-        const travelDeskTravelRequest = travelDeskTravelRequestFactory
-          .associations({
-            travelAuthorization,
-          })
-          .build({
-            id: 900,
-            status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
-          })
+        const travelDeskTravelRequest = travelDeskTravelRequestFactory.build({
+          travelAuthorizationId: travelAuthorization.id,
+          id: 900,
+          status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
+        })
+        travelDeskTravelRequest.travelAuthorization = travelAuthorization
         const question = TravelDeskQuestion.build({
           travelRequestId: travelDeskTravelRequest.id,
           requestType: TravelDeskQuestion.RequestTypes.FLIGHT,
@@ -61,14 +59,12 @@ describe("api/src/policies/travel-desk-questions-policy.ts", () => {
           id: 287,
           userId: user.id,
         })
-        const travelDeskTravelRequest = travelDeskTravelRequestFactory
-          .associations({
-            travelAuthorization,
-          })
-          .build({
-            id: 900,
-            status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
-          })
+        const travelDeskTravelRequest = travelDeskTravelRequestFactory.build({
+          travelAuthorizationId: travelAuthorization.id,
+          id: 900,
+          status: TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED,
+        })
+        travelDeskTravelRequest.travelAuthorization = travelAuthorization
         const question = TravelDeskQuestion.build({
           travelRequestId: travelDeskTravelRequest.id,
           requestType: TravelDeskQuestion.RequestTypes.FLIGHT,

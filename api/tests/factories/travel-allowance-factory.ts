@@ -1,20 +1,9 @@
-import { Factory } from "fishery"
+import FactoryShark from "factory-shark"
 import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { TravelAllowance } from "@/models"
 
-export const travelAllowanceFactory = Factory.define<TravelAllowance>(({ onCreate }) => {
-  onCreate((travelAllowance) => {
-    try {
-      return travelAllowance.save()
-    } catch (error) {
-      console.error(error)
-      throw new Error(
-        `Could not create TravelAllowance with attributes: ${JSON.stringify(travelAllowance.dataValues, null, 2)}`
-      )
-    }
-  })
-
+export const travelAllowanceFactory = FactoryShark.define(TravelAllowance, () => {
   const allowanceType = faker.helpers.enumValue(TravelAllowance.AllowanceTypes)
   let amount = 0
   switch (allowanceType) {
@@ -32,11 +21,11 @@ export const travelAllowanceFactory = Factory.define<TravelAllowance>(({ onCreat
       break
   }
 
-  return TravelAllowance.build({
+  return {
     allowanceType,
     amount,
     currency: faker.helpers.enumValue(TravelAllowance.CurrencyTypes),
-  })
+  }
 })
 
 export default travelAllowanceFactory

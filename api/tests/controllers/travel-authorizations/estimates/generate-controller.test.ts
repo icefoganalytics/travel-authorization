@@ -24,7 +24,8 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
   describe("POST /api/travel-authorizations/:travelAuthorizationId/estimates/generate", () => {
     test("when the current user is authorized and bulk generation is successful, it serializes generated estimates", async () => {
       // Arrange
-      const travelAuthorization = await travelAuthorizationFactory.associations({ user }).create({
+      const travelAuthorization = await travelAuthorizationFactory.create({
+        user,
         status: TravelAuthorization.Statuses.DRAFT,
       })
       await perDiemFactory.create({
@@ -79,20 +80,17 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
       })
       const whitehorse = await locationFactory.create({ city: "Whitehorse", province: "YT" })
       const vancouver = await locationFactory.create({ city: "Vancouver", province: "BC" })
-      await travelSegmentFactory
-        .associations({
-          travelAuthorization,
-          departureLocation: whitehorse,
-          arrivalLocation: vancouver,
-        })
-        .create({
-          isActual: false,
-          segmentNumber: 1,
-          departureOn: new Date("2022-06-05"),
-          departureTime: Stop.BEGINNING_OF_DAY,
-          modeOfTransport: Stop.TravelMethods.POOL_VEHICLE,
-          accommodationType: null,
-        })
+      await travelSegmentFactory.create({
+        travelAuthorization,
+        departureLocation: whitehorse,
+        arrivalLocation: vancouver,
+        isActual: false,
+        segmentNumber: 1,
+        departureOn: new Date("2022-06-05"),
+        departureTime: Stop.BEGINNING_OF_DAY,
+        modeOfTransport: Stop.TravelMethods.POOL_VEHICLE,
+        accommodationType: null,
+      })
 
       // Act
       const response = await request()
@@ -138,7 +136,8 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
         // Arrange
         setLogLevel("silent")
 
-        const travelAuthorization = await travelAuthorizationFactory.associations({ user }).create({
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          user,
           status: TravelAuthorization.Statuses.DRAFT,
         })
 
@@ -165,13 +164,10 @@ describe("api/src/controllers/travel-authorizations/estimates/generate-controlle
       const otherUser = await userFactory.create({
         roles: [User.Roles.USER],
       })
-      const travelAuthorization = await travelAuthorizationFactory
-        .associations({
-          user: otherUser,
-        })
-        .create({
-          status: TravelAuthorization.Statuses.SUBMITTED,
-        })
+      const travelAuthorization = await travelAuthorizationFactory.create({
+        user: otherUser,
+        status: TravelAuthorization.Statuses.SUBMITTED,
+      })
 
       // Act
       const response = await request()
