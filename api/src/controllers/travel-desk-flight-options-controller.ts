@@ -4,7 +4,7 @@ import logger from "@/utils/logger"
 import { TravelDeskFlightOption } from "@/models"
 import { TravelDeskFlightOptionsPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-desk-flight-options"
-import { TravelDeskFlightOptions } from "@/serializers"
+import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-flight-options"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -25,8 +25,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         order,
         include: ["flightSegments"],
       })
-      const serializedTravelDeskFlightOptions =
-        TravelDeskFlightOptions.IndexSerializer.perform(travelDeskFlightOptions)
+      const serializedTravelDeskFlightOptions = IndexSerializer.perform(travelDeskFlightOptions)
       return this.response.status(200).json({
         travelDeskFlightOptions: serializedTravelDeskFlightOptions,
         totalCount,
@@ -55,8 +54,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         })
       }
 
-      const serializedTravelDeskFlightOption =
-        TravelDeskFlightOptions.ShowSerializer.perform(travelDeskFlightOption)
+      const serializedTravelDeskFlightOption = ShowSerializer.perform(travelDeskFlightOption)
       return this.response.status(200).json({
         travelDeskFlightOption: serializedTravelDeskFlightOption,
         policy,
@@ -83,8 +81,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskFlightOption =
-        TravelDeskFlightOptions.ShowSerializer.perform(travelDeskFlightOption)
+      const serializedTravelDeskFlightOption = ShowSerializer.perform(travelDeskFlightOption)
       return this.response.status(201).json({
         travelDeskFlightOption: serializedTravelDeskFlightOption,
       })
@@ -117,9 +114,7 @@ export class TravelDeskFlightOptionsController extends BaseController<TravelDesk
         permittedAttributes,
         this.currentUser
       )
-      const serializedTravelDeskFlightOption = TravelDeskFlightOptions.ShowSerializer.perform(
-        updatedTravelDeskFlightOption
-      )
+      const serializedTravelDeskFlightOption = ShowSerializer.perform(updatedTravelDeskFlightOption)
 
       return this.response.status(200).json({
         travelDeskFlightOption: serializedTravelDeskFlightOption,
