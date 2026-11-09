@@ -15,12 +15,15 @@ Changes planned for the next release, since v2025.9.15.1.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.
 - A separate local Travelport booking-feed simulator and read-only source lookup support booking integration development without production or VPN access. The shared integration entry point requires Travelport database settings.
+- Travel Desk staff can generate invoices from explicitly selected booking-feed flights and service fees, enter flight prices and additional charges, link request-local flight segments, and save or edit multiple invoices. Invoice lists retain their page on reload. Administrators can manage invoice product types.
 
 ### Changed
 
 - Frontend lint now checks standalone CSS and Vue style blocks for CSS errors alongside existing script and template checks.
 - Booking-history refreshes remove only events missing from a successful source scan. Reappearing events create new local records while deleted records and saved invoices remain unchanged. Failed refreshes leave the previous local history intact.
 - Travel approval confirmations include the meeting or conference description and show the request's final destination when available. Approval and denial failures identify which action failed. Both dialogs synchronize their open state with the URL without clearing other query parameters.
+- Booking searches synchronize Travelport events into local records. Invoice creation uses those records without another feed lookup; refreshing booking history preserves saved invoice snapshots and staff-entered prices.
+- Booking-history requests use the `travel-desk-booking-events` endpoint and `travelDeskBookingEvents` response field, matching the local records used for invoice selection.
 - Travel Desk request lists, PDF reports, and CSV exports show consistent services and statuses. Server-generated downloads apply the same filters and permissions as the request list and include every matching authorized request, including selections larger than twenty requests. Query filters are preserved within the supported limits; oversized queries are rejected instead of silently truncated. Unavailable selections return the same error response as failed downloads.
 - Travel Desk reports and CSV exports include all matching requests by default, across list pages. Select requests to download only that subset. Downloads preserve the list's booking and officer-assignment ordering when sort values tie. Loading indicators appear only while preparing a file.
 - Travel Desk PDF reports use available page space without shrinking text. Report and column headings repeat on each page.
@@ -46,6 +49,8 @@ Changes planned for the next release, since v2025.9.15.1.
 - Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns, including traveller, purpose, dates, and Travel Desk status, order the full authorized result set before pagination, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
 - Owners can complete Travel Desk options review for requests without flights once all review data has loaded.
 - Travel Desk API responses use explicit fields without permission-check association data. Workflow actions return the same request details and passenger-document availability as request viewing.
+- Invoice actions stay tied to their travel request, preventing mismatched request and invoice identifiers from selecting or changing another request's invoice.
+- Invoice and booking-history requests return JSON error responses when request loading or query preparation fails, using the established HTTP 400 read-failure response.
 - Travel Desk staff can follow **Review Traveller Rankings** from booking review to the existing flight requests, then use **View Options and Rankings** to see saved preferences and rejection explanations.
 - Flight options are paginated separately for each leg, with five options per page by default. Page selections survive refresh, controls remain visible for single-page and empty results, and navigation fits phone-width screens.
 - Starting a new travel request preserves entered trip details and estimated trip segments.
