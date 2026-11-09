@@ -97,7 +97,7 @@ Run non-fixing lint in disposable, non-interactive Docker containers without sta
 
 With no service argument, `./bin/dev lint` selects the API. Additional arguments are forwarded to the package's lint script. Both commands cover the service's maintained source and tests, including API migrations and declarations and Vue single-file components. They retain the existing rules, ignore paths, and warning policy. Web lint uses syntax-aware parsing because its enabled rules do not require TypeScript project information; `check-types` remains a separate check. The broader web ESLint toolchain upgrade is tracked in [#374](https://github.com/icefoganalytics/travel-authorization/issues/374).
 
-Prepare development images, local environment files, and bind-mounted dependencies using the [project setup](../README.md). Each service's `.omp-verifier.json` binds `verifier:project-lint` to the same `bin/dev lint` entrypoint, following WRAP and ELCC Data Management. The wrapper resolves this checkout's Compose configuration, passes `--no-fix`, and preserves ESLint's exit status.
+Prepare development images, local environment files, and bind-mounted dependencies using the [project setup](../README.md). Each service's `.omp-verifier.json` binds `verifier:project-lint` to the same `bin/dev lint` entrypoint, following WRAP and ELCC Data Management. Lint uses this checkout's base Compose configuration and optional Linux override without the gateway overlay, so it does not require the shared external gateway network. The wrapper passes `--no-fix` and preserves ESLint's exit status.
 
 For service lint verification, run `omp-verifier automatic api/.omp-verifier.json web/.omp-verifier.json --reporter text`. These configuration paths select both services' complete lint scope, not just changed files. An unrestricted `omp-verifier verify verifier:project-lint` also discovers Ruby and shell sources; their lint tooling is not declared here. Missing declarations, unavailable Docker tooling, and timeouts are `BLOCKED`, not passing checks.
 
@@ -162,7 +162,7 @@ with `docker inspect local-gateway-database-router-1` and compare it with
 projects; it interrupts their database sessions.
 
 Use `./bin/dev config` to inspect the merged configuration locally without publishing credentials.
-All current development wrapper commands, including tests, select the gateway overlay.
+Development application and test commands select the gateway overlay; lint deliberately omits it.
 For a base-only configuration check, retain the same `COMPOSE_PROJECT_NAME` and render
 `docker compose -f docker-compose.development.yml config`. Both forms must preserve qualified
 hosts and private aliases without publishing database ports. If a base-only command recreates
