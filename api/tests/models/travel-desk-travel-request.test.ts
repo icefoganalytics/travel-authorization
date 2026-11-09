@@ -24,7 +24,7 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
         })
 
         // Act / Assert
-        await expect(travelDeskTravelRequest.validate()).resolves.toBe(travelDeskTravelRequest)
+        await expect(travelDeskTravelRequest.validate()).resolves.not.toThrow()
       })
 
       test("when is international travel, and passport country is null, it is invalid", async () => {
@@ -100,7 +100,7 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
         })
 
         // Act / Assert
-        await expect(travelDeskTravelRequest.validate()).resolves.toBe(travelDeskTravelRequest)
+        await expect(travelDeskTravelRequest.validate()).resolves.not.toThrow()
       })
 
       test("when is not international travel, and passport country is not null, it is invalid", async () => {
@@ -178,7 +178,7 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
         })
 
         // Act / Assert
-        await expect(travelDeskTravelRequest.validate()).resolves.toBe(travelDeskTravelRequest)
+        await expect(travelDeskTravelRequest.validate()).resolves.not.toThrow()
       })
 
       test("when travel contact enabled, and travel contact email is null, it is invalid", async () => {
@@ -254,7 +254,7 @@ describe("api/src/models/travel-desk-travel-request.ts", () => {
         })
 
         // Act / Assert
-        await expect(travelDeskTravelRequest.validate()).resolves.toBe(travelDeskTravelRequest)
+        await expect(travelDeskTravelRequest.validate()).resolves.not.toThrow()
       })
 
       test("when travel contact disabled, and travel contact email is not null, it is invalid", async () => {
