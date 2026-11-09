@@ -1,5 +1,5 @@
 # Stage 0 - base node customizations
-FROM node:22.23.4-alpine3.23 AS base-node
+FROM node:24.22.2-alpine3.23 AS base-node
 
 RUN npm install -g npm@10.8.2
 
@@ -50,7 +50,7 @@ RUN npm run build
 FROM base-node
 
 RUN apk add --no-cache \
-    chromium \
+    chromium=149.0.7827.53-r0 \
     nss \
     freetype \
     harfbuzz \
