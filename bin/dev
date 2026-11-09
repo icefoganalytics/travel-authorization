@@ -147,20 +147,22 @@ class DevHelper
   end
 
   def lint(*args, **kwargs)
-    service = "api"
-    service = args.shift if %w[api web].include?(args[0])
-
-    LocalDevelopmentGateway.with_running do
-      command = compose_command(
-        *%w[run --rm --no-deps -T --label traefik.enable=false],
-        service, *%w[npm run lint -- --no-fix], *args, **kwargs
-      )
-      puts "Running: #{command}"
-      system(command)
-
-      # Keep ESLint's exit status while allowing gateway cleanup to run.
-      exit($?.exitstatus || 1)
+    service = args[0]
+    if service == "api"
+      lint_api(*args.drop(1), **kwargs)
+    elsif service == "web"
+      lint_web(*args.drop(1), **kwargs)
+    else
+      lint_api(*args, **kwargs)
     end
+  end
+
+  def lint_api(*args, **kwargs)
+    compose(*%w[run --rm --no-deps -T api npm run lint -- --no-fix], *args, **kwargs)
+  end
+
+  def lint_web(*args, **kwargs)
+    compose(*%w[run --rm --no-deps -T web npm run lint -- --no-fix], *args, **kwargs)
   end
 
   def test(*args, **kwargs)
