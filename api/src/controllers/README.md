@@ -1,6 +1,6 @@
 # Controllers
 
-Controllers connect Express routes to request handling and response shaping. Load the direct [packaged backend workflow](skill://express-light-rail/workflow.md) before this local overlay. Other clients use the [corresponding backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release. Follow the root [shared-source and local-precedence contract](../../../AGENTS.md#shared-standards-and-local-authority), not a selector that can re-enter local workflow selection.
+Controllers connect Express routes to request handling and response shaping. Load the direct [packaged backend workflow](skill://express-api/workflow.md) before this local overlay. Other clients use the [corresponding backend workflow](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/workflows/express-light-rail-backend-workflow.md) in their verified release. Follow the root [shared-source and local-precedence contract](../../../AGENTS.md#shared-standards-and-local-authority), not a selector that can re-enter local workflow selection.
 
 `BaseController` exposes static route-handler accessors such as `.index` and `.create`. Each
 accessor constructs a controller instance and calls its matching instance action method. Route
@@ -25,7 +25,7 @@ handlers therefore use `Controller.create`, while controller classes implement `
 ## Response Pattern
 
 - Return policy information in create/update responses when callers need it: `{ record, policy }`.
-- Serialize mutation-service results directly; the service owns the final reload and required response includes under the [service return contract](../services/README.md#local-pattern).
+- Serialize mutation-service results directly; the service owns any required final reload and response includes under the [service return contract](../services/README.md#local-pattern).
 - Load associations for ordinary show responses in the controller's record query.
 - Log real failures with structured error context:
   ``logger.error(`Failed to [action] [resource]: ${error}`, { error })``.
