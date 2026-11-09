@@ -10,7 +10,7 @@ import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
 const events = await TravelOrderEvent.findAllByRecordLocator("ZZ0001")
 ```
 
-The reader creates its connection and registers the source models on its first query, not when the module is imported. Unrelated application routes remain usable without Travelport credentials. Keep the integration out of the shared integrations barrel; access the source through its explicit boundary.
+The integration owns a singleton database client, and its models entry point registers the source models. Constructing the client does not open a source connection; the consuming service checks configuration before querying it. Unrelated application routes remain usable without Travelport credentials. Keep the integration out of the shared integrations barrel; do not construct or register database clients inside model queries.
 
 The lookup returns every matching source event with its passengers, air reservation segments, and optional service-fee transaction. Collection associations are loaded independently so multiple passengers do not multiply flight segments. An unknown locator returns an empty array. History ordering is deterministic for inspection, not a rule for selecting the current booking.
 
