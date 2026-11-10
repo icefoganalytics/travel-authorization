@@ -30,7 +30,7 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
         .create({
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
-      await travelSegmentFactory.createList(3, { travelAuthorizationId: travelAuthorization.id })
+      await travelSegmentFactory.associations({ travelAuthorization }).createList(3)
       await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
 
       // Act
@@ -58,7 +58,7 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
         .create({
           status: TravelAuthorization.Statuses.APPROVED,
         })
-      await travelSegmentFactory.createList(3, { travelAuthorizationId: travelAuthorization.id })
+      await travelSegmentFactory.associations({ travelAuthorization }).createList(3)
       await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
 
       expect.assertions(1)
@@ -86,8 +86,7 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
         .create({
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
-      await travelSegmentFactory.createList(3, {
-        travelAuthorizationId: travelAuthorization.id,
+      await travelSegmentFactory.associations({ travelAuthorization }).createList(3, {
         modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
       })
       await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
@@ -129,8 +128,7 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
         .create({
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
-      await travelSegmentFactory.createList(3, {
-        travelAuthorizationId: travelAuthorization.id,
+      await travelSegmentFactory.associations({ travelAuthorization }).createList(3, {
         modeOfTransport: TravelSegment.TravelMethods.PERSONAL_VEHICLE,
       })
       await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
@@ -156,8 +154,7 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
         .create({
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
-      await travelSegmentFactory.createList(3, {
-        travelAuthorizationId: travelAuthorization.id,
+      await travelSegmentFactory.associations({ travelAuthorization }).createList(3, {
         modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
       })
       await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
