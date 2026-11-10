@@ -6,18 +6,8 @@ import { IndexSerializer } from "@/integrations/travelport-integration/serialize
 import db, { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
-
-export class SourceUnavailableError extends Error {}
-
-export function normalizeRecordLocator(value: string): string {
-  const recordLocator = value.trim().toUpperCase()
-  if (!/^[A-Z0-9]{6}$/.test(recordLocator)) {
-    throw new InvoiceValidationError("Record locator must contain six letters or numbers.")
-  }
-
-  return recordLocator
-}
+import { normalizeRecordLocator } from "@/services/travel-desk-booking-events/normalize-record-locator"
+import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
 export class SyncService extends BaseService {
   constructor(protected recordLocator: string) {

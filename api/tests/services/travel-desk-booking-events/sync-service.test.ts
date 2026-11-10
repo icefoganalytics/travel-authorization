@@ -4,10 +4,8 @@ import sourceDatabase from "@/integrations/travelport-integration/db/db-migratio
 import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
 import { TravelDeskBookingEvent } from "@/models"
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
-import {
-  SyncService,
-  SourceUnavailableError,
-} from "@/services/travel-desk-booking-events/sync-service"
+import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
+import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
 
 import { travelDeskBookingEventFactory } from "@/factories"
