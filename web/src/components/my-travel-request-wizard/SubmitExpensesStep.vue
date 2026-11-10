@@ -99,8 +99,8 @@ import useExpenses, { ExpenseTypes, ExpenseExpenseTypes } from "@/use/use-expens
 import useTravelSegments from "@/use/use-travel-segments"
 import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
-import ExpenseClaimSubmitMealsAndIncidentalsDataTableServer from "@/components/expenses/ExpenseClaimSubmitMealsAndIncidentalsDataTableServer.vue"
-import ExpenseClaimSubmitTotalsCard from "@/components/expenses/ExpenseClaimSubmitTotalsCard.vue"
+import ExpenseClaimSubmitMealsAndIncidentalsDataTableServer from "@/components/expenses/claim-submit/ExpenseClaimSubmitMealsAndIncidentalsDataTableServer.vue"
+import ExpenseClaimSubmitTotalsCard from "@/components/expenses/claim-submit/ExpenseClaimSubmitTotalsCard.vue"
 import ExpenseCreateDialog from "@/components/expenses/ExpenseCreateDialog.vue"
 import ExpensePrefillDialog from "@/components/expenses/ExpensePrefillDialog.vue"
 import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"

@@ -52,8 +52,8 @@ import { ExpenseExpenseTypes, type ExpenseWhereOptions } from "@/use/use-expense
 import useTravelAuthorization, { TravelAuthorizationStatuses } from "@/use/use-travel-authorization"
 import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
-import ExpenseClaimReviewMealsAndIncidentalsDataTableServer from "@/components/expenses/ExpenseClaimReviewMealsAndIncidentalsDataTableServer.vue"
-import ExpenseClaimReviewTotalsCard from "@/components/expenses/ExpenseClaimReviewTotalsCard.vue"
+import ExpenseClaimReviewMealsAndIncidentalsDataTableServer from "@/components/expenses/claim-review/ExpenseClaimReviewMealsAndIncidentalsDataTableServer.vue"
+import ExpenseClaimReviewTotalsCard from "@/components/expenses/claim-review/ExpenseClaimReviewTotalsCard.vue"
 import ExpensesDataTableServer from "@/components/expenses/ExpensesDataTableServer.vue"
 import GeneralLedgerCodingsDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsDataTableServer.vue"
 
