@@ -9,14 +9,14 @@
     :loading="isLoading"
   >
     <template #item.amount="{ value }">
-      {{ formatCurrency(value, "CAD", currencyFormatOptions) }}
+      {{ formatCurrency(value) }}
     </template>
     <template #tfoot>
       <tfoot>
         <tr>
           <td :class="totalRowClasses">Total</td>
           <td :class="totalRowClasses">
-            {{ formatCurrency(totalAmount, "CAD", currencyFormatOptions) }}
+            {{ formatCurrency(totalAmount) }}
           </td>
         </tr>
       </tfoot>
@@ -67,8 +67,4 @@ const headers = ref([
   { title: "Amount", key: "amount" },
 ])
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
-const currencyFormatOptions = {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-}
 </script>

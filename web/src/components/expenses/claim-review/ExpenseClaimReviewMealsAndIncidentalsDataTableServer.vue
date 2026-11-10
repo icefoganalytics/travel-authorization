@@ -9,10 +9,10 @@
     :loading="isLoading"
   >
     <template #item.date="{ value }">
-      {{ formatDate(value, "d-LLLL-yyyy", { zone: "utc" }) }}
+      {{ formatDate(value) }}
     </template>
     <template #item.cost="{ value }">
-      {{ formatCurrency(value, "CAD", currencyFormatOptions) }}
+      {{ formatCurrency(value) }}
     </template>
     <template #tfoot>
       <tfoot>
@@ -20,7 +20,7 @@
           <td :class="totalRowClasses"></td>
           <td :class="totalRowClasses">Total</td>
           <td :class="totalRowClasses">
-            {{ formatCurrency(totalAmount, "CAD", currencyFormatOptions) }}
+            {{ formatCurrency(totalAmount) }}
           </td>
         </tr>
       </tfoot>
@@ -76,10 +76,6 @@ const headers = ref([
 ])
 
 const totalRowClasses = ref("text-start font-weight-bold text-uppercase")
-const currencyFormatOptions = {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-}
 
 const totalAmount = computed(() => summaries.value.totalCost)
 </script>
