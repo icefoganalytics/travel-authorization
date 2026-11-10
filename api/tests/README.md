@@ -1,8 +1,8 @@
 # API Tests
 
-This is the TravelAuth backend test suite, using Vitest and Fishery factories.
+This is the TravelAuth backend test suite, using Vitest and Factory Shark application-model factories.
 
-Load the direct [packaged review workflow](skill://code-review/workflow.md) and its [Scenario-Oriented Verification reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#scenario-oriented-verification) before applying this test overlay. For reusable factory traits, load the direct [factory workflow](skill://test-factory-traits-and-service-shape/workflow.md) when relevant. Other clients resolve the corresponding sources in their verified shared release, as described in the root [shared-base declaration](../../AGENTS.md#shared-standards-and-local-authority).
+Load the direct [packaged review workflow](skill://code-review/workflow.md) and its [Scenario-Oriented Verification reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#scenario-oriented-verification) before applying this test overlay. For reusable factory traits, load the direct [factory workflow](skill://test-fixtures/workflow.md) when relevant. Other clients resolve the corresponding sources in their verified release, as described in the root [shared-base declaration](../../AGENTS.md#shared-standards-and-local-authority).
 
 The commands, helpers, import grouping, and assertion conventions below remain TravelAuth deltas. The direct HTTP status/body pair intentionally exposes one coupled response without a new matcher dependency; it is not two independent outcomes or permission to bundle assertions into synthetic objects. Preserve current local precedence and obtain an explicit owner decision for a genuine conflicting rule.
 
@@ -75,7 +75,7 @@ stale test.
 
 ## Factories
 
-Arrange persisted records through Fishery factories from `@/factories`, not direct model `create` or `bulkCreate` calls. Add a factory when one is missing; keep scenario-specific values and relationships explicit in each test. Examples:
+Arrange persisted records through Factory Shark factories from `@/factories`, not direct model `create` or `bulkCreate` calls. Add a factory when one is missing; keep scenario-specific values and relationships explicit in each test. Examples:
 
 - `userFactory`
 - `travelAuthorizationFactory`
@@ -84,8 +84,7 @@ Arrange persisted records through Fishery factories from `@/factories`, not dire
 - `travelSegmentFactory`
 
 **Admin users:** `User.isAdmin` is a virtual getter (`this.roles.includes("admin")`) with no setter.
-Fishery merges factory overrides with `lodash.mergeWith`, which skips getter-only properties at
-runtime, so passing `{ isAdmin: true }` to `userFactory.create()` has no effect. Use `roles` instead:
+It is not a factory attribute. Use `roles` instead:
 
 ```typescript
 import { User } from "@/models"
@@ -96,8 +95,13 @@ const admin = await userFactory.create({ roles: [User.Roles.ADMIN] })
 const nonAdmin = await userFactory.create({ roles: [User.Roles.USER] })
 ```
 
-If you need a new factory, follow the reusable
-[`agents/templates/fishery-factory-template.md`](../../agents/templates/fishery-factory-template.md).
+Use the [Factory Shark 2.4.0 authoring templates](https://github.com/klondikemarlen/factory-shark/blob/v2.4.0/docs/templates/factory-authoring.md) for factory definitions, associations, custom builders, hooks, `include`, `createList`, and `attributesFor`. The upstream guide owns library behavior; use the guide matching the installed package version.
+
+Keep application factories under `api/tests/factories/`, import models from `@/models`, and expose factories through `@/factories`. Preserve named and default factory exports. Follow the [user factory](factories/user-factory.ts) and [travel authorization factory](factories/travel-authorization-factory.ts) for local conventions; the [expense factory](factories/expense-factory.ts) owns the domain-specific `estimate` builder and description defaults.
+
+Prefer `.associations(...)` for supplied model relationships when supported by the installed library, rather than assigning associations after fixture creation. Keep explicit foreign-key inputs when the scenario tests foreign-key behavior.
+
+TravCom integration factories retain Fishery; its keyless city model cannot use Factory Shark's documented `id`-primary-key contract. Web plain-object fixtures also retain Fishery and must not import API models.
 
 ## Test Lifecycle Notes
 

@@ -6,7 +6,7 @@ import { determineFinalDestination } from "@/services/expenses/build-attributes-
 describe("api/src/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination.ts", () => {
   describe(".determineFinalDestination", () => {
     test("when trip is a round trip, final destination is departure location of last segment", async () => {
-      // arrange
+      // Arrange
       const travelAuthorization = await travelAuthorizationFactory.create({
         tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
       })
@@ -38,15 +38,17 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
         })
       const travelSegments = [travelSegment1, travelSegment2]
 
-      // act
+      // Act
       const finalLocation = determineFinalDestination(travelSegments)
 
-      // assert
-      expect(finalLocation).toEqual(vancouver)
+      // Assert
+      expect(finalLocation).toEqual(
+        expect.objectContaining({ id: vancouver.id, city: "Vancouver", province: "BC" })
+      )
     })
 
     test("when trip is a one way trip, final destination is arrival location of last segment", async () => {
-      // arrange
+      // Arrange
       const travelAuthorization = await travelAuthorizationFactory.create({
         tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
       })
@@ -66,15 +68,17 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
         })
       const travelSegments = [travelSegment1]
 
-      // act
+      // Act
       const finalLocation = determineFinalDestination(travelSegments)
 
-      // assert
-      expect(finalLocation).toEqual(vancouver)
+      // Assert
+      expect(finalLocation).toEqual(
+        expect.objectContaining({ id: vancouver.id, city: "Vancouver", province: "BC" })
+      )
     })
 
     test("when trip is a multi-destination trip, final destination is arrival location of last segment", async () => {
-      // arrange
+      // Arrange
       const travelAuthorization = await travelAuthorizationFactory.create({
         tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
       })
@@ -110,11 +114,13 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
         })
       const travelSegments = [travelSegment1, travelSegment2]
 
-      // act
+      // Act
       const finalLocation = determineFinalDestination(travelSegments)
 
-      // assert
-      expect(finalLocation).toEqual(grandePrairie)
+      // Assert
+      expect(finalLocation).toEqual(
+        expect.objectContaining({ id: grandePrairie.id, city: "Grande Prairie", province: "AB" })
+      )
     })
   })
 })

@@ -1,30 +1,15 @@
-import { Factory } from "fishery"
+import FactoryShark from "factory-shark"
 import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { TravelAuthorizationPreApproval } from "@/models"
 import { userFactory } from "@/factories"
 
-export const travelAuthorizationPreApprovalFactory = Factory.define<TravelAuthorizationPreApproval>(
-  ({ associations, onCreate }) => {
-    onCreate((travelAuthorizationPreApproval) => {
-      try {
-        return travelAuthorizationPreApproval.save()
-      } catch (error) {
-        console.error(error)
-        throw new Error(
-          `Could not create TravelAuthorizationPreApproval with attributes: ${JSON.stringify(
-            travelAuthorizationPreApproval.dataValues,
-            null,
-            2
-          )}`
-        )
-      }
-    })
+export const travelAuthorizationPreApprovalFactory = FactoryShark.define(
+  TravelAuthorizationPreApproval,
+  ({ associate }) => {
+    associate("creator", userFactory)
 
-    const creator = associations.creator ?? userFactory.build({ id: undefined })
-
-    const travelAuthorizationPreApproval = TravelAuthorizationPreApproval.build({
-      creatorId: creator.id,
+    return {
       estimatedCost: faker.number.int({ min: 500, max: 2000 }),
       location: faker.helpers.arrayElement(["Whitehorse", "Dawson", "Watson Lake"]),
       department: "Economic Development",
@@ -43,11 +28,7 @@ export const travelAuthorizationPreApprovalFactory = Factory.define<TravelAuthor
       numberTravelers: faker.number.int({ min: 1, max: 5 }),
       travelerNotes: faker.lorem.sentence(),
       status: faker.helpers.enumValue(TravelAuthorizationPreApproval.Statuses),
-    })
-
-    travelAuthorizationPreApproval.creator = creator
-
-    return travelAuthorizationPreApproval
+    }
   }
 )
 

@@ -1,13 +1,15 @@
-import { DeepPartial } from "fishery"
+import FactoryShark, { FactoryParams, GeneratorFn } from "factory-shark"
 import { faker } from "@faker-js/faker"
 
 import { Expense, PerDiem, TravelSegment } from "@/models"
-import BaseFactory from "@/factories/base-factory"
 import { travelAuthorizationFactory } from "@/factories"
-import { nestedSaveAndAssociateIfNew } from "@/factories/helpers"
 
-class ExpenseFactory extends BaseFactory<Expense> {
-  estimate(params: Pick<DeepPartial<Expense>, "expenseType">) {
+class ExpenseFactory extends FactoryShark<Expense> {
+  constructor(generator: GeneratorFn<Expense>) {
+    super(Expense, generator, {})
+  }
+
+  estimate(params: Pick<FactoryParams<Expense>, "expenseType">) {
     let description: string
     const expenseType = params.expenseType || faker.helpers.enumValue(Expense.ExpenseTypes)
     if (expenseType === Expense.ExpenseTypes.ACCOMMODATIONS) {
@@ -34,38 +36,17 @@ class ExpenseFactory extends BaseFactory<Expense> {
   }
 }
 
-export const expenseFactory = ExpenseFactory.define(({ associations, onCreate }) => {
-  onCreate(async (expense) => {
-    try {
-      await nestedSaveAndAssociateIfNew(expense)
-      return expense
-    } catch (error) {
-      console.error(error)
-      throw new Error(
-        `Could not create Expense with attributes: ${JSON.stringify(expense.dataValues, null, 2)}`
-      )
-    }
-  })
+export const expenseFactory = new ExpenseFactory(({ associate }) => {
+  associate("travelAuthorization", travelAuthorizationFactory)
 
-  const travelAuthorization =
-    associations.travelAuthorization ??
-    travelAuthorizationFactory.build({
-      id: undefined,
-    })
-
-  const expense = Expense.build({
-    travelAuthorizationId: travelAuthorization.id,
+  return {
     type: faker.helpers.enumValue(Expense.Types),
     currency: Expense.CurrencyTypes.CAD,
     expenseType: faker.helpers.enumValue(Expense.ExpenseTypes),
     description: faker.lorem.sentence({ min: 3, max: 6 }),
     cost: parseFloat(faker.finance.amount({ min: 17.3, max: 500 })),
     date: faker.date.soon({ days: 30 }),
-  })
-
-  expense.travelAuthorization = travelAuthorization
-
-  return expense
+  }
 })
 
 export default expenseFactory

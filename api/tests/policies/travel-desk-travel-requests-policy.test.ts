@@ -150,16 +150,14 @@ describe("api/src/policies/travel-desk-travel-requests-policy.ts", () => {
         const scopedTravelDeskTravelRequests = await TravelDeskTravelRequest.findAll(scope)
 
         // Assert
-        expect(scopedTravelDeskTravelRequests).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              id: travelDeskTravelRequest1.id,
-            }),
-            expect.objectContaining({
-              id: travelDeskTravelRequest2.id,
-            }),
-          ])
-        )
+        expect(scopedTravelDeskTravelRequests).toEqual([
+          expect.objectContaining({
+            id: travelDeskTravelRequest1.id,
+          }),
+          expect.objectContaining({
+            id: travelDeskTravelRequest2.id,
+          }),
+        ])
       })
     })
 
@@ -174,11 +172,11 @@ describe("api/src/policies/travel-desk-travel-requests-policy.ts", () => {
           supervisorEmail: "some-other-users-email@test.com",
           status: TravelAuthorization.Statuses.APPROVED,
         })
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          status: TravelDeskTravelRequest.Statuses.DRAFT,
-        })
-        travelDeskTravelRequest.travelAuthorization = travelAuthorization
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({
+            status: TravelDeskTravelRequest.Statuses.DRAFT,
+          })
 
         // Act
         const policy = new TravelDeskTravelRequestsPolicy(user, travelDeskTravelRequest)
@@ -197,11 +195,11 @@ describe("api/src/policies/travel-desk-travel-requests-policy.ts", () => {
           supervisorEmail: "some-other-users-email@test.com",
           status: TravelAuthorization.Statuses.APPROVED,
         })
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          status: TravelDeskTravelRequest.Statuses.SUBMITTED,
-        })
-        travelDeskTravelRequest.travelAuthorization = travelAuthorization
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory
+          .associations({ travelAuthorization })
+          .create({
+            status: TravelDeskTravelRequest.Statuses.SUBMITTED,
+          })
 
         // Act
         const policy = new TravelDeskTravelRequestsPolicy(user, travelDeskTravelRequest)

@@ -22,9 +22,7 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
         const departureLocation1 = await locationFactory.create()
         const arrivalLocation1 = await locationFactory.create()
         const travelSegment1 = await travelSegmentFactory
-          .transient({
-            include: ["departureLocation", "arrivalLocation"],
-          })
+          .include(["departureLocation", "arrivalLocation"])
           .create({
             travelAuthorizationId: travelAuthorization.id,
             departureLocationId: departureLocation1.id,
@@ -35,9 +33,7 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
         const departureLocation2 = await locationFactory.create()
         const arrivalLocation2 = await locationFactory.create()
         const travelSegment2 = await travelSegmentFactory
-          .transient({
-            include: ["departureLocation", "arrivalLocation"],
-          })
+          .include(["departureLocation", "arrivalLocation"])
           .create({
             travelAuthorizationId: travelAuthorization.id,
             departureLocationId: departureLocation2.id,
@@ -48,9 +44,7 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
         const departureLocation3 = await locationFactory.create()
         const arrivalLocation3 = await locationFactory.create()
         const travelSegment3 = await travelSegmentFactory
-          .transient({
-            include: ["departureLocation", "arrivalLocation"],
-          })
+          .include(["departureLocation", "arrivalLocation"])
           .create({
             travelAuthorizationId: travelAuthorization.id,
             departureLocationId: departureLocation3.id,
@@ -101,9 +95,8 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
         })
         const currentUser = await userFactory.create()
 
-        // Assert
+        // Act & Assert
         await expect(
-          // Act
           PrefillFlightRequestsService.perform(travelDeskTravelRequest, [], currentUser)
         ).rejects.toThrowError(
           "Travel segments must have at least one element to prefill flight requests."
@@ -118,9 +111,7 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
         })
         const arrivalLocation = await locationFactory.create()
         const travelSegment = await travelSegmentFactory
-          .transient({
-            include: ["departureLocation", "arrivalLocation"],
-          })
+          .include(["departureLocation", "arrivalLocation"])
           .create({
             travelAuthorizationId: travelAuthorization.id,
             departureLocationId: null,
@@ -128,9 +119,8 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
           })
         const currentUser = await userFactory.create()
 
-        // Assert
+        // Act & Assert
         await expect(
-          // Act
           PrefillFlightRequestsService.perform(
             travelDeskTravelRequest,
             [travelSegment],
@@ -149,9 +139,7 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
         })
         const departureLocation = await locationFactory.create()
         const travelSegment = await travelSegmentFactory
-          .transient({
-            include: ["departureLocation", "arrivalLocation"],
-          })
+          .include(["departureLocation", "arrivalLocation"])
           .create({
             travelAuthorizationId: travelAuthorization.id,
             departureLocationId: departureLocation.id,
@@ -159,9 +147,8 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
           })
         const currentUser = await userFactory.create()
 
-        // Assert
+        // Act & Assert
         await expect(
-          // Act
           PrefillFlightRequestsService.perform(
             travelDeskTravelRequest,
             [travelSegment],
@@ -179,9 +166,7 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
         const departureLocation = await locationFactory.create()
         const arrivalLocation = await locationFactory.create()
         const travelSegment = await travelSegmentFactory
-          .transient({
-            include: ["departureLocation", "arrivalLocation"],
-          })
+          .include(["departureLocation", "arrivalLocation"])
           .create({
             travelAuthorizationId: travelAuthorization.id,
             departureLocationId: departureLocation.id,
@@ -190,9 +175,8 @@ describe("api/src/services/travel-desk-travel-requests/prefill-flight-requests-s
           })
         const currentUser = await userFactory.create()
 
-        // Assert
+        // Act & Assert
         await expect(
-          // Act
           PrefillFlightRequestsService.perform(
             travelDeskTravelRequest,
             [travelSegment],

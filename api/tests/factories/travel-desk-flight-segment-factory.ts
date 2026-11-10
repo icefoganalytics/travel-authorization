@@ -1,32 +1,14 @@
-import { Factory } from "fishery"
+import FactoryShark from "factory-shark"
 
 import { TravelDeskFlightSegment } from "@/models"
-import { nestedSaveAndAssociateIfNew } from "@/factories/helpers"
 import travelDeskFlightOptionFactory from "@/factories/travel-desk-flight-option-factory"
 
-export const travelDeskFlightSegmentFactory = Factory.define<TravelDeskFlightSegment>(
-  ({ associations, onCreate, sequence }) => {
-    onCreate(async (travelDeskFlightSegment) => {
-      try {
-        await nestedSaveAndAssociateIfNew(travelDeskFlightSegment)
-        return travelDeskFlightSegment
-      } catch (error) {
-        console.error(error)
-        throw new Error(
-          `Could not create TravelDeskFlightSegment with attributes: ${JSON.stringify(
-            travelDeskFlightSegment.dataValues,
-            null,
-            2
-          )}`
-        )
-      }
-    })
+export const travelDeskFlightSegmentFactory = FactoryShark.define(
+  TravelDeskFlightSegment,
+  ({ associate, sequence }) => {
+    associate("flightOption", travelDeskFlightOptionFactory)
 
-    const flightOption =
-      associations.flightOption ?? travelDeskFlightOptionFactory.build({ id: undefined })
-
-    const travelDeskFlightSegment = TravelDeskFlightSegment.build({
-      flightOptionId: flightOption.id,
+    return {
       flightNumber: `YT${sequence}`,
       departAt: new Date("2026-10-27T15:00:00.000Z"),
       departLocation: "Whitehorse",
@@ -36,11 +18,7 @@ export const travelDeskFlightSegmentFactory = Factory.define<TravelDeskFlightSeg
       status: "Confirmed",
       class: "Economy",
       sortOrder: 1,
-    })
-
-    travelDeskFlightSegment.flightOption = flightOption
-
-    return travelDeskFlightSegment
+    }
   }
 )
 

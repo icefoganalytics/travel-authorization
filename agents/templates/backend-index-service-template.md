@@ -141,4 +141,4 @@ describe("api/src/services/model/index-service.ts", () => {
 ```
 
 Always use `roles: [User.Roles.ADMIN]` to create admin users — `isAdmin` is a virtual
-getter with no setter and is silently ignored by Fishery.
+getter with no setter, not a factory attribute.
