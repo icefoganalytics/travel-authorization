@@ -78,7 +78,7 @@ Examples:
 - Prefer gap classes such as `ga-2` and `ga-3` over margin classes for flex spacing.
 - Avoid `v-list-item-title` and `v-list-item-subtitle` for text that needs to wrap; use regular
   elements with utility classes.
-- Use `useTemplateRef()` instead of `ref()` for template references.
+- Use `useTemplateRef()` instead of `ref()` for template references. Omit explicit type arguments when Vue can infer the type from the static template ref.
 
 ## Related Docs
 
