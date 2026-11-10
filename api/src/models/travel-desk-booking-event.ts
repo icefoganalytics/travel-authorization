@@ -40,7 +40,6 @@ export class TravelDeskBookingEvent extends Model<
   declare eventType: string | null
 
   @Attribute(DataTypes.STRING(255))
-  @Index({})
   declare recordLocator: string | null
 
   @Attribute(DataTypes.STRING(255))
