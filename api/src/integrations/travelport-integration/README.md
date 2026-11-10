@@ -7,12 +7,15 @@ Use this boundary to read the Travelport source, not TravCom invoices. Travelpor
 ```typescript
 import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
 
-const events = await TravelOrderEvent.findAllByRecordLocator("ZZ0001")
+const events = await TravelOrderEvent.findAll({
+  where: { recordLocator: "ZZ0001" },
+  order: [["travelOrderIdentifier", "ASC"]],
+})
 ```
 
 The integration owns a singleton database client, and its models entry point registers the source models and exports that client as its default. Importing the integration fails immediately when its database name, username, password, or host is empty. Constructing the client does not open a source connection. Keep the integration out of the shared integrations barrel; do not construct or register database clients inside model queries.
 
-The lookup returns every matching source event with its passengers, air reservation segments, and optional service-fee transaction. Collection associations are loaded independently so multiple passengers do not multiply flight segments. An unknown locator returns an empty array. History ordering is deterministic for inspection, not a rule for selecting the current booking.
+Use standard `findAll` for bounded reads or `findEach(options, callback)` for batch processing. The synchronization service supplies association loading and processes source events in batches of 1,000, serializing and persisting one event at a time. Collection associations are loaded independently so multiple passengers do not multiply flight segments. Iteration uses the unique source identifier for stable batch ordering, not business precedence. The existing API still collects matching local records for its response; source batching does not bound response memory. Source or persistence failure rolls back the local synchronization transaction.
 
 The integration mapping expands source acronyms before storing local booking records: `CrsDescription` becomes `reservationSystemDescription`, `PnrCreationDate` becomes `passengerNameRecordCreatedAt`, and `CreatingAgencyIata` becomes `creatingAgencyInternationalAirTransportAssociationNumber`. Local columns and serialized booking snapshots use these descriptive names; the external schema remains unchanged.
 
