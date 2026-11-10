@@ -230,12 +230,12 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           for (const firstName of ["Zulu", "Alpha", "Alpha"]) {
             const traveller = await userFactory.create({ firstName, lastName: "Traveller" })
             const purpose = await travelPurposeFactory.create({ purpose: firstName })
-            const travelAuthorization = travelAuthorizationFactory.build({
-              userId: traveller.id,
-              purposeId: purpose.id,
-              supervisorEmail: user.email,
-              updatedAt: new Date("2020-01-01T00:00:00Z"),
-            })
+            const travelAuthorization = travelAuthorizationFactory
+              .associations({ user: traveller, purpose })
+              .build({
+                supervisorEmail: user.email,
+                updatedAt: new Date("2020-01-01T00:00:00Z"),
+              })
             await travelAuthorization.save({ silent: true })
             travelAuthorizations.push(travelAuthorization)
           }

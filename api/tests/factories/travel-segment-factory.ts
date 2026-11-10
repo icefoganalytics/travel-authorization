@@ -1,29 +1,22 @@
 import FactoryShark from "factory-shark"
 import { faker } from "@faker-js/faker"
-import { Includeable } from "@sequelize/core"
 
 import { TravelSegment } from "@/models"
 import { locationFactory, travelAuthorizationFactory } from "@/factories"
 import { presence } from "@/factories/helpers"
 
-type TransientParam = {
-  include?: Includeable | Includeable[]
-}
-
-export const travelSegmentFactory = FactoryShark.define<TravelSegment, TransientParam>(
+export const travelSegmentFactory = FactoryShark.define<TravelSegment>(
   TravelSegment,
-  ({ associate, params, afterCreate, transient }) => {
+  ({ associate, params }) => {
     associate("travelAuthorization", travelAuthorizationFactory)
-    associate("departureLocation", locationFactory)
-    associate("arrivalLocation", locationFactory)
 
-    afterCreate(async (travelSegment) => {
-      if (transient.include !== undefined) {
-        await travelSegment.reload({
-          include: transient.include,
-        })
-      }
-    })
+    if (params.departureLocationId !== null) {
+      associate("departureLocation", locationFactory)
+    }
+
+    if (params.arrivalLocationId !== null) {
+      associate("arrivalLocation", locationFactory)
+    }
 
     const modeOfTransport = presence(
       params.modeOfTransport,
