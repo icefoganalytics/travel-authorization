@@ -150,16 +150,14 @@ describe("api/src/policies/travel-desk-travel-requests-policy.ts", () => {
         const scopedTravelDeskTravelRequests = await TravelDeskTravelRequest.findAll(scope)
 
         // Assert
-        expect(scopedTravelDeskTravelRequests).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              id: travelDeskTravelRequest1.id,
-            }),
-            expect.objectContaining({
-              id: travelDeskTravelRequest2.id,
-            }),
-          ])
-        )
+        expect(scopedTravelDeskTravelRequests).toEqual([
+          expect.objectContaining({
+            id: travelDeskTravelRequest1.id,
+          }),
+          expect.objectContaining({
+            id: travelDeskTravelRequest2.id,
+          }),
+        ])
       })
     })
 
