@@ -21,9 +21,15 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           include: [
             "expenses",
             "purpose",
-            { association: "stops", include: ["location"] },
+            {
+              association: "stops",
+              include: ["location"],
+            },
             "travelDeskTravelRequest",
-            { association: "travelSegments", include: ["departureLocation", "arrivalLocation"] },
+            {
+              association: "travelSegments",
+              include: ["departureLocation", "arrivalLocation"],
+            },
             "user",
           ],
         })
@@ -54,9 +60,15 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           include: [
             "expenses",
             "purpose",
-            { association: "stops", include: ["location"] },
+            {
+              association: "stops",
+              include: ["location"],
+            },
             "travelDeskTravelRequest",
-            { association: "travelSegments", include: ["departureLocation", "arrivalLocation"] },
+            {
+              association: "travelSegments",
+              include: ["departureLocation", "arrivalLocation"],
+            },
             "user",
           ],
         })

@@ -31,7 +31,9 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
       await travelSegmentFactory.associations({ travelAuthorization }).createList(3)
-      await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
+      await travelAuthorization.reload({
+        include: ["travelSegments", "user", "purpose"],
+      })
 
       // Act
       const updatedTravelAuthorization = await ApproveService.perform(travelAuthorization, approver)
@@ -59,7 +61,9 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
           status: TravelAuthorization.Statuses.APPROVED,
         })
       await travelSegmentFactory.associations({ travelAuthorization }).createList(3)
-      await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
+      await travelAuthorization.reload({
+        include: ["travelSegments", "user", "purpose"],
+      })
 
       expect.assertions(1)
       try {
@@ -89,7 +93,9 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       await travelSegmentFactory.associations({ travelAuthorization }).createList(3, {
         modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
       })
-      await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
+      await travelAuthorization.reload({
+        include: ["travelSegments", "user", "purpose"],
+      })
       const createServicePerformSpy = vi.spyOn(TravelDeskTravelRequests.CreateService, "perform")
 
       // Act
@@ -131,7 +137,9 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       await travelSegmentFactory.associations({ travelAuthorization }).createList(3, {
         modeOfTransport: TravelSegment.TravelMethods.PERSONAL_VEHICLE,
       })
-      await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
+      await travelAuthorization.reload({
+        include: ["travelSegments", "user", "purpose"],
+      })
       const createServicePerformSpy = vi.spyOn(TravelDeskTravelRequests.CreateService, "perform")
 
       // Act
@@ -157,7 +165,9 @@ describe("api/src/services/travel-authorizations/approve-service.ts", () => {
       await travelSegmentFactory.associations({ travelAuthorization }).createList(3, {
         modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
       })
-      await travelAuthorization.reload({ include: ["travelSegments", "user", "purpose"] })
+      await travelAuthorization.reload({
+        include: ["travelSegments", "user", "purpose"],
+      })
 
       const previousTravelAuthorizationForUser = await travelAuthorizationFactory
         .associations({
