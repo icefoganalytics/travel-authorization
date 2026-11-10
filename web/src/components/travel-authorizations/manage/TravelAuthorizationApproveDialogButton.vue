@@ -71,8 +71,8 @@ import LocationChip from "@/components/locations/LocationChip.vue"
 const props = withDefaults(
   defineProps<{
     travelAuthorizationId: number
-    isDisabled?: boolean
     requestorDisplayName: string
+    isDisabled?: boolean
     travelLocationId?: number | null
     buttonClasses?: string | string[] | Record<string, boolean> | null
   }>(),
