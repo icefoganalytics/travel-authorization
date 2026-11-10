@@ -1,7 +1,5 @@
-import {
-  type BookingEventSnapshot,
-  TravelDeskBookingEvent,
-} from "@/models/travel-desk-booking-event"
+import type { BookingEventSnapshot } from "@/integrations/travelport-integration/models/booking-event-snapshot"
+import { TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import BaseSerializer from "@/serializers/base-serializer"
 
 export type TravelDeskBookingEventAsIndex = BookingEventSnapshot
