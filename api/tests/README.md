@@ -95,12 +95,9 @@ const admin = await userFactory.create({ roles: [User.Roles.ADMIN] })
 const nonAdmin = await userFactory.create({ roles: [User.Roles.USER] })
 ```
 
-If you need a new factory, follow the reusable
-[`agents/templates/sequelize-factory-template.md`](../../agents/templates/sequelize-factory-template.md).
+Use the [Factory Shark 2.2.2 authoring templates](https://github.com/klondikemarlen/factory-shark/blob/v2.2.2/docs/templates/factory-authoring.md) for factory definitions, associations, custom builders, hooks, `createList`, and `attributesFor`. The upstream guide owns library behavior; use the guide matching the installed package version.
 
-Factory Shark 2.1.0 owns model construction, `belongsTo` creation, and persistence. Pass persisted parents or their foreign keys to `create`; foreign keys take precedence over association overrides. For `build`, arrange any complete association graph needed by the test explicitly: a foreign key yields only an `{ id }` placeholder, and instance-only overrides are not reused.
-
-Create `hasMany` and `hasOne` records explicitly after their parent, then reload the association when the subject needs it. Keep recurring relationship setup in an opt-in factory trait rather than a generic recursive saver. For unsaved request attributes, use `factory.build(overrides).dataValues`. Use `factory.createList(count, overrides)` for persisted lists; configured chains such as `.associations({ user }).createList(count)` retain their settings and advance the same builder's sequence. New configured builders have independent sequences, so use explicit IDs where a scenario requires stable identities.
+Keep application factories under `api/tests/factories/`, import models from `@/models`, and expose factories through `@/factories`. Preserve named and default factory exports. Follow the [user factory](factories/user-factory.ts) and [travel authorization factory](factories/travel-authorization-factory.ts) for local conventions; the [expense factory](factories/expense-factory.ts) owns the domain-specific `estimate` builder and description defaults.
 
 TravCom invoice, detail, and segment fixtures also use Factory Shark. Its keyless city model uses `createCity` from the integration's fixture bundle; create cities explicitly and pass their `cityCode` values to segments. Do not invent primary keys or alter the external schema to fit a fixture library. Web plain-object fixtures retain Fishery and must not import API models.
 
