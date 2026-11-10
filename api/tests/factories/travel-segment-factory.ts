@@ -19,7 +19,9 @@ export const travelSegmentFactory = FactoryShark.define<TravelSegment, Transient
 
     afterCreate(async (travelSegment) => {
       if (transient.include !== undefined) {
-        await travelSegment.reload({ include: transient.include })
+        await travelSegment.reload({
+          include: transient.include,
+        })
       }
     })
 

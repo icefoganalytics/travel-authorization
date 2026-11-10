@@ -17,7 +17,9 @@ export const travelAuthorizationFactory = FactoryShark.define<TravelAuthorizatio
 
     afterCreate(async (travelAuthorization) => {
       if (transient.include !== undefined) {
-        await travelAuthorization.reload({ include: transient.include })
+        await travelAuthorization.reload({
+          include: transient.include,
+        })
       }
     })
 
