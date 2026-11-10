@@ -67,7 +67,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
 
     describe(".perform", () => {
       test("when provided some travel segments, and a expense type to create, builds the appropriate expense attributes", async () => {
-        // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
@@ -100,7 +99,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
             accommodationType: null,
           })
 
-        // Act
         const expensesAttributes = await BuildAttributesFromTravelSegmentsService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
@@ -108,7 +106,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
-        // Assert
         expect(expensesAttributes).toEqual([
           expect.objectContaining({
             travelAuthorizationId: travelAuthorization.id,
@@ -177,7 +174,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
       })
 
       test("when provided some travel segments, and a expense type to create, and when times are not specified, it defaults to full day times when building the expense attributes", async () => {
-        // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
@@ -210,7 +206,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
             accommodationType: null,
           })
 
-        // Act
         const expensesAttributes = await BuildAttributesFromTravelSegmentsService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
@@ -218,7 +213,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
-        // Assert
         expect(expensesAttributes).toEqual([
           expect.objectContaining({
             travelAuthorizationId: travelAuthorization.id,
@@ -287,7 +281,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
       })
 
       test("when provided some travel segments, and a expense type to create, and when departure time is late in the day, no claims are generated for that day when building the expense attributes", async () => {
-        // Arrange
         const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
         })
@@ -320,7 +313,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
             accommodationType: null,
           })
 
-        // Act
         const expensesAttributes = await BuildAttributesFromTravelSegmentsService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
@@ -328,7 +320,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
-        // Assert
         expect(expensesAttributes).toEqual([
           expect.objectContaining({
             travelAuthorizationId: travelAuthorization.id,
@@ -370,7 +361,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
       })
 
       test("when provided some travel segments, and a expense type to create, and when travel method is personal vehicle, and trip type is round-trip, correctly generates the transportantion allowance from the distance matrix when building the expense attributes", async () => {
-        // Arrange
         await perDiemFactory.create({
           claimType: PerDiem.ClaimTypes.LUNCH,
           travelRegion: PerDiem.TravelRegions.YUKON,
@@ -422,7 +412,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
             accommodationType: null,
           })
 
-        // Act
         const expensesAttributes = await BuildAttributesFromTravelSegmentsService.perform(
           travelAuthorization.id,
           [travelSegment1, travelSegment2],
@@ -430,7 +419,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
           Expense.Types.ESTIMATE
         )
 
-        // Assert
         expect(expensesAttributes).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
