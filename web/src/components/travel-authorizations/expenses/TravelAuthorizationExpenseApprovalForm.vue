@@ -31,7 +31,6 @@
 <script setup lang="ts">
 import { computed, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
-import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 
@@ -103,7 +102,7 @@ async function refresh() {
   ])
 }
 
-const form = useTemplateRef<InstanceType<typeof VForm>>("form")
+const form = useTemplateRef("form")
 const snack = useSnack()
 
 async function requestApprovalForExpenseClaim() {

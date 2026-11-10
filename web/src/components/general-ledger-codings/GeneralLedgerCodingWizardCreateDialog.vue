@@ -96,8 +96,6 @@
 import { ref, watch, nextTick, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
-import { type VForm } from "vuetify/components"
-
 import { required, isGeneralLedgerCode } from "@/utils/validators"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 
@@ -124,7 +122,7 @@ const generalLedgerCoding = ref({
   amount: 0.0,
 })
 
-const form = useTemplateRef<InstanceType<typeof VForm>>("form")
+const form = useTemplateRef("form")
 const snack = useSnack()
 const isLoading = ref(false)
 

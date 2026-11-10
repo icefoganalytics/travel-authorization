@@ -58,7 +58,6 @@
 <script setup lang="ts">
 import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { type VForm } from "vuetify/components"
 
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
@@ -90,7 +89,7 @@ const snack = useSnack()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, isLoading, approve } = useTravelAuthorization(travelAuthorizationId)
 
-const form = useTemplateRef<InstanceType<typeof VForm>>("form")
+const form = useTemplateRef("form")
 const showDialog = ref(route.query.showApprove === "true")
 
 function close() {

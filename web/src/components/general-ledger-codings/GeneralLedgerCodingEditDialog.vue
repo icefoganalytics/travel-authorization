@@ -96,7 +96,6 @@ import useGeneralLedgerCoding from "@/use/use-general-ledger-coding"
 import useSnack from "@/use/use-snack"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 import CurrencyTextField from "@/components/common/CurrencyTextField.vue"
-import { type VForm } from "vuetify/components"
 
 const emit = defineEmits<{
   (event: "saved"): void
@@ -107,7 +106,7 @@ const generalLedgerCodingId = useRouteQuery("showEdit", undefined, {
 })
 const { generalLedgerCoding, isLoading } = useGeneralLedgerCoding(generalLedgerCodingId)
 
-const form = useTemplateRef<InstanceType<typeof VForm>>("form")
+const form = useTemplateRef("form")
 const snack = useSnack()
 
 async function updateAndClose() {

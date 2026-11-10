@@ -63,7 +63,6 @@
 <script setup lang="ts">
 import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { type VForm } from "vuetify/components"
 
 import { required } from "@/utils/validators"
 
@@ -92,7 +91,7 @@ const snack = useSnack()
 const { travelAuthorizationId } = toRefs(props)
 const { isLoading, deny } = useTravelAuthorization(travelAuthorizationId)
 
-const form = useTemplateRef<InstanceType<typeof VForm>>("form")
+const form = useTemplateRef("form")
 const showDialog = ref(route.query.showDeny === "true")
 const denialReason = ref<string | null>(null)
 

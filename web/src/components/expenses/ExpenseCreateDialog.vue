@@ -91,8 +91,6 @@
 import { nextTick, ref, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
-import { type VForm } from "vuetify/components"
-
 import expensesApi, { ExpenseExpenseTypes, ExpenseTypes, type Expense } from "@/api/expenses-api"
 import CurrencyTextField from "@/components/common/CurrencyTextField.vue"
 import StringDateInput from "@/components/common/StringDateInput.vue"
@@ -135,7 +133,7 @@ watch(
   }
 )
 
-const form = useTemplateRef<InstanceType<typeof VForm>>("form")
+const form = useTemplateRef("form")
 const isLoading = ref(false)
 const snack = useSnack()
 
