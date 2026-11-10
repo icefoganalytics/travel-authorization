@@ -23,6 +23,10 @@ here instead of expanding top-level project documentation.
   save boundary.
 - Prefer simple one-way helpers over writable proxy computeds when a value is only needed for
   display or save-time transformation.
+- When a prop needs parsing or another transformation, read `props.<name>` directly inside
+  `computed`; the computed already tracks prop changes. Use `toRefs(props)` when passing an
+  unchanged prop as a ref. Do not create an intermediate prop ref only to feed a computed
+  transformation.
 - Prefer small focused components over large multipurpose wrappers.
 - Use component names that match the project naming convention described in `AGENTS.md`:
   `{Model}{Purpose}{VuetifyComponent}.vue`.
