@@ -51,7 +51,9 @@ export class IndexSerializer extends BaseSerializer<TravelOrderEvent> {
   }
 
   private serializePassengers(passengers: Passenger[] | undefined) {
-    return (passengers ?? []).map((passenger) => {
+    if (isNil(passengers)) return []
+
+    return passengers.map((passenger) => {
       const firstName = trimSourceValue(passenger.firstName)
       const lastName = trimSourceValue(passenger.lastName)
 
@@ -65,7 +67,9 @@ export class IndexSerializer extends BaseSerializer<TravelOrderEvent> {
   }
 
   private serializeAirReservationSegments(airReservationSegments: AirReservationSegment[] | undefined) {
-    return (airReservationSegments ?? []).map((segment) => {
+    if (isNil(airReservationSegments)) return []
+
+    return airReservationSegments.map((segment) => {
       const segmentStatus = trimSourceValue(segment.segmentStatus)
       const carrierCode = trimSourceValue(segment.carrierCode)
       const boardPoint = trimSourceValue(segment.boardPoint)
