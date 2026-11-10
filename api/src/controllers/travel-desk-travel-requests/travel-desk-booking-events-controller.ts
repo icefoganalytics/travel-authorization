@@ -8,7 +8,7 @@ import { type TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import { TravelDeskTravelRequests } from "@/policies"
 
 import { SyncService } from "@/services/travel-desk-booking-events"
-import { SourceUnavailableError } from "@/services/travel-desk-booking-events/sync-service"
+import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
 
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
