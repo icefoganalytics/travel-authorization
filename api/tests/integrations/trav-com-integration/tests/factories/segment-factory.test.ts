@@ -49,9 +49,12 @@ describe("api/src/integrations/trav-com-integration/tests/factories/segment-fact
         })
         const departureCity = await createCity({ cityCode: "YXY", cityName: "WHITEHORSE" })
         const arrivalCity = await createCity({ cityCode: "YVR", cityName: "VANCOUVER INTL" })
-        const reloadingSegmentFactory = segmentFactory.transient({
-          include: ["invoice", "invoiceDetail", "departureCity", "arrivalCity"],
-        })
+        const reloadingSegmentFactory = segmentFactory.include([
+          "invoice",
+          "invoiceDetail",
+          "departureCity",
+          "arrivalCity",
+        ])
 
         // Act
         const segment = await reloadingSegmentFactory.create({
