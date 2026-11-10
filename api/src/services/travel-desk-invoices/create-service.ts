@@ -7,7 +7,6 @@ import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
 import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
-import { normalizeRecordLocator } from "@/integrations/travelport-integration/utils/normalize-record-locator"
 import BaseService from "@/services/base-service"
 import {
   calculateInvoiceTotal,
@@ -74,7 +73,9 @@ export class CreateService extends BaseService {
       throw new InvoiceValidationError("Invoice items must be an array.")
     }
 
-    const normalizedRecordLocator = normalizeRecordLocator(recordLocator)
+    const normalizedRecordLocator = recordLocator.trim().toUpperCase()
+    this.validateRecordLocator(normalizedRecordLocator)
+
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
     const snapshot = await this.loadSourceSnapshot(
@@ -119,6 +120,12 @@ export class CreateService extends BaseService {
         ],
       })
     })
+  }
+
+  private validateRecordLocator(recordLocator: string): void {
+    if (!/^[A-Z0-9]{6}$/.test(recordLocator)) {
+      throw new InvoiceValidationError("Record locator must contain six letters or numbers.")
+    }
   }
 
   private async requireActiveTravelRequest(travelDeskTravelRequestId: number): Promise<void> {
