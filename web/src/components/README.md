@@ -43,6 +43,10 @@ Use [EnhancedPagination](common/EnhancedPagination.vue) with
 Bind `page` and `perPage` to the API query and any `v-data-iterator`, and pass `totalCount` to the pager.
 Expose `defaultPerPage` for configurable collection defaults. Use a unique `routeQuerySuffix` for
 each collection so its page and page-size URL state do not affect neighboring collections.
+The composable only synchronizes URL state; it does not implement pagination controls or fetch data.
+For `v-data-table-server`, retain its native footer and bind the returned `page` and `perPage` refs
+to `v-model:page` and `v-model:items-per-page`. It accepts initial page/page-size defaults and a
+query-key suffix; it does not react to later changes to those options.
 When a collection can fetch overlapping pages, abort superseded requests and preserve cancellation
 through the HTTP client so an earlier request cannot update the displayed records or loading state.
 
@@ -56,6 +60,11 @@ Use `{Model}{Purpose}{VuetifyComponent}.vue`.
 
 Put shared domain components in `/web/src/components/{model}/` using kebab-case directories and
 PascalCase file names.
+
+Group workflow-specific families beneath their domain when several components share the same
+purpose. Expense-claim meal tables and totals cards live under `expenses/claim-submit/` and
+`expenses/claim-review/`; shared expense controls stay at the domain root. These folders describe
+workflow ownership, not a folder for every persisted status. Retain descriptive component names.
 
 Examples:
 
