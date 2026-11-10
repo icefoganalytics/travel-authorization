@@ -20,7 +20,9 @@ export const accountsReceivableInvoiceDetailFactory = FactoryShark.define<
 
     afterCreate(async (detail) => {
       if (transient.include !== undefined) {
-        await detail.reload({ include: transient.include })
+        await detail.reload({
+          include: transient.include,
+        })
       }
     })
 

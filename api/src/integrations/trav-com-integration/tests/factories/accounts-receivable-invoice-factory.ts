@@ -13,7 +13,9 @@ export const accountsReceivableInvoiceFactory = FactoryShark.define<
 >(TravComIntegration.Models.AccountsReceivableInvoice, ({ transient, afterCreate, sequence }) => {
   afterCreate(async (invoice) => {
     if (transient.include !== undefined) {
-      await invoice.reload({ include: transient.include })
+      await invoice.reload({
+        include: transient.include,
+      })
     }
   })
 

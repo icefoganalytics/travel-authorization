@@ -22,7 +22,9 @@ export const segmentFactory = FactoryShark.define<
 
   afterCreate(async (segment) => {
     if (transient.include !== undefined) {
-      await segment.reload({ include: transient.include })
+      await segment.reload({
+        include: transient.include,
+      })
     }
   })
 
