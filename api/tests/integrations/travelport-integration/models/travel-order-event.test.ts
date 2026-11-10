@@ -8,7 +8,7 @@ const knex: Knex = db
 
 describe("api/tests/integrations/travelport-integration/models/travel-order-event.test.ts", () => {
   describe("TravelOrderEvent", () => {
-    describe("findAllByRecordLocator", () => {
+    describe("findEach", () => {
       beforeEach(async () => {
         await knex("Passenger").del()
         await knex("AirRsrvSeg").del()
@@ -103,7 +103,33 @@ describe("api/tests/integrations/travelport-integration/models/travel-order-even
         })
 
         // Act
-        const events = await TravelOrderEvent.findAllByRecordLocator(recordLocator)
+        const events: TravelOrderEvent[] = []
+        await TravelOrderEvent.findEach(
+          {
+            where: { recordLocator },
+            batchSize: 1,
+            order: [["travelOrderIdentifier", "ASC"]],
+            include: [
+              {
+                association: "passengers",
+                separate: true,
+                order: [
+                  ["lastNameElement", "ASC"],
+                  ["passengerElement", "ASC"],
+                ],
+              },
+              {
+                association: "airReservationSegments",
+                separate: true,
+                order: [["airSegmentNumber", "ASC"]],
+              },
+              { association: "serviceFeeTransaction" },
+            ],
+          },
+          async (event) => {
+            events.push(event)
+          }
+        )
 
         // Assert
         expect(events).toEqual([
@@ -160,7 +186,16 @@ describe("api/tests/integrations/travelport-integration/models/travel-order-even
         })
 
         // Act
-        const events = await TravelOrderEvent.findAllByRecordLocator("NOPE99")
+        const events: TravelOrderEvent[] = []
+        await TravelOrderEvent.findEach(
+          {
+            where: { recordLocator: "NOPE99" },
+            order: [["travelOrderIdentifier", "ASC"]],
+          },
+          async (event) => {
+            events.push(event)
+          }
+        )
 
         // Assert
         expect(events).toEqual([])

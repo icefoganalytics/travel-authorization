@@ -1,12 +1,12 @@
 import {
   DataTypes,
-  Model,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
 } from "@sequelize/core"
 import { Attribute, HasMany, HasOne, Table } from "@sequelize/core/decorators-legacy"
 
+import BaseModel from "@/integrations/travelport-integration/models/base-model"
 import AirReservationSegment from "@/integrations/travelport-integration/models/air-reservation-segment"
 import Passenger from "@/integrations/travelport-integration/models/passenger"
 import ServiceFeeTransaction from "@/integrations/travelport-integration/models/service-fee-transaction"
@@ -18,7 +18,7 @@ import ServiceFeeTransaction from "@/integrations/travelport-integration/models/
   timestamps: false,
   paranoid: false,
 })
-export class TravelOrderEvent extends Model<
+export class TravelOrderEvent extends BaseModel<
   InferAttributes<TravelOrderEvent>,
   InferCreationAttributes<TravelOrderEvent>
 > {
@@ -98,33 +98,6 @@ export class TravelOrderEvent extends Model<
     inverse: { as: "travelOrderEvent" },
   })
   declare serviceFeeTransaction?: NonAttribute<ServiceFeeTransaction | null>
-
-  static async findAllByRecordLocator(recordLocator: string): Promise<TravelOrderEvent[]> {
-    return this.findAll({
-      where: { recordLocator },
-      include: [
-        {
-          association: "passengers",
-          separate: true,
-          order: [
-            ["lastNameElement", "ASC"],
-            ["passengerElement", "ASC"],
-          ],
-        },
-        {
-          association: "airReservationSegments",
-          separate: true,
-          order: [["airSegmentNumber", "ASC"]],
-        },
-        { association: "serviceFeeTransaction" },
-      ],
-      // Stable display order; this does not determine a current event or business precedence.
-      order: [
-        ["databaseTimestamp", "ASC"],
-        ["travelOrderIdentifier", "ASC"],
-      ],
-    })
-  }
 }
 
 export default TravelOrderEvent

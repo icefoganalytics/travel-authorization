@@ -39,7 +39,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
       test("when the source is not configured, it reports source unavailability without querying", async () => {
         // Arrange
         sourceConfiguration.missing = true
-        const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAllByRecordLocator")
+        const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAll")
 
         // Act / Assert
         await expect(SyncService.perform("SRC001")).rejects.toThrow(
@@ -187,7 +187,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when the source lookup fails, it reports source unavailability", async () => {
         // Arrange
-        vi.spyOn(TravelOrderEvent, "findAllByRecordLocator").mockRejectedValue(
+        vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(
           new Error("Source connection failed")
         )
 
@@ -197,7 +197,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when local persistence fails, it preserves the original failure", async () => {
         // Arrange
-        vi.spyOn(TravelOrderEvent, "findAllByRecordLocator").mockResolvedValue([
+        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue([
           TravelOrderEvent.build({
             travelOrderIdentifier: 910001,
             recordLocator: "SRC001",
@@ -213,7 +213,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when a later event cannot persist, it rolls back all event changes", async () => {
         // Arrange
-        vi.spyOn(TravelOrderEvent, "findAllByRecordLocator").mockResolvedValue([
+        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue([
           TravelOrderEvent.build({
             travelOrderIdentifier: 910001,
             recordLocator: "SRC001",
@@ -239,7 +239,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when the record locator is invalid, it rejects before reading the source", async () => {
         // Arrange
-        const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAllByRecordLocator")
+        const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAll")
 
         // Act / Assert
         await expect(SyncService.perform("invalid")).rejects.toBeInstanceOf(InvoiceValidationError)
