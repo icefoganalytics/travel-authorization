@@ -105,7 +105,7 @@ function close() {
 async function denyAndClose() {
   try {
     await deny({
-      denialReason: denialReason.value ?? undefined,
+      denialReason: denialReason.value,
     })
     close()
     snack("Travel authorization denied.", { color: "success" })

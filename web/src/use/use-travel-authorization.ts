@@ -10,6 +10,7 @@ import travelAuthorizationsApi, {
   TravelAuthorizationTripTypes,
   TravelAuthorizationWizardStepNames,
   TRIP_TYPES,
+  type TravelAuthorization,
   type TravelAuthorizationAsShow,
   type TravelAuthorizationCreationAttributes,
 } from "@/api/travel-authorizations-api"
@@ -158,7 +159,7 @@ export function useTravelAuthorization(travelAuthorizationId: Ref<number | null 
   /** @deprecated - prefer inline api calls for state changes */
   async function deny({
     denialReason,
-  }: { denialReason?: string } = {}): Promise<TravelAuthorizationAsShow> {
+  }: Partial<Pick<TravelAuthorization, "denialReason">> = {}): Promise<TravelAuthorizationAsShow> {
     const staticTravelAuthorizationId = unref(travelAuthorizationId)
     if (isNil(staticTravelAuthorizationId)) {
       throw new Error("travelAuthorizationId is required")
