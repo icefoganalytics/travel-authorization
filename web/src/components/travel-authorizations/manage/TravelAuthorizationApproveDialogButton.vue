@@ -59,9 +59,10 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
-import { useRoute, useRouter } from "vue-router"
+import { nextTick, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
+
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 
 import ApiError from "@/api/api-error"
 
@@ -89,14 +90,14 @@ const emit = defineEmits<{
   approved: []
 }>()
 
-const route = useRoute()
-const router = useRouter()
 const snack = useSnack()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, isLoading, approve } = useTravelAuthorization(travelAuthorizationId)
 
 const form = useTemplateRef("form")
-const showDialog = ref(route.query.showApprove === "true")
+const showDialog = useRouteQuery("showApprove", "false", {
+  transform: booleanTransformer,
+})
 
 function close() {
   showDialog.value = false
@@ -118,15 +119,4 @@ async function approveAndClose() {
     snack.error(`Failed to approve travel authorization: ${error}`)
   }
 }
-
-watch(
-  () => showDialog.value,
-  (value) => {
-    if (value) {
-      router.push({ query: { showApprove: "true" } })
-    } else {
-      router.push({ query: { showApprove: undefined } })
-    }
-  }
-)
 </script>

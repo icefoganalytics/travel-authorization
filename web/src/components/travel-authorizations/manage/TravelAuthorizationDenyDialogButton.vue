@@ -61,12 +61,12 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
-import { useRoute, useRouter } from "vue-router"
-
-import ApiError from "@/api/api-error"
+import { nextTick, ref, toRefs, useTemplateRef } from "vue"
 
 import { required } from "@/utils/validators"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+
+import ApiError from "@/api/api-error"
 
 import useSnack from "@/use/use-snack"
 import { useTravelAuthorization } from "@/use/use-travel-authorization"
@@ -87,14 +87,14 @@ const emit = defineEmits<{
   denied: []
 }>()
 
-const route = useRoute()
-const router = useRouter()
 const snack = useSnack()
 const { travelAuthorizationId } = toRefs(props)
 const { isLoading, deny } = useTravelAuthorization(travelAuthorizationId)
 
 const form = useTemplateRef("form")
-const showDialog = ref(route.query.showDeny === "true")
+const showDialog = useRouteQuery("showDeny", "false", {
+  transform: booleanTransformer,
+})
 const denialReason = ref<string | null>(null)
 
 function close() {
@@ -119,15 +119,4 @@ async function denyAndClose() {
     snack.error(`Failed to deny travel authorization: ${error}`)
   }
 }
-
-watch(
-  () => showDialog.value,
-  (newShowDialog) => {
-    if (newShowDialog) {
-      router.push({ query: { showDeny: "true" } })
-    } else {
-      router.push({ query: { showDeny: undefined } })
-    }
-  }
-)
 </script>
