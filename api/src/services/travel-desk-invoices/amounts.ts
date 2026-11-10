@@ -1,7 +1,9 @@
+import BaseServiceError from "@/services/base-service-error"
+
 const MAX_AMOUNT_THOUSANDTHS = 999999999999999999n
 const AMOUNT_PATTERN = /^-?(?:0|[1-9]\d{0,14})(?:\.\d{1,3})?$/
 
-export class InvoiceValidationError extends Error {}
+export class InvoiceValidationError extends BaseServiceError {}
 
 export function amountToThousandths(amount: string): bigint {
   if (!AMOUNT_PATTERN.test(amount)) {
