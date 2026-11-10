@@ -6,15 +6,19 @@ export type TravelDeskBookingEventAsIndex = BookingEventSnapshot
 
 export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
   perform(): TravelDeskBookingEventAsIndex {
+    const databaseTimestamp = this.record.databaseTimestamp.toISOString()
+    const hostEventTimestamp = this.record.hostEventTimestamp?.toISOString() ?? null
+    const passengerNameRecordCreatedAt = this.record.passengerNameRecordCreatedAt?.toISOString() ?? null
+
     return {
       travelOrderIdentifier: this.record.externalTravelportIdentifier,
       bookingFileVersionNumber: this.record.bookingFileVersionNumber,
       eventType: this.record.eventType,
       recordLocator: this.record.recordLocator,
       reservationSystemDescription: this.record.reservationSystemDescription,
-      databaseTimestamp: this.record.databaseTimestamp.toISOString(),
-      hostEventTimestamp: this.record.hostEventTimestamp?.toISOString() ?? null,
-      passengerNameRecordCreatedAt: this.record.passengerNameRecordCreatedAt?.toISOString() ?? null,
+      databaseTimestamp,
+      hostEventTimestamp,
+      passengerNameRecordCreatedAt,
       owningAgencyName: this.record.owningAgencyName,
       transactionAgencyName: this.record.transactionAgencyName,
       transactionAgent: this.record.transactionAgent,
