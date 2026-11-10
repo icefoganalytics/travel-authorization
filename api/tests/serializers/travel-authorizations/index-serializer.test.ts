@@ -14,8 +14,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const travelAuthorization = await travelAuthorizationFactory.create({
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
-        await travelSegmentFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
+        await travelSegmentFactory.associations({ travelAuthorization }).create({
           departureOn: faker.date.past(),
         })
         await travelAuthorization.reload({
@@ -47,8 +46,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const travelAuthorization = await travelAuthorizationFactory.create({
           status: TravelAuthorization.Statuses.APPROVED,
         })
-        await travelSegmentFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
+        await travelSegmentFactory.associations({ travelAuthorization }).create({
           departureOn: faker.date.past(),
           modeOfTransport: TravelSegment.TravelMethods.POOL_VEHICLE,
         })
