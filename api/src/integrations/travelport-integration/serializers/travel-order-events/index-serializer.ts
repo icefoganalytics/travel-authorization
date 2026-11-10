@@ -16,49 +16,78 @@ function trimSourceValue(value: string | null): string | null {
 
 export class IndexSerializer extends BaseSerializer<TravelOrderEvent> {
   perform() {
+    const eventType = trimSourceValue(this.record.eventType)
+    const recordLocator = trimSourceValue(this.record.recordLocator)
+    const reservationSystemDescription = trimSourceValue(this.record.crsDescription)
+    const owningAgencyName = trimSourceValue(this.record.owningAgencyName)
+    const transactionAgencyName = trimSourceValue(this.record.transactionAgencyName)
+    const transactionAgent = trimSourceValue(this.record.transactionAgent)
+    const creatingAgencyInternationalAirTransportAssociationNumber = trimSourceValue(
+      this.record.creatingAgencyIata
+    )
+    const passengers = this.serializePassengers(this.record.passengers)
+    const airReservationSegments = this.serializeAirReservationSegments(
+      this.record.airReservationSegments
+    )
+    const serviceFeeTransaction = this.serializeServiceFeeTransaction(this.record.serviceFeeTransaction)
+
     return {
       travelOrderIdentifier: this.record.travelOrderIdentifier,
       bookingFileVersionNumber: this.record.bookingFileVersionNumber,
-      eventType: trimSourceValue(this.record.eventType),
-      recordLocator: trimSourceValue(this.record.recordLocator),
-      reservationSystemDescription: trimSourceValue(this.record.crsDescription),
+      eventType,
+      recordLocator,
+      reservationSystemDescription,
       databaseTimestamp: this.record.databaseTimestamp,
       hostEventTimestamp: this.record.hostEventTimestamp,
       passengerNameRecordCreatedAt: this.record.pnrCreationDate,
-      owningAgencyName: trimSourceValue(this.record.owningAgencyName),
-      transactionAgencyName: trimSourceValue(this.record.transactionAgencyName),
-      transactionAgent: trimSourceValue(this.record.transactionAgent),
-      creatingAgencyInternationalAirTransportAssociationNumber: trimSourceValue(
-        this.record.creatingAgencyIata
-      ),
-      passengers: this.serializePassengers(this.record.passengers),
-      airReservationSegments: this.serializeAirReservationSegments(this.record.airReservationSegments),
-      serviceFeeTransaction: this.serializeServiceFeeTransaction(this.record.serviceFeeTransaction),
+      owningAgencyName,
+      transactionAgencyName,
+      transactionAgent,
+      creatingAgencyInternationalAirTransportAssociationNumber,
+      passengers,
+      airReservationSegments,
+      serviceFeeTransaction,
     }
   }
 
   private serializePassengers(passengers: Passenger[] | undefined) {
-    return (passengers ?? []).map((passenger) => ({
-      lastNameElement: passenger.lastNameElement,
-      passengerElement: passenger.passengerElement,
-      firstName: trimSourceValue(passenger.firstName),
-      lastName: trimSourceValue(passenger.lastName),
-    }))
+    return (passengers ?? []).map((passenger) => {
+      const firstName = trimSourceValue(passenger.firstName)
+      const lastName = trimSourceValue(passenger.lastName)
+
+      return {
+        lastNameElement: passenger.lastNameElement,
+        passengerElement: passenger.passengerElement,
+        firstName,
+        lastName,
+      }
+    })
   }
 
   private serializeAirReservationSegments(airReservationSegments: AirReservationSegment[] | undefined) {
-    return (airReservationSegments ?? []).map((segment) => ({
-      airSegmentNumber: segment.airSegmentNumber,
-      segmentStatus: trimSourceValue(segment.segmentStatus),
-      carrierCode: trimSourceValue(segment.carrierCode),
-      boardPoint: trimSourceValue(segment.boardPoint),
-      offPoint: trimSourceValue(segment.offPoint),
-      flightNumber: trimSourceValue(segment.flightNumber),
-      departureDate: trimSourceValue(segment.departureDate),
-      departureTime: trimSourceValue(segment.departureTime),
-      arrivalTime: trimSourceValue(segment.arrivalTime),
-      changeOfDay: segment.changeOfDay,
-    }))
+    return (airReservationSegments ?? []).map((segment) => {
+      const segmentStatus = trimSourceValue(segment.segmentStatus)
+      const carrierCode = trimSourceValue(segment.carrierCode)
+      const boardPoint = trimSourceValue(segment.boardPoint)
+      const offPoint = trimSourceValue(segment.offPoint)
+      const flightNumber = trimSourceValue(segment.flightNumber)
+      const departureDate = trimSourceValue(segment.departureDate)
+      const departureTime = trimSourceValue(segment.departureTime)
+      const arrivalTime = trimSourceValue(segment.arrivalTime)
+
+      return {
+        airSegmentNumber: segment.airSegmentNumber,
+        segmentStatus,
+        carrierCode,
+        boardPoint,
+        offPoint,
+        flightNumber,
+        departureDate,
+        departureTime,
+        arrivalTime,
+        changeOfDay: segment.changeOfDay,
+      }
+    })
   }
 
   private serializeServiceFeeTransaction(
@@ -66,16 +95,26 @@ export class IndexSerializer extends BaseSerializer<TravelOrderEvent> {
   ) {
     if (isNil(serviceFeeTransaction)) return null
 
+    const activeVoidStatus = trimSourceValue(serviceFeeTransaction.activeVoidStatus)
+    const serviceFeeDocumentNumber = trimSourceValue(serviceFeeTransaction.serviceFeeDocumentNumber)
+    const issueDate = trimSourceValue(serviceFeeTransaction.issueDate)
+    const currencyCode = trimSourceValue(serviceFeeTransaction.currencyCode)
+    const nameOnServiceFee = trimSourceValue(serviceFeeTransaction.nameOnServiceFee)
+    const relatedTicketDocumentNumber = trimSourceValue(
+      serviceFeeTransaction.relatedTicketDocumentNumber
+    )
+    const relatedInvoiceNumber = trimSourceValue(serviceFeeTransaction.relatedInvoiceNumber)
+
     return {
-      activeVoidStatus: trimSourceValue(serviceFeeTransaction.activeVoidStatus),
-      serviceFeeDocumentNumber: trimSourceValue(serviceFeeTransaction.serviceFeeDocumentNumber),
-      issueDate: trimSourceValue(serviceFeeTransaction.issueDate),
-      currencyCode: trimSourceValue(serviceFeeTransaction.currencyCode),
+      activeVoidStatus,
+      serviceFeeDocumentNumber,
+      issueDate,
+      currencyCode,
       serviceFeeAmount: serviceFeeTransaction.serviceFeeAmount,
       commissionAmount: serviceFeeTransaction.commissionAmount,
-      nameOnServiceFee: trimSourceValue(serviceFeeTransaction.nameOnServiceFee),
-      relatedTicketDocumentNumber: trimSourceValue(serviceFeeTransaction.relatedTicketDocumentNumber),
-      relatedInvoiceNumber: trimSourceValue(serviceFeeTransaction.relatedInvoiceNumber),
+      nameOnServiceFee,
+      relatedTicketDocumentNumber,
+      relatedInvoiceNumber,
     }
   }
 }
