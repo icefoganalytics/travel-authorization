@@ -99,6 +99,8 @@ Use the [Factory Shark 2.2.2 authoring templates](https://github.com/klondikemar
 
 Keep application factories under `api/tests/factories/`, import models from `@/models`, and expose factories through `@/factories`. Preserve named and default factory exports. Follow the [user factory](factories/user-factory.ts) and [travel authorization factory](factories/travel-authorization-factory.ts) for local conventions; the [expense factory](factories/expense-factory.ts) owns the domain-specific `estimate` builder and description defaults.
 
+Prefer `.associations(...)` for supplied model relationships when supported by the installed library, rather than assigning associations after fixture creation. Keep explicit foreign-key inputs when the scenario tests foreign-key behavior.
+
 TravCom integration factories retain Fishery; its keyless city model cannot use Factory Shark's documented `id`-primary-key contract. Web plain-object fixtures also retain Fishery and must not import API models.
 
 ## Test Lifecycle Notes
