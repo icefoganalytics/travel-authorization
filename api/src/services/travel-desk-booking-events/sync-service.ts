@@ -6,7 +6,7 @@ import { IndexSerializer } from "@/integrations/travelport-integration/serialize
 import db, { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { normalizeRecordLocator } from "@/services/travel-desk-booking-events/normalize-record-locator"
+import { normalizeRecordLocator } from "@/integrations/travelport-integration/utils/normalize-record-locator"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
 export class SyncService extends BaseService {
