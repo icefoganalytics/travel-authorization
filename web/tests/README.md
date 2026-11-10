@@ -102,10 +102,11 @@ keeping TravelAuth's existing Fishery factories and shared router/Vuetify setup.
 Use Fishery factories under `web/tests/factories/` to build complete frontend API response objects.
 Type each factory with the corresponding frontend API type rather than a backend database model.
 Use `build` or `buildList` for the shared shape and keep scenario-specific values in the test setup.
-Use named builder traits for recurring domain states, such as
-`travelAuthorizationAsShowFactory.submitted().build({ id: 5 })`. Keep related status flags together
-in the trait and leave ordinary builds unchanged. Frontend traits configure plain response objects
-with `params`; database relationship traits belong to the API's Factory Shark factories.
+Keep response-shape traits on the owning entity factory, for example
+`travelAuthorizationFactory.asShow().build({ id: 5 })`, rather than exporting a separate response
+factory. The trait composes the base factory with response fields; ordinary builds remain entity-only.
+Keep scenario-specific status and matching flags explicit in the test. Frontend factories use Fishery;
+database relationship traits belong to the API's Factory Shark factories.
 
 ## Current Support Files
 
