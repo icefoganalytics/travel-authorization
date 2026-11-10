@@ -66,7 +66,7 @@ const expenseOptions = computed(() => ({
     travelAuthorizationId: travelAuthorizationId.value,
     type: ExpenseTypes.EXPENSE,
   },
-  perPage: 1,
+  perPage: 1, // Only summaries are needed; totals include all matching expenses.
 }))
 const {
   summaries,
