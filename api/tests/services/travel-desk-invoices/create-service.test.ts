@@ -88,7 +88,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when cached booking and fee rows change, it retains the original invoice snapshot and staff pricing", async () => {
         // Arrange
-        vi.spyOn(TravelOrderEvent, "findAllByRecordLocator").mockRejectedValue(
+        vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(
           new Error("Source unavailable.")
         )
         const travelRequest = await travelDeskTravelRequestFactory.create()
