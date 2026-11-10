@@ -13,11 +13,9 @@ import {
   PrimaryKey,
 } from "@sequelize/core/decorators-legacy"
 
-import type {
-  BookingPassenger,
-  BookingSegment,
-  BookingServiceFee,
-} from "@/integrations/travelport-integration/models/booking-event-snapshot"
+import type { BookingPassenger } from "@/integrations/travelport-integration/models/booking-passenger"
+import type { BookingSegment } from "@/integrations/travelport-integration/models/booking-segment"
+import type { BookingServiceFee } from "@/integrations/travelport-integration/models/booking-service-fee"
 
 export class TravelDeskBookingEvent extends Model<
   InferAttributes<TravelDeskBookingEvent>,
