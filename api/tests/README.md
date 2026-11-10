@@ -101,7 +101,7 @@ Keep application factories under `api/tests/factories/`, import models from `@/m
 
 Prefer `.associations(...)` for supplied model relationships when supported by the installed library, rather than assigning associations after fixture creation. Keep explicit foreign-key inputs when the scenario tests foreign-key behavior.
 
-TravCom integration factories retain Fishery; its keyless city model cannot use Factory Shark's documented `id`-primary-key contract. Web plain-object fixtures also retain Fishery and must not import API models.
+TravCom invoice, detail, and segment fixtures also use Factory Shark. Its keyless city model uses `createCity` from the integration's fixture bundle; create cities explicitly and pass their `cityCode` values to segments. Do not invent primary keys or alter the external schema to fit a fixture library. Web plain-object fixtures retain Fishery and must not import API models.
 
 ## Test Lifecycle Notes
 
