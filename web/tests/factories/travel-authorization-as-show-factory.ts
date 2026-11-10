@@ -5,7 +5,17 @@ import {
   TravelAuthorizationStatuses,
 } from "@/api/travel-authorizations-api"
 
-export const travelAuthorizationAsShowFactory = Factory.define<TravelAuthorizationAsShow>(
+class TravelAuthorizationAsShowFactory extends Factory<TravelAuthorizationAsShow> {
+  submitted() {
+    return this.params({
+      status: TravelAuthorizationStatuses.SUBMITTED,
+      isDraft: false,
+      isSubmitted: true,
+    })
+  }
+}
+
+export const travelAuthorizationAsShowFactory = TravelAuthorizationAsShowFactory.define(
   ({ sequence }) => {
     const timestamp = "2026-01-01T00:00:00.000Z"
 
