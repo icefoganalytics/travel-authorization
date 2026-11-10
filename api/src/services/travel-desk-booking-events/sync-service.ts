@@ -6,7 +6,7 @@ import { IndexSerializer } from "@/integrations/travelport-integration/serialize
 import db, { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { normalizeRecordLocator } from "@/integrations/travelport-integration/utils/normalize-record-locator"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
 export class SyncService extends BaseService {
@@ -15,7 +15,9 @@ export class SyncService extends BaseService {
   }
 
   async perform(): Promise<TravelDeskBookingEvent[]> {
-    const recordLocator = normalizeRecordLocator(this.recordLocator)
+    const recordLocator = this.recordLocator.trim().toUpperCase()
+    this.validateRecordLocator(recordLocator)
+
     const sourceEvents = await this.fetchSourceEvents(recordLocator)
     const serializedSourceEvents = IndexSerializer.perform(sourceEvents)
 
@@ -37,6 +39,12 @@ export class SyncService extends BaseService {
 
       return bookingEvents
     })
+  }
+
+  private validateRecordLocator(recordLocator: string): void {
+    if (!/^[A-Z0-9]{6}$/.test(recordLocator)) {
+      throw new InvoiceValidationError("Record locator must contain six letters or numbers.")
+    }
   }
 
   private async fetchSourceEvents(recordLocator: string): Promise<TravelOrderEvent[]> {
