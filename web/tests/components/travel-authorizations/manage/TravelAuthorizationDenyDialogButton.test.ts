@@ -2,19 +2,25 @@ import { flushPromises, mount } from "@vue/test-utils"
 import { VForm, VTextarea } from "vuetify/components"
 
 import ApiError from "@/api/api-error"
+import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 import useSnack from "@/use/use-snack"
 
-import TravelAuthorizationDenyDialogButton from "@/components/travel-authorizations/manage/TravelAuthorizationDenyDialogButton.vue"
-
-import { travelAuthorizationAsShowFactory } from "@/tests/factories"
+import { travelAuthorizationFactory } from "@/tests/factories"
 import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
+
+import TravelAuthorizationDenyDialogButton from "@/components/travel-authorizations/manage/TravelAuthorizationDenyDialogButton.vue"
 
 describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDenyDialogButton.vue", () => {
   describe("TravelAuthorizationDenyDialogButton", () => {
     test("when the API rejects denial, shows its reason", async () => {
       // Arrange
       const error = new ApiError("This request is no longer awaiting approval", 422)
-      const travelAuthorization = travelAuthorizationAsShowFactory.submitted().build({ id: 5 })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        status: TravelAuthorizationStatuses.SUBMITTED,
+        isDraft: false,
+        isSubmitted: true,
+      })
       const httpClient = mockHttpClient()
       httpClient.get.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
       httpClient.post.mockRejectedValue(error)
@@ -57,7 +63,12 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
     test("when the API rejects denial, handles the error without propagating it", async () => {
       // Arrange
       const error = new ApiError("This request is no longer awaiting approval", 422)
-      const travelAuthorization = travelAuthorizationAsShowFactory.submitted().build({ id: 5 })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        status: TravelAuthorizationStatuses.SUBMITTED,
+        isDraft: false,
+        isSubmitted: true,
+      })
       const httpClient = mockHttpClient()
       httpClient.get.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
       httpClient.post.mockRejectedValue(error)
@@ -100,7 +111,12 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
     test("when denial fails unexpectedly, propagates the original error to Vue", async () => {
       // Arrange
       const error = new TypeError("Unexpected approval state")
-      const travelAuthorization = travelAuthorizationAsShowFactory.submitted().build({ id: 5 })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        status: TravelAuthorizationStatuses.SUBMITTED,
+        isDraft: false,
+        isSubmitted: true,
+      })
       const httpClient = mockHttpClient()
       httpClient.get.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
       httpClient.post.mockRejectedValue(error)
@@ -144,7 +160,12 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
     test("when denial fails unexpectedly, does not display an API error notification", async () => {
       // Arrange
       const error = new TypeError("Unexpected approval state")
-      const travelAuthorization = travelAuthorizationAsShowFactory.submitted().build({ id: 5 })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        status: TravelAuthorizationStatuses.SUBMITTED,
+        isDraft: false,
+        isSubmitted: true,
+      })
       const httpClient = mockHttpClient()
       httpClient.get.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
       httpClient.post.mockRejectedValue(error)
@@ -197,7 +218,12 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
       "when denial encounters an $category, keeps the entered reason available for correction",
       async ({ error }) => {
         // Arrange
-        const travelAuthorization = travelAuthorizationAsShowFactory.submitted().build({ id: 5 })
+        const travelAuthorization = travelAuthorizationFactory.asShow().build({
+          id: 5,
+          status: TravelAuthorizationStatuses.SUBMITTED,
+          isDraft: false,
+          isSubmitted: true,
+        })
         const httpClient = mockHttpClient()
         httpClient.get.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
         httpClient.post.mockRejectedValue(error)
@@ -252,7 +278,12 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
       "when denial encounters an $category, does not report a successful denial",
       async ({ error }) => {
         // Arrange
-        const travelAuthorization = travelAuthorizationAsShowFactory.submitted().build({ id: 5 })
+        const travelAuthorization = travelAuthorizationFactory.asShow().build({
+          id: 5,
+          status: TravelAuthorizationStatuses.SUBMITTED,
+          isDraft: false,
+          isSubmitted: true,
+        })
         const httpClient = mockHttpClient()
         httpClient.get.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
         httpClient.post.mockRejectedValue(error)
