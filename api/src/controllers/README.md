@@ -22,6 +22,7 @@ handlers therefore use `Controller.create`, while controller classes implement `
 - Declare derived list attributes with explicit named model scopes passed to
   `buildFilterScopes([...])`; keep requested ordering in `buildOrder()` rather than using it to
   construct scopes dynamically.
+- Keep order keys as model attributes and association paths. `buildOrder()` preserves structured tuples so Sequelize maps snake-case columns and quotes identifiers and supported directions. Do not wrap incoming attribute names in `col()` or translate them to database columns in the UI. Explicit server-owned `col()` expressions remain appropriate for computed select aliases.
 
 ## Response Pattern
 
