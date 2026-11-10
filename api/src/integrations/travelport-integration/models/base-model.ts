@@ -9,14 +9,15 @@ export class BaseModel<T extends object, C extends object = T> extends Model<T, 
   ): Promise<void> {
     const { batchSize = 1000, ...findOptions } = options
     let offset = 0
+    let hasMoreRecords = true
 
-    while (true) {
+    while (hasMoreRecords) {
       const records = await this.findAll({ ...findOptions, limit: batchSize, offset })
       for (const record of records) {
         await processRecord(record)
       }
 
-      if (records.length < batchSize) return
+      hasMoreRecords = records.length === batchSize
       offset += records.length
     }
   }

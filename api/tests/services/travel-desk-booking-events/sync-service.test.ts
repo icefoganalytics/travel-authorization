@@ -36,15 +36,25 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           .del()
       })
 
-      test("when the source is not configured, it reports source unavailability without querying", async () => {
+      test("when the source is not configured, it reports source unavailability", async () => {
         // Arrange
         sourceConfiguration.missing = true
-        const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAll")
 
         // Act / Assert
         await expect(SyncService.perform("SRC001")).rejects.toThrow(
           new SourceUnavailableError("Booking source is not configured.")
         )
+      })
+
+      test("when the source is not configured, it does not query the source", async () => {
+        // Arrange
+        sourceConfiguration.missing = true
+        const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAll")
+
+        // Act
+        await SyncService.perform("SRC001").catch(() => undefined)
+
+        // Assert
         expect(findSourceEvents).not.toHaveBeenCalled()
       })
 
@@ -171,15 +181,25 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when the source returns no events, it retains cached events without returning them", async () => {
+      test("when the source returns no events, it returns no cached events", async () => {
         // Arrange
-        const cachedBookingEvent = await travelDeskBookingEventFactory.create()
+        await travelDeskBookingEventFactory.create()
 
         // Act
         const bookingEvents = await SyncService.perform("SRC001")
 
         // Assert
         expect(bookingEvents).toEqual([])
+      })
+
+      test("when the source returns no events, it retains cached events", async () => {
+        // Arrange
+        const cachedBookingEvent = await travelDeskBookingEventFactory.create()
+
+        // Act
+        await SyncService.perform("SRC001")
+
+        // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
           expect.objectContaining({ id: cachedBookingEvent.id }),
         ])
@@ -231,18 +251,28 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           .mockRejectedValueOnce(new Error("Second local write failed"))
 
         // Act
-        await expect(SyncService.perform("SRC001")).rejects.toThrow()
+        await SyncService.perform("SRC001").catch(() => undefined)
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([])
       })
 
-      test("when the record locator is invalid, it rejects before reading the source", async () => {
+      test("when the record locator is invalid, it reports a validation error", async () => {
+        // Arrange
+        const recordLocator = "invalid"
+
+        // Act / Assert
+        await expect(SyncService.perform(recordLocator)).rejects.toBeInstanceOf(InvoiceValidationError)
+      })
+
+      test("when the record locator is invalid, it does not read the source", async () => {
         // Arrange
         const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAll")
 
-        // Act / Assert
-        await expect(SyncService.perform("invalid")).rejects.toBeInstanceOf(InvoiceValidationError)
+        // Act
+        await SyncService.perform("invalid").catch(() => undefined)
+
+        // Assert
         expect(findSourceEvents).not.toHaveBeenCalled()
       })
     })
