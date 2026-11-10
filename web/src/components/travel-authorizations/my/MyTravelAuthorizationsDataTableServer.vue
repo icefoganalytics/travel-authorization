@@ -215,8 +215,7 @@ function formatPhase(value: string) {
   return t(`global.phase.${value}`, "Unknown")
 }
 
-const deleteDialog =
-  useTemplateRef<InstanceType<typeof TravelAuthorizationDeleteDialog>>("deleteDialog")
+const deleteDialog = useTemplateRef("deleteDialog")
 
 function showDeleteDialog(item: TravelAuthorizationAsIndex) {
   deleteDialog.value?.show(item.id)

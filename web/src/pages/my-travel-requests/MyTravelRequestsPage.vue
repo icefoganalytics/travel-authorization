@@ -24,9 +24,7 @@ import RefreshTableButton from "@/components/common/table/RefreshTableButton.vue
 import MyTravelAuthorizationsDataTableServer from "@/components/travel-authorizations/my/MyTravelAuthorizationsDataTableServer.vue"
 import TravelAuthorizationCreateButton from "@/components/travel-authorizations/my/TravelAuthorizationCreateButton.vue"
 
-const myTravelAuthorizationsTable = useTemplateRef<
-  InstanceType<typeof MyTravelAuthorizationsDataTableServer>
->("myTravelAuthorizationsTable")
+const myTravelAuthorizationsTable = useTemplateRef("myTravelAuthorizationsTable")
 
 async function refreshTable() {
   await myTravelAuthorizationsTable.value?.refresh()
