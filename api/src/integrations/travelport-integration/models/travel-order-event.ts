@@ -6,7 +6,7 @@ import {
 } from "@sequelize/core"
 import { Attribute, HasMany, HasOne, Table } from "@sequelize/core/decorators-legacy"
 
-import BaseModel from "@/integrations/travelport-integration/models/base-model"
+import BaseModel from "@/models/base-model"
 import AirReservationSegment from "@/integrations/travelport-integration/models/air-reservation-segment"
 import Passenger from "@/integrations/travelport-integration/models/passenger"
 import ServiceFeeTransaction from "@/integrations/travelport-integration/models/service-fee-transaction"

@@ -257,6 +257,30 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         expect(await TravelDeskBookingEvent.findAll()).toEqual([])
       })
 
+      test("when a later event cannot persist, it propagates the write failure", async () => {
+        // Arrange
+        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue([
+          TravelOrderEvent.build({
+            travelOrderIdentifier: 910001,
+            recordLocator: "SRC001",
+            databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
+          }),
+          TravelOrderEvent.build({
+            travelOrderIdentifier: 910002,
+            recordLocator: "SRC001",
+            databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
+          }),
+        ])
+        const upsert = TravelDeskBookingEvent.upsert.bind(TravelDeskBookingEvent)
+        const persistenceError = new Error("Second local write failed")
+        vi.spyOn(TravelDeskBookingEvent, "upsert")
+          .mockImplementationOnce((attributes, options) => upsert(attributes, options))
+          .mockRejectedValueOnce(persistenceError)
+
+        // Act / Assert
+        await expect(SyncService.perform("SRC001")).rejects.toBe(persistenceError)
+      })
+
       test("when the record locator is invalid, it reports a validation error", async () => {
         // Arrange
         const recordLocator = "invalid"
