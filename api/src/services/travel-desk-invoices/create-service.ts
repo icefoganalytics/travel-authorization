@@ -7,7 +7,7 @@ import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
 import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
-import { normalizeRecordLocator } from "@/services/travel-desk-booking-events/sync-service"
+import { normalizeRecordLocator } from "@/services/travel-desk-booking-events/normalize-record-locator"
 import BaseService from "@/services/base-service"
 import {
   calculateInvoiceTotal,
