@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { Attributes, Col, col, Model, Order, WhereOptions } from "@sequelize/core"
+import { Attributes, Col, Model, Order, WhereOptions } from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
 import { AuthorizedRequest } from "@/middleware/authorization-middleware"
@@ -219,8 +219,7 @@ export class BaseController<TModel extends Model = never> {
       return [...nonOverridableOrder, ...overridableOrder]
     }
 
-    const orderQueryAsColumns = this.columnifyOrderings(orderQuery)
-    return [...nonOverridableOrder, ...orderQueryAsColumns, ...overridableOrder]
+    return [...nonOverridableOrder, ...orderQuery, ...overridableOrder]
   }
 
   private determineLimit(perPage: number) {
@@ -229,16 +228,6 @@ export class BaseController<TModel extends Model = never> {
     }
 
     return Math.max(1, Math.min(perPage, MAX_PER_PAGE))
-  }
-
-  private columnifyOrderings(orderings: ModelOrder[]) {
-    return orderings.map<[Col, string]>(([column, order]) => {
-      if (typeof column === "string") {
-        return [col(column), order]
-      }
-
-      return [column, order]
-    })
   }
 }
 

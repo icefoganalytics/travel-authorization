@@ -91,13 +91,7 @@ const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}
     order: "asc",
   },
 ])
-const sortByColumns = computed(() =>
-  sortBy.value?.map(({ key, order }) => ({
-    key: key === "expenseType" ? "expense_type" : key,
-    order,
-  }))
-)
-const order = useVuetifySortByToSequelizeSafeOrder(sortByColumns)
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const estimatesQuery = computed(() => ({
   where: {
