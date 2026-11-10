@@ -30,11 +30,4 @@ When creating new documentation:
 
 Templates are useful when a task follows a repeated local pattern and benefits from a proven shape.
 
-Example:
-
-```text
-Follow the template in agents/templates/sequelize-factory-template.md
-to add a new factory under api/tests/factories/.
-```
-
 See parent [agents/README.md](../README.md) for the broader agents directory overview.

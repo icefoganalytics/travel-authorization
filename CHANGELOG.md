@@ -30,7 +30,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - API and web lint run through non-fixing Docker commands usable by OMP Verifier, using the normal shared development gateway. API lint covers historical migrations without changing database operations; web lint no longer builds unused TypeScript programs. The API no longer installs unused OpenID Connect middleware.
 - PR testing guidance separates reviewer-facing QA scenarios from local developer setup, following WRAP and the shared workflow.
 - Development, test, and production containers use pinned Node 24 LTS, with aligned Sequelize dependencies for Factory Shark qualification and a matched Puppeteer/Chromium release family for PDF reports.
-- Application test factories use Factory Shark to create Sequelize fixtures, lists, and their parent relationships without local Fishery persistence helpers.
+- Application test factories use Factory Shark to create Sequelize fixtures, lists, request attributes, and their parent relationships without local Fishery persistence helpers.
 
 ### Fixed
 
