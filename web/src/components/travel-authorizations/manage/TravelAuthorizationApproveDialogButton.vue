@@ -25,7 +25,10 @@
         <v-card-text :loading="isLoading">
           <p>
             Approve travel of {{ requestorDisplayName }} to
-            <LocationChip :location-id="travelLocationId ?? undefined" />
+            <LocationChip
+              v-if="!isNil(travelLocationId)"
+              :location-id="travelLocationId"
+            />
             <template v-if="travelAuthorization?.eventName">
               for {{ travelAuthorization.eventName }}
             </template>
@@ -58,6 +61,7 @@
 <script setup lang="ts">
 import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
+import { isNil } from "lodash"
 
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
