@@ -95,7 +95,7 @@ const admin = await userFactory.create({ roles: [User.Roles.ADMIN] })
 const nonAdmin = await userFactory.create({ roles: [User.Roles.USER] })
 ```
 
-Use the [Factory Shark 2.2.2 authoring templates](https://github.com/klondikemarlen/factory-shark/blob/v2.2.2/docs/templates/factory-authoring.md) for factory definitions, associations, custom builders, hooks, `createList`, and `attributesFor`. The upstream guide owns library behavior; use the guide matching the installed package version.
+Use the [Factory Shark 2.4.0 authoring templates](https://github.com/klondikemarlen/factory-shark/blob/v2.4.0/docs/templates/factory-authoring.md) for factory definitions, associations, custom builders, hooks, `include`, `createList`, and `attributesFor`. The upstream guide owns library behavior; use the guide matching the installed package version.
 
 Keep application factories under `api/tests/factories/`, import models from `@/models`, and expose factories through `@/factories`. Preserve named and default factory exports. Follow the [user factory](factories/user-factory.ts) and [travel authorization factory](factories/travel-authorization-factory.ts) for local conventions; the [expense factory](factories/expense-factory.ts) owns the domain-specific `estimate` builder and description defaults.
 
