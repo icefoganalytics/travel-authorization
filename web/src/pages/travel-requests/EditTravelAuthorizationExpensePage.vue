@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs } from "vue"
+import { computed } from "vue"
 
 import { useTravelAuthorization } from "@/use/use-travel-authorization"
 
@@ -16,7 +16,6 @@ const props = defineProps<{
   travelAuthorizationId: string
 }>()
 
-const { travelAuthorizationId } = toRefs(props)
-const travelAuthorizationIdAsNumber = computed(() => parseInt(travelAuthorizationId.value))
+const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationIdAsNumber)
 </script>
