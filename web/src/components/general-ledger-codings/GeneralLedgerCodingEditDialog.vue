@@ -90,6 +90,7 @@
 import { nextTick, ref, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
+import ApiError from "@/api/api-error"
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 import { required, isGeneralLedgerCode } from "@/utils/validators"
 import useGeneralLedgerCoding from "@/use/use-general-ledger-coding"
@@ -130,6 +131,8 @@ async function updateAndClose() {
     await nextTick()
     emit("saved")
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to update general ledger coding: ${error}`, { error })
     snack.error(`Failed to update general ledger coding: ${error}`)
   } finally {

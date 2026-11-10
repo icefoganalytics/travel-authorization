@@ -64,6 +64,8 @@
 import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 
+import ApiError from "@/api/api-error"
+
 import { required } from "@/utils/validators"
 
 import useSnack from "@/use/use-snack"
@@ -111,8 +113,10 @@ async function denyAndClose() {
       emit("denied")
     })
   } catch (error) {
-    console.error(error)
-    snack.error(error instanceof Error ? error.message : String(error))
+    if (!(error instanceof ApiError)) throw error
+
+    console.error(`Failed to deny travel authorization: ${error}`, { error })
+    snack.error(`Failed to deny travel authorization: ${error}`)
   }
 }
 

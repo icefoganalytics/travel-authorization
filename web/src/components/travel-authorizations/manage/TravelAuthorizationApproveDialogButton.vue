@@ -63,6 +63,8 @@ import { nextTick, ref, toRefs, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { isNil } from "lodash"
 
+import ApiError from "@/api/api-error"
+
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
@@ -110,8 +112,10 @@ async function approveAndClose() {
     emit("approved")
     snack("Travel authorization approved!", { color: "success" })
   } catch (error) {
-    console.error(error)
-    snack.error(error instanceof Error ? error.message : String(error))
+    if (!(error instanceof ApiError)) throw error
+
+    console.error(`Failed to approve travel authorization: ${error}`, { error })
+    snack.error(`Failed to approve travel authorization: ${error}`)
   }
 }
 

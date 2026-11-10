@@ -15,6 +15,7 @@ import { isNil } from "lodash"
 
 import useSnack from "@/use/use-snack"
 
+import ApiError from "@/api/api-error"
 import {
   TravelSegmentAccommodationTypes,
   TravelSegmentTravelMethods,
@@ -71,7 +72,9 @@ async function createAndGoToEditPage() {
       },
     })
   } catch (error) {
-    console.error(error)
+    if (!(error instanceof ApiError)) throw error
+
+    console.error(`Failed to create travel request: ${error}`, { error })
     snack.error(`Failed to create travel request: ${error}`)
   } finally {
     isLoading.value = false

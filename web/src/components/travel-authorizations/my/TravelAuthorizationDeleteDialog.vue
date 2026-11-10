@@ -57,6 +57,7 @@ import { computed, nextTick, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { isNil } from "lodash"
 
+import ApiError from "@/api/api-error"
 import travelAuthorizations from "@/api/travel-authorizations-api"
 import useSnack from "@/use/use-snack"
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
@@ -95,6 +96,8 @@ async function deleteAndHide() {
     await nextTick()
     emit("deleted")
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to delete travel authorization: ${error}`, { error })
     snack.error(`Failed to delete travel authorization: ${error}`)
   } finally {

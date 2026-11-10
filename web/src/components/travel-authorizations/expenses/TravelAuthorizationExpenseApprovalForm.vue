@@ -34,6 +34,7 @@ import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 
+import ApiError from "@/api/api-error"
 import travelAuthorizationsApi from "@/api/travel-authorizations-api"
 import useExpenses, { ExpenseExpenseTypes, ExpenseTypes } from "@/use/use-expenses"
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
@@ -130,6 +131,8 @@ async function requestApprovalForExpenseClaim() {
     snack.success("Expense claim submitted for approval.")
     return true
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to submit expense claim for travel authorization: ${error}`, { error })
     snack.error(`Failed to submit expense claim: ${error}`)
     return false

@@ -91,6 +91,7 @@
 import { nextTick, ref, useTemplateRef, watch } from "vue"
 import { isNil } from "lodash"
 
+import ApiError from "@/api/api-error"
 import expensesApi, { ExpenseExpenseTypes, ExpenseTypes, type Expense } from "@/api/expenses-api"
 import CurrencyTextField from "@/components/common/CurrencyTextField.vue"
 import StringDateInput from "@/components/common/StringDateInput.vue"
@@ -154,6 +155,8 @@ async function createAndClose() {
     await nextTick()
     emit("created")
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to create expense: ${error}`, { error })
     snack.error(`Failed to create expense: ${error}`)
   } finally {

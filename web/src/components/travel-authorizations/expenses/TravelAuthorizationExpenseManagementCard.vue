@@ -74,6 +74,7 @@ import { computed, nextTick, toRefs, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
+import ApiError from "@/api/api-error"
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 import { required } from "@/utils/validators"
 
@@ -142,6 +143,8 @@ async function reassign() {
       })
     }
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to reassign travel authorization: ${error}`, { error })
     snack.error(`Failed to reassign travel authorization: ${error}`)
   }
@@ -159,6 +162,8 @@ async function approveExpenseClaim() {
     snack.success("Expense claim approved!")
     emit("approved", props.travelAuthorizationId)
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to approve expense claim: ${error}`, { error })
     snack.error(`Failed to approve expense claim: ${error}`)
   }
@@ -176,6 +181,8 @@ async function denyExpenseClaim() {
     snack.success("Expense claim denied!")
     emit("denied", props.travelAuthorizationId)
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to deny expense claim: ${error}`, { error })
     snack.error(`Failed to deny expense claim: ${error}`)
   }

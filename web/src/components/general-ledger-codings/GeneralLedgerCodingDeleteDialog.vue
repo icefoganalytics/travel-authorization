@@ -53,6 +53,7 @@ import { isNil } from "lodash"
 
 import { formatCurrency } from "@/utils/formatters"
 
+import ApiError from "@/api/api-error"
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 
 import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
@@ -83,6 +84,8 @@ async function deleteAndHide() {
     await nextTick()
     emit("deleted")
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to delete general ledger coding: ${error}`, { error })
     snack.error(`Failed to delete general ledger coding: ${error}`)
   } finally {

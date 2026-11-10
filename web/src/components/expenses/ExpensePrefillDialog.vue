@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
 
+import ApiError from "@/api/api-error"
 import prefillApi from "@/api/travel-authorizations/expenses/prefill-api"
 
 import useSnack from "@/use/use-snack"
@@ -88,6 +89,8 @@ async function createAndClose() {
     emit("created")
     close()
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to prefill expenses: ${error}`, { error })
     snack.error(`Failed to prefill expenses: ${error}`)
   } finally {

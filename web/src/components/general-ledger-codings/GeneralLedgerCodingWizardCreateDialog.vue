@@ -99,6 +99,7 @@ import { isNil } from "lodash"
 import { required, isGeneralLedgerCode } from "@/utils/validators"
 import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
 
+import ApiError from "@/api/api-error"
 import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
 import useSnack from "@/use/use-snack"
 
@@ -143,6 +144,8 @@ async function createAndClose() {
     await nextTick()
     emit("created")
   } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
     console.error(`Failed to create general ledger coding: ${error}`, { error })
     snack.error(`Failed to create general ledger coding: ${error}`)
   } finally {
