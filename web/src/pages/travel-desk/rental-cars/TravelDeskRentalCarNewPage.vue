@@ -79,14 +79,6 @@
           </v-col>
         </v-row>
 
-        <v-alert
-          v-if="travelDeskRentalCarAttributes.matchFlightTimes && !isFlightScheduleAvailable"
-          :type="isFlightScheduleLoading ? 'info' : 'warning'"
-          class="my-4"
-        >
-          {{ flightScheduleMessage }}
-        </v-alert>
-
         <SectionHeader
           title="2. Location Details"
           icon="mdi-map-marker"
@@ -343,38 +335,18 @@ watch(
   }
 )
 
-const missingFlightScheduleFields = computed(() => {
-  const missingFields: string[] = []
-  if (!flightStartDate.value) missingFields.push("pick-up date")
-  if (!flightStartTime.value) missingFields.push("pick-up time")
-  if (!flightEndDate.value) missingFields.push("drop-off date")
-  if (!flightEndTime.value) missingFields.push("drop-off time")
-
-  return missingFields
-})
 const isFlightScheduleAvailable = computed(
   () =>
     !isFlightScheduleLoading.value &&
     !isFlightScheduleErrored.value &&
-    missingFlightScheduleFields.value.length === 0
+    Boolean(
+      flightStartDate.value && flightStartTime.value && flightEndDate.value && flightEndTime.value
+    )
 )
 const areScheduleFieldsDisabled = computed(
   () =>
     travelDeskRentalCarAttributes.value.matchFlightTimes === true && isFlightScheduleAvailable.value
 )
-const flightScheduleMessage = computed(() => {
-  const missingFields = missingFlightScheduleFields.value.join(", ")
-  const unavailableDetails = missingFields ? ` Unavailable: ${missingFields}.` : ""
-  if (isFlightScheduleLoading.value) {
-    return `Flight schedule is loading.${unavailableDetails} You can enter dates and times manually, or wait for matching to finish. Select No to keep manual entries.`
-  }
-
-  if (isFlightScheduleErrored.value) {
-    return `Flight schedule could not be loaded.${unavailableDetails} Enter dates and times manually, or select No and try Yes again after reloading the page.`
-  }
-
-  return `Flight matching is unavailable.${unavailableDetails} Enter the missing dates and times manually, or add the flight details and try again.`
-})
 
 watch(isFlightScheduleAvailable, (isAvailable) => {
   if (isAvailable && travelDeskRentalCarAttributes.value.matchFlightTimes === true) {

@@ -45,13 +45,6 @@
             </v-col>
           </v-row>
         </v-sheet>
-        <v-alert
-          v-if="flightScheduleFeedback"
-          :type="isFlightScheduleLoading ? 'info' : 'warning'"
-          class="mb-4"
-        >
-          {{ flightScheduleFeedback }}
-        </v-alert>
         <v-row>
           <v-col cols="6">
             <StringDateInput
@@ -319,20 +312,13 @@ const {
   isFlightScheduleErrored,
 } = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
 
-const unavailableFlightScheduleFields = computed(() => {
-  const fields: string[] = []
-  if (!flightStartDate.value) fields.push("pick-up date")
-  if (!flightStartTime.value) fields.push("pick-up time")
-  if (!flightEndDate.value) fields.push("drop-off date")
-  if (!flightEndTime.value) fields.push("drop-off time")
-
-  return fields
-})
 const isFlightScheduleAvailable = computed(() => {
   return (
     !isFlightScheduleLoading.value &&
     !isFlightScheduleErrored.value &&
-    unavailableFlightScheduleFields.value.length === 0
+    Boolean(
+      flightStartDate.value && flightStartTime.value && flightEndDate.value && flightEndTime.value
+    )
   )
 })
 const isMatchingAvailableFlightSchedule = computed(() => {
@@ -341,24 +327,6 @@ const isMatchingAvailableFlightSchedule = computed(() => {
     isFlightScheduleAvailable.value &&
     Boolean(pickUpDate.value && pickUpTime.value && dropOffDate.value && dropOffTime.value)
   )
-})
-const flightScheduleFeedback = computed(() => {
-  if (travelDeskRentalCar.value?.matchFlightTimes !== true) return ""
-
-  const unavailableFields = unavailableFlightScheduleFields.value.join(", ")
-  if (isFlightScheduleLoading.value) {
-    return `Flight schedule is loading. Waiting for: ${unavailableFields || "flight schedule confirmation"}. Enter dates and times manually, or wait for matching.`
-  }
-
-  if (isFlightScheduleErrored.value) {
-    return `Flight schedule could not be loaded. Unavailable: ${unavailableFields || "flight schedule"}. Enter dates and times manually, or select No and try Yes again after reloading.`
-  }
-
-  if (unavailableFields) {
-    return `Flight matching is unavailable for: ${unavailableFields}. Enter these fields manually, or add the missing flight details and try Yes again.`
-  }
-
-  return ""
 })
 
 const isFlightScheduleMatchRequested = ref(false)
