@@ -8,7 +8,7 @@ import {
   TravelDeskInvoiceItem,
 } from "@/models"
 
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import { type InvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items"
 
 export async function validateLinkedFlightSegments(

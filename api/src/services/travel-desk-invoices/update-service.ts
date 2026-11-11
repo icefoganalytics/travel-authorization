@@ -5,10 +5,8 @@ import { db } from "@/db/db-client"
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import {
-  calculateInvoiceTotal,
-  InvoiceValidationError,
-} from "@/services/travel-desk-invoices/amounts"
+import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import { type InvoiceHeaderAttributes } from "@/services/travel-desk-invoices/create-service"
 import {
   createInvoiceItems,
@@ -41,7 +39,7 @@ export class UpdateService extends BaseService {
 
     const snapshot = this.invoice.sourceSnapshot
     const serviceFeeEventIds = snapshot.serviceFeeEvents.map((event) => event.travelOrderIdentifier)
-    const grossAmount = calculateInvoiceTotal(items)
+    const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async () => {
       await validateInvoiceItems(items, snapshot, serviceFeeEventIds, currencyCode)
