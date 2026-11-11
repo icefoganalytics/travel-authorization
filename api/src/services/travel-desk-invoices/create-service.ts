@@ -74,7 +74,7 @@ export class CreateService extends BaseService {
     }
 
     const normalizedRecordLocator = recordLocator.trim().toUpperCase()
-    this.validateRecordLocator(normalizedRecordLocator)
+    this.assertRecordLocatorIsValid(normalizedRecordLocator)
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
@@ -122,7 +122,7 @@ export class CreateService extends BaseService {
     })
   }
 
-  private validateRecordLocator(recordLocator: string): void {
+  private assertRecordLocatorIsValid(recordLocator: string): void {
     if (!/^[A-Z0-9]{6}$/.test(recordLocator)) {
       throw new InvoiceValidationError("Record locator must contain six letters or numbers.")
     }
