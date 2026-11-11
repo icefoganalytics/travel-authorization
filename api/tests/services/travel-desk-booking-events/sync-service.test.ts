@@ -187,7 +187,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           }),
         ])
         const persistenceError = new Error("Local database write failed")
-        vi.spyOn(TravelDeskBookingEvent, "upsert").mockRejectedValue(persistenceError)
+        vi.spyOn(TravelDeskBookingEvent, "create").mockRejectedValue(persistenceError)
 
         // Act / Assert
         await expect(SyncService.perform("SRC001")).rejects.toBe(persistenceError)
@@ -207,9 +207,9 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
           }),
         ])
-        const upsert = TravelDeskBookingEvent.upsert.bind(TravelDeskBookingEvent)
-        vi.spyOn(TravelDeskBookingEvent, "upsert")
-          .mockImplementationOnce((attributes, options) => upsert(attributes, options))
+        const create = TravelDeskBookingEvent.create.bind(TravelDeskBookingEvent)
+        vi.spyOn(TravelDeskBookingEvent, "create")
+          .mockImplementationOnce((attributes, options) => create(attributes, options))
           .mockRejectedValueOnce(new Error("Second local write failed"))
 
         // Act
@@ -233,10 +233,10 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
           }),
         ])
-        const upsert = TravelDeskBookingEvent.upsert.bind(TravelDeskBookingEvent)
+        const create = TravelDeskBookingEvent.create.bind(TravelDeskBookingEvent)
         const persistenceError = new Error("Second local write failed")
-        vi.spyOn(TravelDeskBookingEvent, "upsert")
-          .mockImplementationOnce((attributes, options) => upsert(attributes, options))
+        vi.spyOn(TravelDeskBookingEvent, "create")
+          .mockImplementationOnce((attributes, options) => create(attributes, options))
           .mockRejectedValueOnce(persistenceError)
 
         // Act / Assert

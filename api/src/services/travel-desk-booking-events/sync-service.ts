@@ -28,10 +28,15 @@ export class SyncService extends BaseService {
           externalTravelportIdentifier: travelOrderIdentifier,
           recordLocator: sourceRecordLocator,
         }
-        const [bookingEvent] = await TravelDeskBookingEvent.upsert(attributes, {
+        let bookingEvent = await TravelDeskBookingEvent.findOne({
+          where: { externalTravelportIdentifier: travelOrderIdentifier },
           transaction,
-          returning: true,
         })
+        if (bookingEvent === null) {
+          bookingEvent = await TravelDeskBookingEvent.create(attributes, { transaction })
+        } else {
+          await bookingEvent.update(attributes, { transaction })
+        }
         bookingEvents.push(bookingEvent)
       })
 
