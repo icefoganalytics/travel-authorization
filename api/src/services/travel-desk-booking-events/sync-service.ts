@@ -15,7 +15,7 @@ export class SyncService extends BaseService {
 
   async perform(): Promise<TravelDeskBookingEvent[]> {
     const recordLocator = this.recordLocator.trim().toUpperCase()
-    this.validateRecordLocator(recordLocator)
+    this.assertRecordLocatorIsValid(recordLocator)
 
     return db.transaction(async (transaction) => {
       const bookingEvents: TravelDeskBookingEvent[] = []
@@ -44,7 +44,7 @@ export class SyncService extends BaseService {
     })
   }
 
-  private validateRecordLocator(recordLocator: string): void {
+  private assertRecordLocatorIsValid(recordLocator: string): void {
     if (!/^[A-Z0-9]{6}$/.test(recordLocator)) {
       throw new InvoiceValidationError("Record locator must contain six letters or numbers.")
     }
