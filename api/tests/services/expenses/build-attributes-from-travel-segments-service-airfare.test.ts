@@ -14,32 +14,57 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
     describe(".perform", () => {
       test("when prefilling a trip with aircraft and rental vehicle travel, it excludes airfare but retains other expenses", async () => {
         // Arrange
-        for (const [claimType, amount] of [
-          [PerDiem.ClaimTypes.INCIDENTALS, 17.3],
-          [PerDiem.ClaimTypes.BREAKFAST, 23.6],
-          [PerDiem.ClaimTypes.LUNCH, 23.9],
-          [PerDiem.ClaimTypes.DINNER, 58.6],
-          [PerDiem.ClaimTypes.PRIVATE_ACCOMMODATIONS, 50],
-        ] as const) {
-          await perDiemFactory.create({
-            claimType,
-            amount,
-            travelRegion: PerDiem.TravelRegions.CANADA,
-            currency: PerDiem.CurrencyTypes.CAD,
-          })
-        }
-        for (const [allowanceType, amount] of [
-          [TravelAllowance.AllowanceTypes.MAXIUM_AIRCRAFT_ALLOWANCE, 1000],
-          [TravelAllowance.AllowanceTypes.AIRCRAFT_ALLOWANCE_PER_SEGMENT, 350],
-          [TravelAllowance.AllowanceTypes.DISTANCE_ALLOWANCE_PER_KILOMETER, 0.605],
-          [TravelAllowance.AllowanceTypes.HOTEL_ALLOWANCE_PER_NIGHT, 250],
-        ] as const) {
-          await travelAllowanceFactory.create({
-            allowanceType,
-            amount,
-            currency: TravelAllowance.CurrencyTypes.CAD,
-          })
-        }
+        await perDiemFactory.create({
+          claimType: PerDiem.ClaimTypes.INCIDENTALS,
+          amount: 17.3,
+          travelRegion: PerDiem.TravelRegions.CANADA,
+          currency: PerDiem.CurrencyTypes.CAD,
+        })
+        await perDiemFactory.create({
+          claimType: PerDiem.ClaimTypes.BREAKFAST,
+          amount: 23.6,
+          travelRegion: PerDiem.TravelRegions.CANADA,
+          currency: PerDiem.CurrencyTypes.CAD,
+        })
+        await perDiemFactory.create({
+          claimType: PerDiem.ClaimTypes.LUNCH,
+          amount: 23.9,
+          travelRegion: PerDiem.TravelRegions.CANADA,
+          currency: PerDiem.CurrencyTypes.CAD,
+        })
+        await perDiemFactory.create({
+          claimType: PerDiem.ClaimTypes.DINNER,
+          amount: 58.6,
+          travelRegion: PerDiem.TravelRegions.CANADA,
+          currency: PerDiem.CurrencyTypes.CAD,
+        })
+        await perDiemFactory.create({
+          claimType: PerDiem.ClaimTypes.PRIVATE_ACCOMMODATIONS,
+          amount: 50,
+          travelRegion: PerDiem.TravelRegions.CANADA,
+          currency: PerDiem.CurrencyTypes.CAD,
+        })
+
+        await travelAllowanceFactory.create({
+          allowanceType: TravelAllowance.AllowanceTypes.MAXIUM_AIRCRAFT_ALLOWANCE,
+          amount: 1000,
+          currency: TravelAllowance.CurrencyTypes.CAD,
+        })
+        await travelAllowanceFactory.create({
+          allowanceType: TravelAllowance.AllowanceTypes.AIRCRAFT_ALLOWANCE_PER_SEGMENT,
+          amount: 350,
+          currency: TravelAllowance.CurrencyTypes.CAD,
+        })
+        await travelAllowanceFactory.create({
+          allowanceType: TravelAllowance.AllowanceTypes.DISTANCE_ALLOWANCE_PER_KILOMETER,
+          amount: 0.605,
+          currency: TravelAllowance.CurrencyTypes.CAD,
+        })
+        await travelAllowanceFactory.create({
+          allowanceType: TravelAllowance.AllowanceTypes.HOTEL_ALLOWANCE_PER_NIGHT,
+          amount: 250,
+          currency: TravelAllowance.CurrencyTypes.CAD,
+        })
 
         const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
