@@ -2,8 +2,7 @@ import { isNil, isString } from "lodash"
 
 import logger from "@/utils/logger"
 
-import { TravelDeskTravelRequest } from "@/models"
-import { type TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
+import { TravelDeskBookingEvent, TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskTravelRequests } from "@/policies"
 
@@ -32,19 +31,61 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const { recordLocator } = this.query
+      const recordLocator = this.query.recordLocator
+      if (!isString(recordLocator) || !/^[A-Z0-9]{6}$/.test(recordLocator.trim().toUpperCase())) {
+        return this.response.status(422).json({
+          message: "Record locator must contain six letters or numbers.",
+        })
+      }
+
+      const where = { recordLocator: recordLocator.trim().toUpperCase() }
+      const { limit, offset } = this.pagination
+      const totalCount = await TravelDeskBookingEvent.count({ where })
+      const travelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
+        where,
+        order: [["externalTravelportIdentifier", "ASC"]],
+        limit,
+        offset,
+      })
+      const serializedTravelDeskBookingEvents = IndexSerializer.perform(travelDeskBookingEvents)
+
+      return this.response.status(200).json({
+        travelDeskBookingEvents: serializedTravelDeskBookingEvents,
+        totalCount,
+      })
+    } catch (error) {
+      logger.error(`Failed to index travel desk booking events: ${error}`, { error })
+      return this.response.status(400).json({
+        message: "Failed to load booking history.",
+      })
+    }
+  }
+
+  async create() {
+    try {
+      const travelDeskTravelRequest = await this.loadTravelDeskTravelRequest()
+      if (isNil(travelDeskTravelRequest)) {
+        return this.response.status(404).json({
+          message: "Travel desk travel request not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(travelDeskTravelRequest)
+      if (!policy.show()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to access booking sources.",
+        })
+      }
+
+      const { recordLocator } = this.request.body
       if (!isString(recordLocator)) {
         return this.response.status(422).json({
           message: "Record locator must contain six letters or numbers.",
         })
       }
 
-      const travelDeskBookingEvents = await SyncService.perform(recordLocator)
-      const serializedTravelDeskBookingEvents = IndexSerializer.perform(travelDeskBookingEvents)
-
-      return this.response.status(200).json({
-        travelDeskBookingEvents: serializedTravelDeskBookingEvents,
-      })
+      await SyncService.perform(recordLocator)
+      return this.response.status(204).send()
     } catch (error) {
       if (error instanceof InvoiceValidationError) {
         return this.response.status(422).json({
@@ -58,9 +99,9 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      logger.error(`Failed to index travel desk booking events: ${error}`, { error })
+      logger.error(`Failed to sync travel desk booking events: ${error}`, { error })
       return this.response.status(400).json({
-        message: "Failed to load booking history.",
+        message: "Failed to sync booking history.",
       })
     }
   }
