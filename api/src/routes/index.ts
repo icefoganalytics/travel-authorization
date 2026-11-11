@@ -334,6 +334,7 @@ router
 router
   .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events")
   .get(TravelDeskTravelRequests.TravelDeskBookingEventsController.index)
+  .post(TravelDeskTravelRequests.TravelDeskBookingEventsController.create)
 
 router
   .route("/api/travel-desk-product-types")
