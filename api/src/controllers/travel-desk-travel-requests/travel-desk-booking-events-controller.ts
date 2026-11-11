@@ -84,7 +84,8 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      await SyncService.perform(recordLocator)
+      const normalizedRecordLocator = recordLocator.trim().toUpperCase()
+      await SyncService.perform(normalizedRecordLocator)
       return this.response.status(204).send()
     } catch (error) {
       if (error instanceof InvoiceValidationError) {
