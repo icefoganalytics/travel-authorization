@@ -5,6 +5,8 @@ import ApiError from "@/api/api-error"
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 import useSnack from "@/use/use-snack"
 
+import AppSnackbar from "@/components/AppSnackbar.vue"
+
 import { travelAuthorizationFactory } from "@/tests/factories"
 import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
 
@@ -12,7 +14,7 @@ import TravelAuthorizationDenyDialogButton from "@/components/travel-authorizati
 
 describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDenyDialogButton.vue", () => {
   describe("TravelAuthorizationDenyDialogButton", () => {
-    test("when the API rejects denial, shows its reason", async () => {
+    test("when the API rejects denial, displays the rejection reason to the supervisor", async () => {
       // Arrange
       const error = new ApiError("This request is no longer awaiting approval", 422)
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
@@ -26,6 +28,11 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
       httpClient.post.mockRejectedValue(error)
       const snack = useSnack()
       snack.reset()
+      mount(AppSnackbar, {
+        global: {
+          plugins: [mockVuetify()],
+        },
+      })
       const errorHandler = vi.fn()
       const router = mockRouter([
         {
@@ -57,7 +64,8 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
       await flushPromises()
 
       // Assert
-      expect(snack.message.value).toContain(error.message)
+      const notification = document.querySelector(".v-snackbar.v-overlay--active [role='status']")
+      expect(notification?.textContent).toContain("This request is no longer awaiting approval")
     })
 
     test("when the API rejects denial, handles the error without propagating it", async () => {
