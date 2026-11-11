@@ -1,25 +1,17 @@
-import { Factory } from "fishery"
+import FactoryShark from "factory-shark"
 import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { TravelDeskInvoice } from "@/models"
-import { nestedSaveAndAssociateIfNew } from "@/factories/helpers"
 import { travelDeskTravelRequestFactory } from "@/factories/travel-desk-travel-request-factory"
 
-export const travelDeskInvoiceFactory = Factory.define<TravelDeskInvoice>(
-  ({ associations, onCreate }) => {
-    onCreate(async (invoice) => {
-      await nestedSaveAndAssociateIfNew(invoice)
-      return invoice
-    })
-
-    const travelDeskTravelRequest =
-      associations.travelDeskTravelRequest ??
-      travelDeskTravelRequestFactory.build({ id: undefined })
+export const travelDeskInvoiceFactory = FactoryShark.define(
+  TravelDeskInvoice,
+  ({ associate }) => {
+    associate("travelDeskTravelRequest", travelDeskTravelRequestFactory)
     const recordLocator = faker.string.alphanumeric(6).toUpperCase()
     const sourceBookingEventId = faker.number.int({ min: 1, max: 1_000_000 })
 
-    const travelDeskInvoice = TravelDeskInvoice.build({
-      travelDeskTravelRequestId: travelDeskTravelRequest.id,
+    return {
       recordLocator,
       sourceBookingEventId,
       sourceSnapshot: {
@@ -57,11 +49,7 @@ export const travelDeskInvoiceFactory = Factory.define<TravelDeskInvoice>(
       },
       currencyCode: "CAD",
       grossAmount: "0.000",
-    })
-
-    travelDeskInvoice.travelDeskTravelRequest = travelDeskTravelRequest
-
-    return travelDeskInvoice
+    }
   }
 )
 
