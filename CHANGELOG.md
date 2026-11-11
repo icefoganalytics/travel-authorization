@@ -37,7 +37,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
-- Rental-car requests match flight dates and times on both new and edit forms. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with specific guidance.
+- Rental-car requests match flight dates and times on both new and edit forms. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.
 - Expense prefill excludes airfare while preserving other eligible expenses; flight estimates remain unchanged.
 - Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns, including traveller, purpose, dates, and Travel Desk status, order the full authorized result set before pagination, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
 - Owners can complete Travel Desk options review for requests without flights once all review data has loaded.
