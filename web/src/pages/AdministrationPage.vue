@@ -21,7 +21,8 @@
     </v-col>
   </v-row>
 </template>
-<script setup>
+
+<script setup lang="ts">
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 const menuCardLists = [
@@ -72,6 +73,11 @@ const menuCardLists = [
         icon: "mdi-airplane",
         title: "Travel Agencies",
         to: { name: "administration/TravelAgenciesPage" },
+      },
+      {
+        icon: "mdi-receipt-text",
+        title: "Travel Desk Product Types",
+        to: { name: "administration/TravelDeskProductTypesPage" },
       },
     ],
   },
