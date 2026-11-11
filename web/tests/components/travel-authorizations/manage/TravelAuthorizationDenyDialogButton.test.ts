@@ -116,7 +116,7 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
       expect(errorHandler).not.toHaveBeenCalled()
     })
 
-    test("when denial fails unexpectedly, propagates the original error to Vue", async () => {
+    test("when denial fails unexpectedly, propagates the error message to Vue", async () => {
       // Arrange
       const error = new TypeError("Unexpected approval state")
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
@@ -161,8 +161,13 @@ describe("web/src/components/travel-authorizations/manage/TravelAuthorizationDen
       await flushPromises()
 
       // Assert
-      const propagatedError = errorHandler.mock.calls[0]?.[0]
-      expect(propagatedError).toBe(error)
+      expect(errorHandler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "Unexpected approval state",
+        }),
+        expect.anything(),
+        expect.any(String)
+      )
     })
 
     test("when denial fails unexpectedly, does not display an API error notification", async () => {
