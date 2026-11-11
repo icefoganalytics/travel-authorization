@@ -1,7 +1,7 @@
 <template>
   <div>
     <HeaderActionsCard title="Estimates">
-      <EstimatesDataTableServer
+      <ExpenseEstimatesDataTableServer
         :where="estimatesWhere"
         route-query-suffix="Estimates"
       />
@@ -13,7 +13,7 @@
 import { computed } from "vue"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
-import EstimatesDataTableServer from "@/components/expenses/EstimatesDataTableServer.vue"
+import ExpenseEstimatesDataTableServer from "@/components/expenses/ExpenseEstimatesDataTableServer.vue"
 
 const props = defineProps<{
   travelAuthorizationId: string

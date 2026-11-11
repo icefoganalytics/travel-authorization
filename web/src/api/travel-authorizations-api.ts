@@ -306,7 +306,7 @@ export const travelAuthorizationsApi = {
   },
   async deny(
     travelAuthorizationId: number,
-    attributes: { denialReason?: string } = {}
+    attributes: Partial<Pick<TravelAuthorization, "denialReason">> = {}
   ): Promise<{
     travelAuthorization: TravelAuthorizationAsShow
   }> {

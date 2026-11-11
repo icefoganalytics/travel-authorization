@@ -42,14 +42,14 @@
     <v-row>
       <v-col>
         <h3>Meals and Incidentals</h3>
-        <MealsAndIncidentalsTable
+        <ExpenseClaimSubmitMealsAndIncidentalsDataTableServer
           ref="mealsAndIncidentalsTable"
           :travel-authorization-id="travelAuthorizationId"
         />
       </v-col>
       <v-col>
         <h3>Totals</h3>
-        <TotalsTable
+        <ExpenseClaimSubmitTotalsCard
           ref="totalsTable"
           :travel-authorization-id="travelAuthorizationId"
           class="bg-white py-4"
@@ -61,15 +61,16 @@
         <div class="d-flex justify-space-between align-end">
           <h3>Coding</h3>
 
-          <GeneralLedgerCodingCreateDialog
+          <GeneralLedgerCodingWizardCreateDialog
             :travel-authorization-id="travelAuthorizationId"
             @created="refreshCodingsCreatedDependencies"
           />
         </div>
 
-        <GeneralLedgerCodingsTable
+        <GeneralLedgerCodingsEditDataTableServer
           ref="codingsTable"
-          :travel-authorization-id="travelAuthorizationId"
+          :where="codingsWhere"
+          route-query-suffix="Codings"
           @changed="refreshCodingsChangedDependencies"
         />
       </v-col>
@@ -77,7 +78,7 @@
     </v-row>
     <v-row class="mt-12">
       <v-col>
-        <RequestApprovalForm
+        <TravelAuthorizationExpenseApprovalForm
           ref="requestApprovalForm"
           :travel-authorization-id="travelAuthorizationId"
         />
@@ -98,14 +99,14 @@ import useExpenses, { ExpenseTypes, ExpenseExpenseTypes } from "@/use/use-expens
 import useTravelSegments from "@/use/use-travel-segments"
 import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
-import ExpenseCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpenseCreateDialog.vue"
-import ExpensePrefillDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/ExpensePrefillDialog.vue"
+import ExpenseClaimSubmitMealsAndIncidentalsDataTableServer from "@/components/expenses/claim-submit/ExpenseClaimSubmitMealsAndIncidentalsDataTableServer.vue"
+import ExpenseClaimSubmitTotalsCard from "@/components/expenses/claim-submit/ExpenseClaimSubmitTotalsCard.vue"
+import ExpenseCreateDialog from "@/components/expenses/ExpenseCreateDialog.vue"
+import ExpensePrefillDialog from "@/components/expenses/ExpensePrefillDialog.vue"
 import ExpensesEditDataTableServer from "@/components/expenses/ExpensesEditDataTableServer.vue"
-import GeneralLedgerCodingCreateDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingCreateDialog.vue"
-import GeneralLedgerCodingsTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingsTable.vue"
-import MealsAndIncidentalsTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/MealsAndIncidentalsTable.vue"
-import RequestApprovalForm from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/RequestApprovalForm.vue"
-import TotalsTable from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/TotalsTable.vue"
+import GeneralLedgerCodingWizardCreateDialog from "@/components/general-ledger-codings/GeneralLedgerCodingWizardCreateDialog.vue"
+import GeneralLedgerCodingsEditDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsEditDataTableServer.vue"
+import TravelAuthorizationExpenseApprovalForm from "@/components/travel-authorizations/expenses/TravelAuthorizationExpenseApprovalForm.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number
@@ -122,6 +123,10 @@ const isExpenseClaimTravellerChangesRequested = computed(
 const expenseWhere = computed(() => ({
   travelAuthorizationId: props.travelAuthorizationId,
   expenseType: [ExpenseExpenseTypes.ACCOMMODATIONS, ExpenseExpenseTypes.TRANSPORTATION],
+}))
+
+const codingsWhere = computed(() => ({
+  travelAuthorizationId: props.travelAuthorizationId,
 }))
 
 const expenseOptions = computed(() => ({

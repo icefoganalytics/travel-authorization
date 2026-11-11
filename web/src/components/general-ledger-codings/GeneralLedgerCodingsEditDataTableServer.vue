@@ -81,8 +81,8 @@ import useGeneralLedgerCodings, {
   type GeneralLedgerCodingWhereOptions,
 } from "@/use/use-general-ledger-codings"
 
-import GeneralLedgerCodingDeleteDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingDeleteDialog.vue"
-import GeneralLedgerCodingEditDialog from "@/modules/travel-authorizations/components/edit-my-travel-authorization-expense-page/GeneralLedgerCodingEditDialog.vue"
+import GeneralLedgerCodingDeleteDialog from "@/components/general-ledger-codings/GeneralLedgerCodingDeleteDialog.vue"
+import GeneralLedgerCodingEditDialog from "@/components/general-ledger-codings/GeneralLedgerCodingEditDialog.vue"
 
 const props = withDefaults(
   defineProps<{

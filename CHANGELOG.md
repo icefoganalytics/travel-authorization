@@ -18,13 +18,15 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Changed
 
-- Travel approval confirmations include the meeting or conference description and the request's final destination.
+- Travel approval confirmations include the meeting or conference description and show the request's final destination when available. Approval and denial failures identify which action failed. Both dialogs synchronize their open state with the URL without clearing other query parameters.
 - Travel Desk request lists, PDF reports, and CSV exports show consistent services and statuses. Server-generated downloads apply the same filters and permissions as the request list and include every matching authorized request, including selections larger than twenty requests. Query filters are preserved within the supported limits; oversized queries are rejected instead of silently truncated. Unavailable selections return the same error response as failed downloads.
 - Travel Desk reports and CSV exports include all matching requests by default, across list pages. Select requests to download only that subset. Downloads preserve the list's booking and officer-assignment ordering when sort values tie. Loading indicators appear only while preparing a file.
 - Travel Desk PDF reports use available page space without shrinking text. Report and column headings repeat on each page.
 - Report filters use autocomplete selections and show how many filters are active. Filter selections are saved in the URL for bookmarking and sharing.
 - Reports have separate table, graph, and print views. Flight statistics tables load and sort one page at a time.
 - User administration includes a mailcode field and updated user search and editing controls.
+- Estimate, meal, and coding tables support server-side paging and sorting. Estimates load with the default ordering and can be sorted by expense type. Table and claim totals include all matching records, not just the displayed page. Meal dates and meal/coding amounts use the application's standard display formats.
+- Developer improvements: retired the legacy travel-authorization module in favor of typed components and pages without changing workflows.
 - Developer improvements: isolated checkout service and database routes, explicit PostgreSQL data transfers between worktrees, correct-checkout editor access with gem-owned Docker defaults that survives readiness-based startup, and warning-free Ruby wrapper startup with explicitly bundled help dependencies. Updated test tooling and contributor guidance; removed unused components and dependencies. Web tests share plugin setup, HTTP and authentication mocks, and component cleanup following WRAP's conventions. Agent guidance now loads verified shared workflow sources before local overlays while preserving TravelAuth's contracts and development commands.
 - Requested PR screenshots follow the shared agent-operated capture/upload workflow while preserving existing images, TravelAuth captions and app routes, and optional screenshot placeholders.
 - Contributor guidance links the shared worktree workflow and documents TravelAuth's worktree naming and Docker commands.
@@ -36,7 +38,7 @@ Changes planned for the next release, since v2025.9.15.1.
 ### Fixed
 
 - Expense prefill excludes airfare while preserving other eligible expenses; flight estimates remain unchanged.
-- Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns order the full authorized result set, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
+- Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns, including traveller, purpose, dates, and Travel Desk status, order the full authorized result set before pagination, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
 - Owners can complete Travel Desk options review for requests without flights once all review data has loaded.
 - Travel Desk API responses use explicit fields without permission-check association data. Workflow actions return the same request details and passenger-document availability as request viewing.
 - Travel Desk staff can follow **Review Traveller Rankings** from booking review to the existing flight requests, then use **View Options and Rankings** to see saved preferences and rejection explanations.

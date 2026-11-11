@@ -3,8 +3,10 @@ import useRouteQuery, { integerTransformer } from "@/use/utils/use-route-query"
 const DEFAULT_PAGE = 1
 const DEFAULT_PER_PAGE = 10
 
-/** Use with EnhancedPagination and a unique suffix for each collection. */
-
+/**
+ * Bind pagination state to URL query parameters.
+ * Use with native table pagination or EnhancedPagination; this does not render a pager.
+ */
 export function useRouteQueryPagination({
   page = DEFAULT_PAGE,
   perPage = DEFAULT_PER_PAGE,

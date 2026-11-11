@@ -1,0 +1,196 @@
+<template>
+  <v-dialog
+    v-model="showDialog"
+    max-width="500px"
+    persistent
+    @keydown.esc="hide"
+    @update:model-value="hideIfFalse"
+  >
+    <template #activator="{ props: activatorProps }">
+      <v-btn
+        color="primary"
+        class="mb-2"
+        v-bind="activatorProps"
+      >
+        Add Coding
+      </v-btn>
+    </template>
+
+    <v-form
+      ref="form"
+      @submit.prevent="createAndClose"
+    >
+      <v-card :loading="isLoading">
+        <v-card-title>
+          <span class="text-h5">Create Coding</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-row>
+            <v-col>
+              <!-- See https://github.com/icefoganalytics/travel-authorization/issues/156#issuecomment-1890047168 -->
+              <v-text-field
+                v-model="generalLedgerCoding.code"
+                :rules="[isGeneralLedgerCode]"
+                validate-on="blur"
+                density="compact"
+                variant="outlined"
+                required
+              >
+                <template #label>
+                  <v-tooltip location="bottom">
+                    <template #activator="{ props: activatorProps }">
+                      <div v-bind="activatorProps">
+                        G/L code
+                        <v-icon size="small">mdi-help-circle-outline</v-icon>
+                      </div>
+                    </template>
+                    <span>
+                      e.g. 552-123456-2015-1234-12345
+                      <br />
+                      The format is vote (3 characters) - Program (6 characters) - object code (4
+                      digits) - subledger-1 (0-4 characters) - subleger-2 (0-5 characters).</span
+                    >
+                  </v-tooltip>
+                </template>
+              </v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <CurrencyTextField
+                v-model="generalLedgerCoding.amount"
+                :rules="[required]"
+                label="Amount"
+                density="compact"
+                variant="outlined"
+                required
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            :loading="isLoading"
+            color="error"
+            @click="hide"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            :loading="isLoading"
+            color="primary"
+            type="submit"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-form>
+  </v-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref, watch, nextTick, useTemplateRef } from "vue"
+import { isNil } from "lodash"
+
+import { required, isGeneralLedgerCode } from "@/utils/validators"
+import useRouteQuery, { booleanTransformer } from "@/use/utils/use-route-query"
+
+import ApiError from "@/api/api-error"
+import generalLedgerCodingsApi from "@/api/general-ledger-codings-api"
+import useSnack from "@/use/use-snack"
+
+import CurrencyTextField from "@/components/common/CurrencyTextField.vue"
+
+const props = defineProps<{
+  travelAuthorizationId: number
+}>()
+
+const emit = defineEmits<{
+  (event: "created"): void
+}>()
+
+const showDialog = useRouteQuery("showCreateGLCoding", "false", {
+  transform: booleanTransformer,
+})
+
+const generalLedgerCoding = ref({
+  travelAuthorizationId: props.travelAuthorizationId,
+  code: "",
+  amount: 0.0,
+})
+
+const form = useTemplateRef("form")
+const snack = useSnack()
+const isLoading = ref(false)
+
+async function createAndClose() {
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
+  if (!valid) {
+    snack.warning("Please fill in all required fields.")
+    return
+  }
+
+  isLoading.value = true
+  try {
+    await generalLedgerCodingsApi.create(generalLedgerCoding.value)
+    hide()
+
+    await nextTick()
+    emit("created")
+  } catch (error) {
+    if (!(error instanceof ApiError)) throw error
+
+    console.error(`Failed to create general ledger coding: ${error}`, { error })
+    snack.error(`Failed to create general ledger coding: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+watch(
+  () => showDialog.value,
+  () => {
+    reset()
+  }
+)
+
+watch(
+  () => props.travelAuthorizationId,
+  () => {
+    reset()
+  }
+)
+
+function reset() {
+  form.value?.resetValidation()
+  generalLedgerCoding.value = {
+    travelAuthorizationId: props.travelAuthorizationId,
+    code: "",
+    amount: 0.0,
+  }
+}
+
+function show() {
+  showDialog.value = true
+}
+
+function hide() {
+  showDialog.value = false
+}
+
+function hideIfFalse(value: boolean | null) {
+  if (value !== false) return
+
+  hide()
+}
+
+defineExpose({
+  show,
+})
+</script>

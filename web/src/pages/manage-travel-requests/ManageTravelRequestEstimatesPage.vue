@@ -1,28 +1,31 @@
 <template>
   <div>
     <HeaderActionsCard title="Estimates">
-      <EstimatesTable :travel-authorization-id="travelAuthorizationIdAsNumber" />
+      <ExpenseEstimatesDataTableServer
+        :where="estimatesWhere"
+        route-query-suffix="Estimates"
+      />
     </HeaderActionsCard>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 
-import EstimatesTable from "@/modules/travel-authorizations/components/read-travel-authorization-estimate-page/EstimatesTable.vue"
+import ExpenseEstimatesDataTableServer from "@/components/expenses/ExpenseEstimatesDataTableServer.vue"
 
-const props = defineProps({
-  travelAuthorizationId: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{
+  travelAuthorizationId: string
+}>()
 
 const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
+const estimatesWhere = computed(() => ({
+  travelAuthorizationId: travelAuthorizationIdAsNumber.value,
+}))
 
 useBreadcrumbs([
   {

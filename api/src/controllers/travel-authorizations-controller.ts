@@ -22,11 +22,6 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
       const order = this.buildOrder([
         ["updatedAt", "DESC"],
         ["id", "ASC"],
-        ["stops", "departureDate", "ASC"],
-        ["stops", "departureTime", "ASC"],
-        ["stops", "id", "ASC"],
-        ["travelSegments", "segmentNumber", "ASC"],
-        ["travelSegments", "id", "ASC"],
       ])
       const scopedTravelAuthorizations = TravelAuthorizationsPolicy.applyScope(
         scopes,
@@ -39,13 +34,27 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
         include: [
           {
             association: "stops",
+            separate: true,
+            order: [
+              ["departureDate", "ASC"],
+              ["departureTime", "ASC"],
+              ["id", "ASC"],
+            ],
             include: ["location"],
           },
           {
             association: "travelSegments",
+            separate: true,
+            order: [
+              ["segmentNumber", "ASC"],
+              ["id", "ASC"],
+            ],
             include: ["departureLocation", "arrivalLocation"],
           },
-          "expenses",
+          {
+            association: "expenses",
+            separate: true,
+          },
           "purpose",
           "travelDeskTravelRequest",
           "user",

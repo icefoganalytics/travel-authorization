@@ -114,7 +114,7 @@ Detailed backend guidance lives close to the code it governs (see links above).
 ```
 Route → BaseController (instance) → Service (.perform()) → Model/Sequelize
          ├─ buildWhere() merges overridable + ?where params + non-overridable where
-         ├─ buildOrder() wraps string cols with col() for SQL injection safety
+         ├─ buildOrder() preserves structured ordering for Sequelize mapping and quoting
          ├─ Policy via this.buildPolicy(record)
          └─ Serializer (AsIndex/AsShow/ReferenceSerializer)
 ```
@@ -184,7 +184,7 @@ Route names use dotted URL-like paths: `"my-travel-requests/MyTravelRequestsPage
 ```
 v-data-table sortBy → useVuetifySortByToSafeRouteQuery (serializes as "key_order")
     → URL query param → useVuetifySortByToSequelizeSafeOrder (splits nested keys on ".")
-    → API buildOrder() wraps with col() → Sequelize ORDER
+    → API buildOrder() preserves tuples → Sequelize maps attributes and quotes ORDER
 ```
 
 **Docker services:**

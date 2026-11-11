@@ -41,7 +41,7 @@
             To begin the process of creating a new travel request, click the button below.
           </v-card-text>
           <v-card-actions>
-            <CreateTravelAuthorizationButton color="blue" />
+            <TravelAuthorizationCreateButton color="blue" />
           </v-card-actions>
         </v-card>
       </v-col>
@@ -54,7 +54,7 @@ import { computed } from "vue"
 
 import DashboardLatestTravelAuthorizationCard from "@/components/dashboards/DashboardLatestTravelAuthorizationCard.vue"
 import DashboardTravelAuthorizationsDataTable from "@/components/dashboards/DashboardTravelAuthorizationsDataTable.vue"
-import CreateTravelAuthorizationButton from "@/modules/travel-authorizations/components/my-travel-authorizations-page/CreateTravelAuthorizationBtn.vue"
+import TravelAuthorizationCreateButton from "@/components/travel-authorizations/my/TravelAuthorizationCreateButton.vue"
 
 const upcomingTripsFilters = computed(() => ({
   isUpcomingTrip: true,

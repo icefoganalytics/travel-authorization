@@ -23,11 +23,13 @@
     <v-row>
       <v-col>
         <h3>Meals and Incidentals</h3>
-        <MealsAndIncidentalsTable :travel-authorization-id="travelAuthorizationId" />
+        <ExpenseClaimReviewMealsAndIncidentalsDataTableServer
+          :travel-authorization-id="travelAuthorizationId"
+        />
       </v-col>
       <v-col>
         <h3>Totals</h3>
-        <TotalsTable
+        <ExpenseClaimReviewTotalsCard
           :travel-authorization-id="travelAuthorizationId"
           class="bg-white py-4"
         />
@@ -36,7 +38,7 @@
     <v-row>
       <v-col>
         <h3>Coding</h3>
-        <GeneralLedgerCodingsTable :travel-authorization-id="travelAuthorizationId" />
+        <GeneralLedgerCodingsDataTableServer :travel-authorization-id="travelAuthorizationId" />
       </v-col>
       <v-col cols="4"></v-col>
     </v-row>
@@ -50,11 +52,10 @@ import { ExpenseExpenseTypes, type ExpenseWhereOptions } from "@/use/use-expense
 import useTravelAuthorization, { TravelAuthorizationStatuses } from "@/use/use-travel-authorization"
 import { type WizardStepComponentContext } from "@/use/wizards/use-my-travel-request-wizard"
 
+import ExpenseClaimReviewMealsAndIncidentalsDataTableServer from "@/components/expenses/claim-review/ExpenseClaimReviewMealsAndIncidentalsDataTableServer.vue"
+import ExpenseClaimReviewTotalsCard from "@/components/expenses/claim-review/ExpenseClaimReviewTotalsCard.vue"
 import ExpensesDataTableServer from "@/components/expenses/ExpensesDataTableServer.vue"
-
-import GeneralLedgerCodingsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/GeneralLedgerCodingsTable.vue"
-import MealsAndIncidentalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/MealsAndIncidentalsTable.vue"
-import TotalsTable from "@/modules/travel-authorizations/components/read-travel-authorization-expense-page/TotalsTable.vue"
+import GeneralLedgerCodingsDataTableServer from "@/components/general-ledger-codings/GeneralLedgerCodingsDataTableServer.vue"
 
 const props = defineProps<{
   travelAuthorizationId: number
