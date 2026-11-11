@@ -67,7 +67,10 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         })
 
         // Act
-        const bookingEvents = await SyncService.perform(" src001 ")
+        await SyncService.perform(" src001 ")
+        const bookingEvents = await TravelDeskBookingEvent.findAll({
+          order: [["externalTravelportIdentifier", "ASC"]],
+        })
         const events = IndexSerializer.perform(bookingEvents)
 
         // Assert
@@ -124,7 +127,12 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           PnrBfVersionNbr: 1,
           DatabaseTimeStamp: "2030-01-01T12:00:00",
         })
-        const [originalBookingEvent] = await SyncService.perform("SRC001")
+        const originalBookingEvent = await travelDeskBookingEventFactory.create({
+          externalTravelportIdentifier: 910001,
+          recordLocator: "SRC001",
+          bookingFileVersionNumber: 1,
+        })
+        await SyncService.perform("SRC001")
         await sourceDatabase("TravelOrderEvent")
           .where({ TravelOrderIdentifier: 910001 })
           .update({ PnrBfVersionNbr: 2 })
@@ -141,17 +149,6 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             recordLocator: "SRC001",
           }),
         ])
-      })
-
-      test("when the source returns no events, it returns no cached events", async () => {
-        // Arrange
-        await travelDeskBookingEventFactory.create()
-
-        // Act
-        const bookingEvents = await SyncService.perform("SRC001")
-
-        // Assert
-        expect(bookingEvents).toEqual([])
       })
 
       test("when the source returns no events, it retains cached events", async () => {
@@ -217,6 +214,42 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([])
+      })
+
+      test("when a later event cannot persist, it rolls back updates to cached events", async () => {
+        // Arrange
+        const cachedBookingEvent = await travelDeskBookingEventFactory.create({
+          externalTravelportIdentifier: 910001,
+          recordLocator: "SRC001",
+          bookingFileVersionNumber: 1,
+        })
+        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue([
+          TravelOrderEvent.build({
+            travelOrderIdentifier: 910001,
+            recordLocator: "SRC001",
+            bookingFileVersionNumber: 2,
+            databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
+          }),
+          TravelOrderEvent.build({
+            travelOrderIdentifier: 910002,
+            recordLocator: "SRC001",
+            databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
+          }),
+        ])
+        vi.spyOn(TravelDeskBookingEvent, "create").mockRejectedValue(
+          new Error("Later local write failed")
+        )
+
+        // Act
+        await SyncService.perform("SRC001").catch(() => undefined)
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({
+            id: cachedBookingEvent.id,
+            bookingFileVersionNumber: 1,
+          }),
+        ])
       })
 
       test("when a later event cannot persist, it propagates the write failure", async () => {
