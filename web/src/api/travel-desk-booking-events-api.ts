@@ -50,16 +50,37 @@ export type TravelDeskBookingEventAsIndex = {
   serviceFeeTransaction: InvoiceBookingServiceFee | null
 }
 
+export type QueryOptions = {
+  recordLocator: string
+  page: number
+  perPage: number
+}
+
 export const travelDeskBookingEventsApi = {
   async list(
     travelDeskTravelRequestId: number,
-    params: { recordLocator: string }
-  ): Promise<{ travelDeskBookingEvents: TravelDeskBookingEventAsIndex[] }> {
-    const { data } = await http.get<{ travelDeskBookingEvents: TravelDeskBookingEventAsIndex[] }>(
-      `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-desk-booking-events`,
-      { params }
-    )
+    params: QueryOptions,
+    options: { signal?: AbortSignal } = {}
+  ): Promise<{ travelDeskBookingEvents: TravelDeskBookingEventAsIndex[]; totalCount: number }> {
+    const { data } = await http.get<{
+      travelDeskBookingEvents: TravelDeskBookingEventAsIndex[]
+      totalCount: number
+    }>(`/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-desk-booking-events`, {
+      params,
+      ...options,
+    })
     return data
+  },
+  async sync(
+    travelDeskTravelRequestId: number,
+    attributes: { recordLocator: string },
+    options: { signal?: AbortSignal } = {}
+  ): Promise<void> {
+    await http.post(
+      `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-desk-booking-events`,
+      attributes,
+      options
+    )
   },
 }
 
