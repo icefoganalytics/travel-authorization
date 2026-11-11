@@ -1,8 +1,11 @@
 import { flushPromises, mount } from "@vue/test-utils"
 
-import { type TravelDeskFlightSegment } from "@/api/travel-desk-flight-segments-api"
 import { TravelDeskRentalCarLocationTypes } from "@/api/travel-desk-rental-cars-api"
-import { locationFactory, travelAuthorizationFactory } from "@/tests/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelDeskFlightSegmentFactory,
+} from "@/tests/factories"
 import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
@@ -22,21 +25,12 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
         departingAt: "2026-12-10T08:35:00.000Z",
         finalDestination: destination,
       }
-      const flightSegment: TravelDeskFlightSegment = {
+      const flightSegment = travelDeskFlightSegmentFactory.build({
         id: 41,
         flightOptionId: 15,
-        flightNumber: "AC123",
         departAt: "2026-12-10T08:35:00.000Z",
-        departLocation: "Whitehorse",
         arriveAt: "2026-12-12T19:45:00.000Z",
-        arriveLocation: "Vancouver",
-        duration: "2 hours",
-        status: "Confirmed",
-        class: "Economy",
-        sortOrder: 1,
-        createdAt: "2026-11-10T00:00:00.000Z",
-        updatedAt: "2026-11-10T00:00:00.000Z",
-      }
+      })
       httpClient.get.mockImplementation(async (url) => {
         if (url === "/api/travel-authorizations") {
           return { data: { travelAuthorizations: [travelAuthorization], totalCount: 1 } }

@@ -1,6 +1,10 @@
 import { flushPromises, mount } from "@vue/test-utils"
 
-import { locationFactory, travelDeskRentalCarFactory } from "@/tests/factories"
+import {
+  locationFactory,
+  travelDeskFlightSegmentFactory,
+  travelDeskRentalCarFactory,
+} from "@/tests/factories"
 import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
 
 import TimeTextField from "@/components/common/TimeTextField.vue"
@@ -21,6 +25,18 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
         dropOffDate: "2026-12-05T18:45:00.000Z",
       })
       const location = locationFactory.build({ city: "Dawson", province: "YT" })
+      const firstFlightSegment = travelDeskFlightSegmentFactory.build({
+        id: 1,
+        flightOptionId: 8,
+        departAt: "2026-12-02T06:25:00.000Z",
+        arriveAt: "2026-12-02T08:00:00.000Z",
+      })
+      const lastFlightSegment = travelDeskFlightSegmentFactory.build({
+        id: 2,
+        flightOptionId: 8,
+        departAt: "2026-12-06T17:00:00.000Z",
+        arriveAt: "2026-12-06T20:40:00.000Z",
+      })
       httpClient.get.mockImplementation(async (url, configuration) => {
         if (url === "/api/travel-desk-rental-cars/15") {
           return { data: { travelDeskRentalCar: { ...rentalCar }, policy: {} } }
@@ -29,23 +45,7 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
           if (configuration?.params.order[0][0] === "departAt") {
             return {
               data: {
-                travelDeskFlightSegments: [
-                  {
-                    id: 1,
-                    flightOptionId: 8,
-                    flightNumber: "4N101",
-                    departAt: "2026-12-02T06:25:00.000Z",
-                    departLocation: "YXY",
-                    arriveAt: "2026-12-02T08:00:00.000Z",
-                    arriveLocation: "YDA",
-                    duration: "01:35",
-                    status: "Confirmed",
-                    class: "Economy",
-                    sortOrder: 1,
-                    createdAt: "2026-11-01T00:00:00.000Z",
-                    updatedAt: "2026-11-01T00:00:00.000Z",
-                  },
-                ],
+                travelDeskFlightSegments: [firstFlightSegment],
                 totalCount: 1,
               },
             }
@@ -53,23 +53,7 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
 
           return {
             data: {
-              travelDeskFlightSegments: [
-                {
-                  id: 2,
-                  flightOptionId: 8,
-                  flightNumber: "4N101",
-                  departAt: "2026-12-06T17:00:00.000Z",
-                  departLocation: "YXY",
-                  arriveAt: "2026-12-06T20:40:00.000Z",
-                  arriveLocation: "YDA",
-                  duration: "01:35",
-                  status: "Confirmed",
-                  class: "Economy",
-                  sortOrder: 1,
-                  createdAt: "2026-11-01T00:00:00.000Z",
-                  updatedAt: "2026-11-01T00:00:00.000Z",
-                },
-              ],
+              travelDeskFlightSegments: [lastFlightSegment],
               totalCount: 1,
             },
           }
@@ -122,6 +106,12 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
         dropOffDate: "2026-12-05T18:45:00.000Z",
       })
       const location = locationFactory.build({ city: "Dawson", province: "YT" })
+      const flightSegment = travelDeskFlightSegmentFactory.build({
+        id: 1,
+        flightOptionId: 8,
+        departAt: "2026-12-02T06:25:00.000Z",
+        arriveAt: "2026-12-06T20:40:00.000Z",
+      })
       httpClient.get.mockImplementation(async (url) => {
         if (url === "/api/travel-desk-rental-cars/15") {
           return { data: { travelDeskRentalCar: { ...rentalCar }, policy: {} } }
@@ -129,23 +119,7 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
         if (url === "/api/travel-desk-flight-segments") {
           return {
             data: {
-              travelDeskFlightSegments: [
-                {
-                  id: 1,
-                  flightOptionId: 8,
-                  flightNumber: "4N101",
-                  departAt: "2026-12-02T06:25:00.000Z",
-                  departLocation: "YXY",
-                  arriveAt: "2026-12-06T20:40:00.000Z",
-                  arriveLocation: "YVR",
-                  duration: "01:35",
-                  status: "Confirmed",
-                  class: "Economy",
-                  sortOrder: 1,
-                  createdAt: "2026-11-01T00:00:00.000Z",
-                  updatedAt: "2026-11-01T00:00:00.000Z",
-                },
-              ],
+              travelDeskFlightSegments: [flightSegment],
               totalCount: 1,
             },
           }
