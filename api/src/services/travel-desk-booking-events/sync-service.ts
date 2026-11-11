@@ -1,4 +1,3 @@
-import { TRAVELPORT_DB_HOST, TRAVELPORT_DB_NAME, TRAVELPORT_DB_USER } from "@/config"
 import logger from "@/utils/logger"
 
 import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
@@ -17,10 +16,6 @@ export class SyncService extends BaseService {
   async perform(): Promise<TravelDeskBookingEvent[]> {
     const recordLocator = this.recordLocator.trim().toUpperCase()
     this.validateRecordLocator(recordLocator)
-
-    if (!TRAVELPORT_DB_HOST || !TRAVELPORT_DB_NAME || !TRAVELPORT_DB_USER) {
-      throw new SourceUnavailableError("Booking source is not configured.")
-    }
 
     return db.transaction(async (transaction) => {
       const bookingEvents: TravelDeskBookingEvent[] = []

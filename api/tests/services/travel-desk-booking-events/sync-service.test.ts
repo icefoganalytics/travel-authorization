@@ -1,5 +1,3 @@
-import type * as Configuration from "@/config"
-
 import sourceDatabase from "@/integrations/travelport-integration/db/db-migration-client"
 import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
 import { TravelDeskBookingEvent } from "@/models"
@@ -10,52 +8,16 @@ import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
 
 import { travelDeskBookingEventFactory } from "@/factories"
 
-const sourceConfiguration = vi.hoisted(() => ({ missing: false }))
-
-vi.mock("@/config", async (importOriginal) => {
-  const configuration = await importOriginal<typeof Configuration>()
-
-  return {
-    ...configuration,
-    get TRAVELPORT_DB_HOST() {
-      return sourceConfiguration.missing ? undefined : configuration.TRAVELPORT_DB_HOST
-    },
-  }
-})
-
 describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
   describe("SyncService", () => {
     describe(".perform", () => {
       beforeEach(async () => {
-        sourceConfiguration.missing = false
         await sourceDatabase("Passenger").whereIn("TravelOrderIdentifier", [910001, 910002]).del()
         await sourceDatabase("AirRsrvSeg").whereIn("TravelOrderIdentifier", [910001, 910002]).del()
         await sourceDatabase("SFTrans").whereIn("TravelOrderIdentifier", [910001, 910002]).del()
         await sourceDatabase("TravelOrderEvent")
           .whereIn("TravelOrderIdentifier", [910001, 910002])
           .del()
-      })
-
-      test("when the source is not configured, it reports source unavailability", async () => {
-        // Arrange
-        sourceConfiguration.missing = true
-
-        // Act / Assert
-        await expect(SyncService.perform("SRC001")).rejects.toThrow(
-          new SourceUnavailableError("Booking source is not configured.")
-        )
-      })
-
-      test("when the source is not configured, it does not query the source", async () => {
-        // Arrange
-        sourceConfiguration.missing = true
-        const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAll")
-
-        // Act
-        await SyncService.perform("SRC001").catch(() => undefined)
-
-        // Assert
-        expect(findSourceEvents).not.toHaveBeenCalled()
       })
 
       test("when fees arrive separately, it preserves source precision without leaking passenger remarks", async () => {
