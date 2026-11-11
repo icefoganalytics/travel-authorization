@@ -101,7 +101,21 @@
         </v-row>
       </v-card-text>
 
-      <v-card-actions>
+      <v-card-actions class="flex-wrap ga-2">
+        <v-btn
+          v-if="canManageInvoices"
+          :to="{
+            name: 'travel-desk/TravelDeskInvoicesPage',
+            params: {
+              travelDeskTravelRequestId,
+            },
+          }"
+          prepend-icon="mdi-receipt-text"
+          color="primary"
+          variant="outlined"
+        >
+          Invoices
+        </v-btn>
         <v-btn
           v-if="hasInvoiceNumber"
           color="primary"
@@ -127,15 +141,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+import useCurrentUser from "@/use/use-current-user"
 import useTravelDeskTravelRequest, {
   TRAVEL_DESK_TRAVEL_REQUEST_STATUSES,
 } from "@/use/use-travel-desk-travel-request"
-
-import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
 
 import TravelDeskFlightRequestsCard from "@/components/travel-desk-flight-requests/TravelDeskFlightRequestsCard.vue"
 import TravelDeskHotelsCard from "@/components/travel-desk-hotels/TravelDeskHotelsCard.vue"
@@ -143,23 +156,26 @@ import TravelDeskOtherTransportationsCard from "@/components/travel-desk-other-t
 import TravelDeskQuestionsCard from "@/components/travel-desk-questions/TravelDeskQuestionsCard.vue"
 import TravelDeskRentalCarsCard from "@/components/travel-desk-rental-cars/TravelDeskRentalCarsCard.vue"
 import TravelDeskTravelAgencySelect from "@/components/travel-desk-travel-agencies/TravelDeskTravelAgencySelect.vue"
-
 import TravelDeskInvoiceCard from "@/components/travel-desk-travel-requests/TravelDeskInvoiceCard.vue"
 import TravelDeskTravelRequestPrintItineraryDialog from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestPrintItineraryDialog.vue"
 import TravelerDetailsCard from "@/components/travel-desk-travel-requests/TravelerDetailsCard.vue"
+import UserTravelDeskAgentSelect from "@/components/users/UserTravelDeskAgentSelect.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
+
+const { isAdmin, isTravelDeskUser } = useCurrentUser()
+const canManageInvoices = computed(() => isAdmin.value || isTravelDeskUser.value)
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 const { travelDeskTravelRequest } = useTravelDeskTravelRequest(travelDeskTravelRequestIdAsNumber)
 
 const hasInvoiceNumber = computed(() => !isNil(travelDeskTravelRequest.value?.invoiceNumber))
 
-const travelDeskTravelRequestPrintItineraryDialog = ref<InstanceType<
-  typeof TravelDeskTravelRequestPrintItineraryDialog
-> | null>(null)
+const travelDeskTravelRequestPrintItineraryDialog = useTemplateRef(
+  "travelDeskTravelRequestPrintItineraryDialog"
+)
 
 function openPrintItineraryDialog() {
   travelDeskTravelRequestPrintItineraryDialog.value?.open(travelDeskTravelRequestIdAsNumber.value)
