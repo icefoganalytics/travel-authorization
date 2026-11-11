@@ -33,12 +33,31 @@
           title="1. Trip Schedule"
           icon="mdi-calendar-month"
         />
+        <v-sheet class="grey lighten-4 rounded-lg px-4">
+          <v-row>
+            <v-col>
+              <YesNoRowRadioGroup
+                v-model="travelDeskRentalCar.matchFlightTimes"
+                label="Pick-up/Drop-off match flights"
+                class="mt-0"
+                @update:model-value="requestFlightScheduleMatch"
+              />
+            </v-col>
+          </v-row>
+        </v-sheet>
+        <v-alert
+          v-if="flightScheduleFeedback"
+          :type="isFlightScheduleLoading ? 'info' : 'warning'"
+          class="mb-4"
+        >
+          {{ flightScheduleFeedback }}
+        </v-alert>
         <v-row>
           <v-col cols="6">
             <StringDateInput
               v-model="pickUpDate"
               label="Pick-up date *"
-              :disabled="travelDeskRentalCar.matchFlightTimes"
+              :disabled="isMatchingAvailableFlightSchedule"
               :rules="[required]"
               variant="outlined"
               required
@@ -48,6 +67,7 @@
             <TimeTextField
               v-model="pickUpTime"
               label="Pick-up time *"
+              :disabled="isMatchingAvailableFlightSchedule"
               :rules="[required]"
               variant="outlined"
               required
@@ -59,7 +79,7 @@
             <StringDateInput
               v-model="dropOffDate"
               label="Drop-off date *"
-              :disabled="travelDeskRentalCar.matchFlightTimes"
+              :disabled="isMatchingAvailableFlightSchedule"
               :rules="[required]"
               variant="outlined"
               required
@@ -69,24 +89,13 @@
             <TimeTextField
               v-model="dropOffTime"
               label="Drop-off time *"
+              :disabled="isMatchingAvailableFlightSchedule"
               :rules="[required]"
               variant="outlined"
               required
             />
           </v-col>
         </v-row>
-
-        <v-sheet class="grey lighten-4 rounded-lg px-4">
-          <v-row>
-            <v-col>
-              <YesNoRowRadioGroup
-                v-model="travelDeskRentalCar.matchFlightTimes"
-                label="Pick-up/Drop-off match flights"
-                class="mt-0"
-              />
-            </v-col>
-          </v-row>
-        </v-sheet>
 
         <SectionHeader
           title="2. Location Details"
@@ -258,6 +267,7 @@ import travelDeskRentalCarsApi, {
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelDeskRentalCar from "@/use/use-travel-desk-rental-car"
+import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
@@ -276,6 +286,7 @@ const props = defineProps<{
 }>()
 
 const travelDeskRentalCarIdAsNumber = computed(() => parseInt(props.travelDeskRentalCarId))
+const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
 const { travelDeskRentalCar, refresh } = useTravelDeskRentalCar(travelDeskRentalCarIdAsNumber)
 
@@ -298,6 +309,78 @@ const pickUpDate = ref("")
 const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
+
+const {
+  flightStartDate,
+  flightEndDate,
+  flightStartTime,
+  flightEndTime,
+  isFlightScheduleLoading,
+  isFlightScheduleErrored,
+} = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
+
+const unavailableFlightScheduleFields = computed(() => {
+  const fields: string[] = []
+  if (!flightStartDate.value) fields.push("pick-up date")
+  if (!flightStartTime.value) fields.push("pick-up time")
+  if (!flightEndDate.value) fields.push("drop-off date")
+  if (!flightEndTime.value) fields.push("drop-off time")
+
+  return fields
+})
+const isFlightScheduleAvailable = computed(() => {
+  return (
+    !isFlightScheduleLoading.value &&
+    !isFlightScheduleErrored.value &&
+    unavailableFlightScheduleFields.value.length === 0
+  )
+})
+const isMatchingAvailableFlightSchedule = computed(() => {
+  return (
+    travelDeskRentalCar.value?.matchFlightTimes === true &&
+    isFlightScheduleAvailable.value &&
+    Boolean(pickUpDate.value && pickUpTime.value && dropOffDate.value && dropOffTime.value)
+  )
+})
+const flightScheduleFeedback = computed(() => {
+  if (travelDeskRentalCar.value?.matchFlightTimes !== true) return ""
+
+  const unavailableFields = unavailableFlightScheduleFields.value.join(", ")
+  if (isFlightScheduleLoading.value) {
+    return `Flight schedule is loading. Waiting for: ${unavailableFields || "flight schedule confirmation"}. Enter dates and times manually, or wait for matching.`
+  }
+
+  if (isFlightScheduleErrored.value) {
+    return `Flight schedule could not be loaded. Unavailable: ${unavailableFields || "flight schedule"}. Enter dates and times manually, or select No and try Yes again after reloading.`
+  }
+
+  if (unavailableFields) {
+    return `Flight matching is unavailable for: ${unavailableFields}. Enter these fields manually, or add the missing flight details and try Yes again.`
+  }
+
+  return ""
+})
+
+const isFlightScheduleMatchRequested = ref(false)
+
+function applyRequestedFlightSchedule() {
+  if (!isFlightScheduleMatchRequested.value || !isFlightScheduleAvailable.value) return
+  if (!flightStartDate.value || !flightStartTime.value) return
+  if (!flightEndDate.value || !flightEndTime.value) return
+
+  pickUpDate.value = flightStartDate.value
+  pickUpTime.value = flightStartTime.value
+  dropOffDate.value = flightEndDate.value
+  dropOffTime.value = flightEndTime.value
+  isFlightScheduleMatchRequested.value = false
+}
+
+function requestFlightScheduleMatch(value: boolean) {
+  isFlightScheduleMatchRequested.value = value
+  applyRequestedFlightSchedule()
+}
+
+watch(isFlightScheduleAvailable, applyRequestedFlightSchedule)
 
 watch(
   () => travelDeskRentalCar.value?.pickUpDate,

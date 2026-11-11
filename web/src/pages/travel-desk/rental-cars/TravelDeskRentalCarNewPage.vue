@@ -15,55 +15,6 @@
           title="1. Trip Schedule"
           icon="mdi-calendar-month"
         />
-        <v-row>
-          <v-col cols="6">
-            <StringDateInput
-              v-model="pickUpDate"
-              label="Pick-up date *"
-              :picker-date="tripStartDate"
-              :disabled="travelDeskRentalCarAttributes.matchFlightTimes"
-              :min="tripStartDate"
-              :max="tripEndDate"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-          <v-col cols="6">
-            <TimeTextField
-              v-model="pickUpTime"
-              label="Pick-up time *"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <StringDateInput
-              v-model="dropOffDate"
-              label="Drop-off date *"
-              :disabled="travelDeskRentalCarAttributes.matchFlightTimes"
-              :picker-date="tripStartDate"
-              :min="tripStartDate"
-              :max="tripEndDate"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-          <v-col cols="6">
-            <TimeTextField
-              v-model="dropOffTime"
-              label="Drop-off time *"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-        </v-row>
-
         <v-sheet class="grey lighten-4 rounded-lg px-4">
           <v-row>
             <v-col>
@@ -76,6 +27,65 @@
             </v-col>
           </v-row>
         </v-sheet>
+
+        <v-row>
+          <v-col cols="6">
+            <StringDateInput
+              v-model="pickUpDate"
+              label="Pick-up date *"
+              :picker-date="tripStartDate"
+              :disabled="areScheduleFieldsDisabled"
+              :min="tripStartDate"
+              :max="tripEndDate"
+              :rules="[required]"
+              variant="outlined"
+              required
+            />
+          </v-col>
+          <v-col cols="6">
+            <TimeTextField
+              v-model="pickUpTime"
+              label="Pick-up time *"
+              :disabled="areScheduleFieldsDisabled"
+              :rules="[required]"
+              variant="outlined"
+              required
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="6">
+            <StringDateInput
+              v-model="dropOffDate"
+              label="Drop-off date *"
+              :disabled="areScheduleFieldsDisabled"
+              :picker-date="tripStartDate"
+              :min="tripStartDate"
+              :max="tripEndDate"
+              :rules="[required]"
+              variant="outlined"
+              required
+            />
+          </v-col>
+          <v-col cols="6">
+            <TimeTextField
+              v-model="dropOffTime"
+              label="Drop-off time *"
+              :disabled="areScheduleFieldsDisabled"
+              :rules="[required]"
+              variant="outlined"
+              required
+            />
+          </v-col>
+        </v-row>
+
+        <v-alert
+          v-if="travelDeskRentalCarAttributes.matchFlightTimes && !isFlightScheduleAvailable"
+          :type="isFlightScheduleLoading ? 'info' : 'warning'"
+          class="my-4"
+        >
+          {{ flightScheduleMessage }}
+        </v-alert>
 
         <SectionHeader
           title="2. Location Details"
@@ -91,6 +101,7 @@
               item-value="cityUniqueLegacy"
               variant="outlined"
               required
+              @update:model-value="markPickUpCityEdited"
             />
           </v-col>
           <v-col cols="12">
@@ -234,7 +245,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
@@ -280,9 +291,17 @@ const defaultReturnTo = computed(() => {
 })
 const returnTo = useRouteQuery("returnTo", defaultReturnTo)
 
-const { tripStartDate, tripEndDate, flightStartDate, flightEndDate } = useTravelTimesSummary(
-  travelDeskTravelRequestIdAsNumber
-)
+const {
+  tripStartDate,
+  tripEndDate,
+  tripDestination,
+  flightStartDate,
+  flightStartTime,
+  flightEndDate,
+  flightEndTime,
+  isFlightScheduleLoading,
+  isFlightScheduleErrored,
+} = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
 
 const travelDeskRentalCarAttributes = ref<Partial<TravelDeskRentalCar>>({
   travelRequestId: travelDeskTravelRequestIdAsNumber.value,
@@ -305,6 +324,63 @@ const pickUpDate = ref("")
 const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
+
+const isPickUpCityEdited = ref(false)
+
+function markPickUpCityEdited() {
+  isPickUpCityEdited.value = true
+}
+
+watch(
+  tripDestination,
+  (destination) => {
+    if (isPickUpCityEdited.value || isNil(destination)) return
+
+    travelDeskRentalCarAttributes.value.pickUpCity = `${destination.city} (${destination.province})`
+  },
+  {
+    immediate: true,
+  }
+)
+
+const missingFlightScheduleFields = computed(() => {
+  const missingFields: string[] = []
+  if (!flightStartDate.value) missingFields.push("pick-up date")
+  if (!flightStartTime.value) missingFields.push("pick-up time")
+  if (!flightEndDate.value) missingFields.push("drop-off date")
+  if (!flightEndTime.value) missingFields.push("drop-off time")
+
+  return missingFields
+})
+const isFlightScheduleAvailable = computed(
+  () =>
+    !isFlightScheduleLoading.value &&
+    !isFlightScheduleErrored.value &&
+    missingFlightScheduleFields.value.length === 0
+)
+const areScheduleFieldsDisabled = computed(
+  () =>
+    travelDeskRentalCarAttributes.value.matchFlightTimes === true && isFlightScheduleAvailable.value
+)
+const flightScheduleMessage = computed(() => {
+  const missingFields = missingFlightScheduleFields.value.join(", ")
+  const unavailableDetails = missingFields ? ` Unavailable: ${missingFields}.` : ""
+  if (isFlightScheduleLoading.value) {
+    return `Flight schedule is loading.${unavailableDetails} You can enter dates and times manually, or wait for matching to finish. Select No to keep manual entries.`
+  }
+
+  if (isFlightScheduleErrored.value) {
+    return `Flight schedule could not be loaded.${unavailableDetails} Enter dates and times manually, or select No and try Yes again after reloading the page.`
+  }
+
+  return `Flight matching is unavailable.${unavailableDetails} Enter the missing dates and times manually, or add the flight details and try again.`
+})
+
+watch(isFlightScheduleAvailable, (isAvailable) => {
+  if (isAvailable && travelDeskRentalCarAttributes.value.matchFlightTimes === true) {
+    matchWithFlight(true)
+  }
+})
 
 function resetPickUpLocationOtherUnlessOther(value: string | null) {
   if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
@@ -333,13 +409,21 @@ function resetVehicleChangeRationaleIfCompact(value: string | null) {
 }
 
 function matchWithFlight(value: boolean) {
-  if (value && flightStartDate.value && flightEndDate.value) {
-    pickUpDate.value = flightStartDate.value
-    dropOffDate.value = flightEndDate.value
-    // TODO: consider if this should match flight times as well as dates?
-    pickUpTime.value = DEFAULT_TIME
-    dropOffTime.value = DEFAULT_TIME
+  if (
+    !value ||
+    !isFlightScheduleAvailable.value ||
+    !flightStartDate.value ||
+    !flightStartTime.value ||
+    !flightEndDate.value ||
+    !flightEndTime.value
+  ) {
+    return
   }
+
+  pickUpDate.value = flightStartDate.value
+  pickUpTime.value = flightStartTime.value
+  dropOffDate.value = flightEndDate.value
+  dropOffTime.value = flightEndTime.value
 }
 
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
