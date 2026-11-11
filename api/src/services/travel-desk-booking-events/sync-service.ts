@@ -5,7 +5,7 @@ import { SyncSerializer } from "@/integrations/travelport-integration/serializer
 import db, { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
 export class SyncService extends BaseService {

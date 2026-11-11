@@ -4,7 +4,7 @@ import { TravelDeskBookingEvent } from "@/models"
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
 import { travelDeskBookingEventFactory } from "@/factories"
 

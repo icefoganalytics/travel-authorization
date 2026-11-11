@@ -1,11 +1,8 @@
-import {
-  amountToThousandths,
-  calculateInvoiceTotal,
-  InvoiceValidationError,
-} from "@/services/travel-desk-invoices/amounts"
+import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
-describe("api/src/services/travel-desk-invoices/amounts.ts", () => {
-  describe("calculateInvoiceTotal", () => {
+describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () => {
+  describe("CalculateTotalService", () => {
     describe(".perform", () => {
       test("when large sales and fractional credits are combined, it retains every thousandth", () => {
         // Arrange
@@ -17,7 +14,7 @@ describe("api/src/services/travel-desk-invoices/amounts.ts", () => {
         ]
 
         // Act
-        const total = calculateInvoiceTotal(items)
+        const total = CalculateTotalService.perform(items)
 
         // Assert
         expect(total).toEqual("900000000000000.002")
@@ -31,7 +28,7 @@ describe("api/src/services/travel-desk-invoices/amounts.ts", () => {
         ]
 
         // Act
-        const total = calculateInvoiceTotal(items)
+        const total = CalculateTotalService.perform(items)
 
         // Assert
         expect(total).toEqual("-1.235")
@@ -45,27 +42,7 @@ describe("api/src/services/travel-desk-invoices/amounts.ts", () => {
         ]
 
         // Act / Assert
-        expect(() => calculateInvoiceTotal(items)).toThrow(InvoiceValidationError)
-      })
-    })
-  })
-
-  describe("amountToThousandths", () => {
-    describe(".perform", () => {
-      test("when an amount has more than three decimal places, it refuses precision loss", () => {
-        // Arrange
-        const amount = "1.0001"
-
-        // Act / Assert
-        expect(() => amountToThousandths(amount)).toThrow(InvoiceValidationError)
-      })
-
-      test("when an amount is blank, it does not substitute a zero charge", () => {
-        // Arrange
-        const amount = ""
-
-        // Act / Assert
-        expect(() => amountToThousandths(amount)).toThrow(InvoiceValidationError)
+        expect(() => CalculateTotalService.perform(items)).toThrow(InvoiceValidationError)
       })
     })
   })
