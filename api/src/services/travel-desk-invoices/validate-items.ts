@@ -4,7 +4,7 @@ import { TravelDeskProductType } from "@/models"
 import { type BookingEventSnapshot } from "@/integrations/travelport-integration/models/booking-event-snapshot"
 import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
 export type InvoiceItemAttributes = {
   travelDeskProductTypeId: number

@@ -8,10 +8,8 @@ import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
 import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
 import BaseService from "@/services/base-service"
-import {
-  calculateInvoiceTotal,
-  InvoiceValidationError,
-} from "@/services/travel-desk-invoices/amounts"
+import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import {
   createInvoiceItems,
   validateLinkedFlightSegments,
@@ -83,7 +81,7 @@ export class CreateService extends BaseService {
       sourceBookingEventId,
       sourceServiceFeeEventIds
     )
-    const grossAmount = calculateInvoiceTotal(items)
+    const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async () => {
       await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)

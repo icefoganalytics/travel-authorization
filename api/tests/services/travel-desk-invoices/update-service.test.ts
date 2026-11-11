@@ -4,7 +4,7 @@ import {
   TravelDeskFlightSegment,
   TravelDeskInvoice,
 } from "@/models"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/amounts"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
 import {
   travelDeskInvoiceFactory,
