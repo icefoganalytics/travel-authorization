@@ -18,6 +18,8 @@ A travel request may have multiple invoices. Request ownership, record locator, 
 
 Amounts retain three decimal places. Sales retain their sign, refunds subtract their absolute value, and void lines contribute zero. Totals use integer thousandths to avoid floating-point rounding.
 
+`TravelDeskInvoices.CalculateTotalService` owns these sale, refund, and void rules. Decimal-to-thousandths conversions live in separate `utils` modules; `InvoiceValidationError` has its own service-error module.
+
 Deleting an invoice also soft-deletes its lines while retaining the source snapshot. Administrators manage product categories; built-in categories and categories referenced by invoice history cannot be deleted.
 
 The existing request invoice number identifies a legacy TravCom invoice, not a Travelport booking. Passenger name record (PNR) attachments and the legacy itinerary remain separate. Request linkage and itinerary cutover belong to [#293](https://github.com/icefoganalytics/travel-authorization/issues/293); reporting belongs to [#422](https://github.com/icefoganalytics/travel-authorization/issues/422).
