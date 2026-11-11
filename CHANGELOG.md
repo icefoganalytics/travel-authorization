@@ -35,6 +35,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
+- Expense prefill excludes airfare while preserving other eligible expenses; flight estimates remain unchanged.
 - Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns order the full authorized result set, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
 - Owners can complete Travel Desk options review for requests without flights once all review data has loaded.
 - Travel Desk API responses use explicit fields without permission-check association data. Workflow actions return the same request details and passenger-document availability as request viewing.

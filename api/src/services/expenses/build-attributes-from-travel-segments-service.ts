@@ -55,14 +55,19 @@ export class BuildAttributesFromTravelSegmentsService extends BaseService {
         throw new Error(`Missing departure date on TravelSegment#${travelSegment.id}`)
       }
 
-      const travelMethodExpense = await this.buildTravelMethodExpense({
-        type: this.type,
-        modeOfTransport: travelSegment.modeOfTransport,
-        departureCity: travelSegment.departureLocation.city,
-        arrivalCity: travelSegment.arrivalLocation.city,
-        departureAt: travelSegment.departureAt,
-      })
-      expensesAttributes.push(travelMethodExpense)
+      const isAirfareExpense =
+        this.type === Expense.Types.EXPENSE &&
+        travelSegment.modeOfTransport === Stop.TravelMethods.AIRCRAFT
+      if (!isAirfareExpense) {
+        const travelMethodExpense = await this.buildTravelMethodExpense({
+          type: this.type,
+          modeOfTransport: travelSegment.modeOfTransport,
+          departureCity: travelSegment.departureLocation.city,
+          arrivalCity: travelSegment.arrivalLocation.city,
+          departureAt: travelSegment.departureAt,
+        })
+        expensesAttributes.push(travelMethodExpense)
+      }
 
       const accommodationType = travelSegment.accommodationType
       const nextTravelSegment = this.travelSegments[index + 1]
