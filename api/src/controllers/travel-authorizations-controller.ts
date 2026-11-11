@@ -1,3 +1,4 @@
+import { col } from "@sequelize/core"
 import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
@@ -6,7 +7,7 @@ import { TravelAuthorization } from "@/models"
 import { TravelAuthorizationsPolicy } from "@/policies"
 import { UpdateService, CreateService, DestroyService } from "@/services/travel-authorizations"
 import { IndexSerializer, ShowSerializer } from "@/serializers/travel-authorizations"
-import BaseController from "@/controllers/base-controller"
+import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 
 export class TravelAuthorizationsController extends BaseController<TravelAuthorization> {
   async index() {
@@ -27,7 +28,21 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
         ["stops", "id", "ASC"],
         ["travelSegments", "segmentNumber", "ASC"],
         ["travelSegments", "id", "ASC"],
-      ])
+      ])?.map<ModelOrder>((orderItem) => {
+        if (orderItem.length !== 2) return orderItem
+
+        // Select aliases must stay unqualified inside Sequelize's pagination subquery.
+        switch (orderItem[0]) {
+          case "travelerName":
+          case "purposeText":
+          case "departingAt":
+          case "returningAt":
+          case "travelDeskStatus":
+            return [col(orderItem[0]), orderItem[1]]
+          default:
+            return orderItem
+        }
+      })
       const scopedTravelAuthorizations = TravelAuthorizationsPolicy.applyScope(
         scopes,
         this.currentUser
