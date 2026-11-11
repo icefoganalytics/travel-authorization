@@ -14,7 +14,7 @@ function trimSourceValue(value: string | null): string | null {
   return value.trim()
 }
 
-export class IndexSerializer extends BaseSerializer<TravelOrderEvent> {
+export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   perform() {
     const eventType = trimSourceValue(this.record.eventType)
     const recordLocator = trimSourceValue(this.record.recordLocator)
@@ -123,4 +123,4 @@ export class IndexSerializer extends BaseSerializer<TravelOrderEvent> {
   }
 }
 
-export default IndexSerializer
+export default SyncSerializer

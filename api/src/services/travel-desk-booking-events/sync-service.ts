@@ -1,7 +1,7 @@
 import logger from "@/utils/logger"
 
 import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
-import { IndexSerializer } from "@/integrations/travelport-integration/serializers/travel-order-events"
+import { SyncSerializer } from "@/integrations/travelport-integration/serializers/travel-order-events"
 import db, { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
@@ -20,7 +20,7 @@ export class SyncService extends BaseService {
     return db.transaction(async (transaction) => {
       const bookingEvents: TravelDeskBookingEvent[] = []
       await this.syncSourceEvents(recordLocator, async (sourceEvent) => {
-        const serializedSourceEvent = IndexSerializer.perform(sourceEvent)
+        const serializedSourceEvent = SyncSerializer.perform(sourceEvent)
         const { travelOrderIdentifier, ...sourceAttributes } = serializedSourceEvent
         const sourceRecordLocator = sourceAttributes.recordLocator?.toUpperCase() ?? null
         const attributes = {

@@ -1,1 +1,1 @@
-export { IndexSerializer } from "./index-serializer"
+export { SyncSerializer } from "./sync-serializer"
