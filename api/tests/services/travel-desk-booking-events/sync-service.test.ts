@@ -67,7 +67,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         })
 
         // Act
-        await SyncService.perform(" src001 ")
+        await SyncService.perform("SRC001")
         const bookingEvents = await TravelDeskBookingEvent.findAll({
           order: [["externalTravelportIdentifier", "ASC"]],
         })

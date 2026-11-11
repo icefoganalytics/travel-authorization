@@ -14,17 +14,16 @@ export class SyncService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    const recordLocator = this.recordLocator.trim().toUpperCase()
-    this.assertRecordLocatorIsValid(recordLocator)
+    this.assertRecordLocatorIsValid(this.recordLocator)
 
     await db.transaction(async () => {
-      await this.syncSourceEvents(recordLocator, async (sourceEvent) => {
+      await this.syncSourceEvents(this.recordLocator, async (sourceEvent) => {
         const serializedSourceEvent = SyncSerializer.perform(sourceEvent)
         const { travelOrderIdentifier, ...sourceAttributes } = serializedSourceEvent
         const attributes = {
           ...sourceAttributes,
           externalTravelportIdentifier: travelOrderIdentifier,
-          recordLocator,
+          recordLocator: this.recordLocator,
         }
         const bookingEvent = await TravelDeskBookingEvent.findOne({
           where: { externalTravelportIdentifier: travelOrderIdentifier },
