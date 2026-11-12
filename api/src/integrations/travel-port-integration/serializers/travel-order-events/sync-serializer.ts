@@ -8,6 +8,10 @@ import {
 } from "@/integrations/travel-port-integration/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
+import { SyncSerializer as AirReservationSegmentSyncSerializer } from "@/integrations/travel-port-integration/serializers/air-reservation-segments"
+import { SyncSerializer as PassengerSyncSerializer } from "@/integrations/travel-port-integration/serializers/passengers"
+import { SyncSerializer as ServiceFeeTransactionSyncSerializer } from "@/integrations/travel-port-integration/serializers/service-fee-transactions"
+
 export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   perform() {
     const eventType = this.trimSourceValue(this.record.eventType)
@@ -57,16 +61,7 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
       throw new Error("Expected passengers to be preloaded.")
     }
 
-    return passengers.map((passenger) => {
-      const firstName = this.trimSourceValue(passenger.firstName)
-      const lastName = this.trimSourceValue(passenger.lastName)
-
-      return {
-        ...pick(passenger, ["lastNameElement", "passengerElement"]),
-        firstName,
-        lastName,
-      }
-    })
+    return PassengerSyncSerializer.perform(passengers)
   }
 
   private serializeAirReservationSegments(airReservationSegments: AirReservationSegment[] | undefined) {
@@ -74,28 +69,7 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
       throw new Error("Expected airReservationSegments to be preloaded.")
     }
 
-    return airReservationSegments.map((segment) => {
-      const segmentStatus = this.trimSourceValue(segment.segmentStatus)
-      const carrierCode = this.trimSourceValue(segment.carrierCode)
-      const boardPoint = this.trimSourceValue(segment.boardPoint)
-      const offPoint = this.trimSourceValue(segment.offPoint)
-      const flightNumber = this.trimSourceValue(segment.flightNumber)
-      const departureDate = this.trimSourceValue(segment.departureDate)
-      const departureTime = this.trimSourceValue(segment.departureTime)
-      const arrivalTime = this.trimSourceValue(segment.arrivalTime)
-
-      return {
-        ...pick(segment, ["airSegmentNumber", "changeOfDay"]),
-        segmentStatus,
-        carrierCode,
-        boardPoint,
-        offPoint,
-        flightNumber,
-        departureDate,
-        departureTime,
-        arrivalTime,
-      }
-    })
+    return AirReservationSegmentSyncSerializer.perform(airReservationSegments)
   }
 
   private serializeServiceFeeTransaction(
@@ -107,26 +81,7 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
 
     if (isNil(serviceFeeTransaction)) return null
 
-    const activeVoidStatus = this.trimSourceValue(serviceFeeTransaction.activeVoidStatus)
-    const serviceFeeDocumentNumber = this.trimSourceValue(serviceFeeTransaction.serviceFeeDocumentNumber)
-    const issueDate = this.trimSourceValue(serviceFeeTransaction.issueDate)
-    const currencyCode = this.trimSourceValue(serviceFeeTransaction.currencyCode)
-    const nameOnServiceFee = this.trimSourceValue(serviceFeeTransaction.nameOnServiceFee)
-    const relatedTicketDocumentNumber = this.trimSourceValue(
-      serviceFeeTransaction.relatedTicketDocumentNumber
-    )
-    const relatedInvoiceNumber = this.trimSourceValue(serviceFeeTransaction.relatedInvoiceNumber)
-
-    return {
-      ...pick(serviceFeeTransaction, ["serviceFeeAmount", "commissionAmount"]),
-      activeVoidStatus,
-      serviceFeeDocumentNumber,
-      issueDate,
-      currencyCode,
-      nameOnServiceFee,
-      relatedTicketDocumentNumber,
-      relatedInvoiceNumber,
-    }
+    return ServiceFeeTransactionSyncSerializer.perform(serviceFeeTransaction)
   }
 }
 
