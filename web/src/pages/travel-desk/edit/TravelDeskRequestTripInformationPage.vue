@@ -1,5 +1,16 @@
 <template>
   <v-sheet>
+    <v-alert
+      v-if="isErrored"
+      type="error"
+    >
+      Trip information could not be loaded.
+      <v-btn
+        variant="text"
+        @click="refresh"
+        >Retry</v-btn
+      >
+    </v-alert>
     <v-skeleton-loader
       v-if="isNil(travelDeskTravelRequest)"
       type="card"
@@ -100,6 +111,11 @@
           Back
         </v-btn>
       </div>
+      <TravelDeskTravelRequestTravelportBookingCard
+        :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
+        :record-locator="travelDeskTravelRequest.travelportRecordLocator"
+        @saved="travelDeskTravelRequest.travelportRecordLocator = $event"
+      />
     </div>
   </v-sheet>
 </template>
@@ -124,12 +140,14 @@ import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import EnhancedFileInput from "@/components/common/EnhancedFileInput.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 
+import TravelDeskTravelRequestTravelportBookingCard from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestTravelportBookingCard.vue"
+
 const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
-const { travelDeskTravelRequest, refresh } = useTravelDeskTravelRequest(
+const { travelDeskTravelRequest, isErrored, refresh } = useTravelDeskTravelRequest(
   travelDeskTravelRequestIdAsNumber
 )
 

@@ -1,4 +1,4 @@
-import { isNil, isString } from "lodash"
+import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
@@ -9,6 +9,7 @@ import { TravelDeskTravelRequests } from "@/policies"
 import { SyncService } from "@/services/travel-desk-booking-events"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import { RequireLinkedTravelportBookingService } from "@/services/travel-desk-travel-requests/require-linked-travelport-booking-service"
 
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 
@@ -31,14 +32,8 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const recordLocator = this.query.recordLocator
-      if (!isString(recordLocator) || !/^[A-Z0-9]{6}$/.test(recordLocator.trim().toUpperCase())) {
-        return this.response.status(422).json({
-          message: "Record locator must contain six letters or numbers.",
-        })
-      }
-
-      const where = { recordLocator: recordLocator.trim().toUpperCase() }
+      const recordLocator = RequireLinkedTravelportBookingService.perform(travelDeskTravelRequest)
+      const where = { recordLocator }
       const { limit, offset } = this.pagination
       const totalCount = await TravelDeskBookingEvent.count({ where })
       const travelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
@@ -54,6 +49,10 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         totalCount,
       })
     } catch (error) {
+      if (error instanceof InvoiceValidationError) {
+        return this.response.status(422).json({ message: error.message })
+      }
+
       logger.error(`Failed to index travel desk booking events: ${error}`, { error })
       return this.response.status(400).json({
         message: "Failed to load booking history.",
@@ -77,15 +76,8 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const { recordLocator } = this.request.body
-      if (!isString(recordLocator)) {
-        return this.response.status(422).json({
-          message: "Record locator must contain six letters or numbers.",
-        })
-      }
-
-      const normalizedRecordLocator = recordLocator.trim().toUpperCase()
-      await SyncService.perform(normalizedRecordLocator)
+      const recordLocator = RequireLinkedTravelportBookingService.perform(travelDeskTravelRequest)
+      await SyncService.perform(recordLocator)
       return this.response.status(204).send()
     } catch (error) {
       if (error instanceof InvoiceValidationError) {

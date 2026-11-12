@@ -6,7 +6,11 @@ import { SourceUnavailableError } from "@/services/travel-desk-booking-events/so
 
 import { mockCurrentUser, request } from "@/support"
 
-import { travelDeskBookingEventFactory, travelDeskTravelRequestFactory, userFactory } from "@/factories"
+import {
+  travelDeskBookingEventFactory,
+  travelDeskTravelRequestFactory,
+  userFactory,
+} from "@/factories"
 
 describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-events-controller.ts", () => {
   describe("TravelDeskTravelRequests.TravelDeskBookingEventsController", () => {
@@ -74,7 +78,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         "?recordLocator[]=SRC001",
         "?recordLocator[value]=SRC001",
       ])(
-        "when the locator query is %s, it rejects missing, invalid, or non-string inputs",
+        "when the request is unlinked, it rejects browsing regardless of query %s",
         async (query) => {
           // Arrange
           const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
@@ -89,7 +93,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Assert
           expect(response.status).toEqual(422)
           expect(response.body).toEqual({
-            message: "Record locator must contain six letters or numbers.",
+            message: "Link a Travelport booking to this travel request first.",
           })
         }
       )
@@ -97,52 +101,56 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
       test.each([
         { page: 1, travelOrderIdentifier: 940001 },
         { page: 2, travelOrderIdentifier: 940002 },
-      ])("when page $page is requested, it returns only that stable page of cached history", async ({
-        page,
-        travelOrderIdentifier,
-      }) => {
-        // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const travelRequest = await travelDeskTravelRequestFactory.create()
-        mockCurrentUser(officer)
-        await travelDeskBookingEventFactory.create({
-          externalTravelPortIdentifier: 940002,
-          recordLocator: "SRC001",
-        })
-        await travelDeskBookingEventFactory.create({
-          externalTravelPortIdentifier: 940001,
-          recordLocator: "SRC001",
-        })
-        await travelDeskBookingEventFactory.create({
-          externalTravelPortIdentifier: 940003,
-          recordLocator: "OTHER1",
-        })
-        vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(
-          new Error("Source must not be read while browsing the cache")
-        )
+      ])(
+        "when page $page is requested, it returns only that stable page of cached history",
+        async ({ page, travelOrderIdentifier }) => {
+          // Arrange
+          const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+          const travelRequest = await travelDeskTravelRequestFactory.create({
+            travelportRecordLocator: "SRC001",
+          })
+          mockCurrentUser(officer)
+          await travelDeskBookingEventFactory.create({
+            externalTravelportIdentifier: 940002,
+            recordLocator: "SRC001",
+          })
+          await travelDeskBookingEventFactory.create({
+            externalTravelportIdentifier: 940001,
+            recordLocator: "SRC001",
+          })
+          await travelDeskBookingEventFactory.create({
+            externalTravelportIdentifier: 940003,
+            recordLocator: "OTHER1",
+          })
+          vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(
+            new Error("Source must not be read while browsing the cache")
+          )
 
-        // Act
-        const response = await request()
-          .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
-          .query({ recordLocator: " src001 ", page, perPage: 1 })
+          // Act
+          const response = await request()
+            .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
+            .query({ recordLocator: "OTHER1", page, perPage: 1 })
 
-        // Assert
-        expect(response.status).toEqual(200)
-        expect(response.body).toEqual({
-          travelDeskBookingEvents: [
-            expect.objectContaining({
-              travelOrderIdentifier,
-              recordLocator: "SRC001",
-            }),
-          ],
-          totalCount: 2,
-        })
-      })
+          // Assert
+          expect(response.status).toEqual(200)
+          expect(response.body).toEqual({
+            travelDeskBookingEvents: [
+              expect.objectContaining({
+                travelOrderIdentifier,
+                recordLocator: "SRC001",
+              }),
+            ],
+            totalCount: 2,
+          })
+        }
+      )
 
       test("when a page is beyond cached history, it returns an empty page with the matching total", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelportRecordLocator: "SRC001",
+        })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({ recordLocator: "SRC001" })
         await travelDeskBookingEventFactory.create({ recordLocator: "OTHER1" })
@@ -198,7 +206,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
       })
 
       test.each([undefined, "", "INVALID", ["SRC001"], { value: "SRC001" }])(
-        "when the locator body is %j, it rejects missing, invalid, or non-string inputs",
+        "when the request is unlinked, it rejects synchronization regardless of body %j",
         async (recordLocator) => {
           // Arrange
           const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
@@ -213,7 +221,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Assert
           expect(response.status).toEqual(422)
           expect(response.body).toEqual({
-            message: "Record locator must contain six letters or numbers.",
+            message: "Link a Travelport booking to this travel request first.",
           })
         }
       )
@@ -221,7 +229,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
       test("when the source is unavailable, it reports source unavailability", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelportRecordLocator: "SRC001",
+        })
         mockCurrentUser(officer)
         vi.spyOn(SyncService, "perform").mockRejectedValue(
           new SourceUnavailableError("Booking source is unavailable.")
@@ -240,7 +250,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
       test("when synchronization fails unexpectedly, it returns the booking synchronization error", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelportRecordLocator: "SRC001",
+        })
         mockCurrentUser(officer)
         vi.spyOn(SyncService, "perform").mockRejectedValue(new Error("Local write failed."))
 
@@ -254,10 +266,12 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         expect(response.body).toEqual({ message: "Failed to sync booking history." })
       })
 
-      test("when a normalized locator matches source history, it synchronizes without returning a collection", async () => {
+      test("when the request is linked, it synchronizes its booking without a locator body", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelportRecordLocator: "T94001",
+        })
         mockCurrentUser(officer)
         await sourceDatabase("Passenger").whereIn("TravelOrderIdentifier", [940001, 940002]).del()
         await sourceDatabase("AirRsrvSeg").whereIn("TravelOrderIdentifier", [940001, 940002]).del()
@@ -276,7 +290,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
-          .send({ recordLocator: " t94001 " })
+          .send({})
 
         // Assert
         expect(response.status).toEqual(204)

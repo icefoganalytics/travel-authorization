@@ -51,7 +51,6 @@ export type TravelDeskBookingEventAsIndex = {
 }
 
 export type QueryOptions = {
-  recordLocator: string
   page: number
   perPage: number
 }
@@ -73,7 +72,7 @@ export const travelDeskBookingEventsApi = {
   },
   async sync(
     travelDeskTravelRequestId: number,
-    attributes: { recordLocator: string },
+    attributes: Record<string, never> = {},
     options: { signal?: AbortSignal } = {}
   ): Promise<void> {
     await http.post(

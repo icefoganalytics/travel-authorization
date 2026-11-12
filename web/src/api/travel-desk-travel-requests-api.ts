@@ -103,6 +103,7 @@ export type TravelDeskTravelRequestAsIndex = Pick<
 
 export type TravelDeskTravelRequestAsShow = TravelDeskTravelRequest & {
   hasPassengerNameRecordDocument: boolean
+  travelportRecordLocator: string | null
 }
 
 export type TravelDeskTravelRequestAsReference = Pick<
