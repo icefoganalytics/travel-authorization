@@ -1,4 +1,4 @@
-import { IsolationLevel, QueryTypes, sql } from "@sequelize/core"
+import { IsolationLevel, Op, QueryTypes, sql } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 
@@ -27,10 +27,7 @@ export class SyncService extends BaseService {
         { type: QueryTypes.SELECT }
       )
 
-      // Unseen rows stay deleted; a failed source scan rolls this back.
-      await TravelDeskBookingEvent.destroy({
-        where: { recordLocator: this.recordLocator },
-      })
+      const matchedSourceIds: number[] = []
       await this.syncSourceEvents(this.recordLocator, async (sourceEvent) => {
         const serializedSourceEvent = TravelOrderEvents.SyncSerializer.perform(sourceEvent)
         const { travelOrderIdentifier, ...sourceAttributes } = serializedSourceEvent
@@ -51,6 +48,15 @@ export class SyncService extends BaseService {
             await bookingEvent.restore()
           }
         }
+        matchedSourceIds.push(travelOrderIdentifier)
+      })
+
+      // Only remove unmatched events after the complete source scan succeeds.
+      await TravelDeskBookingEvent.destroy({
+        where: {
+          recordLocator: this.recordLocator,
+          externalTravelportIdentifier: { [Op.notIn]: matchedSourceIds },
+        },
       })
     })
   }
