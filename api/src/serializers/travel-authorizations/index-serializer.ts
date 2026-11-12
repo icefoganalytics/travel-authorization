@@ -106,30 +106,34 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     )
     const unprocessedExpenseCount = this.countUnprocessedExpenses(expenses)
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
+    const phase = this.determinePhase(status, travelSegments, expenses, currentDate)
+    const action = this.determineAction(status, travelSegments, travelDeskTravelRequest, currentDate)
+    const isTravelling = this.isTravelling(status, travelSegments, currentDate)
+    const attributes = pick(this.record, [
+      "id",
+      "eventName",
+      "purposeId",
+      "wizardStepName",
+      "status",
+      "dateBackToWorkEstimate",
+      "createdAt",
+      "updatedAt",
+    ])
 
     return {
-      ...pick(this.record, [
-        "id",
-        "eventName",
-        "purposeId",
-        "wizardStepName",
-        "status",
-        "dateBackToWorkEstimate",
-        "createdAt",
-        "updatedAt",
-      ]),
+      ...attributes,
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
       finalDestination: finalDestinationLocation,
       departingAt: departingAt?.toISOString(),
       returningAt: returningAt?.toISOString(),
-      phase: this.determinePhase(status, travelSegments, expenses, currentDate),
-      action: this.determineAction(status, travelSegments, travelDeskTravelRequest, currentDate),
+      phase,
+      action,
       firstName: traveller.firstName,
       lastName: traveller.lastName,
       department: traveller.department,
       branch: traveller.branch,
-      isTravelling: this.isTravelling(status, travelSegments, currentDate),
+      isTravelling,
       unprocessedExpenseCount,
       locations: serializedLocations,
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
