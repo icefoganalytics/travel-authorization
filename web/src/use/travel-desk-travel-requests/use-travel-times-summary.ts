@@ -1,5 +1,6 @@
 import { type Ref, computed } from "vue"
 import { isNil } from "lodash"
+import { DateTime } from "luxon"
 
 import useTravelDeskFlightSegments, {
   type TravelDeskFlightSegmentsQueryOptions,
@@ -90,11 +91,17 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
 
     const startAt = firstTravelDeskFlightSegment.value?.departAt
     const endAt = lastTravelDeskFlightSegment.value?.arriveAt
-    const startDate = startAt?.slice(0, 10)
-    const startTime = startAt?.slice(11, 16)
-    const endDate = endAt?.slice(0, 10)
-    const endTime = endAt?.slice(11, 16)
-    if (!startDate || !startTime || !endDate || !endTime) return null
+    if (isNil(startAt) || isNil(endAt)) return null
+    if (!startAt.includes("T") || !endAt.includes("T")) return null
+
+    const startDateTime = DateTime.fromISO(startAt, { setZone: true })
+    const endDateTime = DateTime.fromISO(endAt, { setZone: true })
+    if (!startDateTime.isValid || !endDateTime.isValid) return null
+
+    const startDate = startDateTime.toFormat("yyyy-MM-dd")
+    const startTime = startDateTime.toFormat("HH:mm")
+    const endDate = endDateTime.toFormat("yyyy-MM-dd")
+    const endTime = endDateTime.toFormat("HH:mm")
 
     return {
       startDate,
