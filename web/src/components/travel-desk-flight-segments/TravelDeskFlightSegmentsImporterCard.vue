@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading">
     <v-card-title>
-      <h4>Import Flight Segments from TravelPort&trade; Text</h4>
+      <h4>Import Flight Segments from Travelport&trade; Text</h4>
     </v-card-title>
     <v-card-text>
       <v-row>
