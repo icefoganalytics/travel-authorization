@@ -252,13 +252,21 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when local persistence fails, it preserves the original failure", async () => {
         // Arrange
-        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue([
-          TravelOrderEvent.build({
-            travelOrderIdentifier: 910001,
-            recordLocator: "SRC001",
-            databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
-          }),
-        ])
+        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue(
+          [
+            TravelOrderEvent.build({
+              travelOrderIdentifier: 910001,
+              recordLocator: "SRC001",
+              databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
+            }),
+          ].map((event) =>
+            Object.assign(event, {
+              passengers: [],
+              airReservationSegments: [],
+              serviceFeeTransaction: null,
+            })
+          )
+        )
         const persistenceError = new Error("Local database write failed")
         vi.spyOn(TravelDeskBookingEvent, "create").mockRejectedValue(persistenceError)
 
@@ -268,18 +276,26 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when a later event cannot persist, it rolls back all event changes", async () => {
         // Arrange
-        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue([
-          TravelOrderEvent.build({
-            travelOrderIdentifier: 910001,
-            recordLocator: "SRC001",
-            databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
-          }),
-          TravelOrderEvent.build({
-            travelOrderIdentifier: 910002,
-            recordLocator: "SRC001",
-            databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
-          }),
-        ])
+        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue(
+          [
+            TravelOrderEvent.build({
+              travelOrderIdentifier: 910001,
+              recordLocator: "SRC001",
+              databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
+            }),
+            TravelOrderEvent.build({
+              travelOrderIdentifier: 910002,
+              recordLocator: "SRC001",
+              databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
+            }),
+          ].map((event) =>
+            Object.assign(event, {
+              passengers: [],
+              airReservationSegments: [],
+              serviceFeeTransaction: null,
+            })
+          )
+        )
         const create = TravelDeskBookingEvent.create.bind(TravelDeskBookingEvent)
         vi.spyOn(TravelDeskBookingEvent, "create")
           .mockImplementationOnce((attributes, options) => create(attributes, options))
@@ -299,19 +315,27 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           recordLocator: "SRC001",
           bookingFileVersionNumber: 1,
         })
-        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue([
-          TravelOrderEvent.build({
-            travelOrderIdentifier: 910001,
-            recordLocator: "SRC001",
-            bookingFileVersionNumber: 2,
-            databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
-          }),
-          TravelOrderEvent.build({
-            travelOrderIdentifier: 910002,
-            recordLocator: "SRC001",
-            databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
-          }),
-        ])
+        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue(
+          [
+            TravelOrderEvent.build({
+              travelOrderIdentifier: 910001,
+              recordLocator: "SRC001",
+              bookingFileVersionNumber: 2,
+              databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
+            }),
+            TravelOrderEvent.build({
+              travelOrderIdentifier: 910002,
+              recordLocator: "SRC001",
+              databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
+            }),
+          ].map((event) =>
+            Object.assign(event, {
+              passengers: [],
+              airReservationSegments: [],
+              serviceFeeTransaction: null,
+            })
+          )
+        )
         vi.spyOn(TravelDeskBookingEvent, "create").mockRejectedValue(
           new Error("Later local write failed")
         )
@@ -330,18 +354,26 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when a later event cannot persist, it propagates the write failure", async () => {
         // Arrange
-        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue([
-          TravelOrderEvent.build({
-            travelOrderIdentifier: 910001,
-            recordLocator: "SRC001",
-            databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
-          }),
-          TravelOrderEvent.build({
-            travelOrderIdentifier: 910002,
-            recordLocator: "SRC001",
-            databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
-          }),
-        ])
+        vi.spyOn(TravelOrderEvent, "findAll").mockResolvedValue(
+          [
+            TravelOrderEvent.build({
+              travelOrderIdentifier: 910001,
+              recordLocator: "SRC001",
+              databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
+            }),
+            TravelOrderEvent.build({
+              travelOrderIdentifier: 910002,
+              recordLocator: "SRC001",
+              databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
+            }),
+          ].map((event) =>
+            Object.assign(event, {
+              passengers: [],
+              airReservationSegments: [],
+              serviceFeeTransaction: null,
+            })
+          )
+        )
         const create = TravelDeskBookingEvent.create.bind(TravelDeskBookingEvent)
         const persistenceError = new Error("Second local write failed")
         vi.spyOn(TravelDeskBookingEvent, "create")

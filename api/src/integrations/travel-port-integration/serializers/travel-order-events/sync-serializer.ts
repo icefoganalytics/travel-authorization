@@ -1,4 +1,4 @@
-import { isNil } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import {
   AirReservationSegment,
@@ -51,7 +51,9 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   }
 
   private serializePassengers(passengers: Passenger[] | undefined) {
-    if (isNil(passengers)) return []
+    if (isUndefined(passengers)) {
+      throw new Error("Expected passengers to be preloaded.")
+    }
 
     return passengers.map((passenger) => {
       const firstName = trimSourceValue(passenger.firstName)
@@ -67,7 +69,9 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   }
 
   private serializeAirReservationSegments(airReservationSegments: AirReservationSegment[] | undefined) {
-    if (isNil(airReservationSegments)) return []
+    if (isUndefined(airReservationSegments)) {
+      throw new Error("Expected airReservationSegments to be preloaded.")
+    }
 
     return airReservationSegments.map((segment) => {
       const segmentStatus = trimSourceValue(segment.segmentStatus)
@@ -97,6 +101,10 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   private serializeServiceFeeTransaction(
     serviceFeeTransaction: ServiceFeeTransaction | null | undefined
   ) {
+    if (isUndefined(serviceFeeTransaction)) {
+      throw new Error("Expected serviceFeeTransaction to be preloaded.")
+    }
+
     if (isNil(serviceFeeTransaction)) return null
 
     const activeVoidStatus = trimSourceValue(serviceFeeTransaction.activeVoidStatus)
