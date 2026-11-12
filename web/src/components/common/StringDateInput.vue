@@ -2,6 +2,8 @@
   <v-date-input
     v-model="date"
     v-bind="$attrs"
+    :readonly="readonly"
+    :menu-props="readonly ? { modelValue: false } : undefined"
     @update:model-value="emitStringResult"
   />
 </template>
@@ -18,6 +20,7 @@ const props = withDefaults(
   defineProps<{
     modelValue: string | null | undefined
     returnFormat?: string
+    readonly?: boolean
   }>(),
   {
     returnFormat: "yyyy-MM-dd",
