@@ -40,11 +40,9 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import {
-  TravelAuthorizationStatuses,
-  TravelAuthorizationTripTypes,
-} from "@/api/travel-authorizations-api"
+import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
+import determineFinalDestinationSegment from "@/use/travel-authorizations/determine-final-destination-segment"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
@@ -77,12 +75,9 @@ const travelLocationId = computed(() => {
   const matchingTravelSegments = travelSegments.filter(
     (segment) => segment.isActual === Boolean(tripTypeActual)
   )
-  const finalDestinationSegment =
-    tripType === TravelAuthorizationTripTypes.ROUND_TRIP
-      ? matchingTravelSegments.at(-2)
-      : matchingTravelSegments.at(-1)
-
-  return finalDestinationSegment?.arrivalLocationId ?? null
+  return (
+    determineFinalDestinationSegment(tripType, matchingTravelSegments)?.arrivalLocationId ?? null
+  )
 })
 
 const requestorDisplayName = computed(() => {
