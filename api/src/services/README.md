@@ -30,3 +30,10 @@ Key points:
 - Compute summaries through a separate `computeSummaries()` → `compute{Summary}()` pipeline.
 - When a policy scope produces a JOIN, use `.aggregate()` with `includeIgnoreAttributes: false`,
   `plain: true`, and `?? 0`, following the local template.
+
+## Travel Authorization Summaries
+
+`TravelAuthorizations.BuildSummaryService` computes a request's destination, phase, available
+actions, travelling state, and unprocessed expense count from preloaded data and an explicit
+current time. It performs no database reads or writes. The index serializer validates required
+associations and owns field selection, date formatting, and nested location serialization.
