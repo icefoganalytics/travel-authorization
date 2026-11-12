@@ -66,7 +66,19 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const finalDestinationLocation = this.buildFinalDestinationLocation()
+    const useActuals = !isNil(this.record.tripTypeActual)
+    const destinationTravelSegments = this.travelSegments.filter(
+      (travelSegment) => travelSegment.isActual === useActuals
+    )
+    const firstDestinationTravelSegment = first(destinationTravelSegments)
+    const lastDestinationTravelSegment = last(destinationTravelSegments)
+    const penultimateDestinationTravelSegment = destinationTravelSegments.at(-2)
+    const finalDestinationLocation = this.buildFinalDestinationLocation(
+      this.record.tripType,
+      firstDestinationTravelSegment,
+      lastDestinationTravelSegment,
+      penultimateDestinationTravelSegment
+    )
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -160,25 +172,24 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return Array.from(locations.values())
   }
 
-  private buildFinalDestinationLocation() {
-    const useActuals = !isNil(this.record.tripTypeActual)
-    const travelSegments = this.travelSegments.filter(
-      (travelSegment) => travelSegment.isActual === useActuals
-    )
-    const firstTravelSegment = first(travelSegments)
-    const lastTravelSegment = last(travelSegments)
+  private buildFinalDestinationLocation(
+    tripType: TravelAuthorization["tripType"],
+    firstTravelSegment: TravelSegment | undefined,
+    lastTravelSegment: TravelSegment | undefined,
+    penultimateTravelSegment: TravelSegment | undefined
+  ): Locations.AsReference | null {
     if (isNil(lastTravelSegment)) return null
 
     let finalDestinationLocation = lastTravelSegment.arrivalLocation
-    if (this.record.tripType === TravelAuthorization.TripTypes.ROUND_TRIP) {
+    if (tripType === TravelAuthorization.TripTypes.ROUND_TRIP) {
       finalDestinationLocation = lastTravelSegment.departureLocation
     } else if (
-      this.record.tripType === TravelAuthorization.TripTypes.MULTI_CITY &&
-      travelSegments.length > 1 &&
+      tripType === TravelAuthorization.TripTypes.MULTI_CITY &&
+      !isNil(penultimateTravelSegment) &&
       !isNil(firstTravelSegment?.departureLocationId) &&
       firstTravelSegment.departureLocationId === lastTravelSegment.arrivalLocationId
     ) {
-      finalDestinationLocation = travelSegments[travelSegments.length - 2]?.arrivalLocation
+      finalDestinationLocation = penultimateTravelSegment.arrivalLocation
     }
 
     if (isNil(finalDestinationLocation)) return null
