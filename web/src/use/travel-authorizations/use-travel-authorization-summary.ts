@@ -40,7 +40,7 @@ export type TravelAuthorizationSummary = {
 }
 
 export function useTravelAuthorizationSummary(
-  travelAuthorizationId?: Ref<number | null | undefined>,
+  travelAuthorizationId: Ref<number | null | undefined>,
   itinerary?: {
     tripType: MaybeRefOrGetter<TravelAuthorizationTripTypes | null | undefined>
     travelSegments: MaybeRefOrGetter<readonly Partial<TravelSegment>[] | null | undefined>
@@ -61,6 +61,8 @@ export function useTravelAuthorizationSummary(
     isLoading: false,
     isErrored: false,
   })
+
+  const travelAuthorization = shallowRef<TravelAuthorizationAsShow | null>(null)
 
   const savedTripType = shallowRef<TravelAuthorizationTripTypes | null>(null)
   const savedTravelSegments = shallowRef<TravelSegment[]>([])
@@ -90,24 +92,25 @@ export function useTravelAuthorizationSummary(
 
     state.isLoading = true
     try {
-      const { travelAuthorization } = await travelAuthorizationsApi.get(staticId, params)
+      const { travelAuthorization: record } = await travelAuthorizationsApi.get(staticId, params)
+      travelAuthorization.value = record
       state.isErrored = false
 
-      state.travelPurposeId = travelAuthorization.purposeId
-      state.eventName = travelAuthorization.eventName
+      state.travelPurposeId = record.purposeId
+      state.eventName = record.eventName
 
-      const tripType = travelAuthorization.tripTypeActual || travelAuthorization.tripTypeEstimate
-      const travelSegments = travelAuthorization.tripTypeActual
-        ? travelAuthorization.travelSegments.filter((segment) => segment.isActual)
-        : travelAuthorization.travelSegments.filter((segment) => !segment.isActual)
+      const tripType = record.tripTypeActual ?? record.tripTypeEstimate
+      const useActuals = !isNil(record.tripTypeActual)
+      const travelSegments = record.travelSegments.filter(
+        (segment) => segment.isActual === useActuals
+      )
       savedTripType.value = tripType
       savedTravelSegments.value = travelSegments
       state.finalDestinationLocationId = finalDestinationSegment.value?.arrivalLocationId ?? null
       state.departureDate = _determineDepartureDate(travelSegments)
-      state.returnDate =
-        travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
-      state.userId = travelAuthorization.userId
-      return travelAuthorization
+      state.returnDate = record.dateBackToWorkActual || record.dateBackToWorkEstimate
+      state.userId = record.userId
+      return record
     } catch (error) {
       console.error(`Failed to fetch travel authorization: ${error}`, { error })
       state.isErrored = true
@@ -148,6 +151,7 @@ export function useTravelAuthorizationSummary(
 
   return {
     ...toRefs(state),
+    travelAuthorization,
     finalDestinationSegment,
     fetch,
     refresh: fetch,

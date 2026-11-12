@@ -71,12 +71,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs } from "vue"
+import { toRefs } from "vue"
 import { isNil } from "lodash"
 
 import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
-import useTravelAuthorization from "@/use/use-travel-authorization"
-import useTravelSegments from "@/use/use-travel-segments"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
@@ -92,23 +90,6 @@ const props = defineProps({
 })
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
-
-const travelSegmentsQuery = computed(() => {
-  return {
-    where: {
-      travelAuthorizationId: props.travelAuthorizationId,
-    },
-  }
-})
-const { travelSegments } = useTravelSegments(travelSegmentsQuery)
-
-const { finalDestinationLocationId } = useTravelAuthorizationSummary(undefined, {
-  tripType: () =>
-    travelAuthorization.value?.tripTypeActual ?? travelAuthorization.value?.tripTypeEstimate,
-  travelSegments: () =>
-    travelSegments.value.filter(
-      (segment) => segment.isActual === Boolean(travelAuthorization.value?.tripTypeActual)
-    ),
-})
+const { travelAuthorization, finalDestinationLocationId } =
+  useTravelAuthorizationSummary(travelAuthorizationId)
 </script>

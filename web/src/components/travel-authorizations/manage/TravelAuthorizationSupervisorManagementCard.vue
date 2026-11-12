@@ -43,7 +43,6 @@ import { isNil } from "lodash"
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
 import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
-import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import ReAssignButtonDialog from "@/components/travel-authorizations/manage/ReAssignButtonDialog.vue"
@@ -59,21 +58,17 @@ const emit = defineEmits<{
 }>()
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
+const {
+  travelAuthorization,
+  isLoading,
+  refresh,
+  finalDestinationLocationId: travelLocationId,
+} = useTravelAuthorizationSummary(travelAuthorizationId)
 
 const isDisabled = computed(() => {
   return (
     isLoading.value || travelAuthorization.value?.status !== TravelAuthorizationStatuses.SUBMITTED
   )
-})
-
-const { finalDestinationLocationId: travelLocationId } = useTravelAuthorizationSummary(undefined, {
-  tripType: () =>
-    travelAuthorization.value?.tripTypeActual ?? travelAuthorization.value?.tripTypeEstimate,
-  travelSegments: () =>
-    travelAuthorization.value?.travelSegments.filter(
-      (segment) => segment.isActual === Boolean(travelAuthorization.value?.tripTypeActual)
-    ),
 })
 
 const requestorDisplayName = computed(() => {
