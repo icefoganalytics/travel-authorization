@@ -28,60 +28,96 @@
           </v-row>
         </v-sheet>
 
-        <v-row>
-          <v-col cols="6">
-            <StringDateInput
-              v-model="pickUpDate"
-              label="Pick-up date *"
-              :picker-date="tripStartDate"
-              :readonly="isMatchingAvailableFlightSchedule"
-              :append-inner-icon="isMatchingAvailableFlightSchedule ? 'mdi-lock' : undefined"
-              :min="tripStartDate"
-              :max="tripEndDate"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-          <v-col cols="6">
-            <TimeTextField
-              v-model="pickUpTime"
-              label="Pick-up time *"
-              :readonly="isMatchingAvailableFlightSchedule"
-              :append-inner-icon="isMatchingAvailableFlightSchedule ? 'mdi-lock' : undefined"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <StringDateInput
-              v-model="dropOffDate"
-              label="Drop-off date *"
-              :readonly="isMatchingAvailableFlightSchedule"
-              :append-inner-icon="isMatchingAvailableFlightSchedule ? 'mdi-lock' : undefined"
-              :picker-date="tripStartDate"
-              :min="tripStartDate"
-              :max="tripEndDate"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-          <v-col cols="6">
-            <TimeTextField
-              v-model="dropOffTime"
-              label="Drop-off time *"
-              :readonly="isMatchingAvailableFlightSchedule"
-              :append-inner-icon="isMatchingAvailableFlightSchedule ? 'mdi-lock' : undefined"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-        </v-row>
+        <template v-if="isMatchingAvailableFlightSchedule">
+          <v-row>
+            <v-col cols="6">
+              <StringDateInput
+                :model-value="pickUpDate"
+                label="Pick-up date *"
+                append-inner-icon="mdi-lock"
+                variant="outlined"
+                readonly
+              />
+            </v-col>
+            <v-col cols="6">
+              <TimeTextField
+                :model-value="pickUpTime"
+                label="Pick-up time *"
+                append-inner-icon="mdi-lock"
+                variant="outlined"
+                readonly
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6">
+              <StringDateInput
+                :model-value="dropOffDate"
+                label="Drop-off date *"
+                append-inner-icon="mdi-lock"
+                variant="outlined"
+                readonly
+              />
+            </v-col>
+            <v-col cols="6">
+              <TimeTextField
+                :model-value="dropOffTime"
+                label="Drop-off time *"
+                append-inner-icon="mdi-lock"
+                variant="outlined"
+                readonly
+              />
+            </v-col>
+          </v-row>
+        </template>
+        <template v-else>
+          <v-row>
+            <v-col cols="6">
+              <StringDateInput
+                v-model="pickUpDate"
+                label="Pick-up date *"
+                :picker-date="tripStartDate"
+                :min="tripStartDate"
+                :max="tripEndDate"
+                :rules="[required]"
+                variant="outlined"
+                required
+              />
+            </v-col>
+            <v-col cols="6">
+              <TimeTextField
+                v-model="pickUpTime"
+                label="Pick-up time *"
+                :rules="[required]"
+                variant="outlined"
+                required
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6">
+              <StringDateInput
+                v-model="dropOffDate"
+                label="Drop-off date *"
+                :picker-date="tripStartDate"
+                :min="tripStartDate"
+                :max="tripEndDate"
+                :rules="[required]"
+                variant="outlined"
+                required
+              />
+            </v-col>
+            <v-col cols="6">
+              <TimeTextField
+                v-model="dropOffTime"
+                label="Drop-off time *"
+                :rules="[required]"
+                variant="outlined"
+                required
+              />
+            </v-col>
+          </v-row>
+        </template>
 
         <SectionHeader
           title="2. Location Details"
