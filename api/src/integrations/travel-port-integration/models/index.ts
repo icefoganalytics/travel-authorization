@@ -1,4 +1,4 @@
-import db from "@/integrations/travelport-integration/db/db-client"
+import db from "@/integrations/travel-port-integration/db/db-client"
 
 import AirReservationSegment from "./air-reservation-segment"
 import Passenger from "./passenger"

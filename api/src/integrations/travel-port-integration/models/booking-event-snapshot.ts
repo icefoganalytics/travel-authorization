@@ -1,6 +1,6 @@
-import type { BookingPassenger } from "@/integrations/travelport-integration/models/booking-passenger"
-import type { BookingSegment } from "@/integrations/travelport-integration/models/booking-segment"
-import type { BookingServiceFee } from "@/integrations/travelport-integration/models/booking-service-fee"
+import type { BookingPassenger } from "@/integrations/travel-port-integration/models/booking-passenger"
+import type { BookingSegment } from "@/integrations/travel-port-integration/models/booking-segment"
+import type { BookingServiceFee } from "@/integrations/travel-port-integration/models/booking-service-fee"
 
 export type BookingEventSnapshot = {
   travelOrderIdentifier: number

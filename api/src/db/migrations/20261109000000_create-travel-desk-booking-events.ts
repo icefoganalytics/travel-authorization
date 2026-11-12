@@ -3,7 +3,7 @@ import { Knex } from "knex"
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable("travel_desk_booking_events", (table) => {
     table.increments("id").primary()
-    table.integer("external_travelport_identifier").notNullable()
+    table.integer("external_travel_port_identifier").notNullable()
     table.integer("booking_file_version_number")
     table.string("event_type")
     table.string("record_locator")
@@ -23,7 +23,7 @@ export async function up(knex: Knex): Promise<void> {
     table.jsonb("air_reservation_segments").notNullable()
     table.jsonb("service_fee_transaction")
 
-    table.unique(["external_travelport_identifier"], {
+    table.unique(["external_travel_port_identifier"], {
       indexName: "travel_desk_booking_events_active_external_identifier_unique",
       predicate: knex.whereNull("deleted_at"),
     })

@@ -7,9 +7,9 @@ import {
 import { Attribute, HasMany, HasOne, Table } from "@sequelize/core/decorators-legacy"
 
 import BaseModel from "@/models/base-model"
-import AirReservationSegment from "@/integrations/travelport-integration/models/air-reservation-segment"
-import Passenger from "@/integrations/travelport-integration/models/passenger"
-import ServiceFeeTransaction from "@/integrations/travelport-integration/models/service-fee-transaction"
+import AirReservationSegment from "@/integrations/travel-port-integration/models/air-reservation-segment"
+import Passenger from "@/integrations/travel-port-integration/models/passenger"
+import ServiceFeeTransaction from "@/integrations/travel-port-integration/models/service-fee-transaction"
 
 @Table({
   tableName: "TravelOrderEvent",

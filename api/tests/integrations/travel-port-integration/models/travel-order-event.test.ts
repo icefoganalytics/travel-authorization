@@ -1,12 +1,12 @@
 import { Knex } from "knex"
 
-import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
+import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
 
-import db from "@/integrations/travelport-integration/db/db-migration-client"
+import db from "@/integrations/travel-port-integration/db/db-migration-client"
 
 const knex: Knex = db
 
-describe("api/tests/integrations/travelport-integration/models/travel-order-event.test.ts", () => {
+describe("api/tests/integrations/travel-port-integration/models/travel-order-event.test.ts", () => {
   describe("TravelOrderEvent", () => {
     describe("findEach", () => {
       beforeEach(async () => {

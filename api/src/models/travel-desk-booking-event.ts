@@ -7,11 +7,11 @@ import {
 } from "@sequelize/core"
 import { Attribute, AutoIncrement, NotNull, PrimaryKey } from "@sequelize/core/decorators-legacy"
 
-import { TravelDeskBookingEventsExternalTravelportIdentifierUniqueIndex } from "@/models/indexes"
+import { TravelDeskBookingEventsExternalTravelPortIdentifierUniqueIndex } from "@/models/indexes"
 
-import type { BookingPassenger } from "@/integrations/travelport-integration/models/booking-passenger"
-import type { BookingSegment } from "@/integrations/travelport-integration/models/booking-segment"
-import type { BookingServiceFee } from "@/integrations/travelport-integration/models/booking-service-fee"
+import type { BookingPassenger } from "@/integrations/travel-port-integration/models/booking-passenger"
+import type { BookingSegment } from "@/integrations/travel-port-integration/models/booking-segment"
+import type { BookingServiceFee } from "@/integrations/travel-port-integration/models/booking-service-fee"
 
 export class TravelDeskBookingEvent extends Model<
   InferAttributes<TravelDeskBookingEvent>,
@@ -22,13 +22,13 @@ export class TravelDeskBookingEvent extends Model<
   @AutoIncrement
   declare id: CreationOptional<number>
 
-  /** Source: Travelport dbo.TravelOrderEvent.TravelOrderIdentifier. */
+  /** Source: TravelPort dbo.TravelOrderEvent.TravelOrderIdentifier. */
   @Attribute(DataTypes.INTEGER)
   @NotNull
-  @TravelDeskBookingEventsExternalTravelportIdentifierUniqueIndex
-  declare externalTravelportIdentifier: number
+  @TravelDeskBookingEventsExternalTravelPortIdentifierUniqueIndex
+  declare externalTravelPortIdentifier: number
 
-  /** Source: Travelport dbo.TravelOrderEvent.PnrBfVersionNbr. */
+  /** Source: TravelPort dbo.TravelOrderEvent.PnrBfVersionNbr. */
   @Attribute(DataTypes.INTEGER)
   declare bookingFileVersionNumber: number | null
 
@@ -38,7 +38,7 @@ export class TravelDeskBookingEvent extends Model<
   @Attribute(DataTypes.STRING(255))
   declare recordLocator: string | null
 
-  /** Source: Travelport dbo.TravelOrderEvent.CrsDescription. */
+  /** Source: TravelPort dbo.TravelOrderEvent.CrsDescription. */
   @Attribute(DataTypes.STRING(255))
   declare reservationSystemDescription: string | null
 
@@ -49,7 +49,7 @@ export class TravelDeskBookingEvent extends Model<
   @Attribute(DataTypes.DATE)
   declare hostEventTimestamp: Date | null
 
-  /** Source: Travelport dbo.TravelOrderEvent.PnrCreationDate. */
+  /** Source: TravelPort dbo.TravelOrderEvent.PnrCreationDate. */
   @Attribute(DataTypes.DATE)
   declare passengerNameRecordCreatedAt: Date | null
 
@@ -62,7 +62,7 @@ export class TravelDeskBookingEvent extends Model<
   @Attribute(DataTypes.STRING(255))
   declare transactionAgent: string | null
 
-  /** Source: Travelport dbo.TravelOrderEvent.CreatingAgencyIata. */
+  /** Source: TravelPort dbo.TravelOrderEvent.CreatingAgencyIata. */
   @Attribute(DataTypes.STRING(255))
   declare creatingAgencyInternationalAirTransportAssociationNumber: string | null
 

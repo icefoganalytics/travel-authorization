@@ -1,5 +1,5 @@
-import sourceDatabase from "@/integrations/travelport-integration/db/db-migration-client"
-import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
+import sourceDatabase from "@/integrations/travel-port-integration/db/db-migration-client"
+import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
 import { TravelDeskBookingEvent } from "@/models"
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
@@ -68,7 +68,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         // Act
         await SyncService.perform("SRC001")
         const bookingEvents = await TravelDeskBookingEvent.findAll({
-          order: [["externalTravelportIdentifier", "ASC"]],
+          order: [["externalTravelPortIdentifier", "ASC"]],
         })
         const events = IndexSerializer.perform(bookingEvents)
 
@@ -127,7 +127,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           DatabaseTimeStamp: "2030-01-01T12:00:00",
         })
         const originalBookingEvent = await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 910001,
+          externalTravelPortIdentifier: 910001,
           recordLocator: "SRC001",
           bookingFileVersionNumber: 1,
         })
@@ -143,7 +143,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
           expect.objectContaining({
             id: originalBookingEvent.id,
-            externalTravelportIdentifier: 910001,
+            externalTravelPortIdentifier: 910001,
             bookingFileVersionNumber: 2,
             recordLocator: "SRC001",
           }),
@@ -174,11 +174,11 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           DatabaseTimeStamp: "2030-01-01T12:00:00",
         })
         const retainedEvent = await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 910001,
+          externalTravelPortIdentifier: 910001,
           recordLocator: "SRC001",
         })
         await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 910002,
+          externalTravelPortIdentifier: 910002,
           recordLocator: "SRC001",
         })
 
@@ -194,7 +194,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
       test("when a deleted source event reappears, it creates a new local record and preserves the deleted record", async () => {
         // Arrange
         const deletedEvent = await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 910001,
+          externalTravelPortIdentifier: 910001,
           recordLocator: "SRC001",
         })
         await deletedEvent.destroy()
@@ -217,7 +217,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             deletedAt: expect.any(Date),
           }),
           expect.objectContaining({
-            externalTravelportIdentifier: 910001,
+            externalTravelPortIdentifier: 910001,
             deletedAt: null,
             bookingFileVersionNumber: 2,
           }),
@@ -295,7 +295,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
       test("when a later event cannot persist, it rolls back updates to cached events", async () => {
         // Arrange
         const cachedBookingEvent = await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 910001,
+          externalTravelPortIdentifier: 910001,
           recordLocator: "SRC001",
           bookingFileVersionNumber: 1,
         })

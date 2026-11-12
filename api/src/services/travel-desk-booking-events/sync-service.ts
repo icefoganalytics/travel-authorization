@@ -3,8 +3,7 @@ import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
-import travelportDatabase, { TravelOrderEvent } from "@/integrations/travelport-integration/models"
-import { TravelOrderEvents } from "@/integrations/travelport-integration/serializers"
+import { TravelPortIntegration } from "@/integrations"
 import { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
@@ -20,15 +19,16 @@ export class SyncService extends BaseService {
     await WithSyncLockService.perform(this.recordLocator, async () => {
       const matchedSourceIds: number[] = []
       await this.syncSourceEvents(this.recordLocator, async (travelOrderEvent) => {
-        const serializedTravelOrderEvent = TravelOrderEvents.SyncSerializer.perform(travelOrderEvent)
+        const serializedTravelOrderEvent =
+          TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(travelOrderEvent)
         const { travelOrderIdentifier, ...travelOrderEventAttributes } = serializedTravelOrderEvent
         const travelDeskBookingEventAttributes = {
           ...travelOrderEventAttributes,
-          externalTravelportIdentifier: travelOrderIdentifier,
+          externalTravelPortIdentifier: travelOrderIdentifier,
           recordLocator: this.recordLocator,
         }
         const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
-          where: { externalTravelportIdentifier: travelOrderIdentifier },
+          where: { externalTravelPortIdentifier: travelOrderIdentifier },
         })
         if (isNil(travelDeskBookingEvent)) {
           await TravelDeskBookingEvent.create(travelDeskBookingEventAttributes)
@@ -46,7 +46,7 @@ export class SyncService extends BaseService {
     await TravelDeskBookingEvent.destroy({
       where: {
         recordLocator: this.recordLocator,
-        externalTravelportIdentifier: {
+        externalTravelPortIdentifier: {
           [Op.notIn]: matchedSourceIds,
         },
       },
@@ -55,15 +55,15 @@ export class SyncService extends BaseService {
 
   private async syncSourceEvents(
     recordLocator: string,
-    processEvent: (event: TravelOrderEvent) => Promise<void>
+    processEvent: (event: TravelPortIntegration.Models.TravelOrderEvent) => Promise<void>
   ): Promise<void> {
     let processingFailed = false
     try {
       // Read locks keep the scan consistent but can delay feed writers until it finishes.
-      await travelportDatabase.transaction(
+      await TravelPortIntegration.db.transaction(
         { isolationLevel: IsolationLevel.SERIALIZABLE },
         async () => {
-          await TravelOrderEvent.findEach(
+          await TravelPortIntegration.Models.TravelOrderEvent.findEach(
             {
               where: { recordLocator },
               include: [
@@ -99,7 +99,7 @@ export class SyncService extends BaseService {
     } catch (error) {
       if (processingFailed) throw error
 
-      logger.error("Travelport booking source lookup failed.", { error })
+      logger.error("TravelPort booking source lookup failed.", { error })
       throw new SourceUnavailableError("Booking source is unavailable.")
     }
   }

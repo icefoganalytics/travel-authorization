@@ -5,7 +5,7 @@ import {
   Passenger,
   ServiceFeeTransaction,
   TravelOrderEvent,
-} from "@/integrations/travelport-integration/models"
+} from "@/integrations/travel-port-integration/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
 function trimSourceValue(value: string | null): string | null {

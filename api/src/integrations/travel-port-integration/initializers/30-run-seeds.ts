@@ -1,5 +1,5 @@
 import logger from "@/utils/logger"
-import dbMigrationClient from "@/integrations/travelport-integration/db/db-migration-client"
+import dbMigrationClient from "@/integrations/travel-port-integration/db/db-migration-client"
 
 export default async function runSeeds(): Promise<void> {
   if (process.env.SKIP_SEEDING_UNLESS_EMPTY === "true") {
@@ -8,5 +8,5 @@ export default async function runSeeds(): Promise<void> {
   }
 
   const seeds = await dbMigrationClient.seed.run()
-  logger.info(`Travelport seeds complete: ${seeds[0].length} run.`)
+  logger.info(`TravelPort seeds complete: ${seeds[0].length} run.`)
 }

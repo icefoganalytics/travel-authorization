@@ -1,7 +1,7 @@
 import knex from "knex"
 
 import { TRAVELPORT_DB_NAME } from "@/config"
-import { buildKnexConfig } from "@/integrations/travelport-integration/db/db-migration-client"
+import { buildKnexConfig } from "@/integrations/travel-port-integration/db/db-migration-client"
 
 export default async function ensureDatabase(): Promise<void> {
   const client = knex(buildKnexConfig({ connection: { database: "" } }))

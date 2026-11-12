@@ -1,19 +1,19 @@
-# Travelport Booking Feed integration
+# TravelPort Booking Feed integration
 
-Use this boundary to read the Travelport source, not TravCom invoices. Travelport identifies booking files by the event-level record locator; a TravCom invoice number is a different identifier. This module does not expose an HTTP endpoint or decide who may view a travel request. Call it from an authorized application use case.
+Use this boundary to read the TravelPort source, not TravCom invoices. TravelPort identifies booking files by the event-level record locator; a TravCom invoice number is a different identifier. This module does not expose an HTTP endpoint or decide who may view a travel request. Call it from an authorized application use case.
 
 ## Reading booking history
 
 ```typescript
-import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
+import { TravelPortIntegration } from "@/integrations"
 
-const events = await TravelOrderEvent.findAll({
+const events = await TravelPortIntegration.Models.TravelOrderEvent.findAll({
   where: { recordLocator: "ZZ0001" },
   order: [["travelOrderIdentifier", "ASC"]],
 })
 ```
 
-The integration owns a singleton database client, and its models entry point registers the source models and exports that client as its default. Importing the integration fails immediately when its database name, username, password, or host is empty. Constructing the client does not open a source connection. Keep the integration out of the shared integrations barrel; do not construct or register database clients inside model queries.
+The integration owns a singleton database client, and its models entry point registers the source models and exports that client as its default. Importing the integration fails immediately when its database name, username, password, or host is empty. Constructing the client does not open a source connection. The shared integrations barrel exposes `TravelPortIntegration.db`, `TravelPortIntegration.Models`, and `TravelPortIntegration.Serializers`, following the TravCom integration pattern. Shared integration imports require the booking-feed configuration; do not construct or register database clients inside model queries.
 
 Use standard `findAll` for bounded reads or `findEach(options, callback)` for batch processing. Supply deterministic ordering by the unique source identifier and load the associations needed by the consumer. Source ordering does not establish business precedence.
 
@@ -29,7 +29,7 @@ The source dictionary documents [event replacement and version semantics](https:
 
 Follow the [development wrapper](../../../../bin/README.md) for startup and test commands. Development Compose supplies a separate SQL Server 2019 service, `db_travelport`, with the private alias `${COMPOSE_PROJECT_NAME}-db_travelport` and its own volume. It does not connect to production or require VPN access. Desktop gateway access uses `db-travelport.<gateway-hostname>` with encryption enabled; there is no directly published database port.
 
-Startup follows the existing TravCom sequence: wait for the local server, create the local database when absent, run source-schema migrations, and load synthetic development data. The database names are `travelport_development` for the normal API and `travelport_test` for the API test runner. Test scenarios insert their own records and clean only their own Travelport test database; unrelated API tests do not acquire an extra per-test source cleanup.
+Startup follows the existing TravCom sequence: wait for the local server, create the local database when absent, run source-schema migrations, and load synthetic development data. The database names are `travelport_development` for the normal API and `travelport_test` for the API test runner. Test scenarios insert their own records and clean only their own TravelPort test database; unrelated API tests do not acquire an extra per-test source cleanup.
 
 The synthetic development fixture includes `ZZ0001`: thirteen booking snapshots and a separate fee event, with version 7 arriving after version 8. Other fictional locators cover fare events, multiple passengers, missing flights, and six flight segments. Names, routes, dates, locators, event identifiers, and fee amounts are synthetic—not production extracts.
 

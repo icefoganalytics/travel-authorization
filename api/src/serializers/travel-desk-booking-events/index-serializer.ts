@@ -1,4 +1,4 @@
-import type { BookingEventSnapshot } from "@/integrations/travelport-integration/models/booking-event-snapshot"
+import type { BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
 import { TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import BaseSerializer from "@/serializers/base-serializer"
 
@@ -11,7 +11,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
     const passengerNameRecordCreatedAt = this.record.passengerNameRecordCreatedAt?.toISOString() ?? null
 
     return {
-      travelOrderIdentifier: this.record.externalTravelportIdentifier,
+      travelOrderIdentifier: this.record.externalTravelPortIdentifier,
       bookingFileVersionNumber: this.record.bookingFileVersionNumber,
       eventType: this.record.eventType,
       recordLocator: this.record.recordLocator,

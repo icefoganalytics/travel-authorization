@@ -271,8 +271,8 @@ message.
 1. Sign in as the configured administrator and open **Travel Desk**.
 2. Find the row by its Travel Auth number and click **Edit**. Record the Travel Desk request ID from
    `/travel-desk/:travelDeskTravelRequestId/edit`; it is not the Travel Auth ID.
-3. Open **2. Travel Request (Booking)**, then **Manage Flight Options - Travelport™**.
-4. In **Paste Text Here**, enter one fictional flight alternative in the supported Travelport format:
+3. Open **2. Travel Request (Booking)**, then **Manage Flight Options - TravelPort™**.
+4. In **Paste Text Here**, enter one fictional flight alternative in the supported TravelPort format:
 
    ```text
    Air North 4N501

@@ -9,7 +9,7 @@ import {
 import logger from "@/utils/logger"
 import sleep from "@/utils/sleep"
 import { isCredentialFailure, isSocketFailure } from "@/utils/db-error-helpers"
-import { buildKnexConfig } from "@/integrations/travelport-integration/db/db-migration-client"
+import { buildKnexConfig } from "@/integrations/travel-port-integration/db/db-migration-client"
 
 async function checkHealth(client: Knex, timeoutSeconds: number): Promise<void> {
   const query = client.raw("SELECT 1")
@@ -28,11 +28,11 @@ export async function waitForDatabase(): Promise<void> {
     try {
       await checkHealth(client, DB_HEALTH_CHECK_TIMEOUT_SECONDS)
       await client.destroy()
-      logger.info("Travelport database connection successful.")
+      logger.info("TravelPort database connection successful.")
       return
     } catch (error) {
       if (isSocketFailure(error)) {
-        logger.info(`Travelport database socket is not ready, retrying... ${error}`, { error })
+        logger.info(`TravelPort database socket is not ready, retrying... ${error}`, { error })
         await sleep(DB_HEALTH_CHECK_INTERVAL_SECONDS)
         continue
       }
@@ -49,7 +49,7 @@ export async function waitForDatabase(): Promise<void> {
   }
 
   await client.destroy()
-  throw new Error("Failed to connect to Travelport database due to timeout.")
+  throw new Error("Failed to connect to TravelPort database due to timeout.")
 }
 
 export default waitForDatabase

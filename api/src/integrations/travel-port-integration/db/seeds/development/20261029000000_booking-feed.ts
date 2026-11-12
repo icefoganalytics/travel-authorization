@@ -9,7 +9,7 @@ import { APP_ROOT } from "@/config"
 function readCsv<T>(fileName: string): T[] {
   const filePath = path.join(
     APP_ROOT,
-    "integrations/travelport-integration/db/seeds/data",
+    "integrations/travel-port-integration/db/seeds/data",
     fileName
   )
   const { data } = Papa.parse<T>(fs.readFileSync(filePath, "utf8"), {

@@ -7,7 +7,7 @@ import {
 } from "@sequelize/core"
 import { Attribute, BelongsTo, Table } from "@sequelize/core/decorators-legacy"
 
-import TravelOrderEvent from "@/integrations/travelport-integration/models/travel-order-event"
+import TravelOrderEvent from "@/integrations/travel-port-integration/models/travel-order-event"
 
 @Table({
   tableName: "SFTrans",

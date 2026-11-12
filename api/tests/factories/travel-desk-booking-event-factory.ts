@@ -6,7 +6,7 @@ export const travelDeskBookingEventFactory = FactoryShark.define(
   TravelDeskBookingEvent,
   ({ sequence }) => {
     return {
-      externalTravelportIdentifier: sequence,
+      externalTravelPortIdentifier: sequence,
       recordLocator: "SRC001",
       databaseTimestamp: new Date("2030-01-01T12:00:00.000Z"),
       passengers: [],

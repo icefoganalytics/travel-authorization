@@ -151,7 +151,7 @@ separates private application aliases from encrypted desktop routes. API, migrat
 containers use `${COMPOSE_PROJECT_NAME}-db`, `${COMPOSE_PROJECT_NAME}-db_trav_com`, and
 `${COMPOSE_PROJECT_NAME}-db_travelport`; test containers retain `travel_test`, `trav_com_test`,
 and `travelport_test`. All three databases have private aliases and gateway ingress, with no
-published database ports in the development base. Travelport uses a synthetic local source;
+published database ports in the development base. TravelPort uses a synthetic local source;
 only the deployed production application connects to the real booking-feed database.
 
 After adopting this configuration, run `bundle install`, then recreate this checkout's database
