@@ -161,13 +161,26 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private buildFinalDestinationLocation() {
-    if (isNil(this.lastTravelSegment)) return null
+    const useActuals = !isNil(this.record.tripTypeActual)
+    const travelSegments = this.travelSegments.filter(
+      (travelSegment) => travelSegment.isActual === useActuals
+    )
+    const firstTravelSegment = first(travelSegments)
+    const lastTravelSegment = last(travelSegments)
+    if (isNil(lastTravelSegment)) return null
 
-    const { departureLocation, arrivalLocation } = this.lastTravelSegment
-    const finalDestinationLocation =
-      this.record.tripType === TravelAuthorization.TripTypes.ROUND_TRIP
-        ? departureLocation
-        : arrivalLocation
+    let finalDestinationLocation = lastTravelSegment.arrivalLocation
+    if (this.record.tripType === TravelAuthorization.TripTypes.ROUND_TRIP) {
+      finalDestinationLocation = lastTravelSegment.departureLocation
+    } else if (
+      this.record.tripType === TravelAuthorization.TripTypes.MULTI_CITY &&
+      travelSegments.length > 1 &&
+      !isNil(firstTravelSegment?.departureLocationId) &&
+      firstTravelSegment.departureLocationId === lastTravelSegment.arrivalLocationId
+    ) {
+      finalDestinationLocation = travelSegments[travelSegments.length - 2]?.arrivalLocation
+    }
+
     if (isNil(finalDestinationLocation)) return null
 
     return Locations.ReferenceSerializer.perform(finalDestinationLocation)
