@@ -42,13 +42,23 @@ export class SyncService extends BaseService {
     })
   }
 
+  /**
+   * Reads source events and their associations in one SQL Server SERIALIZABLE transaction.
+   * Shared and key-range locks prevent concurrent changes from shifting offset-based
+   * batches or changing relationships already read. Otherwise, a skipped source event
+   * could be mistaken for a deletion during local reconciliation.
+   *
+   * The source transaction performs no writes, but holds read locks until all batches
+   * and their local processing finish. Conflicting feed inserts, updates, and deletes
+   * may wait; the lock footprint depends on SQL Server's query plan and lock escalation.
+   * A source read or commit failure propagates to roll back the enclosing local refresh.
+   */
   private async syncSourceEvents(
     recordLocator: string,
     processEvent: (event: TravelPortIntegration.Models.TravelOrderEvent) => Promise<void>
   ): Promise<void> {
     let processingFailed = false
     try {
-      // Read locks keep the scan consistent but can delay feed writers until it finishes.
       await TravelPortIntegration.db.transaction(
         { isolationLevel: IsolationLevel.SERIALIZABLE },
         async () => {
@@ -71,7 +81,6 @@ export class SyncService extends BaseService {
                 },
                 { association: "serviceFeeTransaction" },
               ],
-              // Serializable source reads keep offset batches stable during reconciliation.
               order: [["travelOrderIdentifier", "ASC"]],
             },
             async (event) => {
