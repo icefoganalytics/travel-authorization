@@ -282,23 +282,20 @@ let scheduleBeforeFlightMatching: {
 
 watch(
   [
-    travelDeskRentalCar,
     () => travelDeskRentalCar.value?.pickUpDate,
     () => travelDeskRentalCar.value?.dropOffDate,
   ],
-  ([newTravelDeskRentalCar]) => {
-    if (isNil(newTravelDeskRentalCar)) return
-
+  ([newPickUpDate, newDropOffDate]) => {
     scheduleBeforeFlightMatching = null
 
-    if (!isNil(newTravelDeskRentalCar.pickUpDate)) {
-      const date = new Date(newTravelDeskRentalCar.pickUpDate)
+    if (!isNil(newPickUpDate)) {
+      const date = new Date(newPickUpDate)
       pickUpDate.value = date.toISOString().split("T")[0]
       pickUpTime.value = date.toISOString().split("T")[1].substring(0, 5)
     }
 
-    if (!isNil(newTravelDeskRentalCar.dropOffDate)) {
-      const date = new Date(newTravelDeskRentalCar.dropOffDate)
+    if (!isNil(newDropOffDate)) {
+      const date = new Date(newDropOffDate)
       dropOffDate.value = date.toISOString().split("T")[0]
       dropOffTime.value = date.toISOString().split("T")[1].substring(0, 5)
     }
