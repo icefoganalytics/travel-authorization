@@ -8,12 +8,16 @@
   />
 </template>
 
+<script lang="ts">
+import { type VDateInput } from "vuetify/labs/VDateInput"
+
+export type MenuProps = VDateInput["$props"]["menuProps"]
+</script>
+
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import { DateTime } from "luxon"
 import { isNil } from "lodash"
-
-import { type VDateInput } from "vuetify/labs/VDateInput"
 
 /**
  * A date input accepts and returns a string.
@@ -23,7 +27,7 @@ const props = withDefaults(
     modelValue: string | null | undefined
     returnFormat?: string
     readonly?: boolean
-    menuProps?: VDateInput["$props"]["menuProps"]
+    menuProps?: MenuProps
   }>(),
   {
     returnFormat: "yyyy-MM-dd",
