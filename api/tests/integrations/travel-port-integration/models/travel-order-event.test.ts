@@ -9,13 +9,6 @@ const knex: Knex = db
 describe("api/tests/integrations/travel-port-integration/models/travel-order-event.test.ts", () => {
   describe("TravelOrderEvent", () => {
     describe("findAll", () => {
-      beforeEach(async () => {
-        await knex("Passenger").del()
-        await knex("AirRsrvSeg").del()
-        await knex("SFTrans").del()
-        await knex("TravelOrderEvent").del()
-      })
-
       test("when a locator has B, F, and unversioned T events, it returns distinct linked history", async () => {
         // Arrange
         const recordLocator = "QZ9X2A"

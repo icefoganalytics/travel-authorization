@@ -10,15 +10,6 @@ import { travelDeskBookingEventFactory } from "@/factories"
 describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
   describe("SyncService", () => {
     describe(".perform", () => {
-      beforeEach(async () => {
-        await sourceDatabase("Passenger").whereIn("TravelOrderIdentifier", [910001, 910002]).del()
-        await sourceDatabase("AirRsrvSeg").whereIn("TravelOrderIdentifier", [910001, 910002]).del()
-        await sourceDatabase("SFTrans").whereIn("TravelOrderIdentifier", [910001, 910002]).del()
-        await sourceDatabase("TravelOrderEvent")
-          .whereIn("TravelOrderIdentifier", [910001, 910002])
-          .del()
-      })
-
       test("when fees arrive separately, it preserves source precision without leaking passenger remarks", async () => {
         // Arrange
         await sourceDatabase("TravelOrderEvent").insert([
