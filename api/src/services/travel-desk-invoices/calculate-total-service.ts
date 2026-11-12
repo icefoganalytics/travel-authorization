@@ -14,12 +14,16 @@ export class CalculateTotalService extends BaseService {
     for (const item of this.items) {
       const amount = amountToThousandths(item.grossAmount)
 
-      if (item.saleType === "Refund") {
-        total -= amount < 0n ? -amount : amount
-        continue
+      switch (item.saleType) {
+        case "Refund":
+          total -= amount < 0n ? -amount : amount
+          break
+        case "Sale":
+          total += amount
+          break
+        case "Void":
+          break
       }
-
-      if (item.saleType === "Sale") total += amount
     }
 
     return thousandthsToAmount(total)
