@@ -9,7 +9,13 @@ import {
   travelDeskFlightSegmentFactory,
   travelDeskRentalCarFactory,
 } from "@/tests/factories"
-import { mockHttpClient, mockHttpGetRoutes, mockRouter, mockVuetify } from "@/tests/support"
+import {
+  mockHttpClient,
+  mockHttpGetRoute,
+  mockHttpGetRoutes,
+  mockRouter,
+  mockVuetify,
+} from "@/tests/support"
 
 import TravelDeskRentalCarEditPage from "@/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
 
@@ -50,17 +56,25 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
             travelDeskRentalCar: { ...rentalCar },
             policy: {},
           }),
-          "/api/travel-desk-flight-segments": async (configuration) => {
-            await flightResponse.promise
-            if (configuration?.params.order[0][0] === "departAt") {
-              return { travelDeskFlightSegments: [firstFlightSegment], totalCount: 1 }
-            }
-
-            return { travelDeskFlightSegments: [lastFlightSegment], totalCount: 1 }
-          },
           "/api/travel-authorizations": () => ({ travelAuthorizations: [], totalCount: 0 }),
           "/api/locations": () => ({ locations: [location], totalCount: 1 }),
         })
+        mockHttpGetRoute(
+          "/api/travel-desk-flight-segments",
+          async () => {
+            await flightResponse.promise
+            return { travelDeskFlightSegments: [firstFlightSegment], totalCount: 1 }
+          },
+          { params: { order: [["departAt", "ASC"]] } }
+        )
+        mockHttpGetRoute(
+          "/api/travel-desk-flight-segments",
+          async () => {
+            await flightResponse.promise
+            return { travelDeskFlightSegments: [lastFlightSegment], totalCount: 1 }
+          },
+          { params: { order: [["arriveAt", "DESC"]] } }
+        )
         const router = mockRouter([
           {
             path: "/requests/:travelDeskTravelRequestId",
