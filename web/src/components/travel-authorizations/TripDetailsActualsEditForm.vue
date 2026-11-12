@@ -89,7 +89,7 @@ import { useDisplay } from "vuetify"
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
-import determineFinalDestinationSegment from "@/use/travel-authorizations/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"

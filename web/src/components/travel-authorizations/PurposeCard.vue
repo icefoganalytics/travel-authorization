@@ -74,7 +74,7 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import determineFinalDestinationSegment from "@/use/travel-authorizations/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 

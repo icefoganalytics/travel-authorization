@@ -10,7 +10,7 @@ import travelAuthorizationsApi, {
 } from "@/api/travel-authorizations-api"
 import { type TravelSegment } from "@/api/travel-segments-api"
 
-import determineFinalDestinationSegment from "@/use/travel-authorizations/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
 
 export {
   type TravelAuthorizationAsShow,
