@@ -63,8 +63,10 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const serializedTravelDeskTravelRequest =
       this.serializeTravelDeskTravelRequest(travelDeskTravelRequest)
 
-    const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
-    const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
+    const firstTravelSegment = first(this.travelSegments)
+    const lastTravelSegment = last(this.travelSegments)
+    const departingAt = this.buildDepartingAt(firstTravelSegment, this.stops)
+    const returningAt = this.buildReturningAt(lastTravelSegment, this.stops)
 
     const finalDestinationLocation = this.buildFinalDestinationLocation(
       this.record.tripType,
@@ -264,11 +266,13 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private beforeTravelling() {
-    if (isNil(this.firstTravelSegment) || isNil(this.firstTravelSegment.departureAt)) {
+    const firstTravelSegment = first(this.travelSegments)
+
+    if (isNil(firstTravelSegment) || isNil(firstTravelSegment.departureAt)) {
       return false
     }
 
-    if (this.currentDate < this.firstTravelSegment.departureAt) {
+    if (this.currentDate < firstTravelSegment.departureAt) {
       return true
     }
 
@@ -277,18 +281,23 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
 
   private isTravelling() {
     if (!this.isApproved()) return false
+
+    const travelSegments = this.travelSegments
+    const firstTravelSegment = first(travelSegments)
+    const lastTravelSegment = last(travelSegments)
+
     if (
-      isNil(this.firstTravelSegment) ||
-      isNil(this.lastTravelSegment) ||
-      isNil(this.firstTravelSegment.departureAt) ||
-      isNil(this.lastTravelSegment.departureAt)
+      isNil(firstTravelSegment) ||
+      isNil(lastTravelSegment) ||
+      isNil(firstTravelSegment.departureAt) ||
+      isNil(lastTravelSegment.departureAt)
     ) {
       return false
     }
 
     if (
-      this.firstTravelSegment.departureAt <= this.currentDate &&
-      this.currentDate <= this.lastTravelSegment.departureAt
+      firstTravelSegment.departureAt <= this.currentDate &&
+      this.currentDate <= lastTravelSegment.departureAt
     ) {
       return true
     }
@@ -297,11 +306,13 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private travellingComplete() {
-    if (isNil(this.lastTravelSegment) || isNil(this.lastTravelSegment.departureAt)) {
+    const lastTravelSegment = last(this.travelSegments)
+
+    if (isNil(lastTravelSegment) || isNil(lastTravelSegment.departureAt)) {
       return this.legacyTravellingComplete() // Replace with false when Stop model is removed
     }
 
-    if (this.currentDate > this.lastTravelSegment.departureAt) {
+    if (this.currentDate > lastTravelSegment.departureAt) {
       return true
     }
 
@@ -309,11 +320,13 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private legacyTravellingComplete() {
-    if (isNil(this.lastTravelSegment) || isNil(this.lastTravelSegment.departureAt)) {
+    const lastTravelSegment = last(this.travelSegments)
+
+    if (isNil(lastTravelSegment) || isNil(lastTravelSegment.departureAt)) {
       return false
     }
 
-    if (this.currentDate > this.lastTravelSegment.departureAt) {
+    if (this.currentDate > lastTravelSegment.departureAt) {
       return true
     }
 
@@ -416,14 +429,6 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     return stops
-  }
-
-  private get firstTravelSegment(): TravelSegment | undefined {
-    return first(this.travelSegments)
-  }
-
-  private get lastTravelSegment(): TravelSegment | undefined {
-    return last(this.travelSegments)
   }
 
   private get currentDate(): Date {
