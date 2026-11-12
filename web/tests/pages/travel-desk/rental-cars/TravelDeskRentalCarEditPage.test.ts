@@ -1,5 +1,9 @@
 import { flushPromises, mount } from "@vue/test-utils"
 
+import StringDateInput from "@/components/common/StringDateInput.vue"
+import TimeTextField from "@/components/common/TimeTextField.vue"
+import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
+
 import {
   locationFactory,
   travelDeskFlightSegmentFactory,
@@ -7,9 +11,6 @@ import {
 } from "@/tests/factories"
 import { mockHttpClient, mockHttpGetRoutes, mockRouter, mockVuetify } from "@/tests/support"
 
-import StringDateInput from "@/components/common/StringDateInput.vue"
-import TimeTextField from "@/components/common/TimeTextField.vue"
-import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 import TravelDeskRentalCarEditPage from "@/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
 
 describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue", () => {
