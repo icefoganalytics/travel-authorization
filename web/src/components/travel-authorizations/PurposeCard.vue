@@ -72,9 +72,10 @@
 
 <script setup lang="ts">
 import { computed, toRefs } from "vue"
-import { isNil, isEmpty } from "lodash"
+import { isNil } from "lodash"
 
-import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
@@ -103,20 +104,16 @@ const travelSegmentsQuery = computed(() => {
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
 
 const finalDestinationLocationId = computed(() => {
-  if (isNil(travelSegments.value) || isEmpty(travelSegments.value)) return null
   if (isNil(travelAuthorization.value)) return null
 
-  let finalDestinationLocationId = null
   const { tripTypeEstimate, tripTypeActual } = travelAuthorization.value
   const tripType = tripTypeActual ?? tripTypeEstimate
-  if (isNil(tripType)) return null
+  const matchingTravelSegments = travelSegments.value.filter(
+    (segment) => segment.isActual === Boolean(tripTypeActual)
+  )
 
-  if (tripType === TRIP_TYPES.ROUND_TRIP) {
-    finalDestinationLocationId = travelSegments.value.at(-2)?.arrivalLocationId
-  } else {
-    finalDestinationLocationId = travelSegments.value.at(-1)?.arrivalLocationId
-  }
-
-  return finalDestinationLocationId
+  return (
+    determineFinalDestinationSegment(tripType, matchingTravelSegments)?.arrivalLocationId ?? null
+  )
 })
 </script>

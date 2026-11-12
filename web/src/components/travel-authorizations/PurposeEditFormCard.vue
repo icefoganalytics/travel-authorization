@@ -118,6 +118,7 @@ import useTravelAuthorization, {
   TravelAuthorizationTripTypes,
 } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
+import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
@@ -163,10 +164,8 @@ watch<[TravelAuthorizationTripTypes | null, TravelSegment[]], true>(
   ([tripType, newTravelSegments]) => {
     if (!isNil(finalDestinationLocationId.value)) return
 
-    const newFinalDestinationLocationId = determineFinalDestinationLocationId(
-      tripType,
-      newTravelSegments
-    )
+    const newFinalDestinationLocationId =
+      determineFinalDestinationSegment(tripType, newTravelSegments)?.arrivalLocationId ?? null
     updateFinalDestinationLocationId(newFinalDestinationLocationId)
   },
   {
@@ -174,20 +173,6 @@ watch<[TravelAuthorizationTripTypes | null, TravelSegment[]], true>(
     immediate: true,
   }
 )
-
-function determineFinalDestinationLocationId(
-  tripType: TravelAuthorizationTripTypes | null,
-  newTravelSegments: TravelSegment[]
-): number | null {
-  if (isNil(tripType)) return null
-  if (isNil(newTravelSegments) || isEmpty(newTravelSegments)) return null
-
-  if (tripType === TravelAuthorizationTripTypes.ROUND_TRIP) {
-    return newTravelSegments.at(-2)?.arrivalLocationId ?? null
-  } else {
-    return newTravelSegments.at(-1)?.arrivalLocationId ?? null
-  }
-}
 
 function locationIdOrNullIfOverlapping(locationId1: number | null, locationId2: number | null) {
   if (locationId1 === locationId2) return null
@@ -260,7 +245,7 @@ function buildTravelSegmentEstimatesAttributes(
     ]
   }
 
-  // NOTE: one way and multi-city trip types are handled the same way
+  const finalDestinationSegment = determineFinalDestinationSegment(tripType, newTravelSegments)
   return newTravelSegments.map((travelSegment, index) => {
     const newTravelSegmentAttributes = {
       ...pick(travelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
@@ -269,9 +254,7 @@ function buildTravelSegmentEstimatesAttributes(
       segmentNumber: index + 1,
     }
 
-    const numberOfSegments = newTravelSegments.length
-    const isLastSegment = index === numberOfSegments - 1
-    if (isLastSegment) {
+    if (travelSegment === finalDestinationSegment) {
       const arrivalLocationId = staticFinalDestinationLocationId
       const departureLocationId = locationIdOrNullIfOverlapping(
         newTravelSegmentAttributes.departureLocationId,
@@ -282,9 +265,21 @@ function buildTravelSegmentEstimatesAttributes(
         departureLocationId,
         arrivalLocationId,
       }
-    } else {
-      return newTravelSegmentAttributes
     }
+
+    const previousTravelSegment = newTravelSegments.at(index - 1)
+    if (
+      index > 0 &&
+      previousTravelSegment === finalDestinationSegment &&
+      travelSegment.departureLocationId === finalDestinationSegment?.arrivalLocationId
+    ) {
+      return {
+        ...newTravelSegmentAttributes,
+        departureLocationId: staticFinalDestinationLocationId,
+      }
+    }
+
+    return newTravelSegmentAttributes
   })
 }
 
