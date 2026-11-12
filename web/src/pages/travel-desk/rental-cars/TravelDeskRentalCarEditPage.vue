@@ -251,8 +251,6 @@ const props = defineProps<{
 const travelDeskRentalCarIdAsNumber = computed(() => parseInt(props.travelDeskRentalCarId))
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
-const { smAndDown } = useDisplay()
-
 const router = useRouter()
 const defaultReturnTo = computed(() => {
   const routeLocation = router.resolve({
@@ -469,6 +467,8 @@ async function deleteAndReturn() {
     isDeleting.value = false
   }
 }
+
+const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {
