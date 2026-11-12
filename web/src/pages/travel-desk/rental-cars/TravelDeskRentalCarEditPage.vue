@@ -40,7 +40,7 @@
                 :model-value="travelDeskRentalCar.matchFlightTimes"
                 label="Pick-up/Drop-off match flights"
                 class="mt-0"
-                @update:model-value="matchWithFlight"
+                @update:model-value="updateFlightMatching"
               />
             </v-col>
           </v-row>
@@ -327,7 +327,7 @@ const isMatchingAvailableFlightSchedule = computed(() => {
 
 const isWaitingForFlightSchedule = ref(false)
 
-function matchWithFlight(value: boolean) {
+function updateFlightMatching(value: boolean) {
   if (isNil(travelDeskRentalCar.value)) return
 
   travelDeskRentalCar.value.matchFlightTimes = value
@@ -373,7 +373,7 @@ function restoreManualSchedule() {
 // Only resume an explicit match that was waiting for flights; never rematch a loaded rental.
 watch(isFlightScheduleAvailable, (isAvailable) => {
   if (isAvailable && isWaitingForFlightSchedule.value) {
-    matchWithFlight(true)
+    updateFlightMatching(true)
   }
 })
 
