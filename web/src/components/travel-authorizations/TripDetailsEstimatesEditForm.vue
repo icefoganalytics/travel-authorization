@@ -137,7 +137,7 @@ const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
-const { finalDestinationLocationId } = useTravelAuthorizationSummary(undefined, {
+const { finalDestinationLocationId } = useTravelAuthorizationSummary(travelAuthorizationId, {
   tripType,
   travelSegments: travelSegmentsAttributes,
 })

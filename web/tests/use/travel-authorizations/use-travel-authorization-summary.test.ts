@@ -1,15 +1,20 @@
+import { flushPromises } from "@vue/test-utils"
 import { effectScope, ref } from "vue"
 
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
-import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
+import { travelAuthorizationFactory } from "@/tests/factories"
 import { mockHttpClient } from "@/tests/support"
+
+import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts", () => {
   describe("useTravelAuthorizationSummary", () => {
     test.each(["replace itinerary", "edit arrival", "change trip type"])(
       "when local inputs %s, the destination updates synchronously",
-      (action) => {
+      async (action) => {
         // Arrange
+        const travelAuthorization = travelAuthorizationFactory.asShow().build({ id: 1 })
+        mockHttpClient().get.mockResolvedValue({ data: { travelAuthorization } })
         const tripType = ref(TravelAuthorizationTripTypes.MULTI_CITY)
         const travelSegments = ref([
           { departureLocationId: 1, arrivalLocationId: 2 },
@@ -18,9 +23,10 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         ])
         const scope = effectScope()
         const summary = scope.run(() =>
-          useTravelAuthorizationSummary(undefined, { tripType, travelSegments })
+          useTravelAuthorizationSummary(ref(1), { tripType, travelSegments })
         )
         if (!summary) throw new Error("Summary did not initialize")
+        await flushPromises()
 
         try {
           // Act
@@ -41,22 +47,45 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
       }
     )
 
-    test("when summarizing supplied segments, does not fetch another authorization", () => {
+    test("when the authorization changes, selects the loaded record's estimated or actual itinerary", async () => {
       // Arrange
-      const httpClient = mockHttpClient()
+      const estimatedAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 1,
+        tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
+        tripTypeActual: null,
+        travelSegments: [
+          { isActual: false, arrivalLocationId: 2 },
+          { isActual: true, arrivalLocationId: 3 },
+        ],
+      })
+      const actualAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 2,
+        tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
+        tripTypeActual: TravelAuthorizationTripTypes.ONE_WAY,
+        travelSegments: [
+          { isActual: false, arrivalLocationId: 4 },
+          { isActual: true, arrivalLocationId: 5 },
+        ],
+      })
+      mockHttpClient()
+        .get.mockResolvedValueOnce({ data: { travelAuthorization: estimatedAuthorization } })
+        .mockResolvedValueOnce({ data: { travelAuthorization: actualAuthorization } })
+      const travelAuthorizationId = ref(1)
       const scope = effectScope()
+      const summary = scope.run(() => useTravelAuthorizationSummary(travelAuthorizationId))
+      if (!summary) throw new Error("Summary did not initialize")
 
       try {
         // Act
-        scope.run(() =>
-          useTravelAuthorizationSummary(undefined, {
-            tripType: TravelAuthorizationTripTypes.ONE_WAY,
-            travelSegments: [{ departureLocationId: 1, arrivalLocationId: 2 }],
-          })
-        )
+        await flushPromises()
+        const estimatedDestination = summary.finalDestinationLocationId.value
+        travelAuthorizationId.value = 2
+        await flushPromises()
 
         // Assert
-        expect(httpClient.get).not.toHaveBeenCalled()
+        expect(estimatedDestination).toBe(2)
+        expect(summary.finalDestinationLocationId.value).toBe(5)
+        expect(summary.travelAuthorization.value?.id).toBe(2)
       } finally {
         scope.stop()
       }
