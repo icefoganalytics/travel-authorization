@@ -5,8 +5,10 @@ import {
   TravelDeskInvoice,
 } from "@/models"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 
 import {
+  travelDeskBookingEventFactory,
   travelDeskInvoiceFactory,
   travelDeskInvoiceItemFactory,
   travelDeskProductTypeFactory,
@@ -19,13 +21,18 @@ import UpdateService from "@/services/travel-desk-invoices/update-service"
 describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
   describe("UpdateService", () => {
     describe(".perform", () => {
-      test("when no source rows are available, it edits from the saved snapshot and preserves omitted headers", async () => {
+      test("when synchronization removes its source event, it edits from the saved snapshot and preserves omitted headers", async () => {
         // Arrange
         const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         const invoice = await travelDeskInvoiceFactory.create({
           invoiceNumber: "KEEP-314",
           grossAmount: "10.125",
         })
+        await travelDeskBookingEventFactory.create({
+          externalTravelportIdentifier: invoice.sourceBookingEventId,
+          recordLocator: invoice.recordLocator,
+        })
+        await SyncService.perform(invoice.recordLocator)
         await travelDeskInvoiceItemFactory
           .associations({ invoice, productType: air })
           .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
