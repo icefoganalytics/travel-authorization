@@ -56,24 +56,29 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   perform(): TravelAuthorizationIndexView {
-    const { stops, travelSegments, travelDeskTravelRequest } = this.record
+    const { expenses, status, tripType, tripTypeActual } = this.record
+    const stops = this.stops
+    const travelSegments = this.travelSegments
+    const travelDeskTravelRequest = this.travelDeskTravelRequest
+    const traveller = this.traveller
+    const currentDate = new Date()
 
     const serializedLocations = this.serializeLocations(travelSegments, stops)
 
     const serializedTravelDeskTravelRequest =
       this.serializeTravelDeskTravelRequest(travelDeskTravelRequest)
 
-    const firstTravelSegment = first(this.travelSegments)
-    const lastTravelSegment = last(this.travelSegments)
-    const departingAt = this.buildDepartingAt(firstTravelSegment, this.stops)
-    const returningAt = this.buildReturningAt(lastTravelSegment, this.stops)
+    const firstTravelSegment = first(travelSegments)
+    const lastTravelSegment = last(travelSegments)
+    const departingAt = this.buildDepartingAt(firstTravelSegment, stops)
+    const returningAt = this.buildReturningAt(lastTravelSegment, stops)
 
     const finalDestinationLocation = this.buildFinalDestinationLocation(
-      this.record.tripType,
-      this.travelSegments,
-      this.record.tripTypeActual
+      tripType,
+      travelSegments,
+      tripTypeActual
     )
-    const unprocessedExpenseCount = this.countUnprocessedExpenses()
+    const unprocessedExpenseCount = this.countUnprocessedExpenses(expenses)
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
     return {
@@ -92,13 +97,13 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       finalDestination: finalDestinationLocation,
       departingAt: departingAt?.toISOString(),
       returningAt: returningAt?.toISOString(),
-      phase: this.determinePhase(),
-      action: this.determineAction(),
-      firstName: this.traveller.firstName,
-      lastName: this.traveller.lastName,
-      department: this.traveller.department,
-      branch: this.traveller.branch,
-      isTravelling: this.isTravelling(),
+      phase: this.determinePhase(status, travelSegments, expenses, currentDate),
+      action: this.determineAction(status, travelSegments, travelDeskTravelRequest, currentDate),
+      firstName: traveller.firstName,
+      lastName: traveller.lastName,
+      department: traveller.department,
+      branch: traveller.branch,
+      isTravelling: this.isTravelling(status, travelSegments, currentDate),
       unprocessedExpenseCount,
       locations: serializedLocations,
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
@@ -198,8 +203,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return Locations.ReferenceSerializer.perform(finalDestinationLocation)
   }
 
-  private countUnprocessedExpenses(): number {
-    const { expenses } = this.record
+  private countUnprocessedExpenses(expenses: Expense[] | undefined): number {
     if (isUndefined(expenses)) {
       throw new Error("Expected expenses association to be pre-loaded.")
     }
@@ -215,18 +219,26 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   // TODO: double check the order of these conditions
-  private determinePhase() {
-    if (this.isDraft() || this.isSubmitted()) {
+  private determinePhase(
+    status: TravelAuthorization["status"],
+    travelSegments: TravelSegment[],
+    expenses: Expense[] | undefined,
+    currentDate: Date
+  ) {
+    if (this.isDraft(status) || this.isSubmitted(status)) {
       return "travel_approval"
-    } else if (this.beforeTravelling() && (this.isApproved() || this.isBooked())) {
+    } else if (
+      this.beforeTravelling(travelSegments, currentDate) &&
+      (this.isApproved(status) || this.isBooked(status))
+    ) {
       return "travel_planning"
-    } else if (this.isTravelling()) {
+    } else if (this.isTravelling(status, travelSegments, currentDate)) {
       return "travelling"
-    } else if (this.travellingComplete()) {
+    } else if (this.travellingComplete(travelSegments, currentDate)) {
       return "travel_complete"
-    } else if (this.hasExpenses()) {
+    } else if (this.hasExpenses(expenses)) {
       return "expensing"
-    } else if (this.isExpensed()) {
+    } else if (this.isExpensed(status)) {
       return "expensed"
     } else {
       return undefined
@@ -234,56 +246,72 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   // TODO: double check the order of these conditions
-  private determineAction() {
-    if (this.isDraft()) {
+  private determineAction(
+    status: TravelAuthorization["status"],
+    travelSegments: TravelSegment[],
+    travelDeskTravelRequest: TravelDeskTravelRequest | null,
+    currentDate: Date
+  ) {
+    if (this.isDraft(status)) {
       return ["delete"]
-    } else if (this.isApproved() && this.isTravellingByAir() && this.travelDeskIsDraft()) {
+    } else if (
+      this.isApproved(status) &&
+      this.isTravellingByAir(travelSegments) &&
+      this.travelDeskIsDraft(travelDeskTravelRequest)
+    ) {
       return ["submit_travel_desk_request"]
     } else if (
-      this.isApproved() &&
-      this.isTravellingByAir() &&
-      this.travelDeskIsOptionsProvided()
+      this.isApproved(status) &&
+      this.isTravellingByAir(travelSegments) &&
+      this.travelDeskIsOptionsProvided(travelDeskTravelRequest)
     ) {
       return ["travel_desk_rank_options"]
     } else if (
-      this.isApproved() &&
-      this.travellingComplete() &&
-      ((this.isTravellingByAir() && this.travelDeskIsComplete()) || !this.isTravellingByAir())
+      this.isApproved(status) &&
+      this.travellingComplete(travelSegments, currentDate) &&
+      ((this.isTravellingByAir(travelSegments) &&
+        this.travelDeskIsComplete(travelDeskTravelRequest)) ||
+        !this.isTravellingByAir(travelSegments))
     ) {
       return ["submit_expense_claim"]
-    } else if (this.travelDeskIsComplete()) {
+    } else if (this.travelDeskIsComplete(travelDeskTravelRequest)) {
       return ["view_itinerary"]
     } else if (
-      this.isApproved() &&
-      this.isTravelling() &&
-      ((this.isTravellingByAir() && this.travelDeskIsComplete()) || !this.isTravellingByAir())
+      this.isApproved(status) &&
+      this.isTravelling(status, travelSegments, currentDate) &&
+      ((this.isTravellingByAir(travelSegments) &&
+        this.travelDeskIsComplete(travelDeskTravelRequest)) ||
+        !this.isTravellingByAir(travelSegments))
     ) {
       return ["add_expense"]
-    } else if (this.isApproved() && this.anyTransportTypeIsPoolVehicle()) {
+    } else if (this.isApproved(status) && this.anyTransportTypeIsPoolVehicle(travelSegments)) {
       return ["submit_pool_vehicle_request"]
     } else {
       return []
     }
   }
 
-  private beforeTravelling() {
-    const firstTravelSegment = first(this.travelSegments)
+  private beforeTravelling(travelSegments: TravelSegment[], currentDate: Date) {
+    const firstTravelSegment = first(travelSegments)
 
     if (isNil(firstTravelSegment) || isNil(firstTravelSegment.departureAt)) {
       return false
     }
 
-    if (this.currentDate < firstTravelSegment.departureAt) {
+    if (currentDate < firstTravelSegment.departureAt) {
       return true
     }
 
     return false
   }
 
-  private isTravelling() {
-    if (!this.isApproved()) return false
+  private isTravelling(
+    status: TravelAuthorization["status"],
+    travelSegments: TravelSegment[],
+    currentDate: Date
+  ) {
+    if (!this.isApproved(status)) return false
 
-    const travelSegments = this.travelSegments
     const firstTravelSegment = first(travelSegments)
     const lastTravelSegment = last(travelSegments)
 
@@ -297,8 +325,8 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     if (
-      firstTravelSegment.departureAt <= this.currentDate &&
-      this.currentDate <= lastTravelSegment.departureAt
+      firstTravelSegment.departureAt <= currentDate &&
+      currentDate <= lastTravelSegment.departureAt
     ) {
       return true
     }
@@ -306,85 +334,81 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return false
   }
 
-  private travellingComplete() {
-    const lastTravelSegment = last(this.travelSegments)
+  private travellingComplete(travelSegments: TravelSegment[], currentDate: Date) {
+    const lastTravelSegment = last(travelSegments)
 
     if (isNil(lastTravelSegment) || isNil(lastTravelSegment.departureAt)) {
-      return this.legacyTravellingComplete() // Replace with false when Stop model is removed
+      return this.legacyTravellingComplete(travelSegments, currentDate) // Replace with false when Stop model is removed
     }
 
-    if (this.currentDate > lastTravelSegment.departureAt) {
+    if (currentDate > lastTravelSegment.departureAt) {
       return true
     }
 
     return false
   }
 
-  private legacyTravellingComplete() {
-    const lastTravelSegment = last(this.travelSegments)
+  private legacyTravellingComplete(travelSegments: TravelSegment[], currentDate: Date) {
+    const lastTravelSegment = last(travelSegments)
 
     if (isNil(lastTravelSegment) || isNil(lastTravelSegment.departureAt)) {
       return false
     }
 
-    if (this.currentDate > lastTravelSegment.departureAt) {
+    if (currentDate > lastTravelSegment.departureAt) {
       return true
     }
 
     return false
   }
 
-  private hasExpenses() {
-    const expenses = this.record.expenses?.filter(
-      (expense) => expense.type === Expense.Types.EXPENSE
-    )
-    return !isEmpty(expenses)
+  private hasExpenses(expenses: Expense[] | undefined) {
+    const expenseClaims = expenses?.filter((expense) => expense.type === Expense.Types.EXPENSE)
+    return !isEmpty(expenseClaims)
   }
 
-  private isTravellingByAir() {
-    return this.travelSegments.some(
+  private isTravellingByAir(travelSegments: TravelSegment[]) {
+    return travelSegments.some(
       (travelSegment) => travelSegment.modeOfTransport === TravelSegment.TravelMethods.AIRCRAFT
     )
   }
 
-  private anyTransportTypeIsPoolVehicle() {
-    return this.travelSegments.some(
+  private anyTransportTypeIsPoolVehicle(travelSegments: TravelSegment[]) {
+    return travelSegments.some(
       (travelSegment) => travelSegment.modeOfTransport === TravelSegment.TravelMethods.POOL_VEHICLE
     )
   }
 
-  private isBooked() {
-    return this.record.status === TravelAuthorization.Statuses.BOOKED
+  private isBooked(status: TravelAuthorization["status"]) {
+    return status === TravelAuthorization.Statuses.BOOKED
   }
 
-  private isDraft() {
-    return this.record.status === TravelAuthorization.Statuses.DRAFT
+  private isDraft(status: TravelAuthorization["status"]) {
+    return status === TravelAuthorization.Statuses.DRAFT
   }
 
-  private isExpensed() {
-    return this.record.status === TravelAuthorization.Statuses.EXPENSED
+  private isExpensed(status: TravelAuthorization["status"]) {
+    return status === TravelAuthorization.Statuses.EXPENSED
   }
 
-  private isApproved() {
-    return this.record.status === TravelAuthorization.Statuses.APPROVED
+  private isApproved(status: TravelAuthorization["status"]) {
+    return status === TravelAuthorization.Statuses.APPROVED
   }
 
-  private isSubmitted() {
-    return this.record.status === TravelAuthorization.Statuses.SUBMITTED
+  private isSubmitted(status: TravelAuthorization["status"]) {
+    return status === TravelAuthorization.Statuses.SUBMITTED
   }
 
-  private travelDeskIsDraft() {
-    return this.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.DRAFT
+  private travelDeskIsDraft(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    return travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.DRAFT
   }
 
-  private travelDeskIsOptionsProvided() {
-    return (
-      this.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
-    )
+  private travelDeskIsOptionsProvided(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    return travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.OPTIONS_PROVIDED
   }
 
-  private travelDeskIsComplete() {
-    return this.travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.COMPLETE
+  private travelDeskIsComplete(travelDeskTravelRequest: TravelDeskTravelRequest | null) {
+    return travelDeskTravelRequest?.status === TravelDeskTravelRequest.Statuses.COMPLETE
   }
 
   private buildDepartingAt(
@@ -430,10 +454,6 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     return stops
-  }
-
-  private get currentDate(): Date {
-    return new Date()
   }
 
   private get traveller(): User {
