@@ -1,4 +1,4 @@
-import { isNil, isUndefined } from "lodash"
+import { isNil, isUndefined, pick } from "lodash"
 
 import {
   AirReservationSegment,
@@ -26,13 +26,15 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
     const serviceFeeTransaction = this.serializeServiceFeeTransaction(this.record.serviceFeeTransaction)
 
     return {
-      travelOrderIdentifier: this.record.travelOrderIdentifier,
-      bookingFileVersionNumber: this.record.bookingFileVersionNumber,
+      ...pick(this.record, [
+        "travelOrderIdentifier",
+        "bookingFileVersionNumber",
+        "databaseTimestamp",
+        "hostEventTimestamp",
+      ]),
       eventType,
       recordLocator,
       reservationSystemDescription,
-      databaseTimestamp: this.record.databaseTimestamp,
-      hostEventTimestamp: this.record.hostEventTimestamp,
       passengerNameRecordCreatedAt: this.record.pnrCreationDate,
       owningAgencyName,
       transactionAgencyName,
@@ -60,8 +62,7 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
       const lastName = this.trimSourceValue(passenger.lastName)
 
       return {
-        lastNameElement: passenger.lastNameElement,
-        passengerElement: passenger.passengerElement,
+        ...pick(passenger, ["lastNameElement", "passengerElement"]),
         firstName,
         lastName,
       }
@@ -84,7 +85,7 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
       const arrivalTime = this.trimSourceValue(segment.arrivalTime)
 
       return {
-        airSegmentNumber: segment.airSegmentNumber,
+        ...pick(segment, ["airSegmentNumber", "changeOfDay"]),
         segmentStatus,
         carrierCode,
         boardPoint,
@@ -93,7 +94,6 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
         departureDate,
         departureTime,
         arrivalTime,
-        changeOfDay: segment.changeOfDay,
       }
     })
   }
@@ -118,12 +118,11 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
     const relatedInvoiceNumber = this.trimSourceValue(serviceFeeTransaction.relatedInvoiceNumber)
 
     return {
+      ...pick(serviceFeeTransaction, ["serviceFeeAmount", "commissionAmount"]),
       activeVoidStatus,
       serviceFeeDocumentNumber,
       issueDate,
       currencyCode,
-      serviceFeeAmount: serviceFeeTransaction.serviceFeeAmount,
-      commissionAmount: serviceFeeTransaction.commissionAmount,
       nameOnServiceFee,
       relatedTicketDocumentNumber,
       relatedInvoiceNumber,
