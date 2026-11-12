@@ -139,7 +139,9 @@ database relationship traits belong to the API's Factory Shark factories.
 - `web/tests/support/simple-dedent.js` - simple string helper used by tests
 - `web/tests/support/mock-router.ts` - memory-history router for mounted component tests
 - `web/tests/support/mock-vuetify.ts` - real Vuetify components and directives for mounted tests
-- `web/tests/support/mock-http-client.ts` - typed Axios mock with per-test defaults and composable GET responses
+- `web/tests/support/mock-http-client.ts` - typed Axios mock with per-test defaults
+- `web/tests/support/mock-http-get-route.ts` - single GET response registration
+- `web/tests/support/mock-http-get-routes.ts` - composable GET response maps
 - `web/tests/support/mock-visual-viewport.ts` - browser viewport support for Vuetify overlays
 
 As the frontend test suite grows, prefer adding shared mocks and setup helpers under
