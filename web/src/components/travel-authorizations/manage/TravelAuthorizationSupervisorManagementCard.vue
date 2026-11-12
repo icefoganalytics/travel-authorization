@@ -42,7 +42,7 @@ import { isNil } from "lodash"
 
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
-import determineFinalDestinationSegment from "@/use/travel-authorizations/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"

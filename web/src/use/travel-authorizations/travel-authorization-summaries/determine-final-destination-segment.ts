@@ -1,3 +1,5 @@
+import { first, isEmpty, isNil, last } from "lodash"
+
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
 import { type TravelSegment } from "@/api/travel-segments-api"
 
@@ -8,24 +10,28 @@ export function determineFinalDestinationSegment<Segment extends DestinationSegm
   tripType: TravelAuthorizationTripTypes | null | undefined,
   travelSegments: readonly Segment[] | null | undefined
 ): Segment | undefined {
-  if (tripType == null || travelSegments == null) return undefined
+  if (isNil(tripType) || isNil(travelSegments) || isEmpty(travelSegments)) return undefined
 
-  const firstSegment = travelSegments.at(0)
-  const lastSegment = travelSegments.at(-1)
-  const originLocationId = firstSegment?.departureLocationId
+  const firstTravelSegment = first(travelSegments)
+  const lastTravelSegment = last(travelSegments)
+  const originLocationId = firstTravelSegment?.departureLocationId
   const returnsToOrigin =
     travelSegments.length > 1 &&
-    originLocationId != null &&
-    lastSegment?.arrivalLocationId === originLocationId
+    !isNil(originLocationId) &&
+    lastTravelSegment?.arrivalLocationId === originLocationId
+
+  let finalDestinationSegment: Segment | undefined
 
   if (
     tripType === TravelAuthorizationTripTypes.ROUND_TRIP ||
     (tripType === TravelAuthorizationTripTypes.MULTI_CITY && returnsToOrigin)
   ) {
-    return travelSegments.at(-2)
+    finalDestinationSegment = travelSegments.at(-2)
+  } else {
+    finalDestinationSegment = lastTravelSegment
   }
 
-  return lastSegment
+  return finalDestinationSegment
 }
 
 export default determineFinalDestinationSegment

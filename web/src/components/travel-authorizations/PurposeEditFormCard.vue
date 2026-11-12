@@ -118,7 +118,7 @@ import useTravelAuthorization, {
   TravelAuthorizationTripTypes,
 } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
-import determineFinalDestinationSegment from "@/use/travel-authorizations/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
