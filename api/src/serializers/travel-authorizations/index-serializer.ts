@@ -71,7 +71,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const finalDestinationLocation = this.buildFinalDestinationLocation(
       this.record.tripType,
       this.travelSegments,
-      !isNil(this.record.tripTypeActual)
+      this.record.tripTypeActual
     )
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
@@ -169,8 +169,9 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   private buildFinalDestinationLocation(
     tripType: TravelAuthorization["tripType"],
     travelSegments: TravelSegment[],
-    useActuals: boolean
+    tripTypeActual: TravelAuthorization["tripTypeActual"]
   ): Locations.AsReference | null {
+    const useActuals = !isNil(tripTypeActual)
     const destinationTravelSegments = travelSegments.filter(
       (travelSegment) => travelSegment.isActual === useActuals
     )
