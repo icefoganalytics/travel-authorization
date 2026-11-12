@@ -28,11 +28,11 @@ export async function waitForDatabase(): Promise<void> {
     try {
       await checkHealth(client, DB_HEALTH_CHECK_TIMEOUT_SECONDS)
       await client.destroy()
-      logger.info("TravelPort database connection successful.")
+      logger.info("Travelport database connection successful.")
       return
     } catch (error) {
       if (isSocketFailure(error)) {
-        logger.info(`TravelPort database socket is not ready, retrying... ${error}`, { error })
+        logger.info(`Travelport database socket is not ready, retrying... ${error}`, { error })
         await sleep(DB_HEALTH_CHECK_INTERVAL_SECONDS)
         continue
       }
@@ -49,7 +49,7 @@ export async function waitForDatabase(): Promise<void> {
   }
 
   await client.destroy()
-  throw new Error("Failed to connect to TravelPort database due to timeout.")
+  throw new Error("Failed to connect to Travelport database due to timeout.")
 }
 
 export default waitForDatabase

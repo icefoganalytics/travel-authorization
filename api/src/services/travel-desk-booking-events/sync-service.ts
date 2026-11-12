@@ -99,7 +99,7 @@ export class SyncService extends BaseService {
     } catch (error) {
       if (processingFailed) throw error
 
-      logger.error("TravelPort booking source lookup failed.", { error })
+      logger.error("Travelport booking source lookup failed.", { error })
       throw new SourceUnavailableError("Booking source is unavailable.")
     }
   }

@@ -1,6 +1,6 @@
-# TravelPort Booking Feed integration
+# Travelport Booking Feed integration
 
-Use this boundary to read the TravelPort source, not TravCom invoices. TravelPort identifies booking files by the event-level record locator; a TravCom invoice number is a different identifier. This module does not expose an HTTP endpoint or decide who may view a travel request. Call it from an authorized application use case.
+Use this boundary to read the Travelport source, not TravCom invoices. Travelport identifies booking files by the event-level record locator; a TravCom invoice number is a different identifier. This module does not expose an HTTP endpoint or decide who may view a travel request. Call it from an authorized application use case.
 
 ## Reading booking history
 
@@ -29,7 +29,7 @@ The source dictionary documents [event replacement and version semantics](https:
 
 Follow the [development wrapper](../../../../bin/README.md) for startup and test commands. Development Compose supplies a separate SQL Server 2019 service, `db_travelport`, with the private alias `${COMPOSE_PROJECT_NAME}-db_travelport` and its own volume. It does not connect to production or require VPN access. Desktop gateway access uses `db-travelport.<gateway-hostname>` with encryption enabled; there is no directly published database port.
 
-Startup follows the existing TravCom sequence: wait for the local server, create the local database when absent, run source-schema migrations, and load synthetic development data. The database names are `travelport_development` for the normal API and `travelport_test` for the API test runner. Test scenarios insert their own records and clean only their own TravelPort test database; unrelated API tests do not acquire an extra per-test source cleanup.
+Startup follows the existing TravCom sequence: wait for the local server, create the local database when absent, run source-schema migrations, and load synthetic development data. The database names are `travelport_development` for the normal API and `travelport_test` for the API test runner. Test scenarios insert their own records and clean only their own Travelport test database; unrelated API tests do not acquire an extra per-test source cleanup.
 
 The synthetic development fixture includes `ZZ0001`: thirteen booking snapshots and a separate fee event, with version 7 arriving after version 8. Other fictional locators cover fare events, multiple passengers, missing flights, and six flight segments. Names, routes, dates, locators, event identifiers, and fee amounts are synthetic—not production extracts.
 

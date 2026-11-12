@@ -3,7 +3,7 @@ import knex from "knex"
 import { TRAVELPORT_DB_NAME } from "@/config"
 import { buildKnexConfig } from "@/integrations/travel-port-integration/db/db-migration-client"
 
-export default async function ensureDatabase(): Promise<void> {
+export async function ensureDatabase(): Promise<void> {
   const client = knex(buildKnexConfig({ connection: { database: "" } }))
   try {
     const result = await client.raw("SELECT 1 FROM sys.databases WHERE name = ?", [
@@ -16,3 +16,5 @@ export default async function ensureDatabase(): Promise<void> {
     await client.destroy()
   }
 }
+
+export default ensureDatabase

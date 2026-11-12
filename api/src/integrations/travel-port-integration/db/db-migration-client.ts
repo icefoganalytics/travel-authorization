@@ -10,7 +10,7 @@ export function buildKnexConfig(options?: Knex.Config): Knex.Config {
 export const db = knex(buildKnexConfig())
 
 db.on("query", (query) => {
-  if (NODE_ENV !== "test") console.log(`Executing (TravelPort): ${query.sql}`)
+  if (NODE_ENV !== "test") console.log(`Executing (Travelport): ${query.sql}`)
 })
 
 export default db

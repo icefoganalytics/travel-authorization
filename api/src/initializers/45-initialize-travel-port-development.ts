@@ -2,7 +2,7 @@ import { NODE_ENV, TRAVELPORT_INITIALIZER_PATH } from "@/config"
 import logger from "@/utils/logger"
 import importAndExecuteInitializers from "@/utils/import-and-execute-initializers"
 
-// The TravelPort simulator is local/test-only; production uses externally configured source access.
+// The Travelport simulator is local/test-only; production uses externally configured source access.
 export async function initializeTravelPortDevelopment(): Promise<void> {
   if (NODE_ENV === "production") return
 
@@ -17,7 +17,7 @@ if (require.main === module) {
     try {
       await initializeTravelPortDevelopment()
     } catch {
-      logger.error("Failed to complete TravelPort initialization!")
+      logger.error("Failed to complete Travelport initialization!")
       process.exitCode = 1
     }
   })()

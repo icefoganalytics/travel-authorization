@@ -11,7 +11,7 @@ export const TravelDeskBookingEventsExternalTravelPortIdentifierUniqueIndex = cr
         [Op.is]: null,
       },
     },
-    msg: "External TravelPort identifier must be unique among active booking events.",
+    msg: "External Travelport identifier must be unique among active booking events.",
   }
 )
 
