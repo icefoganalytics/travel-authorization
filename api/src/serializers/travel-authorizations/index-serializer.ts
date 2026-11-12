@@ -56,11 +56,37 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   perform(): TravelAuthorizationIndexView {
-    const { expenses, status, tripType, tripTypeActual } = this.record
-    const stops = this.stops
-    const travelSegments = this.travelSegments
-    const travelDeskTravelRequest = this.travelDeskTravelRequest
-    const traveller = this.traveller
+    const {
+      expenses,
+      stops,
+      travelSegments,
+      travelDeskTravelRequest,
+      user: traveller,
+      status,
+      tripType,
+      tripTypeActual,
+    } = this.record
+
+    if (isUndefined(expenses)) {
+      throw new Error("Expected expenses association to be pre-loaded.")
+    }
+
+    if (isUndefined(stops)) {
+      throw new Error("Expected stops association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelSegments)) {
+      throw new Error("Expected travelSegments association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelDeskTravelRequest)) {
+      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
+    }
+
+    if (isUndefined(traveller)) {
+      throw new Error("Expected user association to be pre-loaded.")
+    }
+
     const currentDate = new Date()
 
     const serializedLocations = this.serializeLocations(travelSegments, stops)
@@ -112,29 +138,17 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private serializeLocations(
-    travelSegments: TravelSegment[] | undefined,
-    stops: Stop[] | undefined
+    travelSegments: TravelSegment[],
+    stops: Stop[]
   ): Locations.AsReference[] {
-    if (isUndefined(stops)) {
-      throw new Error("Expected stops association to be pre-loaded.")
-    }
-
-    if (isUndefined(travelSegments)) {
-      throw new Error("Expected travelSegments association to be pre-loaded.")
-    }
-
     const locations = this.buildLocations(travelSegments, stops)
 
     return Locations.ReferenceSerializer.perform(locations)
   }
 
   private serializeTravelDeskTravelRequest(
-    travelDeskTravelRequest: TravelDeskTravelRequest | null | undefined
+    travelDeskTravelRequest: TravelDeskTravelRequest | null
   ): TravelDeskTravelRequests.AsSummary | null {
-    if (isUndefined(travelDeskTravelRequest)) {
-      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
-    }
-
     if (isNil(travelDeskTravelRequest)) return null
 
     return TravelDeskTravelRequests.SummarySerializer.perform(travelDeskTravelRequest)
@@ -203,11 +217,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return Locations.ReferenceSerializer.perform(finalDestinationLocation)
   }
 
-  private countUnprocessedExpenses(expenses: Expense[] | undefined): number {
-    if (isUndefined(expenses)) {
-      throw new Error("Expected expenses association to be pre-loaded.")
-    }
-
+  private countUnprocessedExpenses(expenses: Expense[]): number {
     const unprocessedExpenseCount = sumBy(expenses, (expense) => {
       if (expense.type !== Expense.Types.EXPENSE) return 0
       if (!isNil(expense.approvedAt) || !isNil(expense.rejectedAt)) return 0
@@ -445,45 +455,6 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const lastStop = last(stops)
 
     return lastStop?.departureAt
-  }
-
-  private get stops(): Stop[] {
-    const { stops } = this.record
-    if (isUndefined(stops)) {
-      throw new Error("Expected stops association to be pre-loaded")
-    }
-
-    return stops
-  }
-
-  private get traveller(): User {
-    const { user } = this.record
-
-    if (isUndefined(user)) {
-      throw new Error("Expected user association to be pre-loaded")
-    }
-
-    return user
-  }
-
-  private get travelDeskTravelRequest(): TravelDeskTravelRequest | null {
-    const { travelDeskTravelRequest } = this.record
-
-    if (isUndefined(travelDeskTravelRequest)) {
-      throw new Error("Expected travelDeskTravelRequest asssociation to be pre-loaded")
-    }
-
-    return travelDeskTravelRequest
-  }
-
-  private get travelSegments(): TravelSegment[] {
-    const { travelSegments } = this.record
-
-    if (isUndefined(travelSegments)) {
-      throw new Error("Expected travelSegments association to be pre-loaded")
-    }
-
-    return travelSegments
   }
 }
 
