@@ -34,7 +34,7 @@
               v-model="pickUpDate"
               label="Pick-up date *"
               :picker-date="tripStartDate"
-              :disabled="areScheduleFieldsDisabled"
+              :disabled="isMatchingAvailableFlightSchedule"
               :min="tripStartDate"
               :max="tripEndDate"
               :rules="[required]"
@@ -46,7 +46,7 @@
             <TimeTextField
               v-model="pickUpTime"
               label="Pick-up time *"
-              :disabled="areScheduleFieldsDisabled"
+              :disabled="isMatchingAvailableFlightSchedule"
               :rules="[required]"
               variant="outlined"
               required
@@ -58,7 +58,7 @@
             <StringDateInput
               v-model="dropOffDate"
               label="Drop-off date *"
-              :disabled="areScheduleFieldsDisabled"
+              :disabled="isMatchingAvailableFlightSchedule"
               :picker-date="tripStartDate"
               :min="tripStartDate"
               :max="tripEndDate"
@@ -71,7 +71,7 @@
             <TimeTextField
               v-model="dropOffTime"
               label="Drop-off time *"
-              :disabled="areScheduleFieldsDisabled"
+              :disabled="isMatchingAvailableFlightSchedule"
               :rules="[required]"
               variant="outlined"
               required
@@ -343,7 +343,7 @@ const isFlightScheduleAvailable = computed(
       flightStartDate.value && flightStartTime.value && flightEndDate.value && flightEndTime.value
     )
 )
-const areScheduleFieldsDisabled = computed(
+const isMatchingAvailableFlightSchedule = computed(
   () =>
     travelDeskRentalCarAttributes.value.matchFlightTimes === true && isFlightScheduleAvailable.value
 )
