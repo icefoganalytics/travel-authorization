@@ -40,7 +40,7 @@
                 :model-value="travelDeskRentalCar.matchFlightTimes"
                 label="Pick-up/Drop-off match flights"
                 class="mt-0"
-                @update:model-value="requestFlightScheduleMatch"
+                @update:model-value="matchWithFlight"
               />
             </v-col>
           </v-row>
@@ -322,11 +322,24 @@ const isMatchingAvailableFlightSchedule = computed(() => {
   )
 })
 
-const isFlightScheduleMatchRequested = ref(false)
+let isWaitingForFlightSchedule = false
 
-function applyRequestedFlightSchedule() {
+function matchWithFlight(value: boolean) {
+  if (isNil(travelDeskRentalCar.value)) return
+
+  travelDeskRentalCar.value.matchFlightTimes = value
+  isWaitingForFlightSchedule = false
+
+  if (!value) {
+    restoreManualSchedule()
+    return
+  }
+
   const schedule = availableFlightSchedule.value
-  if (!isFlightScheduleMatchRequested.value || isNil(schedule)) return
+  if (isNil(schedule)) {
+    isWaitingForFlightSchedule = true
+    return
+  }
 
   // Preserve the saved or manually edited schedule before an explicit flight match replaces it.
   if (isNil(scheduleBeforeFlightMatching)) {
@@ -342,21 +355,6 @@ function applyRequestedFlightSchedule() {
   pickUpTime.value = schedule.startTime
   dropOffDate.value = schedule.endDate
   dropOffTime.value = schedule.endTime
-  isFlightScheduleMatchRequested.value = false
-}
-
-function requestFlightScheduleMatch(value: boolean) {
-  if (isNil(travelDeskRentalCar.value)) return
-
-  travelDeskRentalCar.value.matchFlightTimes = value
-  isFlightScheduleMatchRequested.value = value
-
-  if (!value) {
-    restoreManualSchedule()
-    return
-  }
-
-  applyRequestedFlightSchedule()
 }
 
 function restoreManualSchedule() {
@@ -369,7 +367,12 @@ function restoreManualSchedule() {
   scheduleBeforeFlightMatching = null
 }
 
-watch(isFlightScheduleAvailable, applyRequestedFlightSchedule)
+// Only resume an explicit match that was waiting for flights; never rematch a loaded rental.
+watch(isFlightScheduleAvailable, (isAvailable) => {
+  if (isAvailable && isWaitingForFlightSchedule) {
+    matchWithFlight(true)
+  }
+})
 
 function updatePickUpLocation(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
