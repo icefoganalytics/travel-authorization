@@ -246,6 +246,11 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
         // Assert
         expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message: expect.stringContaining(
+            "Choose a booking event with flight segments for this locator."
+          ),
+        })
       })
 
       test("when synced data is created with forged totals and snapshot, it uses local source data and calculated total", async () => {
@@ -490,6 +495,11 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
         // Assert
         expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message: expect.stringContaining(
+            "Amount must have at most 15 integral digits and 3 decimals."
+          ),
+        })
       })
     })
 
