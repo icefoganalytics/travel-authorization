@@ -8,7 +8,7 @@ const knex: Knex = db
 
 describe("api/tests/integrations/travel-port-integration/models/travel-order-event.test.ts", () => {
   describe("TravelOrderEvent", () => {
-    describe("findEach", () => {
+    describe("findAll", () => {
       beforeEach(async () => {
         await knex("Passenger").del()
         await knex("AirRsrvSeg").del()
@@ -103,33 +103,26 @@ describe("api/tests/integrations/travel-port-integration/models/travel-order-eve
         })
 
         // Act
-        const events: TravelOrderEvent[] = []
-        await TravelOrderEvent.findEach(
-          {
-            where: { recordLocator },
-            batchSize: 1,
-            order: [["travelOrderIdentifier", "ASC"]],
-            include: [
-              {
-                association: "passengers",
-                separate: true,
-                order: [
-                  ["lastNameElement", "ASC"],
-                  ["passengerElement", "ASC"],
-                ],
-              },
-              {
-                association: "airReservationSegments",
-                separate: true,
-                order: [["airSegmentNumber", "ASC"]],
-              },
-              { association: "serviceFeeTransaction" },
-            ],
-          },
-          async (event) => {
-            events.push(event)
-          }
-        )
+        const events = await TravelOrderEvent.findAll({
+          where: { recordLocator },
+          order: [["travelOrderIdentifier", "ASC"]],
+          include: [
+            {
+              association: "passengers",
+              separate: true,
+              order: [
+                ["lastNameElement", "ASC"],
+                ["passengerElement", "ASC"],
+              ],
+            },
+            {
+              association: "airReservationSegments",
+              separate: true,
+              order: [["airSegmentNumber", "ASC"]],
+            },
+            { association: "serviceFeeTransaction" },
+          ],
+        })
 
         // Assert
         expect(events).toEqual([
@@ -186,16 +179,10 @@ describe("api/tests/integrations/travel-port-integration/models/travel-order-eve
         })
 
         // Act
-        const events: TravelOrderEvent[] = []
-        await TravelOrderEvent.findEach(
-          {
-            where: { recordLocator: "NOPE99" },
-            order: [["travelOrderIdentifier", "ASC"]],
-          },
-          async (event) => {
-            events.push(event)
-          }
-        )
+        const events = await TravelOrderEvent.findAll({
+          where: { recordLocator: "NOPE99" },
+          order: [["travelOrderIdentifier", "ASC"]],
+        })
 
         // Assert
         expect(events).toEqual([])
