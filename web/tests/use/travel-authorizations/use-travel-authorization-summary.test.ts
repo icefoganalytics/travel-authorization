@@ -83,9 +83,15 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(estimatedDestination).toBe(2)
-        expect(summary.finalDestinationLocationId.value).toBe(5)
-        expect(summary.travelAuthorization.value?.id).toBe(2)
+        expect({
+          estimatedDestination,
+          actualDestination: summary.finalDestinationLocationId.value,
+          travelAuthorizationId: summary.travelAuthorization.value?.id,
+        }).toEqual({
+          estimatedDestination: 2,
+          actualDestination: 5,
+          travelAuthorizationId: 2,
+        })
       } finally {
         scope.stop()
       }
