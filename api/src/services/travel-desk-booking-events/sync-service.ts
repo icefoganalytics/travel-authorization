@@ -42,17 +42,6 @@ export class SyncService extends BaseService {
     })
   }
 
-  private async deleteUnmatchedBookingEvents(matchedSourceIds: number[]): Promise<void> {
-    await TravelDeskBookingEvent.destroy({
-      where: {
-        recordLocator: this.recordLocator,
-        externalTravelPortIdentifier: {
-          [Op.notIn]: matchedSourceIds,
-        },
-      },
-    })
-  }
-
   private async syncSourceEvents(
     recordLocator: string,
     processEvent: (event: TravelPortIntegration.Models.TravelOrderEvent) => Promise<void>
@@ -102,6 +91,17 @@ export class SyncService extends BaseService {
       logger.error("Travelport booking source lookup failed.", { error })
       throw new SourceUnavailableError("Booking source is unavailable.")
     }
+  }
+
+  private async deleteUnmatchedBookingEvents(matchedSourceIds: number[]): Promise<void> {
+    await TravelDeskBookingEvent.destroy({
+      where: {
+        recordLocator: this.recordLocator,
+        externalTravelPortIdentifier: {
+          [Op.notIn]: matchedSourceIds,
+        },
+      },
+    })
   }
 }
 
