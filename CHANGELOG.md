@@ -21,6 +21,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 - Frontend lint now checks standalone CSS and Vue style blocks for CSS errors alongside existing script and template checks.
 - Booking-history refreshes remove only events missing from a successful source scan. Reappearing events create new local records while deleted records and saved invoices remain unchanged. Failed refreshes leave the previous local history intact.
+- Travel Desk staff select one booking-feed reference in Trip Information and use that linked booking for new invoices. Changing the link preserves saved invoices and leaves the legacy TravCom invoice number separate.
 - Travel approval confirmations include the meeting or conference description and show the request's final destination when available. Approval and denial failures identify which action failed. Both dialogs synchronize their open state with the URL without clearing other query parameters.
 - Booking searches synchronize TravelPort events into local records without collecting the full history in memory. Staff browse paginated history while retaining their selected booking and fees across pages. Invoice creation uses those records without another feed lookup; refreshing booking history preserves saved invoice snapshots and staff-entered prices.
 - Booking-history requests use the `travel-desk-booking-events` endpoint and `travelDeskBookingEvents` response field, matching the local records used for invoice selection.
