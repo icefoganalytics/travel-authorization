@@ -38,13 +38,18 @@ export class SyncService extends BaseService {
         matchedSourceIds.push(travelOrderIdentifier)
       })
 
-      // Only remove unmatched events after the complete source scan succeeds.
-      await TravelDeskBookingEvent.destroy({
-        where: {
-          recordLocator: this.recordLocator,
-          externalTravelportIdentifier: { [Op.notIn]: matchedSourceIds },
+      await this.deleteUnmatchedBookingEvents(matchedSourceIds)
+    })
+  }
+
+  private async deleteUnmatchedBookingEvents(matchedSourceIds: number[]): Promise<void> {
+    await TravelDeskBookingEvent.destroy({
+      where: {
+        recordLocator: this.recordLocator,
+        externalTravelportIdentifier: {
+          [Op.notIn]: matchedSourceIds,
         },
-      })
+      },
     })
   }
 
