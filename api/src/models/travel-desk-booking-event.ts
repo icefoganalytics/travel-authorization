@@ -7,11 +7,11 @@ import {
 } from "@sequelize/core"
 import { Attribute, AutoIncrement, NotNull, PrimaryKey } from "@sequelize/core/decorators-legacy"
 
+import TravelDeskBookingEventsExternalTravelportIdentifierUniqueIndex from "@/models/indexes/travel-desk-booking-events-external-travelport-identifier-unique-index"
+
 import type { BookingPassenger } from "@/integrations/travelport-integration/models/booking-passenger"
 import type { BookingSegment } from "@/integrations/travelport-integration/models/booking-segment"
 import type { BookingServiceFee } from "@/integrations/travelport-integration/models/booking-service-fee"
-
-import TravelDeskBookingEventsExternalTravelportIdentifierUniqueIndex from "@/models/indexes/travel-desk-booking-events-external-travelport-identifier-unique-index"
 
 export class TravelDeskBookingEvent extends Model<
   InferAttributes<TravelDeskBookingEvent>,
