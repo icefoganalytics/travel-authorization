@@ -88,49 +88,74 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
       }
     )
 
-    test("when matching is turned off without manual entries, the schedule returns to blank dates and noon times", async () => {
-      // Arrange
-      const flightSegment = travelDeskFlightSegmentFactory.build({
-        departAt: "2026-12-10T08:35:00.000Z",
-        arriveAt: "2026-12-12T19:45:00.000Z",
-      })
-      mockHttpGetRoutes({
-        "/api/travel-desk-flight-segments": () => ({
-          travelDeskFlightSegments: [flightSegment],
-          totalCount: 1,
-        }),
-        "/api/travel-authorizations": () => ({ travelAuthorizations: [], totalCount: 0 }),
-        "/api/locations": () => ({ locations: [], totalCount: 0 }),
-      })
-      const router = mockRouter([
-        {
-          path: "/requests/:travelDeskTravelRequestId",
-          name: "travel-desk/TravelDeskRequestEditRedirect",
-          component: { template: "<div />" },
-        },
-      ])
-      await router.push("/requests/900")
-      await router.isReady()
-      const wrapper = mount(TravelDeskRentalCarNewPage, {
-        props: { travelDeskTravelRequestId: "900" },
-        global: { plugins: [mockVuetify(), router] },
-      })
-      await flushPromises()
+    test.each([
+      {
+        field: "pick-up date",
+        componentName: "StringDateInput",
+        fieldIndex: 0,
+        defaultValue: "",
+      },
+      {
+        field: "drop-off date",
+        componentName: "StringDateInput",
+        fieldIndex: 1,
+        defaultValue: "",
+      },
+      {
+        field: "pick-up time",
+        componentName: "TimeTextField",
+        fieldIndex: 0,
+        defaultValue: "12:00",
+      },
+      {
+        field: "drop-off time",
+        componentName: "TimeTextField",
+        fieldIndex: 1,
+        defaultValue: "12:00",
+      },
+    ])(
+      "when matching is turned off without manual entries, $field returns to its default",
+      async ({ componentName, fieldIndex, defaultValue }) => {
+        // Arrange
+        const flightSegment = travelDeskFlightSegmentFactory.build({
+          departAt: "2026-12-10T08:35:00.000Z",
+          arriveAt: "2026-12-12T19:45:00.000Z",
+        })
+        mockHttpGetRoutes({
+          "/api/travel-desk-flight-segments": () => ({
+            travelDeskFlightSegments: [flightSegment],
+            totalCount: 1,
+          }),
+          "/api/travel-authorizations": () => ({ travelAuthorizations: [], totalCount: 0 }),
+          "/api/locations": () => ({ locations: [], totalCount: 0 }),
+        })
+        const router = mockRouter([
+          {
+            path: "/requests/:travelDeskTravelRequestId",
+            name: "travel-desk/TravelDeskRequestEditRedirect",
+            component: { template: "<div />" },
+          },
+        ])
+        await router.push("/requests/900")
+        await router.isReady()
+        const wrapper = mount(TravelDeskRentalCarNewPage, {
+          props: { travelDeskTravelRequestId: "900" },
+          global: { plugins: [mockVuetify(), router] },
+        })
+        await flushPromises()
 
-      // Act
-      const matchingQuestion = wrapper.getComponent(YesNoRowRadioGroup)
-      await matchingQuestion.get('input[value="true"]').setValue()
-      await matchingQuestion.get('input[value="false"]').setValue()
+        // Act
+        const matchingQuestion = wrapper.getComponent(YesNoRowRadioGroup)
+        await matchingQuestion.get('input[value="true"]').setValue()
+        await matchingQuestion.get('input[value="false"]').setValue()
 
-      // Assert
-      const scheduleInputs = wrapper.findAll('input[type="text"]').slice(0, 4)
-      expect(scheduleInputs.map((input) => (input.element as HTMLInputElement).value)).toEqual([
-        "",
-        "12:00",
-        "",
-        "12:00",
-      ])
-    })
+        // Assert
+        const scheduleInput = wrapper
+          .findAllComponents({ name: componentName })
+          [fieldIndex].get("input").element
+        expect(scheduleInput).toHaveProperty("value", defaultValue)
+      }
+    )
 
     test.each(["before", "after"])(
       "when pending flights arrive %s selecting No, saving preserves manual entries made while waiting",
