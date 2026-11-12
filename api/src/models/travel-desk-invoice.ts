@@ -16,7 +16,7 @@ import {
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
-import { type BookingEventSnapshot } from "@/integrations/travelport-integration/models/booking-event-snapshot"
+import { type BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
 import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 

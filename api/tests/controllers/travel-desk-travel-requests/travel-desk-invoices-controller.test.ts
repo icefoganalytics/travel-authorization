@@ -258,7 +258,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 930001,
+          externalTravelPortIdentifier: 930001,
           recordLocator: "API001",
           bookingFileVersionNumber: 3,
           eventType: "B",

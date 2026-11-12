@@ -142,7 +142,7 @@ export class CreateService extends BaseService {
     const bookingEvents = await TravelDeskBookingEvent.findAll({
       where: {
         recordLocator,
-        externalTravelportIdentifier: {
+        externalTravelPortIdentifier: {
           [Op.in]: [sourceBookingEventId, ...sourceServiceFeeEventIds],
         },
       },

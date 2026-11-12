@@ -1,4 +1,4 @@
-import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
+import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
 import { TravelDeskInvoice } from "@/models"
 
 import CreateService from "@/services/travel-desk-invoices/create-service"
@@ -19,7 +19,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           const travelRequest = await travelDeskTravelRequestFactory.create()
           if (cachedLocator !== null) {
             await travelDeskBookingEventFactory.create({
-              externalTravelportIdentifier: 920001,
+              externalTravelPortIdentifier: 920001,
               recordLocator: cachedLocator,
             })
           }
@@ -46,7 +46,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           // Arrange
           const travelRequest = await travelDeskTravelRequestFactory.create()
           await travelDeskBookingEventFactory.create({
-            externalTravelportIdentifier: 920001,
+            externalTravelPortIdentifier: 920001,
             recordLocator: "INV001",
             airReservationSegments: [
               {
@@ -65,7 +65,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           })
           if (cachedLocator !== null) {
             await travelDeskBookingEventFactory.create({
-              externalTravelportIdentifier: 920002,
+              externalTravelPortIdentifier: 920002,
               recordLocator: cachedLocator,
             })
           }
@@ -99,7 +99,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
         const credit = await travelDeskProductTypeFactory.create({ code: "credit", name: "Credit" })
         const bookingEvent = await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 920001,
+          externalTravelPortIdentifier: 920001,
           recordLocator: "INV001",
           eventType: "B",
           bookingFileVersionNumber: 8,
@@ -139,7 +139,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           ],
         })
         const feeEvent = await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 920002,
+          externalTravelPortIdentifier: 920002,
           recordLocator: "INV001",
           eventType: "T",
           bookingFileVersionNumber: null,

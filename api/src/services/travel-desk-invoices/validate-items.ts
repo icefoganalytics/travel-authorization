@@ -1,7 +1,7 @@
 import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskProductType } from "@/models"
-import { type BookingEventSnapshot } from "@/integrations/travelport-integration/models/booking-event-snapshot"
+import { type BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
 import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
