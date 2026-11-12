@@ -1,3 +1,4 @@
+export { BuildSummaryService } from "./build-summary-service"
 export { CreateService } from "./create-service"
 export { UpdateService } from "./update-service"
 export { DestroyService } from "./destroy-service"
