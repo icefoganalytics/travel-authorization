@@ -345,9 +345,18 @@ const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
 
+let scheduleBeforeFlightMatching: {
+  pickUpDate: string
+  pickUpTime: string
+  dropOffDate: string
+  dropOffTime: string
+} | null = null
+
 function populateScheduleFromRentalCar() {
   const rentalCar = travelDeskRentalCar.value
   if (isNil(rentalCar)) return
+
+  scheduleBeforeFlightMatching = null
 
   if (!isNil(rentalCar.pickUpDate)) {
     const date = new Date(rentalCar.pickUpDate)
@@ -389,6 +398,16 @@ function applyRequestedFlightSchedule() {
   const schedule = availableFlightSchedule.value
   if (!isFlightScheduleMatchRequested.value || isNil(schedule)) return
 
+  // Preserve the saved or manually edited schedule before an explicit flight match replaces it.
+  if (isNil(scheduleBeforeFlightMatching)) {
+    scheduleBeforeFlightMatching = {
+      pickUpDate: pickUpDate.value,
+      pickUpTime: pickUpTime.value,
+      dropOffDate: dropOffDate.value,
+      dropOffTime: dropOffTime.value,
+    }
+  }
+
   pickUpDate.value = schedule.startDate
   pickUpTime.value = schedule.startTime
   dropOffDate.value = schedule.endDate
@@ -401,7 +420,23 @@ function requestFlightScheduleMatch(value: boolean) {
 
   travelDeskRentalCar.value.matchFlightTimes = value
   isFlightScheduleMatchRequested.value = value
+
+  if (!value) {
+    restoreManualSchedule()
+    return
+  }
+
   applyRequestedFlightSchedule()
+}
+
+function restoreManualSchedule() {
+  if (isNil(scheduleBeforeFlightMatching)) return
+
+  pickUpDate.value = scheduleBeforeFlightMatching.pickUpDate
+  pickUpTime.value = scheduleBeforeFlightMatching.pickUpTime
+  dropOffDate.value = scheduleBeforeFlightMatching.dropOffDate
+  dropOffTime.value = scheduleBeforeFlightMatching.dropOffTime
+  scheduleBeforeFlightMatching = null
 }
 
 watch(isFlightScheduleAvailable, applyRequestedFlightSchedule)
