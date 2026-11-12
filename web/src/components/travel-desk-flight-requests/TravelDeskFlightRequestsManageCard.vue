@@ -42,7 +42,7 @@
             }"
             color="blue"
           >
-            Manage Flight Options - Travelport&trade;
+            Manage Flight Options - TravelPort&trade;
           </v-btn>
           <v-spacer />
         </template>
