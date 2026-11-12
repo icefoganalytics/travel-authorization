@@ -1,6 +1,8 @@
+import { IsolationLevel } from "@sequelize/core"
+
 import logger from "@/utils/logger"
 
-import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
+import sourceDatabase, { TravelOrderEvent } from "@/integrations/travelport-integration/models"
 import { SyncSerializer } from "@/integrations/travelport-integration/serializers/travel-order-events"
 import db, { TravelDeskBookingEvent } from "@/models"
 
@@ -17,6 +19,14 @@ export class SyncService extends BaseService {
     this.assertRecordLocatorIsValid(this.recordLocator)
 
     await db.transaction(async () => {
+      // Serialize refreshes even when this locator has no local rows yet.
+      await db.query("SELECT pg_advisory_xact_lock(hashtext(:recordLocator))", {
+        replacements: { recordLocator: this.recordLocator },
+      })
+      // Unseen rows stay deleted; a failed source scan rolls this back.
+      await TravelDeskBookingEvent.destroy({
+        where: { recordLocator: this.recordLocator },
+      })
       await this.syncSourceEvents(this.recordLocator, async (sourceEvent) => {
         const serializedSourceEvent = SyncSerializer.perform(sourceEvent)
         const { travelOrderIdentifier, ...sourceAttributes } = serializedSourceEvent
@@ -27,11 +37,15 @@ export class SyncService extends BaseService {
         }
         const bookingEvent = await TravelDeskBookingEvent.findOne({
           where: { externalTravelportIdentifier: travelOrderIdentifier },
+          paranoid: false,
         })
         if (bookingEvent === null) {
           await TravelDeskBookingEvent.create(attributes)
         } else {
           await bookingEvent.update(attributes)
+          if (bookingEvent.deletedAt !== null) {
+            await bookingEvent.restore()
+          }
         }
       })
     })
@@ -49,35 +63,40 @@ export class SyncService extends BaseService {
   ): Promise<void> {
     let processingFailed = false
     try {
-      await TravelOrderEvent.findEach(
-        {
-          where: { recordLocator },
-          include: [
+      await sourceDatabase.transaction(
+        { isolationLevel: IsolationLevel.SERIALIZABLE },
+        async () => {
+          await TravelOrderEvent.findEach(
             {
-              association: "passengers",
-              separate: true,
-              order: [
-                ["lastNameElement", "ASC"],
-                ["passengerElement", "ASC"],
+              where: { recordLocator },
+              include: [
+                {
+                  association: "passengers",
+                  separate: true,
+                  order: [
+                    ["lastNameElement", "ASC"],
+                    ["passengerElement", "ASC"],
+                  ],
+                },
+                {
+                  association: "airReservationSegments",
+                  separate: true,
+                  order: [["airSegmentNumber", "ASC"]],
+                },
+                { association: "serviceFeeTransaction" },
               ],
+              // Serializable source reads keep offset batches stable during reconciliation.
+              order: [["travelOrderIdentifier", "ASC"]],
             },
-            {
-              association: "airReservationSegments",
-              separate: true,
-              order: [["airSegmentNumber", "ASC"]],
-            },
-            { association: "serviceFeeTransaction" },
-          ],
-          // Unique, immutable source key keeps batch boundaries stable.
-          order: [["travelOrderIdentifier", "ASC"]],
-        },
-        async (event) => {
-          try {
-            await processEvent(event)
-          } catch (error) {
-            processingFailed = true
-            throw error
-          }
+            async (event) => {
+              try {
+                await processEvent(event)
+              } catch (error) {
+                processingFailed = true
+                throw error
+              }
+            }
+          )
         }
       )
     } catch (error) {

@@ -151,16 +151,87 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when the source returns no events, it retains cached events", async () => {
+      test("when the source returns no events, it deletes only that locator's cached events", async () => {
         // Arrange
-        const cachedBookingEvent = await travelDeskBookingEventFactory.create()
+        await travelDeskBookingEventFactory.create({ recordLocator: "SRC001" })
+        const unrelatedEvent = await travelDeskBookingEventFactory.create({
+          recordLocator: "OTHER1",
+        })
 
         // Act
         await SyncService.perform("SRC001")
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
-          expect.objectContaining({ id: cachedBookingEvent.id }),
+          expect.objectContaining({ id: unrelatedEvent.id }),
+        ])
+      })
+
+      test("when one source event disappears, it removes that event from local history", async () => {
+        // Arrange
+        await sourceDatabase("TravelOrderEvent").insert({
+          TravelOrderIdentifier: 910001,
+          RecordLocator: "SRC001",
+          DatabaseTimeStamp: "2030-01-01T12:00:00",
+        })
+        const retainedEvent = await travelDeskBookingEventFactory.create({
+          externalTravelportIdentifier: 910001,
+          recordLocator: "SRC001",
+        })
+        await travelDeskBookingEventFactory.create({
+          externalTravelportIdentifier: 910002,
+          recordLocator: "SRC001",
+        })
+
+        // Act
+        await SyncService.perform("SRC001")
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({ id: retainedEvent.id, deletedAt: null }),
+        ])
+      })
+
+      test("when a deleted source event reappears, it restores the original local identity", async () => {
+        // Arrange
+        const deletedEvent = await travelDeskBookingEventFactory.create({
+          externalTravelportIdentifier: 910001,
+          recordLocator: "SRC001",
+        })
+        await deletedEvent.destroy()
+        await sourceDatabase("TravelOrderEvent").insert({
+          TravelOrderIdentifier: 910001,
+          RecordLocator: "SRC001",
+          PnrBfVersionNbr: 2,
+          DatabaseTimeStamp: "2030-01-01T12:00:00",
+        })
+
+        // Act
+        await SyncService.perform("SRC001")
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll({ paranoid: false })).toEqual([
+          expect.objectContaining({
+            id: deletedEvent.id,
+            deletedAt: null,
+            bookingFileVersionNumber: 2,
+          }),
+        ])
+      })
+
+      test("when the source scan fails, it preserves cached events", async () => {
+        // Arrange
+        const cachedEvent = await travelDeskBookingEventFactory.create({
+          recordLocator: "SRC001",
+        })
+        vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(new Error("Source unavailable"))
+
+        // Act
+        await SyncService.perform("SRC001").catch(() => undefined)
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({ id: cachedEvent.id, deletedAt: null }),
         ])
       })
 
