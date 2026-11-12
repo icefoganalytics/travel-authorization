@@ -63,6 +63,7 @@ export class SyncService extends BaseService {
   ): Promise<void> {
     let processingFailed = false
     try {
+      // Read locks keep the scan consistent but can delay feed writers until it finishes.
       await sourceDatabase.transaction(
         { isolationLevel: IsolationLevel.SERIALIZABLE },
         async () => {
