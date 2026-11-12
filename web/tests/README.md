@@ -54,6 +54,9 @@ Register scenario GET responses with `mockHttpGetRoute(url, handler)` or
 `mockHttpGetRoutes({ [url]: handler })` from `@/tests/support`. Callbacks return payloads, not
 `{ data: payload }`; the helper adds the Axios envelope. Keep fixtures, query-dependent choices,
 and deferred promises in the scenario.
+For separate responses at the same URL, supply an optional configuration subset as the final
+argument, such as `mockHttpGetRoute(url, handler, { params: { order: [["departAt", "ASC"]] } })`.
+Only matching requests use that response; other requests retain earlier registrations.
 
 ```typescript
 mockHttpGetRoutes({
