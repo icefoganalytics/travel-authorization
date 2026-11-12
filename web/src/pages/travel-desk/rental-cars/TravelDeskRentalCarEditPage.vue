@@ -303,24 +303,8 @@ const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
 
-const {
-  flightStartDate,
-  flightEndDate,
-  flightStartTime,
-  flightEndTime,
-  isFlightScheduleLoading,
-  isFlightScheduleErrored,
-} = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
-
-const isFlightScheduleAvailable = computed(() => {
-  return (
-    !isFlightScheduleLoading.value &&
-    !isFlightScheduleErrored.value &&
-    Boolean(
-      flightStartDate.value && flightStartTime.value && flightEndDate.value && flightEndTime.value
-    )
-  )
-})
+const { availableFlightSchedule } = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
+const isFlightScheduleAvailable = computed(() => !isNil(availableFlightSchedule.value))
 const isMatchingAvailableFlightSchedule = computed(() => {
   return (
     travelDeskRentalCar.value?.matchFlightTimes === true &&
@@ -332,14 +316,13 @@ const isMatchingAvailableFlightSchedule = computed(() => {
 const isFlightScheduleMatchRequested = ref(false)
 
 function applyRequestedFlightSchedule() {
-  if (!isFlightScheduleMatchRequested.value || !isFlightScheduleAvailable.value) return
-  if (!flightStartDate.value || !flightStartTime.value) return
-  if (!flightEndDate.value || !flightEndTime.value) return
+  const schedule = availableFlightSchedule.value
+  if (!isFlightScheduleMatchRequested.value || isNil(schedule)) return
 
-  pickUpDate.value = flightStartDate.value
-  pickUpTime.value = flightStartTime.value
-  dropOffDate.value = flightEndDate.value
-  dropOffTime.value = flightEndTime.value
+  pickUpDate.value = schedule.startDate
+  pickUpTime.value = schedule.startTime
+  dropOffDate.value = schedule.endDate
+  dropOffTime.value = schedule.endTime
   isFlightScheduleMatchRequested.value = false
 }
 

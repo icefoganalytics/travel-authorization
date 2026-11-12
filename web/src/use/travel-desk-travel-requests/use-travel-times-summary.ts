@@ -61,9 +61,6 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
     refresh: refreshfirstTravelDeskFlightSegment,
   } = useTravelDeskFlightSegments(firstTravelDeskFlightSegmentQuery)
   const firstTravelDeskFlightSegment = computed(() => firstTravelDeskFlightSegments.value[0])
-  const flightStartAt = computed(() => firstTravelDeskFlightSegment.value?.departAt)
-  const flightStartDate = computed(() => flightStartAt.value?.slice(0, 10) || null)
-  const flightStartTime = computed(() => flightStartAt.value?.slice(11, 16) || null)
 
   // TODO: Consider denormalizing last flight segment onto travel desk travel request for performance
   const lastTravelDeskFlightSegmentQuery = computed<TravelDeskFlightSegmentsQueryOptions>(() => ({
@@ -80,9 +77,6 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
     refresh: refreshLastTravelDeskFlightSegment,
   } = useTravelDeskFlightSegments(lastTravelDeskFlightSegmentQuery)
   const lastTravelDeskFlightSegment = computed(() => lastTravelDeskFlightSegments.value[0])
-  const flightEndAt = computed(() => lastTravelDeskFlightSegment.value?.arriveAt)
-  const flightEndDate = computed(() => flightEndAt.value?.slice(0, 10) || null)
-  const flightEndTime = computed(() => flightEndAt.value?.slice(11, 16) || null)
 
   const isFlightScheduleLoading = computed(
     () => isFirstFlightSegmentLoading.value || isLastFlightSegmentLoading.value
@@ -90,6 +84,25 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
   const isFlightScheduleErrored = computed(
     () => isFirstFlightSegmentErrored.value || isLastFlightSegmentErrored.value
   )
+
+  const availableFlightSchedule = computed(() => {
+    if (isFlightScheduleLoading.value || isFlightScheduleErrored.value) return null
+
+    const startAt = firstTravelDeskFlightSegment.value?.departAt
+    const endAt = lastTravelDeskFlightSegment.value?.arriveAt
+    const startDate = startAt?.slice(0, 10)
+    const startTime = startAt?.slice(11, 16)
+    const endDate = endAt?.slice(0, 10)
+    const endTime = endAt?.slice(11, 16)
+    if (!startDate || !startTime || !endDate || !endTime) return null
+
+    return {
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+    }
+  })
 
   async function refresh() {
     await refreshTravelAuthorizations()
@@ -101,12 +114,7 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
     tripStartDate,
     tripEndDate,
     tripDestination,
-    flightStartDate,
-    flightStartTime,
-    flightEndDate,
-    flightEndTime,
-    isFlightScheduleLoading,
-    isFlightScheduleErrored,
+    availableFlightSchedule,
     refresh,
   }
 }

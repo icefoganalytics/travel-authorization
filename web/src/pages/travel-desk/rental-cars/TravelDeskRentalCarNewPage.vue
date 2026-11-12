@@ -283,17 +283,8 @@ const defaultReturnTo = computed(() => {
 })
 const returnTo = useRouteQuery("returnTo", defaultReturnTo)
 
-const {
-  tripStartDate,
-  tripEndDate,
-  tripDestination,
-  flightStartDate,
-  flightStartTime,
-  flightEndDate,
-  flightEndTime,
-  isFlightScheduleLoading,
-  isFlightScheduleErrored,
-} = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
+const { tripStartDate, tripEndDate, tripDestination, availableFlightSchedule } =
+  useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
 
 const travelDeskRentalCarAttributes = ref<Partial<TravelDeskRentalCar>>({
   travelRequestId: travelDeskTravelRequestIdAsNumber.value,
@@ -317,6 +308,28 @@ const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
 
+const isFlightScheduleAvailable = computed(() => !isNil(availableFlightSchedule.value))
+const isMatchingAvailableFlightSchedule = computed(
+  () =>
+    travelDeskRentalCarAttributes.value.matchFlightTimes === true && isFlightScheduleAvailable.value
+)
+
+function matchWithFlight(value: boolean) {
+  const schedule = availableFlightSchedule.value
+  if (!value || isNil(schedule)) return
+
+  pickUpDate.value = schedule.startDate
+  pickUpTime.value = schedule.startTime
+  dropOffDate.value = schedule.endDate
+  dropOffTime.value = schedule.endTime
+}
+
+watch(isFlightScheduleAvailable, (isAvailable) => {
+  if (isAvailable && travelDeskRentalCarAttributes.value.matchFlightTimes === true) {
+    matchWithFlight(true)
+  }
+})
+
 const isPickUpCityEdited = ref(false)
 
 function markPickUpCityEdited() {
@@ -334,25 +347,6 @@ watch(
     immediate: true,
   }
 )
-
-const isFlightScheduleAvailable = computed(
-  () =>
-    !isFlightScheduleLoading.value &&
-    !isFlightScheduleErrored.value &&
-    Boolean(
-      flightStartDate.value && flightStartTime.value && flightEndDate.value && flightEndTime.value
-    )
-)
-const isMatchingAvailableFlightSchedule = computed(
-  () =>
-    travelDeskRentalCarAttributes.value.matchFlightTimes === true && isFlightScheduleAvailable.value
-)
-
-watch(isFlightScheduleAvailable, (isAvailable) => {
-  if (isAvailable && travelDeskRentalCarAttributes.value.matchFlightTimes === true) {
-    matchWithFlight(true)
-  }
-})
 
 function resetPickUpLocationOtherUnlessOther(value: string | null) {
   if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
@@ -378,24 +372,6 @@ function resetVehicleChangeRationaleIfCompact(value: string | null) {
   if (isNil(value) || value === TravelDeskRentalCarVehicleTypes.COMPACT) {
     travelDeskRentalCarAttributes.value.vehicleChangeRationale = undefined
   }
-}
-
-function matchWithFlight(value: boolean) {
-  if (
-    !value ||
-    !isFlightScheduleAvailable.value ||
-    !flightStartDate.value ||
-    !flightStartTime.value ||
-    !flightEndDate.value ||
-    !flightEndTime.value
-  ) {
-    return
-  }
-
-  pickUpDate.value = flightStartDate.value
-  pickUpTime.value = flightStartTime.value
-  dropOffDate.value = flightEndDate.value
-  dropOffTime.value = flightEndTime.value
 }
 
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
