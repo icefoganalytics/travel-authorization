@@ -5,55 +5,59 @@ import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
-import { travelDeskBookingEventFactory } from "@/factories"
+import {
+  airReservationSegmentFactory,
+  passengerFactory,
+  serviceFeeTransactionFactory,
+  travelDeskBookingEventFactory,
+  travelOrderEventFactory,
+} from "@/factories"
 
 describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
   describe("SyncService", () => {
     describe(".perform", () => {
       test("when fees arrive separately, it preserves source precision without leaking passenger remarks", async () => {
         // Arrange
-        await sourceDatabase("TravelOrderEvent").insert([
-          {
-            TravelOrderIdentifier: 910001,
-            RecordLocator: "SRC001",
-            PnrBfVersionNbr: 8,
-            EventType: "B",
-            DatabaseTimeStamp: "2030-01-01T12:00:00",
-            CrsDescription: "Galileo",
-            PnrCreationDate: "2030-01-01T10:00:00",
-            CreatingAgencyIata: "12345678",
-          },
-          {
-            TravelOrderIdentifier: 910002,
-            RecordLocator: "SRC001",
-            PnrBfVersionNbr: null,
-            EventType: "T",
-            DatabaseTimeStamp: "2030-01-02T12:00:00",
-          },
-        ])
-        await sourceDatabase("Passenger").insert({
-          TravelOrderIdentifier: 910001,
-          LastNameElement: 1,
-          PassengerElement: 1,
-          FirstName: "Ada   ",
-          LastName: "Example",
-          NameRemark: "Private source-only remark",
+        const bookingEvent = await travelOrderEventFactory.create({
+          travelOrderIdentifier: 910001,
+          recordLocator: "SRC001",
+          bookingFileVersionNumber: 8,
+          eventType: "B",
+          databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
+          crsDescription: "Galileo",
+          pnrCreationDate: new Date("2030-01-01T10:00:00Z"),
+          creatingAgencyIata: "12345678",
         })
-        await sourceDatabase("AirRsrvSeg").insert({
-          TravelOrderIdentifier: 910001,
-          AirSegmentNbr: 1,
-          SegmentStatus: "GK",
-          BoardPoint: "YXY",
-          OffPoint: "YVR",
-          DepartureDate: "0000-00-00",
-          DepartureTime: "00:00",
+        const feeEvent = await travelOrderEventFactory.create({
+          travelOrderIdentifier: 910002,
+          recordLocator: "SRC001",
+          bookingFileVersionNumber: null,
+          eventType: "T",
+          databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
         })
-        await sourceDatabase("SFTrans").insert({
-          TravelOrderIdentifier: 910002,
-          SFActiveVoidStatus: "A",
-          SFCurrencyCode: "CAD",
-          ServiceFeeAmount: "42.125",
-          SFCommissionAmount: "0.000",
+        await passengerFactory.create({
+          travelOrderIdentifier: bookingEvent.travelOrderIdentifier,
+          lastNameElement: 1,
+          passengerElement: 1,
+          firstName: "Ada   ",
+          lastName: "Example",
+          nameRemark: "Private source-only remark",
+        })
+        await airReservationSegmentFactory.create({
+          travelOrderIdentifier: bookingEvent.travelOrderIdentifier,
+          airSegmentNumber: 1,
+          segmentStatus: "GK",
+          boardPoint: "YXY",
+          offPoint: "YVR",
+          departureDate: "0000-00-00",
+          departureTime: "00:00",
+        })
+        await serviceFeeTransactionFactory.create({
+          travelOrderIdentifier: feeEvent.travelOrderIdentifier,
+          activeVoidStatus: "A",
+          currencyCode: "CAD",
+          serviceFeeAmount: "42.125",
+          commissionAmount: "0.000",
         })
 
         // Act
