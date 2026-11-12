@@ -87,23 +87,23 @@
         <v-row>
           <v-col cols="12">
             <LocationsAutocomplete
-              v-model="travelDeskRentalCarAttributes.pickUpCity"
+              :model-value="pickUpCity"
               label="Pick-up City *"
               :rules="[required]"
               item-value="cityUniqueLegacy"
               variant="outlined"
               required
-              @update:model-value="markPickUpCityEdited"
+              @update:model-value="updatePickUpCity"
             />
           </v-col>
           <v-col cols="12">
             <TravelDeskRentalCarLocationTypeSelect
-              v-model="travelDeskRentalCarAttributes.pickUpLocation"
+              :model-value="travelDeskRentalCarAttributes.pickUpLocation"
               label="Pick-up Location *"
               :rules="[required]"
               variant="outlined"
               required
-              @update:model-value="resetPickUpLocationOtherUnlessOther"
+              @update:model-value="updatePickUpLocation"
             />
             <v-text-field
               v-if="
@@ -122,10 +122,10 @@
           <v-row>
             <v-col>
               <YesNoRowRadioGroup
-                v-model="travelDeskRentalCarAttributes.sameDropOffLocation"
+                :model-value="travelDeskRentalCarAttributes.sameDropOffLocation"
                 label="Same Drop-off location?"
                 class="mt-1"
-                @update:model-value="resetDropOffLocationStates"
+                @update:model-value="updateSameDropOffLocation"
               />
             </v-col>
           </v-row>
@@ -142,12 +142,12 @@
             </v-col>
             <v-col cols="12">
               <TravelDeskRentalCarLocationTypeSelect
-                v-model="travelDeskRentalCarAttributes.dropOffLocation"
+                :model-value="travelDeskRentalCarAttributes.dropOffLocation"
                 label="Drop-off Location *"
                 :rules="[required]"
                 variant="outlined"
                 required
-                @update:model-value="resetDropOffLocationOtherUnlessOther"
+                @update:model-value="updateDropOffLocation"
               />
               <v-text-field
                 v-if="
@@ -177,12 +177,12 @@
         <v-row>
           <v-col cols="12">
             <TravelDeskRentalCarVehicleTypeSelect
-              v-model="travelDeskRentalCarAttributes.vehicleType"
+              :model-value="travelDeskRentalCarAttributes.vehicleType"
               label="Vehicle Type *"
               :rules="[required]"
               variant="outlined"
               required
-              @update:model-value="resetVehicleChangeRationaleIfCompact"
+              @update:model-value="updateVehicleType"
             />
           </v-col>
           <v-col
@@ -316,9 +316,12 @@ const isMatchingAvailableFlightSchedule = computed(
 
 function matchWithFlight(value: boolean) {
   travelDeskRentalCarAttributes.value.matchFlightTimes = value
+  applySelectedFlightSchedule()
+}
 
+function applySelectedFlightSchedule() {
   const schedule = availableFlightSchedule.value
-  if (!value || isNil(schedule)) return
+  if (travelDeskRentalCarAttributes.value.matchFlightTimes !== true || isNil(schedule)) return
 
   pickUpDate.value = schedule.startDate
   pickUpTime.value = schedule.startTime
@@ -326,43 +329,33 @@ function matchWithFlight(value: boolean) {
   dropOffTime.value = schedule.endTime
 }
 
-watch(isFlightScheduleAvailable, (isAvailable) => {
-  if (isAvailable && travelDeskRentalCarAttributes.value.matchFlightTimes === true) {
-    matchWithFlight(true)
-  }
+watch(isFlightScheduleAvailable, applySelectedFlightSchedule)
+
+const pickUpCity = computed(() => {
+  const selectedCity = travelDeskRentalCarAttributes.value.pickUpCity
+  if (!isNil(selectedCity)) return selectedCity
+
+  const destination = tripDestination.value
+  if (isNil(destination)) return undefined
+
+  return `${destination.city} (${destination.province})`
 })
 
-const isPickUpCityEdited = ref(false)
-
-function markPickUpCityEdited() {
-  isPickUpCityEdited.value = true
+function updatePickUpCity(value: string | null) {
+  travelDeskRentalCarAttributes.value.pickUpCity = value ?? ""
 }
 
-watch(
-  tripDestination,
-  (destination) => {
-    if (isPickUpCityEdited.value || isNil(destination)) return
+function updatePickUpLocation(value: string | null) {
+  travelDeskRentalCarAttributes.value.pickUpLocation = value ?? ""
 
-    travelDeskRentalCarAttributes.value.pickUpCity = `${destination.city} (${destination.province})`
-  },
-  {
-    immediate: true,
-  }
-)
-
-function resetPickUpLocationOtherUnlessOther(value: string | null) {
-  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
+  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCarAttributes.value.pickUpLocationOther = undefined
   }
 }
 
-function resetDropOffLocationOtherUnlessOther(value: string | null) {
-  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
-    travelDeskRentalCarAttributes.value.dropOffLocationOther = undefined
-  }
-}
+function updateSameDropOffLocation(value: boolean) {
+  travelDeskRentalCarAttributes.value.sameDropOffLocation = value
 
-function resetDropOffLocationStates(value: boolean) {
   if (value === true) {
     travelDeskRentalCarAttributes.value.dropOffCity = undefined
     travelDeskRentalCarAttributes.value.dropOffLocation = undefined
@@ -370,7 +363,17 @@ function resetDropOffLocationStates(value: boolean) {
   }
 }
 
-function resetVehicleChangeRationaleIfCompact(value: string | null) {
+function updateDropOffLocation(value: string | null) {
+  travelDeskRentalCarAttributes.value.dropOffLocation = value
+
+  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+    travelDeskRentalCarAttributes.value.dropOffLocationOther = undefined
+  }
+}
+
+function updateVehicleType(value: string | null) {
+  travelDeskRentalCarAttributes.value.vehicleType = value ?? ""
+
   if (isNil(value) || value === TravelDeskRentalCarVehicleTypes.COMPACT) {
     travelDeskRentalCarAttributes.value.vehicleChangeRationale = undefined
   }
@@ -399,7 +402,10 @@ async function createAndReturn() {
 
   isSaving.value = true
   try {
-    await travelDeskRentalCarsApi.create(travelDeskRentalCarAttributes.value)
+    await travelDeskRentalCarsApi.create({
+      ...travelDeskRentalCarAttributes.value,
+      pickUpCity: pickUpCity.value,
+    })
     snack.success("Rental car request created successfully!")
 
     return router.push(returnTo.value)

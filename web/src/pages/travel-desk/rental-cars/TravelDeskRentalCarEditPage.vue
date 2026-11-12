@@ -108,12 +108,12 @@
           </v-col>
           <v-col cols="12">
             <TravelDeskRentalCarLocationTypeSelect
-              v-model="travelDeskRentalCar.pickUpLocation"
+              :model-value="travelDeskRentalCar.pickUpLocation"
               label="Pick-up Location *"
               :rules="[required]"
               variant="outlined"
               required
-              @update:model-value="resetPickUpLocationOtherUnlessOther"
+              @update:model-value="updatePickUpLocation"
             />
             <v-text-field
               v-if="travelDeskRentalCar.pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER"
@@ -129,10 +129,10 @@
           <v-row>
             <v-col>
               <YesNoRowRadioGroup
-                v-model="travelDeskRentalCar.sameDropOffLocation"
+                :model-value="travelDeskRentalCar.sameDropOffLocation"
                 label="Same Drop-off location?"
                 class="mt-1"
-                @update:model-value="resetDropOffLocationStates"
+                @update:model-value="updateSameDropOffLocation"
               />
             </v-col>
           </v-row>
@@ -149,12 +149,12 @@
             </v-col>
             <v-col cols="12">
               <TravelDeskRentalCarLocationTypeSelect
-                v-model="travelDeskRentalCar.dropOffLocation"
+                :model-value="travelDeskRentalCar.dropOffLocation"
                 label="Drop-off Location *"
                 :rules="[required]"
                 variant="outlined"
                 required
-                @update:model-value="resetDropOffLocationOtherUnlessOther"
+                @update:model-value="updateDropOffLocation"
               />
               <v-text-field
                 v-if="
@@ -183,12 +183,12 @@
         <v-row>
           <v-col cols="12">
             <TravelDeskRentalCarVehicleTypeSelect
-              v-model="travelDeskRentalCar.vehicleType"
+              :model-value="travelDeskRentalCar.vehicleType"
               label="Vehicle Type *"
               :rules="[required]"
               variant="outlined"
               required
-              @update:model-value="resetVehicleChangeRationaleIfCompact"
+              @update:model-value="updateVehicleType"
             />
           </v-col>
           <v-col
@@ -281,7 +281,7 @@ const props = defineProps<{
 const travelDeskRentalCarIdAsNumber = computed(() => parseInt(props.travelDeskRentalCarId))
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
-const { travelDeskRentalCar, refresh } = useTravelDeskRentalCar(travelDeskRentalCarIdAsNumber)
+const { smAndDown } = useDisplay()
 
 const router = useRouter()
 const defaultReturnTo = computed(() => {
@@ -296,12 +296,34 @@ const defaultReturnTo = computed(() => {
 })
 const returnTo = useRouteQuery("returnTo", defaultReturnTo)
 
+const { travelDeskRentalCar, refresh } = useTravelDeskRentalCar(travelDeskRentalCarIdAsNumber)
+
 const DEFAULT_TIME = "12:00"
 
 const pickUpDate = ref("")
 const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
+
+function populateScheduleFromRentalCar() {
+  const rentalCar = travelDeskRentalCar.value
+  if (isNil(rentalCar)) return
+
+  if (!isNil(rentalCar.pickUpDate)) {
+    const date = new Date(rentalCar.pickUpDate)
+    pickUpDate.value = date.toISOString().split("T")[0]
+    pickUpTime.value = date.toISOString().split("T")[1].substring(0, 5)
+  }
+
+  if (!isNil(rentalCar.dropOffDate)) {
+    const date = new Date(rentalCar.dropOffDate)
+    dropOffDate.value = date.toISOString().split("T")[0]
+    dropOffTime.value = date.toISOString().split("T")[1].substring(0, 5)
+  }
+}
+
+watch(travelDeskRentalCar, populateScheduleFromRentalCar, { immediate: true })
+
 const isScheduleComplete = computed(() => {
   return (
     !isEmpty(pickUpDate.value) &&
@@ -344,48 +366,20 @@ function requestFlightScheduleMatch(value: boolean) {
 
 watch(isFlightScheduleAvailable, applyRequestedFlightSchedule)
 
-watch(
-  () => travelDeskRentalCar.value?.pickUpDate,
-  (isoDate) => {
-    if (isNil(isoDate)) return
-
-    const date = new Date(isoDate)
-    pickUpDate.value = date.toISOString().split("T")[0]
-    pickUpTime.value = date.toISOString().split("T")[1].substring(0, 5)
-  },
-  { immediate: true }
-)
-
-watch(
-  () => travelDeskRentalCar.value?.dropOffDate,
-  (isoDate) => {
-    if (isNil(isoDate)) return
-
-    const date = new Date(isoDate)
-    dropOffDate.value = date.toISOString().split("T")[0]
-    dropOffTime.value = date.toISOString().split("T")[1].substring(0, 5)
-  },
-  { immediate: true }
-)
-
-function resetPickUpLocationOtherUnlessOther(value: string | null) {
+function updatePickUpLocation(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
 
-  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
+  travelDeskRentalCar.value.pickUpLocation = value ?? ""
+
+  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCar.value.pickUpLocationOther = null
   }
 }
 
-function resetDropOffLocationOtherUnlessOther(value: string | null) {
+function updateSameDropOffLocation(value: boolean) {
   if (isNil(travelDeskRentalCar.value)) return
 
-  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
-    travelDeskRentalCar.value.dropOffLocationOther = null
-  }
-}
-
-function resetDropOffLocationStates(value: boolean) {
-  if (isNil(travelDeskRentalCar.value)) return
+  travelDeskRentalCar.value.sameDropOffLocation = value
 
   if (value === true) {
     travelDeskRentalCar.value.dropOffCity = null
@@ -394,8 +388,20 @@ function resetDropOffLocationStates(value: boolean) {
   }
 }
 
-function resetVehicleChangeRationaleIfCompact(value: string | null) {
+function updateDropOffLocation(value: string | null) {
   if (isNil(travelDeskRentalCar.value)) return
+
+  travelDeskRentalCar.value.dropOffLocation = value
+
+  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+    travelDeskRentalCar.value.dropOffLocationOther = null
+  }
+}
+
+function updateVehicleType(value: string | null) {
+  if (isNil(travelDeskRentalCar.value)) return
+
+  travelDeskRentalCar.value.vehicleType = value ?? ""
 
   if (isNil(value) || value === TravelDeskRentalCarVehicleTypes.COMPACT) {
     travelDeskRentalCar.value.vehicleChangeRationale = null
@@ -455,8 +461,6 @@ async function deleteAndReturn() {
     isDeleting.value = false
   }
 }
-
-const { smAndDown } = useDisplay()
 
 const breadcrumbs = computed(() => [
   {

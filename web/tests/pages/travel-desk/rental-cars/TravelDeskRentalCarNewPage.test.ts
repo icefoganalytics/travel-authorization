@@ -16,67 +16,77 @@ import TravelDeskRentalCarNewPage from "@/pages/travel-desk/rental-cars/TravelDe
 
 describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue", () => {
   describe("TravelDeskRentalCarNewPage", () => {
-    test("when flight matching is selected, saving uses the flight dates and actual times", async () => {
-      // Arrange
-      const httpClient = mockHttpClient()
-      const destination = locationFactory.build({ city: "Vancouver", province: "BC" })
-      const travelAuthorization = {
-        ...travelAuthorizationFactory.build({ dateBackToWorkEstimate: "2026-12-12" }),
-        departingAt: "2026-12-10T08:35:00.000Z",
-        finalDestination: destination,
-      }
-      const flightSegment = travelDeskFlightSegmentFactory.build({
-        id: 41,
-        flightOptionId: 15,
-        departAt: "2026-12-10T08:35:00.000Z",
-        arriveAt: "2026-12-12T19:45:00.000Z",
-      })
-      httpClient.get.mockImplementation(async (url) => {
-        if (url === "/api/travel-authorizations") {
-          return { data: { travelAuthorizations: [travelAuthorization], totalCount: 1 } }
+    test.each(["before", "after"])(
+      "when flights arrive %s selecting matching, saving uses the flight dates and actual times",
+      async (flightArrival) => {
+        // Arrange
+        const httpClient = mockHttpClient()
+        const destination = locationFactory.build({ city: "Vancouver", province: "BC" })
+        const travelAuthorization = {
+          ...travelAuthorizationFactory.build({ dateBackToWorkEstimate: "2026-12-12" }),
+          departingAt: "2026-12-10T08:35:00.000Z",
+          finalDestination: destination,
         }
-
-        if (url === "/api/travel-desk-flight-segments") {
-          return { data: { travelDeskFlightSegments: [flightSegment], totalCount: 1 } }
-        }
-
-        return { data: { locations: [destination], totalCount: 1 } }
-      })
-      const router = mockRouter([
-        {
-          path: "/requests/:travelDeskTravelRequestId",
-          name: "travel-desk/TravelDeskRequestEditRedirect",
-          component: { template: "<div />" },
-        },
-      ])
-      await router.push("/requests/900")
-      await router.isReady()
-      const wrapper = mount(TravelDeskRentalCarNewPage, {
-        props: { travelDeskTravelRequestId: "900" },
-        attachTo: document.body,
-        global: { plugins: [mockVuetify(), router] },
-      })
-      await flushPromises()
-
-      // Act
-      await wrapper
-        .getComponent(TravelDeskRentalCarLocationTypeSelect)
-        .setValue(TravelDeskRentalCarLocationTypes.AIRPORT)
-      await wrapper.getComponent(YesNoRowRadioGroup).get('input[type="radio"]').setValue(true)
-      await wrapper.get("form").trigger("submit")
-      await flushPromises()
-
-      // Assert
-      expect(httpClient.post).toHaveBeenCalledWith(
-        "/api/travel-desk-rental-cars",
-        expect.objectContaining({
-          pickUpCity: "Vancouver (BC)",
-          pickUpDate: "2026-12-10T08:35:00.000Z",
-          dropOffDate: "2026-12-12T19:45:00.000Z",
-          matchFlightTimes: true,
+        const flightSegment = travelDeskFlightSegmentFactory.build({
+          id: 41,
+          flightOptionId: 15,
+          departAt: "2026-12-10T08:35:00.000Z",
+          arriveAt: "2026-12-12T19:45:00.000Z",
         })
-      )
-    })
+        const flightResponse = Promise.withResolvers<void>()
+        if (flightArrival === "before") {
+          flightResponse.resolve()
+        }
+        httpClient.get.mockImplementation(async (url) => {
+          if (url === "/api/travel-authorizations") {
+            return { data: { travelAuthorizations: [travelAuthorization], totalCount: 1 } }
+          }
+
+          if (url === "/api/travel-desk-flight-segments") {
+            await flightResponse.promise
+            return { data: { travelDeskFlightSegments: [flightSegment], totalCount: 1 } }
+          }
+
+          return { data: { locations: [destination], totalCount: 1 } }
+        })
+        const router = mockRouter([
+          {
+            path: "/requests/:travelDeskTravelRequestId",
+            name: "travel-desk/TravelDeskRequestEditRedirect",
+            component: { template: "<div />" },
+          },
+        ])
+        await router.push("/requests/900")
+        await router.isReady()
+        const wrapper = mount(TravelDeskRentalCarNewPage, {
+          props: { travelDeskTravelRequestId: "900" },
+          attachTo: document.body,
+          global: { plugins: [mockVuetify(), router] },
+        })
+        await flushPromises()
+
+        // Act
+        await wrapper
+          .getComponent(TravelDeskRentalCarLocationTypeSelect)
+          .setValue(TravelDeskRentalCarLocationTypes.AIRPORT)
+        await wrapper.getComponent(YesNoRowRadioGroup).get('input[type="radio"]').setValue(true)
+        flightResponse.resolve()
+        await flushPromises()
+        await wrapper.get("form").trigger("submit")
+        await flushPromises()
+
+        // Assert
+        expect(httpClient.post).toHaveBeenCalledWith(
+          "/api/travel-desk-rental-cars",
+          expect.objectContaining({
+            pickUpCity: "Vancouver (BC)",
+            pickUpDate: "2026-12-10T08:35:00.000Z",
+            dropOffDate: "2026-12-12T19:45:00.000Z",
+            matchFlightTimes: true,
+          })
+        )
+      }
+    )
 
     test("when flights are missing after entering only pickup, saving leaves a correctable required dropoff error", async () => {
       // Arrange
