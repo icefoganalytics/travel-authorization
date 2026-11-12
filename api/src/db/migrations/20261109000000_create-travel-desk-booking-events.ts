@@ -6,7 +6,7 @@ export async function up(knex: Knex): Promise<void> {
     table.integer("external_travelport_identifier").notNullable()
     table.integer("booking_file_version_number")
     table.string("event_type")
-    table.string("record_locator").index()
+    table.string("record_locator")
     table.string("reservation_system_description")
     table.string("owning_agency_name")
     table.string("transaction_agency_name")
