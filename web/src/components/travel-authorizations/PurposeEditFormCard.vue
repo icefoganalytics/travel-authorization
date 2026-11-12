@@ -104,7 +104,7 @@
 
 <script setup lang="ts">
 import { computed, ref, toRefs, watch } from "vue"
-import { cloneDeep, isNil, isEmpty, pick } from "lodash"
+import { isNil, isEmpty, pick } from "lodash"
 
 import {
   PERMITTED_ATTRIBUTES_FOR_CLONE,
@@ -118,7 +118,7 @@ import useTravelAuthorization, {
   TravelAuthorizationTripTypes,
 } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
-import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
@@ -151,6 +151,8 @@ const travelSegmentsQuery = computed(() => {
   }
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
+const { finalDestinationSegment, finalDestinationLocationId: itineraryDestinationLocationId } =
+  useTravelAuthorizationSummary(undefined, { tripType, travelSegments })
 
 const finalDestinationLocationId = ref<number | null>(null)
 
@@ -159,19 +161,14 @@ function updateFinalDestinationLocationId(locationId: number | null) {
   emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
 }
 
-watch<[TravelAuthorizationTripTypes | null, TravelSegment[]], true>(
-  () => [tripType.value, cloneDeep(travelSegments.value)],
-  ([tripType, newTravelSegments]) => {
+watch(
+  itineraryDestinationLocationId,
+  (locationId) => {
     if (!isNil(finalDestinationLocationId.value)) return
 
-    const newFinalDestinationLocationId =
-      determineFinalDestinationSegment(tripType, newTravelSegments)?.arrivalLocationId ?? null
-    updateFinalDestinationLocationId(newFinalDestinationLocationId)
+    updateFinalDestinationLocationId(locationId)
   },
-  {
-    deep: true,
-    immediate: true,
-  }
+  { immediate: true }
 )
 
 function locationIdOrNullIfOverlapping(locationId1: number | null, locationId2: number | null) {
@@ -245,7 +242,6 @@ function buildTravelSegmentEstimatesAttributes(
     ]
   }
 
-  const finalDestinationSegment = determineFinalDestinationSegment(tripType, newTravelSegments)
   return newTravelSegments.map((travelSegment, index) => {
     const newTravelSegmentAttributes = {
       ...pick(travelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
@@ -254,7 +250,7 @@ function buildTravelSegmentEstimatesAttributes(
       segmentNumber: index + 1,
     }
 
-    if (travelSegment === finalDestinationSegment) {
+    if (travelSegment === finalDestinationSegment.value) {
       const arrivalLocationId = staticFinalDestinationLocationId
       const departureLocationId = locationIdOrNullIfOverlapping(
         newTravelSegmentAttributes.departureLocationId,
@@ -270,8 +266,8 @@ function buildTravelSegmentEstimatesAttributes(
     const previousTravelSegment = newTravelSegments.at(index - 1)
     if (
       index > 0 &&
-      previousTravelSegment === finalDestinationSegment &&
-      travelSegment.departureLocationId === finalDestinationSegment?.arrivalLocationId
+      previousTravelSegment === finalDestinationSegment.value &&
+      travelSegment.departureLocationId === finalDestinationSegment.value?.arrivalLocationId
     ) {
       return {
         ...newTravelSegmentAttributes,

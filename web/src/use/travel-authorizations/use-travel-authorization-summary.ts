@@ -1,4 +1,14 @@
-import { type Ref, reactive, toRefs, unref, watch } from "vue"
+import {
+  type MaybeRefOrGetter,
+  type Ref,
+  computed,
+  reactive,
+  shallowRef,
+  toRefs,
+  toValue,
+  unref,
+  watch,
+} from "vue"
 import { has, isEmpty, isNil } from "lodash"
 
 import travelAuthorizationsApi, {
@@ -30,7 +40,11 @@ export type TravelAuthorizationSummary = {
 }
 
 export function useTravelAuthorizationSummary(
-  travelAuthorizationId?: Ref<number | null | undefined>
+  travelAuthorizationId?: Ref<number | null | undefined>,
+  itinerary?: {
+    tripType: MaybeRefOrGetter<TravelAuthorizationTripTypes | null | undefined>
+    travelSegments: MaybeRefOrGetter<readonly Partial<TravelSegment>[] | null | undefined>
+  }
 ) {
   const state = reactive<
     TravelAuthorizationSummary & {
@@ -47,6 +61,26 @@ export function useTravelAuthorizationSummary(
     isLoading: false,
     isErrored: false,
   })
+
+  const savedTripType = shallowRef<TravelAuthorizationTripTypes | null>(null)
+  const savedTravelSegments = shallowRef<TravelSegment[]>([])
+
+  const finalDestinationSegment = computed(() => {
+    return determineFinalDestinationSegment(
+      isNil(itinerary) ? savedTripType.value : toValue(itinerary.tripType),
+      isNil(itinerary) ? savedTravelSegments.value : toValue(itinerary.travelSegments)
+    )
+  })
+
+  if (!isNil(itinerary)) {
+    watch(
+      finalDestinationSegment,
+      (segment) => {
+        state.finalDestinationLocationId = segment?.arrivalLocationId ?? null
+      },
+      { immediate: true, deep: true, flush: "sync" }
+    )
+  }
 
   async function fetch(params = {}): Promise<TravelAuthorizationAsShow> {
     const staticId = unref(travelAuthorizationId)
@@ -66,8 +100,9 @@ export function useTravelAuthorizationSummary(
       const travelSegments = travelAuthorization.tripTypeActual
         ? travelAuthorization.travelSegments.filter((segment) => segment.isActual)
         : travelAuthorization.travelSegments.filter((segment) => !segment.isActual)
-      state.finalDestinationLocationId =
-        determineFinalDestinationSegment(tripType, travelSegments)?.arrivalLocationId ?? null
+      savedTripType.value = tripType
+      savedTravelSegments.value = travelSegments
+      state.finalDestinationLocationId = finalDestinationSegment.value?.arrivalLocationId ?? null
       state.departureDate = _determineDepartureDate(travelSegments)
       state.returnDate =
         travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
@@ -113,6 +148,7 @@ export function useTravelAuthorizationSummary(
 
   return {
     ...toRefs(state),
+    finalDestinationSegment,
     fetch,
     refresh: fetch,
     update,

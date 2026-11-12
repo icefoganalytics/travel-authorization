@@ -89,7 +89,7 @@ import { useDisplay } from "vuetify"
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
-import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
@@ -140,12 +140,16 @@ const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
+const { finalDestinationLocationId } = useTravelAuthorizationSummary(undefined, {
+  tripType,
+  travelSegments: travelSegmentsAttributes,
+})
 
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes
 
   updateDepartureDate(newTravelSegmentsAttributes)
-  updateFinalDestinationLocationId(newTravelSegmentsAttributes)
+  emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
   updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes)
 }
 
@@ -154,16 +158,6 @@ function updateDepartureDate(newTravelSegmentsAttributes) {
   if (!isNil(departureDate)) {
     emit("update:departureDate", departureDate)
   }
-}
-
-function updateFinalDestinationLocationId(newTravelSegmentsAttributes) {
-  const finalDestinationSegment = determineFinalDestinationSegment(
-    tripType.value,
-    newTravelSegmentsAttributes
-  )
-  const finalDestinationLocationId = finalDestinationSegment?.arrivalLocationId ?? null
-
-  emit("update:finalDestinationLocationId", finalDestinationLocationId)
 }
 
 function updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes) {
