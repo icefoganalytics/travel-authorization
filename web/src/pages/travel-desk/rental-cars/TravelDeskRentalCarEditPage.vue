@@ -45,90 +45,20 @@
             </v-col>
           </v-row>
         </v-sheet>
-        <template v-if="isMatchingAvailableFlightSchedule">
-          <v-row>
-            <v-col cols="6">
-              <StringDateInput
-                :model-value="pickUpDate"
-                label="Pick-up date *"
-                append-inner-icon="mdi-lock"
-                variant="outlined"
-                readonly
-              />
-            </v-col>
-            <v-col cols="6">
-              <TimeTextField
-                :model-value="pickUpTime"
-                label="Pick-up time *"
-                append-inner-icon="mdi-lock"
-                variant="outlined"
-                readonly
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <StringDateInput
-                :model-value="dropOffDate"
-                label="Drop-off date *"
-                append-inner-icon="mdi-lock"
-                variant="outlined"
-                readonly
-              />
-            </v-col>
-            <v-col cols="6">
-              <TimeTextField
-                :model-value="dropOffTime"
-                label="Drop-off time *"
-                append-inner-icon="mdi-lock"
-                variant="outlined"
-                readonly
-              />
-            </v-col>
-          </v-row>
-        </template>
-        <template v-else>
-          <v-row>
-            <v-col cols="6">
-              <StringDateInput
-                v-model="pickUpDate"
-                label="Pick-up date *"
-                :rules="[required]"
-                variant="outlined"
-                required
-              />
-            </v-col>
-            <v-col cols="6">
-              <TimeTextField
-                v-model="pickUpTime"
-                label="Pick-up time *"
-                :rules="[required]"
-                variant="outlined"
-                required
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <StringDateInput
-                v-model="dropOffDate"
-                label="Drop-off date *"
-                :rules="[required]"
-                variant="outlined"
-                required
-              />
-            </v-col>
-            <v-col cols="6">
-              <TimeTextField
-                v-model="dropOffTime"
-                label="Drop-off time *"
-                :rules="[required]"
-                variant="outlined"
-                required
-              />
-            </v-col>
-          </v-row>
-        </template>
+        <TravelDeskRentalCarScheduleReadOnlySection
+          v-if="isMatchingAvailableFlightSchedule"
+          :pick-up-date="pickUpDate"
+          :pick-up-time="pickUpTime"
+          :drop-off-date="dropOffDate"
+          :drop-off-time="dropOffTime"
+        />
+        <TravelDeskRentalCarScheduleEditSection
+          v-else
+          v-model:pick-up-date="pickUpDate"
+          v-model:pick-up-time="pickUpTime"
+          v-model:drop-off-date="dropOffDate"
+          v-model:drop-off-time="dropOffTime"
+        />
 
         <SectionHeader
           title="2. Location Details"
@@ -302,13 +232,13 @@ import useSnack from "@/use/use-snack"
 import useTravelDeskRentalCar from "@/use/use-travel-desk-rental-car"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
-import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
-import TimeTextField from "@/components/common/TimeTextField.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 
 import TravelDeskRentalCarLocationTypeSelect from "@/components/travel-desk-rental-cars/TravelDeskRentalCarLocationTypeSelect.vue"
+import TravelDeskRentalCarScheduleEditSection from "@/components/travel-desk-rental-cars/TravelDeskRentalCarScheduleEditSection.vue"
+import TravelDeskRentalCarScheduleReadOnlySection from "@/components/travel-desk-rental-cars/TravelDeskRentalCarScheduleReadOnlySection.vue"
 import TravelDeskRentalCarVehicleTypeSelect from "@/components/travel-desk-rental-cars/TravelDeskRentalCarVehicleTypeSelect.vue"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
