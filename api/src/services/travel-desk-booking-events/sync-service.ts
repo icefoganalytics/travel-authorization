@@ -1,14 +1,15 @@
-import { IsolationLevel, Op, QueryTypes, sql } from "@sequelize/core"
+import { IsolationLevel, Op } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 
 import travelportDatabase, { TravelOrderEvent } from "@/integrations/travelport-integration/models"
 import { TravelOrderEvents } from "@/integrations/travelport-integration/serializers"
-import travelAuthorizationDatabase, { TravelDeskBookingEvent } from "@/models"
+import { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
+import WithSyncLockService from "@/services/travel-desk-booking-events/with-sync-lock-service"
 
 export class SyncService extends BaseService {
   constructor(protected recordLocator: string) {
@@ -18,15 +19,7 @@ export class SyncService extends BaseService {
   async perform(): Promise<void> {
     this.assertRecordLocatorIsValid(this.recordLocator)
 
-    await travelAuthorizationDatabase.transaction(async () => {
-      // Serialize refreshes even when this locator has no local rows yet.
-      await travelAuthorizationDatabase.query(
-        sql`
-          SELECT pg_advisory_xact_lock(hashtext(${this.recordLocator}));
-        `,
-        { type: QueryTypes.SELECT }
-      )
-
+    await WithSyncLockService.perform(this.recordLocator, async () => {
       const matchedSourceIds: number[] = []
       await this.syncSourceEvents(this.recordLocator, async (sourceEvent) => {
         const serializedSourceEvent = TravelOrderEvents.SyncSerializer.perform(sourceEvent)
