@@ -5,17 +5,13 @@ import {
   type InferAttributes,
   type InferCreationAttributes,
 } from "@sequelize/core"
-import {
-  Attribute,
-  AutoIncrement,
-  Index,
-  NotNull,
-  PrimaryKey,
-} from "@sequelize/core/decorators-legacy"
+import { Attribute, AutoIncrement, NotNull, PrimaryKey } from "@sequelize/core/decorators-legacy"
 
 import type { BookingPassenger } from "@/integrations/travelport-integration/models/booking-passenger"
 import type { BookingSegment } from "@/integrations/travelport-integration/models/booking-segment"
 import type { BookingServiceFee } from "@/integrations/travelport-integration/models/booking-service-fee"
+
+import TravelDeskBookingEventsExternalTravelportIdentifierUniqueIndex from "@/models/indexes/travel-desk-booking-events-external-travelport-identifier-unique-index"
 
 export class TravelDeskBookingEvent extends Model<
   InferAttributes<TravelDeskBookingEvent>,
@@ -28,7 +24,7 @@ export class TravelDeskBookingEvent extends Model<
 
   @Attribute(DataTypes.INTEGER)
   @NotNull
-  @Index({ unique: true, where: { deletedAt: null } })
+  @TravelDeskBookingEventsExternalTravelportIdentifierUniqueIndex
   declare externalTravelportIdentifier: number
 
   @Attribute(DataTypes.INTEGER)
