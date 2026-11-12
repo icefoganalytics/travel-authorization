@@ -5,7 +5,7 @@ import {
   travelDeskFlightSegmentFactory,
   travelDeskRentalCarFactory,
 } from "@/tests/factories"
-import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
+import { mockHttpClient, mockHttpGetRoutes, mockRouter, mockVuetify } from "@/tests/support"
 
 import TimeTextField from "@/components/common/TimeTextField.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
@@ -43,30 +43,21 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
         if (flightArrival === "before") {
           flightResponse.resolve()
         }
-        httpClient.get.mockImplementation(async (url, configuration) => {
-          if (url === "/api/travel-desk-rental-cars/15") {
-            return { data: { travelDeskRentalCar: { ...rentalCar }, policy: {} } }
-          }
-          if (url === "/api/travel-desk-flight-segments") {
+        mockHttpGetRoutes({
+          "/api/travel-desk-rental-cars/15": () => ({
+            travelDeskRentalCar: { ...rentalCar },
+            policy: {},
+          }),
+          "/api/travel-desk-flight-segments": async (configuration) => {
             await flightResponse.promise
             if (configuration?.params.order[0][0] === "departAt") {
-              return {
-                data: {
-                  travelDeskFlightSegments: [firstFlightSegment],
-                  totalCount: 1,
-                },
-              }
+              return { travelDeskFlightSegments: [firstFlightSegment], totalCount: 1 }
             }
 
-            return {
-              data: {
-                travelDeskFlightSegments: [lastFlightSegment],
-                totalCount: 1,
-              },
-            }
-          }
-
-          return { data: { travelAuthorizations: [], locations: [location], totalCount: 1 } }
+            return { travelDeskFlightSegments: [lastFlightSegment], totalCount: 1 }
+          },
+          "/api/travel-authorizations": () => ({ travelAuthorizations: [], totalCount: 0 }),
+          "/api/locations": () => ({ locations: [location], totalCount: 1 }),
         })
         const router = mockRouter([
           {
@@ -122,20 +113,17 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
         departAt: "2026-12-02T06:25:00.000Z",
         arriveAt: "2026-12-06T20:40:00.000Z",
       })
-      httpClient.get.mockImplementation(async (url) => {
-        if (url === "/api/travel-desk-rental-cars/15") {
-          return { data: { travelDeskRentalCar: { ...rentalCar }, policy: {} } }
-        }
-        if (url === "/api/travel-desk-flight-segments") {
-          return {
-            data: {
-              travelDeskFlightSegments: [flightSegment],
-              totalCount: 1,
-            },
-          }
-        }
-
-        return { data: { travelAuthorizations: [], locations: [location], totalCount: 1 } }
+      mockHttpGetRoutes({
+        "/api/travel-desk-rental-cars/15": () => ({
+          travelDeskRentalCar: { ...rentalCar },
+          policy: {},
+        }),
+        "/api/travel-desk-flight-segments": () => ({
+          travelDeskFlightSegments: [flightSegment],
+          totalCount: 1,
+        }),
+        "/api/travel-authorizations": () => ({ travelAuthorizations: [], totalCount: 0 }),
+        "/api/locations": () => ({ locations: [location], totalCount: 1 }),
       })
       const router = mockRouter([
         {
@@ -179,19 +167,17 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
         dropOffDate: "2026-12-05T18:45:00.000Z",
       })
       const location = locationFactory.build({ city: "Dawson", province: "YT" })
-      httpClient.get.mockImplementation(async (url) => {
-        if (url === "/api/travel-desk-rental-cars/15") {
-          return { data: { travelDeskRentalCar: { ...rentalCar }, policy: {} } }
-        }
-
-        return {
-          data: {
-            travelDeskFlightSegments: [],
-            travelAuthorizations: [],
-            locations: [location],
-            totalCount: 0,
-          },
-        }
+      mockHttpGetRoutes({
+        "/api/travel-desk-rental-cars/15": () => ({
+          travelDeskRentalCar: { ...rentalCar },
+          policy: {},
+        }),
+        "/api/travel-desk-flight-segments": () => ({
+          travelDeskFlightSegments: [],
+          totalCount: 0,
+        }),
+        "/api/travel-authorizations": () => ({ travelAuthorizations: [], totalCount: 0 }),
+        "/api/locations": () => ({ locations: [location], totalCount: 1 }),
       })
       const router = mockRouter([
         {

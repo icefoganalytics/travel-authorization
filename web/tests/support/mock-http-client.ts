@@ -1,3 +1,5 @@
+import { type AxiosRequestConfig } from "axios"
+
 import httpClient from "@/api/http-client"
 
 vi.mock("@/api/http-client", () => ({
@@ -20,6 +22,31 @@ export function mockHttpClient() {
   httpClientMock.delete.mockResolvedValue({ data: {} })
 
   return httpClientMock
+}
+
+type HttpGetRouteHandler = (config: AxiosRequestConfig<unknown> | undefined) => unknown
+
+export function mockHttpGetRoute(url: string, handler: HttpGetRouteHandler) {
+  mockHttpGetRoutes({ [url]: handler })
+}
+
+/** Callbacks return payloads; unmatched URLs retain the previous GET implementation. */
+export function mockHttpGetRoutes(routes: Record<string, HttpGetRouteHandler>) {
+  const getMock = vi.mocked(httpClient.get)
+  const previousImplementation = getMock.getMockImplementation()
+
+  getMock.mockImplementation(async (url, config) => {
+    if (Object.hasOwn(routes, url)) {
+      const payload = await routes[url](config)
+      return { data: payload }
+    }
+
+    if (previousImplementation) {
+      return previousImplementation(url, config)
+    }
+
+    throw new Error(`Unmocked GET ${url}`)
+  })
 }
 
 export default mockHttpClient

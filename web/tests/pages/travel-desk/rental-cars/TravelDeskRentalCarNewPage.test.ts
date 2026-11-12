@@ -6,7 +6,7 @@ import {
   travelAuthorizationFactory,
   travelDeskFlightSegmentFactory,
 } from "@/tests/factories"
-import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
+import { mockHttpClient, mockHttpGetRoutes, mockRouter, mockVuetify } from "@/tests/support"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
@@ -37,17 +37,16 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
         if (flightArrival === "before") {
           flightResponse.resolve()
         }
-        httpClient.get.mockImplementation(async (url) => {
-          if (url === "/api/travel-authorizations") {
-            return { data: { travelAuthorizations: [travelAuthorization], totalCount: 1 } }
-          }
-
-          if (url === "/api/travel-desk-flight-segments") {
+        mockHttpGetRoutes({
+          "/api/travel-authorizations": () => ({
+            travelAuthorizations: [travelAuthorization],
+            totalCount: 1,
+          }),
+          "/api/travel-desk-flight-segments": async () => {
             await flightResponse.promise
-            return { data: { travelDeskFlightSegments: [flightSegment], totalCount: 1 } }
-          }
-
-          return { data: { locations: [destination], totalCount: 1 } }
+            return { travelDeskFlightSegments: [flightSegment], totalCount: 1 }
+          },
+          "/api/locations": () => ({ locations: [destination], totalCount: 1 }),
         })
         const router = mockRouter([
           {
@@ -90,23 +89,22 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
 
     test("when flights are missing after entering only pickup, saving leaves a correctable required dropoff error", async () => {
       // Arrange
-      const httpClient = mockHttpClient()
       const destination = locationFactory.build({ city: "Vancouver", province: "BC" })
       const travelAuthorization = {
         ...travelAuthorizationFactory.build({ dateBackToWorkEstimate: "2026-12-12" }),
         departingAt: "2026-12-10T08:35:00.000Z",
         finalDestination: destination,
       }
-      httpClient.get.mockImplementation(async (url) => {
-        if (url === "/api/travel-authorizations") {
-          return { data: { travelAuthorizations: [travelAuthorization], totalCount: 1 } }
-        }
-
-        if (url === "/api/travel-desk-flight-segments") {
-          return { data: { travelDeskFlightSegments: [], totalCount: 0 } }
-        }
-
-        return { data: { locations: [destination], totalCount: 1 } }
+      mockHttpGetRoutes({
+        "/api/travel-authorizations": () => ({
+          travelAuthorizations: [travelAuthorization],
+          totalCount: 1,
+        }),
+        "/api/travel-desk-flight-segments": () => ({
+          travelDeskFlightSegments: [],
+          totalCount: 0,
+        }),
+        "/api/locations": () => ({ locations: [destination], totalCount: 1 }),
       })
       const router = mockRouter([
         {
@@ -150,21 +148,16 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
         finalDestination: destination,
       }
       const destinationResponse = Promise.withResolvers<{
-        data: {
-          travelAuthorizations: (typeof travelAuthorization)[]
-          totalCount: number
-        }
+        travelAuthorizations: (typeof travelAuthorization)[]
+        totalCount: number
       }>()
-      httpClient.get.mockImplementation(async (url) => {
-        if (url === "/api/travel-authorizations") {
-          return destinationResponse.promise
-        }
-
-        if (url === "/api/travel-desk-flight-segments") {
-          return { data: { travelDeskFlightSegments: [], totalCount: 0 } }
-        }
-
-        return { data: { locations: [destination, chosenCity], totalCount: 2 } }
+      mockHttpGetRoutes({
+        "/api/travel-authorizations": () => destinationResponse.promise,
+        "/api/travel-desk-flight-segments": () => ({
+          travelDeskFlightSegments: [],
+          totalCount: 0,
+        }),
+        "/api/locations": () => ({ locations: [destination, chosenCity], totalCount: 2 }),
       })
       const router = mockRouter([
         {
@@ -185,7 +178,8 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
       // Act
       await wrapper.getComponent(LocationsAutocomplete).setValue("Victoria (BC)")
       destinationResponse.resolve({
-        data: { travelAuthorizations: [travelAuthorization], totalCount: 1 },
+        travelAuthorizations: [travelAuthorization],
+        totalCount: 1,
       })
       await flushPromises()
       await wrapper.findAllComponents(StringDateInput)[0].setValue("2026-12-10")
