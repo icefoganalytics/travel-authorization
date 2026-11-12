@@ -8,6 +8,7 @@ export type TravelSegmentAsReference = Pick<
   | "id"
   | "travelAuthorizationId"
   | "isActual"
+  | "isPrimaryDestination"
   | "departureLocationId"
   | "arrivalLocationId"
   | "segmentNumber"
@@ -29,6 +30,7 @@ export class ReferenceSerializer extends BaseSerializer<TravelSegment> {
         "id",
         "travelAuthorizationId",
         "isActual",
+        "isPrimaryDestination",
         "departureLocationId",
         "arrivalLocationId",
         "segmentNumber",

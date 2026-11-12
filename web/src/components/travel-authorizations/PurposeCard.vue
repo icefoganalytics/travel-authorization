@@ -49,8 +49,8 @@
         xl="4"
       >
         <LocationDescriptionElement
-          label="Final Destination"
-          :location-id="finalDestinationLocationId"
+          label="Primary destination"
+          :location-id="primaryDestinationLocationId"
           vertical
         />
       </v-col>
@@ -74,7 +74,7 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+import determinePrimaryDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-primary-destination-segment"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
@@ -103,7 +103,7 @@ const travelSegmentsQuery = computed(() => {
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
 
-const finalDestinationLocationId = computed(() => {
+const primaryDestinationLocationId = computed(() => {
   if (isNil(travelAuthorization.value)) return null
 
   const { tripTypeEstimate, tripTypeActual } = travelAuthorization.value
@@ -113,7 +113,7 @@ const finalDestinationLocationId = computed(() => {
   )
 
   return (
-    determineFinalDestinationSegment(tripType, matchingTravelSegments)?.arrivalLocationId ?? null
+    determinePrimaryDestinationSegment(tripType, matchingTravelSegments)?.arrivalLocationId ?? null
   )
 })
 </script>

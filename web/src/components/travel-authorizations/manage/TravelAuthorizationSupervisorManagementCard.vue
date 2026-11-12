@@ -42,7 +42,7 @@ import { isNil } from "lodash"
 
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
-import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+import determinePrimaryDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-primary-destination-segment"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
@@ -76,7 +76,7 @@ const travelLocationId = computed(() => {
     (segment) => segment.isActual === Boolean(tripTypeActual)
   )
   return (
-    determineFinalDestinationSegment(tripType, matchingTravelSegments)?.arrivalLocationId ?? null
+    determinePrimaryDestinationSegment(tripType, matchingTravelSegments)?.arrivalLocationId ?? null
   )
 })
 

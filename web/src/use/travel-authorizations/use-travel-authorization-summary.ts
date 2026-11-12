@@ -10,7 +10,7 @@ import travelAuthorizationsApi, {
 } from "@/api/travel-authorizations-api"
 import { type TravelSegment } from "@/api/travel-segments-api"
 
-import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+import determinePrimaryDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-primary-destination-segment"
 
 export {
   type TravelAuthorizationAsShow,
@@ -23,7 +23,7 @@ export {
 export type TravelAuthorizationSummary = {
   travelPurposeId: number | null
   eventName: string | null
-  finalDestinationLocationId: number | null
+  primaryDestinationLocationId: number | null
   departureDate: string | null
   returnDate: string | null
   userId: number | null
@@ -40,7 +40,7 @@ export function useTravelAuthorizationSummary(
   >({
     travelPurposeId: null,
     eventName: null,
-    finalDestinationLocationId: null,
+    primaryDestinationLocationId: null,
     departureDate: null,
     returnDate: null,
     userId: null,
@@ -66,8 +66,8 @@ export function useTravelAuthorizationSummary(
       const travelSegments = travelAuthorization.tripTypeActual
         ? travelAuthorization.travelSegments.filter((segment) => segment.isActual)
         : travelAuthorization.travelSegments.filter((segment) => !segment.isActual)
-      state.finalDestinationLocationId =
-        determineFinalDestinationSegment(tripType, travelSegments)?.arrivalLocationId ?? null
+      state.primaryDestinationLocationId =
+        determinePrimaryDestinationSegment(tripType, travelSegments)?.arrivalLocationId ?? null
       state.departureDate = _determineDepartureDate(travelSegments)
       state.returnDate =
         travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate

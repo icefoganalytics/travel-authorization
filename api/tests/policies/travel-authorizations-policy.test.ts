@@ -6,6 +6,34 @@ import { travelAuthorizationFactory, userFactory } from "@/factories"
 describe("api/src/policies/travel-authorizations-policy.ts", () => {
   describe("TravelAuthorizationsPolicy", () => {
     describe("#permitAttributesForUpdate", () => {
+      test.each([
+        {
+          status: TravelAuthorization.Statuses.DRAFT,
+          attribute: "travelSegmentEstimatesAttributes",
+        },
+        {
+          status: TravelAuthorization.Statuses.APPROVED,
+          attribute: "travelSegmentActualsAttributes",
+        },
+      ])(
+        "when a request is $status, it permits the nested primary destination flag",
+        ({ status, attribute }) => {
+          // Arrange
+          const user = userFactory.build({ id: 1, roles: [User.Roles.USER] })
+          const travelAuthorization = travelAuthorizationFactory.build({ userId: user.id, status })
+          const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+          const attributes = {
+            [attribute]: [{ isPrimaryDestination: true, arrivalLocationId: 2 }],
+          }
+
+          // Act
+          const permittedAttributes = policy.permitAttributesForUpdate(attributes)
+
+          // Assert
+          expect(permittedAttributes).toEqual(attributes)
+        }
+      )
+
       test("when a request is draft, it preserves trip details but excludes workflow changes", () => {
         // Arrange
         const user = userFactory.build()

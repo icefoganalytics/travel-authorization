@@ -1,10 +1,11 @@
 import { Attributes } from "@sequelize/core"
-import { isNil } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import { type WithRequired } from "@/utils/utility-types"
 
-import db, { TravelSegment } from "@/models"
+import db, { TravelAuthorization, TravelSegment } from "@/models"
 import BaseService from "@/services/base-service"
+import { defaultPrimaryDestinationSegment } from "@/services/travel-segments/default-primary-destination-segment"
 
 export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
 
@@ -44,6 +45,41 @@ export class BulkReplaceService extends BaseService {
       )
     }
 
+    const selectedTravelSegments = this.travelSegmentsAttributes.filter(
+      ({ isPrimaryDestination }) => isPrimaryDestination === true
+    )
+    if (selectedTravelSegments.length > 1) {
+      throw new Error("Only one primary destination may be selected per itinerary.")
+    }
+
+    if (selectedTravelSegments.some(({ arrivalLocationId }) => isNil(arrivalLocationId))) {
+      throw new Error("Primary destination requires an arrival location.")
+    }
+
+    const travelSegmentsAttributes = this.travelSegmentsAttributes.map((attributes) => ({
+      ...attributes,
+    }))
+    this.hasAllRequiredAttributes(travelSegmentsAttributes)
+    if (
+      travelSegmentsAttributes.every(({ isPrimaryDestination }) =>
+        isUndefined(isPrimaryDestination)
+      )
+    ) {
+      const travelAuthorization = await TravelAuthorization.findByPk(this.travelAuthorizationId, {
+        rejectOnEmpty: true,
+      })
+      const tripType = this.isActual
+        ? travelAuthorization.tripTypeActual
+        : travelAuthorization.tripTypeEstimate
+      const primaryTravelSegment = defaultPrimaryDestinationSegment(
+        tripType,
+        travelSegmentsAttributes
+      )
+      if (!isUndefined(primaryTravelSegment)) {
+        primaryTravelSegment.isPrimaryDestination = true
+      }
+    }
+
     return db.transaction(async () => {
       await TravelSegment.destroy({
         where: {
@@ -52,8 +88,7 @@ export class BulkReplaceService extends BaseService {
         },
       })
 
-      this.hasAllRequiredAttributes(this.travelSegmentsAttributes)
-      return TravelSegment.bulkCreate(this.travelSegmentsAttributes)
+      return TravelSegment.bulkCreate(travelSegmentsAttributes)
     })
   }
 

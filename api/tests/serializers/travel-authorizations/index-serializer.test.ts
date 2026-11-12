@@ -13,6 +13,31 @@ import {
 describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => {
   describe("IndexSerializer", () => {
     describe("#perform", () => {
+      test("when a multi-city itinerary is unconfirmed, it does not infer its primary destination", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+        })
+        await travelSegmentFactory.associations({ travelAuthorization }).createList(3)
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            { association: "stops", include: ["location"] },
+            "travelDeskTravelRequest",
+            { association: "travelSegments", include: ["departureLocation", "arrivalLocation"] },
+            "user",
+          ],
+        })
+
+        // Act
+        const result = IndexSerializer.perform(travelAuthorization, currentUser)
+
+        // Assert
+        expect(result.primaryDestination).toEqual(null)
+      })
+
       test.each([
         {
           condition: "estimated multi-city travel returns home",
@@ -20,7 +45,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           tripTypeActual: null,
           returnsHome: true,
           missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Toronto" }),
+          expectedDestination: expect.objectContaining({ city: "Vancouver" }),
         },
         {
           condition: "estimated multi-city travel ends away from home",
@@ -28,7 +53,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           tripTypeActual: null,
           returnsHome: false,
           missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Ottawa" }),
+          expectedDestination: expect.objectContaining({ city: "Vancouver" }),
         },
         {
           condition: "actual multi-city travel returns home with different estimated destinations",
@@ -44,7 +69,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
           returnsHome: false,
           missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Toronto" }),
+          expectedDestination: expect.objectContaining({ city: "Ottawa" }),
         },
         {
           condition: "round-trip travel returns home",
@@ -52,7 +77,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           tripTypeActual: null,
           returnsHome: true,
           missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Toronto" }),
+          expectedDestination: expect.objectContaining({ city: "Vancouver" }),
         },
         {
           condition: "one-way travel ends at its original departure",
@@ -71,7 +96,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           expectedDestination: null,
         },
       ])(
-        "when $condition, it returns the selected itinerary's final destination",
+        "when $condition, it returns the active itinerary's primary destination",
         async ({
           tripTypeEstimate,
           tripTypeActual,
@@ -111,12 +136,20 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
               isActual,
               departureLocationId,
               arrivalLocationId: vancouver.id,
+              isPrimaryDestination:
+                !missingEndpoints &&
+                !isActual &&
+                tripTypeEstimate === TravelAuthorization.TripTypes.MULTI_CITY,
             })
             await travelSegmentFactory.associations({ travelAuthorization }).create({
               segmentNumber: 2,
               isActual,
               departureLocationId: vancouver.id,
               arrivalLocationId: destination.id,
+              isPrimaryDestination:
+                !missingEndpoints &&
+                isActual &&
+                tripTypeActual === TravelAuthorization.TripTypes.MULTI_CITY,
             })
           }
 
@@ -146,11 +179,11 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
           // Assert
-          expect(result.finalDestination).toEqual(expectedDestination)
+          expect(result.primaryDestination).toEqual(expectedDestination)
         }
       )
 
-      test("when the selected itinerary is empty, it returns no final destination", async () => {
+      test("when the selected itinerary is empty, it returns no primary destination", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -181,7 +214,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(null)
+        expect(result.primaryDestination).toEqual(null)
       })
 
       test("when travel authorization is pending approval and travelling is complete, it returns no travel action", async () => {

@@ -17,41 +17,30 @@ export class DestroyService extends BaseService {
       throw new Error("Travel authorization must be pre-loaded.")
     }
 
-    const numberOfTravelSegmentEstimates = await TravelSegment.count({
+    const { isActual } = this.travelSegment
+    const tripType = isActual
+      ? travelAuthorization.tripTypeActual
+      : travelAuthorization.tripTypeEstimate
+    const numberOfTravelSegments = await TravelSegment.count({
       where: {
         travelAuthorizationId,
-        isActual: false,
+        isActual,
       },
     })
-    const numberOfTravelSegmentActuals = await TravelSegment.count({
-      where: {
-        travelAuthorizationId,
-        isActual: true,
-      },
-    })
-    if (
-      (travelAuthorization.tripTypeEstimate === TravelAuthorization.TripTypes.ONE_WAY &&
-        numberOfTravelSegmentEstimates <= 1) ||
-      (travelAuthorization.tripTypeActual === TravelAuthorization.TripTypes.ONE_WAY &&
-        numberOfTravelSegmentActuals <= 1)
-    ) {
+    if (tripType === TravelAuthorization.TripTypes.ONE_WAY && numberOfTravelSegments <= 1) {
       throw new Error(
         "Travel segment cannot be deleted when trip type is one way and there is only one travel segment."
       )
     } else if (
-      (travelAuthorization.tripTypeEstimate === TravelAuthorization.TripTypes.MULTI_CITY &&
-        numberOfTravelSegmentEstimates <= 2) ||
-      (travelAuthorization.tripTypeActual === TravelAuthorization.TripTypes.MULTI_CITY &&
-        numberOfTravelSegmentActuals <= 2)
+      tripType === TravelAuthorization.TripTypes.MULTI_CITY &&
+      numberOfTravelSegments <= 2
     ) {
       throw new Error(
         "Travel segment cannot be deleted when trip type is multi-city and there are only two travel segments."
       )
     } else if (
-      (travelAuthorization.tripTypeEstimate === TravelAuthorization.TripTypes.ROUND_TRIP &&
-        numberOfTravelSegmentEstimates <= 2) ||
-      (travelAuthorization.tripTypeActual === TravelAuthorization.TripTypes.ROUND_TRIP &&
-        numberOfTravelSegmentActuals <= 2)
+      tripType === TravelAuthorization.TripTypes.ROUND_TRIP &&
+      numberOfTravelSegments <= 2
     ) {
       throw new Error(
         "Travel segment cannot be deleted when trip type is round trip and there are only two travel segments."

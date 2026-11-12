@@ -10,6 +10,8 @@ import {
   User,
 } from "@/models"
 
+import { defaultPrimaryDestinationSegment } from "@/services/travel-segments/default-primary-destination-segment"
+
 import BaseSerializer from "@/serializers/base-serializer"
 import {
   StateFlagsSerializer,
@@ -42,7 +44,7 @@ export type TravelAuthorizationIndexView = Pick<
   unprocessedExpenseCount: number
 } & {
   // Associations
-  finalDestination: Locations.AsReference | null
+  primaryDestination: Locations.AsReference | null
   locations: Locations.AsReference[]
   travelDeskTravelRequest: TravelDeskTravelRequests.AsSummary | null
 } & TravelAuthorizationStateFlagsView
@@ -70,14 +72,9 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const destinationTravelSegments = this.travelSegments.filter(
       (travelSegment) => travelSegment.isActual === useActuals
     )
-    const firstDestinationTravelSegment = first(destinationTravelSegments)
-    const lastDestinationTravelSegment = last(destinationTravelSegments)
-    const penultimateDestinationTravelSegment = destinationTravelSegments.at(-2)
-    const finalDestinationLocation = this.buildFinalDestinationLocation(
+    const primaryDestinationLocation = this.buildPrimaryDestinationLocation(
       this.record.tripType,
-      firstDestinationTravelSegment,
-      lastDestinationTravelSegment,
-      penultimateDestinationTravelSegment
+      destinationTravelSegments
     )
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
@@ -95,7 +92,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       ]),
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
-      finalDestination: finalDestinationLocation,
+      primaryDestination: primaryDestinationLocation,
       departingAt: departingAt?.toISOString(),
       returningAt: returningAt?.toISOString(),
       phase: this.determinePhase(),
@@ -172,29 +169,20 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return Array.from(locations.values())
   }
 
-  private buildFinalDestinationLocation(
+  private buildPrimaryDestinationLocation(
     tripType: TravelAuthorization["tripType"],
-    firstTravelSegment: TravelSegment | undefined,
-    lastTravelSegment: TravelSegment | undefined,
-    penultimateTravelSegment: TravelSegment | undefined
+    travelSegments: TravelSegment[]
   ): Locations.AsReference | null {
-    if (isNil(lastTravelSegment)) return null
-
-    let finalDestinationLocation = lastTravelSegment.arrivalLocation
-    if (tripType === TravelAuthorization.TripTypes.ROUND_TRIP) {
-      finalDestinationLocation = lastTravelSegment.departureLocation
-    } else if (
-      tripType === TravelAuthorization.TripTypes.MULTI_CITY &&
-      !isNil(penultimateTravelSegment) &&
-      !isNil(firstTravelSegment?.departureLocationId) &&
-      firstTravelSegment.departureLocationId === lastTravelSegment.arrivalLocationId
-    ) {
-      finalDestinationLocation = penultimateTravelSegment.arrivalLocation
+    let primaryTravelSegment = travelSegments.find(
+      ({ isPrimaryDestination }) => isPrimaryDestination
+    )
+    if (isNil(primaryTravelSegment)) {
+      primaryTravelSegment = defaultPrimaryDestinationSegment(tripType, travelSegments)
     }
 
-    if (isNil(finalDestinationLocation)) return null
+    if (isNil(primaryTravelSegment?.arrivalLocation)) return null
 
-    return Locations.ReferenceSerializer.perform(finalDestinationLocation)
+    return Locations.ReferenceSerializer.perform(primaryTravelSegment.arrivalLocation)
   }
 
   private countUnprocessedExpenses(): number {
