@@ -280,26 +280,31 @@ let scheduleBeforeFlightMatching: {
   dropOffTime: string
 } | null = null
 
-function populateScheduleFromRentalCar() {
-  const rentalCar = travelDeskRentalCar.value
-  if (isNil(rentalCar)) return
+watch(
+  [
+    travelDeskRentalCar,
+    () => travelDeskRentalCar.value?.pickUpDate,
+    () => travelDeskRentalCar.value?.dropOffDate,
+  ],
+  ([newTravelDeskRentalCar]) => {
+    if (isNil(newTravelDeskRentalCar)) return
 
-  scheduleBeforeFlightMatching = null
+    scheduleBeforeFlightMatching = null
 
-  if (!isNil(rentalCar.pickUpDate)) {
-    const date = new Date(rentalCar.pickUpDate)
-    pickUpDate.value = date.toISOString().split("T")[0]
-    pickUpTime.value = date.toISOString().split("T")[1].substring(0, 5)
-  }
+    if (!isNil(newTravelDeskRentalCar.pickUpDate)) {
+      const date = new Date(newTravelDeskRentalCar.pickUpDate)
+      pickUpDate.value = date.toISOString().split("T")[0]
+      pickUpTime.value = date.toISOString().split("T")[1].substring(0, 5)
+    }
 
-  if (!isNil(rentalCar.dropOffDate)) {
-    const date = new Date(rentalCar.dropOffDate)
-    dropOffDate.value = date.toISOString().split("T")[0]
-    dropOffTime.value = date.toISOString().split("T")[1].substring(0, 5)
-  }
-}
-
-watch(travelDeskRentalCar, populateScheduleFromRentalCar, { immediate: true })
+    if (!isNil(newTravelDeskRentalCar.dropOffDate)) {
+      const date = new Date(newTravelDeskRentalCar.dropOffDate)
+      dropOffDate.value = date.toISOString().split("T")[0]
+      dropOffTime.value = date.toISOString().split("T")[1].substring(0, 5)
+    }
+  },
+  { immediate: true }
+)
 
 const isScheduleComplete = computed(() => {
   return (
