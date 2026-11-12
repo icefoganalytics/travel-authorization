@@ -29,7 +29,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           grossAmount: "10.125",
         })
         await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: invoice.sourceBookingEventId,
+          externalTravelPortIdentifier: invoice.sourceBookingEventId,
           recordLocator: invoice.recordLocator,
         })
         await SyncService.perform(invoice.recordLocator)

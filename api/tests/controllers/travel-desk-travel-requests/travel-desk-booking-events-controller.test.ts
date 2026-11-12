@@ -1,5 +1,5 @@
-import sourceDatabase from "@/integrations/travelport-integration/db/db-migration-client"
-import { TravelOrderEvent } from "@/integrations/travelport-integration/models"
+import sourceDatabase from "@/integrations/travel-port-integration/db/db-migration-client"
+import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
 import { TravelDeskTravelRequest, User } from "@/models"
 import { SyncService } from "@/services/travel-desk-booking-events"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
@@ -106,15 +106,15 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 940002,
+          externalTravelPortIdentifier: 940002,
           recordLocator: "SRC001",
         })
         await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 940001,
+          externalTravelPortIdentifier: 940001,
           recordLocator: "SRC001",
         })
         await travelDeskBookingEventFactory.create({
-          externalTravelportIdentifier: 940003,
+          externalTravelPortIdentifier: 940003,
           recordLocator: "OTHER1",
         })
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(
