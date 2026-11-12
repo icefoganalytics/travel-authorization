@@ -2,7 +2,9 @@ import { CreationAttributes } from "@sequelize/core"
 import { isNull, minBy } from "lodash"
 
 import logger from "@/utils/logger"
+import db from "@/db/db-client"
 import { Expense, Stop, TravelAuthorization } from "@/models"
+import { ValidatePrimaryDestinationService } from "@/services/travel-authorizations/validate-primary-destination-service"
 import ExpensesService from "./expenses-service"
 import StopsService from "./stops-service"
 
@@ -136,29 +138,32 @@ export class FormService {
       "This method is deprecated, and will be removed in a future version. Please use FormsService#create instead."
     )
     try {
-      const stops = form.stops
-      delete (form as Partial<LegacyFormInput>).stops
+      return await db.transaction(async () => {
+        const stops = form.stops
+        delete (form as Partial<LegacyFormInput>).stops
 
-      const expenses = form.expenses
-      delete (form as Partial<LegacyFormInput>).expenses
+        const expenses = form.expenses
+        delete (form as Partial<LegacyFormInput>).expenses
 
-      const estimates = form.estimates
-      delete (form as Partial<LegacyFormInput>).estimates
+        const estimates = form.estimates
+        delete (form as Partial<LegacyFormInput>).estimates
 
-      delete form.departureDate
+        delete form.departureDate
 
-      form.userId = userId
-      form.status = TravelAuthorization.Statuses.SUBMITTED
+        form.userId = userId
+        form.status = TravelAuthorization.Statuses.SUBMITTED
 
-      const [returnedForm] = await TravelAuthorization.upsert(form, {
-        conflictFields: ["slug"],
+        const [returnedForm] = await TravelAuthorization.upsert(form, {
+          conflictFields: ["slug"],
+        })
+        await ValidatePrimaryDestinationService.perform(returnedForm, false)
+        const id = returnedForm.id
+
+        await StopsService.bulkReplace(id, stops)
+        await this.saveExpenses(id, expenses)
+        await this.saveEstimates(id, estimates)
+        return true
       })
-      const id = returnedForm.id
-
-      await StopsService.bulkReplace(id, stops)
-      await this.saveExpenses(id, expenses)
-      await this.saveEstimates(id, estimates)
-      return true
     } catch (error: unknown) {
       logger.info(error)
       return false

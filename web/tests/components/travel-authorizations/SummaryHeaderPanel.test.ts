@@ -1,5 +1,6 @@
-import { flushPromises, mount } from "@vue/test-utils"
+import { flushPromises } from "@vue/test-utils"
 import { defineComponent, h, ref } from "vue"
+import { VSelect } from "vuetify/components"
 
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
 
@@ -14,7 +15,7 @@ import {
   travelAuthorizationFactory,
   travelSegmentFactory,
 } from "@/tests/factories"
-import { mockHttpGetRoutes, mockRouter, mockVuetify } from "@/tests/support"
+import { mockHttpGetRoutes, mockRouter, mountWithDefaultPlugins } from "@/tests/support"
 
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 
@@ -100,20 +101,19 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
               travelAuthorizationId: 5,
               stepTitle: "Trip details",
               stepSubtitle: "Review your itinerary",
-              "onUpdate:finalDestinationLocationId": (
-                finalDestinationLocationId: number | null
+              "onUpdate:primaryDestinationLocationId": (
+                primaryDestinationLocationId: number | null
               ) => {
-                summaryHeaderPanel.value?.update({ finalDestinationLocationId })
+                summaryHeaderPanel.value?.update({ primaryDestinationLocationId })
               },
             })
             return [summary, details]
           }
         },
       })
-      const vuetify = mockVuetify()
-      const wrapper = mount(host, {
+      const wrapper = mountWithDefaultPlugins(host, {
         global: {
-          plugins: [vuetify, router],
+          plugins: [router],
         },
       })
       await flushPromises()
@@ -123,6 +123,8 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       // Act
       const destinationInput = wrapper.findAllComponents(LocationsAutocomplete)[3]
       destinationInput.vm.$emit("update:modelValue", 4)
+      await flushPromises()
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 1)
       await flushPromises()
 
       // Assert
@@ -210,20 +212,19 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
               travelAuthorizationId: 5,
               stepTitle: "Trip details",
               stepSubtitle: "Review your itinerary",
-              "onUpdate:finalDestinationLocationId": (
-                finalDestinationLocationId: number | null
+              "onUpdate:primaryDestinationLocationId": (
+                primaryDestinationLocationId: number | null
               ) => {
-                summaryHeaderPanel.value?.update({ finalDestinationLocationId })
+                summaryHeaderPanel.value?.update({ primaryDestinationLocationId })
               },
             })
             return [summary, details]
           }
         },
       })
-      const vuetify = mockVuetify()
-      const wrapper = mount(host, {
+      const wrapper = mountWithDefaultPlugins(host, {
         global: {
-          plugins: [vuetify, router],
+          plugins: [router],
         },
       })
       await flushPromises()
@@ -234,10 +235,45 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       const destinationInput = wrapper.findAllComponents(LocationsAutocomplete)[3]
       destinationInput.vm.$emit("update:modelValue", 4)
       await flushPromises()
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 1)
+      await flushPromises()
 
       // Assert
       const summaryHeader = wrapper.getComponent(SummaryHeaderPanel)
       expect(summaryHeader.text()).toContain("Ottawa (ON)")
+    })
+
+    test("when a multi-city request has no saved destination, does not infer one for the header", async () => {
+      // Arrange
+      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 3 })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        finalDestination: null,
+        travelSegments,
+      })
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/current-user": () => ({
+          user: { id: 1, displayName: "Test Traveler", roles: [] },
+          policy: {},
+        }),
+      })
+      const wrapper = mountWithDefaultPlugins(SummaryHeaderPanel, {
+        props: { travelAuthorizationId: 5 },
+      })
+
+      // Act
+      await flushPromises()
+
+      // Assert
+      const destinationLabel = wrapper.findAll(".text-caption").find((element) => {
+        return element.text() === "Primary destination"
+      })
+      if (!destinationLabel) throw new Error("Primary destination label is missing")
+
+      const destinationText = destinationLabel.element.nextElementSibling?.textContent
+      expect(destinationText).toBe("—")
     })
   })
 })

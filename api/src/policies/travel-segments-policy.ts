@@ -28,6 +28,7 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
     return [
       "departureLocationId",
       "arrivalLocationId",
+      "isPrimaryDestination",
       "segmentNumber",
       "departureOn",
       "departureTime",
@@ -40,6 +41,12 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
 
   permittedAttributesForCreate(): Path[] {
     return ["travelAuthorizationId", "isActual", ...this.permittedAttributes()]
+  }
+
+  permittedAttributesForBulkReplace(): Path[] {
+    const attributes = this.permittedAttributesForCreate()
+
+    return ["id", ...attributes]
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelSegment>> {

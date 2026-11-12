@@ -1,8 +1,9 @@
-import { first, isNil, isUndefined, last } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import { Location, TravelAuthorization, TravelSegment } from "@/models"
 
 import BaseService from "@/services/base-service"
+import { defaultPrimaryDestinationSegment } from "@/services/travel-segments/helpers/default-primary-destination-segment"
 
 export class DetermineFinalDestinationService extends BaseService {
   constructor(
@@ -29,30 +30,27 @@ export class DetermineFinalDestinationService extends BaseService {
     }
 
     const useActuals = !isNil(tripTypeActual)
+    const activeTripType = tripTypeActual ?? tripType
     const destinationTravelSegments = travelSegments.filter(
       (travelSegment) => travelSegment.isActual === useActuals
     )
-    const firstTravelSegment = first(destinationTravelSegments)
-    const lastTravelSegment = last(destinationTravelSegments)
-    const penultimateTravelSegment = destinationTravelSegments.at(-2)
-
-    if (isNil(lastTravelSegment)) return null
-
-    let finalDestinationLocation = lastTravelSegment.arrivalLocation
-    if (tripType === TravelAuthorization.TripTypes.ROUND_TRIP) {
-      finalDestinationLocation = lastTravelSegment.departureLocation
-    } else if (
-      tripType === TravelAuthorization.TripTypes.MULTI_CITY &&
-      !isNil(penultimateTravelSegment) &&
-      !isNil(firstTravelSegment?.departureLocationId) &&
-      firstTravelSegment.departureLocationId === lastTravelSegment.arrivalLocationId
-    ) {
-      finalDestinationLocation = penultimateTravelSegment.arrivalLocation
+    let primaryTravelSegment: TravelSegment | undefined
+    if (activeTripType === TravelAuthorization.TripTypes.MULTI_CITY) {
+      primaryTravelSegment = destinationTravelSegments.find(
+        ({ isPrimaryDestination }) => isPrimaryDestination
+      )
+    } else {
+      primaryTravelSegment = defaultPrimaryDestinationSegment(
+        activeTripType,
+        destinationTravelSegments
+      )
     }
 
-    if (isNil(finalDestinationLocation)) return null
+    if (isNil(primaryTravelSegment?.arrivalLocation)) {
+      return null
+    }
 
-    return finalDestinationLocation
+    return primaryTravelSegment.arrivalLocation
   }
 }
 

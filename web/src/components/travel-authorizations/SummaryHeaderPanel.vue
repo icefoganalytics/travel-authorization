@@ -33,7 +33,7 @@
           lg="3"
         >
           <div class="text-caption font-weight-bold text-grey-darken-1 text-uppercase mb-1">
-            Destination
+            Primary destination
           </div>
           <div class="font-weight-bold">{{ destinationText }}</div>
         </v-col>
@@ -94,7 +94,7 @@ const paddedTravelAuthorizationId = computed(() =>
 const {
   travelPurposeId,
   eventName,
-  finalDestinationLocationId,
+  primaryDestinationLocationId,
   departureDate,
   returnDate,
   userId,
@@ -103,7 +103,7 @@ const {
   update,
 } = useTravelAuthorizationSummary(travelAuthorizationId)
 
-const { location } = useLocation(finalDestinationLocationId)
+const { location } = useLocation(primaryDestinationLocationId)
 
 const destinationText = computed(() => {
   if (isNil(location.value)) return "—"

@@ -1,10 +1,11 @@
 import { Attributes } from "@sequelize/core"
-import { isNil } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import { type WithRequired } from "@/utils/utility-types"
 
-import db, { TravelSegment } from "@/models"
+import db, { TravelAuthorization, TravelSegment } from "@/models"
 import BaseService from "@/services/base-service"
+import { defaultPrimaryDestinationSegment } from "@/services/travel-segments/helpers/default-primary-destination-segment"
 
 export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
 
@@ -45,6 +46,69 @@ export class BulkReplaceService extends BaseService {
     }
 
     return db.transaction(async () => {
+      const travelAuthorization = await TravelAuthorization.findByPk(this.travelAuthorizationId, {
+        rejectOnEmpty: true,
+        lock: true,
+      })
+      const existingTravelSegments = await TravelSegment.findAll({
+        where: {
+          travelAuthorizationId: this.travelAuthorizationId,
+          isActual: this.isActual,
+        },
+      })
+      for (const { id } of this.travelSegmentsAttributes) {
+        if (
+          !isUndefined(id) &&
+          !existingTravelSegments.some((travelSegment) => travelSegment.id === id)
+        ) {
+          throw new Error("Replacement segment IDs must belong to the itinerary being replaced.")
+        }
+      }
+
+      const travelSegmentsAttributes = this.travelSegmentsAttributes.map((attributes) => {
+        if (!isUndefined(attributes.isPrimaryDestination)) {
+          return { ...attributes }
+        }
+
+        const existingTravelSegment = existingTravelSegments.find(
+          ({ id }) => id === attributes.id
+        )
+        const isPrimaryDestination =
+          existingTravelSegment?.isPrimaryDestination === true &&
+          existingTravelSegment.arrivalLocationId === attributes.arrivalLocationId
+        return { ...attributes, isPrimaryDestination }
+      })
+      this.hasAllRequiredAttributes(travelSegmentsAttributes)
+
+      const tripType = this.isActual
+        ? travelAuthorization.tripTypeActual
+        : travelAuthorization.tripTypeEstimate
+      if (
+        this.travelSegmentsAttributes.every(({ isPrimaryDestination }) =>
+          isUndefined(isPrimaryDestination)
+        ) &&
+        !travelSegmentsAttributes.some(({ isPrimaryDestination }) => isPrimaryDestination)
+      ) {
+        const primaryTravelSegment = defaultPrimaryDestinationSegment(
+          tripType,
+          travelSegmentsAttributes
+        )
+        if (!isUndefined(primaryTravelSegment)) {
+          primaryTravelSegment.isPrimaryDestination = true
+        }
+      }
+
+      const selectedTravelSegments = travelSegmentsAttributes.filter(
+        ({ isPrimaryDestination }) => isPrimaryDestination === true
+      )
+      if (selectedTravelSegments.length > 1) {
+        throw new Error("Only one primary destination may be selected per itinerary.")
+      }
+
+      if (selectedTravelSegments.some(({ arrivalLocationId }) => isNil(arrivalLocationId))) {
+        throw new Error("Primary destination requires an arrival location.")
+      }
+
       await TravelSegment.destroy({
         where: {
           travelAuthorizationId: this.travelAuthorizationId,
@@ -52,8 +116,7 @@ export class BulkReplaceService extends BaseService {
         },
       })
 
-      this.hasAllRequiredAttributes(this.travelSegmentsAttributes)
-      return TravelSegment.bulkCreate(this.travelSegmentsAttributes)
+      return TravelSegment.bulkCreate(travelSegmentsAttributes)
     })
   }
 

@@ -14,7 +14,7 @@ import IndexSerializer from "@/serializers/travel-authorizations/index-serialize
 describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => {
   describe("IndexSerializer", () => {
     describe("#perform", () => {
-      test("when estimated multi-city travel returns home, it returns Toronto instead of Whitehorse", async () => {
+      test("when estimated multi-city travel returns home, it returns the selected arrival instead of home", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
@@ -39,6 +39,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           isActual: false,
           departureLocationId: vancouver.id,
           arrivalLocationId: toronto.id,
+          isPrimaryDestination: true,
         })
         const travelSegment4 = travelSegmentFactory.build({
           segmentNumber: 3,
@@ -112,6 +113,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           isActual: false,
           departureLocationId: toronto.id,
           arrivalLocationId: ottawa.id,
+          isPrimaryDestination: true,
         })
         const travelSegment2 = travelSegmentFactory.build({
           segmentNumber: 1,
@@ -202,6 +204,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           isActual: true,
           departureLocationId: vancouver.id,
           arrivalLocationId: ottawa.id,
+          isPrimaryDestination: true,
         })
 
         const travelAuthorization = await travelAuthorizationFactory
@@ -275,6 +278,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           isActual: true,
           departureLocationId: ottawa.id,
           arrivalLocationId: toronto.id,
+          isPrimaryDestination: true,
         })
         const travelSegment5 = travelSegmentFactory.build({
           segmentNumber: 1,
@@ -329,7 +333,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
-      test("when round-trip travel returns home, it returns the last departure", async () => {
+      test("when round-trip travel returns home, it returns the ordinary outbound arrival", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
@@ -385,7 +389,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Vancouver" }))
       })
 
       test("when one-way travel ends at its original departure, it still returns the last arrival", async () => {

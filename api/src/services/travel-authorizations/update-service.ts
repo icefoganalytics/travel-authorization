@@ -25,6 +25,37 @@ export class UpdateService extends BaseService {
 
   async perform(): Promise<TravelAuthorization> {
     return db.transaction(async () => {
+      const isEstimateBecomingMultiCity =
+        this.travelAuthorization.tripTypeEstimate !== TravelAuthorization.TripTypes.MULTI_CITY &&
+        this.attributes.tripTypeEstimate === TravelAuthorization.TripTypes.MULTI_CITY
+      const isActualBecomingMultiCity =
+        this.travelAuthorization.tripTypeActual !== TravelAuthorization.TripTypes.MULTI_CITY &&
+        this.attributes.tripTypeActual === TravelAuthorization.TripTypes.MULTI_CITY
+
+      if (isEstimateBecomingMultiCity) {
+        await TravelSegment.update(
+          { isPrimaryDestination: false },
+          {
+            where: {
+              travelAuthorizationId: this.travelAuthorization.id,
+              isActual: false,
+            },
+          }
+        )
+      }
+
+      if (isActualBecomingMultiCity) {
+        await TravelSegment.update(
+          { isPrimaryDestination: false },
+          {
+            where: {
+              travelAuthorizationId: this.travelAuthorization.id,
+              isActual: true,
+            },
+          }
+        )
+      }
+
       await this.travelAuthorization.update(this.attributes).catch((error) => {
         throw new Error(`Could not update TravelAuthorization: ${error}`)
       })

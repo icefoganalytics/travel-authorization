@@ -41,8 +41,10 @@ export const ACCOMMODATION_TYPES = {
 }
 
 export const PERMITTED_ATTRIBUTES_FOR_CLONE = [
+  "id",
   "departureLocationId",
   "arrivalLocationId",
+  "isPrimaryDestination",
   "departureOn",
   "departureTime",
   "modeOfTransport",
@@ -64,6 +66,7 @@ export type TravelSegment = {
   modeOfTransportOther: string | null
   accommodationType: TravelSegmentAccommodationTypes | null
   accommodationTypeOther: string | null
+  isPrimaryDestination: boolean
   isActual: boolean
   createdAt: string
   updatedAt: string
@@ -74,6 +77,7 @@ export type TravelSegmentAsIndex = Pick<
   | "id"
   | "travelAuthorizationId"
   | "isActual"
+  | "isPrimaryDestination"
   | "departureLocationId"
   | "arrivalLocationId"
   | "segmentNumber"
@@ -92,6 +96,7 @@ export type TravelSegmentAsReference = Pick<
   | "id"
   | "travelAuthorizationId"
   | "isActual"
+  | "isPrimaryDestination"
   | "departureLocationId"
   | "arrivalLocationId"
   | "segmentNumber"
@@ -119,6 +124,7 @@ export type TravelSegmentWhereOptions = WhereOptions<
   | "accommodationType"
   | "accommodationTypeOther"
   | "isActual"
+  | "isPrimaryDestination"
 >
 
 /** must match model scopes */

@@ -34,9 +34,9 @@
                   travelPurposeId: $event,
                 })
               "
-              @update:final-destination-location-id="
+              @update:primary-destination-location-id="
                 updateTravelAuthorizationSummary({
-                  finalDestinationLocationId: $event,
+                  primaryDestinationLocationId: $event,
                 })
               "
               @update:departure-date="

@@ -7,6 +7,73 @@ import DetermineFinalDestinationService from "@/services/travel-authorizations/d
 describe("api/src/services/travel-authorizations/determine-final-destination-service.ts", () => {
   describe("DetermineFinalDestinationService", () => {
     describe("#perform", () => {
+      test("when a legacy multi-city itinerary is unconfirmed, it returns no saved destination", () => {
+        // Arrange
+        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })
+        const vancouver = locationFactory.build({ id: 2, city: "Vancouver" })
+        const travelSegment = travelSegmentFactory
+          .associations({ departureLocation: whitehorse, arrivalLocation: vancouver })
+          .build({ isActual: false, isPrimaryDestination: false })
+        const travelSegments = [travelSegment]
+
+        // Act
+        const result = DetermineFinalDestinationService.perform(
+          TravelAuthorization.TripTypes.MULTI_CITY,
+          travelSegments,
+          null
+        )
+
+        // Assert
+        expect(result).toEqual(null)
+      })
+
+      test("when actual multi-city differs from the estimated one-way trip, it uses the actual selection", () => {
+        // Arrange
+        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })
+        const vancouver = locationFactory.build({ id: 2, city: "Vancouver" })
+        const toronto = locationFactory.build({ id: 3, city: "Toronto" })
+        const selectedTravelSegment = travelSegmentFactory
+          .associations({ departureLocation: whitehorse, arrivalLocation: vancouver })
+          .build({ segmentNumber: 1, isActual: true, isPrimaryDestination: true })
+        const finalTravelSegment = travelSegmentFactory
+          .associations({ departureLocation: vancouver, arrivalLocation: toronto })
+          .build({ segmentNumber: 2, isActual: true, isPrimaryDestination: false })
+        const travelSegments = [finalTravelSegment, selectedTravelSegment]
+
+        // Act
+        const result = DetermineFinalDestinationService.perform(
+          TravelAuthorization.TripTypes.ONE_WAY,
+          travelSegments,
+          TravelAuthorization.TripTypes.MULTI_CITY
+        )
+
+        // Assert
+        expect(result).toBe(vancouver)
+      })
+
+      test("when actual round-trip differs from the estimated multi-city trip, it uses the ordinary actual arrival", () => {
+        // Arrange
+        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })
+        const vancouver = locationFactory.build({ id: 2, city: "Vancouver" })
+        const outboundTravelSegment = travelSegmentFactory
+          .associations({ departureLocation: whitehorse, arrivalLocation: vancouver })
+          .build({ segmentNumber: 1, isActual: true, isPrimaryDestination: false })
+        const returnTravelSegment = travelSegmentFactory
+          .associations({ departureLocation: vancouver, arrivalLocation: whitehorse })
+          .build({ segmentNumber: 2, isActual: true, isPrimaryDestination: false })
+        const travelSegments = [returnTravelSegment, outboundTravelSegment]
+
+        // Act
+        const result = DetermineFinalDestinationService.perform(
+          TravelAuthorization.TripTypes.MULTI_CITY,
+          travelSegments,
+          TravelAuthorization.TripTypes.ROUND_TRIP
+        )
+
+        // Assert
+        expect(result).toBe(vancouver)
+      })
+
       test("when every segment has loaded locations, it returns the final arrival", () => {
         // Arrange
         const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })

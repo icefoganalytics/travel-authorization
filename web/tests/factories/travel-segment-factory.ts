@@ -19,6 +19,7 @@ export const travelSegmentFactory = Factory.define<TravelSegment>(({ sequence })
     accommodationType: null,
     accommodationTypeOther: null,
     isActual: false,
+    isPrimaryDestination: false,
     createdAt,
     updatedAt: createdAt,
   }

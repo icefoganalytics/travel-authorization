@@ -277,10 +277,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  currentTravelSegmentEstimates: {
+  currentTripType: {
+    type: String,
+    default: null,
+  },
+  currentTravelSegments: {
     type: Array,
     default: () => [],
-    validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
   isActual: {
     type: Boolean,
@@ -300,6 +303,7 @@ const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
+    isPrimaryDestination: false,
     segmentNumber: 1,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -313,6 +317,7 @@ const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
+    isPrimaryDestination: false,
     segmentNumber: 2,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -328,11 +333,14 @@ const travelSegmentsAttributes = ref([
 function applyExistingDefaultValues(newTravelSegmentEstimates) {
   const firstTravelSegment = pick(first(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
   const lastTravelSegment = pick(last(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
+  const returnSegmentId =
+    newTravelSegmentEstimates.length > 1 ? lastTravelSegment.id : undefined
 
   travelSegmentsAttributes.value = [
     {
       ...travelSegmentsAttributes.value[0],
       ...firstTravelSegment,
+      id: firstTravelSegment.id,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType: firstTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL,
       isActual: props.isActual,
@@ -342,6 +350,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
     {
       ...travelSegmentsAttributes.value[1],
       ...lastTravelSegment,
+      id: returnSegmentId,
       modeOfTransport: lastTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType: null,
       isActual: props.isActual,
@@ -352,7 +361,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
 }
 
 watch(
-  () => cloneDeep(props.currentTravelSegmentEstimates),
+  () => cloneDeep(props.currentTravelSegments),
   (newTravelSegmentEstimates) => {
     applyExistingDefaultValues(newTravelSegmentEstimates)
   },
@@ -413,6 +422,11 @@ function buildLocationFilters(idsToExclude) {
 watch(
   () => cloneDeep(travelSegmentsAttributes.value),
   () => {
+    const outboundSegment = first(travelSegmentsAttributes.value)
+    travelSegmentsAttributes.value.forEach((segment) => {
+      segment.isPrimaryDestination =
+        segment === outboundSegment && !isNil(segment.arrivalLocationId)
+    })
     emit("updated", travelSegmentsAttributes.value)
   },
   {

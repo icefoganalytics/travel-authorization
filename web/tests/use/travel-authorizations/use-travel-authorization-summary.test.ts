@@ -7,7 +7,7 @@ import {
   travelAuthorizationFactory,
   travelSegmentFactory,
 } from "@/tests/factories"
-import { mockHttpClient } from "@/tests/support"
+import { mockHttpGetRoute, mockHttpGetRoutes } from "@/tests/support"
 
 import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
 
@@ -33,9 +33,9 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         finalDestination,
         travelSegments: [outboundSegment, returnSegment],
       })
-      mockHttpClient().get.mockResolvedValue({
-        data: { travelAuthorization: estimatedAuthorization },
-      })
+      mockHttpGetRoute("/api/travel-authorizations/1", () => ({
+        travelAuthorization: estimatedAuthorization,
+      }))
       const travelAuthorizationId = ref(1)
       const scope = effectScope()
       const summary = scope.run(() => useTravelAuthorizationSummary(travelAuthorizationId))
@@ -46,7 +46,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.finalDestinationLocationId.value).toBe(8)
+        expect(summary.primaryDestinationLocationId.value).toBe(8)
       } finally {
         scope.stop()
       }
@@ -74,9 +74,10 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         finalDestination: actualDestination,
         travelSegments: [actualSegment],
       })
-      mockHttpClient()
-        .get.mockResolvedValueOnce({ data: { travelAuthorization: estimatedAuthorization } })
-        .mockResolvedValueOnce({ data: { travelAuthorization: actualAuthorization } })
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/1": () => ({ travelAuthorization: estimatedAuthorization }),
+        "/api/travel-authorizations/2": () => ({ travelAuthorization: actualAuthorization }),
+      })
       const travelAuthorizationId = ref(1)
       const scope = effectScope()
       const summary = scope.run(() => useTravelAuthorizationSummary(travelAuthorizationId))
@@ -89,7 +90,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.finalDestinationLocationId.value).toBe(6)
+        expect(summary.primaryDestinationLocationId.value).toBe(6)
       } finally {
         scope.stop()
       }
@@ -108,9 +109,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         finalDestination: null,
         travelSegments: [travelSegment],
       })
-      mockHttpClient().get.mockResolvedValue({
-        data: { travelAuthorization },
-      })
+      mockHttpGetRoute("/api/travel-authorizations/1", () => ({ travelAuthorization }))
       const travelAuthorizationId = ref(1)
       const scope = effectScope()
       const summary = scope.run(() => useTravelAuthorizationSummary(travelAuthorizationId))
@@ -121,7 +120,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.finalDestinationLocationId.value).toBeNull()
+        expect(summary.primaryDestinationLocationId.value).toBeNull()
       } finally {
         scope.stop()
       }

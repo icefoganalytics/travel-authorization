@@ -8,7 +8,9 @@
       <TripDetailsEstimatesEditForm
         ref="tripDetailsEstimatesEditForm"
         :travel-authorization-id="travelAuthorizationId"
-        @update:final-destination-location-id="emit('update:finalDestinationLocationId', $event)"
+        @update:primary-destination-location-id="
+          emit('update:primaryDestinationLocationId', $event)
+        "
       />
     </v-card-text>
   </v-card>
@@ -39,7 +41,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(["updated", "update:finalDestinationLocationId"])
+const emit = defineEmits(["updated", "update:primaryDestinationLocationId"])
 
 async function initialize(context) {
   context.setEditableSteps(["edit-purpose-details"])
