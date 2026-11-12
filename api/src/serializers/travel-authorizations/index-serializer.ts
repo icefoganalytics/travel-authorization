@@ -66,7 +66,11 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const finalDestinationLocation = this.buildFinalDestinationLocation()
+    const finalDestinationLocation = this.buildFinalDestinationLocation(
+      this.record.tripType,
+      this.travelSegments,
+      !isNil(this.record.tripTypeActual)
+    )
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -160,10 +164,12 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return Array.from(locations.values())
   }
 
-  private buildFinalDestinationLocation(): Locations.AsReference | null {
-    const { tripType, tripTypeActual } = this.record
-    const useActuals = !isNil(tripTypeActual)
-    const destinationTravelSegments = this.travelSegments.filter(
+  private buildFinalDestinationLocation(
+    tripType: TravelAuthorization["tripType"],
+    travelSegments: TravelSegment[],
+    useActuals: boolean
+  ): Locations.AsReference | null {
+    const destinationTravelSegments = travelSegments.filter(
       (travelSegment) => travelSegment.isActual === useActuals
     )
     const firstTravelSegment = first(destinationTravelSegments)
