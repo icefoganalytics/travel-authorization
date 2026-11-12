@@ -14,142 +14,571 @@ import IndexSerializer from "@/serializers/travel-authorizations/index-serialize
 describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => {
   describe("IndexSerializer", () => {
     describe("#perform", () => {
-      test.each([
-        {
-          condition: "estimated multi-city travel returns home",
+      test("when estimated multi-city travel returns home, it returns the selected itinerary's final destination", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           tripTypeActual: null,
-          returnsHome: true,
-          missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Toronto" }),
-        },
-        {
-          condition: "estimated multi-city travel ends away from home",
+        })
+        const whitehorse = await locationFactory.create({ city: "Whitehorse" })
+        const vancouver = await locationFactory.create({ city: "Vancouver" })
+        const toronto = await locationFactory.create({ city: "Toronto" })
+        const ottawa = await locationFactory.create({ city: "Ottawa" })
+
+        // Create out of order; the index query orders each phase by segment number.
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            segmentNumber: 3,
+            isActual: false,
+            departureLocationId: toronto.id,
+            arrivalLocationId: whitehorse.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: false,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: false,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 3,
+            isActual: true,
+            departureLocationId: ottawa.id,
+            arrivalLocationId: whitehorse.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: true,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: true,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: ottawa.id,
+          },
+        ])
+
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            {
+              association: "stops",
+              include: ["location"],
+            },
+            "travelDeskTravelRequest",
+            {
+              association: "travelSegments",
+              separate: true,
+              order: [
+                ["segmentNumber", "ASC"],
+                ["id", "ASC"],
+              ],
+              include: ["departureLocation", "arrivalLocation"],
+            },
+            "user",
+          ],
+        })
+
+        // Act
+        const result = IndexSerializer.perform(travelAuthorization, currentUser)
+
+        // Assert
+        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+      })
+
+      test("when estimated multi-city travel ends away from home, it returns the selected itinerary's final destination", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           tripTypeActual: null,
-          returnsHome: false,
-          missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Ottawa" }),
-        },
-        {
-          condition: "actual multi-city travel returns home with different estimated destinations",
+        })
+        const whitehorse = await locationFactory.create({ city: "Whitehorse" })
+        const vancouver = await locationFactory.create({ city: "Vancouver" })
+        const toronto = await locationFactory.create({ city: "Toronto" })
+        const ottawa = await locationFactory.create({ city: "Ottawa" })
+
+        // Create out of order; the index query orders each phase by segment number.
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            segmentNumber: 3,
+            isActual: false,
+            departureLocationId: toronto.id,
+            arrivalLocationId: ottawa.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: false,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: false,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 3,
+            isActual: true,
+            departureLocationId: ottawa.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: true,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: true,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: ottawa.id,
+          },
+        ])
+
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            {
+              association: "stops",
+              include: ["location"],
+            },
+            "travelDeskTravelRequest",
+            {
+              association: "travelSegments",
+              separate: true,
+              order: [
+                ["segmentNumber", "ASC"],
+                ["id", "ASC"],
+              ],
+              include: ["departureLocation", "arrivalLocation"],
+            },
+            "user",
+          ],
+        })
+
+        // Act
+        const result = IndexSerializer.perform(travelAuthorization, currentUser)
+
+        // Assert
+        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
+      })
+
+      test("when actual multi-city travel returns home with different estimated destinations, it returns the selected itinerary's final destination", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
           tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
-          returnsHome: true,
-          missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Ottawa" }),
-        },
-        {
-          condition: "actual multi-city travel ends away from home",
+        })
+        const whitehorse = await locationFactory.create({ city: "Whitehorse" })
+        const vancouver = await locationFactory.create({ city: "Vancouver" })
+        const toronto = await locationFactory.create({ city: "Toronto" })
+        const ottawa = await locationFactory.create({ city: "Ottawa" })
+
+        // Create out of order; the index query orders each phase by segment number.
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            segmentNumber: 3,
+            isActual: false,
+            departureLocationId: toronto.id,
+            arrivalLocationId: whitehorse.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: false,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: false,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 3,
+            isActual: true,
+            departureLocationId: ottawa.id,
+            arrivalLocationId: whitehorse.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: true,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: true,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: ottawa.id,
+          },
+        ])
+
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            {
+              association: "stops",
+              include: ["location"],
+            },
+            "travelDeskTravelRequest",
+            {
+              association: "travelSegments",
+              separate: true,
+              order: [
+                ["segmentNumber", "ASC"],
+                ["id", "ASC"],
+              ],
+              include: ["departureLocation", "arrivalLocation"],
+            },
+            "user",
+          ],
+        })
+
+        // Act
+        const result = IndexSerializer.perform(travelAuthorization, currentUser)
+
+        // Assert
+        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
+      })
+
+      test("when actual multi-city travel ends away from home, it returns the selected itinerary's final destination", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
-          returnsHome: false,
-          missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Toronto" }),
-        },
-        {
-          condition: "round-trip travel returns home",
+        })
+        const whitehorse = await locationFactory.create({ city: "Whitehorse" })
+        const vancouver = await locationFactory.create({ city: "Vancouver" })
+        const toronto = await locationFactory.create({ city: "Toronto" })
+        const ottawa = await locationFactory.create({ city: "Ottawa" })
+
+        // Create out of order; the index query orders each phase by segment number.
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            segmentNumber: 3,
+            isActual: false,
+            departureLocationId: toronto.id,
+            arrivalLocationId: ottawa.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: false,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: false,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 3,
+            isActual: true,
+            departureLocationId: ottawa.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: true,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: true,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: ottawa.id,
+          },
+        ])
+
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            {
+              association: "stops",
+              include: ["location"],
+            },
+            "travelDeskTravelRequest",
+            {
+              association: "travelSegments",
+              separate: true,
+              order: [
+                ["segmentNumber", "ASC"],
+                ["id", "ASC"],
+              ],
+              include: ["departureLocation", "arrivalLocation"],
+            },
+            "user",
+          ],
+        })
+
+        // Act
+        const result = IndexSerializer.perform(travelAuthorization, currentUser)
+
+        // Assert
+        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+      })
+
+      test("when round-trip travel returns home, it returns the selected itinerary's final destination", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
           tripTypeActual: null,
-          returnsHome: true,
-          missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Toronto" }),
-        },
-        {
-          condition: "one-way travel ends at its original departure",
+        })
+        const whitehorse = await locationFactory.create({ city: "Whitehorse" })
+        const vancouver = await locationFactory.create({ city: "Vancouver" })
+        const toronto = await locationFactory.create({ city: "Toronto" })
+        const ottawa = await locationFactory.create({ city: "Ottawa" })
+
+        // Create out of order; the index query orders each phase by segment number.
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            segmentNumber: 3,
+            isActual: false,
+            departureLocationId: toronto.id,
+            arrivalLocationId: whitehorse.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: false,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: false,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 3,
+            isActual: true,
+            departureLocationId: ottawa.id,
+            arrivalLocationId: whitehorse.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: true,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: true,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: ottawa.id,
+          },
+        ])
+
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            {
+              association: "stops",
+              include: ["location"],
+            },
+            "travelDeskTravelRequest",
+            {
+              association: "travelSegments",
+              separate: true,
+              order: [
+                ["segmentNumber", "ASC"],
+                ["id", "ASC"],
+              ],
+              include: ["departureLocation", "arrivalLocation"],
+            },
+            "user",
+          ],
+        })
+
+        // Act
+        const result = IndexSerializer.perform(travelAuthorization, currentUser)
+
+        // Assert
+        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+      })
+
+      test("when one-way travel ends at its original departure, it returns the selected itinerary's final destination", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
           tripTypeActual: null,
-          returnsHome: true,
-          missingEndpoints: false,
-          expectedDestination: expect.objectContaining({ city: "Whitehorse" }),
-        },
-        {
-          condition: "multi-city travel has missing departure and final arrival locations",
+        })
+        const whitehorse = await locationFactory.create({ city: "Whitehorse" })
+        const vancouver = await locationFactory.create({ city: "Vancouver" })
+        const toronto = await locationFactory.create({ city: "Toronto" })
+        const ottawa = await locationFactory.create({ city: "Ottawa" })
+
+        // Create out of order; the index query orders each phase by segment number.
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            segmentNumber: 3,
+            isActual: false,
+            departureLocationId: toronto.id,
+            arrivalLocationId: whitehorse.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: false,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: false,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 3,
+            isActual: true,
+            departureLocationId: ottawa.id,
+            arrivalLocationId: whitehorse.id,
+          },
+          {
+            segmentNumber: 1,
+            isActual: true,
+            departureLocationId: whitehorse.id,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: true,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: ottawa.id,
+          },
+        ])
+
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            {
+              association: "stops",
+              include: ["location"],
+            },
+            "travelDeskTravelRequest",
+            {
+              association: "travelSegments",
+              separate: true,
+              order: [
+                ["segmentNumber", "ASC"],
+                ["id", "ASC"],
+              ],
+              include: ["departureLocation", "arrivalLocation"],
+            },
+            "user",
+          ],
+        })
+
+        // Act
+        const result = IndexSerializer.perform(travelAuthorization, currentUser)
+
+        // Assert
+        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Whitehorse" }))
+      })
+
+      test("when multi-city travel has missing departure and final arrival locations, it returns the selected itinerary's final destination", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           tripTypeActual: null,
-          returnsHome: true,
-          missingEndpoints: true,
-          expectedDestination: null,
-        },
-      ])(
-        "when $condition, it returns the selected itinerary's final destination",
-        async ({
-          tripTypeEstimate,
-          tripTypeActual,
-          returnsHome,
-          missingEndpoints,
-          expectedDestination,
-        }) => {
-          // Arrange
-          const currentUser = await userFactory.create()
-          const travelAuthorization = await travelAuthorizationFactory.create({
-            tripTypeEstimate,
-            tripTypeActual,
-          })
-          const whitehorse = await locationFactory.create({ city: "Whitehorse" })
-          const vancouver = await locationFactory.create({ city: "Vancouver" })
-          const toronto = await locationFactory.create({ city: "Toronto" })
-          const ottawa = await locationFactory.create({ city: "Ottawa" })
+        })
+        const vancouver = await locationFactory.create({ city: "Vancouver" })
+        const toronto = await locationFactory.create({ city: "Toronto" })
+        const ottawa = await locationFactory.create({ city: "Ottawa" })
 
-          for (const isActual of [false, true]) {
-            const destination = isActual ? ottawa : toronto
-            const openDestination = isActual ? toronto : ottawa
-            const departureLocationId = missingEndpoints ? null : whitehorse.id
-            let arrivalLocationId: number | null = returnsHome ? whitehorse.id : openDestination.id
-            if (missingEndpoints) {
-              arrivalLocationId = null
-            }
+        // Create out of order; the index query orders each phase by segment number.
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            segmentNumber: 3,
+            isActual: false,
+            departureLocationId: toronto.id,
+            arrivalLocationId: null,
+          },
+          {
+            segmentNumber: 1,
+            isActual: false,
+            departureLocationId: null,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: false,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: toronto.id,
+          },
+          {
+            segmentNumber: 3,
+            isActual: true,
+            departureLocationId: ottawa.id,
+            arrivalLocationId: null,
+          },
+          {
+            segmentNumber: 1,
+            isActual: true,
+            departureLocationId: null,
+            arrivalLocationId: vancouver.id,
+          },
+          {
+            segmentNumber: 2,
+            isActual: true,
+            departureLocationId: vancouver.id,
+            arrivalLocationId: ottawa.id,
+          },
+        ])
 
-            // Create out of order; the index query orders each phase by segment number.
-            await travelSegmentFactory.associations({ travelAuthorization }).create({
-              segmentNumber: 3,
-              isActual,
-              departureLocationId: destination.id,
-              arrivalLocationId,
-            })
-            await travelSegmentFactory.associations({ travelAuthorization }).create({
-              segmentNumber: 1,
-              isActual,
-              departureLocationId,
-              arrivalLocationId: vancouver.id,
-            })
-            await travelSegmentFactory.associations({ travelAuthorization }).create({
-              segmentNumber: 2,
-              isActual,
-              departureLocationId: vancouver.id,
-              arrivalLocationId: destination.id,
-            })
-          }
+        await travelAuthorization.reload({
+          include: [
+            "expenses",
+            "purpose",
+            {
+              association: "stops",
+              include: ["location"],
+            },
+            "travelDeskTravelRequest",
+            {
+              association: "travelSegments",
+              separate: true,
+              order: [
+                ["segmentNumber", "ASC"],
+                ["id", "ASC"],
+              ],
+              include: ["departureLocation", "arrivalLocation"],
+            },
+            "user",
+          ],
+        })
 
-          await travelAuthorization.reload({
-            include: [
-              "expenses",
-              "purpose",
-              {
-                association: "stops",
-                include: ["location"],
-              },
-              "travelDeskTravelRequest",
-              {
-                association: "travelSegments",
-                separate: true,
-                order: [
-                  ["segmentNumber", "ASC"],
-                  ["id", "ASC"],
-                ],
-                include: ["departureLocation", "arrivalLocation"],
-              },
-              "user",
-            ],
-          })
+        // Act
+        const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
-          // Act
-          const result = IndexSerializer.perform(travelAuthorization, currentUser)
-
-          // Assert
-          expect(result.finalDestination).toEqual(expectedDestination)
-        }
-      )
+        // Assert
+        expect(result.finalDestination).toEqual(null)
+      })
 
       test("when the selected itinerary is empty, it returns no final destination", async () => {
         // Arrange
