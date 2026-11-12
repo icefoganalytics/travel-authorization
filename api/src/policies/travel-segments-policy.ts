@@ -28,6 +28,7 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
     return [
       "departureLocationId",
       "arrivalLocationId",
+      "isPrimaryDestination",
       "segmentNumber",
       "departureOn",
       "departureTime",

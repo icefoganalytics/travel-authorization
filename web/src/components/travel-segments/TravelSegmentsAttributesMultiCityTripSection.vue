@@ -1,5 +1,43 @@
 <template>
   <div>
+    <v-select
+      :model-value="primaryDestinationIndex"
+      :items="primaryDestinationItems"
+      label="Primary destination"
+      hint="Choose the arrival leg that is the primary destination. You can save a draft without choosing."
+      persistent-hint
+      clearable
+      density="compact"
+      variant="outlined"
+      class="mb-4"
+      @update:model-value="selectPrimaryDestination"
+    >
+      <template #selection="{ item }">
+        {{ item.title }} —
+        <LocationChip
+          :location-id="travelSegmentsAttributes[item.value].arrivalLocationId"
+          variant="text"
+        />
+      </template>
+      <template #item="{ item, props: itemProps }">
+        <v-list-item v-bind="itemProps">
+          <template #append>
+            <LocationChip
+              :location-id="travelSegmentsAttributes[item.value].arrivalLocationId"
+              variant="text"
+            />
+          </template>
+        </v-list-item>
+      </template>
+    </v-select>
+    <v-btn
+      v-if="isNil(primaryDestinationIndex) && !isNil(suggestedDestinationIndex)"
+      class="mb-4"
+      variant="outlined"
+      @click="selectPrimaryDestination(suggestedDestinationIndex)"
+    >
+      Use suggested arrival: Leg {{ suggestedDestinationIndex + 1 }}
+    </v-btn>
     <h4 class="mb-4 h-9">Leg 1</h4>
 
     <v-row>
@@ -24,7 +62,7 @@
         md="3"
       >
         <LocationsAutocomplete
-          v-model="firstTravelSegmentAttributes.arrivalLocationId"
+          :model-value="firstTravelSegmentAttributes.arrivalLocationId"
           label="To"
           :in-territory="allTravelWithinTerritory"
           :filters="buildLocationFilters(firstTravelSegmentAttributes.departureLocationId)"
@@ -33,9 +71,7 @@
           variant="outlined"
           persistent-hint
           required
-          @update:model-value="
-            updateTravelSegmentAttributeByIndex(1, 'departureLocationId', $event)
-          "
+          @update:model-value="updateArrivalLocation(0, $event)"
         />
       </v-col>
       <v-col
@@ -171,7 +207,7 @@
           md="3"
         >
           <LocationsAutocomplete
-            v-model="travelSegmentsAttributes[index].arrivalLocationId"
+            :model-value="travelSegmentsAttributes[index].arrivalLocationId"
             label="To"
             :in-territory="allTravelWithinTerritory"
             :filters="buildLocationFilters(travelSegmentsAttributes[index].departureLocationId)"
@@ -180,9 +216,7 @@
             variant="outlined"
             persistent-hint
             required
-            @update:model-value="
-              updateTravelSegmentAttributeByIndex(index + 1, 'departureLocationId', $event)
-            "
+            @update:model-value="updateArrivalLocation(index, $event)"
           />
         </v-col>
         <v-col
@@ -303,8 +337,13 @@ import {
   PERMITTED_ATTRIBUTES_FOR_CLONE,
 } from "@/api/travel-segments-api"
 
+import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
+
+import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
+import LocationChip from "@/components/locations/LocationChip.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import AccommodationTypeSelect from "@/components/travel-segments/AccommodationTypeSelect.vue"
 import TravelMethodSelect from "@/components/travel-segments/TravelMethodSelect.vue"
@@ -318,10 +357,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  currentTravelSegmentEstimates: {
+  currentTripType: {
+    type: String,
+    default: null,
+  },
+  currentTravelSegments: {
     type: Array,
     default: () => [],
-    validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
   isActual: {
     type: Boolean,
@@ -341,6 +383,7 @@ const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
+    isPrimaryDestination: false,
     segmentNumber: 1,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -354,6 +397,7 @@ const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
+    isPrimaryDestination: false,
     segmentNumber: 2,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -388,6 +432,9 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
       modeOfTransport: newTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType,
       isActual: props.isActual,
+      isPrimaryDestination:
+        props.currentTripType === TravelAuthorizationTripTypes.MULTI_CITY &&
+        newTravelSegment.isPrimaryDestination === true,
       segmentNumber: index + 1,
       travelAuthorizationId: props.travelAuthorizationId,
     }
@@ -399,7 +446,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
 }
 
 watch(
-  () => cloneDeep(props.currentTravelSegmentEstimates),
+  () => cloneDeep(props.currentTravelSegments),
   (newTravelSegmentEstimates) => {
     applyExistingDefaultValues(newTravelSegmentEstimates)
   },
@@ -409,11 +456,53 @@ watch(
   }
 )
 
+const primaryDestinationIndex = computed(() => {
+  const index = travelSegmentsAttributes.value.findIndex((segment) => segment.isPrimaryDestination)
+  if (index < 0) return null
+
+  return index
+})
+
+const primaryDestinationItems = computed(() => {
+  return travelSegmentsAttributes.value.map((segment, index) => ({
+    title: `Leg ${index + 1} arrival`,
+    value: index,
+    props: {
+      disabled: isNil(segment.arrivalLocationId),
+    },
+  }))
+})
+
+const suggestedDestinationIndex = computed(() => {
+  const suggestedSegment = determineFinalDestinationSegment(
+    TravelAuthorizationTripTypes.MULTI_CITY,
+    travelSegmentsAttributes.value
+  )
+  if (isNil(suggestedSegment?.arrivalLocationId)) return null
+
+  return travelSegmentsAttributes.value.indexOf(suggestedSegment)
+})
+
+function selectPrimaryDestination(index) {
+  travelSegmentsAttributes.value.forEach((segment, segmentIndex) => {
+    segment.isPrimaryDestination = segmentIndex === index && !isNil(segment.arrivalLocationId)
+  })
+}
+
+function updateArrivalLocation(index, locationId) {
+  updateTravelSegmentAttributeByIndex(index, "arrivalLocationId", locationId)
+  updateTravelSegmentAttributeByIndex(index + 1, "departureLocationId", locationId)
+}
+
 const firstTravelSegmentAttributes = computed(() => first(travelSegmentsAttributes.value))
 
 function updateTravelSegmentAttributeByIndex(index, attribute, value) {
   const travelSegment = travelSegmentsAttributes.value[index]
   if (isNil(travelSegment)) return
+
+  if (attribute === "arrivalLocationId" && travelSegment.arrivalLocationId !== value) {
+    travelSegment.isPrimaryDestination = false
+  }
 
   travelSegment[attribute] = value
 }
@@ -431,6 +520,9 @@ function nudgeLaterTravelSegmentsDates(index, value) {
 
 function removeTravelSegmentAttribute(index) {
   travelSegmentsAttributes.value.splice(index, 1)
+  travelSegmentsAttributes.value.forEach((segment, segmentIndex) => {
+    segment.segmentNumber = segmentIndex + 1
+  })
 }
 
 function addTravelSegmentAttribute() {
@@ -439,6 +531,7 @@ function addTravelSegmentAttribute() {
   travelSegmentsAttributes.value.push({
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
+    isPrimaryDestination: false,
     segmentNumber: travelSegmentsAttributes.value.length + 1,
     departureLocationId: previousLastTravelSegment.arrivalLocationId,
     arrivalLocationId: null,

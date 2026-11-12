@@ -52,26 +52,6 @@
           density="compact"
         />
       </v-col>
-      <v-col
-        cols="12"
-        md="9"
-        lg="6"
-        xl="4"
-      >
-        <LocationsAutocomplete
-          :model-value="finalDestinationLocationId"
-          :in-territory="travelAuthorization.allTravelWithinTerritory"
-          :rules="[required]"
-          clearable
-          density="compact"
-          label="Final Destination *"
-          variant="outlined"
-          persistent-hint
-          required
-          validate-on="blur"
-          @update:model-value="updateFinalDestinationLocationId"
-        />
-      </v-col>
     </v-row>
     <v-row>
       <v-col>
@@ -103,25 +83,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRefs, watch } from "vue"
-import { cloneDeep, isNil, isEmpty, pick } from "lodash"
-
-import {
-  PERMITTED_ATTRIBUTES_FOR_CLONE,
-  TravelSegmentTravelMethods,
-  TravelSegment,
-} from "@/api/travel-segments-api"
+import { ref, toRefs } from "vue"
+import { isNil } from "lodash"
 
 import { required } from "@/utils/validators"
 import useSnack from "@/use/use-snack"
-import useTravelAuthorization, {
-  TravelAuthorizationTripTypes,
-} from "@/use/use-travel-authorization"
-import useTravelSegments from "@/use/use-travel-segments"
-import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TravelPurposeSelect from "@/components/travel-purposes/TravelPurposeSelect.vue"
 
 const props = defineProps<{
@@ -130,159 +99,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: "update:travelPurposeId", travelPurposeId: number): void
-  (event: "update:finalDestinationLocationId", finalDestinationLocationId: number | null): void
   (event: "update:eventName", eventName: string | null): void
 }>()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
-const tripType = computed(() => {
-  if (isNil(travelAuthorization.value)) return null
-
-  return travelAuthorization.value.tripTypeEstimate || TravelAuthorizationTripTypes.ROUND_TRIP
-})
-
-const travelSegmentsQuery = computed(() => {
-  return {
-    where: {
-      travelAuthorizationId: props.travelAuthorizationId,
-      isActual: false,
-    },
-  }
-})
-const { travelSegments } = useTravelSegments(travelSegmentsQuery)
-
-const finalDestinationLocationId = ref<number | null>(null)
-
-function updateFinalDestinationLocationId(locationId: number | null) {
-  finalDestinationLocationId.value = locationId
-  emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
-}
-
-watch<[TravelAuthorizationTripTypes | null, TravelSegment[]], true>(
-  () => [tripType.value, cloneDeep(travelSegments.value)],
-  ([tripType, newTravelSegments]) => {
-    if (!isNil(finalDestinationLocationId.value)) return
-
-    const newFinalDestinationLocationId =
-      determineFinalDestinationSegment(tripType, newTravelSegments)?.arrivalLocationId ?? null
-    updateFinalDestinationLocationId(newFinalDestinationLocationId)
-  },
-  {
-    deep: true,
-    immediate: true,
-  }
-)
-
-function locationIdOrNullIfOverlapping(locationId1: number | null, locationId2: number | null) {
-  if (locationId1 === locationId2) return null
-
-  return locationId1
-}
-
-function buildTravelSegmentEstimatesAttributes(
-  staticFinalDestinationLocationId: number | null,
-  tripType: TravelAuthorizationTripTypes | null,
-  newTravelSegments: TravelSegment[]
-) {
-  if (isNil(tripType) || isNil(newTravelSegments) || isEmpty(newTravelSegments)) {
-    return [
-      {
-        travelAuthorizationId: props.travelAuthorizationId,
-        isActual: false,
-        segmentNumber: 1,
-        departureLocationId: null,
-        arrivalLocationId: staticFinalDestinationLocationId,
-        modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
-      },
-      {
-        travelAuthorizationId: props.travelAuthorizationId,
-        isActual: false,
-        segmentNumber: 2,
-        departureLocationId: staticFinalDestinationLocationId,
-        arrivalLocationId: null,
-        modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
-      },
-    ]
-  }
-
-  if (tripType === TravelAuthorizationTripTypes.ROUND_TRIP) {
-    const firstTravelSegment = newTravelSegments.at(0)
-    if (isNil(firstTravelSegment)) {
-      throw new Error("First travel segment is missing")
-    }
-
-    const lastTravelSegment = newTravelSegments.at(-1)
-    if (isNil(lastTravelSegment)) {
-      throw new Error("Last travel segment is missing")
-    }
-
-    const destinationLocationId = staticFinalDestinationLocationId
-    const initialOriginLocationId =
-      firstTravelSegment.departureLocationId || lastTravelSegment.arrivalLocationId
-
-    const originLocationId = locationIdOrNullIfOverlapping(
-      initialOriginLocationId,
-      destinationLocationId
-    )
-    return [
-      {
-        ...pick(firstTravelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
-        travelAuthorizationId: props.travelAuthorizationId,
-        isActual: false,
-        segmentNumber: 1,
-        departureLocationId: originLocationId,
-        arrivalLocationId: destinationLocationId,
-      },
-      {
-        ...pick(lastTravelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
-        travelAuthorizationId: props.travelAuthorizationId,
-        isActual: false,
-        segmentNumber: 2,
-        departureLocationId: destinationLocationId,
-        arrivalLocationId: originLocationId,
-      },
-    ]
-  }
-
-  const finalDestinationSegment = determineFinalDestinationSegment(tripType, newTravelSegments)
-  return newTravelSegments.map((travelSegment, index) => {
-    const newTravelSegmentAttributes = {
-      ...pick(travelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
-      travelAuthorizationId: props.travelAuthorizationId,
-      isActual: false,
-      segmentNumber: index + 1,
-    }
-
-    if (travelSegment === finalDestinationSegment) {
-      const arrivalLocationId = staticFinalDestinationLocationId
-      const departureLocationId = locationIdOrNullIfOverlapping(
-        newTravelSegmentAttributes.departureLocationId,
-        arrivalLocationId
-      )
-      return {
-        ...newTravelSegmentAttributes,
-        departureLocationId,
-        arrivalLocationId,
-      }
-    }
-
-    const previousTravelSegment = newTravelSegments.at(index - 1)
-    if (
-      index > 0 &&
-      previousTravelSegment === finalDestinationSegment &&
-      travelSegment.departureLocationId === finalDestinationSegment?.arrivalLocationId
-    ) {
-      return {
-        ...newTravelSegmentAttributes,
-        departureLocationId: staticFinalDestinationLocationId,
-      }
-    }
-
-    return newTravelSegmentAttributes
-  })
-}
-
 const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
 const isSaving = ref(false)
 const snack = useSnack()
@@ -297,12 +118,6 @@ async function saveWrapper() {
     return
   }
 
-  const travelSegmentEstimatesAttributes = buildTravelSegmentEstimatesAttributes(
-    finalDestinationLocationId.value,
-    tripType.value,
-    travelSegments.value
-  )
-
   isSaving.value = true
   try {
     await save({
@@ -310,8 +125,6 @@ async function saveWrapper() {
       eventName: travelAuthorization.value.eventName,
       allTravelWithinTerritory: travelAuthorization.value.allTravelWithinTerritory,
       benefits: travelAuthorization.value.benefits,
-      tripTypeEstimate: tripType.value,
-      travelSegmentEstimatesAttributes,
     })
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })

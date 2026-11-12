@@ -77,7 +77,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
       )
     })
 
-    test("when trip is a multi-destination trip, final destination is arrival location of last segment", async () => {
+    test("when an earlier multi-city arrival is primary, the per-diem location remains the last arrival", async () => {
       // Arrange
       const travelAuthorization = await travelAuthorizationFactory.create({
         tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
@@ -96,6 +96,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
         })
         .create({
           segmentNumber: 1,
+          isPrimaryDestination: true,
           departureOn: new Date("2022-06-05"),
           modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: TravelSegment.AccommodationTypes.HOTEL,

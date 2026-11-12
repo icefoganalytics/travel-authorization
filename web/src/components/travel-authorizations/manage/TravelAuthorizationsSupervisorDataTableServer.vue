@@ -14,7 +14,7 @@
     <template #item.purposeText="{ value }">
       <span>{{ value }}</span>
     </template>
-    <template #item.finalDestination="{ value }">
+    <template #item.primaryDestination="{ value }">
       <span>{{ formatFinalDestination(value) }}</span>
     </template>
     <template #item.departingAt="{ value }">
@@ -81,8 +81,8 @@ const headers = ref([
     sortable: false,
   },
   {
-    title: "Final Destination",
-    key: "finalDestination",
+    title: "Primary destination",
+    key: "primaryDestination",
     sortable: false,
   },
   {

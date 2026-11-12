@@ -24,7 +24,8 @@
       class="mt-3"
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-      :current-travel-segment-estimates="travelSegments"
+      :current-travel-segments="travelSegments"
+      :current-trip-type="travelAuthorization.tripTypeEstimate"
       @updated="updateTravelSegmentsAttributes"
     />
     <div v-else>Trip type {{ tripType }} not implemented!</div>
@@ -88,7 +89,7 @@ import { useDisplay } from "vuetify"
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
-import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
+import determinePrimaryDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-primary-destination-segment"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
@@ -114,7 +115,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  "update:finalDestinationLocationId",
+  "update:primaryDestinationLocationId",
   "update:departureDate",
   "update:returnDate",
 ])
@@ -124,7 +125,9 @@ const { mdAndUp } = useDisplay()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
-const defaultTripType = computed(() => travelAuthorization.value.tripTypeEstimate)
+const defaultTripType = computed(
+  () => travelAuthorization.value?.tripTypeEstimate || TRIP_TYPES.ROUND_TRIP
+)
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
 const travelSegmentEstimatesQuery = computed(() => ({
@@ -142,7 +145,7 @@ function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes
 
   updateDepartureDate(newTravelSegmentsAttributes)
-  updateFinalDestinationLocationId(newTravelSegmentsAttributes)
+  updatePrimaryDestinationLocationId(newTravelSegmentsAttributes)
   updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes)
 }
 
@@ -153,14 +156,14 @@ function updateDepartureDate(newTravelSegmentsAttributes) {
   }
 }
 
-function updateFinalDestinationLocationId(newTravelSegmentsAttributes) {
-  const finalDestinationSegment = determineFinalDestinationSegment(
+function updatePrimaryDestinationLocationId(newTravelSegmentsAttributes) {
+  const primaryDestinationSegment = determinePrimaryDestinationSegment(
     tripType.value,
     newTravelSegmentsAttributes
   )
-  const finalDestinationLocationId = finalDestinationSegment?.arrivalLocationId ?? null
+  const primaryDestinationLocationId = primaryDestinationSegment?.arrivalLocationId ?? null
 
-  emit("update:finalDestinationLocationId", finalDestinationLocationId)
+  emit("update:primaryDestinationLocationId", primaryDestinationLocationId)
 }
 
 function updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes) {
