@@ -1,7 +1,6 @@
 import sourceDatabase from "@/integrations/travel-port-integration/db/db-migration-client"
 import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
 import { TravelDeskBookingEvent } from "@/models"
-import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
@@ -65,17 +64,16 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         const bookingEvents = await TravelDeskBookingEvent.findAll({
           order: [["externalTravelPortIdentifier", "ASC"]],
         })
-        const events = IndexSerializer.perform(bookingEvents)
 
         // Assert
-        expect(events).toEqual([
+        expect(bookingEvents).toEqual([
           expect.objectContaining({
-            travelOrderIdentifier: 910001,
+            externalTravelPortIdentifier: 910001,
             bookingFileVersionNumber: 8,
             eventType: "B",
             recordLocator: "SRC001",
             reservationSystemDescription: "Galileo",
-            passengerNameRecordCreatedAt: "2030-01-01T10:00:00.000Z",
+            passengerNameRecordCreatedAt: new Date("2030-01-01T10:00:00.000Z"),
             creatingAgencyInternationalAirTransportAssociationNumber: "12345678",
             passengers: [
               { lastNameElement: 1, passengerElement: 1, firstName: "Ada", lastName: "Example" },
@@ -93,7 +91,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             serviceFeeTransaction: null,
           }),
           expect.objectContaining({
-            travelOrderIdentifier: 910002,
+            externalTravelPortIdentifier: 910002,
             bookingFileVersionNumber: null,
             eventType: "T",
             passengers: [],
