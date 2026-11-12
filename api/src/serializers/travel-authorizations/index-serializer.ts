@@ -113,19 +113,18 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       ? null
       : Locations.ReferenceSerializer.perform(summary.finalDestination)
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
-    const attributes = pick(this.record, [
-      "id",
-      "eventName",
-      "purposeId",
-      "wizardStepName",
-      "status",
-      "dateBackToWorkEstimate",
-      "createdAt",
-      "updatedAt",
-    ])
 
     return {
-      ...attributes,
+      ...pick(this.record, [
+        "id",
+        "eventName",
+        "purposeId",
+        "wizardStepName",
+        "status",
+        "dateBackToWorkEstimate",
+        "createdAt",
+        "updatedAt",
+      ]),
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
       finalDestination,
