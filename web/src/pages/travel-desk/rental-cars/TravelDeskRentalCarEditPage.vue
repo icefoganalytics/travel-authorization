@@ -50,7 +50,8 @@
             <StringDateInput
               v-model="pickUpDate"
               label="Pick-up date *"
-              :disabled="isMatchingAvailableFlightSchedule"
+              :readonly="isMatchingAvailableFlightSchedule"
+              :append-inner-icon="isMatchingAvailableFlightSchedule ? 'mdi-lock' : undefined"
               :rules="[required]"
               variant="outlined"
               required
@@ -60,7 +61,8 @@
             <TimeTextField
               v-model="pickUpTime"
               label="Pick-up time *"
-              :disabled="isMatchingAvailableFlightSchedule"
+              :readonly="isMatchingAvailableFlightSchedule"
+              :append-inner-icon="isMatchingAvailableFlightSchedule ? 'mdi-lock' : undefined"
               :rules="[required]"
               variant="outlined"
               required
@@ -72,7 +74,8 @@
             <StringDateInput
               v-model="dropOffDate"
               label="Drop-off date *"
-              :disabled="isMatchingAvailableFlightSchedule"
+              :readonly="isMatchingAvailableFlightSchedule"
+              :append-inner-icon="isMatchingAvailableFlightSchedule ? 'mdi-lock' : undefined"
               :rules="[required]"
               variant="outlined"
               required
@@ -82,7 +85,8 @@
             <TimeTextField
               v-model="dropOffTime"
               label="Drop-off time *"
-              :disabled="isMatchingAvailableFlightSchedule"
+              :readonly="isMatchingAvailableFlightSchedule"
+              :append-inner-icon="isMatchingAvailableFlightSchedule ? 'mdi-lock' : undefined"
               :rules="[required]"
               variant="outlined"
               required
