@@ -22,7 +22,7 @@
                 :model-value="travelDeskRentalCarAttributes.matchFlightTimes"
                 label="Pick-up/Drop-off match flights"
                 class="mt-0"
-                @update:model-value="matchWithFlight"
+                @update:model-value="updateFlightMatching"
               />
             </v-col>
           </v-row>
@@ -237,18 +237,6 @@ const props = defineProps<{
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
-const router = useRouter()
-const defaultReturnTo = computed(() => {
-  const routeLocation = router.resolve({
-    name: "travel-desk/TravelDeskRequestEditRedirect",
-    params: {
-      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
-    },
-  })
-  return routeLocation.href
-})
-const returnTo = useRouteQuery("returnTo", defaultReturnTo)
-
 const { tripStartDate, tripEndDate, tripDestination, availableFlightSchedule } =
   useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
 
@@ -267,6 +255,18 @@ const travelDeskRentalCarAttributes = ref<Partial<TravelDeskRentalCar>>({
   additionalNotes: undefined,
 })
 
+const router = useRouter()
+const defaultReturnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "travel-desk/TravelDeskRequestEditRedirect",
+    params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+    },
+  })
+  return routeLocation.href
+})
+const returnTo = useRouteQuery("returnTo", defaultReturnTo)
+
 const DEFAULT_TIME = "12:00"
 
 const pickUpDate = ref("")
@@ -274,12 +274,12 @@ const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
 
-let scheduleBeforeFlightMatching: {
+const scheduleBeforeFlightMatching = ref<{
   pickUpDate: string
   pickUpTime: string
   dropOffDate: string
   dropOffTime: string
-} | null = null
+} | null>(null)
 
 const isFlightScheduleAvailable = computed(() => !isNil(availableFlightSchedule.value))
 const isMatchingAvailableFlightSchedule = computed(
@@ -287,30 +287,27 @@ const isMatchingAvailableFlightSchedule = computed(
     travelDeskRentalCarAttributes.value.matchFlightTimes === true && isFlightScheduleAvailable.value
 )
 
-function matchWithFlight(value: boolean) {
-  travelDeskRentalCarAttributes.value.matchFlightTimes = value
+const isWaitingForFlightSchedule = ref(false)
 
-  if (!value) {
-    restoreManualSchedule()
+function updateFlightMatching(value: boolean) {
+  if (value) {
+    enableFlightMatching()
+  } else {
+    disableFlightMatching()
+  }
+}
+
+function enableFlightMatching() {
+  travelDeskRentalCarAttributes.value.matchFlightTimes = true
+  isWaitingForFlightSchedule.value = false
+
+  const schedule = availableFlightSchedule.value
+  if (isNil(schedule)) {
+    isWaitingForFlightSchedule.value = true
     return
   }
 
-  applySelectedFlightSchedule()
-}
-
-function applySelectedFlightSchedule() {
-  const schedule = availableFlightSchedule.value
-  if (travelDeskRentalCarAttributes.value.matchFlightTimes !== true || isNil(schedule)) return
-
-  // Capture only when flights actually replace the inputs, including after a delayed response.
-  if (isNil(scheduleBeforeFlightMatching)) {
-    scheduleBeforeFlightMatching = {
-      pickUpDate: pickUpDate.value,
-      pickUpTime: pickUpTime.value,
-      dropOffDate: dropOffDate.value,
-      dropOffTime: dropOffTime.value,
-    }
-  }
+  preserveManualSchedule()
 
   pickUpDate.value = schedule.startDate
   pickUpTime.value = schedule.startTime
@@ -318,17 +315,38 @@ function applySelectedFlightSchedule() {
   dropOffTime.value = schedule.endTime
 }
 
-function restoreManualSchedule() {
-  if (isNil(scheduleBeforeFlightMatching)) return
-
-  pickUpDate.value = scheduleBeforeFlightMatching.pickUpDate
-  pickUpTime.value = scheduleBeforeFlightMatching.pickUpTime
-  dropOffDate.value = scheduleBeforeFlightMatching.dropOffDate
-  dropOffTime.value = scheduleBeforeFlightMatching.dropOffTime
-  scheduleBeforeFlightMatching = null
+function disableFlightMatching() {
+  travelDeskRentalCarAttributes.value.matchFlightTimes = false
+  isWaitingForFlightSchedule.value = false
+  restoreManualSchedule()
 }
 
-watch(isFlightScheduleAvailable, applySelectedFlightSchedule)
+function preserveManualSchedule() {
+  if (!isNil(scheduleBeforeFlightMatching.value)) return
+
+  scheduleBeforeFlightMatching.value = {
+    pickUpDate: pickUpDate.value,
+    pickUpTime: pickUpTime.value,
+    dropOffDate: dropOffDate.value,
+    dropOffTime: dropOffTime.value,
+  }
+}
+
+function restoreManualSchedule() {
+  if (isNil(scheduleBeforeFlightMatching.value)) return
+
+  pickUpDate.value = scheduleBeforeFlightMatching.value.pickUpDate
+  pickUpTime.value = scheduleBeforeFlightMatching.value.pickUpTime
+  dropOffDate.value = scheduleBeforeFlightMatching.value.dropOffDate
+  dropOffTime.value = scheduleBeforeFlightMatching.value.dropOffTime
+  scheduleBeforeFlightMatching.value = null
+}
+
+watch(isFlightScheduleAvailable, (isAvailable) => {
+  if (isAvailable && isWaitingForFlightSchedule.value) {
+    enableFlightMatching()
+  }
+})
 
 const pickUpCity = computed(() => {
   const selectedCity = travelDeskRentalCarAttributes.value.pickUpCity
