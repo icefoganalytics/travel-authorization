@@ -192,7 +192,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when a deleted source event reappears, it restores the original local identity", async () => {
+      test("when a deleted source event reappears, it creates a new local record and preserves the deleted record", async () => {
         // Arrange
         const deletedEvent = await travelDeskBookingEventFactory.create({
           externalTravelportIdentifier: 910001,
@@ -210,9 +210,15 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         await SyncService.perform("SRC001")
 
         // Assert
-        expect(await TravelDeskBookingEvent.findAll({ paranoid: false })).toEqual([
+        expect(
+          await TravelDeskBookingEvent.findAll({ paranoid: false, order: [["id", "ASC"]] })
+        ).toEqual([
           expect.objectContaining({
             id: deletedEvent.id,
+            deletedAt: expect.any(Date),
+          }),
+          expect.objectContaining({
+            externalTravelportIdentifier: 910001,
             deletedAt: null,
             bookingFileVersionNumber: 2,
           }),

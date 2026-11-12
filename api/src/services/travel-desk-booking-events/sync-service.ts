@@ -1,4 +1,5 @@
 import { IsolationLevel, Op } from "@sequelize/core"
+import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
@@ -31,15 +32,11 @@ export class SyncService extends BaseService {
         }
         const bookingEvent = await TravelDeskBookingEvent.findOne({
           where: { externalTravelportIdentifier: travelOrderIdentifier },
-          paranoid: false,
         })
-        if (bookingEvent === null) {
+        if (isNil(bookingEvent)) {
           await TravelDeskBookingEvent.create(attributes)
         } else {
           await bookingEvent.update(attributes)
-          if (bookingEvent.deletedAt !== null) {
-            await bookingEvent.restore()
-          }
         }
         matchedSourceIds.push(travelOrderIdentifier)
       })

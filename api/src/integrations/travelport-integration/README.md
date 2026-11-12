@@ -17,7 +17,7 @@ The integration owns a singleton database client, and its models entry point reg
 
 Use standard `findAll` for bounded reads or `findEach(options, callback)` for batch processing. Supply deterministic ordering by the unique source identifier and load the associations needed by the consumer. Source ordering does not establish business precedence.
 
-Only a successful complete locator refresh reconciles missing source events: deleted events leave local history, and reappearing events retain their local identity. An empty result clears that locator's history; failed refreshes preserve the previous history. Other locators and saved invoice snapshots are unchanged.
+Only a successful complete locator refresh reconciles missing source events: missing events are soft-deleted, and reappearing events create new local records without restoring deleted records. Source identifiers are unique among active records only. An empty result clears that locator's active history; failed refreshes preserve the previous history. Other locators and saved invoice snapshots are unchanged.
 
 The integration mapping expands source acronyms before storing local booking records: `CrsDescription` becomes `reservationSystemDescription`, `PnrCreationDate` becomes `passengerNameRecordCreatedAt`, and `CreatingAgencyIata` becomes `creatingAgencyInternationalAirTransportAssociationNumber`. Local columns and serialized booking snapshots use these descriptive names; the external schema remains unchanged.
 

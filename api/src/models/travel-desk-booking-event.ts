@@ -28,7 +28,7 @@ export class TravelDeskBookingEvent extends Model<
 
   @Attribute(DataTypes.INTEGER)
   @NotNull
-  @Index({ unique: true })
+  @Index({ unique: true, where: { deletedAt: null } })
   declare externalTravelportIdentifier: number
 
   @Attribute(DataTypes.INTEGER)
