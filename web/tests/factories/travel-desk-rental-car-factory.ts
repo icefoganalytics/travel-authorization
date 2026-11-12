@@ -17,7 +17,9 @@ export const travelDeskRentalCarFactory = Factory.define<TravelDeskRentalCar>(({
     pickUpCity: cities[(sequence - 1) % cities.length],
     pickUpLocation,
     pickUpLocationOther:
-      pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER ? `Rental office ${sequence}` : null,
+      pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER
+        ? `Rental office ${sequence}`
+        : null,
     dropOffCity: null,
     dropOffLocation: null,
     dropOffLocationOther: null,
