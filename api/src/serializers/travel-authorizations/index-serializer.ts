@@ -1,6 +1,7 @@
 import { isNil, last, first, pick, isUndefined } from "lodash"
 
 import {
+  Expense,
   Location,
   Stop,
   TravelAuthorization,
@@ -100,15 +101,15 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(firstTravelSegment, stops)
     const returningAt = this.buildReturningAt(lastTravelSegment, stops)
 
-    const summaryInput = {
+    const summary = this.buildSummary(
       status,
       tripType,
       tripTypeActual,
       travelSegments,
       expenses,
       travelDeskTravelRequest,
-    }
-    const summary = BuildSummaryService.perform(summaryInput, currentDate)
+      currentDate
+    )
     const finalDestination = isNil(summary.finalDestination)
       ? null
       : Locations.ReferenceSerializer.perform(summary.finalDestination)
@@ -142,6 +143,28 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       ...stateFlagsAttributes,
     }
+  }
+
+  private buildSummary(
+    status: TravelAuthorization["status"],
+    tripType: TravelAuthorization["tripType"],
+    tripTypeActual: TravelAuthorization["tripTypeActual"],
+    travelSegments: TravelSegment[],
+    expenses: Expense[],
+    travelDeskTravelRequest: TravelDeskTravelRequest | null,
+    currentDate: Date
+  ) {
+    return BuildSummaryService.perform(
+      {
+        status,
+        tripType,
+        tripTypeActual,
+        travelSegments,
+        expenses,
+        travelDeskTravelRequest,
+      },
+      currentDate
+    )
   }
 
   private serializeLocations(
