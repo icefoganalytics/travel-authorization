@@ -43,7 +43,7 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       const totalCount = await TravelDeskBookingEvent.count({ where })
       const travelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
         where,
-        order: [["externalTravelportIdentifier", "ASC"]],
+        order: [["externalTravelPortIdentifier", "ASC"]],
         limit,
         offset,
       })
