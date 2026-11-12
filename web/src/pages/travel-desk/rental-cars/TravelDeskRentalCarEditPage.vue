@@ -251,6 +251,8 @@ const props = defineProps<{
 const travelDeskRentalCarIdAsNumber = computed(() => parseInt(props.travelDeskRentalCarId))
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
+const { travelDeskRentalCar, refresh } = useTravelDeskRentalCar(travelDeskRentalCarIdAsNumber)
+
 const router = useRouter()
 const defaultReturnTo = computed(() => {
   const routeLocation = router.resolve({
@@ -263,8 +265,6 @@ const defaultReturnTo = computed(() => {
   return routeLocation.href
 })
 const returnTo = useRouteQuery("returnTo", defaultReturnTo)
-
-const { travelDeskRentalCar, refresh } = useTravelDeskRentalCar(travelDeskRentalCarIdAsNumber)
 
 const DEFAULT_TIME = "12:00"
 
