@@ -245,7 +245,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import { useRouter } from "vue-router"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
@@ -302,6 +302,14 @@ const pickUpDate = ref("")
 const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
+const isScheduleComplete = computed(() => {
+  return (
+    !isEmpty(pickUpDate.value) &&
+    !isEmpty(pickUpTime.value) &&
+    !isEmpty(dropOffDate.value) &&
+    !isEmpty(dropOffTime.value)
+  )
+})
 
 const { availableFlightSchedule } = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
 const isFlightScheduleAvailable = computed(() => !isNil(availableFlightSchedule.value))
@@ -309,7 +317,7 @@ const isMatchingAvailableFlightSchedule = computed(() => {
   return (
     travelDeskRentalCar.value?.matchFlightTimes === true &&
     isFlightScheduleAvailable.value &&
-    Boolean(pickUpDate.value && pickUpTime.value && dropOffDate.value && dropOffTime.value)
+    isScheduleComplete.value
   )
 })
 
