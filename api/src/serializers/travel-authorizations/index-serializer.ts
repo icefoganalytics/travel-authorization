@@ -66,19 +66,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const useActuals = !isNil(this.record.tripTypeActual)
-    const destinationTravelSegments = this.travelSegments.filter(
-      (travelSegment) => travelSegment.isActual === useActuals
-    )
-    const firstDestinationTravelSegment = first(destinationTravelSegments)
-    const lastDestinationTravelSegment = last(destinationTravelSegments)
-    const penultimateDestinationTravelSegment = destinationTravelSegments.at(-2)
-    const finalDestinationLocation = this.buildFinalDestinationLocation(
-      this.record.tripType,
-      firstDestinationTravelSegment,
-      lastDestinationTravelSegment,
-      penultimateDestinationTravelSegment
-    )
+    const finalDestinationLocation = this.buildFinalDestinationLocation()
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -172,12 +160,16 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return Array.from(locations.values())
   }
 
-  private buildFinalDestinationLocation(
-    tripType: TravelAuthorization["tripType"],
-    firstTravelSegment: TravelSegment | undefined,
-    lastTravelSegment: TravelSegment | undefined,
-    penultimateTravelSegment: TravelSegment | undefined
-  ): Locations.AsReference | null {
+  private buildFinalDestinationLocation(): Locations.AsReference | null {
+    const { tripType, tripTypeActual } = this.record
+    const useActuals = !isNil(tripTypeActual)
+    const destinationTravelSegments = this.travelSegments.filter(
+      (travelSegment) => travelSegment.isActual === useActuals
+    )
+    const firstTravelSegment = first(destinationTravelSegments)
+    const lastTravelSegment = last(destinationTravelSegments)
+    const penultimateTravelSegment = destinationTravelSegments.at(-2)
+
     if (isNil(lastTravelSegment)) return null
 
     let finalDestinationLocation = lastTravelSegment.arrivalLocation
