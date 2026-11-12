@@ -1,4 +1,4 @@
-import { IsolationLevel } from "@sequelize/core"
+import { IsolationLevel, QueryTypes, sql } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 
@@ -21,11 +21,12 @@ export class SyncService extends BaseService {
     await travelAuthorizationDatabase.transaction(async () => {
       // Serialize refreshes even when this locator has no local rows yet.
       await travelAuthorizationDatabase.query(
-        "SELECT pg_advisory_xact_lock(hashtext(:recordLocator))",
-        {
-          replacements: { recordLocator: this.recordLocator },
-        }
+        sql`
+          SELECT pg_advisory_xact_lock(hashtext(${this.recordLocator}));
+        `,
+        { type: QueryTypes.SELECT }
       )
+
       // Unseen rows stay deleted; a failed source scan rolls this back.
       await TravelDeskBookingEvent.destroy({
         where: { recordLocator: this.recordLocator },
