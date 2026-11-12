@@ -325,13 +325,13 @@ const isMatchingAvailableFlightSchedule = computed(() => {
   )
 })
 
-let isWaitingForFlightSchedule = false
+const isWaitingForFlightSchedule = ref(false)
 
 function matchWithFlight(value: boolean) {
   if (isNil(travelDeskRentalCar.value)) return
 
   travelDeskRentalCar.value.matchFlightTimes = value
-  isWaitingForFlightSchedule = false
+  isWaitingForFlightSchedule.value = false
 
   if (!value) {
     restoreManualSchedule()
@@ -340,7 +340,7 @@ function matchWithFlight(value: boolean) {
 
   const schedule = availableFlightSchedule.value
   if (isNil(schedule)) {
-    isWaitingForFlightSchedule = true
+    isWaitingForFlightSchedule.value = true
     return
   }
 
@@ -372,7 +372,7 @@ function restoreManualSchedule() {
 
 // Only resume an explicit match that was waiting for flights; never rematch a loaded rental.
 watch(isFlightScheduleAvailable, (isAvailable) => {
-  if (isAvailable && isWaitingForFlightSchedule) {
+  if (isAvailable && isWaitingForFlightSchedule.value) {
     matchWithFlight(true)
   }
 })
