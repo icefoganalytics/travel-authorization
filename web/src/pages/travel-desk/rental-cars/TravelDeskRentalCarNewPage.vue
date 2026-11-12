@@ -19,7 +19,7 @@
           <v-row>
             <v-col>
               <YesNoRowRadioGroup
-                v-model="travelDeskRentalCarAttributes.matchFlightTimes"
+                :model-value="travelDeskRentalCarAttributes.matchFlightTimes"
                 label="Pick-up/Drop-off match flights"
                 class="mt-0"
                 @update:model-value="matchWithFlight"
@@ -315,6 +315,8 @@ const isMatchingAvailableFlightSchedule = computed(
 )
 
 function matchWithFlight(value: boolean) {
+  travelDeskRentalCarAttributes.value.matchFlightTimes = value
+
   const schedule = availableFlightSchedule.value
   if (!value || isNil(schedule)) return
 
