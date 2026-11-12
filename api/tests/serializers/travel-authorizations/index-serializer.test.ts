@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker"
 
 import { TravelAuthorization, TravelSegment } from "@/models"
-import IndexSerializer from "@/serializers/travel-authorizations/index-serializer"
 
 import {
   locationFactory,
@@ -9,6 +8,8 @@ import {
   travelSegmentFactory,
   userFactory,
 } from "@/factories"
+
+import IndexSerializer from "@/serializers/travel-authorizations/index-serializer"
 
 describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => {
   describe("IndexSerializer", () => {
