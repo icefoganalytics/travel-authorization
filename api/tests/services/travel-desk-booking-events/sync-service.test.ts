@@ -4,7 +4,6 @@ import { TravelDeskBookingEvent } from "@/models"
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
 import { travelDeskBookingEventFactory } from "@/factories"
 
@@ -353,23 +352,19 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         await expect(SyncService.perform("SRC001")).rejects.toBe(persistenceError)
       })
 
-      test("when the record locator is invalid, it reports a validation error", async () => {
+      test("when an unrestricted locator matches no source events, it preserves other cached bookings", async () => {
         // Arrange
-        const recordLocator = "invalid"
-
-        // Act / Assert
-        await expect(SyncService.perform(recordLocator)).rejects.toBeInstanceOf(InvoiceValidationError)
-      })
-
-      test("when the record locator is invalid, it does not read the source", async () => {
-        // Arrange
-        const findSourceEvents = vi.spyOn(TravelOrderEvent, "findAll")
+        const cachedBookingEvent = await travelDeskBookingEventFactory.create({
+          recordLocator: "SRC001",
+        })
 
         // Act
-        await SyncService.perform("invalid").catch(() => undefined)
+        await SyncService.perform("not-a-six-character-locator")
 
         // Assert
-        expect(findSourceEvents).not.toHaveBeenCalled()
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({ id: cachedBookingEvent.id, deletedAt: null }),
+        ])
       })
     })
   })

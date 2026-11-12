@@ -8,7 +8,6 @@ import { TravelOrderEvents } from "@/integrations/travelport-integration/seriali
 import { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 import WithSyncLockService from "@/services/travel-desk-booking-events/with-sync-lock-service"
 
@@ -18,8 +17,6 @@ export class SyncService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    this.assertRecordLocatorIsValid(this.recordLocator)
-
     await WithSyncLockService.perform(this.recordLocator, async () => {
       const matchedSourceIds: number[] = []
       await this.syncSourceEvents(this.recordLocator, async (travelOrderEvent) => {
@@ -49,12 +46,6 @@ export class SyncService extends BaseService {
         },
       })
     })
-  }
-
-  private assertRecordLocatorIsValid(recordLocator: string): void {
-    if (!/^[A-Z0-9]{6}$/.test(recordLocator)) {
-      throw new InvoiceValidationError("Record locator must contain six letters or numbers.")
-    }
   }
 
   private async syncSourceEvents(
