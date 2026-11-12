@@ -1,15 +1,15 @@
 import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
-import { BookingsService } from "@/integrations/travelport-integration/services/bookings-service"
+import { BookingsService } from "@/integrations/travel-port-integration/services/bookings-service"
 import { TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequests } from "@/policies"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
-import { LinkTravelportBookingService } from "@/services/travel-desk-travel-requests/link-travelport-booking-service"
+import { LinkTravelPortBookingService } from "@/services/travel-desk-travel-requests/link-travel-port-booking-service"
 import BaseController from "@/controllers/base-controller"
 
-export class TravelportBookingsController extends BaseController<TravelDeskTravelRequest> {
+export class TravelPortBookingsController extends BaseController<TravelDeskTravelRequest> {
   async index() {
     try {
       const travelDeskTravelRequest = await this.loadTravelDeskTravelRequest()
@@ -17,7 +17,7 @@ export class TravelportBookingsController extends BaseController<TravelDeskTrave
         return this.response.status(404).json({ message: "Travel desk travel request not found." })
       }
 
-      const policy = new TravelDeskTravelRequests.TravelportBookingsPolicy(
+      const policy = new TravelDeskTravelRequests.TravelPortBookingsPolicy(
         this.currentUser,
         travelDeskTravelRequest
       )
@@ -39,8 +39,8 @@ export class TravelportBookingsController extends BaseController<TravelDeskTrave
         return this.response.status(503).json({ message: "Booking source is unavailable." })
       }
 
-      logger.error("Failed to list Travelport bookings.", { error })
-      return this.response.status(400).json({ message: "Failed to load Travelport bookings." })
+      logger.error("Failed to list TravelPort bookings.", { error })
+      return this.response.status(400).json({ message: "Failed to load TravelPort bookings." })
     }
   }
 
@@ -51,17 +51,17 @@ export class TravelportBookingsController extends BaseController<TravelDeskTrave
         return this.response.status(404).json({ message: "Travel desk travel request not found." })
       }
 
-      const policy = new TravelDeskTravelRequests.TravelportBookingsPolicy(
+      const policy = new TravelDeskTravelRequests.TravelPortBookingsPolicy(
         this.currentUser,
         travelDeskTravelRequest
       )
       if (!policy.update()) {
         return this.response.status(403).json({
-          message: "You are not authorized to link Travelport bookings.",
+          message: "You are not authorized to link TravelPort bookings.",
         })
       }
 
-      await LinkTravelportBookingService.perform(
+      await LinkTravelPortBookingService.perform(
         travelDeskTravelRequest,
         this.request.body.recordLocator
       )
@@ -75,8 +75,8 @@ export class TravelportBookingsController extends BaseController<TravelDeskTrave
         return this.response.status(503).json({ message: "Booking source is unavailable." })
       }
 
-      logger.error("Failed to link Travelport booking.", { error })
-      return this.response.status(400).json({ message: "Failed to link Travelport booking." })
+      logger.error("Failed to link TravelPort booking.", { error })
+      return this.response.status(400).json({ message: "Failed to link TravelPort booking." })
     }
   }
 
@@ -85,4 +85,4 @@ export class TravelportBookingsController extends BaseController<TravelDeskTrave
   }
 }
 
-export default TravelportBookingsController
+export default TravelPortBookingsController

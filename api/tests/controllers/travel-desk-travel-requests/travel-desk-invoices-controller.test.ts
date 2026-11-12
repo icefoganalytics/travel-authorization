@@ -229,7 +229,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "API001",
+          travelPortRecordLocator: "API001",
         })
         mockCurrentUser(officer)
 
@@ -257,7 +257,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "API001",
+          travelPortRecordLocator: "API001",
         })
         const otherRequest = await travelDeskTravelRequestFactory.create()
         const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })

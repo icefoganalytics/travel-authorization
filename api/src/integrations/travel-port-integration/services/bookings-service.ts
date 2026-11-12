@@ -1,7 +1,7 @@
 import { QueryTypes } from "@sequelize/core"
 
 import logger from "@/utils/logger"
-import sourceDatabase from "@/integrations/travelport-integration/db/db-client"
+import sourceDatabase from "@/integrations/travel-port-integration/db/db-client"
 import BaseService from "@/services/base-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
@@ -9,7 +9,7 @@ import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-
 export type BookingReference = { recordLocator: string }
 
 type BookingPage = {
-  travelportBookings: BookingReference[]
+  travelPortBookings: BookingReference[]
   totalCount: number
 }
 
@@ -47,7 +47,7 @@ export class BookingsService extends BaseService {
          WHERE [recordLocator] LIKE :prefix`,
         { type: QueryTypes.SELECT, replacements }
       )
-      const travelportBookings = await sourceDatabase.query<BookingReference>(
+      const travelPortBookings = await sourceDatabase.query<BookingReference>(
         `SELECT [recordLocator] FROM (` +
           BOOKING_REFERENCES_SQL +
           `) AS [bookingReferences]
@@ -55,9 +55,9 @@ export class BookingsService extends BaseService {
          ORDER BY [recordLocator] ASC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY`,
         { type: QueryTypes.SELECT, replacements }
       )
-      return { travelportBookings, totalCount: Number(counts[0]?.totalCount ?? 0) }
+      return { travelPortBookings, totalCount: Number(counts[0]?.totalCount ?? 0) }
     } catch (error) {
-      logger.error("Travelport booking source lookup failed.", { error })
+      logger.error("TravelPort booking source lookup failed.", { error })
       throw new SourceUnavailableError("Booking source is unavailable.")
     }
   }

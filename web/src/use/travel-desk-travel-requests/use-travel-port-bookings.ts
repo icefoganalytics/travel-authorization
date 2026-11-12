@@ -2,21 +2,21 @@ import { type Ref, onScopeDispose, reactive, toRefs, watch } from "vue"
 import { isCancel } from "axios"
 
 import {
-  type TravelportBooking,
-  type TravelportBookingsQueryOptions,
-  travelportBookingsApi,
-} from "@/api/travel-desk-travel-requests/travelport-bookings-api"
+  type TravelPortBooking,
+  type TravelPortBookingsQueryOptions,
+  travelPortBookingsApi,
+} from "@/api/travel-desk-travel-requests/travel-port-bookings-api"
 
-export function useTravelportBookings(
+export function useTravelPortBookings(
   travelDeskTravelRequestId: Ref<number>,
-  options: Ref<TravelportBookingsQueryOptions>
+  options: Ref<TravelPortBookingsQueryOptions>
 ) {
   const state = reactive<{
-    travelportBookings: TravelportBooking[] | null
+    travelPortBookings: TravelPortBooking[] | null
     totalCount: number
     errorMessage: string
   }>({
-    travelportBookings: null,
+    travelPortBookings: null,
     totalCount: 0,
     errorMessage: "",
   })
@@ -26,24 +26,24 @@ export function useTravelportBookings(
     requestController?.abort()
     const controller = new AbortController()
     requestController = controller
-    state.travelportBookings = null
+    state.travelPortBookings = null
     state.errorMessage = ""
     try {
-      const { travelportBookings, totalCount } = await travelportBookingsApi.list(
+      const { travelPortBookings, totalCount } = await travelPortBookingsApi.list(
         travelDeskTravelRequestId.value,
         options.value,
         { signal: controller.signal }
       )
       if (controller.signal.aborted) return
 
-      state.travelportBookings = travelportBookings
+      state.travelPortBookings = travelPortBookings
       state.totalCount = totalCount
     } catch (error) {
       if (isCancel(error) || controller.signal.aborted) return
 
-      console.error("Failed to load Travelport bookings", error)
-      state.errorMessage = "Travelport bookings could not be loaded. Try again."
-      state.travelportBookings = []
+      console.error("Failed to load TravelPort bookings", error)
+      state.errorMessage = "TravelPort bookings could not be loaded. Try again."
+      state.travelPortBookings = []
       state.totalCount = 0
     }
   }

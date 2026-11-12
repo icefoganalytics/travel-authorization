@@ -1,7 +1,7 @@
 import { TravelDeskTravelRequest } from "@/models"
 import BasePolicy from "@/policies/base-policy"
 
-export class TravelportBookingsPolicy extends BasePolicy<TravelDeskTravelRequest> {
+export class TravelPortBookingsPolicy extends BasePolicy<TravelDeskTravelRequest> {
   show(): boolean {
     return this.user.isAdmin || this.user.isTravelDeskUser
   }
@@ -11,4 +11,4 @@ export class TravelportBookingsPolicy extends BasePolicy<TravelDeskTravelRequest
   }
 }
 
-export default TravelportBookingsPolicy
+export default TravelPortBookingsPolicy

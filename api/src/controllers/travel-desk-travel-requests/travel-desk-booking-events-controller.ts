@@ -9,7 +9,7 @@ import { TravelDeskTravelRequests } from "@/policies"
 import { SyncService } from "@/services/travel-desk-booking-events"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
-import { RequireLinkedTravelportBookingService } from "@/services/travel-desk-travel-requests/require-linked-travelport-booking-service"
+import { RequireLinkedTravelPortBookingService } from "@/services/travel-desk-travel-requests/require-linked-travel-port-booking-service"
 
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 
@@ -32,7 +32,7 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const recordLocator = RequireLinkedTravelportBookingService.perform(travelDeskTravelRequest)
+      const recordLocator = RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
       const where = { recordLocator }
       const { limit, offset } = this.pagination
       const totalCount = await TravelDeskBookingEvent.count({ where })
@@ -76,7 +76,7 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const recordLocator = RequireLinkedTravelportBookingService.perform(travelDeskTravelRequest)
+      const recordLocator = RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
       await SyncService.perform(recordLocator)
       return this.response.status(204).send()
     } catch (error) {

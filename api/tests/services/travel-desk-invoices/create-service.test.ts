@@ -14,15 +14,15 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
     describe(".perform", () => {
       test.each([null, "OTHER1"])(
         "when the request link is %s, it rejects another booking before reading cached events",
-        async (travelportRecordLocator) => {
+        async (travelPortRecordLocator) => {
           // Arrange
           const travelRequest = await travelDeskTravelRequestFactory.create({
-            travelportRecordLocator,
+            travelPortRecordLocator,
           })
           const message =
-            travelportRecordLocator === null
-              ? "Link a Travelport booking to this travel request first."
-              : "Invoice booking must match the linked Travelport booking."
+            travelPortRecordLocator === null
+              ? "Link a TravelPort booking to this travel request first."
+              : "Invoice booking must match the linked TravelPort booking."
 
           // Act
           const result = CreateService.perform(travelRequest, {
@@ -43,7 +43,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         async (cachedLocator) => {
           // Arrange
           const travelRequest = await travelDeskTravelRequestFactory.create({
-            travelportRecordLocator: "INV001",
+            travelPortRecordLocator: "INV001",
           })
           if (cachedLocator !== null) {
             await travelDeskBookingEventFactory.create({
@@ -73,7 +73,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         async (cachedLocator) => {
           // Arrange
           const travelRequest = await travelDeskTravelRequestFactory.create({
-            travelportRecordLocator: "INV001",
+            travelPortRecordLocator: "INV001",
           })
           await travelDeskBookingEventFactory.create({
             externalTravelPortIdentifier: 920001,
@@ -120,7 +120,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Arrange
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(new Error("Source unavailable."))
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "INV001",
+          travelPortRecordLocator: "INV001",
         })
         const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         const fee = await travelDeskProductTypeFactory.create({
@@ -225,8 +225,8 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         await bookingEvent.update({ passengers: [], bookingFileVersionNumber: 9 })
         await feeEvent.update({ serviceFeeTransaction: null })
-        await travelRequest.update({ travelportRecordLocator: "OTHER1" })
-        await travelRequest.update({ travelportRecordLocator: null })
+        await travelRequest.update({ travelPortRecordLocator: "OTHER1" })
+        await travelRequest.update({ travelPortRecordLocator: null })
 
         // Assert
         const invoices = await TravelDeskInvoice.findAll({

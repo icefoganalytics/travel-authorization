@@ -93,7 +93,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Assert
           expect(response.status).toEqual(422)
           expect(response.body).toEqual({
-            message: "Link a Travelport booking to this travel request first.",
+            message: "Link a TravelPort booking to this travel request first.",
           })
         }
       )
@@ -107,19 +107,19 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Arrange
           const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
           const travelRequest = await travelDeskTravelRequestFactory.create({
-            travelportRecordLocator: "SRC001",
+            travelPortRecordLocator: "SRC001",
           })
           mockCurrentUser(officer)
           await travelDeskBookingEventFactory.create({
-            externalTravelportIdentifier: 940002,
+            externalTravelPortIdentifier: 940002,
             recordLocator: "SRC001",
           })
           await travelDeskBookingEventFactory.create({
-            externalTravelportIdentifier: 940001,
+            externalTravelPortIdentifier: 940001,
             recordLocator: "SRC001",
           })
           await travelDeskBookingEventFactory.create({
-            externalTravelportIdentifier: 940003,
+            externalTravelPortIdentifier: 940003,
             recordLocator: "OTHER1",
           })
           vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(
@@ -149,7 +149,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "SRC001",
+          travelPortRecordLocator: "SRC001",
         })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({ recordLocator: "SRC001" })
@@ -221,7 +221,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Assert
           expect(response.status).toEqual(422)
           expect(response.body).toEqual({
-            message: "Link a Travelport booking to this travel request first.",
+            message: "Link a TravelPort booking to this travel request first.",
           })
         }
       )
@@ -230,7 +230,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "SRC001",
+          travelPortRecordLocator: "SRC001",
         })
         mockCurrentUser(officer)
         vi.spyOn(SyncService, "perform").mockRejectedValue(
@@ -251,7 +251,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "SRC001",
+          travelPortRecordLocator: "SRC001",
         })
         mockCurrentUser(officer)
         vi.spyOn(SyncService, "perform").mockRejectedValue(new Error("Local write failed."))
@@ -270,7 +270,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "T94001",
+          travelPortRecordLocator: "T94001",
         })
         mockCurrentUser(officer)
         await sourceDatabase("Passenger").whereIn("TravelOrderIdentifier", [940001, 940002]).del()

@@ -111,10 +111,10 @@
           Back
         </v-btn>
       </div>
-      <TravelDeskTravelRequestTravelportBookingCard
+      <TravelDeskTravelRequestTravelPortBookingCard
         :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-        :record-locator="travelDeskTravelRequest.travelportRecordLocator"
-        @saved="travelDeskTravelRequest.travelportRecordLocator = $event"
+        :record-locator="travelDeskTravelRequest.travelPortRecordLocator"
+        @saved="travelDeskTravelRequest.travelPortRecordLocator = $event"
       />
     </div>
   </v-sheet>
@@ -140,7 +140,7 @@ import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 import EnhancedFileInput from "@/components/common/EnhancedFileInput.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
 
-import TravelDeskTravelRequestTravelportBookingCard from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestTravelportBookingCard.vue"
+import TravelDeskTravelRequestTravelPortBookingCard from "@/components/travel-desk-travel-requests/TravelDeskTravelRequestTravelPortBookingCard.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string

@@ -1,12 +1,12 @@
-import sourceDatabase from "@/integrations/travelport-integration/db/db-migration-client"
-import remoteDatabase from "@/integrations/travelport-integration/db/db-client"
+import sourceDatabase from "@/integrations/travel-port-integration/db/db-migration-client"
+import remoteDatabase from "@/integrations/travel-port-integration/db/db-client"
 import { User } from "@/models"
 
 import { mockCurrentUser, request } from "@/support"
 import { travelDeskTravelRequestFactory, userFactory } from "@/factories"
 
-describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-controller.ts", () => {
-  describe("TravelportBookingsController", () => {
+describe("api/src/controllers/travel-desk-travel-requests/travel-port-bookings-controller.ts", () => {
+  describe("TravelPortBookingsController", () => {
     beforeEach(async () => {
       // These source identifiers belong only to this suite; the source is not cleaned globally.
       await sourceDatabase("TravelOrderEvent")
@@ -15,8 +15,8 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
     })
 
     describe.each([
-      { method: "get", suffix: "travelport-bookings" },
-      { method: "put", suffix: "travelport-booking" },
+      { method: "get", suffix: "travel-port-bookings" },
+      { method: "put", suffix: "travel-port-booking" },
     ] as const)("$method $suffix", ({ method, suffix }) => {
       test("when the user lacks Travel Desk access, it denies the operation", async () => {
         // Arrange
@@ -26,7 +26,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
         const message =
           method === "get"
             ? "You are not authorized to access booking sources."
-            : "You are not authorized to link Travelport bookings."
+            : "You are not authorized to link TravelPort bookings."
 
         // Act
         const response = await request()
@@ -75,12 +75,12 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
 
     describe("index", () => {
       test.each([
-        { page: 1, travelportBookings: [{ recordLocator: "Z98001" }] },
-        { page: 2, travelportBookings: [{ recordLocator: "Z98002" }] },
-        { page: 3, travelportBookings: [] },
+        { page: 1, travelPortBookings: [{ recordLocator: "Z98001" }] },
+        { page: 2, travelPortBookings: [{ recordLocator: "Z98002" }] },
+        { page: 3, travelPortBookings: [] },
       ])(
         "when page $page is requested, it returns distinct canonical locators in order",
-        async ({ page, travelportBookings }) => {
+        async ({ page, travelPortBookings }) => {
           // Arrange
           const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
           const travelRequest = await travelDeskTravelRequestFactory.create()
@@ -121,12 +121,12 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
 
           // Act
           const response = await request()
-            .get(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travelport-bookings")
+            .get(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travel-port-bookings")
             .query({ search: " z98 ", page, perPage: 1 })
 
           // Assert
           expect(response.status).toEqual(200)
-          expect(response.body).toEqual({ travelportBookings, totalCount: 2 })
+          expect(response.body).toEqual({ travelPortBookings, totalCount: 2 })
         }
       )
 
@@ -148,7 +148,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
 
         // Act
         const response = await request()
-          .get(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travelport-bookings")
+          .get(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travel-port-bookings")
           .query({ search })
 
         // Assert
@@ -162,7 +162,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
         // Arrange
         const user = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "KEEP01",
+          travelPortRecordLocator: "KEEP01",
         })
         mockCurrentUser(user)
         await sourceDatabase("TravelOrderEvent").insert({
@@ -174,13 +174,13 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
 
         // Act
         const response = await request()
-          .put(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travelport-booking")
+          .put(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travel-port-booking")
           .send({ recordLocator: "Z98001" })
 
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: "Travelport booking no longer exists. Choose another booking.",
+          message: "TravelPort booking no longer exists. Choose another booking.",
         })
       })
 
@@ -194,7 +194,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
 
           // Act
           const response = await request()
-            .put(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travelport-booking")
+            .put(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travel-port-booking")
             .send({ recordLocator })
 
           // Assert
@@ -220,7 +220,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travelport-bookings-co
 
           // Act
           const response = await request()
-            .put(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travelport-booking")
+            .put(`/api/travel-desk-travel-requests/` + travelRequest.id + "/travel-port-booking")
             .send({ recordLocator: " z98001 " })
 
           // Assert

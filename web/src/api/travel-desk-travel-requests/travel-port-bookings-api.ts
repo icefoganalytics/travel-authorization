@@ -1,25 +1,25 @@
 import http from "@/api/http-client"
 
-export type TravelportBooking = {
+export type TravelPortBooking = {
   recordLocator: string
 }
 
-export type TravelportBookingsQueryOptions = {
+export type TravelPortBookingsQueryOptions = {
   search: string
   page: number
   perPage: number
 }
 
-export const travelportBookingsApi = {
+export const travelPortBookingsApi = {
   async list(
     travelDeskTravelRequestId: number,
-    params: TravelportBookingsQueryOptions,
+    params: TravelPortBookingsQueryOptions,
     options: { signal?: AbortSignal } = {}
-  ): Promise<{ travelportBookings: TravelportBooking[]; totalCount: number }> {
+  ): Promise<{ travelPortBookings: TravelPortBooking[]; totalCount: number }> {
     const { data } = await http.get<{
-      travelportBookings: TravelportBooking[]
+      travelPortBookings: TravelPortBooking[]
       totalCount: number
-    }>(`/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travelport-bookings`, {
+    }>(`/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-port-bookings`, {
       params,
       ...options,
     })
@@ -27,7 +27,7 @@ export const travelportBookingsApi = {
   },
   async update(travelDeskTravelRequestId: number, recordLocator: string | null): Promise<void> {
     await http.put(
-      `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travelport-booking`,
+      `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-port-booking`,
       { recordLocator }
     )
   },

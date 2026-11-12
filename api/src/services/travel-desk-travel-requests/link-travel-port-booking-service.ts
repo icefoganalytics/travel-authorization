@@ -1,9 +1,9 @@
 import { TravelDeskTravelRequest } from "@/models"
-import { BookingsService } from "@/integrations/travelport-integration/services/bookings-service"
+import { BookingsService } from "@/integrations/travel-port-integration/services/bookings-service"
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
-export class LinkTravelportBookingService extends BaseService {
+export class LinkTravelPortBookingService extends BaseService {
   constructor(
     protected travelDeskTravelRequest: TravelDeskTravelRequest,
     protected recordLocator: unknown
@@ -13,7 +13,7 @@ export class LinkTravelportBookingService extends BaseService {
 
   async perform(): Promise<TravelDeskTravelRequest> {
     if (this.recordLocator === null) {
-      return this.travelDeskTravelRequest.update({ travelportRecordLocator: null })
+      return this.travelDeskTravelRequest.update({ travelPortRecordLocator: null })
     }
 
     if (typeof this.recordLocator !== "string") {
@@ -25,15 +25,15 @@ export class LinkTravelportBookingService extends BaseService {
       throw new InvoiceValidationError("Record locator must contain six letters or numbers.")
     }
 
-    const { travelportBookings } = await BookingsService.perform(recordLocator, 1, 0)
-    if (travelportBookings.length === 0) {
+    const { travelPortBookings } = await BookingsService.perform(recordLocator, 1, 0)
+    if (travelPortBookings.length === 0) {
       throw new InvoiceValidationError(
-        "Travelport booking no longer exists. Choose another booking."
+        "TravelPort booking no longer exists. Choose another booking."
       )
     }
 
-    return this.travelDeskTravelRequest.update({ travelportRecordLocator: recordLocator })
+    return this.travelDeskTravelRequest.update({ travelPortRecordLocator: recordLocator })
   }
 }
 
-export default LinkTravelportBookingService
+export default LinkTravelPortBookingService

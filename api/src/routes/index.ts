@@ -336,11 +336,11 @@ router
   .get(TravelDeskTravelRequests.TravelDeskBookingEventsController.index)
   .post(TravelDeskTravelRequests.TravelDeskBookingEventsController.create)
 router
-  .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travelport-bookings")
-  .get(TravelDeskTravelRequests.TravelportBookingsController.index)
+  .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-port-bookings")
+  .get(TravelDeskTravelRequests.TravelPortBookingsController.index)
 router
-  .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travelport-booking")
-  .put(TravelDeskTravelRequests.TravelportBookingsController.update)
+  .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-port-booking")
+  .put(TravelDeskTravelRequests.TravelPortBookingsController.update)
 
 router
   .route("/api/travel-desk-product-types")

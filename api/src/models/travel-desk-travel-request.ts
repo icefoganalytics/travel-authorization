@@ -77,7 +77,7 @@ export class TravelDeskTravelRequest extends Model<
   @ValidateAttribute({
     is: /^[A-Z0-9]{6}$/,
   })
-  declare travelportRecordLocator: string | null
+  declare travelPortRecordLocator: string | null
 
   @Attribute(DataTypes.STRING(255))
   @NotNull

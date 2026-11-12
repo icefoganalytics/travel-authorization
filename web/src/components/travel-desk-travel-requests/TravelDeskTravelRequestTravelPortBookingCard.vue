@@ -1,12 +1,12 @@
 <template>
   <v-card class="mt-4">
-    <v-card-title>2. Travelport booking</v-card-title>
+    <v-card-title>2. TravelPort booking</v-card-title>
     <v-card-text>
       <p class="mb-3">
         Current linked locator: <strong>{{ recordLocator || "None" }}</strong>
       </p>
       <p class="mb-4">
-        Link one Travelport booking for invoicing. Replacing or clearing this link does not change
+        Link one TravelPort booking for invoicing. Replacing or clearing this link does not change
         saved invoices, the invoice number, or the PNR document.
       </p>
       <v-text-field
@@ -31,13 +31,13 @@
         >
       </v-alert>
       <v-progress-linear
-        v-if="isNil(travelportBookings)"
+        v-if="isNil(travelPortBookings)"
         indeterminate
       />
       <v-radio-group
         v-else
         v-model="selectedLocator"
-        label="Choose a Travelport locator"
+        label="Choose a TravelPort locator"
         :disabled="isSaving"
       >
         <v-radio
@@ -47,19 +47,19 @@
         <v-radio
           v-if="
             selectedLocator &&
-            !travelportBookings.some((booking) => booking.recordLocator === selectedLocator)
+            !travelPortBookings.some((booking) => booking.recordLocator === selectedLocator)
           "
           :value="selectedLocator"
           :label="`${selectedLocator} (selected)`"
         />
         <v-radio
-          v-for="booking in travelportBookings"
+          v-for="booking in travelPortBookings"
           :key="booking.recordLocator"
           :value="booking.recordLocator"
           :label="booking.recordLocator"
         />
       </v-radio-group>
-      <p v-if="travelportBookings?.length === 0 && !errorMessage">No matching locators found.</p>
+      <p v-if="travelPortBookings?.length === 0 && !errorMessage">No matching locators found.</p>
       <EnhancedPagination
         v-if="totalCount > perPage"
         v-model="page"
@@ -87,10 +87,10 @@ import { isNil } from "lodash"
 import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 
 import ApiError from "@/api/api-error"
-import { travelportBookingsApi } from "@/api/travel-desk-travel-requests/travelport-bookings-api"
+import { travelPortBookingsApi } from "@/api/travel-desk-travel-requests/travel-port-bookings-api"
 
 import useSnack from "@/use/use-snack"
-import { useTravelportBookings } from "@/use/travel-desk-travel-requests/use-travelport-bookings"
+import { useTravelPortBookings } from "@/use/travel-desk-travel-requests/use-travel-port-bookings"
 
 import EnhancedPagination from "@/components/common/EnhancedPagination.vue"
 
@@ -108,14 +108,14 @@ const isSaving = ref(false)
 const saveError = ref("")
 const snack = useSnack()
 const { page, perPage } = useRouteQueryPagination({
-  routeQuerySuffix: "TravelportBookings",
+  routeQuerySuffix: "TravelPortBookings",
 })
 const options = computed(() => ({
   search: (search.value ?? "").trim().toUpperCase(),
   page: page.value,
   perPage: perPage.value,
 }))
-const { travelportBookings, totalCount, errorMessage, fetch } = useTravelportBookings(
+const { travelPortBookings, totalCount, errorMessage, fetch } = useTravelPortBookings(
   travelDeskTravelRequestId,
   options
 )
@@ -133,11 +133,11 @@ async function saveLink() {
   isSaving.value = true
   saveError.value = ""
   try {
-    await travelportBookingsApi.update(props.travelDeskTravelRequestId, recordLocator)
+    await travelPortBookingsApi.update(props.travelDeskTravelRequestId, recordLocator)
     emit("saved", recordLocator)
-    snack.success("Travelport booking link saved")
+    snack.success("TravelPort booking link saved")
   } catch (error) {
-    console.error("Failed to save Travelport booking link", error)
+    console.error("Failed to save TravelPort booking link", error)
     saveError.value = error instanceof ApiError ? error.message : "Booking link could not be saved."
     snack.error(saveError.value)
   } finally {

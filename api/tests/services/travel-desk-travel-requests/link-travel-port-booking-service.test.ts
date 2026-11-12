@@ -1,7 +1,7 @@
-import { BookingsService } from "@/integrations/travelport-integration/services/bookings-service"
+import { BookingsService } from "@/integrations/travel-port-integration/services/bookings-service"
 import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
-import LinkTravelportBookingService from "@/services/travel-desk-travel-requests/link-travelport-booking-service"
+import LinkTravelPortBookingService from "@/services/travel-desk-travel-requests/link-travel-port-booking-service"
 import UpdateService from "@/services/travel-desk-invoices/update-service"
 
 import {
@@ -10,28 +10,28 @@ import {
   travelDeskTravelRequestFactory,
 } from "@/factories"
 
-describe("api/src/services/travel-desk-travel-requests/link-travelport-booking-service.ts", () => {
-  describe("LinkTravelportBookingService", () => {
+describe("api/src/services/travel-desk-travel-requests/link-travel-port-booking-service.ts", () => {
+  describe("LinkTravelPortBookingService", () => {
     describe(".perform", () => {
       test("when a real booking replaces an existing link, it persists the canonical locator without changing legacy data", async () => {
         // Arrange
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "OLD001",
+          travelPortRecordLocator: "OLD001",
           invoiceNumber: "TRAVCOM-314",
         })
         vi.spyOn(BookingsService, "perform").mockResolvedValue({
-          travelportBookings: [{ recordLocator: "NEW001" }],
+          travelPortBookings: [{ recordLocator: "NEW001" }],
           totalCount: 1,
         })
 
         // Act
-        await LinkTravelportBookingService.perform(travelRequest, " new001 ")
+        await LinkTravelPortBookingService.perform(travelRequest, " new001 ")
 
         // Assert
         const requests = await TravelDeskTravelRequest.findAll()
         expect(requests).toEqual([
           expect.objectContaining({
-            travelportRecordLocator: "NEW001",
+            travelPortRecordLocator: "NEW001",
             invoiceNumber: "TRAVCOM-314",
           }),
         ])
@@ -40,18 +40,18 @@ describe("api/src/services/travel-desk-travel-requests/link-travelport-booking-s
       test("when clearing a link during a source outage, it clears without consulting the source", async () => {
         // Arrange
         const travelRequest = await travelDeskTravelRequestFactory.create({
-          travelportRecordLocator: "OLD001",
+          travelPortRecordLocator: "OLD001",
         })
         vi.spyOn(BookingsService, "perform").mockRejectedValue(
           new SourceUnavailableError("Offline.")
         )
 
         // Act
-        await LinkTravelportBookingService.perform(travelRequest, null)
+        await LinkTravelPortBookingService.perform(travelRequest, null)
 
         // Assert
         const requests = await TravelDeskTravelRequest.findAll()
-        expect(requests).toEqual([expect.objectContaining({ travelportRecordLocator: null })])
+        expect(requests).toEqual([expect.objectContaining({ travelPortRecordLocator: null })])
       })
 
       test.each(["missing", "unavailable"])(
@@ -59,21 +59,21 @@ describe("api/src/services/travel-desk-travel-requests/link-travelport-booking-s
         async (condition) => {
           // Arrange
           const travelRequest = await travelDeskTravelRequestFactory.create({
-            travelportRecordLocator: "OLD001",
+            travelPortRecordLocator: "OLD001",
           })
           const lookup = vi.spyOn(BookingsService, "perform")
           if (condition === "missing") {
-            lookup.mockResolvedValue({ travelportBookings: [], totalCount: 0 })
+            lookup.mockResolvedValue({ travelPortBookings: [], totalCount: 0 })
           } else {
             lookup.mockRejectedValue(new SourceUnavailableError("Offline."))
           }
 
           // Act
-          await LinkTravelportBookingService.perform(travelRequest, "NEW001").catch(() => undefined)
+          await LinkTravelPortBookingService.perform(travelRequest, "NEW001").catch(() => undefined)
 
           // Assert
           const requests = await TravelDeskTravelRequest.findAll()
-          expect(requests).toEqual([expect.objectContaining({ travelportRecordLocator: "OLD001" })])
+          expect(requests).toEqual([expect.objectContaining({ travelPortRecordLocator: "OLD001" })])
         }
       )
 
@@ -82,7 +82,7 @@ describe("api/src/services/travel-desk-travel-requests/link-travelport-booking-s
         async (recordLocator) => {
           // Arrange
           const travelRequest = await travelDeskTravelRequestFactory.create({
-            travelportRecordLocator: "OLD001",
+            travelPortRecordLocator: "OLD001",
           })
           const invoice = await travelDeskInvoiceFactory
             .associations({ travelDeskTravelRequest: travelRequest })
@@ -93,12 +93,12 @@ describe("api/src/services/travel-desk-travel-requests/link-travelport-booking-s
             name: "Air",
           })
           vi.spyOn(BookingsService, "perform").mockResolvedValue({
-            travelportBookings: [{ recordLocator: "NEW001" }],
+            travelPortBookings: [{ recordLocator: "NEW001" }],
             totalCount: 1,
           })
 
           // Act
-          await LinkTravelportBookingService.perform(travelRequest, recordLocator)
+          await LinkTravelPortBookingService.perform(travelRequest, recordLocator)
           await UpdateService.perform(invoice, {
             currencyCode: "CAD",
             items: [

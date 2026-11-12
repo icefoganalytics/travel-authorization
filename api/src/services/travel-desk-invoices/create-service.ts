@@ -135,13 +135,13 @@ export class CreateService extends BaseService {
       throw new InvoiceValidationError("Travel desk travel request does not exist.")
     }
 
-    if (isNil(travelDeskTravelRequest.travelportRecordLocator)) {
-      throw new InvoiceValidationError("Link a Travelport booking to this travel request first.")
+    if (isNil(travelDeskTravelRequest.travelPortRecordLocator)) {
+      throw new InvoiceValidationError("Link a TravelPort booking to this travel request first.")
     }
 
     const recordLocator = this.attributes.recordLocator?.trim().toUpperCase()
-    if (recordLocator !== travelDeskTravelRequest.travelportRecordLocator) {
-      throw new InvoiceValidationError("Invoice booking must match the linked Travelport booking.")
+    if (recordLocator !== travelDeskTravelRequest.travelPortRecordLocator) {
+      throw new InvoiceValidationError("Invoice booking must match the linked TravelPort booking.")
     }
   }
 
