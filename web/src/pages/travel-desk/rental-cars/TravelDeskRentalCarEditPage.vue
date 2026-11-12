@@ -344,20 +344,23 @@ function updateFlightMatching(value: boolean) {
     return
   }
 
-  // Preserve the saved or manually edited schedule before an explicit flight match replaces it.
-  if (isNil(scheduleBeforeFlightMatching)) {
-    scheduleBeforeFlightMatching = {
-      pickUpDate: pickUpDate.value,
-      pickUpTime: pickUpTime.value,
-      dropOffDate: dropOffDate.value,
-      dropOffTime: dropOffTime.value,
-    }
-  }
+  preserveManualSchedule()
 
   pickUpDate.value = schedule.startDate
   pickUpTime.value = schedule.startTime
   dropOffDate.value = schedule.endDate
   dropOffTime.value = schedule.endTime
+}
+
+function preserveManualSchedule() {
+  if (!isNil(scheduleBeforeFlightMatching)) return
+
+  scheduleBeforeFlightMatching = {
+    pickUpDate: pickUpDate.value,
+    pickUpTime: pickUpTime.value,
+    dropOffDate: dropOffDate.value,
+    dropOffTime: dropOffTime.value,
+  }
 }
 
 function restoreManualSchedule() {
