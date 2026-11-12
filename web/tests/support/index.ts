@@ -1,4 +1,6 @@
 export { mockAuth0 } from "./mock-auth0"
-export { mockHttpClient, mockHttpGetRoute, mockHttpGetRoutes } from "./mock-http-client"
+export { mockHttpClient } from "./mock-http-client"
+export { mockHttpGetRoute } from "./mock-http-get-route"
+export { mockHttpGetRoutes } from "./mock-http-get-routes"
 export { mockRouter } from "./mock-router"
 export { mockVuetify } from "./mock-vuetify"

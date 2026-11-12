@@ -2,7 +2,8 @@ import { flushPromises } from "@vue/test-utils"
 
 import httpClient from "@/api/http-client"
 
-import { mockHttpGetRoute, mockHttpGetRoutes } from "@/tests/support/mock-http-client"
+import mockHttpGetRoute from "@/tests/support/mock-http-get-route"
+import mockHttpGetRoutes from "@/tests/support/mock-http-get-routes"
 
 const registrationForms = [
   {
@@ -17,7 +18,7 @@ const registrationForms = [
   },
 ]
 
-describe("web/tests/support/mock-http-client.ts", () => {
+describe("web/tests/support/mock-http-get-routes.ts", () => {
   describe.each(registrationForms)("$name", ({ register }) => {
     test("when distinct routes are registered sequentially, both responses remain available", async () => {
       // Arrange
