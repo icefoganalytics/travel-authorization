@@ -2,9 +2,9 @@ import { IsolationLevel } from "@sequelize/core"
 
 import logger from "@/utils/logger"
 
-import sourceDatabase, { TravelOrderEvent } from "@/integrations/travelport-integration/models"
-import { SyncSerializer } from "@/integrations/travelport-integration/serializers/travel-order-events"
-import db, { TravelDeskBookingEvent } from "@/models"
+import travelportDatabase, { TravelOrderEvent } from "@/integrations/travelport-integration/models"
+import { TravelOrderEvents } from "@/integrations/travelport-integration/serializers"
+import travelAuthorizationDatabase, { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
@@ -18,17 +18,20 @@ export class SyncService extends BaseService {
   async perform(): Promise<void> {
     this.assertRecordLocatorIsValid(this.recordLocator)
 
-    await db.transaction(async () => {
+    await travelAuthorizationDatabase.transaction(async () => {
       // Serialize refreshes even when this locator has no local rows yet.
-      await db.query("SELECT pg_advisory_xact_lock(hashtext(:recordLocator))", {
-        replacements: { recordLocator: this.recordLocator },
-      })
+      await travelAuthorizationDatabase.query(
+        "SELECT pg_advisory_xact_lock(hashtext(:recordLocator))",
+        {
+          replacements: { recordLocator: this.recordLocator },
+        }
+      )
       // Unseen rows stay deleted; a failed source scan rolls this back.
       await TravelDeskBookingEvent.destroy({
         where: { recordLocator: this.recordLocator },
       })
       await this.syncSourceEvents(this.recordLocator, async (sourceEvent) => {
-        const serializedSourceEvent = SyncSerializer.perform(sourceEvent)
+        const serializedSourceEvent = TravelOrderEvents.SyncSerializer.perform(sourceEvent)
         const { travelOrderIdentifier, ...sourceAttributes } = serializedSourceEvent
         const attributes = {
           ...sourceAttributes,
@@ -64,7 +67,7 @@ export class SyncService extends BaseService {
     let processingFailed = false
     try {
       // Read locks keep the scan consistent but can delay feed writers until it finishes.
-      await sourceDatabase.transaction(
+      await travelportDatabase.transaction(
         { isolationLevel: IsolationLevel.SERIALIZABLE },
         async () => {
           await TravelOrderEvent.findEach(
