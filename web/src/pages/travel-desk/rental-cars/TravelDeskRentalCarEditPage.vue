@@ -281,10 +281,7 @@ let scheduleBeforeFlightMatching: {
 } | null = null
 
 watch(
-  [
-    () => travelDeskRentalCar.value?.pickUpDate,
-    () => travelDeskRentalCar.value?.dropOffDate,
-  ],
+  [() => travelDeskRentalCar.value?.pickUpDate, () => travelDeskRentalCar.value?.dropOffDate],
   ([newPickUpDate, newDropOffDate]) => {
     scheduleBeforeFlightMatching = null
 
@@ -325,15 +322,18 @@ const isMatchingAvailableFlightSchedule = computed(() => {
 const isWaitingForFlightSchedule = ref(false)
 
 function updateFlightMatching(value: boolean) {
+  if (value) {
+    enableFlightMatching()
+  } else {
+    disableFlightMatching()
+  }
+}
+
+function enableFlightMatching() {
   if (isNil(travelDeskRentalCar.value)) return
 
-  travelDeskRentalCar.value.matchFlightTimes = value
+  travelDeskRentalCar.value.matchFlightTimes = true
   isWaitingForFlightSchedule.value = false
-
-  if (!value) {
-    restoreManualSchedule()
-    return
-  }
 
   const schedule = availableFlightSchedule.value
   if (isNil(schedule)) {
@@ -347,6 +347,14 @@ function updateFlightMatching(value: boolean) {
   pickUpTime.value = schedule.startTime
   dropOffDate.value = schedule.endDate
   dropOffTime.value = schedule.endTime
+}
+
+function disableFlightMatching() {
+  if (isNil(travelDeskRentalCar.value)) return
+
+  travelDeskRentalCar.value.matchFlightTimes = false
+  isWaitingForFlightSchedule.value = false
+  restoreManualSchedule()
 }
 
 function preserveManualSchedule() {
@@ -373,7 +381,7 @@ function restoreManualSchedule() {
 // Only resume an explicit match that was waiting for flights; never rematch a loaded rental.
 watch(isFlightScheduleAvailable, (isAvailable) => {
   if (isAvailable && isWaitingForFlightSchedule.value) {
-    updateFlightMatching(true)
+    enableFlightMatching()
   }
 })
 
