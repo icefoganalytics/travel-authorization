@@ -237,7 +237,7 @@ const props = defineProps<{
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
-const { tripStartDate, tripEndDate, finalDestination, availableFlightSchedule } =
+const { tripStartDate, tripEndDate, finalDestination, flightSchedule } =
   useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
 
 const travelDeskRentalCarAttributes = ref<Partial<TravelDeskRentalCar>>({
@@ -281,7 +281,7 @@ const scheduleBeforeFlightMatching = ref<{
   dropOffTime: string
 } | null>(null)
 
-const isFlightScheduleAvailable = computed(() => !isNil(availableFlightSchedule.value))
+const isFlightScheduleAvailable = computed(() => !isNil(flightSchedule.value))
 const isMatchingAvailableFlightSchedule = computed(
   () =>
     travelDeskRentalCarAttributes.value.matchFlightTimes === true && isFlightScheduleAvailable.value
@@ -301,7 +301,7 @@ function enableFlightMatching() {
   travelDeskRentalCarAttributes.value.matchFlightTimes = true
   isWaitingForFlightSchedule.value = false
 
-  const schedule = availableFlightSchedule.value
+  const schedule = flightSchedule.value
   if (isNil(schedule)) {
     isWaitingForFlightSchedule.value = true
     return

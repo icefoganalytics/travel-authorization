@@ -47,7 +47,7 @@ describe("web/src/use/travel-desk-travel-requests/use-travel-times-summary.ts", 
       await flushPromises()
 
       // Assert
-      expect(summary?.availableFlightSchedule.value).toEqual({
+      expect(summary?.flightSchedule.value).toEqual({
         startDate: "2026-12-10",
         startTime: "08:35",
         endDate: "2026-12-12",
@@ -71,7 +71,7 @@ describe("web/src/use/travel-desk-travel-requests/use-travel-times-summary.ts", 
       await flushPromises()
 
       // Assert
-      expect(summary?.availableFlightSchedule.value).toBeNull()
+      expect(summary?.flightSchedule.value).toBeNull()
     })
 
     test("when the last boundary is refreshing, withholds the previously loaded schedule", async () => {
@@ -104,7 +104,7 @@ describe("web/src/use/travel-desk-travel-requests/use-travel-times-summary.ts", 
       await flushPromises()
 
       // Assert
-      expect(summary.availableFlightSchedule.value).toBeNull()
+      expect(summary.flightSchedule.value).toBeNull()
     })
 
     test("when a flight refresh fails, does not expose the previously loaded schedule", async () => {
@@ -128,7 +128,7 @@ describe("web/src/use/travel-desk-travel-requests/use-travel-times-summary.ts", 
       await summary.refresh().catch((error: Error) => error)
 
       // Assert
-      expect(summary.availableFlightSchedule.value).toBeNull()
+      expect(summary.flightSchedule.value).toBeNull()
     })
   })
 })

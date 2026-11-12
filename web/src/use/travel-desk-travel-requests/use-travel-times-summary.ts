@@ -86,7 +86,7 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
     () => isFirstFlightSegmentErrored.value || isLastFlightSegmentErrored.value
   )
 
-  const availableFlightSchedule = computed(() => {
+  const flightSchedule = computed(() => {
     if (isFlightScheduleLoading.value || isFlightScheduleErrored.value) return null
 
     const startAt = firstTravelDeskFlightSegment.value?.departAt
@@ -121,7 +121,7 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
     tripStartDate,
     tripEndDate,
     finalDestination,
-    availableFlightSchedule,
+    flightSchedule,
     refresh,
   }
 }

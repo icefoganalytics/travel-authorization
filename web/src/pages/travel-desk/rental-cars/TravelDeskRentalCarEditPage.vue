@@ -309,8 +309,8 @@ const isScheduleComplete = computed(() => {
   )
 })
 
-const { availableFlightSchedule } = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
-const isFlightScheduleAvailable = computed(() => !isNil(availableFlightSchedule.value))
+const { flightSchedule } = useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
+const isFlightScheduleAvailable = computed(() => !isNil(flightSchedule.value))
 const isMatchingAvailableFlightSchedule = computed(() => {
   return (
     travelDeskRentalCar.value?.matchFlightTimes === true &&
@@ -335,7 +335,7 @@ function enableFlightMatching() {
   travelDeskRentalCar.value.matchFlightTimes = true
   isWaitingForFlightSchedule.value = false
 
-  const schedule = availableFlightSchedule.value
+  const schedule = flightSchedule.value
   if (isNil(schedule)) {
     isWaitingForFlightSchedule.value = true
     return
