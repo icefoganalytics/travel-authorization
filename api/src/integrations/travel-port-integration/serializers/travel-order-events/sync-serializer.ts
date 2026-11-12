@@ -8,21 +8,15 @@ import {
 } from "@/integrations/travel-port-integration/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-function trimSourceValue(value: string | null): string | null {
-  if (isNil(value)) return null
-
-  return value.trim()
-}
-
 export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   perform() {
-    const eventType = trimSourceValue(this.record.eventType)
-    const recordLocator = trimSourceValue(this.record.recordLocator)
-    const reservationSystemDescription = trimSourceValue(this.record.crsDescription)
-    const owningAgencyName = trimSourceValue(this.record.owningAgencyName)
-    const transactionAgencyName = trimSourceValue(this.record.transactionAgencyName)
-    const transactionAgent = trimSourceValue(this.record.transactionAgent)
-    const creatingAgencyInternationalAirTransportAssociationNumber = trimSourceValue(
+    const eventType = this.trimSourceValue(this.record.eventType)
+    const recordLocator = this.trimSourceValue(this.record.recordLocator)
+    const reservationSystemDescription = this.trimSourceValue(this.record.crsDescription)
+    const owningAgencyName = this.trimSourceValue(this.record.owningAgencyName)
+    const transactionAgencyName = this.trimSourceValue(this.record.transactionAgencyName)
+    const transactionAgent = this.trimSourceValue(this.record.transactionAgent)
+    const creatingAgencyInternationalAirTransportAssociationNumber = this.trimSourceValue(
       this.record.creatingAgencyIata
     )
     const passengers = this.serializePassengers(this.record.passengers)
@@ -50,14 +44,20 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
     }
   }
 
+  private trimSourceValue(value: string | null): string | null {
+    if (isNil(value)) return null
+
+    return value.trim()
+  }
+
   private serializePassengers(passengers: Passenger[] | undefined) {
     if (isUndefined(passengers)) {
       throw new Error("Expected passengers to be preloaded.")
     }
 
     return passengers.map((passenger) => {
-      const firstName = trimSourceValue(passenger.firstName)
-      const lastName = trimSourceValue(passenger.lastName)
+      const firstName = this.trimSourceValue(passenger.firstName)
+      const lastName = this.trimSourceValue(passenger.lastName)
 
       return {
         lastNameElement: passenger.lastNameElement,
@@ -74,14 +74,14 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
     }
 
     return airReservationSegments.map((segment) => {
-      const segmentStatus = trimSourceValue(segment.segmentStatus)
-      const carrierCode = trimSourceValue(segment.carrierCode)
-      const boardPoint = trimSourceValue(segment.boardPoint)
-      const offPoint = trimSourceValue(segment.offPoint)
-      const flightNumber = trimSourceValue(segment.flightNumber)
-      const departureDate = trimSourceValue(segment.departureDate)
-      const departureTime = trimSourceValue(segment.departureTime)
-      const arrivalTime = trimSourceValue(segment.arrivalTime)
+      const segmentStatus = this.trimSourceValue(segment.segmentStatus)
+      const carrierCode = this.trimSourceValue(segment.carrierCode)
+      const boardPoint = this.trimSourceValue(segment.boardPoint)
+      const offPoint = this.trimSourceValue(segment.offPoint)
+      const flightNumber = this.trimSourceValue(segment.flightNumber)
+      const departureDate = this.trimSourceValue(segment.departureDate)
+      const departureTime = this.trimSourceValue(segment.departureTime)
+      const arrivalTime = this.trimSourceValue(segment.arrivalTime)
 
       return {
         airSegmentNumber: segment.airSegmentNumber,
@@ -107,15 +107,15 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
 
     if (isNil(serviceFeeTransaction)) return null
 
-    const activeVoidStatus = trimSourceValue(serviceFeeTransaction.activeVoidStatus)
-    const serviceFeeDocumentNumber = trimSourceValue(serviceFeeTransaction.serviceFeeDocumentNumber)
-    const issueDate = trimSourceValue(serviceFeeTransaction.issueDate)
-    const currencyCode = trimSourceValue(serviceFeeTransaction.currencyCode)
-    const nameOnServiceFee = trimSourceValue(serviceFeeTransaction.nameOnServiceFee)
-    const relatedTicketDocumentNumber = trimSourceValue(
+    const activeVoidStatus = this.trimSourceValue(serviceFeeTransaction.activeVoidStatus)
+    const serviceFeeDocumentNumber = this.trimSourceValue(serviceFeeTransaction.serviceFeeDocumentNumber)
+    const issueDate = this.trimSourceValue(serviceFeeTransaction.issueDate)
+    const currencyCode = this.trimSourceValue(serviceFeeTransaction.currencyCode)
+    const nameOnServiceFee = this.trimSourceValue(serviceFeeTransaction.nameOnServiceFee)
+    const relatedTicketDocumentNumber = this.trimSourceValue(
       serviceFeeTransaction.relatedTicketDocumentNumber
     )
-    const relatedInvoiceNumber = trimSourceValue(serviceFeeTransaction.relatedInvoiceNumber)
+    const relatedInvoiceNumber = this.trimSourceValue(serviceFeeTransaction.relatedInvoiceNumber)
 
     return {
       activeVoidStatus,
