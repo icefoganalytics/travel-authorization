@@ -37,6 +37,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
+- Multi-city trips returning to their starting location show the destination before the return leg in summaries and request lists. Saving Purpose preserves the return-home itinerary.
 - Expense prefill excludes airfare while preserving other eligible expenses; flight estimates remain unchanged.
 - Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns, including traveller, purpose, dates, and Travel Desk status, order the full authorized result set before pagination, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
 - Owners can complete Travel Desk options review for requests without flights once all review data has loaded.
