@@ -22,21 +22,21 @@ export class SyncService extends BaseService {
 
     await WithSyncLockService.perform(this.recordLocator, async () => {
       const matchedSourceIds: number[] = []
-      await this.syncSourceEvents(this.recordLocator, async (sourceEvent) => {
-        const serializedSourceEvent = TravelOrderEvents.SyncSerializer.perform(sourceEvent)
-        const { travelOrderIdentifier, ...sourceAttributes } = serializedSourceEvent
-        const attributes = {
-          ...sourceAttributes,
+      await this.syncSourceEvents(this.recordLocator, async (travelOrderEvent) => {
+        const serializedTravelOrderEvent = TravelOrderEvents.SyncSerializer.perform(travelOrderEvent)
+        const { travelOrderIdentifier, ...travelOrderEventAttributes } = serializedTravelOrderEvent
+        const travelDeskBookingEventAttributes = {
+          ...travelOrderEventAttributes,
           externalTravelportIdentifier: travelOrderIdentifier,
           recordLocator: this.recordLocator,
         }
-        const bookingEvent = await TravelDeskBookingEvent.findOne({
+        const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
           where: { externalTravelportIdentifier: travelOrderIdentifier },
         })
-        if (isNil(bookingEvent)) {
-          await TravelDeskBookingEvent.create(attributes)
+        if (isNil(travelDeskBookingEvent)) {
+          await TravelDeskBookingEvent.create(travelDeskBookingEventAttributes)
         } else {
-          await bookingEvent.update(attributes)
+          await travelDeskBookingEvent.update(travelDeskBookingEventAttributes)
         }
         matchedSourceIds.push(travelOrderIdentifier)
       })
