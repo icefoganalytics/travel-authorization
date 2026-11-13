@@ -1,4 +1,4 @@
-import sourceDatabase from "@/integrations/travel-port-integration/db/db-migration-client"
+import travelPortMigrationClient from "@/integrations/travel-port-integration/db/db-migration-client"
 import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
 import { TravelDeskBookingEvent } from "@/models"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
@@ -9,10 +9,6 @@ import { travelDeskBookingEventFactory, TravelPortIntegration } from "@/factorie
 describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
   describe("SyncService", () => {
     describe(".perform", () => {
-      afterEach(() => {
-        TravelDeskBookingEvent.hooks.removeListener("beforeCreate", "simulatePersistenceFailure")
-      })
-
       test("when fees arrive separately, it preserves source precision without leaking passenger remarks", async () => {
         // Arrange
         const bookingEvent = await TravelPortIntegration.travelOrderEventFactory.create({
@@ -111,7 +107,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when a lowercase source locator is refreshed, it normalizes and updates one local row without duplicates", async () => {
         // Arrange
-        await sourceDatabase("TravelOrderEvent").insert({
+        await travelPortMigrationClient("TravelOrderEvent").insert({
           TravelOrderIdentifier: 910001,
           RecordLocator: "src001",
           PnrBfVersionNbr: 1,
@@ -123,7 +119,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           bookingFileVersionNumber: 1,
         })
         await SyncService.perform("SRC001")
-        await sourceDatabase("TravelOrderEvent")
+        await travelPortMigrationClient("TravelOrderEvent")
           .where({ TravelOrderIdentifier: 910001 })
           .update({ PnrBfVersionNbr: 2 })
 
@@ -159,7 +155,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
       test("when one source event disappears, it removes that event from local history", async () => {
         // Arrange
-        await sourceDatabase("TravelOrderEvent").insert({
+        await travelPortMigrationClient("TravelOrderEvent").insert({
           TravelOrderIdentifier: 910001,
           RecordLocator: "SRC001",
           DatabaseTimeStamp: "2030-01-01T12:00:00",
@@ -189,7 +185,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           recordLocator: "SRC001",
         })
         await deletedEvent.destroy()
-        await sourceDatabase("TravelOrderEvent").insert({
+        await travelPortMigrationClient("TravelOrderEvent").insert({
           TravelOrderIdentifier: 910001,
           RecordLocator: "SRC001",
           PnrBfVersionNbr: 2,
@@ -265,17 +261,20 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           .fn<() => Promise<void>>()
           .mockResolvedValueOnce(undefined)
           .mockRejectedValueOnce(new Error("Second local write failed"))
-        TravelDeskBookingEvent.hooks.addListener(
+        const removeBeforeCreate = TravelDeskBookingEvent.hooks.addListener(
           "beforeCreate",
-          beforeCreate,
-          "simulatePersistenceFailure"
+          beforeCreate
         )
 
-        // Act
-        await SyncService.perform("SRC001").catch(() => undefined)
+        try {
+          // Act
+          await SyncService.perform("SRC001").catch(() => undefined)
 
-        // Assert
-        expect(await TravelDeskBookingEvent.findAll()).toEqual([])
+          // Assert
+          expect(await TravelDeskBookingEvent.findAll()).toEqual([])
+        } finally {
+          removeBeforeCreate()
+        }
       })
 
       test("when a later event cannot persist, it rolls back updates to cached events", async () => {
@@ -323,14 +322,17 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           .fn<() => Promise<void>>()
           .mockResolvedValueOnce(undefined)
           .mockRejectedValueOnce(persistenceError)
-        TravelDeskBookingEvent.hooks.addListener(
+        const removeBeforeCreate = TravelDeskBookingEvent.hooks.addListener(
           "beforeCreate",
-          beforeCreate,
-          "simulatePersistenceFailure"
+          beforeCreate
         )
 
-        // Act / Assert
-        await expect(SyncService.perform("SRC001")).rejects.toBe(persistenceError)
+        try {
+          // Act / Assert
+          await expect(SyncService.perform("SRC001")).rejects.toBe(persistenceError)
+        } finally {
+          removeBeforeCreate()
+        }
       })
 
       test("when an unrestricted locator matches no source events, it preserves other cached bookings", async () => {
