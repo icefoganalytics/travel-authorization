@@ -237,8 +237,9 @@ const props = defineProps<{
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
-const { tripStartDate, tripEndDate, finalDestination, flightSchedule } =
-  useTravelTimesSummary(travelDeskTravelRequestIdAsNumber)
+const { tripStartDate, tripEndDate, finalDestination, flightSchedule } = useTravelTimesSummary(
+  travelDeskTravelRequestIdAsNumber
+)
 
 const travelDeskRentalCarAttributes = ref<Partial<TravelDeskRentalCar>>({
   travelRequestId: travelDeskTravelRequestIdAsNumber.value,
