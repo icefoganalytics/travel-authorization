@@ -10,7 +10,11 @@ import ConfirmActualTravelDetailsStep from "@/components/my-travel-request-wizar
 import EditTripDetailsStep from "@/components/my-travel-request-wizard/EditTripDetailsStep.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 
-import { locationFactory, travelAuthorizationFactory } from "@/tests/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+} from "@/tests/factories"
 import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
 
 describe("web/src/components/my-travel-request-wizard", () => {
@@ -22,17 +26,31 @@ describe("web/src/components/my-travel-request-wizard", () => {
       "when an unsaved $phase multi-city destination changes, updates the summary header",
       async ({ step }) => {
         // Arrange
-        const travelSegments = [
-          { departureLocationId: 1, arrivalLocationId: 2 },
-          { departureLocationId: 2, arrivalLocationId: 3 },
-          { departureLocationId: 3, arrivalLocationId: 1 },
-        ].map((locations, index) => ({
-          ...locations,
+        const travelSegment1 = travelSegmentFactory.build({
           travelAuthorizationId: 5,
-          segmentNumber: index + 1,
+          segmentNumber: 1,
+          departureLocationId: 1,
+          arrivalLocationId: 2,
           departureOn: "2026-11-12",
           isActual: false,
-        }))
+        })
+        const travelSegment2 = travelSegmentFactory.build({
+          travelAuthorizationId: 5,
+          segmentNumber: 2,
+          departureLocationId: 2,
+          arrivalLocationId: 3,
+          departureOn: "2026-11-12",
+          isActual: false,
+        })
+        const travelSegment3 = travelSegmentFactory.build({
+          travelAuthorizationId: 5,
+          segmentNumber: 3,
+          departureLocationId: 3,
+          arrivalLocationId: 1,
+          departureOn: "2026-11-12",
+          isActual: false,
+        })
+        const travelSegments = [travelSegment1, travelSegment2, travelSegment3]
         const travelAuthorization = travelAuthorizationFactory.asShow().build({
           id: 5,
           userId: 1,
