@@ -16,14 +16,19 @@ export function determineFinalDestinationSegment<Segment extends DestinationSegm
   }
 
   const lastTravelSegment = last(travelSegments)
+  if (isNil(lastTravelSegment)) return undefined
+
   if (tripType !== TravelAuthorizationTripTypes.MULTI_CITY || travelSegments.length < 2) {
     return lastTravelSegment
   }
 
-  const originLocationId = first(travelSegments)?.departureLocationId
+  const firstTravelSegment = first(travelSegments)
+  if (isNil(firstTravelSegment)) return lastTravelSegment
+
+  const originLocationId = firstTravelSegment.departureLocationId
   if (isNil(originLocationId)) return lastTravelSegment
 
-  if (lastTravelSegment?.arrivalLocationId === originLocationId) {
+  if (lastTravelSegment.arrivalLocationId === originLocationId) {
     return travelSegments.at(-2)
   }
 
