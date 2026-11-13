@@ -1,5 +1,5 @@
 import { Factory } from "fishery"
-import { nth } from "lodash"
+import { faker } from "@faker-js/faker"
 
 import {
   type TravelDeskRentalCar,
@@ -7,12 +7,12 @@ import {
 } from "@/api/travel-desk-rental-cars-api"
 
 const CITIES = ["Whitehorse (YT)", "Vancouver (BC)", "Toronto (ON)", "Dawson (YT)"]
+const LOCATION_TYPES = Object.values(TravelDeskRentalCarLocationTypes)
 
 export const travelDeskRentalCarFactory = Factory.define<TravelDeskRentalCar>(({ sequence }) => {
   const timestamp = "2026-11-01T00:00:00.000Z"
-  const locationTypes = Object.values(TravelDeskRentalCarLocationTypes)
-  const pickUpCity = nth(CITIES, (sequence - 1) % CITIES.length)!
-  const pickUpLocation = nth(locationTypes, (sequence - 1) % locationTypes.length)!
+  const pickUpCity = faker.helpers.arrayElement(CITIES)
+  const pickUpLocation = faker.helpers.arrayElement(LOCATION_TYPES)
   const pickUpLocationOther =
     pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER ? `Rental office ${sequence}` : null
 
