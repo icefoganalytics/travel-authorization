@@ -11,26 +11,23 @@ export function determineFinalDestinationSegment<Segment extends DestinationSegm
 ): Segment | undefined {
   if (isNil(tripType) || isNil(travelSegments) || isEmpty(travelSegments)) return undefined
 
-  const firstTravelSegment = first(travelSegments)
-  const lastTravelSegment = last(travelSegments)
-  const originLocationId = firstTravelSegment?.departureLocationId
-  const returnsToOrigin =
-    travelSegments.length > 1 &&
-    !isNil(originLocationId) &&
-    lastTravelSegment?.arrivalLocationId === originLocationId
-
-  let finalDestinationSegment: Segment | undefined
-
-  if (
-    tripType === TravelAuthorizationTripTypes.ROUND_TRIP ||
-    (tripType === TravelAuthorizationTripTypes.MULTI_CITY && returnsToOrigin)
-  ) {
-    finalDestinationSegment = travelSegments.at(-2)
-  } else {
-    finalDestinationSegment = lastTravelSegment
+  if (tripType === TravelAuthorizationTripTypes.ROUND_TRIP) {
+    return travelSegments.at(-2)
   }
 
-  return finalDestinationSegment
+  const lastTravelSegment = last(travelSegments)
+  if (tripType !== TravelAuthorizationTripTypes.MULTI_CITY || travelSegments.length < 2) {
+    return lastTravelSegment
+  }
+
+  const originLocationId = first(travelSegments)?.departureLocationId
+  if (isNil(originLocationId)) return lastTravelSegment
+
+  if (lastTravelSegment?.arrivalLocationId === originLocationId) {
+    return travelSegments.at(-2)
+  }
+
+  return lastTravelSegment
 }
 
 export default determineFinalDestinationSegment
