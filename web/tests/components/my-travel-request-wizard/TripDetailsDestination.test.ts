@@ -41,25 +41,27 @@ describe("web/src/components/my-travel-request-wizard", () => {
           tripTypeActual: null,
           travelSegments,
         })
-        const locations = [
-          locationFactory.build({ id: 1, city: "Whitehorse", province: "YT" }),
-          locationFactory.build({ id: 2, city: "Vancouver", province: "BC" }),
-          locationFactory.build({ id: 3, city: "Toronto", province: "ON" }),
-          locationFactory.build({ id: 4, city: "Ottawa", province: "ON" }),
-        ]
-        mockHttpClient().get.mockImplementation(async (url) => ({
-          data: {
-            travelAuthorization,
-            travelSegments,
-            locations,
-            location: locations.find((location) => url === `/api/locations/${location.id}`),
-            user: { id: 1, displayName: "Test Traveler", roles: [] },
-            travelPurpose: { id: 1, purpose: "Meeting" },
-            expenses: [],
-            totalCount: 0,
-            policy: {},
-          },
-        }))
+        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse", province: "YT" })
+        const vancouver = locationFactory.build({ id: 2, city: "Vancouver", province: "BC" })
+        const toronto = locationFactory.build({ id: 3, city: "Toronto", province: "ON" })
+        const ottawa = locationFactory.build({ id: 4, city: "Ottawa", province: "ON" })
+        const locations = [whitehorse, vancouver, toronto, ottawa]
+        mockHttpClient().get.mockImplementation(async (url) => {
+          const location = locations.find((location) => url === `/api/locations/${location.id}`)
+          return {
+            data: {
+              travelAuthorization,
+              travelSegments,
+              locations,
+              location,
+              user: { id: 1, displayName: "Test Traveler", roles: [] },
+              travelPurpose: { id: 1, purpose: "Meeting" },
+              expenses: [],
+              totalCount: 0,
+              policy: {},
+            },
+          }
+        })
         await useCurrentUser().fetch()
         const router = mockRouter([
           {
@@ -74,12 +76,12 @@ describe("web/src/components/my-travel-request-wizard", () => {
         const host = defineComponent({
           setup() {
             const summaryHeaderPanel = ref<InstanceType<typeof SummaryHeaderPanel> | null>(null)
-            return () => [
-              h(SummaryHeaderPanel, {
+            return () => {
+              const summary = h(SummaryHeaderPanel, {
                 ref: summaryHeaderPanel,
                 travelAuthorizationId: 5,
-              }),
-              h(step, {
+              })
+              const details = h(step, {
                 travelAuthorizationId: 5,
                 stepTitle: "Trip details",
                 stepSubtitle: "Review your itinerary",
@@ -88,13 +90,15 @@ describe("web/src/components/my-travel-request-wizard", () => {
                 ) => {
                   summaryHeaderPanel.value?.update({ finalDestinationLocationId })
                 },
-              }),
-            ]
+              })
+              return [summary, details]
+            }
           },
         })
+        const vuetify = mockVuetify()
         const wrapper = mount(host, {
           global: {
-            plugins: [mockVuetify(), router],
+            plugins: [vuetify, router],
           },
         })
         await flushPromises()
