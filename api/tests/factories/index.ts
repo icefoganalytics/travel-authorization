@@ -1,14 +1,11 @@
 // Factories
-export { airReservationSegmentFactory } from "./air-reservation-segment-factory"
 export { attachmentFactory } from "./attachment-factory"
 export { distanceMatrixFactory } from "./distance-matrix-factory"
 export { expenseFactory } from "./expense-factory"
 export { flightStatisticFactory } from "./flight-statistic-factory"
 export { generalLedgerCodingFactory } from "./general-ledger-coding-factory"
 export { locationFactory } from "./location-factory"
-export { passengerFactory } from "./passenger-factory"
 export { perDiemFactory } from "./per-diem-factory"
-export { serviceFeeTransactionFactory } from "./service-fee-transaction-factory"
 export { stopFactory } from "./stop-factory"
 export { travelAllowanceFactory } from "./travel-allowance-factory"
 export { travelAuthorizationFactory } from "./travel-authorization-factory"
@@ -22,10 +19,10 @@ export { travelDeskOtherTransportationFactory } from "./travel-desk-other-transp
 export { travelDeskQuestionFactory } from "./travel-desk-question-factory"
 export { travelDeskTravelAgencyFactory } from "./travel-desk-travel-agency-factory"
 export { travelDeskTravelRequestFactory } from "./travel-desk-travel-request-factory"
-export { travelOrderEventFactory } from "./travel-order-event-factory"
 export { travelPurposeFactory } from "./travel-purpose-factory"
 export { travelSegmentFactory } from "./travel-segment-factory"
 export { userFactory } from "./user-factory"
 
 // Namespaced Exports
 export * as Helpers from "./helpers"
+export * as TravelPortIntegration from "./travel-port-integration"

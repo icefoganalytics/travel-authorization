@@ -4,20 +4,14 @@ import { TravelDeskBookingEvent } from "@/models"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
-import {
-  airReservationSegmentFactory,
-  passengerFactory,
-  serviceFeeTransactionFactory,
-  travelDeskBookingEventFactory,
-  travelOrderEventFactory,
-} from "@/factories"
+import { travelDeskBookingEventFactory, TravelPortIntegration } from "@/factories"
 
 describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
   describe("SyncService", () => {
     describe(".perform", () => {
       test("when fees arrive separately, it preserves source precision without leaking passenger remarks", async () => {
         // Arrange
-        const bookingEvent = await travelOrderEventFactory.create({
+        const bookingEvent = await TravelPortIntegration.travelOrderEventFactory.create({
           travelOrderIdentifier: 910001,
           recordLocator: "SRC001",
           bookingFileVersionNumber: 8,
@@ -27,14 +21,14 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           pnrCreationDate: new Date("2030-01-01T10:00:00Z"),
           creatingAgencyIata: "12345678",
         })
-        const feeEvent = await travelOrderEventFactory.create({
+        const feeEvent = await TravelPortIntegration.travelOrderEventFactory.create({
           travelOrderIdentifier: 910002,
           recordLocator: "SRC001",
           bookingFileVersionNumber: null,
           eventType: "T",
           databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
         })
-        await passengerFactory.create({
+        await TravelPortIntegration.passengerFactory.create({
           travelOrderIdentifier: bookingEvent.travelOrderIdentifier,
           lastNameElement: 1,
           passengerElement: 1,
@@ -42,7 +36,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           lastName: "Example",
           nameRemark: "Private source-only remark",
         })
-        await airReservationSegmentFactory.create({
+        await TravelPortIntegration.airReservationSegmentFactory.create({
           travelOrderIdentifier: bookingEvent.travelOrderIdentifier,
           airSegmentNumber: 1,
           segmentStatus: "GK",
@@ -51,7 +45,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           departureDate: "0000-00-00",
           departureTime: "00:00",
         })
-        await serviceFeeTransactionFactory.create({
+        await TravelPortIntegration.serviceFeeTransactionFactory.create({
           travelOrderIdentifier: feeEvent.travelOrderIdentifier,
           activeVoidStatus: "A",
           currencyCode: "CAD",
