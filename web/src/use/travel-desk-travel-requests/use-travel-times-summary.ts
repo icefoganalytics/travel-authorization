@@ -97,18 +97,12 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
     const endAt = lastFlightSegment.arriveAt
     if (isNil(startAt) || isNil(endAt)) return null
 
-    const startFormat = startAt.endsWith("Z")
-      ? "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-      : "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
-    const startDateTime = DateTime.fromFormat(startAt, startFormat, {
+    const startDateTime = DateTime.fromFormat(startAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", {
       zone: "utc",
     })
     if (!startDateTime.isValid) return null
 
-    const endFormat = endAt.endsWith("Z")
-      ? "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-      : "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
-    const endDateTime = DateTime.fromFormat(endAt, endFormat, {
+    const endDateTime = DateTime.fromFormat(endAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", {
       zone: "utc",
     })
     if (!endDateTime.isValid) return null

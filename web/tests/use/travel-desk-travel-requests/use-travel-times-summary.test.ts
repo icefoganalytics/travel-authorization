@@ -28,46 +28,32 @@ describe("web/src/use/travel-desk-travel-requests/use-travel-times-summary.ts", 
       scope.stop()
     })
 
-    test.each([
-      {
-        zone: "UTC",
+    test("when flight boundaries use the API timestamp format, exposes their UTC dates and times", async () => {
+      // Arrange
+      const firstFlightSegment = travelDeskFlightSegmentFactory.build({
         departAt: "2026-12-10T08:35:00.000Z",
+        arriveAt: "2026-12-10T11:10:00.000Z",
+      })
+      const lastFlightSegment = travelDeskFlightSegmentFactory.build({
+        departAt: "2026-12-12T17:20:00.000Z",
         arriveAt: "2026-12-12T19:45:00.000Z",
-      },
-      {
-        zone: "UTC-7",
-        departAt: "2026-12-10T01:35:00.000-07:00",
-        arriveAt: "2026-12-12T12:45:00.000-07:00",
-      },
-    ])(
-      "when flight boundaries use $zone, exposes their UTC dates and times",
-      async ({ departAt, arriveAt }) => {
-        // Arrange
-        const firstFlightSegment = travelDeskFlightSegmentFactory.build({
-          departAt,
-          arriveAt: "2026-12-10T11:10:00.000Z",
-        })
-        const lastFlightSegment = travelDeskFlightSegmentFactory.build({
-          departAt: "2026-12-12T17:20:00.000Z",
-          arriveAt,
-        })
-        vi.mocked(travelDeskFlightSegmentsApi.list)
-          .mockResolvedValueOnce({ travelDeskFlightSegments: [firstFlightSegment], totalCount: 4 })
-          .mockResolvedValueOnce({ travelDeskFlightSegments: [lastFlightSegment], totalCount: 4 })
+      })
+      vi.mocked(travelDeskFlightSegmentsApi.list)
+        .mockResolvedValueOnce({ travelDeskFlightSegments: [firstFlightSegment], totalCount: 4 })
+        .mockResolvedValueOnce({ travelDeskFlightSegments: [lastFlightSegment], totalCount: 4 })
 
-        // Act
-        const summary = scope.run(() => useTravelTimesSummary(ref(42)))
-        await flushPromises()
+      // Act
+      const summary = scope.run(() => useTravelTimesSummary(ref(42)))
+      await flushPromises()
 
-        // Assert
-        expect(summary?.flightSchedule.value).toEqual({
-          startDate: "2026-12-10",
-          startTime: "08:35",
-          endDate: "2026-12-12",
-          endTime: "19:45",
-        })
-      }
-    )
+      // Assert
+      expect(summary?.flightSchedule.value).toEqual({
+        startDate: "2026-12-10",
+        startTime: "08:35",
+        endDate: "2026-12-12",
+        endTime: "19:45",
+      })
+    })
 
     test("when the arrival has no time, keeps the incomplete schedule unavailable", async () => {
       // Arrange
