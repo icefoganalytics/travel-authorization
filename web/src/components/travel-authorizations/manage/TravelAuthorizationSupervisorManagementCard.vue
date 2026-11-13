@@ -62,21 +62,21 @@ const emit = defineEmits<{
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
 
+const isDisabled = computed(() => {
+  return (
+    isLoading.value || travelAuthorization.value?.status !== TravelAuthorizationStatuses.SUBMITTED
+  )
+})
+
 const finalDestinationLocationId = computed(() => {
   if (isNil(travelAuthorization.value)) return null
 
-  const { tripTypeActual, tripTypeEstimate, travelSegments } = travelAuthorization.value
+  const { travelSegments, tripTypeActual, tripTypeEstimate } = travelAuthorization.value
   const tripType = tripTypeActual ?? tripTypeEstimate
   const useActuals = !isNil(tripTypeActual)
   const matchingTravelSegments = travelSegments.filter((segment) => segment.isActual === useActuals)
   const finalDestinationSegment = determineFinalDestinationSegment(tripType, matchingTravelSegments)
   return finalDestinationSegment?.arrivalLocationId ?? null
-})
-
-const isDisabled = computed(() => {
-  return (
-    isLoading.value || travelAuthorization.value?.status !== TravelAuthorizationStatuses.SUBMITTED
-  )
 })
 
 const requestorDisplayName = computed(() => {
