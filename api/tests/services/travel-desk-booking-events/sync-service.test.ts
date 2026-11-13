@@ -124,7 +124,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           .update({ PnrBfVersionNbr: 2 })
 
         // Act
-        await SyncService.perform("SRC001")
+        await SyncService.perform(" src001 ")
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
@@ -137,7 +137,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when the source returns no events, it deletes only that locator's cached events", async () => {
+      test("when a case-variant locator has no source events, it deletes only that locator's cached events", async () => {
         // Arrange
         await travelDeskBookingEventFactory.create({ recordLocator: "SRC001" })
         const unrelatedEvent = await travelDeskBookingEventFactory.create({
@@ -145,7 +145,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         })
 
         // Act
-        await SyncService.perform("SRC001")
+        await SyncService.perform("src001")
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([

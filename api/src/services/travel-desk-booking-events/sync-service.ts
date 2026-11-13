@@ -13,6 +13,8 @@ import WithSyncLockService from "@/services/travel-desk-booking-events/with-sync
 export class SyncService extends BaseService {
   constructor(protected recordLocator: string) {
     super()
+
+    this.recordLocator = recordLocator.trim().toUpperCase()
   }
 
   async perform(): Promise<void> {
