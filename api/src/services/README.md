@@ -9,8 +9,6 @@ Load the direct [packaged backend workflow](skill://express-api/workflow.md) and
 - Call action services through `ServiceName.perform(...)`; do not instantiate them at call sites.
 - Organize related action services under domain directories and export them through the existing service index files.
 
-For example, [`BulkGenerateService`](./estimates/bulk-generate-service.ts) receives its arguments through the inherited static `perform()` method, then performs the work in its instance method.
-
 ## IndexService Pattern
 
 For paginated list endpoints that include summary aggregates, use an `IndexService`.
