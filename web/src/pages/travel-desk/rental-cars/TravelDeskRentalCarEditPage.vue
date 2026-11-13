@@ -442,15 +442,13 @@ async function saveAndReturn() {
     return
   }
 
-  travelDeskRentalCar.value.pickUpDate = `${pickUpDate.value}T${pickUpTime.value}:00.000Z`
-  travelDeskRentalCar.value.dropOffDate = `${dropOffDate.value}T${dropOffTime.value}:00.000Z`
-
   isSaving.value = true
   try {
-    await travelDeskRentalCarsApi.update(
-      travelDeskRentalCarIdAsNumber.value,
-      travelDeskRentalCar.value
-    )
+    await travelDeskRentalCarsApi.update(travelDeskRentalCarIdAsNumber.value, {
+      ...travelDeskRentalCar.value,
+      pickUpDate: `${pickUpDate.value}T${pickUpTime.value}:00.000Z`,
+      dropOffDate: `${dropOffDate.value}T${dropOffTime.value}:00.000Z`,
+    })
     snack.success("Rental car request updated successfully!")
     await refresh()
 
