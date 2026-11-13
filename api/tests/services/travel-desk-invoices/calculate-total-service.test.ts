@@ -5,13 +5,18 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
   describe("CalculateTotalService", () => {
     describe(".perform", () => {
       test("when amounts have excess precision, it totals individually rounded lines", () => {
+        // Arrange
         const items = [
           { grossAmount: "1.0005", saleType: "Sale" as const },
           { grossAmount: "1.0005", saleType: "Sale" as const },
           { grossAmount: "-0.0005", saleType: "Refund" as const },
         ]
 
-        expect(CalculateTotalService.perform(items)).toEqual("2.001")
+        // Act
+        const total = CalculateTotalService.perform(items)
+
+        // Assert
+        expect(total).toEqual("2.001")
       })
 
       test("when an amount is blank, it does not substitute a zero charge", () => {

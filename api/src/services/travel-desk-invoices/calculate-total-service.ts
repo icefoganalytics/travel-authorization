@@ -2,7 +2,7 @@ import Big from "big.js"
 
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
-import { normalizeAmount } from "@/services/travel-desk-invoices/normalize-amount"
+import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
 
 const MAX_AMOUNT = new Big("999999999999999.999")
 
@@ -15,7 +15,7 @@ export class CalculateTotalService extends BaseService {
     let total = new Big("0")
 
     for (const item of this.items) {
-      const amount = new Big(normalizeAmount(item.grossAmount))
+      const amount = new Big(normalizeInvoiceAmount(item.grossAmount))
 
       switch (item.saleType) {
         case "Refund":

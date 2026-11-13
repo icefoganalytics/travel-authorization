@@ -2,7 +2,7 @@ import Big from "big.js"
 
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
-export function normalizeAmount(amount: string): string {
+export function normalizeInvoiceAmount(amount: string): string {
   if (!/^-?\d+(?:\.\d+)?$/.test(amount)) {
     throw new InvoiceValidationError("Amount must be a decimal number.")
   }
