@@ -151,8 +151,10 @@ const travelSegmentsQuery = computed(() => {
   }
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
-const travelItinerarySummary = useTravelItinerarySummary(tripType, travelSegments)
-const { finalDestinationSegment } = travelItinerarySummary
+const {
+  finalDestinationSegment,
+  finalDestinationLocationId: itineraryDestinationLocationId,
+} = useTravelItinerarySummary(tripType, travelSegments)
 
 const finalDestinationLocationId = ref<number | null>(null)
 
@@ -162,7 +164,7 @@ function updateFinalDestinationLocationId(locationId: number | null) {
 }
 
 watch(
-  travelItinerarySummary.finalDestinationLocationId,
+  itineraryDestinationLocationId,
   (locationId) => {
     if (!isNil(finalDestinationLocationId.value)) return
 
