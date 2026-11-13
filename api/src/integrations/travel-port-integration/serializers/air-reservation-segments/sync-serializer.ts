@@ -5,17 +5,30 @@ import BaseSerializer from "@/serializers/base-serializer"
 
 export class SyncSerializer extends BaseSerializer<AirReservationSegment> {
   perform() {
+    const segmentStatus = this.trimSourceValue(this.record.segmentStatus)
+    const carrierCode = this.trimSourceValue(this.record.carrierCode)
+    const boardPoint = this.trimSourceValue(this.record.boardPoint)
+    const offPoint = this.trimSourceValue(this.record.offPoint)
+    const flightNumber = this.trimSourceValue(this.record.flightNumber)
+    const departureDate = this.trimSourceValue(this.record.departureDate)
+    const departureTime = this.trimSourceValue(this.record.departureTime)
+    const arrivalTime = this.trimSourceValue(this.record.arrivalTime)
+
     return {
       ...pick(this.record, ["airSegmentNumber", "changeOfDay"]),
-      segmentStatus: this.record.segmentStatus?.trim() ?? null,
-      carrierCode: this.record.carrierCode?.trim() ?? null,
-      boardPoint: this.record.boardPoint?.trim() ?? null,
-      offPoint: this.record.offPoint?.trim() ?? null,
-      flightNumber: this.record.flightNumber?.trim() ?? null,
-      departureDate: this.record.departureDate?.trim() ?? null,
-      departureTime: this.record.departureTime?.trim() ?? null,
-      arrivalTime: this.record.arrivalTime?.trim() ?? null,
+      segmentStatus,
+      carrierCode,
+      boardPoint,
+      offPoint,
+      flightNumber,
+      departureDate,
+      departureTime,
+      arrivalTime,
     }
+  }
+
+  private trimSourceValue(value: string | null): string | null {
+    return value?.trim() ?? null
   }
 }
 
