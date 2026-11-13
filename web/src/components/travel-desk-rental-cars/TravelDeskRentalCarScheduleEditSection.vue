@@ -55,13 +55,21 @@ import { required } from "@/utils/validators"
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import TimeTextField from "@/components/common/TimeTextField.vue"
 
+const pickUpDate = defineModel<string>("pickUpDate", {
+  required: true,
+})
+const pickUpTime = defineModel<string>("pickUpTime", {
+  required: true,
+})
+const dropOffDate = defineModel<string>("dropOffDate", {
+  required: true,
+})
+const dropOffTime = defineModel<string>("dropOffTime", {
+  required: true,
+})
+
 defineProps<{
   tripStartDate?: string | null
   tripEndDate?: string | null
 }>()
-
-const pickUpDate = defineModel<string>("pickUpDate", { required: true })
-const pickUpTime = defineModel<string>("pickUpTime", { required: true })
-const dropOffDate = defineModel<string>("dropOffDate", { required: true })
-const dropOffTime = defineModel<string>("dropOffTime", { required: true })
 </script>
