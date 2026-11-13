@@ -25,7 +25,7 @@ export function withTravelPortPersistence<T extends Model>(
           columns[attribute.columnName ?? name] = value
         }
       }
-      const table = model.table
+      const { table } = model
       await sourceDatabase.table(table.tableName).insert(columns)
       record.isNewRecord = false
       return record
