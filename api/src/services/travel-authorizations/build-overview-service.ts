@@ -10,7 +10,7 @@ import {
 
 import BaseService from "@/services/base-service"
 
-export type TravelAuthorizationSummaryInput = Pick<
+export type TravelAuthorizationOverviewInput = Pick<
   TravelAuthorization,
   "status" | "tripType" | "tripTypeActual"
 > & {
@@ -19,7 +19,7 @@ export type TravelAuthorizationSummaryInput = Pick<
   travelDeskTravelRequest: TravelDeskTravelRequest | null
 }
 
-export type TravelAuthorizationSummary = {
+export type TravelAuthorizationOverview = {
   finalDestination: Location | null
   phase: string | undefined
   action: string[]
@@ -27,15 +27,15 @@ export type TravelAuthorizationSummary = {
   unprocessedExpenseCount: number
 }
 
-export class BuildSummaryService extends BaseService {
+export class BuildOverviewService extends BaseService {
   constructor(
-    protected travelAuthorization: TravelAuthorizationSummaryInput,
+    protected travelAuthorization: TravelAuthorizationOverviewInput,
     protected currentDate: Date
   ) {
     super()
   }
 
-  perform(): TravelAuthorizationSummary {
+  perform(): TravelAuthorizationOverview {
     const { status, tripType, tripTypeActual, travelSegments, expenses, travelDeskTravelRequest } =
       this.travelAuthorization
     const currentDate = this.currentDate
@@ -286,4 +286,4 @@ export class BuildSummaryService extends BaseService {
   }
 }
 
-export default BuildSummaryService
+export default BuildOverviewService

@@ -10,7 +10,7 @@ import {
   User,
 } from "@/models"
 
-import { BuildSummaryService } from "@/services/travel-authorizations"
+import { BuildOverviewService } from "@/services/travel-authorizations"
 
 import BaseSerializer from "@/serializers/base-serializer"
 import {
@@ -101,7 +101,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(firstTravelSegment, stops)
     const returningAt = this.buildReturningAt(lastTravelSegment, stops)
 
-    const summary = this.buildSummary(
+    const overview = this.buildOverview(
       status,
       tripType,
       tripTypeActual,
@@ -110,7 +110,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       travelDeskTravelRequest,
       currentDate
     )
-    const finalDestination = this.serializeFinalDestination(summary.finalDestination)
+    const finalDestination = this.serializeFinalDestination(overview.finalDestination)
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
     return {
@@ -129,21 +129,21 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       finalDestination,
       departingAt: departingAt?.toISOString(),
       returningAt: returningAt?.toISOString(),
-      phase: summary.phase,
-      action: summary.action,
+      phase: overview.phase,
+      action: overview.action,
       firstName: traveller.firstName,
       lastName: traveller.lastName,
       department: traveller.department,
       branch: traveller.branch,
-      isTravelling: summary.isTravelling,
-      unprocessedExpenseCount: summary.unprocessedExpenseCount,
+      isTravelling: overview.isTravelling,
+      unprocessedExpenseCount: overview.unprocessedExpenseCount,
       locations: serializedLocations,
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       ...stateFlagsAttributes,
     }
   }
 
-  private buildSummary(
+  private buildOverview(
     status: TravelAuthorization["status"],
     tripType: TravelAuthorization["tripType"],
     tripTypeActual: TravelAuthorization["tripTypeActual"],
@@ -152,7 +152,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     travelDeskTravelRequest: TravelDeskTravelRequest | null,
     currentDate: Date
   ) {
-    return BuildSummaryService.perform(
+    return BuildOverviewService.perform(
       {
         status,
         tripType,

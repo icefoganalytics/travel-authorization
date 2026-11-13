@@ -2,8 +2,8 @@ export { CreateService } from "./create-service"
 export { UpdateService } from "./update-service"
 export { DestroyService } from "./destroy-service"
 
-// Summary services
-export { BuildSummaryService } from "./build-summary-service"
+// Overview services
+export { BuildOverviewService } from "./build-overview-service"
 
 // State management services
 export { ApproveExpenseClaimService } from "./approve-expense-claim-service"
