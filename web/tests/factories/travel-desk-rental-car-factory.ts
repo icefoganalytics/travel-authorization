@@ -6,11 +6,12 @@ import {
   TravelDeskRentalCarLocationTypes,
 } from "@/api/travel-desk-rental-cars-api"
 
+const CITIES = ["Whitehorse (YT)", "Vancouver (BC)", "Toronto (ON)", "Dawson (YT)"]
+
 export const travelDeskRentalCarFactory = Factory.define<TravelDeskRentalCar>(({ sequence }) => {
   const timestamp = "2026-11-01T00:00:00.000Z"
-  const cities = ["Whitehorse (YT)", "Vancouver (BC)", "Toronto (ON)", "Dawson (YT)"]
   const locationTypes = Object.values(TravelDeskRentalCarLocationTypes)
-  const pickUpCity = nth(cities, (sequence - 1) % cities.length)!
+  const pickUpCity = nth(CITIES, (sequence - 1) % CITIES.length)!
   const pickUpLocation = nth(locationTypes, (sequence - 1) % locationTypes.length)!
   const pickUpLocationOther =
     pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER ? `Rental office ${sequence}` : null
