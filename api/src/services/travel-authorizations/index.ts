@@ -1,9 +1,6 @@
 export { CreateService } from "./create-service"
-export { UpdateService } from "./update-service"
 export { DestroyService } from "./destroy-service"
-
-// Overview services
-export { BuildOverviewService } from "./build-overview-service"
+export { UpdateService } from "./update-service"
 
 // State management services
 export { ApproveExpenseClaimService } from "./approve-expense-claim-service"
@@ -17,5 +14,8 @@ export { SendBackToTravellerService } from "./send-back-to-traveller-service"
 export { SubmitExpenseClaimService } from "./submit-expense-claim-service"
 export { SubmitService } from "./submit-service"
 
-// Namespaced services
+// Special actions
+export { BuildOverviewService } from "./build-overview-service"
+
+// Bundled exports
 export * as Wizard from "./wizard"
