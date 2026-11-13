@@ -1,4 +1,5 @@
 import { Factory } from "fishery"
+import { nth } from "lodash"
 
 import {
   type TravelDeskRentalCar,
@@ -9,17 +10,17 @@ export const travelDeskRentalCarFactory = Factory.define<TravelDeskRentalCar>(({
   const timestamp = "2026-11-01T00:00:00.000Z"
   const cities = ["Whitehorse (YT)", "Vancouver (BC)", "Toronto (ON)", "Dawson (YT)"]
   const locationTypes = Object.values(TravelDeskRentalCarLocationTypes)
-  const pickUpLocation = locationTypes[(sequence - 1) % locationTypes.length]
+  const pickUpCity = nth(cities, (sequence - 1) % cities.length)!
+  const pickUpLocation = nth(locationTypes, (sequence - 1) % locationTypes.length)!
+  const pickUpLocationOther =
+    pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER ? `Rental office ${sequence}` : null
 
   return {
     id: sequence,
     travelRequestId: 1,
-    pickUpCity: cities[(sequence - 1) % cities.length],
+    pickUpCity,
     pickUpLocation,
-    pickUpLocationOther:
-      pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER
-        ? `Rental office ${sequence}`
-        : null,
+    pickUpLocationOther,
     dropOffCity: null,
     dropOffLocation: null,
     dropOffLocationOther: null,

@@ -5,21 +5,19 @@ import httpClient from "@/api/http-client"
 import mockHttpGetRoute from "@/tests/support/mock-http-get-route"
 import mockHttpGetRoutes from "@/tests/support/mock-http-get-routes"
 
-const registrationForms = [
-  {
-    name: "mockHttpGetRoute",
-    register: mockHttpGetRoute,
-  },
-  {
-    name: "mockHttpGetRoutes",
-    register: (url: string, handler: Parameters<typeof mockHttpGetRoute>[1]) => {
-      mockHttpGetRoutes({ [url]: handler })
-    },
-  },
-]
-
 describe("web/tests/support/mock-http-get-routes.ts", () => {
-  describe.each(registrationForms)("$name", ({ register }) => {
+  describe.each([
+    {
+      name: "mockHttpGetRoute",
+      register: mockHttpGetRoute,
+    },
+    {
+      name: "mockHttpGetRoutes",
+      register: (url: string, handler: Parameters<typeof mockHttpGetRoute>[1]) => {
+        mockHttpGetRoutes({ [url]: handler })
+      },
+    },
+  ])("$name", ({ register }) => {
     test("when distinct routes are registered sequentially, both responses remain available", async () => {
       // Arrange
       register("/api/first", () => ({ id: 1 }))
