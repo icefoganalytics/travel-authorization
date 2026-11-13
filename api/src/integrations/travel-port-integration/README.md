@@ -33,6 +33,8 @@ Startup follows the existing TravCom sequence: wait for the local server, create
 
 The synthetic development fixture includes `ZZ0001`: thirteen booking snapshots and a separate fee event, with version 7 arriving after version 8. Other fictional locators cover fare events, multiple passengers, missing flights, and six flight segments. Names, routes, dates, locators, event identifiers, and fee amounts are synthetic—not production extracts.
 
+Source factories use native FactoryShark creation. The four legacy `datetime` attributes on `TravelOrderEvent` use `UtcSqlServerDateTime`, which writes offset-free UTC components instead of Sequelize's `datetimeoffset` representation. This preserves the client's existing UTC read interpretation and SQL Server's approximately 3.33 ms precision; it does not establish the production feed's timezone semantics. Synthetic fixtures use explicit UTC instants. Confirm the deployed source timezone before interpreting these timestamps as authoritative instants. No custom factory persistence writer or external-schema migration is required.
+
 ## Production configuration
 
 Only the deployed production application connects to the real booking-feed database. Supply these settings through the deployment's secure environment, not committed environment files:

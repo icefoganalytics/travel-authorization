@@ -6,6 +6,8 @@ import {
 } from "@sequelize/core"
 import { Attribute, HasMany, HasOne, Table } from "@sequelize/core/decorators-legacy"
 
+import { UtcSqlServerDateTime } from "@/integrations/travel-port-integration/models/utc-sql-server-date-time"
+
 import BaseModel from "@/models/base-model"
 import AirReservationSegment from "@/integrations/travel-port-integration/models/air-reservation-segment"
 import Passenger from "@/integrations/travel-port-integration/models/passenger"
@@ -39,13 +41,13 @@ export class TravelOrderEvent extends BaseModel<
   @Attribute({ type: DataTypes.CHAR(6), columnName: "RecordLocator", allowNull: true })
   declare recordLocator: string | null
 
-  @Attribute({ type: DataTypes.DATE, columnName: "HostEventTimeStamp", allowNull: true })
+  @Attribute({ type: UtcSqlServerDateTime, columnName: "HostEventTimeStamp", allowNull: true })
   declare hostEventTimestamp: Date | null
 
   @Attribute({ type: DataTypes.CHAR(9), columnName: "CrsDescription", allowNull: true })
   declare crsDescription: string | null
 
-  @Attribute({ type: DataTypes.DATE, columnName: "DatabaseTimeStamp", allowNull: false })
+  @Attribute({ type: UtcSqlServerDateTime, columnName: "DatabaseTimeStamp", allowNull: false })
   declare databaseTimestamp: Date
 
   @Attribute({ type: DataTypes.CHAR(4), columnName: "TransactionPseudo", allowNull: true })
@@ -63,10 +65,10 @@ export class TravelOrderEvent extends BaseModel<
   @Attribute({ type: DataTypes.DECIMAL(18, 0), columnName: "CreatingAgencyIata", allowNull: true })
   declare creatingAgencyIata: string | null
 
-  @Attribute({ type: DataTypes.DATE, columnName: "PnrCreationDate", allowNull: true })
+  @Attribute({ type: UtcSqlServerDateTime, columnName: "PnrCreationDate", allowNull: true })
   declare pnrCreationDate: Date | null
 
-  @Attribute({ type: DataTypes.DATE, columnName: "PnrPurgeDate", allowNull: true })
+  @Attribute({ type: UtcSqlServerDateTime, columnName: "PnrPurgeDate", allowNull: true })
   declare pnrPurgeDate: Date | null
 
   @Attribute({ type: DataTypes.STRING(24), columnName: "OwningAgencyName", allowNull: true })
