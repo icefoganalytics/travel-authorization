@@ -60,8 +60,15 @@ What these are for:
 - `dev up web`: boot the frontend service in Docker
 - `npm run start`: run the local Vite dev server
 - `npm run build`: build the production frontend bundle
-- `npm run lint`: run frontend linting
+- `npm run lint`: check CSS and Vue style blocks with Stylelint, then JavaScript/TypeScript and Vue templates with ESLint
+- `npm run lint:styles`: check standalone CSS and Vue style blocks without modifying files
 - `npm run check-types`: run frontend type checking
+
+From the repository root, use `./bin/dev lint web` for the combined check or
+`./bin/dev web npm run lint:styles` for styles only. Stylelint checks CSS correctness;
+Prettier remains responsible for formatting. Vue's `:deep()`, `:global()`, and
+`:slotted()` selectors are supported. The style command covers all CSS and Vue files
+under `src`; it does not inspect template scripts as CSS.
 
 ## Open In Editor
 
