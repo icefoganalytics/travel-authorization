@@ -17,13 +17,15 @@ export default createVuetify({
       yukonNorthStar: {
         colors: {
           primary: "#00616D",
-          secondary: "#FFFFFF",
+          secondary: "#52656D",
           accent: "#00616D",
           anchor: "#00616D",
           info: "#244C5A",
           success: "#244402",
           warning: "#563B00",
-          error: "#244C5A",
+          error: "#B3261E",
+          background: "#F5F7F8",
+          surface: "#FFFFFF",
           "on-background": "#323232",
           "on-surface": "#323232",
         },
@@ -36,17 +38,23 @@ export default createVuetify({
       elevation: 0,
       style: "text-transform: none;",
       variant: "flat",
+      rounded: "lg",
     },
     VCard: {
       border: true,
       elevation: 0,
+      rounded: "lg",
+    },
+    VAlert: {
+      variant: "tonal",
+      rounded: "lg",
     },
     VBreadcrumbs: {
       class: "pl-0",
     },
     VCardActions: {
       VBtn: {
-        variant: "elevated",
+        variant: "flat",
         color: "primary",
       },
     },
