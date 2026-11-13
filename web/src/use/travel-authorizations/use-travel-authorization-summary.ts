@@ -1,7 +1,7 @@
 import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { has, isEmpty, isNil } from "lodash"
 
-import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
 
 import travelAuthorizationsApi, {
   type TravelAuthorizationAsShow,

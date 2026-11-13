@@ -86,7 +86,7 @@ import { computed, defineAsyncComponent, nextTick, ref, toRefs } from "vue"
 import { max, isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
-import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"

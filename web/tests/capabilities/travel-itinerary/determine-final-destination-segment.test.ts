@@ -1,8 +1,8 @@
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
 
-import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
 
-describe("web/src/utils/determine-final-destination-segment.ts", () => {
+describe("web/src/capabilities/travel-itinerary/determine-final-destination-segment.ts", () => {
   describe("determineFinalDestinationSegment", () => {
     test("when a multi-city itinerary returns home, selects the destination before the return leg", () => {
       // Arrange

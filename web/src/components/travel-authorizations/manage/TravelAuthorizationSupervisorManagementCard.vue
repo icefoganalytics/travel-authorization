@@ -40,7 +40,7 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
 
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 

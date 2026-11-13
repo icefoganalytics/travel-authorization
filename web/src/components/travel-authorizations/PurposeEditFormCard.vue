@@ -112,7 +112,7 @@ import {
   TravelSegment,
 } from "@/api/travel-segments-api"
 
-import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
+import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
 import { required } from "@/utils/validators"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, {
