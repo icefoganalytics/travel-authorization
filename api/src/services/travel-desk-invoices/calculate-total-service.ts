@@ -15,7 +15,8 @@ export class CalculateTotalService extends BaseService {
     let total = new Big("0")
 
     for (const item of this.items) {
-      const amount = new Big(normalizeInvoiceAmount(item.grossAmount))
+      const normalizedAmount = normalizeInvoiceAmount(item.grossAmount)
+      const amount = new Big(normalizedAmount)
 
       switch (item.saleType) {
         case "Refund":
