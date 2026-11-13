@@ -40,9 +40,11 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
+import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
+
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
-import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import HeaderActionsCard from "@/components/common/HeaderActionsCard.vue"
 import ReAssignButtonDialog from "@/components/travel-authorizations/manage/ReAssignButtonDialog.vue"
@@ -58,8 +60,18 @@ const emit = defineEmits<{
 }>()
 
 const { travelAuthorizationId } = toRefs(props)
-const { travelAuthorization, isLoading, refresh, finalDestinationLocationId } =
-  useTravelAuthorizationSummary(travelAuthorizationId)
+const { travelAuthorization, isLoading, refresh } = useTravelAuthorization(travelAuthorizationId)
+
+const finalDestinationLocationId = computed(() => {
+  if (isNil(travelAuthorization.value)) return null
+
+  const { tripTypeActual, tripTypeEstimate, travelSegments } = travelAuthorization.value
+  const tripType = tripTypeActual ?? tripTypeEstimate
+  const useActuals = !isNil(tripTypeActual)
+  const matchingTravelSegments = travelSegments.filter((segment) => segment.isActual === useActuals)
+  const finalDestinationSegment = determineFinalDestinationSegment(tripType, matchingTravelSegments)
+  return finalDestinationSegment?.arrivalLocationId ?? null
+})
 
 const isDisabled = computed(() => {
   return (

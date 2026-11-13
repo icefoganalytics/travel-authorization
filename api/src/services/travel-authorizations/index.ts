@@ -14,8 +14,5 @@ export { SendBackToTravellerService } from "./send-back-to-traveller-service"
 export { SubmitExpenseClaimService } from "./submit-expense-claim-service"
 export { SubmitService } from "./submit-service"
 
-// Special actions
-export { BuildOverviewService } from "./build-overview-service"
-
-// Bundled exports
+// Namespaced services
 export * as Wizard from "./wizard"
