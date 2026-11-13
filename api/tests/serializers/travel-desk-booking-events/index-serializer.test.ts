@@ -24,15 +24,21 @@ describe("api/src/serializers/travel-desk-booking-events/index-serializer.ts", (
         })
       })
 
-      test("when a timestamp is invalid, it rejects rather than returning a missing timestamp", () => {
+      test("when timestamps are invalid, it returns null without losing the booking event", () => {
         // Arrange
         const bookingEvent = travelDeskBookingEventFactory.build()
+        bookingEvent.setDataValue("databaseTimestamp", new Date(NaN))
         bookingEvent.setDataValue("hostEventTimestamp", new Date(NaN))
 
-        // Act / Assert
-        expect(() => IndexSerializer.perform(bookingEvent)).toThrow(
-          "Cannot serialize an invalid booking event timestamp."
-        )
+        // Act
+        const result = IndexSerializer.perform(bookingEvent)
+
+        // Assert
+        expect(result).toMatchObject({
+          recordLocator: bookingEvent.recordLocator,
+          databaseTimestamp: null,
+          hostEventTimestamp: null,
+        })
       })
     })
   })
