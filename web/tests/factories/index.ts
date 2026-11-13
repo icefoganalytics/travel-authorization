@@ -1,4 +1,6 @@
 export { locationFactory } from "./location-factory"
 export { travelAuthorizationFactory } from "./travel-authorization-factory"
+export { travelDeskFlightSegmentFactory } from "./travel-desk-flight-segment-factory"
+export { travelDeskRentalCarFactory } from "./travel-desk-rental-car-factory"
 export { travelDeskTravelRequestFactory } from "./travel-desk-travel-request-factory"
 export { travelDeskTravelRequestAsIndexFactory } from "./travel-desk-travel-request-as-index-factory"

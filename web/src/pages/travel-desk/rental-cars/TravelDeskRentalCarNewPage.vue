@@ -15,67 +15,35 @@
           title="1. Trip Schedule"
           icon="mdi-calendar-month"
         />
-        <v-row>
-          <v-col cols="6">
-            <StringDateInput
-              v-model="pickUpDate"
-              label="Pick-up date *"
-              :picker-date="tripStartDate"
-              :disabled="travelDeskRentalCarAttributes.matchFlightTimes"
-              :min="tripStartDate"
-              :max="tripEndDate"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-          <v-col cols="6">
-            <TimeTextField
-              v-model="pickUpTime"
-              label="Pick-up time *"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <StringDateInput
-              v-model="dropOffDate"
-              label="Drop-off date *"
-              :disabled="travelDeskRentalCarAttributes.matchFlightTimes"
-              :picker-date="tripStartDate"
-              :min="tripStartDate"
-              :max="tripEndDate"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-          <v-col cols="6">
-            <TimeTextField
-              v-model="dropOffTime"
-              label="Drop-off time *"
-              :rules="[required]"
-              variant="outlined"
-              required
-            />
-          </v-col>
-        </v-row>
-
         <v-sheet class="grey lighten-4 rounded-lg px-4">
           <v-row>
             <v-col>
               <YesNoRowRadioGroup
-                v-model="travelDeskRentalCarAttributes.matchFlightTimes"
+                :model-value="travelDeskRentalCarAttributes.matchFlightTimes"
                 label="Pick-up/Drop-off match flights"
                 class="mt-0"
-                @update:model-value="matchWithFlight"
+                @update:model-value="updateFlightMatching"
               />
             </v-col>
           </v-row>
         </v-sheet>
+
+        <TravelDeskRentalCarScheduleReadOnlySection
+          v-if="isMatchingAvailableFlightSchedule"
+          :pick-up-date="pickUpDate"
+          :pick-up-time="pickUpTime"
+          :drop-off-date="dropOffDate"
+          :drop-off-time="dropOffTime"
+        />
+        <TravelDeskRentalCarScheduleEditSection
+          v-else
+          v-model:pick-up-date="pickUpDate"
+          v-model:pick-up-time="pickUpTime"
+          v-model:drop-off-date="dropOffDate"
+          v-model:drop-off-time="dropOffTime"
+          :trip-start-date="tripStartDate"
+          :trip-end-date="tripEndDate"
+        />
 
         <SectionHeader
           title="2. Location Details"
@@ -85,22 +53,23 @@
         <v-row>
           <v-col cols="12">
             <LocationsAutocomplete
-              v-model="travelDeskRentalCarAttributes.pickUpCity"
+              :model-value="pickUpCity"
               label="Pick-up City *"
               :rules="[required]"
               item-value="cityUniqueLegacy"
               variant="outlined"
               required
+              @update:model-value="updatePickUpCity"
             />
           </v-col>
           <v-col cols="12">
             <TravelDeskRentalCarLocationTypeSelect
-              v-model="travelDeskRentalCarAttributes.pickUpLocation"
+              :model-value="travelDeskRentalCarAttributes.pickUpLocation"
               label="Pick-up Location *"
               :rules="[required]"
               variant="outlined"
               required
-              @update:model-value="resetPickUpLocationOtherUnlessOther"
+              @update:model-value="updatePickUpLocation"
             />
             <v-text-field
               v-if="
@@ -119,10 +88,10 @@
           <v-row>
             <v-col>
               <YesNoRowRadioGroup
-                v-model="travelDeskRentalCarAttributes.sameDropOffLocation"
+                :model-value="travelDeskRentalCarAttributes.sameDropOffLocation"
                 label="Same Drop-off location?"
                 class="mt-1"
-                @update:model-value="resetDropOffLocationStates"
+                @update:model-value="updateSameDropOffLocation"
               />
             </v-col>
           </v-row>
@@ -139,12 +108,12 @@
             </v-col>
             <v-col cols="12">
               <TravelDeskRentalCarLocationTypeSelect
-                v-model="travelDeskRentalCarAttributes.dropOffLocation"
+                :model-value="travelDeskRentalCarAttributes.dropOffLocation"
                 label="Drop-off Location *"
                 :rules="[required]"
                 variant="outlined"
                 required
-                @update:model-value="resetDropOffLocationOtherUnlessOther"
+                @update:model-value="updateDropOffLocation"
               />
               <v-text-field
                 v-if="
@@ -174,12 +143,12 @@
         <v-row>
           <v-col cols="12">
             <TravelDeskRentalCarVehicleTypeSelect
-              v-model="travelDeskRentalCarAttributes.vehicleType"
+              :model-value="travelDeskRentalCarAttributes.vehicleType"
               label="Vehicle Type *"
               :rules="[required]"
               variant="outlined"
               required
-              @update:model-value="resetVehicleChangeRationaleIfCompact"
+              @update:model-value="updateVehicleType"
             />
           </v-col>
           <v-col
@@ -234,7 +203,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 
@@ -251,13 +220,13 @@ import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useSnack from "@/use/use-snack"
 import useTravelTimesSummary from "@/use/travel-desk-travel-requests/use-travel-times-summary"
 
-import StringDateInput from "@/components/common/StringDateInput.vue"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import SectionHeader from "@/components/common/SectionHeader.vue"
-import TimeTextField from "@/components/common/TimeTextField.vue"
 import YesNoRowRadioGroup from "@/components/common/YesNoRowRadioGroup.vue"
 
 import TravelDeskRentalCarLocationTypeSelect from "@/components/travel-desk-rental-cars/TravelDeskRentalCarLocationTypeSelect.vue"
+import TravelDeskRentalCarScheduleEditSection from "@/components/travel-desk-rental-cars/TravelDeskRentalCarScheduleEditSection.vue"
+import TravelDeskRentalCarScheduleReadOnlySection from "@/components/travel-desk-rental-cars/TravelDeskRentalCarScheduleReadOnlySection.vue"
 import TravelDeskRentalCarVehicleTypeSelect from "@/components/travel-desk-rental-cars/TravelDeskRentalCarVehicleTypeSelect.vue"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
@@ -268,19 +237,7 @@ const props = defineProps<{
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
-const router = useRouter()
-const defaultReturnTo = computed(() => {
-  const routeLocation = router.resolve({
-    name: "travel-desk/TravelDeskRequestEditRedirect",
-    params: {
-      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
-    },
-  })
-  return routeLocation.href
-})
-const returnTo = useRouteQuery("returnTo", defaultReturnTo)
-
-const { tripStartDate, tripEndDate, flightStartDate, flightEndDate } = useTravelTimesSummary(
+const { tripStartDate, tripEndDate, finalDestination, flightSchedule } = useTravelTimesSummary(
   travelDeskTravelRequestIdAsNumber
 )
 
@@ -299,6 +256,18 @@ const travelDeskRentalCarAttributes = ref<Partial<TravelDeskRentalCar>>({
   additionalNotes: undefined,
 })
 
+const router = useRouter()
+const defaultReturnTo = computed(() => {
+  const routeLocation = router.resolve({
+    name: "travel-desk/TravelDeskRequestEditRedirect",
+    params: {
+      travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+    },
+  })
+  return routeLocation.href
+})
+const returnTo = useRouteQuery("returnTo", defaultReturnTo)
+
 const DEFAULT_TIME = "12:00"
 
 const pickUpDate = ref("")
@@ -306,19 +275,105 @@ const pickUpTime = ref(DEFAULT_TIME)
 const dropOffDate = ref("")
 const dropOffTime = ref(DEFAULT_TIME)
 
-function resetPickUpLocationOtherUnlessOther(value: string | null) {
-  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
+const scheduleBeforeFlightMatching = ref<{
+  pickUpDate: string
+  pickUpTime: string
+  dropOffDate: string
+  dropOffTime: string
+} | null>(null)
+
+const isFlightScheduleAvailable = computed(() => !isNil(flightSchedule.value))
+const isMatchingAvailableFlightSchedule = computed(
+  () =>
+    travelDeskRentalCarAttributes.value.matchFlightTimes === true && isFlightScheduleAvailable.value
+)
+
+const isWaitingForFlightSchedule = ref(false)
+
+function updateFlightMatching(value: boolean) {
+  if (value) {
+    enableFlightMatching()
+  } else {
+    disableFlightMatching()
+  }
+}
+
+function enableFlightMatching() {
+  travelDeskRentalCarAttributes.value.matchFlightTimes = true
+  isWaitingForFlightSchedule.value = false
+
+  const schedule = flightSchedule.value
+  if (isNil(schedule)) {
+    isWaitingForFlightSchedule.value = true
+    return
+  }
+
+  preserveManualSchedule()
+
+  pickUpDate.value = schedule.startDate
+  pickUpTime.value = schedule.startTime
+  dropOffDate.value = schedule.endDate
+  dropOffTime.value = schedule.endTime
+}
+
+function disableFlightMatching() {
+  travelDeskRentalCarAttributes.value.matchFlightTimes = false
+  isWaitingForFlightSchedule.value = false
+  restoreManualSchedule()
+}
+
+function preserveManualSchedule() {
+  if (!isNil(scheduleBeforeFlightMatching.value)) return
+
+  scheduleBeforeFlightMatching.value = {
+    pickUpDate: pickUpDate.value,
+    pickUpTime: pickUpTime.value,
+    dropOffDate: dropOffDate.value,
+    dropOffTime: dropOffTime.value,
+  }
+}
+
+function restoreManualSchedule() {
+  if (isNil(scheduleBeforeFlightMatching.value)) return
+
+  pickUpDate.value = scheduleBeforeFlightMatching.value.pickUpDate
+  pickUpTime.value = scheduleBeforeFlightMatching.value.pickUpTime
+  dropOffDate.value = scheduleBeforeFlightMatching.value.dropOffDate
+  dropOffTime.value = scheduleBeforeFlightMatching.value.dropOffTime
+  scheduleBeforeFlightMatching.value = null
+}
+
+watch(isFlightScheduleAvailable, (isAvailable) => {
+  if (isAvailable && isWaitingForFlightSchedule.value) {
+    enableFlightMatching()
+  }
+})
+
+const pickUpCity = computed(() => {
+  const selectedCity = travelDeskRentalCarAttributes.value.pickUpCity
+  if (!isNil(selectedCity)) return selectedCity
+
+  const destination = finalDestination.value
+  if (isNil(destination)) return undefined
+
+  return `${destination.city} (${destination.province})`
+})
+
+function updatePickUpCity(value: string | null) {
+  travelDeskRentalCarAttributes.value.pickUpCity = value ?? ""
+}
+
+function updatePickUpLocation(value: string | null) {
+  travelDeskRentalCarAttributes.value.pickUpLocation = value ?? ""
+
+  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
     travelDeskRentalCarAttributes.value.pickUpLocationOther = undefined
   }
 }
 
-function resetDropOffLocationOtherUnlessOther(value: string | null) {
-  if (isNil(value) || value !== TravelDeskRentalCarLocationTypes.OTHER) {
-    travelDeskRentalCarAttributes.value.dropOffLocationOther = undefined
-  }
-}
+function updateSameDropOffLocation(value: boolean) {
+  travelDeskRentalCarAttributes.value.sameDropOffLocation = value
 
-function resetDropOffLocationStates(value: boolean) {
   if (value === true) {
     travelDeskRentalCarAttributes.value.dropOffCity = undefined
     travelDeskRentalCarAttributes.value.dropOffLocation = undefined
@@ -326,19 +381,19 @@ function resetDropOffLocationStates(value: boolean) {
   }
 }
 
-function resetVehicleChangeRationaleIfCompact(value: string | null) {
-  if (isNil(value) || value === TravelDeskRentalCarVehicleTypes.COMPACT) {
-    travelDeskRentalCarAttributes.value.vehicleChangeRationale = undefined
+function updateDropOffLocation(value: string | null) {
+  travelDeskRentalCarAttributes.value.dropOffLocation = value
+
+  if (value !== TravelDeskRentalCarLocationTypes.OTHER) {
+    travelDeskRentalCarAttributes.value.dropOffLocationOther = undefined
   }
 }
 
-function matchWithFlight(value: boolean) {
-  if (value && flightStartDate.value && flightEndDate.value) {
-    pickUpDate.value = flightStartDate.value
-    dropOffDate.value = flightEndDate.value
-    // TODO: consider if this should match flight times as well as dates?
-    pickUpTime.value = DEFAULT_TIME
-    dropOffTime.value = DEFAULT_TIME
+function updateVehicleType(value: string | null) {
+  travelDeskRentalCarAttributes.value.vehicleType = value ?? ""
+
+  if (isNil(value) || value === TravelDeskRentalCarVehicleTypes.COMPACT) {
+    travelDeskRentalCarAttributes.value.vehicleChangeRationale = undefined
   }
 }
 
@@ -365,7 +420,10 @@ async function createAndReturn() {
 
   isSaving.value = true
   try {
-    await travelDeskRentalCarsApi.create(travelDeskRentalCarAttributes.value)
+    await travelDeskRentalCarsApi.create({
+      ...travelDeskRentalCarAttributes.value,
+      pickUpCity: pickUpCity.value,
+    })
     snack.success("Rental car request created successfully!")
 
     return router.push(returnTo.value)

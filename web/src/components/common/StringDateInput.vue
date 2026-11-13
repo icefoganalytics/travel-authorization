@@ -2,12 +2,20 @@
   <v-date-input
     v-model="date"
     v-bind="$attrs"
+    :readonly="readonly"
+    :menu-props="calendarMenuProps"
     @update:model-value="emitStringResult"
   />
 </template>
 
+<script lang="ts">
+import { type VDateInput } from "vuetify/labs/VDateInput"
+
+export type MenuProps = VDateInput["$props"]["menuProps"]
+</script>
+
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { DateTime } from "luxon"
 import { isNil } from "lodash"
 
@@ -18,6 +26,8 @@ const props = withDefaults(
   defineProps<{
     modelValue: string | null | undefined
     returnFormat?: string
+    readonly?: boolean
+    menuProps?: MenuProps
   }>(),
   {
     returnFormat: "yyyy-MM-dd",
@@ -29,6 +39,17 @@ const emit = defineEmits<{
 }>()
 
 const date = ref<Date | null>(null)
+
+// Vuetify's readonly prevents date changes but still opens the calendar on field clicks.
+// Preserve caller menu options, overriding visibility so locked fields cannot open the picker.
+const calendarMenuProps = computed(() => {
+  if (!props.readonly) return props.menuProps
+
+  return {
+    ...props.menuProps,
+    modelValue: false,
+  }
+})
 
 watch(
   () => props.modelValue,

@@ -1,5 +1,6 @@
 import { type Ref, computed } from "vue"
 import { isNil } from "lodash"
+import { DateTime } from "luxon"
 
 import useTravelDeskFlightSegments, {
   type TravelDeskFlightSegmentsQueryOptions,
@@ -27,6 +28,7 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
   const { travelAuthorizations, refresh: refreshTravelAuthorizations } =
     useTravelAuthorizations(travelAuthorizationQuery)
   const travelAuthorization = computed(() => travelAuthorizations.value[0])
+  const finalDestination = computed(() => travelAuthorization.value?.finalDestination ?? null)
 
   const tripStartDate = computed(() => {
     if (isNil(travelAuthorization.value)) return null
@@ -55,15 +57,11 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
   }))
   const {
     travelDeskFlightSegments: firstTravelDeskFlightSegments,
+    isLoading: isFirstFlightSegmentLoading,
+    isErrored: isFirstFlightSegmentErrored,
     refresh: refreshfirstTravelDeskFlightSegment,
   } = useTravelDeskFlightSegments(firstTravelDeskFlightSegmentQuery)
   const firstTravelDeskFlightSegment = computed(() => firstTravelDeskFlightSegments.value[0])
-  const flightStartDate = computed(() => {
-    if (isNil(firstTravelDeskFlightSegment.value)) return null
-
-    const { departAt } = firstTravelDeskFlightSegment.value
-    return departAt.slice(0, 10)
-  })
 
   // TODO: Consider denormalizing last flight segment onto travel desk travel request for performance
   const lastTravelDeskFlightSegmentQuery = computed<TravelDeskFlightSegmentsQueryOptions>(() => ({
@@ -75,14 +73,51 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
   }))
   const {
     travelDeskFlightSegments: lastTravelDeskFlightSegments,
+    isLoading: isLastFlightSegmentLoading,
+    isErrored: isLastFlightSegmentErrored,
     refresh: refreshLastTravelDeskFlightSegment,
   } = useTravelDeskFlightSegments(lastTravelDeskFlightSegmentQuery)
   const lastTravelDeskFlightSegment = computed(() => lastTravelDeskFlightSegments.value[0])
-  const flightEndDate = computed(() => {
-    if (isNil(lastTravelDeskFlightSegment.value)) return null
 
-    const { arriveAt } = lastTravelDeskFlightSegment.value
-    return arriveAt.slice(0, 10)
+  const isFlightScheduleLoading = computed(
+    () => isFirstFlightSegmentLoading.value || isLastFlightSegmentLoading.value
+  )
+  const isFlightScheduleErrored = computed(
+    () => isFirstFlightSegmentErrored.value || isLastFlightSegmentErrored.value
+  )
+
+  const flightSchedule = computed(() => {
+    if (isFlightScheduleLoading.value || isFlightScheduleErrored.value) return null
+
+    const firstFlightSegment = firstTravelDeskFlightSegment.value
+    const lastFlightSegment = lastTravelDeskFlightSegment.value
+    if (isNil(firstFlightSegment) || isNil(lastFlightSegment)) return null
+
+    const startAt = firstFlightSegment.departAt
+    const endAt = lastFlightSegment.arriveAt
+    if (isNil(startAt) || isNil(endAt)) return null
+
+    const startDateTime = DateTime.fromFormat(startAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", {
+      zone: "utc",
+    })
+    if (!startDateTime.isValid) return null
+
+    const endDateTime = DateTime.fromFormat(endAt, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", {
+      zone: "utc",
+    })
+    if (!endDateTime.isValid) return null
+
+    const startDate = startDateTime.toFormat("yyyy-MM-dd")
+    const startTime = startDateTime.toFormat("HH:mm")
+    const endDate = endDateTime.toFormat("yyyy-MM-dd")
+    const endTime = endDateTime.toFormat("HH:mm")
+
+    return {
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+    }
   })
 
   async function refresh() {
@@ -94,8 +129,8 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
   return {
     tripStartDate,
     tripEndDate,
-    flightStartDate,
-    flightEndDate,
+    finalDestination,
+    flightSchedule,
     refresh,
   }
 }

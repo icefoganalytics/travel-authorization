@@ -50,6 +50,32 @@ Use `mockVuetify()` from `@/tests/support` in each mount's `global.plugins`. `te
 Use `mockHttpClient()` from `@/tests/support` when a test needs to inspect or override the
 shared HTTP mock. It provides typed Axios methods; do not replace it with an empty client object.
 
+Register scenario GET responses with `mockHttpGetRoute(url, handler)` or
+`mockHttpGetRoutes({ [url]: handler })` from `@/tests/support`. Callbacks return payloads, not
+`{ data: payload }`; the helper adds the Axios envelope. Keep fixtures, query-dependent choices,
+and deferred promises in the scenario.
+For separate responses at the same URL, supply an optional configuration subset as the final
+argument, such as `mockHttpGetRoute(url, handler, { params: { order: [["departAt", "ASC"]] } })`.
+Only matching requests use that response; other requests retain earlier registrations.
+
+```typescript
+mockHttpGetRoutes({
+  "/api/travel-authorizations": () => ({
+    travelAuthorizations: [travelAuthorization],
+    totalCount: 1,
+  }),
+  "/api/locations": () => ({ locations: [destination], totalCount: 1 }),
+})
+```
+
+Registrations compose: exact URLs override earlier responses, the latest matching registration
+wins, and unmatched URLs delegate to the previous GET implementation without rewrapping its
+response. Other HTTP methods are untouched. Callback errors propagate unchanged. Without a
+previous implementation, an unmatched URL rejects with `Unmocked GET <url>`.
+The configured `mockReset` clears registrations and shared setup recreates defaults before each
+test. Call `mockHttpClient()` before registrations if needed; calling it between registrations
+replaces the GET implementation and discards earlier routes.
+
 Use `mockAuth0()` from `@/tests/support` when a test needs to override token acquisition. It provides a mock through Auth0's injection key, so components keep using the real `useAuth0()` composable without per-test module mocks.
 
 Example shape:
@@ -114,6 +140,8 @@ database relationship traits belong to the API's Factory Shark factories.
 - `web/tests/support/mock-router.ts` - memory-history router for mounted component tests
 - `web/tests/support/mock-vuetify.ts` - real Vuetify components and directives for mounted tests
 - `web/tests/support/mock-http-client.ts` - typed Axios mock with per-test defaults
+- `web/tests/support/mock-http-get-route.ts` - single GET response registration
+- `web/tests/support/mock-http-get-routes.ts` - composable GET response maps
 - `web/tests/support/mock-visual-viewport.ts` - browser viewport support for Vuetify overlays
 
 As the frontend test suite grows, prefer adding shared mocks and setup helpers under

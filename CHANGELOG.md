@@ -26,6 +26,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Reports have separate table, graph, and print views. Flight statistics tables load and sort one page at a time.
 - User administration includes a mailcode field and updated user search and editing controls.
 - Estimate, meal, and coding tables support server-side paging and sorting. Estimates load with the default ordering and can be sorted by expense type. Table and claim totals include all matching records, not just the displayed page. Meal dates and meal/coding amounts use the application's standard display formats.
+- Developer improvements: rental-car schedule presentation can be maintained consistently across new and existing requests.
 - Developer improvements: retired the legacy travel-authorization module in favor of typed components and pages without changing workflows.
 - Developer improvements: isolated checkout service and database routes, explicit PostgreSQL data transfers between worktrees, correct-checkout editor access with gem-owned Docker defaults that survives readiness-based startup, and warning-free Ruby wrapper startup with explicitly bundled help dependencies. Updated test tooling and contributor guidance; removed unused components and dependencies. Web tests share plugin setup, HTTP and authentication mocks, and component cleanup following WRAP's conventions. Agent guidance now loads verified shared workflow sources before local overlays while preserving TravelAuth's contracts and development commands.
 - Requested PR screenshots follow the shared agent-operated capture/upload workflow while preserving existing images, TravelAuth captions and app routes, and optional screenshot placeholders.
@@ -37,6 +38,8 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
+- Rental-car requests match flight dates and times on both new and edit forms. Matched fields remain readable and show a lock icon. Turning matching off restores the previous manual schedule, or blank dates and noon times for a new request without manual entries. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.
+- Read-only date fields no longer open the calendar picker when clicked, while preserving caller-supplied menu options.
 - Expense prefill excludes airfare while preserving other eligible expenses; flight estimates remain unchanged.
 - Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns, including traveller, purpose, dates, and Travel Desk status, order the full authorized result set before pagination, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
 - Owners can complete Travel Desk options review for requests without flights once all review data has loaded.
