@@ -5,16 +5,11 @@ Load the direct [packaged backend workflow](skill://express-api/workflow.md) and
 ## Local Pattern
 
 - Put reusable or multi-step business logic in services that extend `BaseService`.
-- Implement the action as an instance `perform()` method. `BaseService.perform(...)` constructs the
-  service with the supplied arguments and invokes that instance method.
+- Implement the action as an instance `perform()` method. `BaseService.perform(...)` constructs the service with the supplied arguments and invokes that instance method.
 - Call action services through `ServiceName.perform(...)`; do not instantiate them at call sites.
-- Keep controllers focused on request orchestration, authorization, status codes, and response shape.
-- Return serialization-ready models from mutation services. When response associations require a reload, make `return record.reload({ include: [...] })` the final service step, preserving required caller associations and existing transaction boundaries; controllers should not reload the result again.
-- Organize related action services under domain directories and export them through the existing
-  service index files.
+- Organize related action services under domain directories and export them through the existing service index files.
 
-For example, [`BulkGenerateService`](./estimates/bulk-generate-service.ts) receives its arguments
-through the inherited static `perform()` method, then performs the work in its instance method.
+For example, [`BulkGenerateService`](./estimates/bulk-generate-service.ts) receives its arguments through the inherited static `perform()` method, then performs the work in its instance method.
 
 ## IndexService Pattern
 
@@ -25,15 +20,6 @@ See the local [IndexService template](../../../agents/templates/backend-index-se
 Key points:
 
 - Accept `where`, `scopes`, `order`, `limit`, `offset`, and `currentUser` in the constructor.
-- Call `Model.count()` and `Model.findAll()` through the scoped model returned by
-  `Policy.applyScope`.
+- Call `Model.count()` and `Model.findAll()` through the scoped model returned by `Policy.applyScope`.
 - Compute summaries through a separate `computeSummaries()` → `compute{Summary}()` pipeline.
-- When a policy scope produces a JOIN, use `.aggregate()` with `includeIgnoreAttributes: false`,
-  `plain: true`, and `?? 0`, following the local template.
-
-## Travel Authorization Summaries
-
-`TravelAuthorizations.BuildSummaryService` computes a request's destination, phase, available
-actions, travelling state, and unprocessed expense count from preloaded data and an explicit
-current time. It performs no database reads or writes. The index serializer validates required
-associations and owns field selection, date formatting, and nested location serialization.
+- When a policy scope produces a JOIN, use `.aggregate()` with `includeIgnoreAttributes: false`, `plain: true`, and `?? 0`, following the local template.
