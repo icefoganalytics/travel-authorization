@@ -54,7 +54,11 @@ export function useTravelAuthorizationSummary(
     const { travelAuthorization } = state
     if (isNil(travelAuthorization)) return null
 
-    return travelAuthorization.tripTypeActual ?? travelAuthorization.tripTypeEstimate
+    if (isNil(travelAuthorization.tripTypeActual)) {
+      return travelAuthorization.tripTypeEstimate
+    }
+
+    return travelAuthorization.tripTypeActual
   })
 
   const travelSegments = computed(() => {
