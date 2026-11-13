@@ -4,7 +4,7 @@
 
     <h1>Pool Car Costs</h1>
 
-    <v-card>
+    <v-card color="surface-variant">
       <v-card-text>
         <v-data-table
           :headers="headers"
