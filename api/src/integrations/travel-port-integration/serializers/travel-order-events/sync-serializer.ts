@@ -16,15 +16,17 @@ import {
 
 export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   perform() {
-    if (isUndefined(this.record.passengers)) {
+    const { passengers, airReservationSegments, serviceFeeTransaction } = this.record
+
+    if (isUndefined(passengers)) {
       throw new Error("Expected passengers to be preloaded.")
     }
 
-    if (isUndefined(this.record.airReservationSegments)) {
+    if (isUndefined(airReservationSegments)) {
       throw new Error("Expected airReservationSegments to be preloaded.")
     }
 
-    if (isUndefined(this.record.serviceFeeTransaction)) {
+    if (isUndefined(serviceFeeTransaction)) {
       throw new Error("Expected serviceFeeTransaction to be preloaded.")
     }
 
@@ -37,11 +39,9 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
     const creatingAgencyInternationalAirTransportAssociationNumber = this.trimSourceValue(
       this.record.creatingAgencyIata
     )
-    const passengers = this.serializePassengers(this.record.passengers)
-    const airReservationSegments = this.serializeAirReservationSegments(
-      this.record.airReservationSegments
-    )
-    const serviceFeeTransaction = this.serializeServiceFeeTransaction(this.record.serviceFeeTransaction)
+    const serializedPassengers = this.serializePassengers(passengers)
+    const serializedAirReservationSegments = this.serializeAirReservationSegments(airReservationSegments)
+    const serializedServiceFeeTransaction = this.serializeServiceFeeTransaction(serviceFeeTransaction)
 
     return {
       ...pick(this.record, [
@@ -58,9 +58,9 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
       transactionAgencyName,
       transactionAgent,
       creatingAgencyInternationalAirTransportAssociationNumber,
-      passengers,
-      airReservationSegments,
-      serviceFeeTransaction,
+      passengers: serializedPassengers,
+      airReservationSegments: serializedAirReservationSegments,
+      serviceFeeTransaction: serializedServiceFeeTransaction,
     }
   }
 
