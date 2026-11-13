@@ -28,7 +28,7 @@ export class LinkTravelPortBookingService extends BaseService {
     const { travelPortBookings } = await BookingsService.perform(recordLocator, 1, 0)
     if (travelPortBookings.length === 0) {
       throw new InvoiceValidationError(
-        "TravelPort booking no longer exists. Choose another booking."
+        "Travelport booking no longer exists. Choose another booking."
       )
     }
 

@@ -1,12 +1,12 @@
 <template>
   <v-card class="mt-4">
-    <v-card-title>2. TravelPort booking</v-card-title>
+    <v-card-title>2. Travelport booking</v-card-title>
     <v-card-text>
       <p class="mb-3">
         Current linked locator: <strong>{{ recordLocator || "None" }}</strong>
       </p>
       <p class="mb-4">
-        Link one TravelPort booking for invoicing. Replacing or clearing this link does not change
+        Link one Travelport booking for invoicing. Replacing or clearing this link does not change
         saved invoices, the invoice number, or the PNR document.
       </p>
       <v-text-field
@@ -37,7 +37,7 @@
       <v-radio-group
         v-else
         v-model="selectedLocator"
-        label="Choose a TravelPort locator"
+        label="Choose a Travelport locator"
         :disabled="isSaving"
       >
         <v-radio
@@ -135,9 +135,9 @@ async function saveLink() {
   try {
     await travelPortBookingsApi.update(props.travelDeskTravelRequestId, recordLocator)
     emit("saved", recordLocator)
-    snack.success("TravelPort booking link saved")
+    snack.success("Travelport booking link saved")
   } catch (error) {
-    console.error("Failed to save TravelPort booking link", error)
+    console.error("Failed to save Travelport booking link", error)
     saveError.value = error instanceof ApiError ? error.message : "Booking link could not be saved."
     snack.error(saveError.value)
   } finally {

@@ -93,7 +93,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Assert
           expect(response.status).toEqual(422)
           expect(response.body).toEqual({
-            message: "Link a TravelPort booking to this travel request first.",
+            message: "Link a Travelport booking to this travel request first.",
           })
         }
       )
@@ -221,7 +221,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Assert
           expect(response.status).toEqual(422)
           expect(response.body).toEqual({
-            message: "Link a TravelPort booking to this travel request first.",
+            message: "Link a Travelport booking to this travel request first.",
           })
         }
       )

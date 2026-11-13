@@ -21,8 +21,8 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           })
           const message =
             travelPortRecordLocator === null
-              ? "Link a TravelPort booking to this travel request first."
-              : "Invoice booking must match the linked TravelPort booking."
+              ? "Link a Travelport booking to this travel request first."
+              : "Invoice booking must match the linked Travelport booking."
 
           // Act
           const result = CreateService.perform(travelRequest, {

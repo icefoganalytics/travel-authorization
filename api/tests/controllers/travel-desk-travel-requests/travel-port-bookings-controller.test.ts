@@ -26,7 +26,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-port-bookings-c
         const message =
           method === "get"
             ? "You are not authorized to access booking sources."
-            : "You are not authorized to link TravelPort bookings."
+            : "You are not authorized to link Travelport bookings."
 
         // Act
         const response = await request()
@@ -180,7 +180,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-port-bookings-c
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: "TravelPort booking no longer exists. Choose another booking.",
+          message: "Travelport booking no longer exists. Choose another booking.",
         })
       })
 

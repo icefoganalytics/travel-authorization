@@ -45,7 +45,7 @@
         type="info"
         class="mb-4"
       >
-        Link a TravelPort booking in
+        Link a Travelport booking in
         <router-link :to="tripInformationRoute">Trip Information</router-link>
         before creating an invoice. Saved invoices remain available below.
       </v-alert>
@@ -53,7 +53,7 @@
         v-else-if="linkedRecordLocator"
         class="mb-4"
       >
-        Linked TravelPort locator: <strong>{{ linkedRecordLocator }}</strong> ·
+        Linked Travelport locator: <strong>{{ linkedRecordLocator }}</strong> ·
         <router-link :to="tripInformationRoute">Change booking link</router-link>
       </p>
       <v-btn
@@ -192,7 +192,7 @@
         <v-card-text>
           <template v-if="!draft">
             <p class="mb-3">
-              Linked TravelPort locator: <strong>{{ linkedRecordLocator }}</strong>
+              Linked Travelport locator: <strong>{{ linkedRecordLocator }}</strong>
             </p>
             <v-btn
               color="primary"
@@ -615,8 +615,8 @@ async function refreshBookingLink(): Promise<string | null> {
   } catch (error) {
     if (version !== contextVersion) return null
 
-    console.error("Failed to load linked TravelPort booking", error)
-    bookingLinkError.value = errorText(error, "The linked TravelPort booking could not be loaded.")
+    console.error("Failed to load linked Travelport booking", error)
+    bookingLinkError.value = errorText(error, "The linked Travelport booking could not be loaded.")
     if (isCreating.value) closeEditor()
 
     return null

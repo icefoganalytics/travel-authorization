@@ -57,7 +57,7 @@ export class BookingsService extends BaseService {
       )
       return { travelPortBookings, totalCount: Number(counts[0]?.totalCount ?? 0) }
     } catch (error) {
-      logger.error("TravelPort booking source lookup failed.", { error })
+      logger.error("Travelport booking source lookup failed.", { error })
       throw new SourceUnavailableError("Booking source is unavailable.")
     }
   }

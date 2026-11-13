@@ -39,8 +39,8 @@ export class TravelPortBookingsController extends BaseController<TravelDeskTrave
         return this.response.status(503).json({ message: "Booking source is unavailable." })
       }
 
-      logger.error("Failed to list TravelPort bookings.", { error })
-      return this.response.status(400).json({ message: "Failed to load TravelPort bookings." })
+      logger.error("Failed to list Travelport bookings.", { error })
+      return this.response.status(400).json({ message: "Failed to load Travelport bookings." })
     }
   }
 
@@ -57,7 +57,7 @@ export class TravelPortBookingsController extends BaseController<TravelDeskTrave
       )
       if (!policy.update()) {
         return this.response.status(403).json({
-          message: "You are not authorized to link TravelPort bookings.",
+          message: "You are not authorized to link Travelport bookings.",
         })
       }
 
@@ -75,8 +75,8 @@ export class TravelPortBookingsController extends BaseController<TravelDeskTrave
         return this.response.status(503).json({ message: "Booking source is unavailable." })
       }
 
-      logger.error("Failed to link TravelPort booking.", { error })
-      return this.response.status(400).json({ message: "Failed to link TravelPort booking." })
+      logger.error("Failed to link Travelport booking.", { error })
+      return this.response.status(400).json({ message: "Failed to link Travelport booking." })
     }
   }
 

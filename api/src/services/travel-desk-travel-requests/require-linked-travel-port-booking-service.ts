@@ -10,7 +10,7 @@ export class RequireLinkedTravelPortBookingService extends BaseService {
   perform(): string {
     const { travelPortRecordLocator } = this.travelDeskTravelRequest
     if (travelPortRecordLocator === null) {
-      throw new InvoiceValidationError("Link a TravelPort booking to this travel request first.")
+      throw new InvoiceValidationError("Link a Travelport booking to this travel request first.")
     }
 
     return travelPortRecordLocator
