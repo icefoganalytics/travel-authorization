@@ -5,7 +5,6 @@ import { type TravelSegment } from "@/api/travel-segments-api"
 
 type DestinationSegment = Partial<Pick<TravelSegment, "departureLocationId" | "arrivalLocationId">>
 
-// Callers supply itinerary order, as returned by the segmentNumber-ordered API.
 export function determineFinalDestinationSegment<Segment extends DestinationSegment>(
   tripType: TravelAuthorizationTripTypes | null | undefined,
   travelSegments: readonly Segment[] | null | undefined
