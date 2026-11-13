@@ -46,12 +46,11 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
           tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
           travelSegments,
         })
-        const locations = [
-          locationFactory.build({ id: 1, city: "Whitehorse", province: "YT" }),
-          locationFactory.build({ id: 2, city: "Vancouver", province: "BC" }),
-          locationFactory.build({ id: 3, city: "Toronto", province: "ON" }),
-          locationFactory.build({ id: 4, city: "Ottawa", province: "ON" }),
-        ]
+        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse", province: "YT" })
+        const vancouver = locationFactory.build({ id: 2, city: "Vancouver", province: "BC" })
+        const toronto = locationFactory.build({ id: 3, city: "Toronto", province: "ON" })
+        const ottawa = locationFactory.build({ id: 4, city: "Ottawa", province: "ON" })
+        const locations = [whitehorse, vancouver, toronto, ottawa]
         const httpClient = mockHttpClient()
         httpClient.get.mockResolvedValue({
           data: {
@@ -64,10 +63,11 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
           },
         })
         httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+        const vuetify = mockVuetify()
         const wrapper = mount(PurposeEditFormCard, {
           props: { travelAuthorizationId: 5 },
           global: {
-            plugins: [mockVuetify()],
+            plugins: [vuetify],
           },
         })
         await flushPromises()
@@ -81,25 +81,28 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         await flushPromises()
 
         // Assert
+        const expectedSegment1 = expect.objectContaining({
+          segmentNumber: 1,
+          departureLocationId: 1,
+          arrivalLocationId: 2,
+        })
+        const expectedSegment2 = expect.objectContaining({
+          segmentNumber: 2,
+          departureLocationId: 2,
+          arrivalLocationId: destinationLocationId,
+        })
+        const expectedSegment3 = expect.objectContaining({
+          segmentNumber: 3,
+          departureLocationId: destinationLocationId,
+          arrivalLocationId: 1,
+        })
         expect(httpClient.patch).toHaveBeenCalledWith(
           "/api/travel-authorizations/5",
           expect.objectContaining({
             travelSegmentEstimatesAttributes: [
-              expect.objectContaining({
-                segmentNumber: 1,
-                departureLocationId: 1,
-                arrivalLocationId: 2,
-              }),
-              expect.objectContaining({
-                segmentNumber: 2,
-                departureLocationId: 2,
-                arrivalLocationId: destinationLocationId,
-              }),
-              expect.objectContaining({
-                segmentNumber: 3,
-                departureLocationId: destinationLocationId,
-                arrivalLocationId: 1,
-              }),
+              expectedSegment1,
+              expectedSegment2,
+              expectedSegment3,
             ],
           })
         )
