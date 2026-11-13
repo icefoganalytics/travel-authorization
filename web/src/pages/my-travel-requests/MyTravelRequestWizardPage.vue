@@ -9,7 +9,7 @@
         @update:step-name="goToStep"
       />
       <div class="ml-md-2 flex-grow-1">
-        <v-card class="default">
+        <v-card>
           <v-card-text>
             <SummaryHeaderPanel
               ref="summaryHeaderPanel"

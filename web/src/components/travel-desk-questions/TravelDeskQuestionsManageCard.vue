@@ -1,5 +1,5 @@
 <template>
-  <v-card class="card--outlined">
+  <v-card>
     <v-card-title>
       <h3>Questions</h3>
     </v-card-title>

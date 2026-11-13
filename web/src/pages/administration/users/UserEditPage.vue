@@ -15,10 +15,7 @@
         cols="12"
         md="12"
       >
-        <v-card
-          class="default"
-          :loading="isLoading"
-        >
+        <v-card :loading="isLoading">
           <v-card-title>User Details</v-card-title>
           <v-card-text>
             <v-form>
