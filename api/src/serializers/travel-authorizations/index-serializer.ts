@@ -110,9 +110,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       travelDeskTravelRequest,
       currentDate
     )
-    const finalDestination = isNil(summary.finalDestination)
-      ? null
-      : Locations.ReferenceSerializer.perform(summary.finalDestination)
+    const finalDestination = this.serializeFinalDestination(summary.finalDestination)
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
     return {
@@ -165,6 +163,12 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       },
       currentDate
     )
+  }
+
+  private serializeFinalDestination(location: Location | null): Locations.AsReference | null {
+    if (isNil(location)) return null
+
+    return Locations.ReferenceSerializer.perform(location)
   }
 
   private serializeLocations(
