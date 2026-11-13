@@ -8,9 +8,11 @@ import {
 } from "@/integrations/travel-port-integration/models"
 import BaseSerializer from "@/serializers/base-serializer"
 
-import { SyncSerializer as AirReservationSegmentSyncSerializer } from "@/integrations/travel-port-integration/serializers/air-reservation-segments"
-import { SyncSerializer as PassengerSyncSerializer } from "@/integrations/travel-port-integration/serializers/passengers"
-import { SyncSerializer as ServiceFeeTransactionSyncSerializer } from "@/integrations/travel-port-integration/serializers/service-fee-transactions"
+import {
+  AirReservationSegments,
+  Passengers,
+  ServiceFeeTransactions,
+} from "@/integrations/travel-port-integration/serializers"
 
 export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   perform() {
@@ -69,11 +71,11 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   }
 
   private serializePassengers(passengers: Passenger[]) {
-    return PassengerSyncSerializer.perform(passengers)
+    return Passengers.SyncSerializer.perform(passengers)
   }
 
   private serializeAirReservationSegments(airReservationSegments: AirReservationSegment[]) {
-    return AirReservationSegmentSyncSerializer.perform(airReservationSegments)
+    return AirReservationSegments.SyncSerializer.perform(airReservationSegments)
   }
 
   private serializeServiceFeeTransaction(
@@ -81,7 +83,7 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   ) {
     if (isNil(serviceFeeTransaction)) return null
 
-    return ServiceFeeTransactionSyncSerializer.perform(serviceFeeTransaction)
+    return ServiceFeeTransactions.SyncSerializer.perform(serviceFeeTransaction)
   }
 }
 
