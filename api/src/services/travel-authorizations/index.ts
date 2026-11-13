@@ -1,7 +1,9 @@
-export { BuildSummaryService } from "./build-summary-service"
 export { CreateService } from "./create-service"
 export { UpdateService } from "./update-service"
 export { DestroyService } from "./destroy-service"
+
+// Summary services
+export { BuildSummaryService } from "./build-summary-service"
 
 // State management services
 export { ApproveExpenseClaimService } from "./approve-expense-claim-service"
