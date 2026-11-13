@@ -14,6 +14,18 @@ import { SyncSerializer as ServiceFeeTransactionSyncSerializer } from "@/integra
 
 export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
   perform() {
+    if (isUndefined(this.record.passengers)) {
+      throw new Error("Expected passengers to be preloaded.")
+    }
+
+    if (isUndefined(this.record.airReservationSegments)) {
+      throw new Error("Expected airReservationSegments to be preloaded.")
+    }
+
+    if (isUndefined(this.record.serviceFeeTransaction)) {
+      throw new Error("Expected serviceFeeTransaction to be preloaded.")
+    }
+
     const eventType = this.trimSourceValue(this.record.eventType)
     const recordLocator = this.trimSourceValue(this.record.recordLocator)
     const reservationSystemDescription = this.trimSourceValue(this.record.crsDescription)
@@ -56,29 +68,17 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
     return value.trim()
   }
 
-  private serializePassengers(passengers: Passenger[] | undefined) {
-    if (isUndefined(passengers)) {
-      throw new Error("Expected passengers to be preloaded.")
-    }
-
+  private serializePassengers(passengers: Passenger[]) {
     return PassengerSyncSerializer.perform(passengers)
   }
 
-  private serializeAirReservationSegments(airReservationSegments: AirReservationSegment[] | undefined) {
-    if (isUndefined(airReservationSegments)) {
-      throw new Error("Expected airReservationSegments to be preloaded.")
-    }
-
+  private serializeAirReservationSegments(airReservationSegments: AirReservationSegment[]) {
     return AirReservationSegmentSyncSerializer.perform(airReservationSegments)
   }
 
   private serializeServiceFeeTransaction(
-    serviceFeeTransaction: ServiceFeeTransaction | null | undefined
+    serviceFeeTransaction: ServiceFeeTransaction | null
   ) {
-    if (isUndefined(serviceFeeTransaction)) {
-      throw new Error("Expected serviceFeeTransaction to be preloaded.")
-    }
-
     if (isNil(serviceFeeTransaction)) return null
 
     return ServiceFeeTransactionSyncSerializer.perform(serviceFeeTransaction)
