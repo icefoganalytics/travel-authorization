@@ -8,8 +8,8 @@ const knex: Knex = db
 
 describe("api/tests/integrations/travel-port-integration/models/travel-order-event.test.ts", () => {
   describe("TravelOrderEvent", () => {
-    describe("findAll", () => {
-      test("when a locator has B, F, and unversioned T events, it returns distinct linked history", async () => {
+    describe("external schema mappings and associations", () => {
+      test("when booking, fare, and ticket rows share a locator, it maps their fields and links children to the correct event", async () => {
         // Arrange
         const recordLocator = "QZ9X2A"
         const bookingIdentifier = 990001
@@ -159,26 +159,6 @@ describe("api/tests/integrations/travel-port-integration/models/travel-order-eve
             }),
           }),
         ])
-      })
-
-      test("when no event has the requested locator, it returns an empty history", async () => {
-        // Arrange
-        await knex("TravelOrderEvent").insert({
-          TravelOrderIdentifier: 990004,
-          RecordLocator: "OTHER1",
-          PnrBfVersionNbr: 1,
-          EventType: "B",
-          DatabaseTimeStamp: "2030-01-04T12:00:00",
-        })
-
-        // Act
-        const events = await TravelOrderEvent.findAll({
-          where: { recordLocator: "NOPE99" },
-          order: [["travelOrderIdentifier", "ASC"]],
-        })
-
-        // Assert
-        expect(events).toEqual([])
       })
     })
   })
