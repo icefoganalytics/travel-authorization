@@ -13,10 +13,10 @@
   >
     {{ message }}
     <template #actions>
-      <!-- color="" intentionally overrides the global VBtn color="primary" default
+      <!-- Explicit null overrides the global VBtn color="primary" default
            so Close inherits the snackbar's contrasting foreground. Removing it restores primary. -->
       <v-btn
-        color=""
+        :color="null"
         variant="text"
         @click="close"
       >
