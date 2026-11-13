@@ -88,7 +88,7 @@ import { useDisplay } from "vuetify"
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
-import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
+import useTravelItinerarySummary from "@/use/travel-authorizations/use-travel-itinerary-summary"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
@@ -137,10 +137,7 @@ const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
-const { finalDestinationLocationId } = useTravelAuthorizationSummary(travelAuthorizationId, {
-  tripType,
-  travelSegments: travelSegmentsAttributes,
-})
+const { finalDestinationLocationId } = useTravelItinerarySummary(tripType, travelSegmentsAttributes)
 
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes

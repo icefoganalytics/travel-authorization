@@ -9,44 +9,6 @@ import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-trave
 
 describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts", () => {
   describe("useTravelAuthorizationSummary", () => {
-    test.each(["replace itinerary", "edit arrival", "change trip type"])(
-      "when local inputs %s, the destination updates synchronously",
-      async (action) => {
-        // Arrange
-        const travelAuthorization = travelAuthorizationFactory.asShow().build({ id: 1 })
-        mockHttpClient().get.mockResolvedValue({ data: { travelAuthorization } })
-        const tripType = ref(TravelAuthorizationTripTypes.MULTI_CITY)
-        const travelSegments = ref([
-          { departureLocationId: 1, arrivalLocationId: 2 },
-          { departureLocationId: 2, arrivalLocationId: 3 },
-          { departureLocationId: 3, arrivalLocationId: 1 },
-        ])
-        const scope = effectScope()
-        const summary = scope.run(() =>
-          useTravelAuthorizationSummary(ref(1), { tripType, travelSegments })
-        )
-        if (!summary) throw new Error("Summary did not initialize")
-        await flushPromises()
-
-        try {
-          // Act
-          if (action === "replace itinerary") {
-            travelSegments.value = [{ departureLocationId: 1, arrivalLocationId: 4 }]
-          } else if (action === "edit arrival") {
-            travelSegments.value[1].arrivalLocationId = 4
-          } else {
-            tripType.value = TravelAuthorizationTripTypes.ONE_WAY
-          }
-
-          // Assert
-          const destination = summary.finalDestinationLocationId.value
-          expect(destination).toBe(action === "change trip type" ? 1 : 4)
-        } finally {
-          scope.stop()
-        }
-      }
-    )
-
     test("when actual travel is absent, selects the estimated itinerary", async () => {
       // Arrange
       const estimatedAuthorization = travelAuthorizationFactory.asShow().build({

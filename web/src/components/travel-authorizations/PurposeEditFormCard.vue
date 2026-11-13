@@ -118,7 +118,7 @@ import useTravelAuthorization, {
   TravelAuthorizationTripTypes,
 } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
-import useTravelAuthorizationSummary from "@/use/travel-authorizations/use-travel-authorization-summary"
+import useTravelItinerarySummary from "@/use/travel-authorizations/use-travel-itinerary-summary"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
@@ -151,11 +151,8 @@ const travelSegmentsQuery = computed(() => {
   }
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
-const travelAuthorizationSummary = useTravelAuthorizationSummary(travelAuthorizationId, {
-  tripType,
-  travelSegments,
-})
-const { finalDestinationSegment } = travelAuthorizationSummary
+const travelItinerarySummary = useTravelItinerarySummary(tripType, travelSegments)
+const { finalDestinationSegment } = travelItinerarySummary
 
 const finalDestinationLocationId = ref<number | null>(null)
 
@@ -165,7 +162,7 @@ function updateFinalDestinationLocationId(locationId: number | null) {
 }
 
 watch(
-  travelAuthorizationSummary.finalDestinationLocationId,
+  travelItinerarySummary.finalDestinationLocationId,
   (locationId) => {
     if (!isNil(finalDestinationLocationId.value)) return
 

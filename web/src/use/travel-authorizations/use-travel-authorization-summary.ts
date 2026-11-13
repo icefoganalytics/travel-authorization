@@ -1,14 +1,4 @@
-import {
-  type MaybeRefOrGetter,
-  type Ref,
-  computed,
-  reactive,
-  shallowRef,
-  toRefs,
-  toValue,
-  unref,
-  watch,
-} from "vue"
+import { type Ref, computed, reactive, shallowRef, toRefs, unref, watch } from "vue"
 import { has, isEmpty, isNil } from "lodash"
 
 import travelAuthorizationsApi, {
@@ -40,11 +30,7 @@ export type TravelAuthorizationSummary = {
 }
 
 export function useTravelAuthorizationSummary(
-  travelAuthorizationId: Ref<number | null | undefined>,
-  itinerary?: {
-    tripType: MaybeRefOrGetter<TravelAuthorizationTripTypes | null | undefined>
-    travelSegments: MaybeRefOrGetter<readonly Partial<TravelSegment>[] | null | undefined>
-  }
+  travelAuthorizationId: Ref<number | null | undefined>
 ) {
   const state = reactive<
     TravelAuthorizationSummary & {
@@ -68,21 +54,8 @@ export function useTravelAuthorizationSummary(
   const savedTravelSegments = shallowRef<TravelSegment[]>([])
 
   const finalDestinationSegment = computed(() => {
-    return determineFinalDestinationSegment(
-      isNil(itinerary) ? savedTripType.value : toValue(itinerary.tripType),
-      isNil(itinerary) ? savedTravelSegments.value : toValue(itinerary.travelSegments)
-    )
+    return determineFinalDestinationSegment(savedTripType.value, savedTravelSegments.value)
   })
-
-  if (!isNil(itinerary)) {
-    watch(
-      finalDestinationSegment,
-      (segment) => {
-        state.finalDestinationLocationId = segment?.arrivalLocationId ?? null
-      },
-      { immediate: true, deep: true, flush: "sync" }
-    )
-  }
 
   async function fetch(params = {}): Promise<TravelAuthorizationAsShow> {
     const staticId = unref(travelAuthorizationId)
