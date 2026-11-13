@@ -362,7 +362,8 @@
               v-else
               class="mt-4"
             >
-              Total: enter valid amounts within the supported range. Each line is rounded to three decimal places.
+              Total: enter valid amounts within the supported range. Each line is rounded to three
+              decimal places.
             </p>
           </template>
         </v-card-text>
