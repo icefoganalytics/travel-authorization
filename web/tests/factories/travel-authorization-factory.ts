@@ -14,6 +14,7 @@ class TravelAuthorizationFactory extends Factory<TravelAuthorization> {
       return {
         ...travelAuthorization,
         expenses: [],
+        finalDestination: null,
         purpose: null,
         stops: [],
         travelDeskTravelRequest: null,

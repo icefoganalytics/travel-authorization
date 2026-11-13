@@ -13,12 +13,14 @@ import {
 import BaseSerializer from "@/serializers/base-serializer"
 import {
   Expenses,
+  Locations,
   Stops,
   TravelDeskTravelRequests,
   TravelPurposes,
   TravelSegments,
   Users,
 } from "@/serializers"
+import FinalDestinationSerializer from "@/serializers/travel-authorizations/final-destination-serializer"
 import StateFlagsSerializer, {
   type TravelAuthorizationStateFlagsView,
 } from "@/serializers/travel-authorizations/state-flags-serializer"
@@ -63,6 +65,7 @@ export type TravelAuthorizationShowView = Pick<
   | "updatedAt"
 > & {
   expenses: ExpenseAsReference[]
+  finalDestination: Locations.AsReference | null
   purpose: TravelPurposes.AsReference | null
   stops: Stops.AsReference[]
   travelDeskTravelRequest: TravelDeskTravelRequests.AsReference | null
@@ -98,6 +101,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     const serializedExpenses = this.serializeExpenses(expenses)
+    const finalDestinationLocation = FinalDestinationSerializer.perform(this.record)
     const serializedTravelPurpose = this.serializeTravelPurpose(purpose)
     const serializedStops = this.serializeStops(stops)
     const serializedTravelDeskTravelRequest =
@@ -149,6 +153,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
       ...stateFlagsAttributes,
       // associations
       expenses: serializedExpenses,
+      finalDestination: finalDestinationLocation,
       purpose: serializedTravelPurpose,
       stops: serializedStops,
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,

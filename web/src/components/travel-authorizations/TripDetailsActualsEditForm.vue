@@ -87,10 +87,14 @@ import { max, isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
-
 import useRouteQuery from "@/use/utils/use-route-query"
+
+import { TRIP_TYPES } from "@/api/travel-authorizations-api"
+
+import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
+
 import useSnack from "@/use/use-snack"
-import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
@@ -139,12 +143,18 @@ const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
+const finalDestinationSegment = computed(() =>
+  determineFinalDestinationSegment(tripType.value, travelSegmentsAttributes.value)
+)
+const finalDestinationLocationId = computed(
+  () => finalDestinationSegment.value?.arrivalLocationId ?? null
+)
 
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes
 
   updateDepartureDate(newTravelSegmentsAttributes)
-  updateFinalDestinationLocationId(newTravelSegmentsAttributes)
+  emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
   updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes)
 }
 
@@ -152,19 +162,6 @@ function updateDepartureDate(newTravelSegmentsAttributes) {
   const departureDate = newTravelSegmentsAttributes.at(0)?.departureOn
   if (!isNil(departureDate)) {
     emit("update:departureDate", departureDate)
-  }
-}
-
-function updateFinalDestinationLocationId(newTravelSegmentsAttributes) {
-  let finalDestinationLocationId = null
-  if (tripType.value === TRIP_TYPES.ROUND_TRIP) {
-    finalDestinationLocationId = newTravelSegmentsAttributes.at(-2)?.arrivalLocationId
-  } else {
-    finalDestinationLocationId = newTravelSegmentsAttributes.at(-1)?.arrivalLocationId
-  }
-
-  if (!isNil(finalDestinationLocationId)) {
-    emit("update:finalDestinationLocationId", finalDestinationLocationId)
   }
 }
 

@@ -4,3 +4,4 @@ export { travelDeskFlightSegmentFactory } from "./travel-desk-flight-segment-fac
 export { travelDeskRentalCarFactory } from "./travel-desk-rental-car-factory"
 export { travelDeskTravelRequestFactory } from "./travel-desk-travel-request-factory"
 export { travelDeskTravelRequestAsIndexFactory } from "./travel-desk-travel-request-as-index-factory"
+export { travelSegmentFactory } from "./travel-segment-factory"

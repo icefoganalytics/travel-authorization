@@ -11,6 +11,7 @@ import {
 } from "@/models"
 
 import BaseSerializer from "@/serializers/base-serializer"
+import FinalDestinationSerializer from "@/serializers/travel-authorizations/final-destination-serializer"
 import {
   StateFlagsSerializer,
   type TravelAuthorizationStateFlagsView,
@@ -66,7 +67,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const finalDestinationLocation = this.buildFinalDestinationLocation()
+    const finalDestinationLocation = FinalDestinationSerializer.perform(this.record)
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -158,19 +159,6 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     return Array.from(locations.values())
-  }
-
-  private buildFinalDestinationLocation() {
-    if (isNil(this.lastTravelSegment)) return null
-
-    const { departureLocation, arrivalLocation } = this.lastTravelSegment
-    const finalDestinationLocation =
-      this.record.tripType === TravelAuthorization.TripTypes.ROUND_TRIP
-        ? departureLocation
-        : arrivalLocation
-    if (isNil(finalDestinationLocation)) return null
-
-    return Locations.ReferenceSerializer.perform(finalDestinationLocation)
   }
 
   private countUnprocessedExpenses(): number {

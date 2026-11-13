@@ -60,14 +60,11 @@ export function useTravelAuthorizationSummary(
       state.travelPurposeId = travelAuthorization.purposeId
       state.eventName = travelAuthorization.eventName
 
-      const tripType = travelAuthorization.tripTypeActual || travelAuthorization.tripTypeEstimate
-      const travelSegments = travelAuthorization.tripTypeActual
-        ? travelAuthorization.travelSegments.filter((segment) => segment.isActual)
-        : travelAuthorization.travelSegments.filter((segment) => !segment.isActual)
-      state.finalDestinationLocationId = _determineFinalDestinationLocationId(
-        tripType,
-        travelSegments
+      const useActuals = !isNil(travelAuthorization.tripTypeActual)
+      const travelSegments = travelAuthorization.travelSegments.filter(
+        (segment) => segment.isActual === useActuals
       )
+      state.finalDestinationLocationId = travelAuthorization.finalDestination?.id ?? null
       state.departureDate = _determineDepartureDate(travelSegments)
       state.returnDate =
         travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
@@ -89,28 +86,6 @@ export function useTravelAuthorizationSummary(
       state[key] = value
     })
     return state
-  }
-
-  function _determineFinalDestinationLocationId(
-    tripType: TravelAuthorizationTripTypes | null,
-    travelSegments: TravelSegment[]
-  ): number | null {
-    if (isNil(travelSegments) || isEmpty(travelSegments)) return null
-
-    let finalDestinationLocationId: number | null = null
-    if (tripType === TravelAuthorizationTripTypes.ROUND_TRIP) {
-      const finalDestinationSegment = travelSegments.at(-2)
-      if (isNil(finalDestinationSegment)) return null
-
-      finalDestinationLocationId = finalDestinationSegment.arrivalLocationId
-    } else {
-      const finalDestinationSegment = travelSegments.at(-1)
-      if (isNil(finalDestinationSegment)) return null
-
-      finalDestinationLocationId = finalDestinationSegment.arrivalLocationId
-    }
-
-    return finalDestinationLocationId
   }
 
   function _determineDepartureDate(travelSegments: TravelSegment[]): string | null {
