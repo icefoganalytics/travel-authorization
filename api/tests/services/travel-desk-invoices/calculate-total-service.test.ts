@@ -4,14 +4,14 @@ import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-
 describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () => {
   describe("CalculateTotalService", () => {
     describe(".perform", () => {
-      test("when an amount has more than three decimal places, it refuses precision loss", () => {
-        // Arrange
-        const amount = "1.0001"
+      test("when amounts have excess precision, it totals individually rounded lines", () => {
+        const items = [
+          { grossAmount: "1.0005", saleType: "Sale" as const },
+          { grossAmount: "1.0005", saleType: "Sale" as const },
+          { grossAmount: "-0.0005", saleType: "Refund" as const },
+        ]
 
-        // Act / Assert
-        expect(() =>
-          CalculateTotalService.perform([{ grossAmount: amount, saleType: "Sale" }])
-        ).toThrow(InvoiceValidationError)
+        expect(CalculateTotalService.perform(items)).toEqual("2.001")
       })
 
       test("when an amount is blank, it does not substitute a zero charge", () => {

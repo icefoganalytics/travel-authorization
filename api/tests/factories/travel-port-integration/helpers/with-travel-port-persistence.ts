@@ -1,7 +1,7 @@
 import { Model, type ModelStatic } from "@sequelize/core"
 import type { FactoryInterface } from "factory-shark"
 
-import sourceDatabase from "@/integrations/travel-port-integration/db/db-migration-client"
+import travelPortMigrationClient from "@/integrations/travel-port-integration/db/db-migration-client"
 
 /**
  * Persists synthetic external-source fixtures without Sequelize's datetime encoding.
@@ -20,7 +20,7 @@ export function withTravelPortPersistence<T extends Model>(
       }
     }
     const { table } = model
-    await sourceDatabase.table(table.tableName).insert(columns)
+    await travelPortMigrationClient.table(table.tableName).insert(columns)
     record.isNewRecord = false
     return record
   })
