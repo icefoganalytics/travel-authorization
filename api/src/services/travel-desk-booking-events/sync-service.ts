@@ -18,7 +18,7 @@ export class SyncService extends BaseService {
   async perform(): Promise<void> {
     await WithSyncLockService.perform(this.recordLocator, async () => {
       const matchedSourceIds: number[] = []
-      await this.syncSourceEvents(this.recordLocator, async (travelOrderEvent) => {
+      await this.syncTravelOrderEvents(this.recordLocator, async (travelOrderEvent) => {
         const serializedTravelOrderEvent =
           TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(travelOrderEvent)
         const { travelOrderIdentifier, ...travelOrderEventAttributes } = serializedTravelOrderEvent
@@ -53,7 +53,7 @@ export class SyncService extends BaseService {
    * may wait; the lock footprint depends on SQL Server's query plan and lock escalation.
    * A source read or commit failure propagates to roll back the enclosing local refresh.
    */
-  private async syncSourceEvents(
+  private async syncTravelOrderEvents(
     recordLocator: string,
     processEvent: (event: TravelPortIntegration.Models.TravelOrderEvent) => Promise<void>
   ): Promise<void> {

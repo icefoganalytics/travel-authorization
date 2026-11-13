@@ -1,6 +1,6 @@
 import { QueryTypes, sql } from "@sequelize/core"
 
-import travelAuthorizationDatabase from "@/models"
+import db from "@/models"
 import BaseService from "@/services/base-service"
 
 /**
@@ -24,9 +24,9 @@ export class WithSyncLockService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    await travelAuthorizationDatabase.transaction(async () => {
+    await db.transaction(async () => {
       const lockResource = `travel-authorization:booking-events:${this.recordLocator}`
-      await travelAuthorizationDatabase.query(
+      await db.query(
         sql`
           SELECT pg_advisory_xact_lock(hashtext(${lockResource}));
         `,
