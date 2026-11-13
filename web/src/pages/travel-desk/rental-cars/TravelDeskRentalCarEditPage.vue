@@ -216,6 +216,7 @@
 import { computed, ref, watch } from "vue"
 import { useRouter } from "vue-router"
 import { isEmpty, isNil } from "lodash"
+import { DateTime } from "luxon"
 import { useDisplay } from "vuetify"
 
 import blockedToTrueConfirm from "@/utils/blocked-to-true-confirm"
@@ -286,15 +287,15 @@ watch(
     scheduleBeforeFlightMatching.value = null
 
     if (!isNil(newPickUpDate)) {
-      const date = new Date(newPickUpDate)
-      pickUpDate.value = date.toISOString().split("T")[0]
-      pickUpTime.value = date.toISOString().split("T")[1].substring(0, 5)
+      const dateTime = DateTime.fromISO(newPickUpDate).toUTC()
+      pickUpDate.value = dateTime.toFormat("yyyy-MM-dd")
+      pickUpTime.value = dateTime.toFormat("HH:mm")
     }
 
     if (!isNil(newDropOffDate)) {
-      const date = new Date(newDropOffDate)
-      dropOffDate.value = date.toISOString().split("T")[0]
-      dropOffTime.value = date.toISOString().split("T")[1].substring(0, 5)
+      const dateTime = DateTime.fromISO(newDropOffDate).toUTC()
+      dropOffDate.value = dateTime.toFormat("yyyy-MM-dd")
+      dropOffTime.value = dateTime.toFormat("HH:mm")
     }
   },
   { immediate: true }
