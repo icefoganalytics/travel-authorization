@@ -26,7 +26,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
-        // Create out of order; the index query orders each phase by segment number.
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
             segmentNumber: 3,
@@ -107,7 +106,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
-        // Create out of order; the index query orders each phase by segment number.
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
             segmentNumber: 3,
@@ -188,7 +186,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
-        // Create out of order; the index query orders each phase by segment number.
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
             segmentNumber: 3,
@@ -269,7 +266,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
-        // Create out of order; the index query orders each phase by segment number.
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
             segmentNumber: 3,
@@ -350,7 +346,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
-        // Create out of order; the index query orders each phase by segment number.
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
             segmentNumber: 3,
@@ -431,7 +426,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
-        // Create out of order; the index query orders each phase by segment number.
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
             segmentNumber: 3,
@@ -511,7 +505,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
-        // Create out of order; the index query orders each phase by segment number.
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
             segmentNumber: 3,
