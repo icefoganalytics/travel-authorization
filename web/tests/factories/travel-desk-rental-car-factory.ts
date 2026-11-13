@@ -13,8 +13,11 @@ export const travelDeskRentalCarFactory = Factory.define<TravelDeskRentalCar>(({
   const timestamp = "2026-11-01T00:00:00.000Z"
   const pickUpCity = faker.helpers.arrayElement(CITIES)
   const pickUpLocation = faker.helpers.arrayElement(LOCATION_TYPES)
-  const pickUpLocationOther =
-    pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER ? `Rental office ${sequence}` : null
+
+  let pickUpLocationOther: string | null = null
+  if (pickUpLocation === TravelDeskRentalCarLocationTypes.OTHER) {
+    pickUpLocationOther = `Rental office ${sequence}`
+  }
 
   return {
     id: sequence,
