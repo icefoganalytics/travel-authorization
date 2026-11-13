@@ -86,10 +86,10 @@ import { computed, defineAsyncComponent, nextTick, ref, toRefs } from "vue"
 import { max, isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
+import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 
 import useRouteQuery from "@/use/utils/use-route-query"
-import useTravelItinerarySummary from "@/use/travel-authorizations/use-travel-itinerary-summary"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, { TRIP_TYPES } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
@@ -140,7 +140,12 @@ const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
-const { finalDestinationLocationId } = useTravelItinerarySummary(tripType, travelSegmentsAttributes)
+const finalDestinationSegment = computed(() =>
+  determineFinalDestinationSegment(tripType.value, travelSegmentsAttributes.value)
+)
+const finalDestinationLocationId = computed(
+  () => finalDestinationSegment.value?.arrivalLocationId ?? null
+)
 
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes

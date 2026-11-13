@@ -112,13 +112,13 @@ import {
   TravelSegment,
 } from "@/api/travel-segments-api"
 
+import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
 import { required } from "@/utils/validators"
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization, {
   TravelAuthorizationTripTypes,
 } from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
-import useTravelItinerarySummary from "@/use/travel-authorizations/use-travel-itinerary-summary"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
@@ -151,8 +151,12 @@ const travelSegmentsQuery = computed(() => {
   }
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
-const { finalDestinationSegment, finalDestinationLocationId: itineraryDestinationLocationId } =
-  useTravelItinerarySummary(tripType, travelSegments)
+const finalDestinationSegment = computed(() =>
+  determineFinalDestinationSegment(tripType.value, travelSegments.value)
+)
+const itineraryDestinationLocationId = computed(
+  () => finalDestinationSegment.value?.arrivalLocationId ?? null
+)
 
 const finalDestinationLocationId = ref<number | null>(null)
 
