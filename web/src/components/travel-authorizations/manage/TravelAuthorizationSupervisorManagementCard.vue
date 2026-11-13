@@ -40,8 +40,6 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
-
 import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
 import useTravelAuthorization from "@/use/use-travel-authorization"
@@ -68,16 +66,9 @@ const isDisabled = computed(() => {
   )
 })
 
-const finalDestinationLocationId = computed(() => {
-  if (isNil(travelAuthorization.value)) return null
-
-  const { travelSegments, tripTypeActual, tripTypeEstimate } = travelAuthorization.value
-  const tripType = tripTypeActual ?? tripTypeEstimate
-  const useActuals = !isNil(tripTypeActual)
-  const matchingTravelSegments = travelSegments.filter((segment) => segment.isActual === useActuals)
-  const finalDestinationSegment = determineFinalDestinationSegment(tripType, matchingTravelSegments)
-  return finalDestinationSegment?.arrivalLocationId ?? null
-})
+const finalDestinationLocationId = computed(
+  () => travelAuthorization.value?.finalDestination?.id ?? null
+)
 
 const requestorDisplayName = computed(() => {
   const displayName = travelAuthorization.value?.user?.displayName

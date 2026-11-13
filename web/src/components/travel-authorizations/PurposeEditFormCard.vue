@@ -106,6 +106,9 @@
 import { computed, ref, toRefs, watch } from "vue"
 import { isNil, isEmpty, pick } from "lodash"
 
+import { required } from "@/utils/validators"
+
+import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
 import {
   PERMITTED_ATTRIBUTES_FOR_CLONE,
   TravelSegmentTravelMethods,
@@ -113,11 +116,9 @@ import {
 } from "@/api/travel-segments-api"
 
 import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
-import { required } from "@/utils/validators"
+
 import useSnack from "@/use/use-snack"
-import useTravelAuthorization, {
-  TravelAuthorizationTripTypes,
-} from "@/use/use-travel-authorization"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"

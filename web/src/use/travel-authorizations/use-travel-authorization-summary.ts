@@ -1,8 +1,6 @@
 import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { has, isEmpty, isNil } from "lodash"
 
-import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
-
 import travelAuthorizationsApi, {
   type TravelAuthorizationAsShow,
   STATUSES,
@@ -62,17 +60,11 @@ export function useTravelAuthorizationSummary(
       state.travelPurposeId = travelAuthorization.purposeId
       state.eventName = travelAuthorization.eventName
 
-      let tripType = travelAuthorization.tripTypeEstimate
-      if (!isNil(travelAuthorization.tripTypeActual)) {
-        tripType = travelAuthorization.tripTypeActual
-      }
-
       const useActuals = !isNil(travelAuthorization.tripTypeActual)
       const travelSegments = travelAuthorization.travelSegments.filter(
         (segment) => segment.isActual === useActuals
       )
-      const finalDestinationSegment = determineFinalDestinationSegment(tripType, travelSegments)
-      state.finalDestinationLocationId = finalDestinationSegment?.arrivalLocationId ?? null
+      state.finalDestinationLocationId = travelAuthorization.finalDestination?.id ?? null
       state.departureDate = _determineDepartureDate(travelSegments)
       state.returnDate =
         travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
