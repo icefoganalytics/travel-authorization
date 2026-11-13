@@ -1,7 +1,10 @@
 export default {
   extends: ["stylelint-config-recommended"],
   rules: {
-    "selector-pseudo-class-no-unknown": [true, { ignorePseudoClasses: ["deep", "global", "slotted"] }],
+    "selector-pseudo-class-no-unknown": [
+      true,
+      { ignorePseudoClasses: ["deep", "global", "slotted"] },
+    ],
   },
   overrides: [
     {
