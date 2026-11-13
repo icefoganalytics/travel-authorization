@@ -89,13 +89,20 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
   const flightSchedule = computed(() => {
     if (isFlightScheduleLoading.value || isFlightScheduleErrored.value) return null
 
-    const startAt = firstTravelDeskFlightSegment.value?.departAt
-    const endAt = lastTravelDeskFlightSegment.value?.arriveAt
-    if (isNil(startAt) || isNil(endAt)) return null
-    if (!startAt.includes("T") || !endAt.includes("T")) return null
+    const firstFlightSegment = firstTravelDeskFlightSegment.value
+    const lastFlightSegment = lastTravelDeskFlightSegment.value
+    if (isNil(firstFlightSegment) || isNil(lastFlightSegment)) return null
 
-    const startDateTime = DateTime.fromISO(startAt, { setZone: true })
-    const endDateTime = DateTime.fromISO(endAt, { setZone: true })
+    const startAt = firstFlightSegment.departAt
+    const endAt = lastFlightSegment.arriveAt
+    if (isNil(startAt) || isNil(endAt)) return null
+
+    const isStartDateOnly = DateTime.fromFormat(startAt, "yyyy-MM-dd").isValid
+    const isEndDateOnly = DateTime.fromFormat(endAt, "yyyy-MM-dd").isValid
+    if (isStartDateOnly || isEndDateOnly) return null
+
+    const startDateTime = DateTime.fromISO(startAt, { zone: "utc" })
+    const endDateTime = DateTime.fromISO(endAt, { zone: "utc" })
     if (!startDateTime.isValid || !endDateTime.isValid) return null
 
     const startDate = startDateTime.toFormat("yyyy-MM-dd")
