@@ -4,6 +4,26 @@ import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-
 describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () => {
   describe("CalculateTotalService", () => {
     describe(".perform", () => {
+      test("when an amount has more than three decimal places, it refuses precision loss", () => {
+        // Arrange
+        const amount = "1.0001"
+
+        // Act / Assert
+        expect(() =>
+          CalculateTotalService.perform([{ grossAmount: amount, saleType: "Sale" }])
+        ).toThrow(InvoiceValidationError)
+      })
+
+      test("when an amount is blank, it does not substitute a zero charge", () => {
+        // Arrange
+        const amount = ""
+
+        // Act / Assert
+        expect(() =>
+          CalculateTotalService.perform([{ grossAmount: amount, saleType: "Sale" }])
+        ).toThrow(InvoiceValidationError)
+      })
+
       test("when large sales and fractional credits are combined, it retains every thousandth", () => {
         // Arrange
         const items = [
