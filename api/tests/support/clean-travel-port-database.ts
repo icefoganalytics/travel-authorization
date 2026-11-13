@@ -59,6 +59,7 @@ async function getTableNamesWithoutIdentityColumn() {
     throw error
   }
 }
+
 async function buildCleanDatabaseQuery() {
   const tableNames = await getTableNames()
   const tableNamesWithoutIdentityColumn = await getTableNamesWithoutIdentityColumn()
