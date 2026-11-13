@@ -151,10 +151,8 @@ const travelSegmentsQuery = computed(() => {
   }
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
-const {
-  finalDestinationSegment,
-  finalDestinationLocationId: itineraryDestinationLocationId,
-} = useTravelItinerarySummary(tripType, travelSegments)
+const { finalDestinationSegment, finalDestinationLocationId: itineraryDestinationLocationId } =
+  useTravelItinerarySummary(tripType, travelSegments)
 
 const finalDestinationLocationId = ref<number | null>(null)
 
