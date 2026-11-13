@@ -234,6 +234,72 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarEditPage.vue"
       )
     })
 
+    test("when a matched save fails, turning matching off restores the manual schedule on retry", async () => {
+      // Arrange
+      const httpClient = mockHttpClient()
+      vi.mocked(httpClient.patch).mockRejectedValueOnce(new Error("Unavailable"))
+      vi.spyOn(console, "error").mockImplementation(() => {})
+      const rentalCar = travelDeskRentalCarFactory.build({
+        id: 15,
+        travelRequestId: 42,
+        pickUpCity: "Dawson (YT)",
+        matchFlightTimes: true,
+        pickUpDate: "2026-12-01T09:15:00.000Z",
+        dropOffDate: "2026-12-05T18:45:00.000Z",
+      })
+      const location = locationFactory.build({ city: "Dawson", province: "YT" })
+      const flightSegment = travelDeskFlightSegmentFactory.build({
+        departAt: "2026-12-02T06:25:00.000Z",
+        arriveAt: "2026-12-06T20:40:00.000Z",
+      })
+      mockHttpGetRoutes({
+        "/api/travel-desk-rental-cars/15": () => ({
+          travelDeskRentalCar: { ...rentalCar },
+          policy: {},
+        }),
+        "/api/travel-desk-flight-segments": () => ({
+          travelDeskFlightSegments: [flightSegment],
+          totalCount: 1,
+        }),
+        "/api/travel-authorizations": () => ({ travelAuthorizations: [], totalCount: 0 }),
+        "/api/locations": () => ({ locations: [location], totalCount: 1 }),
+      })
+      const router = mockRouter([
+        {
+          path: "/requests/:travelDeskTravelRequestId",
+          name: "travel-desk/TravelDeskRequestEditRedirect",
+          component: { template: "<div />" },
+        },
+      ])
+      await router.push("/requests/42")
+      await router.isReady()
+      const wrapper = mount(TravelDeskRentalCarEditPage, {
+        props: { travelDeskTravelRequestId: "42", travelDeskRentalCarId: "15" },
+        global: { plugins: [mockVuetify(), router] },
+      })
+      await flushPromises()
+
+      // Act
+      const matchingQuestion = wrapper.getComponent(YesNoRowRadioGroup)
+      await matchingQuestion.get('input[value="false"]').setValue()
+      await matchingQuestion.get('input[value="true"]').setValue()
+      await wrapper.get("form").trigger("submit")
+      await flushPromises()
+      await matchingQuestion.get('input[value="false"]').setValue()
+      await wrapper.get("form").trigger("submit")
+      await flushPromises()
+
+      // Assert
+      expect(httpClient.patch).toHaveBeenCalledWith(
+        "/api/travel-desk-rental-cars/15",
+        expect.objectContaining({
+          matchFlightTimes: false,
+          pickUpDate: "2026-12-01T09:15:00.000Z",
+          dropOffDate: "2026-12-05T18:45:00.000Z",
+        })
+      )
+    })
+
     test.each(["before", "after"])(
       "when pending flights arrive %s selecting No, saving retains manual changes across repeated matching",
       async (flightArrival) => {
