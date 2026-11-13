@@ -13,11 +13,13 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
       // Arrange
       const estimatedAuthorization = travelAuthorizationFactory.asShow().build({
         id: 1,
-        tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
         tripTypeActual: null,
         travelSegments: [
-          { isActual: false, arrivalLocationId: 2 },
-          { isActual: true, arrivalLocationId: 3 },
+          { isActual: false, departureLocationId: 1, arrivalLocationId: 2 },
+          { isActual: false, departureLocationId: 2, arrivalLocationId: 3 },
+          { isActual: false, departureLocationId: 3, arrivalLocationId: 1 },
+          { isActual: true, departureLocationId: 1, arrivalLocationId: 4 },
         ],
       })
       mockHttpClient().get.mockResolvedValue({
@@ -33,7 +35,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.finalDestinationLocationId.value).toBe(2)
+        expect(summary.finalDestinationLocationId.value).toBe(3)
       } finally {
         scope.stop()
       }
@@ -53,10 +55,12 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
       const actualAuthorization = travelAuthorizationFactory.asShow().build({
         id: 2,
         tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
-        tripTypeActual: TravelAuthorizationTripTypes.ONE_WAY,
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
         travelSegments: [
-          { isActual: false, arrivalLocationId: 4 },
-          { isActual: true, arrivalLocationId: 5 },
+          { isActual: false, departureLocationId: 1, arrivalLocationId: 4 },
+          { isActual: true, departureLocationId: 1, arrivalLocationId: 2 },
+          { isActual: true, departureLocationId: 2, arrivalLocationId: 5 },
+          { isActual: true, departureLocationId: 5, arrivalLocationId: 1 },
         ],
       })
       mockHttpClient()
@@ -75,47 +79,6 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
 
         // Assert
         expect(summary.finalDestinationLocationId.value).toBe(5)
-      } finally {
-        scope.stop()
-      }
-    })
-
-    test("when the authorization changes, exposes the newly loaded record", async () => {
-      // Arrange
-      const estimatedAuthorization = travelAuthorizationFactory.asShow().build({
-        id: 1,
-        tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
-        tripTypeActual: null,
-        travelSegments: [
-          { isActual: false, arrivalLocationId: 2 },
-          { isActual: true, arrivalLocationId: 3 },
-        ],
-      })
-      const actualAuthorization = travelAuthorizationFactory.asShow().build({
-        id: 2,
-        tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
-        tripTypeActual: TravelAuthorizationTripTypes.ONE_WAY,
-        travelSegments: [
-          { isActual: false, arrivalLocationId: 4 },
-          { isActual: true, arrivalLocationId: 5 },
-        ],
-      })
-      mockHttpClient()
-        .get.mockResolvedValueOnce({ data: { travelAuthorization: estimatedAuthorization } })
-        .mockResolvedValueOnce({ data: { travelAuthorization: actualAuthorization } })
-      const travelAuthorizationId = ref(1)
-      const scope = effectScope()
-      const summary = scope.run(() => useTravelAuthorizationSummary(travelAuthorizationId))
-      if (!summary) throw new Error("Summary did not initialize")
-
-      try {
-        // Act
-        await flushPromises()
-        travelAuthorizationId.value = 2
-        await flushPromises()
-
-        // Assert
-        expect(summary.travelAuthorization.value).toEqual(actualAuthorization)
       } finally {
         scope.stop()
       }

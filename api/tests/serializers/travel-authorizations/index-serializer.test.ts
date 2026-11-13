@@ -14,7 +14,7 @@ import IndexSerializer from "@/serializers/travel-authorizations/index-serialize
 describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => {
   describe("IndexSerializer", () => {
     describe("#perform", () => {
-      test("when estimated multi-city travel returns home, it returns the selected itinerary's final destination", async () => {
+      test("when estimated multi-city travel returns home, it returns Toronto instead of Whitehorse", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -65,27 +65,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           },
         ])
 
-        await travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            {
-              association: "stops",
-              include: ["location"],
-            },
-            "travelDeskTravelRequest",
-            {
-              association: "travelSegments",
-              separate: true,
-              order: [
-                ["segmentNumber", "ASC"],
-                ["id", "ASC"],
-              ],
-              include: ["departureLocation", "arrivalLocation"],
-            },
-            "user",
-          ],
-        })
+        await reloadForIndexSerializer(travelAuthorization)
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -94,7 +74,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
-      test("when estimated multi-city travel ends away from home, it returns the selected itinerary's final destination", async () => {
+      test("when estimated multi-city travel ends away from home, it returns the last arrival", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -125,47 +105,9 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             departureLocationId: vancouver.id,
             arrivalLocationId: toronto.id,
           },
-          {
-            segmentNumber: 3,
-            isActual: true,
-            departureLocationId: ottawa.id,
-            arrivalLocationId: toronto.id,
-          },
-          {
-            segmentNumber: 1,
-            isActual: true,
-            departureLocationId: whitehorse.id,
-            arrivalLocationId: vancouver.id,
-          },
-          {
-            segmentNumber: 2,
-            isActual: true,
-            departureLocationId: vancouver.id,
-            arrivalLocationId: ottawa.id,
-          },
         ])
 
-        await travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            {
-              association: "stops",
-              include: ["location"],
-            },
-            "travelDeskTravelRequest",
-            {
-              association: "travelSegments",
-              separate: true,
-              order: [
-                ["segmentNumber", "ASC"],
-                ["id", "ASC"],
-              ],
-              include: ["departureLocation", "arrivalLocation"],
-            },
-            "user",
-          ],
-        })
+        await reloadForIndexSerializer(travelAuthorization)
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -174,7 +116,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
       })
 
-      test("when actual multi-city travel returns home with different estimated destinations, it returns the selected itinerary's final destination", async () => {
+      test("when actual multi-city travel returns home, it ignores the different estimated destination", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -225,27 +167,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           },
         ])
 
-        await travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            {
-              association: "stops",
-              include: ["location"],
-            },
-            "travelDeskTravelRequest",
-            {
-              association: "travelSegments",
-              separate: true,
-              order: [
-                ["segmentNumber", "ASC"],
-                ["id", "ASC"],
-              ],
-              include: ["departureLocation", "arrivalLocation"],
-            },
-            "user",
-          ],
-        })
+        await reloadForIndexSerializer(travelAuthorization)
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -254,7 +176,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
       })
 
-      test("when actual multi-city travel ends away from home, it returns the selected itinerary's final destination", async () => {
+      test("when actual multi-city travel ends away from home, it returns the last actual arrival", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -305,27 +227,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           },
         ])
 
-        await travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            {
-              association: "stops",
-              include: ["location"],
-            },
-            "travelDeskTravelRequest",
-            {
-              association: "travelSegments",
-              separate: true,
-              order: [
-                ["segmentNumber", "ASC"],
-                ["id", "ASC"],
-              ],
-              include: ["departureLocation", "arrivalLocation"],
-            },
-            "user",
-          ],
-        })
+        await reloadForIndexSerializer(travelAuthorization)
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -334,7 +236,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
-      test("when round-trip travel returns home, it returns the selected itinerary's final destination", async () => {
+      test("when round-trip travel returns home, it returns the last departure", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -344,7 +246,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
-        const ottawa = await locationFactory.create({ city: "Ottawa" })
 
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
@@ -365,47 +266,9 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             departureLocationId: vancouver.id,
             arrivalLocationId: toronto.id,
           },
-          {
-            segmentNumber: 3,
-            isActual: true,
-            departureLocationId: ottawa.id,
-            arrivalLocationId: whitehorse.id,
-          },
-          {
-            segmentNumber: 1,
-            isActual: true,
-            departureLocationId: whitehorse.id,
-            arrivalLocationId: vancouver.id,
-          },
-          {
-            segmentNumber: 2,
-            isActual: true,
-            departureLocationId: vancouver.id,
-            arrivalLocationId: ottawa.id,
-          },
         ])
 
-        await travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            {
-              association: "stops",
-              include: ["location"],
-            },
-            "travelDeskTravelRequest",
-            {
-              association: "travelSegments",
-              separate: true,
-              order: [
-                ["segmentNumber", "ASC"],
-                ["id", "ASC"],
-              ],
-              include: ["departureLocation", "arrivalLocation"],
-            },
-            "user",
-          ],
-        })
+        await reloadForIndexSerializer(travelAuthorization)
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -414,7 +277,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
-      test("when one-way travel ends at its original departure, it returns the selected itinerary's final destination", async () => {
+      test("when one-way travel ends at its original departure, it still returns the last arrival", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -424,7 +287,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
-        const ottawa = await locationFactory.create({ city: "Ottawa" })
 
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
@@ -445,47 +307,9 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             departureLocationId: vancouver.id,
             arrivalLocationId: toronto.id,
           },
-          {
-            segmentNumber: 3,
-            isActual: true,
-            departureLocationId: ottawa.id,
-            arrivalLocationId: whitehorse.id,
-          },
-          {
-            segmentNumber: 1,
-            isActual: true,
-            departureLocationId: whitehorse.id,
-            arrivalLocationId: vancouver.id,
-          },
-          {
-            segmentNumber: 2,
-            isActual: true,
-            departureLocationId: vancouver.id,
-            arrivalLocationId: ottawa.id,
-          },
         ])
 
-        await travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            {
-              association: "stops",
-              include: ["location"],
-            },
-            "travelDeskTravelRequest",
-            {
-              association: "travelSegments",
-              separate: true,
-              order: [
-                ["segmentNumber", "ASC"],
-                ["id", "ASC"],
-              ],
-              include: ["departureLocation", "arrivalLocation"],
-            },
-            "user",
-          ],
-        })
+        await reloadForIndexSerializer(travelAuthorization)
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -494,7 +318,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Whitehorse" }))
       })
 
-      test("when multi-city travel has missing departure and final arrival locations, it returns the selected itinerary's final destination", async () => {
+      test("when the origin and last arrival are missing, it does not treat them as a return home", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -503,7 +327,6 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         })
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
-        const ottawa = await locationFactory.create({ city: "Ottawa" })
 
         await travelSegmentFactory.associations({ travelAuthorization }).createMany([
           {
@@ -524,47 +347,9 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             departureLocationId: vancouver.id,
             arrivalLocationId: toronto.id,
           },
-          {
-            segmentNumber: 3,
-            isActual: true,
-            departureLocationId: ottawa.id,
-            arrivalLocationId: null,
-          },
-          {
-            segmentNumber: 1,
-            isActual: true,
-            departureLocationId: null,
-            arrivalLocationId: vancouver.id,
-          },
-          {
-            segmentNumber: 2,
-            isActual: true,
-            departureLocationId: vancouver.id,
-            arrivalLocationId: ottawa.id,
-          },
         ])
 
-        await travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            {
-              association: "stops",
-              include: ["location"],
-            },
-            "travelDeskTravelRequest",
-            {
-              association: "travelSegments",
-              separate: true,
-              order: [
-                ["segmentNumber", "ASC"],
-                ["id", "ASC"],
-              ],
-              include: ["departureLocation", "arrivalLocation"],
-            },
-            "user",
-          ],
-        })
+        await reloadForIndexSerializer(travelAuthorization)
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -583,22 +368,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         await travelSegmentFactory.associations({ travelAuthorization }).create({
           isActual: false,
         })
-        await travelAuthorization.reload({
-          include: [
-            "expenses",
-            "purpose",
-            {
-              association: "stops",
-              include: ["location"],
-            },
-            "travelDeskTravelRequest",
-            {
-              association: "travelSegments",
-              include: ["departureLocation", "arrivalLocation"],
-            },
-            "user",
-          ],
-        })
+        await reloadForIndexSerializer(travelAuthorization)
 
         // Act
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
@@ -686,3 +456,27 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
     })
   })
 })
+
+async function reloadForIndexSerializer(travelAuthorization: TravelAuthorization) {
+  return travelAuthorization.reload({
+    include: [
+      "expenses",
+      "purpose",
+      {
+        association: "stops",
+        include: ["location"],
+      },
+      "travelDeskTravelRequest",
+      {
+        association: "travelSegments",
+        separate: true,
+        order: [
+          ["segmentNumber", "ASC"],
+          ["id", "ASC"],
+        ],
+        include: ["departureLocation", "arrivalLocation"],
+      },
+      "user",
+    ],
+  })
+}

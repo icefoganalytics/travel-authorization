@@ -1,5 +1,7 @@
-import { type Ref, computed, reactive, toRefs, unref, watch } from "vue"
+import { type Ref, reactive, toRefs, unref, watch } from "vue"
 import { has, isEmpty, isNil } from "lodash"
+
+import determineFinalDestinationSegment from "@/utils/determine-final-destination-segment"
 
 import travelAuthorizationsApi, {
   type TravelAuthorizationAsShow,
@@ -9,8 +11,6 @@ import travelAuthorizationsApi, {
   TravelAuthorizationTripTypes,
 } from "@/api/travel-authorizations-api"
 import { type TravelSegment } from "@/api/travel-segments-api"
-
-import determineFinalDestinationSegment from "@/use/travel-authorizations/travel-authorization-summaries/determine-final-destination-segment"
 
 export {
   type TravelAuthorizationAsShow,
@@ -30,16 +30,14 @@ export type TravelAuthorizationSummary = {
 }
 
 export function useTravelAuthorizationSummary(
-  travelAuthorizationId: Ref<number | null | undefined>
+  travelAuthorizationId?: Ref<number | null | undefined>
 ) {
   const state = reactive<
     TravelAuthorizationSummary & {
-      travelAuthorization: TravelAuthorizationAsShow | null
       isLoading: boolean
       isErrored: boolean
     }
   >({
-    travelAuthorization: null,
     travelPurposeId: null,
     eventName: null,
     finalDestinationLocationId: null,
@@ -50,29 +48,6 @@ export function useTravelAuthorizationSummary(
     isErrored: false,
   })
 
-  const tripType = computed(() => {
-    const { travelAuthorization } = state
-    if (isNil(travelAuthorization)) return null
-
-    if (isNil(travelAuthorization.tripTypeActual)) {
-      return travelAuthorization.tripTypeEstimate
-    }
-
-    return travelAuthorization.tripTypeActual
-  })
-
-  const travelSegments = computed(() => {
-    const { travelAuthorization } = state
-    if (isNil(travelAuthorization)) return []
-
-    const useActuals = !isNil(travelAuthorization.tripTypeActual)
-    return travelAuthorization.travelSegments.filter((segment) => segment.isActual === useActuals)
-  })
-
-  const finalDestinationSegment = computed(() => {
-    return determineFinalDestinationSegment(tripType.value, travelSegments.value)
-  })
-
   async function fetch(params = {}): Promise<TravelAuthorizationAsShow> {
     const staticId = unref(travelAuthorizationId)
     if (isNil(staticId)) {
@@ -81,18 +56,28 @@ export function useTravelAuthorizationSummary(
 
     state.isLoading = true
     try {
-      const { travelAuthorization: record } = await travelAuthorizationsApi.get(staticId, params)
-      state.travelAuthorization = record
+      const { travelAuthorization } = await travelAuthorizationsApi.get(staticId, params)
       state.isErrored = false
 
-      state.travelPurposeId = record.purposeId
-      state.eventName = record.eventName
+      state.travelPurposeId = travelAuthorization.purposeId
+      state.eventName = travelAuthorization.eventName
 
-      state.finalDestinationLocationId = finalDestinationSegment.value?.arrivalLocationId ?? null
-      state.departureDate = _determineDepartureDate(travelSegments.value)
-      state.returnDate = record.dateBackToWorkActual || record.dateBackToWorkEstimate
-      state.userId = record.userId
-      return record
+      let tripType = travelAuthorization.tripTypeEstimate
+      if (!isNil(travelAuthorization.tripTypeActual)) {
+        tripType = travelAuthorization.tripTypeActual
+      }
+
+      const useActuals = !isNil(travelAuthorization.tripTypeActual)
+      const travelSegments = travelAuthorization.travelSegments.filter(
+        (segment) => segment.isActual === useActuals
+      )
+      const finalDestinationSegment = determineFinalDestinationSegment(tripType, travelSegments)
+      state.finalDestinationLocationId = finalDestinationSegment?.arrivalLocationId ?? null
+      state.departureDate = _determineDepartureDate(travelSegments)
+      state.returnDate =
+        travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate
+      state.userId = travelAuthorization.userId
+      return travelAuthorization
     } catch (error) {
       console.error(`Failed to fetch travel authorization: ${error}`, { error })
       state.isErrored = true
@@ -133,7 +118,6 @@ export function useTravelAuthorizationSummary(
 
   return {
     ...toRefs(state),
-    finalDestinationSegment,
     fetch,
     refresh: fetch,
     update,
