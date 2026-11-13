@@ -10,7 +10,7 @@ import {
 
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import { type InvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items"
-import { normalizeAmount } from "@/services/travel-desk-invoices/normalize-amount"
+import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
 
 export async function validateLinkedFlightSegments(
   items: InvoiceItemAttributes[],
@@ -64,7 +64,7 @@ export async function createInvoiceItems(
     vendor: item.vendor ?? null,
     description: item.description ?? null,
     saleType: item.saleType,
-    grossAmount: normalizeAmount(item.grossAmount),
+    grossAmount: normalizeInvoiceAmount(item.grossAmount),
     position: item.position,
   }))
 
