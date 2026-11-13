@@ -79,6 +79,8 @@ Examples:
 ## Vuetify Notes
 
 - Prefer Vuetify utility classes and theme semantics over ad hoc styling.
+- Set shared component appearance through Vuetify theme configuration and `defaults`; use native props for local border, elevation, color, and variant choices so those choices remain overridable.
+- Let headings and paragraphs inherit their component's foreground color. Global element colors can make text unreadable on colored cards and alerts.
 - Use semantic theme colors (`primary`, `secondary`, `warning`) intentionally rather than piling on
   lighten/darken variants by default.
 - Keep form layouts readable and consistent across cards, dialogs, and pages.
