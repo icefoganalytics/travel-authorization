@@ -33,7 +33,6 @@ export class WithSyncLockService extends BaseService {
         { type: QueryTypes.SELECT }
       )
 
-      // PostgreSQL releases the lock when this transaction commits or rolls back.
       await this.callback()
     })
   }
