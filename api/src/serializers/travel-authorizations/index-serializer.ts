@@ -11,6 +11,7 @@ import {
 } from "@/models"
 
 import BaseSerializer from "@/serializers/base-serializer"
+import FinalDestinationSerializer from "@/serializers/travel-authorizations/final-destination-serializer"
 import {
   StateFlagsSerializer,
   type TravelAuthorizationStateFlagsView,
@@ -66,11 +67,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const finalDestinationLocation = this.buildFinalDestinationLocation(
-      this.record.tripType,
-      this.travelSegments,
-      this.record.tripTypeActual
-    )
+    const finalDestinationLocation = FinalDestinationSerializer.perform(this.record)
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -162,38 +159,6 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     return Array.from(locations.values())
-  }
-
-  private buildFinalDestinationLocation(
-    tripType: TravelAuthorization["tripType"],
-    travelSegments: TravelSegment[],
-    tripTypeActual: TravelAuthorization["tripTypeActual"]
-  ): Locations.AsReference | null {
-    const useActuals = !isNil(tripTypeActual)
-    const destinationTravelSegments = travelSegments.filter(
-      (travelSegment) => travelSegment.isActual === useActuals
-    )
-    const firstTravelSegment = first(destinationTravelSegments)
-    const lastTravelSegment = last(destinationTravelSegments)
-    const penultimateTravelSegment = destinationTravelSegments.at(-2)
-
-    if (isNil(lastTravelSegment)) return null
-
-    let finalDestinationLocation = lastTravelSegment.arrivalLocation
-    if (tripType === TravelAuthorization.TripTypes.ROUND_TRIP) {
-      finalDestinationLocation = lastTravelSegment.departureLocation
-    } else if (
-      tripType === TravelAuthorization.TripTypes.MULTI_CITY &&
-      !isNil(penultimateTravelSegment) &&
-      !isNil(firstTravelSegment?.departureLocationId) &&
-      firstTravelSegment.departureLocationId === lastTravelSegment.arrivalLocationId
-    ) {
-      finalDestinationLocation = penultimateTravelSegment.arrivalLocation
-    }
-
-    if (isNil(finalDestinationLocation)) return null
-
-    return Locations.ReferenceSerializer.perform(finalDestinationLocation)
   }
 
   private countUnprocessedExpenses(): number {

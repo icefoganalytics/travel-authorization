@@ -74,8 +74,6 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
-
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
 import DescriptionElement from "@/components/common/DescriptionElement.vue"
@@ -94,14 +92,7 @@ const props = defineProps({
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 
-const finalDestinationLocationId = computed(() => {
-  if (isNil(travelAuthorization.value)) return null
-
-  const { tripTypeActual, tripTypeEstimate, travelSegments } = travelAuthorization.value
-  const tripType = tripTypeActual ?? tripTypeEstimate
-  const useActuals = !isNil(tripTypeActual)
-  const matchingTravelSegments = travelSegments.filter((segment) => segment.isActual === useActuals)
-  const finalDestinationSegment = determineFinalDestinationSegment(tripType, matchingTravelSegments)
-  return finalDestinationSegment?.arrivalLocationId ?? null
-})
+const finalDestinationLocationId = computed(
+  () => travelAuthorization.value?.finalDestination?.id ?? null
+)
 </script>

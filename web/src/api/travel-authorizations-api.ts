@@ -189,6 +189,7 @@ export type TravelAuthorizationAsShow = Pick<
   | "updatedAt"
 > & {
   expenses: ExpenseAsReference[]
+  finalDestination: LocationAsReference | null
   purpose: TravelPurposeAsReference | null
   stops: StopAsReference[]
   travelDeskTravelRequest: TravelDeskTravelRequestAsReference | null
