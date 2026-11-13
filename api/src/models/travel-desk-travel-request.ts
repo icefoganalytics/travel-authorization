@@ -68,10 +68,16 @@ export class TravelDeskTravelRequest extends Model<
   @Attribute(DataTypes.INTEGER)
   declare travelAgencyId: number | null
 
-  // Legacy TravCom invoice number, not a TravelPort record locator.
+  // Legacy TravCom invoice number, not a Travelport record locator.
   // Booking-feed invoice references are stored separately on TravelDeskInvoice.
   @Attribute(DataTypes.STRING(255))
   declare invoiceNumber: string | null
+
+  @Attribute(DataTypes.STRING(6))
+  @ValidateAttribute({
+    is: /^[A-Z0-9]{6}$/,
+  })
+  declare travelPortRecordLocator: string | null
 
   @Attribute(DataTypes.STRING(255))
   @NotNull

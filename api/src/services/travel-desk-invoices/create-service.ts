@@ -127,10 +127,21 @@ export class CreateService extends BaseService {
   }
 
   private async requireActiveTravelRequest(travelDeskTravelRequestId: number): Promise<void> {
-    const travelDeskTravelRequest =
-      await TravelDeskTravelRequest.findByPk(travelDeskTravelRequestId)
+    const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(
+      travelDeskTravelRequestId,
+      { lock: true }
+    )
     if (isNil(travelDeskTravelRequest)) {
       throw new InvoiceValidationError("Travel desk travel request does not exist.")
+    }
+
+    if (isNil(travelDeskTravelRequest.travelPortRecordLocator)) {
+      throw new InvoiceValidationError("Link a Travelport booking to this travel request first.")
+    }
+
+    const recordLocator = this.attributes.recordLocator?.trim().toUpperCase()
+    if (recordLocator !== travelDeskTravelRequest.travelPortRecordLocator) {
+      throw new InvoiceValidationError("Invoice booking must match the linked Travelport booking.")
     }
   }
 

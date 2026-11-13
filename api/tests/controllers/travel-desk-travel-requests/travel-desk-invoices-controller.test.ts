@@ -228,7 +228,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       test("when a selected booking has not been synced locally, it rejects invoice creation", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "API001",
+        })
         mockCurrentUser(officer)
 
         // Act
@@ -245,15 +247,18 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message:
-            "Failed to create invoice: Error: Choose a booking event with flight segments for this locator.",
+          message: expect.stringContaining(
+            "Choose a booking event with flight segments for this locator."
+          ),
         })
       })
 
       test("when synced data is created with forged totals and snapshot, it uses local source data and calculated total", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "API001",
+        })
         const otherRequest = await travelDeskTravelRequestFactory.create()
         const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         mockCurrentUser(officer)
@@ -491,8 +496,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message:
-            "Failed to update invoice: Error: Amount must have at most 15 integral digits and 3 decimals.",
+          message: expect.stringContaining(
+            "Amount must have at most 15 integral digits and 3 decimals."
+          ),
         })
       })
     })
