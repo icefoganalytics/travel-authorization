@@ -6,7 +6,7 @@ import {
 } from "@sequelize/core"
 import { Attribute, HasMany, HasOne, Table } from "@sequelize/core/decorators-legacy"
 
-import { UtcSqlServerDateTime } from "@/integrations/travel-port-integration/db/utc-sql-server-date-time"
+import { UtcSqlServerDateTime } from "@/integrations/travel-port-integration/db/data-types/utc-sql-server-date-time"
 
 import BaseModel from "@/models/base-model"
 import AirReservationSegment from "@/integrations/travel-port-integration/models/air-reservation-segment"
