@@ -1,3 +1,5 @@
+import { pick } from "lodash"
+
 import type { BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
 import { TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import BaseSerializer from "@/serializers/base-serializer"
@@ -12,20 +14,22 @@ export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
 
     return {
       travelOrderIdentifier: this.record.externalTravelPortIdentifier,
-      bookingFileVersionNumber: this.record.bookingFileVersionNumber,
-      eventType: this.record.eventType,
-      recordLocator: this.record.recordLocator,
-      reservationSystemDescription: this.record.reservationSystemDescription,
+      ...pick(this.record, [
+        "bookingFileVersionNumber",
+        "eventType",
+        "recordLocator",
+        "reservationSystemDescription",
+        "owningAgencyName",
+        "transactionAgencyName",
+        "transactionAgent",
+        "creatingAgencyInternationalAirTransportAssociationNumber",
+        "passengers",
+        "airReservationSegments",
+        "serviceFeeTransaction",
+      ]),
       databaseTimestamp,
       hostEventTimestamp,
       passengerNameRecordCreatedAt,
-      owningAgencyName: this.record.owningAgencyName,
-      transactionAgencyName: this.record.transactionAgencyName,
-      transactionAgent: this.record.transactionAgent,
-      creatingAgencyInternationalAirTransportAssociationNumber: this.record.creatingAgencyInternationalAirTransportAssociationNumber,
-      passengers: this.record.passengers,
-      airReservationSegments: this.record.airReservationSegments,
-      serviceFeeTransaction: this.record.serviceFeeTransaction,
     }
   }
 }
