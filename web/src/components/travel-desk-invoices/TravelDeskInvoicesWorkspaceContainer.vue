@@ -326,7 +326,7 @@
               v-else
               class="mt-4"
             >
-              Total: enter every amount with up to three decimal places.
+              Total: enter valid amounts within the supported range. Each line is rounded to three decimal places.
             </p>
           </template>
         </v-card-text>
@@ -449,7 +449,7 @@ const { page: invoicePage, perPage: invoicesPerPage } = useRouteQueryPagination(
 })
 const invoiceCount = ref(0)
 let contextVersion = 0
-const AMOUNT_PATTERN = /^-?(?:0|[1-9]\d{0,14})(?:\.\d{1,3})?$/
+const AMOUNT_PATTERN = /^-?\d+(?:\.\d+)?$/
 const MAX_AMOUNT_THOUSANDTHS = 999999999999999999n
 const flightBookingEvents = computed(() =>
   bookingEvents.value.filter((event) => event.airReservationSegments.length > 0)
@@ -871,7 +871,10 @@ const computedTotal = computed(() => {
     if (!AMOUNT_PATTERN.test(item.grossAmount)) return null
 
     const [whole, fraction = ""] = item.grossAmount.replace("-", "").split(".")
-    let amount = BigInt(whole) * 1000n + BigInt(fraction.padEnd(3, "0"))
+    const thousandths = fraction.slice(0, 3).padEnd(3, "0")
+    let amount = BigInt(whole) * 1000n + BigInt(thousandths)
+    if (fraction.length > 3 && fraction[3] >= "5") amount += 1n
+    if (amount > MAX_AMOUNT_THOUSANDTHS) return null
     if (item.grossAmount.startsWith("-")) amount = -amount
 
     if (item.saleType === "Sale") total += amount
@@ -899,7 +902,7 @@ async function saveInvoice() {
 
   if (!computedTotal.value || !/^[A-Z]{3}$/.test(draft.value.currencyCode)) {
     errorMessage.value =
-      "Enter every amount with up to three decimals, a supported total, and a three-letter uppercase currency code."
+      "Enter valid amounts, a supported total, and a three-letter uppercase currency code."
     return
   }
   isSaving.value = true
