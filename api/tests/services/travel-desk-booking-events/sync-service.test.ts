@@ -344,7 +344,10 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
-          expect.objectContaining({ id: cachedBookingEvent.id, deletedAt: null }),
+          expect.objectContaining({
+            id: cachedBookingEvent.id,
+            deletedAt: null,
+          }),
         ])
       })
     })
