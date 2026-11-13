@@ -13,7 +13,8 @@
   >
     {{ message }}
     <template #actions>
-      <!-- Inherit the snackbar foreground instead of the global primary button color. -->
+      <!-- color="" intentionally overrides the global VBtn color="primary" default
+           so Close inherits the snackbar's contrasting foreground. Removing it restores primary. -->
       <v-btn
         color=""
         variant="text"
