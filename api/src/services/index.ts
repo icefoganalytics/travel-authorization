@@ -17,6 +17,7 @@ export * as TravelAuthorizationPreApprovalProfiles from "./travel-authorization-
 export * as TravelAuthorizationPreApprovals from "./travel-authorization-pre-approvals"
 export * as TravelAuthorizationPreApprovalSubmissions from "./travel-authorization-pre-approval-submissions"
 export * as TravelAuthorizations from "./travel-authorizations"
+export * as TravelDeskBookingEvents from "./travel-desk-booking-events"
 export * as TravelDeskFlightOptions from "./travel-desk-flight-options"
 export * as TravelDeskFlightRequests from "./travel-desk-flight-requests"
 export * as TravelDeskFlightSegments from "./travel-desk-flight-segments"

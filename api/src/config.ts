@@ -119,19 +119,19 @@ export const TRAVELPORT_DB_CONFIG = {
   migrations: {
     schemaName: "dbo",
     tableName: "knex_migrations",
-    directory: path.resolve(__dirname, "./integrations/travelport-integration/db/migrations"),
+    directory: path.resolve(__dirname, "./integrations/travel-port-integration/db/migrations"),
   },
   seeds: {
     directory: path.resolve(
       __dirname,
-      `./integrations/travelport-integration/db/seeds/${NODE_ENV}`
+      `./integrations/travel-port-integration/db/seeds/${NODE_ENV}`
     ),
   },
 }
 
 export const TRAVELPORT_INITIALIZER_PATH = path.join(
   __dirname,
-  "integrations/travelport-integration/initializers"
+  "integrations/travel-port-integration/initializers"
 )
 
 export const RELEASE_TAG = process.env.RELEASE_TAG || ""

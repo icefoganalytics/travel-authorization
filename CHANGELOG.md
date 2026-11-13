@@ -14,11 +14,12 @@ Changes planned for the next release, since v2025.9.15.1.
 - Flight statistics reports show flight volumes and durations in tables and graphs, with printing and CSV export.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.
-- A separate local Travelport booking-feed simulator and read-only source lookup support booking integration development without production or VPN access. Existing integrations remain usable without Travelport settings.
+- A separate local Travelport booking-feed simulator and read-only source lookup support booking integration development without production or VPN access. The shared integration entry point requires Travelport database settings.
 
 ### Changed
 
 - Frontend lint now checks standalone CSS and Vue style blocks for CSS errors alongside existing script and template checks.
+- Booking-history refreshes remove only events missing from a successful source scan. Reappearing events create new local records while deleted records and saved invoices remain unchanged. Failed refreshes leave the previous local history intact.
 - Travel approval confirmations include the meeting or conference description and show the request's final destination when available. Approval and denial failures identify which action failed. Both dialogs synchronize their open state with the URL without clearing other query parameters.
 - Travel Desk request lists, PDF reports, and CSV exports show consistent services and statuses. Server-generated downloads apply the same filters and permissions as the request list and include every matching authorized request, including selections larger than twenty requests. Query filters are preserved within the supported limits; oversized queries are rejected instead of silently truncated. Unavailable selections return the same error response as failed downloads.
 - Travel Desk reports and CSV exports include all matching requests by default, across list pages. Select requests to download only that subset. Downloads preserve the list's booking and officer-assignment ordering when sort values tie. Loading indicators appear only while preparing a file.
