@@ -1,4 +1,5 @@
 import { pick } from "lodash"
+import { DateTime } from "luxon"
 
 import type { BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
 import { TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
@@ -8,9 +9,9 @@ export type TravelDeskBookingEventAsIndex = BookingEventSnapshot
 
 export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
   perform(): TravelDeskBookingEventAsIndex {
-    const databaseTimestamp = this.record.databaseTimestamp.toISOString()
-    const hostEventTimestamp = this.record.hostEventTimestamp?.toISOString() ?? null
-    const passengerNameRecordCreatedAt = this.record.passengerNameRecordCreatedAt?.toISOString() ?? null
+    const databaseTimestamp = this.formatTimestamp(this.record.databaseTimestamp)
+    const hostEventTimestamp = this.formatTimestamp(this.record.hostEventTimestamp)
+    const passengerNameRecordCreatedAt = this.formatTimestamp(this.record.passengerNameRecordCreatedAt)
 
     return {
       travelOrderIdentifier: this.record.externalTravelPortIdentifier,
@@ -31,6 +32,19 @@ export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
       hostEventTimestamp,
       passengerNameRecordCreatedAt,
     }
+  }
+
+  private formatTimestamp(value: Date): string
+  private formatTimestamp(value: Date | null): string | null
+  private formatTimestamp(value: Date | null): string | null {
+    if (value === null) return null
+
+    const timestamp = DateTime.fromJSDate(value, { zone: "utc" }).toISO()
+    if (timestamp === null) {
+      throw new Error("Cannot serialize an invalid booking event timestamp.")
+    }
+
+    return timestamp
   }
 }
 
