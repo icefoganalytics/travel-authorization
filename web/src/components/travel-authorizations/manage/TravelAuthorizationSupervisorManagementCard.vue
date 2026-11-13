@@ -11,7 +11,7 @@
           :travel-authorization-id="travelAuthorizationId"
           :requestor-display-name="requestorDisplayName"
           :is-disabled="isDisabled"
-          :travel-location-id="travelLocationId"
+          :travel-location-id="finalDestinationLocationId"
           @approved="refreshAndEmit('approved')"
         />
         <TravelAuthorizationDenyDialogButton
@@ -58,12 +58,8 @@ const emit = defineEmits<{
 }>()
 
 const { travelAuthorizationId } = toRefs(props)
-const {
-  travelAuthorization,
-  isLoading,
-  refresh,
-  finalDestinationLocationId: travelLocationId,
-} = useTravelAuthorizationSummary(travelAuthorizationId)
+const { travelAuthorization, isLoading, refresh, finalDestinationLocationId } =
+  useTravelAuthorizationSummary(travelAuthorizationId)
 
 const isDisabled = computed(() => {
   return (
