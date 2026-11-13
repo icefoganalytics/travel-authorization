@@ -15,7 +15,7 @@ import {
   travelAuthorizationFactory,
   travelSegmentFactory,
 } from "@/tests/factories"
-import { mockHttpClient, mockRouter, mockVuetify } from "@/tests/support"
+import { mockHttpGetRoutes, mockRouter, mockVuetify } from "@/tests/support"
 
 describe("web/src/components/my-travel-request-wizard", () => {
   describe("trip details destination updates", () => {
@@ -64,21 +64,22 @@ describe("web/src/components/my-travel-request-wizard", () => {
         const toronto = locationFactory.build({ id: 3, city: "Toronto", province: "ON" })
         const ottawa = locationFactory.build({ id: 4, city: "Ottawa", province: "ON" })
         const locations = [whitehorse, vancouver, toronto, ottawa]
-        mockHttpClient().get.mockImplementation(async (url) => {
-          const location = locations.find((location) => url === `/api/locations/${location.id}`)
-          return {
-            data: {
-              travelAuthorization,
-              travelSegments,
-              locations,
-              location,
-              user: { id: 1, displayName: "Test Traveler", roles: [] },
-              travelPurpose: { id: 1, purpose: "Meeting" },
-              expenses: [],
-              totalCount: 0,
-              policy: {},
-            },
-          }
+        mockHttpGetRoutes({
+          "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+          "/api/travel-segments": () => ({ travelSegments, totalCount: 3 }),
+          "/api/locations": () => ({ locations, totalCount: 4 }),
+          "/api/locations/1": () => ({ location: whitehorse }),
+          "/api/locations/2": () => ({ location: vancouver }),
+          "/api/locations/3": () => ({ location: toronto }),
+          "/api/locations/4": () => ({ location: ottawa }),
+          "/api/current-user": () => ({
+            user: { id: 1, displayName: "Test Traveler", roles: [] },
+            policy: {},
+          }),
+          "/api/travel-purposes/1": () => ({
+            travelPurpose: { id: 1, purpose: "Meeting" },
+          }),
+          "/api/expenses": () => ({ expenses: [], totalCount: 0 }),
         })
         await useCurrentUser().fetch()
         const router = mockRouter([
