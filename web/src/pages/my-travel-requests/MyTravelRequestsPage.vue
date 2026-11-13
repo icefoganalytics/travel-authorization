@@ -7,7 +7,7 @@
       <TravelAuthorizationCreateButton class="my-0" />
     </v-card-title>
 
-    <v-card class="default">
+    <v-card>
       <v-card-text>
         <MyTravelAuthorizationsDataTableServer ref="myTravelAuthorizationsTable" />
       </v-card-text>

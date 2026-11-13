@@ -1,8 +1,5 @@
 <template>
-  <v-card
-    class="card--outlined"
-    :loading="isLoading"
-  >
+  <v-card :loading="isLoading">
     <v-card-title>
       <h5>{{ title }}</h5>
     </v-card-title>

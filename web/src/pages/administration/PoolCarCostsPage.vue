@@ -4,7 +4,7 @@
 
     <h1>Pool Car Costs</h1>
 
-    <v-card class="default">
+    <v-card>
       <v-card-text>
         <v-data-table
           :headers="headers"

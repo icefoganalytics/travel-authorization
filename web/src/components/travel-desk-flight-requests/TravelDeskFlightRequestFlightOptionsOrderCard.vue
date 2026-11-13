@@ -1,8 +1,5 @@
 <template>
-  <v-card
-    class="card--outlined"
-    :loading="isLoading"
-  >
+  <v-card :loading="isLoading">
     <v-card-title>
       <h4>Options</h4>
     </v-card-title>
