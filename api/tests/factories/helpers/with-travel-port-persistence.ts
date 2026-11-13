@@ -26,7 +26,7 @@ export function withTravelPortPersistence<T extends Model>(
         }
       }
       const table = model.table
-      await sourceDatabase.withSchema("dbo").table(table.tableName).insert(columns)
+      await sourceDatabase.table(table.tableName).insert(columns)
       record.isNewRecord = false
       return record
     },
