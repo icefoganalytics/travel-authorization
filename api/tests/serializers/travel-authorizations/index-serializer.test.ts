@@ -22,6 +22,43 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
+        const travelSegment1 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: false,
+          departureLocationId: toronto.id,
+          arrivalLocationId: whitehorse.id,
+        })
+        const travelSegment2 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: false,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment3 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: false,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: toronto.id,
+        })
+        const travelSegment4 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: true,
+          departureLocationId: ottawa.id,
+          arrivalLocationId: whitehorse.id,
+        })
+        const travelSegment5 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: true,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment6 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: true,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: ottawa.id,
+        })
+
         const travelAuthorization = await travelAuthorizationFactory
           .include([
             "expenses",
@@ -46,42 +83,12 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: null,
             travelSegments: [
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: false,
-                departureLocationId: toronto.id,
-                arrivalLocationId: whitehorse.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: false,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: false,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: toronto.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: true,
-                departureLocationId: ottawa.id,
-                arrivalLocationId: whitehorse.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: true,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: true,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: ottawa.id,
-              }),
+              travelSegment1,
+              travelSegment2,
+              travelSegment3,
+              travelSegment4,
+              travelSegment5,
+              travelSegment6,
             ],
           })
 
@@ -100,6 +107,25 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
 
+        const travelSegment1 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: false,
+          departureLocationId: toronto.id,
+          arrivalLocationId: ottawa.id,
+        })
+        const travelSegment2 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: false,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment3 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: false,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: toronto.id,
+        })
+
         const travelAuthorization = await travelAuthorizationFactory
           .include([
             "expenses",
@@ -123,26 +149,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           .create({
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: null,
-            travelSegments: [
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: false,
-                departureLocationId: toronto.id,
-                arrivalLocationId: ottawa.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: false,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: false,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: toronto.id,
-              }),
-            ],
+            travelSegments: [travelSegment1, travelSegment2, travelSegment3],
           })
 
         // Act
@@ -159,6 +166,43 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
+
+        const travelSegment1 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: false,
+          departureLocationId: toronto.id,
+          arrivalLocationId: whitehorse.id,
+        })
+        const travelSegment2 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: false,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment3 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: false,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: toronto.id,
+        })
+        const travelSegment4 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: true,
+          departureLocationId: ottawa.id,
+          arrivalLocationId: whitehorse.id,
+        })
+        const travelSegment5 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: true,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment6 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: true,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: ottawa.id,
+        })
 
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -184,42 +228,12 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
             travelSegments: [
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: false,
-                departureLocationId: toronto.id,
-                arrivalLocationId: whitehorse.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: false,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: false,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: toronto.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: true,
-                departureLocationId: ottawa.id,
-                arrivalLocationId: whitehorse.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: true,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: true,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: ottawa.id,
-              }),
+              travelSegment1,
+              travelSegment2,
+              travelSegment3,
+              travelSegment4,
+              travelSegment5,
+              travelSegment6,
             ],
           })
 
@@ -237,6 +251,43 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
         const ottawa = await locationFactory.create({ city: "Ottawa" })
+
+        const travelSegment1 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: false,
+          departureLocationId: toronto.id,
+          arrivalLocationId: ottawa.id,
+        })
+        const travelSegment2 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: false,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment3 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: false,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: toronto.id,
+        })
+        const travelSegment4 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: true,
+          departureLocationId: ottawa.id,
+          arrivalLocationId: toronto.id,
+        })
+        const travelSegment5 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: true,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment6 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: true,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: ottawa.id,
+        })
 
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -262,42 +313,12 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
             travelSegments: [
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: false,
-                departureLocationId: toronto.id,
-                arrivalLocationId: ottawa.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: false,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: false,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: toronto.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: true,
-                departureLocationId: ottawa.id,
-                arrivalLocationId: toronto.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: true,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: true,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: ottawa.id,
-              }),
+              travelSegment1,
+              travelSegment2,
+              travelSegment3,
+              travelSegment4,
+              travelSegment5,
+              travelSegment6,
             ],
           })
 
@@ -314,6 +335,25 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
+
+        const travelSegment1 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: false,
+          departureLocationId: toronto.id,
+          arrivalLocationId: whitehorse.id,
+        })
+        const travelSegment2 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: false,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment3 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: false,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: toronto.id,
+        })
 
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -338,26 +378,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           .create({
             tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             tripTypeActual: null,
-            travelSegments: [
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: false,
-                departureLocationId: toronto.id,
-                arrivalLocationId: whitehorse.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: false,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: false,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: toronto.id,
-              }),
-            ],
+            travelSegments: [travelSegment1, travelSegment2, travelSegment3],
           })
 
         // Act
@@ -373,6 +394,25 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
+
+        const travelSegment1 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: false,
+          departureLocationId: toronto.id,
+          arrivalLocationId: whitehorse.id,
+        })
+        const travelSegment2 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: false,
+          departureLocationId: whitehorse.id,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment3 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: false,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: toronto.id,
+        })
 
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -397,26 +437,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           .create({
             tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
             tripTypeActual: null,
-            travelSegments: [
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: false,
-                departureLocationId: toronto.id,
-                arrivalLocationId: whitehorse.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: false,
-                departureLocationId: whitehorse.id,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: false,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: toronto.id,
-              }),
-            ],
+            travelSegments: [travelSegment1, travelSegment2, travelSegment3],
           })
 
         // Act
@@ -431,6 +452,25 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const currentUser = await userFactory.create()
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
+
+        const travelSegment1 = travelSegmentFactory.build({
+          segmentNumber: 3,
+          isActual: false,
+          departureLocationId: toronto.id,
+          arrivalLocationId: null,
+        })
+        const travelSegment2 = travelSegmentFactory.build({
+          segmentNumber: 1,
+          isActual: false,
+          departureLocationId: null,
+          arrivalLocationId: vancouver.id,
+        })
+        const travelSegment3 = travelSegmentFactory.build({
+          segmentNumber: 2,
+          isActual: false,
+          departureLocationId: vancouver.id,
+          arrivalLocationId: toronto.id,
+        })
 
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -455,26 +495,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           .create({
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: null,
-            travelSegments: [
-              travelSegmentFactory.build({
-                segmentNumber: 3,
-                isActual: false,
-                departureLocationId: toronto.id,
-                arrivalLocationId: null,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 1,
-                isActual: false,
-                departureLocationId: null,
-                arrivalLocationId: vancouver.id,
-              }),
-              travelSegmentFactory.build({
-                segmentNumber: 2,
-                isActual: false,
-                departureLocationId: vancouver.id,
-                arrivalLocationId: toronto.id,
-              }),
-            ],
+            travelSegments: [travelSegment1, travelSegment2, travelSegment3],
           })
 
         // Act
@@ -487,6 +508,10 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
       test("when the selected itinerary is empty, it returns no final destination", async () => {
         // Arrange
         const currentUser = await userFactory.create()
+        const travelSegment1 = travelSegmentFactory.build({
+          isActual: false,
+        })
+
         const travelAuthorization = await travelAuthorizationFactory
           .include([
             "expenses",
@@ -510,11 +535,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           .create({
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
-            travelSegments: [
-              travelSegmentFactory.build({
-                isActual: false,
-              }),
-            ],
+            travelSegments: [travelSegment1],
           })
 
         // Act
@@ -527,6 +548,11 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
       test("when travel authorization is pending approval and travelling is complete, it returns no travel action", async () => {
         // Arrange
         const currentUser = await userFactory.create()
+        const departureOn = faker.date.past()
+        const travelSegment1 = travelSegmentFactory.build({
+          departureOn,
+        })
+
         const travelAuthorization = await travelAuthorizationFactory
           .include([
             "expenses",
@@ -549,11 +575,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           ])
           .create({
             status: TravelAuthorization.Statuses.SUBMITTED,
-            travelSegments: [
-              travelSegmentFactory.build({
-                departureOn: faker.date.past(),
-              }),
-            ],
+            travelSegments: [travelSegment1],
           })
 
         // Act
@@ -571,6 +593,12 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
       test("when travel authorization is approved and travelling is complete, it includes submit_expense_claim", async () => {
         // Arrange
         const currentUser = await userFactory.create()
+        const departureOn = faker.date.past()
+        const travelSegment1 = travelSegmentFactory.build({
+          departureOn,
+          modeOfTransport: TravelSegment.TravelMethods.POOL_VEHICLE,
+        })
+
         const travelAuthorization = await travelAuthorizationFactory
           .include([
             "expenses",
@@ -593,12 +621,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
           ])
           .create({
             status: TravelAuthorization.Statuses.APPROVED,
-            travelSegments: [
-              travelSegmentFactory.build({
-                departureOn: faker.date.past(),
-                modeOfTransport: TravelSegment.TravelMethods.POOL_VEHICLE,
-              }),
-            ],
+            travelSegments: [travelSegment1],
           })
 
         // Act
