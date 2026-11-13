@@ -30,7 +30,18 @@ describe("web/tests/support/mock-http-get-routes.ts", () => {
       ])
 
       // Assert
-      expect(responses).toEqual([{ data: { id: 1 } }, { data: { id: 2 } }])
+      expect(responses).toEqual([
+        {
+          data: {
+            id: 1,
+          },
+        },
+        {
+          data: {
+            id: 2,
+          },
+        },
+      ])
     })
 
     test("when mixed registrations overlap, the latest response wins without losing other routes", async () => {
