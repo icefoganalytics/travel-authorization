@@ -2,7 +2,10 @@
   <div>
     <h1>User Management</h1>
     <div class="mt-2">
-      <v-card class="px-3 py-3">
+      <v-card
+        class="px-3 py-3"
+        color="surface-variant"
+      >
         <v-card-text>
           <v-row>
             <v-col

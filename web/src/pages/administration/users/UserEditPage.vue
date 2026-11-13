@@ -15,7 +15,10 @@
         cols="12"
         md="12"
       >
-        <v-card :loading="isLoading">
+        <v-card
+          :loading="isLoading"
+          color="surface-variant"
+        >
           <v-card-title>User Details</v-card-title>
           <v-card-text>
             <v-form>
