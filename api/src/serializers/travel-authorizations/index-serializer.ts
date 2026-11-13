@@ -10,8 +10,9 @@ import {
   User,
 } from "@/models"
 
+import determineFinalDestination from "@/services/travel-authorizations/determine-final-destination"
+
 import BaseSerializer from "@/serializers/base-serializer"
-import FinalDestinationSerializer from "@/serializers/travel-authorizations/final-destination-serializer"
 import {
   StateFlagsSerializer,
   type TravelAuthorizationStateFlagsView,
@@ -67,7 +68,12 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const finalDestinationLocation = FinalDestinationSerializer.perform(this.record)
+    const finalDestinationLocation = determineFinalDestination(
+      this.record.tripType,
+      travelSegments,
+      this.record.tripTypeActual
+    )
+    const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -84,7 +90,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       ]),
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
-      finalDestination: finalDestinationLocation,
+      finalDestination: serializedFinalDestination,
       departingAt: departingAt?.toISOString(),
       returningAt: returningAt?.toISOString(),
       phase: this.determinePhase(),
@@ -99,6 +105,12 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       ...stateFlagsAttributes,
     }
+  }
+
+  private serializeFinalDestination(location: Location | null): Locations.AsReference | null {
+    if (isNil(location)) return null
+
+    return Locations.ReferenceSerializer.perform(location)
   }
 
   private serializeLocations(
