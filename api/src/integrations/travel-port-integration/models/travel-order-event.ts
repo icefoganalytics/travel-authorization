@@ -32,52 +32,116 @@ export class TravelOrderEvent extends BaseModel<
   })
   declare travelOrderIdentifier: number
 
-  @Attribute({ type: DataTypes.INTEGER, columnName: "PnrBfVersionNbr", allowNull: true })
+  @Attribute({
+    type: DataTypes.INTEGER,
+    columnName: "PnrBfVersionNbr",
+    allowNull: true,
+  })
   declare bookingFileVersionNumber: number | null
 
-  @Attribute({ type: DataTypes.CHAR(1), columnName: "EventType", allowNull: true })
+  @Attribute({
+    type: DataTypes.CHAR(1),
+    columnName: "EventType",
+    allowNull: true,
+  })
   declare eventType: string | null
 
-  @Attribute({ type: DataTypes.CHAR(6), columnName: "RecordLocator", allowNull: true })
+  @Attribute({
+    type: DataTypes.CHAR(6),
+    columnName: "RecordLocator",
+    allowNull: true,
+  })
   declare recordLocator: string | null
 
-  @Attribute({ type: UtcSqlServerDateTime, columnName: "HostEventTimeStamp", allowNull: true })
+  @Attribute({
+    type: UtcSqlServerDateTime,
+    columnName: "HostEventTimeStamp",
+    allowNull: true,
+  })
   declare hostEventTimestamp: Date | null
 
-  @Attribute({ type: DataTypes.CHAR(9), columnName: "CrsDescription", allowNull: true })
+  @Attribute({
+    type: DataTypes.CHAR(9),
+    columnName: "CrsDescription",
+    allowNull: true,
+  })
   declare crsDescription: string | null
 
-  @Attribute({ type: UtcSqlServerDateTime, columnName: "DatabaseTimeStamp", allowNull: false })
+  @Attribute({
+    type: UtcSqlServerDateTime,
+    columnName: "DatabaseTimeStamp",
+    allowNull: false,
+  })
   declare databaseTimestamp: Date
 
-  @Attribute({ type: DataTypes.CHAR(4), columnName: "TransactionPseudo", allowNull: true })
+  @Attribute({
+    type: DataTypes.CHAR(4),
+    columnName: "TransactionPseudo",
+    allowNull: true,
+  })
   declare transactionPseudo: string | null
 
-  @Attribute({ type: DataTypes.CHAR(8), columnName: "TransactionAgent", allowNull: true })
+  @Attribute({
+    type: DataTypes.CHAR(8),
+    columnName: "TransactionAgent",
+    allowNull: true,
+  })
   declare transactionAgent: string | null
 
-  @Attribute({ type: DataTypes.CHAR(4), columnName: "OwningAgencyPseudo", allowNull: true })
+  @Attribute({
+    type: DataTypes.CHAR(4),
+    columnName: "OwningAgencyPseudo",
+    allowNull: true,
+  })
   declare owningAgencyPseudo: string | null
 
-  @Attribute({ type: DataTypes.CHAR(5), columnName: "OriginalBookingLocation", allowNull: true })
+  @Attribute({
+    type: DataTypes.CHAR(5),
+    columnName: "OriginalBookingLocation",
+    allowNull: true,
+  })
   declare originalBookingLocation: string | null
 
-  @Attribute({ type: DataTypes.DECIMAL(18, 0), columnName: "CreatingAgencyIata", allowNull: true })
+  @Attribute({
+    type: DataTypes.DECIMAL(18, 0),
+    columnName: "CreatingAgencyIata",
+    allowNull: true,
+  })
   declare creatingAgencyIata: string | null
 
-  @Attribute({ type: UtcSqlServerDateTime, columnName: "PnrCreationDate", allowNull: true })
+  @Attribute({
+    type: UtcSqlServerDateTime,
+    columnName: "PnrCreationDate",
+    allowNull: true,
+  })
   declare pnrCreationDate: Date | null
 
-  @Attribute({ type: UtcSqlServerDateTime, columnName: "PnrPurgeDate", allowNull: true })
+  @Attribute({
+    type: UtcSqlServerDateTime,
+    columnName: "PnrPurgeDate",
+    allowNull: true,
+  })
   declare pnrPurgeDate: Date | null
 
-  @Attribute({ type: DataTypes.STRING(24), columnName: "OwningAgencyName", allowNull: true })
+  @Attribute({
+    type: DataTypes.STRING(24),
+    columnName: "OwningAgencyName",
+    allowNull: true,
+  })
   declare owningAgencyName: string | null
 
-  @Attribute({ type: DataTypes.STRING(24), columnName: "TransactionAgencyName", allowNull: true })
+  @Attribute({
+    type: DataTypes.STRING(24),
+    columnName: "TransactionAgencyName",
+    allowNull: true,
+  })
   declare transactionAgencyName: string | null
 
-  @Attribute({ type: DataTypes.CHAR(7), columnName: "LastActionAgentID", allowNull: true })
+  @Attribute({
+    type: DataTypes.CHAR(7),
+    columnName: "LastActionAgentID",
+    allowNull: true,
+  })
   declare lastActionAgentId: string | null
 
   @HasMany(() => Passenger, {
