@@ -4,13 +4,13 @@
 
     <v-row>
       <v-col>
-        <DashboardLatestTravelAuthorizationCard class="default" />
+        <DashboardLatestTravelAuthorizationCard color="surface-variant" />
       </v-col>
     </v-row>
 
     <v-row>
       <v-col>
-        <v-card class="default">
+        <v-card color="surface-variant">
           <v-card-title>Past Trips</v-card-title>
           <v-card-text>
             <DashboardTravelAuthorizationsDataTable
@@ -21,7 +21,7 @@
         </v-card>
       </v-col>
       <v-col>
-        <v-card class="default">
+        <v-card color="surface-variant">
           <v-card-title>Upcoming Trips</v-card-title>
           <v-card-text>
             <DashboardTravelAuthorizationsDataTable
@@ -35,7 +35,7 @@
 
     <v-row>
       <v-col>
-        <v-card class="default">
+        <v-card color="surface-variant">
           <v-card-title>Create a new travel request</v-card-title>
           <v-card-text>
             To begin the process of creating a new travel request, click the button below.

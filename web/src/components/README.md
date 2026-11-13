@@ -79,6 +79,10 @@ Examples:
 ## Vuetify Notes
 
 - Prefer Vuetify utility classes and theme semantics over ad hoc styling.
+- Set shared component appearance through Vuetify theme configuration and `defaults`; use native props for local border, elevation, color, and variant choices so those choices remain overridable.
+- When replacing legacy styles, preserve the rendered appearance where native props and utilities support it. Use `color="surface-variant"` for the existing cream cards; keep ordinary cards on the default surface.
+- Set contrasting foregrounds through theme `on-*` colors, not per-component color maps. Bright brand fills need explicit dark foregrounds; snackbar messages and actions should inherit the resulting foreground.
+- Let headings and paragraphs inherit their component's foreground color. Global element colors can make text unreadable on colored cards and alerts.
 - Use semantic theme colors (`primary`, `secondary`, `warning`) intentionally rather than piling on
   lighten/darken variants by default.
 - Keep form layouts readable and consistent across cards, dialogs, and pages.

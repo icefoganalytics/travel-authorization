@@ -17,7 +17,6 @@
         </v-card-title>
         <v-card-text class="px-0 px-md-4">
           <TravelDeskFlightRequestsCard
-            class="card--outlined"
             :travel-desk-travel-request-id="travelDeskTravelRequestId"
           />
           <TravelDeskFlightRequestFlightOptionsOrderCard

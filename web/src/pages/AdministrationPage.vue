@@ -6,7 +6,7 @@
       cols="12"
       md="4"
     >
-      <v-card class="default">
+      <v-card color="surface-variant">
         <v-card-title>{{ menuCardList.title }}</v-card-title>
         <v-list class="pb-0 pt-0">
           <v-list-item

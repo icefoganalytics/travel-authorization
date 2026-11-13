@@ -81,18 +81,18 @@
               <v-card-text>
                 <TravelDeskFlightRequestsCard
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
-                  class="borderless-card"
+                  :border="false"
                 />
                 <TravelDeskRentalCarsCard
-                  class="borderless-card"
+                  :border="false"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
                 <TravelDeskHotelsCard
-                  class="borderless-card"
+                  :border="false"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
                 <TravelDeskOtherTransportationsCard
-                  class="borderless-card"
+                  :border="false"
                   :travel-desk-travel-request-id="travelDeskTravelRequestIdAsNumber"
                 />
               </v-card-text>
@@ -184,10 +184,3 @@ const breadcrumbs = computed(() => [
 ])
 useBreadcrumbs(breadcrumbs)
 </script>
-
-<style scoped>
-.v-card.borderless-card {
-  border: none !important;
-  box-shadow: none !important;
-}
-</style>

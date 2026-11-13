@@ -70,12 +70,3 @@ function refreshTablesUsingFlightInfo() {
   travelDeskOtherTransportationEditCard.value?.refresh()
 }
 </script>
-
-<style scoped></style>
-
-<style scoped>
-.v-card.borderless-card {
-  border: none !important;
-  box-shadow: none !important;
-}
-</style>

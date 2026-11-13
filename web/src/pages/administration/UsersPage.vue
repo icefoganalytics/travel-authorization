@@ -2,7 +2,10 @@
   <div>
     <h1>User Management</h1>
     <div class="mt-2">
-      <v-card class="default px-3 py-3">
+      <v-card
+        class="px-3 py-3"
+        color="surface-variant"
+      >
         <v-card-text>
           <v-row>
             <v-col
@@ -143,7 +146,7 @@ useBreadcrumbs(breadcrumbs)
 
 <style scoped>
 .hoverclicklink:hover {
-  color: #0097a9;
+  color: rgb(var(--v-theme-primary));
   text-decoration: underline;
   cursor: pointer;
 }
