@@ -12,10 +12,12 @@ export class DestroyService extends BaseService {
 
   async perform(): Promise<void> {
     const referencedInvoiceItem = await TravelDeskInvoiceItem.findOne({
+      attributes: ["id"],
       where: {
         travelDeskProductTypeId: this.productType.id,
       },
       paranoid: false,
+      raw: true,
     })
 
     if (referencedInvoiceItem != null) {

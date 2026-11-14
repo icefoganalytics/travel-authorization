@@ -127,8 +127,7 @@ export class CreateService extends BaseService {
   }
 
   private async requireActiveTravelRequest(travelDeskTravelRequestId: number): Promise<void> {
-    const travelDeskTravelRequest =
-      await TravelDeskTravelRequest.findByPk(travelDeskTravelRequestId)
+    const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(travelDeskTravelRequestId)
     if (isNil(travelDeskTravelRequest)) {
       throw new InvoiceValidationError("Travel desk travel request does not exist.")
     }
@@ -152,9 +151,7 @@ export class CreateService extends BaseService {
       (event) => event.travelOrderIdentifier === sourceBookingEventId
     )
     if (isNil(bookingEvent) || bookingEvent.airReservationSegments.length === 0) {
-      throw new InvoiceValidationError(
-        "Choose a booking event with flight segments for this locator."
-      )
+      throw new InvoiceValidationError("Choose a booking event with flight segments for this locator.")
     }
 
     if (bookingEvent.recordLocator?.trim().toUpperCase() !== recordLocator) {
@@ -162,9 +159,7 @@ export class CreateService extends BaseService {
     }
 
     const serviceFeeEvents = sourceServiceFeeEventIds.map((eventId) => {
-      const event = sourceEvents.find(
-        (sourceEvent) => sourceEvent.travelOrderIdentifier === eventId
-      )
+      const event = sourceEvents.find((sourceEvent) => sourceEvent.travelOrderIdentifier === eventId)
       if (
         isNil(event) ||
         isNil(event.serviceFeeTransaction) ||

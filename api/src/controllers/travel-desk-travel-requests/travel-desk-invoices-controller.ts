@@ -37,7 +37,10 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         }
       )
       const scopes = this.buildFilterScopes()
-      const order = this.buildOrder([["createdAt", "DESC"]])
+      const order = this.buildOrder([
+        ["createdAt", "DESC"],
+        ["id", "DESC"],
+      ])
       const scopedTravelDeskInvoices = TravelDeskInvoicesPolicy.applyScope(scopes, this.currentUser)
 
       const totalCount = await scopedTravelDeskInvoices.count({ where })
@@ -49,6 +52,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         include: [
           {
             association: "items",
+            separate: true,
             include: ["productType"],
           },
         ],
