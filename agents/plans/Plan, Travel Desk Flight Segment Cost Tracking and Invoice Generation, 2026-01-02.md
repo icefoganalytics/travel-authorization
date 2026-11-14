@@ -4,25 +4,23 @@ Related issue: https://github.com/icefoganalytics/travel-authorization/issues/31
 
 ## Source selection
 
-A booking history is not a single current invoice. Travel Desk staff choose one flight-bearing TravelPort event and any service-fee events separately. Booking versions, arrival order, and quoted fares do not determine the intended invoice automatically. Unversioned fee events and passive `GK` segments remain available for selection.
+A booking history is not a single current invoice. Travel Desk staff choose one flight-bearing Travelport event and any service-fee events separately. Booking versions, arrival order, and quoted fares do not determine the intended invoice automatically. Unversioned fee events and passive `GK` segments remain available for selection.
 
 Every flight and selected fee must appear exactly once. Multiple versions of the same nonblank fee document cannot be combined, and fees in different currencies cannot be silently summed.
 
 ## Ownership and editing
 
-The [TravelPort integration](/api/src/integrations/travel-port-integration/README.md) is a read-only external source. Authorized booking searches synchronize its events into application-owned booking records, keyed by the external TravelPort identifier. Repeated searches refresh those records without duplicating events; a failed source lookup remains an error rather than silently returning cached history.
+The [Travelport integration](/api/src/integrations/travel-port-integration/README.md) is a read-only external source. Authorized booking searches synchronize its events into application-owned booking records, keyed by the external Travelport identifier. Repeated searches refresh those records without duplicating active events; a failed source lookup remains an error rather than silently returning cached history.
 
 Invoice creation requires the selected events to have been synchronized for the requested locator and copies them into an invoice-owned snapshot without another external lookup. Later synchronization never updates saved invoice snapshots or staff-entered prices. Editing uses the invoice snapshot, so an unavailable source cannot prevent saved-invoice editing or change its provenance.
 
 A travel request may have multiple invoices. Request ownership, record locator, and source identities remain fixed after creation; staff can edit invoice details, prices, and additional charges. An optional local flight link must refer to a live segment belonging to the same request.
 
-Amounts retain three decimal places. Sales retain their sign, refunds subtract their absolute value, and void lines contribute zero. Totals use integer thousandths to avoid floating-point rounding.
-
-`TravelDeskInvoices.CalculateTotalService` owns these sale, refund, and void rules. Decimal-to-thousandths conversions live in separate `utils` modules; `InvoiceValidationError` has its own service-error module.
+Amounts are rounded individually to three decimal places before storage and totaling. Sales retain their sign, refunds subtract their absolute value, and void lines contribute zero. Decimal arithmetic avoids binary floating-point rounding. Malformed amounts and values outside the supported storage range are rejected rather than silently replaced with zero.
 
 Deleting an invoice also soft-deletes its lines while retaining the source snapshot. Administrators manage product categories; built-in categories and categories referenced by invoice history cannot be deleted.
 
-The existing request invoice number identifies a legacy TravCom invoice, not a TravelPort booking. Passenger name record (PNR) attachments and the legacy itinerary remain separate. Request linkage and itinerary cutover belong to [#293](https://github.com/icefoganalytics/travel-authorization/issues/293); reporting belongs to [#422](https://github.com/icefoganalytics/travel-authorization/issues/422).
+The existing request invoice number identifies a legacy TravCom invoice, not a Travelport booking. Passenger name record (PNR) attachments and the legacy itinerary remain separate. Request linkage and itinerary cutover belong to [#293](https://github.com/icefoganalytics/travel-authorization/issues/293); reporting belongs to [#422](https://github.com/icefoganalytics/travel-authorization/issues/422).
 
 ## Environment boundary
 
