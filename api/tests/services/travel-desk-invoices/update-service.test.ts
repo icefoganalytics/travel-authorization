@@ -1,0 +1,533 @@
+/// <reference lib="esnext.promise" />
+
+import { QueryTypes } from "@sequelize/core"
+
+import { db } from "@/db/db-client"
+import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import UpdateService from "@/services/travel-desk-invoices/update-service"
+
+import {
+  travelDeskBookingEventFactory,
+  travelDeskFlightOptionFactory,
+  travelDeskFlightRequestFactory,
+  travelDeskFlightSegmentFactory,
+  travelDeskInvoiceFactory,
+  travelDeskInvoiceItemFactory,
+  travelDeskProductTypeFactory,
+  travelDeskTravelRequestFactory,
+} from "@/factories"
+
+describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
+  describe("UpdateService", () => {
+    describe(".perform", () => {
+      test("when two line-only edits overlap, it retains exactly one replacement set", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice1 = await travelDeskInvoiceFactory.create({ grossAmount: "10.125" })
+        const invoice2 = await TravelDeskInvoice.findByPk(invoice1.id, { rejectOnEmpty: true })
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice: invoice1, productType: air })
+          .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
+
+        const { promise: locksReleased, resolve: releaseLocks } = Promise.withResolvers<void>()
+        const { promise: rowsLocked, resolve: signalLocked } = Promise.withResolvers<void>()
+        const holdingTransaction = db.transaction(async (transaction) => {
+          await TravelDeskInvoice.findByPk(invoice1.id, {
+            lock: transaction.LOCK.UPDATE,
+            transaction,
+          })
+          await TravelDeskInvoiceItem.findAll({
+            where: { travelDeskInvoiceId: invoice1.id },
+            lock: transaction.LOCK.UPDATE,
+            transaction,
+          })
+          signalLocked()
+          await locksReleased
+        })
+        await rowsLocked
+
+        // Act
+        const firstUpdate = UpdateService.perform(invoice1, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              description: "First edit",
+              saleType: "Sale",
+              grossAmount: "10.125",
+              position: 0,
+            },
+          ],
+        })
+        const secondUpdate = UpdateService.perform(invoice2, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              description: "Second edit",
+              saleType: "Sale",
+              grossAmount: "10.125",
+              position: 0,
+            },
+          ],
+        })
+        const updates = Promise.all([firstUpdate, secondUpdate])
+        try {
+          // Both edits must reach a real database lock before either can finish.
+          await vi.waitFor(
+            async () => {
+              const waitingUpdates = await db.query(
+                `SELECT pid FROM pg_stat_activity
+               WHERE datname = current_database()
+                 AND state = 'active'
+                 AND wait_event_type = 'Lock'
+                 AND query LIKE '%travel_desk_invoice%'`,
+                { type: QueryTypes.SELECT }
+              )
+              if (waitingUpdates.length !== 2) {
+                throw new Error("Waiting for both invoice edits to reach the locked rows.")
+              }
+            },
+            { timeout: 5000 }
+          )
+        } finally {
+          releaseLocks()
+          await holdingTransaction
+          await updates
+        }
+
+        // Assert
+        const persistedInvoice = await TravelDeskInvoice.findByPk(invoice1.id, {
+          include: ["items"],
+        })
+        expect(persistedInvoice).toMatchObject({
+          grossAmount: "10.125",
+          items: [
+            {
+              sourceAirSegmentNumber: 1,
+              grossAmount: "10.125",
+              description: expect.stringMatching(/^(First|Second) edit$/),
+            },
+          ],
+        })
+      })
+
+      test("when its cached source event is deleted, it edits from the saved snapshot and preserves omitted headers", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice = await travelDeskInvoiceFactory.create({
+          invoiceNumber: "KEEP-314",
+          grossAmount: "10.125",
+        })
+        const bookingEvent = await travelDeskBookingEventFactory.create({
+          externalTravelPortIdentifier: invoice.sourceBookingEventId,
+          recordLocator: invoice.recordLocator,
+        })
+        await bookingEvent.destroy()
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice, productType: air })
+          .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
+
+        // Act
+        await UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              saleType: "Sale",
+              grossAmount: "12.001",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        const persistedInvoice = await TravelDeskInvoice.findByPk(invoice.id, {
+          include: ["items"],
+        })
+        expect(persistedInvoice).toMatchObject({
+          invoiceNumber: "KEEP-314",
+          grossAmount: "12.001",
+          sourceSnapshot: {
+            bookingEvent: { eventType: "B", airReservationSegments: [{ airSegmentNumber: 1 }] },
+          },
+          items: [{ sourceAirSegmentNumber: 1, grossAmount: "12.001" }],
+        })
+      })
+
+      test("when optional dates are cleared, it persists null dates", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice = await travelDeskInvoiceFactory.create({
+          invoiceDate: "2026-01-01",
+          bookingDate: "2026-01-02",
+          grossAmount: "10.125",
+        })
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice, productType: air })
+          .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
+
+        // Act
+        await UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          invoiceDate: "",
+          bookingDate: "",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              saleType: "Sale",
+              grossAmount: "10.125",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        const persistedInvoice = await TravelDeskInvoice.findByPk(invoice.id)
+        expect(persistedInvoice).toMatchObject({
+          invoiceDate: null,
+          bookingDate: null,
+        })
+      })
+
+      test("when a source segment identity is replaced, it rejects the forged identity", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.125" })
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice, productType: air })
+          .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
+
+        // Act
+        const result = UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 2,
+              saleType: "Sale",
+              grossAmount: "99.999",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        await expect(result).rejects.toThrow(InvoiceValidationError)
+      })
+
+      test("when a source segment identity is forged, it leaves the saved invoice unchanged", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.125" })
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice, productType: air })
+          .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
+
+        // Act
+        await UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 2,
+              saleType: "Sale",
+              grossAmount: "99.999",
+              position: 0,
+            },
+          ],
+        }).catch(() => undefined)
+
+        // Assert
+        const invoices = await TravelDeskInvoice.findAll({ include: ["items"] })
+        expect(invoices).toEqual([
+          expect.objectContaining({
+            grossAmount: "10.125",
+            items: [
+              expect.objectContaining({
+                sourceAirSegmentNumber: 1,
+                grossAmount: "10.125",
+              }),
+            ],
+          }),
+        ])
+      })
+
+      test("when a flight segment belongs to another request, it rejects cross-request linkage", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.125" })
+        const otherRequest = await travelDeskTravelRequestFactory.create()
+        const flightRequest = await travelDeskFlightRequestFactory
+          .associations({ travelRequest: otherRequest })
+          .create()
+        const flightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest })
+          .create()
+        const segment = await travelDeskFlightSegmentFactory.associations({ flightOption }).create()
+
+        // Act
+        const result = UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              travelDeskFlightSegmentId: segment.id,
+              saleType: "Sale",
+              grossAmount: "12.001",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        await expect(result).rejects.toThrow(InvoiceValidationError)
+      })
+
+      test("when replacement items fail to persist, it rolls back the header and original items together", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice = await travelDeskInvoiceFactory.create({
+          invoiceNumber: "KEEP-314",
+          grossAmount: "10.125",
+        })
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice, productType: air })
+          .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
+
+        // Act
+        await UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          invoiceNumber: "SHOULD-ROLL-BACK",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              passengerName: "A".repeat(256),
+              saleType: "Sale",
+              grossAmount: "12.001",
+              position: 0,
+            },
+          ],
+        }).catch(() => undefined)
+
+        // Assert
+        const invoices = await TravelDeskInvoice.findAll({ include: ["items"] })
+        expect(invoices).toEqual([
+          expect.objectContaining({
+            invoiceNumber: "KEEP-314",
+            grossAmount: "10.125",
+            items: [
+              expect.objectContaining({
+                sourceAirSegmentNumber: 1,
+                grossAmount: "10.125",
+              }),
+            ],
+          }),
+        ])
+      })
+
+      test("when replacement items cannot be stored, it propagates the persistence error", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice = await travelDeskInvoiceFactory.create()
+
+        // Act
+        const result = UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              passengerName: "A".repeat(256),
+              saleType: "Sale",
+              grossAmount: "12.001",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        await expect(result).rejects.toThrow()
+      })
+
+      test("when an item has malformed money, it preserves the invoice and its items", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.000" })
+        await travelDeskInvoiceItemFactory.associations({ invoice, productType: air }).create({
+          sourceAirSegmentNumber: 1,
+          grossAmount: "10.000",
+          saleType: "Sale",
+          position: 0,
+        })
+
+        // Act
+        await UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              saleType: "Sale",
+              grossAmount: "not-money",
+              position: 0,
+            },
+          ],
+        }).catch(() => undefined)
+
+        // Assert
+        const invoices = await TravelDeskInvoice.findAll({ include: ["items"] })
+        expect(invoices).toEqual([
+          expect.objectContaining({
+            grossAmount: "10.000",
+            items: [
+              expect.objectContaining({
+                grossAmount: "10.000",
+                sourceAirSegmentNumber: 1,
+              }),
+            ],
+          }),
+        ])
+      })
+
+      test("when prices are edited, it preserves the replaced lines as soft-deleted history", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({
+          code: "air",
+          name: "Air",
+        })
+        const invoice = await travelDeskInvoiceFactory.create({
+          grossAmount: "10.125",
+        })
+        const originalItem = await travelDeskInvoiceItemFactory
+          .associations({ invoice, productType: air })
+          .create({
+            sourceAirSegmentNumber: 1,
+            grossAmount: "10.125",
+          })
+
+        // Act
+        await UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              saleType: "Sale",
+              grossAmount: "12.001",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        const items = await TravelDeskInvoiceItem.findAll({
+          paranoid: false,
+          order: [["id", "ASC"]],
+        })
+        expect(items).toEqual([
+          expect.objectContaining({
+            id: originalItem.id,
+            sourceAirSegmentNumber: 1,
+            grossAmount: "10.125",
+            deletedAt: expect.any(Date),
+          }),
+          expect.objectContaining({
+            sourceAirSegmentNumber: 1,
+            grossAmount: "12.001",
+            deletedAt: null,
+          }),
+        ])
+      })
+
+      test("when a live flight segment belongs to this request, it saves the optional link", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({
+          code: "air",
+          name: "Air",
+        })
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const invoice = await travelDeskInvoiceFactory
+          .associations({ travelDeskTravelRequest: travelRequest })
+          .create()
+        const flightRequest = await travelDeskFlightRequestFactory
+          .associations({ travelRequest })
+          .create()
+        const flightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest })
+          .create()
+        const segment = await travelDeskFlightSegmentFactory.associations({ flightOption }).create()
+
+        // Act
+        await UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              travelDeskFlightSegmentId: segment.id,
+              saleType: "Sale",
+              grossAmount: "12.001",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        const items = await TravelDeskInvoiceItem.findAll()
+        expect(items).toEqual([
+          expect.objectContaining({
+            travelDeskFlightSegmentId: segment.id,
+          }),
+        ])
+      })
+
+      test("when its linked flight segment has been deleted, it rejects the link", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({
+          code: "air",
+          name: "Air",
+        })
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const invoice = await travelDeskInvoiceFactory
+          .associations({ travelDeskTravelRequest: travelRequest })
+          .create()
+        const flightRequest = await travelDeskFlightRequestFactory
+          .associations({ travelRequest })
+          .create()
+        const flightOption = await travelDeskFlightOptionFactory
+          .associations({ flightRequest })
+          .create()
+        const segment = await travelDeskFlightSegmentFactory.associations({ flightOption }).create()
+        await segment.destroy()
+
+        // Act
+        const result = UpdateService.perform(invoice, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              travelDeskFlightSegmentId: segment.id,
+              saleType: "Sale",
+              grossAmount: "12.001",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        await expect(result).rejects.toThrow(
+          "Linked flight segments must belong to this travel request."
+        )
+      })
+    })
+  })
+})
