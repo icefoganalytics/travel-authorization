@@ -8,7 +8,6 @@ import { TravelDeskTravelRequests } from "@/policies"
 
 import { SyncService } from "@/services/travel-desk-booking-events"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 
@@ -78,7 +77,7 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       }
 
       const { recordLocator } = this.request.body
-      if (!isString(recordLocator)) {
+      if (!isString(recordLocator) || !/^[A-Z0-9]{6}$/.test(recordLocator.trim().toUpperCase())) {
         return this.response.status(422).json({
           message: "Record locator must contain six letters or numbers.",
         })
@@ -88,12 +87,6 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       await SyncService.perform(normalizedRecordLocator)
       return this.response.status(204).send()
     } catch (error) {
-      if (error instanceof InvoiceValidationError) {
-        return this.response.status(422).json({
-          message: error.message,
-        })
-      }
-
       if (error instanceof SourceUnavailableError) {
         return this.response.status(503).json({
           message: "Booking source is unavailable.",

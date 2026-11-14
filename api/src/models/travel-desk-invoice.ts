@@ -20,9 +20,13 @@ import { type BookingEventSnapshot } from "@/integrations/travel-port-integratio
 import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
+type InvoiceBookingEventSnapshot = Omit<BookingEventSnapshot, "databaseTimestamp"> & {
+  databaseTimestamp: string | null
+}
+
 export type InvoiceSourceSnapshot = {
-  bookingEvent: BookingEventSnapshot
-  serviceFeeEvents: BookingEventSnapshot[]
+  bookingEvent: InvoiceBookingEventSnapshot
+  serviceFeeEvents: InvoiceBookingEventSnapshot[]
 }
 
 const DECIMAL_AMOUNT_PATTERN = /^-?\d{1,15}(?:\.\d{1,3})?$/

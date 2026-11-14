@@ -6,7 +6,7 @@ import { TravelDeskProductType } from "@/models"
 
 import { TravelDeskProductTypesPolicy } from "@/policies"
 
-import { CreateService, DestroyService } from "@/services/travel-desk-product-types"
+import { CreateService, DestroyService, UpdateService } from "@/services/travel-desk-product-types"
 
 import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-product-types"
 
@@ -17,12 +17,15 @@ export class TravelDeskProductTypesController extends BaseController<TravelDeskP
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
+      const order = this.buildOrder([["id", "ASC"]])
       const scopedProductTypes = TravelDeskProductTypesPolicy.applyScope(scopes, this.currentUser)
+
       const totalCount = await scopedProductTypes.count({ where })
       const productTypes = await scopedProductTypes.findAll({
         where,
         limit: this.pagination.limit,
         offset: this.pagination.offset,
+        order,
       })
 
       const serializedProductTypes = IndexSerializer.perform(productTypes)
@@ -108,8 +111,13 @@ export class TravelDeskProductTypesController extends BaseController<TravelDeskP
         })
       }
 
-      await productType.update(policy.permitAttributes(this.request.body))
-      const serializedProductType = ShowSerializer.perform(productType)
+      const attributes = policy.permitAttributesForUpdate(this.request.body)
+      const updatedProductType = await UpdateService.perform(
+        productType,
+        attributes,
+        this.currentUser
+      )
+      const serializedProductType = ShowSerializer.perform(updatedProductType)
       return this.response.json({
         travelDeskProductType: serializedProductType,
       })
