@@ -1,7 +1,6 @@
 import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskProductType } from "@/models"
-import { type BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
 import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
@@ -102,7 +101,7 @@ export async function validateInvoiceItems(
     throw new InvoiceValidationError("Every selected service fee must be represented exactly once.")
   }
 
-  const snapshotFees = new Map<number, BookingEventSnapshot>(
+  const snapshotFees = new Map<number, InvoiceSourceSnapshot["bookingEvent"]>(
     snapshot.serviceFeeEvents.map((event) => [event.travelOrderIdentifier, event])
   )
   const documentNumbers = new Set<string>()
