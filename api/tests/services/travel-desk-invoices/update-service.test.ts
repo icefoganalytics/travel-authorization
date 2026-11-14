@@ -1,3 +1,5 @@
+/// <reference lib="esnext.promise" />
+
 import { QueryTypes } from "@sequelize/core"
 
 import { db } from "@/db/db-client"
@@ -28,14 +30,8 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           .associations({ invoice: invoice1, productType: air })
           .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
 
-        let releaseLocks!: () => void
-        let signalLocked!: () => void
-        const locksReleased = new Promise<void>((resolve) => {
-          releaseLocks = resolve
-        })
-        const rowsLocked = new Promise<void>((resolve) => {
-          signalLocked = resolve
-        })
+        const { promise: locksReleased, resolve: releaseLocks } = Promise.withResolvers<void>()
+        const { promise: rowsLocked, resolve: signalLocked } = Promise.withResolvers<void>()
         const holdingTransaction = db.transaction(async (transaction) => {
           await TravelDeskInvoice.findByPk(invoice1.id, {
             lock: transaction.LOCK.UPDATE,
@@ -52,34 +48,33 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         await rowsLocked
 
         // Act
-        const updates = Promise.all([
-          UpdateService.perform(invoice1, {
-            currencyCode: "CAD",
-            items: [
-              {
-                travelDeskProductTypeId: air.id,
-                sourceAirSegmentNumber: 1,
-                description: "First edit",
-                saleType: "Sale",
-                grossAmount: "10.125",
-                position: 0,
-              },
-            ],
-          }),
-          UpdateService.perform(invoice2, {
-            currencyCode: "CAD",
-            items: [
-              {
-                travelDeskProductTypeId: air.id,
-                sourceAirSegmentNumber: 1,
-                description: "Second edit",
-                saleType: "Sale",
-                grossAmount: "10.125",
-                position: 0,
-              },
-            ],
-          }),
-        ])
+        const firstUpdate = UpdateService.perform(invoice1, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              description: "First edit",
+              saleType: "Sale",
+              grossAmount: "10.125",
+              position: 0,
+            },
+          ],
+        })
+        const secondUpdate = UpdateService.perform(invoice2, {
+          currencyCode: "CAD",
+          items: [
+            {
+              travelDeskProductTypeId: air.id,
+              sourceAirSegmentNumber: 1,
+              description: "Second edit",
+              saleType: "Sale",
+              grossAmount: "10.125",
+              position: 0,
+            },
+          ],
+        })
+        const updates = Promise.all([firstUpdate, secondUpdate])
         try {
           // Both edits must reach a real database lock before either can finish.
           await vi.waitFor(
