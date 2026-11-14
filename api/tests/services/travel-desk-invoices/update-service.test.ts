@@ -1,3 +1,6 @@
+import { QueryTypes } from "@sequelize/core"
+
+import { db } from "@/db/db-client"
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import UpdateService from "@/services/travel-desk-invoices/update-service"
@@ -16,6 +19,107 @@ import {
 describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
   describe("UpdateService", () => {
     describe(".perform", () => {
+      test("when two line-only edits overlap, it retains exactly one replacement set", async () => {
+        // Arrange
+        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const invoice1 = await travelDeskInvoiceFactory.create({ grossAmount: "10.125" })
+        const invoice2 = await TravelDeskInvoice.findByPk(invoice1.id, { rejectOnEmpty: true })
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice: invoice1, productType: air })
+          .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
+
+        let releaseLocks!: () => void
+        let signalLocked!: () => void
+        const locksReleased = new Promise<void>((resolve) => {
+          releaseLocks = resolve
+        })
+        const rowsLocked = new Promise<void>((resolve) => {
+          signalLocked = resolve
+        })
+        const holdingTransaction = db.transaction(async (transaction) => {
+          await TravelDeskInvoice.findByPk(invoice1.id, {
+            lock: transaction.LOCK.UPDATE,
+            transaction,
+          })
+          await TravelDeskInvoiceItem.findAll({
+            where: { travelDeskInvoiceId: invoice1.id },
+            lock: transaction.LOCK.UPDATE,
+            transaction,
+          })
+          signalLocked()
+          await locksReleased
+        })
+        await rowsLocked
+
+        // Act
+        const updates = Promise.all([
+          UpdateService.perform(invoice1, {
+            currencyCode: "CAD",
+            items: [
+              {
+                travelDeskProductTypeId: air.id,
+                sourceAirSegmentNumber: 1,
+                description: "First edit",
+                saleType: "Sale",
+                grossAmount: "10.125",
+                position: 0,
+              },
+            ],
+          }),
+          UpdateService.perform(invoice2, {
+            currencyCode: "CAD",
+            items: [
+              {
+                travelDeskProductTypeId: air.id,
+                sourceAirSegmentNumber: 1,
+                description: "Second edit",
+                saleType: "Sale",
+                grossAmount: "10.125",
+                position: 0,
+              },
+            ],
+          }),
+        ])
+        try {
+          // Both edits must reach a real database lock before either can finish.
+          await vi.waitFor(
+            async () => {
+              const waitingUpdates = await db.query(
+                `SELECT pid FROM pg_stat_activity
+               WHERE datname = current_database()
+                 AND state = 'active'
+                 AND wait_event_type = 'Lock'
+                 AND query LIKE '%travel_desk_invoice%'`,
+                { type: QueryTypes.SELECT }
+              )
+              if (waitingUpdates.length !== 2) {
+                throw new Error("Waiting for both invoice edits to reach the locked rows.")
+              }
+            },
+            { timeout: 5000 }
+          )
+        } finally {
+          releaseLocks()
+          await holdingTransaction
+          await updates
+        }
+
+        // Assert
+        const persistedInvoice = await TravelDeskInvoice.findByPk(invoice1.id, {
+          include: ["items"],
+        })
+        expect(persistedInvoice).toMatchObject({
+          grossAmount: "10.125",
+          items: [
+            {
+              sourceAirSegmentNumber: 1,
+              grossAmount: "10.125",
+              description: expect.stringMatching(/^(First|Second) edit$/),
+            },
+          ],
+        })
+      })
+
       test("when its cached source event is deleted, it edits from the saved snapshot and preserves omitted headers", async () => {
         // Arrange
         const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
@@ -170,9 +274,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         const flightOption = await travelDeskFlightOptionFactory
           .associations({ flightRequest })
           .create()
-        const segment = await travelDeskFlightSegmentFactory
-          .associations({ flightOption })
-          .create()
+        const segment = await travelDeskFlightSegmentFactory.associations({ flightOption }).create()
 
         // Act
         const result = UpdateService.perform(invoice, {
@@ -366,9 +468,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         const flightOption = await travelDeskFlightOptionFactory
           .associations({ flightRequest })
           .create()
-        const segment = await travelDeskFlightSegmentFactory
-          .associations({ flightOption })
-          .create()
+        const segment = await travelDeskFlightSegmentFactory.associations({ flightOption }).create()
 
         // Act
         await UpdateService.perform(invoice, {
@@ -410,9 +510,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         const flightOption = await travelDeskFlightOptionFactory
           .associations({ flightRequest })
           .create()
-        const segment = await travelDeskFlightSegmentFactory
-          .associations({ flightOption })
-          .create()
+        const segment = await travelDeskFlightSegmentFactory.associations({ flightOption }).create()
         await segment.destroy()
 
         // Act

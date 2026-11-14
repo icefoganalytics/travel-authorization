@@ -41,11 +41,19 @@ export class UpdateService extends BaseService {
     const serviceFeeEventIds = snapshot.serviceFeeEvents.map((event) => event.travelOrderIdentifier)
     const grossAmount = CalculateTotalService.perform(items)
 
-    return db.transaction(async () => {
-      await validateInvoiceItems(items, snapshot, serviceFeeEventIds, currencyCode)
-      await validateLinkedFlightSegments(items, this.invoice.travelDeskTravelRequestId)
+    return db.transaction(async (transaction) => {
+      const invoice = await TravelDeskInvoice.findByPk(this.invoice.id, {
+        lock: transaction.LOCK.UPDATE,
+        transaction,
+      })
+      if (isNil(invoice)) {
+        throw new InvoiceValidationError("Invoice does not exist.")
+      }
 
-      await this.invoice.update({
+      await validateInvoiceItems(items, snapshot, serviceFeeEventIds, currencyCode)
+      await validateLinkedFlightSegments(items, invoice.travelDeskTravelRequestId)
+
+      await invoice.update({
         currencyCode,
         invoiceNumber: this.attributes.invoiceNumber,
         invoiceDate: this.attributes.invoiceDate,
@@ -61,11 +69,11 @@ export class UpdateService extends BaseService {
         grossAmount,
       })
       await TravelDeskInvoiceItem.destroy({
-        where: { travelDeskInvoiceId: this.invoice.id },
+        where: { travelDeskInvoiceId: invoice.id },
       })
-      await createInvoiceItems(this.invoice.id, items)
+      await createInvoiceItems(invoice.id, items)
 
-      return this.invoice.reload({
+      return invoice.reload({
         include: [
           {
             association: "items",
