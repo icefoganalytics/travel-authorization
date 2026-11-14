@@ -53,20 +53,24 @@ export async function createInvoiceItems(
   invoiceId: number,
   items: InvoiceItemAttributes[]
 ): Promise<void> {
-  const itemAttributes: CreationAttributes<TravelDeskInvoiceItem>[] = items.map((item) => ({
-    travelDeskInvoiceId: invoiceId,
-    travelDeskProductTypeId: item.travelDeskProductTypeId,
-    travelDeskFlightSegmentId: item.travelDeskFlightSegmentId ?? null,
-    sourceAirSegmentNumber: item.sourceAirSegmentNumber ?? null,
-    sourceServiceFeeEventId: item.sourceServiceFeeEventId ?? null,
-    passengerName: item.passengerName ?? null,
-    ticketNumber: item.ticketNumber ?? null,
-    vendor: item.vendor ?? null,
-    description: item.description ?? null,
-    saleType: item.saleType,
-    grossAmount: normalizeInvoiceAmount(item.grossAmount),
-    position: item.position,
-  }))
+  const itemAttributes: CreationAttributes<TravelDeskInvoiceItem>[] = items.map((item) => {
+    const grossAmount = normalizeInvoiceAmount(item.grossAmount)
+
+    return {
+      travelDeskInvoiceId: invoiceId,
+      travelDeskProductTypeId: item.travelDeskProductTypeId,
+      travelDeskFlightSegmentId: item.travelDeskFlightSegmentId ?? null,
+      sourceAirSegmentNumber: item.sourceAirSegmentNumber ?? null,
+      sourceServiceFeeEventId: item.sourceServiceFeeEventId ?? null,
+      passengerName: item.passengerName ?? null,
+      ticketNumber: item.ticketNumber ?? null,
+      vendor: item.vendor ?? null,
+      description: item.description ?? null,
+      saleType: item.saleType,
+      grossAmount,
+      position: item.position,
+    }
+  })
 
   await TravelDeskInvoiceItem.bulkCreate(itemAttributes, { validate: true })
 }
