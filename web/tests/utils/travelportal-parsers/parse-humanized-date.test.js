@@ -1,6 +1,6 @@
 import parseHumanizedDate from "@/utils/travelportal-parsers/parse-humanized-date"
 
-describe("web/src/utils/travelport-parsers/parse-humanized-date.js", () => {
+describe("web/src/utils/travel-port-parsers/parse-humanized-date.js", () => {
   describe(".parseHumanizedDate", () => {
     beforeEach(() => {
       vi.useFakeTimers()
