@@ -37,7 +37,8 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const where = { recordLocator: recordLocator.trim().toUpperCase() }
+      const normalizedRecordLocator = recordLocator.trim().toUpperCase()
+      const where = { recordLocator: normalizedRecordLocator }
       const { limit, offset } = this.pagination
       const totalCount = await TravelDeskBookingEvent.count({ where })
       const travelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
