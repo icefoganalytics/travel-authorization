@@ -35,15 +35,19 @@ describe("CSV download startup over HTTP", () => {
     { resource: "flight-statistics", service: StatisticsCsvService },
     { resource: "travel-authorization-pre-approvals", service: PreApprovalCsvService },
   ])("$resource", ({ resource, service }) => {
-    test("when generation is pending, it starts the attachment before delivering the completed CSV", async () => {
+    test.each([
+      { condition: "has a byte-order mark", prefix: "\uFEFF" },
+      { condition: "has no byte-order mark", prefix: "" },
+    ])("when CSV $condition, it starts downloading early", async ({ prefix }) => {
       // Arrange
       const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
       mockCurrentUser(user)
       const generation = new EventEmitter()
       const csv = Buffer.from("\uFEFFName\r\nTraveller\r\n")
+      const generatedCsv = Buffer.from(`${prefix}Name\r\nTraveller\r\n`)
       const generateCsv = vi.spyOn(service, "perform").mockImplementation(async () => {
         await once(generation, "ready")
-        return csv
+        return generatedCsv
       })
       const signal = AbortSignal.timeout(5000)
 

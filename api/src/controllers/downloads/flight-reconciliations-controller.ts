@@ -2,22 +2,16 @@ import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
+import quickStartBufferStream from "@/utils/quick-start-buffer-stream"
+
 import { type FlightReconciliation } from "@/models"
 import { FlightReconciliationsPolicy } from "@/policies"
 import { CreateCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 
-const CSV_BYTE_ORDER_MARK = Buffer.from("\uFEFF")
-
 export class FlightReconciliationsController extends BaseController<FlightReconciliation> {
   async create() {
     try {
-      if (this.query.format !== "csv") {
-        return this.response.status(422).json({
-          message: "Unsupported report format",
-        })
-      }
-
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
       const order = this.buildOrder([["createdAt", "ASC"]])
@@ -25,7 +19,14 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
         scopes,
         this.currentUser
       )
-      return await this.respondWithCsv(scopedFlightReconciliations, where, order)
+
+      if (this.query.format === "csv") {
+        return await this.respondWithCsv(scopedFlightReconciliations, where, order)
+      } else {
+        return this.response.status(422).json({
+          message: "Unsupported report format",
+        })
+      }
     } catch (error) {
       logger.error(`Failed to create flight reconciliations download: ${error}`, { error })
 
@@ -48,13 +49,10 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
     const fileName = this.buildFileName()
     this.response.status(200).attachment(fileName)
     this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
-    this.response.flushHeaders()
-    this.response.write(CSV_BYTE_ORDER_MARK)
 
-    const fileBuffer = await CreateCsvService.perform(scopedFlightReconciliations, where, order)
-
-    // The service includes the byte-order mark already sent to start the download.
-    return this.response.end(fileBuffer.subarray(CSV_BYTE_ORDER_MARK.length))
+    return quickStartBufferStream(this.response, "text/csv", () =>
+      CreateCsvService.perform(scopedFlightReconciliations, where, order)
+    )
   }
 
   private buildFileName(): string {
