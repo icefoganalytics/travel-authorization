@@ -232,35 +232,17 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
         expect(response.body).toEqual({ message: "Unsupported report format" })
       })
 
-      test("when a query fails, it does not set download headers", async () => {
+      test("when a query fails after the download starts, it aborts the transfer", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER], department: "Finance" })
         mockCurrentUser(user1)
 
-        // Act
-        const response = await request()
-          .post("/api/downloads/travel-authorization-pre-approvals")
-          .query({ format: "csv", where: { id: "invalid" } })
-
-        // Assert
-        expect(response.headers["content-disposition"]).toBeUndefined()
-      })
-
-      test("when a query fails, it returns an unprocessable response", async () => {
-        // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.USER], department: "Finance" })
-        mockCurrentUser(user1)
-
-        // Act
-        const response = await request()
-          .post("/api/downloads/travel-authorization-pre-approvals")
-          .query({ format: "csv", where: { id: "invalid" } })
-
-        // Assert
-        expect(response.status).toEqual(422)
-        expect(response.body).toEqual({
-          message: "Failed to create travel authorization pre-approvals download",
-        })
+        // Act / Assert
+        await expect(
+          request()
+            .post("/api/downloads/travel-authorization-pre-approvals")
+            .query({ format: "csv", where: { id: "invalid" } })
+        ).rejects.toMatchObject({ code: "ECONNRESET" })
       })
     })
   })
