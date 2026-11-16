@@ -76,7 +76,10 @@ export class BulkReplaceService extends BaseService {
         const isPrimaryDestination =
           existingTravelSegment?.isPrimaryDestination === true &&
           existingTravelSegment.arrivalLocationId === attributes.arrivalLocationId
-        return { ...attributes, isPrimaryDestination }
+        return {
+          ...attributes,
+          isPrimaryDestination,
+        }
       })
       this.hasAllRequiredAttributes(travelSegmentsAttributes)
 

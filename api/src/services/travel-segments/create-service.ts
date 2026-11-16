@@ -44,7 +44,10 @@ export class CreateService extends BaseService {
         rejectOnEmpty: true,
       })
       const travelSegments = await TravelSegment.findAll({
-        where: { travelAuthorizationId, isActual },
+        where: {
+          travelAuthorizationId,
+          isActual,
+        },
       })
       if (!travelSegments.some(({ isPrimaryDestination }) => isPrimaryDestination)) {
         const tripType = isActual

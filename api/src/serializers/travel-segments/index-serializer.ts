@@ -32,23 +32,25 @@ export class IndexSerializer extends BaseSerializer<TravelSegment> {
 
   perform(): TravelSegmentIndexView {
     const departureTime = this.stripSeconds(this.record.departureTime)
+    const attributes = pick(this.record, [
+      "id",
+      "travelAuthorizationId",
+      "isActual",
+      "isPrimaryDestination",
+      "departureLocationId",
+      "arrivalLocationId",
+      "segmentNumber",
+      "departureOn",
+      "modeOfTransport",
+      "modeOfTransportOther",
+      "accommodationType",
+      "accommodationTypeOther",
+      "createdAt",
+      "updatedAt",
+    ])
+
     return {
-      ...pick(this.record, [
-        "id",
-        "travelAuthorizationId",
-        "isActual",
-        "isPrimaryDestination",
-        "departureLocationId",
-        "arrivalLocationId",
-        "segmentNumber",
-        "departureOn",
-        "modeOfTransport",
-        "modeOfTransportOther",
-        "accommodationType",
-        "accommodationTypeOther",
-        "createdAt",
-        "updatedAt",
-      ]),
+      ...attributes,
       departureTime,
     }
   }

@@ -14,9 +14,10 @@ export class ApproveStatePolicy extends GenericStatePolicy {
   permittedAttributes(): Path[] {
     const travelSegmentActualsAttributes =
       this.travelSegmentsPolicy.permittedAttributesForBulkReplace()
+    const inheritedAttributes = super.permittedAttributes()
 
     return [
-      ...super.permittedAttributes(),
+      ...inheritedAttributes,
       "daysOffTravelStatusActual",
       "dateBackToWorkActual",
       "travelDurationActual",

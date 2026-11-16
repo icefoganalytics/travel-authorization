@@ -21,9 +21,10 @@ export class DraftStatePolicy extends GenericStatePolicy {
   permittedAttributes(): Path[] {
     const travelSegmentEstimatesAttributes =
       this.travelSegmentsPolicy.permittedAttributesForBulkReplace()
+    const inheritedAttributes = super.permittedAttributes()
 
     return [
-      ...super.permittedAttributes(),
+      ...inheritedAttributes,
       "preApprovalProfileId",
       "purposeId",
       "firstName",

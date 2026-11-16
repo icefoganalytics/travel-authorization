@@ -8,77 +8,109 @@
     ref="form"
     validate-on="lazy"
   >
-    <v-row>
-      <v-col cols="12">
-        <TripTypeRadioGroup
-          v-model="tripType"
-          :inline="mdAndUp"
-          @update:model-value="resetFormValidation"
+    <v-select
+      v-if="isExpenseClaimTravellerChangesRequested"
+      :model-value="savedPrimaryDestinationId"
+      :items="savedActualArrivalItems"
+      :rules="[required]"
+      label="Primary destination"
+      hint="Confirm an existing arrival without changing the submitted route or expenses."
+      persistent-hint
+      density="compact"
+      variant="outlined"
+      @update:model-value="selectSavedPrimaryDestination"
+    >
+      <template #selection="{ item }">
+        {{ item.title }} —
+        <LocationChip
+          :location-id="item.raw.arrivalLocationId"
+          variant="text"
         />
-      </v-col>
-    </v-row>
+      </template>
+      <template #item="{ item, props: itemProps }">
+        <v-list-item v-bind="itemProps">
+          <template #append>
+            <LocationChip
+              :location-id="item.raw.arrivalLocationId"
+              variant="text"
+            />
+          </template>
+        </v-list-item>
+      </template>
+    </v-select>
+    <template v-else>
+      <v-row>
+        <v-col cols="12">
+          <TripTypeRadioGroup
+            v-model="tripType"
+            :inline="mdAndUp"
+            @update:model-value="resetFormValidation"
+          />
+        </v-col>
+      </v-row>
 
-    <component
-      :is="tripTypeComponent"
-      v-if="tripTypeComponent"
-      class="mt-3"
-      :travel-authorization-id="travelAuthorizationId"
-      :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-      :current-travel-segments="travelSegments"
-      :current-trip-type="travelAuthorization.tripTypeActual"
-      is-actual
-      @updated="updateTravelSegmentsAttributes"
-    />
-    <div v-else>Trip type {{ tripType }} not implemented!</div>
-    <v-row class="mt-6">
-      <v-col
-        cols="12"
-        md="2"
-      >
-        <TravelDurationFromTravelSegmentsTextField
-          v-model="travelAuthorization.travelDurationActual"
-          :travel-segments="travelSegmentsAttributes"
-        />
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-        lg="3"
-      >
-        <v-text-field
-          v-model.number="travelAuthorization.daysOffTravelStatusActual"
-          label="Days on non-travel status"
-          :min="0"
-          :max="travelAuthorization.travelDurationActual - 1"
-          :rules="[
-            isInteger,
-            greaterThanOrEqualTo(0),
-            lessThanOrEqualTo(travelAuthorization.travelDurationActual, {
-              referenceFieldLabel: 'the number of travel days',
-            }),
-          ]"
-          type="number"
-          density="compact"
-          required
-          variant="outlined"
-        ></v-text-field>
-      </v-col>
-      <v-col
-        cols="12"
-        md="5"
-        lg="4"
-      >
-        <StringDateInput
-          v-model="travelAuthorization.dateBackToWorkActual"
-          :min="latestDepartureDate"
-          :rules="[required]"
-          label="Expected Date return to work"
-          density="compact"
-          required
-          @update:model-value="emit('update:returnDate', $event)"
-        />
-      </v-col>
-    </v-row>
+      <component
+        :is="tripTypeComponent"
+        v-if="tripTypeComponent"
+        class="mt-3"
+        :travel-authorization-id="travelAuthorizationId"
+        :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
+        :current-travel-segments="travelSegments"
+        :current-trip-type="travelAuthorization.tripTypeActual"
+        is-actual
+        @updated="updateTravelSegmentsAttributes"
+      />
+      <div v-else>Trip type {{ tripType }} not implemented!</div>
+      <v-row class="mt-6">
+        <v-col
+          cols="12"
+          md="2"
+        >
+          <TravelDurationFromTravelSegmentsTextField
+            v-model="travelAuthorization.travelDurationActual"
+            :travel-segments="travelSegmentsAttributes"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="4"
+          lg="3"
+        >
+          <v-text-field
+            v-model.number="travelAuthorization.daysOffTravelStatusActual"
+            label="Days on non-travel status"
+            :min="0"
+            :max="travelAuthorization.travelDurationActual - 1"
+            :rules="[
+              isInteger,
+              greaterThanOrEqualTo(0),
+              lessThanOrEqualTo(travelAuthorization.travelDurationActual, {
+                referenceFieldLabel: 'the number of travel days',
+              }),
+            ]"
+            type="number"
+            density="compact"
+            required
+            variant="outlined"
+          ></v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          md="5"
+          lg="4"
+        >
+          <StringDateInput
+            v-model="travelAuthorization.dateBackToWorkActual"
+            :min="latestDepartureDate"
+            :rules="[required]"
+            label="Expected Date return to work"
+            density="compact"
+            required
+            @update:model-value="emit('update:returnDate', $event)"
+          />
+        </v-col>
+      </v-row>
+    </template>
   </v-form>
 </template>
 
@@ -90,7 +122,8 @@ import { useDisplay } from "vuetify"
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
 import useRouteQuery from "@/use/utils/use-route-query"
 
-import { TRIP_TYPES } from "@/api/travel-authorizations-api"
+import { TRIP_TYPES, TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
+import travelSegmentsApi from "@/api/travel-segments-api"
 
 import determinePrimaryDestinationSegment from "@/capabilities/travel-itinerary/determine-primary-destination-segment"
 
@@ -99,6 +132,7 @@ import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
+import LocationChip from "@/components/locations/LocationChip.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
 import TravelDurationFromTravelSegmentsTextField from "@/components/travel-authorizations/TravelDurationFromTravelSegmentsTextField.vue"
 
@@ -141,6 +175,7 @@ const travelSegmentsQuery = computed(() => ({
   where: {
     travelAuthorizationId: props.travelAuthorizationId,
   },
+  perPage: -1,
 }))
 const { travelSegments: savedTravelSegments } = useTravelSegments(travelSegmentsQuery)
 const travelSegments = computed(() => {
@@ -150,7 +185,8 @@ const travelSegments = computed(() => {
   return savedTravelSegments.value
     .filter((segment) => !segment.isActual)
     .map((segment) => {
-      const actualSegmentAttributes = omit(cloneDeep(segment), "id")
+      const clonedSegment = cloneDeep(segment)
+      const actualSegmentAttributes = omit(clonedSegment, "id")
       return {
         ...actualSegmentAttributes,
         isActual: true,
@@ -158,6 +194,39 @@ const travelSegments = computed(() => {
       }
     })
 })
+
+const isExpenseClaimTravellerChangesRequested = computed(
+  () =>
+    travelAuthorization.value?.status ===
+    TravelAuthorizationStatuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED
+)
+const savedActualArrivalItems = computed(() => {
+  return travelSegments.value
+    .filter((segment) => segment.isActual && !isNil(segment.id))
+    .map((segment) => {
+      return {
+        title: `Leg ${segment.segmentNumber} arrival`,
+        value: segment.id,
+        arrivalLocationId: segment.arrivalLocationId,
+        props: {
+          disabled: isNil(segment.arrivalLocationId),
+        },
+      }
+    })
+})
+const savedPrimaryDestinationId = computed(() => {
+  const selectedSegment = travelSegments.value.find((segment) => segment.isPrimaryDestination)
+  return selectedSegment?.id ?? null
+})
+
+function selectSavedPrimaryDestination(segmentId) {
+  const actualSegments = savedTravelSegments.value.filter((segment) => segment.isActual)
+  actualSegments.forEach((segment) => {
+    segment.isPrimaryDestination = segment.id === segmentId && !isNil(segment.arrivalLocationId)
+  })
+  const selectedSegment = actualSegments.find((segment) => segment.isPrimaryDestination)
+  emit("update:primaryDestinationLocationId", selectedSegment?.arrivalLocationId ?? null)
+}
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
@@ -245,6 +314,16 @@ async function saveWrapper() {
 
   isSaving.value = true
   try {
+    if (isExpenseClaimTravellerChangesRequested.value) {
+      const selectedSegmentId = savedPrimaryDestinationId.value
+      if (isNil(selectedSegmentId)) return
+
+      await travelSegmentsApi.update(selectedSegmentId, {
+        isPrimaryDestination: true,
+      })
+      return
+    }
+
     await save({
       tripTypeActual: tripType.value,
       travelDurationActual: travelAuthorization.value.travelDurationActual,
