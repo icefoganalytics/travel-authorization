@@ -47,7 +47,7 @@
           v-for="value in invoices"
           :key="value.id"
           :title="value.invoiceNumber || `Invoice ${value.id}`"
-          :subtitle="`${value.recordLocator} · ${value.grossAmount} ${value.currencyCode}`"
+          :subtitle="`${value.bookingReference} · ${value.grossAmount} ${value.currencyCode}`"
           :disabled="isSaving || isOpening || isSearching || isDeleting"
           @click="openInvoice(value.id)"
         >
@@ -68,7 +68,7 @@
       >
         <v-card-title>{{ invoice.invoiceNumber || `Invoice ${invoice.id}` }}</v-card-title>
         <v-card-subtitle
-          >{{ invoice.recordLocator }} · {{ invoice.grossAmount }}
+          >{{ invoice.bookingReference }} · {{ invoice.grossAmount }}
           {{ invoice.currencyCode }}</v-card-subtitle
         >
         <v-card-text>
@@ -140,8 +140,8 @@
           <template v-if="!draft">
             <v-form @submit.prevent="searchBookings">
               <v-text-field
-                v-model="recordLocator"
-                label="Record locator"
+                v-model="bookingReference"
+                label="Booking reference"
                 autocomplete="off"
                 maxlength="6"
                 :disabled="isSearching"
@@ -158,7 +158,7 @@
               type="info"
               class="mt-4"
             >
-              No booking events were found for this record locator.
+              No booking events were found for this booking reference.
             </v-alert>
             <v-alert
               v-if="hasSearched && bookingEvents.length > 0 && flightBookingEvents.length === 0"
@@ -245,7 +245,7 @@
           </template>
           <template v-else>
             <p class="mb-4">
-              Record locator: <strong>{{ draft.recordLocator }}</strong> · Source event
+              Booking reference: <strong>{{ draft.bookingReference }}</strong> · Source event
               {{ draft.externalBookingEventIdentifier }}
             </p>
             <v-row>
@@ -420,8 +420,8 @@ const isDeleting = ref(false)
 const isSearching = ref(false)
 const hasSearched = ref(false)
 const errorMessage = ref("")
-const recordLocator = ref("")
-const searchedRecordLocator = ref("")
+const bookingReference = ref("")
+const searchedBookingReference = ref("")
 const selectedBookingEvent = ref<TravelDeskBookingEventAsIndex | null>(null)
 const selectedFeeEvents = ref<TravelDeskBookingEventAsIndex[]>([])
 const { page: bookingPage, perPage: bookingsPerPage } = useRouteQueryPagination({
@@ -546,8 +546,8 @@ function openNewInvoice() {
   closeEditor()
   closeInvoice()
   localSegments.value = []
-  recordLocator.value = ""
-  searchedRecordLocator.value = ""
+  bookingReference.value = ""
+  searchedBookingReference.value = ""
   isCreating.value = true
 }
 
@@ -590,7 +590,7 @@ async function loadBookingPage() {
       requestId.value,
       {
         where: {
-          recordLocator: searchedRecordLocator.value,
+          bookingReference: searchedBookingReference.value,
         },
         page: bookingPage.value,
         perPage: bookingsPerPage.value,
@@ -631,11 +631,11 @@ async function searchBookings() {
   hasSearched.value = false
   bookingPage.value = 1
   try {
-    const locator = recordLocator.value.trim().toUpperCase()
+    const normalizedBookingReference = bookingReference.value.trim().toUpperCase()
     const [, localResult] = await Promise.all([
       travelDeskBookingEventsApi.sync(
         requestId.value,
-        { recordLocator: locator },
+        { bookingReference: normalizedBookingReference },
         { signal: controller.signal }
       ),
       travelDeskFlightSegmentsApi.list({
@@ -646,7 +646,7 @@ async function searchBookings() {
     if (version !== contextVersion || controller.signal.aborted) return
 
     localSegments.value = localResult.travelDeskFlightSegments
-    searchedRecordLocator.value = locator
+    searchedBookingReference.value = normalizedBookingReference
     hasSearched.value = true
     await loadBookingPage()
   } catch (error) {
@@ -754,7 +754,7 @@ function startDraft() {
     })
   }
   draft.value = {
-    recordLocator: searchedRecordLocator.value,
+    bookingReference: searchedBookingReference.value,
     externalBookingEventIdentifier: event.travelOrderIdentifier,
     sourceServiceFeeEventIds: selectedFees.map((event) => event.travelOrderIdentifier),
     currencyCode: [...currencies][0] ?? "",
@@ -781,7 +781,7 @@ function beginEdit() {
   editingId.value = savedInvoice.id
   snapshot.value = savedInvoice.sourceSnapshot
   draft.value = {
-    recordLocator: savedInvoice.recordLocator,
+    bookingReference: savedInvoice.bookingReference,
     externalBookingEventIdentifier: savedInvoice.externalBookingEventIdentifier,
     sourceServiceFeeEventIds: savedInvoice.sourceSnapshot.serviceFeeEvents.map(
       (event) => event.travelOrderIdentifier

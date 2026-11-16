@@ -41,7 +41,7 @@ export type TravelDeskBookingEventAsIndex = {
   travelOrderIdentifier: number
   bookingFileVersionNumber: number | null
   eventType: string | null
-  recordLocator: string | null
+  bookingReference: string | null
   reservationSystemDescription: string | null
   externalCreatedAt: string | null
   hostEventTimestamp: string | null
@@ -58,7 +58,7 @@ export type TravelDeskBookingEventAsIndex = {
 export type QueryOptions = BaseQueryOptions<
   WhereOptions<
     TravelDeskBookingEventAsIndex,
-    "recordLocator" | "eventType" | "bookingFileVersionNumber"
+    "bookingReference" | "eventType" | "bookingFileVersionNumber"
   >,
   FiltersOptions<Record<never, never>>
 >
@@ -80,7 +80,7 @@ export const travelDeskBookingEventsApi = {
   },
   async sync(
     travelDeskTravelRequestId: number,
-    attributes: { recordLocator: string },
+    attributes: { bookingReference: string },
     options: { signal?: AbortSignal } = {}
   ): Promise<void> {
     await http.post(
