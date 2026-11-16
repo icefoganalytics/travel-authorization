@@ -422,6 +422,10 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
     const accommodationType = isLastTravelSegment
       ? null
       : newTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL
+    const isPrimaryDestination =
+      props.currentTripType === TravelAuthorizationTripTypes.MULTI_CITY &&
+      newTravelSegment.isPrimaryDestination === true &&
+      !isNil(newTravelSegment.arrivalLocationId)
 
     const newTravelSegmentAttributes = {
       ...currentTravelSegmentAttributes,
@@ -430,10 +434,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
       modeOfTransport: newTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType,
       isActual: props.isActual,
-      isPrimaryDestination:
-        props.currentTripType === TravelAuthorizationTripTypes.MULTI_CITY &&
-        newTravelSegment.isPrimaryDestination === true &&
-        !isNil(newTravelSegment.arrivalLocationId),
+      isPrimaryDestination,
       segmentNumber: index + 1,
       travelAuthorizationId: props.travelAuthorizationId,
     }

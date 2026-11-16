@@ -204,12 +204,13 @@ const savedActualArrivalItems = computed(() => {
   return travelSegments.value
     .filter((segment) => segment.isActual && !isNil(segment.id))
     .map((segment) => {
+      const isArrivalMissing = isNil(segment.arrivalLocationId)
       return {
         title: `Leg ${segment.segmentNumber} arrival`,
         value: segment.id,
         arrivalLocationId: segment.arrivalLocationId,
         props: {
-          disabled: isNil(segment.arrivalLocationId),
+          disabled: isArrivalMissing,
         },
       }
     })
