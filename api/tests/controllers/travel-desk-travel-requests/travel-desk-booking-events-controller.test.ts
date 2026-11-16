@@ -19,7 +19,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
         // Act
         const response = await request().get(
-          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?recordLocator=INVALID`
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?filters[byRecordLocator]=INVALID`
         )
 
         // Assert
@@ -38,7 +38,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
         // Act
         const response = await request().get(
-          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?recordLocator=INVALID`
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?filters[byRecordLocator]=INVALID`
         )
 
         // Assert
@@ -57,7 +57,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
         // Act
         const response = await request().get(
-          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?recordLocator=INV001`
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?filters[byRecordLocator]=INV001`
         )
 
         // Assert
@@ -68,11 +68,10 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
       })
 
       test.each([
-        "",
-        "?recordLocator[]=SRC001",
-        "?recordLocator[value]=SRC001",
+        "?filters[byRecordLocator][]=SRC001",
+        "?filters[byRecordLocator][value]=SRC001",
       ])(
-        "when the locator query is %s, it rejects missing or non-string inputs",
+        "when the locator filter is %s, it reports the downstream input failure",
         async (query) => {
           // Arrange
           const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
@@ -102,7 +101,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
-          .query({ recordLocator: "not-a-known-locator" })
+          .query({ filters: { byRecordLocator: "not-a-known-locator" } })
 
         // Assert
         expect(response.status).toEqual(200)
@@ -142,7 +141,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
-          .query({ recordLocator: " src001 ", page, perPage: 1 })
+          .query({ filters: { byRecordLocator: " src001 " }, page, perPage: 1 })
 
         // Assert
         expect(response.status).toEqual(200)
@@ -151,6 +150,49 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
             expect.objectContaining({
               travelOrderIdentifier,
               recordLocator: "SRC001",
+            }),
+          ],
+          totalCount: 2,
+        })
+      })
+
+      test("when filters, where, and ordering are supplied, it pages the matching history", async () => {
+        // Arrange
+        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        mockCurrentUser(officer)
+        await travelDeskBookingEventFactory.create({
+          recordLocator: "SRC001",
+          eventType: "B",
+          externalTravelPortIdentifier: 940001,
+        })
+        await travelDeskBookingEventFactory.create({
+          recordLocator: "SRC001",
+          eventType: "B",
+          externalTravelPortIdentifier: 940002,
+        })
+        await travelDeskBookingEventFactory.create({ recordLocator: "SRC001", eventType: "F" })
+        await travelDeskBookingEventFactory.create({ recordLocator: "OTHER1", eventType: "B" })
+
+        // Act
+        const response = await request()
+          .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
+          .query({
+            filters: { byRecordLocator: "SRC001" },
+            where: { eventType: "B" },
+            "order[0][0]": "externalTravelPortIdentifier",
+            "order[0][1]": "DESC",
+            perPage: 1,
+          })
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          travelDeskBookingEvents: [
+            expect.objectContaining({
+              travelOrderIdentifier: 940002,
+              recordLocator: "SRC001",
+              eventType: "B",
             }),
           ],
           totalCount: 2,
@@ -168,7 +210,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
-          .query({ recordLocator: "SRC001", page: 2, perPage: 1 })
+          .query({ filters: { byRecordLocator: "SRC001" }, page: 2, perPage: 1 })
 
         // Assert
         expect(response.status).toEqual(200)
