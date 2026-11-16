@@ -11,7 +11,13 @@ export class ExpenseClaimTravellerChangesRequestedStatePolicy extends GenericSta
   }
 
   permittedAttributes(): Path[] {
-    return this.update() ? ["actualPrimaryDestinationId"] : []
+    const attributes: Path[] = super.permittedAttributes()
+
+    if (this.user.isAdmin || this.record.userId === this.user.id) {
+      attributes.push("actualPrimaryDestinationId")
+    }
+
+    return attributes
   }
 }
 
