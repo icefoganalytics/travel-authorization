@@ -42,6 +42,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
+- CSV downloads for travel pre-approvals, flight reconciliations, and flight statistics preserve spaces and commas in filenames.
 - Rental-car requests match flight dates and times on both new and edit forms. Matched fields remain readable and show a lock icon. Turning matching off restores the previous manual schedule, or blank dates and noon times for a new request without manual entries. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.
 - Read-only date fields no longer open the calendar picker when clicked, while preserving caller-supplied menu options.
 - Multi-city trips returning to their starting location show the destination before the return leg in summaries and request lists. Saving Purpose preserves the return-home itinerary.

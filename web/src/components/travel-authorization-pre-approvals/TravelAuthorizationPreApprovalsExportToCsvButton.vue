@@ -12,7 +12,7 @@
 
 <script setup>
 import { computed } from "vue"
-import { ExportToCsv } from "export-to-csv"
+import { download, generateCsv, mkConfig } from "export-to-csv"
 import { DateTime } from "luxon"
 import { isNil, isEmpty } from "lodash"
 
@@ -81,21 +81,20 @@ async function exportToCsv() {
 
   const timestamp = DateTime.now().toFormat("yyyy-MM-dd_HHmm")
 
-  const options = {
+  const options = mkConfig({
     fieldSeparator: ",",
-    quoteStrings: '"',
+    quoteStrings: true,
     decimalSeparator: ".",
-    showLabels: true,
+    showColumnHeaders: true,
     showTitle: false,
     title: "",
-    // TODO: use better, or new library to get _ (underscores) out of file name
     filename: `Export, Travel Pre-Approval Requests, ${timestamp}`,
     useTextFile: false,
     useBom: true,
     useKeysAsHeaders: true,
-  }
-  const csvExporter = new ExportToCsv(options)
-  csvExporter.generateCsv(csvInfo)
+  })
+  const csv = generateCsv(options)(csvInfo)
+  download(options)(csv)
 }
 
 function formatName(travelAuthorizationPreApprovalProfiles) {
