@@ -267,7 +267,11 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
         "/api/current-user": () => ({
-          user: { id: 1, displayName: "Test Traveler", roles: [] },
+          user: {
+            id: 1,
+            displayName: "Test Traveler",
+            roles: [],
+          },
           policy: {},
         }),
         "/api/users/1": () => ({

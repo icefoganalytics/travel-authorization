@@ -1,4 +1,5 @@
 import { flushPromises } from "@vue/test-utils"
+import { omit } from "lodash"
 import { VSelect } from "vuetify/components"
 
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
@@ -40,7 +41,12 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         "/api/travel-segments": () => ({ travelSegments, totalCount: 3 }),
         "/api/locations": () => ({ locations: [], totalCount: 0 }),
       })
-      httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+      httpClient.patch.mockResolvedValue({
+        data: {
+          travelAuthorization,
+          policy: {},
+        },
+      })
       const router = mockRouter()
       await router.push("/")
       const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
@@ -55,17 +61,21 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       await wrapper.vm.save()
 
       // Assert
-      const expectedSegment = expect.objectContaining({
-        isActual: false,
-        isPrimaryDestination: false,
+      const expectedSegments = travelSegments.map((segment, index) => {
+        const attributes = omit(segment, ["createdAt", "updatedAt"])
+        return {
+          ...attributes,
+          segmentNumber: index + 1,
+          accommodationType: index === 2 ? null : TravelSegmentAccommodationTypes.HOTEL,
+        }
       })
-      const expectedAttributes = expect.objectContaining({
-        travelSegmentEstimatesAttributes: [expectedSegment, expectedSegment, expectedSegment],
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelDurationEstimate: 1,
+        daysOffTravelStatusEstimate: 0,
+        dateBackToWorkEstimate: "2026-11-14",
+        travelSegmentEstimatesAttributes: expectedSegments,
       })
-      expect(httpClient.patch).toHaveBeenCalledWith(
-        "/api/travel-authorizations/5",
-        expectedAttributes
-      )
     })
 
     test("when an earlier arrival is selected, saves its estimate marker without changing endpoints", async () => {
@@ -111,7 +121,12 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         "/api/travel-segments": () => ({ travelSegments, totalCount: 3 }),
         "/api/locations": () => ({ locations: [], totalCount: 0 }),
       })
-      httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+      httpClient.patch.mockResolvedValue({
+        data: {
+          travelAuthorization,
+          policy: {},
+        },
+      })
       const router = mockRouter()
       await router.push("/")
       const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
@@ -128,31 +143,18 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       await wrapper.vm.save()
 
       // Assert
-      const expectedSegment1 = expect.objectContaining({
-        departureLocationId: 1,
-        arrivalLocationId: 2,
-        isActual: false,
-        isPrimaryDestination: true,
-      })
-      const expectedSegment2 = expect.objectContaining({
-        departureLocationId: 2,
-        arrivalLocationId: 3,
-        isActual: false,
-        isPrimaryDestination: false,
-      })
-      const expectedSegment3 = expect.objectContaining({
-        departureLocationId: 3,
-        arrivalLocationId: 1,
-        isActual: false,
-        isPrimaryDestination: false,
-      })
-      const expectedAttributes = expect.objectContaining({
+      const expectedSegment1 = omit(travelSegment1, ["createdAt", "updatedAt"])
+      expectedSegment1.isPrimaryDestination = true
+      const expectedSegment2 = omit(travelSegment2, ["createdAt", "updatedAt"])
+      const expectedSegment3 = omit(travelSegment3, ["createdAt", "updatedAt"])
+      expectedSegment3.accommodationType = null
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelDurationEstimate: 1,
+        daysOffTravelStatusEstimate: 0,
+        dateBackToWorkEstimate: "2026-11-14",
         travelSegmentEstimatesAttributes: [expectedSegment1, expectedSegment2, expectedSegment3],
       })
-      expect(httpClient.patch).toHaveBeenCalledWith(
-        "/api/travel-authorizations/5",
-        expectedAttributes
-      )
     })
 
     test("when an empty round trip is opened, previews no destination", async () => {
@@ -216,7 +218,12 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         "/api/travel-segments": () => ({ travelSegments, totalCount: 2 }),
         "/api/locations": () => ({ locations: [], totalCount: 0 }),
       })
-      httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+      httpClient.patch.mockResolvedValue({
+        data: {
+          travelAuthorization,
+          policy: {},
+        },
+      })
       const router = mockRouter()
       await router.push("/")
       const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
@@ -231,23 +238,16 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       await wrapper.vm.save()
 
       // Assert
-      const expectedOutbound = expect.objectContaining({
-        id: outboundSegment.id,
-        isActual: false,
-        isPrimaryDestination: true,
-      })
-      const expectedReturn = expect.objectContaining({
-        id: returnSegment.id,
-        isActual: false,
-        isPrimaryDestination: false,
-      })
-      const expectedAttributes = expect.objectContaining({
+      const expectedOutbound = omit(outboundSegment, ["createdAt", "updatedAt"])
+      expectedOutbound.isPrimaryDestination = true
+      const expectedReturn = omit(returnSegment, ["createdAt", "updatedAt"])
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        tripTypeEstimate: TravelAuthorizationTripTypes.ROUND_TRIP,
+        travelDurationEstimate: 2,
+        daysOffTravelStatusEstimate: 0,
+        dateBackToWorkEstimate: "2026-11-14",
         travelSegmentEstimatesAttributes: [expectedOutbound, expectedReturn],
       })
-      expect(httpClient.patch).toHaveBeenCalledWith(
-        "/api/travel-authorizations/5",
-        expectedAttributes
-      )
     })
 
     test("when saving a one-way trip, automatically marks its arrival", async () => {
@@ -274,7 +274,12 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         "/api/travel-segments": () => ({ travelSegments, totalCount: 1 }),
         "/api/locations": () => ({ locations: [], totalCount: 0 }),
       })
-      httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+      httpClient.patch.mockResolvedValue({
+        data: {
+          travelAuthorization,
+          policy: {},
+        },
+      })
       const router = mockRouter()
       await router.push("/")
       const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
@@ -289,18 +294,15 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       await wrapper.vm.save()
 
       // Assert
-      const expectedOutbound = expect.objectContaining({
-        id: outboundSegment.id,
-        isActual: false,
-        isPrimaryDestination: true,
-      })
-      const expectedAttributes = expect.objectContaining({
+      const expectedOutbound = omit(outboundSegment, ["createdAt", "updatedAt"])
+      expectedOutbound.isPrimaryDestination = true
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
+        travelDurationEstimate: 1,
+        daysOffTravelStatusEstimate: 0,
+        dateBackToWorkEstimate: "2026-11-14",
         travelSegmentEstimatesAttributes: [expectedOutbound],
       })
-      expect(httpClient.patch).toHaveBeenCalledWith(
-        "/api/travel-authorizations/5",
-        expectedAttributes
-      )
     })
 
     test("when no legs have been seeded by Purpose, initializes an editable round trip", async () => {

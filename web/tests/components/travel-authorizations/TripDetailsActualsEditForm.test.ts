@@ -1,4 +1,5 @@
 import { flushPromises } from "@vue/test-utils"
+import { omit } from "lodash"
 import { VSelect } from "vuetify/components"
 
 import {
@@ -148,7 +149,12 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         })
         travelSegments = [...estimateSegments, ...actualSegments]
         travelAuthorization.tripTypeActual = TravelAuthorizationTripTypes.MULTI_CITY
-        return { data: { travelAuthorization, policy: {} } }
+        return {
+          data: {
+            travelAuthorization,
+            policy: {},
+          },
+        }
       })
       const router = mockRouter()
       await router.push("/")
@@ -214,7 +220,12 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         "/api/travel-segments": () => ({ travelSegments, totalCount: 2 }),
         "/api/locations": () => ({ locations: [], totalCount: 0 }),
       })
-      httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+      httpClient.patch.mockResolvedValue({
+        data: {
+          travelAuthorization,
+          policy: {},
+        },
+      })
       const router = mockRouter()
       await router.push("/")
       const wrapper = mountWithDefaultPlugins(TripDetailsActualsEditForm, {
@@ -229,13 +240,23 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       await wrapper.vm.save()
 
       // Assert
-      const savedAttributes = httpClient.patch.mock.calls[0]?.[1] as {
-        travelSegmentActualsAttributes: Partial<TravelSegment>[]
-      }
-      const actualSegmentIds = savedAttributes.travelSegmentActualsAttributes.map((segment) => {
-        return segment.id
+      const expectedActualSegments = travelSegments.map((segment, index) => {
+        const attributes = omit(segment, ["id", "createdAt", "updatedAt"])
+        return {
+          ...attributes,
+          id: undefined,
+          isActual: true,
+          isPrimaryDestination: false,
+          segmentNumber: index + 1,
+        }
       })
-      expect(actualSegmentIds).toEqual([undefined, undefined])
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelDurationActual: 1,
+        daysOffTravelStatusActual: 0,
+        dateBackToWorkActual: "2026-11-14",
+        travelSegmentActualsAttributes: expectedActualSegments,
+      })
     })
 
     test("when more than ten mixed-phase legs exist, saves every actual leg with its identity", async () => {
@@ -317,18 +338,20 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       await wrapper.vm.save()
 
       // Assert
-      const savedAttributes = httpClient.patch.mock.calls[0]?.[1] as {
-        travelSegmentActualsAttributes: Partial<TravelSegment>[]
-      }
-      const expectedActualSegments = actualSegments.map((segment) => {
-        return expect.objectContaining({
-          id: segment.id,
-          isActual: true,
-          isPrimaryDestination: segment.isPrimaryDestination,
-          segmentNumber: segment.segmentNumber,
-        })
+      const expectedActualSegments = actualSegments.map((segment, index) => {
+        const attributes = omit(segment, ["createdAt", "updatedAt"])
+        return {
+          ...attributes,
+          accommodationType: index === 5 ? null : TravelSegmentAccommodationTypes.HOTEL,
+        }
       })
-      expect(savedAttributes.travelSegmentActualsAttributes).toEqual(expectedActualSegments)
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelDurationActual: 1,
+        daysOffTravelStatusActual: 0,
+        dateBackToWorkActual: "2026-11-14",
+        travelSegmentActualsAttributes: expectedActualSegments,
+      })
     })
 
     test("when a returned legacy claim chooses an arrival, saves only that actual marker", async () => {
@@ -400,14 +423,9 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       await wrapper.vm.save()
 
       // Assert
-      expect(httpClient.patch.mock.calls).toEqual([
-        [
-          `/api/travel-segments/${actualSegment2.id}`,
-          {
-            isPrimaryDestination: true,
-          },
-        ],
-      ])
+      expect(httpClient.patch).toHaveBeenCalledWith(`/api/travel-segments/${actualSegment2.id}`, {
+        isPrimaryDestination: true,
+      })
     })
 
     test("when a returned legacy claim has no choice, does not save an inferred destination", async () => {
