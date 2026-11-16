@@ -6,7 +6,11 @@ export const TravelDeskProductTypesNameUniqueIndex = createIndexDecorator(
   {
     name: "travel_desk_product_types_name_unique",
     unique: true,
-    where: { deletedAt: { [Op.is]: null } },
+    where: {
+      deletedAt: {
+        [Op.is]: null,
+      },
+    },
     msg: "Product name must be unique among active product types.",
   }
 )
