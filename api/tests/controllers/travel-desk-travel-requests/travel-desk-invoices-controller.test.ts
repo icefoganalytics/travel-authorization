@@ -30,7 +30,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to list invoices for this travel request.",
         })
       })
 
@@ -275,7 +275,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to view invoices for this travel request.",
         })
       })
 
@@ -360,7 +360,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to create invoices for this travel request.",
         })
       })
 
@@ -548,7 +548,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to update invoices for this travel request.",
         })
       })
 
@@ -727,7 +727,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to delete invoices for this travel request.",
         })
       })
     })
