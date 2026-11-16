@@ -33,14 +33,17 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       }
 
       const recordLocator = RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
-      const where = { recordLocator }
-      const { limit, offset } = this.pagination
-      const totalCount = await TravelDeskBookingEvent.count({ where })
-      const travelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
+      const where = this.buildWhere({}, { recordLocator })
+      const scopes = this.buildFilterScopes()
+      const order = this.buildOrder([["externalTravelPortIdentifier", "ASC"]])
+      const scopedTravelDeskBookingEvents = TravelDeskBookingEvent.withScope(scopes)
+
+      const totalCount = await scopedTravelDeskBookingEvents.count({ where })
+      const travelDeskBookingEvents = await scopedTravelDeskBookingEvents.findAll({
         where,
-        order: [["externalTravelPortIdentifier", "ASC"]],
-        limit,
-        offset,
+        limit: this.pagination.limit,
+        offset: this.pagination.offset,
+        order,
       })
       const serializedTravelDeskBookingEvents = IndexSerializer.perform(travelDeskBookingEvents)
 

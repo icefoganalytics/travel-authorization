@@ -1,4 +1,9 @@
 import http from "@/api/http-client"
+import {
+  type FiltersOptions,
+  type QueryOptions as BaseQueryOptions,
+  type WhereOptions,
+} from "@/api/base-api"
 
 export type InvoiceBookingPassenger = {
   lastNameElement: number
@@ -50,10 +55,10 @@ export type TravelDeskBookingEventAsIndex = {
   serviceFeeTransaction: InvoiceBookingServiceFee | null
 }
 
-export type QueryOptions = {
-  page: number
-  perPage: number
-}
+export type QueryOptions = BaseQueryOptions<
+  WhereOptions<TravelDeskBookingEventAsIndex, "eventType" | "bookingFileVersionNumber">,
+  FiltersOptions<Record<never, never>>
+>
 
 export const travelDeskBookingEventsApi = {
   async list(

@@ -99,10 +99,10 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
       )
 
       test.each([
-        { page: 1, travelOrderIdentifier: 940001 },
-        { page: 2, travelOrderIdentifier: 940002 },
+        { page: 1, travelOrderIdentifier: 940002 },
+        { page: 2, travelOrderIdentifier: 940001 },
       ])(
-        "when page $page is requested, it returns only that stable page of cached history",
+        "when page $page is requested with ordering, it preserves the linked booking constraint",
         async ({ page, travelOrderIdentifier }) => {
           // Arrange
           const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
@@ -129,7 +129,13 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Act
           const response = await request()
             .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
-            .query({ recordLocator: "OTHER1", page, perPage: 1 })
+            .query({
+              where: { recordLocator: "OTHER1" },
+              "order[0][0]": "externalTravelPortIdentifier",
+              "order[0][1]": "DESC",
+              page,
+              perPage: 1,
+            })
 
           // Assert
           expect(response.status).toEqual(200)
@@ -158,7 +164,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
-          .query({ recordLocator: "SRC001", page: 2, perPage: 1 })
+          .query({ page: 2, perPage: 1 })
 
         // Assert
         expect(response.status).toEqual(200)
