@@ -27,8 +27,8 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
         order,
         this.currentUser
       )
-      const timestamp = DateTime.now().toFormat("yyyy-MM-dd_HHmm")
-      const fileName = `Export, Travel Pre-Approval Requests, ${timestamp}.csv`
+
+      const fileName = this.buildFileName()
 
       this.response.attachment(fileName)
       this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
@@ -43,6 +43,12 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
         message: "Failed to create travel authorization pre-approvals download",
       })
     }
+  }
+
+  private buildFileName(): string {
+    const timestamp = DateTime.now().toFormat("yyyy-MM-dd_HHmm")
+
+    return `Export, Travel Pre-Approval Requests, ${timestamp}.csv`
   }
 }
 

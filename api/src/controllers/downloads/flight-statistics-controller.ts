@@ -23,8 +23,8 @@ export class FlightStatisticsController extends BaseController<FlightStatistic> 
       ])
       const scopedFlightStatistics = FlightStatisticsPolicy.applyScope(scopes, this.currentUser)
       const fileBuffer = await CreateCsvService.perform(scopedFlightStatistics, where, order)
-      const date = DateTime.now().toFormat("yyyy-MM-dd_HHmm")
-      const fileName = `Export, Flight Statistics, ${date}.csv`
+
+      const fileName = this.buildFileName()
 
       this.response.attachment(fileName)
       this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
@@ -37,6 +37,12 @@ export class FlightStatisticsController extends BaseController<FlightStatistic> 
         message: "Failed to create flight statistics download",
       })
     }
+  }
+
+  private buildFileName(): string {
+    const date = DateTime.now().toFormat("yyyy-MM-dd_HHmm")
+
+    return `Export, Flight Statistics, ${date}.csv`
   }
 }
 

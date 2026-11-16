@@ -23,8 +23,8 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
         this.currentUser
       )
       const fileBuffer = await CreateCsvService.perform(scopedFlightReconciliations, where, order)
-      const date = DateTime.now().toFormat("yyyy-MM-dd")
-      const fileName = `Export, Flight Reconciliations, ${date}.csv`
+
+      const fileName = this.buildFileName()
 
       this.response.attachment(fileName)
       this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
@@ -37,6 +37,12 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
         message: "Failed to create flight reconciliations download",
       })
     }
+  }
+
+  private buildFileName(): string {
+    const date = DateTime.now().toFormat("yyyy-MM-dd")
+
+    return `Export, Flight Reconciliations, ${date}.csv`
   }
 }
 
