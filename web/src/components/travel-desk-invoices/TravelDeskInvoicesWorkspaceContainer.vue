@@ -258,7 +258,7 @@
           <template v-else>
             <p class="mb-4">
               Record locator: <strong>{{ draft.recordLocator }}</strong> · Source event
-              {{ draft.sourceBookingEventId }}
+              {{ draft.externalBookingEventIdentifier }}
             </p>
             <v-row>
               <v-col
@@ -788,7 +788,7 @@ function startDraft() {
   }
   draft.value = {
     recordLocator: searchedRecordLocator.value,
-    sourceBookingEventId: event.travelOrderIdentifier,
+    externalBookingEventIdentifier: event.travelOrderIdentifier,
     sourceServiceFeeEventIds: selectedFees.map((event) => event.travelOrderIdentifier),
     currencyCode: [...currencies][0] ?? "",
     invoiceNumber: null,
@@ -815,7 +815,7 @@ function beginEdit() {
   snapshot.value = savedInvoice.sourceSnapshot
   draft.value = {
     recordLocator: savedInvoice.recordLocator,
-    sourceBookingEventId: savedInvoice.sourceBookingEventId,
+    externalBookingEventIdentifier: savedInvoice.externalBookingEventIdentifier,
     sourceServiceFeeEventIds: savedInvoice.sourceSnapshot.serviceFeeEvents.map(
       (event) => event.travelOrderIdentifier
     ),

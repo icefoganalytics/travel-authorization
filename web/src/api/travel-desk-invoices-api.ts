@@ -28,7 +28,7 @@ export type TravelDeskInvoiceAsShow = {
   id: number
   travelDeskTravelRequestId: number
   recordLocator: string
-  sourceBookingEventId: number
+  externalBookingEventIdentifier: number
   sourceSnapshot: InvoiceSourceSnapshot
   currencyCode: string
   invoiceNumber: string | null
@@ -62,7 +62,7 @@ export type InvoiceItemInput = {
 
 export type InvoiceInput = {
   recordLocator: string
-  sourceBookingEventId: number
+  externalBookingEventIdentifier: number
   sourceServiceFeeEventIds: number[]
   currencyCode: string
   invoiceNumber: string | null
