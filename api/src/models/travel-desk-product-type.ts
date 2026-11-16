@@ -8,11 +8,15 @@ import {
 import {
   Attribute,
   AutoIncrement,
-  Index,
   NotNull,
   PrimaryKey,
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
+
+import {
+  TravelDeskProductTypesCodeUniqueIndex,
+  TravelDeskProductTypesNameUniqueIndex,
+} from "@/models/indexes"
 
 export class TravelDeskProductType extends Model<
   InferAttributes<TravelDeskProductType>,
@@ -25,13 +29,13 @@ export class TravelDeskProductType extends Model<
 
   @Attribute(DataTypes.STRING(255))
   @NotNull
-  @Index({ unique: true })
+  @TravelDeskProductTypesCodeUniqueIndex
   @ValidateAttribute({ is: /^[a-z0-9]+(?:-[a-z0-9]+)*$/ })
   declare code: string
 
   @Attribute(DataTypes.STRING(255))
   @NotNull
-  @Index({ unique: true })
+  @TravelDeskProductTypesNameUniqueIndex
   @ValidateAttribute({ notEmpty: true })
   declare name: string
 

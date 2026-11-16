@@ -1,4 +1,6 @@
 export { PerDiemsClaimTypeTravelRegionCurrencyUniqueIndex } from "./per-diems-claim-type-travel-region-currency-unique-index"
 export { TravelAllowancesAllowanceTypeCurrencyUniqueIndex } from "./travel-allowances-allowance-type-currency-unique-index"
 export { TravelDeskBookingEventsExternalTravelPortIdentifierUniqueIndex } from "./travel-desk-booking-events-external-travel-port-identifier-unique-index"
+export { TravelDeskProductTypesCodeUniqueIndex } from "./travel-desk-product-types-code-unique-index"
+export { TravelDeskProductTypesNameUniqueIndex } from "./travel-desk-product-types-name-unique-index"
 export { YgEmployeeGroupsDepartmentDivisionBranchUnitUniqueIndex } from "./yg-employee-groups-department-division-branch-unit-unique-index"
