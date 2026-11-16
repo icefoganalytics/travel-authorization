@@ -67,3 +67,21 @@ const { resource } = useResource(resourceId)
 
 When `resources` updates, `resourceId` recomputes and triggers the singular composable. Prefer this
 over manual watchers and imperative `fetch()` calls when reactive chaining is enough.
+
+## URL-Backed Server Tables
+
+Use `useRouteQueriableTableOptions` when a server table needs both URL-backed pagination and sorting. It composes the existing pagination, Vuetify sorting, and API-order utilities so one `routeQuerySuffix` identifies all of the table's query keys. Give tables on the same page distinct suffixes, and retain existing suffixes when migrating callers so bookmarks keep working.
+
+```typescript
+const { page, perPage, sortBy, order } = useRouteQueriableTableOptions({
+  routeQuerySuffix: "MealsAndIncidentals",
+  sortBy: [
+    {
+      key: "date",
+      order: "asc",
+    },
+  ],
+})
+```
+
+Bind `page`, `perPage`, and `sortBy` to the native table controls and pass `order` to the API query. Optional `page` and `perPage` defaults retain the pagination utility's defaults when omitted; sorting remains optional. Fetching, filters, loading state, and rendering stay with the caller. Use the smaller utilities directly when a consumer needs only pagination or only sorting.

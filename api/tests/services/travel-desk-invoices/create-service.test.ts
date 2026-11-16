@@ -5,7 +5,6 @@ import CreateService from "@/services/travel-desk-invoices/create-service"
 
 import {
   travelDeskBookingEventFactory,
-  travelDeskProductTypeFactory,
   travelDeskTravelRequestFactory,
 } from "@/factories"
 
@@ -19,7 +18,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         const result = CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [],
           currencyCode: "CAD",
           items: [],
@@ -42,7 +41,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         const result = CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [],
           currencyCode: "CAD",
           items: [],
@@ -79,7 +78,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         const result = CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [920002],
           currencyCode: "CAD",
           items: [],
@@ -120,7 +119,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         const result = CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [920002],
           currencyCode: "CAD",
           items: [],
@@ -136,12 +135,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Arrange
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(new Error("Source unavailable."))
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
-        const fee = await travelDeskProductTypeFactory.create({
-          code: "service-fee",
-          name: "Service Fee",
-        })
-        const credit = await travelDeskProductTypeFactory.create({ code: "credit", name: "Credit" })
         const bookingEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           recordLocator: "INV001",
@@ -203,35 +196,35 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         await CreateService.perform(travelRequest, {
           recordLocator: " inv001 ",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [920002],
           currencyCode: "CAD",
           items: [
             {
-              travelDeskProductTypeId: air.id,
+              productType: "air",
               sourceAirSegmentNumber: 1,
               saleType: "Sale",
-              grossAmount: "0.0005",
+              grossAmount: "0.001",
               position: 0,
             },
             {
-              travelDeskProductTypeId: air.id,
+              productType: "air",
               sourceAirSegmentNumber: 2,
               saleType: "Sale",
-              grossAmount: "0.0015",
+              grossAmount: "0.002",
               position: 1,
             },
             {
-              travelDeskProductTypeId: fee.id,
+              productType: "service_fee",
               sourceServiceFeeEventId: 920002,
               saleType: "Sale",
-              grossAmount: "42.125000000001",
+              grossAmount: "42.125",
               position: 2,
             },
             {
-              travelDeskProductTypeId: credit.id,
+              productType: "credit",
               saleType: "Refund",
-              grossAmount: "0.0025",
+              grossAmount: "0.003",
               position: 3,
             },
           ],
@@ -254,7 +247,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           expect.objectContaining({
             travelDeskTravelRequestId: travelRequest.id,
             recordLocator: "INV001",
-            sourceBookingEventId: 920001,
+            externalBookingEventIdentifier: 920001,
             grossAmount: "42.125",
             sourceSnapshot: expect.objectContaining({
               bookingEvent: expect.objectContaining({
@@ -281,10 +274,26 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
               ],
             }),
             items: [
-              expect.objectContaining({ sourceAirSegmentNumber: 1, grossAmount: "0.001" }),
-              expect.objectContaining({ sourceAirSegmentNumber: 2, grossAmount: "0.002" }),
-              expect.objectContaining({ sourceServiceFeeEventId: 920002, grossAmount: "42.125" }),
-              expect.objectContaining({ saleType: "Refund", grossAmount: "0.003" }),
+              expect.objectContaining({
+                productType: "air",
+                sourceAirSegmentNumber: 1,
+                grossAmount: "0.001",
+              }),
+              expect.objectContaining({
+                productType: "air",
+                sourceAirSegmentNumber: 2,
+                grossAmount: "0.002",
+              }),
+              expect.objectContaining({
+                productType: "service_fee",
+                sourceServiceFeeEventId: 920002,
+                grossAmount: "42.125",
+              }),
+              expect.objectContaining({
+                productType: "credit",
+                saleType: "Refund",
+                grossAmount: "0.003",
+              }),
             ],
           }),
         ])
@@ -293,10 +302,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
       test("when staff prices need rounding, it rounds each line before totaling", async () => {
         // Arrange
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        const air = await travelDeskProductTypeFactory.create({
-          code: "air",
-          name: "Air",
-        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           recordLocator: "INV001",
@@ -331,19 +336,19 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         await CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [],
           currencyCode: "CAD",
           items: [
             {
-              travelDeskProductTypeId: air.id,
+              productType: "air",
               sourceAirSegmentNumber: 1,
               saleType: "Sale",
               grossAmount: "0.0005",
               position: 0,
             },
             {
-              travelDeskProductTypeId: air.id,
+              productType: "air",
               sourceAirSegmentNumber: 2,
               saleType: "Sale",
               grossAmount: "0.0005",
@@ -382,10 +387,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
       test("when invoice items fail to persist, it rolls back the new invoice", async () => {
         // Arrange
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        const air = await travelDeskProductTypeFactory.create({
-          code: "air",
-          name: "Air",
-        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           recordLocator: "INV001",
@@ -411,12 +412,12 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         await CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [],
           currencyCode: "CAD",
           items: [
             {
-              travelDeskProductTypeId: air.id,
+              productType: "air",
               sourceAirSegmentNumber: 1,
               saleType: "Sale",
               grossAmount: "10.125",

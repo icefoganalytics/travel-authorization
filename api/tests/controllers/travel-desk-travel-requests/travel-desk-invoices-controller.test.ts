@@ -6,7 +6,6 @@ import {
   travelDeskBookingEventFactory,
   travelDeskInvoiceFactory,
   travelDeskInvoiceItemFactory,
-  travelDeskProductTypeFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
@@ -83,17 +82,12 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const invoice2 = await travelDeskInvoiceFactory
           .associations({ travelDeskTravelRequest: travelRequest })
           .create({ createdAt })
-        const productType = await travelDeskProductTypeFactory.create({
-          code: "air",
-          name: "Air",
-          description: null,
-        })
         const item1 = await travelDeskInvoiceItemFactory
-          .associations({ invoice: invoice2, productType })
-          .create({ position: 1 })
+          .associations({ invoice: invoice2 })
+          .create({ position: 1, productType: "air" })
         const item2 = await travelDeskInvoiceItemFactory
-          .associations({ invoice: invoice2, productType })
-          .create({ position: 0 })
+          .associations({ invoice: invoice2 })
+          .create({ position: 0, productType: "air" })
         mockCurrentUser(officer)
 
         // Act
@@ -111,22 +105,12 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
                 expect.objectContaining({
                   id: item2.id,
                   position: 0,
-                  productType: {
-                    id: productType.id,
-                    code: "air",
-                    name: "Air",
-                    description: null,
-                  },
+                  productType: "air",
                 }),
                 expect.objectContaining({
                   id: item1.id,
                   position: 1,
-                  productType: {
-                    id: productType.id,
-                    code: "air",
-                    name: "Air",
-                    description: null,
-                  },
+                  productType: "air",
                 }),
               ],
             }),
@@ -297,7 +281,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             id: invoice.id,
             travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
             recordLocator: invoice.recordLocator,
-            sourceBookingEventId: invoice.sourceBookingEventId,
+            externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
             sourceSnapshot: invoice.sourceSnapshot,
             items: [],
           }),
@@ -375,7 +359,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
             recordLocator: "API001",
-            sourceBookingEventId: 930001,
+            externalBookingEventIdentifier: 930001,
             sourceServiceFeeEventIds: [],
             currencyCode: "CAD",
             items: [],
@@ -394,7 +378,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const otherRequest = await travelDeskTravelRequestFactory.create()
-        const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 930001,
@@ -423,14 +406,14 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .send({
             travelDeskTravelRequestId: otherRequest.id,
             recordLocator: "api001",
-            sourceBookingEventId: 930001,
+            externalBookingEventIdentifier: 930001,
             sourceServiceFeeEventIds: [],
             currencyCode: "CAD",
             grossAmount: "999999.999",
             sourceSnapshot: { forged: true },
             items: [
               {
-                travelDeskProductTypeId: airProduct.id,
+                productType: "air",
                 sourceAirSegmentNumber: 1,
                 saleType: "Sale",
                 grossAmount: "125.500",
@@ -445,7 +428,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           travelDeskInvoice: expect.objectContaining({
             travelDeskTravelRequestId: travelRequest.id,
             recordLocator: "API001",
-            sourceBookingEventId: 930001,
+            externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
             grossAmount: "125.500",
             sourceSnapshot: {
@@ -462,7 +445,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
               expect.objectContaining({
                 sourceAirSegmentNumber: 1,
                 grossAmount: "125.500",
-                productType: expect.objectContaining({ code: "air", name: "Air" }),
+                productType: "air",
               }),
             ],
           }),
@@ -557,9 +540,8 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const invoice = await travelDeskInvoiceFactory.create({ invoiceNumber: "INV-ORIGINAL" })
         const otherRequest = await travelDeskTravelRequestFactory.create()
-        const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         await travelDeskInvoiceItemFactory
-          .associations({ invoice, productType: airProduct })
+          .associations({ invoice })
           .create({
             sourceAirSegmentNumber: 1,
             grossAmount: "10.000",
@@ -568,7 +550,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           })
         const originalRequestId = invoice.travelDeskTravelRequestId
         const originalLocator = invoice.recordLocator
-        const originalBookingEventId = invoice.sourceBookingEventId
+        const originalBookingEventId = invoice.externalBookingEventIdentifier
         const originalSnapshot = invoice.sourceSnapshot
         mockCurrentUser(officer)
 
@@ -580,12 +562,12 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .send({
             travelDeskTravelRequestId: otherRequest.id,
             recordLocator: "FORGED",
-            sourceBookingEventId: 999999,
+            externalBookingEventIdentifier: 999999,
             sourceSnapshot: { forged: true },
             currencyCode: "CAD",
             items: [
               {
-                travelDeskProductTypeId: airProduct.id,
+                productType: "air",
                 sourceAirSegmentNumber: 1,
                 saleType: "Sale",
                 grossAmount: "22.000",
@@ -600,7 +582,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           travelDeskInvoice: expect.objectContaining({
             travelDeskTravelRequestId: originalRequestId,
             recordLocator: originalLocator,
-            sourceBookingEventId: originalBookingEventId,
+            externalBookingEventIdentifier: originalBookingEventId,
             sourceSnapshot: originalSnapshot,
             invoiceNumber: "INV-ORIGINAL",
             grossAmount: "22.000",
@@ -609,13 +591,44 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         })
       })
 
+      test("when an item has a custom product type, it rejects the request", async () => {
+        // Arrange
+        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const invoice = await travelDeskInvoiceFactory.create()
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request()
+          .patch(
+            `/api/travel-desk-travel-requests/${invoice.travelDeskTravelRequestId}/travel-desk-invoices/${invoice.id}`
+          )
+          .send({
+            currencyCode: "CAD",
+            items: [
+              {
+                productType: "custom-fee",
+                sourceAirSegmentNumber: 1,
+                saleType: "Sale",
+                grossAmount: "10.000",
+                position: 0,
+              },
+            ],
+          })
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message:
+            "Failed to update invoice: InvoiceValidationError: Product type must be one of: air, service_fee, credit, change_fee",
+        })
+      })
+
       test("when an item has malformed money, it rejects the request", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.000" })
-        const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         await travelDeskInvoiceItemFactory
-          .associations({ invoice, productType: airProduct })
+          .associations({ invoice })
           .create({
             sourceAirSegmentNumber: 1,
             grossAmount: "10.000",
@@ -633,7 +646,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             currencyCode: "CAD",
             items: [
               {
-                travelDeskProductTypeId: airProduct.id,
+                productType: "air",
                 sourceAirSegmentNumber: 1,
                 saleType: "Sale",
                 grossAmount: "not-money",

@@ -15,7 +15,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.
 - A separate local Travelport booking-feed simulator and read-only source lookup support booking integration development without production or VPN access. The shared integration entry point requires Travelport database settings.
-- Request-scoped APIs support invoices from selected booking flights and service fees, editable prices and additional charges, and administrator-managed product categories. The invoice interface is delivered separately.
+- Request-scoped APIs support invoices from selected booking flights and service fees, editable prices and additional charges, and fixed Air, Service Fee, Credit, and Change Fee classifications. The invoice interface is delivered separately.
 
 ### Changed
 
@@ -32,6 +32,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - User administration includes a mailcode field and updated user search and editing controls.
 - Estimate, meal, and coding tables support server-side paging and sorting. Estimates load with the default ordering and can be sorted by expense type. Table and claim totals include all matching records, not just the displayed page. Meal dates and meal/coding amounts use the application's standard display formats.
 - Developer improvements: rental-car schedule presentation can be maintained consistently across new and existing requests.
+- Developer improvements: expense and general-ledger tables share URL pagination and sorting coordination while preserving existing bookmarks and controls.
 - Developer improvements: retired the legacy travel-authorization module in favor of typed components and pages without changing workflows.
 - Developer improvements: isolated checkout service and database routes, explicit PostgreSQL data transfers between worktrees, correct-checkout editor access with gem-owned Docker defaults that survives readiness-based startup, and warning-free Ruby wrapper startup with explicitly bundled help dependencies. Updated test tooling and contributor guidance; removed unused components and dependencies. Web tests share plugin setup, HTTP and authentication mocks, and component cleanup following WRAP's conventions. Agent guidance now loads verified shared workflow sources before local overlays while preserving TravelAuth's contracts and development commands.
 - Requested PR screenshots follow the shared agent-operated capture/upload workflow while preserving existing images, TravelAuth captions and app routes, and optional screenshot placeholders.
@@ -40,10 +41,11 @@ Changes planned for the next release, since v2025.9.15.1.
 - PR testing guidance separates reviewer-facing QA scenarios from local developer setup, following WRAP and the shared workflow.
 - Development, test, and production containers use pinned Node 24 LTS, with aligned Sequelize dependencies for Factory Shark qualification and a matched Puppeteer/Chromium release family for PDF reports.
 - API test factories use Factory Shark for Sequelize fixtures, lists, request attributes, parent relationships, and eager loading without local persistence or reload helpers. TravCom city fixtures preserve the external database's keyless schema.
+- Invoice migrations use model-owned sale types and standard foreign-key declarations; invoice amounts use native decimal validation, and booking lookups use exact query conditions.
+- Invoice APIs identify the external booking event explicitly as `externalBookingEventIdentifier`.
 
 ### Fixed
 
-- Concurrent invoice saves and product-category deletion cannot leave saved invoice lines referencing a deleted category.
 - Deleting an invoice during an overlapping edit also deletes its replacement lines.
 - Booking history lists newest externally created events first with stable pagination, using `externalCreatedAt` separately from local creation time. Unknown locators return no matches without imposing a six-character format.
 - Rental-car requests match flight dates and times on both new and edit forms. Matched fields remain readable and show a lock icon. Turning matching off restores the previous manual schedule, or blank dates and noon times for a new request without manual entries. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.

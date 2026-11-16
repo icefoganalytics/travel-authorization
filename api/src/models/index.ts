@@ -25,7 +25,6 @@ import TravelDeskHotel from "./travel-desk-hotel"
 import TravelDeskInvoice from "./travel-desk-invoice"
 import TravelDeskInvoiceItem from "./travel-desk-invoice-item"
 import TravelDeskOtherTransportation from "./travel-desk-other-transportation"
-import TravelDeskProductType from "./travel-desk-product-type"
 import TravelDeskQuestion from "./travel-desk-question"
 import TravelDeskRentalCar from "./travel-desk-rental-car"
 import TravelDeskTravelAgency from "./travel-desk-travel-agency"
@@ -62,7 +61,6 @@ db.addModels([
   TravelDeskInvoice,
   TravelDeskInvoiceItem,
   TravelDeskOtherTransportation,
-  TravelDeskProductType,
   TravelDeskQuestion,
   TravelDeskRentalCar,
   TravelDeskTravelAgency,
@@ -91,7 +89,6 @@ TravelAuthorizationPreApproval.establishScopes()
 TravelAuthorizationPreApprovalDocument.establishScopes()
 TravelAuthorizationPreApprovalProfile.establishScopes()
 TravelAuthorizationPreApprovalSubmission.establishScopes()
-TravelDeskBookingEvent.establishScopes()
 TravelDeskFlightOption.establishScopes()
 TravelDeskFlightRequest.establishScopes()
 TravelDeskFlightSegment.establishScopes()
@@ -133,7 +130,6 @@ export {
   TravelDeskInvoice,
   TravelDeskInvoiceItem,
   TravelDeskOtherTransportation,
-  TravelDeskProductType,
   TravelDeskQuestion,
   TravelDeskRentalCar,
   TravelDeskTravelAgency,

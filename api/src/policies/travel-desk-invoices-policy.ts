@@ -39,7 +39,7 @@ export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
       "currencyCode",
       {
         items: [
-          "travelDeskProductTypeId",
+          "productType",
           "travelDeskFlightSegmentId",
           "sourceAirSegmentNumber",
           "sourceServiceFeeEventId",
@@ -58,7 +58,7 @@ export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
   permittedAttributesForCreate(): Path[] {
     return [
       "recordLocator",
-      "sourceBookingEventId",
+      "externalBookingEventIdentifier",
       "sourceServiceFeeEventIds",
       ...this.permittedAttributes(),
     ]

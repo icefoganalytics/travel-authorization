@@ -18,7 +18,7 @@ A travel request may have multiple invoices. Request ownership, record locator, 
 
 Amounts are rounded individually to three decimal places before storage and totaling. Sales retain their sign, refunds subtract their absolute value, and void lines contribute zero. Decimal arithmetic avoids binary floating-point rounding. Malformed amounts and values outside the supported storage range are rejected rather than silently replaced with zero.
 
-Deleting an invoice also soft-deletes its lines while retaining the source snapshot. Administrators manage product categories; built-in categories and categories referenced by invoice history cannot be deleted.
+Deleting an invoice also soft-deletes its lines while retaining the source snapshot. Invoice items use four fixed product types: `air`, `service_fee`, `credit`, and `change_fee`. The invoice-item model validates these string values; the UI translates their labels. There is no product-category table or administrator-managed category list.
 
 The existing request invoice number identifies a legacy TravCom invoice, not a Travelport booking. Passenger name record (PNR) attachments and the legacy itinerary remain separate. Request linkage and itinerary cutover belong to [#293](https://github.com/icefoganalytics/travel-authorization/issues/293); reporting belongs to [#422](https://github.com/icefoganalytics/travel-authorization/issues/422).
 
@@ -32,4 +32,4 @@ Local development and tests use the synthetic source documented by the [developm
 - [Travel Desk Invoice Entity Relationship Diagram.png](<Travel Desk Invoice Entity Relationship Diagram.png>)
 - [Travel Desk Invoice Source Schema Reference.sql](<Travel Desk Invoice Source Schema Reference.sql>)
 
-These are investigative artifacts, not the application schema. The [application migration](/api/src/db/migrations/20261029000000_create-travel-desk-invoices.ts) owns the persisted schema; do not execute the reference SQL against an application or production database.
+These are original investigative artifacts, not the application schema; their product-category table was superseded by the fixed invoice-item enum. The [application migration](/api/src/db/migrations/20261029000000_create-travel-desk-invoices.ts) owns the persisted schema; do not execute the reference SQL against an application or production database.

@@ -9,7 +9,7 @@ export type TravelDeskInvoiceAsIndex = Pick<
   | "id"
   | "travelDeskTravelRequestId"
   | "recordLocator"
-  | "sourceBookingEventId"
+  | "externalBookingEventIdentifier"
   | "sourceSnapshot"
   | "currencyCode"
   | "invoiceNumber"
@@ -43,7 +43,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskInvoice> {
         "id",
         "travelDeskTravelRequestId",
         "recordLocator",
-        "sourceBookingEventId",
+        "externalBookingEventIdentifier",
         "sourceSnapshot",
         "currencyCode",
         "invoiceNumber",

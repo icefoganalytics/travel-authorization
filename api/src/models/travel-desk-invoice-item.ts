@@ -17,7 +17,13 @@ import {
 
 import TravelDeskFlightSegment from "@/models/travel-desk-flight-segment"
 import TravelDeskInvoice from "@/models/travel-desk-invoice"
-import TravelDeskProductType from "@/models/travel-desk-product-type"
+
+export enum TravelDeskInvoiceItemProductTypes {
+  AIR = "air",
+  SERVICE_FEE = "service_fee",
+  CREDIT = "credit",
+  CHANGE_FEE = "change_fee",
+}
 
 export enum TravelDeskInvoiceItemSaleTypes {
   SALE = "Sale",
@@ -25,12 +31,13 @@ export enum TravelDeskInvoiceItemSaleTypes {
   VOID = "Void",
 }
 
-const DECIMAL_AMOUNT_PATTERN = /^-?\d{1,15}(?:\.\d{1,3})?$/
-
 export class TravelDeskInvoiceItem extends Model<
   InferAttributes<TravelDeskInvoiceItem>,
   InferCreationAttributes<TravelDeskInvoiceItem>
 > {
+  static ProductTypes = TravelDeskInvoiceItemProductTypes
+  static SaleTypes = TravelDeskInvoiceItemSaleTypes
+
   @Attribute(DataTypes.INTEGER)
   @PrimaryKey
   @AutoIncrement
@@ -40,9 +47,15 @@ export class TravelDeskInvoiceItem extends Model<
   @NotNull
   declare travelDeskInvoiceId: number
 
-  @Attribute(DataTypes.INTEGER)
+  @Attribute(DataTypes.STRING(255))
   @NotNull
-  declare travelDeskProductTypeId: number
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskInvoiceItemProductTypes)],
+      msg: `Product type must be one of: ${Object.values(TravelDeskInvoiceItemProductTypes).join(", ")}`,
+    },
+  })
+  declare productType: `${TravelDeskInvoiceItemProductTypes}`
 
   @Attribute(DataTypes.INTEGER)
   declare travelDeskFlightSegmentId: number | null
@@ -65,13 +78,18 @@ export class TravelDeskInvoiceItem extends Model<
   @Attribute(DataTypes.TEXT)
   declare description: string | null
 
-  @Attribute(DataTypes.ENUM(...Object.values(TravelDeskInvoiceItemSaleTypes)))
+  @Attribute(DataTypes.STRING(255))
   @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskInvoiceItemSaleTypes)],
+      msg: `Sale type must be one of: ${Object.values(TravelDeskInvoiceItemSaleTypes).join(", ")}`,
+    },
+  })
   declare saleType: `${TravelDeskInvoiceItemSaleTypes}`
 
   @Attribute(DataTypes.DECIMAL(18, 3))
   @NotNull
-  @ValidateAttribute({ is: DECIMAL_AMOUNT_PATTERN })
   declare grossAmount: string
 
   @Attribute(DataTypes.INTEGER)
@@ -100,18 +118,6 @@ export class TravelDeskInvoiceItem extends Model<
     },
   })
   declare invoice?: NonAttribute<TravelDeskInvoice>
-
-  @BelongsTo(() => TravelDeskProductType, {
-    foreignKey: {
-      name: "travelDeskProductTypeId",
-      onDelete: "RESTRICT",
-    },
-    inverse: {
-      as: "items",
-      type: "hasMany",
-    },
-  })
-  declare productType?: NonAttribute<TravelDeskProductType>
 
   @BelongsTo(() => TravelDeskFlightSegment, {
     foreignKey: {

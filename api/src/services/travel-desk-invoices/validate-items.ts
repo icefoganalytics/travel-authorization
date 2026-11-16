@@ -1,12 +1,12 @@
 import { isEmpty, isNil } from "lodash"
 
-import { TravelDeskProductType } from "@/models"
+import { TravelDeskInvoiceItem } from "@/models"
 import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
 export type InvoiceItemAttributes = {
-  travelDeskProductTypeId: number
+  productType: TravelDeskInvoiceItem["productType"]
   travelDeskFlightSegmentId?: number | null
   sourceAirSegmentNumber?: number | null
   sourceServiceFeeEventId?: number | null
@@ -39,21 +39,11 @@ export async function validateInvoiceItems(
   const expectedFeeEventIds = new Set(serviceFeeEventIds)
   const seenSegmentNumbers = new Set<number>()
   const seenFeeEventIds = new Set<number>()
-  const productTypeIds = [...new Set(items.map((item) => item.travelDeskProductTypeId))]
-  const productTypes = await TravelDeskProductType.findAll({
-    where: { id: productTypeIds },
-    order: [["id", "ASC"]],
-    lock: true,
-  })
-  const productTypesById = new Map<number, TravelDeskProductType>(
-    productTypes.map((productType) => [productType.id, productType])
-  )
+  const productTypes = Object.values(TravelDeskInvoiceItem.ProductTypes)
 
   for (const item of items) {
-    const productType = productTypesById.get(item.travelDeskProductTypeId)
-
-    if (isNil(productType) || !isNil(productType.deletedAt)) {
-      throw new InvoiceValidationError("Every invoice item must use an active product type.")
+    if (!productTypes.some((productType) => productType === item.productType)) {
+      throw new InvoiceValidationError(`Product type must be one of: ${productTypes.join(", ")}`)
     }
 
     if (!isNil(item.sourceAirSegmentNumber)) {
@@ -65,7 +55,7 @@ export async function validateInvoiceItems(
         throw new InvoiceValidationError("A selected flight segment can only appear once.")
       }
 
-      if (productType.code !== "air") {
+      if (item.productType !== TravelDeskInvoiceItem.ProductTypes.AIR) {
         throw new InvoiceValidationError("Flight segments require the Air product type.")
       }
 
@@ -81,7 +71,7 @@ export async function validateInvoiceItems(
         throw new InvoiceValidationError("A selected service fee can only appear once.")
       }
 
-      if (productType.code !== "service-fee") {
+      if (item.productType !== TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE) {
         throw new InvoiceValidationError("Service fees require the Service Fee product type.")
       }
 

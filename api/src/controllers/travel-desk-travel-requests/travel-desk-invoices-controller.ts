@@ -53,7 +53,6 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
           {
             association: "items",
             separate: true,
-            include: ["productType"],
           },
         ],
       })
@@ -257,12 +256,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         id: this.params.travelDeskInvoiceId,
         travelDeskTravelRequestId: travelDeskTravelRequest.id,
       },
-      include: [
-        {
-          association: "items",
-          include: ["productType"],
-        },
-      ],
+      include: ["items"],
     })
   }
 

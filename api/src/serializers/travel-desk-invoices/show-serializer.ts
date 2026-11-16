@@ -6,7 +6,7 @@ export type TravelDeskInvoiceAsShow = {
   id: number
   travelDeskTravelRequestId: number
   recordLocator: string
-  sourceBookingEventId: number
+  externalBookingEventIdentifier: number
   sourceSnapshot: TravelDeskInvoice["sourceSnapshot"]
   currencyCode: string
   invoiceNumber: string | null
@@ -39,7 +39,7 @@ export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
       id: invoice.id,
       travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
       recordLocator: invoice.recordLocator,
-      sourceBookingEventId: invoice.sourceBookingEventId,
+      externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
       sourceSnapshot: invoice.sourceSnapshot,
       currencyCode: invoice.currencyCode,
       invoiceNumber: invoice.invoiceNumber,

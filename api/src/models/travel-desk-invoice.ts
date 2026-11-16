@@ -29,8 +29,6 @@ export type InvoiceSourceSnapshot = {
   serviceFeeEvents: InvoiceBookingEventSnapshot[]
 }
 
-const DECIMAL_AMOUNT_PATTERN = /^-?\d{1,15}(?:\.\d{1,3})?$/
-
 export class TravelDeskInvoice extends Model<
   InferAttributes<TravelDeskInvoice>,
   InferCreationAttributes<TravelDeskInvoice>
@@ -50,7 +48,7 @@ export class TravelDeskInvoice extends Model<
 
   @Attribute(DataTypes.INTEGER)
   @NotNull
-  declare sourceBookingEventId: number
+  declare externalBookingEventIdentifier: number
 
   @Attribute(DataTypes.JSONB)
   @NotNull
@@ -106,7 +104,6 @@ export class TravelDeskInvoice extends Model<
 
   @Attribute(DataTypes.DECIMAL(18, 3))
   @NotNull
-  @ValidateAttribute({ is: DECIMAL_AMOUNT_PATTERN })
   declare grossAmount: string
 
   @Attribute(DataTypes.DATE)
