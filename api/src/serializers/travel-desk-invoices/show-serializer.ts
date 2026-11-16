@@ -5,7 +5,7 @@ import { ReferenceSerializer, type AsReference } from "@/serializers/travel-desk
 export type TravelDeskInvoiceAsShow = {
   id: number
   travelDeskTravelRequestId: number
-  recordLocator: string
+  bookingReference: string
   externalBookingEventIdentifier: number
   sourceSnapshot: TravelDeskInvoice["sourceSnapshot"]
   currencyCode: string
@@ -37,7 +37,7 @@ export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
     return {
       id: invoice.id,
       travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
-      recordLocator: invoice.recordLocator,
+      bookingReference: invoice.bookingReference,
       externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
       sourceSnapshot: invoice.sourceSnapshot,
       currencyCode: invoice.currencyCode,

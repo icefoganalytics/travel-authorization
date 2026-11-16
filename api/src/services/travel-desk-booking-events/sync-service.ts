@@ -1,5 +1,5 @@
 import { IsolationLevel, Op } from "@sequelize/core"
-import { isNil } from "lodash"
+import { isNil, omit } from "lodash"
 
 import logger from "@/utils/logger"
 
@@ -11,25 +11,27 @@ import { SourceUnavailableError } from "@/services/travel-desk-booking-events/so
 import WithSyncLockService from "@/services/travel-desk-booking-events/with-sync-lock-service"
 
 export class SyncService extends BaseService {
-  constructor(protected recordLocator: string) {
+  constructor(protected bookingReference: string) {
     super()
 
-    this.recordLocator = recordLocator.trim().toUpperCase()
+    this.bookingReference = bookingReference.trim().toUpperCase()
   }
 
   async perform(): Promise<void> {
-    await WithSyncLockService.perform(this.recordLocator, async () => {
+    await WithSyncLockService.perform(this.bookingReference, async () => {
       const matchedSourceIds: number[] = []
-      await this.syncTravelOrderEvents(this.recordLocator, async (travelOrderEvent) => {
+      await this.syncTravelOrderEvents(this.bookingReference, async (travelOrderEvent) => {
         const serializedTravelOrderEvent =
           TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(travelOrderEvent)
-        const { travelOrderIdentifier, databaseTimestamp, ...travelOrderEventAttributes } =
-          serializedTravelOrderEvent
+        const { travelOrderIdentifier, databaseTimestamp, ...travelOrderEventAttributes } = omit(
+          serializedTravelOrderEvent,
+          ["recordLocator"]
+        )
         const travelDeskBookingEventAttributes = {
           ...travelOrderEventAttributes,
           externalTravelPortIdentifier: travelOrderIdentifier,
           externalCreatedAt: databaseTimestamp,
-          recordLocator: this.recordLocator,
+          bookingReference: this.bookingReference,
         }
         const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
           where: { externalTravelPortIdentifier: travelOrderIdentifier },
@@ -58,7 +60,7 @@ export class SyncService extends BaseService {
    * A source read or commit failure propagates to roll back the enclosing local refresh.
    */
   private async syncTravelOrderEvents(
-    recordLocator: string,
+    bookingReference: string,
     processEvent: (event: TravelPortIntegration.Models.TravelOrderEvent) => Promise<void>
   ): Promise<void> {
     let processingFailed = false
@@ -68,7 +70,7 @@ export class SyncService extends BaseService {
         async () => {
           await TravelPortIntegration.Models.TravelOrderEvent.findEach(
             {
-              where: { recordLocator },
+              where: { recordLocator: bookingReference },
               include: [
                 {
                   association: "passengers",
@@ -109,7 +111,7 @@ export class SyncService extends BaseService {
   private async deleteUnmatchedBookingEvents(matchedSourceIds: number[]): Promise<void> {
     await TravelDeskBookingEvent.destroy({
       where: {
-        recordLocator: this.recordLocator,
+        bookingReference: this.bookingReference,
         externalTravelPortIdentifier: {
           [Op.notIn]: matchedSourceIds,
         },

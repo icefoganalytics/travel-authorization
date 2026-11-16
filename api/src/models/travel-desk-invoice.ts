@@ -20,7 +20,8 @@ import { type BookingEventSnapshot } from "@/integrations/travel-port-integratio
 import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
-type InvoiceBookingEventSnapshot = Omit<BookingEventSnapshot, "databaseTimestamp"> & {
+type InvoiceBookingEventSnapshot = Omit<BookingEventSnapshot, "databaseTimestamp" | "recordLocator"> & {
+  bookingReference: string | null
   externalCreatedAt: string | null
 }
 
@@ -44,7 +45,7 @@ export class TravelDeskInvoice extends Model<
 
   @Attribute(DataTypes.STRING(255))
   @NotNull
-  declare recordLocator: string
+  declare bookingReference: string
 
   @Attribute(DataTypes.INTEGER)
   @NotNull
