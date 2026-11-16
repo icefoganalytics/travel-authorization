@@ -15,7 +15,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.
 - A separate local Travelport booking-feed simulator and read-only source lookup support booking integration development without production or VPN access. The shared integration entry point requires Travelport database settings.
-- Request-scoped APIs support invoices from selected booking flights and service fees, editable prices and additional charges, and administrator-managed product categories. The invoice interface is delivered separately.
+- Request-scoped APIs support invoices from selected booking flights and service fees, editable prices and additional charges, and fixed Air, Service Fee, Credit, and Change Fee classifications. The invoice interface is delivered separately.
 
 ### Changed
 
@@ -46,8 +46,6 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
-- Deleted invoice product types no longer reserve their codes or names; active products remain unique.
-- Concurrent invoice saves and product-category deletion cannot leave saved invoice lines referencing a deleted category.
 - Deleting an invoice during an overlapping edit also deletes its replacement lines.
 - Booking history lists newest externally created events first with stable pagination, using `externalCreatedAt` separately from local creation time. Unknown locators return no matches without imposing a six-character format.
 - Rental-car requests match flight dates and times on both new and edit forms. Matched fields remain readable and show a lock icon. Turning matching off restores the previous manual schedule, or blank dates and noon times for a new request without manual entries. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.
