@@ -494,25 +494,22 @@ export class TravelAuthorization extends BaseModel<
         },
       }
     })
-    // Separate associations run their own query; an empty draft itinerary is valid.
-    const travelSegmentsInclude: IncludeOptions & Pick<FindOptions, "rejectOnEmpty"> = {
-      association: "travelSegments",
-      separate: true,
-      rejectOnEmpty: false,
-      order: [
-        ["segmentNumber", "ASC"],
-        ["id", "ASC"],
-      ],
-      include: ["departureLocation", "arrivalLocation"],
-    }
-
     this.addScope("asShow", {
       include: [
         "expenses",
         "purpose",
         "stops",
         "travelDeskTravelRequest",
-        travelSegmentsInclude,
+        {
+          association: "travelSegments",
+          separate: true,
+          rejectOnEmpty: false,
+          order: [
+            ["segmentNumber", "ASC"],
+            ["id", "ASC"],
+          ],
+          include: ["departureLocation", "arrivalLocation"],
+        } satisfies IncludeOptions & Pick<FindOptions, "rejectOnEmpty">,
         "user",
       ],
       order: [
