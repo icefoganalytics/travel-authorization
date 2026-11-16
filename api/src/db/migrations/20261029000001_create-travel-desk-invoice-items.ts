@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable("travel_desk_invoice_items", (table) => {
     table.increments("id").primary()
     table.integer("travel_desk_invoice_id").notNullable()
-    table.integer("travel_desk_product_type_id").notNullable()
+    table.string("product_type").notNullable()
     table.integer("travel_desk_flight_segment_id").nullable()
     table.integer("source_air_segment_number")
     table.integer("source_service_fee_event_id")
@@ -22,10 +22,6 @@ export async function up(knex: Knex): Promise<void> {
     table
       .foreign("travel_desk_invoice_id")
       .references("travel_desk_invoices.id")
-      .onDelete("RESTRICT")
-    table
-      .foreign("travel_desk_product_type_id")
-      .references("travel_desk_product_types.id")
       .onDelete("RESTRICT")
     table
       .foreign("travel_desk_flight_segment_id")
