@@ -33,27 +33,25 @@ export class UpdateService extends BaseService {
         this.attributes.tripTypeActual === TravelAuthorization.TripTypes.MULTI_CITY
 
       if (isEstimateBecomingMultiCity) {
-        await TravelSegment.update(
-          { isPrimaryDestination: false },
-          {
-            where: {
-              travelAuthorizationId: this.travelAuthorization.id,
-              isActual: false,
-            },
-          }
-        )
+        const selectedEstimate = await TravelSegment.findOne({
+          where: {
+            travelAuthorizationId: this.travelAuthorization.id,
+            isActual: false,
+            isPrimaryDestination: true,
+          },
+        })
+        await selectedEstimate?.update({ isPrimaryDestination: false })
       }
 
       if (isActualBecomingMultiCity) {
-        await TravelSegment.update(
-          { isPrimaryDestination: false },
-          {
-            where: {
-              travelAuthorizationId: this.travelAuthorization.id,
-              isActual: true,
-            },
-          }
-        )
+        const selectedActual = await TravelSegment.findOne({
+          where: {
+            travelAuthorizationId: this.travelAuthorization.id,
+            isActual: true,
+            isPrimaryDestination: true,
+          },
+        })
+        await selectedActual?.update({ isPrimaryDestination: false })
       }
 
       await this.travelAuthorization.update(this.attributes).catch((error) => {

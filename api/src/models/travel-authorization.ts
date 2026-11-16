@@ -3,6 +3,8 @@ import {
   Op,
   sql,
   type CreationOptional,
+  type FindOptions,
+  type IncludeOptions,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
@@ -475,21 +477,25 @@ export class TravelAuthorization extends BaseModel<
         },
       }
     })
+    // Separate associations run their own query; an empty draft itinerary is valid.
+    const travelSegmentsInclude: IncludeOptions & Pick<FindOptions, "rejectOnEmpty"> = {
+      association: "travelSegments",
+      separate: true,
+      rejectOnEmpty: false,
+      order: [
+        ["segmentNumber", "ASC"],
+        ["id", "ASC"],
+      ],
+      include: ["departureLocation", "arrivalLocation"],
+    }
+
     this.addScope("asShow", {
       include: [
         "expenses",
         "purpose",
         "stops",
         "travelDeskTravelRequest",
-        {
-          association: "travelSegments",
-          separate: true,
-          order: [
-            ["segmentNumber", "ASC"],
-            ["id", "ASC"],
-          ],
-          include: ["departureLocation", "arrivalLocation"],
-        },
+        travelSegmentsInclude,
         "user",
       ],
       order: [

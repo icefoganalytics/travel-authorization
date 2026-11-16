@@ -16,6 +16,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         })
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
         const attributes = {
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegmentEstimatesAttributes: [
             { id: 7, isPrimaryDestination: true, arrivalLocationId: 2 },
           ],
@@ -37,6 +38,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         })
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
         const attributes = {
+          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegmentActualsAttributes: [
             { id: 7, isPrimaryDestination: true, arrivalLocationId: 2 },
           ],
