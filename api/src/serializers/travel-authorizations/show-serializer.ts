@@ -11,7 +11,7 @@ import {
   User,
 } from "@/models"
 
-import determineFinalDestination from "@/services/travel-authorizations/determine-final-destination"
+import { DetermineFinalDestinationService } from "@/services/travel-authorizations"
 
 import BaseSerializer from "@/serializers/base-serializer"
 import {
@@ -103,7 +103,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     const serializedExpenses = this.serializeExpenses(expenses)
-    const finalDestinationLocation = determineFinalDestination(
+    const finalDestinationLocation = DetermineFinalDestinationService.perform(
       this.record.tripType,
       travelSegments,
       this.record.tripTypeActual
