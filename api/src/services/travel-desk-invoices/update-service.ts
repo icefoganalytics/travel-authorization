@@ -74,7 +74,16 @@ export class UpdateService extends BaseService {
       await createInvoiceItems(invoice.id, items)
 
       return invoice.reload({
-        include: ["items"],
+        include: [
+          {
+            association: "items",
+            separate: true,
+            order: [
+              ["position", "ASC"],
+              ["id", "ASC"],
+            ],
+          },
+        ],
       })
     })
   }

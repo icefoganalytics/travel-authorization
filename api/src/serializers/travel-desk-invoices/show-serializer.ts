@@ -33,7 +33,6 @@ export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
     }
 
     const serializedItems = ReferenceSerializer.perform(items)
-    serializedItems.sort((item1, item2) => item1.position - item2.position)
 
     return {
       id: invoice.id,

@@ -88,6 +88,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const item2 = await travelDeskInvoiceItemFactory
           .associations({ invoice: invoice2 })
           .create({ position: 0, productType: "air" })
+        const item3 = await travelDeskInvoiceItemFactory
+          .associations({ invoice: invoice2 })
+          .create({ position: 0, productType: "credit" })
         mockCurrentUser(officer)
 
         // Act
@@ -106,6 +109,11 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
                   id: item2.id,
                   position: 0,
                   productType: "air",
+                }),
+                expect.objectContaining({
+                  id: item3.id,
+                  position: 0,
+                  productType: "credit",
                 }),
                 expect.objectContaining({
                   id: item1.id,
