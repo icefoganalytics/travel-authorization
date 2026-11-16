@@ -28,9 +28,7 @@
 import { computed, ref } from "vue"
 
 import { formatCurrency } from "@/utils/formatters"
-import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
-import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
-import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+import useRouteQueriableTableOptions from "@/use/utils/use-route-queriable-table-options"
 
 import useGeneralLedgerCodings from "@/use/use-general-ledger-codings"
 
@@ -38,16 +36,15 @@ const props = defineProps<{
   travelAuthorizationId: number
 }>()
 
-const { page, perPage } = useRouteQueryPagination({
+const { page, perPage, sortBy, order } = useRouteQueriableTableOptions({
   routeQuerySuffix: "Codings",
+  sortBy: [
+    {
+      key: "code",
+      order: "asc",
+    },
+  ],
 })
-const sortBy = useVuetifySortByToSafeRouteQuery("sortByCodings", [
-  {
-    key: "code",
-    order: "asc",
-  },
-])
-const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const generalLedgerCodingOptions = computed(() => ({
   where: {

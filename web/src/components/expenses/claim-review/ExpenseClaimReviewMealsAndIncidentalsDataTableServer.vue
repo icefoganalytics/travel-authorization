@@ -32,9 +32,7 @@
 import { computed, ref } from "vue"
 
 import { formatCurrency, formatDate } from "@/utils/formatters"
-import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
-import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
-import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+import useRouteQueriableTableOptions from "@/use/utils/use-route-queriable-table-options"
 
 import useExpenses, {
   ExpenseTypes,
@@ -46,16 +44,15 @@ const props = defineProps<{
   travelAuthorizationId: number
 }>()
 
-const { page, perPage } = useRouteQueryPagination({
+const { page, perPage, sortBy, order } = useRouteQueriableTableOptions({
   routeQuerySuffix: "MealsAndIncidentals",
+  sortBy: [
+    {
+      key: "date",
+      order: "asc",
+    },
+  ],
 })
-const sortBy = useVuetifySortByToSafeRouteQuery("sortByMealsAndIncidentals", [
-  {
-    key: "date",
-    order: "asc",
-  },
-])
-const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const expenseOptions = computed<ExpenseQueryOptions>(() => ({
   where: {
