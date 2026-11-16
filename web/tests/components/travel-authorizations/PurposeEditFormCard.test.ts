@@ -1,10 +1,10 @@
-import { flushPromises, mount } from "@vue/test-utils"
+import { flushPromises } from "@vue/test-utils"
 import { VAutocomplete } from "vuetify/components"
 
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
 
 import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/tests/factories"
-import { mockHttpClient, mockVuetify } from "@/tests/support"
+import { mockHttpClient, mountWithDefaultPlugins } from "@/tests/support"
 
 import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
 
@@ -63,12 +63,8 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         },
       })
       httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
-      const vuetify = mockVuetify()
-      const wrapper = mount(PurposeEditFormCard, {
+      const wrapper = mountWithDefaultPlugins(PurposeEditFormCard, {
         props: { travelAuthorizationId: 5 },
-        global: {
-          plugins: [vuetify],
-        },
       })
       await flushPromises()
 
@@ -157,12 +153,8 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         },
       })
       httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
-      const vuetify = mockVuetify()
-      const wrapper = mount(PurposeEditFormCard, {
+      const wrapper = mountWithDefaultPlugins(PurposeEditFormCard, {
         props: { travelAuthorizationId: 5 },
-        global: {
-          plugins: [vuetify],
-        },
       })
       await flushPromises()
 
@@ -253,12 +245,8 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         },
       })
       httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
-      const vuetify = mockVuetify()
-      const wrapper = mount(PurposeEditFormCard, {
+      const wrapper = mountWithDefaultPlugins(PurposeEditFormCard, {
         props: { travelAuthorizationId: 5 },
-        global: {
-          plugins: [vuetify],
-        },
       })
       await flushPromises()
 
