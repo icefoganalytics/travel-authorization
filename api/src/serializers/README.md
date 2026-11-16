@@ -15,6 +15,11 @@ Serializers take model data, in the form mapping directly to the database struct
 
 Serializers are used in controllers to convert from a database representation to a front-end data packet. Serializers should generally not be used for general data formating such as date or money formatting, as formatting those kinds of things in the front-end is generally more flexible.
 
+CSV report serializers are an exception: the server owns their display formatting. Destructure the
+source attributes in `perform()`, pass them to private `formatXyz` methods, and evaluate the formatted
+values before constructing the report object. Each method owns its field's formatting and blank-value
+handling without reading `this.record`. Pass unformatted attributes directly into the report.
+
 ## Naming
 
 - Use `AsIndex` for index serializer types.
