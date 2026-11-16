@@ -24,12 +24,18 @@ export type FlightReconciliationAsReport = Record<FlightReconciliationReportHead
 export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
   perform(): FlightReconciliationAsReport {
     const cost = formatCurrency(Number(this.record.invoiceDetailSellingFare))
-    const purchaseDate = this.record.invoiceBookingDate
-      ? DateTime.fromJSDate(this.record.invoiceBookingDate).toFormat("MMM d yyyy")
-      : ""
+    let purchaseDate = ""
+    if (this.record.invoiceBookingDate) {
+      purchaseDate = DateTime.fromJSDate(this.record.invoiceBookingDate).toFormat("MMM d yyyy")
+    }
+
     const agent = startCase(toLower(this.record.invoiceDetailComputedAgentName ?? ""))
     const airline = startCase(toLower(this.record.invoiceDetailVendorName))
     const flightInfo = this.record.segmentsComputedFlightInfo?.split(",").join("\r\n") ?? ""
+    let reconciled = "No"
+    if (this.record.reconciled) {
+      reconciled = "Yes"
+    }
 
     return {
       [FlightReconciliationReportHeaders.PURCHASE_DATE]: purchaseDate,
@@ -45,7 +51,7 @@ export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
         this.record.invoiceDetailComputedTravelerFirstName,
       [FlightReconciliationReportHeaders.TRAVELER_LAST_NAME]:
         this.record.invoiceDetailComputedTravelerLastName,
-      [FlightReconciliationReportHeaders.RECONCILED]: this.record.reconciled ? "Yes" : "No",
+      [FlightReconciliationReportHeaders.RECONCILED]: reconciled,
       [FlightReconciliationReportHeaders.RECONCILE_PERIOD]: this.record.reconcilePeriod ?? "",
     }
   }
