@@ -8,12 +8,12 @@ Durable project knowledge for Travel Authorization. For application setup and de
 
 ## Primary Destination
 
-A primary destination identifies the purpose of travel, not necessarily the final non-home city in the route. The authorization owns two nullable location references: `estimatedPrimaryDestinationId` and `actualPrimaryDestinationId`. They represent independent city selections, not particular arrival legs or denormalized snapshots.
+A primary destination identifies the purpose of travel, not necessarily the final non-home city in the route. The authorization owns two nullable location references: `estimatedPrimaryDestinationId` and `actualPrimaryDestinationId`, stored as `estimated_primary_destination_id` and `actual_primary_destination_id` foreign keys to `locations.id` on `travel_authorizations`. They represent independent city selections, not particular arrival legs or denormalized snapshots.
 
-Multi-city travel requires an explicit selection before submitting the authorization or expense claim. A suggested destination is not confirmation, and drafts may remain unselected. Existing multi-city records are not automatically assigned a destination. Round-trip and one-way itineraries use their ordinary outbound and final arrivals as defaults.
+Multi-city travel requires an explicit selection before submitting the authorization or expense claim. A suggested destination is not confirmation, and drafts may remain unselected. Existing multi-city records are not automatically assigned a destination. Round-trip and one-way itineraries use their ordinary outbound and final arrivals as defaults. Switching to multi-city clears an inferred choice unless the update supplies an explicit city.
 
-Travellers correcting a returned expense claim can confirm an existing actual arrival as its primary destination. This correction does not permit changes to the submitted route or expenses.
+The owner or an administrator correcting a returned expense claim can confirm an existing actual arrival as its primary destination through the authorization PATCH endpoint. Only `actualPrimaryDestinationId` may change; this correction does not permit changes to the estimated destination, submitted route, or expenses.
 
-Changing the designation does not change the route. The selected location must appear among the corresponding itinerary's arrivals. Unrelated edits and removal of one repeated visit preserve the selection while another arrival still matches. Removing the last matching arrival clears it. Copying estimated legs into actual travel does not confirm an actual multi-city destination.
+Changing the designation does not change the route. The selected location must appear among the corresponding itinerary's arrivals. Itinerary mutations lock the authorization while reconciling its selection. Unrelated edits and removal of one repeated visit preserve the selection while another arrival still matches. Removing the last matching arrival clears it. Copying estimated legs into actual travel does not confirm an actual multi-city destination.
 
 Primary-destination displays do not determine reimbursement rates. Meal and incidental calculations retain their separate itinerary-derived location rule. Persisted copies or derived values use `_snapshot`/`Snapshot` naming to distinguish them from authoritative inputs.
