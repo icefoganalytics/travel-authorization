@@ -620,8 +620,8 @@ async function loadBookingPage() {
     const { travelDeskBookingEvents, totalCount } = await travelDeskBookingEventsApi.list(
       requestId.value,
       {
-        filters: {
-          byRecordLocator: searchedRecordLocator.value,
+        where: {
+          recordLocator: searchedRecordLocator.value,
         },
         page: bookingPage.value,
         perPage: bookingsPerPage.value,
