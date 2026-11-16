@@ -3,7 +3,7 @@ import { isNil } from "lodash"
 
 import { Expense, TravelAuthorization } from "@/models"
 import SubmitExpenseClaimService from "@/services/travel-authorizations/submit-expense-claim-service"
-import { UpdateService } from "@/services/travel-segments"
+import { UpdateService } from "@/services/travel-authorizations"
 
 import {
   expenseFactory,
@@ -58,7 +58,11 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
         if (isNil(selectedSegment)) throw new Error("Outbound travel segment is missing")
 
         // Act
-        await UpdateService.perform(selectedSegment, { isPrimaryDestination: true }, currentUser)
+        await UpdateService.perform(
+          travelAuthorization,
+          { actualPrimaryDestinationId: selectedSegment.arrivalLocationId },
+          currentUser
+        )
         const result = await SubmitExpenseClaimService.perform(
           travelAuthorization,
           supervisor.email,
@@ -111,7 +115,6 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
         const supervisor = await userFactory.create()
         const estimatedSegment = travelSegmentFactory.build({
           isActual: false,
-          isPrimaryDestination: true,
           departureOn: "2020-01-01",
         })
         const actualSegments = travelSegmentFactory.buildList(2, {
@@ -128,6 +131,10 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
           })
+
+        await travelAuthorization.update({
+          estimatedPrimaryDestinationId: estimatedSegment.arrivalLocationId,
+        })
 
         // Act
         const result = SubmitExpenseClaimService.perform(
@@ -148,7 +155,6 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
         const supervisor = await userFactory.create()
         const outboundSegment = travelSegmentFactory.build({
           isActual: true,
-          isPrimaryDestination: true,
           segmentNumber: 1,
           departureOn: "2020-01-01",
         })
@@ -167,6 +173,10 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
           })
+
+        await travelAuthorization.update({
+          actualPrimaryDestinationId: outboundSegment.arrivalLocationId,
+        })
 
         // Act
         const result = await SubmitExpenseClaimService.perform(

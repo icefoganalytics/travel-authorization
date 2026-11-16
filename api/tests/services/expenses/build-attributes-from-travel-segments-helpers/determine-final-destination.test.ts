@@ -115,9 +115,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
 
     test("when an earlier multi-city arrival is primary, the per-diem location remains the last arrival", async () => {
       // Arrange
-      const travelAuthorization = await travelAuthorizationFactory.create({
-        tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-      })
       const whitehorse = await locationFactory.create({
         city: "Whitehorse",
         province: "YT",
@@ -125,6 +122,10 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
       const vancouver = await locationFactory.create({
         city: "Vancouver",
         province: "BC",
+      })
+      const travelAuthorization = await travelAuthorizationFactory.create({
+        tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+        estimatedPrimaryDestinationId: vancouver.id,
       })
       const grandePrairie = await locationFactory.create({
         city: "Grande Prairie",
@@ -140,7 +141,6 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
       const travelSegment1 = await travelSegment1Factory
         .create({
           segmentNumber: 1,
-          isPrimaryDestination: true,
           departureOn: travelSegment1DepartureOn,
           modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: TravelSegment.AccommodationTypes.HOTEL,

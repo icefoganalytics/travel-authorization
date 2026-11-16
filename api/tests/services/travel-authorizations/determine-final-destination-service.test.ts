@@ -23,7 +23,6 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
           })
           .build({
             isActual: false,
-            isPrimaryDestination: false,
           })
         const travelSegments = [travelSegment]
 
@@ -31,6 +30,8 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
         const result = DetermineFinalDestinationService.perform(
           TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegments,
+          null,
+          null,
           null
         )
 
@@ -60,7 +61,6 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
           .build({
             segmentNumber: 1,
             isActual: true,
-            isPrimaryDestination: true,
           })
         const finalTravelSegment = travelSegmentFactory
           .associations({
@@ -70,7 +70,6 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
           .build({
             segmentNumber: 2,
             isActual: true,
-            isPrimaryDestination: false,
           })
         const travelSegments = [finalTravelSegment, selectedTravelSegment]
 
@@ -78,7 +77,9 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
         const result = DetermineFinalDestinationService.perform(
           TravelAuthorization.TripTypes.ONE_WAY,
           travelSegments,
-          TravelAuthorization.TripTypes.MULTI_CITY
+          TravelAuthorization.TripTypes.MULTI_CITY,
+          toronto.id,
+          vancouver.id
         )
 
         // Assert
@@ -103,7 +104,6 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
           .build({
             segmentNumber: 1,
             isActual: true,
-            isPrimaryDestination: false,
           })
         const returnTravelSegment = travelSegmentFactory
           .associations({
@@ -113,7 +113,6 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
           .build({
             segmentNumber: 2,
             isActual: true,
-            isPrimaryDestination: false,
           })
         const travelSegments = [returnTravelSegment, outboundTravelSegment]
 
@@ -121,7 +120,9 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
         const result = DetermineFinalDestinationService.perform(
           TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegments,
-          TravelAuthorization.TripTypes.ROUND_TRIP
+          TravelAuthorization.TripTypes.ROUND_TRIP,
+          null,
+          null
         )
 
         // Assert
@@ -166,6 +167,8 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
         const result = DetermineFinalDestinationService.perform(
           TravelAuthorization.TripTypes.ONE_WAY,
           travelSegments,
+          null,
+          null,
           null
         )
 
@@ -213,6 +216,8 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
           DetermineFinalDestinationService.perform(
             TravelAuthorization.TripTypes.ONE_WAY,
             travelSegments,
+            null,
+            null,
             null
           )
         ).toThrow("Expected travel segment locations to be pre-loaded.")
@@ -258,6 +263,8 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
           DetermineFinalDestinationService.perform(
             TravelAuthorization.TripTypes.ONE_WAY,
             travelSegments,
+            null,
+            null,
             null
           )
         ).toThrow("Expected travel segment locations to be pre-loaded.")

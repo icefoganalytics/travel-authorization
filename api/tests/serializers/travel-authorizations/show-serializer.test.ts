@@ -16,42 +16,36 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           isActual: false,
           departureLocationId: whitehorse.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: false,
           departureLocationId: vancouver.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: true,
         })
         const estimatedTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: false,
           departureLocationId: toronto.id,
           arrivalLocationId: whitehorse.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: true,
           departureLocationId: whitehorse.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: true,
           departureLocationId: toronto.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: true,
           departureLocationId: vancouver.id,
           arrivalLocationId: whitehorse.id,
-          isPrimaryDestination: false,
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -71,6 +65,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
+            estimatedPrimaryDestinationId: toronto.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: null,
             travelSegments: [
@@ -101,42 +96,36 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           isActual: false,
           departureLocationId: whitehorse.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: false,
           departureLocationId: vancouver.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: false,
           departureLocationId: toronto.id,
           arrivalLocationId: ottawa.id,
-          isPrimaryDestination: true,
         })
         const actualTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: true,
           departureLocationId: whitehorse.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: true,
           departureLocationId: toronto.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: true,
           departureLocationId: vancouver.id,
           arrivalLocationId: ottawa.id,
-          isPrimaryDestination: false,
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -156,6 +145,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
+            estimatedPrimaryDestinationId: ottawa.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: null,
             travelSegments: [
@@ -185,42 +175,36 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           isActual: false,
           departureLocationId: whitehorse.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: false,
           departureLocationId: vancouver.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: false,
           departureLocationId: toronto.id,
           arrivalLocationId: whitehorse.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: true,
           departureLocationId: whitehorse.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: true,
           departureLocationId: toronto.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: true,
         })
         const actualTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: true,
           departureLocationId: vancouver.id,
           arrivalLocationId: whitehorse.id,
-          isPrimaryDestination: false,
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -240,6 +224,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
+            actualPrimaryDestinationId: vancouver.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
             travelSegments: [
@@ -270,42 +255,36 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           isActual: false,
           departureLocationId: whitehorse.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: false,
           departureLocationId: vancouver.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: false,
           departureLocationId: toronto.id,
           arrivalLocationId: ottawa.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: true,
           departureLocationId: whitehorse.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: true,
           departureLocationId: toronto.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: true,
           departureLocationId: vancouver.id,
           arrivalLocationId: ottawa.id,
-          isPrimaryDestination: true,
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -325,6 +304,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
+            actualPrimaryDestinationId: ottawa.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
             travelSegments: [
@@ -355,42 +335,36 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           isActual: false,
           departureLocationId: whitehorse.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: false,
           departureLocationId: vancouver.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: false,
           departureLocationId: toronto.id,
           arrivalLocationId: ottawa.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: true,
           departureLocationId: whitehorse.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: true,
           departureLocationId: toronto.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: true,
           departureLocationId: vancouver.id,
           arrivalLocationId: ottawa.id,
-          isPrimaryDestination: false,
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -440,42 +414,36 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           isActual: false,
           departureLocationId: whitehorse.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: false,
           departureLocationId: vancouver.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: false,
           departureLocationId: toronto.id,
           arrivalLocationId: ottawa.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: true,
           departureLocationId: whitehorse.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: true,
           departureLocationId: toronto.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: true,
           departureLocationId: vancouver.id,
           arrivalLocationId: ottawa.id,
-          isPrimaryDestination: false,
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -524,42 +492,36 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           isActual: false,
           departureLocationId: whitehorse.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: false,
           departureLocationId: vancouver.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const estimatedTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: false,
           departureLocationId: toronto.id,
           arrivalLocationId: whitehorse.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: true,
           departureLocationId: whitehorse.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
           isActual: true,
           departureLocationId: toronto.id,
           arrivalLocationId: vancouver.id,
-          isPrimaryDestination: false,
         })
         const actualTravelSegment3 = travelSegmentFactory.build({
           segmentNumber: 3,
           isActual: true,
           departureLocationId: vancouver.id,
           arrivalLocationId: whitehorse.id,
-          isPrimaryDestination: false,
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
@@ -635,7 +597,6 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           isActual: false,
           departureLocationId: whitehorse.id,
           arrivalLocationId: toronto.id,
-          isPrimaryDestination: true,
         })
         const travelSegment2 = travelSegmentFactory.build({
           segmentNumber: 2,
@@ -644,6 +605,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           arrivalLocationId: whitehorse.id,
         })
         const travelAuthorization = await travelAuthorizationFactory.create({
+          estimatedPrimaryDestinationId: toronto.id,
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           tripTypeActual: null,
           travelSegments: [travelSegment2, travelSegment1],

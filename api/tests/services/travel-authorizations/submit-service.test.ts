@@ -15,12 +15,14 @@ describe("api/src/services/travel-authorizations/submit-service.ts", () => {
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
         })
         await travelSegmentFactory.associations({ travelAuthorization }).createList(2)
-        await travelSegmentFactory
+        const actualSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
           .create({
             isActual: true,
-            isPrimaryDestination: true,
           })
+        await travelAuthorization.update({
+          actualPrimaryDestinationId: actualSegment.arrivalLocationId,
+        })
 
         // Act
         const result = SubmitService.perform(
@@ -67,15 +69,18 @@ describe("api/src/services/travel-authorizations/submit-service.ts", () => {
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
         })
-        await travelSegmentFactory
+        const selectedSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
           .create({
-            isPrimaryDestination: true,
             segmentNumber: 1,
           })
         await travelSegmentFactory
           .associations({ travelAuthorization })
           .create({ segmentNumber: 2 })
+
+        await travelAuthorization.update({
+          estimatedPrimaryDestinationId: selectedSegment.arrivalLocationId,
+        })
 
         // Act
         const result = await SubmitService.perform(

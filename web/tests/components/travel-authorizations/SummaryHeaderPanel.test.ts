@@ -132,7 +132,7 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       const destinationInput = wrapper.findAllComponents(LocationsAutocomplete)[3]
       destinationInput.vm.$emit("update:modelValue", 4)
       await flushPromises()
-      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 1)
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 4)
       await flushPromises()
 
       // Assert
@@ -247,7 +247,7 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       const destinationInput = wrapper.findAllComponents(LocationsAutocomplete)[3]
       destinationInput.vm.$emit("update:modelValue", 4)
       await flushPromises()
-      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 1)
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 4)
       await flushPromises()
 
       // Assert

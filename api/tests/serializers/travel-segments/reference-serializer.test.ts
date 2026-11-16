@@ -5,20 +5,9 @@ import { travelSegmentFactory } from "@/factories"
 describe("api/src/serializers/travel-segments/reference-serializer.ts", () => {
   describe("ReferenceSerializer", () => {
     describe("#perform", () => {
-      test("when a leg is not selected, it exposes a false marker", async () => {
+      test("when serializing a leg, it exposes persisted itinerary endpoints", async () => {
         // Arrange
-        const travelSegment = await travelSegmentFactory.create({ isPrimaryDestination: false })
-
-        // Act
-        const result = ReferenceSerializer.perform(travelSegment)
-
-        // Assert
-        expect(result.isPrimaryDestination).toEqual(false)
-      })
-
-      test("when a leg is the primary destination, it exposes the persisted marker", async () => {
-        // Arrange
-        const travelSegment = await travelSegmentFactory.create({ isPrimaryDestination: true })
+        const travelSegment = await travelSegmentFactory.create()
 
         // Act
         const result = ReferenceSerializer.perform(travelSegment)
@@ -28,7 +17,6 @@ describe("api/src/serializers/travel-segments/reference-serializer.ts", () => {
           expect.objectContaining({
             id: travelSegment.id,
             arrivalLocationId: travelSegment.arrivalLocationId,
-            isPrimaryDestination: true,
           })
         )
       })

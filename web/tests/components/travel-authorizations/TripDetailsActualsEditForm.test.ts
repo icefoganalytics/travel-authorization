@@ -29,7 +29,6 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       const estimateSegment = travelSegmentFactory.build({
         travelAuthorizationId: 5,
         arrivalLocationId: 2,
-        isPrimaryDestination: true,
       })
       const actualSegment1 = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -40,13 +39,14 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         travelAuthorizationId: 5,
         arrivalLocationId: 4,
         isActual: true,
-        isPrimaryDestination: true,
       })
       const travelSegments = [estimateSegment, actualSegment1, actualSegment2]
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
         tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        estimatedPrimaryDestinationId: 2,
+        actualPrimaryDestinationId: 4,
         travelSegments,
       })
       mockHttpGetRoutes({
@@ -68,7 +68,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
 
       // Assert
       const primaryDestination = wrapper.getComponent(VSelect)
-      expect(primaryDestination.props("modelValue")).toBe(1)
+      expect(primaryDestination.props("modelValue")).toBe(4)
     })
 
     test("when only estimated legs exist, requires a fresh actual destination choice", async () => {
@@ -76,11 +76,11 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       const travelSegments = travelSegmentFactory.buildList(3, {
         travelAuthorizationId: 5,
         arrivalLocationId: 2,
-        isPrimaryDestination: true,
       })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        estimatedPrimaryDestinationId: 2,
         travelSegments,
       })
       mockHttpGetRoutes({
@@ -123,7 +123,6 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         arrivalLocationId: 1,
         departureOn: "2026-11-12",
         departureTime: "09:00",
-        isPrimaryDestination: true,
       })
       const estimateSegments = [estimateSegment1, estimateSegment2]
       let travelSegments = [...estimateSegments]
@@ -141,7 +140,8 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         "/api/locations": () => ({ locations: [], totalCount: 0 }),
       })
       httpClient.patch.mockImplementation(async (_url, attributes) => {
-        const { travelSegmentActualsAttributes } = attributes as {
+        const { actualPrimaryDestinationId, travelSegmentActualsAttributes } = attributes as {
+          actualPrimaryDestinationId: number
           travelSegmentActualsAttributes: Partial<TravelSegment>[]
         }
         const actualSegments = travelSegmentActualsAttributes.map((segment, index) => {
@@ -149,6 +149,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         })
         travelSegments = [...estimateSegments, ...actualSegments]
         travelAuthorization.tripTypeActual = TravelAuthorizationTripTypes.MULTI_CITY
+        travelAuthorization.actualPrimaryDestinationId = actualPrimaryDestinationId
         return {
           data: {
             travelAuthorization,
@@ -167,7 +168,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       await flushPromises()
 
       // Act
-      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 0)
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 2)
       await flushPromises()
       await wrapper.vm.save()
       wrapper.unmount()
@@ -181,7 +182,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
 
       // Assert
       const primaryDestination = reloadedWrapper.getComponent(VSelect)
-      expect(primaryDestination.props("modelValue")).toBe(0)
+      expect(primaryDestination.props("modelValue")).toBe(2)
     })
 
     test("when estimates seed new actual rows, does not send estimated segment identities", async () => {
@@ -195,7 +196,6 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         departureOn: "2026-11-12",
         departureTime: "09:00",
         accommodationType: TravelSegmentAccommodationTypes.HOTEL,
-        isPrimaryDestination: true,
       })
       const returnSegment = travelSegmentFactory.build({
         id: 42,
@@ -246,12 +246,12 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
           ...attributes,
           id: undefined,
           isActual: true,
-          isPrimaryDestination: false,
           segmentNumber: index + 1,
         }
       })
       expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
         tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        actualPrimaryDestinationId: null,
         travelDurationActual: 1,
         daysOffTravelStatusActual: 0,
         dateBackToWorkActual: "2026-11-14",
@@ -261,36 +261,38 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
 
     test("when more than ten mixed-phase legs exist, saves every actual leg with its identity", async () => {
       // Arrange
-      const estimatedSegments = travelSegmentFactory.buildList(6, {
-        travelAuthorizationId: 5,
-        departureLocationId: 1,
-        arrivalLocationId: 2,
-        departureOn: "2026-11-12",
-        departureTime: "09:00",
-        accommodationType: TravelSegmentAccommodationTypes.HOTEL,
-        isActual: false,
-        isPrimaryDestination: false,
-      })
-      const actualSegments = travelSegmentFactory.buildList(6, {
-        travelAuthorizationId: 5,
-        departureLocationId: 1,
-        arrivalLocationId: 3,
-        departureOn: "2026-11-12",
-        departureTime: "09:00",
-        accommodationType: TravelSegmentAccommodationTypes.HOTEL,
-        isActual: true,
-        isPrimaryDestination: false,
-      })
-      actualSegments[5].isPrimaryDestination = true
+      const estimatedSegments = Array.from({ length: 6 }, (_, index) =>
+        travelSegmentFactory.build({
+          travelAuthorizationId: 5,
+          segmentNumber: index + 1,
+          departureLocationId: 1,
+          arrivalLocationId: 2,
+          departureOn: "2026-11-12",
+          departureTime: "09:00",
+          accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+          isActual: false,
+        })
+      )
+      const actualSegments = Array.from({ length: 6 }, (_, index) =>
+        travelSegmentFactory.build({
+          travelAuthorizationId: 5,
+          segmentNumber: index + 1,
+          departureLocationId: 1,
+          arrivalLocationId: 3,
+          departureOn: "2026-11-12",
+          departureTime: "09:00",
+          accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+          isActual: true,
+        })
+      )
       const travelSegments = estimatedSegments.flatMap((estimatedSegment, index) => {
-        estimatedSegment.segmentNumber = index + 1
-        actualSegments[index].segmentNumber = index + 1
         return [estimatedSegment, actualSegments[index]]
       })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
         tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        actualPrimaryDestinationId: 3,
         daysOffTravelStatusActual: 0,
         dateBackToWorkActual: "2026-11-14",
         travelSegments,
@@ -347,6 +349,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       })
       expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
         tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        actualPrimaryDestinationId: 3,
         travelDurationActual: 1,
         daysOffTravelStatusActual: 0,
         dateBackToWorkActual: "2026-11-14",
@@ -354,12 +357,11 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       })
     })
 
-    test("when a returned legacy claim chooses an arrival, saves only that actual marker", async () => {
+    test("when a returned legacy claim chooses an arrival, saves only the actual authorization city", async () => {
       // Arrange
       const estimatedSegment = travelSegmentFactory.build({
         travelAuthorizationId: 5,
         arrivalLocationId: 2,
-        isPrimaryDestination: true,
       })
       const actualSegment1 = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -401,7 +403,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       })
       httpClient.patch.mockResolvedValue({
         data: {
-          travelSegment: actualSegment2,
+          travelAuthorization,
           policy: {},
         },
       })
@@ -418,13 +420,13 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       await flushPromises()
 
       // Act
-      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", actualSegment2.id)
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 4)
       await flushPromises()
       await wrapper.vm.save()
 
       // Assert
-      expect(httpClient.patch).toHaveBeenCalledWith(`/api/travel-segments/${actualSegment2.id}`, {
-        isPrimaryDestination: true,
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        actualPrimaryDestinationId: 4,
       })
     })
 
@@ -434,7 +436,6 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         travelAuthorizationId: 5,
         arrivalLocationId: 3,
         isActual: true,
-        isPrimaryDestination: false,
       })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
@@ -470,6 +471,61 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
 
       // Assert
       expect(httpClient.patch).not.toHaveBeenCalled()
+    })
+
+    test("when itinerary loading finishes after authorization loading, preserves the saved destination", async () => {
+      // Arrange
+      const firstSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        departureLocationId: 1,
+        arrivalLocationId: 2,
+        isActual: true,
+      })
+      const secondSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 2,
+        departureLocationId: 2,
+        arrivalLocationId: 1,
+        isActual: true,
+      })
+      const travelSegments = [firstSegment, secondSegment]
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        estimatedPrimaryDestinationId: 3,
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        actualPrimaryDestinationId: 2,
+        travelSegments,
+      })
+      const { promise: segmentsReady, resolve: releaseSegments } = Promise.withResolvers<void>()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/travel-segments": async () => {
+          await segmentsReady
+          return { travelSegments, totalCount: 2 }
+        },
+        "/api/locations": () => ({ locations: [], totalCount: 0 }),
+      })
+      const router = mockRouter()
+      await router.push("/")
+      const wrapper = mountWithDefaultPlugins(TripDetailsActualsEditForm, {
+        props: { travelAuthorizationId: 5 },
+        global: { plugins: [router] },
+      })
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+
+      // Act
+      releaseSegments()
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+
+      // Assert
+      const primaryDestination = wrapper.getComponent(VSelect)
+      expect(primaryDestination.props("modelValue")).toBe(2)
     })
   })
 })

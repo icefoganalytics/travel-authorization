@@ -6,193 +6,128 @@ import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } fro
 describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
   describe("BulkReplaceService", () => {
     describe("#perform", () => {
-      test("when round-trip flags are omitted, it applies only the ordinary destination", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
-        })
-        const arrivalLocation = await locationFactory.create()
-        const attributes = [3, 1, 2].map((segmentNumber) => ({
-          travelAuthorizationId: travelAuthorization.id,
-          isActual: false,
-          segmentNumber,
-          arrivalLocationId: arrivalLocation.id,
-          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        }))
-
-        // Act
-        const travelSegments = await BulkReplaceService.perform(
-          travelAuthorization.id,
-          attributes,
-          false
-        )
-        const selectedSegmentNumbers = travelSegments
-          .filter(({ isPrimaryDestination }) => isPrimaryDestination)
-          .map(({ segmentNumber }) => segmentNumber)
-
-        // Assert
-        expect(selectedSegmentNumbers).toEqual([1])
-      })
-
-      test("when one-way flags are omitted, it applies only the ordinary destination", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
-        })
-        const arrivalLocation = await locationFactory.create()
-        const attributes = [3, 1, 2].map((segmentNumber) => ({
-          travelAuthorizationId: travelAuthorization.id,
-          isActual: false,
-          segmentNumber,
-          arrivalLocationId: arrivalLocation.id,
-          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        }))
-
-        // Act
-        const travelSegments = await BulkReplaceService.perform(
-          travelAuthorization.id,
-          attributes,
-          false
-        )
-        const selectedSegmentNumbers = travelSegments
-          .filter(({ isPrimaryDestination }) => isPrimaryDestination)
-          .map(({ segmentNumber }) => segmentNumber)
-
-        // Assert
-        expect(selectedSegmentNumbers).toEqual([3])
-      })
-
-      test("when multi-city flags are omitted, it applies only the ordinary destination", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const arrivalLocation = await locationFactory.create()
-        const attributes = [3, 1, 2].map((segmentNumber) => ({
-          travelAuthorizationId: travelAuthorization.id,
-          isActual: false,
-          segmentNumber,
-          arrivalLocationId: arrivalLocation.id,
-          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        }))
-
-        // Act
-        const travelSegments = await BulkReplaceService.perform(
-          travelAuthorization.id,
-          attributes,
-          false
-        )
-        const selectedSegmentNumbers = travelSegments
-          .filter(({ isPrimaryDestination }) => isPrimaryDestination)
-          .map(({ segmentNumber }) => segmentNumber)
-
-        // Assert
-        expect(selectedSegmentNumbers).toEqual([])
-      })
-
-      test("when an unchanged selected arrival is reordered without its flag, it preserves the saved selection", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const selectedTravelSegment = await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({
-            segmentNumber: 1,
-            isActual: false,
-            isPrimaryDestination: true,
+      test.each([
+        [TravelAuthorization.TripTypes.ROUND_TRIP, 1],
+        [TravelAuthorization.TripTypes.ONE_WAY, 3],
+        [TravelAuthorization.TripTypes.MULTI_CITY, null],
+      ] as const)(
+        "when replacing a %s itinerary, it uses only its ordinary default (%s)",
+        async (tripType, expectedSegmentNumber) => {
+          // Arrange
+          const travelAuthorization = await travelAuthorizationFactory.create({
+            tripTypeEstimate: tripType,
           })
+          const location1 = await locationFactory.create()
+          const location2 = await locationFactory.create()
+          const location3 = await locationFactory.create()
+          const attributes = [
+            {
+              travelAuthorizationId: travelAuthorization.id,
+              isActual: false,
+              segmentNumber: 3,
+              arrivalLocationId: location3.id,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+            },
+            {
+              travelAuthorizationId: travelAuthorization.id,
+              isActual: false,
+              segmentNumber: 1,
+              arrivalLocationId: location1.id,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+            },
+            {
+              travelAuthorizationId: travelAuthorization.id,
+              isActual: false,
+              segmentNumber: 2,
+              arrivalLocationId: location2.id,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+            },
+          ]
+          const expectedCityId =
+            expectedSegmentNumber === 1
+              ? location1.id
+              : expectedSegmentNumber === 3
+                ? location3.id
+                : null
+
+          // Act
+          await BulkReplaceService.perform(travelAuthorization.id, attributes, false)
+
+          // Assert
+          expect((await travelAuthorization.reload()).estimatedPrimaryDestinationId).toEqual(
+            expectedCityId
+          )
+        }
+      )
+
+      test("when replacing and reordering a duplicate arrival, it preserves the city without relying on a segment identity", async () => {
+        // Arrange
+        const city = await locationFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+          estimatedPrimaryDestinationId: city.id,
+        })
+        await travelSegmentFactory
+          .associations({ travelAuthorization })
+          .createList(2, { arrivalLocationId: city.id })
         const attributes = [
           {
-            id: selectedTravelSegment.id,
             travelAuthorizationId: travelAuthorization.id,
             isActual: false,
-            arrivalLocationId: selectedTravelSegment.arrivalLocationId,
             segmentNumber: 9,
+            arrivalLocationId: city.id,
             modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
           },
         ]
 
         // Act
-        const travelSegments = await BulkReplaceService.perform(
-          travelAuthorization.id,
-          attributes,
-          false
-        )
+        await BulkReplaceService.perform(travelAuthorization.id, attributes, false)
 
         // Assert
-        expect(travelSegments[0].isPrimaryDestination).toEqual(true)
+        expect((await travelAuthorization.reload()).estimatedPrimaryDestinationId).toEqual(city.id)
       })
 
-      test("when a selected arrival changes without its flag, it clears the saved selection", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const selectedTravelSegment = await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({
-            segmentNumber: 1,
-            isActual: false,
-            isPrimaryDestination: true,
+      test.each([false, true])(
+        "when the last matching city is replaced in phase %s, it clears only that phase",
+        async (isActual) => {
+          // Arrange
+          const estimatedCity = await locationFactory.create()
+          const actualCity = await locationFactory.create()
+          const otherCity = await locationFactory.create()
+          const travelAuthorization = await travelAuthorizationFactory.create({
+            tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+            tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
+            estimatedPrimaryDestinationId: estimatedCity.id,
+            actualPrimaryDestinationId: actualCity.id,
           })
-        const replacementArrival = await locationFactory.create()
-        const attributes = [
-          {
-            id: selectedTravelSegment.id,
-            travelAuthorizationId: travelAuthorization.id,
-            isActual: false,
-            arrivalLocationId: replacementArrival.id,
-            segmentNumber: 9,
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-          },
-        ]
+          await travelSegmentFactory
+            .associations({ travelAuthorization })
+            .create({ isActual: false, arrivalLocationId: estimatedCity.id })
+          await travelSegmentFactory
+            .associations({ travelAuthorization })
+            .create({ isActual: true, arrivalLocationId: actualCity.id })
+          const attributes = [
+            {
+              travelAuthorizationId: travelAuthorization.id,
+              isActual,
+              segmentNumber: 1,
+              arrivalLocationId: otherCity.id,
+              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+            },
+          ]
 
-        // Act
-        const travelSegments = await BulkReplaceService.perform(
-          travelAuthorization.id,
-          attributes,
-          false
-        )
+          // Act
+          await BulkReplaceService.perform(travelAuthorization.id, attributes, isActual)
 
-        // Assert
-        expect(travelSegments[0].isPrimaryDestination).toEqual(false)
-      })
-
-      test("when an explicit false clears the selected arrival, it clears the saved selection", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const selectedTravelSegment = await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({
-            segmentNumber: 1,
-            isActual: false,
-            isPrimaryDestination: true,
-          })
-        const attributes = [
-          {
-            id: selectedTravelSegment.id,
-            travelAuthorizationId: travelAuthorization.id,
-            isActual: false,
-            arrivalLocationId: selectedTravelSegment.arrivalLocationId,
-            segmentNumber: 9,
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-            isPrimaryDestination: false,
-          },
-        ]
-
-        // Act
-        const travelSegments = await BulkReplaceService.perform(
-          travelAuthorization.id,
-          attributes,
-          false
-        )
-
-        // Assert
-        expect(travelSegments[0].isPrimaryDestination).toEqual(false)
-      })
+          // Assert
+          expect(await travelAuthorization.reload()).toEqual(
+            expect.objectContaining({
+              estimatedPrimaryDestinationId: isActual ? estimatedCity.id : null,
+              actualPrimaryDestinationId: isActual ? null : actualCity.id,
+            })
+          )
+        }
+      )
 
       test("when an actual segment identity is supplied for estimate replacement, it rejects the replacement", async () => {
         // Arrange
@@ -204,7 +139,6 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
           .associations({ travelAuthorization })
           .create({
             isActual: true,
-            isPrimaryDestination: true,
           })
         const attributes = [
           {
@@ -224,195 +158,6 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
         await expect(result).rejects.toThrow(
           "Replacement segment IDs must belong to the itinerary being replaced."
         )
-      })
-
-      test("when simple-trip flags are explicitly false, it does not replace that choice", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
-        })
-        const arrivalLocation = await locationFactory.create()
-
-        // Act
-        const travelSegments = await BulkReplaceService.perform(
-          travelAuthorization.id,
-          [
-            {
-              travelAuthorizationId: travelAuthorization.id,
-              isActual: false,
-              isPrimaryDestination: false,
-              arrivalLocationId: arrivalLocation.id,
-              segmentNumber: 1,
-              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-            },
-          ],
-          false
-        )
-
-        // Assert
-        expect(travelSegments[0].isPrimaryDestination).toEqual(false)
-      })
-
-      test("when multiple arrivals are selected, it rejects the replacement", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const arrivalLocation = await locationFactory.create()
-        const attributes = [1, 2].map((segmentNumber) => ({
-          travelAuthorizationId: travelAuthorization.id,
-          isActual: false,
-          isPrimaryDestination: true,
-          arrivalLocationId: arrivalLocation.id,
-          segmentNumber,
-          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        }))
-
-        // Act
-        const result = BulkReplaceService.perform(travelAuthorization.id, attributes, false)
-
-        // Assert
-        await expect(result).rejects.toThrow(
-          "Only one primary destination may be selected per itinerary."
-        )
-      })
-
-      test("when duplicate selection is rejected, the old itinerary survives", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const originalSegment = await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({ isPrimaryDestination: true })
-        const attributes = [1, 2].map((segmentNumber) => ({
-          travelAuthorizationId: travelAuthorization.id,
-          isActual: false,
-          isPrimaryDestination: true,
-          arrivalLocationId: originalSegment.arrivalLocationId,
-          segmentNumber,
-          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        }))
-
-        // Act
-        await BulkReplaceService.perform(travelAuthorization.id, attributes, false).catch(
-          () => undefined
-        )
-
-        // Assert
-        const savedTravelSegments = await TravelSegment.findAll()
-        const expectedTravelSegment1 = expect.objectContaining({
-          id: originalSegment.id,
-          isPrimaryDestination: true,
-        })
-
-        expect(savedTravelSegments).toEqual([
-          expectedTravelSegment1,
-        ])
-      })
-
-      test("when a selected arrival is null, it rejects the replacement", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create()
-
-        // Act
-        const result = BulkReplaceService.perform(
-          travelAuthorization.id,
-          [
-            {
-              travelAuthorizationId: travelAuthorization.id,
-              isActual: false,
-              isPrimaryDestination: true,
-              arrivalLocationId: null,
-              segmentNumber: 1,
-              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-            },
-          ],
-          false
-        )
-
-        // Assert
-        await expect(result).rejects.toThrow("Primary destination requires an arrival location.")
-      })
-
-      test("when actual selection changes, the estimated marker is preserved", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const estimate = await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({
-            isActual: false,
-            isPrimaryDestination: true,
-          })
-        await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({
-            isActual: true,
-            isPrimaryDestination: true,
-          })
-        const arrivalLocation = await locationFactory.create()
-
-        // Act
-        await BulkReplaceService.perform(
-          travelAuthorization.id,
-          [
-            {
-              travelAuthorizationId: travelAuthorization.id,
-              isActual: true,
-              isPrimaryDestination: true,
-              arrivalLocationId: arrivalLocation.id,
-              segmentNumber: 1,
-              modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-            },
-          ],
-          true
-        )
-
-        // Assert
-        const savedTravelSegments = await TravelSegment.findAll({ order: [["isActual", "ASC"]] })
-        const expectedTravelSegment1 = expect.objectContaining({
-          id: estimate.id,
-          isActual: false,
-          isPrimaryDestination: true,
-        })
-        const expectedTravelSegment2 = expect.objectContaining({
-          isActual: true,
-          arrivalLocationId: arrivalLocation.id,
-          isPrimaryDestination: true,
-        })
-
-        expect(savedTravelSegments).toEqual([
-          expectedTravelSegment1,
-          expectedTravelSegment2,
-        ])
-      })
-
-      test("when replacement removes the marked leg, it does not infer a new multi-city choice", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({ isPrimaryDestination: true })
-        const arrivalLocation = await locationFactory.create()
-        const attributes = [1, 2].map((segmentNumber) => ({
-          travelAuthorizationId: travelAuthorization.id,
-          isActual: false,
-          isPrimaryDestination: false,
-          arrivalLocationId: arrivalLocation.id,
-          segmentNumber,
-          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-        }))
-
-        // Act
-        await BulkReplaceService.perform(travelAuthorization.id, attributes, false)
-
-        // Assert
-        expect(await TravelSegment.count({ where: { isPrimaryDestination: true } })).toEqual(0)
       })
     })
   })

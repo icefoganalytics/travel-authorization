@@ -17,11 +17,11 @@ describe("web/src/components/travel-authorizations/PurposeCard.vue", () => {
       const finalDestination = locationFactory.build({ id: 4, city: "Ottawa" })
       const travelSegments = travelSegmentFactory.buildList(2, {
         arrivalLocationId: 2,
-        isPrimaryDestination: true,
       })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         finalDestination,
+        estimatedPrimaryDestinationId: 2,
         travelSegments,
       })
       mockHttpGetRoutes({
@@ -40,16 +40,16 @@ describe("web/src/components/travel-authorizations/PurposeCard.vue", () => {
       expect(destination.props("locationId")).toBe(4)
     })
 
-    test("when the saved destination is absent, does not infer a destination from itinerary markers", async () => {
+    test("when the saved destination is absent, does not infer a destination from itinerary arrivals", async () => {
       // Arrange
       const travelSegments = travelSegmentFactory.buildList(2, {
         arrivalLocationId: 2,
-        isPrimaryDestination: true,
       })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         finalDestination: null,
         travelSegments,
+        estimatedPrimaryDestinationId: 2,
       })
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),

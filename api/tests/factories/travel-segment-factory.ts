@@ -34,7 +34,6 @@ export const travelSegmentFactory = FactoryShark.define<TravelSegment>(
       modeOfTransport,
       modeOfTransportOther,
       isActual: false,
-      isPrimaryDestination: false,
     }
   }
 )

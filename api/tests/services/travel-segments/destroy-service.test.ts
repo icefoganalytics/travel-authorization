@@ -1,7 +1,12 @@
-import { TravelAuthorization, TravelSegment } from "@/models"
+import { TravelAuthorization } from "@/models"
 import DestroyService from "@/services/travel-segments/destroy-service"
 
-import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+  userFactory,
+} from "@/factories"
 
 describe("api/src/services/travel-segments/destroy-service.ts", () => {
   describe("DestroyService", () => {
@@ -16,7 +21,6 @@ describe("api/src/services/travel-segments/destroy-service.ts", () => {
           .associations({ travelAuthorization })
           .create({
             isActual: false,
-            isPrimaryDestination: true,
           })
         await travelSegmentFactory.associations({ travelAuthorization }).create({ isActual: false })
 
@@ -29,45 +33,45 @@ describe("api/src/services/travel-segments/destroy-service.ts", () => {
         )
       })
 
-      test("when deleting a selected estimate, it clears that choice without changing actual selection", async () => {
-        // Arrange
-        const currentUser = await userFactory.create()
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const selectedEstimate = await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({
-            isActual: false,
-            isPrimaryDestination: true,
+      test.each([false, true])(
+        "when deleting a matching city with another arrival present=%s, it preserves city-level membership and the other phase",
+        async (hasDuplicate) => {
+          // Arrange
+          const currentUser = await userFactory.create()
+          const city = await locationFactory.create()
+          const actualCity = await locationFactory.create()
+          const otherCity = await locationFactory.create()
+          const travelAuthorization = await travelAuthorizationFactory.create({
+            tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+            tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
+            estimatedPrimaryDestinationId: city.id,
+            actualPrimaryDestinationId: actualCity.id,
           })
-        await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .createList(2, { isActual: false })
-        const selectedActual = await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({
-            isActual: true,
-            isPrimaryDestination: true,
-          })
-        await travelSegmentFactory.associations({ travelAuthorization }).create({ isActual: true })
-        await selectedEstimate.reload({ include: ["travelAuthorization"] })
+          const selectedEstimate = await travelSegmentFactory
+            .associations({ travelAuthorization })
+            .create({ arrivalLocationId: city.id })
+          await travelSegmentFactory
+            .associations({ travelAuthorization })
+            .create({ arrivalLocationId: hasDuplicate ? city.id : otherCity.id })
+          await travelSegmentFactory
+            .associations({ travelAuthorization })
+            .create({ arrivalLocationId: otherCity.id })
+          await travelSegmentFactory
+            .associations({ travelAuthorization })
+            .create({ isActual: true, arrivalLocationId: actualCity.id })
 
-        // Act
-        await DestroyService.perform(selectedEstimate, currentUser)
+          // Act
+          await DestroyService.perform(selectedEstimate, currentUser)
 
-        // Assert
-        const savedTravelSegments = await TravelSegment.findAll({ where: { isPrimaryDestination: true } })
-        const expectedTravelSegment1 = expect.objectContaining({
-          id: selectedActual.id,
-          isActual: true,
-        })
-
-        expect(savedTravelSegments).toEqual([
-          expectedTravelSegment1,
-        ])
-      })
+          // Assert
+          expect(await travelAuthorization.reload()).toEqual(
+            expect.objectContaining({
+              estimatedPrimaryDestinationId: hasDuplicate ? city.id : null,
+              actualPrimaryDestinationId: actualCity.id,
+            })
+          )
+        }
+      )
     })
   })
 })

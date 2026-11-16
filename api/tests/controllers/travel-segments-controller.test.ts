@@ -11,7 +11,7 @@ import { mockCurrentUser, request } from "@/support"
 describe("api/src/controllers/travel-segments-controller.ts", () => {
   describe("TravelSegmentsController", () => {
     describe("#update", () => {
-      test("when the traveller confirms a returned actual destination, it ignores route and ownership edits", async () => {
+      test("when the traveller edits a returned actual segment, it denies route changes", async () => {
         // Arrange
         const currentUser = await userFactory.create({ roles: [User.Roles.USER] })
         mockCurrentUser(currentUser)
@@ -35,13 +35,11 @@ describe("api/src/controllers/travel-segments-controller.ts", () => {
         await expenseFactory.associations({ travelAuthorization }).create({
           type: Expense.Types.EXPENSE,
         })
-        const timestamp = expect.any(String)
 
         // Act
         const response = await request()
           .patch(`/api/travel-segments/${travelSegment.id}`)
           .send({
-            isPrimaryDestination: true,
             arrivalLocationId: null,
             departureOn: "2099-01-01",
             isActual: false,
@@ -49,31 +47,9 @@ describe("api/src/controllers/travel-segments-controller.ts", () => {
           })
 
         // Assert
-        expect(response.status).toEqual(200)
+        expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          travelSegment: {
-            id: travelSegment.id,
-            travelAuthorizationId: travelAuthorization.id,
-            isActual: true,
-            isPrimaryDestination: true,
-            departureLocationId: travelSegment.departureLocationId,
-            arrivalLocationId: travelSegment.arrivalLocationId,
-            segmentNumber: 1,
-            departureOn: "2020-01-01",
-            departureTime: "09:30",
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-            modeOfTransportOther: null,
-            accommodationType: null,
-            accommodationTypeOther: null,
-            createdAt: timestamp,
-            updatedAt: timestamp,
-          },
-          policy: {
-            show: true,
-            create: false,
-            update: true,
-            destroy: false,
-          },
+          message: "You are not authorized to update this travel segment.",
         })
       })
 
@@ -91,7 +67,6 @@ describe("api/src/controllers/travel-segments-controller.ts", () => {
         // Act
         const response = await request()
           .patch(`/api/travel-segments/${travelSegment.id}`)
-          .send({ isPrimaryDestination: true })
 
         // Assert
         expect(response.status).toEqual(403)
@@ -115,7 +90,6 @@ describe("api/src/controllers/travel-segments-controller.ts", () => {
         // Act
         const response = await request()
           .patch(`/api/travel-segments/${travelSegment.id}`)
-          .send({ isPrimaryDestination: true })
 
         // Assert
         expect(response.status).toEqual(403)

@@ -13,6 +13,7 @@ import {
   mountWithDefaultPlugins,
 } from "@/tests/support"
 
+import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
 import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/TripDetailsEstimatesEditForm.vue"
 import TravelSegmentsAttributesRoundTripSection from "@/components/travel-segments/TravelSegmentsAttributesRoundTripSection.vue"
 
@@ -71,6 +72,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       })
       expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        estimatedPrimaryDestinationId: null,
         travelDurationEstimate: 1,
         daysOffTravelStatusEstimate: 0,
         dateBackToWorkEstimate: "2026-11-14",
@@ -78,7 +80,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       })
     })
 
-    test("when an earlier arrival is selected, saves its estimate marker without changing endpoints", async () => {
+    test("when an earlier arrival is selected, saves its estimate city without changing endpoints", async () => {
       // Arrange
       const travelSegment1 = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -138,18 +140,18 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       await flushPromises()
 
       // Act
-      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 0)
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 2)
       await flushPromises()
       await wrapper.vm.save()
 
       // Assert
       const expectedSegment1 = omit(travelSegment1, ["createdAt", "updatedAt"])
-      expectedSegment1.isPrimaryDestination = true
       const expectedSegment2 = omit(travelSegment2, ["createdAt", "updatedAt"])
       const expectedSegment3 = omit(travelSegment3, ["createdAt", "updatedAt"])
       expectedSegment3.accommodationType = null
       expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        estimatedPrimaryDestinationId: 2,
         travelDurationEstimate: 1,
         daysOffTravelStatusEstimate: 0,
         dateBackToWorkEstimate: "2026-11-14",
@@ -185,7 +187,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       expect(destinationUpdate).toEqual([null])
     })
 
-    test("when saving a round trip, automatically marks only the outbound arrival", async () => {
+    test("when saving a round trip, defaults to the outbound city", async () => {
       // Arrange
       const outboundSegment = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -239,10 +241,10 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
 
       // Assert
       const expectedOutbound = omit(outboundSegment, ["createdAt", "updatedAt"])
-      expectedOutbound.isPrimaryDestination = true
       const expectedReturn = omit(returnSegment, ["createdAt", "updatedAt"])
       expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
         tripTypeEstimate: TravelAuthorizationTripTypes.ROUND_TRIP,
+        estimatedPrimaryDestinationId: 2,
         travelDurationEstimate: 2,
         daysOffTravelStatusEstimate: 0,
         dateBackToWorkEstimate: "2026-11-14",
@@ -250,7 +252,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       })
     })
 
-    test("when saving a one-way trip, automatically marks its arrival", async () => {
+    test("when saving a one-way trip, defaults to its arrival city", async () => {
       // Arrange
       const outboundSegment = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -295,9 +297,9 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
 
       // Assert
       const expectedOutbound = omit(outboundSegment, ["createdAt", "updatedAt"])
-      expectedOutbound.isPrimaryDestination = true
       expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
         tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
+        estimatedPrimaryDestinationId: 2,
         travelDurationEstimate: 1,
         daysOffTravelStatusEstimate: 0,
         dateBackToWorkEstimate: "2026-11-14",
@@ -332,15 +334,149 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         segmentNumber: 1,
         departureLocationId: null,
         arrivalLocationId: null,
-        isPrimaryDestination: false,
       })
       const expectedReturn = expect.objectContaining({
         segmentNumber: 2,
         departureLocationId: null,
         arrivalLocationId: null,
-        isPrimaryDestination: false,
       })
       expect(initializedSegments).toEqual([expectedOutbound, expectedReturn])
+    })
+
+    test.each([
+      { condition: "without a new choice", selectedCity: null },
+      { condition: "with a new explicit city", selectedCity: 2 },
+    ])("when multi-city $condition, saves the explicit choice", async (scenario) => {
+      const { selectedCity } = scenario
+
+      // Arrange
+      const outboundSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        departureLocationId: 1,
+        arrivalLocationId: 2,
+        departureOn: "2026-11-12",
+        departureTime: "09:00",
+        accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+      })
+      const returnSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 2,
+        departureLocationId: 2,
+        arrivalLocationId: 1,
+        departureOn: "2026-11-12",
+        departureTime: "09:00",
+      })
+      const travelSegments = [outboundSegment, returnSegment]
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeEstimate: TravelAuthorizationTripTypes.ROUND_TRIP,
+        estimatedPrimaryDestinationId: 2,
+        daysOffTravelStatusEstimate: 0,
+        dateBackToWorkEstimate: "2026-11-14",
+        travelSegments,
+      })
+      const httpClient = mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/travel-segments": () => ({ travelSegments, totalCount: 2 }),
+        "/api/locations": () => ({ locations: [], totalCount: 0 }),
+      })
+      httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+      const router = mockRouter([
+        {
+          path: "/",
+          name: "TripDetailsEstimatesEditFormTest",
+          component: TripDetailsEstimatesEditForm,
+        },
+      ])
+      await router.push("/")
+      await router.isReady()
+      const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
+        props: { travelAuthorizationId: 5 },
+        global: { plugins: [router] },
+      })
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+
+      // Act
+      wrapper
+        .getComponent(TripTypeRadioGroup)
+        .vm.$emit("update:modelValue", TravelAuthorizationTripTypes.MULTI_CITY)
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+      if (selectedCity !== null) {
+        wrapper.getComponent(VSelect).vm.$emit("update:modelValue", selectedCity)
+        await flushPromises()
+      }
+      await wrapper.vm.save()
+
+      // Assert
+      const expectedOutbound = omit(outboundSegment, ["createdAt", "updatedAt"])
+      const expectedReturn = omit(returnSegment, ["createdAt", "updatedAt"])
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        estimatedPrimaryDestinationId: selectedCity,
+        travelDurationEstimate: 1,
+        daysOffTravelStatusEstimate: 0,
+        dateBackToWorkEstimate: "2026-11-14",
+        travelSegmentEstimatesAttributes: [expectedOutbound, expectedReturn],
+      })
+    })
+
+    test("when itinerary loading finishes after authorization loading, preserves the saved destination", async () => {
+      // Arrange
+      const firstSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        departureLocationId: 1,
+        arrivalLocationId: 2,
+        isActual: false,
+      })
+      const secondSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 2,
+        departureLocationId: 2,
+        arrivalLocationId: 1,
+        isActual: false,
+      })
+      const travelSegments = [firstSegment, secondSegment]
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        estimatedPrimaryDestinationId: 2,
+        travelSegments,
+      })
+      const { promise: segmentsReady, resolve: releaseSegments } = Promise.withResolvers<void>()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/travel-segments": async () => {
+          await segmentsReady
+          return { travelSegments, totalCount: 2 }
+        },
+        "/api/locations": () => ({ locations: [], totalCount: 0 }),
+      })
+      const router = mockRouter()
+      await router.push("/")
+      const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
+        props: { travelAuthorizationId: 5 },
+        global: { plugins: [router] },
+      })
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+
+      // Act
+      releaseSegments()
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+
+      // Assert
+      const primaryDestination = wrapper.getComponent(VSelect)
+      expect(primaryDestination.props("modelValue")).toBe(2)
     })
   })
 })

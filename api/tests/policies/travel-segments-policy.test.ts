@@ -6,7 +6,7 @@ import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@
 describe("api/src/policies/travel-segments-policy.ts", () => {
   describe("TravelSegmentsPolicy", () => {
     describe("#update", () => {
-      test("when the traveller corrects a returned actual segment, it allows only the marker", () => {
+      test("when the traveller targets a returned actual segment, it denies route changes", () => {
         // Arrange
         const currentUser = userFactory.build({ id: 1 })
         const travelAuthorization = travelAuthorizationFactory.build({
@@ -19,18 +19,10 @@ describe("api/src/policies/travel-segments-policy.ts", () => {
         const policy = new TravelSegmentsPolicy(currentUser, travelSegment)
 
         // Act
-        const attributes = policy.permitAttributesForUpdate({
-          isPrimaryDestination: true,
-          arrivalLocationId: 99,
-          departureOn: "2020-01-01",
-          isActual: false,
-          travelAuthorizationId: 99,
-        })
+        const result = policy.update()
 
         // Assert
-        expect(attributes).toEqual({
-          isPrimaryDestination: true,
-        })
+        expect(result).toEqual(false)
       })
 
       test("when another traveller attempts the correction, it denies the update", () => {
@@ -100,19 +92,6 @@ describe("api/src/policies/travel-segments-policy.ts", () => {
 
         // Assert
         expect(attributes).toContain("id")
-      })
-
-      test("when mutating a travel segment, it permits an explicit primary destination flag", () => {
-        // Arrange
-        const currentUser = userFactory.build()
-        const travelSegment = travelSegmentFactory.build()
-        const policy = new TravelSegmentsPolicy(currentUser, travelSegment)
-
-        // Act
-        const attributes = policy.permittedAttributes()
-
-        // Assert
-        expect(attributes).toContain("isPrimaryDestination")
       })
     })
   })

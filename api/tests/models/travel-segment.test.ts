@@ -6,35 +6,6 @@ import { stopFactory, travelAuthorizationFactory, travelSegmentFactory } from "@
 
 describe("api/src/models/travel-segment.ts", () => {
   describe("TravelSegment", () => {
-    describe("#validate", () => {
-      test("when a marked segment has no arrival, it rejects the selection", async () => {
-        // Arrange
-        const travelSegment = travelSegmentFactory.build({
-          arrivalLocationId: null,
-          isPrimaryDestination: true,
-        })
-
-        // Act
-        const result = travelSegment.validate()
-
-        // Assert
-        await expect(result).rejects.toThrow("Primary destination requires an arrival location.")
-      })
-    })
-
-    describe("#save", () => {
-      test("when the flag is omitted from an existing-style record, it persists false", async () => {
-        // Arrange
-        const attributes = { isPrimaryDestination: undefined }
-
-        // Act
-        const travelSegment = await travelSegmentFactory.create(attributes)
-
-        // Assert
-        expect((await travelSegment.reload()).isPrimaryDestination).toEqual(false)
-      })
-    })
-
     describe(".buildFromStops", () => {
       test("when the params are valid, builds the correct travel segment", async () => {
         // Arrange

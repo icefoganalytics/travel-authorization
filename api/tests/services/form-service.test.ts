@@ -1,7 +1,12 @@
 import { TravelAuthorization } from "@/models"
 import FormService from "@/services/form-service"
 
-import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+  userFactory,
+} from "@/factories"
 
 describe("api/src/services/form-service.ts", () => {
   describe("FormService", () => {
@@ -9,17 +14,19 @@ describe("api/src/services/form-service.ts", () => {
       test("when a legacy multi-city request has a selected arrival, it permits submission", async () => {
         // Arrange
         const currentUser = await userFactory.create()
+        const primaryDestination = await locationFactory.create()
         const travelAuthorization = await travelAuthorizationFactory
           .associations({ user: currentUser })
           .create({
             status: TravelAuthorization.Statuses.DRAFT,
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+            estimatedPrimaryDestinationId: primaryDestination.id,
           })
         await travelSegmentFactory
           .associations({ travelAuthorization })
           .create({
             isActual: false,
-            isPrimaryDestination: true,
+            arrivalLocationId: primaryDestination.id,
           })
         const travelAuthorizationAttributes = travelAuthorization.get()
         const attributes = {
@@ -50,7 +57,6 @@ describe("api/src/services/form-service.ts", () => {
           .associations({ travelAuthorization })
           .create({
             isActual: false,
-            isPrimaryDestination: false,
           })
         const travelAuthorizationAttributes = travelAuthorization.get()
         const attributes = {

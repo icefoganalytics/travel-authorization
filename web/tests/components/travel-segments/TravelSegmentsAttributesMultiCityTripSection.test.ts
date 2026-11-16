@@ -1,8 +1,9 @@
 import { flushPromises } from "@vue/test-utils"
+import { omit } from "lodash"
 import { VSelect } from "vuetify/components"
 
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
-import { type TravelSegment } from "@/api/travel-segments-api"
+import { TravelSegmentAccommodationTypes } from "@/api/travel-segments-api"
 
 import { travelSegmentFactory } from "@/tests/factories"
 import { mockHttpGetRoute, mountWithDefaultPlugins } from "@/tests/support"
@@ -13,252 +14,9 @@ import TravelSegmentsAttributesMultiCityTripSection from "@/components/travel-se
 
 describe("web/src/components/travel-segments/TravelSegmentsAttributesMultiCityTripSection.vue", () => {
   describe("TravelSegmentsAttributesMultiCityTripSection", () => {
-    test("when an old multi-city route is opened, leaves its primary destination unconfirmed", async () => {
+    test("when a draft is opened, leaves the destination unconfirmed", async () => {
       // Arrange
       const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
-      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
-      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
-        props: {
-          travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
-          currentTravelSegments: travelSegments,
-        },
-      })
-
-      // Act
-      await flushPromises()
-
-      // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const primaryDestinationFlags = updatedSegments.map((segment) => segment.isPrimaryDestination)
-      expect(primaryDestinationFlags).toEqual([false, false, false])
-    })
-
-    test("when the traveller accepts the suggestion, confirms the suggested arrival", async () => {
-      // Arrange
-      const outboundSegment = travelSegmentFactory.build({
-        departureLocationId: 1,
-        arrivalLocationId: 2,
-      })
-      const returnSegment = travelSegmentFactory.build({
-        departureLocationId: 2,
-        arrivalLocationId: 1,
-      })
-      const travelSegments = [outboundSegment, returnSegment]
-      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
-      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
-        props: {
-          travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
-          currentTravelSegments: travelSegments,
-        },
-      })
-      await flushPromises()
-
-      // Act
-      const suggestionButton = wrapper.findAll("button").find((button) => {
-        return button.text().includes("Use suggested arrival")
-      })
-      if (!suggestionButton) throw new Error("Suggested arrival button is missing")
-
-      await suggestionButton.trigger("click")
-      await flushPromises()
-
-      // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const primaryDestinationFlags = updatedSegments.map((segment) => segment.isPrimaryDestination)
-      expect(primaryDestinationFlags).toEqual([true, false])
-    })
-
-    test("when an earlier leg is chosen, marks only that leg without rewriting endpoints", async () => {
-      // Arrange
-      const travelSegment1 = travelSegmentFactory.build({
-        departureLocationId: 1,
-        arrivalLocationId: 2,
-      })
-      const travelSegment2 = travelSegmentFactory.build({
-        departureLocationId: 2,
-        arrivalLocationId: 3,
-      })
-      const travelSegment3 = travelSegmentFactory.build({
-        departureLocationId: 3,
-        arrivalLocationId: 1,
-      })
-      const travelSegments = [travelSegment1, travelSegment2, travelSegment3]
-      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
-      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
-        props: {
-          travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
-          currentTravelSegments: travelSegments,
-        },
-      })
-      await flushPromises()
-
-      // Act
-      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 0)
-      await flushPromises()
-
-      // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const expectedSegment1 = expect.objectContaining({
-        departureLocationId: 1,
-        arrivalLocationId: 2,
-        isPrimaryDestination: true,
-      })
-      const expectedSegment2 = expect.objectContaining({
-        departureLocationId: 2,
-        arrivalLocationId: 3,
-        isPrimaryDestination: false,
-      })
-      const expectedSegment3 = expect.objectContaining({
-        departureLocationId: 3,
-        arrivalLocationId: 1,
-        isPrimaryDestination: false,
-      })
-      expect(updatedSegments).toEqual([expectedSegment1, expectedSegment2, expectedSegment3])
-    })
-
-    test("when the selected arrival changes, clears confirmation without selecting a replacement", async () => {
-      // Arrange
-      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
-      travelSegments[1].isPrimaryDestination = true
-      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
-      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
-        props: {
-          travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
-          currentTravelSegments: travelSegments,
-        },
-      })
-      await flushPromises()
-
-      // Act
-      const selectedArrival = wrapper.findAllComponents(LocationsAutocomplete)[3]
-      selectedArrival.vm.$emit("update:modelValue", 4)
-      await flushPromises()
-
-      // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const primaryDestinationFlags = updatedSegments.map((segment) => segment.isPrimaryDestination)
-      expect(primaryDestinationFlags).toEqual([false, false, false])
-    })
-
-    test("when a connection edit changes the selected arrival, clears its confirmation", async () => {
-      // Arrange
-      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
-      travelSegments[1].isPrimaryDestination = true
-      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
-      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
-        props: {
-          travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
-          currentTravelSegments: travelSegments,
-        },
-      })
-      await flushPromises()
-
-      // Act
-      const nextDeparture = wrapper.findAllComponents(LocationsAutocomplete)[4]
-      nextDeparture.vm.$emit("update:modelValue", 4)
-      await flushPromises()
-
-      // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const primaryDestinationFlags = updatedSegments.map((segment) => segment.isPrimaryDestination)
-      expect(primaryDestinationFlags).toEqual([false, false, false])
-    })
-
-    test("when the selected leg is removed, does not select another arrival", async () => {
-      // Arrange
-      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
-      travelSegments[1].isPrimaryDestination = true
-      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
-      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
-        props: {
-          travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
-          currentTravelSegments: travelSegments,
-        },
-      })
-      await flushPromises()
-
-      // Act
-      await wrapper.get('button[title="Remove leg"]').trigger("click")
-      await flushPromises()
-
-      // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const primaryDestinationFlags = updatedSegments.map((segment) => segment.isPrimaryDestination)
-      expect(primaryDestinationFlags).toEqual([false, false])
-    })
-
-    test("when an unrelated departure time changes, preserves the selected arrival", async () => {
-      // Arrange
-      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
-      travelSegments[1].isPrimaryDestination = true
-      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
-      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
-        props: {
-          travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
-          currentTravelSegments: travelSegments,
-        },
-      })
-      await flushPromises()
-
-      // Act
-      const selectedLegTime = wrapper.findAllComponents(TimeTextField)[1]
-      selectedLegTime.vm.$emit("update:modelValue", "12:30")
-      await flushPromises()
-
-      // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const primaryDestinationFlags = updatedSegments.map((segment) => segment.isPrimaryDestination)
-      expect(primaryDestinationFlags).toEqual([false, true, false])
-    })
-
-    test("when saved legs are reordered, keeps the marker on the same arrival leg", async () => {
-      // Arrange
-      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
-      travelSegments[1].isPrimaryDestination = true
-      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
-      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
-        props: {
-          travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
-          currentTravelSegments: travelSegments,
-        },
-      })
-      await flushPromises()
-
-      // Act
-      await wrapper.setProps({
-        currentTravelSegments: [travelSegments[2], travelSegments[0], travelSegments[1]],
-      })
-      await flushPromises()
-
-      // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const expectedSegment1 = expect.objectContaining({
-        id: travelSegments[2].id,
-        isPrimaryDestination: false,
-      })
-      const expectedSegment2 = expect.objectContaining({
-        id: travelSegments[0].id,
-        isPrimaryDestination: false,
-      })
-      const expectedSegment3 = expect.objectContaining({
-        id: travelSegments[1].id,
-        isPrimaryDestination: true,
-      })
-      expect(updatedSegments).toEqual([expectedSegment1, expectedSegment2, expectedSegment3])
-    })
-
-    test("when a saved marked route is loaded, displays its existing choice", async () => {
-      // Arrange
-      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
-      travelSegments[1].isPrimaryDestination = true
       mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
       const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
         props: {
@@ -273,19 +31,177 @@ describe("web/src/components/travel-segments/TravelSegmentsAttributesMultiCityTr
 
       // Assert
       const primaryDestination = wrapper.getComponent(VSelect)
-      expect(primaryDestination.props("modelValue")).toBe(1)
+      expect(primaryDestination.props("modelValue")).toBeNull()
     })
 
-    test("when the primary destination is cleared, leaves the draft unconfirmed", async () => {
+    test("when arrivals repeat, offers each city once", async () => {
       // Arrange
       const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
-      travelSegments[1].isPrimaryDestination = true
       mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
       const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
         props: {
           travelAuthorizationId: 5,
-          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
           currentTravelSegments: travelSegments,
+        },
+      })
+
+      // Act
+      await flushPromises()
+
+      // Assert
+      const primaryDestination = wrapper.getComponent(VSelect)
+      expect(primaryDestination.props("items")).toEqual([{ title: "Arrival city", value: 2 }])
+    })
+
+    test("when the traveller accepts a suggestion, emits its location identity", async () => {
+      // Arrange
+      const outboundSegment = travelSegmentFactory.build({
+        departureLocationId: 1,
+        arrivalLocationId: 2,
+      })
+      const returnSegment = travelSegmentFactory.build({
+        departureLocationId: 2,
+        arrivalLocationId: 1,
+      })
+      const travelSegments = [outboundSegment, returnSegment]
+      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
+      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
+        props: { travelAuthorizationId: 5, currentTravelSegments: travelSegments },
+      })
+      await flushPromises()
+
+      // Act
+      const suggestionButton = wrapper.findAll("button").find((button) => {
+        return button.text().includes("Use suggested destination")
+      })
+      if (!suggestionButton) throw new Error("Suggested destination button is missing")
+
+      await suggestionButton.trigger("click")
+      await flushPromises()
+
+      // Assert
+      const destinationUpdate = wrapper.emitted("update:primaryDestinationLocationId")
+      expect(destinationUpdate).toEqual([[2]])
+    })
+
+    test("when a city is selected, leaves every itinerary attribute unchanged", async () => {
+      // Arrange
+      const outboundSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        departureLocationId: 1,
+        arrivalLocationId: 2,
+      })
+      const returnSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 2,
+        departureLocationId: 2,
+        arrivalLocationId: 1,
+      })
+      const travelSegments = [outboundSegment, returnSegment]
+      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
+      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
+        props: { travelAuthorizationId: 5, currentTravelSegments: travelSegments },
+      })
+      await flushPromises()
+
+      // Act
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", 2)
+      await flushPromises()
+
+      // Assert
+      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0]
+      const expectedOutbound = omit(outboundSegment, ["createdAt", "updatedAt"])
+      expectedOutbound.accommodationType = TravelSegmentAccommodationTypes.HOTEL
+      const expectedReturn = omit(returnSegment, ["createdAt", "updatedAt"])
+      expect(updatedSegments).toEqual([expectedOutbound, expectedReturn])
+    })
+
+    test.each([
+      {
+        condition: "the last matching arrival changes",
+        repeatedArrival: 3,
+        expectedUpdates: [[null]],
+      },
+      {
+        condition: "another arrival still matches",
+        repeatedArrival: 2,
+        expectedUpdates: undefined,
+      },
+    ])("when $condition, invalidates only an absent city", async (scenario) => {
+      const { repeatedArrival, expectedUpdates } = scenario
+
+      // Arrange
+      const firstSegment = travelSegmentFactory.build({ arrivalLocationId: 2 })
+      const secondSegment = travelSegmentFactory.build({ arrivalLocationId: repeatedArrival })
+      const travelSegments = [firstSegment, secondSegment]
+      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
+      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
+        props: {
+          travelAuthorizationId: 5,
+          currentTravelSegments: travelSegments,
+          primaryDestinationLocationId: 2,
+        },
+      })
+      await flushPromises()
+
+      // Act
+      const firstArrival = wrapper.findAllComponents(LocationsAutocomplete)[1]
+      firstArrival.vm.$emit("update:modelValue", 4)
+      await flushPromises()
+
+      // Assert
+      const destinationUpdates = wrapper.emitted("update:primaryDestinationLocationId")
+      expect(destinationUpdates).toEqual(expectedUpdates)
+    })
+
+    test.each([
+      {
+        condition: "the last matching arrival is removed",
+        remainingArrival: 3,
+        expectedUpdates: [[null]],
+      },
+      {
+        condition: "a repeated arrival remains after removal",
+        remainingArrival: 2,
+        expectedUpdates: undefined,
+      },
+    ])("when $condition, preserves only cities still present", async (scenario) => {
+      const { remainingArrival, expectedUpdates } = scenario
+
+      // Arrange
+      const firstSegment = travelSegmentFactory.build({ arrivalLocationId: remainingArrival })
+      const selectedSegment = travelSegmentFactory.build({ arrivalLocationId: 2 })
+      const finalSegment = travelSegmentFactory.build({ arrivalLocationId: 1 })
+      const travelSegments = [firstSegment, selectedSegment, finalSegment]
+      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
+      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
+        props: {
+          travelAuthorizationId: 5,
+          currentTravelSegments: travelSegments,
+          primaryDestinationLocationId: 2,
+        },
+      })
+      await flushPromises()
+
+      // Act
+      await wrapper.get('button[title="Remove leg"]').trigger("click")
+      await flushPromises()
+
+      // Assert
+      const destinationUpdates = wrapper.emitted("update:primaryDestinationLocationId")
+      expect(destinationUpdates).toEqual(expectedUpdates)
+    })
+
+    test("when a saved city is cleared, emits an unconfirmed destination", async () => {
+      // Arrange
+      const travelSegments = travelSegmentFactory.buildList(2, { arrivalLocationId: 2 })
+      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
+      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
+        props: {
+          travelAuthorizationId: 5,
+          currentTravelSegments: travelSegments,
+          primaryDestinationLocationId: 2,
         },
       })
       await flushPromises()
@@ -295,9 +211,52 @@ describe("web/src/components/travel-segments/TravelSegmentsAttributesMultiCityTr
       await flushPromises()
 
       // Assert
-      const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0] as TravelSegment[]
-      const primaryDestinationFlags = updatedSegments.map((segment) => segment.isPrimaryDestination)
-      expect(primaryDestinationFlags).toEqual([false, false, false])
+      const destinationUpdates = wrapper.emitted("update:primaryDestinationLocationId")
+      expect(destinationUpdates).toEqual([[null]])
+    })
+
+    test.each([
+      {
+        condition: "a connection edit removes the city",
+        action: "connection",
+        expectedUpdates: [[null]],
+      },
+      { condition: "the route is reordered", action: "reorder", expectedUpdates: undefined },
+      { condition: "a departure time changes", action: "time", expectedUpdates: undefined },
+    ])("when $condition, preserves only a matching city", async (scenario) => {
+      const { action, expectedUpdates } = scenario
+
+      // Arrange
+      const firstSegment = travelSegmentFactory.build({ arrivalLocationId: 2 })
+      const secondSegment = travelSegmentFactory.build({ arrivalLocationId: 3 })
+      const finalSegment = travelSegmentFactory.build({ arrivalLocationId: 1 })
+      const travelSegments = [firstSegment, secondSegment, finalSegment]
+      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
+      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
+        props: {
+          travelAuthorizationId: 5,
+          currentTravelSegments: travelSegments,
+          primaryDestinationLocationId: 2,
+        },
+      })
+      await flushPromises()
+
+      // Act
+      if (action === "connection") {
+        const nextDeparture = wrapper.findAllComponents(LocationsAutocomplete)[2]
+        nextDeparture.vm.$emit("update:modelValue", 4)
+      } else if (action === "time") {
+        wrapper.getComponent(TimeTextField).vm.$emit("update:modelValue", "12:30")
+      } else {
+        await wrapper.setProps({
+          currentTravelSegments: [finalSegment, firstSegment, secondSegment],
+        })
+      }
+      await flushPromises()
+
+      // Assert
+      const destinationUpdates = wrapper.emitted("update:primaryDestinationLocationId")
+      expect(destinationUpdates).toEqual(expectedUpdates)
     })
   })
 })
