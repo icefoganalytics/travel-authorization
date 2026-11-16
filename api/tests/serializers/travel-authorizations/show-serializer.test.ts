@@ -202,7 +202,10 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "purpose",
             "stops",
             "travelDeskTravelRequest",
-            "travelSegments",
+            {
+              association: "travelSegments",
+              include: ["departureLocation", "arrivalLocation"],
+            },
             "user",
           ])
           .create({

@@ -19,6 +19,15 @@ export class DetermineFinalDestinationService extends BaseService {
       throw new Error("Expected travelSegments association to be pre-loaded.")
     }
 
+    for (const travelSegment of travelSegments) {
+      if (
+        isUndefined(travelSegment.departureLocation) ||
+        isUndefined(travelSegment.arrivalLocation)
+      ) {
+        throw new Error("Expected travel segment locations to be pre-loaded.")
+      }
+    }
+
     const useActuals = !isNil(tripTypeActual)
     const destinationTravelSegments = travelSegments.filter(
       (travelSegment) => travelSegment.isActual === useActuals
@@ -39,10 +48,6 @@ export class DetermineFinalDestinationService extends BaseService {
       firstTravelSegment.departureLocationId === lastTravelSegment.arrivalLocationId
     ) {
       finalDestinationLocation = penultimateTravelSegment.arrivalLocation
-    }
-
-    if (isUndefined(finalDestinationLocation)) {
-      throw new Error("Expected travel segment locations to be pre-loaded.")
     }
 
     if (isNil(finalDestinationLocation)) return null
