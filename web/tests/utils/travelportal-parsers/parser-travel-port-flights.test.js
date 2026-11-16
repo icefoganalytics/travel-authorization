@@ -323,9 +323,13 @@ describe("web/src/utils/travel-port-parsers/parser-travel-port-flights.js", () =
         ],
       },
     ])("when given raw example %#, parses it correctly", ({ text, expected }) => {
+      // Arrange
       const dedentedText = simpleDedent(text)
+
+      // Act
       const result = parseTravelportalFlights(dedentedText)
 
+      // Assert
       expect(result).toEqual(expected)
     })
   })
