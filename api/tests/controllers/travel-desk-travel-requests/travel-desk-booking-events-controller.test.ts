@@ -126,22 +126,22 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 940001,
           recordLocator: "SRC001",
-          databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
+          externalCreatedAt: new Date("2030-01-02T12:00:00Z"),
         })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 940002,
           recordLocator: "SRC001",
-          databaseTimestamp: new Date("2030-01-02T12:00:00Z"),
+          externalCreatedAt: new Date("2030-01-02T12:00:00Z"),
         })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 940003,
           recordLocator: "SRC001",
-          databaseTimestamp: new Date("2030-01-01T12:00:00Z"),
+          externalCreatedAt: new Date("2030-01-01T12:00:00Z"),
         })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 940004,
           recordLocator: "OTHER1",
-          databaseTimestamp: new Date("2030-01-03T12:00:00Z"),
+          externalCreatedAt: new Date("2030-01-03T12:00:00Z"),
         })
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(
           new Error("Source must not be read while browsing the cache")

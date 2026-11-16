@@ -8,7 +8,7 @@ describe("api/src/serializers/travel-desk-booking-events/index-serializer.ts", (
       test("when timestamps include an offset and an absent value, it returns UTC instants and null", () => {
         // Arrange
         const bookingEvent = travelDeskBookingEventFactory.build({
-          databaseTimestamp: new Date("2030-01-01T05:00:00.123-07:00"),
+          externalCreatedAt: new Date("2030-01-01T05:00:00.123-07:00"),
           hostEventTimestamp: null,
           passengerNameRecordCreatedAt: new Date("2030-01-01T04:00:00.000-07:00"),
         })
@@ -18,7 +18,7 @@ describe("api/src/serializers/travel-desk-booking-events/index-serializer.ts", (
 
         // Assert
         expect(result).toMatchObject({
-          databaseTimestamp: "2030-01-01T12:00:00.123Z",
+          externalCreatedAt: "2030-01-01T12:00:00.123Z",
           hostEventTimestamp: null,
           passengerNameRecordCreatedAt: "2030-01-01T11:00:00.000Z",
         })
@@ -27,7 +27,7 @@ describe("api/src/serializers/travel-desk-booking-events/index-serializer.ts", (
       test("when timestamps are invalid, it returns null without losing the booking event", () => {
         // Arrange
         const bookingEvent = travelDeskBookingEventFactory.build()
-        bookingEvent.setDataValue("databaseTimestamp", new Date(NaN))
+        bookingEvent.setDataValue("externalCreatedAt", new Date(NaN))
         bookingEvent.setDataValue("hostEventTimestamp", new Date(NaN))
 
         // Act
@@ -36,7 +36,7 @@ describe("api/src/serializers/travel-desk-booking-events/index-serializer.ts", (
         // Assert
         expect(result).toMatchObject({
           recordLocator: bookingEvent.recordLocator,
-          databaseTimestamp: null,
+          externalCreatedAt: null,
           hostEventTimestamp: null,
         })
       })

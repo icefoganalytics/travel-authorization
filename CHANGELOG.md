@@ -45,7 +45,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 - Concurrent invoice saves and product-category deletion cannot leave saved invoice lines referencing a deleted category.
 - Deleting an invoice during an overlapping edit also deletes its replacement lines.
-- Booking history lists newest source events first with stable pagination. Unknown locators return no matches without imposing a six-character format.
+- Booking history lists newest externally created events first with stable pagination, using `externalCreatedAt` separately from local creation time. Unknown locators return no matches without imposing a six-character format.
 - Rental-car requests match flight dates and times on both new and edit forms. Matched fields remain readable and show a lock icon. Turning matching off restores the previous manual schedule, or blank dates and noon times for a new request without manual entries. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.
 - Read-only date fields no longer open the calendar picker when clicked, while preserving caller-supplied menu options.
 - Multi-city trips returning to their starting location show the destination before the return leg in summaries and request lists. Saving Purpose preserves the return-home itinerary.
