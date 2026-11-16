@@ -32,7 +32,10 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
 
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
-      const order = this.buildOrder([["externalTravelPortIdentifier", "ASC"]])
+      const order = this.buildOrder([
+        ["databaseTimestamp", "DESC"],
+        ["id", "DESC"],
+      ])
       const scopedTravelDeskBookingEvents = TravelDeskBookingEvent.withScope(scopes)
 
       const totalCount = await scopedTravelDeskBookingEvents.count({ where })
