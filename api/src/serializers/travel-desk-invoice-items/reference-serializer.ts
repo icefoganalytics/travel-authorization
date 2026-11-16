@@ -3,7 +3,7 @@ import BaseSerializer from "@/serializers/base-serializer"
 
 export type TravelDeskInvoiceItemAsReference = {
   id: number
-  travelDeskProductTypeId: number
+  productType: TravelDeskInvoiceItem["productType"]
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
   sourceServiceFeeEventId: number | null
@@ -14,31 +14,13 @@ export type TravelDeskInvoiceItemAsReference = {
   saleType: "Sale" | "Refund" | "Void"
   grossAmount: string
   position: number
-  productType: {
-    id: number
-    code: string
-    name: string
-    description: string | null
-  }
 }
 
 export class ReferenceSerializer extends BaseSerializer<TravelDeskInvoiceItem> {
   perform(): TravelDeskInvoiceItemAsReference {
-    const { productType } = this.record
-    if (!productType) {
-      throw new Error("Expected invoice item product type to be preloaded.")
-    }
-
-    const serializedProductType = {
-      id: productType.id,
-      code: productType.code,
-      name: productType.name,
-      description: productType.description,
-    }
-
     return {
       id: this.record.id,
-      travelDeskProductTypeId: this.record.travelDeskProductTypeId,
+      productType: this.record.productType,
       travelDeskFlightSegmentId: this.record.travelDeskFlightSegmentId,
       sourceAirSegmentNumber: this.record.sourceAirSegmentNumber,
       sourceServiceFeeEventId: this.record.sourceServiceFeeEventId,
@@ -49,7 +31,6 @@ export class ReferenceSerializer extends BaseSerializer<TravelDeskInvoiceItem> {
       saleType: this.record.saleType,
       grossAmount: this.record.grossAmount,
       position: this.record.position,
-      productType: serializedProductType,
     }
   }
 }

@@ -58,7 +58,7 @@ export async function createInvoiceItems(
 
     return {
       travelDeskInvoiceId: invoiceId,
-      travelDeskProductTypeId: item.travelDeskProductTypeId,
+      productType: item.productType,
       travelDeskFlightSegmentId: item.travelDeskFlightSegmentId ?? null,
       sourceAirSegmentNumber: item.sourceAirSegmentNumber ?? null,
       sourceServiceFeeEventId: item.sourceServiceFeeEventId ?? null,

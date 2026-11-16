@@ -19,7 +19,6 @@ export { TravelDeskFlightSegmentsPolicy } from "./travel-desk-flight-segments-po
 export { TravelDeskHotelsPolicy } from "./travel-desk-hotels-policy"
 export { TravelDeskInvoicesPolicy } from "./travel-desk-invoices-policy"
 export { TravelDeskOtherTransportationsPolicy } from "./travel-desk-other-transportations-policy"
-export { TravelDeskProductTypesPolicy } from "./travel-desk-product-types-policy"
 export { TravelDeskQuestionsPolicy } from "./travel-desk-questions-policy"
 export { TravelDeskRentalCarsPolicy } from "./travel-desk-rental-cars-policy"
 export { TravelDeskTravelAgenciesPolicy } from "./travel-desk-travel-agencies-policy"

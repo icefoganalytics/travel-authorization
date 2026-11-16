@@ -39,7 +39,6 @@ import {
   TravelDeskFlightSegmentsController,
   TravelDeskHotelsController,
   TravelDeskOtherTransportationsController,
-  TravelDeskProductTypesController,
   TravelDeskQuestionsController,
   TravelDeskRentalCarsController,
   TravelDeskTravelAgenciesController,
@@ -335,16 +334,6 @@ router
   .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events")
   .get(TravelDeskTravelRequests.TravelDeskBookingEventsController.index)
   .post(TravelDeskTravelRequests.TravelDeskBookingEventsController.create)
-
-router
-  .route("/api/travel-desk-product-types")
-  .get(TravelDeskProductTypesController.index)
-  .post(TravelDeskProductTypesController.create)
-router
-  .route("/api/travel-desk-product-types/:travelDeskProductTypeId")
-  .get(TravelDeskProductTypesController.show)
-  .patch(TravelDeskProductTypesController.update)
-  .delete(TravelDeskProductTypesController.destroy)
 
 router.route("/api/locations").get(LocationsController.index)
 router.route("/api/locations/:locationId").get(LocationsController.show)

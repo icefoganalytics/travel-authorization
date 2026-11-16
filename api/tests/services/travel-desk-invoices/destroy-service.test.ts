@@ -10,7 +10,6 @@ import { UpdateService } from "@/services/travel-desk-invoices/update-service"
 import {
   travelDeskInvoiceFactory,
   travelDeskInvoiceItemFactory,
-  travelDeskProductTypeFactory,
 } from "@/factories"
 
 describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
@@ -19,8 +18,7 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
       test("when deletion overlaps an invoice edit, it also deletes the replacement lines", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "1.000" })
-        const air = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
-        await travelDeskInvoiceItemFactory.associations({ invoice, productType: air }).create({
+        await travelDeskInvoiceItemFactory.associations({ invoice }).create({
           sourceAirSegmentNumber: 1,
           grossAmount: "1.000",
         })
@@ -31,7 +29,7 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
             currencyCode: "CAD",
             items: [
               {
-                travelDeskProductTypeId: air.id,
+                productType: "air",
                 sourceAirSegmentNumber: 1,
                 saleType: "Sale",
                 grossAmount: "2.000",
@@ -78,11 +76,9 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create()
         const sourceSnapshot = invoice.sourceSnapshot
-        const productType = await travelDeskProductTypeFactory.create()
         const item = await travelDeskInvoiceItemFactory
           .associations({
             invoice,
-            productType,
           })
           .create()
 
@@ -117,11 +113,9 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
       test("when deleting the invoice fails, it leaves its lines active", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create()
-        const productType = await travelDeskProductTypeFactory.create()
         const item = await travelDeskInvoiceItemFactory
           .associations({
             invoice,
-            productType,
           })
           .create()
         vi.spyOn(invoice, "destroy").mockRejectedValue(new Error("Invoice deletion failed."))

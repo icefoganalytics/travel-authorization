@@ -115,12 +115,7 @@ export class CreateService extends BaseService {
       await createInvoiceItems(invoice.id, items)
 
       return invoice.reload({
-        include: [
-          {
-            association: "items",
-            include: ["productType"],
-          },
-        ],
+        include: ["items"],
       })
     })
   }
