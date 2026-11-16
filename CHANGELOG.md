@@ -43,6 +43,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - API test factories use Factory Shark for Sequelize fixtures, lists, request attributes, parent relationships, and eager loading without local persistence or reload helpers. TravCom city fixtures preserve the external database's keyless schema.
 - Invoice migrations use model-owned sale types and standard foreign-key declarations; invoice amounts use native decimal validation, and booking lookups use exact query conditions.
 - Invoice APIs identify the external booking event explicitly as `externalBookingEventIdentifier`.
+- Local booking and invoice APIs use `bookingReference`; Travelport source fields retain their original names.
 
 ### Fixed
 
