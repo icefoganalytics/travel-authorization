@@ -16,9 +16,6 @@ export class SubmitStatePolicy extends GenericStatePolicy {
     const attributes: Path[] = super.permittedAttributes()
 
     if (this.user.isAdmin || this.record.supervisorEmail === this.user.email) {
-      const travelSegmentEstimatesAttributes =
-        this.travelSegmentsPolicy.permittedAttributesForBulkReplace()
-
       attributes.push(
         "preApprovalProfileId",
         "purposeId",
@@ -46,7 +43,8 @@ export class SubmitStatePolicy extends GenericStatePolicy {
         "travelAdvanceInCents",
         "allTravelWithinTerritory",
         {
-          travelSegmentEstimatesAttributes,
+          travelSegmentEstimatesAttributes:
+            this.travelSegmentsPolicy.permittedAttributesForBulkReplace(),
         }
       )
     }
