@@ -132,8 +132,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         })
       }
 
-      const travelDeskInvoice = TravelDeskInvoice.build()
-      const travelDeskInvoicePolicy = this.buildPolicy(travelDeskInvoice)
+      const travelDeskInvoicePolicy = this.buildPolicy()
       if (!travelDeskInvoicePolicy.create()) {
         return this.response.status(403).json({
           message: "You are not authorized to create invoices for this travel request.",
@@ -280,7 +279,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
     )
   }
 
-  private buildPolicy(travelDeskInvoice: TravelDeskInvoice): TravelDeskInvoicesPolicy {
+  private buildPolicy(
+    travelDeskInvoice: TravelDeskInvoice = TravelDeskInvoice.build()
+  ): TravelDeskInvoicesPolicy {
     return new TravelDeskInvoicesPolicy(this.currentUser, travelDeskInvoice)
   }
 }
