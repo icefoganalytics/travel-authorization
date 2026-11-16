@@ -1,7 +1,8 @@
 import { TravelAuthorization } from "@/models"
-import ShowSerializer from "@/serializers/travel-authorizations/show-serializer"
 
 import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
+
+import ShowSerializer from "@/serializers/travel-authorizations/show-serializer"
 
 describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
   describe("ShowSerializer", () => {

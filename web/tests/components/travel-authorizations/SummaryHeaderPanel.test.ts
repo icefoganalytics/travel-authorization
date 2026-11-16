@@ -8,7 +8,6 @@ import useCurrentUser from "@/use/use-current-user"
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import ConfirmActualTravelDetailsStep from "@/components/my-travel-request-wizard/ConfirmActualTravelDetailsStep.vue"
 import EditTripDetailsStep from "@/components/my-travel-request-wizard/EditTripDetailsStep.vue"
-import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 
 import {
   locationFactory,
@@ -16,6 +15,8 @@ import {
   travelSegmentFactory,
 } from "@/tests/factories"
 import { mockHttpGetRoutes, mockRouter, mockVuetify } from "@/tests/support"
+
+import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 
 describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () => {
   describe("SummaryHeaderPanel", () => {

@@ -4,10 +4,10 @@ import { VAutocomplete } from "vuetify/components"
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
 import { TravelSegmentTravelMethods } from "@/api/travel-segments-api"
 
-import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
-
 import { locationFactory, travelAuthorizationFactory } from "@/tests/factories"
 import { mockHttpClient, mockVuetify } from "@/tests/support"
+
+import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
 
 describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () => {
   describe("PurposeEditFormCard", () => {
