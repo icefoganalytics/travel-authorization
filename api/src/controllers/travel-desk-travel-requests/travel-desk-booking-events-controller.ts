@@ -1,4 +1,4 @@
-import { isNil, isString } from "lodash"
+import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
@@ -31,12 +31,6 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       }
 
       const recordLocator = this.query.recordLocator
-      if (!isString(recordLocator)) {
-        return this.response.status(422).json({
-          message: "Record locator must be a string.",
-        })
-      }
-
       const scopes = [{ method: ["byRecordLocator", recordLocator] }]
       const scopedTravelDeskBookingEvents = TravelDeskBookingEvent.withScope(scopes)
 
@@ -78,12 +72,6 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       }
 
       const { recordLocator } = this.request.body
-      if (!isString(recordLocator)) {
-        return this.response.status(422).json({
-          message: "Record locator must be a string.",
-        })
-      }
-
       await SyncService.perform(recordLocator)
       return this.response.status(204).send()
     } catch (error) {

@@ -85,9 +85,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           )
 
           // Assert
-          expect(response.status).toEqual(422)
+          expect(response.status).toEqual(400)
           expect(response.body).toEqual({
-            message: "Record locator must be a string.",
+            message: "Failed to load booking history.",
           })
         }
       )
@@ -229,9 +229,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
             .send({ recordLocator })
 
           // Assert
-          expect(response.status).toEqual(422)
+          expect(response.status).toEqual(400)
           expect(response.body).toEqual({
-            message: "Record locator must be a string.",
+            message: "Failed to sync booking history.",
           })
         }
       )
