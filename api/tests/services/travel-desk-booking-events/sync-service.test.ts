@@ -65,7 +65,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             externalTravelPortIdentifier: 910001,
             bookingFileVersionNumber: 8,
             eventType: "B",
-            recordLocator: "SRC001",
+            bookingReference: "SRC001",
             reservationSystemDescription: "Galileo",
             passengerNameRecordCreatedAt: new Date("2030-01-01T10:00:00.000Z"),
             creatingAgencyInternationalAirTransportAssociationNumber: "12345678",
@@ -115,7 +115,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         })
         const originalBookingEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 910001,
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
           bookingFileVersionNumber: 1,
         })
         await SyncService.perform("SRC001")
@@ -132,16 +132,16 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             id: originalBookingEvent.id,
             externalTravelPortIdentifier: 910001,
             bookingFileVersionNumber: 2,
-            recordLocator: "SRC001",
+            bookingReference: "SRC001",
           }),
         ])
       })
 
       test("when a case-variant locator has no source events, it deletes only that locator's cached events", async () => {
         // Arrange
-        await travelDeskBookingEventFactory.create({ recordLocator: "SRC001" })
+        await travelDeskBookingEventFactory.create({ bookingReference: "SRC001" })
         const unrelatedEvent = await travelDeskBookingEventFactory.create({
-          recordLocator: "OTHER1",
+          bookingReference: "OTHER1",
         })
 
         // Act
@@ -162,11 +162,11 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         })
         const retainedEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 910001,
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
         })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 910002,
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
         })
 
         // Act
@@ -182,7 +182,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         // Arrange
         const deletedEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 910001,
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
         })
         await deletedEvent.destroy()
         await travelPortMigrationClient("TravelOrderEvent").insert({
@@ -214,7 +214,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
       test("when the source scan fails, it preserves cached events", async () => {
         // Arrange
         const cachedEvent = await travelDeskBookingEventFactory.create({
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
         })
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(new Error("Source unavailable"))
 
@@ -281,7 +281,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         // Arrange
         const cachedBookingEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 910001,
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
           bookingFileVersionNumber: 1,
         })
         await TravelPortIntegration.travelOrderEventFactory.create({
@@ -338,7 +338,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
       test("when an unrestricted locator matches no source events, it preserves other cached bookings", async () => {
         // Arrange
         const cachedBookingEvent = await travelDeskBookingEventFactory.create({
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
         })
 
         // Act

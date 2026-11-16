@@ -71,7 +71,7 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
         // Act
         const attributes = policy.permitAttributesForCreate({
           travelDeskTravelRequestId: 999999,
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
           externalBookingEventIdentifier: 123456,
           invoiceNumber: "INV-001",
           grossAmount: "999.000",
@@ -79,7 +79,7 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
 
         // Assert
         expect(attributes).toEqual({
-          recordLocator: "SRC001",
+          bookingReference: "SRC001",
           externalBookingEventIdentifier: 123456,
           invoiceNumber: "INV-001",
         })
@@ -96,7 +96,7 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
         // Act
         const attributes = policy.permitAttributesForUpdate({
           travelDeskTravelRequestId: 999999,
-          recordLocator: "FORGED",
+          bookingReference: "FORGED",
           externalBookingEventIdentifier: 999999,
           invoiceNumber: "INV-002",
           grossAmount: "999.000",
