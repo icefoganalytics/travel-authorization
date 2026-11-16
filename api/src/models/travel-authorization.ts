@@ -496,6 +496,8 @@ export class TravelAuthorization extends BaseModel<
     })
     this.addScope("asShow", {
       include: [
+        "estimatedPrimaryDestination",
+        "actualPrimaryDestination",
         "expenses",
         "purpose",
         "stops",
@@ -509,7 +511,7 @@ export class TravelAuthorization extends BaseModel<
             ["id", "ASC"],
           ],
           include: ["departureLocation", "arrivalLocation"],
-        } satisfies IncludeOptions & Pick<FindOptions, "rejectOnEmpty">,
+        } as IncludeOptions & Pick<FindOptions, "rejectOnEmpty">,
         "user",
       ],
       order: [

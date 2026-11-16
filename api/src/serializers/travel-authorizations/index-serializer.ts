@@ -10,8 +10,6 @@ import {
   User,
 } from "@/models"
 
-import { DetermineFinalDestinationService } from "@/services/travel-authorizations"
-
 import BaseSerializer from "@/serializers/base-serializer"
 import {
   StateFlagsSerializer,
@@ -70,14 +68,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const finalDestinationLocation = DetermineFinalDestinationService.perform(
-      this.record.tripType,
-      travelSegments,
-      this.record.tripTypeActual,
-      this.record.estimatedPrimaryDestinationId,
-      this.record.actualPrimaryDestinationId
-    )
-    const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
+    const serializedFinalDestination = this.serializeFinalDestination()
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -113,7 +104,14 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
   }
 
-  private serializeFinalDestination(location: Location | null): Locations.AsReference | null {
+  private serializeFinalDestination(): Locations.AsReference | null {
+    const location = isNil(this.record.tripTypeActual)
+      ? this.record.estimatedPrimaryDestination
+      : this.record.actualPrimaryDestination
+    if (isUndefined(location)) {
+      throw new Error("Expected primary destination association to be pre-loaded.")
+    }
+
     if (isNil(location)) return null
 
     return Locations.ReferenceSerializer.perform(location)

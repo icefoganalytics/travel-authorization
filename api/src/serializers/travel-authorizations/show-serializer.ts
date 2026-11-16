@@ -2,7 +2,6 @@ import { isNil, isUndefined, pick } from "lodash"
 
 import {
   Expense,
-  Location,
   Stop,
   TravelAuthorization,
   TravelDeskTravelRequest,
@@ -10,8 +9,6 @@ import {
   TravelSegment,
   User,
 } from "@/models"
-
-import { DetermineFinalDestinationService } from "@/services/travel-authorizations"
 
 import BaseSerializer from "@/serializers/base-serializer"
 import {
@@ -105,14 +102,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     const serializedExpenses = this.serializeExpenses(expenses)
-    const finalDestinationLocation = DetermineFinalDestinationService.perform(
-      this.record.tripType,
-      travelSegments,
-      this.record.tripTypeActual,
-      this.record.estimatedPrimaryDestinationId,
-      this.record.actualPrimaryDestinationId
-    )
-    const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
+    const serializedFinalDestination = this.serializeFinalDestination()
     const serializedTravelPurpose = this.serializeTravelPurpose(purpose)
     const serializedStops = this.serializeStops(stops)
     const serializedTravelDeskTravelRequest =
@@ -179,7 +169,14 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     return Expenses.ReferenceSerializer.perform(expenses)
   }
 
-  private serializeFinalDestination(location: Location | null): Locations.AsReference | null {
+  private serializeFinalDestination(): Locations.AsReference | null {
+    const location = isNil(this.record.tripTypeActual)
+      ? this.record.estimatedPrimaryDestination
+      : this.record.actualPrimaryDestination
+    if (isUndefined(location)) {
+      throw new Error("Expected primary destination association to be pre-loaded.")
+    }
+
     if (isNil(location)) return null
 
     return Locations.ReferenceSerializer.perform(location)
