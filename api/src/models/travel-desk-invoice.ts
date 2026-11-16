@@ -48,7 +48,7 @@ export class TravelDeskInvoice extends Model<
 
   @Attribute(DataTypes.INTEGER)
   @NotNull
-  declare sourceBookingEventId: number
+  declare externalBookingEventIdentifier: number
 
   @Attribute(DataTypes.JSONB)
   @NotNull

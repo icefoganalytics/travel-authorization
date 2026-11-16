@@ -123,7 +123,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           grossAmount: "10.125",
         })
         const bookingEvent = await travelDeskBookingEventFactory.create({
-          externalTravelPortIdentifier: invoice.sourceBookingEventId,
+          externalTravelPortIdentifier: invoice.externalBookingEventIdentifier,
           recordLocator: invoice.recordLocator,
         })
         await bookingEvent.destroy()

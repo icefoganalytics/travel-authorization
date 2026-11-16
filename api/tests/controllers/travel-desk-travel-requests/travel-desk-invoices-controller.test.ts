@@ -297,7 +297,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             id: invoice.id,
             travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
             recordLocator: invoice.recordLocator,
-            sourceBookingEventId: invoice.sourceBookingEventId,
+            externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
             sourceSnapshot: invoice.sourceSnapshot,
             items: [],
           }),
@@ -375,7 +375,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
             recordLocator: "API001",
-            sourceBookingEventId: 930001,
+            externalBookingEventIdentifier: 930001,
             sourceServiceFeeEventIds: [],
             currencyCode: "CAD",
             items: [],
@@ -423,7 +423,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .send({
             travelDeskTravelRequestId: otherRequest.id,
             recordLocator: "api001",
-            sourceBookingEventId: 930001,
+            externalBookingEventIdentifier: 930001,
             sourceServiceFeeEventIds: [],
             currencyCode: "CAD",
             grossAmount: "999999.999",
@@ -445,7 +445,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           travelDeskInvoice: expect.objectContaining({
             travelDeskTravelRequestId: travelRequest.id,
             recordLocator: "API001",
-            sourceBookingEventId: 930001,
+            externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
             grossAmount: "125.500",
             sourceSnapshot: {
@@ -568,7 +568,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           })
         const originalRequestId = invoice.travelDeskTravelRequestId
         const originalLocator = invoice.recordLocator
-        const originalBookingEventId = invoice.sourceBookingEventId
+        const originalBookingEventId = invoice.externalBookingEventIdentifier
         const originalSnapshot = invoice.sourceSnapshot
         mockCurrentUser(officer)
 
@@ -580,7 +580,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .send({
             travelDeskTravelRequestId: otherRequest.id,
             recordLocator: "FORGED",
-            sourceBookingEventId: 999999,
+            externalBookingEventIdentifier: 999999,
             sourceSnapshot: { forged: true },
             currencyCode: "CAD",
             items: [
@@ -600,7 +600,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           travelDeskInvoice: expect.objectContaining({
             travelDeskTravelRequestId: originalRequestId,
             recordLocator: originalLocator,
-            sourceBookingEventId: originalBookingEventId,
+            externalBookingEventIdentifier: originalBookingEventId,
             sourceSnapshot: originalSnapshot,
             invoiceNumber: "INV-ORIGINAL",
             grossAmount: "22.000",

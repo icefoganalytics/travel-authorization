@@ -9,14 +9,14 @@ export const travelDeskInvoiceFactory = FactoryShark.define(
   ({ associate }) => {
     associate("travelDeskTravelRequest", travelDeskTravelRequestFactory)
     const recordLocator = faker.string.alphanumeric(6).toUpperCase()
-    const sourceBookingEventId = faker.number.int({ min: 1, max: 1_000_000 })
+    const externalBookingEventIdentifier = faker.number.int({ min: 1, max: 1_000_000 })
 
     return {
       recordLocator,
-      sourceBookingEventId,
+      externalBookingEventIdentifier,
       sourceSnapshot: {
         bookingEvent: {
-          travelOrderIdentifier: sourceBookingEventId,
+          travelOrderIdentifier: externalBookingEventIdentifier,
           bookingFileVersionNumber: 1,
           eventType: "B",
           recordLocator,

@@ -23,7 +23,7 @@ import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 
 export type InvoiceHeaderAttributes = {
   recordLocator: string
-  sourceBookingEventId: number
+  externalBookingEventIdentifier: number
   sourceServiceFeeEventIds: number[]
   currencyCode: string
   invoiceNumber?: string | null
@@ -49,13 +49,18 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<TravelDeskInvoice> {
-    const { recordLocator, sourceBookingEventId, sourceServiceFeeEventIds, currencyCode, items } =
-      this.attributes
+    const {
+      recordLocator,
+      externalBookingEventIdentifier,
+      sourceServiceFeeEventIds,
+      currencyCode,
+      items,
+    } = this.attributes
     if (isNil(recordLocator)) {
       throw new InvoiceValidationError("Record locator is required.")
     }
 
-    if (isNil(sourceBookingEventId)) {
+    if (isNil(externalBookingEventIdentifier)) {
       throw new InvoiceValidationError("Booking event is required.")
     }
 
@@ -78,7 +83,7 @@ export class CreateService extends BaseService {
 
     const snapshot = await this.loadSourceSnapshot(
       normalizedRecordLocator,
-      sourceBookingEventId,
+      externalBookingEventIdentifier,
       sourceServiceFeeEventIds
     )
     const grossAmount = CalculateTotalService.perform(items)
@@ -91,7 +96,7 @@ export class CreateService extends BaseService {
       const invoice = await TravelDeskInvoice.create({
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         recordLocator: normalizedRecordLocator,
-        sourceBookingEventId,
+        externalBookingEventIdentifier,
         sourceSnapshot: snapshot,
         currencyCode,
         invoiceNumber: this.attributes.invoiceNumber ?? null,
@@ -135,20 +140,20 @@ export class CreateService extends BaseService {
 
   private async loadSourceSnapshot(
     recordLocator: string,
-    sourceBookingEventId: number,
+    externalBookingEventIdentifier: number,
     sourceServiceFeeEventIds: number[]
   ): Promise<InvoiceSourceSnapshot> {
     const bookingEvents = await TravelDeskBookingEvent.findAll({
       where: {
         recordLocator,
         externalTravelPortIdentifier: {
-          [Op.in]: [sourceBookingEventId, ...sourceServiceFeeEventIds],
+          [Op.in]: [externalBookingEventIdentifier, ...sourceServiceFeeEventIds],
         },
       },
     })
     const sourceEvents = IndexSerializer.perform(bookingEvents)
     const bookingEvent = sourceEvents.find(
-      (event) => event.travelOrderIdentifier === sourceBookingEventId
+      (event) => event.travelOrderIdentifier === externalBookingEventIdentifier
     )
     if (isNil(bookingEvent) || bookingEvent.airReservationSegments.length === 0) {
       throw new InvoiceValidationError("Choose a booking event with flight segments for this locator.")

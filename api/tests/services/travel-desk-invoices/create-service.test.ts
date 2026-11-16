@@ -19,7 +19,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         const result = CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [],
           currencyCode: "CAD",
           items: [],
@@ -42,7 +42,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         const result = CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [],
           currencyCode: "CAD",
           items: [],
@@ -79,7 +79,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         const result = CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [920002],
           currencyCode: "CAD",
           items: [],
@@ -120,7 +120,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         const result = CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [920002],
           currencyCode: "CAD",
           items: [],
@@ -203,7 +203,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         await CreateService.perform(travelRequest, {
           recordLocator: " inv001 ",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [920002],
           currencyCode: "CAD",
           items: [
@@ -254,7 +254,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           expect.objectContaining({
             travelDeskTravelRequestId: travelRequest.id,
             recordLocator: "INV001",
-            sourceBookingEventId: 920001,
+            externalBookingEventIdentifier: 920001,
             grossAmount: "42.125",
             sourceSnapshot: expect.objectContaining({
               bookingEvent: expect.objectContaining({
@@ -331,7 +331,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         await CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [],
           currencyCode: "CAD",
           items: [
@@ -411,7 +411,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Act
         await CreateService.perform(travelRequest, {
           recordLocator: "INV001",
-          sourceBookingEventId: 920001,
+          externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventIds: [],
           currencyCode: "CAD",
           items: [

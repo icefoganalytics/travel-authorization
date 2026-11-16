@@ -16,7 +16,7 @@ import { validateInvoiceItems } from "@/services/travel-desk-invoices/validate-i
 
 export type InvoiceUpdateAttributes = Omit<
   InvoiceHeaderAttributes,
-  "recordLocator" | "sourceBookingEventId" | "sourceServiceFeeEventIds"
+  "recordLocator" | "externalBookingEventIdentifier" | "sourceServiceFeeEventIds"
 >
 
 export class UpdateService extends BaseService {
