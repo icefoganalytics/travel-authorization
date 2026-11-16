@@ -49,15 +49,11 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
   }
 
   permittedAttributesForCreate(): Path[] {
-    const attributes = this.permittedAttributes()
-
-    return ["travelAuthorizationId", "isActual", ...attributes]
+    return ["travelAuthorizationId", "isActual", ...this.permittedAttributes()]
   }
 
   permittedAttributesForBulkReplace(): Path[] {
-    const attributes = this.permittedAttributesForCreate()
-
-    return ["id", ...attributes]
+    return ["id", ...this.permittedAttributesForCreate()]
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelSegment>> {
