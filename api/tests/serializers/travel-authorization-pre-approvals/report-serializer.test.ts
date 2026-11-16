@@ -8,20 +8,21 @@ describe("api/src/serializers/travel-authorization-pre-approvals/report-serializ
     describe(".perform", () => {
       test("when optional values and profiles are empty, it preserves blank columns and the single date", async () => {
         // Arrange
-        const preApproval = await travelAuthorizationPreApprovalFactory.create({
-          department: null,
-          branch: null,
-          location: "",
-          purpose: null,
-          reason: null,
-          travelerNotes: null,
-          estimatedCost: 0,
-          isOpenForAnyDate: false,
-          startDate: null,
-          endDate: new Date("2026-11-20T00:00:00.000Z"),
-          status: TravelAuthorizationPreApproval.Statuses.DRAFT,
-        })
-        await preApproval.reload({ include: ["profiles"] })
+        const preApproval = await travelAuthorizationPreApprovalFactory
+          .include("profiles")
+          .create({
+            department: null,
+            branch: null,
+            location: "",
+            purpose: null,
+            reason: null,
+            travelerNotes: null,
+            estimatedCost: 0,
+            isOpenForAnyDate: false,
+            startDate: null,
+            endDate: new Date("2026-11-20T00:00:00.000Z"),
+            status: TravelAuthorizationPreApproval.Statuses.DRAFT,
+          })
 
         // Act
         const report = ReportSerializer.perform(preApproval)
@@ -43,12 +44,13 @@ describe("api/src/serializers/travel-authorization-pre-approvals/report-serializ
 
       test("when open-date text is missing, it does not fall back to fixed dates", async () => {
         // Arrange
-        const preApproval = await travelAuthorizationPreApprovalFactory.create({
-          isOpenForAnyDate: true,
-          month: null,
-          startDate: new Date("2026-11-20T00:00:00.000Z"),
-        })
-        await preApproval.reload({ include: ["profiles"] })
+        const preApproval = await travelAuthorizationPreApprovalFactory
+          .include("profiles")
+          .create({
+            isOpenForAnyDate: true,
+            month: null,
+            startDate: new Date("2026-11-20T00:00:00.000Z"),
+          })
 
         // Act
         const report = ReportSerializer.perform(preApproval)
