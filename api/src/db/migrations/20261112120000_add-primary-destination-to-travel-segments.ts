@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.alterTable("travel_segments", (table) => {
     table.boolean("is_primary_destination").notNullable().defaultTo(false)
 
-    const primaryDestinationPredicate = knex.whereRaw("?? = true", ["is_primary_destination"])
+    const primaryDestinationPredicate = knex.whereRaw("is_primary_destination = true")
     table.unique(["travel_authorization_id", "is_actual"], {
       indexName: "travel_segments_primary_destination_per_phase",
       predicate: primaryDestinationPredicate,
