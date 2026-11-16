@@ -40,7 +40,11 @@ export async function validateInvoiceItems(
   const seenSegmentNumbers = new Set<number>()
   const seenFeeEventIds = new Set<number>()
   const productTypeIds = [...new Set(items.map((item) => item.travelDeskProductTypeId))]
-  const productTypes = await TravelDeskProductType.findAll({ where: { id: productTypeIds } })
+  const productTypes = await TravelDeskProductType.findAll({
+    where: { id: productTypeIds },
+    order: [["id", "ASC"]],
+    lock: true,
+  })
   const productTypesById = new Map<number, TravelDeskProductType>(
     productTypes.map((productType) => [productType.id, productType])
   )
