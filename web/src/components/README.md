@@ -54,6 +54,15 @@ query-key suffix; it does not react to later changes to those options.
 When a collection can fetch overlapping pages, abort superseded requests and preserve cancellation
 through the HTTP client so an earlier request cannot update the displayed records or loading state.
 
+## File Downloads
+
+Generate CSV exports on the API using the existing `fast-csv` download service pattern. The backend
+owns policy-scoped queries, report serialization, spreadsheet-formula protection, and attachment
+filenames; exports include all authorized matches rather than a page of list results.
+Use `DownloadFileForm` with a download API URL to submit the authenticated request. Keep CSV
+generation and report formatting out of browser components. Preserve selected IDs, filters, ordering,
+and button presentation when migrating an export.
+
 ## Naming
 
 Use `{Model}{Purpose}{VuetifyComponent}.vue`.

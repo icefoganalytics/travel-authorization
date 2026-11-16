@@ -1,95 +1,75 @@
 import { flushPromises, mount } from "@vue/test-utils"
 
-import { travelAuthorizationPreApprovalFactory } from "@/tests/factories/travel-authorization-pre-approval-factory"
-import { mockHttpGetRoute, mockVuetify } from "@/tests/support"
+import { mockAuth0, mockVuetify } from "@/tests/support"
 
 import TravelAuthorizationPreApprovalsExportToCsvButton from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsExportToCsvButton.vue"
 
 describe("web/src/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsExportToCsvButton.vue", () => {
   describe("TravelAuthorizationPreApprovalsExportToCsvButton", () => {
-    beforeEach(() => {
-      vi.stubGlobal(
-        "URL",
-        class extends URL {
-          static createObjectURL = vi.fn(() => "blob:csv-download")
-        }
-      )
-      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {})
-    })
-
-    test("when pre-approvals are exported, downloads a filename with spaces and commas", async () => {
+    test("when an access token is available, submits an authenticated backend download", async () => {
       // Arrange
-      const preApproval = travelAuthorizationPreApprovalFactory.build()
-      mockHttpGetRoute("/api/travel-authorization-pre-approvals", () => ({
-        travelAuthorizationPreApprovals: [preApproval],
-        totalCount: 1,
-      }))
+      const submittedForms: HTMLFormElement[] = []
+      vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation(function (
+        this: HTMLFormElement
+      ) {
+        submittedForms.push(this)
+      })
+      const vuetify = mockVuetify()
       const wrapper = mount(TravelAuthorizationPreApprovalsExportToCsvButton, {
         global: {
-          plugins: [mockVuetify()],
+          plugins: [vuetify],
         },
       })
 
       // Act
-      await wrapper.get("button").trigger("click")
+      await wrapper.get("form").trigger("submit")
       await flushPromises()
 
       // Assert
-      const downloadLink = vi.mocked(HTMLAnchorElement.prototype.click).mock.contexts[0]
-      expect(downloadLink).toMatchObject({
-        download: expect.stringMatching(
-          /^Export, Travel Pre-Approval Requests, \d{4}-\d{2}-\d{2}_\d{4}\.csv$/
-        ),
-      })
+      expect(submittedForms).toEqual([
+        expect.objectContaining({
+          action: expect.stringContaining(
+            "/api/downloads/travel-authorization-pre-approvals?format=csv"
+          ),
+          method: "post",
+          elements: expect.objectContaining({
+            HOISTABLE_AUTHORIZATION_TOKEN: expect.objectContaining({
+              value: "test-access-token",
+            }),
+          }),
+        }),
+      ])
     })
 
-    test.each([
-      {
-        condition: "text contains commas, quotes, and line breaks",
-        purpose: 'Meeting, "planning"\nFollow-up',
-        expectedPurpose: '"Meeting, ""planning""\nFollow-up"',
-      },
-      {
-        condition: "optional text is absent",
-        purpose: null,
-        expectedPurpose: '""',
-      },
-    ])("when $condition, preserves the exported cells", async ({ purpose, expectedPurpose }) => {
+    test("when access token acquisition is pending, does not submit an unauthenticated download", async () => {
       // Arrange
-      const preApproval = travelAuthorizationPreApprovalFactory.build({
-        location: "Whitehorse",
-        estimatedCost: 25,
-        purpose,
+      const submittedForms: HTMLFormElement[] = []
+      vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation(function (
+        this: HTMLFormElement
+      ) {
+        submittedForms.push(this)
       })
-      mockHttpGetRoute("/api/travel-authorization-pre-approvals", () => ({
-        travelAuthorizationPreApprovals: [preApproval],
-        totalCount: 1,
-      }))
+      const { promise, resolve } = Promise.withResolvers<string>()
+      const auth0 = mockAuth0()
+      auth0.getAccessTokenSilently.mockReturnValue(promise)
+      const vuetify = mockVuetify()
       const wrapper = mount(TravelAuthorizationPreApprovalsExportToCsvButton, {
         global: {
-          plugins: [mockVuetify()],
+          plugins: [vuetify],
         },
       })
 
       // Act
-      await wrapper.get("button").trigger("click")
+      await wrapper.get("form").trigger("submit")
       await flushPromises()
-      const blob = vi.mocked(URL.createObjectURL).mock.calls[0][0]
-      const { promise, resolve, reject } = Promise.withResolvers<string>()
-      const reader = new FileReader()
-      reader.onload = () => {
-        const bytes = reader.result as ArrayBuffer
-        resolve(new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes))
+
+      // Assert
+      try {
+        expect(submittedForms).toEqual([])
+      } finally {
+        resolve("test-access-token")
+        await flushPromises()
       }
-      reader.onerror = () => reject(reader.error)
-      reader.readAsArrayBuffer(blob as Blob)
-      const csv = await promise
-
-      // Assert
-      expect(csv).toEqual(
-        '\uFEFF"Name","Department","Branch","Travel Date","Location","Purpose","Estimated Cost","Reason","Status","Notes"\r\n' +
-          `"","","","","Whitehorse",${expectedPurpose},"$25.00","","draft",""\r\n`
-      )
     })
   })
 })

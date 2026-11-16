@@ -1,81 +1,31 @@
 <template>
-  <v-btn
-    v-bind="$attrs"
-    :loading="isLoading"
-    @click="exportToCsv"
-  >
-    Export to CSV
-  </v-btn>
+  <DownloadFileForm :download-url="downloadUrl">
+    <template #default>
+      <slot>Export to CSV</slot>
+    </template>
+  </DownloadFileForm>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
-import { download, generateCsv, mkConfig } from "export-to-csv"
-import { DateTime } from "luxon"
 
-import { formatCurrency } from "@/utils/formatters"
+import { reportsApi } from "@/api/downloads/flight-statistics/reports-api"
+import {
+  type FlightStatisticFiltersOptions,
+  type FlightStatisticWhereOptions,
+} from "@/api/flight-statistics-api"
 
-import { MAX_PER_PAGE } from "@/api/base-api"
-import useFlightStatistics from "@/use/use-flight-statistics"
+import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 
-const props = defineProps({
-  filters: {
-    type: Object,
-    default: () => ({}),
-  },
-  where: {
-    type: Object,
-    default: () => ({}),
-  },
-})
+const props = defineProps<{
+  filters?: FlightStatisticFiltersOptions
+  where?: FlightStatisticWhereOptions
+}>()
 
-const flightStatisticsQuery = computed(() => {
-  return {
+const downloadUrl = computed(() =>
+  reportsApi.downloadPath({
     filters: props.filters,
     where: props.where,
-    perPage: MAX_PER_PAGE, // TODO: support pagination or back-end export to handle large datasets
-  }
-})
-const { flightStatistics, isLoading, fetch } = useFlightStatistics(flightStatisticsQuery, {
-  skipWatchIf: () => true, // never fetch automatically
-})
-
-// TODO: switch to back-end rendering at a dedicated endpoint via
-// fast-csv, see https://github.com/icefoganalytics/internal-data-portal/blob/0eb01fff60c6b5d72b060f89e92cf15336225531/api/src/controllers/download/datasets-controller.ts#L28
-async function exportToCsv() {
-  await fetch()
-  // NOTE: department field contains mail codes, not department names
-  const csvInfo = flightStatistics.value.map((flightStatistic) => {
-    return {
-      ["Department Mailcode"]: flightStatistic.departmentMailcode ?? "",
-      ["Final Destination City"]: flightStatistic.destinationCity ?? "",
-      ["Final Destination Province"]: flightStatistic.destinationProvince ?? "",
-      ["Total Trips"]: flightStatistic.totalTrips ?? "",
-      ["Total Expenses"]: formatCurrency(flightStatistic.totalExpenses),
-      ["Total Flight Cost"]: formatCurrency(flightStatistic.totalFlightCost),
-      ["Average Duration (days)"]: flightStatistic.averageDurationDays ?? "",
-      ["Average Expenses per Day"]: formatCurrency(flightStatistic.averageExpensesPerDay),
-      ["Average Round Trip Flight Cost"]: formatCurrency(
-        flightStatistic.averageRoundTripFlightCost
-      ),
-    }
   })
-
-  const timestamp = DateTime.now().toFormat("yyyy-MM-dd_HHmm")
-
-  const options = mkConfig({
-    fieldSeparator: ",",
-    quoteStrings: true,
-    decimalSeparator: ".",
-    showColumnHeaders: true,
-    showTitle: false,
-    title: "",
-    filename: `Export, Flight Statistics, ${timestamp}`,
-    useTextFile: false,
-    useBom: true,
-    useKeysAsHeaders: true,
-  })
-  const csv = generateCsv(options)(csvInfo)
-  download(options)(csv)
-}
+)
 </script>

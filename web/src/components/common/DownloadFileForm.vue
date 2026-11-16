@@ -12,8 +12,10 @@
       :value="accessToken"
     />
     <v-btn
-      :block="smAndDown"
+      :block="block ?? smAndDown"
       :color="color"
+      :disabled="disabled"
+      :variant="variant"
       :prepend-icon="prependIcon"
       :loading="loading || isDownloading"
       type="submit"
@@ -30,6 +32,7 @@ import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
 import { nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
+import { type VBtn } from "vuetify/components"
 
 const props = withDefaults(
   defineProps<{
@@ -38,12 +41,18 @@ const props = withDefaults(
     prependIcon?: string
     color?: string
     loading?: boolean
+    block?: boolean
+    disabled?: boolean
+    variant?: VBtn["$props"]["variant"]
   }>(),
   {
     text: "Download File",
     prependIcon: "mdi-download",
     color: "primary",
     loading: false,
+    block: undefined,
+    disabled: false,
+    variant: undefined,
   }
 )
 
@@ -58,7 +67,7 @@ const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
 
 async function getAccessTokenAndSubmit() {
-  if (props.loading || isDownloading.value) return
+  if (props.disabled || props.loading || isDownloading.value) return
 
   if (isNil(formRef.value)) {
     throw new Error("Form element is not available")
