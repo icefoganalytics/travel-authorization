@@ -63,10 +63,11 @@ Use `DownloadFileForm` with a download API URL to submit the authenticated reque
 generation and report formatting out of browser components. Preserve selected IDs, filters, ordering,
 and button presentation when migrating an export.
 
-CSV controllers use `respondWithCsv` to send attachment headers and the UTF-8 byte-order mark before
-awaiting report generation, so browsers can start the download immediately. The CSV body is still
-buffered in memory; the controller sends the remaining buffer without duplicating that prefix.
-Once headers are sent, generation errors abort the connection instead of saving JSON as CSV.
+CSV controllers dispatch supported formats explicitly and keep attachment headers in `respondWithCsv`.
+Delegate response delivery to `quickStartBufferStream(response, "text/csv", () => ...)`, following
+WRAP's callback pattern. The helper sends the UTF-8 byte-order mark before awaiting report generation
+and pipes the remaining buffer without duplicating that prefix. Generation remains buffered in
+memory. Once headers are sent, generation errors abort the connection instead of saving JSON as CSV.
 
 ## Naming
 
