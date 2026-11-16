@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string("ticket_number")
     table.string("vendor")
     table.text("description")
-    table.enu("sale_type", ["Sale", "Refund", "Void"]).notNullable()
+    table.string("sale_type").notNullable()
     table.decimal("gross_amount", 18, 3).notNullable()
     table.integer("position").notNullable()
 
@@ -21,18 +21,15 @@ export async function up(knex: Knex): Promise<void> {
 
     table
       .foreign("travel_desk_invoice_id")
-      .references("id")
-      .inTable("travel_desk_invoices")
+      .references("travel_desk_invoices.id")
       .onDelete("RESTRICT")
     table
       .foreign("travel_desk_product_type_id")
-      .references("id")
-      .inTable("travel_desk_product_types")
+      .references("travel_desk_product_types.id")
       .onDelete("RESTRICT")
     table
       .foreign("travel_desk_flight_segment_id")
-      .references("id")
-      .inTable("travel_desk_flight_segments")
+      .references("travel_desk_flight_segments.id")
       .onDelete("RESTRICT")
     table.check(
       `NOT (source_air_segment_number IS NOT NULL AND source_service_fee_event_id IS NOT NULL)`,

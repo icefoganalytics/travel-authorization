@@ -26,8 +26,7 @@ export async function up(knex: Knex): Promise<void> {
 
     table
       .foreign("travel_desk_travel_request_id")
-      .references("id")
-      .inTable("travel_desk_travel_requests")
+      .references("travel_desk_travel_requests.id")
       .onDelete("RESTRICT")
   })
 }
