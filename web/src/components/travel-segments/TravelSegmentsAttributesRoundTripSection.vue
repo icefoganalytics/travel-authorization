@@ -333,8 +333,7 @@ const travelSegmentsAttributes = ref([
 function applyExistingDefaultValues(newTravelSegmentEstimates) {
   const firstTravelSegment = pick(first(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
   const lastTravelSegment = pick(last(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
-  const returnSegmentId =
-    newTravelSegmentEstimates.length > 1 ? lastTravelSegment.id : undefined
+  const returnSegmentId = newTravelSegmentEstimates.length > 1 ? lastTravelSegment.id : undefined
 
   travelSegmentsAttributes.value = [
     {

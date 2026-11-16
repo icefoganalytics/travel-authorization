@@ -12,7 +12,6 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
-        const ottawa = await locationFactory.create({ city: "Ottawa" })
         const estimatedTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: false,
@@ -182,7 +181,6 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
-        const ottawa = await locationFactory.create({ city: "Ottawa" })
         const estimatedTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: false,
@@ -522,7 +520,6 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
         const vancouver = await locationFactory.create({ city: "Vancouver" })
         const toronto = await locationFactory.create({ city: "Toronto" })
-        const ottawa = await locationFactory.create({ city: "Ottawa" })
         const estimatedTravelSegment1 = travelSegmentFactory.build({
           segmentNumber: 1,
           isActual: false,

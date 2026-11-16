@@ -62,7 +62,10 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       const expectedAttributes = expect.objectContaining({
         travelSegmentEstimatesAttributes: [expectedSegment, expectedSegment, expectedSegment],
       })
-      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", expectedAttributes)
+      expect(httpClient.patch).toHaveBeenCalledWith(
+        "/api/travel-authorizations/5",
+        expectedAttributes
+      )
     })
 
     test("when an earlier arrival is selected, saves its estimate marker without changing endpoints", async () => {
@@ -146,7 +149,10 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       const expectedAttributes = expect.objectContaining({
         travelSegmentEstimatesAttributes: [expectedSegment1, expectedSegment2, expectedSegment3],
       })
-      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", expectedAttributes)
+      expect(httpClient.patch).toHaveBeenCalledWith(
+        "/api/travel-authorizations/5",
+        expectedAttributes
+      )
     })
 
     test("when an empty round trip is opened, previews no destination", async () => {
@@ -238,7 +244,10 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       const expectedAttributes = expect.objectContaining({
         travelSegmentEstimatesAttributes: [expectedOutbound, expectedReturn],
       })
-      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", expectedAttributes)
+      expect(httpClient.patch).toHaveBeenCalledWith(
+        "/api/travel-authorizations/5",
+        expectedAttributes
+      )
     })
 
     test("when saving a one-way trip, automatically marks its arrival", async () => {
@@ -288,7 +297,10 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       const expectedAttributes = expect.objectContaining({
         travelSegmentEstimatesAttributes: [expectedOutbound],
       })
-      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", expectedAttributes)
+      expect(httpClient.patch).toHaveBeenCalledWith(
+        "/api/travel-authorizations/5",
+        expectedAttributes
+      )
     })
 
     test("when no legs have been seeded by Purpose, initializes an editable round trip", async () => {

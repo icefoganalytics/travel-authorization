@@ -38,7 +38,9 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
 
       // Act
       const eventNameField = wrapper.findAllComponents(VTextField).find((field) => {
-        return field.props("label") === "Name of meeting/conference, mission, trade fair or course *"
+        return (
+          field.props("label") === "Name of meeting/conference, mission, trade fair or course *"
+        )
       })
       if (!eventNameField) throw new Error("Meeting name field is missing")
 
@@ -112,7 +114,9 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
 
       // Act
       const eventNameField = wrapper.findAllComponents(VTextField).find((field) => {
-        return field.props("label") === "Name of meeting/conference, mission, trade fair or course *"
+        return (
+          field.props("label") === "Name of meeting/conference, mission, trade fair or course *"
+        )
       })
       if (!eventNameField) throw new Error("Meeting name field is missing")
 

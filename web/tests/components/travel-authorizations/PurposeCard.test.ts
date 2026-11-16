@@ -1,6 +1,10 @@
 import { flushPromises } from "@vue/test-utils"
 
-import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/tests/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+} from "@/tests/factories"
 import { mockHttpGetRoutes, mountWithDefaultPlugins } from "@/tests/support"
 
 import LocationDescriptionElement from "@/components/locations/LocationDescriptionElement.vue"
