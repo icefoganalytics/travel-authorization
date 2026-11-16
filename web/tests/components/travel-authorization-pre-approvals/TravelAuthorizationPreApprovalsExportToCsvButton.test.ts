@@ -1,6 +1,6 @@
 import { flushPromises, mount } from "@vue/test-utils"
 
-import { travelAuthorizationPreApprovalFactory } from "@/tests/factories"
+import { travelAuthorizationPreApprovalFactory } from "@/tests/factories/travel-authorization-pre-approval-factory"
 import { mockHttpGetRoute, mockVuetify } from "@/tests/support"
 
 import TravelAuthorizationPreApprovalsExportToCsvButton from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsExportToCsvButton.vue"
