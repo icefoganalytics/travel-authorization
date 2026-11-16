@@ -25,8 +25,6 @@ export enum TravelDeskInvoiceItemSaleTypes {
   VOID = "Void",
 }
 
-const DECIMAL_AMOUNT_PATTERN = /^-?\d{1,15}(?:\.\d{1,3})?$/
-
 export class TravelDeskInvoiceItem extends Model<
   InferAttributes<TravelDeskInvoiceItem>,
   InferCreationAttributes<TravelDeskInvoiceItem>
@@ -65,13 +63,18 @@ export class TravelDeskInvoiceItem extends Model<
   @Attribute(DataTypes.TEXT)
   declare description: string | null
 
-  @Attribute(DataTypes.ENUM(...Object.values(TravelDeskInvoiceItemSaleTypes)))
+  @Attribute(DataTypes.STRING(255))
   @NotNull
+  @ValidateAttribute({
+    isIn: {
+      args: [Object.values(TravelDeskInvoiceItemSaleTypes)],
+      msg: `Sale type must be one of: ${Object.values(TravelDeskInvoiceItemSaleTypes).join(", ")}`,
+    },
+  })
   declare saleType: `${TravelDeskInvoiceItemSaleTypes}`
 
   @Attribute(DataTypes.DECIMAL(18, 3))
   @NotNull
-  @ValidateAttribute({ is: DECIMAL_AMOUNT_PATTERN })
   declare grossAmount: string
 
   @Attribute(DataTypes.INTEGER)
