@@ -21,7 +21,7 @@ export const travelDeskInvoiceFactory = FactoryShark.define(
           eventType: "B",
           recordLocator,
           reservationSystemDescription: null,
-          databaseTimestamp: "2026-01-01T00:00:00.000Z",
+          externalCreatedAt: "2026-01-01T00:00:00.000Z",
           hostEventTimestamp: null,
           passengerNameRecordCreatedAt: null,
           owningAgencyName: null,

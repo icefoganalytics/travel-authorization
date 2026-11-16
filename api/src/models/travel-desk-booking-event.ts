@@ -42,9 +42,10 @@ export class TravelDeskBookingEvent extends Model<
   @Attribute(DataTypes.STRING(255))
   declare reservationSystemDescription: string | null
 
+  /** When Travelport created the event; mapped from TravelOrderEvent.DatabaseTimeStamp. */
   @Attribute(DataTypes.DATE)
   @NotNull
-  declare databaseTimestamp: Date
+  declare externalCreatedAt: Date
 
   @Attribute(DataTypes.DATE)
   declare hostEventTimestamp: Date | null

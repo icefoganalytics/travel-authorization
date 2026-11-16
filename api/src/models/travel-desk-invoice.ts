@@ -21,7 +21,7 @@ import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
 type InvoiceBookingEventSnapshot = Omit<BookingEventSnapshot, "databaseTimestamp"> & {
-  databaseTimestamp: string | null
+  externalCreatedAt: string | null
 }
 
 export type InvoiceSourceSnapshot = {

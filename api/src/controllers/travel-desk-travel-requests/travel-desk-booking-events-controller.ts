@@ -33,7 +33,7 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
       const order = this.buildOrder([
-        ["databaseTimestamp", "DESC"],
+        ["externalCreatedAt", "DESC"],
         ["id", "DESC"],
       ])
       const scopedTravelDeskBookingEvents = TravelDeskBookingEvent.withScope(scopes)

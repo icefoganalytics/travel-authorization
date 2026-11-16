@@ -23,10 +23,12 @@ export class SyncService extends BaseService {
       await this.syncTravelOrderEvents(this.recordLocator, async (travelOrderEvent) => {
         const serializedTravelOrderEvent =
           TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(travelOrderEvent)
-        const { travelOrderIdentifier, ...travelOrderEventAttributes } = serializedTravelOrderEvent
+        const { travelOrderIdentifier, databaseTimestamp, ...travelOrderEventAttributes } =
+          serializedTravelOrderEvent
         const travelDeskBookingEventAttributes = {
           ...travelOrderEventAttributes,
           externalTravelPortIdentifier: travelOrderIdentifier,
+          externalCreatedAt: databaseTimestamp,
           recordLocator: this.recordLocator,
         }
         const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
