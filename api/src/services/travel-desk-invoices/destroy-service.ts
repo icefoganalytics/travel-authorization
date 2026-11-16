@@ -10,7 +10,13 @@ export class DestroyService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    await db.transaction(async () => {
+    await db.transaction(async (transaction) => {
+      await this.invoice.reload({
+        include: [],
+        lock: transaction.LOCK.UPDATE,
+        transaction,
+      })
+
       await TravelDeskInvoiceItem.destroy({
         where: { travelDeskInvoiceId: this.invoice.id },
       })
