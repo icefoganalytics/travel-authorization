@@ -44,6 +44,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
+- Deleted invoice product types no longer reserve their codes or names; active products remain unique.
 - Concurrent invoice saves and product-category deletion cannot leave saved invoice lines referencing a deleted category.
 - Deleting an invoice during an overlapping edit also deletes its replacement lines.
 - Booking history lists newest externally created events first with stable pagination, using `externalCreatedAt` separately from local creation time. Unknown locators return no matches without imposing a six-character format.
