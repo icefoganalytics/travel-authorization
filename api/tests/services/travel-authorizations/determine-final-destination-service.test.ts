@@ -1,19 +1,30 @@
 import { TravelAuthorization } from "@/models"
+import DetermineFinalDestinationService from "@/services/travel-authorizations/determine-final-destination-service"
 
 import { locationFactory, travelSegmentFactory } from "@/factories"
-
-import DetermineFinalDestinationService from "@/services/travel-authorizations/determine-final-destination-service"
 
 describe("api/src/services/travel-authorizations/determine-final-destination-service.ts", () => {
   describe("DetermineFinalDestinationService", () => {
     describe("#perform", () => {
       test("when a legacy multi-city itinerary is unconfirmed, it returns no saved destination", () => {
         // Arrange
-        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })
-        const vancouver = locationFactory.build({ id: 2, city: "Vancouver" })
+        const whitehorse = locationFactory.build({
+          id: 1,
+          city: "Whitehorse",
+        })
+        const vancouver = locationFactory.build({
+          id: 2,
+          city: "Vancouver",
+        })
         const travelSegment = travelSegmentFactory
-          .associations({ departureLocation: whitehorse, arrivalLocation: vancouver })
-          .build({ isActual: false, isPrimaryDestination: false })
+          .associations({
+            departureLocation: whitehorse,
+            arrivalLocation: vancouver,
+          })
+          .build({
+            isActual: false,
+            isPrimaryDestination: false,
+          })
         const travelSegments = [travelSegment]
 
         // Act
@@ -29,15 +40,38 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
 
       test("when actual multi-city differs from the estimated one-way trip, it uses the actual selection", () => {
         // Arrange
-        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })
-        const vancouver = locationFactory.build({ id: 2, city: "Vancouver" })
-        const toronto = locationFactory.build({ id: 3, city: "Toronto" })
+        const whitehorse = locationFactory.build({
+          id: 1,
+          city: "Whitehorse",
+        })
+        const vancouver = locationFactory.build({
+          id: 2,
+          city: "Vancouver",
+        })
+        const toronto = locationFactory.build({
+          id: 3,
+          city: "Toronto",
+        })
         const selectedTravelSegment = travelSegmentFactory
-          .associations({ departureLocation: whitehorse, arrivalLocation: vancouver })
-          .build({ segmentNumber: 1, isActual: true, isPrimaryDestination: true })
+          .associations({
+            departureLocation: whitehorse,
+            arrivalLocation: vancouver,
+          })
+          .build({
+            segmentNumber: 1,
+            isActual: true,
+            isPrimaryDestination: true,
+          })
         const finalTravelSegment = travelSegmentFactory
-          .associations({ departureLocation: vancouver, arrivalLocation: toronto })
-          .build({ segmentNumber: 2, isActual: true, isPrimaryDestination: false })
+          .associations({
+            departureLocation: vancouver,
+            arrivalLocation: toronto,
+          })
+          .build({
+            segmentNumber: 2,
+            isActual: true,
+            isPrimaryDestination: false,
+          })
         const travelSegments = [finalTravelSegment, selectedTravelSegment]
 
         // Act
@@ -53,14 +87,34 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
 
       test("when actual round-trip differs from the estimated multi-city trip, it uses the ordinary actual arrival", () => {
         // Arrange
-        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })
-        const vancouver = locationFactory.build({ id: 2, city: "Vancouver" })
+        const whitehorse = locationFactory.build({
+          id: 1,
+          city: "Whitehorse",
+        })
+        const vancouver = locationFactory.build({
+          id: 2,
+          city: "Vancouver",
+        })
         const outboundTravelSegment = travelSegmentFactory
-          .associations({ departureLocation: whitehorse, arrivalLocation: vancouver })
-          .build({ segmentNumber: 1, isActual: true, isPrimaryDestination: false })
+          .associations({
+            departureLocation: whitehorse,
+            arrivalLocation: vancouver,
+          })
+          .build({
+            segmentNumber: 1,
+            isActual: true,
+            isPrimaryDestination: false,
+          })
         const returnTravelSegment = travelSegmentFactory
-          .associations({ departureLocation: vancouver, arrivalLocation: whitehorse })
-          .build({ segmentNumber: 2, isActual: true, isPrimaryDestination: false })
+          .associations({
+            departureLocation: vancouver,
+            arrivalLocation: whitehorse,
+          })
+          .build({
+            segmentNumber: 2,
+            isActual: true,
+            isPrimaryDestination: false,
+          })
         const travelSegments = [returnTravelSegment, outboundTravelSegment]
 
         // Act
@@ -76,9 +130,18 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
 
       test("when every segment has loaded locations, it returns the final arrival", () => {
         // Arrange
-        const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })
-        const vancouver = locationFactory.build({ id: 2, city: "Vancouver" })
-        const toronto = locationFactory.build({ id: 3, city: "Toronto" })
+        const whitehorse = locationFactory.build({
+          id: 1,
+          city: "Whitehorse",
+        })
+        const vancouver = locationFactory.build({
+          id: 2,
+          city: "Vancouver",
+        })
+        const toronto = locationFactory.build({
+          id: 3,
+          city: "Toronto",
+        })
         const travelSegment1 = travelSegmentFactory
           .associations({
             departureLocation: whitehorse,
@@ -110,46 +173,95 @@ describe("api/src/services/travel-authorizations/determine-final-destination-ser
         expect(result).toBe(toronto)
       })
 
-      test.each(["departureLocation", "arrivalLocation"] as const)(
-        "when a non-final segment has an unloaded %s, it rejects the incomplete association graph",
-        (association) => {
-          // Arrange
-          const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse" })
-          const vancouver = locationFactory.build({ id: 2, city: "Vancouver" })
-          const toronto = locationFactory.build({ id: 3, city: "Toronto" })
-          const travelSegment1 = travelSegmentFactory
-            .associations({
-              departureLocation: whitehorse,
-              arrivalLocation: vancouver,
-            })
-            .build({
-              segmentNumber: 1,
-              isActual: false,
-            })
-          travelSegment1[association] = undefined
+      test("when a non-final departure location is unloaded, it rejects the incomplete association graph", () => {
+        // Arrange
+        const whitehorse = locationFactory.build({
+          id: 1,
+          city: "Whitehorse",
+        })
+        const vancouver = locationFactory.build({
+          id: 2,
+          city: "Vancouver",
+        })
+        const toronto = locationFactory.build({
+          id: 3,
+          city: "Toronto",
+        })
+        const travelSegment1 = travelSegmentFactory
+          .associations({
+            departureLocation: whitehorse,
+            arrivalLocation: vancouver,
+          })
+          .build({
+            segmentNumber: 1,
+            isActual: false,
+          })
+        travelSegment1.departureLocation = undefined
+        const travelSegment2 = travelSegmentFactory
+          .associations({
+            departureLocation: vancouver,
+            arrivalLocation: toronto,
+          })
+          .build({
+            segmentNumber: 2,
+            isActual: false,
+          })
+        const travelSegments = [travelSegment1, travelSegment2]
 
-          const travelSegment2 = travelSegmentFactory
-            .associations({
-              departureLocation: vancouver,
-              arrivalLocation: toronto,
-            })
-            .build({
-              segmentNumber: 2,
-              isActual: false,
-            })
+        // Act & Assert
+        expect(() =>
+          DetermineFinalDestinationService.perform(
+            TravelAuthorization.TripTypes.ONE_WAY,
+            travelSegments,
+            null
+          )
+        ).toThrow("Expected travel segment locations to be pre-loaded.")
+      })
 
-          const travelSegments = [travelSegment1, travelSegment2]
+      test("when a non-final arrival location is unloaded, it rejects the incomplete association graph", () => {
+        // Arrange
+        const whitehorse = locationFactory.build({
+          id: 1,
+          city: "Whitehorse",
+        })
+        const vancouver = locationFactory.build({
+          id: 2,
+          city: "Vancouver",
+        })
+        const toronto = locationFactory.build({
+          id: 3,
+          city: "Toronto",
+        })
+        const travelSegment1 = travelSegmentFactory
+          .associations({
+            departureLocation: whitehorse,
+            arrivalLocation: vancouver,
+          })
+          .build({
+            segmentNumber: 1,
+            isActual: false,
+          })
+        travelSegment1.arrivalLocation = undefined
+        const travelSegment2 = travelSegmentFactory
+          .associations({
+            departureLocation: vancouver,
+            arrivalLocation: toronto,
+          })
+          .build({
+            segmentNumber: 2,
+            isActual: false,
+          })
+        const travelSegments = [travelSegment1, travelSegment2]
 
-          // Act & Assert
-          expect(() =>
-            DetermineFinalDestinationService.perform(
-              TravelAuthorization.TripTypes.ONE_WAY,
-              travelSegments,
-              null
-            )
-          ).toThrow("Expected travel segment locations to be pre-loaded.")
-        }
-      )
+        // Act & Assert
+        expect(() =>
+          DetermineFinalDestinationService.perform(
+            TravelAuthorization.TripTypes.ONE_WAY,
+            travelSegments,
+            null
+          )
+        ).toThrow("Expected travel segment locations to be pre-loaded.")
+      })
     })
   })
 })

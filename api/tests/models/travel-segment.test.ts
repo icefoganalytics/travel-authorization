@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker"
 
-import { stopFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
-
 import { TravelSegment } from "@/models"
+
+import { stopFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
 
 describe("api/src/models/travel-segment.ts", () => {
   describe("TravelSegment", () => {
@@ -47,7 +47,10 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 1, max: 10 })
+        const segmentNumber = faker.number.int({
+          min: 1,
+          max: 10,
+        })
 
         // Act
         const travelSegment = TravelSegment.buildFromStops({
@@ -82,7 +85,10 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 1, max: 10 })
+        const segmentNumber = faker.number.int({
+          min: 1,
+          max: 10,
+        })
 
         // Act / Assert
         expect(() =>
@@ -105,7 +111,10 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 1, max: 10 })
+        const segmentNumber = faker.number.int({
+          min: 1,
+          max: 10,
+        })
 
         // Act
         const travelSegment = TravelSegment.buildFromStops({
@@ -134,7 +143,10 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 1, max: 10 })
+        const segmentNumber = faker.number.int({
+          min: 1,
+          max: 10,
+        })
 
         // Act
         const travelSegment = TravelSegment.buildFromStops({
@@ -163,7 +175,10 @@ describe("api/src/models/travel-segment.ts", () => {
         const arrivalStop = await stopFactory.create({
           travelAuthorizationId: travelAuthorization.id,
         })
-        const segmentNumber = faker.number.int({ min: 1, max: 10 })
+        const segmentNumber = faker.number.int({
+          min: 1,
+          max: 10,
+        })
 
         // Act
         const travelSegment = TravelSegment.buildFromStops({
@@ -194,8 +209,9 @@ describe("api/src/models/travel-segment.ts", () => {
 
       test("when the departure time is null, time defaults to the beginning of the day", () => {
         // Arrange
+        const travelSegmentDepartureOn = new Date("2021-01-01")
         const travelSegment = travelSegmentFactory.build({
-          departureOn: new Date("2021-01-01"),
+          departureOn: travelSegmentDepartureOn,
           departureTime: null,
         })
 
@@ -218,8 +234,9 @@ describe("api/src/models/travel-segment.ts", () => {
 
     test("when the departure time is null, time falls back to the beginning of the day", () => {
       // Arrange
+      const travelSegmentDepartureOn = new Date("2021-01-01")
       const travelSegment = travelSegmentFactory.build({
-        departureOn: new Date("2021-01-01"),
+        departureOn: travelSegmentDepartureOn,
         departureTime: null,
       })
 
@@ -231,8 +248,9 @@ describe("api/src/models/travel-segment.ts", () => {
 
     test("when the departure time is null, time falls back to the end of the day", () => {
       // Arrange
+      const travelSegmentDepartureOn = new Date("2021-01-01")
       const travelSegment = travelSegmentFactory.build({
-        departureOn: new Date("2021-01-01"),
+        departureOn: travelSegmentDepartureOn,
         departureTime: null,
       })
 

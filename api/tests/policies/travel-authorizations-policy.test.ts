@@ -1,15 +1,17 @@
 import { TravelAuthorization, User } from "@/models"
+import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
 import { travelAuthorizationFactory, userFactory } from "@/factories"
-
-import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
 describe("api/src/policies/travel-authorizations-policy.ts", () => {
   describe("TravelAuthorizationsPolicy", () => {
     describe("#permitAttributesForUpdate", () => {
       test("when a request is draft, it permits nested selection and identity", () => {
         // Arrange
-        const user = userFactory.build({ id: 1, roles: [User.Roles.USER] })
+        const user = userFactory.build({
+          id: 1,
+          roles: [User.Roles.USER],
+        })
         const travelAuthorization = travelAuthorizationFactory.build({
           userId: user.id,
           status: TravelAuthorization.Statuses.DRAFT,
@@ -18,7 +20,11 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         const attributes = {
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegmentEstimatesAttributes: [
-            { id: 7, isPrimaryDestination: true, arrivalLocationId: 2 },
+            {
+              id: 7,
+              isPrimaryDestination: true,
+              arrivalLocationId: 2,
+            },
           ],
         }
 
@@ -31,7 +37,10 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
       test("when a request is approved, it permits nested selection and identity", () => {
         // Arrange
-        const user = userFactory.build({ id: 1, roles: [User.Roles.USER] })
+        const user = userFactory.build({
+          id: 1,
+          roles: [User.Roles.USER],
+        })
         const travelAuthorization = travelAuthorizationFactory.build({
           userId: user.id,
           status: TravelAuthorization.Statuses.APPROVED,
@@ -40,7 +49,11 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         const attributes = {
           tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegmentActualsAttributes: [
-            { id: 7, isPrimaryDestination: true, arrivalLocationId: 2 },
+            {
+              id: 7,
+              isPrimaryDestination: true,
+              arrivalLocationId: 2,
+            },
           ],
         }
 

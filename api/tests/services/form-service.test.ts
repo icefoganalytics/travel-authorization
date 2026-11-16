@@ -1,8 +1,7 @@
 import { TravelAuthorization } from "@/models"
+import FormService from "@/services/form-service"
 
 import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
-
-import FormService from "@/services/form-service"
 
 describe("api/src/services/form-service.ts", () => {
   describe("FormService", () => {
@@ -18,7 +17,10 @@ describe("api/src/services/form-service.ts", () => {
           })
         await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: false, isPrimaryDestination: true })
+          .create({
+            isActual: false,
+            isPrimaryDestination: true,
+          })
         const travelAuthorizationAttributes = travelAuthorization.get()
         const attributes = {
           ...travelAuthorizationAttributes,
@@ -46,7 +48,10 @@ describe("api/src/services/form-service.ts", () => {
           })
         await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: false, isPrimaryDestination: false })
+          .create({
+            isActual: false,
+            isPrimaryDestination: false,
+          })
         const travelAuthorizationAttributes = travelAuthorization.get()
         const attributes = {
           ...travelAuthorizationAttributes,

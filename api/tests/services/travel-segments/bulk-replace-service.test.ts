@@ -1,8 +1,7 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
+import { BulkReplaceService } from "@/services/travel-segments/bulk-replace-service"
 
 import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
-
-import { BulkReplaceService } from "@/services/travel-segments/bulk-replace-service"
 
 describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
   describe("BulkReplaceService", () => {
@@ -98,7 +97,11 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
         })
         const selectedTravelSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ segmentNumber: 1, isActual: false, isPrimaryDestination: true })
+          .create({
+            segmentNumber: 1,
+            isActual: false,
+            isPrimaryDestination: true,
+          })
         const attributes = [
           {
             id: selectedTravelSegment.id,
@@ -128,7 +131,11 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
         })
         const selectedTravelSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ segmentNumber: 1, isActual: false, isPrimaryDestination: true })
+          .create({
+            segmentNumber: 1,
+            isActual: false,
+            isPrimaryDestination: true,
+          })
         const replacementArrival = await locationFactory.create()
         const attributes = [
           {
@@ -159,7 +166,11 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
         })
         const selectedTravelSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ segmentNumber: 1, isActual: false, isPrimaryDestination: true })
+          .create({
+            segmentNumber: 1,
+            isActual: false,
+            isPrimaryDestination: true,
+          })
         const attributes = [
           {
             id: selectedTravelSegment.id,
@@ -191,7 +202,10 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
         })
         const actualTravelSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: true, isPrimaryDestination: true })
+          .create({
+            isActual: true,
+            isPrimaryDestination: true,
+          })
         const attributes = [
           {
             id: actualTravelSegment.id,
@@ -286,8 +300,14 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
         )
 
         // Assert
-        expect(await TravelSegment.findAll()).toEqual([
-          expect.objectContaining({ id: originalSegment.id, isPrimaryDestination: true }),
+        const savedTravelSegments = await TravelSegment.findAll()
+        const expectedTravelSegment1 = expect.objectContaining({
+          id: originalSegment.id,
+          isPrimaryDestination: true,
+        })
+
+        expect(savedTravelSegments).toEqual([
+          expectedTravelSegment1,
         ])
       })
 
@@ -323,10 +343,16 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
         })
         const estimate = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: false, isPrimaryDestination: true })
+          .create({
+            isActual: false,
+            isPrimaryDestination: true,
+          })
         await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: true, isPrimaryDestination: true })
+          .create({
+            isActual: true,
+            isPrimaryDestination: true,
+          })
         const arrivalLocation = await locationFactory.create()
 
         // Act
@@ -346,13 +372,21 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
         )
 
         // Assert
-        expect(await TravelSegment.findAll({ order: [["isActual", "ASC"]] })).toEqual([
-          expect.objectContaining({ id: estimate.id, isActual: false, isPrimaryDestination: true }),
-          expect.objectContaining({
-            isActual: true,
-            arrivalLocationId: arrivalLocation.id,
-            isPrimaryDestination: true,
-          }),
+        const savedTravelSegments = await TravelSegment.findAll({ order: [["isActual", "ASC"]] })
+        const expectedTravelSegment1 = expect.objectContaining({
+          id: estimate.id,
+          isActual: false,
+          isPrimaryDestination: true,
+        })
+        const expectedTravelSegment2 = expect.objectContaining({
+          isActual: true,
+          arrivalLocationId: arrivalLocation.id,
+          isPrimaryDestination: true,
+        })
+
+        expect(savedTravelSegments).toEqual([
+          expectedTravelSegment1,
+          expectedTravelSegment2,
         ])
       })
 

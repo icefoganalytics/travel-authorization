@@ -1,8 +1,7 @@
 import { TravelAuthorization } from "@/models"
+import SubmitService from "@/services/travel-authorizations/submit-service"
 
 import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
-
-import SubmitService from "@/services/travel-authorizations/submit-service"
 
 describe("api/src/services/travel-authorizations/submit-service.ts", () => {
   describe("SubmitService", () => {
@@ -18,7 +17,10 @@ describe("api/src/services/travel-authorizations/submit-service.ts", () => {
         await travelSegmentFactory.associations({ travelAuthorization }).createList(2)
         await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: true, isPrimaryDestination: true })
+          .create({
+            isActual: true,
+            isPrimaryDestination: true,
+          })
 
         // Act
         const result = SubmitService.perform(
@@ -67,7 +69,10 @@ describe("api/src/services/travel-authorizations/submit-service.ts", () => {
         })
         await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isPrimaryDestination: true, segmentNumber: 1 })
+          .create({
+            isPrimaryDestination: true,
+            segmentNumber: 1,
+          })
         await travelSegmentFactory
           .associations({ travelAuthorization })
           .create({ segmentNumber: 2 })

@@ -1,4 +1,5 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
+import CreateService from "@/services/travel-segments/create-service"
 
 import {
   locationFactory,
@@ -6,8 +7,6 @@ import {
   travelSegmentFactory,
   userFactory,
 } from "@/factories"
-
-import CreateService from "@/services/travel-segments/create-service"
 
 describe("api/src/services/travel-segments/create-service.ts", () => {
   describe("CreateService", () => {
@@ -113,7 +112,10 @@ describe("api/src/services/travel-segments/create-service.ts", () => {
         const travelAuthorization = await travelAuthorizationFactory.create()
         const selectedEstimate = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isPrimaryDestination: true, isActual: false })
+          .create({
+            isPrimaryDestination: true,
+            isActual: false,
+          })
 
         // Act
         const travelSegment = await CreateService.perform(
@@ -130,7 +132,10 @@ describe("api/src/services/travel-segments/create-service.ts", () => {
 
         // Assert
         expect(travelSegment).toEqual(
-          expect.objectContaining({ isActual: true, isPrimaryDestination: true })
+          expect.objectContaining({
+            isActual: true,
+            isPrimaryDestination: true,
+          })
         )
       })
     })

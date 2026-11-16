@@ -1,14 +1,12 @@
 import { flushPromises } from "@vue/test-utils"
-import { defineComponent, h, ref } from "vue"
 import { VSelect } from "vuetify/components"
 
-import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
+import {
+  TravelAuthorizationTripTypes,
+  TravelAuthorizationWizardStepNames,
+} from "@/api/travel-authorizations-api"
 
 import useCurrentUser from "@/use/use-current-user"
-
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import ConfirmActualTravelDetailsStep from "@/components/my-travel-request-wizard/ConfirmActualTravelDetailsStep.vue"
-import EditTripDetailsStep from "@/components/my-travel-request-wizard/EditTripDetailsStep.vue"
 
 import {
   locationFactory,
@@ -17,10 +15,16 @@ import {
 } from "@/tests/factories"
 import { mockHttpGetRoutes, mockRouter, mountWithDefaultPlugins } from "@/tests/support"
 
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
+import MyTravelRequestWizardPage from "@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"
 
 describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () => {
   describe("SummaryHeaderPanel", () => {
+    beforeEach(() => {
+      vi.spyOn(window, "scrollTo").mockReturnValue(undefined)
+    })
+
     test("when an unsaved estimated multi-city destination changes, updates the summary header", async () => {
       // Arrange
       const travelSegment1 = travelSegmentFactory.build({
@@ -77,41 +81,45 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
           travelPurpose: { id: 1, purpose: "Meeting" },
         }),
         "/api/expenses": () => ({ expenses: [], totalCount: 0 }),
+        "/api/travel-authorizations/5/wizard": () => ({
+          travelAuthorization: {
+            id: 5,
+            status: travelAuthorization.status,
+            wizardStepName: TravelAuthorizationWizardStepNames.EDIT_TRIP_DETAILS,
+          },
+        }),
+        "/api/travel-authorization-action-logs": () => ({
+          travelAuthorizationActionLogs: [],
+          totalCount: 0,
+        }),
+        "/api/users/1": () => ({
+          user: {
+            id: 1,
+            firstName: "Test",
+            lastName: "Traveler",
+          },
+        }),
       })
       await useCurrentUser().fetch()
       const router = mockRouter([
         {
-          path: "/",
-          component: {
-            template: "<div />",
-          },
+          path: "/requests/:travelAuthorizationId/:stepName",
+          name: "my-travel-requests/MyTravelRequestWizardPage",
+          component: MyTravelRequestWizardPage,
+        },
+        {
+          path: "/profile",
+          name: "ProfilePage",
+          component: MyTravelRequestWizardPage,
         },
       ])
-      await router.push("/")
+      await router.push("/requests/5/edit-trip-details")
       await router.isReady()
-      const host = defineComponent({
-        setup() {
-          const summaryHeaderPanel = ref<InstanceType<typeof SummaryHeaderPanel> | null>(null)
-          return () => {
-            const summary = h(SummaryHeaderPanel, {
-              ref: summaryHeaderPanel,
-              travelAuthorizationId: 5,
-            })
-            const details = h(EditTripDetailsStep, {
-              travelAuthorizationId: 5,
-              stepTitle: "Trip details",
-              stepSubtitle: "Review your itinerary",
-              "onUpdate:primaryDestinationLocationId": (
-                primaryDestinationLocationId: number | null
-              ) => {
-                summaryHeaderPanel.value?.update({ primaryDestinationLocationId })
-              },
-            })
-            return [summary, details]
-          }
+      const wrapper = mountWithDefaultPlugins(MyTravelRequestWizardPage, {
+        props: {
+          travelAuthorizationId: "5",
+          stepName: TravelAuthorizationWizardStepNames.EDIT_TRIP_DETAILS,
         },
-      })
-      const wrapper = mountWithDefaultPlugins(host, {
         global: {
           plugins: [router],
         },
@@ -188,41 +196,45 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
           travelPurpose: { id: 1, purpose: "Meeting" },
         }),
         "/api/expenses": () => ({ expenses: [], totalCount: 0 }),
+        "/api/travel-authorizations/5/wizard": () => ({
+          travelAuthorization: {
+            id: 5,
+            status: travelAuthorization.status,
+            wizardStepName: TravelAuthorizationWizardStepNames.CONFIRM_ACTUAL_TRAVEL_DETAILS,
+          },
+        }),
+        "/api/travel-authorization-action-logs": () => ({
+          travelAuthorizationActionLogs: [],
+          totalCount: 0,
+        }),
+        "/api/users/1": () => ({
+          user: {
+            id: 1,
+            firstName: "Test",
+            lastName: "Traveler",
+          },
+        }),
       })
       await useCurrentUser().fetch()
       const router = mockRouter([
         {
-          path: "/",
-          component: {
-            template: "<div />",
-          },
+          path: "/requests/:travelAuthorizationId/:stepName",
+          name: "my-travel-requests/MyTravelRequestWizardPage",
+          component: MyTravelRequestWizardPage,
+        },
+        {
+          path: "/profile",
+          name: "ProfilePage",
+          component: MyTravelRequestWizardPage,
         },
       ])
-      await router.push("/")
+      await router.push("/requests/5/confirm-actual-travel-details")
       await router.isReady()
-      const host = defineComponent({
-        setup() {
-          const summaryHeaderPanel = ref<InstanceType<typeof SummaryHeaderPanel> | null>(null)
-          return () => {
-            const summary = h(SummaryHeaderPanel, {
-              ref: summaryHeaderPanel,
-              travelAuthorizationId: 5,
-            })
-            const details = h(ConfirmActualTravelDetailsStep, {
-              travelAuthorizationId: 5,
-              stepTitle: "Trip details",
-              stepSubtitle: "Review your itinerary",
-              "onUpdate:primaryDestinationLocationId": (
-                primaryDestinationLocationId: number | null
-              ) => {
-                summaryHeaderPanel.value?.update({ primaryDestinationLocationId })
-              },
-            })
-            return [summary, details]
-          }
+      const wrapper = mountWithDefaultPlugins(MyTravelRequestWizardPage, {
+        props: {
+          travelAuthorizationId: "5",
+          stepName: TravelAuthorizationWizardStepNames.CONFIRM_ACTUAL_TRAVEL_DETAILS,
         },
-      })
-      const wrapper = mountWithDefaultPlugins(host, {
         global: {
           plugins: [router],
         },
@@ -258,9 +270,29 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
           user: { id: 1, displayName: "Test Traveler", roles: [] },
           policy: {},
         }),
+        "/api/users/1": () => ({
+          user: {
+            id: 1,
+            firstName: "Test",
+            lastName: "Traveler",
+          },
+        }),
       })
+      await useCurrentUser().fetch()
+      const router = mockRouter([
+        {
+          path: "/profile",
+          name: "ProfilePage",
+          component: MyTravelRequestWizardPage,
+        },
+      ])
       const wrapper = mountWithDefaultPlugins(SummaryHeaderPanel, {
-        props: { travelAuthorizationId: 5 },
+        props: {
+          travelAuthorizationId: 5,
+        },
+        global: {
+          plugins: [router],
+        },
       })
 
       // Act

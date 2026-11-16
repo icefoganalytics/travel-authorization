@@ -1,4 +1,5 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
+import UpdateService from "@/services/travel-authorizations/update-service"
 
 import {
   locationFactory,
@@ -6,8 +7,6 @@ import {
   travelSegmentFactory,
   userFactory,
 } from "@/factories"
-
-import UpdateService from "@/services/travel-authorizations/update-service"
 
 describe("api/src/services/travel-authorizations/update-service.ts", () => {
   describe("UpdateService", () => {
@@ -21,7 +20,10 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         })
         const travelSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: false, isPrimaryDestination: true })
+          .create({
+            isActual: false,
+            isPrimaryDestination: true,
+          })
 
         // Act
         await UpdateService.perform(
@@ -44,7 +46,10 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         })
         const travelSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: true, isPrimaryDestination: true })
+          .create({
+            isActual: true,
+            isPrimaryDestination: true,
+          })
 
         // Act
         await UpdateService.perform(
@@ -66,7 +71,10 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         })
         const travelSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: false, isPrimaryDestination: true })
+          .create({
+            isActual: false,
+            isPrimaryDestination: true,
+          })
         const location = await locationFactory.create()
         const travelSegmentEstimatesAttributes = [
           {
@@ -131,9 +139,19 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         )
 
         // Assert
-        expect(result.travelSegments).toEqual([
-          expect.objectContaining({ segmentNumber: 1, isPrimaryDestination: false }),
-          expect.objectContaining({ segmentNumber: 2, isPrimaryDestination: false }),
+        const savedTravelSegments = result.travelSegments
+        const expectedTravelSegment1 = expect.objectContaining({
+          segmentNumber: 1,
+          isPrimaryDestination: false,
+        })
+        const expectedTravelSegment2 = expect.objectContaining({
+          segmentNumber: 2,
+          isPrimaryDestination: false,
+        })
+
+        expect(savedTravelSegments).toEqual([
+          expectedTravelSegment1,
+          expectedTravelSegment2,
         ])
       })
 
@@ -175,19 +193,23 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         )
 
         // Assert
-        expect(result.travelSegments).toEqual([
-          expect.objectContaining({
-            segmentNumber: 1,
-            departureLocationId: location1.id,
-            arrivalLocationId: location2.id,
-            isPrimaryDestination: true,
-          }),
-          expect.objectContaining({
-            segmentNumber: 2,
-            departureLocationId: location2.id,
-            arrivalLocationId: location3.id,
-            isPrimaryDestination: false,
-          }),
+        const savedTravelSegments = result.travelSegments
+        const expectedTravelSegment1 = expect.objectContaining({
+          segmentNumber: 1,
+          departureLocationId: location1.id,
+          arrivalLocationId: location2.id,
+          isPrimaryDestination: true,
+        })
+        const expectedTravelSegment2 = expect.objectContaining({
+          segmentNumber: 2,
+          departureLocationId: location2.id,
+          arrivalLocationId: location3.id,
+          isPrimaryDestination: false,
+        })
+
+        expect(savedTravelSegments).toEqual([
+          expectedTravelSegment1,
+          expectedTravelSegment2,
         ])
       })
 
@@ -217,8 +239,14 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         ).catch(() => undefined)
 
         // Assert
-        expect(await TravelSegment.findAll()).toEqual([
-          expect.objectContaining({ id: originalSegment.id, isPrimaryDestination: true }),
+        const savedTravelSegments = await TravelSegment.findAll()
+        const expectedTravelSegment1 = expect.objectContaining({
+          id: originalSegment.id,
+          isPrimaryDestination: true,
+        })
+
+        expect(savedTravelSegments).toEqual([
+          expectedTravelSegment1,
         ])
       })
 
@@ -231,23 +259,25 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         })
         const location1 = await locationFactory.create()
         const location2 = await locationFactory.create()
+        const segment1DepartureOn = new Date("2023-11-29")
         const segment1Attributes = {
           travelAuthorizationId: travelAuthorization.id,
           isActual: false,
           departureLocationId: location1.id,
           arrivalLocationId: location2.id,
           segmentNumber: 1,
-          departureOn: new Date("2023-11-29"),
+          departureOn: segment1DepartureOn,
           modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: TravelSegment.AccommodationTypes.HOTEL,
         }
+        const segment2DepartureOn = new Date("2023-11-30")
         const segment2Attributes = {
           travelAuthorizationId: travelAuthorization.id,
           isActual: false,
           departureLocationId: location2.id,
           arrivalLocationId: location1.id,
           segmentNumber: 2,
-          departureOn: new Date("2023-11-30"),
+          departureOn: segment2DepartureOn,
           modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
           accommodationType: null,
         }
@@ -261,31 +291,33 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
 
         // Assert
         expect.assertions(1)
-        expect(
-          await TravelSegment.findAll({
+        const savedTravelSegments = await TravelSegment.findAll({
             where: {
               travelAuthorizationId: travelAuthorization.id,
             },
           })
-        ).toEqual([
-          expect.objectContaining({
-            departureLocationId: location1.id,
-            arrivalLocationId: location2.id,
-            segmentNumber: 1,
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-            accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-            departureOn: "2023-11-29",
-            departureTime: null,
-          }),
-          expect.objectContaining({
-            departureLocationId: location2.id,
-            arrivalLocationId: location1.id,
-            segmentNumber: 2,
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-            accommodationType: null,
-            departureOn: "2023-11-30",
-            departureTime: null,
-          }),
+        const expectedTravelSegment1 = expect.objectContaining({
+          departureLocationId: location1.id,
+          arrivalLocationId: location2.id,
+          segmentNumber: 1,
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: TravelSegment.AccommodationTypes.HOTEL,
+          departureOn: "2023-11-29",
+          departureTime: null,
+        })
+        const expectedTravelSegment2 = expect.objectContaining({
+          departureLocationId: location2.id,
+          arrivalLocationId: location1.id,
+          segmentNumber: 2,
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+          accommodationType: null,
+          departureOn: "2023-11-30",
+          departureTime: null,
+        })
+
+        expect(savedTravelSegments).toEqual([
+          expectedTravelSegment1,
+          expectedTravelSegment2,
         ])
       })
 

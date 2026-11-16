@@ -1,8 +1,7 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
+import DestroyService from "@/services/travel-segments/destroy-service"
 
 import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
-
-import DestroyService from "@/services/travel-segments/destroy-service"
 
 describe("api/src/services/travel-segments/destroy-service.ts", () => {
   describe("DestroyService", () => {
@@ -15,7 +14,10 @@ describe("api/src/services/travel-segments/destroy-service.ts", () => {
         })
         const selectedTravelSegment = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: false, isPrimaryDestination: true })
+          .create({
+            isActual: false,
+            isPrimaryDestination: true,
+          })
         await travelSegmentFactory.associations({ travelAuthorization }).create({ isActual: false })
 
         // Act
@@ -36,13 +38,19 @@ describe("api/src/services/travel-segments/destroy-service.ts", () => {
         })
         const selectedEstimate = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: false, isPrimaryDestination: true })
+          .create({
+            isActual: false,
+            isPrimaryDestination: true,
+          })
         await travelSegmentFactory
           .associations({ travelAuthorization })
           .createList(2, { isActual: false })
         const selectedActual = await travelSegmentFactory
           .associations({ travelAuthorization })
-          .create({ isActual: true, isPrimaryDestination: true })
+          .create({
+            isActual: true,
+            isPrimaryDestination: true,
+          })
         await travelSegmentFactory.associations({ travelAuthorization }).create({ isActual: true })
         await selectedEstimate.reload({ include: ["travelAuthorization"] })
 
@@ -50,8 +58,14 @@ describe("api/src/services/travel-segments/destroy-service.ts", () => {
         await DestroyService.perform(selectedEstimate, currentUser)
 
         // Assert
-        expect(await TravelSegment.findAll({ where: { isPrimaryDestination: true } })).toEqual([
-          expect.objectContaining({ id: selectedActual.id, isActual: true }),
+        const savedTravelSegments = await TravelSegment.findAll({ where: { isPrimaryDestination: true } })
+        const expectedTravelSegment1 = expect.objectContaining({
+          id: selectedActual.id,
+          isActual: true,
+        })
+
+        expect(savedTravelSegments).toEqual([
+          expectedTravelSegment1,
         ])
       })
     })

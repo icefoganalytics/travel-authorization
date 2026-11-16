@@ -1,10 +1,17 @@
 import { flushPromises } from "@vue/test-utils"
 import { VSelect } from "vuetify/components"
 
-import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
+import {
+  TravelAuthorizationStatuses,
+  TravelAuthorizationTripTypes,
+} from "@/api/travel-authorizations-api"
 import { type TravelSegment, TravelSegmentAccommodationTypes } from "@/api/travel-segments-api"
 
-import { travelAuthorizationFactory, travelSegmentFactory } from "@/tests/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+} from "@/tests/factories"
 import {
   mockHttpClient,
   mockHttpGetRoutes,
@@ -229,6 +236,222 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         return segment.id
       })
       expect(actualSegmentIds).toEqual([undefined, undefined])
+    })
+
+    test("when more than ten mixed-phase legs exist, saves every actual leg with its identity", async () => {
+      // Arrange
+      const estimatedSegments = travelSegmentFactory.buildList(6, {
+        travelAuthorizationId: 5,
+        departureLocationId: 1,
+        arrivalLocationId: 2,
+        departureOn: "2026-11-12",
+        departureTime: "09:00",
+        accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+        isActual: false,
+        isPrimaryDestination: false,
+      })
+      const actualSegments = travelSegmentFactory.buildList(6, {
+        travelAuthorizationId: 5,
+        departureLocationId: 1,
+        arrivalLocationId: 3,
+        departureOn: "2026-11-12",
+        departureTime: "09:00",
+        accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+        isActual: true,
+        isPrimaryDestination: false,
+      })
+      actualSegments[5].isPrimaryDestination = true
+      const travelSegments = estimatedSegments.flatMap((estimatedSegment, index) => {
+        estimatedSegment.segmentNumber = index + 1
+        actualSegments[index].segmentNumber = index + 1
+        return [estimatedSegment, actualSegments[index]]
+      })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        daysOffTravelStatusActual: 0,
+        dateBackToWorkActual: "2026-11-14",
+        travelSegments,
+      })
+      const httpClient = mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({
+          travelAuthorization,
+          policy: {},
+        }),
+        "/api/travel-segments": (config) => {
+          const pageSize = config?.params?.perPage === -1 ? travelSegments.length : 10
+          const paginatedSegments = travelSegments.slice(0, pageSize)
+          return {
+            travelSegments: paginatedSegments,
+            totalCount: travelSegments.length,
+          }
+        },
+        "/api/locations": () => ({
+          locations: [],
+          totalCount: 0,
+        }),
+      })
+      httpClient.patch.mockResolvedValue({
+        data: {
+          travelAuthorization,
+          policy: {},
+        },
+      })
+      const router = mockRouter()
+      await router.push("/")
+      const wrapper = mountWithDefaultPlugins(TripDetailsActualsEditForm, {
+        props: {
+          travelAuthorizationId: 5,
+        },
+        global: {
+          plugins: [router],
+        },
+      })
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+
+      // Act
+      await wrapper.vm.save()
+
+      // Assert
+      const savedAttributes = httpClient.patch.mock.calls[0]?.[1] as {
+        travelSegmentActualsAttributes: Partial<TravelSegment>[]
+      }
+      const expectedActualSegments = actualSegments.map((segment) => {
+        return expect.objectContaining({
+          id: segment.id,
+          isActual: true,
+          isPrimaryDestination: segment.isPrimaryDestination,
+          segmentNumber: segment.segmentNumber,
+        })
+      })
+      expect(savedAttributes.travelSegmentActualsAttributes).toEqual(expectedActualSegments)
+    })
+
+    test("when a returned legacy claim chooses an arrival, saves only that actual marker", async () => {
+      // Arrange
+      const estimatedSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        arrivalLocationId: 2,
+        isPrimaryDestination: true,
+      })
+      const actualSegment1 = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        arrivalLocationId: 3,
+        isActual: true,
+      })
+      const actualSegment2 = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 2,
+        arrivalLocationId: 4,
+        isActual: true,
+      })
+      const travelSegments = [estimatedSegment, actualSegment1, actualSegment2]
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        status: TravelAuthorizationStatuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelSegments,
+      })
+      const selectedArrival = locationFactory.build({
+        id: 4,
+        city: "Ottawa",
+        province: "ON",
+      })
+      const httpClient = mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({
+          travelAuthorization,
+          policy: {},
+        }),
+        "/api/travel-segments": () => ({
+          travelSegments,
+          totalCount: 3,
+        }),
+        "/api/locations/4": () => ({
+          location: selectedArrival,
+        }),
+      })
+      httpClient.patch.mockResolvedValue({
+        data: {
+          travelSegment: actualSegment2,
+          policy: {},
+        },
+      })
+      const router = mockRouter()
+      await router.push("/")
+      const wrapper = mountWithDefaultPlugins(TripDetailsActualsEditForm, {
+        props: {
+          travelAuthorizationId: 5,
+        },
+        global: {
+          plugins: [router],
+        },
+      })
+      await flushPromises()
+
+      // Act
+      wrapper.getComponent(VSelect).vm.$emit("update:modelValue", actualSegment2.id)
+      await flushPromises()
+      await wrapper.vm.save()
+
+      // Assert
+      expect(httpClient.patch.mock.calls).toEqual([
+        [
+          `/api/travel-segments/${actualSegment2.id}`,
+          {
+            isPrimaryDestination: true,
+          },
+        ],
+      ])
+    })
+
+    test("when a returned legacy claim has no choice, does not save an inferred destination", async () => {
+      // Arrange
+      const actualSegments = travelSegmentFactory.buildList(2, {
+        travelAuthorizationId: 5,
+        arrivalLocationId: 3,
+        isActual: true,
+        isPrimaryDestination: false,
+      })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        status: TravelAuthorizationStatuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelSegments: actualSegments,
+      })
+      const httpClient = mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({
+          travelAuthorization,
+          policy: {},
+        }),
+        "/api/travel-segments": () => ({
+          travelSegments: actualSegments,
+          totalCount: 2,
+        }),
+      })
+      const router = mockRouter()
+      await router.push("/")
+      const wrapper = mountWithDefaultPlugins(TripDetailsActualsEditForm, {
+        props: {
+          travelAuthorizationId: 5,
+        },
+        global: {
+          plugins: [router],
+        },
+      })
+      await flushPromises()
+
+      // Act
+      await wrapper.vm.save()
+
+      // Assert
+      expect(httpClient.patch).not.toHaveBeenCalled()
     })
   })
 })

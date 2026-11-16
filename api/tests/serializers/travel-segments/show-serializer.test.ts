@@ -1,6 +1,6 @@
-import { travelSegmentFactory, userFactory } from "@/factories"
-
 import ShowSerializer from "@/serializers/travel-segments/show-serializer"
+
+import { travelSegmentFactory, userFactory } from "@/factories"
 
 describe("api/src/serializers/travel-segments/show-serializer.ts", () => {
   describe("ShowSerializer", () => {

@@ -7,9 +7,21 @@ describe("web/src/capabilities/travel-itinerary/determine-primary-destination-se
     test("when a multi-city route has an earlier marked leg, returns that leg", () => {
       // Arrange
       const travelSegments = [
-        { departureLocationId: 1, arrivalLocationId: 2, isPrimaryDestination: true },
-        { departureLocationId: 2, arrivalLocationId: 3, isPrimaryDestination: false },
-        { departureLocationId: 3, arrivalLocationId: 1, isPrimaryDestination: false },
+        {
+          departureLocationId: 1,
+          arrivalLocationId: 2,
+          isPrimaryDestination: true,
+        },
+        {
+          departureLocationId: 2,
+          arrivalLocationId: 3,
+          isPrimaryDestination: false,
+        },
+        {
+          departureLocationId: 3,
+          arrivalLocationId: 1,
+          isPrimaryDestination: false,
+        },
       ]
 
       // Act
@@ -25,9 +37,21 @@ describe("web/src/capabilities/travel-itinerary/determine-primary-destination-se
     test("when a multi-city route is unconfirmed, does not display an inferred destination", () => {
       // Arrange
       const travelSegments = [
-        { departureLocationId: 1, arrivalLocationId: 2, isPrimaryDestination: false },
-        { departureLocationId: 2, arrivalLocationId: 3, isPrimaryDestination: false },
-        { departureLocationId: 3, arrivalLocationId: 1, isPrimaryDestination: false },
+        {
+          departureLocationId: 1,
+          arrivalLocationId: 2,
+          isPrimaryDestination: false,
+        },
+        {
+          departureLocationId: 2,
+          arrivalLocationId: 3,
+          isPrimaryDestination: false,
+        },
+        {
+          departureLocationId: 3,
+          arrivalLocationId: 1,
+          isPrimaryDestination: false,
+        },
       ]
 
       // Act
@@ -43,8 +67,14 @@ describe("web/src/capabilities/travel-itinerary/determine-primary-destination-se
     test("when a round trip has no marker, preserves its outbound destination", () => {
       // Arrange
       const travelSegments = [
-        { departureLocationId: 1, arrivalLocationId: 2 },
-        { departureLocationId: 2, arrivalLocationId: 1 },
+        {
+          departureLocationId: 1,
+          arrivalLocationId: 2,
+        },
+        {
+          departureLocationId: 2,
+          arrivalLocationId: 1,
+        },
       ]
 
       // Act
@@ -60,8 +90,16 @@ describe("web/src/capabilities/travel-itinerary/determine-primary-destination-se
     test("when a one-way trip has a stale earlier marker, uses its ordinary final arrival", () => {
       // Arrange
       const travelSegments = [
-        { departureLocationId: 1, arrivalLocationId: 2, isPrimaryDestination: true },
-        { departureLocationId: 2, arrivalLocationId: 3, isPrimaryDestination: false },
+        {
+          departureLocationId: 1,
+          arrivalLocationId: 2,
+          isPrimaryDestination: true,
+        },
+        {
+          departureLocationId: 2,
+          arrivalLocationId: 3,
+          isPrimaryDestination: false,
+        },
       ]
 
       // Act
@@ -77,8 +115,16 @@ describe("web/src/capabilities/travel-itinerary/determine-primary-destination-se
     test("when a marked arrival is missing, does not treat it as a confirmed destination", () => {
       // Arrange
       const travelSegments = [
-        { departureLocationId: 1, arrivalLocationId: null, isPrimaryDestination: true },
-        { departureLocationId: 2, arrivalLocationId: 1, isPrimaryDestination: false },
+        {
+          departureLocationId: 1,
+          arrivalLocationId: null,
+          isPrimaryDestination: true,
+        },
+        {
+          departureLocationId: 2,
+          arrivalLocationId: 1,
+          isPrimaryDestination: false,
+        },
       ]
 
       // Act

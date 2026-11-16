@@ -1,6 +1,6 @@
-import { travelSegmentFactory, userFactory } from "@/factories"
-
 import IndexSerializer from "@/serializers/travel-segments/index-serializer"
+
+import { travelSegmentFactory, userFactory } from "@/factories"
 
 describe("api/src/serializers/travel-segments/index-serializer.ts", () => {
   describe("IndexSerializer", () => {

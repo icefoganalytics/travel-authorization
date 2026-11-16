@@ -1,6 +1,6 @@
-import { travelSegmentFactory } from "@/factories"
-
 import ReferenceSerializer from "@/serializers/travel-segments/reference-serializer"
+
+import { travelSegmentFactory } from "@/factories"
 
 describe("api/src/serializers/travel-segments/reference-serializer.ts", () => {
   describe("ReferenceSerializer", () => {

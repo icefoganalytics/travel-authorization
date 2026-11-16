@@ -1,14 +1,97 @@
 import { DateTime } from "luxon"
 
-import { TravelAuthorization } from "@/models"
-
-import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
-
+import { Expense, TravelAuthorization } from "@/models"
 import SubmitExpenseClaimService from "@/services/travel-authorizations/submit-expense-claim-service"
+import { UpdateService } from "@/services/travel-segments"
+
+import {
+  expenseFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+  userFactory,
+} from "@/factories"
 
 describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts", () => {
   describe("SubmitExpenseClaimService", () => {
     describe("#perform", () => {
+      beforeEach(() => {
+        vi.useFakeTimers({ toFake: ["Date"] })
+        vi.setSystemTime(new Date("2026-11-16T12:00:00Z"))
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+
+      test("when the traveller confirms a returned legacy multi-city destination, it resubmits the claim", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const supervisor = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          userId: currentUser.id,
+          status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
+        })
+        const selectedSegment = await travelSegmentFactory
+          .associations({ travelAuthorization })
+          .create({
+            isActual: true,
+            segmentNumber: 1,
+            departureOn: "2020-01-01",
+          })
+        await travelSegmentFactory.associations({ travelAuthorization }).create({
+          isActual: true,
+          segmentNumber: 2,
+          departureOn: "2020-01-02",
+        })
+        await expenseFactory.associations({ travelAuthorization }).create({
+          type: Expense.Types.EXPENSE,
+        })
+        await travelAuthorization.reload({ include: ["travelSegments"] })
+
+        // Act
+        await UpdateService.perform(selectedSegment, { isPrimaryDestination: true }, currentUser)
+        const result = await SubmitExpenseClaimService.perform(
+          travelAuthorization,
+          supervisor.email,
+          currentUser
+        )
+
+        // Assert
+        expect(result.status).toEqual(TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED)
+      })
+
+      test("when a returned legacy multi-city claim is still unconfirmed, it rejects resubmission", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const supervisor = await userFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          userId: currentUser.id,
+          status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
+        })
+        await travelSegmentFactory.associations({ travelAuthorization }).createList(2, {
+          isActual: true,
+          departureOn: "2020-01-01",
+        })
+        await expenseFactory.associations({ travelAuthorization }).create({
+          type: Expense.Types.EXPENSE,
+        })
+        await travelAuthorization.reload({ include: ["travelSegments"] })
+
+        // Act
+        const result = SubmitExpenseClaimService.perform(
+          travelAuthorization,
+          supervisor.email,
+          currentUser
+        )
+
+        // Assert
+        await expect(result).rejects.toThrow(
+          "Select a primary destination for the multi-city itinerary before submitting."
+        )
+      })
+
       test("when only estimated multi-city selection exists, it rejects expense submission", async () => {
         // Arrange
         const currentUser = await userFactory.create()
@@ -51,17 +134,19 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
         })
-        await travelSegmentFactory.associations({ travelAuthorization }).create({
-          isActual: true,
-          isPrimaryDestination: true,
-          segmentNumber: 1,
-          departureOn: "2020-01-01",
-        })
-        await travelSegmentFactory.associations({ travelAuthorization }).create({
-          isActual: true,
-          segmentNumber: 2,
-          departureOn: "2020-01-02",
-        })
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            isActual: true,
+            isPrimaryDestination: true,
+            segmentNumber: 1,
+            departureOn: "2020-01-01",
+          },
+          {
+            isActual: true,
+            segmentNumber: 2,
+            departureOn: "2020-01-02",
+          },
+        ])
         await travelAuthorization.reload({ include: ["travelSegments"] })
 
         // Act
@@ -83,16 +168,18 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
           status: TravelAuthorization.Statuses.APPROVED,
           tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
         })
-        await travelSegmentFactory.associations({ travelAuthorization }).create({
-          isActual: true,
-          segmentNumber: 1,
-          departureOn: "2020-01-01",
-        })
-        await travelSegmentFactory.associations({ travelAuthorization }).create({
-          isActual: false,
-          segmentNumber: 99,
-          departureOn: "2099-01-01",
-        })
+        await travelSegmentFactory.associations({ travelAuthorization }).createMany([
+          {
+            isActual: true,
+            segmentNumber: 1,
+            departureOn: "2020-01-01",
+          },
+          {
+            isActual: false,
+            segmentNumber: 99,
+            departureOn: "2099-01-01",
+          },
+        ])
         await travelAuthorization.reload({ include: ["travelSegments"] })
 
         // Act
@@ -117,9 +204,10 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
           status: TravelAuthorization.Statuses.APPROVED,
         })
         const twoDaysAgo = DateTime.now().minus({ days: 2 })
+        const departureOn = twoDaysAgo.toJSDate()
         await travelSegmentFactory.create({
           travelAuthorizationId: travelAuthorization.id,
-          departureOn: twoDaysAgo.toJSDate(),
+          departureOn,
         })
         await travelAuthorization.reload({
           include: ["travelSegments"],
@@ -153,9 +241,10 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
           status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
         })
         const twoDaysAgo = DateTime.now().minus({ days: 2 })
+        const departureOn = twoDaysAgo.toJSDate()
         await travelSegmentFactory.create({
           travelAuthorizationId: travelAuthorization.id,
-          departureOn: twoDaysAgo.toJSDate(),
+          departureOn,
         })
         await travelAuthorization.reload({
           include: ["travelSegments"],
@@ -206,9 +295,10 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
           status: TravelAuthorization.Statuses.APPROVED,
         })
         const twoDaysFromNow = DateTime.now().plus({ days: 2 })
+        const departureOn = twoDaysFromNow.toJSDate()
         await travelSegmentFactory.create({
           travelAuthorizationId: travelAuthorization.id,
-          departureOn: twoDaysFromNow.toJSDate(),
+          departureOn,
         })
         await travelAuthorization.reload({
           include: ["travelSegments"],
