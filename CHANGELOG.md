@@ -42,6 +42,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Development, test, and production containers use pinned Node 24 LTS, with aligned Sequelize dependencies for Factory Shark qualification and a matched Puppeteer/Chromium release family for PDF reports.
 - API test factories use Factory Shark for Sequelize fixtures, lists, request attributes, parent relationships, and eager loading without local persistence or reload helpers. TravCom city fixtures preserve the external database's keyless schema.
 - Invoice migrations use model-owned sale types and standard foreign-key declarations; invoice amounts use native decimal validation, and booking lookups use exact query conditions.
+- Invoice APIs identify the external booking event explicitly as `externalBookingEventIdentifier`.
 
 ### Fixed
 
