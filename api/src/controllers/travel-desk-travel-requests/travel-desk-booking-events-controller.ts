@@ -75,8 +75,8 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const { recordLocator } = this.request.body
-      await SyncService.perform(recordLocator)
+      const { bookingReference } = this.request.body
+      await SyncService.perform(bookingReference)
       return this.response.status(204).send()
     } catch (error) {
       if (error instanceof SourceUnavailableError) {

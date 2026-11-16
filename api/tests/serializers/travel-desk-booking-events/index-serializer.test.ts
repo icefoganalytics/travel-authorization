@@ -35,7 +35,7 @@ describe("api/src/serializers/travel-desk-booking-events/index-serializer.ts", (
 
         // Assert
         expect(result).toMatchObject({
-          recordLocator: bookingEvent.recordLocator,
+          bookingReference: bookingEvent.bookingReference,
           externalCreatedAt: null,
           hostEventTimestamp: null,
         })

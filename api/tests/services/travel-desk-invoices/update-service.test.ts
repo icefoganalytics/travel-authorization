@@ -155,7 +155,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         })
         const bookingEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: invoice.externalBookingEventIdentifier,
-          recordLocator: invoice.recordLocator,
+          bookingReference: invoice.bookingReference,
         })
         await bookingEvent.destroy()
         await travelDeskInvoiceItemFactory

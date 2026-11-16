@@ -43,10 +43,12 @@ Changes planned for the next release, since v2025.9.15.1.
 - API test factories use Factory Shark for Sequelize fixtures, lists, request attributes, parent relationships, and eager loading without local persistence or reload helpers. TravCom city fixtures preserve the external database's keyless schema.
 - Invoice migrations use model-owned sale types and standard foreign-key declarations; invoice amounts use native decimal validation, and booking lookups use exact query conditions.
 - Invoice APIs identify the external booking event explicitly as `externalBookingEventIdentifier`.
+- Local booking and invoice APIs use `bookingReference`; Travelport source fields retain their original names.
 
 ### Fixed
 
 - Deleting an invoice during an overlapping edit also deletes its replacement lines.
+- Invoice lines retain a consistent order when listed, viewed, created, or updated, including lines sharing the same position.
 - Booking history lists newest externally created events first with stable pagination, using `externalCreatedAt` separately from local creation time. Unknown locators return no matches without imposing a six-character format.
 - Rental-car requests match flight dates and times on both new and edit forms. Matched fields remain readable and show a lock icon. Turning matching off restores the previous manual schedule, or blank dates and noon times for a new request without manual entries. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.
 - Read-only date fields no longer open the calendar picker when clicked, while preserving caller-supplied menu options.

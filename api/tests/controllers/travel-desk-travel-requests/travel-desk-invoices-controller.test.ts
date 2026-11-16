@@ -88,6 +88,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const item2 = await travelDeskInvoiceItemFactory
           .associations({ invoice: invoice2 })
           .create({ position: 0, productType: "air" })
+        const item3 = await travelDeskInvoiceItemFactory
+          .associations({ invoice: invoice2 })
+          .create({ position: 0, productType: "credit" })
         mockCurrentUser(officer)
 
         // Act
@@ -106,6 +109,11 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
                   id: item2.id,
                   position: 0,
                   productType: "air",
+                }),
+                expect.objectContaining({
+                  id: item3.id,
+                  position: 0,
+                  productType: "credit",
                 }),
                 expect.objectContaining({
                   id: item1.id,
@@ -280,7 +288,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           travelDeskInvoice: expect.objectContaining({
             id: invoice.id,
             travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
-            recordLocator: invoice.recordLocator,
+            bookingReference: invoice.bookingReference,
             externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
             sourceSnapshot: invoice.sourceSnapshot,
             items: [],
@@ -358,7 +366,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
-            recordLocator: "API001",
+            bookingReference: "API001",
             externalBookingEventIdentifier: 930001,
             sourceServiceFeeEventIds: [],
             currencyCode: "CAD",
@@ -369,7 +377,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
           message:
-            "Failed to create invoice: InvoiceValidationError: Choose a booking event with flight segments for this locator.",
+            "Failed to create invoice: InvoiceValidationError: Choose a booking event with flight segments for this booking reference.",
         })
       })
 
@@ -381,7 +389,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 930001,
-          recordLocator: "API001",
+          bookingReference: "API001",
           bookingFileVersionNumber: 3,
           eventType: "B",
           airReservationSegments: [
@@ -405,7 +413,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
             travelDeskTravelRequestId: otherRequest.id,
-            recordLocator: "api001",
+            bookingReference: "api001",
             externalBookingEventIdentifier: 930001,
             sourceServiceFeeEventIds: [],
             currencyCode: "CAD",
@@ -427,14 +435,14 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         expect(response.body).toEqual({
           travelDeskInvoice: expect.objectContaining({
             travelDeskTravelRequestId: travelRequest.id,
-            recordLocator: "API001",
+            bookingReference: "API001",
             externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
             grossAmount: "125.500",
             sourceSnapshot: {
               bookingEvent: expect.objectContaining({
                 travelOrderIdentifier: 930001,
-                recordLocator: "API001",
+                bookingReference: "API001",
                 airReservationSegments: [
                   expect.objectContaining({ airSegmentNumber: 1, flightNumber: "1001" }),
                 ],
@@ -549,7 +557,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             position: 0,
           })
         const originalRequestId = invoice.travelDeskTravelRequestId
-        const originalLocator = invoice.recordLocator
+        const originalBookingReference = invoice.bookingReference
         const originalBookingEventId = invoice.externalBookingEventIdentifier
         const originalSnapshot = invoice.sourceSnapshot
         mockCurrentUser(officer)
@@ -561,7 +569,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           )
           .send({
             travelDeskTravelRequestId: otherRequest.id,
-            recordLocator: "FORGED",
+            bookingReference: "FORGED",
             externalBookingEventIdentifier: 999999,
             sourceSnapshot: { forged: true },
             currencyCode: "CAD",
@@ -581,7 +589,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         expect(response.body).toEqual({
           travelDeskInvoice: expect.objectContaining({
             travelDeskTravelRequestId: originalRequestId,
-            recordLocator: originalLocator,
+            bookingReference: originalBookingReference,
             externalBookingEventIdentifier: originalBookingEventId,
             sourceSnapshot: originalSnapshot,
             invoiceNumber: "INV-ORIGINAL",

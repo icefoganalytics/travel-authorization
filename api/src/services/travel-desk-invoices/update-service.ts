@@ -16,7 +16,7 @@ import { validateInvoiceItems } from "@/services/travel-desk-invoices/validate-i
 
 export type InvoiceUpdateAttributes = Omit<
   InvoiceHeaderAttributes,
-  "recordLocator" | "externalBookingEventIdentifier" | "sourceServiceFeeEventIds"
+  "bookingReference" | "externalBookingEventIdentifier" | "sourceServiceFeeEventIds"
 >
 
 export class UpdateService extends BaseService {
@@ -74,7 +74,16 @@ export class UpdateService extends BaseService {
       await createInvoiceItems(invoice.id, items)
 
       return invoice.reload({
-        include: ["items"],
+        include: [
+          {
+            association: "items",
+            separate: true,
+            order: [
+              ["position", "ASC"],
+              ["id", "ASC"],
+            ],
+          },
+        ],
       })
     })
   }
