@@ -37,13 +37,14 @@ Database tables use `snake_case`, while application models use `camelCase`. When
 columns, keep that mapping in mind.
 
 Prefer Knex schema-builder methods over raw DDL when they express the same constraint.
-Use `table.unique(..., { predicate })` for partial unique indexes and `table.check(...)` for
-check constraints. Roll back a partial unique index with `table.dropIndex(...)`, not
-`table.dropUnique(...)`; PostgreSQL treats it as an index rather than a unique constraint.
+Use `table.unique(..., { predicate })` for partial unique indexes. Roll them back with
+`table.dropIndex(...)`, not `table.dropUnique(...)`; PostgreSQL treats them as indexes
+rather than unique constraints. With Knex 3.0.1, partial-index predicates must not contain
+value placeholders; use a literal boolean in `knex.whereRaw(...)` instead of
+`knex.where(column, true)`.
 
-With Knex 3.0.1, use static SQL expressions for check predicates: the alter-table compiler
-does not interpolate their bindings. Partial-index predicates must not contain value placeholders;
-use a literal boolean in `knex.whereRaw(...)` instead of `knex.where(column, true)`.
+Primary-destination arrival presence is enforced by the `TravelSegment` model validator.
+The database unique index prevents concurrent selections within the same itinerary phase.
 
 ### Create A Migration
 
