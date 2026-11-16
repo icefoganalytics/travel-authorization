@@ -1,29 +1,3 @@
-<script setup lang="ts">
-import type { TravelDeskFlightSegmentAsIndex } from "@/api/travel-desk-flight-segments-api"
-import type { InvoiceItemInput } from "@/api/travel-desk-invoices-api"
-import type { TravelDeskProductType } from "@/api/travel-desk-product-types-api"
-
-const item = defineModel<InvoiceItemInput>({
-  required: true,
-})
-
-defineProps<{
-  productTypes: TravelDeskProductType[]
-  localSegments: TravelDeskFlightSegmentAsIndex[]
-  passengerNames: string[]
-  sourceSegmentDescription: string | null
-  isSaving: boolean
-}>()
-
-const emit = defineEmits<{
-  removed: []
-}>()
-
-function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
-  return `${segment.flightNumber ?? "Flight"} · ${segment.departLocation ?? ""} → ${segment.arriveLocation ?? ""} · ${segment.departAt ?? "date unavailable"}`
-}
-</script>
-
 <template>
   <v-card variant="outlined">
     <v-card-text>
@@ -45,10 +19,8 @@ function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
           md="3"
         >
           <v-select
-            v-model="item.travelDeskProductTypeId"
+            v-model="item.productType"
             :items="productTypes"
-            item-title="name"
-            item-value="id"
             label="Product type"
             :disabled="
               isSaving ||
@@ -151,3 +123,41 @@ function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
     </v-card-text>
   </v-card>
 </template>
+
+<script setup lang="ts">
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
+
+import type { TravelDeskFlightSegmentAsIndex } from "@/api/travel-desk-flight-segments-api"
+import {
+  type InvoiceItemInput,
+  TravelDeskInvoiceItemProductTypes,
+} from "@/api/travel-desk-invoices-api"
+
+const item = defineModel<InvoiceItemInput>({
+  required: true,
+})
+
+defineProps<{
+  localSegments: TravelDeskFlightSegmentAsIndex[]
+  passengerNames: string[]
+  sourceSegmentDescription: string | null
+  isSaving: boolean
+}>()
+
+const emit = defineEmits<{
+  removed: []
+}>()
+
+const { t } = useI18n()
+const productTypes = computed(() =>
+  Object.values(TravelDeskInvoiceItemProductTypes).map((productType) => ({
+    title: t(`travel_desk_invoice_item.product_type.${productType}`),
+    value: productType,
+  }))
+)
+
+function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
+  return `${segment.flightNumber ?? "Flight"} · ${segment.departLocation ?? ""} → ${segment.arriveLocation ?? ""} · ${segment.departAt ?? "date unavailable"}`
+}
+</script>

@@ -74,11 +74,6 @@ const menuCardLists = [
         title: "Travel Agencies",
         to: { name: "administration/TravelAgenciesPage" },
       },
-      {
-        icon: "mdi-receipt-text",
-        title: "Travel Desk Product Types",
-        to: { name: "administration/TravelDeskProductTypesPage" },
-      },
     ],
   },
 ]

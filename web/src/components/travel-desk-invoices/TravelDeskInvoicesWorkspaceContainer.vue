@@ -12,18 +12,6 @@
         class="mb-4"
         >{{ errorMessage }}</v-alert
       >
-      <v-alert
-        v-if="productTypesError"
-        type="error"
-        class="mb-4"
-      >
-        {{ productTypesError }}
-        <v-btn
-          variant="text"
-          @click="loadProductTypes"
-          >Retry product types</v-btn
-        >
-      </v-alert>
       <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-4">
         <h1 class="text-h5">Travel Desk Invoices</h1>
         <v-btn
@@ -109,7 +97,7 @@
                 :key="item.id"
               >
                 <td>{{ item.saleType }}</td>
-                <td>{{ item.productType.name }}</td>
+                <td>{{ t(`travel_desk_invoice_item.product_type.${item.productType}`) }}</td>
                 <td>{{ item.vendor }}</td>
                 <td>{{ item.grossAmount }} {{ invoice.currencyCode }}</td>
                 <td>
@@ -249,7 +237,7 @@
               <p v-if="selectedFeeEvents.length === 0">No service-fee events selected.</p>
               <v-btn
                 color="primary"
-                :disabled="selectedBookingEvent === null || productTypes.length === 0"
+                :disabled="selectedBookingEvent === null"
                 @click="startDraft"
                 >Use selected booking</v-btn
               >
@@ -297,7 +285,6 @@
               v-for="(item, index) in draft.items"
               :key="index"
               v-model="draft.items[index]"
-              :product-types="productTypes"
               :local-segments="localSegments"
               :passenger-names="passengerNames"
               :source-segment-description="
@@ -312,7 +299,7 @@
             <v-btn
               variant="outlined"
               prepend-icon="mdi-plus"
-              :disabled="isSaving || productTypes.length === 0"
+              :disabled="isSaving"
               @click="addCharge"
               >Add extra charge</v-btn
             >
@@ -326,7 +313,8 @@
               v-else
               class="mt-4"
             >
-              Total: enter valid amounts within the supported range. Each line is rounded to three decimal places.
+              Total: enter valid amounts within the supported range. Each line is rounded to three
+              decimal places.
             </p>
           </template>
         </v-card-text>
@@ -376,6 +364,7 @@
 
 <script setup lang="ts">
 import { computed, onScopeDispose, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
 import { isCancel } from "axios"
 import { cloneDeep, isNil } from "lodash"
 
@@ -392,12 +381,9 @@ import {
   type InvoiceSourceSnapshot,
   type InvoiceUpdateInput,
   type TravelDeskInvoiceAsShow,
+  TravelDeskInvoiceItemProductTypes,
   travelDeskInvoicesApi,
 } from "@/api/travel-desk-invoices-api"
-import {
-  type TravelDeskProductType,
-  travelDeskProductTypesApi,
-} from "@/api/travel-desk-product-types-api"
 import {
   type TravelDeskBookingEventAsIndex,
   travelDeskBookingEventsApi,
@@ -418,9 +404,9 @@ const requestId = computed(() => Number(props.travelDeskTravelRequestId))
 const { isAdmin, isTravelDeskUser } = useCurrentUser()
 const canManage = computed(() => Boolean(isAdmin.value || isTravelDeskUser.value))
 const snack = useSnack()
+const { t } = useI18n()
 const invoices = ref<TravelDeskInvoiceAsShow[] | null>(null)
 const invoice = ref<TravelDeskInvoiceAsShow | null>(null)
-const productTypes = ref<TravelDeskProductType[]>([])
 const localSegments = ref<TravelDeskFlightSegmentAsIndex[]>([])
 const bookingEvents = ref<TravelDeskBookingEventAsIndex[]>([])
 const snapshot = ref<InvoiceSourceSnapshot | null>(null)
@@ -434,7 +420,6 @@ const isDeleting = ref(false)
 const isSearching = ref(false)
 const hasSearched = ref(false)
 const errorMessage = ref("")
-const productTypesError = ref("")
 const recordLocator = ref("")
 const searchedRecordLocator = ref("")
 const selectedBookingEvent = ref<TravelDeskBookingEventAsIndex | null>(null)
@@ -534,22 +519,6 @@ async function loadInvoices() {
     ) {
       invoices.value = []
     }
-  }
-}
-
-async function loadProductTypes() {
-  const version = contextVersion
-  productTypesError.value = ""
-  try {
-    const { travelDeskProductTypes } = await travelDeskProductTypesApi.list({ perPage: 1000 })
-    if (version !== contextVersion) return
-
-    productTypes.value = travelDeskProductTypes
-  } catch (error) {
-    if (version !== contextVersion) return
-
-    console.error("Failed to load invoice product types", error)
-    productTypesError.value = errorText(error, "Invoice product types could not be loaded.")
   }
 }
 
@@ -724,10 +693,8 @@ function segmentSummary(segmentNumber: number) {
 
 function startDraft() {
   const event = selectedBookingEvent.value
-  const airType = productTypes.value.find((product) => product.code === "air")
-  const feeType = productTypes.value.find((product) => product.code === "service-fee")
-  if (!event || !airType || !feeType) {
-    errorMessage.value = "Choose a flight booking event and load the invoice product types first."
+  if (!event) {
+    errorMessage.value = "Choose a flight booking event first."
     return
   }
 
@@ -751,7 +718,7 @@ function startDraft() {
     passengerName = [passenger.firstName, passenger.lastName].filter(Boolean).join(" ")
   }
   const items: InvoiceItemInput[] = event.airReservationSegments.map((segment, index) => ({
-    travelDeskProductTypeId: airType.id,
+    productType: TravelDeskInvoiceItemProductTypes.AIR,
     travelDeskFlightSegmentId: null,
     sourceAirSegmentNumber: segment.airSegmentNumber,
     sourceServiceFeeEventId: null,
@@ -773,7 +740,7 @@ function startDraft() {
     if (fee.activeVoidStatus === "V") saleType = "Void"
 
     items.push({
-      travelDeskProductTypeId: feeType.id,
+      productType: TravelDeskInvoiceItemProductTypes.SERVICE_FEE,
       travelDeskFlightSegmentId: null,
       sourceAirSegmentNumber: null,
       sourceServiceFeeEventId: feeEvent.travelOrderIdentifier,
@@ -838,11 +805,8 @@ function beginEdit() {
 function addCharge() {
   if (!draft.value) return
 
-  const defaultProduct = productTypes.value.find((product) => product.code === "change-fee")
-  if (!defaultProduct) return
-
   draft.value.items.push({
-    travelDeskProductTypeId: defaultProduct.id,
+    productType: TravelDeskInvoiceItemProductTypes.CHANGE_FEE,
     travelDeskFlightSegmentId: null,
     sourceAirSegmentNumber: null,
     sourceServiceFeeEventId: null,
@@ -991,7 +955,7 @@ watch(
       return
     }
 
-    await Promise.all([loadInvoices(), loadProductTypes()])
+    await loadInvoices()
   },
   { immediate: true }
 )

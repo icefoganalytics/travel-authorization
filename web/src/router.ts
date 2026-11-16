@@ -499,11 +499,6 @@ const routes: RouteRecordRaw[] = [
             component: () => import("@/pages/administration/TravelAgenciesPage.vue"),
           },
           {
-            path: "administration/travel-desk-product-types",
-            name: "administration/TravelDeskProductTypesPage",
-            component: () => import("@/pages/administration/TravelDeskProductTypesPage.vue"),
-          },
-          {
             path: "administration/travel-agencies/new",
             name: "administration/travel-agencies/TravelAgencyNewPage",
             component: () =>

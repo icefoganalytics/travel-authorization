@@ -1,7 +1,13 @@
 import type { QueryOptions } from "@/api/base-api"
 import http from "@/api/http-client"
-import type { TravelDeskProductType } from "@/api/travel-desk-product-types-api"
 import type { TravelDeskBookingEventAsIndex } from "@/api/travel-desk-booking-events-api"
+
+export enum TravelDeskInvoiceItemProductTypes {
+  AIR = "air",
+  SERVICE_FEE = "service_fee",
+  CREDIT = "credit",
+  CHANGE_FEE = "change_fee",
+}
 
 export type InvoiceSourceSnapshot = {
   bookingEvent: TravelDeskBookingEventAsIndex
@@ -10,7 +16,7 @@ export type InvoiceSourceSnapshot = {
 
 export type TravelDeskInvoiceItemAsShow = {
   id: number
-  travelDeskProductTypeId: number
+  productType: TravelDeskInvoiceItemProductTypes
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
   sourceServiceFeeEventId: number | null
@@ -21,7 +27,6 @@ export type TravelDeskInvoiceItemAsShow = {
   saleType: "Sale" | "Refund" | "Void"
   grossAmount: string
   position: number
-  productType: TravelDeskProductType
 }
 
 export type TravelDeskInvoiceAsShow = {
@@ -47,7 +52,7 @@ export type TravelDeskInvoiceAsShow = {
 }
 
 export type InvoiceItemInput = {
-  travelDeskProductTypeId: number
+  productType: TravelDeskInvoiceItemProductTypes
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
   sourceServiceFeeEventId: number | null
