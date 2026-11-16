@@ -9,7 +9,9 @@ export class DetermineFinalDestinationService extends BaseService {
   constructor(
     protected tripType: TravelAuthorization["tripType"],
     protected travelSegments: TravelSegment[] | undefined,
-    protected tripTypeActual: TravelAuthorization["tripTypeActual"]
+    protected tripTypeActual: TravelAuthorization["tripTypeActual"],
+    protected estimatedPrimaryDestinationId: number | null,
+    protected actualPrimaryDestinationId: number | null
   ) {
     super()
   }
@@ -36,8 +38,11 @@ export class DetermineFinalDestinationService extends BaseService {
     )
     let primaryTravelSegment: TravelSegment | undefined
     if (activeTripType === TravelAuthorization.TripTypes.MULTI_CITY) {
+      const destinationId = useActuals
+        ? this.actualPrimaryDestinationId
+        : this.estimatedPrimaryDestinationId
       primaryTravelSegment = destinationTravelSegments.find(
-        ({ isPrimaryDestination }) => isPrimaryDestination
+        ({ arrivalLocationId }) => !isNil(destinationId) && arrivalLocationId === destinationId
       )
     } else {
       primaryTravelSegment = defaultPrimaryDestinationSegment(

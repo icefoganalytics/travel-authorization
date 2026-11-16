@@ -1,10 +1,10 @@
 import { Attributes } from "@sequelize/core"
 
-import { isNil, isUndefined } from "lodash"
+import { isNil } from "lodash"
 
-import { TravelAuthorization, TravelSegment, User } from "@/models"
+import db, { TravelAuthorization, TravelSegment, User } from "@/models"
 import BaseService from "@/services/base-service"
-import { defaultPrimaryDestinationSegment } from "@/services/travel-segments/helpers/default-primary-destination-segment"
+import { ReconcilePrimaryDestinationService } from "@/services/travel-authorizations/reconcile-primary-destination-service"
 
 export type TravelSegmentCreationAttributes = Partial<Attributes<TravelSegment>>
 
@@ -38,32 +38,15 @@ export class CreateService extends BaseService {
       segmentNumber,
       modeOfTransport,
     }
-    if (isUndefined(attributes.isPrimaryDestination)) {
-      const isActual = attributes.isActual ?? false
+    return db.transaction(async () => {
       const travelAuthorization = await TravelAuthorization.findByPk(travelAuthorizationId, {
         rejectOnEmpty: true,
+        lock: true,
       })
-      const travelSegments = await TravelSegment.findAll({
-        where: {
-          travelAuthorizationId,
-          isActual,
-        },
-      })
-      if (!travelSegments.some(({ isPrimaryDestination }) => isPrimaryDestination)) {
-        const tripType = isActual
-          ? travelAuthorization.tripTypeActual
-          : travelAuthorization.tripTypeEstimate
-        const defaultSegment = defaultPrimaryDestinationSegment(tripType, [
-          ...travelSegments,
-          attributes,
-        ])
-        attributes.isPrimaryDestination = defaultSegment === attributes
-      }
-    }
-
-    const travelSegment = await TravelSegment.create(attributes)
-
-    return travelSegment
+      const travelSegment = await TravelSegment.create(attributes)
+      await ReconcilePrimaryDestinationService.perform(travelAuthorization, travelSegment.isActual)
+      return travelSegment
+    })
   }
 }
 

@@ -130,11 +130,6 @@ export class TravelSegment extends Model<
   @Default(false)
   declare isActual: CreationOptional<boolean>
 
-  @Attribute(DataTypes.BOOLEAN)
-  @NotNull
-  @Default(false)
-  declare isPrimaryDestination: CreationOptional<boolean>
-
   @Attribute(DataTypes.DATE)
   @NotNull
   @Default(DataTypes.NOW)
@@ -196,13 +191,6 @@ export class TravelSegment extends Model<
       throw new Error(
         `accommodationTypeOther can only have a value if accommodationType is ${AccommodationTypes.OTHER}`
       )
-    }
-  }
-
-  @ModelValidator
-  primaryDestinationRequiresArrival() {
-    if (this.isPrimaryDestination && isNil(this.arrivalLocationId)) {
-      throw new Error("Primary destination requires an arrival location.")
     }
   }
 

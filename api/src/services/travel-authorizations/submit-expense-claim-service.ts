@@ -45,6 +45,11 @@ export class SubmitExpenseClaimService extends BaseService {
     }
 
     await db.transaction(async () => {
+      const travelAuthorizationId = this.travelAuthorization.id
+      this.travelAuthorization = await TravelAuthorization.findByPk(travelAuthorizationId, {
+        rejectOnEmpty: true,
+        lock: true,
+      })
       await ValidatePrimaryDestinationService.perform(this.travelAuthorization, true)
 
       const supervisor = await Users.EnsureService.perform(

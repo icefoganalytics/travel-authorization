@@ -1,6 +1,6 @@
 <template>
   <v-skeleton-loader
-    v-if="isNil(travelAuthorization?.id)"
+    v-if="isNil(travelAuthorization?.id) || !isInitialized"
     type="card"
   />
   <v-form
@@ -26,6 +26,8 @@
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
       :current-travel-segments="travelSegments"
       :current-trip-type="travelAuthorization.tripTypeEstimate"
+      :primary-destination-location-id="primaryDestinationLocationId"
+      @update:primary-destination-location-id="updatePrimaryDestination"
       @updated="updateTravelSegmentsAttributes"
     />
     <div v-else>Trip type {{ tripType }} not implemented!</div>
@@ -91,8 +93,6 @@ import useRouteQuery from "@/use/utils/use-route-query"
 
 import { TRIP_TYPES } from "@/api/travel-authorizations-api"
 
-import determinePrimaryDestinationSegment from "@/capabilities/travel-itinerary/determine-primary-destination-segment"
-
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
@@ -138,20 +138,32 @@ const travelSegmentEstimatesQuery = computed(() => ({
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: false,
   },
+  perPage: -1,
 }))
-const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
+const { travelSegments, isInitialized } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
-const primaryDestinationSegment = computed(() =>
-  determinePrimaryDestinationSegment(tripType.value, travelSegmentsAttributes.value)
-)
 const primaryDestinationLocationId = computed(
-  () => primaryDestinationSegment.value?.arrivalLocationId ?? null
+  () => travelAuthorization.value?.estimatedPrimaryDestinationId ?? null
 )
+
+function updatePrimaryDestination(locationId) {
+  travelAuthorization.value.estimatedPrimaryDestinationId = locationId
+  emit("update:primaryDestinationLocationId", locationId)
+}
 
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes
+  if (tripType.value !== TRIP_TYPES.MULTI_CITY) {
+    updatePrimaryDestination(newTravelSegmentsAttributes.at(0)?.arrivalLocationId ?? null)
+  } else if (
+    !newTravelSegmentsAttributes.some(
+      (segment) => segment.arrivalLocationId === primaryDestinationLocationId.value
+    )
+  ) {
+    updatePrimaryDestination(null)
+  }
 
   updateDepartureDate(newTravelSegmentsAttributes)
   emit("update:primaryDestinationLocationId", primaryDestinationLocationId.value)
@@ -212,6 +224,10 @@ const snack = useSnack()
 const isSaving = ref(false)
 
 async function resetFormValidation() {
+  if (tripType.value === TRIP_TYPES.MULTI_CITY) {
+    updatePrimaryDestination(null)
+  }
+
   await nextTick()
   form.value?.resetValidation()
 }
@@ -229,6 +245,7 @@ async function saveWrapper() {
   try {
     await save({
       tripTypeEstimate: tripType.value,
+      estimatedPrimaryDestinationId: primaryDestinationLocationId.value,
       travelDurationEstimate: travelAuthorization.value.travelDurationEstimate,
       daysOffTravelStatusEstimate: travelAuthorization.value.daysOffTravelStatusEstimate,
       dateBackToWorkEstimate: travelAuthorization.value.dateBackToWorkEstimate,

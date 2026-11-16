@@ -303,7 +303,6 @@ const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
-    isPrimaryDestination: false,
     segmentNumber: 1,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -317,7 +316,6 @@ const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
-    isPrimaryDestination: false,
     segmentNumber: 2,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -421,11 +419,6 @@ function buildLocationFilters(idsToExclude) {
 watch(
   () => cloneDeep(travelSegmentsAttributes.value),
   () => {
-    const outboundSegment = first(travelSegmentsAttributes.value)
-    travelSegmentsAttributes.value.forEach((segment) => {
-      segment.isPrimaryDestination =
-        segment === outboundSegment && !isNil(segment.arrivalLocationId)
-    })
     emit("updated", travelSegmentsAttributes.value)
   },
   {

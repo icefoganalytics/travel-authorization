@@ -1,6 +1,6 @@
 <template>
   <v-skeleton-loader
-    v-if="isNil(travelAuthorization?.id)"
+    v-if="isNil(travelAuthorization?.id) || !isInitialized"
     type="card"
   />
   <v-form
@@ -10,7 +10,7 @@
   >
     <v-select
       v-if="isExpenseClaimTravellerChangesRequested"
-      :model-value="savedPrimaryDestinationId"
+      :model-value="primaryDestinationLocationId"
       :items="savedActualArrivalItems"
       :rules="[required]"
       label="Primary destination"
@@ -18,7 +18,7 @@
       persistent-hint
       density="compact"
       variant="outlined"
-      @update:model-value="selectSavedPrimaryDestination"
+      @update:model-value="updatePrimaryDestination"
     >
       <template #selection="{ item }">
         {{ item.title }} —
@@ -57,7 +57,9 @@
         :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
         :current-travel-segments="travelSegments"
         :current-trip-type="travelAuthorization.tripTypeActual"
+        :primary-destination-location-id="primaryDestinationLocationId"
         is-actual
+        @update:primary-destination-location-id="updatePrimaryDestination"
         @updated="updateTravelSegmentsAttributes"
       />
       <div v-else>Trip type {{ tripType }} not implemented!</div>
@@ -123,9 +125,6 @@ import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/
 import useRouteQuery from "@/use/utils/use-route-query"
 
 import { TRIP_TYPES, TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
-import travelSegmentsApi from "@/api/travel-segments-api"
-
-import determinePrimaryDestinationSegment from "@/capabilities/travel-itinerary/determine-primary-destination-segment"
 
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
@@ -177,7 +176,8 @@ const travelSegmentsQuery = computed(() => ({
   },
   perPage: -1,
 }))
-const { travelSegments: savedTravelSegments } = useTravelSegments(travelSegmentsQuery)
+const { travelSegments: savedTravelSegments, isInitialized } =
+  useTravelSegments(travelSegmentsQuery)
 const travelSegments = computed(() => {
   const actualSegments = savedTravelSegments.value.filter((segment) => segment.isActual)
   if (!isEmpty(actualSegments)) return actualSegments
@@ -190,7 +190,6 @@ const travelSegments = computed(() => {
       return {
         ...actualSegmentAttributes,
         isActual: true,
-        isPrimaryDestination: false,
       }
     })
 })
@@ -201,45 +200,42 @@ const isExpenseClaimTravellerChangesRequested = computed(
     TravelAuthorizationStatuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED
 )
 const savedActualArrivalItems = computed(() => {
-  return travelSegments.value
-    .filter((segment) => segment.isActual && !isNil(segment.id))
-    .map((segment) => {
-      const isArrivalMissing = isNil(segment.arrivalLocationId)
-      return {
-        title: `Leg ${segment.segmentNumber} arrival`,
-        value: segment.id,
-        arrivalLocationId: segment.arrivalLocationId,
-        props: {
-          disabled: isArrivalMissing,
-        },
-      }
-    })
-})
-const savedPrimaryDestinationId = computed(() => {
-  const selectedSegment = travelSegments.value.find((segment) => segment.isPrimaryDestination)
-  return selectedSegment?.id ?? null
+  const locationIds = new Set(
+    savedTravelSegments.value
+      .filter((segment) => segment.isActual)
+      .map((segment) => segment.arrivalLocationId)
+  )
+  return Array.from(locationIds)
+    .filter((locationId) => !isNil(locationId))
+    .map((locationId) => ({
+      title: "Arrival city",
+      value: locationId,
+      arrivalLocationId: locationId,
+    }))
 })
 
-function selectSavedPrimaryDestination(segmentId) {
-  const actualSegments = savedTravelSegments.value.filter((segment) => segment.isActual)
-  actualSegments.forEach((segment) => {
-    segment.isPrimaryDestination = segment.id === segmentId && !isNil(segment.arrivalLocationId)
-  })
-  const selectedSegment = actualSegments.find((segment) => segment.isPrimaryDestination)
-  emit("update:primaryDestinationLocationId", selectedSegment?.arrivalLocationId ?? null)
+function updatePrimaryDestination(locationId) {
+  travelAuthorization.value.actualPrimaryDestinationId = locationId
+  emit("update:primaryDestinationLocationId", locationId)
 }
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
-const primaryDestinationSegment = computed(() =>
-  determinePrimaryDestinationSegment(tripType.value, travelSegmentsAttributes.value)
-)
 const primaryDestinationLocationId = computed(
-  () => primaryDestinationSegment.value?.arrivalLocationId ?? null
+  () => travelAuthorization.value?.actualPrimaryDestinationId ?? null
 )
 
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes
+  if (tripType.value !== TRIP_TYPES.MULTI_CITY) {
+    updatePrimaryDestination(newTravelSegmentsAttributes.at(0)?.arrivalLocationId ?? null)
+  } else if (
+    !newTravelSegmentsAttributes.some(
+      (segment) => segment.arrivalLocationId === primaryDestinationLocationId.value
+    )
+  ) {
+    updatePrimaryDestination(null)
+  }
 
   updateDepartureDate(newTravelSegmentsAttributes)
   emit("update:primaryDestinationLocationId", primaryDestinationLocationId.value)
@@ -300,6 +296,10 @@ const isSaving = ref(false)
 const snack = useSnack()
 
 async function resetFormValidation() {
+  if (tripType.value === TRIP_TYPES.MULTI_CITY) {
+    updatePrimaryDestination(null)
+  }
+
   await nextTick()
   form.value?.resetValidation()
 }
@@ -316,17 +316,15 @@ async function saveWrapper() {
   isSaving.value = true
   try {
     if (isExpenseClaimTravellerChangesRequested.value) {
-      const selectedSegmentId = savedPrimaryDestinationId.value
-      if (isNil(selectedSegmentId)) return
-
-      await travelSegmentsApi.update(selectedSegmentId, {
-        isPrimaryDestination: true,
+      await save({
+        actualPrimaryDestinationId: primaryDestinationLocationId.value,
       })
       return
     }
 
     await save({
       tripTypeActual: tripType.value,
+      actualPrimaryDestinationId: primaryDestinationLocationId.value,
       travelDurationActual: travelAuthorization.value.travelDurationActual,
       daysOffTravelStatusActual: travelAuthorization.value.daysOffTravelStatusActual,
       dateBackToWorkActual: travelAuthorization.value.dateBackToWorkActual,

@@ -5,7 +5,7 @@ import { type WithRequired } from "@/utils/utility-types"
 
 import db, { TravelAuthorization, TravelSegment } from "@/models"
 import BaseService from "@/services/base-service"
-import { defaultPrimaryDestinationSegment } from "@/services/travel-segments/helpers/default-primary-destination-segment"
+import { ReconcilePrimaryDestinationService } from "@/services/travel-authorizations/reconcile-primary-destination-service"
 
 export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
 
@@ -65,52 +65,8 @@ export class BulkReplaceService extends BaseService {
         }
       }
 
-      const travelSegmentsAttributes = this.travelSegmentsAttributes.map((attributes) => {
-        if (!isUndefined(attributes.isPrimaryDestination)) {
-          return { ...attributes }
-        }
-
-        const existingTravelSegment = existingTravelSegments.find(
-          ({ id }) => id === attributes.id
-        )
-        const isPrimaryDestination =
-          existingTravelSegment?.isPrimaryDestination === true &&
-          existingTravelSegment.arrivalLocationId === attributes.arrivalLocationId
-        return {
-          ...attributes,
-          isPrimaryDestination,
-        }
-      })
+      const travelSegmentsAttributes = this.travelSegmentsAttributes
       this.hasAllRequiredAttributes(travelSegmentsAttributes)
-
-      const tripType = this.isActual
-        ? travelAuthorization.tripTypeActual
-        : travelAuthorization.tripTypeEstimate
-      if (
-        this.travelSegmentsAttributes.every(({ isPrimaryDestination }) =>
-          isUndefined(isPrimaryDestination)
-        ) &&
-        !travelSegmentsAttributes.some(({ isPrimaryDestination }) => isPrimaryDestination)
-      ) {
-        const primaryTravelSegment = defaultPrimaryDestinationSegment(
-          tripType,
-          travelSegmentsAttributes
-        )
-        if (!isUndefined(primaryTravelSegment)) {
-          primaryTravelSegment.isPrimaryDestination = true
-        }
-      }
-
-      const selectedTravelSegments = travelSegmentsAttributes.filter(
-        ({ isPrimaryDestination }) => isPrimaryDestination === true
-      )
-      if (selectedTravelSegments.length > 1) {
-        throw new Error("Only one primary destination may be selected per itinerary.")
-      }
-
-      if (selectedTravelSegments.some(({ arrivalLocationId }) => isNil(arrivalLocationId))) {
-        throw new Error("Primary destination requires an arrival location.")
-      }
 
       await TravelSegment.destroy({
         where: {
@@ -119,7 +75,9 @@ export class BulkReplaceService extends BaseService {
         },
       })
 
-      return TravelSegment.bulkCreate(travelSegmentsAttributes)
+      const travelSegments = await TravelSegment.bulkCreate(travelSegmentsAttributes)
+      await ReconcilePrimaryDestinationService.perform(travelAuthorization, this.isActual)
+      return travelSegments
     })
   }
 

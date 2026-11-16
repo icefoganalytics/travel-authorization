@@ -22,6 +22,8 @@ import { Locations, TravelDeskTravelRequests } from "@/serializers"
 export type TravelAuthorizationIndexView = Pick<
   TravelAuthorization,
   | "id"
+  | "estimatedPrimaryDestinationId"
+  | "actualPrimaryDestinationId"
   | "eventName"
   | "purposeId"
   | "wizardStepName"
@@ -71,7 +73,9 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const finalDestinationLocation = DetermineFinalDestinationService.perform(
       this.record.tripType,
       travelSegments,
-      this.record.tripTypeActual
+      this.record.tripTypeActual,
+      this.record.estimatedPrimaryDestinationId,
+      this.record.actualPrimaryDestinationId
     )
     const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
@@ -80,6 +84,8 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return {
       ...pick(this.record, [
         "id",
+        "estimatedPrimaryDestinationId",
+        "actualPrimaryDestinationId",
         "eventName",
         "purposeId",
         "wizardStepName",

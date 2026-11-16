@@ -19,7 +19,7 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
   }
 
   update(): boolean {
-    if (this.isReturnedExpenseClaim && !this.record.isActual) return false
+    if (this.isReturnedExpenseClaim) return false
 
     return this.travelAuthorizationPolicy.update()
   }
@@ -34,7 +34,6 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
     return [
       "departureLocationId",
       "arrivalLocationId",
-      "isPrimaryDestination",
       "segmentNumber",
       "departureOn",
       "departureTime",
@@ -46,10 +45,6 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
   }
 
   permittedAttributesForUpdate(): Path[] {
-    if (this.isReturnedExpenseClaim) {
-      return this.update() ? ["isPrimaryDestination"] : []
-    }
-
     return this.permittedAttributes()
   }
 

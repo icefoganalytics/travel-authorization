@@ -26,6 +26,7 @@ import { DateTime } from "luxon"
 
 import BaseModel from "@/models/base-model"
 import Expense from "@/models/expense"
+import Location from "@/models/location"
 import Stop from "@/models/stop"
 import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization-pre-approval-profile"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
@@ -233,6 +234,12 @@ export class TravelAuthorization extends BaseModel<
   })
   declare tripTypeActual: TravelAuthorizationTripTypes | null
 
+  @Attribute(DataTypes.INTEGER)
+  declare estimatedPrimaryDestinationId: number | null
+
+  @Attribute(DataTypes.INTEGER)
+  declare actualPrimaryDestinationId: number | null
+
   // TODO: make this a foreign key to the users table
   // also non-nullable,
   // maybe rename to creatorId
@@ -277,6 +284,16 @@ export class TravelAuthorization extends BaseModel<
   }
 
   // Associations
+  @BelongsTo(() => Location, {
+    foreignKey: { name: "estimatedPrimaryDestinationId", onDelete: "RESTRICT" },
+  })
+  declare estimatedPrimaryDestination?: NonAttribute<Location | null>
+
+  @BelongsTo(() => Location, {
+    foreignKey: { name: "actualPrimaryDestinationId", onDelete: "RESTRICT" },
+  })
+  declare actualPrimaryDestination?: NonAttribute<Location | null>
+
   @BelongsTo(() => TravelAuthorizationPreApprovalProfile, {
     foreignKey: "preApprovalProfileId",
     inverse: {

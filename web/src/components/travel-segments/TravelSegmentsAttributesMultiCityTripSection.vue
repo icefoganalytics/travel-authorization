@@ -1,10 +1,10 @@
 <template>
   <div>
     <v-select
-      :model-value="primaryDestinationIndex"
+      :model-value="primaryDestinationLocationId"
       :items="primaryDestinationItems"
       label="Primary destination"
-      hint="Choose the arrival leg that is the primary destination. You can save a draft without choosing."
+      hint="Choose the primary destination city. You can save a draft without choosing."
       persistent-hint
       clearable
       density="compact"
@@ -15,7 +15,7 @@
       <template #selection="{ item }">
         {{ item.title }} —
         <LocationChip
-          :location-id="travelSegmentsAttributes[item.value].arrivalLocationId"
+          :location-id="item.value"
           variant="text"
         />
       </template>
@@ -23,7 +23,7 @@
         <v-list-item v-bind="itemProps">
           <template #append>
             <LocationChip
-              :location-id="travelSegmentsAttributes[item.value].arrivalLocationId"
+              :location-id="item.value"
               variant="text"
             />
           </template>
@@ -31,12 +31,12 @@
       </template>
     </v-select>
     <v-btn
-      v-if="isNil(primaryDestinationIndex) && !isNil(suggestedDestinationIndex)"
+      v-if="isNil(primaryDestinationLocationId) && !isNil(suggestedDestinationLocationId)"
       class="mb-4"
       variant="outlined"
-      @click="selectPrimaryDestination(suggestedDestinationIndex)"
+      @click="selectPrimaryDestination(suggestedDestinationLocationId)"
     >
-      Use suggested arrival: Leg {{ suggestedDestinationIndex + 1 }}
+      Use suggested destination
     </v-btn>
     <h4 class="mb-4 h-9">Leg 1</h4>
 
@@ -365,6 +365,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  primaryDestinationLocationId: {
+    type: Number,
+    default: null,
+  },
   isActual: {
     type: Boolean,
     default: false,
@@ -377,13 +381,12 @@ const props = defineProps({
  *   'updated': [number, number]
  * }>}
  */
-const emit = defineEmits(["saved", "updated"])
+const emit = defineEmits(["saved", "updated", "update:primaryDestinationLocationId"])
 
 const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
-    isPrimaryDestination: false,
     segmentNumber: 1,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -397,7 +400,6 @@ const travelSegmentsAttributes = ref([
   {
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
-    isPrimaryDestination: false,
     segmentNumber: 2,
     departureLocationId: null,
     arrivalLocationId: null,
@@ -422,10 +424,6 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
     const accommodationType = isLastTravelSegment
       ? null
       : newTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL
-    const isPrimaryDestination =
-      props.currentTripType === TravelAuthorizationTripTypes.MULTI_CITY &&
-      newTravelSegment.isPrimaryDestination === true &&
-      !isNil(newTravelSegment.arrivalLocationId)
 
     const newTravelSegmentAttributes = {
       ...currentTravelSegmentAttributes,
@@ -434,7 +432,6 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
       modeOfTransport: newTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType,
       isActual: props.isActual,
-      isPrimaryDestination,
       segmentNumber: index + 1,
       travelAuthorizationId: props.travelAuthorizationId,
     }
@@ -456,40 +453,28 @@ watch(
   }
 )
 
-const primaryDestinationIndex = computed(() => {
-  const index = travelSegmentsAttributes.value.findIndex((segment) => segment.isPrimaryDestination)
-  if (index < 0) return null
-
-  return index
-})
-
 const primaryDestinationItems = computed(() => {
-  return travelSegmentsAttributes.value.map((segment, index) => {
-    const isDisabled = isNil(segment.arrivalLocationId)
-    return {
-      title: `Leg ${index + 1} arrival`,
-      value: index,
-      props: {
-        disabled: isDisabled,
-      },
-    }
-  })
+  const locationIds = new Set(
+    travelSegmentsAttributes.value.map((segment) => segment.arrivalLocationId)
+  )
+  return Array.from(locationIds)
+    .filter((locationId) => !isNil(locationId))
+    .map((locationId) => ({
+      title: "Arrival city",
+      value: locationId,
+    }))
 })
 
-const suggestedDestinationIndex = computed(() => {
+const suggestedDestinationLocationId = computed(() => {
   const suggestedSegment = determineFinalDestinationSegment(
     TravelAuthorizationTripTypes.MULTI_CITY,
     travelSegmentsAttributes.value
   )
-  if (isNil(suggestedSegment?.arrivalLocationId)) return null
-
-  return travelSegmentsAttributes.value.indexOf(suggestedSegment)
+  return suggestedSegment?.arrivalLocationId ?? null
 })
 
-function selectPrimaryDestination(index) {
-  travelSegmentsAttributes.value.forEach((segment, segmentIndex) => {
-    segment.isPrimaryDestination = segmentIndex === index && !isNil(segment.arrivalLocationId)
-  })
+function selectPrimaryDestination(locationId) {
+  emit("update:primaryDestinationLocationId", locationId)
 }
 
 function updateArrivalLocation(index, locationId) {
@@ -502,10 +487,6 @@ const firstTravelSegmentAttributes = computed(() => first(travelSegmentsAttribut
 function updateTravelSegmentAttributeByIndex(index, attribute, value) {
   const travelSegment = travelSegmentsAttributes.value[index]
   if (isNil(travelSegment)) return
-
-  if (attribute === "arrivalLocationId" && travelSegment.arrivalLocationId !== value) {
-    travelSegment.isPrimaryDestination = false
-  }
 
   travelSegment[attribute] = value
 }
@@ -534,7 +515,6 @@ function addTravelSegmentAttribute() {
   travelSegmentsAttributes.value.push({
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: props.isActual,
-    isPrimaryDestination: false,
     segmentNumber: travelSegmentsAttributes.value.length + 1,
     departureLocationId: previousLastTravelSegment.arrivalLocationId,
     arrivalLocationId: null,
@@ -578,6 +558,13 @@ function finalAccommodationTypeSelectDefaults(index) {
 watch(
   () => cloneDeep(travelSegmentsAttributes.value),
   () => {
+    const hasSelectedArrival = travelSegmentsAttributes.value.some(
+      (segment) => segment.arrivalLocationId === props.primaryDestinationLocationId
+    )
+    if (!isNil(props.primaryDestinationLocationId) && !hasSelectedArrival) {
+      selectPrimaryDestination(null)
+    }
+
     emit("updated", travelSegmentsAttributes.value)
   },
   {

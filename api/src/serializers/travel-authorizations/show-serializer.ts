@@ -31,6 +31,8 @@ import { type ExpenseAsReference } from "@/serializers/expenses/reference-serial
 export type TravelAuthorizationShowView = Pick<
   TravelAuthorization,
   | "id"
+  | "estimatedPrimaryDestinationId"
+  | "actualPrimaryDestinationId"
   | "slug"
   | "userId"
   | "preApprovalProfileId"
@@ -106,7 +108,9 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     const finalDestinationLocation = DetermineFinalDestinationService.perform(
       this.record.tripType,
       travelSegments,
-      this.record.tripTypeActual
+      this.record.tripTypeActual,
+      this.record.estimatedPrimaryDestinationId,
+      this.record.actualPrimaryDestinationId
     )
     const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
     const serializedTravelPurpose = this.serializeTravelPurpose(purpose)
@@ -121,6 +125,8 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     return {
       ...pick(this.record, [
         "id",
+        "estimatedPrimaryDestinationId",
+        "actualPrimaryDestinationId",
         "slug",
         "userId",
         "preApprovalProfileId",
