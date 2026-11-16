@@ -7,13 +7,11 @@ export async function up(knex: Knex): Promise<void> {
 
     table
       .foreign("estimated_primary_destination_id")
-      .references("id")
-      .inTable("locations")
+      .references("locations.id")
       .onDelete("RESTRICT")
     table
       .foreign("actual_primary_destination_id")
-      .references("id")
-      .inTable("locations")
+      .references("locations.id")
       .onDelete("RESTRICT")
   })
 }
