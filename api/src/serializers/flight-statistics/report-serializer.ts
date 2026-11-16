@@ -18,22 +18,94 @@ export type FlightStatisticAsReport = Record<FlightStatisticReportHeaders, strin
 
 export class ReportSerializer extends BaseSerializer<FlightStatistic> {
   perform(): FlightStatisticAsReport {
-    const totalExpenses = formatCurrency(this.record.totalExpenses)
-    const totalFlightCost = formatCurrency(this.record.totalFlightCost)
-    const averageExpensesPerDay = formatCurrency(this.record.averageExpensesPerDay)
-    const averageRoundTripFlightCost = formatCurrency(this.record.averageRoundTripFlightCost)
+    const {
+      departmentMailcode,
+      destinationCity,
+      destinationProvince,
+      totalTrips,
+      totalExpenses,
+      totalFlightCost,
+      averageDurationDays,
+      averageExpensesPerDay,
+      averageRoundTripFlightCost,
+    } = this.record
+
+    const formattedDepartmentMailcode = this.formatDepartmentMailcode(departmentMailcode)
+    const formattedFinalDestinationCity = this.formatFinalDestinationCity(destinationCity)
+    const formattedFinalDestinationProvince = this.formatFinalDestinationProvince(destinationProvince)
+    const formattedTotalTrips = this.formatTotalTrips(totalTrips)
+    const formattedTotalExpenses = this.formatTotalExpenses(totalExpenses)
+    const formattedTotalFlightCost = this.formatTotalFlightCost(totalFlightCost)
+    const formattedAverageDurationDays = this.formatAverageDurationDays(averageDurationDays)
+    const formattedAverageExpensesPerDay = this.formatAverageExpensesPerDay(averageExpensesPerDay)
+    const formattedAverageRoundTripFlightCost =
+      this.formatAverageRoundTripFlightCost(averageRoundTripFlightCost)
 
     return {
-      [FlightStatisticReportHeaders.DEPARTMENT_MAILCODE]: this.record.departmentMailcode ?? "",
-      [FlightStatisticReportHeaders.FINAL_DESTINATION_CITY]: this.record.destinationCity ?? "",
-      [FlightStatisticReportHeaders.FINAL_DESTINATION_PROVINCE]: this.record.destinationProvince ?? "",
-      [FlightStatisticReportHeaders.TOTAL_TRIPS]: this.record.totalTrips ?? "",
-      [FlightStatisticReportHeaders.TOTAL_EXPENSES]: totalExpenses,
-      [FlightStatisticReportHeaders.TOTAL_FLIGHT_COST]: totalFlightCost,
-      [FlightStatisticReportHeaders.AVERAGE_DURATION_DAYS]: this.record.averageDurationDays ?? "",
-      [FlightStatisticReportHeaders.AVERAGE_EXPENSES_PER_DAY]: averageExpensesPerDay,
-      [FlightStatisticReportHeaders.AVERAGE_ROUND_TRIP_FLIGHT_COST]: averageRoundTripFlightCost,
+      [FlightStatisticReportHeaders.DEPARTMENT_MAILCODE]: formattedDepartmentMailcode,
+      [FlightStatisticReportHeaders.FINAL_DESTINATION_CITY]: formattedFinalDestinationCity,
+      [FlightStatisticReportHeaders.FINAL_DESTINATION_PROVINCE]: formattedFinalDestinationProvince,
+      [FlightStatisticReportHeaders.TOTAL_TRIPS]: formattedTotalTrips,
+      [FlightStatisticReportHeaders.TOTAL_EXPENSES]: formattedTotalExpenses,
+      [FlightStatisticReportHeaders.TOTAL_FLIGHT_COST]: formattedTotalFlightCost,
+      [FlightStatisticReportHeaders.AVERAGE_DURATION_DAYS]: formattedAverageDurationDays,
+      [FlightStatisticReportHeaders.AVERAGE_EXPENSES_PER_DAY]: formattedAverageExpensesPerDay,
+      [FlightStatisticReportHeaders.AVERAGE_ROUND_TRIP_FLIGHT_COST]: formattedAverageRoundTripFlightCost,
     }
+  }
+
+  private formatDepartmentMailcode(
+    departmentMailcode: FlightStatistic["departmentMailcode"]
+  ): string {
+    return departmentMailcode ?? ""
+  }
+
+  private formatFinalDestinationCity(
+    destinationCity: FlightStatistic["destinationCity"]
+  ): string {
+    return destinationCity ?? ""
+  }
+
+  private formatFinalDestinationProvince(
+    destinationProvince: FlightStatistic["destinationProvince"]
+  ): string {
+    return destinationProvince ?? ""
+  }
+
+  private formatTotalTrips(
+    totalTrips: FlightStatistic["totalTrips"]
+  ): string | number {
+    return totalTrips ?? ""
+  }
+
+  private formatTotalExpenses(
+    totalExpenses: FlightStatistic["totalExpenses"]
+  ): string {
+    return formatCurrency(totalExpenses)
+  }
+
+  private formatTotalFlightCost(
+    totalFlightCost: FlightStatistic["totalFlightCost"]
+  ): string {
+    return formatCurrency(totalFlightCost)
+  }
+
+  private formatAverageDurationDays(
+    averageDurationDays: FlightStatistic["averageDurationDays"]
+  ): string | number {
+    return averageDurationDays ?? ""
+  }
+
+  private formatAverageExpensesPerDay(
+    averageExpensesPerDay: FlightStatistic["averageExpensesPerDay"]
+  ): string {
+    return formatCurrency(averageExpensesPerDay)
+  }
+
+  private formatAverageRoundTripFlightCost(
+    averageRoundTripFlightCost: FlightStatistic["averageRoundTripFlightCost"]
+  ): string {
+    return formatCurrency(averageRoundTripFlightCost)
   }
 }
 

@@ -25,39 +25,102 @@ export type TravelAuthorizationPreApprovalAsReport = Record<
 
 export class ReportSerializer extends BaseSerializer<TravelAuthorizationPreApproval> {
   perform(): TravelAuthorizationPreApprovalAsReport {
-    const { profiles } = this.record
+    const {
+      profiles,
+      department,
+      branch,
+      isOpenForAnyDate,
+      month,
+      startDate,
+      endDate,
+      location,
+      purpose,
+      estimatedCost,
+      reason,
+      status,
+      travelerNotes,
+    } = this.record
+
+    const formattedName = this.formatName(profiles)
+    const formattedDepartment = this.formatDepartment(department)
+    const formattedBranch = this.formatBranch(branch)
+    const formattedTravelDate = this.formatTravelDate(isOpenForAnyDate, month, startDate, endDate)
+    const formattedLocation = this.formatLocation(location)
+    const formattedPurpose = this.formatPurpose(purpose)
+    const formattedEstimatedCost = this.formatEstimatedCost(estimatedCost)
+    const formattedReason = this.formatReason(reason)
+    const formattedStatus = this.formatStatus(status)
+    const formattedNotes = this.formatNotes(travelerNotes)
+
+    return {
+      [TravelAuthorizationPreApprovalReportHeaders.NAME]: formattedName,
+      [TravelAuthorizationPreApprovalReportHeaders.DEPARTMENT]: formattedDepartment,
+      [TravelAuthorizationPreApprovalReportHeaders.BRANCH]: formattedBranch,
+      [TravelAuthorizationPreApprovalReportHeaders.TRAVEL_DATE]: formattedTravelDate,
+      [TravelAuthorizationPreApprovalReportHeaders.LOCATION]: formattedLocation,
+      [TravelAuthorizationPreApprovalReportHeaders.PURPOSE]: formattedPurpose,
+      [TravelAuthorizationPreApprovalReportHeaders.ESTIMATED_COST]: formattedEstimatedCost,
+      [TravelAuthorizationPreApprovalReportHeaders.REASON]: formattedReason,
+      [TravelAuthorizationPreApprovalReportHeaders.STATUS]: formattedStatus,
+      [TravelAuthorizationPreApprovalReportHeaders.NOTES]: formattedNotes,
+    }
+  }
+
+  private formatName(profiles: TravelAuthorizationPreApproval["profiles"]): string {
     if (isUndefined(profiles)) {
       throw new Error("Expected pre-approval profiles association to be preloaded.")
     }
 
-    const name = profiles.map((profile) => profile.profileName.replace(".", " ")).join(", ")
-    const travelDate = this.formatTravelDate(this.record)
-    const estimatedCost = formatCurrency(this.record.estimatedCost)
-
-    return {
-      [TravelAuthorizationPreApprovalReportHeaders.NAME]: name,
-      [TravelAuthorizationPreApprovalReportHeaders.DEPARTMENT]: this.record.department ?? "",
-      [TravelAuthorizationPreApprovalReportHeaders.BRANCH]: this.record.branch ?? "",
-      [TravelAuthorizationPreApprovalReportHeaders.TRAVEL_DATE]: travelDate,
-      [TravelAuthorizationPreApprovalReportHeaders.LOCATION]: this.record.location ?? "",
-      [TravelAuthorizationPreApprovalReportHeaders.PURPOSE]: this.record.purpose ?? "",
-      [TravelAuthorizationPreApprovalReportHeaders.ESTIMATED_COST]: estimatedCost,
-      [TravelAuthorizationPreApprovalReportHeaders.REASON]: this.record.reason ?? "",
-      [TravelAuthorizationPreApprovalReportHeaders.STATUS]: this.record.status ?? "",
-      [TravelAuthorizationPreApprovalReportHeaders.NOTES]: this.record.travelerNotes ?? "",
-    }
+    return profiles.map((profile) => profile.profileName.replace(".", " ")).join(", ")
   }
 
-  private formatTravelDate(record: TravelAuthorizationPreApproval): string {
-    if (record.isOpenForAnyDate) {
-      return record.month ?? ""
+  private formatDepartment(department: TravelAuthorizationPreApproval["department"]): string {
+    return department ?? ""
+  }
+
+  private formatBranch(branch: TravelAuthorizationPreApproval["branch"]): string {
+    return branch ?? ""
+  }
+
+  private formatTravelDate(
+    isOpenForAnyDate: TravelAuthorizationPreApproval["isOpenForAnyDate"],
+    month: TravelAuthorizationPreApproval["month"],
+    startDate: TravelAuthorizationPreApproval["startDate"],
+    endDate: TravelAuthorizationPreApproval["endDate"]
+  ): string {
+    if (isOpenForAnyDate) {
+      return month ?? ""
     }
 
-    const dates = [record.startDate, record.endDate]
+    const dates = [startDate, endDate]
     return dates
       .filter((date): date is Date => !isNil(date))
       .map((date) => date.toISOString())
       .join(" to ")
+  }
+
+  private formatLocation(location: TravelAuthorizationPreApproval["location"]): string {
+    return location ?? ""
+  }
+
+  private formatPurpose(purpose: TravelAuthorizationPreApproval["purpose"]): string {
+    return purpose ?? ""
+  }
+
+  private formatEstimatedCost(estimatedCost: TravelAuthorizationPreApproval["estimatedCost"]): string {
+    return formatCurrency(estimatedCost)
+  }
+
+  private formatReason(reason: TravelAuthorizationPreApproval["reason"]): string {
+    return reason ?? ""
+  }
+
+  private formatStatus(status: TravelAuthorizationPreApproval["status"]): string {
+    return status ?? ""
+  }
+
+  private formatNotes(travelerNotes: TravelAuthorizationPreApproval["travelerNotes"]): string {
+    return travelerNotes ?? ""
   }
 }
 

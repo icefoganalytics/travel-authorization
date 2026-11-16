@@ -23,37 +23,105 @@ export type FlightReconciliationAsReport = Record<FlightReconciliationReportHead
 
 export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
   perform(): FlightReconciliationAsReport {
-    const cost = formatCurrency(Number(this.record.invoiceDetailSellingFare))
-    let purchaseDate = ""
-    if (this.record.invoiceBookingDate) {
-      purchaseDate = DateTime.fromJSDate(this.record.invoiceBookingDate).toFormat("MMM d yyyy")
-    }
+    const {
+      invoiceBookingDate,
+      invoiceDetailSellingFare,
+      invoiceDetailComputedAgentName,
+      invoiceDetailVendorName,
+      segmentsComputedFlightInfo,
+      segmentsComputedFinalDestination,
+      invoiceDepartmentMailcode,
+      invoiceDetailComputedTravelerFirstName,
+      invoiceDetailComputedTravelerLastName,
+      reconciled,
+      reconcilePeriod,
+    } = this.record
 
-    const agent = startCase(toLower(this.record.invoiceDetailComputedAgentName ?? ""))
-    const airline = startCase(toLower(this.record.invoiceDetailVendorName))
-    const flightInfo = this.record.segmentsComputedFlightInfo?.split(",").join("\r\n") ?? ""
-    let reconciled = "No"
-    if (this.record.reconciled) {
-      reconciled = "Yes"
-    }
+    const formattedPurchaseDate = this.formatPurchaseDate(invoiceBookingDate)
+    const formattedCost = this.formatCost(invoiceDetailSellingFare)
+    const formattedAgent = this.formatAgent(invoiceDetailComputedAgentName)
+    const formattedAirline = this.formatAirline(invoiceDetailVendorName)
+    const formattedFlightInfo = this.formatFlightInfo(segmentsComputedFlightInfo)
+    const formattedFinalDestination = this.formatFinalDestination(segmentsComputedFinalDestination)
+    const formattedDepartmentMailcode = this.formatDepartmentMailcode(invoiceDepartmentMailcode)
+    const formattedReconciled = this.formatReconciled(reconciled)
+    const formattedReconcilePeriod = this.formatReconcilePeriod(reconcilePeriod)
 
     return {
-      [FlightReconciliationReportHeaders.PURCHASE_DATE]: purchaseDate,
-      [FlightReconciliationReportHeaders.COST]: cost,
-      [FlightReconciliationReportHeaders.AGENT]: agent,
-      [FlightReconciliationReportHeaders.AIRLINE]: airline,
-      [FlightReconciliationReportHeaders.FLIGHT_INFO]: flightInfo,
-      [FlightReconciliationReportHeaders.FINAL_DESTINATION]:
-        this.record.segmentsComputedFinalDestination ?? "",
-      [FlightReconciliationReportHeaders.DEPARTMENT_MAILCODE]:
-        this.record.invoiceDepartmentMailcode ?? "",
-      [FlightReconciliationReportHeaders.TRAVELER_FIRST_NAME]:
-        this.record.invoiceDetailComputedTravelerFirstName,
-      [FlightReconciliationReportHeaders.TRAVELER_LAST_NAME]:
-        this.record.invoiceDetailComputedTravelerLastName,
-      [FlightReconciliationReportHeaders.RECONCILED]: reconciled,
-      [FlightReconciliationReportHeaders.RECONCILE_PERIOD]: this.record.reconcilePeriod ?? "",
+      [FlightReconciliationReportHeaders.PURCHASE_DATE]: formattedPurchaseDate,
+      [FlightReconciliationReportHeaders.COST]: formattedCost,
+      [FlightReconciliationReportHeaders.AGENT]: formattedAgent,
+      [FlightReconciliationReportHeaders.AIRLINE]: formattedAirline,
+      [FlightReconciliationReportHeaders.FLIGHT_INFO]: formattedFlightInfo,
+      [FlightReconciliationReportHeaders.FINAL_DESTINATION]: formattedFinalDestination,
+      [FlightReconciliationReportHeaders.DEPARTMENT_MAILCODE]: formattedDepartmentMailcode,
+      [FlightReconciliationReportHeaders.TRAVELER_FIRST_NAME]: invoiceDetailComputedTravelerFirstName,
+      [FlightReconciliationReportHeaders.TRAVELER_LAST_NAME]: invoiceDetailComputedTravelerLastName,
+      [FlightReconciliationReportHeaders.RECONCILED]: formattedReconciled,
+      [FlightReconciliationReportHeaders.RECONCILE_PERIOD]: formattedReconcilePeriod,
     }
+  }
+
+  private formatPurchaseDate(
+    invoiceBookingDate: FlightReconciliation["invoiceBookingDate"]
+  ): string {
+    if (!invoiceBookingDate) {
+      return ""
+    }
+
+    return DateTime.fromJSDate(invoiceBookingDate).toFormat("MMM d yyyy")
+  }
+
+  private formatCost(
+    invoiceDetailSellingFare: FlightReconciliation["invoiceDetailSellingFare"]
+  ): string {
+    return formatCurrency(Number(invoiceDetailSellingFare))
+  }
+
+  private formatAgent(
+    invoiceDetailComputedAgentName: FlightReconciliation["invoiceDetailComputedAgentName"]
+  ): string {
+    return startCase(toLower(invoiceDetailComputedAgentName ?? ""))
+  }
+
+  private formatAirline(
+    invoiceDetailVendorName: FlightReconciliation["invoiceDetailVendorName"]
+  ): string {
+    return startCase(toLower(invoiceDetailVendorName))
+  }
+
+  private formatFlightInfo(
+    segmentsComputedFlightInfo: FlightReconciliation["segmentsComputedFlightInfo"]
+  ): string {
+    return segmentsComputedFlightInfo?.split(",").join("\r\n") ?? ""
+  }
+
+  private formatFinalDestination(
+    segmentsComputedFinalDestination: FlightReconciliation["segmentsComputedFinalDestination"]
+  ): string {
+    return segmentsComputedFinalDestination ?? ""
+  }
+
+  private formatDepartmentMailcode(
+    invoiceDepartmentMailcode: FlightReconciliation["invoiceDepartmentMailcode"]
+  ): string {
+    return invoiceDepartmentMailcode ?? ""
+  }
+
+  private formatReconciled(
+    reconciled: FlightReconciliation["reconciled"]
+  ): string {
+    if (reconciled) {
+      return "Yes"
+    }
+
+    return "No"
+  }
+
+  private formatReconcilePeriod(
+    reconcilePeriod: FlightReconciliation["reconcilePeriod"]
+  ): string | number {
+    return reconcilePeriod ?? ""
   }
 }
 
