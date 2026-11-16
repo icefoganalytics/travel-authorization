@@ -3,7 +3,11 @@ import { VAutocomplete } from "vuetify/components"
 
 import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
 
-import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/tests/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+} from "@/tests/factories"
 import { mockHttpClient, mountWithDefaultPlugins } from "@/tests/support"
 
 import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
@@ -91,11 +95,7 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       expect(httpClient.patch).toHaveBeenCalledWith(
         "/api/travel-authorizations/5",
         expect.objectContaining({
-          travelSegmentEstimatesAttributes: [
-            expectedSegment1,
-            expectedSegment2,
-            expectedSegment3,
-          ],
+          travelSegmentEstimatesAttributes: [expectedSegment1, expectedSegment2, expectedSegment3],
         })
       )
     })
@@ -183,11 +183,7 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       expect(httpClient.patch).toHaveBeenCalledWith(
         "/api/travel-authorizations/5",
         expect.objectContaining({
-          travelSegmentEstimatesAttributes: [
-            expectedSegment1,
-            expectedSegment2,
-            expectedSegment3,
-          ],
+          travelSegmentEstimatesAttributes: [expectedSegment1, expectedSegment2, expectedSegment3],
         })
       )
     })
