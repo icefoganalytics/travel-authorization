@@ -199,5 +199,77 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         })
       )
     })
+
+    test("when the required destination is cleared, it does not save the itinerary", async () => {
+      // Arrange
+      const travelSegment1 = travelSegmentFactory.build({
+        id: 1,
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        departureLocationId: 1,
+        arrivalLocationId: 2,
+        departureOn: "2026-11-12",
+      })
+      const travelSegment2 = travelSegmentFactory.build({
+        id: 2,
+        travelAuthorizationId: 5,
+        segmentNumber: 2,
+        departureLocationId: 2,
+        arrivalLocationId: 3,
+        departureOn: "2026-11-12",
+      })
+      const travelSegment3 = travelSegmentFactory.build({
+        id: 3,
+        travelAuthorizationId: 5,
+        segmentNumber: 3,
+        departureLocationId: 3,
+        arrivalLocationId: 1,
+        departureOn: "2026-11-12",
+      })
+      const travelSegments = [travelSegment1, travelSegment2, travelSegment3]
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        purposeId: 1,
+        eventName: "Planning meeting",
+        benefits: "Coordinate the regional program",
+        allTravelWithinTerritory: false,
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelSegments,
+      })
+      const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse", province: "YT" })
+      const vancouver = locationFactory.build({ id: 2, city: "Vancouver", province: "BC" })
+      const toronto = locationFactory.build({ id: 3, city: "Toronto", province: "ON" })
+      const ottawa = locationFactory.build({ id: 4, city: "Ottawa", province: "ON" })
+      const locations = [whitehorse, vancouver, toronto, ottawa]
+      const httpClient = mockHttpClient()
+      httpClient.get.mockResolvedValue({
+        data: {
+          travelAuthorization,
+          travelSegments,
+          locations,
+          travelPurposes: [{ id: 1, purpose: "Meeting" }],
+          totalCount: 4,
+          policy: {},
+        },
+      })
+      httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+      const vuetify = mockVuetify()
+      const wrapper = mount(PurposeEditFormCard, {
+        props: { travelAuthorizationId: 5 },
+        global: {
+          plugins: [vuetify],
+        },
+      })
+      await flushPromises()
+
+      // Act
+      wrapper.getComponent(VAutocomplete).vm.$emit("update:modelValue", null)
+      await flushPromises()
+      await wrapper.vm.save()
+      await flushPromises()
+
+      // Assert
+      expect(httpClient.patch).not.toHaveBeenCalled()
+    })
   })
 })
