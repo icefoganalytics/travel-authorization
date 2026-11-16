@@ -56,7 +56,10 @@ export type TravelDeskBookingEventAsIndex = {
 }
 
 export type QueryOptions = BaseQueryOptions<
-  WhereOptions<TravelDeskBookingEventAsIndex, "recordLocator" | "eventType" | "bookingFileVersionNumber">,
+  WhereOptions<
+    TravelDeskBookingEventAsIndex,
+    "recordLocator" | "eventType" | "bookingFileVersionNumber"
+  >,
   FiltersOptions<Record<never, never>>
 >
 
