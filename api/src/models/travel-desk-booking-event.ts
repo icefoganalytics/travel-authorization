@@ -87,6 +87,18 @@ export class TravelDeskBookingEvent extends Model<
 
   @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
+
+  static establishScopes(): void {
+    this.addScope("byRecordLocator", (recordLocator: string) => {
+      const normalizedRecordLocator = recordLocator.trim().toUpperCase()
+
+      return {
+        where: {
+          recordLocator: normalizedRecordLocator,
+        },
+      }
+    })
+  }
 }
 
 export default TravelDeskBookingEvent

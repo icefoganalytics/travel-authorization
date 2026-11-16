@@ -69,12 +69,10 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test.each([
         "",
-        "?recordLocator=",
-        "?recordLocator=INVALID",
         "?recordLocator[]=SRC001",
         "?recordLocator[value]=SRC001",
       ])(
-        "when the locator query is %s, it rejects missing, invalid, or non-string inputs",
+        "when the locator query is %s, it rejects missing or non-string inputs",
         async (query) => {
           // Arrange
           const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
@@ -89,10 +87,30 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Assert
           expect(response.status).toEqual(422)
           expect(response.body).toEqual({
-            message: "Record locator must contain six letters or numbers.",
+            message: "Record locator must be a string.",
           })
         }
       )
+
+      test("when the locator has no matches, it returns empty cached history", async () => {
+        // Arrange
+        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        mockCurrentUser(officer)
+        await travelDeskBookingEventFactory.create({ recordLocator: "SRC001" })
+
+        // Act
+        const response = await request()
+          .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
+          .query({ recordLocator: "not-a-known-locator" })
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          travelDeskBookingEvents: [],
+          totalCount: 0,
+        })
+      })
 
       test.each([
         { page: 1, travelOrderIdentifier: 940001 },
@@ -197,8 +215,8 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         expect(response.body).toEqual({ message: "Travel desk travel request not found." })
       })
 
-      test.each([undefined, "", "INVALID", ["SRC001"], { value: "SRC001" }])(
-        "when the locator body is %j, it rejects missing, invalid, or non-string inputs",
+      test.each([undefined, ["SRC001"], { value: "SRC001" }])(
+        "when the locator body is %j, it rejects missing or non-string inputs",
         async (recordLocator) => {
           // Arrange
           const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
@@ -213,7 +231,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           // Assert
           expect(response.status).toEqual(422)
           expect(response.body).toEqual({
-            message: "Record locator must contain six letters or numbers.",
+            message: "Record locator must be a string.",
           })
         }
       )

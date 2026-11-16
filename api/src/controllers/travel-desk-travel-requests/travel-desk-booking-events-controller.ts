@@ -31,18 +31,18 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       }
 
       const recordLocator = this.query.recordLocator
-      if (!isString(recordLocator) || !/^[A-Z0-9]{6}$/.test(recordLocator.trim().toUpperCase())) {
+      if (!isString(recordLocator)) {
         return this.response.status(422).json({
-          message: "Record locator must contain six letters or numbers.",
+          message: "Record locator must be a string.",
         })
       }
 
-      const normalizedRecordLocator = recordLocator.trim().toUpperCase()
-      const where = { recordLocator: normalizedRecordLocator }
+      const scopes = [{ method: ["byRecordLocator", recordLocator] }]
+      const scopedTravelDeskBookingEvents = TravelDeskBookingEvent.withScope(scopes)
+
+      const totalCount = await scopedTravelDeskBookingEvents.count()
       const { limit, offset } = this.pagination
-      const totalCount = await TravelDeskBookingEvent.count({ where })
-      const travelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
-        where,
+      const travelDeskBookingEvents = await scopedTravelDeskBookingEvents.findAll({
         order: [["externalTravelPortIdentifier", "ASC"]],
         limit,
         offset,
@@ -78,14 +78,13 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       }
 
       const { recordLocator } = this.request.body
-      if (!isString(recordLocator) || !/^[A-Z0-9]{6}$/.test(recordLocator.trim().toUpperCase())) {
+      if (!isString(recordLocator)) {
         return this.response.status(422).json({
-          message: "Record locator must contain six letters or numbers.",
+          message: "Record locator must be a string.",
         })
       }
 
-      const normalizedRecordLocator = recordLocator.trim().toUpperCase()
-      await SyncService.perform(normalizedRecordLocator)
+      await SyncService.perform(recordLocator)
       return this.response.status(204).send()
     } catch (error) {
       if (error instanceof SourceUnavailableError) {
