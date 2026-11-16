@@ -10,6 +10,8 @@ import {
   User,
 } from "@/models"
 
+import { DetermineFinalDestinationService } from "@/services/travel-authorizations"
+
 import BaseSerializer from "@/serializers/base-serializer"
 import {
   StateFlagsSerializer,
@@ -66,7 +68,12 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const finalDestinationLocation = this.buildFinalDestinationLocation()
+    const finalDestinationLocation = DetermineFinalDestinationService.perform(
+      this.record.tripType,
+      travelSegments,
+      this.record.tripTypeActual
+    )
+    const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -83,7 +90,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       ]),
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
-      finalDestination: finalDestinationLocation,
+      finalDestination: serializedFinalDestination,
       departingAt: departingAt?.toISOString(),
       returningAt: returningAt?.toISOString(),
       phase: this.determinePhase(),
@@ -98,6 +105,12 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
       ...stateFlagsAttributes,
     }
+  }
+
+  private serializeFinalDestination(location: Location | null): Locations.AsReference | null {
+    if (isNil(location)) return null
+
+    return Locations.ReferenceSerializer.perform(location)
   }
 
   private serializeLocations(
@@ -158,19 +171,6 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     return Array.from(locations.values())
-  }
-
-  private buildFinalDestinationLocation() {
-    if (isNil(this.lastTravelSegment)) return null
-
-    const { departureLocation, arrivalLocation } = this.lastTravelSegment
-    const finalDestinationLocation =
-      this.record.tripType === TravelAuthorization.TripTypes.ROUND_TRIP
-        ? departureLocation
-        : arrivalLocation
-    if (isNil(finalDestinationLocation)) return null
-
-    return Locations.ReferenceSerializer.perform(finalDestinationLocation)
   }
 
   private countUnprocessedExpenses(): number {

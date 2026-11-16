@@ -481,13 +481,20 @@ export class TravelAuthorization extends BaseModel<
         "purpose",
         "stops",
         "travelDeskTravelRequest",
-        "travelSegments",
+        {
+          association: "travelSegments",
+          separate: true,
+          order: [
+            ["segmentNumber", "ASC"],
+            ["id", "ASC"],
+          ],
+          include: ["departureLocation", "arrivalLocation"],
+        },
         "user",
       ],
       order: [
         ["stops", "departureDate", "ASC"],
         ["stops", "departureTime", "ASC"],
-        ["travelSegments", "segmentNumber", "ASC"],
       ],
     })
     this.addScope("isTravelling", () => {

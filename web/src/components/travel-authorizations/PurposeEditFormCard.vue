@@ -104,19 +104,21 @@
 
 <script setup lang="ts">
 import { computed, ref, toRefs, watch } from "vue"
-import { cloneDeep, isNil, isEmpty, pick } from "lodash"
+import { isNil, isEmpty, pick } from "lodash"
 
+import { required } from "@/utils/validators"
+
+import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
 import {
   PERMITTED_ATTRIBUTES_FOR_CLONE,
   TravelSegmentTravelMethods,
   TravelSegment,
 } from "@/api/travel-segments-api"
 
-import { required } from "@/utils/validators"
+import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
+
 import useSnack from "@/use/use-snack"
-import useTravelAuthorization, {
-  TravelAuthorizationTripTypes,
-} from "@/use/use-travel-authorization"
+import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
@@ -150,6 +152,12 @@ const travelSegmentsQuery = computed(() => {
   }
 })
 const { travelSegments } = useTravelSegments(travelSegmentsQuery)
+const finalDestinationSegment = computed(() =>
+  determineFinalDestinationSegment(tripType.value, travelSegments.value)
+)
+const itineraryDestinationLocationId = computed(
+  () => finalDestinationSegment.value?.arrivalLocationId ?? null
+)
 
 const finalDestinationLocationId = ref<number | null>(null)
 
@@ -158,36 +166,15 @@ function updateFinalDestinationLocationId(locationId: number | null) {
   emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
 }
 
-watch<[TravelAuthorizationTripTypes | null, TravelSegment[]], true>(
-  () => [tripType.value, cloneDeep(travelSegments.value)],
-  ([tripType, newTravelSegments]) => {
+watch(
+  itineraryDestinationLocationId,
+  (locationId) => {
     if (!isNil(finalDestinationLocationId.value)) return
 
-    const newFinalDestinationLocationId = determineFinalDestinationLocationId(
-      tripType,
-      newTravelSegments
-    )
-    updateFinalDestinationLocationId(newFinalDestinationLocationId)
+    updateFinalDestinationLocationId(locationId)
   },
-  {
-    deep: true,
-    immediate: true,
-  }
+  { immediate: true }
 )
-
-function determineFinalDestinationLocationId(
-  tripType: TravelAuthorizationTripTypes | null,
-  newTravelSegments: TravelSegment[]
-): number | null {
-  if (isNil(tripType)) return null
-  if (isNil(newTravelSegments) || isEmpty(newTravelSegments)) return null
-
-  if (tripType === TravelAuthorizationTripTypes.ROUND_TRIP) {
-    return newTravelSegments.at(-2)?.arrivalLocationId ?? null
-  } else {
-    return newTravelSegments.at(-1)?.arrivalLocationId ?? null
-  }
-}
 
 function locationIdOrNullIfOverlapping(locationId1: number | null, locationId2: number | null) {
   if (locationId1 === locationId2) return null
@@ -260,7 +247,6 @@ function buildTravelSegmentEstimatesAttributes(
     ]
   }
 
-  // NOTE: one way and multi-city trip types are handled the same way
   return newTravelSegments.map((travelSegment, index) => {
     const newTravelSegmentAttributes = {
       ...pick(travelSegment, PERMITTED_ATTRIBUTES_FOR_CLONE),
@@ -269,9 +255,7 @@ function buildTravelSegmentEstimatesAttributes(
       segmentNumber: index + 1,
     }
 
-    const numberOfSegments = newTravelSegments.length
-    const isLastSegment = index === numberOfSegments - 1
-    if (isLastSegment) {
+    if (travelSegment === finalDestinationSegment.value) {
       const arrivalLocationId = staticFinalDestinationLocationId
       const departureLocationId = locationIdOrNullIfOverlapping(
         newTravelSegmentAttributes.departureLocationId,
@@ -282,9 +266,21 @@ function buildTravelSegmentEstimatesAttributes(
         departureLocationId,
         arrivalLocationId,
       }
-    } else {
-      return newTravelSegmentAttributes
     }
+
+    const previousTravelSegment = newTravelSegments.at(index - 1)
+    if (
+      index > 0 &&
+      previousTravelSegment === finalDestinationSegment.value &&
+      travelSegment.departureLocationId === finalDestinationSegment.value?.arrivalLocationId
+    ) {
+      return {
+        ...newTravelSegmentAttributes,
+        departureLocationId: staticFinalDestinationLocationId,
+      }
+    }
+
+    return newTravelSegmentAttributes
   })
 }
 

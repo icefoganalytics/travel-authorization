@@ -11,7 +11,7 @@
           :travel-authorization-id="travelAuthorizationId"
           :requestor-display-name="requestorDisplayName"
           :is-disabled="isDisabled"
-          :travel-location-id="travelLocationId"
+          :travel-location-id="finalDestinationLocationId"
           @approved="refreshAndEmit('approved')"
         />
         <TravelAuthorizationDenyDialogButton
@@ -40,10 +40,7 @@
 import { computed, toRefs } from "vue"
 import { isNil } from "lodash"
 
-import {
-  TravelAuthorizationStatuses,
-  TravelAuthorizationTripTypes,
-} from "@/api/travel-authorizations-api"
+import { TravelAuthorizationStatuses } from "@/api/travel-authorizations-api"
 
 import useTravelAuthorization from "@/use/use-travel-authorization"
 
@@ -69,21 +66,9 @@ const isDisabled = computed(() => {
   )
 })
 
-const travelLocationId = computed(() => {
-  if (isNil(travelAuthorization.value)) return null
-
-  const { travelSegments, tripTypeActual, tripTypeEstimate } = travelAuthorization.value
-  const tripType = tripTypeActual ?? tripTypeEstimate
-  const matchingTravelSegments = travelSegments.filter(
-    (segment) => segment.isActual === Boolean(tripTypeActual)
-  )
-  const finalDestinationSegment =
-    tripType === TravelAuthorizationTripTypes.ROUND_TRIP
-      ? matchingTravelSegments.at(-2)
-      : matchingTravelSegments.at(-1)
-
-  return finalDestinationSegment?.arrivalLocationId ?? null
-})
+const finalDestinationLocationId = computed(
+  () => travelAuthorization.value?.finalDestination?.id ?? null
+)
 
 const requestorDisplayName = computed(() => {
   const displayName = travelAuthorization.value?.user?.displayName

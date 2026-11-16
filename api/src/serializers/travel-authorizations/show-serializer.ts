@@ -2,6 +2,7 @@ import { isNil, isUndefined, pick } from "lodash"
 
 import {
   Expense,
+  Location,
   Stop,
   TravelAuthorization,
   TravelDeskTravelRequest,
@@ -10,9 +11,12 @@ import {
   User,
 } from "@/models"
 
+import { DetermineFinalDestinationService } from "@/services/travel-authorizations"
+
 import BaseSerializer from "@/serializers/base-serializer"
 import {
   Expenses,
+  Locations,
   Stops,
   TravelDeskTravelRequests,
   TravelPurposes,
@@ -63,6 +67,7 @@ export type TravelAuthorizationShowView = Pick<
   | "updatedAt"
 > & {
   expenses: ExpenseAsReference[]
+  finalDestination: Locations.AsReference | null
   purpose: TravelPurposes.AsReference | null
   stops: Stops.AsReference[]
   travelDeskTravelRequest: TravelDeskTravelRequests.AsReference | null
@@ -98,6 +103,12 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     const serializedExpenses = this.serializeExpenses(expenses)
+    const finalDestinationLocation = DetermineFinalDestinationService.perform(
+      this.record.tripType,
+      travelSegments,
+      this.record.tripTypeActual
+    )
+    const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
     const serializedTravelPurpose = this.serializeTravelPurpose(purpose)
     const serializedStops = this.serializeStops(stops)
     const serializedTravelDeskTravelRequest =
@@ -149,6 +160,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
       ...stateFlagsAttributes,
       // associations
       expenses: serializedExpenses,
+      finalDestination: serializedFinalDestination,
       purpose: serializedTravelPurpose,
       stops: serializedStops,
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
@@ -159,6 +171,12 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
 
   private serializeExpenses(expenses: Expense[]): ExpenseAsReference[] {
     return Expenses.ReferenceSerializer.perform(expenses)
+  }
+
+  private serializeFinalDestination(location: Location | null): Locations.AsReference | null {
+    if (isNil(location)) return null
+
+    return Locations.ReferenceSerializer.perform(location)
   }
 
   private serializeTravelPurpose(purpose: TravelPurpose | null): TravelPurposes.AsReference | null {
