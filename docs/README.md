@@ -12,6 +12,8 @@ A primary destination identifies the purpose of travel, not necessarily the fina
 
 Multi-city travel requires an explicit selection before submitting the authorization or expense claim. A suggested destination is not confirmation, and drafts may remain unselected. Existing multi-city records are not automatically marked. Round-trip and one-way itineraries use their ordinary outbound and final arrivals as defaults.
 
+Travellers correcting a returned expense claim can confirm an existing actual arrival as its primary destination. This correction does not permit changes to the submitted route or expenses.
+
 Changing the designation does not change the route. Unrelated edits preserve the marker; removing the marked leg or changing its arrival requires a new selection. The existing travel-segment model owns this choice without reintroducing the legacy Stop model.
 
 Primary-destination displays do not determine reimbursement rates. Meal and incidental calculations retain their separate itinerary-derived location rule. Persisted copies or derived values use `_snapshot`/`Snapshot` naming to distinguish them from authoritative inputs.
