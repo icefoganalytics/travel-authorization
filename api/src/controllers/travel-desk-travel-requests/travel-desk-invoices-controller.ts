@@ -260,15 +260,10 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         id: this.params.travelDeskInvoiceId,
         travelDeskTravelRequestId: travelDeskTravelRequest.id,
       },
-      include: [
-        {
-          association: "items",
-          separate: true,
-          order: [
-            ["position", "ASC"],
-            ["id", "ASC"],
-          ],
-        },
+      include: ["items"],
+      order: [
+        ["items", "position", "ASC"],
+        ["items", "id", "ASC"],
       ],
     })
   }
