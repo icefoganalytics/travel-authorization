@@ -2,12 +2,7 @@ import { mount } from "@vue/test-utils"
 
 import mockVuetify from "@/tests/support/mock-vuetify"
 
-type MountWithDefaultPlugins = <T>(
-  component: T,
-  options?: Parameters<typeof mount<T>>[1]
-) => ReturnType<typeof mount<T>>
-
-export const mountWithDefaultPlugins: MountWithDefaultPlugins = (component, options = {}) => {
+export const mountWithDefaultPlugins: typeof mount = (component, options = {}) => {
   const vuetify = mockVuetify()
   const plugins = [vuetify, ...(options.global?.plugins ?? [])]
   const mountOptions = {
