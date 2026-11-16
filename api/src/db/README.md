@@ -43,8 +43,15 @@ rather than unique constraints. With Knex 3.0.1, partial-index predicates must n
 value placeholders; use a literal boolean in `knex.whereRaw(...)` instead of
 `knex.where(column, true)`.
 
-Primary-destination arrival presence is enforced by the `TravelSegment` model validator.
-The database unique index prevents concurrent selections within the same itinerary phase.
+Primary destinations are nullable `locations.id` foreign keys on `travel_authorizations`:
+`estimated_primary_destination_id` and `actual_primary_destination_id`. Each phase independently
+selects a city, not a segment. Itinerary mutations lock the authorization and preserve the city while
+any arrival in that phase still matches; removing the last matching arrival clears the selection.
+Multi-city submission requires an explicitly confirmed matching arrival, including legacy records.
+Simple trips retain their ordinary outbound/one-way defaults. Switching to multi-city clears inferred
+choices unless the update supplies an explicit city. Returned claims allow only owner/administrator
+correction of `actualPrimaryDestinationId` through the authorization PATCH; itinerary and expenses
+remain unchanged.
 
 ### Create A Migration
 
