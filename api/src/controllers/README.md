@@ -24,8 +24,10 @@ and deliberate exceptions.
 - TravelAuth uses named service imports from the deepest matching resource path, such as
   `@/services/travel-desk-invoices`, as a local exception to the shared namespace-bundle preference.
 - Import a controller's own resource serializers by name from the resource path, such as `import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-flight-options"`, rather than through the root serializer namespace.
-- Use Lodash type predicates for query-value guards, such as `isString(recordLocator)`, and pass
-  the narrowed value onward without coercing invalid inputs.
+- Do not add request-value type or format guards in controllers. Pass inputs to the existing
+  service/model boundary; malformed inputs may fail naturally through the action's existing catch.
+  Do not add downstream guards merely to relocate controller validation. Preserve authorization
+  and required domain invariants.
 - Record construction for state-dependent checks follows the
   [policy record-context contract](../policies/README.md#state-dependent-policies).
 - Every public action uses a top-level `try`/`catch`.
