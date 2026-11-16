@@ -703,7 +703,7 @@ function selectFeeEvent(event: TravelDeskBookingEventAsIndex, selected: boolean 
 }
 
 function eventSummary(event: TravelDeskBookingEventAsIndex) {
-  return `Event ${event.travelOrderIdentifier} · ${event.eventType ?? "unknown type"} · version ${event.bookingFileVersionNumber ?? "—"} · ${event.owningAgencyName ?? event.transactionAgencyName ?? "agency unavailable"} · ${event.databaseTimestamp}`
+  return `Event ${event.travelOrderIdentifier} · ${event.eventType ?? "unknown type"} · version ${event.bookingFileVersionNumber ?? "—"} · ${event.owningAgencyName ?? event.transactionAgencyName ?? "agency unavailable"} · ${event.externalCreatedAt}`
 }
 
 function feeSummary(event: TravelDeskBookingEventAsIndex) {

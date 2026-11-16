@@ -43,7 +43,7 @@ export type TravelDeskBookingEventAsIndex = {
   eventType: string | null
   recordLocator: string | null
   reservationSystemDescription: string | null
-  databaseTimestamp: string | null
+  externalCreatedAt: string | null
   hostEventTimestamp: string | null
   passengerNameRecordCreatedAt: string | null
   owningAgencyName: string | null
