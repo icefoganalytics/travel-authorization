@@ -31,12 +31,11 @@ export class CreateCsvService extends BaseService {
           isolationLevel: IsolationLevel.REPEATABLE_READ,
           readOnly: true,
         },
-        async (transaction) => {
+        async () => {
           await this.scopedFlightReconciliations.findEach(
             {
               where: this.where,
               order: this.order,
-              transaction,
             },
             async (record) => {
               const row = ReportSerializer.perform(record)

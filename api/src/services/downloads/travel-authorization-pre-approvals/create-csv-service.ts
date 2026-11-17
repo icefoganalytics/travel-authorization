@@ -34,12 +34,11 @@ export class CreateCsvService extends BaseService {
           isolationLevel: IsolationLevel.REPEATABLE_READ,
           readOnly: true,
         },
-        async (transaction) => {
+        async () => {
           await this.scopedTravelAuthorizationPreApprovals.findEach(
             {
               where: this.where,
               order: this.order,
-              transaction,
               include: [
                 {
                   association: "profiles",
