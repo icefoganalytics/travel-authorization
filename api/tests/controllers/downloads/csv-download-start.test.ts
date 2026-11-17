@@ -9,7 +9,7 @@ import { User } from "@/models"
 import { CreateCsvService as ReconciliationCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
 import { CreateCsvService as StatisticsCsvService } from "@/services/downloads/flight-statistics/create-csv-service"
 import { CreateCsvService as PreApprovalCsvService } from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
-import streamCsv from "@/utils/stream-csv"
+import csvStreamingClient from "@/lib/csv-streaming-client"
 
 import { userFactory } from "@/factories"
 import { mockCurrentUser } from "@/support"
@@ -53,7 +53,7 @@ describe("CSV download startup over HTTP", () => {
         vi.spyOn(ReconciliationCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
             const [, , , destination] = args as ConstructorParameters<typeof ReconciliationCsvService>
-            await streamCsv(destination, ["Name"], async (writeRow) => {
+            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Next traveller" })
               await completion
@@ -94,7 +94,7 @@ describe("CSV download startup over HTTP", () => {
         vi.spyOn(ReconciliationCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
             const [, , , destination] = args as ConstructorParameters<typeof ReconciliationCsvService>
-            await streamCsv(destination, ["Name"], async (writeRow) => {
+            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Last traveller" })
             })
@@ -156,7 +156,7 @@ describe("CSV download startup over HTTP", () => {
         vi.spyOn(StatisticsCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
             const [, , , destination] = args as ConstructorParameters<typeof StatisticsCsvService>
-            await streamCsv(destination, ["Name"], async (writeRow) => {
+            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Next traveller" })
               await completion
@@ -197,7 +197,7 @@ describe("CSV download startup over HTTP", () => {
         vi.spyOn(StatisticsCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
             const [, , , destination] = args as ConstructorParameters<typeof StatisticsCsvService>
-            await streamCsv(destination, ["Name"], async (writeRow) => {
+            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Last traveller" })
             })
@@ -259,7 +259,7 @@ describe("CSV download startup over HTTP", () => {
         vi.spyOn(PreApprovalCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
             const [, , , , destination] = args as ConstructorParameters<typeof PreApprovalCsvService>
-            await streamCsv(destination, ["Name"], async (writeRow) => {
+            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Next traveller" })
               await completion
@@ -303,7 +303,7 @@ describe("CSV download startup over HTTP", () => {
         vi.spyOn(PreApprovalCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
             const [, , , , destination] = args as ConstructorParameters<typeof PreApprovalCsvService>
-            await streamCsv(destination, ["Name"], async (writeRow) => {
+            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Last traveller" })
             })

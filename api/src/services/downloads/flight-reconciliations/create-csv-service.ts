@@ -2,6 +2,7 @@ import { type Writable } from "node:stream"
 
 import { IsolationLevel, type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 
+import csvStreamingClient from "@/lib/csv-streaming-client"
 import { type ModelOrder } from "@/controllers/base-controller"
 import db, { type FlightReconciliation } from "@/models"
 import BaseModel from "@/models/base-model"
@@ -9,7 +10,6 @@ import {
   FlightReconciliationReportHeaders,
   ReportSerializer,
 } from "@/serializers/flight-reconciliations/report-serializer"
-import streamCsv from "@/utils/stream-csv"
 import BaseService from "@/services/base-service"
 
 export class CreateCsvService extends BaseService {
@@ -25,7 +25,7 @@ export class CreateCsvService extends BaseService {
   async perform(): Promise<void> {
     const headers = Object.values(FlightReconciliationReportHeaders)
 
-    return streamCsv(this.destination, headers, async (writeRow) => {
+    return csvStreamingClient.stream(this.destination, headers, async (writeRow) => {
       await db.transaction(
         {
           isolationLevel: IsolationLevel.REPEATABLE_READ,

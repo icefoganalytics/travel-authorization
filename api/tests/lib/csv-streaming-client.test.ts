@@ -3,10 +3,10 @@ import { PassThrough } from "node:stream"
 import { buffer } from "node:stream/consumers"
 import { setImmediate } from "node:timers/promises"
 
-import streamCsv from "@/utils/stream-csv"
+import csvStreamingClient from "@/lib/csv-streaming-client"
 
-describe("api/src/utils/stream-csv.ts", () => {
-  describe("streamCsv", () => {
+describe("api/src/lib/csv-streaming-client.ts", () => {
+  describe("CsvStreamingClient#stream", () => {
     test("when a consumer pauses, it waits before generating further rows", async () => {
       // Arrange
       const destination = new PassThrough({ highWaterMark: 1 })
@@ -14,7 +14,7 @@ describe("api/src/utils/stream-csv.ts", () => {
       const rowStarted = once(generation, "rowStarted")
       const largeValue = "x".repeat(256 * 1024)
       let isNextRowGenerated = false
-      const transfer = streamCsv(destination, ["Name", "Amount"], async (writeRow) => {
+      const transfer = csvStreamingClient.stream(destination, ["Name", "Amount"], async (writeRow) => {
         generation.emit("rowStarted")
         for (let index = 0; index < 32; index++) {
           await writeRow({ Name: largeValue, Amount: 0 })
@@ -48,7 +48,7 @@ describe("api/src/utils/stream-csv.ts", () => {
       const expectedCsv = Buffer.from(
         `\uFEFFName,Amount\r\n${repeatedRows}"'=SUM(1,2)\n""quoted""",-2\r\n`
       )
-      const transfer = streamCsv(destination, ["Name", "Amount"], async (writeRow) => {
+      const transfer = csvStreamingClient.stream(destination, ["Name", "Amount"], async (writeRow) => {
         generation.emit("rowStarted")
         for (let index = 0; index < 32; index++) {
           await writeRow({ Name: largeValue, Amount: 0 })
@@ -79,7 +79,7 @@ describe("api/src/utils/stream-csv.ts", () => {
       const rowStarted = once(generation, "rowStarted")
       const largeValue = "x".repeat(256 * 1024)
       const disconnected = new Error("Client disconnected")
-      const transfer = streamCsv(destination, ["Name"], async (writeRow) => {
+      const transfer = csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
         generation.emit("rowStarted")
         for (let index = 0; index < 32; index++) {
           await writeRow({ Name: largeValue })
@@ -104,7 +104,7 @@ describe("api/src/utils/stream-csv.ts", () => {
       const largeValue = "x".repeat(256 * 1024)
       const disconnected = new Error("Client disconnected")
       const nextRow = vi.fn()
-      const transfer = streamCsv(destination, ["Name"], async (writeRow) => {
+      const transfer = csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
         generation.emit("rowStarted")
         for (let index = 0; index < 32; index++) {
           await writeRow({ Name: largeValue })

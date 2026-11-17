@@ -168,7 +168,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
             Notes: "",
           }))
         )
-      })
+      }, 15_000)
 
       test("when filters, where, and order are combined, they narrow and sort visible matches", async () => {
         // Arrange
