@@ -1,5 +1,4 @@
 import {
-  EmptyResultError,
   Model,
   type AttributeNames,
   type Attributes,
@@ -189,17 +188,10 @@ export abstract class BaseModel<
     const { primaryKeysAttributeNames } = ModelClass.modelDefinition
     const identifiers = [...primaryKeysAttributeNames].map((key) => this.get(key as keyof M))
     const identifier = identifiers.length === 1 ? identifiers[0] : identifiers
-    // Reject only a missing root record, not empty separately loaded associations.
-    const record = await ModelClass.withScope(scopes).findByPk(identifier, {
+    return ModelClass.withScope(scopes).findByPk(identifier, {
       ...options,
-      rejectOnEmpty: false,
+      rejectOnEmpty: true,
     })
-
-    if (record === null) {
-      throw new EmptyResultError(`Could not reload ${ModelClass.name}: record not found.`)
-    }
-
-    return record
   }
 }
 

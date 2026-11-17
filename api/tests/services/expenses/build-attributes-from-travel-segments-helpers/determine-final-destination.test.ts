@@ -125,7 +125,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
       })
       const travelAuthorization = await travelAuthorizationFactory.create({
         tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-        estimatedPrimaryDestinationId: vancouver.id,
+        finalDestinationLocationId: vancouver.id,
       })
       const grandePrairie = await locationFactory.create({
         city: "Grande Prairie",

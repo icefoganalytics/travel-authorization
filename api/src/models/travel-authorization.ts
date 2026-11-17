@@ -3,6 +3,8 @@ import {
   Op,
   sql,
   type CreationOptional,
+  type FindOptions,
+  type IncludeOptions,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
@@ -494,12 +496,14 @@ export class TravelAuthorization extends BaseModel<
         {
           association: "travelSegments",
           separate: true,
+          // Separate queries accept finder options omitted from Sequelize's IncludeOptions type.
+          rejectOnEmpty: false,
           order: [
             ["segmentNumber", "ASC"],
             ["id", "ASC"],
           ],
           include: ["departureLocation", "arrivalLocation"],
-        },
+        } as IncludeOptions & Pick<FindOptions, "rejectOnEmpty">,
         "user",
       ],
       order: [
