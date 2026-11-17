@@ -87,7 +87,7 @@ const headers = [
     key: "department",
   },
   {
-    title: "Final Destination",
+    title: "Primary destination",
     key: "finalDestination",
     sortable: false,
   },
