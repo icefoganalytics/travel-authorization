@@ -5,13 +5,14 @@ import Papa from "papaparse"
 
 import { TravelAuthorizationPreApproval, User } from "@/models"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
-import { CreateCsvService } from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
 
 import {
   travelAuthorizationPreApprovalFactory,
   travelAuthorizationPreApprovalProfileFactory,
   userFactory,
 } from "@/factories"
+
+import CreateCsvService from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
 
 describe("api/src/services/downloads/travel-authorization-pre-approvals/create-csv-service.ts", () => {
   describe("CreateCsvService", () => {
