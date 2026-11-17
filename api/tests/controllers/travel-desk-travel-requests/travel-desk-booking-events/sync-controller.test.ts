@@ -1,4 +1,3 @@
-import { User } from "@/models"
 import { SyncService } from "@/services/travel-desk-booking-events"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
@@ -11,7 +10,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
     describe("POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events/sync", () => {
       test("when the user lacks travel desk access, it denies synchronization", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(user)
 
@@ -29,7 +28,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when the travel request no longer exists, it returns not found", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelRequest.destroy({ force: true })
         mockCurrentUser(officer)
@@ -48,7 +47,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when the source is unavailable, it reports source unavailability", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(SyncService, "perform").mockRejectedValue(
@@ -69,7 +68,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when synchronization fails unexpectedly, it returns the booking synchronization error", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(SyncService, "perform").mockRejectedValue(new Error("Local write failed."))
@@ -88,7 +87,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when a normalized locator matches source history, it synchronizes without returning a collection", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await TravelPortIntegration.travelOrderEventFactory.create({
