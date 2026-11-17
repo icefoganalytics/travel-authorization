@@ -18,7 +18,7 @@ export enum TravelAuthorizationPreApprovalReportHeaders {
   NOTES = "Notes",
 }
 
-export const CSV_HEADERS = Object.values(TravelAuthorizationPreApprovalReportHeaders)
+export const TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS = Object.values(TravelAuthorizationPreApprovalReportHeaders)
 
 export type TravelAuthorizationPreApprovalAsReport = Record<
   TravelAuthorizationPreApprovalReportHeaders,

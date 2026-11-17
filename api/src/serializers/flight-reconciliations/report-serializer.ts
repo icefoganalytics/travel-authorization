@@ -19,7 +19,7 @@ export enum FlightReconciliationReportHeaders {
   RECONCILE_PERIOD = "Reconcile Period",
 }
 
-export const CSV_HEADERS = Object.values(FlightReconciliationReportHeaders)
+export const FLIGHT_RECONCILIATION_REPORT_HEADERS = Object.values(FlightReconciliationReportHeaders)
 
 export type FlightReconciliationAsReport = Record<FlightReconciliationReportHeaders, string | number>
 

@@ -16,7 +16,7 @@ export enum FlightStatisticReportHeaders {
   AVERAGE_ROUND_TRIP_FLIGHT_COST = "Average Round Trip Flight Cost",
 }
 
-export const CSV_HEADERS = Object.values(FlightStatisticReportHeaders)
+export const FLIGHT_STATISTIC_REPORT_HEADERS = Object.values(FlightStatisticReportHeaders)
 
 export type FlightStatisticAsReport = Record<FlightStatisticReportHeaders, string | number>
 

@@ -9,7 +9,7 @@ import { type BaseModelConstructor } from "@/models/base-model"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
 import {
   ReportSerializer,
-  CSV_HEADERS,
+  TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS,
 } from "@/serializers/travel-authorization-pre-approvals/report-serializer"
 import BaseService from "@/services/base-service"
 
@@ -27,7 +27,7 @@ export class CreateCsvService extends BaseService {
   async perform(): Promise<void> {
     const profileScope = TravelAuthorizationPreApprovalProfilesPolicy.policyScope(this.currentUser)
 
-    return csvStreamingClient.stream(this.outputStream, CSV_HEADERS, async (writeRow) => {
+    return csvStreamingClient.stream(this.outputStream, TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS, async (writeRow) => {
       await db.transaction(
         {
           isolationLevel: IsolationLevel.REPEATABLE_READ,

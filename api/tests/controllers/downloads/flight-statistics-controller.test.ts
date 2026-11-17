@@ -7,7 +7,7 @@ import qs from "qs"
 import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
-import { CSV_HEADERS } from "@/serializers/flight-statistics/report-serializer"
+import { FLIGHT_STATISTIC_REPORT_HEADERS } from "@/serializers/flight-statistics/report-serializer"
 import { CreateCsvService } from "@/services/downloads/flight-statistics/create-csv-service"
 
 import { flightStatisticFactory, userFactory } from "@/factories"
@@ -135,7 +135,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(response.body).toEqual(Buffer.from(`\uFEFF${CSV_HEADERS.join(",")}\r\n`))
+        expect(response.body).toEqual(Buffer.from(`\uFEFF${FLIGHT_STATISTIC_REPORT_HEADERS.join(",")}\r\n`))
       })
 
       test("when an admin query matches nothing, it returns BOM and CRLF headers only", async () => {
@@ -152,7 +152,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(response.body).toEqual(Buffer.from(`\uFEFF${CSV_HEADERS.join(",")}\r\n`))
+        expect(response.body).toEqual(Buffer.from(`\uFEFF${FLIGHT_STATISTIC_REPORT_HEADERS.join(",")}\r\n`))
       })
 
       test("when CSV is requested, it sets the familiar timestamped filename and media type", async () => {

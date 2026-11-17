@@ -7,7 +7,7 @@ import qs from "qs"
 import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
-import { CSV_HEADERS } from "@/serializers/flight-reconciliations/report-serializer"
+import { FLIGHT_RECONCILIATION_REPORT_HEADERS } from "@/serializers/flight-reconciliations/report-serializer"
 import { CreateCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
 
 import { flightReconciliationFactory, userFactory } from "@/factories"
@@ -191,7 +191,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(response.body).toEqual(Buffer.from(`\uFEFF${CSV_HEADERS.join(",")}\r\n`))
+        expect(response.body).toEqual(Buffer.from(`\uFEFF${FLIGHT_RECONCILIATION_REPORT_HEADERS.join(",")}\r\n`))
       })
 
       test("when an ordinary user requests all records, it returns headers without disclosing data", async () => {
@@ -208,7 +208,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(response.body).toEqual(Buffer.from(`\uFEFF${CSV_HEADERS.join(",")}\r\n`))
+        expect(response.body).toEqual(Buffer.from(`\uFEFF${FLIGHT_RECONCILIATION_REPORT_HEADERS.join(",")}\r\n`))
       })
 
       test("when the query matches nothing, it sends a BOM and CRLF headers-only file", async () => {
@@ -225,7 +225,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(response.body).toEqual(Buffer.from(`\uFEFF${CSV_HEADERS.join(",")}\r\n`))
+        expect(response.body).toEqual(Buffer.from(`\uFEFF${FLIGHT_RECONCILIATION_REPORT_HEADERS.join(",")}\r\n`))
       })
 
       test("when CSV is requested, it sets the familiar filename and CSV media type", async () => {

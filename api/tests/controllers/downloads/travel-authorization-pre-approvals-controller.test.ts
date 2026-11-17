@@ -8,7 +8,7 @@ import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
 import { TravelAuthorizationPreApproval } from "@/models"
-import { CSV_HEADERS } from "@/serializers/travel-authorization-pre-approvals/report-serializer"
+import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS } from "@/serializers/travel-authorization-pre-approvals/report-serializer"
 import { CreateCsvService } from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
 
 import {
@@ -63,7 +63,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
         expect(response.body).toEqual(
           Buffer.from(
             "\uFEFF" +
-              (CSV_HEADERS.join(",") + "\r\n") +
+              (TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS.join(",") + "\r\n") +
               '"Jane Traveller, Alex Second.Name",Finance,Travel,2026-11-20T00:00:00.000Z to 2026-11-22T00:00:00.000Z,Dawson,Training,"$1,234.00",Annual meeting,approved,Bring documents\r\n'
           )
         )
@@ -111,7 +111,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(response.body).toEqual(Buffer.from("\uFEFF" + (CSV_HEADERS.join(",") + "\r\n")))
+        expect(response.body).toEqual(Buffer.from("\uFEFF" + (TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS.join(",") + "\r\n")))
       })
 
       test("when the query has no matches, it exports headers only", async () => {
@@ -128,7 +128,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(response.body).toEqual(Buffer.from("\uFEFF" + (CSV_HEADERS.join(",") + "\r\n")))
+        expect(response.body).toEqual(Buffer.from("\uFEFF" + (TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS.join(",") + "\r\n")))
       })
 
       test("when matches span database batches, it exports every authorized pre-approval without list pagination", async () => {
