@@ -8,7 +8,7 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
     describe("#toJSON", () => {
       test("when the user is a travel desk officer, it permits invoice management", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const invoice = travelDeskInvoiceFactory.build()
         const policy = new TravelDeskInvoicesPolicy(officer, invoice)
 
@@ -64,7 +64,7 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
     describe("#permitAttributesForCreate", () => {
       test("when ownership and totals are submitted, it keeps only editable headers and source selection", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const invoice = travelDeskInvoiceFactory.build()
         const policy = new TravelDeskInvoicesPolicy(officer, invoice)
 
@@ -89,7 +89,7 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
     describe("#permitAttributesForUpdate", () => {
       test("when source identity and ownership are submitted, it keeps only editable headers", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const invoice = travelDeskInvoiceFactory.build()
         const policy = new TravelDeskInvoicesPolicy(officer, invoice)
 
@@ -125,7 +125,7 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
 
       test("when the user has travel desk access, it includes active invoices only", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const invoice = await travelDeskInvoiceFactory.create()
         const deletedInvoice = await travelDeskInvoiceFactory.create()
         await deletedInvoice.destroy()

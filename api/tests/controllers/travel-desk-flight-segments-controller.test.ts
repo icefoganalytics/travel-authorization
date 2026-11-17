@@ -15,7 +15,7 @@ describe("api/src/controllers/travel-desk-flight-segments-controller.ts", () => 
     describe("index", () => {
       test("when filtering for a travel request, it returns only its live local flight segments", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const otherRequest = await travelDeskTravelRequestFactory.create()
         const flightRequest1 = await travelDeskFlightRequestFactory

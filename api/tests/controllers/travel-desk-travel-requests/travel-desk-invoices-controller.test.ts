@@ -35,7 +35,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when filtering and paginating, it counts only matching invoices within the URL parent", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const otherRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskInvoiceFactory
@@ -73,7 +73,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when invoices have multiple items and matching timestamps, it paginates invoices with complete ordered items", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const createdAt = new Date("2026-01-01T12:00:00Z")
         await travelDeskInvoiceFactory
@@ -129,7 +129,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when query preparation fails, it returns the index error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(TravelDeskInvoicesController.prototype, "buildWhere").mockImplementationOnce(
@@ -152,7 +152,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the parent is missing, it returns not found", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelRequest.destroy({ force: true })
         mockCurrentUser(officer)
@@ -171,7 +171,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the parent lookup fails, it returns the index error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
@@ -194,7 +194,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
     describe("GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
       test("when the parent is missing, it returns not found", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelRequest.destroy({ force: true })
         mockCurrentUser(officer)
@@ -213,7 +213,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the parent lookup fails, it returns the show error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
@@ -234,7 +234,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the invoice belongs to another parent, it returns not found", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(officer)
@@ -273,7 +273,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when source rows are absent, it still returns the saved invoice snapshot", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(officer)
 
@@ -300,7 +300,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
     describe("POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
       test("when the parent is missing, it returns not found before processing invoice inputs", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelRequest.destroy({ force: true })
         mockCurrentUser(officer)
@@ -319,7 +319,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the parent lookup fails, it returns the creation error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
@@ -358,7 +358,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when a selected booking has not been synced locally, it rejects invoice creation", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
 
@@ -383,7 +383,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when synced data is created with forged totals and snapshot, it uses local source data and calculated total", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const otherRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
@@ -464,7 +464,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
     describe("PATCH /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
       test("when the parent is missing, it returns not found before processing invoice inputs", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelRequest.destroy({ force: true })
         mockCurrentUser(officer)
@@ -483,7 +483,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the parent lookup fails, it returns the update error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
@@ -504,7 +504,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the invoice belongs to another parent, it returns not found despite submitted ownership", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(officer)
@@ -545,7 +545,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when source identity and parent are forged and headers omitted, it preserves saved source data and headers", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const invoice = await travelDeskInvoiceFactory.create({ invoiceNumber: "INV-ORIGINAL" })
         const otherRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskInvoiceItemFactory
@@ -601,7 +601,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an item has a custom product type, it rejects the request", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(officer)
 
@@ -633,7 +633,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an item has malformed money, it rejects the request", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.000" })
         await travelDeskInvoiceItemFactory
           .associations({ invoice })
@@ -675,7 +675,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
     describe("DELETE /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
       test("when the parent is missing, it returns not found", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelRequest.destroy({ force: true })
         mockCurrentUser(officer)
@@ -694,7 +694,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the parent lookup fails, it returns the deletion error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
@@ -715,7 +715,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when the invoice belongs to another parent, it returns not found despite submitted ownership", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(officer)
