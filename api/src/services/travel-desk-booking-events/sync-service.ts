@@ -13,6 +13,7 @@ import WithSyncLockService from "@/services/travel-desk-booking-events/with-sync
 export class SyncService extends BaseService {
   constructor(protected bookingReference: string) {
     super()
+    this.bookingReference = bookingReference.trim().toUpperCase()
   }
 
   async perform(): Promise<void> {
