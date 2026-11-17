@@ -103,7 +103,12 @@ export class TravelDeskInvoice extends Model<
   @Attribute({
     type: DataTypes.DATEONLY,
     set(value: string | null) {
-      this.setDataValue("bookingDate", value === "" ? null : value)
+      if (value === "") {
+        this.setDataValue("bookingDate", null)
+        return
+      }
+
+      this.setDataValue("bookingDate", value)
     },
   })
   declare bookingDate: string | null
