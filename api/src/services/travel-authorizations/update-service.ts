@@ -96,28 +96,22 @@ export class UpdateService extends BaseService {
         await Expenses.BulkReplaceService.perform(this.travelAuthorization.id, expenses)
       }
 
-      if (!isUndefined(estimatedPrimaryDestinationId)) {
-        this.travelAuthorization.estimatedPrimaryDestinationId = estimatedPrimaryDestinationId
-        await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
-          isActual: false,
-          requireSelection: false,
-        })
-        await this.travelAuthorization.save()
-      }
-      if (!isUndefined(actualPrimaryDestinationId)) {
-        this.travelAuthorization.actualPrimaryDestinationId = actualPrimaryDestinationId
-        await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
-          isActual: true,
-          requireSelection: false,
-        })
-        await this.travelAuthorization.save()
-      }
+      await this.travelAuthorization.reload()
       if (!isUndefined(attributes.tripTypeEstimate)) {
         await ReconcilePrimaryDestinationService.perform(this.travelAuthorization, false)
       }
       if (!isUndefined(attributes.tripTypeActual)) {
         await ReconcilePrimaryDestinationService.perform(this.travelAuthorization, true)
       }
+
+      if (!isUndefined(estimatedPrimaryDestinationId)) {
+        this.travelAuthorization.estimatedPrimaryDestinationId = estimatedPrimaryDestinationId
+      }
+      if (!isUndefined(actualPrimaryDestinationId)) {
+        this.travelAuthorization.actualPrimaryDestinationId = actualPrimaryDestinationId
+      }
+      await ValidatePrimaryDestinationService.perform(this.travelAuthorization)
+      await this.travelAuthorization.save()
 
       return this.travelAuthorization.reloadWithScope("asShow")
     })
