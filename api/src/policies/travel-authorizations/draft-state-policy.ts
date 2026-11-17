@@ -47,8 +47,7 @@ export class DraftStatePolicy extends GenericStatePolicy {
       "travelAdvanceInCents",
       "allTravelWithinTerritory",
       {
-        travelSegmentEstimatesAttributes:
-          this.travelSegmentsPolicy.permittedAttributesForBulkReplace(),
+        travelSegmentEstimatesAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
       },
     ]
   }
