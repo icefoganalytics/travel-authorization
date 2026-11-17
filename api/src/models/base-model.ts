@@ -1,4 +1,5 @@
 import {
+  EmptyResultError,
   Model,
   type AttributeNames,
   type Attributes,
@@ -188,10 +189,17 @@ export abstract class BaseModel<
     const { primaryKeysAttributeNames } = ModelClass.modelDefinition
     const identifiers = [...primaryKeysAttributeNames].map((key) => this.get(key as keyof M))
     const identifier = identifiers.length === 1 ? identifiers[0] : identifiers
-    return ModelClass.withScope(scopes).findByPk(identifier, {
+    const record = await ModelClass.withScope(scopes).findByPk(identifier, {
       ...options,
-      rejectOnEmpty: true,
+      rejectOnEmpty: false,
     })
+
+    // Like Sequelize's reload, reject a missing root after loading its associations.
+    if (record === null) {
+      throw new EmptyResultError("Record could not be reloaded because it no longer exists")
+    }
+
+    return record
   }
 }
 
