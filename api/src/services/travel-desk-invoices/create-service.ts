@@ -81,7 +81,7 @@ export class CreateService extends BaseService {
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
-    const snapshot = await this.loadSourceSnapshot(
+    const invoiceSourceSnapshot = await this.loadInvoiceSourceSnapshot(
       normalizedBookingReference,
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers
@@ -92,7 +92,7 @@ export class CreateService extends BaseService {
       await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
       await validateInvoiceItems(
         items,
-        snapshot,
+        invoiceSourceSnapshot,
         sourceServiceFeeEventExternalIdentifiers,
         currencyCode
       )
@@ -102,7 +102,7 @@ export class CreateService extends BaseService {
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         bookingReference: normalizedBookingReference,
         externalBookingEventIdentifier,
-        sourceSnapshot: snapshot,
+        sourceSnapshot: invoiceSourceSnapshot,
         currencyCode,
         invoiceNumber: this.attributes.invoiceNumber ?? null,
         invoiceDate: this.attributes.invoiceDate ?? null,
@@ -147,7 +147,7 @@ export class CreateService extends BaseService {
     }
   }
 
-  private async loadSourceSnapshot(
+  private async loadInvoiceSourceSnapshot(
     bookingReference: string,
     externalBookingEventIdentifier: number,
     sourceServiceFeeEventExternalIdentifiers: number[]
