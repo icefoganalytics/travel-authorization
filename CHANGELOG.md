@@ -44,6 +44,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Invoice migrations use model-owned sale types and standard foreign-key declarations; invoice amounts use native decimal validation, and booking lookups use exact query conditions.
 - Invoice APIs identify the external booking event explicitly as `externalBookingEventIdentifier`.
 - Local booking and invoice APIs use `bookingReference`; Travelport source fields retain their original names.
+- Booking synchronization uses an explicit `/sync` action. Invoice service-fee references identify external events, and the invoice-item model validates mutually exclusive source identities.
 
 ### Fixed
 
