@@ -2,7 +2,6 @@ import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
-import quickStartBufferStream from "@/utils/quick-start-buffer-stream"
 
 import { type FlightStatistic } from "@/models"
 import { FlightStatisticsPolicy } from "@/policies"
@@ -50,9 +49,7 @@ export class FlightStatisticsController extends BaseController<FlightStatistic> 
     this.response.status(200).attachment(fileName)
     this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
-    return quickStartBufferStream(this.response, "text/csv", () =>
-      CreateCsvService.perform(scopedFlightStatistics, where, order)
-    )
+    return CreateCsvService.perform(scopedFlightStatistics, where, order, this.response)
   }
 
   private buildFileName(): string {

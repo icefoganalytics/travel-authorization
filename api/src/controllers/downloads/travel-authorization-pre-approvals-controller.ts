@@ -2,7 +2,6 @@ import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
-import quickStartBufferStream from "@/utils/quick-start-buffer-stream"
 
 import { type TravelAuthorizationPreApproval } from "@/models"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
@@ -50,8 +49,12 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
     this.response.status(200).attachment(fileName)
     this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
-    return quickStartBufferStream(this.response, "text/csv", () =>
-      CreateCsvService.perform(scopedTravelAuthorizationPreApprovals, where, order, this.currentUser)
+    return CreateCsvService.perform(
+      scopedTravelAuthorizationPreApprovals,
+      where,
+      order,
+      this.currentUser,
+      this.response
     )
   }
 

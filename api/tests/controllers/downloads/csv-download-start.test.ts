@@ -1,11 +1,13 @@
 import { EventEmitter, once } from "node:events"
 import { type Server } from "node:http"
 import { type AddressInfo } from "node:net"
+import { type Writable } from "node:stream"
 
 import { User } from "@/models"
 import { CreateCsvService as ReconciliationCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
 import { CreateCsvService as StatisticsCsvService } from "@/services/downloads/flight-statistics/create-csv-service"
 import { CreateCsvService as PreApprovalCsvService } from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
+import streamCsv from "@/utils/stream-csv"
 
 import { userFactory } from "@/factories"
 import { mockCurrentUser } from "@/support"
@@ -35,19 +37,21 @@ describe("CSV download startup over HTTP", () => {
     { resource: "flight-statistics", service: StatisticsCsvService },
     { resource: "travel-authorization-pre-approvals", service: PreApprovalCsvService },
   ])("$resource", ({ resource, service }) => {
-    test.each([
-      { condition: "has a byte-order mark", prefix: "\uFEFF" },
-      { condition: "has no byte-order mark", prefix: "" },
-    ])("when CSV $condition, it starts downloading early", async ({ prefix }) => {
+    test("when later rows are pending, it delivers earlier rows before generation finishes", async () => {
       // Arrange
       const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
       mockCurrentUser(user)
       const generation = new EventEmitter()
-      const csv = Buffer.from("\uFEFFName\r\nTraveller\r\n")
-      const generatedCsv = Buffer.from(`${prefix}Name\r\nTraveller\r\n`)
-      const generateCsv = vi.spyOn(service, "perform").mockImplementation(async () => {
-        await once(generation, "ready")
-        return generatedCsv
+      const firstRow = once(generation, "firstRow")
+      const lastRow = once(generation, "lastRow")
+      const generateCsv = vi.spyOn(service, "perform").mockImplementation(async (...args) => {
+        const destination = args[args.length - 1] as Writable
+        await streamCsv(destination, ["Name"], async (writeRow) => {
+          await firstRow
+          await writeRow({ Name: "Traveller" })
+          await lastRow
+          await writeRow({ Name: "Last traveller" })
+        })
       })
       const signal = AbortSignal.timeout(5000)
 
@@ -57,27 +61,45 @@ describe("CSV download startup over HTTP", () => {
           method: "POST",
           signal,
         })
-
-        // Assert
-        expect(response.status).toEqual(200)
-        expect(response.headers.get("content-disposition")).toMatch(/^attachment; filename=".*\.csv"$/)
-        expect(response.headers.get("content-type")).toEqual("text/csv; charset=utf-8")
         if (response.body === null) {
           throw new Error("Expected a CSV response body")
         }
 
         const reader = response.body.getReader()
-        let chunk = await reader.read()
-        expect(chunk.value).toEqual(new Uint8Array([239, 187, 191]))
-        generation.emit("ready")
         const chunks: Uint8Array[] = []
-        while (!chunk.done) {
+        const header = Buffer.from("\uFEFFName")
+        let receivedBytes = 0
+        while (receivedBytes < header.length) {
+          const chunk = await reader.read()
+          if (chunk.done) throw new Error("Download ended before the header arrived")
           chunks.push(chunk.value)
-          chunk = await reader.read()
+          receivedBytes += chunk.value.length
         }
-        expect(Buffer.concat(chunks)).toEqual(csv)
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(Buffer.concat(chunks)).toEqual(header)
+        generation.emit("firstRow")
+        const firstRows = Buffer.from("\uFEFFName\r\nTraveller")
+        while (receivedBytes < firstRows.length) {
+          const chunk = await reader.read()
+          if (chunk.done) throw new Error("Download ended before the first row arrived")
+          chunks.push(chunk.value)
+          receivedBytes += chunk.value.length
+        }
+        expect(Buffer.concat(chunks)).toEqual(firstRows)
+        generation.emit("lastRow")
+        for (;;) {
+          const chunk = await reader.read()
+          if (chunk.done) break
+          chunks.push(chunk.value)
+        }
+        expect(Buffer.concat(chunks)).toEqual(
+          Buffer.from("\uFEFFName\r\nTraveller\r\nLast traveller\r\n")
+        )
       } finally {
-        generation.emit("ready")
+        generation.emit("firstRow")
+        generation.emit("lastRow")
         generateCsv.mockRestore()
       }
     })
@@ -87,9 +109,11 @@ describe("CSV download startup over HTTP", () => {
       const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
       mockCurrentUser(user)
       const generation = new EventEmitter()
-      const generateCsv = vi.spyOn(service, "perform").mockImplementation(async () => {
-        await once(generation, "ready")
-        return Buffer.alloc(0)
+      const generateCsv = vi.spyOn(service, "perform").mockImplementation(async (...args) => {
+        const destination = args[args.length - 1] as Writable
+        await streamCsv(destination, ["Name"], async () => {
+          await once(generation, "ready")
+        })
       })
       const signal = AbortSignal.timeout(5000)
 

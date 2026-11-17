@@ -1,3 +1,6 @@
+import { PassThrough } from "node:stream"
+import { buffer } from "node:stream/consumers"
+
 import Papa from "papaparse"
 
 import { TravelAuthorizationPreApproval, User } from "@/models"
@@ -34,14 +37,18 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
         })
         const scopedTravelAuthorizationPreApprovals =
           TravelAuthorizationPreApprovalsPolicy.applyScope([], user1)
+        const destination = new PassThrough()
+        const content = buffer(destination)
 
         // Act
-        const csvBuffer = await CreateCsvService.perform(
+        await CreateCsvService.perform(
           scopedTravelAuthorizationPreApprovals,
           { id: preApproval.id },
           undefined,
-          user1
+          user1,
+          destination
         )
+        const csvBuffer = await content
         const parsedCsv = Papa.parse<Record<string, string>>(csvBuffer.toString("utf-8"), {
           header: true,
           skipEmptyLines: true,
@@ -72,14 +79,18 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
         })
         const scopedTravelAuthorizationPreApprovals =
           TravelAuthorizationPreApprovalsPolicy.applyScope([], user1)
+        const destination = new PassThrough()
+        const content = buffer(destination)
 
         // Act
-        const csvBuffer = await CreateCsvService.perform(
+        await CreateCsvService.perform(
           scopedTravelAuthorizationPreApprovals,
           { id: preApproval.id },
           undefined,
-          user1
+          user1,
+          destination
         )
+        const csvBuffer = await content
 
         // Assert
         expect(csvBuffer.toString("utf-8")).toEqual(

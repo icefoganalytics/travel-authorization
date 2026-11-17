@@ -126,11 +126,11 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
         expect(response.body).toEqual(Buffer.from("\uFEFF" + CSV_HEADERS))
       })
 
-      test("when pagination is requested, it still exports all matches beyond the default page", async () => {
+      test("when matches span database batches, it exports every authorized pre-approval without list pagination", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER], department: "Finance" })
         mockCurrentUser(user1)
-        await travelAuthorizationPreApprovalFactory.createList(12, {
+        await travelAuthorizationPreApprovalFactory.createList(1001, {
           department: "Finance",
           branch: null,
           isOpenForAnyDate: true,
@@ -155,7 +155,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
         // Assert
         expect(response.status).toEqual(200)
         expect(parsedCsv.data).toEqual(
-          Array.from({ length: 12 }, () => ({
+          Array.from({ length: 1001 }, () => ({
             Name: "",
             Department: "Finance",
             Branch: "",

@@ -1,14 +1,16 @@
-import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
-import { writeToBuffer } from "fast-csv"
+import { type Writable } from "node:stream"
+
+import { IsolationLevel, type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type TravelAuthorizationPreApproval, type User } from "@/models"
+import BaseModel from "@/models/base-model"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
 import {
   ReportSerializer,
   TravelAuthorizationPreApprovalReportHeaders,
 } from "@/serializers/travel-authorization-pre-approvals/report-serializer"
-import neutralizeSpreadsheetFormula from "@/utils/neutralize-spreadsheet-formula"
+import streamCsv from "@/utils/stream-csv"
 import BaseService from "@/services/base-service"
 
 export class CreateCsvService extends BaseService {
@@ -16,47 +18,48 @@ export class CreateCsvService extends BaseService {
     private scopedTravelAuthorizationPreApprovals: ModelStatic<TravelAuthorizationPreApproval>,
     private where: WhereOptions<Attributes<TravelAuthorizationPreApproval>>,
     private order: ModelOrder[] | undefined,
-    private currentUser: User
+    private currentUser: User,
+    private destination: Writable
   ) {
     super()
   }
 
-  async perform(): Promise<Buffer> {
-    const profileScope = TravelAuthorizationPreApprovalProfilesPolicy.policyScope(this.currentUser)
-    const travelAuthorizationPreApprovals = await this.scopedTravelAuthorizationPreApprovals.findAll({
-      where: this.where,
-      order: this.order,
-      include: [
-        {
-          association: "profiles",
-          ...profileScope,
-          required: false,
-          separate: true,
-          order: [["id", "ASC"]],
-        },
-      ],
-    })
-    const serializedTravelAuthorizationPreApprovals = ReportSerializer.perform(
-      travelAuthorizationPreApprovals
-    )
+  async perform(): Promise<void> {
     const headers = Object.values(TravelAuthorizationPreApprovalReportHeaders)
-    const csvRows: (string[] | Record<string, string>)[] = [headers]
-    for (const row of serializedTravelAuthorizationPreApprovals) {
-      const safeRow = Object.fromEntries(
-        Object.entries(row).map(([header, value]) => {
-          const safeValue = neutralizeSpreadsheetFormula(value)
+    const order: ModelOrder[] = [...(this.order ?? []), ["id", "ASC"]]
+    const profileScope = TravelAuthorizationPreApprovalProfilesPolicy.policyScope(this.currentUser)
+    const findEach = BaseModel.findEach<TravelAuthorizationPreApproval>
 
-          return [header, safeValue]
-        })
+    return streamCsv(this.destination, headers, async (writeRow) => {
+      await this.scopedTravelAuthorizationPreApprovals.sequelize.transaction(
+        {
+          isolationLevel: IsolationLevel.REPEATABLE_READ,
+          readOnly: true,
+        },
+        async (transaction) => {
+          await findEach.call(
+            this.scopedTravelAuthorizationPreApprovals,
+            {
+              where: this.where,
+              order,
+              transaction,
+              include: [
+                {
+                  association: "profiles",
+                  ...profileScope,
+                  required: false,
+                  separate: true,
+                  order: [["id", "ASC"]],
+                },
+              ],
+            },
+            async (record) => {
+              const row = ReportSerializer.perform(record)
+              await writeRow(row)
+            }
+          )
+        }
       )
-      csvRows.push(safeRow)
-    }
-
-    return writeToBuffer(csvRows, {
-      headers: true,
-      includeEndRowDelimiter: true,
-      rowDelimiter: "\r\n",
-      writeBOM: true,
     })
   }
 }

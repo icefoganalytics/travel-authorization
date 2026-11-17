@@ -1,48 +1,53 @@
-import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
-import { writeToBuffer } from "fast-csv"
+import { type Writable } from "node:stream"
+
+import { IsolationLevel, type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type FlightStatistic } from "@/models"
+import BaseModel from "@/models/base-model"
 import {
   FlightStatisticReportHeaders,
   ReportSerializer,
 } from "@/serializers/flight-statistics/report-serializer"
-import neutralizeSpreadsheetFormula from "@/utils/neutralize-spreadsheet-formula"
+import streamCsv from "@/utils/stream-csv"
 import BaseService from "@/services/base-service"
 
 export class CreateCsvService extends BaseService {
   constructor(
     private scopedFlightStatistics: ModelStatic<FlightStatistic>,
     private where: WhereOptions<Attributes<FlightStatistic>>,
-    private order: ModelOrder[] | undefined
+    private order: ModelOrder[] | undefined,
+    private destination: Writable
   ) {
     super()
   }
 
-  async perform(): Promise<Buffer> {
-    const flightStatistics = await this.scopedFlightStatistics.findAll({
-      where: this.where,
-      order: this.order,
-    })
-    const serializedFlightStatistics = ReportSerializer.perform(flightStatistics)
+  async perform(): Promise<void> {
     const headers = Object.values(FlightStatisticReportHeaders)
-    const csvRows: (string[] | Record<string, string | number>)[] = [headers]
-    for (const row of serializedFlightStatistics) {
-      const safeRow = Object.fromEntries(
-        Object.entries(row).map(([header, value]) => {
-          const safeValue = typeof value === "string" ? neutralizeSpreadsheetFormula(value) : value
+    const order: ModelOrder[] = [...(this.order ?? []), ["id", "ASC"]]
+    const findEach = BaseModel.findEach<FlightStatistic>
 
-          return [header, safeValue]
-        })
+    return streamCsv(this.destination, headers, async (writeRow) => {
+      await this.scopedFlightStatistics.sequelize.transaction(
+        {
+          isolationLevel: IsolationLevel.REPEATABLE_READ,
+          readOnly: true,
+        },
+        async (transaction) => {
+          await findEach.call(
+            this.scopedFlightStatistics,
+            {
+              where: this.where,
+              order,
+              transaction,
+            },
+            async (record) => {
+              const row = ReportSerializer.perform(record)
+              await writeRow(row)
+            }
+          )
+        }
       )
-      csvRows.push(safeRow)
-    }
-
-    return writeToBuffer(csvRows, {
-      headers: true,
-      includeEndRowDelimiter: true,
-      rowDelimiter: "\r\n",
-      writeBOM: true,
     })
   }
 }
