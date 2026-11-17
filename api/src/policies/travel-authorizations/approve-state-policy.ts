@@ -20,7 +20,7 @@ export class ApproveStatePolicy extends GenericStatePolicy {
       "tripTypeActual",
       "actualPrimaryDestinationId",
       {
-        travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForBulkReplace(),
+        travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
       },
     ]
   }

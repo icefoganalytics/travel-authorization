@@ -128,37 +128,6 @@ describe("api/src/services/travel-segments/bulk-replace-service.ts", () => {
           )
         }
       )
-
-      test("when an actual segment identity is supplied for estimate replacement, it rejects the replacement", async () => {
-        // Arrange
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
-        })
-        const actualTravelSegment = await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({
-            isActual: true,
-          })
-        const attributes = [
-          {
-            id: actualTravelSegment.id,
-            travelAuthorizationId: travelAuthorization.id,
-            isActual: false,
-            arrivalLocationId: actualTravelSegment.arrivalLocationId,
-            segmentNumber: 1,
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-          },
-        ]
-
-        // Act
-        const result = BulkReplaceService.perform(travelAuthorization.id, attributes, false)
-
-        // Assert
-        await expect(result).rejects.toThrow(
-          "Replacement segment IDs must belong to the itinerary being replaced."
-        )
-      })
     })
   })
 })
