@@ -15,10 +15,7 @@ Serializers take model data, in the form mapping directly to the database struct
 
 Serializers are used in controllers to convert from a database representation to a front-end data packet. Serializers should generally not be used for general data formating such as date or money formatting, as formatting those kinds of things in the front-end is generally more flexible.
 
-CSV report serializers are an exception: the server owns their display formatting. Destructure the
-source attributes in `perform()`, pass them to private `formatXyz` methods, and evaluate the formatted
-values before constructing the report object. Each method owns its field's formatting and blank-value
-handling without reading `this.record`. Pass unformatted attributes directly into the report.
+TravelAuth CSV report serializers own server-side display formatting. Follow the shared [Private Helper Inputs](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#private-helper-inputs) and [Function Calls Before Construction](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/code-organization-reference.md#function-calls-before-construction) rules. The accepted report-specific `formatXyz` convention is tracked for upstream adoption in [MSSRT #1407](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1407); that proposal is not yet published shared guidance.
 
 ## Naming
 
