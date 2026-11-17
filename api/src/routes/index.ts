@@ -333,7 +333,11 @@ router
 router
   .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events")
   .get(TravelDeskTravelRequests.TravelDeskBookingEventsController.index)
-  .post(TravelDeskTravelRequests.TravelDeskBookingEventsController.create)
+router
+  .route(
+    "/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events/sync"
+  )
+  .post(TravelDeskTravelRequests.TravelDeskBookingEvents.SyncController.create)
 
 router.route("/api/locations").get(LocationsController.index)
 router.route("/api/locations/:locationId").get(LocationsController.show)

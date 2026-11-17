@@ -24,7 +24,7 @@ import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 export type InvoiceHeaderAttributes = {
   bookingReference: string
   externalBookingEventIdentifier: number
-  sourceServiceFeeEventIds: number[]
+  sourceServiceFeeEventExternalIdentifiers: number[]
   currencyCode: string
   invoiceNumber?: string | null
   invoiceDate?: string | null
@@ -52,7 +52,7 @@ export class CreateService extends BaseService {
     const {
       bookingReference,
       externalBookingEventIdentifier,
-      sourceServiceFeeEventIds,
+      sourceServiceFeeEventExternalIdentifiers,
       currencyCode,
       items,
     } = this.attributes
@@ -64,7 +64,7 @@ export class CreateService extends BaseService {
       throw new InvoiceValidationError("Booking event is required.")
     }
 
-    if (!Array.isArray(sourceServiceFeeEventIds)) {
+    if (!Array.isArray(sourceServiceFeeEventExternalIdentifiers)) {
       throw new InvoiceValidationError("Service fee events must be an array.")
     }
 
@@ -84,13 +84,18 @@ export class CreateService extends BaseService {
     const snapshot = await this.loadSourceSnapshot(
       normalizedBookingReference,
       externalBookingEventIdentifier,
-      sourceServiceFeeEventIds
+      sourceServiceFeeEventExternalIdentifiers
     )
     const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async () => {
       await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
-      await validateInvoiceItems(items, snapshot, sourceServiceFeeEventIds, currencyCode)
+      await validateInvoiceItems(
+        items,
+        snapshot,
+        sourceServiceFeeEventExternalIdentifiers,
+        currencyCode
+      )
       await validateLinkedFlightSegments(items, this.travelDeskTravelRequest.id)
 
       const invoice = await TravelDeskInvoice.create({
@@ -145,13 +150,13 @@ export class CreateService extends BaseService {
   private async loadSourceSnapshot(
     bookingReference: string,
     externalBookingEventIdentifier: number,
-    sourceServiceFeeEventIds: number[]
+    sourceServiceFeeEventExternalIdentifiers: number[]
   ): Promise<InvoiceSourceSnapshot> {
     const bookingEvents = await TravelDeskBookingEvent.findAll({
       where: {
         bookingReference,
         externalTravelPortIdentifier: {
-          [Op.in]: [externalBookingEventIdentifier, ...sourceServiceFeeEventIds],
+          [Op.in]: [externalBookingEventIdentifier, ...sourceServiceFeeEventExternalIdentifiers],
         },
       },
     })
@@ -169,7 +174,7 @@ export class CreateService extends BaseService {
       throw new InvoiceValidationError("Booking event does not belong to this booking reference.")
     }
 
-    const serviceFeeEvents = sourceServiceFeeEventIds.map((eventId) => {
+    const serviceFeeEvents = sourceServiceFeeEventExternalIdentifiers.map((eventId) => {
       const event = sourceEvents.find((sourceEvent) => sourceEvent.travelOrderIdentifier === eventId)
       if (
         isNil(event) ||

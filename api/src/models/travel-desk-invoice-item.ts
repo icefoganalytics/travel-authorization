@@ -10,10 +10,12 @@ import {
   Attribute,
   AutoIncrement,
   BelongsTo,
+  ModelValidator,
   NotNull,
   PrimaryKey,
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
+import { isNil } from "lodash"
 
 import TravelDeskFlightSegment from "@/models/travel-desk-flight-segment"
 import TravelDeskInvoice from "@/models/travel-desk-invoice"
@@ -64,7 +66,7 @@ export class TravelDeskInvoiceItem extends Model<
   declare sourceAirSegmentNumber: number | null
 
   @Attribute(DataTypes.INTEGER)
-  declare sourceServiceFeeEventId: number | null
+  declare sourceServiceFeeEventExternalIdentifier: number | null
 
   @Attribute(DataTypes.STRING(255))
   declare passengerName: string | null
@@ -106,6 +108,17 @@ export class TravelDeskInvoiceItem extends Model<
 
   @Attribute(DataTypes.DATE)
   declare deletedAt: Date | null
+
+  // Validators
+  @ModelValidator
+  exclusiveSourceIdentity() {
+    if (
+      !isNil(this.sourceAirSegmentNumber) &&
+      !isNil(this.sourceServiceFeeEventExternalIdentifier)
+    ) {
+      throw new Error("An item cannot refer to both a flight segment and service fee.")
+    }
+  }
 
   @BelongsTo(() => TravelDeskInvoice, {
     foreignKey: {
