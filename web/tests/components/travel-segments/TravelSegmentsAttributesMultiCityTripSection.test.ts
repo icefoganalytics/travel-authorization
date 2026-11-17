@@ -133,9 +133,9 @@ describe("web/src/components/travel-segments/TravelSegmentsAttributesMultiCityTr
 
       // Assert
       const updatedSegments = wrapper.emitted("updated")?.at(-1)?.[0]
-      const expectedOutbound = omit(outboundSegment, ["createdAt", "updatedAt"])
+      const expectedOutbound = omit(outboundSegment, ["id", "createdAt", "updatedAt"])
       expectedOutbound.accommodationType = TravelSegmentAccommodationTypes.HOTEL
-      const expectedReturn = omit(returnSegment, ["createdAt", "updatedAt"])
+      const expectedReturn = omit(returnSegment, ["id", "createdAt", "updatedAt"])
       expect(updatedSegments).toEqual([expectedOutbound, expectedReturn])
     })
 
