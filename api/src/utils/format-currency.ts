@@ -1,5 +1,17 @@
 import { isNil } from "lodash"
 
+export function formatCurrency(amount: number | null | undefined): string {
+  if (isNil(amount)) {
+    return ""
+  }
+
+  if (amount > 1) {
+    return currencyFormatter.format(amount)
+  }
+
+  return smallAmountCurrencyFormatter.format(amount)
+}
+
 const currencyFormatter = new Intl.NumberFormat("en-CA", {
   style: "currency",
   currency: "CAD",
@@ -12,17 +24,5 @@ const smallAmountCurrencyFormatter = new Intl.NumberFormat("en-CA", {
   minimumFractionDigits: 3,
   maximumFractionDigits: 3,
 })
-
-export function formatCurrency(amount: number | null | undefined): string {
-  if (isNil(amount)) {
-    return ""
-  }
-
-  if (amount > 1) {
-    return currencyFormatter.format(amount)
-  }
-
-  return smallAmountCurrencyFormatter.format(amount)
-}
 
 export default formatCurrency
