@@ -105,7 +105,23 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when a lowercase booking reference has surrounding whitespace, it updates the uppercase local row without duplicates", async () => {
+      test.each(["src001", " SRC001", "SRC001 "])(
+        "when the booking reference is %j, it rejects the non-normalized input",
+        async (bookingReference) => {
+          // Arrange
+          const service = new SyncService(bookingReference)
+
+          // Act
+          const result = service.perform()
+
+          // Assert
+          await expect(result).rejects.toThrow(
+            "Booking reference must be uppercase without leading or trailing whitespace."
+          )
+        }
+      )
+
+      test("when a lowercase source locator is refreshed with an uppercase reference, it updates the local row without duplicates", async () => {
         // Arrange
         await travelPortMigrationClient("TravelOrderEvent").insert({
           TravelOrderIdentifier: 910001,
@@ -124,7 +140,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           .update({ PnrBfVersionNbr: 2 })
 
         // Act
-        await SyncService.perform(" src001 ")
+        await SyncService.perform("SRC001")
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
@@ -342,7 +358,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         })
 
         // Act
-        await SyncService.perform("not-a-six-character-locator")
+        await SyncService.perform("NOT-A-SIX-CHARACTER-LOCATOR")
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
