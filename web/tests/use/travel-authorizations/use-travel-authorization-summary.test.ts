@@ -46,7 +46,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.primaryDestinationLocationId.value).toBe(8)
+        expect(summary.finalDestinationLocationId.value).toBe(8)
       } finally {
         scope.stop()
       }
@@ -90,7 +90,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.primaryDestinationLocationId.value).toBe(6)
+        expect(summary.finalDestinationLocationId.value).toBe(6)
       } finally {
         scope.stop()
       }
@@ -120,7 +120,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.primaryDestinationLocationId.value).toBeNull()
+        expect(summary.finalDestinationLocationId.value).toBeNull()
       } finally {
         scope.stop()
       }
