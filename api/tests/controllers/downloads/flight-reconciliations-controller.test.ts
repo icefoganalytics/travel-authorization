@@ -18,7 +18,7 @@ const CSV_HEADERS = Object.values(FlightReconciliationReportHeaders)
 
 describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", () => {
   describe("FlightReconciliationsController", () => {
-    describe("#create", () => {
+    describe("#create - POST - /api/downloads/flight-reconciliations", () => {
       test("when finance selects mixed mailcodes, it exports only authorized IDs in requested order with report formatting", async () => {
         // Arrange
         const user1 = await userFactory.create({

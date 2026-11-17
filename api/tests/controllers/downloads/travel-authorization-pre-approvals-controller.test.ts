@@ -22,7 +22,7 @@ const CSV_HEADERS = Object.values(TravelAuthorizationPreApprovalReportHeaders).j
 
 describe("api/src/controllers/downloads/travel-authorization-pre-approvals-controller.ts", () => {
   describe("TravelAuthorizationPreApprovalsController", () => {
-    describe("#create", () => {
+    describe("#create - POST - /api/downloads/travel-authorization-pre-approvals", () => {
       test("when records and profiles are visible, it exports their complete display values", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER], department: "Finance" })

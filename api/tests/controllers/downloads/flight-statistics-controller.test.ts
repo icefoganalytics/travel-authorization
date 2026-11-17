@@ -18,7 +18,7 @@ const CSV_HEADERS = Object.values(FlightStatisticReportHeaders)
 
 describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => {
   describe("FlightStatisticsController", () => {
-    describe("#create", () => {
+    describe("#create - POST - /api/downloads/flight-statistics", () => {
       test("when admin combines filters and where, it exports matching rows in department and destination order", async () => {
         // Arrange
         const user1 = await userFactory.asAdmin().create()
