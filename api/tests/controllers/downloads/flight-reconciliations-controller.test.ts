@@ -1,10 +1,10 @@
 import { EventEmitter, once } from "node:events"
+import { type IncomingMessage } from "node:http"
 import { createInterface } from "node:readline"
-import { Readable } from "node:stream"
-import { type ReadableStream } from "node:stream/web"
 
 import Papa from "papaparse"
 import qs from "qs"
+import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
 import { User } from "@/models"
@@ -12,23 +12,13 @@ import { FlightReconciliationReportHeaders } from "@/serializers/flight-reconcil
 import { CreateCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
 
 import { flightReconciliationFactory, userFactory } from "@/factories"
-import { createHttpTestServer, mockCurrentUser, request } from "@/support"
+import { mockCurrentUser, request } from "@/support"
 
 const CSV_HEADERS = Object.values(FlightReconciliationReportHeaders)
 
 describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", () => {
   describe("FlightReconciliationsController", () => {
     describe("#create", () => {
-      let httpServer: Awaited<ReturnType<typeof createHttpTestServer>>
-
-      beforeAll(async () => {
-        httpServer = await createHttpTestServer()
-      })
-
-      afterAll(async () => {
-        await httpServer.close()
-      })
-
       test("when finance selects mixed mailcodes, it exports only authorized IDs in requested order with report formatting", async () => {
         // Arrange
         const user1 = await userFactory.create({
@@ -296,19 +286,21 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
           }
         )
 
+        const download = request()
+          .post("/api/downloads/flight-reconciliations")
+          .query({ format: "csv" })
+          .buffer(false)
+          .timeout(4000)
+          .on("response", (response: Response & { res: IncomingMessage }) => {
+            response.res.pause()
+          })
+        const responseReceived = once(download, "response")
+        const downloadFinished = Promise.allSettled([download])
+
         try {
           // Act
-          const response = await fetch(`${httpServer.url}/api/downloads/flight-reconciliations?format=csv`, {
-            method: "POST",
-            signal: AbortSignal.timeout(5000),
-          })
-          if (response.body === null) {
-            throw new Error("Expected a CSV response body")
-          }
-
-          const body = response.body as ReadableStream<Uint8Array>
-          const input = Readable.fromWeb(body)
-          const lines = createInterface({ input })
+          const [response] = (await responseReceived) as [Response & { res: IncomingMessage }]
+          const lines = createInterface({ input: response.res })
           const reader = lines[Symbol.asyncIterator]()
           await reader.next() // Column header.
           const firstRow = await reader.next()
@@ -318,6 +310,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
           expect(firstRow.value).toEqual("Traveller")
         } finally {
           generation.emit("complete")
+          await downloadFinished
         }
       })
 
@@ -336,16 +329,14 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         )
 
         // Act
-        const response = await fetch(`${httpServer.url}/api/downloads/flight-reconciliations?format=csv`, {
-          method: "POST",
-          signal: AbortSignal.timeout(5000),
-        })
-        const content = await response.arrayBuffer()
-        const csv = Buffer.from(content)
+        const response = await request()
+          .post("/api/downloads/flight-reconciliations")
+          .query({ format: "csv" })
+          .responseType("blob")
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(csv).toEqual(Buffer.from("\uFEFFName\r\nTraveller\r\nLast traveller\r\n"))
+        expect(response.body).toEqual(Buffer.from("\uFEFFName\r\nTraveller\r\nLast traveller\r\n"))
       })
 
       test("when generation fails after headers arrive, it rejects the partial download", async () => {
@@ -362,18 +353,25 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
           }
         )
 
+        const download = request()
+          .post("/api/downloads/flight-reconciliations")
+          .query({ format: "csv" })
+          .buffer(false)
+          .timeout(4000)
+        const responseReceived = once(download, "response")
+        const downloadFinished = Promise.allSettled([download])
+
         try {
           // Act
-          const response = await fetch(`${httpServer.url}/api/downloads/flight-reconciliations?format=csv`, {
-            method: "POST",
-            signal: AbortSignal.timeout(5000),
-          })
+          const [response] = (await responseReceived) as [Response]
+          const responseEnded = once(response, "end")
           generation.emit("error", new Error("CSV generation failed"))
 
           // Assert
-          await expect(response.arrayBuffer()).rejects.toThrow("terminated")
+          await expect(responseEnded).rejects.toMatchObject({ code: "ECONNRESET" })
         } finally {
           generation.emit("complete")
+          await downloadFinished
         }
       })
     })
