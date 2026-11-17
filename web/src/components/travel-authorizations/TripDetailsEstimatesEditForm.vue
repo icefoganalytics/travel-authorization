@@ -127,7 +127,9 @@ const { mdAndUp } = useDisplay()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
-const defaultTripType = computed(() => travelAuthorization.value.tripTypeEstimate)
+const defaultTripType = computed(
+  () => travelAuthorization.value?.tripTypeEstimate || TRIP_TYPES.ROUND_TRIP
+)
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
 const travelSegmentEstimatesQuery = computed(() => ({
