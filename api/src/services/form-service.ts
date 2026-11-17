@@ -156,10 +156,7 @@ export class FormService {
         const [returnedForm] = await TravelAuthorization.upsert(form, {
           conflictFields: ["slug"],
         })
-        await ValidatePrimaryDestinationService.perform(returnedForm, {
-          isActual: false,
-          requireSelection: true,
-        })
+        await ValidatePrimaryDestinationService.perform(returnedForm)
         const id = returnedForm.id
 
         await StopsService.bulkReplace(id, stops)

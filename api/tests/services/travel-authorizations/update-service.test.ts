@@ -13,6 +13,55 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
   describe("UpdateService", () => {
     describe(".perform", () => {
       test.each([
+        {
+          phase: "estimated",
+          status: TravelAuthorization.Statuses.DRAFT,
+          wizardStepName: TravelAuthorization.WizardStepNames.GENERATE_ESTIMATE,
+          destinationAttribute: "estimatedPrimaryDestinationId",
+          isActual: false,
+        },
+        {
+          phase: "actual",
+          status: TravelAuthorization.Statuses.APPROVED,
+          wizardStepName: TravelAuthorization.WizardStepNames.SUBMIT_EXPENSES,
+          destinationAttribute: "actualPrimaryDestinationId",
+          isActual: true,
+        },
+      ])("when completed $phase trip details lose their destination, it rejects the save", async ({
+        status,
+        wizardStepName,
+        destinationAttribute,
+        isActual,
+      }) => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const location = await locationFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          status,
+          wizardStepName,
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
+          [destinationAttribute]: location.id,
+        })
+        await travelSegmentFactory.associations({ travelAuthorization }).create({
+          isActual,
+          arrivalLocationId: location.id,
+        })
+
+        // Act
+        const result = UpdateService.perform(
+          travelAuthorization,
+          { [destinationAttribute]: null },
+          currentUser
+        )
+
+        // Assert
+        await expect(result).rejects.toThrow(
+          "Select a primary destination for the multi-city itinerary before continuing."
+        )
+      })
+
+      test.each([
         ["estimated", "tripTypeEstimate", "estimatedPrimaryDestinationId", false],
         ["actual", "tripTypeActual", "actualPrimaryDestinationId", true],
       ] as const)(
@@ -257,7 +306,7 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         }
       )
 
-      test("when the returned actual city is explicitly cleared, it remains unconfirmed", async () => {
+      test("when the returned actual city is explicitly cleared, it rejects the incomplete claim", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const location = await locationFactory.create()
@@ -272,14 +321,16 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
           .create({ isActual: true, arrivalLocationId: location.id })
 
         // Act
-        const result = await UpdateService.perform(
+        const result = UpdateService.perform(
           travelAuthorization,
           { actualPrimaryDestinationId: null },
           currentUser
         )
 
         // Assert
-        expect(result.actualPrimaryDestinationId).toEqual(null)
+        await expect(result).rejects.toThrow(
+          "Select a primary destination for the multi-city itinerary before continuing."
+        )
       })
 
       test("when update request includes two travel segments, and is a round trip, builds the correct travel segments", async () => {
