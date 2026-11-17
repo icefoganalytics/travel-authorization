@@ -1,5 +1,5 @@
 import { Attributes } from "@sequelize/core"
-import { isNil, isUndefined } from "lodash"
+import { isNil } from "lodash"
 
 import { type WithRequired } from "@/utils/utility-types"
 
@@ -50,21 +50,6 @@ export class BulkReplaceService extends BaseService {
         rejectOnEmpty: true,
         lock: true,
       })
-      const existingTravelSegments = await TravelSegment.findAll({
-        where: {
-          travelAuthorizationId: this.travelAuthorizationId,
-          isActual: this.isActual,
-        },
-      })
-      for (const { id } of this.travelSegmentsAttributes) {
-        if (
-          !isUndefined(id) &&
-          !existingTravelSegments.some((travelSegment) => travelSegment.id === id)
-        ) {
-          throw new Error("Replacement segment IDs must belong to the itinerary being replaced.")
-        }
-      }
-
       const travelSegmentsAttributes = this.travelSegmentsAttributes
       this.hasAllRequiredAttributes(travelSegmentsAttributes)
 
