@@ -2,11 +2,10 @@ import { Knex } from "knex"
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.alterTable("travel_authorizations", (table) => {
-    table.integer("estimated_primary_destination_id").nullable()
-    table.integer("actual_primary_destination_id").nullable()
+    table.integer("final_destination_location_id").nullable()
   })
 
-  // Preserve existing destinations once; future multi-city selections are explicit.
+  // Preserve the estimated destination, falling back to actual-only legacy itineraries.
   await knex.raw(`
     WITH itineraries AS (
       SELECT
@@ -45,7 +44,7 @@ export async function up(knex: Knex): Promise<void> {
         END AS location_id
       FROM itineraries
     ),
-    primary_destinations AS (
+    saved_destinations AS (
       SELECT
         travel_authorization_id,
         MAX(location_id) FILTER (WHERE NOT is_actual) AS estimated_location_id,
@@ -54,20 +53,17 @@ export async function up(knex: Knex): Promise<void> {
       GROUP BY travel_authorization_id
     )
     UPDATE travel_authorizations
-    SET
-      estimated_primary_destination_id = primary_destinations.estimated_location_id,
-      actual_primary_destination_id = primary_destinations.actual_location_id
-    FROM primary_destinations
-    WHERE travel_authorizations.id = primary_destinations.travel_authorization_id
+    SET final_destination_location_id = COALESCE(
+      saved_destinations.estimated_location_id,
+      saved_destinations.actual_location_id
+    )
+    FROM saved_destinations
+    WHERE travel_authorizations.id = saved_destinations.travel_authorization_id
   `)
 
   await knex.schema.alterTable("travel_authorizations", (table) => {
     table
-      .foreign("estimated_primary_destination_id")
-      .references("locations.id")
-      .onDelete("RESTRICT")
-    table
-      .foreign("actual_primary_destination_id")
+      .foreign("final_destination_location_id")
       .references("locations.id")
       .onDelete("RESTRICT")
   })
@@ -75,7 +71,6 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   await knex.schema.alterTable("travel_authorizations", (table) => {
-    table.dropColumn("estimated_primary_destination_id")
-    table.dropColumn("actual_primary_destination_id")
+    table.dropColumn("final_destination_location_id")
   })
 }

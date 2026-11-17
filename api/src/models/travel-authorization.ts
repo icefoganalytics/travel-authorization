@@ -233,10 +233,7 @@ export class TravelAuthorization extends BaseModel<
   declare tripTypeActual: TravelAuthorizationTripTypes | null
 
   @Attribute(DataTypes.INTEGER)
-  declare estimatedPrimaryDestinationId: number | null
-
-  @Attribute(DataTypes.INTEGER)
-  declare actualPrimaryDestinationId: number | null
+  declare finalDestinationLocationId: number | null
 
   // TODO: make this a foreign key to the users table
   // also non-nullable,
@@ -283,14 +280,9 @@ export class TravelAuthorization extends BaseModel<
 
   // Associations
   @BelongsTo(() => Location, {
-    foreignKey: { name: "estimatedPrimaryDestinationId", onDelete: "RESTRICT" },
+    foreignKey: { name: "finalDestinationLocationId", onDelete: "RESTRICT" },
   })
-  declare estimatedPrimaryDestination?: NonAttribute<Location | null>
-
-  @BelongsTo(() => Location, {
-    foreignKey: { name: "actualPrimaryDestinationId", onDelete: "RESTRICT" },
-  })
-  declare actualPrimaryDestination?: NonAttribute<Location | null>
+  declare finalDestination?: NonAttribute<Location | null>
 
   @BelongsTo(() => TravelAuthorizationPreApprovalProfile, {
     foreignKey: "preApprovalProfileId",
@@ -494,8 +486,7 @@ export class TravelAuthorization extends BaseModel<
     })
     this.addScope("asShow", {
       include: [
-        "estimatedPrimaryDestination",
-        "actualPrimaryDestination",
+        "finalDestination",
         "expenses",
         "purpose",
         "stops",
