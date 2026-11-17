@@ -42,7 +42,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
         // Assert
         expect(response.status).toEqual(404)
-        expect(response.body).toEqual({ message: "Travel desk travel request not found." })
+        expect(response.body).toEqual({
+          message: "Travel desk travel request not found.",
+        })
       })
 
       test("when the source is unavailable, it reports source unavailability", async () => {
