@@ -94,7 +94,6 @@ Fill in the purpose form:
 | Purpose           | `Conference`                                                     |
 | Conference name   | `Annual Tech Conference 2026`                                    |
 | In Territory?     | `No`                                                             |
-| Final Destination | `Vancouver (BC)`                                                 |
 | Objectives        | `Attend conference sessions and meet with program stakeholders.` |
 
 Click **Continue**.
@@ -149,7 +148,7 @@ type("2026-06-01")        # replaces it and fires the event
 key("Tab")                # commits the value
 ```
 
-Click **Continue**. Verify "Travel request saved." toast appears.
+Click **Continue**. Verify "Travel request saved." toast appears and the summary's **Primary destination** is `Vancouver (BC)`, the round trip's outbound arrival.
 
 ---
 
