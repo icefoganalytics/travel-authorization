@@ -124,7 +124,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events/sync`)
-          .send({ bookingReference: " t94001 " })
+          .send({ bookingReference: "T94001" })
 
         // Assert
         expect(response.status).toEqual(204)

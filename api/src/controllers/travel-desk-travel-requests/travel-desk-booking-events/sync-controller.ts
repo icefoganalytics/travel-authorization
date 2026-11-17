@@ -29,6 +29,12 @@ export class SyncController extends BaseController<TravelDeskTravelRequest> {
       }
 
       const { bookingReference } = this.request.body
+      if (typeof bookingReference !== "string") {
+        return this.response.status(400).json({
+          message: "Failed to sync booking history.",
+        })
+      }
+
       await SyncService.perform(bookingReference)
       return this.response.status(204).send()
     } catch (error) {
