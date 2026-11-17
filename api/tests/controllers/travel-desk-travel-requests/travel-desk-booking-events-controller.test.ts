@@ -6,8 +6,8 @@ import { mockCurrentUser, request } from "@/support"
 import { travelDeskBookingEventFactory, travelDeskTravelRequestFactory, userFactory } from "@/factories"
 
 describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-events-controller.ts", () => {
-  describe("TravelDeskTravelRequests.TravelDeskBookingEventsController", () => {
-    describe("GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events", () => {
+  describe("TravelDeskBookingEventsController", () => {
+    describe("#index - GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events", () => {
       test("when the user lacks travel desk access, it denies source access before validating the locator", async () => {
         // Arrange
         const user = await userFactory.create({

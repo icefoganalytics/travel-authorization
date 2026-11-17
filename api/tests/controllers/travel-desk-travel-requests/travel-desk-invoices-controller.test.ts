@@ -13,8 +13,8 @@ import {
 import TravelDeskInvoicesController from "@/controllers/travel-desk-travel-requests/travel-desk-invoices-controller"
 
 describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-controller.ts", () => {
-  describe("TravelDeskTravelRequests.TravelDeskInvoicesController", () => {
-    describe("GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
+  describe("TravelDeskInvoicesController", () => {
+    describe("#index - GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
       test("when the user lacks parent access, it denies the invoice index", async () => {
         // Arrange
         const user = await userFactory.create({
@@ -247,7 +247,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       })
     })
 
-    describe("GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
+    describe("#show - GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
       test("when the parent is missing, it returns not found", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
@@ -359,7 +359,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       })
     })
 
-    describe("POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
+    describe("#create - POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
       test("when the parent is missing, it returns not found before processing invoice inputs", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
@@ -532,7 +532,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       })
     })
 
-    describe("PATCH /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
+    describe("#update - PATCH /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
       test("when the parent is missing, it returns not found before processing invoice inputs", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
@@ -762,7 +762,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       })
     })
 
-    describe("DELETE /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
+    describe("#destroy - DELETE /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
       test("when the parent is missing, it returns not found", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()

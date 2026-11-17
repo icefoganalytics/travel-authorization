@@ -6,8 +6,8 @@ import { mockCurrentUser, request } from "@/support"
 import { travelDeskTravelRequestFactory, userFactory, TravelPortIntegration } from "@/factories"
 
 describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-events/sync-controller.ts", () => {
-  describe("TravelDeskTravelRequests.TravelDeskBookingEvents.SyncController", () => {
-    describe("POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events/sync", () => {
+  describe("SyncController", () => {
+    describe("#create - POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events/sync", () => {
       test("when the user lacks travel desk access, it denies synchronization", async () => {
         // Arrange
         const user = await userFactory.create()
