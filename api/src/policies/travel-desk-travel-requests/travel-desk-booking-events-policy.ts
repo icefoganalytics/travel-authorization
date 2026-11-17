@@ -5,12 +5,10 @@ import TravelDeskInvoicesPolicy from "@/policies/travel-desk-travel-requests/tra
 
 export class TravelDeskBookingEventsPolicy extends BasePolicy<TravelDeskTravelRequest> {
   show(): boolean {
-    const invoicesPolicy = this.buildInvoicesPolicy()
-
-    return invoicesPolicy.show()
+    return this.invoicesPolicy.show()
   }
 
-  private buildInvoicesPolicy(): TravelDeskInvoicesPolicy {
+  private get invoicesPolicy(): TravelDeskInvoicesPolicy {
     return new TravelDeskInvoicesPolicy(this.user, this.record)
   }
 }
