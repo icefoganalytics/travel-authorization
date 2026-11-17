@@ -4,9 +4,9 @@ The [feature specification](/docs/product/primary-destination.md) owns user-visi
 
 ## Terminology and API Compatibility
 
-The project manager calls this the “final destination” in [issue #315](https://github.com/icefoganalytics/travel-authorization/issues/315) and the [hotel-default request](https://github.com/icefoganalytics/travel-authorization/pull/368#issuecomment-6201190702). The existing response field remains `finalDestination`, and its summary projection is `finalDestinationLocationId`. These expose the selected city for the active phase, not the last itinerary arrival.
+“Primary destination” means the city representing the purpose of travel. Use this term throughout the UI, API, storage, and application code. The authorization response exposes the active phase's selected city as `primaryDestination`; its summary projection is `primaryDestinationLocationId`. Neither value means the last itinerary arrival.
 
-The explicit estimated and actual choices introduced in [issue #463](https://github.com/icefoganalytics/travel-authorization/issues/463) use “primary destination” to describe the city representing the purpose of travel. This is application terminology, not a verified Yukon Government policy term. Airline usage is different: [Air Canada's ticketing policy](https://www.aircanada.com/content/dam/aircanada/portal/documents/PDF/agents/en/ca/policies/ticket_viol.pdf) uses “final destination” for the endpoint of the ticketed transportation. The ticketed endpoint and the business-purpose city are not interchangeable on a multi-city trip.
+The earlier `finalDestination` response field and `finalDestinationLocationId` projection are replaced, not retained as aliases. Deploy the API and web changes together. The estimated and actual stored references already use primary-destination names and do not need a schema migration for this terminology change. Route-derived flight endpoints, destination suggestions, and reimbursement locations remain separate concepts.
 
 ## Data Ownership
 
