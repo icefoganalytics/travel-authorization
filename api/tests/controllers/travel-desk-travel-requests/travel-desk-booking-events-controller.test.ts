@@ -28,7 +28,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when the travel request no longer exists, it returns not found before validating the locator", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelRequest.destroy({ force: true })
         mockCurrentUser(officer)
@@ -45,7 +45,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when the parent lookup fails, it returns the booking history error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
@@ -84,7 +84,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when the locator has no matches, it returns empty cached history", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({ bookingReference: "SRC001" })
@@ -111,7 +111,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         travelOrderIdentifier,
       }) => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
@@ -158,7 +158,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when filters, where, and ordering are supplied, it pages the matching history", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
@@ -200,7 +200,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
       test("when a page is beyond cached history, it returns an empty page with the matching total", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({ bookingReference: "SRC001" })
