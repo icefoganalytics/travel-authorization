@@ -5,8 +5,11 @@ export async function up(knex: Knex): Promise<void> {
     table.integer("final_destination_location_id").nullable()
   })
 
-  // Preserve the estimated destination, falling back to actual-only legacy itineraries.
-  await knex.raw(`
+  // Existing requests have no explicitly saved destination. Infer one once from the
+  // estimated itinerary, where the original travel intent was recorded; use actual
+  // travel only when no estimated destination can be inferred. Later route edits
+  // must not recalculate this saved choice.
+  await knex.raw(/* sql */ `
     WITH itineraries AS (
       SELECT
         travel_authorizations.id AS travel_authorization_id,

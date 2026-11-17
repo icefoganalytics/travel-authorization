@@ -36,15 +36,6 @@ or exported constants.
 Database tables use `snake_case`, while application models use `camelCase`. When you add or update
 columns, keep that mapping in mind.
 
-Prefer Knex schema-builder methods over raw DDL when they express the same constraint.
-Use `table.unique(..., { predicate })` for partial unique indexes. Roll them back with
-`table.dropIndex(...)`, not `table.dropUnique(...)`; PostgreSQL treats them as indexes
-rather than unique constraints. With Knex 3.0.1, partial-index predicates must not contain
-value placeholders; use a literal boolean in `knex.whereRaw(...)` instead of
-`knex.where(column, true)`.
-
-For destination ownership and itinerary rules, see [Primary Destination](/docs/README.md#primary-destination).
-
 ### Create A Migration
 
 Create a new migration with:
