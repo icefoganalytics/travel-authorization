@@ -2,7 +2,7 @@ import { pick } from "lodash"
 
 import { type TravelDeskInvoice } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
-import { ReferenceSerializer, type AsReference } from "@/serializers/travel-desk-invoice-items"
+import * as TravelDeskInvoiceItems from "@/serializers/travel-desk-invoice-items"
 
 export type TravelDeskInvoiceAsShow = {
   id: number
@@ -23,7 +23,7 @@ export type TravelDeskInvoiceAsShow = {
   ticketingAgentName: string | null
   bookingDate: string | null
   grossAmount: string
-  items: AsReference[]
+  items: TravelDeskInvoiceItems.AsReference[]
 }
 
 export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
@@ -34,7 +34,7 @@ export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
       throw new Error("Expected invoice items to be preloaded.")
     }
 
-    const serializedItems = ReferenceSerializer.perform(items)
+    const serializedItems = TravelDeskInvoiceItems.ReferenceSerializer.perform(items)
 
     return {
       ...pick(invoice, [
