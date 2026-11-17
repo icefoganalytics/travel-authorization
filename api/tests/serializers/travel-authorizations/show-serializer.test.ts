@@ -6,13 +6,12 @@ import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } fro
 describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
   describe("ShowSerializer", () => {
     describe("#perform", () => {
-      test("when actual travel has no selection, it does not fall back to the estimated destination", async () => {
+      test("when actual travel exists, it reuses the saved destination without another selection", async () => {
         // Arrange
-        const estimatedDestination = await locationFactory.create()
+        const savedDestination = await locationFactory.create()
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -21,8 +20,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
-            estimatedPrimaryDestinationId: estimatedDestination.id,
-            actualPrimaryDestinationId: null,
+            finalDestinationLocationId: savedDestination.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
           })
@@ -31,7 +29,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(null)
+        expect(result.finalDestination).toEqual(expect.objectContaining({ id: savedDestination.id }))
       })
 
       test("when estimated multi-city travel returns home, it returns the persisted destination", async () => {
@@ -77,8 +75,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -95,7 +92,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
-            estimatedPrimaryDestinationId: toronto.id,
+            finalDestinationLocationId: toronto.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: null,
             travelSegments: [
@@ -159,8 +156,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -177,7 +173,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
-            estimatedPrimaryDestinationId: ottawa.id,
+            finalDestinationLocationId: ottawa.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: null,
             travelSegments: [
@@ -240,8 +236,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -258,7 +253,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
-            actualPrimaryDestinationId: vancouver.id,
+            finalDestinationLocationId: vancouver.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
             travelSegments: [
@@ -322,8 +317,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -340,7 +334,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
-            actualPrimaryDestinationId: ottawa.id,
+            finalDestinationLocationId: ottawa.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
             travelSegments: [
@@ -404,8 +398,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -422,7 +415,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
-            estimatedPrimaryDestinationId: vancouver.id,
+            finalDestinationLocationId: vancouver.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
             tripTypeActual: null,
             travelSegments: [
@@ -486,8 +479,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -504,7 +496,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
-            actualPrimaryDestinationId: toronto.id,
+            finalDestinationLocationId: toronto.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
             tripTypeActual: TravelAuthorization.TripTypes.ROUND_TRIP,
             travelSegments: [
@@ -567,8 +559,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -585,7 +576,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
             "user",
           ])
           .create({
-            estimatedPrimaryDestinationId: whitehorse.id,
+            finalDestinationLocationId: whitehorse.id,
             tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
             tripTypeActual: null,
             travelSegments: [
@@ -605,7 +596,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Whitehorse" }))
       })
 
-      test("when a legacy round trip has one segment, it returns the ordinary arrival", async () => {
+      test("when a round trip has one segment, it returns the saved destination", async () => {
         // Arrange
         const whitehorse = await locationFactory.create({ city: "Whitehorse" })
         const toronto = await locationFactory.create({ city: "Toronto" })
@@ -616,7 +607,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           arrivalLocationId: toronto.id,
         })
         const travelAuthorization = await travelAuthorizationFactory.create({
-          estimatedPrimaryDestinationId: toronto.id,
+          finalDestinationLocationId: toronto.id,
           tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
           tripTypeActual: null,
           travelSegments: [travelSegment],
@@ -651,7 +642,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
           arrivalLocationId: whitehorse.id,
         })
         const travelAuthorization = await travelAuthorizationFactory.create({
-          estimatedPrimaryDestinationId: toronto.id,
+          finalDestinationLocationId: toronto.id,
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           tripTypeActual: null,
           travelSegments: [travelSegment2, travelSegment1],
@@ -668,13 +659,12 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
-      test("when the selected actual itinerary is empty, it returns no final destination", async () => {
+      test("when no destination is saved, it does not infer a city from estimated travel", async () => {
         // Arrange
         const estimatedTravelSegment = travelSegmentFactory.build({ isActual: false })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -698,7 +688,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         expect(result.finalDestination).toEqual(null)
       })
 
-      test("when the origin and last arrival are missing, it does not treat them as a return home", async () => {
+      test("when no destination is saved, it does not infer a city from incomplete routes", async () => {
         // Arrange
         const toronto = await locationFactory.create({ city: "Toronto" })
         const travelSegment1 = travelSegmentFactory.build({
@@ -715,8 +705,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         })
         const travelAuthorization = await travelAuthorizationFactory
           .include([
-            "estimatedPrimaryDestination",
-            "actualPrimaryDestination",
+            "finalDestination",
             "expenses",
             "purpose",
             "stops",
@@ -765,7 +754,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
 
         // Act & Assert
         expect(() => ShowSerializer.perform(travelAuthorization)).toThrow(
-          "Expected primary destination association to be pre-loaded."
+          "Expected finalDestination association to be pre-loaded."
         )
       })
     })

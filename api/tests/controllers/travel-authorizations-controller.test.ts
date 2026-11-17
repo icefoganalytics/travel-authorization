@@ -346,110 +346,36 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
     })
 
     describe("#update - PATCH /api/travel-authorizations/:id", () => {
-      test("when a draft city and itinerary are updated through the scoped controller, it saves the selected arrival", async () => {
+      test("when purpose details select a destination before an itinerary exists, it saves and returns the city", async () => {
         // Arrange
         const currentUser = await userFactory.create({ roles: [User.Roles.USER] })
         mockCurrentUser(currentUser)
-        const origin = await locationFactory.create()
         const destination = await locationFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
           userId: currentUser.id,
           status: TravelAuthorization.Statuses.DRAFT,
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
         })
-        const travelSegmentEstimatesAttributes = [
-          {
-            travelAuthorizationId: travelAuthorization.id,
-            isActual: false,
-            segmentNumber: 1,
-            departureLocationId: origin.id,
-            arrivalLocationId: destination.id,
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-          },
-          {
-            travelAuthorizationId: travelAuthorization.id,
-            isActual: false,
-            segmentNumber: 2,
-            departureLocationId: destination.id,
-            arrivalLocationId: origin.id,
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-          },
-        ]
 
         // Act
         const response = await request()
           .patch("/api/travel-authorizations/" + travelAuthorization.id)
-          .send({
-            estimatedPrimaryDestinationId: destination.id,
-            travelSegmentEstimatesAttributes,
-          })
+          .send({ finalDestinationLocationId: destination.id })
 
         // Assert
         expect(response.status).toEqual(200)
         expect(response.body).toEqual(
           expect.objectContaining({
             travelAuthorization: expect.objectContaining({
-              estimatedPrimaryDestinationId: destination.id,
-              actualPrimaryDestinationId: null,
+              finalDestinationLocationId: destination.id,
               finalDestination: expect.objectContaining({ id: destination.id }),
-              travelSegments: travelSegmentEstimatesAttributes.map((attributes) =>
-                expect.objectContaining(attributes)
-              ),
+              travelSegments: [],
             }),
           })
         )
       })
 
-      test.each([User.Roles.USER, User.Roles.ADMIN])(
-        "when a returned claim city is corrected by owner/admin (%s), it returns the actual city without changing itinerary or estimate",
-        async (role) => {
-          // Arrange
-          const currentUser = await userFactory.create({ roles: [role] })
-          mockCurrentUser(currentUser)
-          const estimatedCity = await locationFactory.create()
-          const actualCity = await locationFactory.create()
-          const travelAuthorization = await travelAuthorizationFactory.create({
-            userId: currentUser.id,
-            status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
-            tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-            tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
-            estimatedPrimaryDestinationId: estimatedCity.id,
-          })
-          const travelSegment = await travelSegmentFactory
-            .associations({ travelAuthorization })
-            .create({ isActual: true, arrivalLocationId: actualCity.id })
-
-          // Act
-          const response = await request()
-            .patch("/api/travel-authorizations/" + travelAuthorization.id)
-            .send({
-              actualPrimaryDestinationId: actualCity.id,
-              estimatedPrimaryDestinationId: actualCity.id,
-              travelSegmentActualsAttributes: [],
-              expenses: [],
-            })
-
-          // Assert
-          expect(response.status).toEqual(200)
-          expect(response.body).toEqual(
-            expect.objectContaining({
-              travelAuthorization: expect.objectContaining({
-                estimatedPrimaryDestinationId: estimatedCity.id,
-                actualPrimaryDestinationId: actualCity.id,
-                finalDestination: expect.objectContaining({ id: actualCity.id }),
-                travelSegments: [
-                  expect.objectContaining({
-                    id: travelSegment.id,
-                    arrivalLocationId: actualCity.id,
-                  }),
-                ],
-              }),
-            })
-          )
-        }
-      )
-
       test.each([
+        TravelAuthorization.Statuses.DRAFT,
         TravelAuthorization.Statuses.SUBMITTED,
         TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
       ])(
@@ -463,7 +389,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           // Act
           const response = await request()
             .patch("/api/travel-authorizations/" + travelAuthorization.id)
-            .send({ actualPrimaryDestinationId: null, estimatedPrimaryDestinationId: null })
+            .send({ finalDestinationLocationId: null })
 
           // Assert
           expect(response.status).toEqual(403)
@@ -473,35 +399,6 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         }
       )
 
-      test("when a returned multi-city claim has no actual destination, it rejects the update", async () => {
-        // Arrange
-        const currentUser = await userFactory.create()
-        mockCurrentUser(currentUser)
-        const estimatedCity = await locationFactory.create()
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          userId: currentUser.id,
-          status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
-          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
-          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
-          estimatedPrimaryDestinationId: estimatedCity.id,
-        })
-        await travelSegmentFactory
-          .associations({ travelAuthorization })
-          .create({ isActual: false, arrivalLocationId: estimatedCity.id })
-        await travelSegmentFactory.associations({ travelAuthorization }).create({ isActual: true })
-
-        // Act
-        const response = await request()
-          .patch("/api/travel-authorizations/" + travelAuthorization.id)
-          .send({ actualPrimaryDestinationId: null })
-
-        // Assert
-        expect(response.status).toEqual(422)
-        expect(response.body).toEqual({
-          message:
-            "Travel authorization update failed: Error: Select a primary destination for the multi-city itinerary before continuing.",
-        })
-      })
     })
 
     describe("#create - POST /api/travel-authorizations", () => {

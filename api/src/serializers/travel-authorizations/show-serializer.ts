@@ -28,8 +28,7 @@ import { type ExpenseAsReference } from "@/serializers/expenses/reference-serial
 export type TravelAuthorizationShowView = Pick<
   TravelAuthorization,
   | "id"
-  | "estimatedPrimaryDestinationId"
-  | "actualPrimaryDestinationId"
+  | "finalDestinationLocationId"
   | "slug"
   | "userId"
   | "preApprovalProfileId"
@@ -115,8 +114,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     return {
       ...pick(this.record, [
         "id",
-        "estimatedPrimaryDestinationId",
-        "actualPrimaryDestinationId",
+        "finalDestinationLocationId",
         "slug",
         "userId",
         "preApprovalProfileId",
@@ -170,11 +168,9 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private serializeFinalDestination(): Locations.AsReference | null {
-    const location = isNil(this.record.tripTypeActual)
-      ? this.record.estimatedPrimaryDestination
-      : this.record.actualPrimaryDestination
+    const location = this.record.finalDestination
     if (isUndefined(location)) {
-      throw new Error("Expected primary destination association to be pre-loaded.")
+      throw new Error("Expected finalDestination association to be pre-loaded.")
     }
 
     if (isNil(location)) return null

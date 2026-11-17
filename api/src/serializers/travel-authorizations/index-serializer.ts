@@ -20,8 +20,7 @@ import { Locations, TravelDeskTravelRequests } from "@/serializers"
 export type TravelAuthorizationIndexView = Pick<
   TravelAuthorization,
   | "id"
-  | "estimatedPrimaryDestinationId"
-  | "actualPrimaryDestinationId"
+  | "finalDestinationLocationId"
   | "eventName"
   | "purposeId"
   | "wizardStepName"
@@ -75,8 +74,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     return {
       ...pick(this.record, [
         "id",
-        "estimatedPrimaryDestinationId",
-        "actualPrimaryDestinationId",
+        "finalDestinationLocationId",
         "eventName",
         "purposeId",
         "wizardStepName",
@@ -105,11 +103,9 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private serializeFinalDestination(): Locations.AsReference | null {
-    const location = isNil(this.record.tripTypeActual)
-      ? this.record.estimatedPrimaryDestination
-      : this.record.actualPrimaryDestination
+    const location = this.record.finalDestination
     if (isUndefined(location)) {
-      throw new Error("Expected primary destination association to be pre-loaded.")
+      throw new Error("Expected finalDestination association to be pre-loaded.")
     }
 
     if (isNil(location)) return null
