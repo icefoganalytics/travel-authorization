@@ -14,19 +14,19 @@ describe("web/src/components/travel-authorizations/PurposeCard.vue", () => {
   describe("PurposeCard", () => {
     test("when the server returns a saved destination, displays it rather than recomputing the route", async () => {
       // Arrange
-      const finalDestination = locationFactory.build({ id: 4, city: "Ottawa" })
+      const primaryDestination = locationFactory.build({ id: 4, city: "Ottawa" })
       const travelSegments = travelSegmentFactory.buildList(2, {
         arrivalLocationId: 2,
       })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
-        finalDestination,
+        primaryDestination,
         estimatedPrimaryDestinationId: 2,
         travelSegments,
       })
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/locations/4": () => ({ location: finalDestination }),
+        "/api/locations/4": () => ({ location: primaryDestination }),
       })
       const wrapper = mountWithDefaultPlugins(PurposeCard, {
         props: { travelAuthorizationId: 5 },
@@ -47,7 +47,7 @@ describe("web/src/components/travel-authorizations/PurposeCard.vue", () => {
       })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
-        finalDestination: null,
+        primaryDestination: null,
         travelSegments,
         estimatedPrimaryDestinationId: 2,
       })

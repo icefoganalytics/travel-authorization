@@ -261,7 +261,7 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
-        finalDestination: null,
+        primaryDestination: null,
         travelSegments,
       })
       mockHttpGetRoutes({

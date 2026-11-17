@@ -237,7 +237,7 @@ const props = defineProps<{
 
 const travelDeskTravelRequestIdAsNumber = computed(() => parseInt(props.travelDeskTravelRequestId))
 
-const { tripStartDate, tripEndDate, finalDestination, flightSchedule } = useTravelTimesSummary(
+const { tripStartDate, tripEndDate, primaryDestination, flightSchedule } = useTravelTimesSummary(
   travelDeskTravelRequestIdAsNumber
 )
 
@@ -353,7 +353,7 @@ const pickUpCity = computed(() => {
   const selectedCity = travelDeskRentalCarAttributes.value.pickUpCity
   if (!isNil(selectedCity)) return selectedCity
 
-  const destination = finalDestination.value
+  const destination = primaryDestination.value
   if (isNil(destination)) return undefined
 
   return `${destination.city} (${destination.province})`

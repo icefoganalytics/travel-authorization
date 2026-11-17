@@ -11,7 +11,7 @@
           :travel-authorization-id="travelAuthorizationId"
           :requestor-display-name="requestorDisplayName"
           :is-disabled="isDisabled"
-          :travel-location-id="finalDestinationLocationId"
+          :travel-location-id="primaryDestinationLocationId"
           @approved="refreshAndEmit('approved')"
         />
         <TravelAuthorizationDenyDialogButton
@@ -66,8 +66,8 @@ const isDisabled = computed(() => {
   )
 })
 
-const finalDestinationLocationId = computed(
-  () => travelAuthorization.value?.finalDestination?.id ?? null
+const primaryDestinationLocationId = computed(
+  () => travelAuthorization.value?.primaryDestination?.id ?? null
 )
 
 const requestorDisplayName = computed(() => {

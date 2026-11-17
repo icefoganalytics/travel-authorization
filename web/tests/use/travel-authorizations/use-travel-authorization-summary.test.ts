@@ -15,7 +15,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
   describe("useTravelAuthorizationSummary", () => {
     test("when destinations differ, uses the server destination", async () => {
       // Arrange
-      const finalDestination = locationFactory.build({ id: 8 })
+      const primaryDestination = locationFactory.build({ id: 8 })
       const outboundSegment = travelSegmentFactory.build({
         isActual: false,
         departureLocationId: 1,
@@ -30,7 +30,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         id: 1,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
         tripTypeActual: null,
-        finalDestination,
+        primaryDestination,
         travelSegments: [outboundSegment, returnSegment],
       })
       mockHttpGetRoute("/api/travel-authorizations/1", () => ({
@@ -46,7 +46,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.finalDestinationLocationId.value).toBe(8)
+        expect(summary.primaryDestinationLocationId.value).toBe(8)
       } finally {
         scope.stop()
       }
@@ -65,13 +65,13 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         id: 1,
         tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
         tripTypeActual: null,
-        finalDestination: estimatedDestination,
+        primaryDestination: estimatedDestination,
       })
       const actualAuthorization = travelAuthorizationFactory.asShow().build({
         id: 2,
         tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
         tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
-        finalDestination: actualDestination,
+        primaryDestination: actualDestination,
         travelSegments: [actualSegment],
       })
       mockHttpGetRoutes({
@@ -90,7 +90,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.finalDestinationLocationId.value).toBe(6)
+        expect(summary.primaryDestinationLocationId.value).toBe(6)
       } finally {
         scope.stop()
       }
@@ -106,7 +106,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 1,
         tripTypeEstimate: TravelAuthorizationTripTypes.ONE_WAY,
-        finalDestination: null,
+        primaryDestination: null,
         travelSegments: [travelSegment],
       })
       mockHttpGetRoute("/api/travel-authorizations/1", () => ({ travelAuthorization }))
@@ -120,7 +120,7 @@ describe("web/src/use/travel-authorizations/use-travel-authorization-summary.ts"
         await flushPromises()
 
         // Assert
-        expect(summary.finalDestinationLocationId.value).toBeNull()
+        expect(summary.primaryDestinationLocationId.value).toBeNull()
       } finally {
         scope.stop()
       }

@@ -93,6 +93,6 @@ const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 
 const primaryDestinationLocationId = computed(
-  () => travelAuthorization.value?.finalDestination?.id ?? null
+  () => travelAuthorization.value?.primaryDestination?.id ?? null
 )
 </script>

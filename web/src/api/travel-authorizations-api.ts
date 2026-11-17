@@ -146,7 +146,7 @@ export type TravelAuthorizationAsIndex = Pick<
   isTravelling: boolean
   unprocessedExpenseCount: number
   // Associations
-  finalDestination: LocationAsReference | null
+  primaryDestination: LocationAsReference | null
   locations: LocationAsReference[]
   travelDeskTravelRequest: Pick<TravelDeskTravelRequest, "id" | "status" | "invoiceNumber"> | null
 } & TravelAuthorizationStateFlags
@@ -193,7 +193,7 @@ export type TravelAuthorizationAsShow = Pick<
   | "updatedAt"
 > & {
   expenses: ExpenseAsReference[]
-  finalDestination: LocationAsReference | null
+  primaryDestination: LocationAsReference | null
   purpose: TravelPurposeAsReference | null
   stops: StopAsReference[]
   travelDeskTravelRequest: TravelDeskTravelRequestAsReference | null

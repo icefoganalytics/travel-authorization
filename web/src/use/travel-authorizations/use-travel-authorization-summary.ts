@@ -21,7 +21,7 @@ export {
 export type TravelAuthorizationSummary = {
   travelPurposeId: number | null
   eventName: string | null
-  finalDestinationLocationId: number | null
+  primaryDestinationLocationId: number | null
   departureDate: string | null
   returnDate: string | null
   userId: number | null
@@ -38,7 +38,7 @@ export function useTravelAuthorizationSummary(
   >({
     travelPurposeId: null,
     eventName: null,
-    finalDestinationLocationId: null,
+    primaryDestinationLocationId: null,
     departureDate: null,
     returnDate: null,
     userId: null,
@@ -64,7 +64,7 @@ export function useTravelAuthorizationSummary(
       const travelSegments = travelAuthorization.travelSegments.filter(
         (segment) => segment.isActual === useActuals
       )
-      state.finalDestinationLocationId = travelAuthorization.finalDestination?.id ?? null
+      state.primaryDestinationLocationId = travelAuthorization.primaryDestination?.id ?? null
       state.departureDate = _determineDepartureDate(travelSegments)
       state.returnDate =
         travelAuthorization.dateBackToWorkActual || travelAuthorization.dateBackToWorkEstimate

@@ -15,8 +15,8 @@
     <template #item.purposeText="{ value }">
       <span>{{ value }}</span>
     </template>
-    <template #item.finalDestination="{ value }">
-      <span>{{ formatFinalDestination(value) }}</span>
+    <template #item.primaryDestination="{ value }">
+      <span>{{ formatPrimaryDestination(value) }}</span>
     </template>
     <template #item.departingAt="{ value }">
       <span>{{ formatDate(value) }}</span>
@@ -88,7 +88,7 @@ const headers = [
   },
   {
     title: "Primary destination",
-    key: "finalDestination",
+    key: "primaryDestination",
     sortable: false,
   },
   {
@@ -132,7 +132,7 @@ const travelAuthorizationsQuery = computed<TravelAuthorizationQueryOptions>(() =
 const { travelAuthorizations, totalCount, isLoading, refresh } =
   useTravelAuthorizations(travelAuthorizationsQuery)
 
-function formatFinalDestination(location: LocationAsReference | null) {
+function formatPrimaryDestination(location: LocationAsReference | null) {
   if (isNil(location)) return ""
 
   const { city, province } = location

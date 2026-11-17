@@ -28,7 +28,7 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
   const { travelAuthorizations, refresh: refreshTravelAuthorizations } =
     useTravelAuthorizations(travelAuthorizationQuery)
   const travelAuthorization = computed(() => travelAuthorizations.value[0])
-  const finalDestination = computed(() => travelAuthorization.value?.finalDestination ?? null)
+  const primaryDestination = computed(() => travelAuthorization.value?.primaryDestination ?? null)
 
   const tripStartDate = computed(() => {
     if (isNil(travelAuthorization.value)) return null
@@ -129,7 +129,7 @@ export function useTravelTimesSummary(travelDeskTravelRequestId: Ref<number>) {
   return {
     tripStartDate,
     tripEndDate,
-    finalDestination,
+    primaryDestination,
     flightSchedule,
     refresh,
   }

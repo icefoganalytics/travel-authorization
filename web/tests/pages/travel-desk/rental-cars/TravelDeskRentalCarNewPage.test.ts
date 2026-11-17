@@ -26,7 +26,7 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
         const travelAuthorization = {
           ...travelAuthorizationFactory.build({ dateBackToWorkEstimate: "2026-12-12" }),
           departingAt: "2026-12-10T08:35:00.000Z",
-          finalDestination: destination,
+          primaryDestination: destination,
         }
         const flightSegment = travelDeskFlightSegmentFactory.build({
           id: 41,
@@ -166,7 +166,7 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
         const travelAuthorization = {
           ...travelAuthorizationFactory.build({ dateBackToWorkEstimate: "2026-12-12" }),
           departingAt: "2026-12-10T08:35:00.000Z",
-          finalDestination: destination,
+          primaryDestination: destination,
         }
         const flightSegment = travelDeskFlightSegmentFactory.build({
           departAt: "2026-12-10T08:35:00.000Z",
@@ -237,7 +237,7 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
       const travelAuthorization = {
         ...travelAuthorizationFactory.build({ dateBackToWorkEstimate: "2026-12-12" }),
         departingAt: "2026-12-10T08:35:00.000Z",
-        finalDestination: destination,
+        primaryDestination: destination,
       }
       mockHttpGetRoutes({
         "/api/travel-authorizations": () => ({
@@ -289,7 +289,7 @@ describe("web/src/pages/travel-desk/rental-cars/TravelDeskRentalCarNewPage.vue",
       const travelAuthorization = {
         ...travelAuthorizationFactory.build({ dateBackToWorkEstimate: "2026-12-12" }),
         departingAt: "2026-12-10T08:35:00.000Z",
-        finalDestination: destination,
+        primaryDestination: destination,
       }
       const destinationResponse = Promise.withResolvers<{
         travelAuthorizations: (typeof travelAuthorization)[]
