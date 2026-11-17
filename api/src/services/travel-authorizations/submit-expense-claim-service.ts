@@ -45,8 +45,7 @@ export class SubmitExpenseClaimService extends BaseService {
     }
 
     await db.transaction(async () => {
-      const travelAuthorizationId = this.travelAuthorization.id
-      this.travelAuthorization = await TravelAuthorization.findByPk(travelAuthorizationId, {
+      this.travelAuthorization = await TravelAuthorization.findByPk(this.travelAuthorization.id, {
         rejectOnEmpty: true,
         lock: true,
       })
