@@ -1,9 +1,10 @@
 import { type TravelDeskInvoiceItem } from "@/models"
+import { type TravelDeskInvoiceItemProductTypes } from "@/models/travel-desk-invoice-item"
 import BaseSerializer from "@/serializers/base-serializer"
 
 export type TravelDeskInvoiceItemAsReference = {
   id: number
-  productType: TravelDeskInvoiceItem["productType"]
+  productType: `${TravelDeskInvoiceItemProductTypes}`
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
   sourceServiceFeeEventExternalIdentifier: number | null
