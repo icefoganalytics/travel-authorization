@@ -11,9 +11,9 @@ import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import {
-  createInvoiceItems,
-  validateLinkedFlightSegments,
-} from "@/services/travel-desk-invoices/invoice-items"
+  BulkCreateService,
+  ValidateLinkedFlightSegmentsService,
+} from "@/services/travel-desk-invoice-items"
 import {
   type InvoiceItemAttributes,
   validateInvoiceItems,
@@ -96,7 +96,7 @@ export class CreateService extends BaseService {
         sourceServiceFeeEventExternalIdentifiers,
         currencyCode
       )
-      await validateLinkedFlightSegments(items, this.travelDeskTravelRequest.id)
+      await ValidateLinkedFlightSegmentsService.perform(items, this.travelDeskTravelRequest.id)
 
       const invoice = await TravelDeskInvoice.create({
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
@@ -117,7 +117,7 @@ export class CreateService extends BaseService {
         bookingDate: this.attributes.bookingDate ?? null,
         grossAmount,
       })
-      await createInvoiceItems(invoice.id, items)
+      await BulkCreateService.perform(invoice.id, items)
 
       return invoice.reload({
         include: [

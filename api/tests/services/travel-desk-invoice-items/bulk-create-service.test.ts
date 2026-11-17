@@ -2,18 +2,18 @@ import { AggregateError } from "@sequelize/core"
 
 import { TravelDeskInvoiceItem } from "@/models"
 
-import { createInvoiceItems } from "@/services/travel-desk-invoices/invoice-items"
+import { BulkCreateService } from "@/services/travel-desk-invoice-items"
 
 import { travelDeskInvoiceFactory } from "@/factories"
 
-describe("api/src/services/travel-desk-invoices/invoice-items.ts", () => {
-  describe("createInvoiceItems", () => {
+describe("api/src/services/travel-desk-invoice-items/bulk-create-service.ts", () => {
+  describe("BulkCreateService.perform", () => {
     test("when items have neither or either source identity, it persists the items", async () => {
       // Arrange
       const invoice = await travelDeskInvoiceFactory.create()
 
       // Act
-      await createInvoiceItems(invoice.id, [
+      await BulkCreateService.perform(invoice.id, [
         {
           productType: "air",
           sourceAirSegmentNumber: 1,
@@ -58,7 +58,7 @@ describe("api/src/services/travel-desk-invoices/invoice-items.ts", () => {
       const invoice = await travelDeskInvoiceFactory.create()
 
       // Act
-      const result = createInvoiceItems(invoice.id, [
+      const result = BulkCreateService.perform(invoice.id, [
         {
           productType: "air",
           sourceAirSegmentNumber: 1,
@@ -88,7 +88,7 @@ describe("api/src/services/travel-desk-invoices/invoice-items.ts", () => {
       const invoice = await travelDeskInvoiceFactory.create()
 
       // Act
-      const result = createInvoiceItems(invoice.id, [
+      const result = BulkCreateService.perform(invoice.id, [
         {
           productType: "air",
           sourceAirSegmentNumber: 1,

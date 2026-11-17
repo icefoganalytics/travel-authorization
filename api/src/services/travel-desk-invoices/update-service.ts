@@ -9,9 +9,9 @@ import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import { type InvoiceHeaderAttributes } from "@/services/travel-desk-invoices/create-service"
 import {
-  createInvoiceItems,
-  validateLinkedFlightSegments,
-} from "@/services/travel-desk-invoices/invoice-items"
+  BulkCreateService,
+  ValidateLinkedFlightSegmentsService,
+} from "@/services/travel-desk-invoice-items"
 import { validateInvoiceItems } from "@/services/travel-desk-invoices/validate-items"
 
 export type InvoiceUpdateAttributes = Omit<
@@ -51,7 +51,7 @@ export class UpdateService extends BaseService {
       }
 
       await validateInvoiceItems(items, snapshot, serviceFeeEventIds, currencyCode)
-      await validateLinkedFlightSegments(items, invoice.travelDeskTravelRequestId)
+      await ValidateLinkedFlightSegmentsService.perform(items, invoice.travelDeskTravelRequestId)
 
       await invoice.update({
         currencyCode,
@@ -71,7 +71,7 @@ export class UpdateService extends BaseService {
       await TravelDeskInvoiceItem.destroy({
         where: { travelDeskInvoiceId: invoice.id },
       })
-      await createInvoiceItems(invoice.id, items)
+      await BulkCreateService.perform(invoice.id, items)
 
       return invoice.reload({
         include: [
