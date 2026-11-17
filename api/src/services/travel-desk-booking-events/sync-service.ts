@@ -13,10 +13,13 @@ import WithSyncLockService from "@/services/travel-desk-booking-events/with-sync
 export class SyncService extends BaseService {
   constructor(protected bookingReference: string) {
     super()
-    this.bookingReference = bookingReference.trim().toUpperCase()
   }
 
   async perform(): Promise<void> {
+    if (this.bookingReference !== this.bookingReference.trim().toUpperCase()) {
+      throw new Error("Booking reference must be uppercase without leading or trailing whitespace.")
+    }
+
     await WithSyncLockService.perform(this.bookingReference, async () => {
       const matchedSourceIds: number[] = []
       await this.syncTravelOrderEvents(this.bookingReference, async (travelOrderEvent) => {
