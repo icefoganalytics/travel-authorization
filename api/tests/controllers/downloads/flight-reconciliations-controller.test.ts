@@ -1,17 +1,34 @@
+import { EventEmitter, once } from "node:events"
+import { createInterface } from "node:readline"
+import { Readable } from "node:stream"
+import { type ReadableStream } from "node:stream/web"
+
 import Papa from "papaparse"
 import qs from "qs"
 
+import csvStreamingClient from "@/lib/csv-streaming-client"
 import { User } from "@/models"
 import { FlightReconciliationReportHeaders } from "@/serializers/flight-reconciliations/report-serializer"
+import { CreateCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
 
 import { flightReconciliationFactory, userFactory } from "@/factories"
-import { mockCurrentUser, request } from "@/support"
+import { createHttpTestServer, mockCurrentUser, request } from "@/support"
 
 const CSV_HEADERS = Object.values(FlightReconciliationReportHeaders)
 
 describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", () => {
   describe("FlightReconciliationsController", () => {
     describe("#create", () => {
+      let httpServer: Awaited<ReturnType<typeof createHttpTestServer>>
+
+      beforeAll(async () => {
+        httpServer = await createHttpTestServer()
+      })
+
+      afterAll(async () => {
+        await httpServer.close()
+      })
+
       test("when finance selects mixed mailcodes, it exports only authorized IDs in requested order with report formatting", async () => {
         // Arrange
         const user1 = await userFactory.create({
@@ -259,6 +276,105 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({ message: "Unsupported report format" })
+      })
+
+      test("when later rows are pending, it delivers an earlier row before generation finishes", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        mockCurrentUser(user1)
+        const generation = new EventEmitter()
+        const completion = once(generation, "complete")
+        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+          async (...args: unknown[]) => {
+            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
+              await writeRow({ Name: "Traveller" })
+              await writeRow({ Name: "Next traveller" })
+              await completion
+              await writeRow({ Name: "Last traveller" })
+            })
+          }
+        )
+
+        try {
+          // Act
+          const response = await fetch(`${httpServer.url}/api/downloads/flight-reconciliations?format=csv`, {
+            method: "POST",
+            signal: AbortSignal.timeout(5000),
+          })
+          if (response.body === null) {
+            throw new Error("Expected a CSV response body")
+          }
+
+          const body = response.body as ReadableStream<Uint8Array>
+          const input = Readable.fromWeb(body)
+          const lines = createInterface({ input })
+          const reader = lines[Symbol.asyncIterator]()
+          await reader.next() // Column header.
+          const firstRow = await reader.next()
+
+          // Assert
+          expect(response.status).toEqual(200)
+          expect(firstRow.value).toEqual("Traveller")
+        } finally {
+          generation.emit("complete")
+        }
+      })
+
+      test("when generation completes, it delivers the complete CSV", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        mockCurrentUser(user1)
+        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+          async (...args: unknown[]) => {
+            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
+              await writeRow({ Name: "Traveller" })
+              await writeRow({ Name: "Last traveller" })
+            })
+          }
+        )
+
+        // Act
+        const response = await fetch(`${httpServer.url}/api/downloads/flight-reconciliations?format=csv`, {
+          method: "POST",
+          signal: AbortSignal.timeout(5000),
+        })
+        const content = await response.arrayBuffer()
+        const csv = Buffer.from(content)
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(csv).toEqual(Buffer.from("\uFEFFName\r\nTraveller\r\nLast traveller\r\n"))
+      })
+
+      test("when generation fails after headers arrive, it rejects the partial download", async () => {
+        // Arrange
+        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        mockCurrentUser(user1)
+        const generation = new EventEmitter()
+        const completion = once(generation, "complete")
+        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+          async (...args: unknown[]) => {
+            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            outputStream.write("\uFEFFName\r\n")
+            await completion
+          }
+        )
+
+        try {
+          // Act
+          const response = await fetch(`${httpServer.url}/api/downloads/flight-reconciliations?format=csv`, {
+            method: "POST",
+            signal: AbortSignal.timeout(5000),
+          })
+          generation.emit("error", new Error("CSV generation failed"))
+
+          // Assert
+          await expect(response.arrayBuffer()).rejects.toThrow("terminated")
+        } finally {
+          generation.emit("complete")
+        }
       })
     })
   })

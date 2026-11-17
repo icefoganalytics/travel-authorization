@@ -4,5 +4,7 @@ export { cleanTravelPortDatabase } from "./clean-travel-port-database"
 export { loadTestData } from "./load-test-data"
 export { mockCurrentUser } from "./mock-current-user"
 export { mockedAxios } from "./mock-axios"
+// App-backed helpers must load after mockCurrentUser registers the middleware mocks.
 export { request } from "./request"
+export { createHttpTestServer } from "./create-http-test-server"
 export { testWithCustomLogLevel } from "./test-with-custom-log-level"

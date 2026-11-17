@@ -63,6 +63,9 @@ stale test.
 ### Controller Tests
 
 - Use `mockCurrentUser(user)` and `request()` from `@/support`.
+- Keep app imports and server lifecycle in `@/support`, not test files. For streaming checks that
+  must observe an unfinished response, use `createHttpTestServer()` and close it in `afterAll`.
+  Keep each endpoint's streaming scenarios in its owning controller test file.
 - Assert `response.status` first, then assert `response.body` directly with `toEqual(...)`.
 - Keep an HTTP status/body test focused on that response; cover persisted outcomes in a separate
   service or behavior test.
