@@ -17,7 +17,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events/sync`)
-          .send({ bookingReference: "INVALID" })
+          .send({
+            bookingReference: "INVALID",
+          })
 
         // Assert
         expect(response.status).toEqual(403)
@@ -30,13 +32,17 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        await travelRequest.destroy({ force: true })
+        await travelRequest.destroy({
+          force: true,
+        })
         mockCurrentUser(officer)
 
         // Act
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events/sync`)
-          .send({ bookingReference: "INVALID" })
+          .send({
+            bookingReference: "INVALID",
+          })
 
         // Assert
         expect(response.status).toEqual(404)
@@ -57,7 +63,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events/sync`)
-          .send({ bookingReference: "SRC001" })
+          .send({
+            bookingReference: "SRC001",
+          })
 
         // Assert
         expect(response.status).toEqual(503)
@@ -76,7 +84,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events/sync`)
-          .send({ bookingReference: "SRC001" })
+          .send({
+            bookingReference: "SRC001",
+          })
 
         // Assert
         expect(response.status).toEqual(400)
@@ -99,7 +109,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events/sync`)
-          .send({ bookingReference: "T94001" })
+          .send({
+            bookingReference: "T94001",
+          })
 
         // Assert
         expect(response.status).toEqual(204)

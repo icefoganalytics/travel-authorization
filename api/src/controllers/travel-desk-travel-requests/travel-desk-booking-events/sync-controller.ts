@@ -38,7 +38,9 @@ export class SyncController extends BaseController<TravelDeskTravelRequest> {
         })
       }
 
-      logger.error(`Failed to sync travel desk booking events: ${error}`, { error })
+      logger.error(`Failed to sync travel desk booking events: ${error}`, {
+        error,
+      })
       return this.response.status(400).json({
         message: "Failed to sync booking history.",
       })
