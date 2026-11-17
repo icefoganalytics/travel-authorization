@@ -1,5 +1,5 @@
 import { IsolationLevel, Op } from "@sequelize/core"
-import { isNil, omit } from "lodash"
+import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 
@@ -21,27 +21,21 @@ export class SyncService extends BaseService {
     await WithSyncLockService.perform(this.bookingReference, async () => {
       const matchedSourceIds: number[] = []
       await this.syncTravelOrderEvents(this.bookingReference, async (travelOrderEvent) => {
-        const serializedTravelOrderEvent =
-          TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(travelOrderEvent)
-        const { travelOrderIdentifier, databaseTimestamp, ...travelOrderEventAttributes } = omit(
-          serializedTravelOrderEvent,
-          ["recordLocator"]
-        )
-        const travelDeskBookingEventAttributes = {
-          ...travelOrderEventAttributes,
-          externalTravelPortIdentifier: travelOrderIdentifier,
-          externalCreatedAt: databaseTimestamp,
-          bookingReference: this.bookingReference,
-        }
+        const travelDeskBookingEventAttributes =
+          TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(
+            travelOrderEvent,
+            this.bookingReference
+          )
+        const { externalTravelPortIdentifier } = travelDeskBookingEventAttributes
         const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
-          where: { externalTravelPortIdentifier: travelOrderIdentifier },
+          where: { externalTravelPortIdentifier },
         })
         if (isNil(travelDeskBookingEvent)) {
           await TravelDeskBookingEvent.create(travelDeskBookingEventAttributes)
         } else {
           await travelDeskBookingEvent.update(travelDeskBookingEventAttributes)
         }
-        matchedSourceIds.push(travelOrderIdentifier)
+        matchedSourceIds.push(externalTravelPortIdentifier)
       })
 
       await this.deleteUnmatchedBookingEvents(matchedSourceIds)
