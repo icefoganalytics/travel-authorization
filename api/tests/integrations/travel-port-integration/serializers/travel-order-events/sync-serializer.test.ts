@@ -58,17 +58,23 @@ describe("api/src/integrations/travel-port-integration/serializers/travel-order-
         const serializedTravelOrderEvent = SyncSerializer.perform(travelOrderEvent, "SRC001")
 
         // Assert
-        expect(serializedTravelOrderEvent).toMatchObject({
+        expect(serializedTravelOrderEvent).toEqual({
           externalTravelPortIdentifier: 940001,
           bookingReference: "SRC001",
           externalCreatedAt: new Date("2030-01-01T12:00:00Z"),
+          bookingFileVersionNumber: undefined,
+          hostEventTimestamp: undefined,
+          eventType: null,
+          reservationSystemDescription: null,
+          passengerNameRecordCreatedAt: undefined,
+          owningAgencyName: null,
+          transactionAgencyName: null,
+          transactionAgent: null,
+          creatingAgencyInternationalAirTransportAssociationNumber: null,
           passengers: [],
           airReservationSegments: [],
           serviceFeeTransaction: null,
         })
-        expect(serializedTravelOrderEvent).not.toHaveProperty("recordLocator")
-        expect(serializedTravelOrderEvent).not.toHaveProperty("databaseTimestamp")
-        expect(serializedTravelOrderEvent).not.toHaveProperty("travelOrderIdentifier")
       })
     })
   })

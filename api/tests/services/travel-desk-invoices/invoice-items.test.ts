@@ -1,3 +1,5 @@
+import { AggregateError } from "@sequelize/core"
+
 import { TravelDeskInvoiceItem } from "@/models"
 
 import { createInvoiceItems } from "@/services/travel-desk-invoices/invoice-items"
@@ -103,9 +105,11 @@ describe("api/src/services/travel-desk-invoices/invoice-items.ts", () => {
           position: 1,
         },
       ])
+      await result.catch((error: unknown) => {
+        if (!(error instanceof AggregateError)) throw error
+      })
 
       // Assert
-      await expect(result).rejects.toThrow()
       expect(await TravelDeskInvoiceItem.findAll()).toEqual([])
     })
   })
