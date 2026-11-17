@@ -1,16 +1,27 @@
 import { isNil, pick } from "lodash"
 import { DateTime } from "luxon"
 
-import type { BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
 import { TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelDeskBookingEventAsIndex = Omit<
-  BookingEventSnapshot,
-  "databaseTimestamp" | "recordLocator"
+export type TravelDeskBookingEventAsIndex = Pick<
+  TravelDeskBookingEvent,
+  | "bookingFileVersionNumber"
+  | "eventType"
+  | "bookingReference"
+  | "reservationSystemDescription"
+  | "owningAgencyName"
+  | "transactionAgencyName"
+  | "transactionAgent"
+  | "creatingAgencyInternationalAirTransportAssociationNumber"
+  | "passengers"
+  | "airReservationSegments"
+  | "serviceFeeTransaction"
 > & {
-  bookingReference: string | null
+  travelOrderIdentifier: TravelDeskBookingEvent["externalTravelPortIdentifier"]
   externalCreatedAt: string | null
+  hostEventTimestamp: string | null
+  passengerNameRecordCreatedAt: string | null
 }
 
 export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
