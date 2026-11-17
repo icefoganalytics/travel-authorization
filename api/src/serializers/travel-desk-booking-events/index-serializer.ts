@@ -5,13 +5,17 @@ import type { BookingEventSnapshot } from "@/integrations/travel-port-integratio
 import { TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelDeskBookingEventAsIndex = Omit<BookingEventSnapshot, "databaseTimestamp"> & {
-  databaseTimestamp: string | null
+export type TravelDeskBookingEventAsIndex = Omit<
+  BookingEventSnapshot,
+  "databaseTimestamp" | "recordLocator"
+> & {
+  bookingReference: string | null
+  externalCreatedAt: string | null
 }
 
 export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
   perform(): TravelDeskBookingEventAsIndex {
-    const databaseTimestamp = this.formatTimestamp(this.record.databaseTimestamp)
+    const externalCreatedAt = this.formatTimestamp(this.record.externalCreatedAt)
     const hostEventTimestamp = this.formatTimestamp(this.record.hostEventTimestamp)
     const passengerNameRecordCreatedAt = this.formatTimestamp(this.record.passengerNameRecordCreatedAt)
 
@@ -20,7 +24,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
       ...pick(this.record, [
         "bookingFileVersionNumber",
         "eventType",
-        "recordLocator",
+        "bookingReference",
         "reservationSystemDescription",
         "owningAgencyName",
         "transactionAgencyName",
@@ -30,7 +34,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskBookingEvent> {
         "airReservationSegments",
         "serviceFeeTransaction",
       ]),
-      databaseTimestamp,
+      externalCreatedAt,
       hostEventTimestamp,
       passengerNameRecordCreatedAt,
     }
