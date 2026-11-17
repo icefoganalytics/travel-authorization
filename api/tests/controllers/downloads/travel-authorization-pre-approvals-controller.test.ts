@@ -254,7 +254,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when later rows are pending, it delivers an earlier row before generation finishes", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")
@@ -300,7 +300,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when generation completes, it delivers the complete CSV", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         vi.spyOn(CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
@@ -325,7 +325,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when generation fails after headers arrive, it rejects the partial download", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")

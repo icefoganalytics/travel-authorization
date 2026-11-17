@@ -94,7 +94,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when selection exceeds a list page and query parser threshold, it exports every selected row", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const reconciliations = await flightReconciliationFactory.createMany([
           { invoiceDetailComputedTravelerLastName: "Traveller 1" },
@@ -217,7 +217,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when the query matches nothing, it sends a BOM and CRLF headers-only file", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         await flightReconciliationFactory.create()
 
@@ -234,7 +234,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when CSV is requested, it sets the familiar filename and CSV media type", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
 
         // Act
@@ -255,7 +255,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when format is unsupported, it rejects the request", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
 
         // Act
@@ -270,7 +270,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when later rows are pending, it delivers an earlier row before generation finishes", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")
@@ -316,7 +316,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when generation completes, it delivers the complete CSV", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         vi.spyOn(CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
@@ -341,7 +341,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when generation fails after headers arrive, it rejects the partial download", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")

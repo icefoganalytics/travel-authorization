@@ -21,7 +21,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
     describe("#create", () => {
       test("when admin combines filters and where, it exports matching rows in department and destination order", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const reportFactory = flightStatisticFactory.params({
           destinationProvince: "YT",
@@ -55,29 +55,38 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         })
 
         // Assert
-        const expectedValues = {
-          "Final Destination Province": "YT",
-          "Total Trips": "0",
-          "Total Expenses": "$1,234.50",
-          "Total Flight Cost": "$1.000",
-          "Average Duration (days)": "-2.5",
-          "Average Expenses per Day": "$0.000",
-          "Average Round Trip Flight Cost": "$0.125",
-        }
         expect(response.status).toEqual(200)
         expect(parsedCsv.data).toEqual([
           {
-            ...expectedValues,
+            "Final Destination Province": "YT",
+            "Total Trips": "0",
+            "Total Expenses": "$1,234.50",
+            "Total Flight Cost": "$1.000",
+            "Average Duration (days)": "-2.5",
+            "Average Expenses per Day": "$0.000",
+            "Average Round Trip Flight Cost": "$0.125",
             "Department Mailcode": "A-1",
             "Final Destination City": "'=SUM(1,2)",
           },
           {
-            ...expectedValues,
+            "Final Destination Province": "YT",
+            "Total Trips": "0",
+            "Total Expenses": "$1,234.50",
+            "Total Flight Cost": "$1.000",
+            "Average Duration (days)": "-2.5",
+            "Average Expenses per Day": "$0.000",
+            "Average Round Trip Flight Cost": "$0.125",
             "Department Mailcode": "A-1",
             "Final Destination City": "Whitehorse",
           },
           {
-            ...expectedValues,
+            "Final Destination Province": "YT",
+            "Total Trips": "0",
+            "Total Expenses": "$1,234.50",
+            "Total Flight Cost": "$1.000",
+            "Average Duration (days)": "-2.5",
+            "Average Expenses per Day": "$0.000",
+            "Average Round Trip Flight Cost": "$0.125",
             "Department Mailcode": "B-1",
             "Final Destination City": "Whitehorse",
           },
@@ -86,7 +95,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
       test("when more than one thousand records match, it ignores list pagination and exports every row in requested order", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const statistics = await flightStatisticFactory.createList(1001)
         const query = qs.stringify({
@@ -134,7 +143,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
       test("when an admin query matches nothing, it returns BOM and CRLF headers only", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         await flightStatisticFactory.create()
 
@@ -151,7 +160,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
       test("when CSV is requested, it sets the familiar timestamped filename and media type", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
 
         // Act
@@ -172,7 +181,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
       test("when format is unsupported, it rejects the request", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
 
         // Act
@@ -187,7 +196,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
       test("when later rows are pending, it delivers an earlier row before generation finishes", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")
@@ -233,7 +242,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
       test("when generation completes, it delivers the complete CSV", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         vi.spyOn(CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
@@ -258,7 +267,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
       test("when generation fails after headers arrive, it rejects the partial download", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")
