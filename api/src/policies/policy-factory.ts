@@ -1,7 +1,6 @@
 import { Model, ModelStatic, ScopeOptions } from "@sequelize/core"
 
 import { User } from "@/models"
-import { type BaseModelConstructor } from "@/models/base-model"
 import BasePolicy from "@/policies/base-policy"
 
 // See api/node_modules/sequelize/types/model.d.ts -> Model -> scope
@@ -12,30 +11,31 @@ export const POLICY_SCOPE_NAME = "policyScope"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AllArgsButFirstOne<T extends any[]> = T extends [any, ...infer Rest] ? Rest : never
 
-export function PolicyFactory<M extends Model, T extends Model = M>(
-  modelClass: BaseModelConstructor<M>
-): ReturnType<typeof buildPolicy<M, T, BaseModelConstructor<M>>>
-export function PolicyFactory<M extends Model, T extends Model = M>(
-  modelClass: ModelStatic<M>
-): ReturnType<typeof buildPolicy<M, T, ModelStatic<M>>>
-export function PolicyFactory<M extends Model, T extends Model = M>(modelClass: ModelStatic<M>) {
-  return buildPolicy<M, T, ModelStatic<M>>(modelClass)
-}
-
-function buildPolicy<M extends Model, T extends Model, S extends ModelStatic<M>>(modelClass: S) {
-  const policyClass = class Policy extends BasePolicy<T> {
-    static applyScope<P extends typeof Policy>(
-      this: P,
+export function PolicyFactory<
+  ModelInstance extends Model,
+  PolicyRecord extends Model = ModelInstance,
+  ScopedMethods = object,
+>(
+  modelClass: {
+    withScope(
+      this: ModelStatic<NoInfer<ModelInstance>>,
+      scopes: BaseScopeOptions[]
+    ): ModelStatic<NoInfer<ModelInstance>> & ScopedMethods
+  } & ModelStatic<ModelInstance>
+) {
+  const policyClass = class Policy extends BasePolicy<PolicyRecord> {
+    static applyScope<PolicyClass extends typeof Policy>(
+      this: PolicyClass,
       scopes: BaseScopeOptions[],
       user: User,
-      ...extraPolicyScopeArgs: AllArgsButFirstOne<Parameters<P["policyScope"]>>
-    ): S {
+      ...extraPolicyScopeArgs: AllArgsButFirstOne<Parameters<PolicyClass["policyScope"]>>
+    ): ModelStatic<ModelInstance> & Omit<ScopedMethods, "prototype"> {
       this.ensurePolicyScope()
 
       return modelClass.withScope([
         ...scopes,
         { method: [POLICY_SCOPE_NAME, user, ...extraPolicyScopeArgs] },
-      ]) as S
+      ])
     }
 
     /**
