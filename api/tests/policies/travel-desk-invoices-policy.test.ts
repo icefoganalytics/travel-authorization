@@ -5,63 +5,175 @@ import { travelDeskInvoiceFactory, userFactory } from "@/factories"
 
 describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
   describe("TravelDeskInvoicesPolicy", () => {
-    describe("#toJSON", () => {
-      test("when the user is a travel desk officer, it permits invoice management", async () => {
+    describe("#show", () => {
+      test("when the user is a travel desk officer, it returns true", async () => {
         // Arrange
-        const officer = await userFactory.asTravelDeskUser().create()
+        const user = await userFactory.asTravelDeskUser().create()
         const invoice = travelDeskInvoiceFactory.build()
-        const policy = new TravelDeskInvoicesPolicy(officer, invoice)
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
 
         // Act
-        const permissions = policy.toJSON()
+        const result = policy.show()
 
         // Assert
-        expect(permissions).toEqual({
-          show: true,
-          create: true,
-          update: true,
-          destroy: true,
-        })
+        expect(result).toEqual(true)
       })
 
-      test("when the user is an administrator, it permits invoice management", async () => {
-        // Arrange
-        const admin = await userFactory.create({
-          roles: [User.Roles.ADMIN],
-        })
-        const invoice = travelDeskInvoiceFactory.build()
-        const policy = new TravelDeskInvoicesPolicy(admin, invoice)
-
-        // Act
-        const permissions = policy.toJSON()
-
-        // Assert
-        expect(permissions).toEqual({
-          show: true,
-          create: true,
-          update: true,
-          destroy: true,
-        })
-      })
-
-      test("when the user lacks staff access, it denies every invoice action", async () => {
+      test("when the user is an administrator, it returns true", async () => {
         // Arrange
         const user = await userFactory.create({
-          roles: [User.Roles.USER],
+          roles: [User.Roles.ADMIN],
         })
         const invoice = travelDeskInvoiceFactory.build()
         const policy = new TravelDeskInvoicesPolicy(user, invoice)
 
         // Act
-        const permissions = policy.toJSON()
+        const result = policy.show()
 
         // Assert
-        expect(permissions).toEqual({
-          show: false,
-          create: false,
-          update: false,
-          destroy: false,
+        expect(result).toEqual(true)
+      })
+
+      test("when the user is an ordinary user, it returns false", async () => {
+        // Arrange
+        const user = await userFactory.create()
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.show()
+
+        // Assert
+        expect(result).toEqual(false)
+      })
+    })
+
+    describe("#create", () => {
+      test("when the user is a travel desk officer, it returns true", async () => {
+        // Arrange
+        const user = await userFactory.asTravelDeskUser().create()
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.create()
+
+        // Assert
+        expect(result).toEqual(true)
+      })
+
+      test("when the user is an administrator, it returns true", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          roles: [User.Roles.ADMIN],
         })
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.create()
+
+        // Assert
+        expect(result).toEqual(true)
+      })
+
+      test("when the user is an ordinary user, it returns false", async () => {
+        // Arrange
+        const user = await userFactory.create()
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.create()
+
+        // Assert
+        expect(result).toEqual(false)
+      })
+    })
+
+    describe("#update", () => {
+      test("when the user is a travel desk officer, it returns true", async () => {
+        // Arrange
+        const user = await userFactory.asTravelDeskUser().create()
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.update()
+
+        // Assert
+        expect(result).toEqual(true)
+      })
+
+      test("when the user is an administrator, it returns true", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          roles: [User.Roles.ADMIN],
+        })
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.update()
+
+        // Assert
+        expect(result).toEqual(true)
+      })
+
+      test("when the user is an ordinary user, it returns false", async () => {
+        // Arrange
+        const user = await userFactory.create()
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.update()
+
+        // Assert
+        expect(result).toEqual(false)
+      })
+    })
+
+    describe("#destroy", () => {
+      test("when the user is a travel desk officer, it returns true", async () => {
+        // Arrange
+        const user = await userFactory.asTravelDeskUser().create()
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.destroy()
+
+        // Assert
+        expect(result).toEqual(true)
+      })
+
+      test("when the user is an administrator, it returns true", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          roles: [User.Roles.ADMIN],
+        })
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.destroy()
+
+        // Assert
+        expect(result).toEqual(true)
+      })
+
+      test("when the user is an ordinary user, it returns false", async () => {
+        // Arrange
+        const user = await userFactory.create()
+        const invoice = travelDeskInvoiceFactory.build()
+        const policy = new TravelDeskInvoicesPolicy(user, invoice)
+
+        // Act
+        const result = policy.destroy()
+
+        // Assert
+        expect(result).toEqual(false)
       })
     })
 
