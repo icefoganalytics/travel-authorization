@@ -75,11 +75,19 @@ export class ReportSerializer extends BaseSerializer<TravelAuthorizationPreAppro
   }
 
   private formatDepartment(department: TravelAuthorizationPreApproval["department"]): string {
-    return department ?? ""
+    if (isNil(department)) {
+      return ""
+    }
+
+    return department
   }
 
   private formatBranch(branch: TravelAuthorizationPreApproval["branch"]): string {
-    return branch ?? ""
+    if (isNil(branch)) {
+      return ""
+    }
+
+    return branch
   }
 
   private formatTravelDate(
@@ -89,7 +97,11 @@ export class ReportSerializer extends BaseSerializer<TravelAuthorizationPreAppro
     endDate: TravelAuthorizationPreApproval["endDate"]
   ): string {
     if (isOpenForAnyDate) {
-      return month ?? ""
+      if (isNil(month)) {
+        return ""
+      }
+
+      return month
     }
 
     const dates = [startDate, endDate]
@@ -100,11 +112,19 @@ export class ReportSerializer extends BaseSerializer<TravelAuthorizationPreAppro
   }
 
   private formatLocation(location: TravelAuthorizationPreApproval["location"]): string {
-    return location ?? ""
+    if (isNil(location)) {
+      return ""
+    }
+
+    return location
   }
 
   private formatPurpose(purpose: TravelAuthorizationPreApproval["purpose"]): string {
-    return purpose ?? ""
+    if (isNil(purpose)) {
+      return ""
+    }
+
+    return purpose
   }
 
   private formatEstimatedCost(estimatedCost: TravelAuthorizationPreApproval["estimatedCost"]): string {
@@ -112,15 +132,27 @@ export class ReportSerializer extends BaseSerializer<TravelAuthorizationPreAppro
   }
 
   private formatReason(reason: TravelAuthorizationPreApproval["reason"]): string {
-    return reason ?? ""
+    if (isNil(reason)) {
+      return ""
+    }
+
+    return reason
   }
 
   private formatStatus(status: TravelAuthorizationPreApproval["status"]): string {
-    return status ?? ""
+    if (isNil(status)) {
+      return ""
+    }
+
+    return status
   }
 
   private formatNotes(travelerNotes: TravelAuthorizationPreApproval["travelerNotes"]): string {
-    return travelerNotes ?? ""
+    if (isNil(travelerNotes)) {
+      return ""
+    }
+
+    return travelerNotes
   }
 }
 

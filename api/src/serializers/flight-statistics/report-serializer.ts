@@ -1,3 +1,5 @@
+import { isNil } from "lodash"
+
 import { type FlightStatistic } from "@/models"
 import formatCurrency from "@/utils/format-currency"
 import BaseSerializer from "@/serializers/base-serializer"
@@ -57,25 +59,41 @@ export class ReportSerializer extends BaseSerializer<FlightStatistic> {
   private formatDepartmentMailcode(
     departmentMailcode: FlightStatistic["departmentMailcode"]
   ): string {
-    return departmentMailcode ?? ""
+    if (isNil(departmentMailcode)) {
+      return ""
+    }
+
+    return departmentMailcode
   }
 
   private formatFinalDestinationCity(
     destinationCity: FlightStatistic["destinationCity"]
   ): string {
-    return destinationCity ?? ""
+    if (isNil(destinationCity)) {
+      return ""
+    }
+
+    return destinationCity
   }
 
   private formatFinalDestinationProvince(
     destinationProvince: FlightStatistic["destinationProvince"]
   ): string {
-    return destinationProvince ?? ""
+    if (isNil(destinationProvince)) {
+      return ""
+    }
+
+    return destinationProvince
   }
 
   private formatTotalTrips(
     totalTrips: FlightStatistic["totalTrips"]
   ): string | number {
-    return totalTrips ?? ""
+    if (isNil(totalTrips)) {
+      return ""
+    }
+
+    return totalTrips
   }
 
   private formatTotalExpenses(
@@ -93,7 +111,11 @@ export class ReportSerializer extends BaseSerializer<FlightStatistic> {
   private formatAverageDurationDays(
     averageDurationDays: FlightStatistic["averageDurationDays"]
   ): string | number {
-    return averageDurationDays ?? ""
+    if (isNil(averageDurationDays)) {
+      return ""
+    }
+
+    return averageDurationDays
   }
 
   private formatAverageExpensesPerDay(

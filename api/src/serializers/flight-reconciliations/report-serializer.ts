@@ -1,4 +1,4 @@
-import { startCase, toLower } from "lodash"
+import { isNil, startCase, toLower } from "lodash"
 import { DateTime } from "luxon"
 
 import { type FlightReconciliation } from "@/models"
@@ -65,7 +65,7 @@ export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
   private formatPurchaseDate(
     invoiceBookingDate: FlightReconciliation["invoiceBookingDate"]
   ): string {
-    if (!invoiceBookingDate) {
+    if (isNil(invoiceBookingDate)) {
       return ""
     }
 
@@ -81,7 +81,11 @@ export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
   private formatAgent(
     invoiceDetailComputedAgentName: FlightReconciliation["invoiceDetailComputedAgentName"]
   ): string {
-    return startCase(toLower(invoiceDetailComputedAgentName ?? ""))
+    if (isNil(invoiceDetailComputedAgentName)) {
+      return ""
+    }
+
+    return startCase(toLower(invoiceDetailComputedAgentName))
   }
 
   private formatAirline(
@@ -93,19 +97,31 @@ export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
   private formatFlightInfo(
     segmentsComputedFlightInfo: FlightReconciliation["segmentsComputedFlightInfo"]
   ): string {
-    return segmentsComputedFlightInfo?.split(",").join("\r\n") ?? ""
+    if (isNil(segmentsComputedFlightInfo)) {
+      return ""
+    }
+
+    return segmentsComputedFlightInfo.split(",").join("\r\n")
   }
 
   private formatFinalDestination(
     segmentsComputedFinalDestination: FlightReconciliation["segmentsComputedFinalDestination"]
   ): string {
-    return segmentsComputedFinalDestination ?? ""
+    if (isNil(segmentsComputedFinalDestination)) {
+      return ""
+    }
+
+    return segmentsComputedFinalDestination
   }
 
   private formatDepartmentMailcode(
     invoiceDepartmentMailcode: FlightReconciliation["invoiceDepartmentMailcode"]
   ): string {
-    return invoiceDepartmentMailcode ?? ""
+    if (isNil(invoiceDepartmentMailcode)) {
+      return ""
+    }
+
+    return invoiceDepartmentMailcode
   }
 
   private formatReconciled(
@@ -121,7 +137,11 @@ export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
   private formatReconcilePeriod(
     reconcilePeriod: FlightReconciliation["reconcilePeriod"]
   ): string | number {
-    return reconcilePeriod ?? ""
+    if (isNil(reconcilePeriod)) {
+      return ""
+    }
+
+    return reconcilePeriod
   }
 }
 
