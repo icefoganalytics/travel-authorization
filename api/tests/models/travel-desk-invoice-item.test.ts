@@ -12,8 +12,14 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
       ])(
         "when the source identity is $sourceAirSegmentNumber / $sourceServiceFeeEventExternalIdentifier, it permits creation",
         async (attributes) => {
+          // Arrange
+          const { sourceAirSegmentNumber, sourceServiceFeeEventExternalIdentifier } = attributes
+
           // Act
-          await travelDeskInvoiceItemFactory.create(attributes)
+          await travelDeskInvoiceItemFactory.create({
+            sourceAirSegmentNumber,
+            sourceServiceFeeEventExternalIdentifier,
+          })
 
           // Assert
           expect(await TravelDeskInvoiceItem.findAll()).toEqual([
@@ -23,11 +29,14 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
       )
 
       test("when both source identities are provided, it rejects creation", async () => {
-        // Act
-        const result = travelDeskInvoiceItemFactory.create({
+        // Arrange
+        const attributes = {
           sourceAirSegmentNumber: 1,
           sourceServiceFeeEventExternalIdentifier: 920002,
-        })
+        }
+
+        // Act
+        const result = travelDeskInvoiceItemFactory.create(attributes)
 
         // Assert
         await expect(result).rejects.toThrow(
