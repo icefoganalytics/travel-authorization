@@ -26,7 +26,9 @@ export const travelSegmentFactory = FactoryShark.define<TravelSegment>(
       min: 0,
       max: 100,
     })
+
     let modeOfTransportOther = null
+
     if (modeOfTransport === TravelSegment.TravelMethods.OTHER) {
       modeOfTransportOther = faker.hacker.ingverb()
     }
