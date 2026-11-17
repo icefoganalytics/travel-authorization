@@ -81,7 +81,7 @@ const headers = ref([
     sortable: false,
   },
   {
-    title: "Primary destination",
+    title: "Final Destination",
     key: "finalDestination",
     sortable: false,
   },

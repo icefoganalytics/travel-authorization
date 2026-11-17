@@ -21,7 +21,7 @@ describe("web/src/components/travel-authorizations/PurposeCard.vue", () => {
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         finalDestination,
-        estimatedPrimaryDestinationId: 2,
+        finalDestinationLocationId: 2,
         travelSegments,
       })
       mockHttpGetRoutes({
@@ -49,7 +49,7 @@ describe("web/src/components/travel-authorizations/PurposeCard.vue", () => {
         id: 5,
         finalDestination: null,
         travelSegments,
-        estimatedPrimaryDestinationId: 2,
+        finalDestinationLocationId: 2,
       })
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
