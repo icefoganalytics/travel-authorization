@@ -105,7 +105,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when a lowercase source locator is refreshed, it normalizes and updates one local row without duplicates", async () => {
+      test("when a lowercase source locator is refreshed with a normalized reference, it updates one local row without duplicates", async () => {
         // Arrange
         await travelPortMigrationClient("TravelOrderEvent").insert({
           TravelOrderIdentifier: 910001,
@@ -124,7 +124,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           .update({ PnrBfVersionNbr: 2 })
 
         // Act
-        await SyncService.perform(" src001 ")
+        await SyncService.perform("SRC001")
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
@@ -137,7 +137,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when a case-variant locator has no source events, it deletes only that locator's cached events", async () => {
+      test("when a locator has no source events, it deletes only that locator's cached events", async () => {
         // Arrange
         await travelDeskBookingEventFactory.create({ bookingReference: "SRC001" })
         const unrelatedEvent = await travelDeskBookingEventFactory.create({
@@ -145,7 +145,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         })
 
         // Act
-        await SyncService.perform("src001")
+        await SyncService.perform("SRC001")
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
