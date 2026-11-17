@@ -1,11 +1,10 @@
-import sourceDatabase from "@/integrations/travel-port-integration/db/db-migration-client"
 import { User } from "@/models"
 import { SyncService } from "@/services/travel-desk-booking-events"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 
 import { mockCurrentUser, request } from "@/support"
 
-import { travelDeskTravelRequestFactory, userFactory } from "@/factories"
+import { travelDeskTravelRequestFactory, userFactory, TravelPortIntegration } from "@/factories"
 
 describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-events/sync-controller.ts", () => {
   describe("TravelDeskTravelRequests.TravelDeskBookingEvents.SyncController", () => {
@@ -63,7 +62,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
         // Assert
         expect(response.status).toEqual(503)
-        expect(response.body).toEqual({ message: "Booking source is unavailable." })
+        expect(response.body).toEqual({
+          message: "Booking source is unavailable.",
+        })
       })
 
       test("when synchronization fails unexpectedly, it returns the booking synchronization error", async () => {
@@ -80,7 +81,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
         // Assert
         expect(response.status).toEqual(400)
-        expect(response.body).toEqual({ message: "Failed to sync booking history." })
+        expect(response.body).toEqual({
+          message: "Failed to sync booking history.",
+        })
       })
 
       test("when a normalized locator matches source history, it synchronizes without returning a collection", async () => {
@@ -88,18 +91,10 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
-        await sourceDatabase("Passenger").whereIn("TravelOrderIdentifier", [940001, 940002]).del()
-        await sourceDatabase("AirRsrvSeg").whereIn("TravelOrderIdentifier", [940001, 940002]).del()
-        await sourceDatabase("SFTrans").whereIn("TravelOrderIdentifier", [940001, 940002]).del()
-        await sourceDatabase("TravelOrderEvent")
-          .whereIn("TravelOrderIdentifier", [940001, 940002])
-          .del()
-        await sourceDatabase("TravelOrderEvent").insert({
-          TravelOrderIdentifier: 940001,
-          RecordLocator: "T94001",
-          PnrBfVersionNbr: 3,
-          EventType: "B",
-          DatabaseTimeStamp: "2030-01-01T12:00:00",
+        await TravelPortIntegration.travelOrderEventFactory.create({
+          recordLocator: "T94001",
+          bookingFileVersionNumber: 3,
+          eventType: "B",
         })
 
         // Act
