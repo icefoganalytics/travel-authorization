@@ -24,17 +24,24 @@ export class BulkCreateService extends BaseService {
 
   private buildItemAttributes(item: InvoiceItemAttributes): CreationAttributes<TravelDeskInvoiceItem> {
     const grossAmount = normalizeInvoiceAmount(item.grossAmount)
+    const travelDeskFlightSegmentId = item.travelDeskFlightSegmentId ?? null
+    const sourceAirSegmentNumber = item.sourceAirSegmentNumber ?? null
+    const sourceServiceFeeEventExternalIdentifier = item.sourceServiceFeeEventExternalIdentifier ?? null
+    const passengerName = item.passengerName ?? null
+    const ticketNumber = item.ticketNumber ?? null
+    const vendor = item.vendor ?? null
+    const description = item.description ?? null
 
     return {
       travelDeskInvoiceId: this.travelDeskInvoiceId,
       productType: item.productType,
-      travelDeskFlightSegmentId: item.travelDeskFlightSegmentId ?? null,
-      sourceAirSegmentNumber: item.sourceAirSegmentNumber ?? null,
-      sourceServiceFeeEventExternalIdentifier: item.sourceServiceFeeEventExternalIdentifier ?? null,
-      passengerName: item.passengerName ?? null,
-      ticketNumber: item.ticketNumber ?? null,
-      vendor: item.vendor ?? null,
-      description: item.description ?? null,
+      travelDeskFlightSegmentId,
+      sourceAirSegmentNumber,
+      sourceServiceFeeEventExternalIdentifier,
+      passengerName,
+      ticketNumber,
+      vendor,
+      description,
       saleType: item.saleType,
       grossAmount,
       position: item.position,
