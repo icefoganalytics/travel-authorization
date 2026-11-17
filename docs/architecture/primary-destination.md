@@ -2,6 +2,12 @@
 
 The [feature specification](/docs/product/primary-destination.md) owns user-visible requirements. This document explains how the authorization owns the selected city without making itinerary identity or reimbursement calculations depend on that selection.
 
+## Terminology and API Compatibility
+
+The project manager calls this the “final destination” in [issue #315](https://github.com/icefoganalytics/travel-authorization/issues/315) and the [hotel-default request](https://github.com/icefoganalytics/travel-authorization/pull/368#issuecomment-6201190702). The existing response field remains `finalDestination`, and its summary projection is `finalDestinationLocationId`. These expose the selected city for the active phase, not the last itinerary arrival.
+
+The explicit estimated and actual choices introduced in [issue #463](https://github.com/icefoganalytics/travel-authorization/issues/463) use “primary destination” to describe the city representing the purpose of travel. This is application terminology, not a verified Yukon Government policy term. Airline usage is different: [Air Canada's ticketing policy](https://www.aircanada.com/content/dam/aircanada/portal/documents/PDF/agents/en/ca/policies/ticket_viol.pdf) uses “final destination” for the endpoint of the ticketed transportation. The ticketed endpoint and the business-purpose city are not interchangeable on a multi-city trip.
+
 ## Data Ownership
 
 The [travel authorization model](/api/src/models/travel-authorization.ts) owns two nullable location references: `estimatedPrimaryDestinationId` and `actualPrimaryDestinationId`. Their database columns are `estimated_primary_destination_id` and `actual_primary_destination_id` on `travel_authorizations`, each referencing `locations.id`. Foreign keys restrict deletion of referenced locations.
