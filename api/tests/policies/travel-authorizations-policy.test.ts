@@ -6,7 +6,7 @@ import { travelAuthorizationFactory, userFactory } from "@/factories"
 describe("api/src/policies/travel-authorizations-policy.ts", () => {
   describe("TravelAuthorizationsPolicy", () => {
     describe("#permitAttributesForUpdate", () => {
-      test("when a request is draft, it permits nested selection and identity", () => {
+      test("when a request is draft, it permits the selected city and filters every nested segment", () => {
         // Arrange
         const user = userFactory.build({
           id: 1,
@@ -23,7 +23,17 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
           travelSegmentEstimatesAttributes: [
             {
               id: 7,
+              travelAuthorizationId: 1,
+              isActual: false,
               arrivalLocationId: 2,
+              createdAt: "2026-01-01T00:00:00.000Z",
+            },
+            {
+              id: 8,
+              travelAuthorizationId: 1,
+              isActual: false,
+              arrivalLocationId: 3,
+              createdAt: "2026-01-01T00:00:00.000Z",
             },
           ],
         }
@@ -32,10 +42,25 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         const permittedAttributes = policy.permitAttributesForUpdate(attributes)
 
         // Assert
-        expect(permittedAttributes).toEqual(attributes)
+        expect(permittedAttributes).toEqual({
+          estimatedPrimaryDestinationId: 2,
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+          travelSegmentEstimatesAttributes: [
+            {
+              travelAuthorizationId: 1,
+              isActual: false,
+              arrivalLocationId: 2,
+            },
+            {
+              travelAuthorizationId: 1,
+              isActual: false,
+              arrivalLocationId: 3,
+            },
+          ],
+        })
       })
 
-      test("when a request is approved, it permits nested selection and identity", () => {
+      test("when a request is approved, it permits the selected city but not nested segment identities", () => {
         // Arrange
         const user = userFactory.build({
           id: 1,
@@ -52,6 +77,8 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
           travelSegmentActualsAttributes: [
             {
               id: 7,
+              travelAuthorizationId: 1,
+              isActual: true,
               arrivalLocationId: 2,
             },
           ],
@@ -61,7 +88,17 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         const permittedAttributes = policy.permitAttributesForUpdate(attributes)
 
         // Assert
-        expect(permittedAttributes).toEqual(attributes)
+        expect(permittedAttributes).toEqual({
+          actualPrimaryDestinationId: 2,
+          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
+          travelSegmentActualsAttributes: [
+            {
+              travelAuthorizationId: 1,
+              isActual: true,
+              arrivalLocationId: 2,
+            },
+          ],
+        })
       })
 
       test("when a request is draft, it preserves trip details but excludes workflow changes", () => {
@@ -121,6 +158,14 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
           eventName: "Corrected trip purpose",
           status: TravelAuthorization.Statuses.DRAFT,
           wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
+          travelSegmentEstimatesAttributes: [
+            {
+              id: 7,
+              travelAuthorizationId: 1,
+              isActual: false,
+              arrivalLocationId: 2,
+            },
+          ],
         }
 
         // Act
@@ -129,6 +174,13 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         // Assert
         expect(permittedAttributes).toEqual({
           eventName: "Corrected trip purpose",
+          travelSegmentEstimatesAttributes: [
+            {
+              travelAuthorizationId: 1,
+              isActual: false,
+              arrivalLocationId: 2,
+            },
+          ],
         })
       })
 

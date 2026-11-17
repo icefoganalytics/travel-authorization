@@ -52,10 +52,6 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
     return ["travelAuthorizationId", "isActual", ...this.permittedAttributes()]
   }
 
-  permittedAttributesForBulkReplace(): Path[] {
-    return ["id", ...this.permittedAttributesForCreate()]
-  }
-
   static policyScope(user: User): FindOptions<Attributes<TravelSegment>> {
     if (user.roles.includes(User.Roles.ADMIN)) {
       return ALL_RECORDS_SCOPE
