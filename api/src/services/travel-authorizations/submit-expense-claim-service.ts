@@ -49,10 +49,12 @@ export class SubmitExpenseClaimService extends BaseService {
         rejectOnEmpty: true,
         lock: true,
       })
-      await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
-        isActual: true,
-        requireSelection: true,
+      this.travelAuthorization.set({
+        supervisorEmail: this.supervisorEmail,
+        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
+        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
       })
+      await ValidatePrimaryDestinationService.perform(this.travelAuthorization)
 
       const supervisor = await Users.EnsureService.perform(
         {
@@ -63,11 +65,7 @@ export class SubmitExpenseClaimService extends BaseService {
         throw new Error(`Failed to ensure supervisor: ${error}`)
       })
 
-      await this.travelAuthorization.update({
-        supervisorEmail: this.supervisorEmail,
-        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
-        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
-      })
+      await this.travelAuthorization.save()
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
         actorId: this.currentUser.id,
