@@ -105,7 +105,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when a lowercase source locator is refreshed with a normalized reference, it updates one local row without duplicates", async () => {
+      test("when a lowercase booking reference has surrounding whitespace, it updates the uppercase local row without duplicates", async () => {
         // Arrange
         await travelPortMigrationClient("TravelOrderEvent").insert({
           TravelOrderIdentifier: 910001,
@@ -124,7 +124,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           .update({ PnrBfVersionNbr: 2 })
 
         // Act
-        await SyncService.perform("SRC001")
+        await SyncService.perform(" src001 ")
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
