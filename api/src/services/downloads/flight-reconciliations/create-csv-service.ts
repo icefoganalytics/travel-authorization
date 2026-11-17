@@ -3,7 +3,7 @@ import { type Writable } from "node:stream"
 import { IsolationLevel, type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 
 import { type ModelOrder } from "@/controllers/base-controller"
-import { type FlightReconciliation } from "@/models"
+import db, { type FlightReconciliation } from "@/models"
 import BaseModel from "@/models/base-model"
 import {
   FlightReconciliationReportHeaders,
@@ -26,7 +26,7 @@ export class CreateCsvService extends BaseService {
     const headers = Object.values(FlightReconciliationReportHeaders)
 
     return streamCsv(this.destination, headers, async (writeRow) => {
-      await this.scopedFlightReconciliations.sequelize.transaction(
+      await db.transaction(
         {
           isolationLevel: IsolationLevel.REPEATABLE_READ,
           readOnly: true,

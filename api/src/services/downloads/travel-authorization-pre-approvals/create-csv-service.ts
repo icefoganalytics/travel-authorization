@@ -3,7 +3,7 @@ import { type Writable } from "node:stream"
 import { IsolationLevel, type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
 
 import { type ModelOrder } from "@/controllers/base-controller"
-import { type TravelAuthorizationPreApproval, type User } from "@/models"
+import db, { type TravelAuthorizationPreApproval, type User } from "@/models"
 import BaseModel from "@/models/base-model"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
 import {
@@ -29,7 +29,7 @@ export class CreateCsvService extends BaseService {
     const profileScope = TravelAuthorizationPreApprovalProfilesPolicy.policyScope(this.currentUser)
 
     return streamCsv(this.destination, headers, async (writeRow) => {
-      await this.scopedTravelAuthorizationPreApprovals.sequelize.transaction(
+      await db.transaction(
         {
           isolationLevel: IsolationLevel.REPEATABLE_READ,
           readOnly: true,
