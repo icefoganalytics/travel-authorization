@@ -15,7 +15,7 @@
           <ExportToCsvButton
             :flight-reconciliation-ids="selectedFlightReconciliationIds"
             :order="order"
-            :disabled="isEmpty(selectedFlightReconciliationIds)"
+            :filters="filters"
             color="primary"
             block
           />

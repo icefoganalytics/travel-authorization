@@ -1,8 +1,5 @@
 <template>
-  <DownloadFileForm
-    :download-url="downloadUrl"
-    :disabled="flightReconciliationIds.length === 0"
-  >
+  <DownloadFileForm :download-url="downloadUrl">
     <template #default>
       <slot>Export To CSV</slot>
     </template>
@@ -14,26 +11,38 @@ import { computed } from "vue"
 
 import { type ModelOrder } from "@/api/base-api"
 import { reportsApi } from "@/api/downloads/flight-reconciliations/reports-api"
+import {
+  type FlightReconciliationFiltersOptions,
+  type FlightReconciliationWhereOptions,
+} from "@/api/flight-reconciliations-api"
 
 import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 
 const props = withDefaults(
   defineProps<{
     flightReconciliationIds?: number[]
+    filters?: FlightReconciliationFiltersOptions
+    where?: FlightReconciliationWhereOptions
     order?: ModelOrder[]
   }>(),
   {
     flightReconciliationIds: () => [],
+    filters: () => ({}),
+    where: () => ({}),
     order: () => [],
   }
 )
 
-const downloadUrl = computed(() =>
-  reportsApi.downloadPath({
-    where: {
-      id: props.flightReconciliationIds,
-    },
+const downloadUrl = computed(() => {
+  const where = { ...props.where }
+  if (props.flightReconciliationIds.length > 0) {
+    where.id = props.flightReconciliationIds
+  }
+
+  return reportsApi.downloadPath({
+    where,
+    filters: props.filters,
     order: props.order,
   })
-)
+})
 </script>

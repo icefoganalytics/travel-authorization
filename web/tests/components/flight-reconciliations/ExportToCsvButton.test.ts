@@ -43,13 +43,21 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       })
     })
 
-    test("when no records are selected, does not submit an unrestricted download", async () => {
+    test("when no records are selected, submits all matching records in the current order", async () => {
       // Arrange
-      const submit = vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation(() => {})
+      const submittedUrls: string[] = []
+      vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation(function (
+        this: HTMLFormElement
+      ) {
+        submittedUrls.push(this.action)
+      })
       const vuetify = mockVuetify()
       const wrapper = mount(ExportToCsvButton, {
         props: {
           flightReconciliationIds: [],
+          filters: { invoiceBookingDateBetween: ["2026-11-01", "2026-11-30"] },
+          where: { reconciled: false },
+          order: [["invoiceBookingDate", "DESC"]],
         },
         global: {
           plugins: [vuetify],
@@ -59,9 +67,16 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       // Act
       await wrapper.get("form").trigger("submit")
       await flushPromises()
+      const submittedUrl = new URL(submittedUrls[0])
+      const query = qs.parse(submittedUrl.search, { ignoreQueryPrefix: true })
 
       // Assert
-      expect(submit).not.toHaveBeenCalled()
+      expect(query).toEqual({
+        format: "csv",
+        where: { reconciled: "false" },
+        filters: { invoiceBookingDateBetween: ["2026-11-01", "2026-11-30"] },
+        order: [["invoiceBookingDate", "DESC"]],
+      })
     })
   })
 })
