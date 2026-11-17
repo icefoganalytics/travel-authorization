@@ -721,7 +721,7 @@ function startDraft() {
     productType: TravelDeskInvoiceItemProductTypes.AIR,
     travelDeskFlightSegmentId: null,
     sourceAirSegmentNumber: segment.airSegmentNumber,
-    sourceServiceFeeEventId: null,
+    sourceServiceFeeEventExternalIdentifier: null,
     passengerName,
     ticketNumber: null,
     vendor: segment.carrierCode,
@@ -743,7 +743,7 @@ function startDraft() {
       productType: TravelDeskInvoiceItemProductTypes.SERVICE_FEE,
       travelDeskFlightSegmentId: null,
       sourceAirSegmentNumber: null,
-      sourceServiceFeeEventId: feeEvent.travelOrderIdentifier,
+      sourceServiceFeeEventExternalIdentifier: feeEvent.travelOrderIdentifier,
       passengerName: fee.nameOnServiceFee,
       ticketNumber: fee.relatedTicketDocumentNumber,
       vendor: feeEvent.transactionAgencyName ?? feeEvent.owningAgencyName,
@@ -756,7 +756,9 @@ function startDraft() {
   draft.value = {
     bookingReference: searchedBookingReference.value,
     externalBookingEventIdentifier: event.travelOrderIdentifier,
-    sourceServiceFeeEventIds: selectedFees.map((event) => event.travelOrderIdentifier),
+    sourceServiceFeeEventExternalIdentifiers: selectedFees.map(
+      (event) => event.travelOrderIdentifier
+    ),
     currencyCode: [...currencies][0] ?? "",
     invoiceNumber: null,
     invoiceDate: null,
@@ -783,7 +785,7 @@ function beginEdit() {
   draft.value = {
     bookingReference: savedInvoice.bookingReference,
     externalBookingEventIdentifier: savedInvoice.externalBookingEventIdentifier,
-    sourceServiceFeeEventIds: savedInvoice.sourceSnapshot.serviceFeeEvents.map(
+    sourceServiceFeeEventExternalIdentifiers: savedInvoice.sourceSnapshot.serviceFeeEvents.map(
       (event) => event.travelOrderIdentifier
     ),
     currencyCode: savedInvoice.currencyCode,
@@ -809,7 +811,7 @@ function addCharge() {
     productType: TravelDeskInvoiceItemProductTypes.CHANGE_FEE,
     travelDeskFlightSegmentId: null,
     sourceAirSegmentNumber: null,
-    sourceServiceFeeEventId: null,
+    sourceServiceFeeEventExternalIdentifier: null,
     passengerName: null,
     ticketNumber: null,
     vendor: null,

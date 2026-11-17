@@ -84,7 +84,7 @@ export const travelDeskBookingEventsApi = {
     options: { signal?: AbortSignal } = {}
   ): Promise<void> {
     await http.post(
-      `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-desk-booking-events`,
+      `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-desk-booking-events/sync`,
       attributes,
       options
     )

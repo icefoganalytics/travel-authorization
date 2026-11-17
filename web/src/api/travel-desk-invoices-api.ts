@@ -19,7 +19,7 @@ export type TravelDeskInvoiceItemAsShow = {
   productType: TravelDeskInvoiceItemProductTypes
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
-  sourceServiceFeeEventId: number | null
+  sourceServiceFeeEventExternalIdentifier: number | null
   passengerName: string | null
   ticketNumber: string | null
   vendor: string | null
@@ -55,7 +55,7 @@ export type InvoiceItemInput = {
   productType: TravelDeskInvoiceItemProductTypes
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
-  sourceServiceFeeEventId: number | null
+  sourceServiceFeeEventExternalIdentifier: number | null
   passengerName: string | null
   ticketNumber: string | null
   vendor: string | null
@@ -68,7 +68,7 @@ export type InvoiceItemInput = {
 export type InvoiceInput = {
   bookingReference: string
   externalBookingEventIdentifier: number
-  sourceServiceFeeEventIds: number[]
+  sourceServiceFeeEventExternalIdentifiers: number[]
   currencyCode: string
   invoiceNumber: string | null
   invoiceDate: string | null

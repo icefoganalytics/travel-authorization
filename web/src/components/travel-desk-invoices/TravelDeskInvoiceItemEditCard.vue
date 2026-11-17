@@ -8,10 +8,10 @@
         {{ sourceSegmentDescription }}
       </p>
       <p
-        v-if="item.sourceServiceFeeEventId !== null"
+        v-if="item.sourceServiceFeeEventExternalIdentifier !== null"
         class="mb-3"
       >
-        Source service-fee event {{ item.sourceServiceFeeEventId }}
+        Source service-fee event {{ item.sourceServiceFeeEventExternalIdentifier }}
       </p>
       <v-row>
         <v-col
@@ -25,7 +25,7 @@
             :disabled="
               isSaving ||
               item.sourceAirSegmentNumber !== null ||
-              item.sourceServiceFeeEventId !== null
+              item.sourceServiceFeeEventExternalIdentifier !== null
             "
           />
         </v-col>
@@ -107,7 +107,10 @@
           />
         </v-col>
         <v-col
-          v-if="item.sourceAirSegmentNumber === null && item.sourceServiceFeeEventId === null"
+          v-if="
+            item.sourceAirSegmentNumber === null &&
+            item.sourceServiceFeeEventExternalIdentifier === null
+          "
           cols="12"
           md="4"
         >
