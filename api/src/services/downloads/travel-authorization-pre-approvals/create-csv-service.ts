@@ -26,7 +26,6 @@ export class CreateCsvService extends BaseService {
 
   async perform(): Promise<void> {
     const headers = Object.values(TravelAuthorizationPreApprovalReportHeaders)
-    const order: ModelOrder[] = [...(this.order ?? []), ["id", "ASC"]]
     const profileScope = TravelAuthorizationPreApprovalProfilesPolicy.policyScope(this.currentUser)
     const findEach = BaseModel.findEach<TravelAuthorizationPreApproval>
 
@@ -41,7 +40,7 @@ export class CreateCsvService extends BaseService {
             this.scopedTravelAuthorizationPreApprovals,
             {
               where: this.where,
-              order,
+              order: this.order,
               transaction,
               include: [
                 {

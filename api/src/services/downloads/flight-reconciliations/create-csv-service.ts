@@ -24,7 +24,6 @@ export class CreateCsvService extends BaseService {
 
   async perform(): Promise<void> {
     const headers = Object.values(FlightReconciliationReportHeaders)
-    const order: ModelOrder[] = [...(this.order ?? []), ["id", "ASC"]]
     const findEach = BaseModel.findEach<FlightReconciliation>
 
     return streamCsv(this.destination, headers, async (writeRow) => {
@@ -38,7 +37,7 @@ export class CreateCsvService extends BaseService {
             this.scopedFlightReconciliations,
             {
               where: this.where,
-              order,
+              order: this.order,
               transaction,
             },
             async (record) => {

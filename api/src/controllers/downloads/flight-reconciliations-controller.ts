@@ -13,7 +13,10 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
-      const order = this.buildOrder([["createdAt", "ASC"]])
+      const order = this.buildOrder([
+        ["createdAt", "ASC"],
+        ["id", "ASC"],
+      ])
       const scopedFlightReconciliations = FlightReconciliationsPolicy.applyScope(
         scopes,
         this.currentUser

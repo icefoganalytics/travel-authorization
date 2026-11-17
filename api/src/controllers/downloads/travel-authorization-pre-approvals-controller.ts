@@ -13,7 +13,10 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
     try {
       const where = this.buildWhere()
       const scopes = this.buildFilterScopes()
-      const order = this.buildOrder([["updatedAt", "DESC"]])
+      const order = this.buildOrder([
+        ["updatedAt", "DESC"],
+        ["id", "ASC"],
+      ])
       const scopedTravelAuthorizationPreApprovals =
         TravelAuthorizationPreApprovalsPolicy.applyScope(scopes, this.currentUser)
 
