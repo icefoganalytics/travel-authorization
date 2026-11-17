@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { FlightReconciliation } from "@/models"
 
-import { userFactory } from "./user-factory"
+import { userFactory } from "@/factories/user-factory"
 
 export const flightReconciliationFactory = FactoryShark.define(
   FlightReconciliation,
