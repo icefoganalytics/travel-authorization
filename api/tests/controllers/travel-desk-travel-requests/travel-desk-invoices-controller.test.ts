@@ -1,4 +1,4 @@
-import { TravelDeskTravelRequest, User } from "@/models"
+import { TravelDeskTravelRequest } from "@/models"
 
 import { mockCurrentUser, request } from "@/support"
 
@@ -17,9 +17,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
     describe("#index - GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
       test("when the user lacks parent access, it denies the invoice index", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(user)
 
@@ -315,9 +313,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an unauthorized user reads an invoice, it denies access", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(user)
 
@@ -404,9 +400,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an unauthorized user creates an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(user)
 
@@ -600,9 +594,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an unauthorized user updates an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(user)
 
@@ -830,9 +822,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an unauthorized user deletes an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(user)
 

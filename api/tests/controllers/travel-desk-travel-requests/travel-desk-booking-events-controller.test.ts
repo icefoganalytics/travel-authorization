@@ -1,5 +1,5 @@
 import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
-import { TravelDeskTravelRequest, User } from "@/models"
+import { TravelDeskTravelRequest } from "@/models"
 
 import { mockCurrentUser, request } from "@/support"
 
@@ -10,9 +10,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
     describe("#index - GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events", () => {
       test("when the user lacks travel desk access, it denies source access before validating the locator", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(user)
 
