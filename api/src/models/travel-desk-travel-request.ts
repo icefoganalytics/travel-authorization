@@ -68,8 +68,13 @@ export class TravelDeskTravelRequest extends Model<
   @Attribute(DataTypes.INTEGER)
   declare travelAgencyId: number | null
 
-  // Legacy TravCom invoice number, not a TravelPort booking reference.
-  // Booking-feed invoice references are stored separately on TravelDeskInvoice.
+  /**
+   * External TravCom invoice number used by legacy itinerary lookup and PNR document naming.
+   * Not a Travelport booking reference or a local invoice foreign key; local invoices
+   * link to this request through TravelDeskInvoice.travelDeskTravelRequestId.
+   *
+   * @todo Rename to travComInvoiceNumber in https://github.com/icefoganalytics/travel-authorization/issues/481.
+   */
   @Attribute(DataTypes.STRING(255))
   declare invoiceNumber: string | null
 
