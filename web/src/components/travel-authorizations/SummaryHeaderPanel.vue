@@ -94,7 +94,7 @@ const paddedTravelAuthorizationId = computed(() =>
 const {
   travelPurposeId,
   eventName,
-  primaryDestinationLocationId,
+  finalDestinationLocationId,
   departureDate,
   returnDate,
   userId,
@@ -103,7 +103,7 @@ const {
   update,
 } = useTravelAuthorizationSummary(travelAuthorizationId)
 
-const { location } = useLocation(primaryDestinationLocationId)
+const { location } = useLocation(finalDestinationLocationId)
 
 const destinationText = computed(() => {
   if (isNil(location.value)) return "—"

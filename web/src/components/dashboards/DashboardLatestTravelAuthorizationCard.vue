@@ -31,9 +31,9 @@
               <v-row>
                 <v-col>
                   <LocationDescriptionElement
-                    v-if="primaryDestinationLocationId"
+                    v-if="finalDestinationLocationId"
                     label="Primary destination"
-                    :location-id="primaryDestinationLocationId"
+                    :location-id="finalDestinationLocationId"
                   />
                   <DescriptionElement
                     v-else
@@ -176,7 +176,7 @@ const isLoading = computed(
     isLoadingTravelAuthorizationAsShow.value
 )
 
-const { primaryDestinationLocationId } = useTravelAuthorizationSummary(travelAuthorizationId)
+const { finalDestinationLocationId } = useTravelAuthorizationSummary(travelAuthorizationId)
 
 const formattedDepartingAt = computed(() =>
   formatDateTime(travelAuthorizationAsIndex.value?.departingAt, "MMM d yyyy, h:mm\u00A0a")
