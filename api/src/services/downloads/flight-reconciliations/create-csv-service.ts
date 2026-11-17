@@ -24,7 +24,6 @@ export class CreateCsvService extends BaseService {
 
   async perform(): Promise<void> {
     const headers = Object.values(FlightReconciliationReportHeaders)
-    const findEach = BaseModel.findEach<FlightReconciliation>
 
     return streamCsv(this.destination, headers, async (writeRow) => {
       await this.scopedFlightReconciliations.sequelize.transaction(
@@ -33,7 +32,7 @@ export class CreateCsvService extends BaseService {
           readOnly: true,
         },
         async (transaction) => {
-          await findEach.call(
+          await (BaseModel.findEach<FlightReconciliation>).call(
             this.scopedFlightReconciliations,
             {
               where: this.where,

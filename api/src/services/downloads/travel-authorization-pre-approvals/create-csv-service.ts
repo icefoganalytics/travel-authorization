@@ -27,7 +27,6 @@ export class CreateCsvService extends BaseService {
   async perform(): Promise<void> {
     const headers = Object.values(TravelAuthorizationPreApprovalReportHeaders)
     const profileScope = TravelAuthorizationPreApprovalProfilesPolicy.policyScope(this.currentUser)
-    const findEach = BaseModel.findEach<TravelAuthorizationPreApproval>
 
     return streamCsv(this.destination, headers, async (writeRow) => {
       await this.scopedTravelAuthorizationPreApprovals.sequelize.transaction(
@@ -36,7 +35,7 @@ export class CreateCsvService extends BaseService {
           readOnly: true,
         },
         async (transaction) => {
-          await findEach.call(
+          await (BaseModel.findEach<TravelAuthorizationPreApproval>).call(
             this.scopedTravelAuthorizationPreApprovals,
             {
               where: this.where,
