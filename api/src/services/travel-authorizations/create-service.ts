@@ -70,14 +70,7 @@ export class CreateService extends BaseService {
           )
         }
 
-        await ValidatePrimaryDestinationService.perform(travelAuthorization, {
-          isActual: false,
-          requireSelection: false,
-        })
-        await ValidatePrimaryDestinationService.perform(travelAuthorization, {
-          isActual: true,
-          requireSelection: false,
-        })
+        await ValidatePrimaryDestinationService.perform(travelAuthorization)
 
         await auditService.log(
           this.currentUser.id,

@@ -15,6 +15,27 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
 
   describe("CreateService", () => {
     describe(".perform", () => {
+      test("when starting a multi-city request, it creates an unselected purpose-details draft", async () => {
+        // Arrange
+        const creator = await userFactory.create()
+
+        // Act
+        const travelAuthorization = await CreateService.perform(
+          { tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY },
+          creator
+        )
+
+        // Assert
+        expect(travelAuthorization).toEqual(
+          expect.objectContaining({
+            status: TravelAuthorization.Statuses.DRAFT,
+            wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
+            estimatedPrimaryDestinationId: null,
+            actualPrimaryDestinationId: null,
+          })
+        )
+      })
+
       test("when provided with valid attributes, it creates a travel authorization with appropriate defaults", async () => {
         // Arrange
         const creator = await userFactory.create()

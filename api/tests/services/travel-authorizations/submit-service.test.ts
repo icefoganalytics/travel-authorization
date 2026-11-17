@@ -33,7 +33,7 @@ describe("api/src/services/travel-authorizations/submit-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toThrow(
-          "Select a primary destination for the multi-city itinerary before submitting."
+          "Select a primary destination for the multi-city itinerary before continuing."
         )
       })
 
