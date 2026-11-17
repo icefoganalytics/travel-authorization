@@ -368,7 +368,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .send({
             bookingReference: "API001",
             externalBookingEventIdentifier: 930001,
-            sourceServiceFeeEventIds: [],
+            sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
             items: [],
           })
@@ -415,7 +415,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             travelDeskTravelRequestId: otherRequest.id,
             bookingReference: "api001",
             externalBookingEventIdentifier: 930001,
-            sourceServiceFeeEventIds: [],
+            sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
             grossAmount: "999999.999",
             sourceSnapshot: { forged: true },

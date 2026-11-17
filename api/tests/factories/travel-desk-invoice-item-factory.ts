@@ -16,7 +16,7 @@ export const travelDeskInvoiceItemFactory = FactoryShark.define(
     return {
       productType: TravelDeskInvoiceItemProductTypes.AIR,
       sourceAirSegmentNumber: null,
-      sourceServiceFeeEventId: null,
+      sourceServiceFeeEventExternalIdentifier: null,
       passengerName: faker.person.fullName(),
       ticketNumber: null,
       vendor: faker.company.name(),
