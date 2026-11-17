@@ -1,11 +1,69 @@
 import { TravelAuthorization, User } from "@/models"
-import { TravelAuthorizationsPolicy } from "@/policies"
+import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
 import { travelAuthorizationFactory, userFactory } from "@/factories"
 
 describe("api/src/policies/travel-authorizations-policy.ts", () => {
   describe("TravelAuthorizationsPolicy", () => {
     describe("#permitAttributesForUpdate", () => {
+      test("when a request is draft, it permits nested selection and identity", () => {
+        // Arrange
+        const user = userFactory.build({
+          id: 1,
+          roles: [User.Roles.USER],
+        })
+        const travelAuthorization = travelAuthorizationFactory.build({
+          userId: user.id,
+          status: TravelAuthorization.Statuses.DRAFT,
+        })
+        const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          estimatedPrimaryDestinationId: 2,
+          tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
+          travelSegmentEstimatesAttributes: [
+            {
+              id: 7,
+              arrivalLocationId: 2,
+            },
+          ],
+        }
+
+        // Act
+        const permittedAttributes = policy.permitAttributesForUpdate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual(attributes)
+      })
+
+      test("when a request is approved, it permits nested selection and identity", () => {
+        // Arrange
+        const user = userFactory.build({
+          id: 1,
+          roles: [User.Roles.USER],
+        })
+        const travelAuthorization = travelAuthorizationFactory.build({
+          userId: user.id,
+          status: TravelAuthorization.Statuses.APPROVED,
+        })
+        const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+        const attributes = {
+          actualPrimaryDestinationId: 2,
+          tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
+          travelSegmentActualsAttributes: [
+            {
+              id: 7,
+              arrivalLocationId: 2,
+            },
+          ],
+        }
+
+        // Act
+        const permittedAttributes = policy.permitAttributesForUpdate(attributes)
+
+        // Assert
+        expect(permittedAttributes).toEqual(attributes)
+      })
+
       test("when a request is draft, it preserves trip details but excludes workflow changes", () => {
         // Arrange
         const user = userFactory.build()
