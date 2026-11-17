@@ -9,3 +9,4 @@ Additional guidance:
 - Keep model concerns focused on persistence, associations, scopes, and model-adjacent helpers.
 - Put business logic in services rather than growing models into service objects.
 - Keep database naming in `snake_case` and model-facing names in `camelCase`.
+- CSV report models inherit `BaseModel` for batched iteration. Preserve `BaseModelConstructor<M>` through policy scopes and download parameters so services can call the scoped model's `findEach` directly. `PolicyFactory` also accepts legacy Sequelize models without promising base-model methods.

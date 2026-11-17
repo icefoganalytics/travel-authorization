@@ -2,7 +2,6 @@ import {
   DataTypes,
   InferAttributes,
   InferCreationAttributes,
-  Model,
   Op,
   type CreationOptional,
   type NonAttribute,
@@ -18,11 +17,12 @@ import {
 } from "@sequelize/core/decorators-legacy"
 import { range, sortBy } from "lodash"
 
+import BaseModel from "@/models/base-model"
 import User from "@/models/user"
 
 export const FlightReconciliationReconcilePeriods = Object.freeze(range(1, 13).concat(14)) // 1-12, 14
 
-export class FlightReconciliation extends Model<
+export class FlightReconciliation extends BaseModel<
   InferAttributes<FlightReconciliation>,
   InferCreationAttributes<FlightReconciliation>
 > {

@@ -1,9 +1,10 @@
-import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
+import { type Attributes, type WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 
 import { type TravelAuthorizationPreApproval } from "@/models"
+import { type BaseModelConstructor } from "@/models/base-model"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
 import { CreateCsvService } from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
@@ -44,7 +45,7 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
   }
 
   private async respondWithCsv(
-    scopedTravelAuthorizationPreApprovals: ModelStatic<TravelAuthorizationPreApproval>,
+    scopedTravelAuthorizationPreApprovals: BaseModelConstructor<TravelAuthorizationPreApproval>,
     where: WhereOptions<Attributes<TravelAuthorizationPreApproval>>,
     order: ModelOrder[] | undefined
   ) {

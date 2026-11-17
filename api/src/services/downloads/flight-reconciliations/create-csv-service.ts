@@ -1,11 +1,11 @@
 import { type Writable } from "node:stream"
 
-import { IsolationLevel, type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
+import { IsolationLevel, type Attributes, type WhereOptions } from "@sequelize/core"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
 import { type ModelOrder } from "@/controllers/base-controller"
 import db, { type FlightReconciliation } from "@/models"
-import BaseModel from "@/models/base-model"
+import { type BaseModelConstructor } from "@/models/base-model"
 import {
   FlightReconciliationReportHeaders,
   ReportSerializer,
@@ -14,7 +14,7 @@ import BaseService from "@/services/base-service"
 
 export class CreateCsvService extends BaseService {
   constructor(
-    private scopedFlightReconciliations: ModelStatic<FlightReconciliation>,
+    private scopedFlightReconciliations: BaseModelConstructor<FlightReconciliation>,
     private where: WhereOptions<Attributes<FlightReconciliation>>,
     private order: ModelOrder[] | undefined,
     private outputStream: Writable
@@ -32,8 +32,7 @@ export class CreateCsvService extends BaseService {
           readOnly: true,
         },
         async (transaction) => {
-          await (BaseModel.findEach<FlightReconciliation>).call(
-            this.scopedFlightReconciliations,
+          await this.scopedFlightReconciliations.findEach(
             {
               where: this.where,
               order: this.order,

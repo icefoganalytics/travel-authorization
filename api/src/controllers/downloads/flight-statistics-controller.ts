@@ -1,9 +1,10 @@
-import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
+import { type Attributes, type WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 
 import { type FlightStatistic } from "@/models"
+import { type BaseModelConstructor } from "@/models/base-model"
 import { FlightStatisticsPolicy } from "@/policies"
 import { CreateCsvService } from "@/services/downloads/flight-statistics/create-csv-service"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
@@ -42,7 +43,7 @@ export class FlightStatisticsController extends BaseController<FlightStatistic> 
   }
 
   private async respondWithCsv(
-    scopedFlightStatistics: ModelStatic<FlightStatistic>,
+    scopedFlightStatistics: BaseModelConstructor<FlightStatistic>,
     where: WhereOptions<Attributes<FlightStatistic>>,
     order: ModelOrder[] | undefined
   ) {

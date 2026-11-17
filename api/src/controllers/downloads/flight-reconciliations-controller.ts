@@ -1,9 +1,10 @@
-import { type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
+import { type Attributes, type WhereOptions } from "@sequelize/core"
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 
 import { type FlightReconciliation } from "@/models"
+import { type BaseModelConstructor } from "@/models/base-model"
 import { FlightReconciliationsPolicy } from "@/policies"
 import { CreateCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
@@ -44,7 +45,7 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
   }
 
   private async respondWithCsv(
-    scopedFlightReconciliations: ModelStatic<FlightReconciliation>,
+    scopedFlightReconciliations: BaseModelConstructor<FlightReconciliation>,
     where: WhereOptions<Attributes<FlightReconciliation>>,
     order: ModelOrder[] | undefined
   ) {

@@ -1,6 +1,5 @@
 import {
   DataTypes,
-  Model,
   type CreationOptional,
   type InferAttributes,
   type InferCreationAttributes,
@@ -19,6 +18,7 @@ import {
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
+import BaseModel from "@/models/base-model"
 import TravelAuthorizationPreApprovalSubmission from "@/models/travel-authorization-pre-approval-submission"
 import TravelAuthorizationPreApprovalProfile from "@/models/travel-authorization-pre-approval-profile"
 import User from "@/models/user"
@@ -38,7 +38,7 @@ export enum TravelAuthorizationPreApprovalStatuses {
 @Table({
   tableName: "travel_authorization_pre_approvals",
 })
-export class TravelAuthorizationPreApproval extends Model<
+export class TravelAuthorizationPreApproval extends BaseModel<
   InferAttributes<TravelAuthorizationPreApproval>,
   InferCreationAttributes<TravelAuthorizationPreApproval>
 > {

@@ -1,11 +1,11 @@
 import { type Writable } from "node:stream"
 
-import { IsolationLevel, type Attributes, type ModelStatic, type WhereOptions } from "@sequelize/core"
+import { IsolationLevel, type Attributes, type WhereOptions } from "@sequelize/core"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
 import { type ModelOrder } from "@/controllers/base-controller"
 import db, { type TravelAuthorizationPreApproval, type User } from "@/models"
-import BaseModel from "@/models/base-model"
+import { type BaseModelConstructor } from "@/models/base-model"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
 import {
   ReportSerializer,
@@ -15,7 +15,7 @@ import BaseService from "@/services/base-service"
 
 export class CreateCsvService extends BaseService {
   constructor(
-    private scopedTravelAuthorizationPreApprovals: ModelStatic<TravelAuthorizationPreApproval>,
+    private scopedTravelAuthorizationPreApprovals: BaseModelConstructor<TravelAuthorizationPreApproval>,
     private where: WhereOptions<Attributes<TravelAuthorizationPreApproval>>,
     private order: ModelOrder[] | undefined,
     private currentUser: User,
@@ -35,8 +35,7 @@ export class CreateCsvService extends BaseService {
           readOnly: true,
         },
         async (transaction) => {
-          await (BaseModel.findEach<TravelAuthorizationPreApproval>).call(
-            this.scopedTravelAuthorizationPreApprovals,
+          await this.scopedTravelAuthorizationPreApprovals.findEach(
             {
               where: this.where,
               order: this.order,
