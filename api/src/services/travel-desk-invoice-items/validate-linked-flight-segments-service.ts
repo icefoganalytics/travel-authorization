@@ -15,7 +15,7 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    const segmentIds = this.collectSegmentIds()
+    const segmentIds = this.collectSegmentIds(this.items)
     if (segmentIds.length === 0) {
       return
     }
@@ -50,9 +50,9 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
     }
   }
 
-  private collectSegmentIds(): number[] {
+  private collectSegmentIds(items: InvoiceItemAttributes[]): number[] {
     const segmentIds = new Set<number>()
-    for (const item of this.items) {
+    for (const item of items) {
       if (isNil(item.travelDeskFlightSegmentId)) {
         continue
       }
