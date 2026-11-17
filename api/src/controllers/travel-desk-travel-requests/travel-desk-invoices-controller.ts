@@ -43,7 +43,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
       ])
       const scopedTravelDeskInvoices = TravelDeskInvoicesPolicy.applyScope(scopes, this.currentUser)
 
-      const totalCount = await scopedTravelDeskInvoices.count({ where })
+      const totalCount = await scopedTravelDeskInvoices.count({
+        where,
+      })
       const travelDeskInvoices = await scopedTravelDeskInvoices.findAll({
         where,
         limit: this.pagination.limit,
@@ -68,7 +70,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         totalCount,
       })
     } catch (error) {
-      logger.error(`Failed to index travel desk invoices: ${error}`, { error })
+      logger.error(`Failed to index travel desk invoices: ${error}`, {
+        error,
+      })
       return this.response.status(400).json({
         message: "Failed to load invoices.",
       })
@@ -111,7 +115,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         travelDeskInvoice: serializedTravelDeskInvoice,
       })
     } catch (error) {
-      logger.error(`Failed to show travel desk invoice: ${error}`, { error })
+      logger.error(`Failed to show travel desk invoice: ${error}`, {
+        error,
+      })
       return this.response.status(400).json({
         message: "Failed to load invoice.",
       })
@@ -154,7 +160,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         travelDeskInvoice: serializedTravelDeskInvoice,
       })
     } catch (error) {
-      logger.error(`Failed to create travel desk invoice: ${error}`, { error })
+      logger.error(`Failed to create travel desk invoice: ${error}`, {
+        error,
+      })
       return this.response.status(422).json({
         message: `Failed to create invoice: ${error}`,
       })
@@ -204,7 +212,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         travelDeskInvoice: serializedTravelDeskInvoice,
       })
     } catch (error) {
-      logger.error(`Failed to update travel desk invoice: ${error}`, { error })
+      logger.error(`Failed to update travel desk invoice: ${error}`, {
+        error,
+      })
       return this.response.status(422).json({
         message: `Failed to update invoice: ${error}`,
       })
@@ -245,7 +255,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
       await DestroyService.perform(travelDeskInvoice)
       return this.response.status(204).send()
     } catch (error) {
-      logger.error(`Failed to destroy travel desk invoice: ${error}`, { error })
+      logger.error(`Failed to destroy travel desk invoice: ${error}`, {
+        error,
+      })
       return this.response.status(422).json({
         message: "Invoice could not be deleted.",
       })

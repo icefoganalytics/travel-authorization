@@ -35,7 +35,9 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
       ])
       const scopedTravelDeskBookingEvents = TravelDeskBookingEvent.withScope(scopes)
 
-      const totalCount = await scopedTravelDeskBookingEvents.count({ where })
+      const totalCount = await scopedTravelDeskBookingEvents.count({
+        where,
+      })
       const travelDeskBookingEvents = await scopedTravelDeskBookingEvents.findAll({
         where,
         limit: this.pagination.limit,
@@ -49,7 +51,9 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         totalCount,
       })
     } catch (error) {
-      logger.error(`Failed to index travel desk booking events: ${error}`, { error })
+      logger.error(`Failed to index travel desk booking events: ${error}`, {
+        error,
+      })
       return this.response.status(400).json({
         message: "Failed to load booking history.",
       })

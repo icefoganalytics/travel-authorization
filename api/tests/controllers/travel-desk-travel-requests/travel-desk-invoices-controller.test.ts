@@ -17,7 +17,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
     describe("GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
       test("when the user lacks parent access, it denies the invoice index", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(user)
 
@@ -39,24 +41,47 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const otherRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: travelRequest })
-          .create({ invoiceNumber: "INV-001", currencyCode: "CAD" })
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            invoiceNumber: "INV-001",
+            currencyCode: "CAD",
+          })
         const invoice2 = await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: travelRequest })
-          .create({ invoiceNumber: "INV-002", currencyCode: "CAD" })
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            invoiceNumber: "INV-002",
+            currencyCode: "CAD",
+          })
         await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: travelRequest })
-          .create({ invoiceNumber: "INV-003", currencyCode: "USD" })
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            invoiceNumber: "INV-003",
+            currencyCode: "USD",
+          })
         await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: otherRequest })
-          .create({ invoiceNumber: "INV-004", currencyCode: "CAD" })
+          .associations({
+            travelDeskTravelRequest: otherRequest,
+          })
+          .create({
+            invoiceNumber: "INV-004",
+            currencyCode: "CAD",
+          })
         mockCurrentUser(officer)
 
         // Act
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .query({
-            where: { travelDeskTravelRequestId: otherRequest.id, currencyCode: "CAD" },
+            where: {
+              travelDeskTravelRequestId: otherRequest.id,
+              currencyCode: "CAD",
+            },
             "order[0][0]": "invoiceNumber",
             "order[0][1]": "ASC",
             page: 2,
@@ -66,7 +91,10 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(200)
         expect(response.body).toEqual({
-          travelDeskInvoices: [expect.objectContaining({ id: invoice2.id, items: [] })],
+          travelDeskInvoices: [expect.objectContaining({
+            id: invoice2.id,
+            items: [],
+          })],
           totalCount: 2,
         })
       })
@@ -77,26 +105,52 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const createdAt = new Date("2026-01-01T12:00:00Z")
         await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: travelRequest })
-          .create({ createdAt })
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            createdAt,
+          })
         const invoice2 = await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: travelRequest })
-          .create({ createdAt })
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            createdAt,
+          })
         const item1 = await travelDeskInvoiceItemFactory
-          .associations({ invoice: invoice2 })
-          .create({ position: 1, productType: "air" })
+          .associations({
+            invoice: invoice2,
+          })
+          .create({
+            position: 1,
+            productType: "air",
+          })
         const item2 = await travelDeskInvoiceItemFactory
-          .associations({ invoice: invoice2 })
-          .create({ position: 0, productType: "air" })
+          .associations({
+            invoice: invoice2,
+          })
+          .create({
+            position: 0,
+            productType: "air",
+          })
         const item3 = await travelDeskInvoiceItemFactory
-          .associations({ invoice: invoice2 })
-          .create({ position: 0, productType: "credit" })
+          .associations({
+            invoice: invoice2,
+          })
+          .create({
+            position: 0,
+            productType: "credit",
+          })
         mockCurrentUser(officer)
 
         // Act
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
-          .query({ page: 1, perPage: 1 })
+          .query({
+            page: 1,
+            perPage: 1,
+          })
 
         // Assert
         expect(response.status).toEqual(200)
@@ -154,7 +208,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        await travelRequest.destroy({ force: true })
+        await travelRequest.destroy({
+          force: true,
+        })
         mockCurrentUser(officer)
 
         // Act
@@ -196,7 +252,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        await travelRequest.destroy({ force: true })
+        await travelRequest.destroy({
+          force: true,
+        })
         mockCurrentUser(officer)
 
         // Act
@@ -244,7 +302,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .get(
             `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/${invoice.id}`
           )
-          .query({ travelDeskTravelRequestId: invoice.travelDeskTravelRequestId })
+          .query({
+            travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
+          })
 
         // Assert
         expect(response.status).toEqual(404)
@@ -255,7 +315,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an unauthorized user reads an invoice, it denies access", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(user)
 
@@ -302,7 +364,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        await travelRequest.destroy({ force: true })
+        await travelRequest.destroy({
+          force: true,
+        })
         mockCurrentUser(officer)
 
         // Act
@@ -340,7 +404,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an unauthorized user creates an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(user)
 
@@ -418,7 +484,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
             grossAmount: "999999.999",
-            sourceSnapshot: { forged: true },
+            sourceSnapshot: {
+              forged: true,
+            },
             items: [
               {
                 productType: "air",
@@ -444,7 +512,10 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
                 travelOrderIdentifier: 930001,
                 bookingReference: "API001",
                 airReservationSegments: [
-                  expect.objectContaining({ airSegmentNumber: 1, flightNumber: "1001" }),
+                  expect.objectContaining({
+                    airSegmentNumber: 1,
+                    flightNumber: "1001",
+                  }),
                 ],
               }),
               serviceFeeEvents: [],
@@ -466,7 +537,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        await travelRequest.destroy({ force: true })
+        await travelRequest.destroy({
+          force: true,
+        })
         mockCurrentUser(officer)
 
         // Act
@@ -514,7 +587,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .patch(
             `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/${invoice.id}`
           )
-          .send({ travelDeskTravelRequestId: invoice.travelDeskTravelRequestId })
+          .send({
+            travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
+          })
 
         // Assert
         expect(response.status).toEqual(404)
@@ -525,7 +600,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an unauthorized user updates an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(user)
 
@@ -546,10 +623,14 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       test("when source identity and parent are forged and headers omitted, it preserves saved source data and headers", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
-        const invoice = await travelDeskInvoiceFactory.create({ invoiceNumber: "INV-ORIGINAL" })
+        const invoice = await travelDeskInvoiceFactory.create({
+          invoiceNumber: "INV-ORIGINAL",
+        })
         const otherRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskInvoiceItemFactory
-          .associations({ invoice })
+          .associations({
+            invoice,
+          })
           .create({
             sourceAirSegmentNumber: 1,
             grossAmount: "10.000",
@@ -571,7 +652,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             travelDeskTravelRequestId: otherRequest.id,
             bookingReference: "FORGED",
             externalBookingEventIdentifier: 999999,
-            sourceSnapshot: { forged: true },
+            sourceSnapshot: {
+              forged: true,
+            },
             currencyCode: "CAD",
             items: [
               {
@@ -594,7 +677,10 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             sourceSnapshot: originalSnapshot,
             invoiceNumber: "INV-ORIGINAL",
             grossAmount: "22.000",
-            items: [expect.objectContaining({ grossAmount: "22.000", sourceAirSegmentNumber: 1 })],
+            items: [expect.objectContaining({
+              grossAmount: "22.000",
+              sourceAirSegmentNumber: 1,
+            })],
           }),
         })
       })
@@ -634,9 +720,13 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       test("when an item has malformed money, it rejects the request", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
-        const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.000" })
+        const invoice = await travelDeskInvoiceFactory.create({
+          grossAmount: "10.000",
+        })
         await travelDeskInvoiceItemFactory
-          .associations({ invoice })
+          .associations({
+            invoice,
+          })
           .create({
             sourceAirSegmentNumber: 1,
             grossAmount: "10.000",
@@ -677,7 +767,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        await travelRequest.destroy({ force: true })
+        await travelRequest.destroy({
+          force: true,
+        })
         mockCurrentUser(officer)
 
         // Act
@@ -725,7 +817,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .delete(
             `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/${invoice.id}`
           )
-          .send({ travelDeskTravelRequestId: invoice.travelDeskTravelRequestId })
+          .send({
+            travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
+          })
 
         // Assert
         expect(response.status).toEqual(404)
@@ -736,7 +830,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
 
       test("when an unauthorized user deletes an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(user)
 

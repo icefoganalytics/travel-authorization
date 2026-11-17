@@ -26,7 +26,9 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
 
       test("when the user is an administrator, it permits invoice management", async () => {
         // Arrange
-        const admin = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const admin = await userFactory.create({
+          roles: [User.Roles.ADMIN],
+        })
         const invoice = travelDeskInvoiceFactory.build()
         const policy = new TravelDeskInvoicesPolicy(admin, invoice)
 
@@ -44,7 +46,9 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
 
       test("when the user lacks staff access, it denies every invoice action", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
         const invoice = travelDeskInvoiceFactory.build()
         const policy = new TravelDeskInvoicesPolicy(user, invoice)
 
@@ -112,12 +116,18 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
     describe(".applyScope", () => {
       test("when the user lacks staff access, it excludes an explicitly requested invoice", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create({
+          roles: [User.Roles.USER],
+        })
         const invoice = await travelDeskInvoiceFactory.create()
         const scopedTravelDeskInvoices = TravelDeskInvoicesPolicy.applyScope([], user)
 
         // Act
-        const invoices = await scopedTravelDeskInvoices.findAll({ where: { id: invoice.id } })
+        const invoices = await scopedTravelDeskInvoices.findAll({
+          where: {
+            id: invoice.id,
+          },
+        })
 
         // Assert
         expect(invoices).toEqual([])
@@ -135,7 +145,9 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
         const invoices = await scopedTravelDeskInvoices.findAll()
 
         // Assert
-        expect(invoices).toEqual([expect.objectContaining({ id: invoice.id })])
+        expect(invoices).toEqual([expect.objectContaining({
+          id: invoice.id,
+        })])
       })
     })
   })
