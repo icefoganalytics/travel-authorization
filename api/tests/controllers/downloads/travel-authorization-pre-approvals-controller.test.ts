@@ -2,6 +2,7 @@ import Papa from "papaparse"
 import qs from "qs"
 
 import { TravelAuthorizationPreApproval, User } from "@/models"
+import { TravelAuthorizationPreApprovalReportHeaders } from "@/serializers/travel-authorization-pre-approvals/report-serializer"
 
 import {
   travelAuthorizationPreApprovalFactory,
@@ -10,8 +11,7 @@ import {
 } from "@/factories"
 import { mockCurrentUser, request } from "@/support"
 
-const CSV_HEADERS =
-  "Name,Department,Branch,Travel Date,Location,Purpose,Estimated Cost,Reason,Status,Notes\r\n"
+const CSV_HEADERS = Object.values(TravelAuthorizationPreApprovalReportHeaders).join(",") + "\r\n"
 
 describe("api/src/controllers/downloads/travel-authorization-pre-approvals-controller.ts", () => {
   describe("TravelAuthorizationPreApprovalsController", () => {

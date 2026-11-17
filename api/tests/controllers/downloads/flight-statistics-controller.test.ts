@@ -2,21 +2,12 @@ import Papa from "papaparse"
 import qs from "qs"
 
 import { User } from "@/models"
+import { FlightStatisticReportHeaders } from "@/serializers/flight-statistics/report-serializer"
 
 import { flightStatisticFactory, userFactory } from "@/factories"
 import { mockCurrentUser, request } from "@/support"
 
-const CSV_HEADERS = [
-  "Department Mailcode",
-  "Final Destination City",
-  "Final Destination Province",
-  "Total Trips",
-  "Total Expenses",
-  "Total Flight Cost",
-  "Average Duration (days)",
-  "Average Expenses per Day",
-  "Average Round Trip Flight Cost",
-]
+const CSV_HEADERS = Object.values(FlightStatisticReportHeaders)
 
 describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => {
   describe("FlightStatisticsController", () => {

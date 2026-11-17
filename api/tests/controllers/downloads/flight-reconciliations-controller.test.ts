@@ -2,23 +2,12 @@ import Papa from "papaparse"
 import qs from "qs"
 
 import { User } from "@/models"
+import { FlightReconciliationReportHeaders } from "@/serializers/flight-reconciliations/report-serializer"
 
 import { flightReconciliationFactory, userFactory } from "@/factories"
 import { mockCurrentUser, request } from "@/support"
 
-const CSV_HEADERS = [
-  "Purchase Date",
-  "Cost",
-  "Agent",
-  "Airline",
-  "Flight Info",
-  "Final Destination",
-  "Department Mailcode",
-  "Traveler First Name",
-  "Traveler Last Name",
-  "Reconciled",
-  "Reconcile Period",
-]
+const CSV_HEADERS = Object.values(FlightReconciliationReportHeaders)
 
 describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", () => {
   describe("FlightReconciliationsController", () => {
