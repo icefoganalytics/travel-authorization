@@ -19,7 +19,7 @@ export class CreateCsvService extends BaseService {
     private where: WhereOptions<Attributes<TravelAuthorizationPreApproval>>,
     private order: ModelOrder[] | undefined,
     private currentUser: User,
-    private destination: Writable
+    private outputStream: Writable
   ) {
     super()
   }
@@ -28,7 +28,7 @@ export class CreateCsvService extends BaseService {
     const headers = Object.values(TravelAuthorizationPreApprovalReportHeaders)
     const profileScope = TravelAuthorizationPreApprovalProfilesPolicy.policyScope(this.currentUser)
 
-    return csvStreamingClient.stream(this.destination, headers, async (writeRow) => {
+    return csvStreamingClient.stream(this.outputStream, headers, async (writeRow) => {
       await db.transaction(
         {
           isolationLevel: IsolationLevel.REPEATABLE_READ,

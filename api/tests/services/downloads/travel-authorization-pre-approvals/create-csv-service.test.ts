@@ -37,8 +37,8 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
         })
         const scopedTravelAuthorizationPreApprovals =
           TravelAuthorizationPreApprovalsPolicy.applyScope([], user1)
-        const destination = new PassThrough()
-        const content = buffer(destination)
+        const outputStream = new PassThrough()
+        const content = buffer(outputStream)
 
         // Act
         await CreateCsvService.perform(
@@ -46,7 +46,7 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
           { id: preApproval.id },
           undefined,
           user1,
-          destination
+          outputStream
         )
         const csvBuffer = await content
         const parsedCsv = Papa.parse<Record<string, string>>(csvBuffer.toString("utf-8"), {
@@ -79,8 +79,8 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
         })
         const scopedTravelAuthorizationPreApprovals =
           TravelAuthorizationPreApprovalsPolicy.applyScope([], user1)
-        const destination = new PassThrough()
-        const content = buffer(destination)
+        const outputStream = new PassThrough()
+        const content = buffer(outputStream)
 
         // Act
         await CreateCsvService.perform(
@@ -88,7 +88,7 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
           { id: preApproval.id },
           undefined,
           user1,
-          destination
+          outputStream
         )
         const csvBuffer = await content
 

@@ -17,7 +17,7 @@ export class CreateCsvService extends BaseService {
     private scopedFlightStatistics: ModelStatic<FlightStatistic>,
     private where: WhereOptions<Attributes<FlightStatistic>>,
     private order: ModelOrder[] | undefined,
-    private destination: Writable
+    private outputStream: Writable
   ) {
     super()
   }
@@ -25,7 +25,7 @@ export class CreateCsvService extends BaseService {
   async perform(): Promise<void> {
     const headers = Object.values(FlightStatisticReportHeaders)
 
-    return csvStreamingClient.stream(this.destination, headers, async (writeRow) => {
+    return csvStreamingClient.stream(this.outputStream, headers, async (writeRow) => {
       await db.transaction(
         {
           isolationLevel: IsolationLevel.REPEATABLE_READ,

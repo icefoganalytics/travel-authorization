@@ -52,8 +52,8 @@ describe("CSV download startup over HTTP", () => {
         const completion = once(generation, "complete")
         vi.spyOn(ReconciliationCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , destination] = args as ConstructorParameters<typeof ReconciliationCsvService>
-            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
+            const [, , , outputStream] = args as ConstructorParameters<typeof ReconciliationCsvService>
+            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Next traveller" })
               await completion
@@ -93,8 +93,8 @@ describe("CSV download startup over HTTP", () => {
         mockCurrentUser(user1)
         vi.spyOn(ReconciliationCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , destination] = args as ConstructorParameters<typeof ReconciliationCsvService>
-            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
+            const [, , , outputStream] = args as ConstructorParameters<typeof ReconciliationCsvService>
+            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Last traveller" })
             })
@@ -122,8 +122,8 @@ describe("CSV download startup over HTTP", () => {
         const completion = once(generation, "complete")
         vi.spyOn(ReconciliationCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , destination] = args as ConstructorParameters<typeof ReconciliationCsvService>
-            destination.write("\uFEFFName\r\n")
+            const [, , , outputStream] = args as ConstructorParameters<typeof ReconciliationCsvService>
+            outputStream.write("\uFEFFName\r\n")
             await completion
           }
         )
@@ -155,8 +155,8 @@ describe("CSV download startup over HTTP", () => {
         const completion = once(generation, "complete")
         vi.spyOn(StatisticsCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , destination] = args as ConstructorParameters<typeof StatisticsCsvService>
-            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
+            const [, , , outputStream] = args as ConstructorParameters<typeof StatisticsCsvService>
+            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Next traveller" })
               await completion
@@ -196,8 +196,8 @@ describe("CSV download startup over HTTP", () => {
         mockCurrentUser(user1)
         vi.spyOn(StatisticsCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , destination] = args as ConstructorParameters<typeof StatisticsCsvService>
-            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
+            const [, , , outputStream] = args as ConstructorParameters<typeof StatisticsCsvService>
+            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Last traveller" })
             })
@@ -225,8 +225,8 @@ describe("CSV download startup over HTTP", () => {
         const completion = once(generation, "complete")
         vi.spyOn(StatisticsCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , destination] = args as ConstructorParameters<typeof StatisticsCsvService>
-            destination.write("\uFEFFName\r\n")
+            const [, , , outputStream] = args as ConstructorParameters<typeof StatisticsCsvService>
+            outputStream.write("\uFEFFName\r\n")
             await completion
           }
         )
@@ -258,8 +258,8 @@ describe("CSV download startup over HTTP", () => {
         const completion = once(generation, "complete")
         vi.spyOn(PreApprovalCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , , destination] = args as ConstructorParameters<typeof PreApprovalCsvService>
-            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
+            const [, , , , outputStream] = args as ConstructorParameters<typeof PreApprovalCsvService>
+            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Next traveller" })
               await completion
@@ -302,8 +302,8 @@ describe("CSV download startup over HTTP", () => {
         mockCurrentUser(user1)
         vi.spyOn(PreApprovalCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , , destination] = args as ConstructorParameters<typeof PreApprovalCsvService>
-            await csvStreamingClient.stream(destination, ["Name"], async (writeRow) => {
+            const [, , , , outputStream] = args as ConstructorParameters<typeof PreApprovalCsvService>
+            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
               await writeRow({ Name: "Traveller" })
               await writeRow({ Name: "Last traveller" })
             })
@@ -334,8 +334,8 @@ describe("CSV download startup over HTTP", () => {
         const completion = once(generation, "complete")
         vi.spyOn(PreApprovalCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [, , , , destination] = args as ConstructorParameters<typeof PreApprovalCsvService>
-            destination.write("\uFEFFName\r\n")
+            const [, , , , outputStream] = args as ConstructorParameters<typeof PreApprovalCsvService>
+            outputStream.write("\uFEFFName\r\n")
             await completion
           }
         )

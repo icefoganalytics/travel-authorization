@@ -11,7 +11,7 @@ type WriteRow = (row: CsvRow) => Promise<void>
 
 export class CsvStreamingClient {
   async stream(
-    destination: Writable,
+    outputStream: Writable,
     headers: string[],
     generateRows: (writeRow: WriteRow) => Promise<void>
   ): Promise<void> {
@@ -22,7 +22,7 @@ export class CsvStreamingClient {
       writeBOM: true,
     })
     const cancellation = new AbortController()
-    const transfer = pipeline(formatter, destination).catch((error: unknown) => {
+    const transfer = pipeline(formatter, outputStream).catch((error: unknown) => {
       cancellation.abort(error)
       throw error
     })
