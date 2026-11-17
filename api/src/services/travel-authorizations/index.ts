@@ -15,7 +15,7 @@ export { SubmitExpenseClaimService } from "./submit-expense-claim-service"
 export { SubmitService } from "./submit-service"
 
 // Special actions
-export { DetermineFinalDestinationService } from "./determine-final-destination-service"
+export { ValidatePrimaryDestinationService } from "./validate-primary-destination-service"
 
 // Namespaced services
 export * as Wizard from "./wizard"
