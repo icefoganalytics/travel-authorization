@@ -3,8 +3,9 @@
     <v-select
       :model-value="primaryDestinationLocationId"
       :items="primaryDestinationItems"
+      :rules="[required]"
       label="Primary destination"
-      hint="Choose the primary destination city. You can save a draft without choosing."
+      hint="Choose the primary destination city before continuing."
       persistent-hint
       clearable
       density="compact"

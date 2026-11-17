@@ -34,6 +34,28 @@ describe("web/src/components/travel-segments/TravelSegmentsAttributesMultiCityTr
       expect(primaryDestination.props("modelValue")).toBeNull()
     })
 
+    test("when no primary destination is chosen, validation shows the required-field error", async () => {
+      // Arrange
+      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
+      mockHttpGetRoute("/api/locations", () => ({ locations: [], totalCount: 0 }))
+      const wrapper = mountWithDefaultPlugins(TravelSegmentsAttributesMultiCityTripSection, {
+        props: {
+          travelAuthorizationId: 5,
+          currentTripType: TravelAuthorizationTripTypes.MULTI_CITY,
+          currentTravelSegments: travelSegments,
+        },
+      })
+      await flushPromises()
+
+      // Act
+      const primaryDestination = wrapper.getComponent(VSelect)
+      await primaryDestination.vm.validate()
+      await flushPromises()
+
+      // Assert
+      expect(primaryDestination.get(".v-messages").text()).toEqual("This field is required")
+    })
+
     test("when arrivals repeat, offers each city once", async () => {
       // Arrange
       const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 2 })
