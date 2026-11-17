@@ -43,14 +43,17 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
           invoiceDepartmentMailcode: "OTHER",
         })
         await flightReconciliationFactory.create({ invoiceDepartmentMailcode: "F-1" })
-        const query = qs.stringify({
-          format: "csv",
-          where: { id: [reconciliation1.id, hiddenReconciliation.id, reconciliation2.id] },
-          order: [["id", "DESC"]],
-        })
 
         // Act
-        const response = await request().post("/api/downloads/flight-reconciliations").query(query)
+        const response = await request()
+          .post("/api/downloads/flight-reconciliations")
+          .query(
+            qs.stringify({
+              format: "csv",
+              where: { id: [reconciliation1.id, hiddenReconciliation.id, reconciliation2.id] },
+              order: [["id", "DESC"]],
+            })
+          )
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
