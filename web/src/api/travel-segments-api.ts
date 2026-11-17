@@ -41,7 +41,6 @@ export const ACCOMMODATION_TYPES = {
 }
 
 export const PERMITTED_ATTRIBUTES_FOR_CLONE = [
-  "id",
   "departureLocationId",
   "arrivalLocationId",
   "departureOn",

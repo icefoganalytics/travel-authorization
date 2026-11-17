@@ -196,7 +196,6 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
     {
       ...travelSegmentsAttributes.value[0],
       ...firstTravelSegment,
-      id: firstTravelSegment.id,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType: null,
       isActual: props.isActual,

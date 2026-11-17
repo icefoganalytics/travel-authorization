@@ -429,7 +429,6 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
     const newTravelSegmentAttributes = {
       ...currentTravelSegmentAttributes,
       ...newTravelSegment,
-      id: newTravelSegment.id,
       modeOfTransport: newTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType,
       isActual: props.isActual,

@@ -331,13 +331,11 @@ const travelSegmentsAttributes = ref([
 function applyExistingDefaultValues(newTravelSegmentEstimates) {
   const firstTravelSegment = pick(first(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
   const lastTravelSegment = pick(last(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
-  const returnSegmentId = newTravelSegmentEstimates.length > 1 ? lastTravelSegment.id : undefined
 
   travelSegmentsAttributes.value = [
     {
       ...travelSegmentsAttributes.value[0],
       ...firstTravelSegment,
-      id: firstTravelSegment.id,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType: firstTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL,
       isActual: props.isActual,
@@ -347,7 +345,6 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
     {
       ...travelSegmentsAttributes.value[1],
       ...lastTravelSegment,
-      id: returnSegmentId,
       modeOfTransport: lastTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
       accommodationType: null,
       isActual: props.isActual,
