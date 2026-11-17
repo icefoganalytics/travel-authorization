@@ -42,6 +42,9 @@ export class SyncService extends BaseService {
 
   /**
    * Reads source events and their associations in one SQL Server SERIALIZABLE transaction.
+   * The caller passes the application's booking reference as recordLocator because
+   * Travelport identifies the same booking using its original recordLocator field.
+   *
    * Shared and key-range locks prevent concurrent changes from shifting offset-based
    * batches or changing relationships already read. Otherwise, a skipped source event
    * could be mistaken for a deletion during local reconciliation.
@@ -52,7 +55,7 @@ export class SyncService extends BaseService {
    * A source read or commit failure propagates to roll back the enclosing local refresh.
    */
   private async syncTravelOrderEvents(
-    bookingReference: string,
+    recordLocator: string,
     processEvent: (event: TravelPortIntegration.Models.TravelOrderEvent) => Promise<void>
   ): Promise<void> {
     let processingFailed = false
@@ -62,7 +65,7 @@ export class SyncService extends BaseService {
         async () => {
           await TravelPortIntegration.Models.TravelOrderEvent.findEach(
             {
-              where: { recordLocator: bookingReference },
+              where: { recordLocator },
               include: [
                 {
                   association: "passengers",
