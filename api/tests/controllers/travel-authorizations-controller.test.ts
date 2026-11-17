@@ -473,7 +473,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         }
       )
 
-      test("when the actual multi-city itinerary is unconfirmed, it returns null rather than the estimated city", async () => {
+      test("when a returned multi-city claim has no actual destination, it rejects the update", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         mockCurrentUser(currentUser)
@@ -496,16 +496,11 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           .send({ actualPrimaryDestinationId: null })
 
         // Assert
-        expect(response.status).toEqual(200)
-        expect(response.body).toEqual(
-          expect.objectContaining({
-            travelAuthorization: expect.objectContaining({
-              estimatedPrimaryDestinationId: estimatedCity.id,
-              actualPrimaryDestinationId: null,
-              finalDestination: null,
-            }),
-          })
-        )
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message:
+            "Travel authorization update failed: Error: Select a primary destination for the multi-city itinerary before continuing.",
+        })
       })
     })
 
