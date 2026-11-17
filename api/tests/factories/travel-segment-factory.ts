@@ -1,5 +1,5 @@
-import FactoryShark from "factory-shark"
 import { faker } from "@faker-js/faker"
+import FactoryShark from "factory-shark"
 
 import { TravelSegment } from "@/models"
 import { locationFactory, travelAuthorizationFactory } from "@/factories"
@@ -22,12 +22,17 @@ export const travelSegmentFactory = FactoryShark.define<TravelSegment>(
       params.modeOfTransport,
       faker.helpers.enumValue(TravelSegment.TravelMethods)
     )
+    const segmentNumber = faker.number.int({
+      min: 0,
+      max: 100,
+    })
+    const modeOfTransportOther =
+      modeOfTransport === TravelSegment.TravelMethods.OTHER ? faker.hacker.ingverb() : null
 
     return {
-      segmentNumber: faker.number.int({ min: 0, max: 100 }),
+      segmentNumber,
       modeOfTransport,
-      modeOfTransportOther:
-        modeOfTransport === TravelSegment.TravelMethods.OTHER ? faker.hacker.ingverb() : null,
+      modeOfTransportOther,
       isActual: false,
     }
   }
