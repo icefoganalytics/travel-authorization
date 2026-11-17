@@ -49,8 +49,8 @@
         xl="4"
       >
         <LocationDescriptionElement
-          label="Final Destination"
-          :location-id="finalDestinationLocationId"
+          label="Primary destination"
+          :location-id="primaryDestinationLocationId"
           vertical
         />
       </v-col>
@@ -92,7 +92,7 @@ const props = defineProps({
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization } = useTravelAuthorization(travelAuthorizationId)
 
-const finalDestinationLocationId = computed(
+const primaryDestinationLocationId = computed(
   () => travelAuthorization.value?.finalDestination?.id ?? null
 )
 </script>
