@@ -18,7 +18,7 @@ export type TravelDeskBookingEventAsIndex = Pick<
   | "airReservationSegments"
   | "serviceFeeTransaction"
 > & {
-  travelOrderIdentifier: TravelDeskBookingEvent["externalTravelPortIdentifier"]
+  travelOrderIdentifier: number
   externalCreatedAt: string | null
   hostEventTimestamp: string | null
   passengerNameRecordCreatedAt: string | null
