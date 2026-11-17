@@ -89,7 +89,33 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.ADMIN] })
         mockCurrentUser(user1)
-        const reconciliations = await flightReconciliationFactory.createList(25)
+        const reconciliations = await flightReconciliationFactory.createMany([
+          { invoiceDetailComputedTravelerLastName: "Traveller 1" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 2" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 3" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 4" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 5" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 6" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 7" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 8" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 9" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 10" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 11" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 12" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 13" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 14" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 15" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 16" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 17" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 18" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 19" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 20" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 21" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 22" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 23" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 24" },
+          { invoiceDetailComputedTravelerLastName: "Traveller 25" },
+        ])
         const selectedIds = reconciliations.map(({ id }) => id)
         await flightReconciliationFactory.create({ invoiceDetailComputedTravelerLastName: "Excluded" })
         const query = qs.stringify({
@@ -106,12 +132,37 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
           header: true,
           skipEmptyLines: true,
         })
+        const travelerLastNames = parsedCsv.data.map((row) => row["Traveler Last Name"])
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(parsedCsv.data.map((row) => row["Traveler Last Name"])).toEqual(
-          [...reconciliations].reverse().map((record) => record.invoiceDetailComputedTravelerLastName)
-        )
+        expect(travelerLastNames).toEqual([
+          "Traveller 25",
+          "Traveller 24",
+          "Traveller 23",
+          "Traveller 22",
+          "Traveller 21",
+          "Traveller 20",
+          "Traveller 19",
+          "Traveller 18",
+          "Traveller 17",
+          "Traveller 16",
+          "Traveller 15",
+          "Traveller 14",
+          "Traveller 13",
+          "Traveller 12",
+          "Traveller 11",
+          "Traveller 10",
+          "Traveller 9",
+          "Traveller 8",
+          "Traveller 7",
+          "Traveller 6",
+          "Traveller 5",
+          "Traveller 4",
+          "Traveller 3",
+          "Traveller 2",
+          "Traveller 1",
+        ])
       })
 
       test("when only another mailcode is selected, it returns headers without disclosing data", async () => {
