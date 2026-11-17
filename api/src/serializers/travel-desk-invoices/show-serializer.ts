@@ -1,3 +1,5 @@
+import { pick } from "lodash"
+
 import { type TravelDeskInvoice } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
 import { ReferenceSerializer, type AsReference } from "@/serializers/travel-desk-invoice-items"
@@ -35,24 +37,26 @@ export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
     const serializedItems = ReferenceSerializer.perform(items)
 
     return {
-      id: invoice.id,
-      travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
-      bookingReference: invoice.bookingReference,
-      externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
-      sourceSnapshot: invoice.sourceSnapshot,
-      currencyCode: invoice.currencyCode,
-      invoiceNumber: invoice.invoiceNumber,
-      invoiceDate: invoice.invoiceDate,
-      warrantNumber: invoice.warrantNumber,
-      clientNumber: invoice.clientNumber,
-      clientName: invoice.clientName,
-      department: invoice.department,
-      mailcode: invoice.mailcode,
-      iataNumber: invoice.iataNumber,
-      bookingAgentName: invoice.bookingAgentName,
-      ticketingAgentName: invoice.ticketingAgentName,
-      bookingDate: invoice.bookingDate,
-      grossAmount: invoice.grossAmount,
+      ...pick(invoice, [
+        "id",
+        "travelDeskTravelRequestId",
+        "bookingReference",
+        "externalBookingEventIdentifier",
+        "sourceSnapshot",
+        "currencyCode",
+        "invoiceNumber",
+        "invoiceDate",
+        "warrantNumber",
+        "clientNumber",
+        "clientName",
+        "department",
+        "mailcode",
+        "iataNumber",
+        "bookingAgentName",
+        "ticketingAgentName",
+        "bookingDate",
+        "grossAmount",
+      ]),
       items: serializedItems,
     }
   }
