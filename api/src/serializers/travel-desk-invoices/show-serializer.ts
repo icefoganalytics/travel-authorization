@@ -2,7 +2,7 @@ import { pick } from "lodash"
 
 import { type TravelDeskInvoice } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
-import * as TravelDeskInvoiceItems from "@/serializers/travel-desk-invoice-items"
+import { TravelDeskInvoiceItems } from "@/serializers"
 
 export type TravelDeskInvoiceAsShow = {
   id: number
