@@ -10,7 +10,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Added
 
-- Travellers can designate a primary city for multi-city trips without rewriting the itinerary. Estimated and actual travel retain separate selections; new drafts can remain unselected, but submission requires confirmation. Existing trips retain itinerary-derived destinations through a one-time backfill. Repeated visits to the chosen city retain the selection while any matching arrival remains. Returned expense claims can confirm an existing arrival city without changing the route or expenses. Reimbursement-rate calculations are unchanged.
+- Travellers can designate a primary city for multi-city trips without rewriting the itinerary. Estimated and actual travel retain separate selections; new requests can start without one, but continuing past trip details requires confirmation. Existing trips retain itinerary-derived destinations through a one-time backfill. Repeated visits to the chosen city retain the selection while any matching arrival remains. Returned expense claims can confirm an existing arrival city without changing the route or expenses. Reimbursement-rate calculations are unchanged.
 - Selecting a city now fills in the province on Travel Desk traveller forms, while keeping it editable.
 - Flight statistics reports show flight volumes and durations in tables and graphs, with printing and CSV export.
 - Flight statistics synchronization shows progress and reports failures.
