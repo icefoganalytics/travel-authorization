@@ -14,3 +14,4 @@ Use the maintained [Express Light Rail backend reference](https://github.com/klo
 - Order resource barrel exports **Index → Show → Reference**.
 - Controllers import named serializers from their resource-specific path, such as `import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-invoices"`, not the top-level serializer namespace.
 - Keep controller authorization, query construction, and response conventions in the [controller guide](../controllers/README.md), rather than duplicating controller examples here.
+- Dedicated integration `SyncSerializer` classes may map source models into local persistence attributes. The Travelport event sync serializer owns that conversion; its caller supplies the normalized booking reference and owns queries, transactions, and persistence.
