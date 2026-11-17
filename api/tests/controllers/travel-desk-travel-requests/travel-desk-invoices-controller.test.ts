@@ -1,3 +1,5 @@
+import qs from "qs"
+
 import { TravelDeskTravelRequest } from "@/models"
 
 import { mockCurrentUser, request } from "@/support"
@@ -73,18 +75,18 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         mockCurrentUser(officer)
 
         // Act
+        const query = qs.stringify({
+          where: {
+            travelDeskTravelRequestId: otherRequest.id,
+            currencyCode: "CAD",
+          },
+          order: [["invoiceNumber", "ASC"]],
+          page: 2,
+          perPage: 1,
+        })
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
-          .query({
-            where: {
-              travelDeskTravelRequestId: otherRequest.id,
-              currencyCode: "CAD",
-            },
-            "order[0][0]": "invoiceNumber",
-            "order[0][1]": "ASC",
-            page: 2,
-            perPage: 1,
-          })
+          .query(query)
 
         // Assert
         expect(response.status).toEqual(200)
