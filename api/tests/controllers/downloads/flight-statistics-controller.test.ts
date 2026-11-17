@@ -7,14 +7,11 @@ import qs from "qs"
 import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
-import { User } from "@/models"
-import { FlightStatisticReportHeaders } from "@/serializers/flight-statistics/report-serializer"
+import { CSV_HEADERS } from "@/serializers/flight-statistics/report-serializer"
 import { CreateCsvService } from "@/services/downloads/flight-statistics/create-csv-service"
 
 import { flightStatisticFactory, userFactory } from "@/factories"
 import { mockCurrentUser, request } from "@/support"
-
-const CSV_HEADERS = Object.values(FlightStatisticReportHeaders)
 
 describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => {
   describe("FlightStatisticsController", () => {
@@ -121,7 +118,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
       test("when a non-admin supplies visible IDs and filter scopes, it exports no private data", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.FINANCE_USER] })
+        const user1 = await userFactory.asFinanceUser().create()
         mockCurrentUser(user1)
         const statistic = await flightStatisticFactory.create({ departmentMailcode: "F-1" })
         const query = qs.stringify({

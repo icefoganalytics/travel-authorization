@@ -19,6 +19,14 @@ class UserFactory extends FactoryShark<User> {
       roles: [User.Roles.ADMIN],
     })
   }
+
+  asFinanceUser() {
+    return this.params({ roles: [User.Roles.FINANCE_USER] })
+  }
+
+  asUser() {
+    return this.params({ roles: [User.Roles.USER] })
+  }
 }
 
 export const userFactory = new UserFactory(({ params }) => {

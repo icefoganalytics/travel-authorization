@@ -7,22 +7,18 @@ import qs from "qs"
 import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
-import { User } from "@/models"
-import { FlightReconciliationReportHeaders } from "@/serializers/flight-reconciliations/report-serializer"
+import { CSV_HEADERS } from "@/serializers/flight-reconciliations/report-serializer"
 import { CreateCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
 
 import { flightReconciliationFactory, userFactory } from "@/factories"
 import { mockCurrentUser, request } from "@/support"
-
-const CSV_HEADERS = Object.values(FlightReconciliationReportHeaders)
 
 describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", () => {
   describe("FlightReconciliationsController", () => {
     describe("#create - POST - /api/downloads/flight-reconciliations", () => {
       test("when finance selects mixed mailcodes, it exports only authorized IDs in requested order with report formatting", async () => {
         // Arrange
-        const user1 = await userFactory.create({
-          roles: [User.Roles.FINANCE_USER],
+        const user1 = await userFactory.asFinanceUser().create({
           mailcode: "F-1",
         })
         mockCurrentUser(user1)
@@ -174,7 +170,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when only another mailcode is selected, it returns headers without disclosing data", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.FINANCE_USER], mailcode: "F-1" })
+        const user1 = await userFactory.asFinanceUser().create({ mailcode: "F-1" })
         mockCurrentUser(user1)
         const hiddenReconciliation = await flightReconciliationFactory.create({
           invoiceDepartmentMailcode: "OTHER",
@@ -200,7 +196,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when an ordinary user requests all records, it returns headers without disclosing data", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.USER] })
+        const user1 = await userFactory.asUser().create()
         mockCurrentUser(user1)
         await flightReconciliationFactory.create()
 

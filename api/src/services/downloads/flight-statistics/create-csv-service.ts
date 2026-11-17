@@ -7,7 +7,7 @@ import { type ModelOrder } from "@/controllers/base-controller"
 import db, { type FlightStatistic } from "@/models"
 import { type BaseModelConstructor } from "@/models/base-model"
 import {
-  FlightStatisticReportHeaders,
+  CSV_HEADERS,
   ReportSerializer,
 } from "@/serializers/flight-statistics/report-serializer"
 import BaseService from "@/services/base-service"
@@ -23,9 +23,7 @@ export class CreateCsvService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    const headers = Object.values(FlightStatisticReportHeaders)
-
-    return csvStreamingClient.stream(this.outputStream, headers, async (writeRow) => {
+    return csvStreamingClient.stream(this.outputStream, CSV_HEADERS, async (writeRow) => {
       await db.transaction(
         {
           isolationLevel: IsolationLevel.REPEATABLE_READ,
