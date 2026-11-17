@@ -67,31 +67,30 @@ describe("api/src/policies/travel-segments-policy.ts", () => {
       })
     })
 
-    describe("#permittedAttributes", () => {
+    describe("#permitAttributesForCreate", () => {
       test("when creating an individual segment, it does not permit a caller-selected identity", () => {
         // Arrange
         const currentUser = userFactory.build()
         const travelSegment = travelSegmentFactory.build()
         const policy = new TravelSegmentsPolicy(currentUser, travelSegment)
+        const createdAt = new Date("2026-01-01T00:00:00.000Z")
+        const attributes = {
+          id: 7,
+          travelAuthorizationId: 1,
+          isActual: false,
+          arrivalLocationId: 2,
+          createdAt,
+        }
 
         // Act
-        const attributes = policy.permittedAttributesForCreate()
+        const permittedAttributes = policy.permitAttributesForCreate(attributes)
 
         // Assert
-        expect(attributes).not.toContain("id")
-      })
-
-      test("when replacing an itinerary, it permits persisted segment identities", () => {
-        // Arrange
-        const currentUser = userFactory.build()
-        const travelSegment = travelSegmentFactory.build()
-        const policy = new TravelSegmentsPolicy(currentUser, travelSegment)
-
-        // Act
-        const attributes = policy.permittedAttributesForBulkReplace()
-
-        // Assert
-        expect(attributes).toContain("id")
+        expect(permittedAttributes).toEqual({
+          travelAuthorizationId: 1,
+          isActual: false,
+          arrivalLocationId: 2,
+        })
       })
     })
   })
