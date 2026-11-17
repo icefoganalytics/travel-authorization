@@ -1,4 +1,5 @@
 import { type Attributes, type WhereOptions } from "@sequelize/core"
+import { type Response } from "express"
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
@@ -24,7 +25,12 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
       )
 
       if (this.query.format === "csv") {
-        return await this.respondWithCsv(scopedFlightReconciliations, where, order)
+        return await this.respondWithCsv(
+          this.response,
+          scopedFlightReconciliations,
+          where,
+          order
+        )
       } else {
         return this.response.status(422).json({
           message: "Unsupported report format",
@@ -45,15 +51,16 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
   }
 
   private async respondWithCsv(
+    response: Response,
     scopedFlightReconciliations: BaseModelConstructor<FlightReconciliation>,
     where: WhereOptions<Attributes<FlightReconciliation>>,
     order: ModelOrder[] | undefined
   ) {
     const fileName = this.buildFileName()
-    this.response.status(200).attachment(fileName)
-    this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
+    response.status(200).attachment(fileName)
+    response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
-    return CreateCsvService.perform(scopedFlightReconciliations, where, order, this.response)
+    return CreateCsvService.perform(scopedFlightReconciliations, where, order, response)
   }
 
   private buildFileName(): string {

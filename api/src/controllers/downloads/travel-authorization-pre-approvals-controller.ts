@@ -1,9 +1,10 @@
 import { type Attributes, type WhereOptions } from "@sequelize/core"
+import { type Response } from "express"
 import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 
-import { type TravelAuthorizationPreApproval } from "@/models"
+import { type TravelAuthorizationPreApproval, type User } from "@/models"
 import { type BaseModelConstructor } from "@/models/base-model"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
 import { CreateCsvService } from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
@@ -22,7 +23,13 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
         TravelAuthorizationPreApprovalsPolicy.applyScope(scopes, this.currentUser)
 
       if (this.query.format === "csv") {
-        return await this.respondWithCsv(scopedTravelAuthorizationPreApprovals, where, order)
+        return await this.respondWithCsv(
+          this.response,
+          scopedTravelAuthorizationPreApprovals,
+          where,
+          order,
+          this.currentUser
+        )
       } else {
         return this.response.status(422).json({
           message: "Unsupported report format",
@@ -45,20 +52,22 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
   }
 
   private async respondWithCsv(
+    response: Response,
     scopedTravelAuthorizationPreApprovals: BaseModelConstructor<TravelAuthorizationPreApproval>,
     where: WhereOptions<Attributes<TravelAuthorizationPreApproval>>,
-    order: ModelOrder[] | undefined
+    order: ModelOrder[] | undefined,
+    currentUser: User
   ) {
     const fileName = this.buildFileName()
-    this.response.status(200).attachment(fileName)
-    this.response.setHeader("Content-Type", "text/csv; charset=utf-8")
+    response.status(200).attachment(fileName)
+    response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
     return CreateCsvService.perform(
       scopedTravelAuthorizationPreApprovals,
       where,
       order,
-      this.currentUser,
-      this.response
+      currentUser,
+      response
     )
   }
 
