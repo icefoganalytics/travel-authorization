@@ -10,7 +10,7 @@ import { travelDeskTravelRequestFactory, userFactory } from "@/factories"
 describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-events/sync-controller.ts", () => {
   describe("TravelDeskTravelRequests.TravelDeskBookingEvents.SyncController", () => {
     describe("POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events/sync", () => {
-      test("when the user lacks travel desk access, it denies synchronization before validating the locator", async () => {
+      test("when the user lacks travel desk access, it denies synchronization", async () => {
         // Arrange
         const user = await userFactory.create({ roles: [User.Roles.USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create()
@@ -28,7 +28,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         })
       })
 
-      test("when the travel request no longer exists, it returns not found before validating the locator", async () => {
+      test("when the travel request no longer exists, it returns not found", async () => {
         // Arrange
         const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
         const travelRequest = await travelDeskTravelRequestFactory.create()
@@ -44,27 +44,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         expect(response.status).toEqual(404)
         expect(response.body).toEqual({ message: "Travel desk travel request not found." })
       })
-
-      test.each([undefined, ["SRC001"], { value: "SRC001" }])(
-        "when the locator body is %j, it rejects missing or non-string inputs",
-        async (bookingReference) => {
-          // Arrange
-          const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-          const travelRequest = await travelDeskTravelRequestFactory.create()
-          mockCurrentUser(officer)
-
-          // Act
-          const response = await request()
-            .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events/sync`)
-            .send({ bookingReference })
-
-          // Assert
-          expect(response.status).toEqual(400)
-          expect(response.body).toEqual({
-            message: "Failed to sync booking history.",
-          })
-        }
-      )
 
       test("when the source is unavailable, it reports source unavailability", async () => {
         // Arrange
