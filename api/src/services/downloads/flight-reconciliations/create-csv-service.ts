@@ -14,10 +14,10 @@ import BaseService from "@/services/base-service"
 
 export class CreateCsvService extends BaseService {
   constructor(
+    private outputStream: Writable,
     private scopedFlightReconciliations: BaseModelConstructor<FlightReconciliation>,
     private where: WhereOptions<Attributes<FlightReconciliation>>,
-    private order: ModelOrder[] | undefined,
-    private outputStream: Writable
+    private order: ModelOrder[] | undefined
   ) {
     super()
   }

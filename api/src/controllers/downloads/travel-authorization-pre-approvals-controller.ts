@@ -63,11 +63,11 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
     response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
     return CreateCsvService.perform(
+      response,
       scopedTravelAuthorizationPreApprovals,
       where,
       order,
-      currentUser,
-      response
+      currentUser
     )
   }
 

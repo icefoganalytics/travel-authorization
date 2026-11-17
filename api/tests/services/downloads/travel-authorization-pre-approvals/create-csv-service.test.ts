@@ -42,11 +42,11 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
 
         // Act
         await CreateCsvService.perform(
+          outputStream,
           scopedTravelAuthorizationPreApprovals,
           { id: preApproval.id },
           undefined,
-          user1,
-          outputStream
+          user1
         )
         const csvBuffer = await content
         const parsedCsv = Papa.parse<Record<string, string>>(csvBuffer.toString("utf-8"), {
@@ -84,11 +84,11 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
 
         // Act
         await CreateCsvService.perform(
+          outputStream,
           scopedTravelAuthorizationPreApprovals,
           { id: preApproval.id },
           undefined,
-          user1,
-          outputStream
+          user1
         )
         const csvBuffer = await content
 

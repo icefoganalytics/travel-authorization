@@ -60,7 +60,7 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
     response.status(200).attachment(fileName)
     response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
-    return CreateCsvService.perform(scopedFlightReconciliations, where, order, response)
+    return CreateCsvService.perform(response, scopedFlightReconciliations, where, order)
   }
 
   private buildFileName(): string {

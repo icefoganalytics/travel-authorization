@@ -58,7 +58,7 @@ export class FlightStatisticsController extends BaseController<FlightStatistic> 
     response.status(200).attachment(fileName)
     response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
-    return CreateCsvService.perform(scopedFlightStatistics, where, order, response)
+    return CreateCsvService.perform(response, scopedFlightStatistics, where, order)
   }
 
   private buildFileName(): string {

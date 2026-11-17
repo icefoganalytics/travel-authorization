@@ -15,11 +15,11 @@ import BaseService from "@/services/base-service"
 
 export class CreateCsvService extends BaseService {
   constructor(
+    private outputStream: Writable,
     private scopedTravelAuthorizationPreApprovals: BaseModelConstructor<TravelAuthorizationPreApproval>,
     private where: WhereOptions<Attributes<TravelAuthorizationPreApproval>>,
     private order: ModelOrder[] | undefined,
-    private currentUser: User,
-    private outputStream: Writable
+    private currentUser: User
   ) {
     super()
   }
