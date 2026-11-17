@@ -64,8 +64,9 @@ generation and report formatting out of browser components. Preserve selected ID
 and button presentation when migrating an export.
 
 CSV controllers dispatch supported formats explicitly and keep attachment headers in `respondWithCsv`.
-The three report services stream CSV through `fast-csv`, sending the UTF-8 byte-order mark and
-headers before querying records. They reuse `BaseModel.findEach` to load 1,000 records at a time
+The three report services delegate CSV encoding and stream lifecycle to
+`api/src/lib/csv-streaming-client.ts`, which wraps `fast-csv` and sends the UTF-8 byte-order mark and
+headers before querying records. The services reuse `BaseModel.findEach` to load 1,000 records at a time
 and await each row write, rather than accumulating the report in memory. Requested sorting gains an
 ID tie-breaker; a read-only repeatable-read transaction keeps batches consistent and holds a database
 connection until generation finishes. Generation failures or client disconnects abort the transfer;
