@@ -50,7 +50,10 @@ export class SubmitExpenseClaimService extends BaseService {
         rejectOnEmpty: true,
         lock: true,
       })
-      await ValidatePrimaryDestinationService.perform(this.travelAuthorization, true)
+      await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
+        isActual: true,
+        requireSelection: true,
+      })
 
       const supervisor = await Users.EnsureService.perform(
         {

@@ -99,12 +99,18 @@ export class UpdateService extends BaseService {
 
       if (!isUndefined(estimatedPrimaryDestinationId)) {
         this.travelAuthorization.estimatedPrimaryDestinationId = estimatedPrimaryDestinationId
-        await ValidatePrimaryDestinationService.perform(this.travelAuthorization, false, false)
+        await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
+          isActual: false,
+          requireSelection: false,
+        })
         await this.travelAuthorization.save()
       }
       if (!isUndefined(actualPrimaryDestinationId)) {
         this.travelAuthorization.actualPrimaryDestinationId = actualPrimaryDestinationId
-        await ValidatePrimaryDestinationService.perform(this.travelAuthorization, true, false)
+        await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
+          isActual: true,
+          requireSelection: false,
+        })
         await this.travelAuthorization.save()
       }
       if (!isUndefined(attributes.tripTypeEstimate)) {

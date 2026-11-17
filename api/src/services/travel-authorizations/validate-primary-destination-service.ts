@@ -7,14 +7,17 @@ import BaseService from "@/services/base-service"
 export class ValidatePrimaryDestinationService extends BaseService {
   constructor(
     protected travelAuthorization: TravelAuthorization,
-    protected isActual: boolean,
-    protected requireSelection = true
+    protected options: {
+      isActual: boolean
+      requireSelection: boolean
+    }
   ) {
     super()
   }
 
   async perform(): Promise<void> {
-    const { travelAuthorization, isActual, requireSelection } = this
+    const { travelAuthorization } = this
+    const { isActual, requireSelection } = this.options
     const tripType = isActual
       ? (travelAuthorization.tripTypeActual ?? travelAuthorization.tripTypeEstimate)
       : travelAuthorization.tripTypeEstimate

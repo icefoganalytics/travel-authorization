@@ -50,7 +50,10 @@ export class SubmitService extends BaseService {
         this.currentUser
       )
 
-      await ValidatePrimaryDestinationService.perform(this.travelAuthorization, false)
+      await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
+        isActual: false,
+        requireSelection: true,
+      })
 
       const supervisor = await Users.EnsureService.perform(
         {
