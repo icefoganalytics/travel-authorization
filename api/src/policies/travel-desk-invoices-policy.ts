@@ -42,7 +42,7 @@ export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
           "productType",
           "travelDeskFlightSegmentId",
           "sourceAirSegmentNumber",
-          "sourceServiceFeeEventId",
+          "sourceServiceFeeEventExternalIdentifier",
           "passengerName",
           "ticketNumber",
           "vendor",
@@ -59,7 +59,7 @@ export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
     return [
       "bookingReference",
       "externalBookingEventIdentifier",
-      "sourceServiceFeeEventIds",
+      "sourceServiceFeeEventExternalIdentifiers",
       ...this.permittedAttributes(),
     ]
   }

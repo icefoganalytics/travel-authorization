@@ -9,7 +9,7 @@ export type InvoiceItemAttributes = {
   productType: TravelDeskInvoiceItem["productType"]
   travelDeskFlightSegmentId?: number | null
   sourceAirSegmentNumber?: number | null
-  sourceServiceFeeEventId?: number | null
+  sourceServiceFeeEventExternalIdentifier?: number | null
   passengerName?: string | null
   ticketNumber?: string | null
   vendor?: string | null
@@ -62,12 +62,12 @@ export async function validateInvoiceItems(
       seenSegmentNumbers.add(item.sourceAirSegmentNumber)
     }
 
-    if (!isNil(item.sourceServiceFeeEventId)) {
-      if (!expectedFeeEventIds.has(item.sourceServiceFeeEventId)) {
+    if (!isNil(item.sourceServiceFeeEventExternalIdentifier)) {
+      if (!expectedFeeEventIds.has(item.sourceServiceFeeEventExternalIdentifier)) {
         throw new InvoiceValidationError("Invoice item refers to an unselected service fee.")
       }
 
-      if (seenFeeEventIds.has(item.sourceServiceFeeEventId)) {
+      if (seenFeeEventIds.has(item.sourceServiceFeeEventExternalIdentifier)) {
         throw new InvoiceValidationError("A selected service fee can only appear once.")
       }
 
@@ -75,13 +75,7 @@ export async function validateInvoiceItems(
         throw new InvoiceValidationError("Service fees require the Service Fee product type.")
       }
 
-      seenFeeEventIds.add(item.sourceServiceFeeEventId)
-    }
-
-    if (!isNil(item.sourceAirSegmentNumber) && !isNil(item.sourceServiceFeeEventId)) {
-      throw new InvoiceValidationError(
-        "An item cannot refer to both a flight segment and service fee."
-      )
+      seenFeeEventIds.add(item.sourceServiceFeeEventExternalIdentifier)
     }
   }
 

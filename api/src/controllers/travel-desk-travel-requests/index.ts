@@ -8,3 +8,6 @@ export { SubmitController } from "./submit-controller"
 export { PassengerNameRecordDocumentController } from "./passenger-name-record-document-controller"
 export { TravelDeskBookingEventsController } from "./travel-desk-booking-events-controller"
 export { TravelDeskInvoicesController } from "./travel-desk-invoices-controller"
+
+// Namespaced controllers
+export * as TravelDeskBookingEvents from "./travel-desk-booking-events"

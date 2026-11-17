@@ -19,7 +19,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         const result = CreateService.perform(travelRequest, {
           bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
-          sourceServiceFeeEventIds: [],
+          sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
           items: [],
         })
@@ -42,7 +42,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         const result = CreateService.perform(travelRequest, {
           bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
-          sourceServiceFeeEventIds: [],
+          sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
           items: [],
         })
@@ -79,7 +79,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         const result = CreateService.perform(travelRequest, {
           bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
-          sourceServiceFeeEventIds: [920002],
+          sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
           items: [],
         })
@@ -120,7 +120,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         const result = CreateService.perform(travelRequest, {
           bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
-          sourceServiceFeeEventIds: [920002],
+          sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
           items: [],
         })
@@ -197,7 +197,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         await CreateService.perform(travelRequest, {
           bookingReference: " inv001 ",
           externalBookingEventIdentifier: 920001,
-          sourceServiceFeeEventIds: [920002],
+          sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
           items: [
             {
@@ -216,7 +216,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
             },
             {
               productType: "service_fee",
-              sourceServiceFeeEventId: 920002,
+              sourceServiceFeeEventExternalIdentifier: 920002,
               saleType: "Sale",
               grossAmount: "42.125",
               position: 2,
@@ -286,7 +286,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
               }),
               expect.objectContaining({
                 productType: "service_fee",
-                sourceServiceFeeEventId: 920002,
+                sourceServiceFeeEventExternalIdentifier: 920002,
                 grossAmount: "42.125",
               }),
               expect.objectContaining({
@@ -337,7 +337,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         await CreateService.perform(travelRequest, {
           bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
-          sourceServiceFeeEventIds: [],
+          sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
           items: [
             {
@@ -413,7 +413,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         await CreateService.perform(travelRequest, {
           bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
-          sourceServiceFeeEventIds: [],
+          sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
           items: [
             {

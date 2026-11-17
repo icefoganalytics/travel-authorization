@@ -61,7 +61,7 @@ export async function createInvoiceItems(
       productType: item.productType,
       travelDeskFlightSegmentId: item.travelDeskFlightSegmentId ?? null,
       sourceAirSegmentNumber: item.sourceAirSegmentNumber ?? null,
-      sourceServiceFeeEventId: item.sourceServiceFeeEventId ?? null,
+      sourceServiceFeeEventExternalIdentifier: item.sourceServiceFeeEventExternalIdentifier ?? null,
       passengerName: item.passengerName ?? null,
       ticketNumber: item.ticketNumber ?? null,
       vendor: item.vendor ?? null,

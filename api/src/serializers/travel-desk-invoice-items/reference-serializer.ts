@@ -6,7 +6,7 @@ export type TravelDeskInvoiceItemAsReference = {
   productType: TravelDeskInvoiceItem["productType"]
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
-  sourceServiceFeeEventId: number | null
+  sourceServiceFeeEventExternalIdentifier: number | null
   passengerName: string | null
   ticketNumber: string | null
   vendor: string | null
@@ -23,7 +23,7 @@ export class ReferenceSerializer extends BaseSerializer<TravelDeskInvoiceItem> {
       productType: this.record.productType,
       travelDeskFlightSegmentId: this.record.travelDeskFlightSegmentId,
       sourceAirSegmentNumber: this.record.sourceAirSegmentNumber,
-      sourceServiceFeeEventId: this.record.sourceServiceFeeEventId,
+      sourceServiceFeeEventExternalIdentifier: this.record.sourceServiceFeeEventExternalIdentifier,
       passengerName: this.record.passengerName,
       ticketNumber: this.record.ticketNumber,
       vendor: this.record.vendor,
