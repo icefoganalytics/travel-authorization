@@ -64,26 +64,23 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         })
       })
 
-      test.each(["?where[bookingReference][value]=SRC001"])(
-        "when the locator condition is %s, it reports the downstream input failure",
-        async (query) => {
-          // Arrange
-          const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-          const travelRequest = await travelDeskTravelRequestFactory.create()
-          mockCurrentUser(officer)
+      test("when the booking reference condition is an object, it returns the booking history error response", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        mockCurrentUser(officer)
 
-          // Act
-          const response = await request().get(
-            `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events${query}`
-          )
+        // Act
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?where[bookingReference][value]=SRC001`
+        )
 
-          // Assert
-          expect(response.status).toEqual(400)
-          expect(response.body).toEqual({
-            message: "Failed to load booking history.",
-          })
-        }
-      )
+        // Assert
+        expect(response.status).toEqual(400)
+        expect(response.body).toEqual({
+          message: "Failed to load booking history.",
+        })
+      })
 
       test("when the locator has no matches, it returns empty cached history", async () => {
         // Arrange
