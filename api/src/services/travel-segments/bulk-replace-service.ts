@@ -3,9 +3,8 @@ import { isNil } from "lodash"
 
 import { type WithRequired } from "@/utils/utility-types"
 
-import db, { TravelAuthorization, TravelSegment } from "@/models"
+import db, { TravelSegment } from "@/models"
 import BaseService from "@/services/base-service"
-import { ReconcilePrimaryDestinationService } from "@/services/travel-authorizations/reconcile-primary-destination-service"
 
 export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
 
@@ -46,13 +45,6 @@ export class BulkReplaceService extends BaseService {
     }
 
     return db.transaction(async () => {
-      const travelAuthorization = await TravelAuthorization.findByPk(this.travelAuthorizationId, {
-        rejectOnEmpty: true,
-        lock: true,
-      })
-      const travelSegmentsAttributes = this.travelSegmentsAttributes
-      this.hasAllRequiredAttributes(travelSegmentsAttributes)
-
       await TravelSegment.destroy({
         where: {
           travelAuthorizationId: this.travelAuthorizationId,
@@ -60,9 +52,8 @@ export class BulkReplaceService extends BaseService {
         },
       })
 
-      const travelSegments = await TravelSegment.bulkCreate(travelSegmentsAttributes)
-      await ReconcilePrimaryDestinationService.perform(travelAuthorization, this.isActual)
-      return travelSegments
+      this.hasAllRequiredAttributes(this.travelSegmentsAttributes)
+      return TravelSegment.bulkCreate(this.travelSegmentsAttributes)
     })
   }
 

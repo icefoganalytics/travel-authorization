@@ -10,7 +10,6 @@ import { TravelAuthorization, User } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { TravelSegments, Users } from "@/services"
-import { ValidatePrimaryDestinationService } from "@/services/travel-authorizations/validate-primary-destination-service"
 import { AuditService } from "@/services/audit-service"
 import { type UserCreationAttributes } from "@/services/users/create-service"
 import { type TravelSegmentCreationAttributes } from "@/services/travel-segments/create-service"
@@ -69,8 +68,6 @@ export class CreateService extends BaseService {
             false
           )
         }
-
-        await ValidatePrimaryDestinationService.perform(travelAuthorization)
 
         await auditService.log(
           this.currentUser.id,

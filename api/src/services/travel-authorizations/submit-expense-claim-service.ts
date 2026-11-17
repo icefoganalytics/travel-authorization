@@ -1,10 +1,9 @@
-import { isNil, isUndefined, maxBy } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 
 import BaseService from "@/services/base-service"
 import { Users } from "@/services"
-import { ValidatePrimaryDestinationService } from "@/services/travel-authorizations/validate-primary-destination-service"
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
 import { type TravelAuthorizationStatuses } from "@/models/travel-authorization"
 
@@ -45,17 +44,6 @@ export class SubmitExpenseClaimService extends BaseService {
     }
 
     await db.transaction(async () => {
-      this.travelAuthorization = await TravelAuthorization.findByPk(this.travelAuthorization.id, {
-        rejectOnEmpty: true,
-        lock: true,
-      })
-      this.travelAuthorization.set({
-        supervisorEmail: this.supervisorEmail,
-        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
-        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
-      })
-      await ValidatePrimaryDestinationService.perform(this.travelAuthorization)
-
       const supervisor = await Users.EnsureService.perform(
         {
           email: this.supervisorEmail,
@@ -65,7 +53,11 @@ export class SubmitExpenseClaimService extends BaseService {
         throw new Error(`Failed to ensure supervisor: ${error}`)
       })
 
-      await this.travelAuthorization.save()
+      await this.travelAuthorization.update({
+        supervisorEmail: this.supervisorEmail,
+        status: TravelAuthorization.Statuses.EXPENSE_CLAIM_SUBMITTED,
+        wizardStepName: TravelAuthorization.WizardStepNames.AWAITING_EXPENSE_CLAIM_APPROVAL,
+      })
       await TravelAuthorizationActionLog.create({
         travelAuthorizationId: this.travelAuthorization.id,
         actorId: this.currentUser.id,
@@ -83,10 +75,7 @@ export class SubmitExpenseClaimService extends BaseService {
       throw new Error("Expected travelSegments association to be pre-loaded.")
     }
 
-    const actualTravelSegments = travelSegments.filter(({ isActual }) => isActual)
-    const activeTravelSegments =
-      actualTravelSegments.length > 0 ? actualTravelSegments : travelSegments
-    const lastTravelSegment = maxBy(activeTravelSegments, "segmentNumber")
+    const lastTravelSegment = travelSegments.at(-1)
     if (isNil(lastTravelSegment)) {
       throw new Error(
         "Cannot check if travel authorization is after travel end date without at least one travel segment."

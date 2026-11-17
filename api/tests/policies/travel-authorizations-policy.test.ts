@@ -18,7 +18,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         })
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
         const attributes = {
-          estimatedPrimaryDestinationId: 2,
+          finalDestinationLocationId: 2,
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegmentEstimatesAttributes: [
             {
@@ -43,7 +43,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
         // Assert
         expect(permittedAttributes).toEqual({
-          estimatedPrimaryDestinationId: 2,
+          finalDestinationLocationId: 2,
           tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegmentEstimatesAttributes: [
             {
@@ -60,7 +60,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         })
       })
 
-      test("when a request is approved, it permits the selected city but not nested segment identities", () => {
+      test("when a request is approved, it excludes destination changes and nested segment identities", () => {
         // Arrange
         const user = userFactory.build({
           id: 1,
@@ -72,7 +72,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         })
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
         const attributes = {
-          actualPrimaryDestinationId: 2,
+          finalDestinationLocationId: 2,
           tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegmentActualsAttributes: [
             {
@@ -89,7 +89,6 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
         // Assert
         expect(permittedAttributes).toEqual({
-          actualPrimaryDestinationId: 2,
           tripTypeActual: TravelAuthorization.TripTypes.MULTI_CITY,
           travelSegmentActualsAttributes: [
             {
@@ -99,6 +98,40 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
             },
           ],
         })
+      })
+
+      test.each([
+        TravelAuthorization.Statuses.DRAFT,
+        TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+      ])("when another traveller tries updating a request in %s state, it denies access", (status) => {
+        // Arrange
+        const user = userFactory.build({ id: 1, roles: [User.Roles.USER] })
+        const travelAuthorization = travelAuthorizationFactory.build({ userId: 2, status })
+        const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+
+        // Act
+        const isAllowed = policy.update()
+
+        // Assert
+        expect(isAllowed).toEqual(false)
+      })
+
+      test("when a claim is returned, it does not permit a special destination correction", () => {
+        // Arrange
+        const user = userFactory.build({ id: 1, roles: [User.Roles.USER] })
+        const travelAuthorization = travelAuthorizationFactory.build({
+          userId: user.id,
+          status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+        })
+        const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
+
+        // Act
+        const permittedAttributes = policy.permitAttributesForUpdate({
+          finalDestinationLocationId: 2,
+        })
+
+        // Assert
+        expect(permittedAttributes).toEqual({})
       })
 
       test("when a request is draft, it preserves trip details but excludes workflow changes", () => {

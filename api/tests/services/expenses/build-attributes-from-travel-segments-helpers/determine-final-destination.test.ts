@@ -113,7 +113,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
       )
     })
 
-    test("when an earlier multi-city arrival is primary, the per-diem location remains the last arrival", async () => {
+    test("when an earlier multi-city arrival is the saved destination, the per-diem location remains the last arrival", async () => {
       // Arrange
       const whitehorse = await locationFactory.create({
         city: "Whitehorse",

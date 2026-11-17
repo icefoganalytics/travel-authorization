@@ -4,7 +4,7 @@ import { TravelAuthorization, User } from "@/models"
 import { Users } from "@/services"
 import { CreateService } from "@/services/travel-authorizations"
 
-import { userFactory } from "@/factories"
+import { locationFactory, userFactory } from "@/factories"
 
 describe("api/src/services/travel-authorizations/create-service.ts", () => {
   const userEnsureServicePerformMock = vi.fn()
@@ -30,10 +30,24 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
           expect.objectContaining({
             status: TravelAuthorization.Statuses.DRAFT,
             wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
-            estimatedPrimaryDestinationId: null,
-            actualPrimaryDestinationId: null,
+            finalDestinationLocationId: null,
           })
         )
+      })
+
+      test("when purpose details include a destination, it creates the draft without an itinerary", async () => {
+        // Arrange
+        const creator = await userFactory.create()
+        const location = await locationFactory.create()
+
+        // Act
+        const travelAuthorization = await CreateService.perform(
+          { finalDestinationLocationId: location.id },
+          creator
+        )
+
+        // Assert
+        expect(travelAuthorization.finalDestinationLocationId).toEqual(location.id)
       })
 
       test("when provided with valid attributes, it creates a travel authorization with appropriate defaults", async () => {

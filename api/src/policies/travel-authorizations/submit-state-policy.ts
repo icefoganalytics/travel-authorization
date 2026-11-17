@@ -39,11 +39,12 @@ export class SubmitStatePolicy extends GenericStatePolicy {
         "requestChange",
         "denialReason",
         "tripTypeEstimate",
-        "estimatedPrimaryDestinationId",
+        "finalDestinationLocationId",
         "travelAdvanceInCents",
         "allTravelWithinTerritory",
         {
-          travelSegmentEstimatesAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
+          travelSegmentEstimatesAttributes:
+            this.travelSegmentsPolicy.permittedAttributesForCreate(),
         }
       )
     }
