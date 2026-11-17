@@ -2,8 +2,9 @@ import { Attributes } from "@sequelize/core"
 
 import { isNil } from "lodash"
 
-import { TravelSegment, User } from "@/models"
+import db, { TravelAuthorization, TravelSegment, User } from "@/models"
 import BaseService from "@/services/base-service"
+import { ReconcilePrimaryDestinationService } from "@/services/travel-authorizations/reconcile-primary-destination-service"
 
 export type TravelSegmentCreationAttributes = Partial<Attributes<TravelSegment>>
 
@@ -31,14 +32,21 @@ export class CreateService extends BaseService {
       throw new Error("Mode of transport is required.")
     }
 
-    const travelSegment = await TravelSegment.create({
+    const attributes = {
       ...optionalAttributes,
       travelAuthorizationId,
       segmentNumber,
       modeOfTransport,
+    }
+    return db.transaction(async () => {
+      const travelAuthorization = await TravelAuthorization.findByPk(travelAuthorizationId, {
+        rejectOnEmpty: true,
+        lock: true,
+      })
+      const travelSegment = await TravelSegment.create(attributes)
+      await ReconcilePrimaryDestinationService.perform(travelAuthorization, travelSegment.isActual)
+      return travelSegment
     })
-
-    return travelSegment
   }
 }
 

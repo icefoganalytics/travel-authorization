@@ -43,10 +43,12 @@ export class DraftStatePolicy extends GenericStatePolicy {
       "requestChange",
       "denialReason",
       "tripTypeEstimate",
+      "estimatedPrimaryDestinationId",
       "travelAdvanceInCents",
       "allTravelWithinTerritory",
       {
-        travelSegmentEstimatesAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
+        travelSegmentEstimatesAttributes:
+          this.travelSegmentsPolicy.permittedAttributesForBulkReplace(),
       },
     ]
   }

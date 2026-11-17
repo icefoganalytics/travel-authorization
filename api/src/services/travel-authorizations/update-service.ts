@@ -3,6 +3,9 @@ import { isNil, isUndefined } from "lodash"
 
 import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
+import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
+import { ValidatePrimaryDestinationService } from "@/services/travel-authorizations/validate-primary-destination-service"
+import { ReconcilePrimaryDestinationService } from "@/services/travel-authorizations/reconcile-primary-destination-service"
 
 import { Expense, TravelAuthorization, TravelSegment, User } from "@/models"
 import { TravelAuthorizationTripTypes } from "@/models/travel-authorization"
@@ -25,7 +28,44 @@ export class UpdateService extends BaseService {
 
   async perform(): Promise<TravelAuthorization> {
     return db.transaction(async () => {
-      await this.travelAuthorization.update(this.attributes).catch((error) => {
+      this.travelAuthorization = await TravelAuthorization.findByPk(this.travelAuthorization.id, {
+        rejectOnEmpty: true,
+        lock: true,
+      })
+      if (
+        this.travelAuthorization.status ===
+        TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED
+      ) {
+        const policy = new TravelAuthorizationsPolicy(this.currentUser, this.travelAuthorization)
+        if (
+          !policy.update() ||
+          Object.keys(this.attributes).some((key) => key !== "actualPrimaryDestinationId")
+        ) {
+          throw new Error(
+            "Only the owner or an administrator may correct the actual primary destination on a returned claim."
+          )
+        }
+      }
+
+      const isEstimateBecomingMultiCity =
+        this.travelAuthorization.tripTypeEstimate !== TravelAuthorization.TripTypes.MULTI_CITY &&
+        this.attributes.tripTypeEstimate === TravelAuthorization.TripTypes.MULTI_CITY
+      const isActualBecomingMultiCity =
+        this.travelAuthorization.tripTypeActual !== TravelAuthorization.TripTypes.MULTI_CITY &&
+        this.attributes.tripTypeActual === TravelAuthorization.TripTypes.MULTI_CITY
+
+      const attributes = { ...this.attributes }
+      if (isEstimateBecomingMultiCity && isUndefined(attributes.estimatedPrimaryDestinationId)) {
+        attributes.estimatedPrimaryDestinationId = null
+      }
+      if (isActualBecomingMultiCity && isUndefined(attributes.actualPrimaryDestinationId)) {
+        attributes.actualPrimaryDestinationId = null
+      }
+
+      // Validate explicit selections after nested itineraries have been replaced.
+      const { estimatedPrimaryDestinationId, actualPrimaryDestinationId, ...ordinaryAttributes } =
+        attributes
+      await this.travelAuthorization.update(ordinaryAttributes).catch((error) => {
         throw new Error(`Could not update TravelAuthorization: ${error}`)
       })
 
@@ -54,6 +94,29 @@ export class UpdateService extends BaseService {
       const { expenses } = this.attributes
       if (!isUndefined(expenses)) {
         await Expenses.BulkReplaceService.perform(this.travelAuthorization.id, expenses)
+      }
+
+      if (!isUndefined(estimatedPrimaryDestinationId)) {
+        this.travelAuthorization.estimatedPrimaryDestinationId = estimatedPrimaryDestinationId
+        await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
+          isActual: false,
+          requireSelection: false,
+        })
+        await this.travelAuthorization.save()
+      }
+      if (!isUndefined(actualPrimaryDestinationId)) {
+        this.travelAuthorization.actualPrimaryDestinationId = actualPrimaryDestinationId
+        await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
+          isActual: true,
+          requireSelection: false,
+        })
+        await this.travelAuthorization.save()
+      }
+      if (!isUndefined(attributes.tripTypeEstimate)) {
+        await ReconcilePrimaryDestinationService.perform(this.travelAuthorization, false)
+      }
+      if (!isUndefined(attributes.tripTypeActual)) {
+        await ReconcilePrimaryDestinationService.perform(this.travelAuthorization, true)
       }
 
       return this.travelAuthorization.reloadWithScope("asShow")

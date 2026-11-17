@@ -2,7 +2,7 @@ import { Attributes, FindOptions, Op } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
-import { TravelSegment, User } from "@/models"
+import { TravelAuthorization, TravelSegment, User } from "@/models"
 import { ALL_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
@@ -13,14 +13,20 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
   }
 
   create(): boolean {
+    if (this.isReturnedExpenseClaim) return false
+
     return this.travelAuthorizationPolicy.update()
   }
 
   update(): boolean {
+    if (this.isReturnedExpenseClaim) return false
+
     return this.travelAuthorizationPolicy.update()
   }
 
   destroy(): boolean {
+    if (this.isReturnedExpenseClaim) return false
+
     return this.travelAuthorizationPolicy.update()
   }
 
@@ -38,8 +44,16 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
     ]
   }
 
+  permittedAttributesForUpdate(): Path[] {
+    return this.permittedAttributes()
+  }
+
   permittedAttributesForCreate(): Path[] {
     return ["travelAuthorizationId", "isActual", ...this.permittedAttributes()]
+  }
+
+  permittedAttributesForBulkReplace(): Path[] {
+    return ["id", ...this.permittedAttributesForCreate()]
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelSegment>> {
@@ -64,6 +78,13 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
         },
       ],
     }
+  }
+
+  private get isReturnedExpenseClaim(): boolean {
+    return (
+      this.record.travelAuthorization?.status ===
+      TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED
+    )
   }
 
   private get travelAuthorizationPolicy(): TravelAuthorizationsPolicy {
