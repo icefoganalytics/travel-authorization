@@ -1,10 +1,11 @@
 import { Attributes } from "@sequelize/core"
-import { isNil } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import { type WithRequired } from "@/utils/utility-types"
 
-import db, { TravelSegment } from "@/models"
+import db, { TravelAuthorization, TravelSegment } from "@/models"
 import BaseService from "@/services/base-service"
+import { ReconcilePrimaryDestinationService } from "@/services/travel-authorizations/reconcile-primary-destination-service"
 
 export type TravelSegmentAttributes = Partial<Attributes<TravelSegment>>
 
@@ -45,6 +46,28 @@ export class BulkReplaceService extends BaseService {
     }
 
     return db.transaction(async () => {
+      const travelAuthorization = await TravelAuthorization.findByPk(this.travelAuthorizationId, {
+        rejectOnEmpty: true,
+        lock: true,
+      })
+      const existingTravelSegments = await TravelSegment.findAll({
+        where: {
+          travelAuthorizationId: this.travelAuthorizationId,
+          isActual: this.isActual,
+        },
+      })
+      for (const { id } of this.travelSegmentsAttributes) {
+        if (
+          !isUndefined(id) &&
+          !existingTravelSegments.some((travelSegment) => travelSegment.id === id)
+        ) {
+          throw new Error("Replacement segment IDs must belong to the itinerary being replaced.")
+        }
+      }
+
+      const travelSegmentsAttributes = this.travelSegmentsAttributes
+      this.hasAllRequiredAttributes(travelSegmentsAttributes)
+
       await TravelSegment.destroy({
         where: {
           travelAuthorizationId: this.travelAuthorizationId,
@@ -52,8 +75,9 @@ export class BulkReplaceService extends BaseService {
         },
       })
 
-      this.hasAllRequiredAttributes(this.travelSegmentsAttributes)
-      return TravelSegment.bulkCreate(this.travelSegmentsAttributes)
+      const travelSegments = await TravelSegment.bulkCreate(travelSegmentsAttributes)
+      await ReconcilePrimaryDestinationService.perform(travelAuthorization, this.isActual)
+      return travelSegments
     })
   }
 

@@ -18,8 +18,9 @@ export class ApproveStatePolicy extends GenericStatePolicy {
       "dateBackToWorkActual",
       "travelDurationActual",
       "tripTypeActual",
+      "actualPrimaryDestinationId",
       {
-        travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForCreate(),
+        travelSegmentActualsAttributes: this.travelSegmentsPolicy.permittedAttributesForBulkReplace(),
       },
     ]
   }

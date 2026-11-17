@@ -1,9 +1,10 @@
-import { isNil, isUndefined } from "lodash"
+import { isNil, isUndefined, maxBy } from "lodash"
 
 import db from "@/db/db-client"
 
 import BaseService from "@/services/base-service"
 import { Users } from "@/services"
+import { ValidatePrimaryDestinationService } from "@/services/travel-authorizations/validate-primary-destination-service"
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
 import { type TravelAuthorizationStatuses } from "@/models/travel-authorization"
 
@@ -44,6 +45,15 @@ export class SubmitExpenseClaimService extends BaseService {
     }
 
     await db.transaction(async () => {
+      this.travelAuthorization = await TravelAuthorization.findByPk(this.travelAuthorization.id, {
+        rejectOnEmpty: true,
+        lock: true,
+      })
+      await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
+        isActual: true,
+        requireSelection: true,
+      })
+
       const supervisor = await Users.EnsureService.perform(
         {
           email: this.supervisorEmail,
@@ -75,7 +85,10 @@ export class SubmitExpenseClaimService extends BaseService {
       throw new Error("Expected travelSegments association to be pre-loaded.")
     }
 
-    const lastTravelSegment = travelSegments.at(-1)
+    const actualTravelSegments = travelSegments.filter(({ isActual }) => isActual)
+    const activeTravelSegments =
+      actualTravelSegments.length > 0 ? actualTravelSegments : travelSegments
+    const lastTravelSegment = maxBy(activeTravelSegments, "segmentNumber")
     if (isNil(lastTravelSegment)) {
       throw new Error(
         "Cannot check if travel authorization is after travel end date without at least one travel segment."

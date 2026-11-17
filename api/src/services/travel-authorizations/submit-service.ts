@@ -5,10 +5,12 @@ import db from "@/db/db-client"
 import BaseService from "@/services/base-service"
 import { Users } from "@/services"
 import { UpdateService } from "@/services/travel-authorizations"
+import { type TravelAuthorizationUpdateAttributes } from "@/services/travel-authorizations/update-service"
+import { ValidatePrimaryDestinationService } from "@/services/travel-authorizations/validate-primary-destination-service"
 
 import { TravelAuthorization, TravelAuthorizationActionLog, User } from "@/models"
 
-type SubmitServiceAttributes = Partial<TravelAuthorization> & {
+type SubmitServiceAttributes = TravelAuthorizationUpdateAttributes & {
   travelAuthorizationActionLogAttributes?: Partial<TravelAuthorizationActionLog>
 }
 
@@ -47,6 +49,11 @@ export class SubmitService extends BaseService {
         },
         this.currentUser
       )
+
+      await ValidatePrimaryDestinationService.perform(this.travelAuthorization, {
+        isActual: false,
+        requireSelection: true,
+      })
 
       const supervisor = await Users.EnsureService.perform(
         {
