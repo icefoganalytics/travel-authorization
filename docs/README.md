@@ -1,21 +1,28 @@
 # Project Knowledge Base
 
-Durable project knowledge for Travel Authorization. For application setup and development commands, start with the [repository README](/README.md).
+This folder holds durable product requirements and architecture knowledge for Travel Authorization. Use it to understand what the application should do and the system boundaries that support that behavior. For application setup and development commands, start with the [repository README](/README.md) and [command reference](/bin/README.md).
 
-## Architecture
+## Find Knowledge
 
-- [Travel Desk Report Downloads](/docs/architecture/report-downloads.md) - request selection, authorization, PDF and CSV generation, and runtime packaging.
+### Product Requirements
 
-## Primary Destination
+Feature specifications describe user goals, roles, permissions, and observable behavior.
 
-A primary destination identifies the purpose of travel, not necessarily the final non-home city in the route. The authorization owns two nullable location references: `estimatedPrimaryDestinationId` and `actualPrimaryDestinationId`, stored as `estimated_primary_destination_id` and `actual_primary_destination_id` foreign keys to `locations.id` on `travel_authorizations`. They represent independent city selections, not particular arrival legs or denormalized snapshots.
+- [Primary Destination](/docs/product/primary-destination.md) — choosing a city for estimated and actual travel, required-selection boundaries, and returned-claim corrections.
 
-New multi-city travel requires an explicit selection before continuing past **Trip Details**, and actual travel requires its own selection before continuing past **Confirm Actual Travel Details**. The initial purpose-details draft can remain unselected. A suggested destination is not confirmation. Subsequent saves and submission validate the active phase using the authorization's workflow state, rather than caller-selected validation modes. The migration backfills existing estimated and actual destinations independently: the first arrival for round trips, the final arrival for one-way trips, and the final arrival for multi-city trips unless it returns to the origin, in which case the preceding arrival is used. Missing destinations remain null. This one-time inference preserves existing records; subsequent multi-city selections use the UI rather than automatic inference. Round-trip and one-way itineraries retain their ordinary outbound and final arrivals as defaults. Switching to multi-city clears an inferred choice unless the update supplies an explicit city.
+### Architecture
 
-The owner or an administrator correcting a returned expense claim can confirm an existing actual arrival as its primary destination through the authorization PATCH endpoint. Only `actualPrimaryDestinationId` may change; this correction does not permit changes to the estimated destination, submitted route, or expenses.
+Architecture documents explain data ownership, integration contracts, and design constraints.
 
-Changing the designation does not change the route. The selected location must appear among the corresponding itinerary's arrivals. Itinerary mutations lock the authorization while reconciling its selection. Unrelated edits and removal of one repeated visit preserve the selection while another arrival still matches. Removing the last matching arrival clears it. Copying estimated legs into actual travel does not confirm an actual multi-city destination.
+- [Primary Destination](/docs/architecture/primary-destination.md) — location references, itinerary reconciliation, serialization, and legacy-data compatibility.
+- [Travel Desk Report Downloads](/docs/architecture/report-downloads.md) — request selection, authorization, PDF and CSV generation, and runtime packaging.
 
-Destination serializers read the phase's preloaded location association directly. Once actual travel is active, an unselected actual destination does not fall back to the estimate.
+## Enrich the Knowledge Base
 
-Primary-destination displays do not determine reimbursement rates. Meal and incidental calculations retain their separate itinerary-derived location rule. Persisted copies or derived values use `_snapshot`/`Snapshot` naming to distinguish them from authoritative inputs.
+Start with the document that owns the reader's question. Update it when an accepted requirement or system boundary changes; link related subjects rather than repeating their rules. Add a focused document when a new subject needs its own discoverable home, then link it above. Keep this README as the directory's navigation and usage guide.
+
+Use `product/` for feature specifications and `architecture/` for technical contracts. Add other sections only when there is material to maintain: `domain/` for shared business concepts, `decisions/` for lasting design rationale, and `qa-scenarios/` for reusable regression pathways. Source-directory READMEs remain guides to their own layers. The shared [knowledge-base reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/project-knowledge-base-reference.md) explains these placement boundaries.
+
+Product documentation describes intended behavior; code describes its implementation; tests and QA provide evidence. Preserve links to those sources and record disagreements instead of silently changing the requirement to match the code. Keep task progress, review discussions, and verification results in their issue or pull request, not in the durable specification.
+
+Documentation here is repository content, not a separately published site. Do not add credentials or private user data. Any future documentation site needs an explicit publication scope.
