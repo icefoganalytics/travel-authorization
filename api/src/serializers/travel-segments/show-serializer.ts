@@ -31,24 +31,23 @@ export class ShowSerializer extends BaseSerializer<TravelSegment> {
 
   perform(): TravelSegmentShowView {
     const departureTime = this.stripSeconds(this.record.departureTime)
-    const attributes = pick(this.record, [
-      "id",
-      "travelAuthorizationId",
-      "isActual",
-      "departureLocationId",
-      "arrivalLocationId",
-      "segmentNumber",
-      "departureOn",
-      "modeOfTransport",
-      "modeOfTransportOther",
-      "accommodationType",
-      "accommodationTypeOther",
-      "createdAt",
-      "updatedAt",
-    ])
 
     return {
-      ...attributes,
+      ...pick(this.record, [
+        "id",
+        "travelAuthorizationId",
+        "isActual",
+        "departureLocationId",
+        "arrivalLocationId",
+        "segmentNumber",
+        "departureOn",
+        "modeOfTransport",
+        "modeOfTransportOther",
+        "accommodationType",
+        "accommodationTypeOther",
+        "createdAt",
+        "updatedAt",
+      ]),
       departureTime,
     }
   }

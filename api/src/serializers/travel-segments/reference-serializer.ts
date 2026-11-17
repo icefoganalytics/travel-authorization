@@ -24,24 +24,23 @@ export type TravelSegmentAsReference = Pick<
 export class ReferenceSerializer extends BaseSerializer<TravelSegment> {
   perform(): TravelSegmentAsReference {
     const departureTime = this.stripSeconds(this.record.departureTime)
-    const attributes = pick(this.record, [
-      "id",
-      "travelAuthorizationId",
-      "isActual",
-      "departureLocationId",
-      "arrivalLocationId",
-      "segmentNumber",
-      "departureOn",
-      "modeOfTransport",
-      "modeOfTransportOther",
-      "accommodationType",
-      "accommodationTypeOther",
-      "createdAt",
-      "updatedAt",
-    ])
 
     return {
-      ...attributes,
+      ...pick(this.record, [
+        "id",
+        "travelAuthorizationId",
+        "isActual",
+        "departureLocationId",
+        "arrivalLocationId",
+        "segmentNumber",
+        "departureOn",
+        "modeOfTransport",
+        "modeOfTransportOther",
+        "accommodationType",
+        "accommodationTypeOther",
+        "createdAt",
+        "updatedAt",
+      ]),
       departureTime,
     }
   }
