@@ -16,6 +16,10 @@ export class SyncService extends BaseService {
   }
 
   async perform(): Promise<void> {
+    if (this.bookingReference !== this.bookingReference.trim().toUpperCase()) {
+      throw new Error("Booking reference must be uppercase without leading or trailing whitespace.")
+    }
+
     await WithSyncLockService.perform(this.bookingReference, async () => {
       const matchedSourceIds: number[] = []
       await this.syncTravelOrderEvents(this.bookingReference, async (travelOrderEvent) => {
