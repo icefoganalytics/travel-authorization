@@ -1,3 +1,5 @@
+import qs from "qs"
+
 import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
 import { TravelDeskTravelRequest } from "@/models"
 
@@ -206,17 +208,17 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         })
 
         // Act
+        const query = qs.stringify({
+          where: {
+            bookingReference: "SRC001",
+            eventType: "B",
+          },
+          order: [["externalTravelPortIdentifier", "DESC"]],
+          perPage: 1,
+        })
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
-          .query({
-            where: {
-              bookingReference: "SRC001",
-              eventType: "B",
-            },
-            "order[0][0]": "externalTravelPortIdentifier",
-            "order[0][1]": "DESC",
-            perPage: 1,
-          })
+          .query(query)
 
         // Assert
         expect(response.status).toEqual(200)
