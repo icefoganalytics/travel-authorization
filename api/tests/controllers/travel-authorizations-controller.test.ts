@@ -391,7 +391,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
             travelAuthorization: expect.objectContaining({
               estimatedPrimaryDestinationId: destination.id,
               actualPrimaryDestinationId: null,
-              finalDestination: expect.objectContaining({ id: destination.id }),
+              primaryDestination: expect.objectContaining({ id: destination.id }),
               travelSegments: travelSegmentEstimatesAttributes.map((attributes) =>
                 expect.objectContaining(attributes)
               ),
@@ -436,7 +436,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
               travelAuthorization: expect.objectContaining({
                 estimatedPrimaryDestinationId: estimatedCity.id,
                 actualPrimaryDestinationId: actualCity.id,
-                finalDestination: expect.objectContaining({ id: actualCity.id }),
+                primaryDestination: expect.objectContaining({ id: actualCity.id }),
                 travelSegments: [
                   expect.objectContaining({
                     id: travelSegment.id,

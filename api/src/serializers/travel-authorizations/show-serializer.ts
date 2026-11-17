@@ -66,7 +66,7 @@ export type TravelAuthorizationShowView = Pick<
   | "updatedAt"
 > & {
   expenses: ExpenseAsReference[]
-  finalDestination: Locations.AsReference | null
+  primaryDestination: Locations.AsReference | null
   purpose: TravelPurposes.AsReference | null
   stops: Stops.AsReference[]
   travelDeskTravelRequest: TravelDeskTravelRequests.AsReference | null
@@ -102,7 +102,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     const serializedExpenses = this.serializeExpenses(expenses)
-    const serializedFinalDestination = this.serializeFinalDestination()
+    const serializedPrimaryDestination = this.serializePrimaryDestination()
     const serializedTravelPurpose = this.serializeTravelPurpose(purpose)
     const serializedStops = this.serializeStops(stops)
     const serializedTravelDeskTravelRequest =
@@ -156,7 +156,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
       ...stateFlagsAttributes,
       // associations
       expenses: serializedExpenses,
-      finalDestination: serializedFinalDestination,
+      primaryDestination: serializedPrimaryDestination,
       purpose: serializedTravelPurpose,
       stops: serializedStops,
       travelDeskTravelRequest: serializedTravelDeskTravelRequest,
@@ -169,7 +169,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     return Expenses.ReferenceSerializer.perform(expenses)
   }
 
-  private serializeFinalDestination(): Locations.AsReference | null {
+  private serializePrimaryDestination(): Locations.AsReference | null {
     const location = isNil(this.record.tripTypeActual)
       ? this.record.estimatedPrimaryDestination
       : this.record.actualPrimaryDestination

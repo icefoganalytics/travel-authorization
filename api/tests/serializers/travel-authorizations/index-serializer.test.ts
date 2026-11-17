@@ -39,7 +39,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(null)
+        expect(result.primaryDestination).toEqual(null)
       })
 
       test("when estimated multi-city travel returns home, it returns the selected arrival instead of home", async () => {
@@ -127,7 +127,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
       test("when estimated multi-city travel ends away from home, it returns the last arrival", async () => {
@@ -190,7 +190,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
       })
 
       test("when actual multi-city travel returns home, it ignores the different estimated destination", async () => {
@@ -278,7 +278,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
       })
 
       test("when actual multi-city travel ends away from home, it returns the last actual arrival", async () => {
@@ -366,7 +366,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
       test("when round-trip travel returns home, it returns the ordinary outbound arrival", async () => {
@@ -428,7 +428,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Vancouver" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Vancouver" }))
       })
 
       test("when one-way travel ends at its original departure, it still returns the last arrival", async () => {
@@ -490,7 +490,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Whitehorse" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Whitehorse" }))
       })
 
       test("when the origin and last arrival are missing, it does not treat them as a return home", async () => {
@@ -550,10 +550,10 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(null)
+        expect(result.primaryDestination).toEqual(null)
       })
 
-      test("when the selected itinerary is empty, it returns no final destination", async () => {
+      test("when the selected itinerary is empty, it returns no primary destination", async () => {
         // Arrange
         const currentUser = await userFactory.create()
         const travelSegment1 = travelSegmentFactory.build({
@@ -592,7 +592,7 @@ describe("api/src/serializers/travel-authorizations/index-serializer.ts", () => 
         const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
         // Assert
-        expect(result.finalDestination).toEqual(null)
+        expect(result.primaryDestination).toEqual(null)
       })
 
       test("when travel authorization is pending approval and travelling is complete, it returns no travel action", async () => {

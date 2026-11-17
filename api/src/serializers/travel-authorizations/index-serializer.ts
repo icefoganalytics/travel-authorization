@@ -44,7 +44,7 @@ export type TravelAuthorizationIndexView = Pick<
   unprocessedExpenseCount: number
 } & {
   // Associations
-  finalDestination: Locations.AsReference | null
+  primaryDestination: Locations.AsReference | null
   locations: Locations.AsReference[]
   travelDeskTravelRequest: TravelDeskTravelRequests.AsSummary | null
 } & TravelAuthorizationStateFlagsView
@@ -68,7 +68,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const serializedFinalDestination = this.serializeFinalDestination()
+    const serializedPrimaryDestination = this.serializePrimaryDestination()
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -87,7 +87,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
       ]),
       // computed fields
       purposeText: this.record.purpose?.purpose ?? "",
-      finalDestination: serializedFinalDestination,
+      primaryDestination: serializedPrimaryDestination,
       departingAt: departingAt?.toISOString(),
       returningAt: returningAt?.toISOString(),
       phase: this.determinePhase(),
@@ -104,7 +104,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
   }
 
-  private serializeFinalDestination(): Locations.AsReference | null {
+  private serializePrimaryDestination(): Locations.AsReference | null {
     const location = isNil(this.record.tripTypeActual)
       ? this.record.estimatedPrimaryDestination
       : this.record.actualPrimaryDestination

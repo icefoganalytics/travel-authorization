@@ -31,7 +31,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(null)
+        expect(result.primaryDestination).toEqual(null)
       })
 
       test("when estimated multi-city travel returns home, it returns the persisted destination", async () => {
@@ -112,7 +112,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
       test("when estimated multi-city travel ends away from home, it returns the persisted destination", async () => {
@@ -194,7 +194,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
       })
 
       test("when actual multi-city travel returns home with a one-way estimate, it returns the persisted destination", async () => {
@@ -275,7 +275,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Vancouver" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Vancouver" }))
       })
 
       test("when actual multi-city travel ends away from home with a round-trip estimate, it returns the persisted destination", async () => {
@@ -357,7 +357,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Ottawa" }))
       })
 
       test("when estimated round-trip travel ends away from home, it returns the persisted destination", async () => {
@@ -439,7 +439,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Vancouver" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Vancouver" }))
       })
 
       test("when actual round-trip travel has a multi-city estimate, it returns the persisted destination", async () => {
@@ -521,7 +521,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
       test("when one-way travel returns to its original departure, it returns the persisted destination", async () => {
@@ -602,7 +602,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Whitehorse" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Whitehorse" }))
       })
 
       test("when a legacy round trip has one segment, it returns the ordinary arrival", async () => {
@@ -630,7 +630,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(loadedTravelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
       test("when multi-city travel returns home across a gap, it returns only the selected arrival", async () => {
@@ -665,10 +665,10 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(loadedTravelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+        expect(result.primaryDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
       })
 
-      test("when the selected actual itinerary is empty, it returns no final destination", async () => {
+      test("when the selected actual itinerary is empty, it returns no primary destination", async () => {
         // Arrange
         const estimatedTravelSegment = travelSegmentFactory.build({ isActual: false })
         const travelAuthorization = await travelAuthorizationFactory
@@ -695,7 +695,7 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(null)
+        expect(result.primaryDestination).toEqual(null)
       })
 
       test("when the origin and last arrival are missing, it does not treat them as a return home", async () => {
@@ -742,10 +742,10 @@ describe("api/src/serializers/travel-authorizations/show-serializer.ts", () => {
         const result = ShowSerializer.perform(travelAuthorization)
 
         // Assert
-        expect(result.finalDestination).toEqual(null)
+        expect(result.primaryDestination).toEqual(null)
       })
 
-      test("when the final destination location is not preloaded, it rejects the incomplete association graph", async () => {
+      test("when the primary destination location is not preloaded, it rejects the incomplete association graph", async () => {
         // Arrange
         const travelSegment = travelSegmentFactory.build({ isActual: false })
         const travelAuthorization = await travelAuthorizationFactory
