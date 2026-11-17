@@ -109,7 +109,7 @@ and runtime directory.
 
 Stop older project-local bridges before reusing their port; they cannot share the gem's listener.
 
-## Sample TravelPort Text
+## Sample Travelport Text
 
 If you need parsable sample flight text while testing the Travel Desk flight import flow, this block
 has been used successfully in prior TravelAuth PR testing:
