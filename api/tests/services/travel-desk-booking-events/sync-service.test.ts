@@ -1,5 +1,7 @@
+import travelPortDb from "@/integrations/travel-port-integration/db/db-client"
 import travelPortMigrationClient from "@/integrations/travel-port-integration/db/db-migration-client"
 import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
+import RawBookingEventSnapshotQuery from "@/integrations/travel-port-integration/queries/raw-booking-event-snapshot-query"
 import { TravelDeskBookingEvent } from "@/models"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
@@ -101,6 +103,198 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
               relatedTicketDocumentNumber: null,
               relatedInvoiceNumber: null,
             },
+          }),
+        ])
+      })
+
+      test("when a legacy cached event is resynced, it captures the raw source without fabricating missing associations", async () => {
+        // Arrange
+        const cachedEvent = await travelDeskBookingEventFactory.create({
+          externalTravelPortIdentifier: 910001,
+          bookingReference: "SRC001",
+          bookingFileVersionNumber: 1,
+          rawSourceSnapshot: null,
+        })
+        await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910001,
+          recordLocator: "SRC001",
+          bookingFileVersionNumber: 2,
+        })
+
+        // Act
+        await SyncService.perform("SRC001")
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({
+            id: cachedEvent.id,
+            bookingFileVersionNumber: 2,
+            rawSourceSnapshot: {
+              travelOrderEvent: expect.objectContaining({
+                TravelOrderIdentifier: 910001,
+                PnrBfVersionNbr: 2,
+                RecordLocator: "SRC001",
+              }),
+              passengers: [],
+              airReservationSegments: [],
+              serviceFeeTransaction: null,
+            },
+          }),
+        ])
+      })
+
+      test("when source values are omitted or normalized locally, it retains every original column and decimal digit", async () => {
+        // Arrange
+        const sourceEvent = await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910001,
+          recordLocator: "SRC001",
+          transactionPseudo: "AB",
+          transactionAgent: "Agent",
+          originalBookingLocation: "ABC",
+          creatingAgencyIata: "123456789012345678",
+          lastActionAgentId: "LAST",
+          pnrPurgeDate: new Date("2031-01-01T00:00:00Z"),
+        })
+        await TravelPortIntegration.passengerFactory.create({
+          travelOrderIdentifier: sourceEvent.travelOrderIdentifier,
+          lastNameElement: 1,
+          passengerElement: 1,
+          absoluteNameElement: 7,
+          firstName: " Ada  ",
+          nameRemark: "Private source-only remark  ",
+        })
+        await TravelPortIntegration.airReservationSegmentFactory.create({
+          travelOrderIdentifier: sourceEvent.travelOrderIdentifier,
+          airSegmentNumber: 1,
+          boardPoint: "YXY",
+          classOfServiceDescription: " Economy  ",
+        })
+        await TravelPortIntegration.serviceFeeTransactionFactory.create({
+          travelOrderIdentifier: sourceEvent.travelOrderIdentifier,
+          serviceFeeAmount: "123456789012345.125",
+          commissionAmount: "0.001",
+          relatedInvoiceNumber: " INV001  ",
+        })
+
+        // Act
+        await SyncService.perform("SRC001")
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({
+            passengers: [
+              expect.objectContaining({
+                firstName: "Ada",
+              }),
+            ],
+            rawSourceSnapshot: {
+              travelOrderEvent: expect.objectContaining({
+                TravelOrderIdentifier: 910001,
+                TransactionPseudo: "AB  ",
+                TransactionAgent: "Agent   ",
+                OriginalBookingLocation: "ABC  ",
+                CreatingAgencyIata: "123456789012345678",
+                LastActionAgentID: "LAST   ",
+                PnrPurgeDate: "2031-01-01T00:00:00",
+              }),
+              passengers: [
+                expect.objectContaining({
+                  TravelOrderIdentifier: 910001,
+                  AbsoluteNameElement: 7,
+                  FirstName: " Ada  ",
+                  NameRemark: "Private source-only remark  ",
+                }),
+              ],
+              airReservationSegments: [
+                expect.objectContaining({
+                  TravelOrderIdentifier: 910001,
+                  AirSegmentNbr: 1,
+                  BoardPoint: "YXY  ",
+                  ClassOfServDesc: " Economy  ",
+                }),
+              ],
+              serviceFeeTransaction: expect.objectContaining({
+                TravelOrderIdentifier: 910001,
+                ServiceFeeAmount: "123456789012345.125",
+                SFCommissionAmount: "0.001",
+                RelatedInvoiceNbr: " INV001  ",
+              }),
+            },
+          }),
+        ])
+      })
+
+      test("when raw rows are captured, all four reads share the normalized source transaction", async () => {
+        // Arrange
+        await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910001,
+          recordLocator: "SRC001",
+        })
+        const sourceQuery = vi.spyOn(travelPortDb, "query")
+        const sourceFind = vi.spyOn(TravelOrderEvent, "findAll")
+
+        // Act
+        await SyncService.perform("SRC001")
+        const sourceTransaction = sourceFind.mock.calls[0]?.[0]?.transaction
+        const rawQueryOptions = sourceQuery.mock.calls
+          .map(([, options]) => options)
+          .filter((options) => {
+            const bindings = options?.bind
+            return bindings !== undefined && "travelOrderIdentifier" in bindings
+          })
+
+        // Assert
+        expect(rawQueryOptions).toEqual([
+          expect.objectContaining({
+            bind: { travelOrderIdentifier: 910001 },
+            transaction: sourceTransaction,
+          }),
+          expect.objectContaining({
+            bind: { travelOrderIdentifier: 910001 },
+            transaction: sourceTransaction,
+          }),
+          expect.objectContaining({
+            bind: { travelOrderIdentifier: 910001 },
+            transaction: sourceTransaction,
+          }),
+          expect.objectContaining({
+            bind: { travelOrderIdentifier: 910001 },
+            transaction: sourceTransaction,
+          }),
+        ])
+      })
+
+      test("when a later raw source capture fails, it rolls back snapshots and normalized updates", async () => {
+        // Arrange
+        const cachedEvent = await travelDeskBookingEventFactory.create({
+          externalTravelPortIdentifier: 910001,
+          bookingReference: "SRC001",
+          bookingFileVersionNumber: 1,
+          rawSourceSnapshot: null,
+        })
+        await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910001,
+          recordLocator: "SRC001",
+          bookingFileVersionNumber: 2,
+        })
+        await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910002,
+          recordLocator: "SRC001",
+        })
+        const readSnapshot = RawBookingEventSnapshotQuery.prototype.read
+        vi.spyOn(RawBookingEventSnapshotQuery.prototype, "read")
+          .mockImplementationOnce(readSnapshot)
+          .mockRejectedValueOnce(new Error("Later source snapshot read failed"))
+
+        // Act
+        await SyncService.perform("SRC001").catch(() => undefined)
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({
+            id: cachedEvent.id,
+            bookingFileVersionNumber: 1,
+            rawSourceSnapshot: null,
           }),
         ])
       })
