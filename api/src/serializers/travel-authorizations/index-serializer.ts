@@ -57,7 +57,10 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   perform(): TravelAuthorizationIndexView {
-    const { stops, travelSegments, travelDeskTravelRequest } = this.record
+    const { stops, travelSegments, travelDeskTravelRequest, finalDestination } = this.record
+    if (isUndefined(finalDestination)) {
+      throw new Error("Expected finalDestination association to be pre-loaded.")
+    }
 
     const serializedLocations = this.serializeLocations(travelSegments, stops)
 
@@ -67,7 +70,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const serializedFinalDestination = this.serializeFinalDestination()
+    const serializedFinalDestination = this.serializeFinalDestination(finalDestination)
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
@@ -102,12 +105,7 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     }
   }
 
-  private serializeFinalDestination(): Locations.AsReference | null {
-    const location = this.record.finalDestination
-    if (isUndefined(location)) {
-      throw new Error("Expected finalDestination association to be pre-loaded.")
-    }
-
+  private serializeFinalDestination(location: Location | null): Locations.AsReference | null {
     if (isNil(location)) return null
 
     return Locations.ReferenceSerializer.perform(location)
