@@ -1,5 +1,5 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
-import { determineFinalDestination } from "@/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination"
+import determineFinalDestination from "@/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination"
 
 import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
 

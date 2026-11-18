@@ -280,7 +280,10 @@ export class TravelAuthorization extends BaseModel<
 
   // Associations
   @BelongsTo(() => Location, {
-    foreignKey: { name: "finalDestinationLocationId", onDelete: "RESTRICT" },
+    foreignKey: {
+      name: "finalDestinationLocationId",
+      onDelete: "RESTRICT",
+    },
   })
   declare finalDestination?: NonAttribute<Location | null>
 
