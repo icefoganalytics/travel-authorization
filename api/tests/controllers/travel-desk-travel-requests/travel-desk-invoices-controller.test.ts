@@ -331,7 +331,40 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         })
       })
 
-      test("when source rows are absent, it still returns the saved invoice snapshot", async () => {
+      test("when raw source data is retained, it does not expose it in the invoice response", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const invoice = await travelDeskInvoiceFactory.create({
+          sourceSnapshot: {
+            bookingEvent: {
+              travelOrderEvent: {
+                TravelOrderIdentifier: 930001,
+                OriginalBookingLocation: " YXY ",
+              },
+              passengers: [],
+              airReservationSegments: [],
+              serviceFeeTransaction: null,
+            },
+            serviceFeeEvents: [],
+          },
+        })
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${invoice.travelDeskTravelRequestId}/travel-desk-invoices/${invoice.id}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          travelDeskInvoice: expect.not.objectContaining({
+            sourceSnapshot: expect.anything(),
+          }),
+        })
+      })
+
+      test("when source rows are absent, it still returns the saved booking context", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const invoice = await travelDeskInvoiceFactory.create()
@@ -350,7 +383,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
             bookingReference: invoice.bookingReference,
             externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
-            sourceSnapshot: invoice.sourceSnapshot,
+            bookingContext: invoice.bookingContext,
             items: [],
           }),
         })
@@ -450,6 +483,21 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const otherRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
+          rawSourceSnapshot: {
+            travelOrderEvent: {
+              TravelOrderIdentifier: 930001,
+              RecordLocator: "API001",
+              OriginalBookingLocation: " YXY ",
+              PnrBfVersionNbr: 8
+            },
+            passengers: [],
+            airReservationSegments: [
+              {
+                AirSegmentNbr: 1
+              }
+            ],
+            serviceFeeTransaction: null
+          },
           externalTravelPortIdentifier: 930001,
           bookingReference: "API001",
           bookingFileVersionNumber: 3,
@@ -483,6 +531,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             sourceSnapshot: {
               forged: true,
             },
+            bookingContext: {
+              forged: true,
+            },
             items: [
               {
                 productType: "air",
@@ -503,7 +554,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
             grossAmount: "125.500",
-            sourceSnapshot: {
+            bookingContext: {
               bookingEvent: expect.objectContaining({
                 travelOrderIdentifier: 930001,
                 bookingReference: "API001",
@@ -634,7 +685,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const originalRequestId = invoice.travelDeskTravelRequestId
         const originalBookingReference = invoice.bookingReference
         const originalBookingEventId = invoice.externalBookingEventIdentifier
-        const originalSnapshot = invoice.sourceSnapshot
+        const originalBookingContext = invoice.bookingContext
         mockCurrentUser(officer)
 
         // Act
@@ -647,6 +698,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             bookingReference: "FORGED",
             externalBookingEventIdentifier: 999999,
             sourceSnapshot: {
+              forged: true,
+            },
+            bookingContext: {
               forged: true,
             },
             currencyCode: "CAD",
@@ -668,7 +722,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             travelDeskTravelRequestId: originalRequestId,
             bookingReference: originalBookingReference,
             externalBookingEventIdentifier: originalBookingEventId,
-            sourceSnapshot: originalSnapshot,
+            bookingContext: originalBookingContext,
             invoiceNumber: "INV-ORIGINAL",
             grossAmount: "22.000",
             items: [expect.objectContaining({
