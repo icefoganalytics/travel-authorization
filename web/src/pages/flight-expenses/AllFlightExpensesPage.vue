@@ -17,7 +17,6 @@
             :order="order"
             :filters="filters"
             color="primary"
-            block
           />
         </v-col>
       </v-row>

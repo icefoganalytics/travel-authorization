@@ -12,7 +12,7 @@
       :value="accessToken"
     />
     <v-btn
-      :block="isBlock"
+      :block="smAndDown"
       :color="color"
       :variant="variant"
       :prepend-icon="prependIcon"
@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
-import { computed, nextTick, ref, useTemplateRef } from "vue"
+import { nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
 import { type VBtn } from "vuetify/components"
 
@@ -40,7 +40,6 @@ const props = withDefaults(
     prependIcon?: string
     color?: string
     loading?: boolean
-    block?: boolean
     variant?: VBtn["$props"]["variant"]
   }>(),
   {
@@ -48,7 +47,6 @@ const props = withDefaults(
     prependIcon: "mdi-download",
     color: "primary",
     loading: false,
-    block: undefined,
   }
 )
 
@@ -87,5 +85,4 @@ async function getAccessTokenAndSubmit() {
 }
 
 const { smAndDown } = useDisplay()
-const isBlock = computed(() => props.block ?? smAndDown.value)
 </script>

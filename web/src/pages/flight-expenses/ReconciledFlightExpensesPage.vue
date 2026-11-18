@@ -19,7 +19,6 @@
             :filters="filters"
             :where="exportWhere"
             color="primary"
-            block
           />
         </v-col>
         <v-col

@@ -43,7 +43,6 @@
             class="ml-md-5"
             color="primary"
             variant="outlined"
-            :block="smAndDown"
           >
             Export To Excel
           </TravelAuthorizationPreApprovalsExportToCsvButton>
