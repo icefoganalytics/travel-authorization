@@ -186,8 +186,8 @@
                 type="info"
                 class="my-4"
               >
-                Select the intended booking event. Event order and version numbers do not
-                identify a current booking automatically.
+                Select the intended booking event. Event order and version numbers do not identify a
+                current booking automatically.
               </v-alert>
               <v-radio-group
                 v-if="flightBookingEvents.length"
