@@ -1,13 +1,27 @@
 import { DateTime } from "luxon"
 
 import { TravelAuthorization } from "@/models"
-import { travelAuthorizationFactory, travelSegmentFactory, userFactory } from "@/factories"
+
+import {
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+  userFactory,
+} from "@/factories"
 
 import SubmitExpenseClaimService from "@/services/travel-authorizations/submit-expense-claim-service"
 
 describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts", () => {
   describe("SubmitExpenseClaimService", () => {
     describe("#perform", () => {
+      beforeEach(() => {
+        vi.useFakeTimers({ toFake: ["Date"] })
+        vi.setSystemTime(new Date("2026-11-16T12:00:00Z"))
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+
       test("when submitting from APPROVED state, it correctly updates travel authorization state and wizard step", async () => {
         // Arrange
         const currentUser = await userFactory.create()
@@ -15,17 +29,19 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
           email: "supervisor@example.com",
         })
 
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
         const twoDaysAgo = DateTime.now().minus({ days: 2 })
-        await travelSegmentFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          departureOn: twoDaysAgo.toJSDate(),
+        const departureOn = twoDaysAgo.toJSDate()
+        const travelSegment = travelSegmentFactory.build({
+          departureOn,
         })
-        await travelAuthorization.reload({
-          include: ["travelSegments"],
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({
+            travelSegments: [travelSegment],
+          })
+          .include("travelSegments")
+          .create({
+            status: TravelAuthorization.Statuses.APPROVED,
+          })
 
         // Act
         const updatedTravelAuthorization = await SubmitExpenseClaimService.perform(
@@ -51,17 +67,19 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
           email: "supervisor@example.com",
         })
 
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
-        })
         const twoDaysAgo = DateTime.now().minus({ days: 2 })
-        await travelSegmentFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          departureOn: twoDaysAgo.toJSDate(),
+        const departureOn = twoDaysAgo.toJSDate()
+        const travelSegment = travelSegmentFactory.build({
+          departureOn,
         })
-        await travelAuthorization.reload({
-          include: ["travelSegments"],
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({
+            travelSegments: [travelSegment],
+          })
+          .include("travelSegments")
+          .create({
+            status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
+          })
 
         // Act
         const updatedTravelAuthorization = await SubmitExpenseClaimService.perform(
@@ -90,9 +108,8 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
           status: TravelAuthorization.Statuses.DENIED,
         })
 
-        // Assert
+        // Act / Assert
         await expect(
-          // Act
           SubmitExpenseClaimService.perform(travelAuthorization, supervisor.email, currentUser)
         ).rejects.toThrow(
           "Travel authorization must be in an approved or expense claim traveller changes requested state to submit an expense claim."
@@ -105,21 +122,22 @@ describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts
         const supervisor = await userFactory.create({
           email: "supervisor@example.com",
         })
-        const travelAuthorization = await travelAuthorizationFactory.create({
-          status: TravelAuthorization.Statuses.APPROVED,
-        })
         const twoDaysFromNow = DateTime.now().plus({ days: 2 })
-        await travelSegmentFactory.create({
-          travelAuthorizationId: travelAuthorization.id,
-          departureOn: twoDaysFromNow.toJSDate(),
+        const departureOn = twoDaysFromNow.toJSDate()
+        const travelSegment = travelSegmentFactory.build({
+          departureOn,
         })
-        await travelAuthorization.reload({
-          include: ["travelSegments"],
-        })
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({
+            travelSegments: [travelSegment],
+          })
+          .include("travelSegments")
+          .create({
+            status: TravelAuthorization.Statuses.APPROVED,
+          })
 
-        // Assert
+        // Act / Assert
         await expect(
-          // Act
           SubmitExpenseClaimService.perform(travelAuthorization, supervisor.email, currentUser)
         ).rejects.toThrow("Can not submit an expense claim before travel is completed.")
       })
