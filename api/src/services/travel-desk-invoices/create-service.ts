@@ -5,7 +5,7 @@ import { db } from "@/db/db-client"
 
 import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
-import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
+import { type InvoiceBookingContext, type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
@@ -81,7 +81,7 @@ export class CreateService extends BaseService {
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
-    const invoiceSourceSnapshot = await this.loadInvoiceSourceSnapshot(
+    const { bookingContext, sourceSnapshot } = await this.loadInvoiceBookingData(
       normalizedBookingReference,
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers
@@ -92,7 +92,7 @@ export class CreateService extends BaseService {
       await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
       await validateInvoiceItems(
         items,
-        invoiceSourceSnapshot,
+        bookingContext,
         sourceServiceFeeEventExternalIdentifiers,
         currencyCode
       )
@@ -114,7 +114,8 @@ export class CreateService extends BaseService {
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         bookingReference: normalizedBookingReference,
         externalBookingEventIdentifier,
-        sourceSnapshot: invoiceSourceSnapshot,
+        sourceSnapshot,
+        bookingContext,
         currencyCode,
         invoiceNumber,
         invoiceDate,
@@ -159,11 +160,11 @@ export class CreateService extends BaseService {
     }
   }
 
-  private async loadInvoiceSourceSnapshot(
+  private async loadInvoiceBookingData(
     bookingReference: string,
     externalBookingEventIdentifier: number,
     sourceServiceFeeEventExternalIdentifiers: number[]
-  ): Promise<InvoiceSourceSnapshot> {
+  ): Promise<{ bookingContext: InvoiceBookingContext; sourceSnapshot: InvoiceSourceSnapshot }> {
     const bookingEvents = await TravelDeskBookingEvent.findAll({
       where: {
         bookingReference,
@@ -201,9 +202,33 @@ export class CreateService extends BaseService {
       return event
     })
 
+    const rawBookingEvent = bookingEvents.find(
+      (event) => event.externalTravelPortIdentifier === externalBookingEventIdentifier
+    )?.rawSourceSnapshot
+    if (isNil(rawBookingEvent)) {
+      throw new InvoiceValidationError("Re-sync the booking before creating an invoice.")
+    }
+
+    const rawServiceFeeEvents = sourceServiceFeeEventExternalIdentifiers.map((eventId) => {
+      const rawSourceSnapshot = bookingEvents.find(
+        (event) => event.externalTravelPortIdentifier === eventId
+      )?.rawSourceSnapshot
+      if (isNil(rawSourceSnapshot)) {
+        throw new InvoiceValidationError("Re-sync the booking before creating an invoice.")
+      }
+
+      return rawSourceSnapshot
+    })
+
     return {
-      bookingEvent,
-      serviceFeeEvents,
+      bookingContext: {
+        bookingEvent,
+        serviceFeeEvents,
+      },
+      sourceSnapshot: {
+        bookingEvent: rawBookingEvent,
+        serviceFeeEvents: rawServiceFeeEvents,
+      },
     }
   }
 }

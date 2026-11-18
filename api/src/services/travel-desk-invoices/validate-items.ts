@@ -1,7 +1,7 @@
 import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskInvoiceItem } from "@/models"
-import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
+import { type InvoiceBookingContext } from "@/models/travel-desk-invoice"
 
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
@@ -21,7 +21,7 @@ export type InvoiceItemAttributes = {
 
 export async function validateInvoiceItems(
   items: InvoiceItemAttributes[],
-  snapshot: InvoiceSourceSnapshot,
+  bookingContext: InvoiceBookingContext,
   serviceFeeEventIds: number[],
   currencyCode: string
 ): Promise<void> {
@@ -34,7 +34,7 @@ export async function validateInvoiceItems(
   }
 
   const expectedSegmentNumbers = new Set(
-    snapshot.bookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber)
+    bookingContext.bookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber)
   )
   const expectedFeeEventIds = new Set(serviceFeeEventIds)
   const seenSegmentNumbers = new Set<number>()
@@ -89,13 +89,13 @@ export async function validateInvoiceItems(
     throw new InvoiceValidationError("Every selected service fee must be represented exactly once.")
   }
 
-  const snapshotFees = new Map<number, InvoiceSourceSnapshot["bookingEvent"]>(
-    snapshot.serviceFeeEvents.map((event) => [event.travelOrderIdentifier, event])
+  const feeEvents = new Map<number, InvoiceBookingContext["bookingEvent"]>(
+    bookingContext.serviceFeeEvents.map((event) => [event.travelOrderIdentifier, event])
   )
   const documentNumbers = new Set<string>()
 
   for (const eventId of serviceFeeEventIds) {
-    const feeEvent = snapshotFees.get(eventId)
+    const feeEvent = feeEvents.get(eventId)
     const fee = feeEvent?.serviceFeeTransaction
 
     if (isNil(fee)) {
