@@ -75,7 +75,7 @@ describe("api/src/services/travel-desk-invoice-items/bulk-create-service.ts", ()
           expect.objectContaining({
             errors: expect.objectContaining({
               message: expect.stringContaining(
-                "An item cannot refer to both a flight segment and service fee."
+                "Only service fee items can refer to a source service fee."
               ),
             }),
           }),
