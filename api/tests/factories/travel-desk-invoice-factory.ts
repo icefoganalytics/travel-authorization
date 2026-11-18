@@ -8,6 +8,7 @@ export const travelDeskInvoiceFactory = FactoryShark.define(
   TravelDeskInvoice,
   ({ associate }) => {
     associate("travelDeskTravelRequest", travelDeskTravelRequestFactory)
+
     const bookingReference = faker.string.alphanumeric(6).toUpperCase()
     const externalBookingEventIdentifier = faker.number.int({ min: 1, max: 1_000_000 })
 
