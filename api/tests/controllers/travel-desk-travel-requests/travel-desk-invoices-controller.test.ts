@@ -331,54 +331,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         })
       })
 
-      test("when raw source data is retained, it does not expose it in the invoice response", async () => {
-        // Arrange
-        const officer = await userFactory.asTravelDeskUser().create()
-        const invoice = await travelDeskInvoiceFactory.create({
-          sourceSnapshot: {
-            bookingEvent: {
-              travelOrderEvent: {
-                TravelOrderIdentifier: 930001,
-                PnrBfVersionNbr: null,
-                EventType: null,
-                RecordLocator: null,
-                HostEventTimeStamp: null,
-                CrsDescription: null,
-                DatabaseTimeStamp: "2030-01-01T12:00:00",
-                TransactionPseudo: null,
-                TransactionAgent: null,
-                OwningAgencyPseudo: null,
-                OriginalBookingLocation: " YXY ",
-                CreatingAgencyIata: null,
-                PnrCreationDate: null,
-                PnrPurgeDate: null,
-                OwningAgencyName: null,
-                TransactionAgencyName: null,
-                LastActionAgentID: null,
-              },
-              passengers: [],
-              airReservationSegments: [],
-              serviceFeeTransaction: null,
-            },
-            serviceFeeEvents: [],
-          },
-        })
-        mockCurrentUser(officer)
-
-        // Act
-        const response = await request().get(
-          `/api/travel-desk-travel-requests/${invoice.travelDeskTravelRequestId}/travel-desk-invoices/${invoice.id}`
-        )
-
-        // Assert
-        expect(response.status).toEqual(200)
-        expect(response.body).toEqual({
-          travelDeskInvoice: expect.not.objectContaining({
-            sourceSnapshot: expect.anything(),
-          }),
-        })
-      })
-
       test("when source rows are absent, it still returns the saved booking context", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
@@ -498,54 +450,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const otherRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
-          rawSourceSnapshot: {
-            travelOrderEvent: {
-              TravelOrderIdentifier: 930001,
-              PnrBfVersionNbr: 8,
-              EventType: null,
-              RecordLocator: "API001",
-              HostEventTimeStamp: null,
-              CrsDescription: null,
-              DatabaseTimeStamp: "2030-01-01T12:00:00",
-              TransactionPseudo: null,
-              TransactionAgent: null,
-              OwningAgencyPseudo: null,
-              OriginalBookingLocation: " YXY ",
-              CreatingAgencyIata: null,
-              PnrCreationDate: null,
-              PnrPurgeDate: null,
-              OwningAgencyName: null,
-              TransactionAgencyName: null,
-              LastActionAgentID: null,
-            },
-            passengers: [],
-            airReservationSegments: [
-              {
-                TravelOrderIdentifier: 930001,
-                AirSegmentNbr: 1,
-                SegmentStatus: null,
-                DepartureDate: null,
-                DepartureTime: null,
-                CarrierCode: null,
-                BoardPoint: null,
-                OffPoint: null,
-                FlightNbr: null,
-                BookingCode: null,
-                ArrivalTime: null,
-                ChangeOfDay: null,
-                ConnectionIndicator: null,
-                JourneyTime: null,
-                DepartureTerminal: null,
-                ArrivalTerminal: null,
-                RecordLocator: null,
-                EquipmentType: null,
-                Mileage: null,
-                ClassOfServDesc: null,
-                ChangeOfGaugeIndicator: null,
-              },
-            ],
-            serviceFeeTransaction: null,
-          },
           externalTravelPortIdentifier: 930001,
           bookingReference: "API001",
           bookingFileVersionNumber: 3,
@@ -576,9 +480,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
             grossAmount: "999999.999",
-            sourceSnapshot: {
-              forged: true,
-            },
             bookingContext: {
               forged: true,
             },
@@ -745,9 +646,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             travelDeskTravelRequestId: otherRequest.id,
             bookingReference: "FORGED",
             externalBookingEventIdentifier: 999999,
-            sourceSnapshot: {
-              forged: true,
-            },
             bookingContext: {
               forged: true,
             },
