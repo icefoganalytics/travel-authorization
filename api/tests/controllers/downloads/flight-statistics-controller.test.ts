@@ -93,7 +93,9 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         // Arrange
         const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
-        const statistics = await flightStatisticFactory.createList(1001)
+        await flightStatisticFactory.create({ destinationCity: "First city" })
+        await flightStatisticFactory.createList(999, { destinationCity: "Middle city" })
+        await flightStatisticFactory.create({ destinationCity: "Last city" })
         const query = {
           format: "csv",
           order: [["id", "DESC"]],
@@ -110,9 +112,11 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
         // Assert
         expect(response.status).toEqual(200)
-        expect(parsedCsv.data.map((row) => row["Final Destination City"])).toEqual(
-          [...statistics].reverse().map((record) => record.destinationCity)
-        )
+        expect(parsedCsv.data.map((row) => row["Final Destination City"])).toEqual([
+          "Last city",
+          ...Array(999).fill("Middle city"),
+          "First city",
+        ])
       })
 
       test("when a non-admin supplies visible IDs and filter scopes, it exports no private data", async () => {
