@@ -92,10 +92,10 @@ export class RawBookingEventSnapshotQuery {
     const ordering = order.map((columnName) => sql.identifier(columnName))
 
     return db.query<Record<string, unknown>>(
-      sql`SELECT ${sql.join(projection)}
+      sql`SELECT ${sql.join(projection, ", ")}
           FROM ${sql.identifier("dbo", tableName)}
           WHERE [TravelOrderIdentifier] = $travelOrderIdentifier
-          ORDER BY ${sql.join(ordering)}`,
+          ORDER BY ${sql.join(ordering, ", ")}`,
       {
         bind: {
           travelOrderIdentifier,
