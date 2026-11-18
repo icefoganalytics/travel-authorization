@@ -56,21 +56,7 @@ through the HTTP client so an earlier request cannot update the displayed record
 
 ## File Downloads
 
-Generate CSV exports on the API using the existing `fast-csv` download service pattern. The backend
-owns policy-scoped queries, report serialization, spreadsheet-formula protection, and attachment
-filenames; exports include all authorized matches rather than a page of list results.
-Use `DownloadFileForm` with a download API URL to submit the authenticated request. Keep CSV
-generation and report formatting out of browser components. Preserve selected IDs, filters, ordering,
-and button presentation when migrating an export.
-
-CSV controllers dispatch supported formats explicitly and keep attachment headers in `respondWithCsv`.
-The three report services delegate CSV encoding and stream lifecycle to
-`api/src/lib/csv-streaming-client.ts`, which wraps `fast-csv` and sends the UTF-8 byte-order mark and
-headers before querying records. The services reuse `BaseModel.findEach` to load 1,000 records at a time
-and await each row write, rather than accumulating the report in memory. Requested sorting gains an
-ID tie-breaker; a read-only repeatable-read transaction keeps batches consistent and holds a database
-connection until generation finishes. Generation failures or client disconnects abort the transfer;
-the server never appends JSON to a partial CSV.
+Use [DownloadFileForm](common/DownloadFileForm.vue) with a download API URL to submit authenticated downloads. Components pass query configuration to the API; keep CSV generation, report formatting, and attachment filenames on the backend. See [Report Downloads](/docs/architecture/report-downloads.md) for query semantics and generation boundaries.
 
 ## Naming
 
