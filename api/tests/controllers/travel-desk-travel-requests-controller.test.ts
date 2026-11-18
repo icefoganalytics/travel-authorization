@@ -9,7 +9,7 @@ import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/travel-desk-travel-requests-controller.ts", () => {
   describe("TravelDeskTravelRequestsController", () => {
-    describe("#index", () => {
+    describe("#index - GET - /api/travel-desk-travel-requests", () => {
       test("when requests belong to different users, it lists only visible requests and their total count", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })

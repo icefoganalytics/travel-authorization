@@ -5,7 +5,7 @@ import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/expenses-controller.ts", () => {
   describe("ExpensesController", () => {
-    describe("#index - GET /api/expenses", () => {
+    describe("#index - GET - /api/expenses", () => {
       test.each([
         {
           direction: "ASC",
@@ -73,7 +73,7 @@ describe("api/src/controllers/expenses-controller.ts", () => {
       )
     })
 
-    describe("#create - POST /api/expenses", () => {
+    describe("#create - POST - /api/expenses", () => {
       test("when authorized, it creates an expense", async () => {
         // Arrange
         const user = await userFactory.create({
