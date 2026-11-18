@@ -7,7 +7,7 @@ import logger from "@/utils/logger"
 import { type FlightReconciliation } from "@/models"
 import { type BaseModelConstructor } from "@/models/base-model"
 import { FlightReconciliationsPolicy } from "@/policies"
-import { CreateCsvService } from "@/services/downloads/flight-reconciliations/create-csv-service"
+import { FlightReconciliations } from "@/services/downloads"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 
 export class FlightReconciliationsController extends BaseController<FlightReconciliation> {
@@ -60,7 +60,12 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
     response.status(200).attachment(fileName)
     response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
-    return CreateCsvService.perform(response, scopedFlightReconciliations, where, order)
+    return FlightReconciliations.CreateCsvService.perform(
+      response,
+      scopedFlightReconciliations,
+      where,
+      order
+    )
   }
 
   private buildFileName(): string {

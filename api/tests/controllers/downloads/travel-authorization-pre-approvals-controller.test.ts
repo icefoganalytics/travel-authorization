@@ -5,7 +5,7 @@ import { type Response } from "supertest"
 
 import { TravelAuthorizationPreApproval } from "@/models"
 import { TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS } from "@/serializers/travel-authorization-pre-approvals/report-serializer"
-import { CreateCsvService } from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
+import { TravelAuthorizationPreApprovals } from "@/services/downloads"
 
 import {
   travelAuthorizationPreApprovalFactory,
@@ -252,9 +252,11 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")
-        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+        vi.spyOn(TravelAuthorizationPreApprovals.CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            const [outputStream] = args as ConstructorParameters<
+              typeof TravelAuthorizationPreApprovals.CreateCsvService
+            >
             outputStream.write("\uFEFFName\r\nTraveller\r\n")
             await completion
             outputStream.end("Last traveller\r\n")
@@ -286,9 +288,11 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
         // Arrange
         const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
-        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+        vi.spyOn(TravelAuthorizationPreApprovals.CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            const [outputStream] = args as ConstructorParameters<
+              typeof TravelAuthorizationPreApprovals.CreateCsvService
+            >
             outputStream.end("\uFEFFName\r\nTraveller\r\nLast traveller\r\n")
           }
         )
@@ -310,9 +314,11 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")
-        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+        vi.spyOn(TravelAuthorizationPreApprovals.CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            const [outputStream] = args as ConstructorParameters<
+              typeof TravelAuthorizationPreApprovals.CreateCsvService
+            >
             outputStream.write("\uFEFFName\r\n")
             await completion
           }

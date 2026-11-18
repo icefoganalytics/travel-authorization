@@ -7,7 +7,7 @@ import logger from "@/utils/logger"
 import { type TravelAuthorizationPreApproval, type User } from "@/models"
 import { type BaseModelConstructor } from "@/models/base-model"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
-import { CreateCsvService } from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
+import { TravelAuthorizationPreApprovals } from "@/services/downloads"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 
 export class TravelAuthorizationPreApprovalsController extends BaseController<TravelAuthorizationPreApproval> {
@@ -62,7 +62,7 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
     response.status(200).attachment(fileName)
     response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
-    return CreateCsvService.perform(
+    return TravelAuthorizationPreApprovals.CreateCsvService.perform(
       response,
       scopedTravelAuthorizationPreApprovals,
       where,

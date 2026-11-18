@@ -7,7 +7,7 @@ import logger from "@/utils/logger"
 import { type FlightStatistic } from "@/models"
 import { type BaseModelConstructor } from "@/models/base-model"
 import { FlightStatisticsPolicy } from "@/policies"
-import { CreateCsvService } from "@/services/downloads/flight-statistics/create-csv-service"
+import { FlightStatistics } from "@/services/downloads"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 
 export class FlightStatisticsController extends BaseController<FlightStatistic> {
@@ -58,7 +58,7 @@ export class FlightStatisticsController extends BaseController<FlightStatistic> 
     response.status(200).attachment(fileName)
     response.setHeader("Content-Type", "text/csv; charset=utf-8")
 
-    return CreateCsvService.perform(response, scopedFlightStatistics, where, order)
+    return FlightStatistics.CreateCsvService.perform(response, scopedFlightStatistics, where, order)
   }
 
   private buildFileName(): string {

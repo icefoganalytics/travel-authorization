@@ -3,7 +3,7 @@ import Papa from "papaparse"
 import qs from "qs"
 
 import { TravelDeskTravelRequest, User } from "@/models"
-import { CreatePdfService } from "@/services/downloads/travel-desk-travel-requests/create-pdf-service"
+import { TravelDeskTravelRequests } from "@/services/downloads"
 
 import {
   travelAuthorizationFactory,
@@ -516,7 +516,7 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create()
-        vi.spyOn(CreatePdfService, "perform").mockRejectedValueOnce(
+        vi.spyOn(TravelDeskTravelRequests.CreatePdfService, "perform").mockRejectedValueOnce(
           new Error("PDF rendering failed")
         )
 
@@ -542,7 +542,7 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create()
-        vi.spyOn(CreatePdfService, "perform").mockRejectedValueOnce(
+        vi.spyOn(TravelDeskTravelRequests.CreatePdfService, "perform").mockRejectedValueOnce(
           new Error("PDF rendering failed")
         )
 

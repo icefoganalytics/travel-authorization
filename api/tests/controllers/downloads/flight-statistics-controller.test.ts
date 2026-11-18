@@ -4,7 +4,7 @@ import Papa from "papaparse"
 import { type Response } from "supertest"
 
 import { FLIGHT_STATISTIC_REPORT_HEADERS } from "@/serializers/flight-statistics/report-serializer"
-import { CreateCsvService } from "@/services/downloads/flight-statistics/create-csv-service"
+import { FlightStatistics } from "@/services/downloads"
 
 import { flightStatisticFactory, userFactory } from "@/factories"
 import { mockCurrentUser, readResponseLines, request } from "@/support"
@@ -197,9 +197,11 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")
-        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+        vi.spyOn(FlightStatistics.CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            const [outputStream] = args as ConstructorParameters<
+              typeof FlightStatistics.CreateCsvService
+            >
             outputStream.write("\uFEFFName\r\nTraveller\r\n")
             await completion
             outputStream.end("Last traveller\r\n")
@@ -231,9 +233,11 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         // Arrange
         const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
-        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+        vi.spyOn(FlightStatistics.CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            const [outputStream] = args as ConstructorParameters<
+              typeof FlightStatistics.CreateCsvService
+            >
             outputStream.end("\uFEFFName\r\nTraveller\r\nLast traveller\r\n")
           }
         )
@@ -255,9 +259,11 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         mockCurrentUser(user1)
         const generation = new EventEmitter()
         const completion = once(generation, "complete")
-        vi.spyOn(CreateCsvService, "perform").mockImplementation(
+        vi.spyOn(FlightStatistics.CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
-            const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
+            const [outputStream] = args as ConstructorParameters<
+              typeof FlightStatistics.CreateCsvService
+            >
             outputStream.write("\uFEFFName\r\n")
             await completion
           }
