@@ -172,7 +172,7 @@ export class TravelOrderEvent extends BaseModel<
       attributes: {
         exclude: ["creatingAgencyIata"],
         include: [
-          [sql.cast(sql.attribute("creatingAgencyIata"), "VARCHAR(30)"), "creatingAgencyIata"],
+          [sql.cast(sql.col("CreatingAgencyIata"), "VARCHAR(30)"), "creatingAgencyIata"],
         ],
       },
     })

@@ -72,8 +72,8 @@ export class ServiceFeeTransaction extends Model<
       attributes: {
         exclude: ["serviceFeeAmount", "commissionAmount"],
         include: [
-          [sql.cast(sql.attribute("serviceFeeAmount"), "VARCHAR(30)"), "serviceFeeAmount"],
-          [sql.cast(sql.attribute("commissionAmount"), "VARCHAR(30)"), "commissionAmount"],
+          [sql.cast(sql.col("ServiceFeeAmount"), "VARCHAR(30)"), "serviceFeeAmount"],
+          [sql.cast(sql.col("SFCommissionAmount"), "VARCHAR(30)"), "commissionAmount"],
         ],
       },
     })
