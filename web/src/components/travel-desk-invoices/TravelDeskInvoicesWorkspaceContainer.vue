@@ -952,15 +952,3 @@ onScopeDispose(() => {
   bookingRequestController?.abort()
 })
 </script>
-
-<style scoped>
-.max-w-full {
-  max-width: 100%;
-}
-.whitespace-pre-wrap {
-  white-space: pre-wrap;
-}
-.overflow-wrap-anywhere {
-  overflow-wrap: anywhere;
-}
-</style>
