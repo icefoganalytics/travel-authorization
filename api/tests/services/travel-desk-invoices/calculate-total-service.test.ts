@@ -7,9 +7,18 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
       test("when amounts have excess precision, it totals individually rounded lines", () => {
         // Arrange
         const items = [
-          { grossAmount: "1.0005", saleType: "Sale" as const },
-          { grossAmount: "1.0005", saleType: "Sale" as const },
-          { grossAmount: "-0.0005", saleType: "Refund" as const },
+          {
+            grossAmount: "1.0005",
+            saleType: "sale" as const,
+          },
+          {
+            grossAmount: "1.0005",
+            saleType: "sale" as const,
+          },
+          {
+            grossAmount: "-0.0005",
+            saleType: "refund" as const,
+          },
         ]
 
         // Act
@@ -25,17 +34,29 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
 
         // Act / Assert
         expect(() =>
-          CalculateTotalService.perform([{ grossAmount: amount, saleType: "Sale" }])
+          CalculateTotalService.perform([{ grossAmount: amount, saleType: "sale" }])
         ).toThrow(InvoiceValidationError)
       })
 
       test("when large sales and fractional credits are combined, it retains every thousandth", () => {
         // Arrange
         const items = [
-          { grossAmount: "900000000000000.001", saleType: "Sale" as const },
-          { grossAmount: "0.002", saleType: "Sale" as const },
-          { grossAmount: "0.001", saleType: "Refund" as const },
-          { grossAmount: "42.125", saleType: "Void" as const },
+          {
+            grossAmount: "900000000000000.001",
+            saleType: "sale" as const,
+          },
+          {
+            grossAmount: "0.002",
+            saleType: "sale" as const,
+          },
+          {
+            grossAmount: "0.001",
+            saleType: "refund" as const,
+          },
+          {
+            grossAmount: "42.125",
+            saleType: "void" as const,
+          },
         ]
 
         // Act
@@ -48,8 +69,14 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
       test("when a refund amount is negative, it subtracts the credit only once", () => {
         // Arrange
         const items = [
-          { grossAmount: "-0.001", saleType: "Sale" as const },
-          { grossAmount: "-1.234", saleType: "Refund" as const },
+          {
+            grossAmount: "-0.001",
+            saleType: "sale" as const,
+          },
+          {
+            grossAmount: "-1.234",
+            saleType: "refund" as const,
+          },
         ]
 
         // Act
@@ -62,8 +89,14 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
       test("when the total exceeds database precision, it rejects rather than rounding", () => {
         // Arrange
         const items = [
-          { grossAmount: "999999999999999.999", saleType: "Sale" as const },
-          { grossAmount: "0.001", saleType: "Sale" as const },
+          {
+            grossAmount: "999999999999999.999",
+            saleType: "sale" as const,
+          },
+          {
+            grossAmount: "0.001",
+            saleType: "sale" as const,
+          },
         ]
 
         // Act / Assert

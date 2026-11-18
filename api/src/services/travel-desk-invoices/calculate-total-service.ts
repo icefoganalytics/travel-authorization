@@ -1,5 +1,7 @@
 import Big from "big.js"
 
+import { type TravelDeskInvoiceItem } from "@/models"
+
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
@@ -7,7 +9,7 @@ import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
 const MAX_AMOUNT = new Big("999999999999999.999")
 
 export class CalculateTotalService extends BaseService {
-  constructor(protected items: { grossAmount: string; saleType: "Sale" | "Refund" | "Void" }[]) {
+  constructor(protected items: Pick<TravelDeskInvoiceItem, "grossAmount" | "saleType">[]) {
     super()
   }
 
@@ -19,13 +21,13 @@ export class CalculateTotalService extends BaseService {
       const amount = new Big(normalizedAmount)
 
       switch (item.saleType) {
-        case "Refund":
+        case "refund":
           total = total.minus(amount.abs())
           break
-        case "Sale":
+        case "sale":
           total = total.plus(amount)
           break
-        case "Void":
+        case "void":
           break
       }
     }
