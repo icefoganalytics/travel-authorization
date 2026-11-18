@@ -331,7 +331,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         })
       })
 
-      test("when source rows are absent, it still returns the saved booking context", async () => {
+      test("when source rows are absent, it still returns the saved invoice", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const invoice = await travelDeskInvoiceFactory.create()
@@ -350,7 +350,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
             bookingReference: invoice.bookingReference,
             externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
-            bookingContext: invoice.bookingContext,
             items: [],
           }),
         })
@@ -443,7 +442,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         })
       })
 
-      test("when synced data is created with forged totals and snapshot, it uses local source data and calculated total", async () => {
+      test("when synced data is created with forged totals, it uses local source data and calculated total", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
@@ -480,9 +479,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
             grossAmount: "999999.999",
-            bookingContext: {
-              forged: true,
-            },
             items: [
               {
                 productType: "air",
@@ -503,19 +499,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
             grossAmount: "125.500",
-            bookingContext: {
-              bookingEvent: expect.objectContaining({
-                travelOrderIdentifier: 930001,
-                bookingReference: "API001",
-                airReservationSegments: [
-                  expect.objectContaining({
-                    airSegmentNumber: 1,
-                    flightNumber: "1001",
-                  }),
-                ],
-              }),
-              serviceFeeEvents: [],
-            },
             items: [
               expect.objectContaining({
                 sourceAirSegmentNumber: 1,
@@ -634,7 +617,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const originalRequestId = invoice.travelDeskTravelRequestId
         const originalBookingReference = invoice.bookingReference
         const originalBookingEventId = invoice.externalBookingEventIdentifier
-        const originalBookingContext = invoice.bookingContext
         mockCurrentUser(officer)
 
         // Act
@@ -646,9 +628,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             travelDeskTravelRequestId: otherRequest.id,
             bookingReference: "FORGED",
             externalBookingEventIdentifier: 999999,
-            bookingContext: {
-              forged: true,
-            },
             currencyCode: "CAD",
             items: [
               {
@@ -668,7 +647,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             travelDeskTravelRequestId: originalRequestId,
             bookingReference: originalBookingReference,
             externalBookingEventIdentifier: originalBookingEventId,
-            bookingContext: originalBookingContext,
             invoiceNumber: "INV-ORIGINAL",
             grossAmount: "22.000",
             items: [expect.objectContaining({
