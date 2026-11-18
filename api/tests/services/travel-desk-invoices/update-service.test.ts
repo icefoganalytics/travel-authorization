@@ -147,7 +147,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         })
       })
 
-      test("when its cached source event is deleted, it edits from the saved snapshot and preserves omitted headers", async () => {
+      test("when its cached source event is deleted, it edits from the saved booking context and preserves omitted headers", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create({
           invoiceNumber: "KEEP-314",
@@ -183,7 +183,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         expect(persistedInvoice).toMatchObject({
           invoiceNumber: "KEEP-314",
           grossAmount: "12.001",
-          sourceSnapshot: {
+          bookingContext: {
             bookingEvent: { eventType: "B", airReservationSegments: [{ airSegmentNumber: 1 }] },
           },
           items: [{ sourceAirSegmentNumber: 1, grossAmount: "12.001" }],
