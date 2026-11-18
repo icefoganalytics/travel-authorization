@@ -12,7 +12,7 @@ import { TravelDeskBookingEventsExternalTravelPortIdentifierUniqueIndex } from "
 import type { BookingPassenger } from "@/integrations/travel-port-integration/models/booking-passenger"
 import type { BookingSegment } from "@/integrations/travel-port-integration/models/booking-segment"
 import type { BookingServiceFee } from "@/integrations/travel-port-integration/models/booking-service-fee"
-import type { RawBookingEventSnapshot } from "@/integrations/travel-port-integration/models/raw-booking-event-snapshot"
+import type { RawBookingEventSnapshot } from "@/integrations/travel-port-integration/serializers/travel-order-events/snapshot-serializer"
 
 export class TravelDeskBookingEvent extends Model<
   InferAttributes<TravelDeskBookingEvent>,

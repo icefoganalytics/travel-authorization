@@ -1,6 +1,7 @@
 import {
   DataTypes,
   Model,
+  sql,
   type InferAttributes,
   type InferCreationAttributes,
   type NonAttribute,
@@ -43,7 +44,6 @@ export class ServiceFeeTransaction extends Model<
   @Attribute({ type: DataTypes.CHAR(3), columnName: "SFCurrencyCode", allowNull: true })
   declare currencyCode: string | null
 
-  // Preserve source DECIMAL(18,3) values as strings instead of rounding through JS numbers.
   @Attribute({ type: DataTypes.DECIMAL(18, 3), columnName: "ServiceFeeAmount", allowNull: true })
   declare serviceFeeAmount: string | null
 
@@ -65,6 +65,19 @@ export class ServiceFeeTransaction extends Model<
     inverse: { as: "serviceFeeTransaction", type: "hasOne" },
   })
   declare travelOrderEvent?: NonAttribute<TravelOrderEvent>
+
+  static establishScopes(): void {
+    // Cast before Tedious reads DECIMAL values through JavaScript numbers.
+    this.addScope("withSourcePrecision", {
+      attributes: {
+        exclude: ["serviceFeeAmount", "commissionAmount"],
+        include: [
+          [sql.cast(sql.attribute("serviceFeeAmount"), "VARCHAR(30)"), "serviceFeeAmount"],
+          [sql.cast(sql.attribute("commissionAmount"), "VARCHAR(30)"), "commissionAmount"],
+        ],
+      },
+    })
+  }
 }
 
 export default ServiceFeeTransaction
