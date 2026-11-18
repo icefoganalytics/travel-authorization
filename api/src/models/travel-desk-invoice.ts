@@ -16,33 +16,14 @@ import {
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
-import { type TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
-type InvoiceBookingEventContext = Pick<
-  TravelDeskBookingEvent,
-  | "bookingFileVersionNumber"
-  | "eventType"
-  | "bookingReference"
-  | "reservationSystemDescription"
-  | "owningAgencyName"
-  | "transactionAgencyName"
-  | "transactionAgent"
-  | "creatingAgencyInternationalAirTransportAssociationNumber"
-  | "passengers"
-  | "airReservationSegments"
-  | "serviceFeeTransaction"
-> & {
-  travelOrderIdentifier: number
-  externalCreatedAt: string | null
-  hostEventTimestamp: string | null
-  passengerNameRecordCreatedAt: string | null
-}
+import type { TravelDeskBookingEventAsIndex } from "@/serializers/travel-desk-booking-events/index-serializer"
 
 export type InvoiceBookingContext = {
-  bookingEvent: InvoiceBookingEventContext
-  serviceFeeEvents: InvoiceBookingEventContext[]
+  bookingEvent: TravelDeskBookingEventAsIndex
+  serviceFeeEvents: TravelDeskBookingEventAsIndex[]
 }
 
 export class TravelDeskInvoice extends Model<
