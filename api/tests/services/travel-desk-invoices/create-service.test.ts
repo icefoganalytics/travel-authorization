@@ -3,10 +3,7 @@ import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import CreateService from "@/services/travel-desk-invoices/create-service"
 
-import {
-  travelDeskBookingEventFactory,
-  travelDeskTravelRequestFactory,
-} from "@/factories"
+import { travelDeskBookingEventFactory, travelDeskTravelRequestFactory } from "@/factories"
 
 describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
   describe("CreateService", () => {
@@ -131,95 +128,11 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         )
       })
 
-      test("when a cached booking predates raw capture, it requires re-synchronization", async () => {
-        // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
-        await travelDeskBookingEventFactory.create({
-          externalTravelPortIdentifier: 920001,
-          bookingReference: "INV001",
-          rawSourceSnapshot: null,
-          airReservationSegments: [
-            {
-              airSegmentNumber: 1,
-              segmentStatus: null,
-              carrierCode: null,
-              boardPoint: null,
-              offPoint: null,
-              flightNumber: null,
-              departureDate: null,
-              departureTime: null,
-              arrivalTime: null,
-              changeOfDay: null,
-            },
-          ],
-        })
-
-        // Act
-        const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
-          externalBookingEventIdentifier: 920001,
-          sourceServiceFeeEventExternalIdentifiers: [],
-          currencyCode: "CAD",
-          items: [],
-        })
-
-        // Assert
-        await expect(result).rejects.toThrow("Re-sync the booking before creating an invoice.")
-      })
-
-      test("when cached booking and fee rows change, it retains the original invoice snapshot and staff pricing", async () => {
+      test("when cached booking and fee rows change, it retains the original booking context and staff pricing", async () => {
         // Arrange
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(new Error("Source unavailable."))
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const bookingEvent = await travelDeskBookingEventFactory.create({
-          rawSourceSnapshot: {
-            travelOrderEvent: {
-              TravelOrderIdentifier: 920001,
-              RecordLocator: "INV001",
-              OriginalBookingLocation: " YXY ",
-              PnrBfVersionNbr: 8,
-              EventType: null,
-              HostEventTimeStamp: null,
-              CrsDescription: null,
-              DatabaseTimeStamp: "2026-10-29T12:00:00",
-              TransactionPseudo: null,
-              TransactionAgent: null,
-              OwningAgencyPseudo: null,
-              CreatingAgencyIata: null,
-              PnrCreationDate: null,
-              PnrPurgeDate: null,
-              OwningAgencyName: null,
-              TransactionAgencyName: null,
-              LastActionAgentID: null,
-            },
-            passengers: [],
-            airReservationSegments: [
-              {
-                TravelOrderIdentifier: 920001,
-                AirSegmentNbr: 1,
-                SegmentStatus: null,
-                DepartureDate: null,
-                DepartureTime: null,
-                CarrierCode: null,
-                BoardPoint: null,
-                OffPoint: null,
-                FlightNbr: null,
-                BookingCode: null,
-                ArrivalTime: null,
-                ChangeOfDay: null,
-                ConnectionIndicator: null,
-                JourneyTime: null,
-                DepartureTerminal: null,
-                ArrivalTerminal: null,
-                RecordLocator: null,
-                EquipmentType: null,
-                Mileage: null,
-                ClassOfServDesc: null,
-                ChangeOfGaugeIndicator: null,
-              },
-            ],
-            serviceFeeTransaction: null,
-          },
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
           eventType: "B",
@@ -260,42 +173,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           ],
         })
         const feeEvent = await travelDeskBookingEventFactory.create({
-          rawSourceSnapshot: {
-            travelOrderEvent: {
-              TravelOrderIdentifier: 920002,
-              RecordLocator: "INV001",
-              OriginalBookingLocation: " YXY ",
-              PnrBfVersionNbr: 8,
-              EventType: null,
-              HostEventTimeStamp: null,
-              CrsDescription: null,
-              DatabaseTimeStamp: "2026-10-29T12:00:00",
-              TransactionPseudo: null,
-              TransactionAgent: null,
-              OwningAgencyPseudo: null,
-              CreatingAgencyIata: null,
-              PnrCreationDate: null,
-              PnrPurgeDate: null,
-              OwningAgencyName: null,
-              TransactionAgencyName: null,
-              LastActionAgentID: null,
-            },
-            passengers: [],
-            airReservationSegments: [],
-            serviceFeeTransaction: {
-              TravelOrderIdentifier: 920002,
-              SFActiveVoidStatus: null,
-              SFDocumentNbr: null,
-              NameOnServiceFee: null,
-              SFIssueDate: null,
-              SFCurrencyCode: "CAD",
-              ServiceFeeAmount: "42.125",
-              SFCommissionAmount: null,
-              RelatedTicketDocumentNbr: null,
-              RelatedInvoiceNbr: null,
-              RecordLocator: null,
-            },
-          },
           externalTravelPortIdentifier: 920002,
           bookingReference: "INV001",
           eventType: "T",
@@ -353,11 +230,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         await bookingEvent.update({
           passengers: [],
           bookingFileVersionNumber: 9,
-          rawSourceSnapshot: null,
         })
         await feeEvent.update({
           serviceFeeTransaction: null,
-          rawSourceSnapshot: null,
         })
 
         // Assert
@@ -400,94 +275,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
                 }),
               ],
             }),
-            sourceSnapshot: {
-              bookingEvent: {
-                travelOrderEvent: {
-                  TravelOrderIdentifier: 920001,
-                  RecordLocator: "INV001",
-                  OriginalBookingLocation: " YXY ",
-                  PnrBfVersionNbr: 8,
-                  EventType: null,
-                  HostEventTimeStamp: null,
-                  CrsDescription: null,
-                  DatabaseTimeStamp: "2026-10-29T12:00:00",
-                  TransactionPseudo: null,
-                  TransactionAgent: null,
-                  OwningAgencyPseudo: null,
-                  CreatingAgencyIata: null,
-                  PnrCreationDate: null,
-                  PnrPurgeDate: null,
-                  OwningAgencyName: null,
-                  TransactionAgencyName: null,
-                  LastActionAgentID: null,
-                },
-                passengers: [],
-                airReservationSegments: [
-                  {
-                    TravelOrderIdentifier: 920001,
-                    AirSegmentNbr: 1,
-                    SegmentStatus: null,
-                    DepartureDate: null,
-                    DepartureTime: null,
-                    CarrierCode: null,
-                    BoardPoint: null,
-                    OffPoint: null,
-                    FlightNbr: null,
-                    BookingCode: null,
-                    ArrivalTime: null,
-                    ChangeOfDay: null,
-                    ConnectionIndicator: null,
-                    JourneyTime: null,
-                    DepartureTerminal: null,
-                    ArrivalTerminal: null,
-                    RecordLocator: null,
-                    EquipmentType: null,
-                    Mileage: null,
-                    ClassOfServDesc: null,
-                    ChangeOfGaugeIndicator: null,
-                  },
-                ],
-                serviceFeeTransaction: null,
-              },
-              serviceFeeEvents: [
-                {
-                  travelOrderEvent: {
-                    TravelOrderIdentifier: 920002,
-                    RecordLocator: "INV001",
-                    OriginalBookingLocation: " YXY ",
-                    PnrBfVersionNbr: 8,
-                    EventType: null,
-                    HostEventTimeStamp: null,
-                    CrsDescription: null,
-                    DatabaseTimeStamp: "2026-10-29T12:00:00",
-                    TransactionPseudo: null,
-                    TransactionAgent: null,
-                    OwningAgencyPseudo: null,
-                    CreatingAgencyIata: null,
-                    PnrCreationDate: null,
-                    PnrPurgeDate: null,
-                    OwningAgencyName: null,
-                    TransactionAgencyName: null,
-                    LastActionAgentID: null,
-                  },
-                  passengers: [],
-                  airReservationSegments: [],
-                  serviceFeeTransaction: {
-                    TravelOrderIdentifier: 920002,
-                    SFActiveVoidStatus: null,
-                    SFDocumentNbr: null,
-                    NameOnServiceFee: null,
-                    SFIssueDate: null,
-                    SFCurrencyCode: "CAD",
-                    ServiceFeeAmount: "42.125",
-                    SFCommissionAmount: null,
-                    RelatedTicketDocumentNbr: null,
-                    RelatedInvoiceNbr: null,
-                    RecordLocator: null,
-                  },
-                },
-              ],
-            },
             items: [
               expect.objectContaining({
                 productType: "air",
@@ -518,54 +305,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Arrange
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
-          rawSourceSnapshot: {
-            travelOrderEvent: {
-              TravelOrderIdentifier: 920001,
-              RecordLocator: "INV001",
-              OriginalBookingLocation: " YXY ",
-              PnrBfVersionNbr: 8,
-              EventType: null,
-              HostEventTimeStamp: null,
-              CrsDescription: null,
-              DatabaseTimeStamp: "2026-10-29T12:00:00",
-              TransactionPseudo: null,
-              TransactionAgent: null,
-              OwningAgencyPseudo: null,
-              CreatingAgencyIata: null,
-              PnrCreationDate: null,
-              PnrPurgeDate: null,
-              OwningAgencyName: null,
-              TransactionAgencyName: null,
-              LastActionAgentID: null,
-            },
-            passengers: [],
-            airReservationSegments: [
-              {
-                TravelOrderIdentifier: 920001,
-                AirSegmentNbr: 1,
-                SegmentStatus: null,
-                DepartureDate: null,
-                DepartureTime: null,
-                CarrierCode: null,
-                BoardPoint: null,
-                OffPoint: null,
-                FlightNbr: null,
-                BookingCode: null,
-                ArrivalTime: null,
-                ChangeOfDay: null,
-                ConnectionIndicator: null,
-                JourneyTime: null,
-                DepartureTerminal: null,
-                ArrivalTerminal: null,
-                RecordLocator: null,
-                EquipmentType: null,
-                Mileage: null,
-                ClassOfServDesc: null,
-                ChangeOfGaugeIndicator: null,
-              },
-            ],
-            serviceFeeTransaction: null,
-          },
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
           airReservationSegments: [
@@ -651,54 +390,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         // Arrange
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
-          rawSourceSnapshot: {
-            travelOrderEvent: {
-              TravelOrderIdentifier: 920001,
-              RecordLocator: "INV001",
-              OriginalBookingLocation: " YXY ",
-              PnrBfVersionNbr: 8,
-              EventType: null,
-              HostEventTimeStamp: null,
-              CrsDescription: null,
-              DatabaseTimeStamp: "2026-10-29T12:00:00",
-              TransactionPseudo: null,
-              TransactionAgent: null,
-              OwningAgencyPseudo: null,
-              CreatingAgencyIata: null,
-              PnrCreationDate: null,
-              PnrPurgeDate: null,
-              OwningAgencyName: null,
-              TransactionAgencyName: null,
-              LastActionAgentID: null,
-            },
-            passengers: [],
-            airReservationSegments: [
-              {
-                TravelOrderIdentifier: 920001,
-                AirSegmentNbr: 1,
-                SegmentStatus: null,
-                DepartureDate: null,
-                DepartureTime: null,
-                CarrierCode: null,
-                BoardPoint: null,
-                OffPoint: null,
-                FlightNbr: null,
-                BookingCode: null,
-                ArrivalTime: null,
-                ChangeOfDay: null,
-                ConnectionIndicator: null,
-                JourneyTime: null,
-                DepartureTerminal: null,
-                ArrivalTerminal: null,
-                RecordLocator: null,
-                EquipmentType: null,
-                Mileage: null,
-                ClassOfServDesc: null,
-                ChangeOfGaugeIndicator: null,
-              },
-            ],
-            serviceFeeTransaction: null,
-          },
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
           airReservationSegments: [

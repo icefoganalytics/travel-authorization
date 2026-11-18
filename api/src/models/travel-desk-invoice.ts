@@ -16,7 +16,6 @@ import {
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
-import type { RawBookingEventSnapshot } from "@/integrations/travel-port-integration/serializers/travel-order-events/snapshot-serializer"
 import { type TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
@@ -46,11 +45,6 @@ export type InvoiceBookingContext = {
   serviceFeeEvents: InvoiceBookingEventContext[]
 }
 
-export type InvoiceSourceSnapshot = {
-  bookingEvent: RawBookingEventSnapshot
-  serviceFeeEvents: RawBookingEventSnapshot[]
-}
-
 export class TravelDeskInvoice extends Model<
   InferAttributes<TravelDeskInvoice>,
   InferCreationAttributes<TravelDeskInvoice>
@@ -71,9 +65,6 @@ export class TravelDeskInvoice extends Model<
   @Attribute(DataTypes.INTEGER)
   @NotNull
   declare externalBookingEventIdentifier: number
-
-  @Attribute(DataTypes.JSONB)
-  declare sourceSnapshot: InvoiceSourceSnapshot | null
 
   @Attribute(DataTypes.JSONB)
   @NotNull

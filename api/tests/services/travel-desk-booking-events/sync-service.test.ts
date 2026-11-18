@@ -1,6 +1,6 @@
 import travelPortMigrationClient from "@/integrations/travel-port-integration/db/db-migration-client"
 import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
-import { SnapshotSerializer } from "@/integrations/travel-port-integration/serializers/travel-order-events"
+import { SyncSerializer } from "@/integrations/travel-port-integration/serializers/travel-order-events"
 import { TravelDeskBookingEvent } from "@/models"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
@@ -106,13 +106,12 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         ])
       })
 
-      test("when a legacy cached event is resynced, it captures the raw source without fabricating missing associations", async () => {
+      test("when a cached event is refreshed, it updates the version without fabricating missing associations", async () => {
         // Arrange
         const cachedEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 910001,
           bookingReference: "SRC001",
           bookingFileVersionNumber: 1,
-          rawSourceSnapshot: null,
         })
         await TravelPortIntegration.travelOrderEventFactory.create({
           travelOrderIdentifier: 910001,
@@ -128,45 +127,18 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           expect.objectContaining({
             id: cachedEvent.id,
             bookingFileVersionNumber: 2,
-            rawSourceSnapshot: {
-              travelOrderEvent: expect.objectContaining({
-                TravelOrderIdentifier: 910001,
-                PnrBfVersionNbr: 2,
-                RecordLocator: "SRC001",
-              }),
-              passengers: [],
-              airReservationSegments: [],
-              serviceFeeTransaction: null,
-            },
+            passengers: [],
+            airReservationSegments: [],
+            serviceFeeTransaction: null,
           }),
         ])
       })
 
-      test("when source values are omitted or normalized locally, it retains every original column and decimal digit", async () => {
+      test("when source fees exceed JavaScript number precision, it retains every decimal digit in normalized amounts", async () => {
         // Arrange
         const sourceEvent = await TravelPortIntegration.travelOrderEventFactory.create({
           travelOrderIdentifier: 910001,
           recordLocator: "SRC001",
-          transactionPseudo: "AB",
-          transactionAgent: "Agent",
-          originalBookingLocation: "ABC",
-          creatingAgencyIata: "123456789012345678",
-          lastActionAgentId: "LAST",
-          pnrPurgeDate: new Date("2031-01-01T00:00:00.123Z"),
-        })
-        await TravelPortIntegration.passengerFactory.create({
-          travelOrderIdentifier: sourceEvent.travelOrderIdentifier,
-          lastNameElement: 1,
-          passengerElement: 1,
-          absoluteNameElement: 7,
-          firstName: " Ada  ",
-          nameRemark: "Private source-only remark  ",
-        })
-        await TravelPortIntegration.airReservationSegmentFactory.create({
-          travelOrderIdentifier: sourceEvent.travelOrderIdentifier,
-          airSegmentNumber: 1,
-          boardPoint: "YXY",
-          classOfServiceDescription: " Economy  ",
         })
         await TravelPortIntegration.serviceFeeTransactionFactory.create({
           travelOrderIdentifier: sourceEvent.travelOrderIdentifier,
@@ -181,55 +153,21 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
           expect.objectContaining({
-            passengers: [
-              expect.objectContaining({
-                firstName: "Ada",
-              }),
-            ],
-            rawSourceSnapshot: {
-              travelOrderEvent: expect.objectContaining({
-                TravelOrderIdentifier: 910001,
-                TransactionPseudo: "AB  ",
-                TransactionAgent: "Agent   ",
-                OriginalBookingLocation: "ABC  ",
-                CreatingAgencyIata: "123456789012345678",
-                LastActionAgentID: "LAST   ",
-                PnrPurgeDate: "2031-01-01T00:00:00.123",
-              }),
-              passengers: [
-                expect.objectContaining({
-                  TravelOrderIdentifier: 910001,
-                  AbsoluteNameElement: 7,
-                  FirstName: " Ada  ",
-                  NameRemark: "Private source-only remark  ",
-                }),
-              ],
-              airReservationSegments: [
-                expect.objectContaining({
-                  TravelOrderIdentifier: 910001,
-                  AirSegmentNbr: 1,
-                  BoardPoint: "YXY  ",
-                  ClassOfServDesc: " Economy  ",
-                }),
-              ],
-              serviceFeeTransaction: expect.objectContaining({
-                TravelOrderIdentifier: 910001,
-                ServiceFeeAmount: "123456789012345.125",
-                SFCommissionAmount: "0.001",
-                RelatedInvoiceNbr: " INV001  ",
-              }),
-            },
+            serviceFeeTransaction: expect.objectContaining({
+              serviceFeeAmount: "123456789012345.125",
+              commissionAmount: "0.001",
+              relatedInvoiceNumber: "INV001",
+            }),
           }),
         ])
       })
 
-      test("when a later source serialization fails, it rolls back snapshots and normalized updates", async () => {
+      test("when a later source serialization fails, it rolls back normalized updates", async () => {
         // Arrange
         const cachedEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 910001,
           bookingReference: "SRC001",
           bookingFileVersionNumber: 1,
-          rawSourceSnapshot: null,
         })
         await TravelPortIntegration.travelOrderEventFactory.create({
           travelOrderIdentifier: 910001,
@@ -240,11 +178,11 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           travelOrderIdentifier: 910002,
           recordLocator: "SRC001",
         })
-        const serializeSnapshot = SnapshotSerializer.prototype.perform
-        vi.spyOn(SnapshotSerializer.prototype, "perform")
-          .mockImplementationOnce(serializeSnapshot)
+        const serializeEvent = SyncSerializer.prototype.perform
+        vi.spyOn(SyncSerializer.prototype, "perform")
+          .mockImplementationOnce(serializeEvent)
           .mockImplementationOnce(() => {
-            throw new Error("Later source snapshot serialization failed")
+            throw new Error("Later source event serialization failed")
           })
 
         // Act
@@ -255,7 +193,6 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
           expect.objectContaining({
             id: cachedEvent.id,
             bookingFileVersionNumber: 1,
-            rawSourceSnapshot: null,
           }),
         ])
       })

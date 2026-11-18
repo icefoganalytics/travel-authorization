@@ -12,7 +12,6 @@ import { TravelDeskBookingEventsExternalTravelPortIdentifierUniqueIndex } from "
 import type { BookingPassenger } from "@/integrations/travel-port-integration/models/booking-passenger"
 import type { BookingSegment } from "@/integrations/travel-port-integration/models/booking-segment"
 import type { BookingServiceFee } from "@/integrations/travel-port-integration/models/booking-service-fee"
-import type { RawBookingEventSnapshot } from "@/integrations/travel-port-integration/serializers/travel-order-events/snapshot-serializer"
 
 export class TravelDeskBookingEvent extends Model<
   InferAttributes<TravelDeskBookingEvent>,
@@ -79,10 +78,6 @@ export class TravelDeskBookingEvent extends Model<
 
   @Attribute(DataTypes.JSONB)
   declare serviceFeeTransaction: BookingServiceFee | null
-
-  /** Complete source payload; legacy rows require a successful resync before use. */
-  @Attribute(DataTypes.JSONB)
-  declare rawSourceSnapshot: RawBookingEventSnapshot | null
 
   @Attribute(DataTypes.DATE)
   @NotNull
