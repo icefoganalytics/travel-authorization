@@ -96,6 +96,7 @@ export class SyncService extends BaseService {
                 },
                 {
                   association: "serviceFeeTransaction",
+                  // Pass the scoped model to preserve decimal precision; association scopes only filter rows.
                   model:
                     TravelPortIntegration.Models.ServiceFeeTransaction.withScope("withSourcePrecision"),
                 },
