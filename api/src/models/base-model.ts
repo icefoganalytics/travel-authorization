@@ -1,4 +1,5 @@
 import {
+  EmptyResultError,
   Model,
   type AttributeNames,
   type Attributes,
@@ -11,6 +12,7 @@ import {
   type WhereOptions,
 } from "@sequelize/core"
 import { AllowReadonlyArray, Nullish } from "@sequelize/utils"
+import { isNil } from "lodash"
 
 import searchFieldsByTermsFactory from "@/utils/search-fields-by-terms-factory"
 
@@ -188,10 +190,28 @@ export abstract class BaseModel<
     const { primaryKeysAttributeNames } = ModelClass.modelDefinition
     const identifiers = [...primaryKeysAttributeNames].map((key) => this.get(key as keyof M))
     const identifier = identifiers.length === 1 ? identifiers[0] : identifiers
-    return ModelClass.withScope(scopes).findByPk(identifier, {
+    const record = await ModelClass.withScope(scopes).findByPk(identifier, {
       ...options,
-      rejectOnEmpty: true,
+      rejectOnEmpty: false,
     })
+
+    /**
+     * Reject only when the scoped query cannot find the root record.
+     *
+     * Sequelize forwards finder options to associations loaded with `separate: true`.
+     * Setting `rejectOnEmpty: true` above would therefore also reject an empty
+     * association, such as a draft authorization with no travel segments, even
+     * though the authorization itself exists.
+     *
+     * Disable query-level rejection and check the root result explicitly instead.
+     * Empty associations remain valid, while a missing or scope-excluded root
+     * still raises EmptyResultError, regardless of the caller's rejectOnEmpty option.
+     */
+    if (isNil(record)) {
+      throw new EmptyResultError("Record could not be reloaded because it no longer exists")
+    }
+
+    return record
   }
 }
 

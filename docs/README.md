@@ -5,3 +5,5 @@ Durable project knowledge for Travel Authorization. For application setup and de
 ## Architecture
 
 - [Travel Desk Report Downloads](/docs/architecture/report-downloads.md) - request selection, authorization, PDF and CSV generation, and runtime packaging.
+- [Final Destination](/docs/architecture/final-destination.md) - saved location ownership and legacy-data compatibility.
+
