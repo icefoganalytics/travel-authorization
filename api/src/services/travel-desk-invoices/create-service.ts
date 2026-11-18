@@ -5,7 +5,7 @@ import { db } from "@/db/db-client"
 
 import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
-import { type InvoiceBookingContext, type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
+import { type InvoiceBookingContext } from "@/models/travel-desk-invoice"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
@@ -81,7 +81,7 @@ export class CreateService extends BaseService {
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
-    const { bookingContext, sourceSnapshot } = await this.loadInvoiceBookingData(
+    const bookingContext = await this.loadInvoiceBookingContext(
       normalizedBookingReference,
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers
@@ -114,7 +114,6 @@ export class CreateService extends BaseService {
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         bookingReference: normalizedBookingReference,
         externalBookingEventIdentifier,
-        sourceSnapshot,
         bookingContext,
         currencyCode,
         invoiceNumber,
@@ -160,11 +159,11 @@ export class CreateService extends BaseService {
     }
   }
 
-  private async loadInvoiceBookingData(
+  private async loadInvoiceBookingContext(
     bookingReference: string,
     externalBookingEventIdentifier: number,
     sourceServiceFeeEventExternalIdentifiers: number[]
-  ): Promise<{ bookingContext: InvoiceBookingContext; sourceSnapshot: InvoiceSourceSnapshot }> {
+  ): Promise<InvoiceBookingContext> {
     const bookingEvents = await TravelDeskBookingEvent.findAll({
       where: {
         bookingReference,
@@ -202,33 +201,9 @@ export class CreateService extends BaseService {
       return event
     })
 
-    const rawBookingEvent = bookingEvents.find(
-      (event) => event.externalTravelPortIdentifier === externalBookingEventIdentifier
-    )?.rawSourceSnapshot
-    if (isNil(rawBookingEvent)) {
-      throw new InvoiceValidationError("Re-sync the booking before creating an invoice.")
-    }
-
-    const rawServiceFeeEvents = sourceServiceFeeEventExternalIdentifiers.map((eventId) => {
-      const rawSourceSnapshot = bookingEvents.find(
-        (event) => event.externalTravelPortIdentifier === eventId
-      )?.rawSourceSnapshot
-      if (isNil(rawSourceSnapshot)) {
-        throw new InvoiceValidationError("Re-sync the booking before creating an invoice.")
-      }
-
-      return rawSourceSnapshot
-    })
-
     return {
-      bookingContext: {
-        bookingEvent,
-        serviceFeeEvents,
-      },
-      sourceSnapshot: {
-        bookingEvent: rawBookingEvent,
-        serviceFeeEvents: rawServiceFeeEvents,
-      },
+      bookingEvent,
+      serviceFeeEvents,
     }
   }
 }
