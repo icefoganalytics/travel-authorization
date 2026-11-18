@@ -334,26 +334,26 @@
         </v-card-actions>
       </v-card>
       <v-card
-        v-if="snapshot"
+        v-if="bookingContext"
         class="mt-4"
         variant="outlined"
       >
         <v-card-text>
-          <h2 class="text-h6">Original booking source</h2>
-          <p>{{ eventSummary(snapshot.bookingEvent) }}</p>
+          <h2 class="text-h6">Booking context</h2>
+          <p>{{ eventSummary(bookingContext.bookingEvent) }}</p>
           <p>Passengers: {{ passengerNames.join(", ") || "None in the selected event" }}</p>
           <p>
             Travel agency:
             {{
-              snapshot.bookingEvent.owningAgencyName ||
-              snapshot.bookingEvent.transactionAgencyName ||
+              bookingContext.bookingEvent.owningAgencyName ||
+              bookingContext.bookingEvent.transactionAgencyName ||
               "Not supplied"
             }}
           </p>
           <details class="mt-3">
-            <summary>Original booking source snapshot</summary>
+            <summary>Booking context details</summary>
             <pre class="max-w-full overflow-auto whitespace-pre-wrap overflow-wrap-anywhere">{{
-              JSON.stringify(snapshot, null, 2)
+              JSON.stringify(bookingContext, null, 2)
             }}</pre>
           </details>
         </v-card-text>
@@ -376,9 +376,9 @@ import {
   travelDeskFlightSegmentsApi,
 } from "@/api/travel-desk-flight-segments-api"
 import {
+  type InvoiceBookingContext,
   type InvoiceInput,
   type InvoiceItemInput,
-  type InvoiceSourceSnapshot,
   type InvoiceUpdateInput,
   type TravelDeskInvoiceAsShow,
   TravelDeskInvoiceItemProductTypes,
@@ -410,7 +410,7 @@ const invoices = ref<TravelDeskInvoiceAsShow[] | null>(null)
 const invoice = ref<TravelDeskInvoiceAsShow | null>(null)
 const localSegments = ref<TravelDeskFlightSegmentAsIndex[]>([])
 const bookingEvents = ref<TravelDeskBookingEventAsIndex[]>([])
-const snapshot = ref<InvoiceSourceSnapshot | null>(null)
+const bookingContext = ref<InvoiceBookingContext | null>(null)
 const draft = ref<InvoiceInput | null>(null)
 const editingId = ref<number | null>(null)
 const isCreating = ref(false)
@@ -444,9 +444,9 @@ const feeEvents = computed(() =>
   bookingEvents.value.filter((event) => event.serviceFeeTransaction !== null)
 )
 const passengerNames = computed(() => {
-  if (!snapshot.value) return []
+  if (!bookingContext.value) return []
 
-  return snapshot.value.bookingEvent.passengers.map((passenger) =>
+  return bookingContext.value.bookingEvent.passengers.map((passenger) =>
     [passenger.firstName, passenger.lastName].filter(Boolean).join(" ")
   )
 })
@@ -535,12 +535,12 @@ function closeEditor() {
   hasSearched.value = false
   isSearching.value = false
   errorMessage.value = ""
-  snapshot.value = invoice.value?.sourceSnapshot ?? null
+  bookingContext.value = invoice.value?.bookingContext ?? null
 }
 
 function closeInvoice() {
   invoice.value = null
-  snapshot.value = null
+  bookingContext.value = null
 }
 
 function openNewInvoice() {
@@ -567,7 +567,7 @@ async function openInvoice(id: number) {
     if (version !== contextVersion) return
 
     invoice.value = result.travelDeskInvoice
-    snapshot.value = result.travelDeskInvoice.sourceSnapshot
+    bookingContext.value = result.travelDeskInvoice.bookingContext
     localSegments.value = localResult.travelDeskFlightSegments
   } catch (error) {
     if (version !== contextVersion) return
@@ -684,7 +684,7 @@ function feeSummary(event: TravelDeskBookingEventAsIndex) {
 }
 
 function segmentSummary(segmentNumber: number) {
-  const segment = snapshot.value?.bookingEvent.airReservationSegments.find(
+  const segment = bookingContext.value?.bookingEvent.airReservationSegments.find(
     (candidate) => candidate.airSegmentNumber === segmentNumber
   )
   if (!segment) return `Source segment ${segmentNumber}`
@@ -712,7 +712,7 @@ function startDraft() {
     return
   }
 
-  snapshot.value = cloneDeep({ bookingEvent: event, serviceFeeEvents: selectedFees })
+  bookingContext.value = cloneDeep({ bookingEvent: event, serviceFeeEvents: selectedFees })
   let passengerName: string | null = null
   if (event.passengers.length === 1) {
     const passenger = event.passengers[0]
@@ -782,11 +782,11 @@ function beginEdit() {
 
   const savedInvoice = invoice.value
   editingId.value = savedInvoice.id
-  snapshot.value = savedInvoice.sourceSnapshot
+  bookingContext.value = savedInvoice.bookingContext
   draft.value = {
     bookingReference: savedInvoice.bookingReference,
     externalBookingEventIdentifier: savedInvoice.externalBookingEventIdentifier,
-    sourceServiceFeeEventExternalIdentifiers: savedInvoice.sourceSnapshot.serviceFeeEvents.map(
+    sourceServiceFeeEventExternalIdentifiers: savedInvoice.bookingContext.serviceFeeEvents.map(
       (event) => event.travelOrderIdentifier
     ),
     currencyCode: savedInvoice.currencyCode,
@@ -902,7 +902,7 @@ async function saveInvoice() {
 
     closeEditor()
     invoice.value = result.travelDeskInvoice
-    snapshot.value = result.travelDeskInvoice.sourceSnapshot
+    bookingContext.value = result.travelDeskInvoice.bookingContext
     await loadInvoices()
     snack.success("Invoice saved")
   } catch (error) {
@@ -925,7 +925,7 @@ async function deleteInvoice() {
     if (version !== contextVersion) return
 
     invoice.value = null
-    snapshot.value = null
+    bookingContext.value = null
     await loadInvoices()
     snack.success("Invoice deleted")
   } catch (error) {
@@ -948,7 +948,7 @@ watch(
     isSearching.value = false
     closeEditor()
     invoice.value = null
-    snapshot.value = null
+    bookingContext.value = null
     invoices.value = []
 
     if (!canManage.value) return

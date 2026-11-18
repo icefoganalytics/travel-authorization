@@ -15,7 +15,7 @@ export enum TravelDeskInvoiceItemSaleTypes {
   VOID = "void",
 }
 
-export type InvoiceSourceSnapshot = {
+export type InvoiceBookingContext = {
   bookingEvent: TravelDeskBookingEventAsIndex
   serviceFeeEvents: TravelDeskBookingEventAsIndex[]
 }
@@ -40,7 +40,7 @@ export type TravelDeskInvoiceAsShow = {
   travelDeskTravelRequestId: number
   bookingReference: string
   externalBookingEventIdentifier: number
-  sourceSnapshot: InvoiceSourceSnapshot
+  bookingContext: InvoiceBookingContext
   currencyCode: string
   invoiceNumber: string | null
   invoiceDate: string | null
