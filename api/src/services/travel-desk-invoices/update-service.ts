@@ -37,8 +37,8 @@ export class UpdateService extends BaseService {
       throw new InvoiceValidationError("Invoice items must be an array.")
     }
 
-    const snapshot = this.invoice.sourceSnapshot
-    const serviceFeeEventIds = snapshot.serviceFeeEvents.map((event) => event.travelOrderIdentifier)
+    const bookingContext = this.invoice.bookingContext
+    const serviceFeeEventIds = bookingContext.serviceFeeEvents.map((event) => event.travelOrderIdentifier)
     const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async (transaction) => {
@@ -50,7 +50,7 @@ export class UpdateService extends BaseService {
         throw new InvoiceValidationError("Invoice does not exist.")
       }
 
-      await validateInvoiceItems(items, snapshot, serviceFeeEventIds, currencyCode)
+      await validateInvoiceItems(items, bookingContext, serviceFeeEventIds, currencyCode)
       await ValidateLinkedFlightSegmentsService.perform(items, invoice.travelDeskTravelRequestId)
 
       await invoice.update({
