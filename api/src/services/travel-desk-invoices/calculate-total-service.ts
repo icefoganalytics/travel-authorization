@@ -1,6 +1,6 @@
 import Big from "big.js"
 
-import { type TravelDeskInvoiceItem } from "@/models"
+import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
@@ -21,13 +21,13 @@ export class CalculateTotalService extends BaseService {
       const amount = new Big(normalizedAmount)
 
       switch (item.saleType) {
-        case "refund":
+        case TravelDeskInvoiceItem.SaleTypes.REFUND:
           total = total.minus(amount.abs())
           break
-        case "sale":
+        case TravelDeskInvoiceItem.SaleTypes.SALE:
           total = total.plus(amount)
           break
-        case "void":
+        case TravelDeskInvoiceItem.SaleTypes.VOID:
           break
       }
     }
