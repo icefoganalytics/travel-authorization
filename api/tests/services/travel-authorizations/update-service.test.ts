@@ -32,48 +32,87 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         expect(result.finalDestinationLocationId).toEqual(location.id)
       })
 
-      test.each([false, true])(
-        "when the itinerary is replaced (isActual=%s), it preserves the saved destination independently",
-        async (isActual) => {
-          // Arrange
-          const currentUser = await userFactory.create()
-          const savedLocation = await locationFactory.create()
-          const routeLocation = await locationFactory.create()
-          const travelAuthorization = await travelAuthorizationFactory.create({
-            userId: currentUser.id,
-            status: isActual
-              ? TravelAuthorization.Statuses.APPROVED
-              : TravelAuthorization.Statuses.DRAFT,
-            finalDestinationLocationId: savedLocation.id,
-            tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
-            tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
-          })
-          await travelSegmentFactory.associations({ travelAuthorization }).create({ isActual })
-          const segmentAttributes = {
-            travelAuthorizationId: travelAuthorization.id,
-            isActual,
-            segmentNumber: 1,
-            arrivalLocationId: routeLocation.id,
-            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-          }
-          const attributes = isActual
-            ? { travelSegmentActualsAttributes: [segmentAttributes] }
-            : { travelSegmentEstimatesAttributes: [segmentAttributes] }
-
-          // Act
-          const result = await UpdateService.perform(travelAuthorization, attributes, currentUser)
-
-          // Assert
-          expect(result).toEqual(
-            expect.objectContaining({
-              finalDestinationLocationId: savedLocation.id,
-              travelSegments: [
-                expect.objectContaining({ arrivalLocationId: routeLocation.id, isActual }),
-              ],
-            })
-          )
+      test("when the estimated itinerary is replaced, it preserves the saved destination independently", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const savedLocation = await locationFactory.create()
+        const routeLocation = await locationFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          userId: currentUser.id,
+          status: TravelAuthorization.Statuses.DRAFT,
+          finalDestinationLocationId: savedLocation.id,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
+          tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
+        })
+        await travelSegmentFactory.associations({ travelAuthorization }).create({ isActual: false })
+        const segmentAttributes = {
+          travelAuthorizationId: travelAuthorization.id,
+          isActual: false,
+          segmentNumber: 1,
+          arrivalLocationId: routeLocation.id,
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
         }
-      )
+        const attributes = {
+          travelSegmentEstimatesAttributes: [segmentAttributes],
+        }
+
+        // Act
+        const result = await UpdateService.perform(travelAuthorization, attributes, currentUser)
+
+        // Assert
+        expect(result).toEqual(
+          expect.objectContaining({
+            finalDestinationLocationId: savedLocation.id,
+            travelSegments: [
+              expect.objectContaining({
+                arrivalLocationId: routeLocation.id,
+                isActual: false,
+              }),
+            ],
+          })
+        )
+      })
+
+      test("when the actual itinerary is replaced, it preserves the saved destination independently", async () => {
+        // Arrange
+        const currentUser = await userFactory.create()
+        const savedLocation = await locationFactory.create()
+        const routeLocation = await locationFactory.create()
+        const travelAuthorization = await travelAuthorizationFactory.create({
+          userId: currentUser.id,
+          status: TravelAuthorization.Statuses.APPROVED,
+          finalDestinationLocationId: savedLocation.id,
+          tripTypeEstimate: TravelAuthorization.TripTypes.ONE_WAY,
+          tripTypeActual: TravelAuthorization.TripTypes.ONE_WAY,
+        })
+        await travelSegmentFactory.associations({ travelAuthorization }).create({ isActual: true })
+        const segmentAttributes = {
+          travelAuthorizationId: travelAuthorization.id,
+          isActual: true,
+          segmentNumber: 1,
+          arrivalLocationId: routeLocation.id,
+          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+        }
+        const attributes = {
+          travelSegmentActualsAttributes: [segmentAttributes],
+        }
+
+        // Act
+        const result = await UpdateService.perform(travelAuthorization, attributes, currentUser)
+
+        // Assert
+        expect(result).toEqual(
+          expect.objectContaining({
+            finalDestinationLocationId: savedLocation.id,
+            travelSegments: [
+              expect.objectContaining({
+                arrivalLocationId: routeLocation.id,
+                isActual: true,
+              }),
+            ],
+          })
+        )
+      })
 
       test("when update request includes two travel segments, and is a round trip, builds the correct travel segments", async () => {
         // Arrange
