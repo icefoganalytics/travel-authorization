@@ -34,14 +34,15 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
           destinationCity: "Vancouver",
           destinationProvince: "BC",
         })
-        const query = {
-          format: "csv",
-          where: { destinationProvince: "YT" },
-          filters: { byDepartmentMailcodes: ["A-1", "B-1"] },
-        }
 
         // Act
-        const response = await request().post("/api/downloads/flight-statistics").query(query)
+        const response = await request()
+          .post("/api/downloads/flight-statistics")
+          .query({
+            format: "csv",
+            where: { destinationProvince: "YT" },
+            filters: { byDepartmentMailcodes: ["A-1", "B-1"] },
+          })
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -93,15 +94,16 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         await flightStatisticFactory.create({ destinationCity: "First city" })
         await flightStatisticFactory.createList(999, { destinationCity: "Middle city" })
         await flightStatisticFactory.create({ destinationCity: "Last city" })
-        const query = {
-          format: "csv",
-          order: [["id", "DESC"]],
-          page: 2,
-          perPage: 1,
-        }
 
         // Act
-        const response = await request().post("/api/downloads/flight-statistics").query(query)
+        const response = await request()
+          .post("/api/downloads/flight-statistics")
+          .query({
+            format: "csv",
+            order: [["id", "DESC"]],
+            page: 2,
+            perPage: 1,
+          })
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -121,16 +123,15 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         const user1 = await userFactory.asFinanceUser().create()
         mockCurrentUser(user1)
         const statistic = await flightStatisticFactory.create({ departmentMailcode: "F-1" })
-        const query = {
-          format: "csv",
-          where: { id: [statistic.id] },
-          filters: { byDepartmentMailcodes: ["F-1"] },
-        }
 
         // Act
         const response = await request()
           .post("/api/downloads/flight-statistics")
-          .query(query)
+          .query({
+            format: "csv",
+            where: { id: [statistic.id] },
+            filters: { byDepartmentMailcodes: ["F-1"] },
+          })
           .responseType("blob")
 
         // Assert

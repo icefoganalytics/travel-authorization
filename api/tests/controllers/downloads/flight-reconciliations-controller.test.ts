@@ -118,16 +118,17 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         ])
         const selectedIds = reconciliations.map(({ id }) => id)
         await flightReconciliationFactory.create({ invoiceDetailComputedTravelerLastName: "Excluded" })
-        const query = {
-          format: "csv",
-          where: { id: selectedIds },
-          order: [["id", "DESC"]],
-          perPage: 1,
-          page: 2,
-        }
 
         // Act
-        const response = await request().post("/api/downloads/flight-reconciliations").query(query)
+        const response = await request()
+          .post("/api/downloads/flight-reconciliations")
+          .query({
+            format: "csv",
+            where: { id: selectedIds },
+            order: [["id", "DESC"]],
+            perPage: 1,
+            page: 2,
+          })
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -172,18 +173,17 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         const hiddenReconciliation = await flightReconciliationFactory.create({
           invoiceDepartmentMailcode: "OTHER",
         })
-        const query = {
-          format: "csv",
-          where: {
-            id: [hiddenReconciliation.id],
-            invoiceDepartmentMailcode: "OTHER",
-          },
-        }
 
         // Act
         const response = await request()
           .post("/api/downloads/flight-reconciliations")
-          .query(query)
+          .query({
+            format: "csv",
+            where: {
+              id: [hiddenReconciliation.id],
+              invoiceDepartmentMailcode: "OTHER",
+            },
+          })
           .responseType("blob")
 
         // Assert

@@ -40,20 +40,21 @@ describe("api/src/controllers/expenses-controller.ts", () => {
             date: "2026-11-10",
             cost: 30,
           })
-          const query = {
-            where: {
-              travelAuthorizationId: travelAuthorization.id,
-              type: Expense.Types.ESTIMATE,
-            },
-            order: [
-              ["date", "ASC"],
-              ["expenseType", direction],
-            ],
-            perPage: 1,
-          }
 
           // Act
-          const response = await request().get("/api/expenses").query(query)
+          const response = await request()
+            .get("/api/expenses")
+            .query({
+              where: {
+                travelAuthorizationId: travelAuthorization.id,
+                type: Expense.Types.ESTIMATE,
+              },
+              order: [
+                ["date", "ASC"],
+                ["expenseType", direction],
+              ],
+              perPage: 1,
+            })
 
           // Assert
           expect(response.status).toEqual(200)
