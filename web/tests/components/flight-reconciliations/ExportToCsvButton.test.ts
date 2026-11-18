@@ -18,7 +18,10 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       const vuetify = mockVuetify()
       const wrapper = mount(ExportToCsvButton, {
         props: {
-          flightReconciliationIds: [1],
+          where: {
+            id: [1],
+            reconciled: true,
+          },
           order: [["invoiceBookingDate", "DESC"]],
         },
         global: {
@@ -27,7 +30,12 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       })
 
       // Act
-      await wrapper.setProps({ flightReconciliationIds: [2, 3] })
+      await wrapper.setProps({
+        where: {
+          id: [2, 3],
+          reconciled: true,
+        },
+      })
       await wrapper.get("form").trigger("submit")
       await flushPromises()
       const submittedUrl = new URL(submittedUrls[0])
@@ -38,6 +46,7 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
         format: "csv",
         where: {
           id: ["2", "3"],
+          reconciled: "true",
         },
         order: [["invoiceBookingDate", "DESC"]],
       })
@@ -54,7 +63,6 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       const vuetify = mockVuetify()
       const wrapper = mount(ExportToCsvButton, {
         props: {
-          flightReconciliationIds: [],
           filters: { invoiceBookingDateBetween: ["2026-11-01", "2026-11-30"] },
           where: { reconciled: false },
           order: [["invoiceBookingDate", "DESC"]],
@@ -73,8 +81,12 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       // Assert
       expect(query).toEqual({
         format: "csv",
-        where: { reconciled: "false" },
-        filters: { invoiceBookingDateBetween: ["2026-11-01", "2026-11-30"] },
+        where: {
+          reconciled: "false",
+        },
+        filters: {
+          invoiceBookingDateBetween: ["2026-11-01", "2026-11-30"],
+        },
         order: [["invoiceBookingDate", "DESC"]],
       })
     })

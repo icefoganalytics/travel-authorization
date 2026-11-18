@@ -20,13 +20,11 @@ import DownloadFileForm from "@/components/common/DownloadFileForm.vue"
 
 const props = withDefaults(
   defineProps<{
-    flightReconciliationIds?: number[]
     filters?: FlightReconciliationFiltersOptions
     where?: FlightReconciliationWhereOptions
     order?: ModelOrder[]
   }>(),
   {
-    flightReconciliationIds: () => [],
     filters: () => ({}),
     where: () => ({}),
     order: () => [],
@@ -34,13 +32,8 @@ const props = withDefaults(
 )
 
 const downloadUrl = computed(() => {
-  const where = { ...props.where }
-  if (props.flightReconciliationIds.length > 0) {
-    where.id = props.flightReconciliationIds
-  }
-
   return reportsApi.downloadPath({
-    where,
+    where: props.where,
     filters: props.filters,
     order: props.order,
   })

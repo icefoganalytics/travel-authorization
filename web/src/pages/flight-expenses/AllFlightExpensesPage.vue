@@ -13,7 +13,7 @@
           md="3"
         >
           <ExportToCsvButton
-            :flight-reconciliation-ids="selectedFlightReconciliationIds"
+            :where="exportWhere"
             :order="order"
             :filters="filters"
             color="primary"
@@ -61,6 +61,14 @@ const filters = computed(() => {
 })
 
 const selectedFlightReconciliationIds = ref([])
+
+const exportWhere = computed(() => {
+  if (isEmpty(selectedFlightReconciliationIds.value)) return {}
+
+  return {
+    id: selectedFlightReconciliationIds.value,
+  }
+})
 
 /** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsDataTableServer> | null>} */
 const flightReconciliationsDataTable = ref(null)
