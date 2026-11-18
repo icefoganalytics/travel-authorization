@@ -51,4 +51,4 @@ Only the deployed production application connects to the real booking-feed datab
 
 The production initializer returns before loading source database initialization actions. It must not create, migrate, or seed production-owned source objects. Production network routing, credentials, and install-specific selection semantics cannot be verified from the local simulator; validate them in the deployed environment without enabling simulator initialization there.
 
-Source-schema migrations and synthetic seeds belong only to local development and test setup. Do not add writes to the external booking source or repoint TravCom's initialization at it. Application-owned synchronization, selection, and editing rules belong to the [invoice domain contract](/agents/plans/Plan,%20Travel%20Desk%20Flight%20Segment%20Cost%20Tracking%20and%20Invoice%20Generation,%202026-01-02.md).
+Source-schema migrations and synthetic seeds belong only to local development and test setup. Do not add writes to the external booking source or repoint TravCom's initialization at it.

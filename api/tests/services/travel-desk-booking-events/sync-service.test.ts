@@ -262,7 +262,9 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
-          expect.objectContaining({ id: unrelatedEvent.id }),
+          expect.objectContaining({
+            id: unrelatedEvent.id,
+          }),
         ])
       })
 
@@ -287,7 +289,10 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
-          expect.objectContaining({ id: retainedEvent.id, deletedAt: null }),
+          expect.objectContaining({
+            id: retainedEvent.id,
+            deletedAt: null,
+          }),
         ])
       })
 
@@ -336,7 +341,10 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
-          expect.objectContaining({ id: cachedEvent.id, deletedAt: null }),
+          expect.objectContaining({
+            id: cachedEvent.id,
+            deletedAt: null,
+          }),
         ])
       })
 
