@@ -3,8 +3,12 @@ import { createInterface } from "node:readline"
 
 import { type Response, type Test } from "supertest"
 
-// Attach before starting the request so early response bytes cannot be missed.
-// This reads transport lines, not CSV records (quoted CSV fields can span lines).
+/**
+ * Observe the first transport lines without waiting for the response to finish.
+ * Attach before starting an unbuffered request so early bytes cannot be missed.
+ * The caller starts and awaits the request and releases any generation gate.
+ * These are transport lines, not CSV records: quoted fields can span lines.
+ */
 export function readResponseLines(download: Test, { lineCount }: { lineCount: number }) {
   return new Promise<{ status: number; lines: string[] }>((resolve, reject) => {
     download.once("error", reject)
