@@ -31,7 +31,7 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
               {
                 productType: "air",
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: "sale",
                 grossAmount: "2.000",
                 position: 0,
               },

@@ -14,7 +14,7 @@ export type InvoiceItemAttributes = {
   ticketNumber?: string | null
   vendor?: string | null
   description?: string | null
-  saleType: "Sale" | "Refund" | "Void"
+  saleType: TravelDeskInvoiceItem["saleType"]
   grossAmount: string
   position: number
 }
