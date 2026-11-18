@@ -135,9 +135,7 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
         const travelAuthorizationAttributes = {
           userId: user.id,
         }
-        const creator = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const creator = await userFactory.create()
 
         // Act
         const travelAuthorization = await CreateService.perform(

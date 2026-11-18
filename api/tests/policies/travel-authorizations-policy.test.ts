@@ -11,7 +11,6 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         // Arrange
         const user = userFactory.build({
           id: 1,
-          roles: [User.Roles.USER],
         })
         const travelAuthorization = travelAuthorizationFactory.build({
           userId: user.id,
@@ -65,7 +64,6 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         // Arrange
         const user = userFactory.build({
           id: 1,
-          roles: [User.Roles.USER],
         })
         const travelAuthorization = travelAuthorizationFactory.build({
           userId: user.id,
@@ -106,7 +104,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
       ])("when another traveller tries updating a request in %s state, it denies access", (status) => {
         // Arrange
-        const user = userFactory.build({ id: 1, roles: [User.Roles.USER] })
+        const user = userFactory.build({ id: 1 })
         const travelAuthorization = travelAuthorizationFactory.build({ userId: 2, status })
         const policy = new TravelAuthorizationsPolicy(user, travelAuthorization)
 
@@ -119,7 +117,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
       test("when a claim is returned, it does not permit a special destination correction", () => {
         // Arrange
-        const user = userFactory.build({ id: 1, roles: [User.Roles.USER] })
+        const user = userFactory.build({ id: 1 })
         const travelAuthorization = travelAuthorizationFactory.build({
           userId: user.id,
           status: TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
@@ -159,9 +157,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
       test("when a request is submitted, it rejects a traveller's trip and workflow edits", () => {
         // Arrange
-        const user = userFactory.build({
-          roles: [User.Roles.USER],
-        })
+        const user = userFactory.build()
         const travelAuthorization = travelAuthorizationFactory.build({
           status: TravelAuthorization.Statuses.SUBMITTED,
         })
@@ -220,9 +216,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
       test("when a request is approved, it permits actual-trip details but not estimated-trip edits", () => {
         // Arrange
-        const user = userFactory.build({
-          roles: [User.Roles.USER],
-        })
+        const user = userFactory.build()
         const travelAuthorization = travelAuthorizationFactory.build({
           status: TravelAuthorization.Statuses.APPROVED,
         })
@@ -267,7 +261,6 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
         // Arrange
         const user = userFactory.build({
           id: 1,
-          roles: [User.Roles.USER],
         })
         const travelAuthorization = travelAuthorizationFactory.build({
           userId: user.id,
@@ -324,9 +317,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
       test("when the policy record is approved, it permits actual-trip details instead of draft fields", () => {
         // Arrange
-        const user = userFactory.build({
-          roles: [User.Roles.USER],
-        })
+        const user = userFactory.build()
         const travelAuthorization = travelAuthorizationFactory.build({
           status: TravelAuthorization.Statuses.APPROVED,
         })
@@ -349,9 +340,7 @@ describe("api/src/policies/travel-authorizations-policy.ts", () => {
 
       test("when the policy record has no initial state, it does not infer draft permissions", () => {
         // Arrange
-        const user = userFactory.build({
-          roles: [User.Roles.USER],
-        })
+        const user = userFactory.build()
         const travelAuthorization = travelAuthorizationFactory.build({
           status: null,
         })
