@@ -1,4 +1,3 @@
-import travelPortDb from "@/integrations/travel-port-integration/db/db-client"
 import travelPortMigrationClient from "@/integrations/travel-port-integration/db/db-migration-client"
 import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
 import { SnapshotSerializer } from "@/integrations/travel-port-integration/serializers/travel-order-events"
