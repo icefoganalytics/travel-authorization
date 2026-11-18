@@ -1,13 +1,14 @@
 import { DateTime } from "luxon"
 
 import { TravelAuthorization } from "@/models"
-import SubmitExpenseClaimService from "@/services/travel-authorizations/submit-expense-claim-service"
 
 import {
   travelAuthorizationFactory,
   travelSegmentFactory,
   userFactory,
 } from "@/factories"
+
+import SubmitExpenseClaimService from "@/services/travel-authorizations/submit-expense-claim-service"
 
 describe("api/src/services/travel-authorizations/submit-expense-claim-service.ts", () => {
   describe("SubmitExpenseClaimService", () => {
