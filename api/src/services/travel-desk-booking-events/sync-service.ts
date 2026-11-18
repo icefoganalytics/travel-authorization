@@ -11,33 +11,33 @@ import { SourceUnavailableError } from "@/services/travel-desk-booking-events/so
 import WithSyncLockService from "@/services/travel-desk-booking-events/with-sync-lock-service"
 
 export class SyncService extends BaseService {
-  constructor(protected recordLocator: string) {
+  constructor(protected bookingReference: string) {
     super()
-
-    this.recordLocator = recordLocator.trim().toUpperCase()
   }
 
   async perform(): Promise<void> {
-    await WithSyncLockService.perform(this.recordLocator, async () => {
+    if (this.bookingReference !== this.bookingReference.trim().toUpperCase()) {
+      throw new Error("Booking reference must be uppercase without leading or trailing whitespace.")
+    }
+
+    await WithSyncLockService.perform(this.bookingReference, async () => {
       const matchedSourceIds: number[] = []
-      await this.syncTravelOrderEvents(this.recordLocator, async (travelOrderEvent) => {
-        const serializedTravelOrderEvent =
-          TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(travelOrderEvent)
-        const { travelOrderIdentifier, ...travelOrderEventAttributes } = serializedTravelOrderEvent
-        const travelDeskBookingEventAttributes = {
-          ...travelOrderEventAttributes,
-          externalTravelPortIdentifier: travelOrderIdentifier,
-          recordLocator: this.recordLocator,
-        }
+      await this.syncTravelOrderEvents(this.bookingReference, async (travelOrderEvent) => {
+        const travelDeskBookingEventAttributes =
+          TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(
+            travelOrderEvent,
+            this.bookingReference
+          )
+        const { externalTravelPortIdentifier } = travelDeskBookingEventAttributes
         const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
-          where: { externalTravelPortIdentifier: travelOrderIdentifier },
+          where: { externalTravelPortIdentifier },
         })
         if (isNil(travelDeskBookingEvent)) {
           await TravelDeskBookingEvent.create(travelDeskBookingEventAttributes)
         } else {
           await travelDeskBookingEvent.update(travelDeskBookingEventAttributes)
         }
-        matchedSourceIds.push(travelOrderIdentifier)
+        matchedSourceIds.push(externalTravelPortIdentifier)
       })
 
       await this.deleteUnmatchedBookingEvents(matchedSourceIds)
@@ -46,6 +46,9 @@ export class SyncService extends BaseService {
 
   /**
    * Reads source events and their associations in one SQL Server SERIALIZABLE transaction.
+   * The caller passes the application's booking reference as recordLocator because
+   * Travelport identifies the same booking using its original recordLocator field.
+   *
    * Shared and key-range locks prevent concurrent changes from shifting offset-based
    * batches or changing relationships already read. Otherwise, a skipped source event
    * could be mistaken for a deletion during local reconciliation.
@@ -107,7 +110,7 @@ export class SyncService extends BaseService {
   private async deleteUnmatchedBookingEvents(matchedSourceIds: number[]): Promise<void> {
     await TravelDeskBookingEvent.destroy({
       where: {
-        recordLocator: this.recordLocator,
+        bookingReference: this.bookingReference,
         externalTravelPortIdentifier: {
           [Op.notIn]: matchedSourceIds,
         },
