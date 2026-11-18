@@ -72,10 +72,9 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
         expect(activeItems).toEqual([])
       })
 
-      test("when an invoice is deleted, it retains the booking context and soft-deletes its lines", async () => {
+      test("when an invoice is deleted, it soft-deletes the invoice and its lines", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create()
-        const bookingContext = invoice.bookingContext
         const item = await travelDeskInvoiceItemFactory
           .associations({
             invoice,
@@ -98,7 +97,6 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
         expect(invoices).toEqual([
           expect.objectContaining({
             id: invoice.id,
-            bookingContext,
             deletedAt: expect.any(Date),
             items: [
               expect.objectContaining({
