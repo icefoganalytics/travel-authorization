@@ -1,6 +1,6 @@
 <template>
   <v-skeleton-loader
-    v-if="isNil(travelAuthorization?.id)"
+    v-if="isNil(travelAuthorization?.id) || !isInitialized"
     type="card"
   />
   <v-form
@@ -18,13 +18,29 @@
       </v-col>
     </v-row>
 
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <LocationsAutocomplete
+          v-model="travelAuthorization.finalDestinationLocationId"
+          :in-territory="travelAuthorization.allTravelWithinTerritory"
+          label="Final Destination"
+          density="compact"
+          variant="outlined"
+          @update:model-value="emit('update:finalDestinationLocationId', $event)"
+        />
+      </v-col>
+    </v-row>
+
     <component
       :is="tripTypeComponent"
       v-if="tripTypeComponent"
       class="mt-3"
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-      :current-travel-segment-estimates="travelSegments"
+      :current-travel-segments="travelSegments"
       @updated="updateTravelSegmentsAttributes"
     />
     <div v-else>Trip type {{ tripType }} not implemented!</div>
@@ -90,13 +106,12 @@ import useRouteQuery from "@/use/utils/use-route-query"
 
 import { TRIP_TYPES } from "@/api/travel-authorizations-api"
 
-import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
-
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
 import TravelDurationFromTravelSegmentsTextField from "@/components/travel-authorizations/TravelDurationFromTravelSegmentsTextField.vue"
 
@@ -117,9 +132,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  "update:finalDestinationLocationId",
   "update:departureDate",
   "update:returnDate",
+  "update:finalDestinationLocationId",
 ])
 
 const { mdAndUp } = useDisplay()
@@ -137,23 +152,17 @@ const travelSegmentEstimatesQuery = computed(() => ({
     travelAuthorizationId: props.travelAuthorizationId,
     isActual: false,
   },
+  perPage: -1,
 }))
-const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
+const { travelSegments, isInitialized } = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
-const finalDestinationSegment = computed(() =>
-  determineFinalDestinationSegment(tripType.value, travelSegmentsAttributes.value)
-)
-const finalDestinationLocationId = computed(
-  () => finalDestinationSegment.value?.arrivalLocationId ?? null
-)
 
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes
 
   updateDepartureDate(newTravelSegmentsAttributes)
-  emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
   updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes)
 }
 
@@ -227,6 +236,7 @@ async function saveWrapper() {
   isSaving.value = true
   try {
     await save({
+      finalDestinationLocationId: travelAuthorization.value.finalDestinationLocationId,
       tripTypeEstimate: tripType.value,
       travelDurationEstimate: travelAuthorization.value.travelDurationEstimate,
       daysOffTravelStatusEstimate: travelAuthorization.value.daysOffTravelStatusEstimate,

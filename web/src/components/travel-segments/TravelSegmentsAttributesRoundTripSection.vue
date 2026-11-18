@@ -277,10 +277,9 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  currentTravelSegmentEstimates: {
+  currentTravelSegments: {
     type: Array,
     default: () => [],
-    validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
   isActual: {
     type: Boolean,
@@ -352,7 +351,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
 }
 
 watch(
-  () => cloneDeep(props.currentTravelSegmentEstimates),
+  () => cloneDeep(props.currentTravelSegments),
   (newTravelSegmentEstimates) => {
     applyExistingDefaultValues(newTravelSegmentEstimates)
   },

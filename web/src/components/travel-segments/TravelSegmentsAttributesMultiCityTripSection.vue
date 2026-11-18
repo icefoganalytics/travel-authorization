@@ -24,7 +24,7 @@
         md="3"
       >
         <LocationsAutocomplete
-          v-model="firstTravelSegmentAttributes.arrivalLocationId"
+          :model-value="firstTravelSegmentAttributes.arrivalLocationId"
           label="To"
           :in-territory="allTravelWithinTerritory"
           :filters="buildLocationFilters(firstTravelSegmentAttributes.departureLocationId)"
@@ -33,9 +33,7 @@
           variant="outlined"
           persistent-hint
           required
-          @update:model-value="
-            updateTravelSegmentAttributeByIndex(1, 'departureLocationId', $event)
-          "
+          @update:model-value="updateArrivalLocation(0, $event)"
         />
       </v-col>
       <v-col
@@ -171,7 +169,7 @@
           md="3"
         >
           <LocationsAutocomplete
-            v-model="travelSegmentsAttributes[index].arrivalLocationId"
+            :model-value="travelSegmentsAttributes[index].arrivalLocationId"
             label="To"
             :in-territory="allTravelWithinTerritory"
             :filters="buildLocationFilters(travelSegmentsAttributes[index].departureLocationId)"
@@ -180,9 +178,7 @@
             variant="outlined"
             persistent-hint
             required
-            @update:model-value="
-              updateTravelSegmentAttributeByIndex(index + 1, 'departureLocationId', $event)
-            "
+            @update:model-value="updateArrivalLocation(index, $event)"
           />
         </v-col>
         <v-col
@@ -318,10 +314,9 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  currentTravelSegmentEstimates: {
+  currentTravelSegments: {
     type: Array,
     default: () => [],
-    validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
   isActual: {
     type: Boolean,
@@ -367,10 +362,7 @@ const travelSegmentsAttributes = ref([
 ])
 
 function applyExistingDefaultValues(newTravelSegmentEstimates) {
-  const newTravelSegmentsSize = Math.max(
-    travelSegmentsAttributes.value.length,
-    newTravelSegmentEstimates.length
-  )
+  const newTravelSegmentsSize = Math.max(2, newTravelSegmentEstimates.length)
 
   const newTravelSegmentsAttributes = []
   for (let index = 0; index < newTravelSegmentsSize; index++) {
@@ -399,7 +391,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
 }
 
 watch(
-  () => cloneDeep(props.currentTravelSegmentEstimates),
+  () => cloneDeep(props.currentTravelSegments),
   (newTravelSegmentEstimates) => {
     applyExistingDefaultValues(newTravelSegmentEstimates)
   },
@@ -408,6 +400,11 @@ watch(
     immediate: true,
   }
 )
+
+function updateArrivalLocation(index, locationId) {
+  updateTravelSegmentAttributeByIndex(index, "arrivalLocationId", locationId)
+  updateTravelSegmentAttributeByIndex(index + 1, "departureLocationId", locationId)
+}
 
 const firstTravelSegmentAttributes = computed(() => first(travelSegmentsAttributes.value))
 
@@ -431,6 +428,9 @@ function nudgeLaterTravelSegmentsDates(index, value) {
 
 function removeTravelSegmentAttribute(index) {
   travelSegmentsAttributes.value.splice(index, 1)
+  travelSegmentsAttributes.value.forEach((segment, segmentIndex) => {
+    segment.segmentNumber = segmentIndex + 1
+  })
 }
 
 function addTravelSegmentAttribute() {
