@@ -16,18 +16,39 @@ import {
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
-import { type BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
+import { type RawBookingEventSnapshot } from "@/integrations/travel-port-integration/models/raw-booking-event-snapshot"
+import { type TravelDeskBookingEvent } from "@/models/travel-desk-booking-event"
 import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
-type InvoiceBookingEventSnapshot = Omit<BookingEventSnapshot, "databaseTimestamp" | "recordLocator"> & {
-  bookingReference: string | null
+type InvoiceBookingEventContext = Pick<
+  TravelDeskBookingEvent,
+  | "bookingFileVersionNumber"
+  | "eventType"
+  | "bookingReference"
+  | "reservationSystemDescription"
+  | "owningAgencyName"
+  | "transactionAgencyName"
+  | "transactionAgent"
+  | "creatingAgencyInternationalAirTransportAssociationNumber"
+  | "passengers"
+  | "airReservationSegments"
+  | "serviceFeeTransaction"
+> & {
+  travelOrderIdentifier: number
   externalCreatedAt: string | null
+  hostEventTimestamp: string | null
+  passengerNameRecordCreatedAt: string | null
+}
+
+export type InvoiceBookingContext = {
+  bookingEvent: InvoiceBookingEventContext
+  serviceFeeEvents: InvoiceBookingEventContext[]
 }
 
 export type InvoiceSourceSnapshot = {
-  bookingEvent: InvoiceBookingEventSnapshot
-  serviceFeeEvents: InvoiceBookingEventSnapshot[]
+  bookingEvent: RawBookingEventSnapshot
+  serviceFeeEvents: RawBookingEventSnapshot[]
 }
 
 export class TravelDeskInvoice extends Model<
@@ -52,8 +73,11 @@ export class TravelDeskInvoice extends Model<
   declare externalBookingEventIdentifier: number
 
   @Attribute(DataTypes.JSONB)
+  declare sourceSnapshot: InvoiceSourceSnapshot | null
+
+  @Attribute(DataTypes.JSONB)
   @NotNull
-  declare sourceSnapshot: InvoiceSourceSnapshot
+  declare bookingContext: InvoiceBookingContext
 
   @Attribute(DataTypes.STRING(3))
   @NotNull

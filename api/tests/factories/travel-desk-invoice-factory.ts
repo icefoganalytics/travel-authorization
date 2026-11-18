@@ -14,7 +14,8 @@ export const travelDeskInvoiceFactory = FactoryShark.define(
     return {
       bookingReference,
       externalBookingEventIdentifier,
-      sourceSnapshot: {
+      sourceSnapshot: null,
+      bookingContext: {
         bookingEvent: {
           travelOrderIdentifier: externalBookingEventIdentifier,
           bookingFileVersionNumber: 1,
