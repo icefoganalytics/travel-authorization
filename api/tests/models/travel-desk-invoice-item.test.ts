@@ -31,16 +31,24 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
       )
 
       // Arrange
-      test.each(["air", "service_fee", "credit", "change_fee"] as const)(
+      test.each(Object.values(TravelDeskInvoiceItem.ProductTypes))(
         "when %s has no source, it permits creation",
         async (productType) => {
           // Act
-          const item = await travelDeskInvoiceItemFactory.create({
+          await travelDeskInvoiceItemFactory.create({
             productType,
+            sourceAirSegmentNumber: null,
+            sourceServiceFeeEventExternalIdentifier: null,
           })
 
           // Assert
-          expect(item.productType).toEqual(productType)
+          expect(await TravelDeskInvoiceItem.findAll()).toEqual([
+            expect.objectContaining({
+              productType,
+              sourceAirSegmentNumber: null,
+              sourceServiceFeeEventExternalIdentifier: null,
+            }),
+          ])
         }
       )
 
