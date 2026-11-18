@@ -1,7 +1,8 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
-import determineFinalDestination from "@/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination"
 
 import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
+
+import determineFinalDestination from "@/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination"
 
 describe("api/src/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination.ts", () => {
   describe(".determineFinalDestination", () => {
@@ -113,7 +114,7 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-helper
       )
     })
 
-    test("when an earlier multi-city arrival is primary, the per-diem location remains the last arrival", async () => {
+    test("when an earlier multi-city arrival is the saved destination, the per-diem location remains the last arrival", async () => {
       // Arrange
       const whitehorse = await locationFactory.create({
         city: "Whitehorse",

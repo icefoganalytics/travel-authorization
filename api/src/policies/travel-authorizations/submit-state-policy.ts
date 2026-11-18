@@ -39,6 +39,7 @@ export class SubmitStatePolicy extends GenericStatePolicy {
         "requestChange",
         "denialReason",
         "tripTypeEstimate",
+        "finalDestinationLocationId",
         "travelAdvanceInCents",
         "allTravelWithinTerritory",
         {
