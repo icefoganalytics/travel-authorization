@@ -1,7 +1,8 @@
 import { TravelAuthorization, User } from "@/models"
-import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
 import { travelAuthorizationFactory, userFactory } from "@/factories"
+
+import TravelAuthorizationsPolicy from "@/policies/travel-authorizations-policy"
 
 describe("api/src/policies/travel-authorizations-policy.ts", () => {
   describe("TravelAuthorizationsPolicy", () => {
