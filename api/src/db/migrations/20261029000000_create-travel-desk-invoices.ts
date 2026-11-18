@@ -7,7 +7,6 @@ export async function up(knex: Knex): Promise<void> {
     table.string("booking_reference").notNullable()
     table.integer("external_booking_event_identifier").notNullable()
     table.jsonb("booking_context").notNullable()
-    table.jsonb("source_snapshot").nullable()
     table.string("currency_code", 3).notNullable()
     table.string("invoice_number")
     table.date("invoice_date")

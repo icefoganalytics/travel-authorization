@@ -12,7 +12,6 @@ export const travelDeskBookingEventFactory = FactoryShark.define(
       passengers: [],
       airReservationSegments: [],
       serviceFeeTransaction: null,
-      rawSourceSnapshot: null,
     }
   }
 )
