@@ -195,8 +195,18 @@ export abstract class BaseModel<
       rejectOnEmpty: false,
     })
 
-    // Sequelize propagates rejectOnEmpty to separate association queries.
-    // Check the root here so an empty association does not reject an existing record.
+    /**
+     * Reject only when the scoped query cannot find the root record.
+     *
+     * Sequelize forwards finder options to associations loaded with `separate: true`.
+     * Setting `rejectOnEmpty: true` above would therefore also reject an empty
+     * association, such as a draft authorization with no travel segments, even
+     * though the authorization itself exists.
+     *
+     * Disable query-level rejection and check the root result explicitly instead.
+     * Empty associations remain valid, while a missing or scope-excluded root
+     * still raises EmptyResultError, regardless of the caller's rejectOnEmpty option.
+     */
     if (isNil(record)) {
       throw new EmptyResultError("Record could not be reloaded because it no longer exists")
     }
