@@ -4,8 +4,6 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 
 import { TravelPortIntegration } from "@/integrations"
-import type { RawBookingEventSnapshot } from "@/integrations/travel-port-integration/models/raw-booking-event-snapshot"
-import RawBookingEventSnapshotQuery from "@/integrations/travel-port-integration/queries/raw-booking-event-snapshot-query"
 import { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
@@ -26,11 +24,15 @@ export class SyncService extends BaseService {
       const matchedSourceIds: number[] = []
       await this.syncTravelOrderEvents(
         this.bookingReference,
-        async (travelOrderEvent, rawSourceSnapshot) => {
+        async (travelOrderEvent) => {
           const normalizedAttributes =
             TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(
               travelOrderEvent,
               this.bookingReference
+            )
+          const rawSourceSnapshot =
+            TravelPortIntegration.Serializers.TravelOrderEvents.SnapshotSerializer.perform(
+              travelOrderEvent
             )
           const travelDeskBookingEventAttributes = {
             ...normalizedAttributes,
@@ -71,10 +73,7 @@ export class SyncService extends BaseService {
    */
   private async syncTravelOrderEvents(
     recordLocator: string,
-    processEvent: (
-      event: TravelPortIntegration.Models.TravelOrderEvent,
-      rawSourceSnapshot: RawBookingEventSnapshot
-    ) => Promise<void>
+    processEvent: (event: TravelPortIntegration.Models.TravelOrderEvent) => Promise<void>
   ): Promise<void> {
     let processingFailed = false
     try {
@@ -83,8 +82,7 @@ export class SyncService extends BaseService {
           isolationLevel: IsolationLevel.SERIALIZABLE,
         },
         async (transaction) => {
-          const rawSnapshotQuery = new RawBookingEventSnapshotQuery(transaction)
-          await TravelPortIntegration.Models.TravelOrderEvent.findEach(
+          await TravelPortIntegration.Models.TravelOrderEvent.withScope("withSourcePrecision").findEach(
             {
               where: {
                 recordLocator,
@@ -106,14 +104,15 @@ export class SyncService extends BaseService {
                 },
                 {
                   association: "serviceFeeTransaction",
+                  model:
+                    TravelPortIntegration.Models.ServiceFeeTransaction.withScope("withSourcePrecision"),
                 },
               ],
               order: [["travelOrderIdentifier", "ASC"]],
             },
             async (event) => {
-              const rawSourceSnapshot = await rawSnapshotQuery.read(event.travelOrderIdentifier)
               try {
-                await processEvent(event, rawSourceSnapshot)
+                await processEvent(event)
               } catch (error) {
                 processingFailed = true
                 throw error

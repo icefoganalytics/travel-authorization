@@ -7,6 +7,9 @@ import TravelOrderEvent from "./travel-order-event"
 
 db.addModels([TravelOrderEvent, Passenger, AirReservationSegment, ServiceFeeTransaction])
 
+TravelOrderEvent.establishScopes()
+ServiceFeeTransaction.establishScopes()
+
 export { AirReservationSegment, Passenger, ServiceFeeTransaction, TravelOrderEvent }
 
 export default db
