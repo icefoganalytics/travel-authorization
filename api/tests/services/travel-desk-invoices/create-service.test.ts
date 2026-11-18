@@ -128,7 +128,73 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         )
       })
 
-      test("when cached booking and fee rows change, it retains the original booking context and staff pricing", async () => {
+      test.each([
+        {
+          currencyCode: "USD",
+          documentNumber: null,
+          error: "Selected service fee currency must match the invoice currency.",
+        },
+        {
+          currencyCode: "CAD",
+          documentNumber: "FEE-314",
+          error: "Multiple versions of a service fee document cannot be selected.",
+        },
+      ])(
+        "when selected fees have $currencyCode and document $documentNumber, it rejects invalid selection",
+        async ({ currencyCode, documentNumber, error }) => {
+          // Arrange
+          const travelRequest = await travelDeskTravelRequestFactory.create()
+          await travelDeskBookingEventFactory.create({
+            externalTravelPortIdentifier: 920001,
+            bookingReference: "INV001",
+            airReservationSegments: [
+              {
+                airSegmentNumber: 1,
+                segmentStatus: "GK",
+                carrierCode: null,
+                boardPoint: "YXY",
+                offPoint: "YVR",
+                flightNumber: null,
+                departureDate: null,
+                departureTime: null,
+                arrivalTime: null,
+                changeOfDay: null,
+              },
+            ],
+          })
+          for (const externalTravelPortIdentifier of [920002, 920003]) {
+            await travelDeskBookingEventFactory.create({
+              externalTravelPortIdentifier,
+              bookingReference: "INV001",
+              serviceFeeTransaction: {
+                activeVoidStatus: "A",
+                currencyCode,
+                serviceFeeAmount: "10.000",
+                serviceFeeDocumentNumber: documentNumber,
+                issueDate: null,
+                commissionAmount: null,
+                nameOnServiceFee: null,
+                relatedTicketDocumentNumber: null,
+                relatedInvoiceNumber: null,
+              },
+            })
+          }
+
+          // Act
+          const result = CreateService.perform(travelRequest, {
+            bookingReference: "INV001",
+            externalBookingEventIdentifier: 920001,
+            sourceServiceFeeEventExternalIdentifiers: [920002, 920003],
+            currencyCode: "CAD",
+            items: [],
+          })
+
+          // Assert
+          await expect(result).rejects.toThrow(error)
+        }
+      )
+
+      test("when cached booking and fee rows change, it retains invoice lines and staff pricing", async () => {
         // Arrange
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(new Error("Source unavailable."))
         const travelRequest = await travelDeskTravelRequestFactory.create()
@@ -251,30 +317,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
             bookingReference: "INV001",
             externalBookingEventIdentifier: 920001,
             grossAmount: "42.125",
-            bookingContext: expect.objectContaining({
-              bookingEvent: expect.objectContaining({
-                travelOrderIdentifier: 920001,
-                bookingFileVersionNumber: 8,
-                passengers: [
-                  {
-                    lastNameElement: 1,
-                    passengerElement: 1,
-                    firstName: "Ada",
-                    lastName: "Example",
-                  },
-                ],
-              }),
-              serviceFeeEvents: [
-                expect.objectContaining({
-                  travelOrderIdentifier: 920002,
-                  bookingFileVersionNumber: null,
-                  serviceFeeTransaction: expect.objectContaining({
-                    serviceFeeAmount: "42.125",
-                    currencyCode: "CAD",
-                  }),
-                }),
-              ],
-            }),
             items: [
               expect.objectContaining({
                 productType: "air",

@@ -23,6 +23,9 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
       test("when a change fee is added, it persists the fixed product type", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create()
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice })
+          .create({ sourceAirSegmentNumber: 1 })
 
         // Act
         await UpdateService.perform(invoice, {
@@ -147,7 +150,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         })
       })
 
-      test("when its cached source event is deleted, it edits from the saved booking context and preserves omitted headers", async () => {
+      test("when its cached source event is deleted, it edits from saved items and preserves omitted headers", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create({
           invoiceNumber: "KEEP-314",
@@ -161,6 +164,12 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         await travelDeskInvoiceItemFactory
           .associations({ invoice })
           .create({ sourceAirSegmentNumber: 1, grossAmount: "10.125" })
+        await travelDeskInvoiceItemFactory.associations({ invoice }).create({
+          productType: "service_fee",
+          sourceServiceFeeEventExternalIdentifier: 920002,
+          grossAmount: "2.000",
+          position: 1,
+        })
 
         // Act
         await UpdateService.perform(invoice, {
@@ -173,6 +182,13 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
               grossAmount: "12.001",
               position: 0,
             },
+            {
+              productType: "service_fee",
+              sourceServiceFeeEventExternalIdentifier: 920002,
+              saleType: "sale",
+              grossAmount: "3.000",
+              position: 1,
+            },
           ],
         })
 
@@ -182,11 +198,11 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         })
         expect(persistedInvoice).toMatchObject({
           invoiceNumber: "KEEP-314",
-          grossAmount: "12.001",
-          bookingContext: {
-            bookingEvent: { eventType: "B", airReservationSegments: [{ airSegmentNumber: 1 }] },
-          },
-          items: [{ sourceAirSegmentNumber: 1, grossAmount: "12.001" }],
+          grossAmount: "15.001",
+          items: [
+            { sourceAirSegmentNumber: 1, grossAmount: "12.001" },
+            { sourceServiceFeeEventExternalIdentifier: 920002, grossAmount: "3.000" },
+          ],
         })
       })
 
@@ -289,6 +305,9 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
       test("when a flight segment belongs to another request, it rejects cross-request linkage", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.125" })
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice })
+          .create({ sourceAirSegmentNumber: 1 })
         const otherRequest = await travelDeskTravelRequestFactory.create()
         const flightRequest = await travelDeskFlightRequestFactory
           .associations({ travelRequest: otherRequest })
@@ -362,6 +381,9 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
       test("when replacement items cannot be stored, it propagates the persistence error", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create()
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice })
+          .create({ sourceAirSegmentNumber: 1 })
 
         // Act
         const result = UpdateService.perform(invoice, {
@@ -473,6 +495,9 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         const invoice = await travelDeskInvoiceFactory
           .associations({ travelDeskTravelRequest: travelRequest })
           .create()
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice })
+          .create({ sourceAirSegmentNumber: 1 })
         const flightRequest = await travelDeskFlightRequestFactory
           .associations({ travelRequest })
           .create()
@@ -511,6 +536,9 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         const invoice = await travelDeskInvoiceFactory
           .associations({ travelDeskTravelRequest: travelRequest })
           .create()
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice })
+          .create({ sourceAirSegmentNumber: 1 })
         const flightRequest = await travelDeskFlightRequestFactory
           .associations({ travelRequest })
           .create()
@@ -540,6 +568,111 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           "Linked flight segments must belong to this travel request."
         )
       })
+
+      test("when another currency is submitted for saved service fees, it rejects the change", async () => {
+        // Arrange
+        const invoice = await travelDeskInvoiceFactory.create({ currencyCode: "CAD" })
+        await travelDeskInvoiceItemFactory
+          .associations({ invoice })
+          .create({
+            productType: "service_fee",
+            sourceServiceFeeEventExternalIdentifier: 920002,
+          })
+
+        // Act
+        const result = UpdateService.perform(invoice, {
+          currencyCode: "USD",
+          items: [
+            {
+              productType: "service_fee",
+              sourceServiceFeeEventExternalIdentifier: 920002,
+              saleType: "sale",
+              grossAmount: "12.001",
+              position: 0,
+            },
+          ],
+        })
+
+        // Assert
+        await expect(result).rejects.toThrow("Invoice currency cannot be changed for saved service fees.")
+      })
+
+      test.each([
+        { segmentNumbers: [], error: "Every selected flight segment" },
+        { segmentNumbers: [1, 1], error: "can only appear once" },
+      ])(
+        "when saved segment selection changes to $segmentNumbers, it rejects the replacement",
+        async ({ segmentNumbers, error }) => {
+          // Arrange
+          const invoice = await travelDeskInvoiceFactory.create()
+          await travelDeskInvoiceItemFactory
+            .associations({ invoice })
+            .create({ sourceAirSegmentNumber: 1 })
+
+          // Act
+          const result = UpdateService.perform(invoice, {
+            currencyCode: "CAD",
+            items: [
+              {
+                productType: "change_fee",
+                saleType: "sale",
+                grossAmount: "1.000",
+                position: 0,
+              },
+              ...segmentNumbers.map((sourceAirSegmentNumber, index) => ({
+                productType: TravelDeskInvoiceItem.ProductTypes.AIR,
+                sourceAirSegmentNumber,
+                saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
+                grossAmount: "12.001",
+                position: index + 1,
+              })),
+            ],
+          })
+
+          // Assert
+          await expect(result).rejects.toThrow(error)
+        }
+      )
+
+      test.each([
+        { sourceIdentifiers: [920003], error: "unselected service fee" },
+        { sourceIdentifiers: [], error: "Every selected service fee" },
+        { sourceIdentifiers: [920002, 920002], error: "can only appear once" },
+      ])(
+        "when saved fee selection changes to $sourceIdentifiers, it rejects the replacement",
+        async ({ sourceIdentifiers, error }) => {
+          // Arrange
+          const invoice = await travelDeskInvoiceFactory.create()
+          await travelDeskInvoiceItemFactory.associations({ invoice }).create({
+            productType: "service_fee",
+            sourceAirSegmentNumber: null,
+            sourceServiceFeeEventExternalIdentifier: 920002,
+          })
+
+          // Act
+          const result = UpdateService.perform(invoice, {
+            currencyCode: "CAD",
+            items: [
+              {
+                productType: "change_fee",
+                saleType: "sale",
+                grossAmount: "1.000",
+                position: 0,
+              },
+              ...sourceIdentifiers.map((sourceIdentifier, index) => ({
+                productType: TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE,
+                sourceServiceFeeEventExternalIdentifier: sourceIdentifier,
+                saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
+                grossAmount: "12.001",
+                position: index + 1,
+              })),
+            ],
+          })
+
+          // Assert
+          await expect(result).rejects.toThrow(error)
+        }
+      )
     })
   })
 })
