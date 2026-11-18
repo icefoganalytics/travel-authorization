@@ -20,42 +20,81 @@ import {
 describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
   describe("UpdateService", () => {
     describe(".perform", () => {
-      test("when a change fee is added, it persists the fixed product type", async () => {
-        // Arrange
-        const invoice = await travelDeskInvoiceFactory.create()
-        await travelDeskInvoiceItemFactory
-          .associations({ invoice })
-          .create({ sourceAirSegmentNumber: 1 })
+      test.each([
+        {
+          productType: TravelDeskInvoiceItem.ProductTypes.CHANGE_FEE,
+          saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
+          description: "Airline booking change",
+          expectedTotal: "15.000",
+        },
+        {
+          productType: TravelDeskInvoiceItem.ProductTypes.CREDIT,
+          saleType: TravelDeskInvoiceItem.SaleTypes.REFUND,
+          description: "Fare adjustment refund",
+          expectedTotal: "5.000",
+        },
+      ])(
+        "when staff add a $productType, reopening the invoice retains the charge and adjusted total",
+        async ({ productType, saleType, description, expectedTotal }) => {
+          // Arrange
+          const invoice = await travelDeskInvoiceFactory.create()
+          await travelDeskInvoiceItemFactory
+            .associations({ invoice })
+            .create({ sourceAirSegmentNumber: 1 })
 
-        // Act
-        await UpdateService.perform(invoice, {
-          currencyCode: "CAD",
-          items: [
-            {
-              productType: "air",
-              sourceAirSegmentNumber: 1,
-              saleType: "sale",
-              grossAmount: "10.000",
-              position: 0,
-            },
-            {
-              productType: "change_fee",
-              saleType: "sale",
-              grossAmount: "5.000",
-              position: 1,
-            },
-          ],
-        })
-        const items = await TravelDeskInvoiceItem.findAll({
-          order: [["position", "ASC"]],
-        })
+          // Act
+          await UpdateService.perform(invoice, {
+            currencyCode: "CAD",
+            items: [
+              {
+                productType: TravelDeskInvoiceItem.ProductTypes.AIR,
+                sourceAirSegmentNumber: 1,
+                saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
+                grossAmount: "10.000",
+                position: 0,
+              },
+              {
+                productType,
+                saleType,
+                description,
+                sourceAirSegmentNumber: null,
+                sourceServiceFeeEventExternalIdentifier: null,
+                grossAmount: "5.000",
+                position: 1,
+              },
+            ],
+          })
+          const savedInvoice = await TravelDeskInvoice.findByPk(invoice.id, {
+            include: [
+              {
+                association: "items",
+                separate: true,
+                order: [["position", "ASC"]],
+              },
+            ],
+          })
 
-        // Assert
-        expect(items).toEqual([
-          expect.objectContaining({ productType: "air", grossAmount: "10.000" }),
-          expect.objectContaining({ productType: "change_fee", grossAmount: "5.000" }),
-        ])
-      })
+          // Assert
+          expect(savedInvoice).toMatchObject({
+            grossAmount: expectedTotal,
+            items: [
+              {
+                productType: TravelDeskInvoiceItem.ProductTypes.AIR,
+                sourceAirSegmentNumber: 1,
+                grossAmount: "10.000",
+              },
+              {
+                productType,
+                saleType,
+                description,
+                sourceAirSegmentNumber: null,
+                sourceServiceFeeEventExternalIdentifier: null,
+                grossAmount: "5.000",
+              },
+            ],
+          })
+        }
+      )
 
       test("when two line-only edits overlap, it retains exactly one replacement set", async () => {
         // Arrange
@@ -200,8 +239,14 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           invoiceNumber: "KEEP-314",
           grossAmount: "15.001",
           items: [
-            { sourceAirSegmentNumber: 1, grossAmount: "12.001" },
-            { sourceServiceFeeEventExternalIdentifier: 920002, grossAmount: "3.000" },
+            {
+              sourceAirSegmentNumber: 1,
+              grossAmount: "12.001",
+            },
+            {
+              sourceServiceFeeEventExternalIdentifier: 920002,
+              grossAmount: "3.000",
+            },
           ],
         })
       })
