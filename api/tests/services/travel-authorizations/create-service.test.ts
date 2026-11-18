@@ -2,9 +2,10 @@ import { faker } from "@faker-js/faker"
 
 import { TravelAuthorization, User } from "@/models"
 import { Users } from "@/services"
-import { CreateService } from "@/services/travel-authorizations"
 
 import { locationFactory, userFactory } from "@/factories"
+
+import { CreateService } from "@/services/travel-authorizations"
 
 describe("api/src/services/travel-authorizations/create-service.ts", () => {
   const userEnsureServicePerformMock = vi.fn()

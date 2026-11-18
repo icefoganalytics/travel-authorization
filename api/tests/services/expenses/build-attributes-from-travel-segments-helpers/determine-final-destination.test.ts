@@ -1,7 +1,8 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
-import determineFinalDestination from "@/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination"
 
 import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/factories"
+
+import determineFinalDestination from "@/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination"
 
 describe("api/src/services/expenses/build-attributes-from-travel-segments-helpers/determine-final-destination.ts", () => {
   describe(".determineFinalDestination", () => {

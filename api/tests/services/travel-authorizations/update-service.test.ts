@@ -1,5 +1,4 @@
 import { TravelAuthorization, TravelSegment } from "@/models"
-import UpdateService from "@/services/travel-authorizations/update-service"
 
 import {
   locationFactory,
@@ -7,6 +6,8 @@ import {
   travelSegmentFactory,
   userFactory,
 } from "@/factories"
+
+import UpdateService from "@/services/travel-authorizations/update-service"
 
 describe("api/src/services/travel-authorizations/update-service.ts", () => {
   describe("UpdateService", () => {
