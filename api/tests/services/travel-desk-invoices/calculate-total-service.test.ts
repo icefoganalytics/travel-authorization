@@ -1,3 +1,5 @@
+import { TravelDeskInvoiceItem } from "@/models"
+
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
@@ -9,15 +11,15 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
         const items = [
           {
             grossAmount: "1.0005",
-            saleType: "sale" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
           },
           {
             grossAmount: "1.0005",
-            saleType: "sale" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
           },
           {
             grossAmount: "-0.0005",
-            saleType: "refund" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.REFUND,
           },
         ]
 
@@ -34,7 +36,9 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
 
         // Act / Assert
         expect(() =>
-          CalculateTotalService.perform([{ grossAmount: amount, saleType: "sale" }])
+          CalculateTotalService.perform([
+            { grossAmount: amount, saleType: TravelDeskInvoiceItem.SaleTypes.SALE },
+          ])
         ).toThrow(InvoiceValidationError)
       })
 
@@ -43,19 +47,19 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
         const items = [
           {
             grossAmount: "900000000000000.001",
-            saleType: "sale" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
           },
           {
             grossAmount: "0.002",
-            saleType: "sale" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
           },
           {
             grossAmount: "0.001",
-            saleType: "refund" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.REFUND,
           },
           {
             grossAmount: "42.125",
-            saleType: "void" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.VOID,
           },
         ]
 
@@ -71,11 +75,11 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
         const items = [
           {
             grossAmount: "-0.001",
-            saleType: "sale" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
           },
           {
             grossAmount: "-1.234",
-            saleType: "refund" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.REFUND,
           },
         ]
 
@@ -91,11 +95,11 @@ describe("api/src/services/travel-desk-invoices/calculate-total-service.ts", () 
         const items = [
           {
             grossAmount: "999999999999999.999",
-            saleType: "sale" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
           },
           {
             grossAmount: "0.001",
-            saleType: "sale" as const,
+            saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
           },
         ]
 
