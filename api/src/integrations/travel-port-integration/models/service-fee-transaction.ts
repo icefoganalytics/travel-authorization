@@ -68,6 +68,7 @@ export class ServiceFeeTransaction extends Model<
 
   static establishScopes(): void {
     // Cast before Tedious reads DECIMAL values through JavaScript numbers.
+    // Revisit when we can use https://github.com/tediousjs/tedious/pull/1839.
     this.addScope("withSourcePrecision", {
       attributes: {
         exclude: ["serviceFeeAmount", "commissionAmount"],
