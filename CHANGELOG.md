@@ -45,7 +45,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - Invoice APIs identify the external booking event explicitly as `externalBookingEventIdentifier`.
 - Local booking and invoice APIs use `bookingReference`; Travelport source fields retain their original names.
 - Booking synchronization uses an explicit `/sync` action. Invoice service-fee references identify external events. Invoice items permit source flight segments only for Air and source service fees only for Service Fee; source references remain optional and sale types remain independent.
-- Invoices retain raw Travelport source rows separately from the booking context used for editing and display. Existing invoices keep their saved context without claiming reconstructed raw data; older cached bookings require re-sync before creating new invoices.
+- Invoices retain raw Travelport source rows separately from the booking context used for editing and display. Older cached bookings require re-sync before creating new invoices.
 
 ### Fixed
 
