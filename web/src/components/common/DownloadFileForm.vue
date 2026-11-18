@@ -12,9 +12,8 @@
       :value="accessToken"
     />
     <v-btn
-      :block="block ?? smAndDown"
+      :block="isBlock"
       :color="color"
-      :disabled="disabled"
       :variant="variant"
       :prepend-icon="prependIcon"
       :loading="loading || isDownloading"
@@ -30,7 +29,7 @@
 <script setup lang="ts">
 import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
-import { nextTick, ref, useTemplateRef } from "vue"
+import { computed, nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
 import { type VBtn } from "vuetify/components"
 
@@ -42,7 +41,6 @@ const props = withDefaults(
     color?: string
     loading?: boolean
     block?: boolean
-    disabled?: boolean
     variant?: VBtn["$props"]["variant"]
   }>(),
   {
@@ -51,8 +49,6 @@ const props = withDefaults(
     color: "primary",
     loading: false,
     block: undefined,
-    disabled: false,
-    variant: undefined,
   }
 )
 
@@ -67,7 +63,7 @@ const accessToken = ref<string | null>(null)
 const isDownloading = ref(false)
 
 async function getAccessTokenAndSubmit() {
-  if (props.disabled || props.loading || isDownloading.value) return
+  if (props.loading || isDownloading.value) return
 
   if (isNil(formRef.value)) {
     throw new Error("Form element is not available")
@@ -91,4 +87,5 @@ async function getAccessTokenAndSubmit() {
 }
 
 const { smAndDown } = useDisplay()
+const isBlock = computed(() => props.block ?? smAndDown.value)
 </script>
