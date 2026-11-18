@@ -19,13 +19,6 @@ import {
 import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
 
-import type { TravelDeskBookingEventAsIndex } from "@/serializers/travel-desk-booking-events/index-serializer"
-
-export type InvoiceBookingContext = {
-  bookingEvent: TravelDeskBookingEventAsIndex
-  serviceFeeEvents: TravelDeskBookingEventAsIndex[]
-}
-
 export class TravelDeskInvoice extends Model<
   InferAttributes<TravelDeskInvoice>,
   InferCreationAttributes<TravelDeskInvoice>
@@ -46,10 +39,6 @@ export class TravelDeskInvoice extends Model<
   @Attribute(DataTypes.INTEGER)
   @NotNull
   declare externalBookingEventIdentifier: number
-
-  @Attribute(DataTypes.JSONB)
-  @NotNull
-  declare bookingContext: InvoiceBookingContext
 
   @Attribute(DataTypes.STRING(3))
   @NotNull
