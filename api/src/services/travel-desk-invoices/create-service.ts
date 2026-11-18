@@ -98,23 +98,35 @@ export class CreateService extends BaseService {
       )
       await ValidateLinkedFlightSegmentsService.perform(items, this.travelDeskTravelRequest.id)
 
+      const invoiceNumber = this.attributes.invoiceNumber ?? null
+      const invoiceDate = this.attributes.invoiceDate ?? null
+      const warrantNumber = this.attributes.warrantNumber ?? null
+      const clientNumber = this.attributes.clientNumber ?? null
+      const clientName = this.attributes.clientName ?? null
+      const department = this.attributes.department ?? null
+      const mailcode = this.attributes.mailcode ?? null
+      const iataNumber = this.attributes.iataNumber ?? null
+      const bookingAgentName = this.attributes.bookingAgentName ?? null
+      const ticketingAgentName = this.attributes.ticketingAgentName ?? null
+      const bookingDate = this.attributes.bookingDate ?? null
+
       const invoice = await TravelDeskInvoice.create({
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         bookingReference: normalizedBookingReference,
         externalBookingEventIdentifier,
         sourceSnapshot: invoiceSourceSnapshot,
         currencyCode,
-        invoiceNumber: this.attributes.invoiceNumber ?? null,
-        invoiceDate: this.attributes.invoiceDate ?? null,
-        warrantNumber: this.attributes.warrantNumber ?? null,
-        clientNumber: this.attributes.clientNumber ?? null,
-        clientName: this.attributes.clientName ?? null,
-        department: this.attributes.department ?? null,
-        mailcode: this.attributes.mailcode ?? null,
-        iataNumber: this.attributes.iataNumber ?? null,
-        bookingAgentName: this.attributes.bookingAgentName ?? null,
-        ticketingAgentName: this.attributes.ticketingAgentName ?? null,
-        bookingDate: this.attributes.bookingDate ?? null,
+        invoiceNumber,
+        invoiceDate,
+        warrantNumber,
+        clientNumber,
+        clientName,
+        department,
+        mailcode,
+        iataNumber,
+        bookingAgentName,
+        ticketingAgentName,
+        bookingDate,
         grossAmount,
       })
       await BulkCreateService.perform(invoice.id, items)
