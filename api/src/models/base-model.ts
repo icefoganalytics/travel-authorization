@@ -12,6 +12,7 @@ import {
   type WhereOptions,
 } from "@sequelize/core"
 import { AllowReadonlyArray, Nullish } from "@sequelize/utils"
+import { isNil } from "lodash"
 
 import searchFieldsByTermsFactory from "@/utils/search-fields-by-terms-factory"
 
@@ -194,8 +195,9 @@ export abstract class BaseModel<
       rejectOnEmpty: false,
     })
 
-    // Like Sequelize's reload, reject a missing root after loading its associations.
-    if (record === null) {
+    // Sequelize propagates rejectOnEmpty to separate association queries.
+    // Check the root here so an empty association does not reject an existing record.
+    if (isNil(record)) {
       throw new EmptyResultError("Record could not be reloaded because it no longer exists")
     }
 
