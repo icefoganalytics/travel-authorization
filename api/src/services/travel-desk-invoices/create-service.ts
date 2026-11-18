@@ -1,11 +1,10 @@
 import { Op } from "@sequelize/core"
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
 import { db } from "@/db/db-client"
 
 import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
-import { type InvoiceBookingContext } from "@/models/travel-desk-invoice"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
@@ -18,8 +17,6 @@ import {
   type InvoiceItemAttributes,
   validateInvoiceItems,
 } from "@/services/travel-desk-invoices/validate-items"
-
-import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 
 export type InvoiceHeaderAttributes = {
   bookingReference: string
@@ -81,10 +78,11 @@ export class CreateService extends BaseService {
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
-    const bookingContext = await this.loadInvoiceBookingContext(
+    const bookingEvent = await this.loadSelectedBookingEvent(
       normalizedBookingReference,
       externalBookingEventIdentifier,
-      sourceServiceFeeEventExternalIdentifiers
+      sourceServiceFeeEventExternalIdentifiers,
+      currencyCode
     )
     const grossAmount = CalculateTotalService.perform(items)
 
@@ -92,9 +90,8 @@ export class CreateService extends BaseService {
       await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
       await validateInvoiceItems(
         items,
-        bookingContext,
-        sourceServiceFeeEventExternalIdentifiers,
-        currencyCode
+        bookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
+        sourceServiceFeeEventExternalIdentifiers
       )
       await ValidateLinkedFlightSegmentsService.perform(items, this.travelDeskTravelRequest.id)
 
@@ -114,7 +111,6 @@ export class CreateService extends BaseService {
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         bookingReference: normalizedBookingReference,
         externalBookingEventIdentifier,
-        bookingContext,
         currencyCode,
         invoiceNumber,
         invoiceDate,
@@ -159,11 +155,12 @@ export class CreateService extends BaseService {
     }
   }
 
-  private async loadInvoiceBookingContext(
+  private async loadSelectedBookingEvent(
     bookingReference: string,
     externalBookingEventIdentifier: number,
-    sourceServiceFeeEventExternalIdentifiers: number[]
-  ): Promise<InvoiceBookingContext> {
+    sourceServiceFeeEventExternalIdentifiers: number[],
+    currencyCode: string
+  ): Promise<TravelDeskBookingEvent> {
     const bookingEvents = await TravelDeskBookingEvent.findAll({
       where: {
         bookingReference,
@@ -172,9 +169,8 @@ export class CreateService extends BaseService {
         },
       },
     })
-    const sourceEvents = IndexSerializer.perform(bookingEvents)
-    const bookingEvent = sourceEvents.find(
-      (event) => event.travelOrderIdentifier === externalBookingEventIdentifier
+    const bookingEvent = bookingEvents.find(
+      (event) => event.externalTravelPortIdentifier === externalBookingEventIdentifier
     )
     if (isNil(bookingEvent) || bookingEvent.airReservationSegments.length === 0) {
       throw new InvoiceValidationError(
@@ -186,8 +182,11 @@ export class CreateService extends BaseService {
       throw new InvoiceValidationError("Booking event does not belong to this booking reference.")
     }
 
-    const serviceFeeEvents = sourceServiceFeeEventExternalIdentifiers.map((eventId) => {
-      const event = sourceEvents.find((sourceEvent) => sourceEvent.travelOrderIdentifier === eventId)
+    const documentNumbers = new Set<string>()
+    for (const eventId of sourceServiceFeeEventExternalIdentifiers) {
+      const event = bookingEvents.find(
+        (sourceEvent) => sourceEvent.externalTravelPortIdentifier === eventId
+      )
       if (
         isNil(event) ||
         isNil(event.serviceFeeTransaction) ||
@@ -198,13 +197,25 @@ export class CreateService extends BaseService {
         )
       }
 
-      return event
-    })
+      const fee = event.serviceFeeTransaction
+      if (!isNil(fee.currencyCode) && fee.currencyCode !== currencyCode) {
+        throw new InvoiceValidationError(
+          "Selected service fee currency must match the invoice currency."
+        )
+      }
 
-    return {
-      bookingEvent,
-      serviceFeeEvents,
+      if (!isNil(fee.serviceFeeDocumentNumber) && !isEmpty(fee.serviceFeeDocumentNumber)) {
+        if (documentNumbers.has(fee.serviceFeeDocumentNumber)) {
+          throw new InvoiceValidationError(
+            "Multiple versions of a service fee document cannot be selected."
+          )
+        }
+
+        documentNumbers.add(fee.serviceFeeDocumentNumber)
+      }
     }
+
+    return bookingEvent
   }
 }
 
