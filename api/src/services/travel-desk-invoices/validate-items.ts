@@ -1,7 +1,6 @@
 import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskInvoiceItem } from "@/models"
-import { type InvoiceBookingContext } from "@/models/travel-desk-invoice"
 
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
@@ -21,9 +20,8 @@ export type InvoiceItemAttributes = {
 
 export async function validateInvoiceItems(
   items: InvoiceItemAttributes[],
-  bookingContext: InvoiceBookingContext,
-  serviceFeeEventIds: number[],
-  currencyCode: string
+  sourceAirSegmentNumbers: number[],
+  serviceFeeEventIds: number[]
 ): Promise<void> {
   if (isEmpty(items)) {
     throw new InvoiceValidationError("At least one invoice item is required.")
@@ -33,9 +31,7 @@ export async function validateInvoiceItems(
     throw new InvoiceValidationError("Service fee events cannot be selected more than once.")
   }
 
-  const expectedSegmentNumbers = new Set(
-    bookingContext.bookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber)
-  )
+  const expectedSegmentNumbers = new Set(sourceAirSegmentNumbers)
   const expectedFeeEventIds = new Set(serviceFeeEventIds)
   const seenSegmentNumbers = new Set<number>()
   const seenFeeEventIds = new Set<number>()
@@ -87,36 +83,6 @@ export async function validateInvoiceItems(
 
   if (seenFeeEventIds.size !== expectedFeeEventIds.size) {
     throw new InvoiceValidationError("Every selected service fee must be represented exactly once.")
-  }
-
-  const feeEvents = new Map<number, InvoiceBookingContext["bookingEvent"]>(
-    bookingContext.serviceFeeEvents.map((event) => [event.travelOrderIdentifier, event])
-  )
-  const documentNumbers = new Set<string>()
-
-  for (const eventId of serviceFeeEventIds) {
-    const feeEvent = feeEvents.get(eventId)
-    const fee = feeEvent?.serviceFeeTransaction
-
-    if (isNil(fee)) {
-      throw new InvoiceValidationError("Selected event does not contain a service fee.")
-    }
-
-    if (!isNil(fee.currencyCode) && fee.currencyCode !== currencyCode) {
-      throw new InvoiceValidationError(
-        "Selected service fee currency must match the invoice currency."
-      )
-    }
-
-    if (!isNil(fee.serviceFeeDocumentNumber) && !isEmpty(fee.serviceFeeDocumentNumber)) {
-      if (documentNumbers.has(fee.serviceFeeDocumentNumber)) {
-        throw new InvoiceValidationError(
-          "Multiple versions of a service fee document cannot be selected."
-        )
-      }
-
-      documentNumbers.add(fee.serviceFeeDocumentNumber)
-    }
   }
 }
 

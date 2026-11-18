@@ -37,8 +37,6 @@ export class UpdateService extends BaseService {
       throw new InvoiceValidationError("Invoice items must be an array.")
     }
 
-    const bookingContext = this.invoice.bookingContext
-    const serviceFeeEventIds = bookingContext.serviceFeeEvents.map((event) => event.travelOrderIdentifier)
     const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async (transaction) => {
@@ -50,7 +48,28 @@ export class UpdateService extends BaseService {
         throw new InvoiceValidationError("Invoice does not exist.")
       }
 
-      await validateInvoiceItems(items, bookingContext, serviceFeeEventIds, currencyCode)
+      const savedItems = await TravelDeskInvoiceItem.findAll({
+        where: { travelDeskInvoiceId: invoice.id },
+        lock: transaction.LOCK.UPDATE,
+        transaction,
+      })
+      const sourceAirSegmentNumbers: number[] = []
+      const serviceFeeEventIds: number[] = []
+      for (const item of savedItems) {
+        if (!isNil(item.sourceAirSegmentNumber)) {
+          sourceAirSegmentNumbers.push(item.sourceAirSegmentNumber)
+        }
+
+        if (!isNil(item.sourceServiceFeeEventExternalIdentifier)) {
+          serviceFeeEventIds.push(item.sourceServiceFeeEventExternalIdentifier)
+        }
+      }
+
+      if (serviceFeeEventIds.length > 0 && currencyCode !== invoice.currencyCode) {
+        throw new InvoiceValidationError("Invoice currency cannot be changed for saved service fees.")
+      }
+
+      await validateInvoiceItems(items, sourceAirSegmentNumbers, serviceFeeEventIds)
       await ValidateLinkedFlightSegmentsService.perform(items, invoice.travelDeskTravelRequestId)
 
       await invoice.update({
