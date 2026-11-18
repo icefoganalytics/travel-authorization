@@ -5,6 +5,7 @@ import { travelDeskInvoiceItemFactory } from "@/factories"
 describe("api/src/models/travel-desk-invoice-item.ts", () => {
   describe("TravelDeskInvoiceItem", () => {
     describe("validations - sourceMatchesProductType", () => {
+      // Arrange
       test.each([
         {
           productType: "air" as const,
@@ -29,6 +30,7 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
         }
       )
 
+      // Arrange
       test.each(["air", "service_fee", "credit", "change_fee"] as const)(
         "when %s has no source, it permits creation",
         async (productType) => {
@@ -42,6 +44,7 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
         }
       )
 
+      // Arrange
       test.each(["service_fee", "credit", "change_fee"] as const)(
         "when %s refers to a source flight segment, it rejects creation",
         async (productType) => {
@@ -58,6 +61,7 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
         }
       )
 
+      // Arrange
       test.each(["air", "credit", "change_fee"] as const)(
         "when %s refers to a source service fee, it rejects creation",
         async (productType) => {
