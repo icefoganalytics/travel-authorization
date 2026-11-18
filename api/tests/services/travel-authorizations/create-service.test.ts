@@ -5,7 +5,7 @@ import { Users } from "@/services"
 
 import { locationFactory, userFactory } from "@/factories"
 
-import { CreateService } from "@/services/travel-authorizations"
+import CreateService from "@/services/travel-authorizations/create-service"
 
 describe("api/src/services/travel-authorizations/create-service.ts", () => {
   const userEnsureServicePerformMock = vi.fn()
