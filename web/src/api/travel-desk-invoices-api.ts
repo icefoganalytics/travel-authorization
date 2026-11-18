@@ -1,6 +1,5 @@
 import type { QueryOptions } from "@/api/base-api"
 import http from "@/api/http-client"
-import type { TravelDeskBookingEventAsIndex } from "@/api/travel-desk-booking-events-api"
 
 export enum TravelDeskInvoiceItemProductTypes {
   AIR = "air",
@@ -13,11 +12,6 @@ export enum TravelDeskInvoiceItemSaleTypes {
   SALE = "sale",
   REFUND = "refund",
   VOID = "void",
-}
-
-export type InvoiceBookingContext = {
-  bookingEvent: TravelDeskBookingEventAsIndex
-  serviceFeeEvents: TravelDeskBookingEventAsIndex[]
 }
 
 export type TravelDeskInvoiceItemAsShow = {
@@ -40,7 +34,6 @@ export type TravelDeskInvoiceAsShow = {
   travelDeskTravelRequestId: number
   bookingReference: string
   externalBookingEventIdentifier: number
-  bookingContext: InvoiceBookingContext
   currencyCode: string
   invoiceNumber: string | null
   invoiceDate: string | null
