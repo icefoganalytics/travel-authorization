@@ -3,7 +3,6 @@ import { type IncomingMessage } from "node:http"
 import { createInterface } from "node:readline"
 
 import Papa from "papaparse"
-import qs from "qs"
 import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
@@ -98,10 +97,10 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
         const hiddenPreApproval = await travelAuthorizationPreApprovalFactory.create({
           department: "Health",
         })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: { id: hiddenPreApproval.id, department: "Health" },
-        })
+        }
 
         // Act
         const response = await request()
@@ -201,12 +200,12 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
           status: TravelAuthorizationPreApproval.Statuses.DRAFT,
           location: "Not selected",
         })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: { id: [preApproval1.id, preApproval2.id, preApproval3.id] },
           filters: { availableForSubmission: true },
           order: [["location", "DESC"]],
-        })
+        }
 
         // Act
         const response = await request()

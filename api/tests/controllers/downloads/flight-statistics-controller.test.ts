@@ -3,7 +3,6 @@ import { type IncomingMessage } from "node:http"
 import { createInterface } from "node:readline"
 
 import Papa from "papaparse"
-import qs from "qs"
 import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
@@ -38,11 +37,11 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
           destinationCity: "Vancouver",
           destinationProvince: "BC",
         })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: { destinationProvince: "YT" },
           filters: { byDepartmentMailcodes: ["A-1", "B-1"] },
-        })
+        }
 
         // Act
         const response = await request().post("/api/downloads/flight-statistics").query(query)
@@ -95,12 +94,12 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         const user1 = await userFactory.asAdmin().create()
         mockCurrentUser(user1)
         const statistics = await flightStatisticFactory.createList(1001)
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           order: [["id", "DESC"]],
           page: 2,
           perPage: 1,
-        })
+        }
 
         // Act
         const response = await request().post("/api/downloads/flight-statistics").query(query)
@@ -121,11 +120,11 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         const user1 = await userFactory.asFinanceUser().create()
         mockCurrentUser(user1)
         const statistic = await flightStatisticFactory.create({ departmentMailcode: "F-1" })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: { id: [statistic.id] },
           filters: { byDepartmentMailcodes: ["F-1"] },
-        })
+        }
 
         // Act
         const response = await request()

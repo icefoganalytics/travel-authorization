@@ -3,7 +3,6 @@ import { type IncomingMessage } from "node:http"
 import { createInterface } from "node:readline"
 
 import Papa from "papaparse"
-import qs from "qs"
 import { type Response } from "supertest"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
@@ -47,13 +46,11 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         // Act
         const response = await request()
           .post("/api/downloads/flight-reconciliations")
-          .query(
-            qs.stringify({
-              format: "csv",
-              where: { id: [reconciliation1.id, hiddenReconciliation.id, reconciliation2.id] },
-              order: [["id", "DESC"]],
-            })
-          )
+          .query({
+            format: "csv",
+            where: { id: [reconciliation1.id, hiddenReconciliation.id, reconciliation2.id] },
+            order: [["id", "DESC"]],
+          })
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -124,13 +121,13 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         ])
         const selectedIds = reconciliations.map(({ id }) => id)
         await flightReconciliationFactory.create({ invoiceDetailComputedTravelerLastName: "Excluded" })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: { id: selectedIds },
           order: [["id", "DESC"]],
           perPage: 1,
           page: 2,
-        })
+        }
 
         // Act
         const response = await request().post("/api/downloads/flight-reconciliations").query(query)
@@ -178,13 +175,13 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         const hiddenReconciliation = await flightReconciliationFactory.create({
           invoiceDepartmentMailcode: "OTHER",
         })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: {
             id: [hiddenReconciliation.id],
             invoiceDepartmentMailcode: "OTHER",
           },
-        })
+        }
 
         // Act
         const response = await request()
