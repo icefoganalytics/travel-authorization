@@ -4,7 +4,7 @@ import { DateTime } from "luxon"
 import logger from "@/utils/logger"
 import { type TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequestsPolicy } from "@/policies"
-import { TravelDeskTravelRequests } from "@/services/downloads"
+import { CreateCsvService, CreatePdfService } from "@/services/downloads/travel-desk-travel-requests"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 
 export class TravelDeskTravelRequestsController extends BaseController<TravelDeskTravelRequest> {
@@ -49,7 +49,7 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
     where: WhereOptions<Attributes<TravelDeskTravelRequest>>,
     order: ModelOrder[] | undefined
   ) {
-    const fileBuffer = await TravelDeskTravelRequests.CreateCsvService.perform(
+    const fileBuffer = await CreateCsvService.perform(
       scopedTravelDeskTravelRequests,
       where,
       order,
@@ -69,7 +69,7 @@ export class TravelDeskTravelRequestsController extends BaseController<TravelDes
     where: WhereOptions<Attributes<TravelDeskTravelRequest>>,
     order: ModelOrder[] | undefined
   ) {
-    const fileBuffer = await TravelDeskTravelRequests.CreatePdfService.perform(
+    const fileBuffer = await CreatePdfService.perform(
       scopedTravelDeskTravelRequests,
       where,
       order,
