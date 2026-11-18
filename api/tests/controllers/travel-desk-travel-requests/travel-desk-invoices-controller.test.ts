@@ -487,7 +487,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
               {
                 productType: "air",
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: "sale",
                 grossAmount: "125.500",
                 position: 0,
               },
@@ -628,7 +628,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .create({
             sourceAirSegmentNumber: 1,
             grossAmount: "10.000",
-            saleType: "Sale",
+            saleType: "sale",
             position: 0,
           })
         const originalRequestId = invoice.travelDeskTravelRequestId
@@ -654,7 +654,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
               {
                 productType: "air",
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: "sale",
                 grossAmount: "22.000",
                 position: 0,
               },
@@ -696,7 +696,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
               {
                 productType: "custom-fee",
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: "sale",
                 grossAmount: "10.000",
                 position: 0,
               },
@@ -724,7 +724,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .create({
             sourceAirSegmentNumber: 1,
             grossAmount: "10.000",
-            saleType: "Sale",
+            saleType: "sale",
             position: 0,
           })
         mockCurrentUser(officer)
@@ -740,7 +740,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
               {
                 productType: "air",
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: "sale",
                 grossAmount: "not-money",
                 position: 0,
               },
