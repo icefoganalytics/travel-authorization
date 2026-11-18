@@ -28,9 +28,9 @@ export enum TravelDeskInvoiceItemProductTypes {
 }
 
 export enum TravelDeskInvoiceItemSaleTypes {
-  SALE = "Sale",
-  REFUND = "Refund",
-  VOID = "Void",
+  SALE = "sale",
+  REFUND = "refund",
+  VOID = "void",
 }
 
 export class TravelDeskInvoiceItem extends Model<
