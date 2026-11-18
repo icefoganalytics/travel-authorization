@@ -68,6 +68,9 @@ stale test.
 - Use the existing Supertest `request()` helper for streaming checks too: `.buffer(false)` exposes
   the response before generation finishes. Do not import the app or manage listening servers in
   tests. Keep each endpoint's streaming scenarios in its owning controller test file.
+- For early-delivery checks, attach `readResponseLines(download, { lineCount: 2 })` before
+  starting the request. Mock the producing service with direct response-stream writes and keep
+  the completion gate in the test. Leave CSV encoding and backpressure to the streaming-client tests.
 - Assert `response.status` first, then assert `response.body` directly with `toEqual(...)`.
 - Keep an HTTP status/body test focused on that response; cover persisted outcomes in a separate
   service or behavior test.

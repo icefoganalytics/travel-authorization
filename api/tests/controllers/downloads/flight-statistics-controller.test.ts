@@ -1,16 +1,13 @@
 import { EventEmitter, once } from "node:events"
-import { type IncomingMessage } from "node:http"
-import { createInterface } from "node:readline"
 
 import Papa from "papaparse"
 import { type Response } from "supertest"
 
-import csvStreamingClient from "@/lib/csv-streaming-client"
 import { FLIGHT_STATISTIC_REPORT_HEADERS } from "@/serializers/flight-statistics/report-serializer"
 import { CreateCsvService } from "@/services/downloads/flight-statistics/create-csv-service"
 
 import { flightStatisticFactory, userFactory } from "@/factories"
-import { mockCurrentUser, request } from "@/support"
+import { mockCurrentUser, readResponseLines, request } from "@/support"
 
 describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => {
   describe("FlightStatisticsController", () => {
@@ -203,12 +200,9 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         vi.spyOn(CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
             const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
-            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
-              await writeRow({ Name: "Traveller" })
-              await writeRow({ Name: "Next traveller" })
-              await completion
-              await writeRow({ Name: "Last traveller" })
-            })
+            outputStream.write("\uFEFFName\r\nTraveller\r\n")
+            await completion
+            outputStream.end("Last traveller\r\n")
           }
         )
 
@@ -217,23 +211,16 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
           .query({ format: "csv" })
           .buffer(false)
           .timeout(4000)
-          .on("response", (response: Response & { res: IncomingMessage }) => {
-            response.res.pause()
-          })
-        const responseReceived = once(download, "response")
+        const earlyResponse = readResponseLines(download, { lineCount: 2 })
         const downloadFinished = Promise.allSettled([download])
 
         try {
           // Act
-          const [response] = (await responseReceived) as [Response & { res: IncomingMessage }]
-          const lines = createInterface({ input: response.res })
-          const reader = lines[Symbol.asyncIterator]()
-          await reader.next() // Column header.
-          const firstRow = await reader.next()
+          const response = await earlyResponse
 
           // Assert
           expect(response.status).toEqual(200)
-          expect(firstRow.value).toEqual("Traveller")
+          expect(response.lines).toEqual(["\uFEFFName", "Traveller"])
         } finally {
           generation.emit("complete")
           await downloadFinished
@@ -247,10 +234,7 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
         vi.spyOn(CreateCsvService, "perform").mockImplementation(
           async (...args: unknown[]) => {
             const [outputStream] = args as ConstructorParameters<typeof CreateCsvService>
-            await csvStreamingClient.stream(outputStream, ["Name"], async (writeRow) => {
-              await writeRow({ Name: "Traveller" })
-              await writeRow({ Name: "Last traveller" })
-            })
+            outputStream.end("\uFEFFName\r\nTraveller\r\nLast traveller\r\n")
           }
         )
 
