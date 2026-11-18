@@ -1,5 +1,3 @@
-import qs from "qs"
-
 import { TravelDeskTravelRequest, User } from "@/models"
 import {
   travelAuthorizationFactory,
@@ -67,12 +65,12 @@ describe("api/src/controllers/travel-desk-travel-requests-controller.ts", () => 
         await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization3 })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
-        const query = qs.stringify({
+        const query = {
           where: { id: [travelDeskTravelRequest1.id, travelDeskTravelRequest2.id] },
           order: [["id", "ASC"]],
           perPage: 1,
           page: 2,
-        })
+        }
 
         // Act
         const response = await request().get("/api/travel-desk-travel-requests").query(query)

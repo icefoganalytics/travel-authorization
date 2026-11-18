@@ -63,8 +63,9 @@ stale test.
 ### Controller Tests
 
 - Use `mockCurrentUser(user)` and `request()` from `@/support`.
-- Pass objects directly to `.query()`. The shared helper encodes indexed arrays and strict nulls
-  for the application's query decoder; raw query strings remain supported for wire-format tests.
+- Pass objects directly to `.query()`. The shared helper always uses the frontend encoder options
+  for indexed arrays, strict nulls, and empty arrays. Put deliberate raw wire-format queries in
+  the request URL rather than passing strings to `.query()`.
 - Use the existing Supertest `request()` helper for streaming checks too: `.buffer(false)` exposes
   the response before generation finishes. Do not import the app or manage listening servers in
   tests. Keep each endpoint's streaming scenarios in its owning controller test file.

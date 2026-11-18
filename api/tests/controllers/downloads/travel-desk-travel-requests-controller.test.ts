@@ -1,6 +1,5 @@
 import { times } from "lodash"
 import Papa from "papaparse"
-import qs from "qs"
 
 import { TravelDeskTravelRequest, User } from "@/models"
 import { TravelDeskTravelRequests } from "@/services/downloads"
@@ -54,11 +53,11 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: unselectedTravelAuthorization })
           .create({ travelDeskOfficer: "Unselected Officer" })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: { id: selectedIds },
           order: [["id", "DESC"]],
-        })
+        }
 
         // Act
         const response = await request()
@@ -146,13 +145,13 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: hiddenTravelAuthorization })
           .create({ travelDeskOfficer: "Hidden Officer" })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           order: [
             ["travelStartDate", "ASC"],
             ["id", "DESC"],
           ],
-        })
+        }
 
         // Act
         const response = await request()
@@ -363,12 +362,12 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
             status: TravelDeskTravelRequest.Statuses.BOOKED,
             travelDeskOfficer: "Booked Officer",
           })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: { id: [draftRequest.id, bookedRequest.id] },
           filters: { includeIsBookedAttribute: true },
           order: [["isBooked", "DESC"]],
-        })
+        }
 
         // Act
         const response = await request()
@@ -449,11 +448,11 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
             status: TravelDeskTravelRequest.Statuses.BOOKED,
             travelDeskOfficer: user1.displayName,
           })
-        const query = qs.stringify({
+        const query = {
           format: "csv",
           where: { id: [request1.id, request2.id, request3.id] },
           order: [["createdAt", "ASC"]],
-        })
+        }
 
         // Act
         const response = await request()

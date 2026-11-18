@@ -9,13 +9,11 @@ export function request(options?: AgentOptions | undefined, app: App = defaultAp
     const query = request.query.bind(request)
     request.query = (values) =>
       query(
-        typeof values === "string"
-          ? values
-          : qs.stringify(values, {
-              arrayFormat: "indices",
-              strictNullHandling: true,
-              allowEmptyArrays: true,
-            })
+        qs.stringify(values, {
+          arrayFormat: "indices",
+          strictNullHandling: true,
+          allowEmptyArrays: true,
+        })
       )
   })
 }

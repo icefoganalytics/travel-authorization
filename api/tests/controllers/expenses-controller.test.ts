@@ -1,5 +1,3 @@
-import qs from "qs"
-
 import { Expense, TravelAuthorization, User } from "@/models"
 
 import { expenseFactory, travelAuthorizationFactory, userFactory } from "@/factories"
@@ -42,7 +40,7 @@ describe("api/src/controllers/expenses-controller.ts", () => {
             date: "2026-11-10",
             cost: 30,
           })
-          const query = qs.stringify({
+          const query = {
             where: {
               travelAuthorizationId: travelAuthorization.id,
               type: Expense.Types.ESTIMATE,
@@ -52,7 +50,7 @@ describe("api/src/controllers/expenses-controller.ts", () => {
               ["expenseType", direction],
             ],
             perPage: 1,
-          })
+          }
 
           // Act
           const response = await request().get("/api/expenses").query(query)
