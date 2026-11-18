@@ -71,7 +71,12 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             passengerNameRecordCreatedAt: new Date("2030-01-01T10:00:00.000Z"),
             creatingAgencyInternationalAirTransportAssociationNumber: "12345678",
             passengers: [
-              { lastNameElement: 1, passengerElement: 1, firstName: "Ada", lastName: "Example" },
+              {
+                lastNameElement: 1,
+                passengerElement: 1,
+                firstName: "Ada",
+                lastName: "Example",
+              },
             ],
             airReservationSegments: [
               expect.objectContaining({
@@ -354,7 +359,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         vi.spyOn(TravelDeskBookingEvent, "create").mockRejectedValue(persistenceError)
 
         // Act / Assert
-        await expect(SyncService.perform("SRC001")).rejects.toBe(persistenceError)
+        await expect(SyncService.perform("SRC001")).rejects.toThrow("Local database write failed")
       })
 
       test("when a later event cannot persist, it rolls back all event changes", async () => {
