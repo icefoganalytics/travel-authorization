@@ -96,7 +96,7 @@
                 v-for="item in invoice.items"
                 :key="item.id"
               >
-                <td>{{ item.saleType }}</td>
+                <td>{{ t(`travel_desk_invoice_item.sale_type.${item.saleType}`) }}</td>
                 <td>{{ t(`travel_desk_invoice_item.product_type.${item.productType}`) }}</td>
                 <td>{{ item.vendor }}</td>
                 <td>{{ item.grossAmount }} {{ invoice.currencyCode }}</td>
@@ -382,6 +382,7 @@ import {
   type InvoiceUpdateInput,
   type TravelDeskInvoiceAsShow,
   TravelDeskInvoiceItemProductTypes,
+  TravelDeskInvoiceItemSaleTypes,
   travelDeskInvoicesApi,
 } from "@/api/travel-desk-invoices-api"
 import {
@@ -728,7 +729,7 @@ function startDraft() {
     description: [segment.carrierCode, segment.flightNumber, segment.boardPoint, segment.offPoint]
       .filter(Boolean)
       .join(" "),
-    saleType: "Sale",
+    saleType: TravelDeskInvoiceItemSaleTypes.SALE,
     grossAmount: "",
     position: index,
   }))
@@ -736,8 +737,8 @@ function startDraft() {
     const fee = feeEvent.serviceFeeTransaction
     if (!fee) continue
 
-    let saleType: InvoiceItemInput["saleType"] = "Sale"
-    if (fee.activeVoidStatus === "V") saleType = "Void"
+    let saleType = TravelDeskInvoiceItemSaleTypes.SALE
+    if (fee.activeVoidStatus === "V") saleType = TravelDeskInvoiceItemSaleTypes.VOID
 
     items.push({
       productType: TravelDeskInvoiceItemProductTypes.SERVICE_FEE,
@@ -816,7 +817,7 @@ function addCharge() {
     ticketNumber: null,
     vendor: null,
     description: null,
-    saleType: "Sale",
+    saleType: TravelDeskInvoiceItemSaleTypes.SALE,
     grossAmount: "",
     position: draft.value.items.length,
   })
@@ -845,8 +846,8 @@ const computedTotal = computed(() => {
     if (amount > MAX_AMOUNT_THOUSANDTHS) return null
     if (item.grossAmount.startsWith("-")) amount = -amount
 
-    if (item.saleType === "Sale") total += amount
-    if (item.saleType === "Refund") {
+    if (item.saleType === TravelDeskInvoiceItemSaleTypes.SALE) total += amount
+    if (item.saleType === TravelDeskInvoiceItemSaleTypes.REFUND) {
       if (amount < 0n) amount = -amount
 
       total -= amount

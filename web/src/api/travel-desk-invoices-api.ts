@@ -9,6 +9,12 @@ export enum TravelDeskInvoiceItemProductTypes {
   CHANGE_FEE = "change_fee",
 }
 
+export enum TravelDeskInvoiceItemSaleTypes {
+  SALE = "sale",
+  REFUND = "refund",
+  VOID = "void",
+}
+
 export type InvoiceSourceSnapshot = {
   bookingEvent: TravelDeskBookingEventAsIndex
   serviceFeeEvents: TravelDeskBookingEventAsIndex[]
@@ -24,7 +30,7 @@ export type TravelDeskInvoiceItemAsShow = {
   ticketNumber: string | null
   vendor: string | null
   description: string | null
-  saleType: "Sale" | "Refund" | "Void"
+  saleType: TravelDeskInvoiceItemSaleTypes
   grossAmount: string
   position: number
 }
@@ -60,7 +66,7 @@ export type InvoiceItemInput = {
   ticketNumber: string | null
   vendor: string | null
   description: string | null
-  saleType: "Sale" | "Refund" | "Void"
+  saleType: TravelDeskInvoiceItemSaleTypes
   grossAmount: string
   position: number
 }

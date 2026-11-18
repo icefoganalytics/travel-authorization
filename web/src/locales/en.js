@@ -96,6 +96,11 @@ export default {
       credit: "Credit",
       change_fee: "Change Fee",
     },
+    sale_type: {
+      sale: "Sale",
+      refund: "Refund",
+      void: "Void",
+    },
   },
   travel_desk_travel_request: {
     status: {

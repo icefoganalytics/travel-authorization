@@ -35,7 +35,7 @@
         >
           <v-select
             v-model="item.saleType"
-            :items="['Sale', 'Refund', 'Void']"
+            :items="saleTypes"
             label="Sale type"
             :disabled="isSaving"
           />
@@ -135,6 +135,7 @@ import type { TravelDeskFlightSegmentAsIndex } from "@/api/travel-desk-flight-se
 import {
   type InvoiceItemInput,
   TravelDeskInvoiceItemProductTypes,
+  TravelDeskInvoiceItemSaleTypes,
 } from "@/api/travel-desk-invoices-api"
 
 const item = defineModel<InvoiceItemInput>({
@@ -157,6 +158,12 @@ const productTypes = computed(() =>
   Object.values(TravelDeskInvoiceItemProductTypes).map((productType) => ({
     title: t(`travel_desk_invoice_item.product_type.${productType}`),
     value: productType,
+  }))
+)
+const saleTypes = computed(() =>
+  Object.values(TravelDeskInvoiceItemSaleTypes).map((saleType) => ({
+    title: t(`travel_desk_invoice_item.sale_type.${saleType}`),
+    value: saleType,
   }))
 )
 
