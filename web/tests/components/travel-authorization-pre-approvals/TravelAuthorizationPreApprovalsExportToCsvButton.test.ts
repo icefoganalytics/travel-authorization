@@ -1,6 +1,6 @@
-import { flushPromises, mount } from "@vue/test-utils"
+import { flushPromises } from "@vue/test-utils"
 
-import { mockAuth0, mockVuetify } from "@/tests/support"
+import { mockAuth0, mountWithDefaultPlugins } from "@/tests/support"
 
 import TravelAuthorizationPreApprovalsExportToCsvButton from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalsExportToCsvButton.vue"
 
@@ -14,12 +14,7 @@ describe("web/src/components/travel-authorization-pre-approvals/TravelAuthorizat
       ) {
         submittedForms.push(this)
       })
-      const vuetify = mockVuetify()
-      const wrapper = mount(TravelAuthorizationPreApprovalsExportToCsvButton, {
-        global: {
-          plugins: [vuetify],
-        },
-      })
+      const wrapper = mountWithDefaultPlugins(TravelAuthorizationPreApprovalsExportToCsvButton)
 
       // Act
       await wrapper.get("form").trigger("submit")
@@ -52,12 +47,7 @@ describe("web/src/components/travel-authorization-pre-approvals/TravelAuthorizat
       const { promise, resolve } = Promise.withResolvers<string>()
       const auth0 = mockAuth0()
       auth0.getAccessTokenSilently.mockReturnValue(promise)
-      const vuetify = mockVuetify()
-      const wrapper = mount(TravelAuthorizationPreApprovalsExportToCsvButton, {
-        global: {
-          plugins: [vuetify],
-        },
-      })
+      const wrapper = mountWithDefaultPlugins(TravelAuthorizationPreApprovalsExportToCsvButton)
 
       // Act
       await wrapper.get("form").trigger("submit")

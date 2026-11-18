@@ -1,7 +1,7 @@
-import { flushPromises, mount } from "@vue/test-utils"
+import { flushPromises } from "@vue/test-utils"
 import qs from "qs"
 
-import { mockVuetify } from "@/tests/support"
+import { mountWithDefaultPlugins } from "@/tests/support"
 
 import ExportToCsvButton from "@/components/flight-reconciliations/ExportToCsvButton.vue"
 
@@ -15,17 +15,13 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       ) {
         submittedUrls.push(this.action)
       })
-      const vuetify = mockVuetify()
-      const wrapper = mount(ExportToCsvButton, {
+      const wrapper = mountWithDefaultPlugins(ExportToCsvButton, {
         props: {
           where: {
             id: [1],
             reconciled: true,
           },
           order: [["invoiceBookingDate", "DESC"]],
-        },
-        global: {
-          plugins: [vuetify],
         },
       })
 
@@ -60,15 +56,11 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       ) {
         submittedUrls.push(this.action)
       })
-      const vuetify = mockVuetify()
-      const wrapper = mount(ExportToCsvButton, {
+      const wrapper = mountWithDefaultPlugins(ExportToCsvButton, {
         props: {
           filters: { invoiceBookingDateBetween: ["2026-11-01", "2026-11-30"] },
           where: { reconciled: false },
           order: [["invoiceBookingDate", "DESC"]],
-        },
-        global: {
-          plugins: [vuetify],
         },
       })
 
