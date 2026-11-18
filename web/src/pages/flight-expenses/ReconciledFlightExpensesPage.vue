@@ -15,9 +15,9 @@
           md="2"
         >
           <ExportToCsvButton
-            :order="order"
-            :filters="filters"
             :where="exportWhere"
+            :filters="filters"
+            :order="order"
             color="primary"
           />
         </v-col>

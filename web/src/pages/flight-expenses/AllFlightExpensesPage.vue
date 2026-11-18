@@ -14,8 +14,8 @@
         >
           <ExportToCsvButton
             :where="exportWhere"
-            :order="order"
             :filters="filters"
+            :order="order"
             color="primary"
           />
         </v-col>
