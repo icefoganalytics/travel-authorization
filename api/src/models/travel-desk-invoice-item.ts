@@ -111,12 +111,19 @@ export class TravelDeskInvoiceItem extends Model<
 
   // Validators
   @ModelValidator
-  exclusiveSourceIdentity() {
+  sourceMatchesProductType() {
     if (
       !isNil(this.sourceAirSegmentNumber) &&
-      !isNil(this.sourceServiceFeeEventExternalIdentifier)
+      this.productType !== TravelDeskInvoiceItemProductTypes.AIR
     ) {
-      throw new Error("An item cannot refer to both a flight segment and service fee.")
+      throw new Error("Only air items can refer to a source flight segment.")
+    }
+
+    if (
+      !isNil(this.sourceServiceFeeEventExternalIdentifier) &&
+      this.productType !== TravelDeskInvoiceItemProductTypes.SERVICE_FEE
+    ) {
+      throw new Error("Only service fee items can refer to a source service fee.")
     }
   }
 
