@@ -154,32 +154,32 @@ describe("api/src/services/travel-authorizations/update-service.ts", () => {
         await UpdateService.perform(travelAuthorization, attributes, user)
 
         // Assert
-        expect.assertions(1)
-        const savedTravelSegments = await TravelSegment.findAll({
-          where: {
-            travelAuthorizationId: travelAuthorization.id,
-          },
-        })
-        const expectedTravelSegment1 = expect.objectContaining({
-          departureLocationId: location1.id,
-          arrivalLocationId: location2.id,
-          segmentNumber: 1,
-          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-          accommodationType: TravelSegment.AccommodationTypes.HOTEL,
-          departureOn: "2023-11-29",
-          departureTime: null,
-        })
-        const expectedTravelSegment2 = expect.objectContaining({
-          departureLocationId: location2.id,
-          arrivalLocationId: location1.id,
-          segmentNumber: 2,
-          modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
-          accommodationType: null,
-          departureOn: "2023-11-30",
-          departureTime: null,
-        })
-
-        expect(savedTravelSegments).toEqual([expectedTravelSegment1, expectedTravelSegment2])
+        expect(
+          await TravelSegment.findAll({
+            where: {
+              travelAuthorizationId: travelAuthorization.id,
+            },
+          })
+        ).toEqual([
+          expect.objectContaining({
+            departureLocationId: location1.id,
+            arrivalLocationId: location2.id,
+            segmentNumber: 1,
+            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+            accommodationType: TravelSegment.AccommodationTypes.HOTEL,
+            departureOn: "2023-11-29",
+            departureTime: null,
+          }),
+          expect.objectContaining({
+            departureLocationId: location2.id,
+            arrivalLocationId: location1.id,
+            segmentNumber: 2,
+            modeOfTransport: TravelSegment.TravelMethods.AIRCRAFT,
+            accommodationType: null,
+            departureOn: "2023-11-30",
+            departureTime: null,
+          }),
+        ])
       })
 
       test("when update request includes three travel segments, and is a round trip, it errors informatively", async () => {
