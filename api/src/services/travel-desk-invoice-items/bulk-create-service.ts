@@ -1,10 +1,10 @@
 import { pick } from "lodash"
 
+import normalizeInvoiceAmount from "@/utils/normalize-invoice-amount"
 import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items-service"
-import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
 
 export class BulkCreateService extends BaseService {
   constructor(

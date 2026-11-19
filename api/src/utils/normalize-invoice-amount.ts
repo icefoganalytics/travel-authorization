@@ -14,3 +14,5 @@ export function normalizeInvoiceAmount(amount: string): string {
 
   return roundedAmount.toFixed(3)
 }
+
+export default normalizeInvoiceAmount
