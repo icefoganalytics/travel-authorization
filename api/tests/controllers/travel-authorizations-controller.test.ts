@@ -373,12 +373,18 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         TravelAuthorization.Statuses.SUBMITTED,
         TravelAuthorization.Statuses.EXPENSE_CLAIM_TRAVELLER_CHANGES_REQUESTED,
       ])(
-        "when another traveller attempts a city correction in state %s, it denies the update",
+        "when a traveller tries to clear another traveller's saved destination in state %s, it denies the update",
         async (status) => {
           // Arrange
           const currentUser = await userFactory.create()
           mockCurrentUser(currentUser)
-          const travelAuthorization = await travelAuthorizationFactory.create({ status })
+          const owner = await userFactory.create()
+          const destination = await locationFactory.create()
+          const travelAuthorization = await travelAuthorizationFactory.create({
+            userId: owner.id,
+            finalDestinationLocationId: destination.id,
+            status,
+          })
 
           // Act
           const response = await request()
