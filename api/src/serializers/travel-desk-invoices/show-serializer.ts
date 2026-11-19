@@ -1,4 +1,4 @@
-import { pick } from "lodash"
+import { isUndefined, pick } from "lodash"
 
 import { type TravelDeskInvoice } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
@@ -29,7 +29,7 @@ export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
   perform(): TravelDeskInvoiceAsShow {
     const invoice = this.record
     const { items } = invoice
-    if (!items) {
+    if (isUndefined(items)) {
       throw new Error("Expected invoice items to be preloaded.")
     }
 
