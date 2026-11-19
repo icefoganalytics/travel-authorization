@@ -15,7 +15,7 @@ export class CsvStreamingClient {
   async stream(
     outputStream: Writable,
     headers: string[],
-    generateRows: (writeRow: WriteRow) => Promise<void>
+    generateRows: (writeRow: WriteRow, signal: AbortSignal) => Promise<void>
   ): Promise<void> {
     const formatter = format<string[] | CsvRow, string[] | CsvRow>({
       headers: true,
@@ -45,15 +45,18 @@ export class CsvStreamingClient {
     async function generate(): Promise<void> {
       // An explicit header row also emits the BOM for an empty report in fast-csv 5.
       await write(headers)
-      await generateRows(async (row) => {
-        for (const header of headers) {
-          const value = row[header]
-          if (typeof value === "string") {
-            row[header] = neutralizeSpreadsheetFormula(value)
+      await generateRows(
+        async (row) => {
+          for (const header of headers) {
+            const value = row[header]
+            if (typeof value === "string") {
+              row[header] = neutralizeSpreadsheetFormula(value)
+            }
           }
-        }
-        await write(row)
-      })
+          await write(row)
+        },
+        cancellation.signal
+      )
       formatter.end()
     }
 
