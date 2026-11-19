@@ -1,4 +1,4 @@
-import { pick } from "lodash"
+import { isUndefined, pick } from "lodash"
 
 import { type TravelDeskInvoice } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
@@ -30,7 +30,7 @@ export type TravelDeskInvoiceAsIndex = Pick<
 export class IndexSerializer extends BaseSerializer<TravelDeskInvoice> {
   perform(): TravelDeskInvoiceAsIndex {
     const { items } = this.record
-    if (!items) {
+    if (isUndefined(items)) {
       throw new Error("Expected invoice items to be preloaded.")
     }
 
