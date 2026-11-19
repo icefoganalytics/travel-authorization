@@ -11,8 +11,6 @@ import {
   User,
 } from "@/models"
 
-import { DetermineFinalDestinationService } from "@/services/travel-authorizations"
-
 import BaseSerializer from "@/serializers/base-serializer"
 import {
   Expenses,
@@ -31,6 +29,7 @@ import { type ExpenseAsReference } from "@/serializers/expenses/reference-serial
 export type TravelAuthorizationShowView = Pick<
   TravelAuthorization,
   | "id"
+  | "finalDestinationLocationId"
   | "slug"
   | "userId"
   | "preApprovalProfileId"
@@ -77,9 +76,21 @@ export type TravelAuthorizationShowView = Pick<
 
 export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
   perform(): TravelAuthorizationShowView {
-    const { expenses, purpose, stops, travelDeskTravelRequest, travelSegments, user } = this.record
+    const {
+      expenses,
+      finalDestination,
+      purpose,
+      stops,
+      travelDeskTravelRequest,
+      travelSegments,
+      user,
+    } = this.record
     if (isUndefined(expenses)) {
       throw new Error("Expected expenses association to be pre-loaded.")
+    }
+
+    if (isUndefined(finalDestination)) {
+      throw new Error("Expected finalDestination association to be pre-loaded.")
     }
 
     if (isUndefined(purpose)) {
@@ -103,12 +114,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     }
 
     const serializedExpenses = this.serializeExpenses(expenses)
-    const finalDestinationLocation = DetermineFinalDestinationService.perform(
-      this.record.tripType,
-      travelSegments,
-      this.record.tripTypeActual
-    )
-    const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
+    const serializedFinalDestination = this.serializeFinalDestination(finalDestination)
     const serializedTravelPurpose = this.serializeTravelPurpose(purpose)
     const serializedStops = this.serializeStops(stops)
     const serializedTravelDeskTravelRequest =
@@ -121,6 +127,7 @@ export class ShowSerializer extends BaseSerializer<TravelAuthorization> {
     return {
       ...pick(this.record, [
         "id",
+        "finalDestinationLocationId",
         "slug",
         "userId",
         "preApprovalProfileId",

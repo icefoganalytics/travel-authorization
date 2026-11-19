@@ -10,8 +10,6 @@ import {
   User,
 } from "@/models"
 
-import { DetermineFinalDestinationService } from "@/services/travel-authorizations"
-
 import BaseSerializer from "@/serializers/base-serializer"
 import {
   StateFlagsSerializer,
@@ -22,6 +20,7 @@ import { Locations, TravelDeskTravelRequests } from "@/serializers"
 export type TravelAuthorizationIndexView = Pick<
   TravelAuthorization,
   | "id"
+  | "finalDestinationLocationId"
   | "eventName"
   | "purposeId"
   | "wizardStepName"
@@ -58,7 +57,22 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   perform(): TravelAuthorizationIndexView {
-    const { stops, travelSegments, travelDeskTravelRequest } = this.record
+    const { stops, travelSegments, travelDeskTravelRequest, finalDestination } = this.record
+    if (isUndefined(stops)) {
+      throw new Error("Expected stops association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelSegments)) {
+      throw new Error("Expected travelSegments association to be pre-loaded.")
+    }
+
+    if (isUndefined(travelDeskTravelRequest)) {
+      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
+    }
+
+    if (isUndefined(finalDestination)) {
+      throw new Error("Expected finalDestination association to be pre-loaded.")
+    }
 
     const serializedLocations = this.serializeLocations(travelSegments, stops)
 
@@ -68,18 +82,14 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
     const departingAt = this.buildDepartingAt(this.firstTravelSegment, this.stops)
     const returningAt = this.buildReturningAt(this.lastTravelSegment, this.stops)
 
-    const finalDestinationLocation = DetermineFinalDestinationService.perform(
-      this.record.tripType,
-      travelSegments,
-      this.record.tripTypeActual
-    )
-    const serializedFinalDestination = this.serializeFinalDestination(finalDestinationLocation)
+    const serializedFinalDestination = this.serializeFinalDestination(finalDestination)
     const unprocessedExpenseCount = this.countUnprocessedExpenses()
     const stateFlagsAttributes = StateFlagsSerializer.perform(this.record)
 
     return {
       ...pick(this.record, [
         "id",
+        "finalDestinationLocationId",
         "eventName",
         "purposeId",
         "wizardStepName",
@@ -114,29 +124,17 @@ export class IndexSerializer extends BaseSerializer<TravelAuthorization> {
   }
 
   private serializeLocations(
-    travelSegments: TravelSegment[] | undefined,
-    stops: Stop[] | undefined
+    travelSegments: TravelSegment[],
+    stops: Stop[]
   ): Locations.AsReference[] {
-    if (isUndefined(stops)) {
-      throw new Error("Expected stops association to be pre-loaded.")
-    }
-
-    if (isUndefined(travelSegments)) {
-      throw new Error("Expected travelSegments association to be pre-loaded.")
-    }
-
     const locations = this.buildLocations(travelSegments, stops)
 
     return Locations.ReferenceSerializer.perform(locations)
   }
 
   private serializeTravelDeskTravelRequest(
-    travelDeskTravelRequest: TravelDeskTravelRequest | null | undefined
+    travelDeskTravelRequest: TravelDeskTravelRequest | null
   ): TravelDeskTravelRequests.AsSummary | null {
-    if (isUndefined(travelDeskTravelRequest)) {
-      throw new Error("Expected travelDeskTravelRequest association to be pre-loaded.")
-    }
-
     if (isNil(travelDeskTravelRequest)) return null
 
     return TravelDeskTravelRequests.SummarySerializer.perform(travelDeskTravelRequest)
