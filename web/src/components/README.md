@@ -39,6 +39,7 @@ here instead of expanding top-level project documentation.
 - Prefer existing list item components over hardcoded navigation structures.
 - Use `v-if` for straightforward conditional rendering instead of computed component selection.
 - Reduce nesting when wrappers such as extra `v-card-text` elements add no behavior.
+- For authenticated downloads, reuse [DownloadFileForm](common/DownloadFileForm.vue). See the [report download contract](/docs/architecture/report-downloads.md#browser-and-api-responsibilities).
 
 ## Collection Pagination
 
@@ -53,10 +54,6 @@ to `v-model:page` and `v-model:items-per-page`. It accepts initial page/page-siz
 query-key suffix; it does not react to later changes to those options.
 When a collection can fetch overlapping pages, abort superseded requests and preserve cancellation
 through the HTTP client so an earlier request cannot update the displayed records or loading state.
-
-## File Downloads
-
-Use [DownloadFileForm](common/DownloadFileForm.vue) with a download API URL to submit authenticated downloads. Components pass query configuration to the API; keep CSV generation, report formatting, and attachment filenames on the backend. See [Report Downloads](/docs/architecture/report-downloads.md) for query semantics and generation boundaries.
 
 ## Naming
 
