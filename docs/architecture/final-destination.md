@@ -14,7 +14,7 @@ Purpose and the estimated/actual trip-detail forms save the selected location th
 
 Travel-segment creation, replacement, deletion, and reordering do not update the destination. The location is selected before the itinerary is completed, so selecting it does not require a matching saved arrival. Editing the destination must not rewrite an existing route.
 
-Purpose saves only purpose details and the selected destination; it does not create or update itinerary rows or select a trip type. The existing request-creation controls supply initial blank legs. Trip Details owns subsequent route edits; when no legs exist, its trip-type controls initialize editable, unsaved legs. An unspecified trip type defaults to round trip. Saving Trip Details persists those route edits.
+Purpose saves only purpose details and the selected destination. Request creation defaults the estimated trip type to round trip and the creation controls supply initial blank legs. Trip Details uses the saved trip type to initialize editable legs when none exist; it does not infer a trip type for an existing request with none. Saving Trip Details persists route edits.
 
 ## Read and Calculation Boundaries
 

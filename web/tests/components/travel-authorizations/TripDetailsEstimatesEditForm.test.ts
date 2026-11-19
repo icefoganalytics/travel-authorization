@@ -13,11 +13,41 @@ import {
 } from "@/tests/support"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/TripDetailsEstimatesEditForm.vue"
 import TravelSegmentsAttributesRoundTripSection from "@/components/travel-segments/TravelSegmentsAttributesRoundTripSection.vue"
+
+import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/TripDetailsEstimatesEditForm.vue"
 
 describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.vue", () => {
   describe("TripDetailsEstimatesEditForm", () => {
+    test("when the saved trip type is missing, a route query cannot authorize saving", async () => {
+      // Arrange
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeEstimate: null,
+      })
+      const httpClient = mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/travel-segments": () => ({ travelSegments: [], totalCount: 0 }),
+      })
+      const router = mockRouter()
+      await router.push("/?trip_type=round_trip")
+      const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
+        props: { travelAuthorizationId: 5 },
+        global: { plugins: [router] },
+      })
+      await flushPromises()
+
+      // Act
+      await wrapper.vm.save()
+
+      // Assert
+      expect(wrapper.get('[role="alert"]').text()).toContain(
+        "This request has no estimated trip type"
+      )
+      expect(httpClient.patch).not.toHaveBeenCalled()
+    })
+
     test("when the destination is deliberately changed, saves the new city independently of the route", async () => {
       // Arrange
       const segment = travelSegmentFactory.build({
@@ -306,7 +336,10 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
 
     test("when no legs have been seeded by Purpose, initializes an editable round trip", async () => {
       // Arrange
-      const travelAuthorization = travelAuthorizationFactory.asShow().build({ id: 5 })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeEstimate: TravelAuthorizationTripTypes.ROUND_TRIP,
+      })
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
         "/api/travel-segments": () => ({ travelSegments: [], totalCount: 0 }),
