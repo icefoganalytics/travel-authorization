@@ -224,13 +224,9 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           )
         } finally {
           releaseLocks()
-          const outcomes = await completion
-          for (const outcome of outcomes) {
-            if (outcome.status === "rejected") {
-              throw outcome.reason
-            }
-          }
+          await completion
         }
+        await Promise.all([holdingTransaction, firstUpdate, secondUpdate])
 
         // Assert
         const persistedInvoice = await TravelDeskInvoice.findByPk(invoice1.id, {
@@ -412,11 +408,19 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           ],
         })
 
+        try {
+          await result
+          throw new Error("Expected the edit to reject the unselected flight segment.")
+        } catch (error) {
+          if (
+            !(error instanceof InvoiceValidationError) ||
+            error.message !== "Invoice item refers to an unselected flight segment."
+          ) {
+            throw error
+          }
+        }
+
         // Assert
-        await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
-          message: "Invoice item refers to an unselected flight segment.",
-        })
         const invoices = await TravelDeskInvoice.findAll({
           include: [
             {
@@ -507,13 +511,20 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           ],
         })
 
+        try {
+          await result
+          throw new Error("Expected the replacement item to exceed the passenger name column limit.")
+        } catch (error) {
+          if (
+            !(error instanceof DatabaseError) ||
+            !("code" in error.cause) ||
+            error.cause.code !== "22001" // string_data_right_truncation
+          ) {
+            throw error
+          }
+        }
+
         // Assert
-        await expect(result).rejects.toBeInstanceOf(DatabaseError)
-        await expect(result).rejects.toMatchObject({
-          cause: expect.objectContaining({
-            code: "22001", // string_data_right_truncation
-          }),
-        })
         const invoices = await TravelDeskInvoice.findAll({
           include: [
             {
@@ -567,11 +578,19 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           ],
         })
 
+        try {
+          await result
+          throw new Error("Expected the edit to reject the malformed amount.")
+        } catch (error) {
+          if (
+            !(error instanceof InvoiceValidationError) ||
+            error.message !== "Amount must be a decimal number."
+          ) {
+            throw error
+          }
+        }
+
         // Assert
-        await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
-          message: "Amount must be a decimal number.",
-        })
         const invoices = await TravelDeskInvoice.findAll({
           include: [
             {

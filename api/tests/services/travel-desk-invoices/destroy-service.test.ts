@@ -62,13 +62,9 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
           )
         } finally {
           allowCommit()
-          const outcomes = await completion
-          for (const outcome of outcomes) {
-            if (outcome.status === "rejected") {
-              throw outcome.reason
-            }
-          }
+          await completion
         }
+        await Promise.all([edit, deletion])
 
         // Assert
         const items = await TravelDeskInvoiceItem.findAll({
@@ -131,7 +127,7 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
         ])
       })
 
-      test("when deleting the invoice fails, it propagates the error and rolls back deletion of its lines", async () => {
+      test("when deleting the invoice fails, it rolls back deletion of its lines", async () => {
         // Arrange
         const invoice = await travelDeskInvoiceFactory.create()
         const item = await travelDeskInvoiceItemFactory.associations({ invoice }).create()
@@ -139,10 +135,16 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
         vi.spyOn(invoice, "destroy").mockRejectedValue(persistenceError)
 
         // Act
-        const result = DestroyService.perform(invoice)
+        try {
+          await DestroyService.perform(invoice)
+          throw new Error("Expected invoice deletion to fail.")
+        } catch (error) {
+          if (error !== persistenceError) {
+            throw error
+          }
+        }
 
         // Assert
-        await expect(result).rejects.toBe(persistenceError)
         const items = await TravelDeskInvoiceItem.findAll()
         expect(items).toEqual([
           expect.objectContaining({
