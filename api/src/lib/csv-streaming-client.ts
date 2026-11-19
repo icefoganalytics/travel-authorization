@@ -8,15 +8,12 @@ import neutralizeSpreadsheetFormula from "@/utils/neutralize-spreadsheet-formula
 
 type CsvRow = Record<string, string | number>
 type WriteRow = (row: CsvRow) => Promise<void>
+type GenerateRows = (writeRow: WriteRow, signal: AbortSignal) => Promise<void>
 
 const MAX_EXPORT_DURATION_MS = 2 * 60 * 1000
 
 export class CsvStreamingClient {
-  async stream(
-    outputStream: Writable,
-    headers: string[],
-    generateRows: (writeRow: WriteRow, signal: AbortSignal) => Promise<void>
-  ): Promise<void> {
+  static async stream(outputStream: Writable, headers: string[], generateRows: GenerateRows): Promise<void> {
     const formatter = format<string[] | CsvRow, string[] | CsvRow>({
       headers: true,
       includeEndRowDelimiter: true,
@@ -29,7 +26,7 @@ export class CsvStreamingClient {
       cancellation.abort(error)
       throw error
     })
-    const generation = generate()
+    const generation = this.writeReport(formatter, headers, generateRows, cancellation.signal)
 
     try {
       await Promise.all([transfer, generation])
@@ -41,34 +38,37 @@ export class CsvStreamingClient {
     } finally {
       clearTimeout(deadline)
     }
+  }
 
-    async function generate(): Promise<void> {
-      // An explicit header row also emits the BOM for an empty report in fast-csv 5.
-      await write(headers)
-      await generateRows(
-        async (row) => {
-          for (const header of headers) {
-            const value = row[header]
-            if (typeof value === "string") {
-              row[header] = neutralizeSpreadsheetFormula(value)
-            }
-          }
-          await write(row)
-        },
-        cancellation.signal
-      )
-      formatter.end()
-    }
-
-    async function write(row: string[] | CsvRow): Promise<void> {
-      cancellation.signal.throwIfAborted()
-      if (!formatter.write(row)) {
-        await once(formatter, "drain", { signal: cancellation.signal })
+  private static async writeReport(
+    formatter: Writable,
+    headers: string[],
+    generateRows: GenerateRows,
+    signal: AbortSignal
+  ): Promise<void> {
+    // Writing the header explicitly emits the BOM even for an empty report.
+    await this.writeRow(formatter, headers, signal)
+    await generateRows((row) => {
+      for (const header of headers) {
+        const value = row[header]
+        if (typeof value === "string") {
+          row[header] = neutralizeSpreadsheetFormula(value)
+        }
       }
+      return this.writeRow(formatter, row, signal)
+    }, signal)
+    formatter.end()
+  }
+
+  private static async writeRow(
+    formatter: Writable,
+    row: string[] | CsvRow,
+    signal: AbortSignal
+  ): Promise<void> {
+    if (!formatter.write(row)) {
+      await once(formatter, "drain", { signal })
     }
   }
 }
 
-const csvStreamingClient = new CsvStreamingClient()
-
-export default csvStreamingClient
+export default CsvStreamingClient
