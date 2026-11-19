@@ -14,9 +14,9 @@ import {
   ValidateLinkedFlightSegmentsService,
 } from "@/services/travel-desk-invoice-items"
 import {
+  ValidateItemsService,
   type InvoiceItemAttributes,
-  validateInvoiceItems,
-} from "@/services/travel-desk-invoices/validate-items"
+} from "@/services/travel-desk-invoices/validate-items-service"
 
 export type InvoiceHeaderAttributes = {
   bookingReference: string
@@ -88,7 +88,7 @@ export class CreateService extends BaseService {
 
     return db.transaction(async () => {
       await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
-      validateInvoiceItems(
+      ValidateItemsService.perform(
         items,
         bookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
         sourceServiceFeeEventExternalIdentifiers

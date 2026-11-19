@@ -3,7 +3,7 @@ import { type CreationAttributes } from "@sequelize/core"
 import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { type InvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items"
+import { type InvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items-service"
 import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
 
 export class BulkCreateService extends BaseService {
