@@ -1,5 +1,3 @@
-import { pick } from "lodash"
-
 import normalizeInvoiceAmount from "@/utils/normalize-invoice-amount"
 import { TravelDeskInvoiceItem } from "@/models"
 
@@ -17,18 +15,7 @@ export class BulkCreateService extends BaseService {
   async perform(): Promise<void> {
     const travelDeskInvoiceItemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map(
       (travelDeskInvoiceItemAttributes) => ({
-        ...pick(travelDeskInvoiceItemAttributes, [
-          "productType",
-          "travelDeskFlightSegmentId",
-          "sourceAirSegmentNumber",
-          "sourceServiceFeeEventExternalIdentifier",
-          "passengerName",
-          "ticketNumber",
-          "vendor",
-          "description",
-          "saleType",
-          "position",
-        ]),
+        ...travelDeskInvoiceItemAttributes,
         travelDeskInvoiceId: this.travelDeskInvoiceId,
         grossAmount: normalizeInvoiceAmount(travelDeskInvoiceItemAttributes.grossAmount),
       })
