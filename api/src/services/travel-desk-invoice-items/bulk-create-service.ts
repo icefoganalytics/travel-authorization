@@ -9,15 +9,17 @@ import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
 export class BulkCreateService extends BaseService {
   constructor(
     protected travelDeskInvoiceId: number,
-    protected items: InvoiceItemAttributes[]
+    protected travelDeskInvoiceItemsAttributes: InvoiceItemAttributes[]
   ) {
     super()
   }
 
   async perform(): Promise<void> {
-    const itemAttributes = this.items.map((item) => this.buildItemAttributes(item))
+    const itemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map((itemAttributes) =>
+      this.buildItemAttributes(itemAttributes)
+    )
 
-    await TravelDeskInvoiceItem.bulkCreate(itemAttributes, {
+    await TravelDeskInvoiceItem.bulkCreate(itemCreationAttributes, {
       validate: true,
     })
   }
