@@ -4,25 +4,25 @@ import { TravelDeskFlightOption, TravelDeskFlightRequest, TravelDeskFlightSegmen
 
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
-import { type InvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items-service"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items-service"
 
 export class ValidateLinkedFlightSegmentsService extends BaseService {
   constructor(
-    protected items: InvoiceItemAttributes[],
+    protected travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[],
     protected travelDeskTravelRequestId: number
   ) {
     super()
   }
 
   async perform(): Promise<void> {
-    const segmentIds = this.collectSegmentIds(this.items)
-    if (segmentIds.length === 0) {
+    const travelDeskFlightSegmentIds = this.collectTravelDeskFlightSegmentIds(this.travelDeskInvoiceItemsAttributes)
+    if (travelDeskFlightSegmentIds.length === 0) {
       return
     }
 
-    const segments = await TravelDeskFlightSegment.findAll({
+    const travelDeskFlightSegments = await TravelDeskFlightSegment.findAll({
       where: {
-        id: segmentIds,
+        id: travelDeskFlightSegmentIds,
         deletedAt: null,
       },
       include: [
@@ -45,22 +45,22 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
       ],
     })
 
-    if (segments.length !== segmentIds.length) {
+    if (travelDeskFlightSegments.length !== travelDeskFlightSegmentIds.length) {
       throw new InvoiceValidationError("Linked flight segments must belong to this travel request.")
     }
   }
 
-  private collectSegmentIds(items: InvoiceItemAttributes[]): number[] {
-    const segmentIds = new Set<number>()
-    for (const item of items) {
-      if (isNil(item.travelDeskFlightSegmentId)) {
+  private collectTravelDeskFlightSegmentIds(travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]): number[] {
+    const travelDeskFlightSegmentIds = new Set<number>()
+    for (const travelDeskInvoiceItemAttributes of travelDeskInvoiceItemsAttributes) {
+      if (isNil(travelDeskInvoiceItemAttributes.travelDeskFlightSegmentId)) {
         continue
       }
 
-      segmentIds.add(item.travelDeskFlightSegmentId)
+      travelDeskFlightSegmentIds.add(travelDeskInvoiceItemAttributes.travelDeskFlightSegmentId)
     }
 
-    return [...segmentIds]
+    return [...travelDeskFlightSegmentIds]
   }
 }
 
