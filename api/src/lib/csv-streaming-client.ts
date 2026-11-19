@@ -65,7 +65,8 @@ export class CsvStreamingClient {
     row: string[] | CsvRow,
     signal: AbortSignal
   ): Promise<void> {
-    if (!formatter.write(row)) {
+    const canWriteMore = formatter.write(row)
+    if (!canWriteMore) {
       await once(formatter, "drain", { signal })
     }
   }
