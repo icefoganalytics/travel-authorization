@@ -1,5 +1,4 @@
 import { flushPromises } from "@vue/test-utils"
-import qs from "qs"
 
 import { mountWithDefaultPlugins } from "@/tests/support"
 
@@ -34,18 +33,13 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       })
       await wrapper.get("form").trigger("submit")
       await flushPromises()
-      const submittedUrl = new URL(submittedUrls[0])
-      const query = qs.parse(submittedUrl.search, { ignoreQueryPrefix: true })
 
       // Assert
-      expect(query).toEqual({
-        format: "csv",
-        where: {
-          id: ["2", "3"],
-          reconciled: "true",
-        },
-        order: [["invoiceBookingDate", "DESC"]],
-      })
+      expect(submittedUrls).toEqual([
+        "http://api.example.test/api/downloads/flight-reconciliations" +
+          "?where%5Bid%5D%5B0%5D=2&where%5Bid%5D%5B1%5D=3&where%5Breconciled%5D=true" +
+          "&order%5B0%5D%5B0%5D=invoiceBookingDate&order%5B0%5D%5B1%5D=DESC&format=csv",
+      ])
     })
 
     test("when no records are selected, submits all matching records in the current order", async () => {
@@ -67,20 +61,15 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       // Act
       await wrapper.get("form").trigger("submit")
       await flushPromises()
-      const submittedUrl = new URL(submittedUrls[0])
-      const query = qs.parse(submittedUrl.search, { ignoreQueryPrefix: true })
 
       // Assert
-      expect(query).toEqual({
-        format: "csv",
-        where: {
-          reconciled: "false",
-        },
-        filters: {
-          invoiceBookingDateBetween: ["2026-11-01", "2026-11-30"],
-        },
-        order: [["invoiceBookingDate", "DESC"]],
-      })
+      expect(submittedUrls).toEqual([
+        "http://api.example.test/api/downloads/flight-reconciliations" +
+          "?where%5Breconciled%5D=false" +
+          "&filters%5BinvoiceBookingDateBetween%5D%5B0%5D=2026-11-01" +
+          "&filters%5BinvoiceBookingDateBetween%5D%5B1%5D=2026-11-30" +
+          "&order%5B0%5D%5B0%5D=invoiceBookingDate&order%5B0%5D%5B1%5D=DESC&format=csv",
+      ])
     })
   })
 })
