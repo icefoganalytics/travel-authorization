@@ -15,7 +15,7 @@ import {
 } from "@/services/travel-desk-invoice-items"
 import {
   ValidateItemsService,
-  type InvoiceItemAttributes,
+  type TravelDeskInvoiceItemAttributes,
 } from "@/services/travel-desk-invoices/validate-items-service"
 
 export type InvoiceHeaderAttributes = {
@@ -34,7 +34,7 @@ export type InvoiceHeaderAttributes = {
   bookingAgentName?: string | null
   ticketingAgentName?: string | null
   bookingDate?: string | null
-  items: InvoiceItemAttributes[]
+  items: TravelDeskInvoiceItemAttributes[]
 }
 
 export class CreateService extends BaseService {

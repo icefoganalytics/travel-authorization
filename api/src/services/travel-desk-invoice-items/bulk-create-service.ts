@@ -3,40 +3,40 @@ import { type CreationAttributes } from "@sequelize/core"
 import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { type InvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items-service"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items-service"
 import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
 
 export class BulkCreateService extends BaseService {
   constructor(
     protected travelDeskInvoiceId: number,
-    protected travelDeskInvoiceItemsAttributes: InvoiceItemAttributes[]
+    protected travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
   ) {
     super()
   }
 
   async perform(): Promise<void> {
-    const itemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map((itemAttributes) =>
-      this.buildItemAttributes(itemAttributes)
+    const travelDeskInvoiceItemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map((travelDeskInvoiceItemAttributes) =>
+      this.buildTravelDeskInvoiceItemAttributes(travelDeskInvoiceItemAttributes)
     )
 
-    await TravelDeskInvoiceItem.bulkCreate(itemCreationAttributes, {
+    await TravelDeskInvoiceItem.bulkCreate(travelDeskInvoiceItemCreationAttributes, {
       validate: true,
     })
   }
 
-  private buildItemAttributes(item: InvoiceItemAttributes): CreationAttributes<TravelDeskInvoiceItem> {
-    const grossAmount = normalizeInvoiceAmount(item.grossAmount)
-    const travelDeskFlightSegmentId = item.travelDeskFlightSegmentId ?? null
-    const sourceAirSegmentNumber = item.sourceAirSegmentNumber ?? null
-    const sourceServiceFeeEventExternalIdentifier = item.sourceServiceFeeEventExternalIdentifier ?? null
-    const passengerName = item.passengerName ?? null
-    const ticketNumber = item.ticketNumber ?? null
-    const vendor = item.vendor ?? null
-    const description = item.description ?? null
+  private buildTravelDeskInvoiceItemAttributes(travelDeskInvoiceItemAttributes: TravelDeskInvoiceItemAttributes): CreationAttributes<TravelDeskInvoiceItem> {
+    const grossAmount = normalizeInvoiceAmount(travelDeskInvoiceItemAttributes.grossAmount)
+    const travelDeskFlightSegmentId = travelDeskInvoiceItemAttributes.travelDeskFlightSegmentId ?? null
+    const sourceAirSegmentNumber = travelDeskInvoiceItemAttributes.sourceAirSegmentNumber ?? null
+    const sourceServiceFeeEventExternalIdentifier = travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier ?? null
+    const passengerName = travelDeskInvoiceItemAttributes.passengerName ?? null
+    const ticketNumber = travelDeskInvoiceItemAttributes.ticketNumber ?? null
+    const vendor = travelDeskInvoiceItemAttributes.vendor ?? null
+    const description = travelDeskInvoiceItemAttributes.description ?? null
 
     return {
       travelDeskInvoiceId: this.travelDeskInvoiceId,
-      productType: item.productType,
+      productType: travelDeskInvoiceItemAttributes.productType,
       travelDeskFlightSegmentId,
       sourceAirSegmentNumber,
       sourceServiceFeeEventExternalIdentifier,
@@ -44,9 +44,9 @@ export class BulkCreateService extends BaseService {
       ticketNumber,
       vendor,
       description,
-      saleType: item.saleType,
+      saleType: travelDeskInvoiceItemAttributes.saleType,
       grossAmount,
-      position: item.position,
+      position: travelDeskInvoiceItemAttributes.position,
     }
   }
 }

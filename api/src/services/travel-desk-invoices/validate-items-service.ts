@@ -5,7 +5,7 @@ import { TravelDeskInvoiceItem } from "@/models"
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
 
-export type InvoiceItemAttributes = {
+export type TravelDeskInvoiceItemAttributes = {
   productType: TravelDeskInvoiceItem["productType"]
   travelDeskFlightSegmentId?: number | null
   sourceAirSegmentNumber?: number | null
@@ -21,7 +21,7 @@ export type InvoiceItemAttributes = {
 
 export class ValidateItemsService extends BaseService {
   constructor(
-    protected items: InvoiceItemAttributes[],
+    protected travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[],
     protected sourceAirSegmentNumbers: number[],
     protected serviceFeeEventIds: number[]
   ) {
@@ -29,7 +29,7 @@ export class ValidateItemsService extends BaseService {
   }
 
   perform(): void {
-    if (isEmpty(this.items)) {
+    if (isEmpty(this.travelDeskInvoiceItemsAttributes)) {
       throw new InvoiceValidationError("At least one invoice item is required.")
     }
 
@@ -43,41 +43,41 @@ export class ValidateItemsService extends BaseService {
     const seenFeeEventIds = new Set<number>()
     const productTypes = Object.values(TravelDeskInvoiceItem.ProductTypes)
 
-    for (const item of this.items) {
-      if (!productTypes.some((productType) => productType === item.productType)) {
+    for (const travelDeskInvoiceItemAttributes of this.travelDeskInvoiceItemsAttributes) {
+      if (!productTypes.some((productType) => productType === travelDeskInvoiceItemAttributes.productType)) {
         throw new InvoiceValidationError(`Product type must be one of: ${productTypes.join(", ")}`)
       }
 
-      if (!isNil(item.sourceAirSegmentNumber)) {
-        if (!expectedSegmentNumbers.has(item.sourceAirSegmentNumber)) {
+      if (!isNil(travelDeskInvoiceItemAttributes.sourceAirSegmentNumber)) {
+        if (!expectedSegmentNumbers.has(travelDeskInvoiceItemAttributes.sourceAirSegmentNumber)) {
           throw new InvoiceValidationError("Invoice item refers to an unselected flight segment.")
         }
 
-        if (seenSegmentNumbers.has(item.sourceAirSegmentNumber)) {
+        if (seenSegmentNumbers.has(travelDeskInvoiceItemAttributes.sourceAirSegmentNumber)) {
           throw new InvoiceValidationError("A selected flight segment can only appear once.")
         }
 
-        if (item.productType !== TravelDeskInvoiceItem.ProductTypes.AIR) {
+        if (travelDeskInvoiceItemAttributes.productType !== TravelDeskInvoiceItem.ProductTypes.AIR) {
           throw new InvoiceValidationError("Flight segments require the Air product type.")
         }
 
-        seenSegmentNumbers.add(item.sourceAirSegmentNumber)
+        seenSegmentNumbers.add(travelDeskInvoiceItemAttributes.sourceAirSegmentNumber)
       }
 
-      if (!isNil(item.sourceServiceFeeEventExternalIdentifier)) {
-        if (!expectedFeeEventIds.has(item.sourceServiceFeeEventExternalIdentifier)) {
+      if (!isNil(travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier)) {
+        if (!expectedFeeEventIds.has(travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier)) {
           throw new InvoiceValidationError("Invoice item refers to an unselected service fee.")
         }
 
-        if (seenFeeEventIds.has(item.sourceServiceFeeEventExternalIdentifier)) {
+        if (seenFeeEventIds.has(travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier)) {
           throw new InvoiceValidationError("A selected service fee can only appear once.")
         }
 
-        if (item.productType !== TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE) {
+        if (travelDeskInvoiceItemAttributes.productType !== TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE) {
           throw new InvoiceValidationError("Service fees require the Service Fee product type.")
         }
 
-        seenFeeEventIds.add(item.sourceServiceFeeEventExternalIdentifier)
+        seenFeeEventIds.add(travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier)
       }
     }
 
