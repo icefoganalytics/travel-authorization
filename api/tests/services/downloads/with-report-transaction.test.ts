@@ -1,4 +1,5 @@
 import { QueryTypes } from "@sequelize/core"
+import { get } from "lodash"
 
 import db from "@/models"
 import withReportTransaction from "@/services/downloads/with-report-transaction"
@@ -34,15 +35,25 @@ describe("api/src/services/downloads/with-report-transaction.ts", () => {
       // Arrange
       const connectionsInUseBeforeReport = db.pool.using
       const signal = new AbortController().signal
+      const longStatement = "SELECT pg_sleep(0.5)"
 
       // Act
-      const report = withReportTransaction(signal, async () => {
-        await db.query("SELECT pg_sleep(0.5)")
-      }, STATEMENT_TIMEOUT_MS)
-      await Promise.allSettled([report])
+      const report = withReportTransaction(
+        signal,
+        async () => {
+          await db.query(longStatement)
+        },
+        STATEMENT_TIMEOUT_MS
+      )
+      const connectionsAfterCancellation = await report.catch((error: unknown) => {
+        if (get(error, "sql") !== longStatement || get(error, "cause.code") !== "57014") {
+          throw error
+        }
+        return db.pool.using
+      })
 
       // Assert
-      expect(db.pool.using).toBe(connectionsInUseBeforeReport)
+      expect(connectionsAfterCancellation).toBe(connectionsInUseBeforeReport)
     })
 
     test("when a statement finishes within the timeout, it returns rows to the report", async () => {
