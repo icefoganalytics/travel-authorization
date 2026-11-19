@@ -1,6 +1,6 @@
 import { isNil } from "lodash"
 
-import { TravelDeskFlightOption, TravelDeskFlightRequest, TravelDeskFlightSegment } from "@/models"
+import { TravelDeskFlightSegment } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
@@ -27,13 +27,13 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
       },
       include: [
         {
-          model: TravelDeskFlightOption,
+          association: "flightOption",
           where: {
             deletedAt: null,
           },
           include: [
             {
-              model: TravelDeskFlightRequest,
+              association: "flightRequest",
               required: true,
               where: {
                 travelRequestId: this.travelDeskTravelRequestId,
