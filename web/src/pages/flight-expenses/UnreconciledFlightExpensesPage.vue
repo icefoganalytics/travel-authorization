@@ -85,7 +85,9 @@ const where = computed(() => ({
 const selectedFlightReconciliationIds = ref([])
 
 const exportWhere = computed(() => {
-  if (isEmpty(selectedFlightReconciliationIds.value)) return where.value
+  if (isEmpty(selectedFlightReconciliationIds.value)) {
+    return where.value
+  }
 
   return {
     ...where.value,

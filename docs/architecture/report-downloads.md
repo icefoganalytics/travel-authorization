@@ -4,9 +4,9 @@ How report queries become authenticated, server-generated downloads, including s
 
 ## Browser and API Responsibilities
 
-Report controls express what to download through the report API’s URL builder: `where` narrows records (including selected IDs), `filters` applies report scopes, and `order` specifies the requested sort. [DownloadFileForm](/web/src/components/common/DownloadFileForm.vue) submits that URL as a native POST with the access token in the form body, not the URL. The browser handles the attachment response, so it can use the filename supplied by the API without buffering and naming a file in the component.
+Report controls express what to download through the report API’s URL builder: `where` narrows records (including selected IDs), `filters` applies report scopes, and `order` specifies the requested sort. [DownloadFileForm](/web/src/components/common/DownloadFileForm.vue) submits that URL as a native POST with the access token in the form body, not the URL. The browser handles CSV attachments and inline Travel Desk PDFs using the disposition and filename supplied by the API.
 
-The API applies the caller’s policy scope before generating the report. It owns report formatting, CSV formula protection, and the attachment filename. List pagination does not limit an export: it includes all authorized records matching the download query.
+The API applies the caller’s policy scope before generating the report. It owns report formatting, CSV formula protection, and filenames. Flight reconciliation requests include the browser’s time zone so exported purchase dates match the table. List pagination does not limit an export: it includes all authorized records matching the download query.
 
 ## Streaming CSV Reports
 
@@ -14,7 +14,7 @@ Flight reconciliation, flight statistics, and travel pre-approval CSV reports st
 
 Controllers dispatch supported formats and set attachment headers before handing the response stream to the report service. Services own policy-scoped data loading and serialization; the shared [CSV streaming client](/api/src/lib/csv-streaming-client.ts) owns CSV encoding, backpressure, and stream cleanup. It wraps `fast-csv` and writes the UTF-8 byte-order mark and headers before generating report rows, allowing a download to begin without buffering the complete report.
 
-The services use batched iteration and await each row write to bound memory use. Stable ordering and a read-only repeatable-read transaction keep those batches consistent; the tradeoff is a database connection held until generation finishes. Generation failures or client disconnects abort the transfer rather than appending JSON to a partial CSV. This streaming contract is distinct from the buffered Travel Desk generation described below.
+The services use batched iteration and await each row write to bound memory use. Stable ordering and a read-only repeatable-read transaction keep those batches consistent; the tradeoff is a database connection held until generation finishes. The streaming client aborts the transfer after two minutes so a stalled reader cannot keep the transaction open indefinitely. Generation failures and client disconnects also abort the transfer rather than appending JSON to a partial CSV.
 
 ## Travel Desk Download Contract
 

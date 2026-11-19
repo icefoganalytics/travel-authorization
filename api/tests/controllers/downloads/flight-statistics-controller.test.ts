@@ -189,7 +189,9 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
 
         // Assert
         expect(response.status).toEqual(422)
-        expect(response.body).toEqual({ message: "Unsupported report format" })
+        expect(response.body).toEqual({
+          message: "Unsupported report format",
+        })
       })
 
       test("when later rows are pending, it delivers an earlier row before generation finishes", async () => {
@@ -285,7 +287,9 @@ describe("api/src/controllers/downloads/flight-statistics-controller.ts", () => 
           generation.emit("error", new Error("CSV generation failed"))
 
           // Assert
-          await expect(responseEnded).rejects.toMatchObject({ code: "ECONNRESET" })
+          await expect(responseEnded).rejects.toMatchObject({
+            code: "ECONNRESET",
+          })
         } finally {
           generation.emit("complete")
           await downloadFinished

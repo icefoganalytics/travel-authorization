@@ -62,7 +62,9 @@ const filters = computed(() => {
 const selectedFlightReconciliationIds = ref([])
 
 const exportWhere = computed(() => {
-  if (isEmpty(selectedFlightReconciliationIds.value)) return {}
+  if (isEmpty(selectedFlightReconciliationIds.value)) {
+    return {}
+  }
 
   return {
     id: selectedFlightReconciliationIds.value,

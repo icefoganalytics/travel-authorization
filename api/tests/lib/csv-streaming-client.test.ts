@@ -8,39 +8,90 @@ import db from "@/models"
 
 describe("api/src/lib/csv-streaming-client.ts", () => {
   describe("CsvStreamingClient#stream", () => {
-    test("when a download exceeds its deadline, it rolls back the producer transaction", async () => {
-      // Arrange
-      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
-      const output = new PassThrough({ highWaterMark: 1 })
-      const generation = new EventEmitter()
-      const transactionStarted = once(generation, "transactionStarted")
-      let rolledBack = false
-      try {
-        const transfer = csvStreamingClient.stream(output, ["Name"], (writeRow) =>
+    describe("download deadline", () => {
+      const deadlineInMilliseconds = 2 * 60 * 1000
+
+      beforeEach(() => {
+        vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+
+      test("when a download exceeds its deadline, it rolls back the producer transaction", async () => {
+        // Arrange
+        const outputStream = new PassThrough({ highWaterMark: 1 })
+        const generation = new EventEmitter()
+        const transactionStarted = once(generation, "transactionStarted")
+        let isTransactionRolledBack = false
+        const transfer = csvStreamingClient.stream(outputStream, ["Name"], (writeRow) =>
           db.transaction(async (transaction) => {
             transaction.afterRollback(() => {
-              rolledBack = true
+              isTransactionRolledBack = true
             })
             generation.emit("transactionStarted")
             const row = { Name: "x".repeat(64 * 1024) }
-            for (let i = 0; i < 64; i++) await writeRow(row)
+            for (let index = 0; index < 64; index++) {
+              await writeRow(row)
+            }
           })
         )
-        const completion = transfer.catch((error: Error) => {
-          if (error.name !== "AbortError") throw error
-        })
+        const completion = Promise.allSettled([transfer])
 
-        // Act
-        await transactionStarted
-        await vi.advanceTimersByTimeAsync(120_000)
-        await completion
+        try {
+          // Act
+          await transactionStarted
+          await vi.advanceTimersByTimeAsync(deadlineInMilliseconds)
+          await completion
 
-        // Assert
-        expect(rolledBack).toBe(true)
-      } finally {
-        output.destroy()
-        vi.useRealTimers()
-      }
+          // Assert
+          expect(isTransactionRolledBack).toBe(true)
+        } finally {
+          outputStream.destroy()
+          await completion
+        }
+      })
+
+      test("when a download exceeds its deadline, it closes the output stream", async () => {
+        // Arrange
+        const outputStream = new PassThrough({ highWaterMark: 1 })
+        const transfer = csvStreamingClient.stream(outputStream, ["Name"], (writeRow) =>
+          writeRow({ Name: "Sample" })
+        )
+        const completion = Promise.allSettled([transfer])
+
+        try {
+          // Act
+          await vi.advanceTimersByTimeAsync(deadlineInMilliseconds)
+
+          // Assert
+          expect(outputStream.closed).toBe(true)
+        } finally {
+          outputStream.destroy()
+          await completion
+        }
+      })
+
+      test("when a download exceeds its deadline, it rejects the transfer with an AbortError", async () => {
+        // Arrange
+        const outputStream = new PassThrough({ highWaterMark: 1 })
+        const transfer = csvStreamingClient.stream(outputStream, ["Name"], (writeRow) =>
+          writeRow({ Name: "Sample" })
+        )
+        const completion = Promise.allSettled([transfer])
+
+        try {
+          // Act
+          await vi.advanceTimersByTimeAsync(deadlineInMilliseconds)
+
+          // Assert
+          await expect(transfer).rejects.toHaveProperty("name", "AbortError")
+        } finally {
+          outputStream.destroy()
+          await completion
+        }
+      })
     })
 
     test("when a consumer pauses, it waits before generating further rows", async () => {
@@ -121,15 +172,15 @@ describe("api/src/lib/csv-streaming-client.ts", () => {
           await writeRow({ Name: largeValue })
         }
       })
-      const result = transfer.catch((error: unknown) => error)
 
       // Act
       await rowStarted
       await setImmediate()
+      const rejection = expect(transfer).rejects.toThrow("Client disconnected")
       outputStream.destroy(disconnected)
 
       // Assert
-      expect(await result).toEqual(disconnected)
+      await rejection
     })
 
     test("when the consumer disconnects under backpressure, it stops generating further rows", async () => {

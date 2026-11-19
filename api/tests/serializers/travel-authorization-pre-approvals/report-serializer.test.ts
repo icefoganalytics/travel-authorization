@@ -1,5 +1,5 @@
 import { TravelAuthorizationPreApproval } from "@/models"
-import { ReportSerializer } from "@/serializers/travel-authorization-pre-approvals/report-serializer"
+import ReportSerializer from "@/serializers/travel-authorization-pre-approvals/report-serializer"
 
 import { travelAuthorizationPreApprovalFactory } from "@/factories"
 

@@ -19,7 +19,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
     describe("#create - POST - /api/downloads/travel-authorization-pre-approvals", () => {
       test("when records and profiles are visible, it exports their complete display values", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create({ department: "Finance" })
+        const user1 = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user1)
         const preApproval = await travelAuthorizationPreApprovalFactory.create({
           department: "Finance",
@@ -67,7 +67,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when downloading CSV, it retains the familiar filename and CSV metadata", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create({ department: "Finance" })
+        const user1 = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user1)
 
         // Act
@@ -88,7 +88,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when a hostile where query selects another department, it exports headers only", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create({ department: "Finance" })
+        const user1 = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user1)
         await travelAuthorizationPreApprovalFactory.create({ department: "Finance" })
         const hiddenPreApproval = await travelAuthorizationPreApprovalFactory.create({
@@ -111,7 +111,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when the query has no matches, it exports headers only", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create({ department: "Finance" })
+        const user1 = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user1)
         await travelAuthorizationPreApprovalFactory.create({ department: "Finance" })
 
@@ -128,7 +128,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when matches span database batches, it exports every authorized pre-approval without list pagination", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create({ department: "Finance" })
+        const user1 = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user1)
         await travelAuthorizationPreApprovalFactory.createList(1001, {
           department: "Finance",
@@ -172,7 +172,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when filters, where, and order are combined, they narrow and sort visible matches", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create({ department: "Finance" })
+        const user1 = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user1)
         const preApproval1 = await travelAuthorizationPreApprovalFactory.create({
           department: "Finance",
@@ -218,7 +218,7 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
       test("when a format is unsupported, it returns an unprocessable response", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create()
+        const user1 = await userFactory.create()
         mockCurrentUser(user1)
 
         // Act
@@ -228,12 +228,14 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
 
         // Assert
         expect(response.status).toEqual(422)
-        expect(response.body).toEqual({ message: "Unsupported report format" })
+        expect(response.body).toEqual({
+          message: "Unsupported report format",
+        })
       })
 
       test("when a query fails after the download starts, it aborts the transfer", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create({ department: "Finance" })
+        const user1 = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user1)
 
         // Act / Assert
@@ -241,7 +243,9 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
           request()
             .post("/api/downloads/travel-authorization-pre-approvals")
             .query({ format: "csv", where: { id: "invalid" } })
-        ).rejects.toMatchObject({ code: "ECONNRESET" })
+        ).rejects.toMatchObject({
+          code: "ECONNRESET",
+        })
       })
 
       test("when later rows are pending, it delivers an earlier row before generation finishes", async () => {
@@ -337,7 +341,9 @@ describe("api/src/controllers/downloads/travel-authorization-pre-approvals-contr
           generation.emit("error", new Error("CSV generation failed"))
 
           // Assert
-          await expect(responseEnded).rejects.toMatchObject({ code: "ECONNRESET" })
+          await expect(responseEnded).rejects.toMatchObject({
+            code: "ECONNRESET",
+          })
         } finally {
           generation.emit("complete")
           await downloadFinished

@@ -3,7 +3,7 @@ import { buffer } from "node:stream/consumers"
 
 import Papa from "papaparse"
 
-import { TravelAuthorizationPreApproval, User } from "@/models"
+import { TravelAuthorizationPreApproval } from "@/models"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
 
 import {
@@ -19,7 +19,7 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
     describe(".perform", () => {
       test("when fields contain delimiters and formulas, it preserves text and neutralizes formulas", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.USER], department: "Finance" })
+        const user1 = await userFactory.create({ department: "Finance" })
         const preApproval = await travelAuthorizationPreApprovalFactory.create({
           department: "Finance",
           branch: 'North, "Yukon"',
@@ -74,7 +74,7 @@ describe("api/src/services/downloads/travel-authorization-pre-approvals/create-c
 
       test("when a user has no department, it exports no records even if where selects one", async () => {
         // Arrange
-        const user1 = await userFactory.create({ roles: [User.Roles.USER], department: null })
+        const user1 = await userFactory.create({ department: null })
         const preApproval = await travelAuthorizationPreApprovalFactory.create({
           department: "Finance",
         })

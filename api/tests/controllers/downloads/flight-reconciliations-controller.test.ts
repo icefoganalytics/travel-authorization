@@ -195,7 +195,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
       test("when an ordinary user requests all records, it returns headers without disclosing data", async () => {
         // Arrange
-        const user1 = await userFactory.asUser().create()
+        const user1 = await userFactory.create()
         mockCurrentUser(user1)
         await flightReconciliationFactory.create()
 
@@ -260,7 +260,9 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
 
         // Assert
         expect(response.status).toEqual(422)
-        expect(response.body).toEqual({ message: "Unsupported report format" })
+        expect(response.body).toEqual({
+          message: "Unsupported report format",
+        })
       })
 
       test("when later rows are pending, it delivers an earlier row before generation finishes", async () => {
@@ -356,7 +358,9 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
           generation.emit("error", new Error("CSV generation failed"))
 
           // Assert
-          await expect(responseEnded).rejects.toMatchObject({ code: "ECONNRESET" })
+          await expect(responseEnded).rejects.toMatchObject({
+            code: "ECONNRESET",
+          })
         } finally {
           generation.emit("complete")
           await downloadFinished

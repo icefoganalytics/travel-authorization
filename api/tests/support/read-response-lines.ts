@@ -18,7 +18,9 @@ export function readResponseLines(download: Test, { lineCount }: { lineCount: nu
       response.res.once("error", reject)
 
       reader.on("line", (line) => {
-        if (lines.length === lineCount) return
+        if (lines.length === lineCount) {
+          return
+        }
 
         lines.push(line)
         if (lines.length === lineCount) {
