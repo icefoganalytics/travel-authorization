@@ -4,33 +4,41 @@ import { buffer } from "node:stream/consumers"
 import { setImmediate } from "node:timers/promises"
 
 import csvStreamingClient from "@/lib/csv-streaming-client"
+import db from "@/models"
 
 describe("api/src/lib/csv-streaming-client.ts", () => {
   describe("CsvStreamingClient#stream", () => {
-    test("when a download exceeds its deadline, it unwinds the producer and closes the output", async () => {
+    test("when a download exceeds its deadline, it rolls back the producer transaction", async () => {
       // Arrange
       vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
       const output = new PassThrough({ highWaterMark: 1 })
-      let producerReleased = false
+      const generation = new EventEmitter()
+      const transactionStarted = once(generation, "transactionStarted")
+      let rolledBack = false
       try {
-        const transfer = csvStreamingClient.stream(output, ["Name"], async (writeRow) => {
-          const row = { Name: "x".repeat(64 * 1024) }
-          try {
+        const transfer = csvStreamingClient.stream(output, ["Name"], (writeRow) =>
+          db.transaction(async (transaction) => {
+            transaction.afterRollback(() => {
+              rolledBack = true
+            })
+            generation.emit("transactionStarted")
+            const row = { Name: "x".repeat(64 * 1024) }
             for (let i = 0; i < 64; i++) await writeRow(row)
-          } finally {
-            producerReleased = true
-          }
-        })
-        const rejection = expect(transfer).rejects.toMatchObject({ name: "AbortError" })
+          })
+        )
+        const result = transfer.catch((error: Error) => error.name)
 
         // Act
-        await setImmediate()
+        await transactionStarted
         await vi.advanceTimersByTimeAsync(120_000)
-        await rejection
+        const errorName = await result
 
         // Assert
-        expect(producerReleased).toBe(true)
-        expect(output.destroyed).toBe(true)
+        expect({ errorName, rolledBack, closed: output.destroyed }).toEqual({
+          errorName: "AbortError",
+          rolledBack: true,
+          closed: true,
+        })
       } finally {
         output.destroy()
         vi.useRealTimers()
