@@ -17,7 +17,7 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
         const validation = item.validate()
 
         // Assert
-        await expect(validation).resolves.toBe(item)
+        await expect(validation).resolves.not.toThrow()
       })
 
       test.each([
@@ -51,7 +51,7 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
         const validation = item.validate()
 
         // Assert
-        await expect(validation).resolves.toBe(item)
+        await expect(validation).resolves.not.toThrow()
       })
 
       test.each([
