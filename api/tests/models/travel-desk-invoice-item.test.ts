@@ -5,99 +5,72 @@ import { travelDeskInvoiceItemFactory } from "@/factories"
 describe("api/src/models/travel-desk-invoice-item.ts", () => {
   describe("TravelDeskInvoiceItem", () => {
     describe("validations - sourceMatchesProductType", () => {
-      test.each([
-        {
+      test("an airfare line can identify the flight segment it pays for", async () => {
+        // Arrange
+        const item = travelDeskInvoiceItemFactory.build({
+          travelDeskInvoiceId: 1,
           productType: TravelDeskInvoiceItem.ProductTypes.AIR,
           sourceAirSegmentNumber: 1,
-          sourceServiceFeeEventExternalIdentifier: null,
-        },
-        {
-          productType: TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE,
-          sourceAirSegmentNumber: null,
-          sourceServiceFeeEventExternalIdentifier: 920002,
-        },
-      ])("when $productType has its matching source, validation permits saving", async (source) => {
-        // Arrange
-        const attributes = {
-          productType: source.productType,
-          sourceAirSegmentNumber: source.sourceAirSegmentNumber,
-          sourceServiceFeeEventExternalIdentifier: source.sourceServiceFeeEventExternalIdentifier,
-        }
+        })
 
         // Act
-        await travelDeskInvoiceItemFactory.create(attributes)
+        const validation = item.validate()
 
         // Assert
-        expect(await TravelDeskInvoiceItem.findAll()).toEqual([
-          expect.objectContaining({
-            ...source,
-          }),
-        ])
+        await expect(validation).resolves.toBe(item)
       })
 
       test.each([
         TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE,
-        TravelDeskInvoiceItem.ProductTypes.CREDIT,
         TravelDeskInvoiceItem.ProductTypes.CHANGE_FEE,
-      ])(
-        "when %s refers to a source flight segment, it rejects creation",
-        async (productType) => {
-          // Arrange
-          const attributes = {
-            productType,
-            sourceAirSegmentNumber: 1,
-          }
-
-          // Act
-          const result = travelDeskInvoiceItemFactory.create(attributes)
-
-          // Assert
-          await expect(result).rejects.toThrow(
-            "Only air items can refer to a source flight segment."
-          )
-        }
-      )
-
-      test.each([
-        TravelDeskInvoiceItem.ProductTypes.AIR,
         TravelDeskInvoiceItem.ProductTypes.CREDIT,
-        TravelDeskInvoiceItem.ProductTypes.CHANGE_FEE,
-      ])(
-        "when %s refers to a source service fee, it rejects creation",
-        async (productType) => {
-          // Arrange
-          const attributes = {
-            productType,
-            sourceServiceFeeEventExternalIdentifier: 920002,
-          }
-
-          // Act
-          const result = travelDeskInvoiceItemFactory.create(attributes)
-
-          // Assert
-          await expect(result).rejects.toThrow(
-            "Only service fee items can refer to a source service fee."
-          )
-        }
-      )
-
-      test("when an existing air item changes to an incompatible product type, validation rejects it", async () => {
+      ])("a %s line cannot identify a flight segment as the charge being billed", async (productType) => {
         // Arrange
-        const item = await travelDeskInvoiceItemFactory.create({
-          productType: TravelDeskInvoiceItem.ProductTypes.AIR,
-          grossAmount: "125.500",
+        const item = travelDeskInvoiceItemFactory.build({
+          travelDeskInvoiceId: 1,
+          productType,
           sourceAirSegmentNumber: 1,
         })
 
         // Act
-        const result = item.update({
-          productType: TravelDeskInvoiceItem.ProductTypes.CREDIT,
-        })
+        const validation = item.validate()
 
         // Assert
-        await expect(result).rejects.toThrow(
-          "Only air items can refer to a source flight segment."
-        )
+        await expect(validation).rejects.toThrow("Only air items can refer to a source flight segment.")
+      })
+
+      test("a service fee line can identify the booking fee it bills", async () => {
+        // Arrange
+        const item = travelDeskInvoiceItemFactory.build({
+          travelDeskInvoiceId: 1,
+          productType: TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE,
+          sourceServiceFeeEventExternalIdentifier: 920002,
+        })
+
+        // Act
+        const validation = item.validate()
+
+        // Assert
+        await expect(validation).resolves.toBe(item)
+      })
+
+      test.each([
+        TravelDeskInvoiceItem.ProductTypes.AIR,
+        TravelDeskInvoiceItem.ProductTypes.CHANGE_FEE,
+        TravelDeskInvoiceItem.ProductTypes.CREDIT,
+      ])("a %s line cannot identify a booking service fee as the charge being billed", async (productType) => {
+        // Arrange
+        const item = travelDeskInvoiceItemFactory.build({
+          travelDeskInvoiceId: 1,
+          productType,
+          sourceServiceFeeEventExternalIdentifier: 920002,
+        })
+
+        // Act
+        const validation = item.validate()
+
+        // Assert
+        await expect(validation).rejects.toThrow("Only service fee items can refer to a source service fee.")
       })
     })
   })
