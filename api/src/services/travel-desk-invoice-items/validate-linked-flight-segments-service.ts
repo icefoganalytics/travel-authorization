@@ -1,4 +1,4 @@
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskFlightSegment } from "@/models"
 
@@ -16,28 +16,24 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
 
   async perform(): Promise<void> {
     const travelDeskFlightSegmentIds = this.collectTravelDeskFlightSegmentIds(this.travelDeskInvoiceItemsAttributes)
-    if (travelDeskFlightSegmentIds.length === 0) {
+    if (isEmpty(travelDeskFlightSegmentIds)) {
       return
     }
 
     const travelDeskFlightSegments = await TravelDeskFlightSegment.findAll({
       where: {
         id: travelDeskFlightSegmentIds,
-        deletedAt: null,
       },
       include: [
         {
           association: "flightOption",
-          where: {
-            deletedAt: null,
-          },
+          required: true,
           include: [
             {
               association: "flightRequest",
               required: true,
               where: {
                 travelRequestId: this.travelDeskTravelRequestId,
-                deletedAt: null,
               },
             },
           ],
