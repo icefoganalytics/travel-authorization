@@ -1,4 +1,4 @@
-import { isEmpty, isNil } from "lodash"
+import { isEmpty, isNil, uniq } from "lodash"
 
 import { TravelDeskFlightSegment } from "@/models"
 
@@ -15,7 +15,11 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    const travelDeskFlightSegmentIds = this.collectTravelDeskFlightSegmentIds(this.travelDeskInvoiceItemsAttributes)
+    const travelDeskFlightSegmentIds = uniq(
+      this.travelDeskInvoiceItemsAttributes
+        .map(({ travelDeskFlightSegmentId }) => travelDeskFlightSegmentId)
+        .filter((id): id is number => !isNil(id))
+    )
     if (isEmpty(travelDeskFlightSegmentIds)) {
       return
     }
@@ -44,19 +48,6 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
     if (matchingTravelDeskFlightSegmentCount !== travelDeskFlightSegmentIds.length) {
       throw new InvoiceValidationError("Linked flight segments must belong to this travel request.")
     }
-  }
-
-  private collectTravelDeskFlightSegmentIds(travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]): number[] {
-    const travelDeskFlightSegmentIds = new Set<number>()
-    for (const travelDeskInvoiceItemAttributes of travelDeskInvoiceItemsAttributes) {
-      if (isNil(travelDeskInvoiceItemAttributes.travelDeskFlightSegmentId)) {
-        continue
-      }
-
-      travelDeskFlightSegmentIds.add(travelDeskInvoiceItemAttributes.travelDeskFlightSegmentId)
-    }
-
-    return [...travelDeskFlightSegmentIds]
   }
 }
 
