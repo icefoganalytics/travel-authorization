@@ -480,7 +480,8 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Assert
         await expect(result).rejects.toMatchObject({
           name: InvoiceValidationError.name,
-          message: "Linked flight segments must belong to this travel request.",
+          message:
+            "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving.",
         })
       })
 
@@ -743,7 +744,8 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Assert
         await expect(result).rejects.toMatchObject({
           name: InvoiceValidationError.name,
-          message: "Linked flight segments must belong to this travel request.",
+          message:
+            "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving.",
         })
       })
 
