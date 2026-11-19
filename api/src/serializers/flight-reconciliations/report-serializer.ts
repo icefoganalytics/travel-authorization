@@ -71,6 +71,8 @@ export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
       return ""
     }
 
+    // TODO: Purchase dates will likely need the location's time zone instead of a fixed offset.
+    // https://github.com/icefoganalytics/travel-authorization/issues/491
     return DateTime.fromJSDate(invoiceBookingDate, { zone: "UTC-7" }).toFormat("MMM d yyyy")
   }
 
