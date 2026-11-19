@@ -1,6 +1,6 @@
 import { type Attributes, type WhereOptions } from "@sequelize/core"
 import { type Response } from "express"
-import { DateTime, IANAZone } from "luxon"
+import { DateTime } from "luxon"
 
 import logger from "@/utils/logger"
 
@@ -56,11 +56,6 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
     where: WhereOptions<Attributes<FlightReconciliation>>,
     order: ModelOrder[] | undefined
   ) {
-    const timeZone = this.query.timeZone ?? "UTC"
-    if (typeof timeZone !== "string" || !IANAZone.isValidZone(timeZone)) {
-      return response.status(422).json({ message: "Invalid report time zone" })
-    }
-
     const fileName = this.buildFileName()
     response.status(200).attachment(fileName)
     response.setHeader("Content-Type", "text/csv; charset=utf-8")
@@ -69,8 +64,7 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
       response,
       scopedFlightReconciliations,
       where,
-      order,
-      timeZone
+      order
     )
   }
 

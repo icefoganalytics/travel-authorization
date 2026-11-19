@@ -20,7 +20,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         mockCurrentUser(user1)
         const reconciliation1 = await flightReconciliationFactory.create({
           invoiceDepartmentMailcode: "F-1",
-          invoiceBookingDate: new Date("2026-10-01T00:00:00Z"),
+          invoiceBookingDate: new Date("2026-10-01T06:59:00Z"),
           invoiceDetailComputedTravelerFirstName: "=SUM(1,2)",
           invoiceDetailComputedTravelerLastName: "Traveller",
           reconciled: true,
@@ -46,7 +46,6 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
           .post("/api/downloads/flight-reconciliations")
           .query({
             format: "csv",
-            timeZone: "America/Whitehorse",
             where: { id: [reconciliation1.id, hiddenReconciliation.id, reconciliation2.id] },
             order: [["id", "DESC"]],
           })

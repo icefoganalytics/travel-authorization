@@ -6,8 +6,6 @@ import ExportToCsvButton from "@/components/flight-reconciliations/ExportToCsvBu
 
 describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () => {
   describe("ExportToCsvButton", () => {
-    const browserTimeZone = encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)
-
     test("when selected records change, submits the current selection and ordering", async () => {
       // Arrange
       const submittedUrls: string[] = []
@@ -40,7 +38,7 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
       expect(submittedUrls).toEqual([
         "http://api.example.test/api/downloads/flight-reconciliations" +
           "?where%5Bid%5D%5B0%5D=2&where%5Bid%5D%5B1%5D=3&where%5Breconciled%5D=true" +
-          `&order%5B0%5D%5B0%5D=invoiceBookingDate&order%5B0%5D%5B1%5D=DESC&format=csv&timeZone=${browserTimeZone}`,
+          "&order%5B0%5D%5B0%5D=invoiceBookingDate&order%5B0%5D%5B1%5D=DESC&format=csv",
       ])
     })
 
@@ -70,7 +68,7 @@ describe("web/src/components/flight-reconciliations/ExportToCsvButton.vue", () =
           "?where%5Breconciled%5D=false" +
           "&filters%5BinvoiceBookingDateBetween%5D%5B0%5D=2026-11-01" +
           "&filters%5BinvoiceBookingDateBetween%5D%5B1%5D=2026-11-30" +
-          `&order%5B0%5D%5B0%5D=invoiceBookingDate&order%5B0%5D%5B1%5D=DESC&format=csv&timeZone=${browserTimeZone}`,
+          "&order%5B0%5D%5B0%5D=invoiceBookingDate&order%5B0%5D%5B1%5D=DESC&format=csv",
       ])
     })
   })

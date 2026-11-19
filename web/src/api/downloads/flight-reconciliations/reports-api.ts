@@ -4,8 +4,7 @@ import { type FlightReconciliationsQueryOptions } from "@/api/flight-reconciliat
 
 export const reportsApi = {
   downloadPath(params: FlightReconciliationsQueryOptions = {}): string {
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const query = serializeQuery({ ...params, format: "csv", timeZone })
+    const query = serializeQuery({ ...params, format: "csv" })
     return `${API_BASE_URL}/api/downloads/flight-reconciliations?${query}`
   },
 }

@@ -6,7 +6,9 @@ How report queries become authenticated, server-generated downloads, including s
 
 Report controls express what to download through the report API’s URL builder: `where` narrows records (including selected IDs), `filters` applies report scopes, and `order` specifies the requested sort. [DownloadFileForm](/web/src/components/common/DownloadFileForm.vue) submits that URL as a native POST with the access token in the form body, not the URL. The browser handles CSV attachments and inline Travel Desk PDFs using the disposition and filename supplied by the API.
 
-The API applies the caller’s policy scope before generating the report. It owns report formatting, CSV formula protection, and filenames. Flight reconciliation requests include the browser’s time zone so exported purchase dates match the table. List pagination does not limit an export: it includes all authorized records matching the download query.
+The API applies the caller’s policy scope before generating the report. It owns report formatting, CSV formula protection, and filenames. List pagination does not limit an export: it includes all authorized records matching the download query.
+
+Flight reconciliation purchase dates use fixed UTC−07:00 year-round, independent of the browser and server time zones.
 
 ## Streaming CSV Reports
 
