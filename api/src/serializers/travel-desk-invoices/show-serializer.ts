@@ -27,8 +27,7 @@ export type TravelDeskInvoiceAsShow = {
 
 export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
   perform(): TravelDeskInvoiceAsShow {
-    const invoice = this.record
-    const { items } = invoice
+    const { items } = this.record
     if (isUndefined(items)) {
       throw new Error("Expected invoice items to be preloaded.")
     }
@@ -36,7 +35,7 @@ export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
     const serializedItems = TravelDeskInvoiceItems.ReferenceSerializer.perform(items)
 
     return {
-      ...pick(invoice, [
+      ...pick(this.record, [
         "id",
         "travelDeskTravelRequestId",
         "bookingReference",
