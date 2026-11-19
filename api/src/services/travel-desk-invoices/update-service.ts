@@ -1,7 +1,5 @@
 import { isNil } from "lodash"
 
-import { db } from "@/db/db-client"
-
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
@@ -13,6 +11,7 @@ import {
   ValidateLinkedFlightSegmentsService,
 } from "@/services/travel-desk-invoice-items"
 import { validateInvoiceItems } from "@/services/travel-desk-invoices/validate-items"
+import { withInvoiceLock } from "@/services/travel-desk-invoices/with-invoice-lock"
 
 export type InvoiceUpdateAttributes = Omit<
   InvoiceHeaderAttributes,
@@ -39,15 +38,7 @@ export class UpdateService extends BaseService {
 
     const grossAmount = CalculateTotalService.perform(items)
 
-    return db.transaction(async (transaction) => {
-      const invoice = await TravelDeskInvoice.findByPk(this.invoice.id, {
-        lock: transaction.LOCK.UPDATE,
-        transaction,
-      })
-      if (isNil(invoice)) {
-        throw new InvoiceValidationError("Invoice does not exist.")
-      }
-
+    return withInvoiceLock(this.invoice.id, async (invoice, transaction) => {
       const savedItems = await TravelDeskInvoiceItem.findAll({
         where: { travelDeskInvoiceId: invoice.id },
         lock: transaction.LOCK.UPDATE,
@@ -69,7 +60,7 @@ export class UpdateService extends BaseService {
         throw new InvoiceValidationError("Invoice currency cannot be changed for saved service fees.")
       }
 
-      await validateInvoiceItems(items, sourceAirSegmentNumbers, serviceFeeEventIds)
+      validateInvoiceItems(items, sourceAirSegmentNumbers, serviceFeeEventIds)
       await ValidateLinkedFlightSegmentsService.perform(items, invoice.travelDeskTravelRequestId)
 
       await invoice.update({

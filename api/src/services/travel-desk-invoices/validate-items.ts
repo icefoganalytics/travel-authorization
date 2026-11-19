@@ -18,11 +18,11 @@ export type InvoiceItemAttributes = {
   position: number
 }
 
-export async function validateInvoiceItems(
+export function validateInvoiceItems(
   items: InvoiceItemAttributes[],
   sourceAirSegmentNumbers: number[],
   serviceFeeEventIds: number[]
-): Promise<void> {
+): void {
   if (isEmpty(items)) {
     throw new InvoiceValidationError("At least one invoice item is required.")
   }

@@ -4,4 +4,3 @@ export { UpdateService, type InvoiceUpdateAttributes } from "./update-service"
 
 // Special Services
 export { CalculateTotalService } from "./calculate-total-service"
-export { WithLockService } from "./with-lock-service"
