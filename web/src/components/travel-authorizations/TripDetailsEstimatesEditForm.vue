@@ -3,6 +3,12 @@
     v-if="isNil(travelAuthorization?.id)"
     type="card"
   />
+  <v-alert
+    v-else-if="isNil(savedTripType)"
+    type="error"
+  >
+    This request has no estimated trip type. Trip details cannot be edited.
+  </v-alert>
   <v-form
     v-else
     ref="form"
@@ -127,10 +133,8 @@ const { mdAndUp } = useDisplay()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
-const defaultTripType = computed(
-  () => travelAuthorization.value?.tripTypeEstimate || TRIP_TYPES.ROUND_TRIP
-)
-const tripType = useRouteQuery("trip_type", defaultTripType)
+const savedTripType = computed(() => travelAuthorization.value?.tripTypeEstimate)
+const tripType = useRouteQuery("trip_type", savedTripType)
 
 const travelSegmentEstimatesQuery = computed(() => ({
   where: {
@@ -215,10 +219,16 @@ async function resetFormValidation() {
   form.value?.resetValidation()
 }
 
-async function saveWrapper() {
-  if (isNil(form.value)) return
+async function validate() {
+  if (isNil(savedTripType.value) || isNil(form.value)) {
+    return { valid: false }
+  }
 
-  const { valid } = await form.value.validate()
+  return form.value.validate()
+}
+
+async function saveWrapper() {
+  const { valid } = await validate()
   if (!valid) {
     snack.warning("Please fill in all required fields.")
     return
@@ -243,6 +253,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: async () => form.value?.validate(),
+  validate,
 })
 </script>
