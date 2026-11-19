@@ -16,6 +16,8 @@ Flight reconciliation, flight statistics, and travel pre-approval CSV reports st
 
 Controllers dispatch supported formats and set attachment headers before handing the response stream to the report service. Services own policy-scoped data loading and serialization; the shared [CSV streaming client](/api/src/lib/csv-streaming-client.ts) owns CSV encoding, backpressure, and stream cleanup. It wraps `fast-csv` and writes the UTF-8 byte-order mark and headers before generating report rows, allowing a download to begin without buffering the complete report.
 
+Pass the policy-scoped model to the report service as `BaseModelConstructor<M>`. The service calls `findEach` on that model so every batch uses the caller’s visibility rules.
+
 The services use batched iteration and await each row write to bound memory use. Stable ordering and a read-only repeatable-read transaction keep those batches consistent; the tradeoff is a database connection held until generation finishes. The streaming client aborts the transfer after two minutes so a stalled reader cannot keep the transaction open indefinitely. Generation failures and client disconnects also abort the transfer rather than appending JSON to a partial CSV.
 
 Each report transaction sets PostgreSQL’s `statement_timeout` to 30 seconds locally. If the transfer stops during a database query, that query can continue until its own timeout; the two-minute transfer deadline does not cancel SQL immediately. The statement limit disappears when the transaction ends, so it does not change other requests that reuse the connection.
