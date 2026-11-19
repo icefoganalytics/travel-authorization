@@ -172,7 +172,7 @@ export class CreateService extends BaseService {
     const bookingEvent = bookingEvents.find(
       (event) => event.externalTravelPortIdentifier === externalBookingEventIdentifier
     )
-    if (isNil(bookingEvent) || bookingEvent.airReservationSegments.length === 0) {
+    if (isNil(bookingEvent) || isEmpty(bookingEvent.airReservationSegments)) {
       throw new InvoiceValidationError(
         "Choose a booking event with flight segments for this booking reference."
       )

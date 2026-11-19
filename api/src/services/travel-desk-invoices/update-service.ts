@@ -1,4 +1,4 @@
-import { isNil } from "lodash"
+import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
@@ -56,7 +56,7 @@ export class UpdateService extends BaseService {
         }
       }
 
-      if (serviceFeeEventIds.length > 0 && currencyCode !== invoice.currencyCode) {
+      if (!isEmpty(serviceFeeEventIds) && currencyCode !== invoice.currencyCode) {
         throw new InvoiceValidationError("Invoice currency cannot be changed for saved service fees.")
       }
 

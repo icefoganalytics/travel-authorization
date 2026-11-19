@@ -1,4 +1,3 @@
-import normalizeInvoiceAmount from "@/utils/normalize-invoice-amount"
 import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
@@ -17,7 +16,6 @@ export class BulkCreateService extends BaseService {
       (travelDeskInvoiceItemAttributes) => ({
         ...travelDeskInvoiceItemAttributes,
         travelDeskInvoiceId: this.travelDeskInvoiceId,
-        grossAmount: normalizeInvoiceAmount(travelDeskInvoiceItemAttributes.grossAmount),
       })
     )
 
