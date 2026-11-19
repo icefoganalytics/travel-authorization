@@ -1,7 +1,7 @@
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { WithLockService } from "@/services/travel-desk-invoices/with-lock-service"
+import { withInvoiceLock } from "@/services/travel-desk-invoices/with-invoice-lock"
 
 export class DestroyService extends BaseService {
   constructor(protected invoice: TravelDeskInvoice) {
@@ -9,11 +9,11 @@ export class DestroyService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    await WithLockService.perform(this.invoice, async () => {
+    return withInvoiceLock(this.invoice, async (invoice) => {
       await TravelDeskInvoiceItem.destroy({
-        where: { travelDeskInvoiceId: this.invoice.id },
+        where: { travelDeskInvoiceId: invoice.id },
       })
-      await this.invoice.destroy()
+      await invoice.destroy()
     })
   }
 }

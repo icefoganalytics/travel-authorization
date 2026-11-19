@@ -88,7 +88,7 @@ export class CreateService extends BaseService {
 
     return db.transaction(async () => {
       await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
-      await validateInvoiceItems(
+      validateInvoiceItems(
         items,
         bookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
         sourceServiceFeeEventExternalIdentifiers
