@@ -1,21 +1,21 @@
 import { type TravelDeskInvoiceItem } from "@/models"
-import { type TravelDeskInvoiceItemProductTypes } from "@/models/travel-desk-invoice-item"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelDeskInvoiceItemAsReference = {
-  id: number
-  productType: `${TravelDeskInvoiceItemProductTypes}`
-  travelDeskFlightSegmentId: number | null
-  sourceAirSegmentNumber: number | null
-  sourceServiceFeeEventExternalIdentifier: number | null
-  passengerName: string | null
-  ticketNumber: string | null
-  vendor: string | null
-  description: string | null
-  saleType: TravelDeskInvoiceItem["saleType"]
-  grossAmount: string
-  position: number
-}
+export type TravelDeskInvoiceItemAsReference = Pick<
+  TravelDeskInvoiceItem,
+  | "id"
+  | "productType"
+  | "travelDeskFlightSegmentId"
+  | "sourceAirSegmentNumber"
+  | "sourceServiceFeeEventExternalIdentifier"
+  | "passengerName"
+  | "ticketNumber"
+  | "vendor"
+  | "description"
+  | "saleType"
+  | "grossAmount"
+  | "position"
+>
 
 export class ReferenceSerializer extends BaseSerializer<TravelDeskInvoiceItem> {
   perform(): TravelDeskInvoiceItemAsReference {
