@@ -348,7 +348,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
     describe("#update - PATCH /api/travel-authorizations/:id", () => {
       test("when purpose details select a destination before an itinerary exists, it saves and returns the city", async () => {
         // Arrange
-        const currentUser = await userFactory.create({ roles: [User.Roles.USER] })
+        const currentUser = await userFactory.create()
         mockCurrentUser(currentUser)
         const destination = await locationFactory.create()
         const travelAuthorization = await travelAuthorizationFactory.create({
@@ -382,7 +382,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         "when another traveller attempts a city correction in state %s, it denies the update",
         async (status) => {
           // Arrange
-          const currentUser = await userFactory.create({ roles: [User.Roles.USER] })
+          const currentUser = await userFactory.create()
           mockCurrentUser(currentUser)
           const travelAuthorization = await travelAuthorizationFactory.create({ status })
 
