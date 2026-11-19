@@ -23,8 +23,10 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
     state.isLoading = true
     try {
       const { location } = await locationsApi.get(staticLocationId)
-      state.isErrored = false
-      state.location = location
+      if (unref(locationId) === staticLocationId) {
+        state.isErrored = false
+        state.location = location
+      }
       return location
     } catch (error) {
       console.error(`Failed to fetch location: ${error}`, { error })
@@ -38,7 +40,10 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
   watch(
     () => unref(locationId),
     async (newLocationId) => {
-      if (isNil(newLocationId)) return
+      if (isNil(newLocationId)) {
+        state.location = null
+        return
+      }
 
       await fetch()
     },
