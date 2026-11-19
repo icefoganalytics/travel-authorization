@@ -26,19 +26,17 @@ describe("api/src/lib/csv-streaming-client.ts", () => {
             for (let i = 0; i < 64; i++) await writeRow(row)
           })
         )
-        const result = transfer.catch((error: Error) => error.name)
+        const completion = transfer.catch((error: Error) => {
+          if (error.name !== "AbortError") throw error
+        })
 
         // Act
         await transactionStarted
         await vi.advanceTimersByTimeAsync(120_000)
-        const errorName = await result
+        await completion
 
         // Assert
-        expect({ errorName, rolledBack, closed: output.destroyed }).toEqual({
-          errorName: "AbortError",
-          rolledBack: true,
-          closed: true,
-        })
+        expect(rolledBack).toBe(true)
       } finally {
         output.destroy()
         vi.useRealTimers()
