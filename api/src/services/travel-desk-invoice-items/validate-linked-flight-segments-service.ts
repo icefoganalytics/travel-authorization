@@ -20,9 +20,7 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
         .map(({ travelDeskFlightSegmentId }) => travelDeskFlightSegmentId)
         .filter((id): id is number => !isNil(id))
     )
-    if (isEmpty(travelDeskFlightSegmentIds)) {
-      return
-    }
+    if (isEmpty(travelDeskFlightSegmentIds)) return
 
     const matchingTravelDeskFlightSegmentCount = await TravelDeskFlightSegment.count({
       where: {
