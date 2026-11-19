@@ -44,7 +44,9 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
     })
 
     if (matchingTravelDeskFlightSegmentCount !== travelDeskFlightSegmentIds.length) {
-      throw new InvoiceValidationError("Linked flight segments must belong to this travel request.")
+      throw new InvoiceValidationError(
+        "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving."
+      )
     }
   }
 }
