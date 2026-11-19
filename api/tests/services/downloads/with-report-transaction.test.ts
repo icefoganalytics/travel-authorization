@@ -1,38 +1,48 @@
 import { QueryTypes } from "@sequelize/core"
 
 import db from "@/models"
-import { withReportTransaction } from "@/services/downloads/with-report-transaction"
+import withReportTransaction from "@/services/downloads/with-report-transaction"
 
 const STATEMENT_TIMEOUT_MS = 100
 
 describe("api/src/services/downloads/with-report-transaction.ts", () => {
   describe("withReportTransaction", () => {
-    test("when a statement exceeds the timeout, it cancels the statement and returns the connection", async () => {
+    test("when a statement exceeds the timeout, PostgreSQL cancels it", async () => {
       // Arrange
       const signal = new AbortController().signal
-      const connectionsInUseBeforeReport = db.pool.using
       const longStatement = "SELECT pg_sleep(0.5)"
 
       // Act
-      const error = await withReportTransaction(
+      const report = withReportTransaction(
         signal,
         async () => {
           await db.query(longStatement)
         },
         STATEMENT_TIMEOUT_MS
-      ).catch((error: unknown) => error)
+      )
 
       // Assert
-      expect({ error, connectionsInUse: db.pool.using }).toMatchObject({
-        error: {
-          message: "canceling statement due to statement timeout",
-          sql: longStatement,
-          cause: {
-            code: "57014",
-          },
+      await expect(report).rejects.toMatchObject({
+        sql: longStatement,
+        cause: {
+          code: "57014",
         },
-        connectionsInUse: connectionsInUseBeforeReport,
       })
+    })
+
+    test("when PostgreSQL cancels a pending statement, the pool recovers the connection", async () => {
+      // Arrange
+      const connectionsInUseBeforeReport = db.pool.using
+      const signal = new AbortController().signal
+
+      // Act
+      const report = withReportTransaction(signal, async () => {
+        await db.query("SELECT pg_sleep(0.5)")
+      }, STATEMENT_TIMEOUT_MS)
+      await Promise.allSettled([report])
+
+      // Assert
+      expect(db.pool.using).toBe(connectionsInUseBeforeReport)
     })
 
     test("when a statement finishes within the timeout, it returns rows to the report", async () => {
