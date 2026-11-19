@@ -1,4 +1,4 @@
-import { type CreationAttributes } from "@sequelize/core"
+import { pick } from "lodash"
 
 import { TravelDeskInvoiceItem } from "@/models"
 
@@ -15,39 +15,28 @@ export class BulkCreateService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    const travelDeskInvoiceItemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map((travelDeskInvoiceItemAttributes) =>
-      this.buildTravelDeskInvoiceItemAttributes(travelDeskInvoiceItemAttributes)
+    const travelDeskInvoiceItemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map(
+      (travelDeskInvoiceItemAttributes) => ({
+        ...pick(travelDeskInvoiceItemAttributes, [
+          "productType",
+          "travelDeskFlightSegmentId",
+          "sourceAirSegmentNumber",
+          "sourceServiceFeeEventExternalIdentifier",
+          "passengerName",
+          "ticketNumber",
+          "vendor",
+          "description",
+          "saleType",
+          "position",
+        ]),
+        travelDeskInvoiceId: this.travelDeskInvoiceId,
+        grossAmount: normalizeInvoiceAmount(travelDeskInvoiceItemAttributes.grossAmount),
+      })
     )
 
     await TravelDeskInvoiceItem.bulkCreate(travelDeskInvoiceItemCreationAttributes, {
       validate: true,
     })
-  }
-
-  private buildTravelDeskInvoiceItemAttributes(travelDeskInvoiceItemAttributes: TravelDeskInvoiceItemAttributes): CreationAttributes<TravelDeskInvoiceItem> {
-    const grossAmount = normalizeInvoiceAmount(travelDeskInvoiceItemAttributes.grossAmount)
-    const travelDeskFlightSegmentId = travelDeskInvoiceItemAttributes.travelDeskFlightSegmentId ?? null
-    const sourceAirSegmentNumber = travelDeskInvoiceItemAttributes.sourceAirSegmentNumber ?? null
-    const sourceServiceFeeEventExternalIdentifier = travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier ?? null
-    const passengerName = travelDeskInvoiceItemAttributes.passengerName ?? null
-    const ticketNumber = travelDeskInvoiceItemAttributes.ticketNumber ?? null
-    const vendor = travelDeskInvoiceItemAttributes.vendor ?? null
-    const description = travelDeskInvoiceItemAttributes.description ?? null
-
-    return {
-      travelDeskInvoiceId: this.travelDeskInvoiceId,
-      productType: travelDeskInvoiceItemAttributes.productType,
-      travelDeskFlightSegmentId,
-      sourceAirSegmentNumber,
-      sourceServiceFeeEventExternalIdentifier,
-      passengerName,
-      ticketNumber,
-      vendor,
-      description,
-      saleType: travelDeskInvoiceItemAttributes.saleType,
-      grossAmount,
-      position: travelDeskInvoiceItemAttributes.position,
-    }
   }
 }
 
