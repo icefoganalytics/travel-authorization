@@ -20,7 +20,7 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
       return
     }
 
-    const travelDeskFlightSegments = await TravelDeskFlightSegment.findAll({
+    const matchingTravelDeskFlightSegmentCount = await TravelDeskFlightSegment.count({
       where: {
         id: travelDeskFlightSegmentIds,
       },
@@ -41,7 +41,7 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
       ],
     })
 
-    if (travelDeskFlightSegments.length !== travelDeskFlightSegmentIds.length) {
+    if (matchingTravelDeskFlightSegmentCount !== travelDeskFlightSegmentIds.length) {
       throw new InvoiceValidationError("Linked flight segments must belong to this travel request.")
     }
   }
