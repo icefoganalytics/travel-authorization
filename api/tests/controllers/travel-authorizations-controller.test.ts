@@ -18,9 +18,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
     describe("#index - GET /api/travel-authorizations", () => {
       test("when travel desk travel request is null, returns 200 and serializes without error", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         mockCurrentUser(user)
 
         const travelAuthorization1 = await travelAuthorizationFactory.create({
@@ -79,9 +77,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
 
       test("when an authorization has a request and connecting segments, it includes the persisted request identity and unique locations", async () => {
         // Arrange
-        const user1 = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user1 = await userFactory.create()
         mockCurrentUser(user1)
         const travelAuthorization1 = await travelAuthorizationFactory
           .associations({
@@ -167,9 +163,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
 
       test("when an authorization predates travel segments, it retains its stop dates and locations", async () => {
         // Arrange
-        const user1 = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user1 = await userFactory.create()
         mockCurrentUser(user1)
         const travelAuthorization1 = await travelAuthorizationFactory
           .associations({
@@ -224,7 +218,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         "when sorting $field $direction, it orders authorized rows before limiting with stable ties",
         async ({ field, direction, positions, page = 1, perPage = 2 }) => {
           // Arrange
-          const user = await userFactory.create({ roles: [User.Roles.USER] })
+          const user = await userFactory.create()
           mockCurrentUser(user)
           const travelAuthorizations: TravelAuthorization[] = []
           for (const firstName of ["Zulu", "Alpha", "Alpha"]) {
@@ -277,7 +271,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
         "when sorting $field $direction, it uses boundary segments and stop fallback before pagination",
         async ({ field, direction, position, date }) => {
           // Arrange
-          const user = await userFactory.create({ roles: [User.Roles.USER] })
+          const user = await userFactory.create()
           mockCurrentUser(user)
           const travelAuthorizations = await travelAuthorizationFactory
             .associations({ user })
@@ -404,9 +398,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
     describe("#create - POST /api/travel-authorizations", () => {
       test("when status is omitted, it creates a draft with the submitted estimated trip segments", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         mockCurrentUser(user)
 
         const newTravelAuthorizationAttributes = {
@@ -461,9 +453,7 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
 
       test("when workflow state is supplied, it still creates a draft with the submitted details", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const user = await userFactory.create()
         mockCurrentUser(user)
 
         const newTravelAuthorizationAttributes = {
