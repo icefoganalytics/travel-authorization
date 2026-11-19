@@ -22,23 +22,28 @@ export class SyncService extends BaseService {
 
     await WithSyncLockService.perform(this.bookingReference, async () => {
       const matchedSourceIds: number[] = []
-      await this.syncTravelOrderEvents(this.bookingReference, async (travelOrderEvent) => {
-        const travelDeskBookingEventAttributes =
-          TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(
-            travelOrderEvent,
-            this.bookingReference
-          )
-        const { externalTravelPortIdentifier } = travelDeskBookingEventAttributes
-        const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
-          where: { externalTravelPortIdentifier },
-        })
-        if (isNil(travelDeskBookingEvent)) {
-          await TravelDeskBookingEvent.create(travelDeskBookingEventAttributes)
-        } else {
-          await travelDeskBookingEvent.update(travelDeskBookingEventAttributes)
+      await this.syncTravelOrderEvents(
+        this.bookingReference,
+        async (travelOrderEvent) => {
+          const travelDeskBookingEventAttributes =
+            TravelPortIntegration.Serializers.TravelOrderEvents.SyncSerializer.perform(
+              travelOrderEvent,
+              this.bookingReference
+            )
+          const { externalTravelPortIdentifier } = travelDeskBookingEventAttributes
+          const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
+            where: {
+              externalTravelPortIdentifier,
+            },
+          })
+          if (isNil(travelDeskBookingEvent)) {
+            await TravelDeskBookingEvent.create(travelDeskBookingEventAttributes)
+          } else {
+            await travelDeskBookingEvent.update(travelDeskBookingEventAttributes)
+          }
+          matchedSourceIds.push(externalTravelPortIdentifier)
         }
-        matchedSourceIds.push(externalTravelPortIdentifier)
-      })
+      )
 
       await this.deleteUnmatchedBookingEvents(matchedSourceIds)
     })
@@ -65,11 +70,16 @@ export class SyncService extends BaseService {
     let processingFailed = false
     try {
       await TravelPortIntegration.db.transaction(
-        { isolationLevel: IsolationLevel.SERIALIZABLE },
-        async () => {
-          await TravelPortIntegration.Models.TravelOrderEvent.findEach(
+        {
+          isolationLevel: IsolationLevel.SERIALIZABLE,
+        },
+        async (transaction) => {
+          await TravelPortIntegration.Models.TravelOrderEvent.withScope("withSourcePrecision").findEach(
             {
-              where: { recordLocator },
+              where: {
+                recordLocator,
+              },
+              transaction,
               include: [
                 {
                   association: "passengers",
@@ -84,7 +94,12 @@ export class SyncService extends BaseService {
                   separate: true,
                   order: [["airSegmentNumber", "ASC"]],
                 },
-                { association: "serviceFeeTransaction" },
+                {
+                  association: "serviceFeeTransaction",
+                  // Pass the scoped model to preserve decimal precision; association scopes only filter rows.
+                  model:
+                    TravelPortIntegration.Models.ServiceFeeTransaction.withScope("withSourcePrecision"),
+                },
               ],
               order: [["travelOrderIdentifier", "ASC"]],
             },
@@ -102,7 +117,9 @@ export class SyncService extends BaseService {
     } catch (error) {
       if (processingFailed) throw error
 
-      logger.error("Travelport booking source lookup failed.", { error })
+      logger.error("Travelport booking source lookup failed.", {
+        error,
+      })
       throw new SourceUnavailableError("Booking source is unavailable.")
     }
   }

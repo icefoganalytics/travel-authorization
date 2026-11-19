@@ -1,5 +1,6 @@
 import travelPortMigrationClient from "@/integrations/travel-port-integration/db/db-migration-client"
 import { TravelOrderEvent } from "@/integrations/travel-port-integration/models"
+import { SyncSerializer } from "@/integrations/travel-port-integration/serializers/travel-order-events"
 import { TravelDeskBookingEvent } from "@/models"
 import { SyncService } from "@/services/travel-desk-booking-events/sync-service"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
@@ -70,7 +71,12 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
             passengerNameRecordCreatedAt: new Date("2030-01-01T10:00:00.000Z"),
             creatingAgencyInternationalAirTransportAssociationNumber: "12345678",
             passengers: [
-              { lastNameElement: 1, passengerElement: 1, firstName: "Ada", lastName: "Example" },
+              {
+                lastNameElement: 1,
+                passengerElement: 1,
+                firstName: "Ada",
+                lastName: "Example",
+              },
             ],
             airReservationSegments: [
               expect.objectContaining({
@@ -101,6 +107,97 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
               relatedTicketDocumentNumber: null,
               relatedInvoiceNumber: null,
             },
+          }),
+        ])
+      })
+
+      test("when a cached event is refreshed, it updates the version without fabricating missing associations", async () => {
+        // Arrange
+        const cachedEvent = await travelDeskBookingEventFactory.create({
+          externalTravelPortIdentifier: 910001,
+          bookingReference: "SRC001",
+          bookingFileVersionNumber: 1,
+        })
+        await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910001,
+          recordLocator: "SRC001",
+          bookingFileVersionNumber: 2,
+        })
+
+        // Act
+        await SyncService.perform("SRC001")
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({
+            id: cachedEvent.id,
+            bookingFileVersionNumber: 2,
+            passengers: [],
+            airReservationSegments: [],
+            serviceFeeTransaction: null,
+          }),
+        ])
+      })
+
+      test("when source fees exceed JavaScript number precision, it retains every decimal digit in normalized amounts", async () => {
+        // Arrange
+        const sourceEvent = await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910001,
+          recordLocator: "SRC001",
+        })
+        await TravelPortIntegration.serviceFeeTransactionFactory.create({
+          travelOrderIdentifier: sourceEvent.travelOrderIdentifier,
+          serviceFeeAmount: "123456789012345.125",
+          commissionAmount: "0.001",
+          relatedInvoiceNumber: " INV001  ",
+        })
+
+        // Act
+        await SyncService.perform("SRC001")
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({
+            serviceFeeTransaction: expect.objectContaining({
+              serviceFeeAmount: "123456789012345.125",
+              commissionAmount: "0.001",
+              relatedInvoiceNumber: "INV001",
+            }),
+          }),
+        ])
+      })
+
+      test("when a later source serialization fails, it rolls back normalized updates", async () => {
+        // Arrange
+        const cachedEvent = await travelDeskBookingEventFactory.create({
+          externalTravelPortIdentifier: 910001,
+          bookingReference: "SRC001",
+          bookingFileVersionNumber: 1,
+        })
+        await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910001,
+          recordLocator: "SRC001",
+          bookingFileVersionNumber: 2,
+        })
+        await TravelPortIntegration.travelOrderEventFactory.create({
+          travelOrderIdentifier: 910002,
+          recordLocator: "SRC001",
+        })
+        const serializeEvent = SyncSerializer.prototype.perform
+        vi.spyOn(SyncSerializer.prototype, "perform")
+          .mockImplementationOnce(serializeEvent)
+          .mockImplementationOnce(() => {
+            throw new Error("Later source event serialization failed")
+          })
+
+        // Act
+        await SyncService.perform("SRC001").catch(() => undefined)
+
+        // Assert
+        expect(await TravelDeskBookingEvent.findAll()).toEqual([
+          expect.objectContaining({
+            id: cachedEvent.id,
+            bookingFileVersionNumber: 1,
           }),
         ])
       })
@@ -165,7 +262,9 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
-          expect.objectContaining({ id: unrelatedEvent.id }),
+          expect.objectContaining({
+            id: unrelatedEvent.id,
+          }),
         ])
       })
 
@@ -190,7 +289,10 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
-          expect.objectContaining({ id: retainedEvent.id, deletedAt: null }),
+          expect.objectContaining({
+            id: retainedEvent.id,
+            deletedAt: null,
+          }),
         ])
       })
 
@@ -239,7 +341,10 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
 
         // Assert
         expect(await TravelDeskBookingEvent.findAll()).toEqual([
-          expect.objectContaining({ id: cachedEvent.id, deletedAt: null }),
+          expect.objectContaining({
+            id: cachedEvent.id,
+            deletedAt: null,
+          }),
         ])
       })
 
@@ -262,7 +367,7 @@ describe("api/src/services/travel-desk-booking-events/sync-service.ts", () => {
         vi.spyOn(TravelDeskBookingEvent, "create").mockRejectedValue(persistenceError)
 
         // Act / Assert
-        await expect(SyncService.perform("SRC001")).rejects.toBe(persistenceError)
+        await expect(SyncService.perform("SRC001")).rejects.toThrow("Local database write failed")
       })
 
       test("when a later event cannot persist, it rolls back all event changes", async () => {
