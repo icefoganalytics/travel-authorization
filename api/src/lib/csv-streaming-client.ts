@@ -9,6 +9,8 @@ import neutralizeSpreadsheetFormula from "@/utils/neutralize-spreadsheet-formula
 type CsvRow = Record<string, string | number>
 type WriteRow = (row: CsvRow) => Promise<void>
 
+const MAX_EXPORT_DURATION_MS = 2 * 60 * 1000
+
 export class CsvStreamingClient {
   async stream(
     outputStream: Writable,
@@ -22,7 +24,8 @@ export class CsvStreamingClient {
       writeBOM: true,
     })
     const cancellation = new AbortController()
-    const transfer = pipeline(formatter, outputStream).catch((error: unknown) => {
+    const deadline = setTimeout(() => cancellation.abort(), MAX_EXPORT_DURATION_MS)
+    const transfer = pipeline(formatter, outputStream, { signal: cancellation.signal }).catch((error: unknown) => {
       cancellation.abort(error)
       throw error
     })
@@ -35,6 +38,8 @@ export class CsvStreamingClient {
       // Wait for the producer to release its transaction after a disconnected client.
       await Promise.allSettled([transfer, generation])
       throw error
+    } finally {
+      clearTimeout(deadline)
     }
 
     async function generate(): Promise<void> {

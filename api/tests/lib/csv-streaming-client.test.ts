@@ -7,6 +7,36 @@ import csvStreamingClient from "@/lib/csv-streaming-client"
 
 describe("api/src/lib/csv-streaming-client.ts", () => {
   describe("CsvStreamingClient#stream", () => {
+    test("when a download exceeds its deadline, it unwinds the producer and closes the output", async () => {
+      // Arrange
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
+      const output = new PassThrough({ highWaterMark: 1 })
+      let producerReleased = false
+      try {
+        const transfer = csvStreamingClient.stream(output, ["Name"], async (writeRow) => {
+          const row = { Name: "x".repeat(64 * 1024) }
+          try {
+            for (let i = 0; i < 64; i++) await writeRow(row)
+          } finally {
+            producerReleased = true
+          }
+        })
+        const rejection = expect(transfer).rejects.toMatchObject({ name: "AbortError" })
+
+        // Act
+        await setImmediate()
+        await vi.advanceTimersByTimeAsync(120_000)
+        await rejection
+
+        // Assert
+        expect(producerReleased).toBe(true)
+        expect(output.destroyed).toBe(true)
+      } finally {
+        output.destroy()
+        vi.useRealTimers()
+      }
+    })
+
     test("when a consumer pauses, it waits before generating further rows", async () => {
       // Arrange
       const outputStream = new PassThrough({ highWaterMark: 1 })
