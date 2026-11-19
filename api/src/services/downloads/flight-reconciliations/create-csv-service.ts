@@ -17,7 +17,8 @@ export class CreateCsvService extends BaseService {
     private outputStream: Writable,
     private scopedFlightReconciliations: BaseModelConstructor<FlightReconciliation>,
     private where: WhereOptions<Attributes<FlightReconciliation>>,
-    private order: ModelOrder[] | undefined
+    private order: ModelOrder[] | undefined,
+    private timeZone: string
   ) {
     super()
   }
@@ -36,7 +37,7 @@ export class CreateCsvService extends BaseService {
               order: this.order,
             },
             async (record) => {
-              const row = ReportSerializer.perform(record)
+              const row = ReportSerializer.perform(record, this.timeZone)
               await writeRow(row)
             }
           )

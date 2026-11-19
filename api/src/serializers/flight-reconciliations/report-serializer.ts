@@ -24,6 +24,10 @@ export const FLIGHT_RECONCILIATION_REPORT_HEADERS = Object.values(FlightReconcil
 export type FlightReconciliationAsReport = Record<FlightReconciliationReportHeaders, string | number>
 
 export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
+  constructor(record: FlightReconciliation, private timeZone: string) {
+    super(record)
+  }
+
   perform(): FlightReconciliationAsReport {
     const {
       invoiceBookingDate,
@@ -71,7 +75,7 @@ export class ReportSerializer extends BaseSerializer<FlightReconciliation> {
       return ""
     }
 
-    return DateTime.fromJSDate(invoiceBookingDate).toFormat("MMM d yyyy")
+    return DateTime.fromJSDate(invoiceBookingDate, { zone: this.timeZone }).toFormat("MMM d yyyy")
   }
 
   private formatCost(

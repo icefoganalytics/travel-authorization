@@ -20,6 +20,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
         mockCurrentUser(user1)
         const reconciliation1 = await flightReconciliationFactory.create({
           invoiceDepartmentMailcode: "F-1",
+          invoiceBookingDate: new Date("2026-10-01T00:00:00Z"),
           invoiceDetailComputedTravelerFirstName: "=SUM(1,2)",
           invoiceDetailComputedTravelerLastName: "Traveller",
           reconciled: true,
@@ -45,6 +46,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
           .post("/api/downloads/flight-reconciliations")
           .query({
             format: "csv",
+            timeZone: "America/Whitehorse",
             where: { id: [reconciliation1.id, hiddenReconciliation.id, reconciliation2.id] },
             order: [["id", "DESC"]],
           })
@@ -70,7 +72,7 @@ describe("api/src/controllers/downloads/flight-reconciliations-controller.ts", (
             "Reconcile Period": "",
           },
           {
-            "Purchase Date": "Oct 1 2026",
+            "Purchase Date": "Sep 30 2026",
             Cost: "$1,234.50",
             Agent: "Jane Agent",
             Airline: "Air North",
