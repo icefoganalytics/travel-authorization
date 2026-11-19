@@ -37,10 +37,10 @@ export const locationsApi = {
     return data
   },
 
-  async get(locationId: number): Promise<{
+  async get(locationId: number, { signal }: { signal?: AbortSignal } = {}): Promise<{
     location: LocationAsShow
   }> {
-    const { data } = await http.get(`/api/locations/${locationId}`)
+    const { data } = await http.get(`/api/locations/${locationId}`, { signal })
     return data
   },
 }

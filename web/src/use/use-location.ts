@@ -1,7 +1,9 @@
-import { type Ref, reactive, toRefs, unref, watch } from "vue"
+import { type Ref, onScopeDispose, reactive, toRefs, unref, watch } from "vue"
 import { isNil } from "lodash"
 
 import locationsApi, { type LocationAsShow } from "@/api/locations-api"
+
+export { type LocationAsShow }
 
 export function useLocation(locationId: Ref<number | null | undefined>) {
   const state = reactive<{
@@ -14,26 +16,32 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
     isErrored: false,
   })
 
-  async function fetch(): Promise<LocationAsShow> {
+  let requestController: AbortController | undefined
+
+  async function fetch(): Promise<LocationAsShow | null> {
     const staticLocationId = unref(locationId)
     if (isNil(staticLocationId)) {
       throw new Error("locationId is required")
     }
 
+    requestController?.abort()
+    const controller = new AbortController()
+    requestController = controller
     state.isLoading = true
     try {
-      const { location } = await locationsApi.get(staticLocationId)
-      if (unref(locationId) === staticLocationId) {
-        state.isErrored = false
-        state.location = location
-      }
+      const { location } = await locationsApi.get(staticLocationId, { signal: controller.signal })
+      if (controller.signal.aborted) return null
+
+      state.isErrored = false
+      state.location = location
       return location
     } catch (error) {
-      console.error(`Failed to fetch location: ${error}`, { error })
+      if (controller.signal.aborted) return null
+
       state.isErrored = true
       throw error
     } finally {
-      state.isLoading = false
+      if (!controller.signal.aborted) state.isLoading = false
     }
   }
 
@@ -41,6 +49,9 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
     () => unref(locationId),
     async (newLocationId) => {
       if (isNil(newLocationId)) {
+        requestController?.abort()
+        state.isLoading = false
+        state.isErrored = false
         state.location = null
         return
       }
@@ -51,6 +62,8 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
       immediate: true,
     }
   )
+
+  onScopeDispose(() => requestController?.abort())
 
   return {
     ...toRefs(state),
