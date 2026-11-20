@@ -3,7 +3,7 @@ import { isEmpty, isNil, keyBy } from "lodash"
 
 import { db } from "@/db/db-client"
 
-import { TravelDeskBookingEvent, TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
+import { TravelDeskBookingEvent, TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
@@ -69,11 +69,6 @@ export class CreateService extends BaseService {
     const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async () => {
-      const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(this.travelDeskTravelRequest.id)
-      if (isNil(travelDeskTravelRequest)) {
-        throw new TravelDeskInvoiceValidationError("Travel desk travel request does not exist.")
-      }
-
       ValidateItemsService.perform(
         items,
         travelDeskBookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
