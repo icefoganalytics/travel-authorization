@@ -338,12 +338,15 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       await flushPromises()
 
       // Act
-      const input = wrapper.getComponent(LocationsAutocomplete).get("input")
+      const autocomplete = wrapper.getComponent(LocationsAutocomplete)
+      const input = autocomplete.get("input")
       await input.trigger("focus")
       await input.setValue("")
       await wrapper.vm.save()
 
       // Assert
+      expect(autocomplete.emitted("update:modelValue")?.at(-1)).toEqual([null])
+      expect(wrapper.emitted("update:finalDestinationLocationId")?.at(-1)).toEqual([null])
       expect(httpClient.patch).not.toHaveBeenCalled()
     })
   })
