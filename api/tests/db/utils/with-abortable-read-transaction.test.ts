@@ -4,10 +4,29 @@ import { QueryTypes } from "@sequelize/core"
 
 import db from "@/models"
 
+import { userFactory } from "@/factories"
+
 import withAbortableReadTransaction from "@/db/utils/with-abortable-read-transaction"
 
 describe("api/src/db/utils/with-abortable-read-transaction.ts", () => {
   describe("withAbortableReadTransaction", () => {
+    test("when a department changes between reads, both reads see the original department", async () => {
+      // Arrange
+      const user = await userFactory.create({ department: "Finance" })
+      const signal = new AbortController().signal
+      const departments: (string | null)[] = []
+
+      // Act
+      await withAbortableReadTransaction(signal, async () => {
+        departments.push((await user.reload()).department)
+        await user.update({ department: "Health" }, { transaction: null })
+        departments.push((await user.reload()).department)
+      })
+
+      // Assert
+      expect(departments).toEqual(["Finance", "Finance"])
+    })
+
     test("when called inside another transaction, it rejects without taking ownership", async () => {
       // Arrange
       const signal = new AbortController().signal
