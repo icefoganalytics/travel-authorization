@@ -120,7 +120,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: "update:travelPurposeId", travelPurposeId: number): void
-  (event: "update:finalDestinationLocationId", finalDestinationLocationId: number | null): void
+  (event: "update:finalDestinationLocationId", finalDestinationLocationId: number): void
   (event: "update:eventName", eventName: string | null): void
 }>()
 
@@ -131,6 +131,8 @@ function updateFinalDestinationLocationId(locationId: number | null) {
   if (isNil(travelAuthorization.value)) return
 
   travelAuthorization.value.finalDestinationLocationId = locationId
+  if (isNil(locationId)) return
+
   emit("update:finalDestinationLocationId", locationId)
 }
 
