@@ -142,19 +142,8 @@ const { mdAndUp } = useDisplay()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
-const savedTripType = computed(() => {
-  if (isNil(travelAuthorization.value)) return
-
-  const { tripTypeEstimate } = travelAuthorization.value
-  if (isNil(tripTypeEstimate)) {
-    console.error("Expected an estimated trip type before editing trip details.", {
-      travelAuthorizationId: travelAuthorizationId.value,
-    })
-  }
-
-  return tripTypeEstimate
-})
-const tripType = useRouteQuery("trip_type", savedTripType)
+const defaultTripType = computed(() => travelAuthorization.value.tripTypeEstimate)
+const tripType = useRouteQuery("trip_type", defaultTripType)
 
 const travelSegmentEstimatesQuery = computed(() => ({
   where: {
@@ -233,16 +222,8 @@ async function resetFormValidation() {
   form.value?.resetValidation()
 }
 
-async function validate() {
-  if (isNil(form.value) || isNil(savedTripType.value)) {
-    return { valid: false }
-  }
-
-  return form.value.validate()
-}
-
 async function saveWrapper() {
-  if (isNil(form.value) || isNil(savedTripType.value)) return
+  if (isNil(form.value)) return
 
   const { valid } = await form.value.validate()
   if (!valid) {
@@ -270,6 +251,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate,
+  validate: async () => form.value?.validate(),
 })
 </script>
