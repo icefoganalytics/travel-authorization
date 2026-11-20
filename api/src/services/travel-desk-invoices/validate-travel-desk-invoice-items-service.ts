@@ -40,7 +40,7 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
   perform(): void {
     if (isEmpty(this.travelDeskInvoiceItemsAttributes)) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "At least one invoice item is required.",
       })
     }
@@ -84,7 +84,7 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
 
     if (seenSourceAirSegmentNumbers.size !== expectedSourceAirSegmentNumbers.size) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "Every selected flight segment must be represented exactly once.",
       })
     }
@@ -94,7 +94,7 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
       expectedSourceServiceFeeEventExternalIdentifiers.size
     ) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "Every selected service fee must be represented exactly once.",
       })
     }
@@ -105,7 +105,7 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
   ): void {
     if (!this.travelDeskInvoiceItemProductTypes.includes(productType)) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: `Product type must be one of: ${this.travelDeskInvoiceItemProductTypes.join(", ")}`,
       })
     }
@@ -121,21 +121,21 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
 
     if (!expectedSourceAirSegmentNumbers.has(sourceAirSegmentNumber)) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "Invoice item refers to an unselected flight segment.",
       })
     }
 
     if (seenSourceAirSegmentNumbers.has(sourceAirSegmentNumber)) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "A selected flight segment can only appear once.",
       })
     }
 
     if (productType !== TravelDeskInvoiceItem.ProductTypes.AIR) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "Flight segments require the Air product type.",
       })
     }
@@ -155,21 +155,21 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
       !expectedSourceServiceFeeEventExternalIdentifiers.has(sourceServiceFeeEventExternalIdentifier)
     ) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "Invoice item refers to an unselected service fee.",
       })
     }
 
     if (seenSourceServiceFeeEventExternalIdentifiers.has(sourceServiceFeeEventExternalIdentifier)) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "A selected service fee can only appear once.",
       })
     }
 
     if (productType !== TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "Service fees require the Service Fee product type.",
       })
     }

@@ -22,7 +22,7 @@ import LoadAndValidateTravelDeskBookingEventForInvoiceService from "@/services/t
 export type TravelDeskInvoiceCreationAttributes = Partial<
   CreationAttributes<TravelDeskInvoice> & {
     sourceServiceFeeEventExternalIdentifiers: number[]
-    items: TravelDeskInvoiceItemAttributes[]
+    itemsAttributes: TravelDeskInvoiceItemAttributes[]
   }
 >
 
@@ -39,7 +39,7 @@ export class CreateService extends BaseService {
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode,
-      items: travelDeskInvoiceItemsAttributes,
+      itemsAttributes: travelDeskInvoiceItemsAttributes,
       ...optionalAttributes
     } = this.travelDeskInvoiceCreationAttributes
     if (isNil(externalBookingEventIdentifier)) {
@@ -65,7 +65,7 @@ export class CreateService extends BaseService {
 
     if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "Invoice items must be an array.",
       })
     }
