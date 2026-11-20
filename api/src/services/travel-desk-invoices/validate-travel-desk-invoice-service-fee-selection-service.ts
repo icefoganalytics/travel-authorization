@@ -28,36 +28,30 @@ export class ValidateTravelDeskInvoiceServiceFeeSelectionService extends BaseSer
       },
     })
     if (selectedTravelDeskBookingEvents.length !== new Set(this.sourceServiceFeeEventExternalIdentifiers).size) {
-      throw new ServiceValidationError({
-        field: "sourceServiceFeeEventExternalIdentifiers",
-        text: "Every selected service fee must belong to this booking reference.",
-      })
+      throw new ServiceValidationError(
+        "Every selected service fee must belong to this booking reference."
+      )
     }
 
     const serviceFeeDocumentNumbers = new Set<string>()
     for (const { serviceFeeTransaction } of selectedTravelDeskBookingEvents) {
       if (isNil(serviceFeeTransaction)) {
-        throw new ServiceValidationError({
-          field: "sourceServiceFeeEventExternalIdentifiers",
-          text: "The selected booking event has no service fee.",
-        })
+        throw new ServiceValidationError("The selected booking event has no service fee.")
       }
 
       const { currencyCode, serviceFeeDocumentNumber } = serviceFeeTransaction
       if (!isNil(currencyCode) && currencyCode !== this.currencyCode) {
-        throw new ServiceValidationError({
-          field: "sourceServiceFeeEventExternalIdentifiers",
-          text: "Selected service fee currency must match the invoice currency.",
-        })
+        throw new ServiceValidationError(
+          "Selected service fee currency must match the invoice currency."
+        )
       }
 
       if (isNil(serviceFeeDocumentNumber) || isEmpty(serviceFeeDocumentNumber)) continue
 
       if (serviceFeeDocumentNumbers.has(serviceFeeDocumentNumber)) {
-        throw new ServiceValidationError({
-          field: "sourceServiceFeeEventExternalIdentifiers",
-          text: "Multiple versions of a service fee document cannot be selected.",
-        })
+        throw new ServiceValidationError(
+          "Multiple versions of a service fee document cannot be selected."
+        )
       }
       serviceFeeDocumentNumbers.add(serviceFeeDocumentNumber)
     }
