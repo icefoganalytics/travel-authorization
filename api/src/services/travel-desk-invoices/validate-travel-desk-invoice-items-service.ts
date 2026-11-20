@@ -20,9 +20,9 @@ export type TravelDeskInvoiceItemAttributes = {
 }
 
 export class ValidateTravelDeskInvoiceItemsService extends BaseService {
-  private readonly productTypes: ReadonlyArray<TravelDeskInvoiceItem["productType"]> = Object.values(
-    TravelDeskInvoiceItem.ProductTypes
-  )
+  private readonly travelDeskInvoiceItemProductTypes: ReadonlyArray<
+    TravelDeskInvoiceItem["productType"]
+  > = Object.values(TravelDeskInvoiceItem.ProductTypes)
 
   constructor(
     protected travelDeskInvoiceItemsAttributes: ReadonlyArray<
@@ -32,7 +32,7 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
       >
     >,
     protected sourceAirSegmentNumbers: number[],
-    protected serviceFeeEventIds: number[]
+    protected sourceServiceFeeEventExternalIdentifiers: number[]
   ) {
     super()
   }
@@ -42,67 +42,81 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
       throw new TravelDeskInvoiceValidationError("At least one invoice item is required.")
     }
 
-    const expectedFeeEventIds = new Set(this.serviceFeeEventIds)
-    if (expectedFeeEventIds.size !== this.serviceFeeEventIds.length) {
-      throw new TravelDeskInvoiceValidationError("Service fee events cannot be selected more than once.")
+    const expectedSourceServiceFeeEventExternalIdentifiers = new Set(
+      this.sourceServiceFeeEventExternalIdentifiers
+    )
+    if (
+      expectedSourceServiceFeeEventExternalIdentifiers.size !==
+      this.sourceServiceFeeEventExternalIdentifiers.length
+    ) {
+      throw new TravelDeskInvoiceValidationError(
+        "Service fee events cannot be selected more than once."
+      )
     }
 
-    const expectedSegmentNumbers = new Set(this.sourceAirSegmentNumbers)
-    const seenSegmentNumbers = new Set<number>()
-    const seenFeeEventIds = new Set<number>()
+    const expectedSourceAirSegmentNumbers = new Set(this.sourceAirSegmentNumbers)
+    const seenSourceAirSegmentNumbers = new Set<number>()
+    const seenSourceServiceFeeEventExternalIdentifiers = new Set<number>()
 
     for (const {
       productType,
       sourceAirSegmentNumber,
       sourceServiceFeeEventExternalIdentifier,
     } of this.travelDeskInvoiceItemsAttributes) {
-      this.assertProductType(productType)
+      this.assertTravelDeskInvoiceItemProductType(productType)
       this.assertSourceAirSegmentNumber(
         sourceAirSegmentNumber,
         productType,
-        expectedSegmentNumbers,
-        seenSegmentNumbers
+        expectedSourceAirSegmentNumbers,
+        seenSourceAirSegmentNumbers
       )
       this.assertSourceServiceFeeEventExternalIdentifier(
         sourceServiceFeeEventExternalIdentifier,
         productType,
-        expectedFeeEventIds,
-        seenFeeEventIds
+        expectedSourceServiceFeeEventExternalIdentifiers,
+        seenSourceServiceFeeEventExternalIdentifiers
       )
     }
 
-    if (seenSegmentNumbers.size !== expectedSegmentNumbers.size) {
+    if (seenSourceAirSegmentNumbers.size !== expectedSourceAirSegmentNumbers.size) {
       throw new TravelDeskInvoiceValidationError(
         "Every selected flight segment must be represented exactly once."
       )
     }
 
-    if (seenFeeEventIds.size !== expectedFeeEventIds.size) {
+    if (
+      seenSourceServiceFeeEventExternalIdentifiers.size !==
+      expectedSourceServiceFeeEventExternalIdentifiers.size
+    ) {
       throw new TravelDeskInvoiceValidationError(
         "Every selected service fee must be represented exactly once."
       )
     }
   }
 
-  private assertProductType(productType: TravelDeskInvoiceItem["productType"]): void {
-    if (!this.productTypes.includes(productType)) {
-      throw new TravelDeskInvoiceValidationError(`Product type must be one of: ${this.productTypes.join(", ")}`)
+  private assertTravelDeskInvoiceItemProductType(
+    productType: TravelDeskInvoiceItem["productType"]
+  ): void {
+    if (!this.travelDeskInvoiceItemProductTypes.includes(productType)) {
+      throw new TravelDeskInvoiceValidationError(
+        `Product type must be one of: ${this.travelDeskInvoiceItemProductTypes.join(", ")}`
+      )
     }
   }
 
   private assertSourceAirSegmentNumber(
     sourceAirSegmentNumber: number | null | undefined,
     productType: TravelDeskInvoiceItem["productType"],
-    expectedSegmentNumbers: Set<number>,
-    seenSegmentNumbers: Set<number>
+    expectedSourceAirSegmentNumbers: Set<number>,
+    seenSourceAirSegmentNumbers: Set<number>
   ): void {
     if (isNil(sourceAirSegmentNumber)) return
 
-    if (!expectedSegmentNumbers.has(sourceAirSegmentNumber)) {
+    if (!expectedSourceAirSegmentNumbers.has(sourceAirSegmentNumber)) {
       throw new TravelDeskInvoiceValidationError("Invoice item refers to an unselected flight segment.")
     }
 
-    if (seenSegmentNumbers.has(sourceAirSegmentNumber)) {
+    if (seenSourceAirSegmentNumbers.has(sourceAirSegmentNumber)) {
       throw new TravelDeskInvoiceValidationError("A selected flight segment can only appear once.")
     }
 
@@ -110,22 +124,24 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
       throw new TravelDeskInvoiceValidationError("Flight segments require the Air product type.")
     }
 
-    seenSegmentNumbers.add(sourceAirSegmentNumber)
+    seenSourceAirSegmentNumbers.add(sourceAirSegmentNumber)
   }
 
   private assertSourceServiceFeeEventExternalIdentifier(
     sourceServiceFeeEventExternalIdentifier: number | null | undefined,
     productType: TravelDeskInvoiceItem["productType"],
-    expectedFeeEventIds: Set<number>,
-    seenFeeEventIds: Set<number>
+    expectedSourceServiceFeeEventExternalIdentifiers: Set<number>,
+    seenSourceServiceFeeEventExternalIdentifiers: Set<number>
   ): void {
     if (isNil(sourceServiceFeeEventExternalIdentifier)) return
 
-    if (!expectedFeeEventIds.has(sourceServiceFeeEventExternalIdentifier)) {
+    if (
+      !expectedSourceServiceFeeEventExternalIdentifiers.has(sourceServiceFeeEventExternalIdentifier)
+    ) {
       throw new TravelDeskInvoiceValidationError("Invoice item refers to an unselected service fee.")
     }
 
-    if (seenFeeEventIds.has(sourceServiceFeeEventExternalIdentifier)) {
+    if (seenSourceServiceFeeEventExternalIdentifiers.has(sourceServiceFeeEventExternalIdentifier)) {
       throw new TravelDeskInvoiceValidationError("A selected service fee can only appear once.")
     }
 
@@ -133,7 +149,7 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
       throw new TravelDeskInvoiceValidationError("Service fees require the Service Fee product type.")
     }
 
-    seenFeeEventIds.add(sourceServiceFeeEventExternalIdentifier)
+    seenSourceServiceFeeEventExternalIdentifiers.add(sourceServiceFeeEventExternalIdentifier)
   }
 }
 

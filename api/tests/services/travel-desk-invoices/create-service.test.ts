@@ -10,10 +10,10 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
     describe(".perform", () => {
       test("when the selected booking is not cached, it rejects creation", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
 
         // Act
-        const result = CreateService.perform(travelRequest, {
+        const result = CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -26,14 +26,14 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when the selected booking has no flight segments, it asks for a different event", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
         const travelDeskBookingEvent = await travelDeskBookingEventFactory.create({
           bookingReference: "INV001",
           airReservationSegments: [],
         })
 
         // Act
-        const result = CreateService.perform(travelRequest, {
+        const result = CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: travelDeskBookingEvent.externalTravelPortIdentifier,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -48,7 +48,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when the selected booking has no reference, it rejects creation", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: null,
@@ -69,7 +69,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Act
-        const result = CreateService.perform(travelRequest, {
+        const result = CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -84,7 +84,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when a selected fee is not cached, it rejects creation", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -105,7 +105,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Act
-        const result = CreateService.perform(travelRequest, {
+        const result = CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
@@ -120,7 +120,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when a selected fee belongs to another locator, it rejects creation", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -156,7 +156,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Act
-        const result = CreateService.perform(travelRequest, {
+        const result = CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
@@ -171,7 +171,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when a selected fee uses a different currency, it rejects creation", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -207,7 +207,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Act
-        const result = CreateService.perform(travelRequest, {
+        const result = CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
@@ -222,7 +222,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when two selected fees share a document number, it rejects creation", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -260,7 +260,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         }
 
         // Act
-        const result = CreateService.perform(travelRequest, {
+        const result = CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002, 920003],
           currencyCode: "CAD",
@@ -276,8 +276,8 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
       test("when cached booking and fee rows change, it retains invoice lines and staff pricing", async () => {
         // Arrange
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(new Error("Source unavailable."))
-        const travelRequest = await travelDeskTravelRequestFactory.create()
-        const bookingEvent = await travelDeskBookingEventFactory.create({
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskBookingEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
           eventType: "B",
@@ -317,7 +317,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
             },
           ],
         })
-        const feeEvent = await travelDeskBookingEventFactory.create({
+        const serviceFeeTravelDeskBookingEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920002,
           bookingReference: "INV001",
           eventType: "T",
@@ -336,7 +336,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Act
-        await CreateService.perform(travelRequest, {
+        await CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
@@ -371,16 +371,16 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           ],
         })
 
-        await bookingEvent.update({
+        await travelDeskBookingEvent.update({
           passengers: [],
           bookingFileVersionNumber: 9,
         })
-        await feeEvent.update({
+        await serviceFeeTravelDeskBookingEvent.update({
           serviceFeeTransaction: null,
         })
 
         // Assert
-        const invoices = await TravelDeskInvoice.findAll({
+        const travelDeskInvoices = await TravelDeskInvoice.findAll({
           include: [
             {
               association: "items",
@@ -389,9 +389,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
             },
           ],
         })
-        expect(invoices).toEqual([
+        expect(travelDeskInvoices).toEqual([
           expect.objectContaining({
-            travelDeskTravelRequestId: travelRequest.id,
+            travelDeskTravelRequestId: travelDeskTravelRequest.id,
             bookingReference: "INV001",
             externalBookingEventIdentifier: 920001,
             grossAmount: "42.125",
@@ -423,7 +423,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when staff prices need rounding, it rounds each line before totaling", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -456,7 +456,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Act
-        await CreateService.perform(travelRequest, {
+        await CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -479,7 +479,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Assert
-        const invoices = await TravelDeskInvoice.findAll({
+        const travelDeskInvoices = await TravelDeskInvoice.findAll({
           include: [
             {
               association: "items",
@@ -488,7 +488,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
             },
           ],
         })
-        expect(invoices).toEqual([
+        expect(travelDeskInvoices).toEqual([
           expect.objectContaining({
             grossAmount: "0.002",
             items: [
@@ -507,7 +507,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when item storage fails after inserting rows, it rolls back the new invoice", async () => {
         // Arrange
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -527,16 +527,20 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           ],
         })
         const persistenceError = new Error("Invoice items could not be stored.")
-        const bulkCreateItems = TravelDeskInvoiceItem.bulkCreate
+        const bulkCreateTravelDeskInvoiceItems = TravelDeskInvoiceItem.bulkCreate
         vi.spyOn(TravelDeskInvoiceItem, "bulkCreate").mockImplementationOnce(
-          async (items, options) => {
-            await bulkCreateItems.call(TravelDeskInvoiceItem, items, options)
+          async (travelDeskInvoiceItemAttributes, options) => {
+            await bulkCreateTravelDeskInvoiceItems.call(
+              TravelDeskInvoiceItem,
+              travelDeskInvoiceItemAttributes,
+              options
+            )
             throw persistenceError
           }
         )
 
         // Act
-        const result = CreateService.perform(travelRequest, {
+        const result = CreateService.perform(travelDeskTravelRequest, {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -560,8 +564,8 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         )
 
         // Assert
-        const invoices = await TravelDeskInvoice.findAll()
-        expect(invoices).toEqual([])
+        const travelDeskInvoices = await TravelDeskInvoice.findAll()
+        expect(travelDeskInvoices).toEqual([])
       })
     })
   })

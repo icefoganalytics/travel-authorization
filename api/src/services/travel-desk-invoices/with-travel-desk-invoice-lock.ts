@@ -8,9 +8,9 @@ import { TravelDeskInvoice } from "@/models"
 import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
 
 // Lock the invoice before touching its items, so deletion waits for an overlapping update.
-export function withInvoiceLock<Result>(
-  invoiceOrId: TravelDeskInvoice | number,
-  callback: (invoice: TravelDeskInvoice, transaction: Transaction) => Promise<Result>
+export function withTravelDeskInvoiceLock<Result>(
+  travelDeskInvoiceOrId: TravelDeskInvoice | number,
+  callback: (travelDeskInvoice: TravelDeskInvoice, transaction: Transaction) => Promise<Result>
 ): Promise<Result> {
   return db.transaction(async (transaction) => {
     const lockOptions = {
@@ -18,22 +18,22 @@ export function withInvoiceLock<Result>(
       transaction,
     }
 
-    if (typeof invoiceOrId !== "number") {
+    if (typeof travelDeskInvoiceOrId !== "number") {
       // Deletion reloads the supplied instance without locking any preloaded items.
-      const invoice = await invoiceOrId.reload({
+      const travelDeskInvoice = await travelDeskInvoiceOrId.reload({
         ...lockOptions,
         include: [],
       })
-      return callback(invoice, transaction)
+      return callback(travelDeskInvoice, transaction)
     }
 
-    const invoice = await TravelDeskInvoice.findByPk(invoiceOrId, lockOptions)
-    if (isNil(invoice)) {
+    const travelDeskInvoice = await TravelDeskInvoice.findByPk(travelDeskInvoiceOrId, lockOptions)
+    if (isNil(travelDeskInvoice)) {
       throw new TravelDeskInvoiceValidationError("Invoice does not exist.")
     }
 
-    return callback(invoice, transaction)
+    return callback(travelDeskInvoice, transaction)
   })
 }
 
-export default withInvoiceLock
+export default withTravelDeskInvoiceLock
