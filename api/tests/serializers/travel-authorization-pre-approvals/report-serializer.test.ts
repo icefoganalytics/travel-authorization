@@ -1,7 +1,8 @@
 import { TravelAuthorizationPreApproval } from "@/models"
-import ReportSerializer from "@/serializers/travel-authorization-pre-approvals/report-serializer"
 
 import { travelAuthorizationPreApprovalFactory } from "@/factories"
+
+import ReportSerializer from "@/serializers/travel-authorization-pre-approvals/report-serializer"
 
 describe("api/src/serializers/travel-authorization-pre-approvals/report-serializer.ts", () => {
   describe("ReportSerializer", () => {

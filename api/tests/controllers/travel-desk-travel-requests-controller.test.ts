@@ -1,10 +1,10 @@
 import { TravelDeskTravelRequest, User } from "@/models"
+
 import {
   travelAuthorizationFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
-
 import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/travel-desk-travel-requests-controller.ts", () => {

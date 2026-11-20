@@ -9,7 +9,6 @@ import {
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
-
 import { mockCurrentUser, request } from "@/support"
 
 const SELECTED_REQUEST_COUNT = 25
