@@ -6,7 +6,11 @@ import {
   TravelSegmentTravelMethods,
 } from "@/api/travel-segments-api"
 
-import { locationFactory, travelAuthorizationFactory, travelSegmentFactory } from "@/tests/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+} from "@/tests/factories"
 import {
   mockHttpClient,
   mockHttpGetRoutes,

@@ -253,12 +253,14 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
 
       // Act
       const routeEditor = wrapper.getComponent(TravelSegmentsAttributesMultiCityTripSection)
-      const lastLegArrival = routeEditor.findAllComponents(LocationsAutocomplete).find((control) => {
-        return (
-          control.props("modelValue") === whitehorse.id &&
-          control.getComponent(VAutocomplete).props("label") === "To"
-        )
-      })
+      const lastLegArrival = routeEditor
+        .findAllComponents(LocationsAutocomplete)
+        .find((control) => {
+          return (
+            control.props("modelValue") === whitehorse.id &&
+            control.getComponent(VAutocomplete).props("label") === "To"
+          )
+        })
       if (!lastLegArrival) throw new Error("Missing arrival city control for the last leg")
 
       lastLegArrival.vm.$emit("update:modelValue", vancouver.id)
