@@ -1,4 +1,4 @@
-export { default as WithReportTransaction } from "./with-report-transaction"
+export { WithReportTransaction } from "./with-report-transaction"
 
 export * as FlightReconciliations from "./flight-reconciliations"
 export * as FlightStatistics from "./flight-statistics"
