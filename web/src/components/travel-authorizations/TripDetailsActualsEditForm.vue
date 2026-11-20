@@ -24,7 +24,7 @@
       class="mt-3"
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-      :current-travel-segments="travelSegments"
+      :current-travel-segments="actualTripSourceSegments"
       is-actual
       @updated="updateTravelSegmentsAttributes"
     />
@@ -126,7 +126,7 @@ const defaultTripType = computed(
 )
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
-const travelSegments = computed(() => {
+const actualTripSourceSegments = computed(() => {
   const { tripTypeActual, travelSegments } = travelAuthorization.value
   const hasActualTrip = !isNil(tripTypeActual)
   return travelSegments.filter((segment) => segment.isActual === hasActualTrip)

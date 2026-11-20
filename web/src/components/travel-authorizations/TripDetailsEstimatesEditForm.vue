@@ -24,7 +24,7 @@
       class="mt-3"
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-      :current-travel-segments="travelSegments"
+      :current-travel-segments="estimatedTravelSegments"
       @updated="updateTravelSegmentsAttributes"
     />
     <div v-else>Trip type {{ tripType }} not implemented!</div>
@@ -123,7 +123,7 @@ const { travelAuthorization, save } = useTravelAuthorization(travelAuthorization
 const defaultTripType = computed(() => travelAuthorization.value.tripTypeEstimate)
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
-const travelSegments = computed(() =>
+const estimatedTravelSegments = computed(() =>
   travelAuthorization.value.travelSegments.filter((segment) => !segment.isActual)
 )
 
