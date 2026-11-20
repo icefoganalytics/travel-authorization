@@ -137,25 +137,31 @@ export class CreateService extends BaseService {
     sourceServiceFeeEventExternalIdentifiers: number[],
     currencyCode: string
   ): Promise<TravelDeskBookingEvent> {
-    const bookingEvents = await TravelDeskBookingEvent.findAll({
+    const bookingEvent = await TravelDeskBookingEvent.findOne({
       where: {
         bookingReference,
-        externalTravelPortIdentifier: {
-          [Op.in]: [externalBookingEventIdentifier, ...sourceServiceFeeEventExternalIdentifiers],
-        },
+        externalTravelPortIdentifier: externalBookingEventIdentifier,
       },
     })
-    const bookingEventsByIdentifier = keyBy(bookingEvents, "externalTravelPortIdentifier")
-    const bookingEvent = bookingEventsByIdentifier[externalBookingEventIdentifier]
     if (isNil(bookingEvent) || isEmpty(bookingEvent.airReservationSegments)) {
       throw new InvoiceValidationError(
         "Choose a booking event with flight segments for this booking reference."
       )
     }
 
+    if (isEmpty(sourceServiceFeeEventExternalIdentifiers)) return bookingEvent
+
+    const selectedFeeEvents = await TravelDeskBookingEvent.findAll({
+      attributes: ["externalTravelPortIdentifier", "serviceFeeTransaction"],
+      where: {
+        bookingReference,
+        externalTravelPortIdentifier: { [Op.in]: sourceServiceFeeEventExternalIdentifiers },
+      },
+    })
+    const selectedFeeEventsByIdentifier = keyBy(selectedFeeEvents, "externalTravelPortIdentifier")
     const documentNumbers = new Set<string>()
     for (const eventId of sourceServiceFeeEventExternalIdentifiers) {
-      const fee = bookingEventsByIdentifier[eventId]?.serviceFeeTransaction
+      const fee = selectedFeeEventsByIdentifier[eventId]?.serviceFeeTransaction
       if (isNil(fee)) {
         throw new InvoiceValidationError(
           "Every selected service fee must belong to this booking reference."
