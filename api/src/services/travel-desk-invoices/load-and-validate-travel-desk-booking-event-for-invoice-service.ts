@@ -16,25 +16,18 @@ export class LoadAndValidateTravelDeskBookingEventForInvoiceService extends Base
       },
     })
     if (isNil(travelDeskBookingEvent)) {
-      throw new ServiceValidationError({
-        field: "externalBookingEventIdentifier",
-        text: "The selected booking event was not found.",
-      })
+      throw new ServiceValidationError("The selected booking event was not found.")
     }
 
     if (isEmpty(travelDeskBookingEvent.airReservationSegments)) {
-      throw new ServiceValidationError({
-        field: "externalBookingEventIdentifier",
-        text: "The selected booking event has no flight segments. Choose a different booking event.",
-      })
+      throw new ServiceValidationError(
+        "The selected booking event has no flight segments. Choose a different booking event."
+      )
     }
 
     const { bookingReference } = travelDeskBookingEvent
     if (isNil(bookingReference)) {
-      throw new ServiceValidationError({
-        field: "externalBookingEventIdentifier",
-        text: "The selected booking event has no booking reference.",
-      })
+      throw new ServiceValidationError("The selected booking event has no booking reference.")
     }
 
     const sourceAirSegmentNumbers = travelDeskBookingEvent.airReservationSegments.map(

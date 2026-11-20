@@ -43,31 +43,19 @@ export class CreateService extends BaseService {
       ...optionalAttributes
     } = this.travelDeskInvoiceCreationAttributes
     if (isNil(externalBookingEventIdentifier)) {
-      throw new ServiceValidationError({
-        field: "externalBookingEventIdentifier",
-        text: "Booking event is required.",
-      })
+      throw new ServiceValidationError("Booking event is required.")
     }
 
     if (!Array.isArray(sourceServiceFeeEventExternalIdentifiers)) {
-      throw new ServiceValidationError({
-        field: "sourceServiceFeeEventExternalIdentifiers",
-        text: "Service fee events must be an array.",
-      })
+      throw new ServiceValidationError("Service fee events must be an array.")
     }
 
     if (isNil(currencyCode)) {
-      throw new ServiceValidationError({
-        field: "currencyCode",
-        text: "Currency code is required.",
-      })
+      throw new ServiceValidationError("Currency code is required.")
     }
 
     if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
-      throw new ServiceValidationError({
-        field: "itemsAttributes",
-        text: "Invoice items must be an array.",
-      })
+      throw new ServiceValidationError("Invoice items must be an array.")
     }
 
     return db.transaction(async () => {
