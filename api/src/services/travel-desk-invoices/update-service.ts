@@ -61,7 +61,7 @@ export class UpdateService extends BaseService {
       }
 
       ValidateTravelDeskInvoiceItemsService.perform(items, sourceAirSegmentNumbers, serviceFeeEventIds)
-      await ValidateLinkedFlightSegmentsService.perform(items, invoice.travelDeskTravelRequestId)
+      await ValidateLinkedFlightSegmentsService.perform(invoice.travelDeskTravelRequestId, items)
 
       await invoice.update({
         currencyCode,

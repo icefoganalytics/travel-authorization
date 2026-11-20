@@ -74,7 +74,7 @@ export class CreateService extends BaseService {
         travelDeskBookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
         sourceServiceFeeEventExternalIdentifiers
       )
-      await ValidateLinkedFlightSegmentsService.perform(items, this.travelDeskTravelRequest.id)
+      await ValidateLinkedFlightSegmentsService.perform(this.travelDeskTravelRequest.id, items)
 
       const invoice = await TravelDeskInvoice.create({
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
