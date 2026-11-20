@@ -4,7 +4,7 @@ import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
 import { type TravelDeskInvoiceCreationAttributes } from "@/services/travel-desk-invoices/create-service"
 import {
   BulkCreateService,
@@ -29,11 +29,11 @@ export class UpdateService extends BaseService {
   async perform(): Promise<TravelDeskInvoice> {
     const { currencyCode, items } = this.attributes
     if (isNil(currencyCode)) {
-      throw new InvoiceValidationError("Currency code is required.")
+      throw new TravelDeskInvoiceValidationError("Currency code is required.")
     }
 
     if (!Array.isArray(items)) {
-      throw new InvoiceValidationError("Invoice items must be an array.")
+      throw new TravelDeskInvoiceValidationError("Invoice items must be an array.")
     }
 
     const grossAmount = CalculateTotalService.perform(items)
@@ -57,7 +57,7 @@ export class UpdateService extends BaseService {
       }
 
       if (!isEmpty(serviceFeeEventIds) && currencyCode !== invoice.currencyCode) {
-        throw new InvoiceValidationError("Invoice currency cannot be changed for saved service fees.")
+        throw new TravelDeskInvoiceValidationError("Invoice currency cannot be changed for saved service fees.")
       }
 
       ValidateItemsService.perform(items, sourceAirSegmentNumbers, serviceFeeEventIds)

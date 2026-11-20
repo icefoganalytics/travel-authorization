@@ -4,7 +4,7 @@ import { DatabaseError, QueryTypes } from "@sequelize/core"
 
 import { db } from "@/db/db-client"
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
 import UpdateService from "@/services/travel-desk-invoices/update-service"
 
 import {
@@ -413,7 +413,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           throw new Error("Expected the edit to reject the unselected flight segment.")
         } catch (error) {
           if (
-            !(error instanceof InvoiceValidationError) ||
+            !(error instanceof TravelDeskInvoiceValidationError) ||
             error.message !== "Invoice item refers to an unselected flight segment."
           ) {
             throw error
@@ -479,7 +479,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
+          name: TravelDeskInvoiceValidationError.name,
           message:
             "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving.",
         })
@@ -584,7 +584,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           throw new Error("Expected the edit to reject the malformed amount.")
         } catch (error) {
           if (
-            !(error instanceof InvoiceValidationError) ||
+            !(error instanceof TravelDeskInvoiceValidationError) ||
             error.message !== "Amount must be a decimal number."
           ) {
             throw error
@@ -743,7 +743,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
+          name: TravelDeskInvoiceValidationError.name,
           message:
             "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving.",
         })
@@ -775,7 +775,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
+          name: TravelDeskInvoiceValidationError.name,
           message: "Invoice currency cannot be changed for saved service fees.",
         })
       })
@@ -802,7 +802,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
+          name: TravelDeskInvoiceValidationError.name,
           message: "Every selected flight segment must be represented exactly once.",
         })
       })
@@ -837,7 +837,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
+          name: TravelDeskInvoiceValidationError.name,
           message: "A selected flight segment can only appear once.",
         })
       })
@@ -867,7 +867,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
+          name: TravelDeskInvoiceValidationError.name,
           message: "Invoice item refers to an unselected service fee.",
         })
       })
@@ -896,7 +896,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
+          name: TravelDeskInvoiceValidationError.name,
           message: "Every selected service fee must be represented exactly once.",
         })
       })
@@ -933,7 +933,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toMatchObject({
-          name: InvoiceValidationError.name,
+          name: TravelDeskInvoiceValidationError.name,
           message: "A selected service fee can only appear once.",
         })
       })

@@ -3,7 +3,7 @@ import { isEmpty, isNil } from "lodash"
 import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
 
 export type TravelDeskInvoiceItemAttributes = {
   productType: TravelDeskInvoiceItem["productType"]
@@ -30,12 +30,12 @@ export class ValidateItemsService extends BaseService {
 
   perform(): void {
     if (isEmpty(this.travelDeskInvoiceItemsAttributes)) {
-      throw new InvoiceValidationError("At least one invoice item is required.")
+      throw new TravelDeskInvoiceValidationError("At least one invoice item is required.")
     }
 
     const expectedFeeEventIds = new Set(this.serviceFeeEventIds)
     if (expectedFeeEventIds.size !== this.serviceFeeEventIds.length) {
-      throw new InvoiceValidationError("Service fee events cannot be selected more than once.")
+      throw new TravelDeskInvoiceValidationError("Service fee events cannot be selected more than once.")
     }
 
     const expectedSegmentNumbers = new Set(this.sourceAirSegmentNumbers)
@@ -45,20 +45,20 @@ export class ValidateItemsService extends BaseService {
 
     for (const travelDeskInvoiceItemAttributes of this.travelDeskInvoiceItemsAttributes) {
       if (!productTypes.some((productType) => productType === travelDeskInvoiceItemAttributes.productType)) {
-        throw new InvoiceValidationError(`Product type must be one of: ${productTypes.join(", ")}`)
+        throw new TravelDeskInvoiceValidationError(`Product type must be one of: ${productTypes.join(", ")}`)
       }
 
       if (!isNil(travelDeskInvoiceItemAttributes.sourceAirSegmentNumber)) {
         if (!expectedSegmentNumbers.has(travelDeskInvoiceItemAttributes.sourceAirSegmentNumber)) {
-          throw new InvoiceValidationError("Invoice item refers to an unselected flight segment.")
+          throw new TravelDeskInvoiceValidationError("Invoice item refers to an unselected flight segment.")
         }
 
         if (seenSegmentNumbers.has(travelDeskInvoiceItemAttributes.sourceAirSegmentNumber)) {
-          throw new InvoiceValidationError("A selected flight segment can only appear once.")
+          throw new TravelDeskInvoiceValidationError("A selected flight segment can only appear once.")
         }
 
         if (travelDeskInvoiceItemAttributes.productType !== TravelDeskInvoiceItem.ProductTypes.AIR) {
-          throw new InvoiceValidationError("Flight segments require the Air product type.")
+          throw new TravelDeskInvoiceValidationError("Flight segments require the Air product type.")
         }
 
         seenSegmentNumbers.add(travelDeskInvoiceItemAttributes.sourceAirSegmentNumber)
@@ -66,15 +66,15 @@ export class ValidateItemsService extends BaseService {
 
       if (!isNil(travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier)) {
         if (!expectedFeeEventIds.has(travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier)) {
-          throw new InvoiceValidationError("Invoice item refers to an unselected service fee.")
+          throw new TravelDeskInvoiceValidationError("Invoice item refers to an unselected service fee.")
         }
 
         if (seenFeeEventIds.has(travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier)) {
-          throw new InvoiceValidationError("A selected service fee can only appear once.")
+          throw new TravelDeskInvoiceValidationError("A selected service fee can only appear once.")
         }
 
         if (travelDeskInvoiceItemAttributes.productType !== TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE) {
-          throw new InvoiceValidationError("Service fees require the Service Fee product type.")
+          throw new TravelDeskInvoiceValidationError("Service fees require the Service Fee product type.")
         }
 
         seenFeeEventIds.add(travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier)
@@ -82,13 +82,13 @@ export class ValidateItemsService extends BaseService {
     }
 
     if (seenSegmentNumbers.size !== expectedSegmentNumbers.size) {
-      throw new InvoiceValidationError(
+      throw new TravelDeskInvoiceValidationError(
         "Every selected flight segment must be represented exactly once."
       )
     }
 
     if (seenFeeEventIds.size !== expectedFeeEventIds.size) {
-      throw new InvoiceValidationError(
+      throw new TravelDeskInvoiceValidationError(
         "Every selected service fee must be represented exactly once."
       )
     }
