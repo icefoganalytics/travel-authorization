@@ -18,7 +18,7 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
         })
       }
 
-      const policy = this.buildPolicy(travelAuthorizationPreApproval)
+      const policy = this.buildTravelAuthorizationPreApprovalPolicy(travelAuthorizationPreApproval)
       if (!policy.create()) {
         return this.response.status(403).json({
           message: "You are not authorized to create travel authorization pre-approval profiles.",
@@ -53,7 +53,7 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
         })
       }
 
-      const policy = this.buildPolicy(travelAuthorizationPreApproval)
+      const policy = this.buildTravelAuthorizationPreApprovalPolicy(travelAuthorizationPreApproval)
       if (!policy.update()) {
         return this.response.status(403).json({
           message: "You are not authorized to update this travel authorization pre-approval profile.",
@@ -68,8 +68,7 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
         })
       }
 
-      const profilePolicy = new TravelAuthorizationPreApprovalProfilesPolicy(
-        this.currentUser,
+      const profilePolicy = this.buildTravelAuthorizationPreApprovalProfilePolicy(
         travelAuthorizationPreApprovalProfile
       )
       if (!profilePolicy.update()) {
@@ -108,7 +107,7 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
         })
       }
 
-      const policy = this.buildPolicy(travelAuthorizationPreApproval)
+      const policy = this.buildTravelAuthorizationPreApprovalPolicy(travelAuthorizationPreApproval)
       if (!policy.destroy()) {
         return this.response.status(403).json({
           message: "You are not authorized to delete this travel authorization pre-approval profile.",
@@ -123,8 +122,7 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
         })
       }
 
-      const profilePolicy = new TravelAuthorizationPreApprovalProfilesPolicy(
-        this.currentUser,
+      const profilePolicy = this.buildTravelAuthorizationPreApprovalProfilePolicy(
         travelAuthorizationPreApprovalProfile
       )
       if (!profilePolicy.destroy()) {
@@ -162,8 +160,19 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
     return TravelAuthorizationPreApproval.findByPk(this.params.travelAuthorizationPreApprovalId)
   }
 
-  private buildPolicy(travelAuthorizationPreApproval: TravelAuthorizationPreApproval): ProfilePolicy {
+  private buildTravelAuthorizationPreApprovalPolicy(
+    travelAuthorizationPreApproval: TravelAuthorizationPreApproval
+  ): ProfilePolicy {
     return new ProfilePolicy(this.currentUser, travelAuthorizationPreApproval)
+  }
+
+  private buildTravelAuthorizationPreApprovalProfilePolicy(
+    travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile
+  ): TravelAuthorizationPreApprovalProfilesPolicy {
+    return new TravelAuthorizationPreApprovalProfilesPolicy(
+      this.currentUser,
+      travelAuthorizationPreApprovalProfile
+    )
   }
 }
 
