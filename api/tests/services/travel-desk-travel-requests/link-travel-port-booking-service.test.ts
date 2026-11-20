@@ -1,12 +1,12 @@
 import { BookingsService } from "@/integrations/travel-port-integration/services/bookings-service"
-import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
+import { TravelDeskInvoice, TravelDeskInvoiceItem, TravelDeskTravelRequest } from "@/models"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
 import LinkTravelPortBookingService from "@/services/travel-desk-travel-requests/link-travel-port-booking-service"
 import UpdateService from "@/services/travel-desk-invoices/update-service"
 
 import {
   travelDeskInvoiceFactory,
-  travelDeskProductTypeFactory,
+  travelDeskInvoiceItemFactory,
   travelDeskTravelRequestFactory,
 } from "@/factories"
 
@@ -78,7 +78,7 @@ describe("api/src/services/travel-desk-travel-requests/link-travel-port-booking-
       )
 
       test.each(["NEW001", null])(
-        "when the link becomes %s, it preserves saved invoice snapshots and allows pricing edits",
+        "when the link becomes %s, it preserves saved booking provenance and allows pricing edits",
         async (recordLocator) => {
           // Arrange
           const travelRequest = await travelDeskTravelRequestFactory.create({
@@ -86,12 +86,13 @@ describe("api/src/services/travel-desk-travel-requests/link-travel-port-booking-
           })
           const invoice = await travelDeskInvoiceFactory
             .associations({ travelDeskTravelRequest: travelRequest })
-            .create({ recordLocator: "OLD001" })
-          const savedSnapshot = invoice.sourceSnapshot
-          const productType = await travelDeskProductTypeFactory.create({
-            code: "air",
-            name: "Air",
-          })
+            .create({
+              bookingReference: "OLD001",
+              externalBookingEventIdentifier: 920001,
+            })
+          await travelDeskInvoiceItemFactory
+            .associations({ invoice })
+            .create({ sourceAirSegmentNumber: 1 })
           vi.spyOn(BookingsService, "perform").mockResolvedValue({
             travelPortBookings: [{ recordLocator: "NEW001" }],
             totalCount: 1,
@@ -101,11 +102,11 @@ describe("api/src/services/travel-desk-travel-requests/link-travel-port-booking-
           await LinkTravelPortBookingService.perform(travelRequest, recordLocator)
           await UpdateService.perform(invoice, {
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
-                travelDeskProductTypeId: productType.id,
+                productType: TravelDeskInvoiceItem.ProductTypes.AIR,
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
                 grossAmount: "12.001",
                 position: 0,
               },
@@ -116,8 +117,8 @@ describe("api/src/services/travel-desk-travel-requests/link-travel-port-booking-
           const invoices = await TravelDeskInvoice.findAll({ include: ["items"] })
           expect(invoices).toEqual([
             expect.objectContaining({
-              recordLocator: "OLD001",
-              sourceSnapshot: savedSnapshot,
+              bookingReference: "OLD001",
+              externalBookingEventIdentifier: 920001,
               grossAmount: "12.001",
               items: [
                 expect.objectContaining({ grossAmount: "12.001", sourceAirSegmentNumber: 1 }),

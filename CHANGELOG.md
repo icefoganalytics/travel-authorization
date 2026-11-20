@@ -15,16 +15,16 @@ Changes planned for the next release, since v2025.9.15.1.
 - Flight statistics synchronization shows progress and reports failures.
 - Finance users can review and update flight reconciliations for their department without system-administrator access.
 - A separate local Travelport booking-feed simulator and read-only source lookup support booking integration development without production or VPN access. The shared integration entry point requires Travelport database settings.
-- Travel Desk staff can generate invoices from explicitly selected booking-feed flights and service fees, enter flight prices and additional charges, link request-local flight segments, and save or edit multiple invoices. Invoice lists retain their page on reload. Administrators can manage invoice product types.
+- Request-scoped APIs support invoices from selected booking flights and service fees, editable prices and additional charges, and fixed Air, Service Fee, Credit, and Change Fee classifications. The invoice interface is delivered separately.
 
 ### Changed
 
 - Frontend lint now checks standalone CSS and Vue style blocks for CSS errors alongside existing script and template checks.
 - Booking-history refreshes remove only events missing from a successful source scan. Reappearing events create new local records while deleted records and saved invoices remain unchanged. Failed refreshes leave the previous local history intact.
-- Travel Desk staff select one booking-feed reference in Trip Information and use that linked booking for new invoices. Changing the link preserves saved invoices and leaves the legacy TravCom invoice number separate.
+- Travel Desk staff link a Travelport booking in Trip Information before creating invoices. Changing the link leaves saved invoices and the legacy TravCom invoice number unchanged.
+- Familiar colors, cream cards, and existing layouts are preserved. Errors appear consistently in red, and notifications have readable text and a working Close action.
 - Travel approval confirmations include the meeting or conference description and show the request's final destination when available. Approval and denial failures identify which action failed. Both dialogs synchronize their open state with the URL without clearing other query parameters.
-- Booking searches synchronize Travelport events into local records without collecting the full history in memory. Staff browse paginated history while retaining their selected booking and fees across pages. Invoice creation uses those records without another feed lookup; refreshing booking history preserves saved invoice snapshots and staff-entered prices.
-- Booking-history requests use the `travel-desk-booking-events` endpoint and `travelDeskBookingEvents` response field, matching the local records used for invoice selection.
+- Booking-history APIs provide paginated local records for invoice selection. Saved invoice lines and staff-entered prices remain unchanged by later feed refreshes; invoices do not store booking snapshots.
 - Travel Desk request lists, PDF reports, and CSV exports show consistent services and statuses. Server-generated downloads apply the same filters and permissions as the request list and include every matching authorized request, including selections larger than twenty requests. Query filters are preserved within the supported limits; oversized queries are rejected instead of silently truncated. Unavailable selections return the same error response as failed downloads.
 - Travel Desk reports and CSV exports include all matching requests by default, across list pages. Select requests to download only that subset. Downloads preserve the list's booking and officer-assignment ordering when sort values tie. Loading indicators appear only while preparing a file.
 - Travel Desk PDF reports use available page space without shrinking text. Report and column headings repeat on each page.
@@ -33,6 +33,7 @@ Changes planned for the next release, since v2025.9.15.1.
 - User administration includes a mailcode field and updated user search and editing controls.
 - Estimate, meal, and coding tables support server-side paging and sorting. Estimates load with the default ordering and can be sorted by expense type. Table and claim totals include all matching records, not just the displayed page. Meal dates and meal/coding amounts use the application's standard display formats.
 - Developer improvements: rental-car schedule presentation can be maintained consistently across new and existing requests.
+- Developer improvements: expense and general-ledger tables share URL pagination and sorting coordination while preserving existing bookmarks and controls.
 - Developer improvements: retired the legacy travel-authorization module in favor of typed components and pages without changing workflows.
 - Developer improvements: isolated checkout service and database routes, explicit PostgreSQL data transfers between worktrees, correct-checkout editor access with gem-owned Docker defaults that survives readiness-based startup, and warning-free Ruby wrapper startup with explicitly bundled help dependencies. Updated test tooling and contributor guidance; removed unused components and dependencies. Web tests share plugin setup, HTTP and authentication mocks, and component cleanup following WRAP's conventions. Agent guidance now loads verified shared workflow sources before local overlays while preserving TravelAuth's contracts and development commands.
 - Requested PR screenshots follow the shared agent-operated capture/upload workflow while preserving existing images, TravelAuth captions and app routes, and optional screenshot placeholders.
@@ -41,11 +42,19 @@ Changes planned for the next release, since v2025.9.15.1.
 - PR testing guidance separates reviewer-facing QA scenarios from local developer setup, following WRAP and the shared workflow.
 - Development, test, and production containers use pinned Node 24 LTS, with aligned Sequelize dependencies for Factory Shark qualification and a matched Puppeteer/Chromium release family for PDF reports.
 - API test factories use Factory Shark for Sequelize fixtures, lists, request attributes, parent relationships, and eager loading without local persistence or reload helpers. TravCom city fixtures preserve the external database's keyless schema.
+- Invoice migrations use model-owned sale types and standard foreign-key declarations; invoice amounts use native decimal validation, and booking lookups use exact query conditions. Invoice sale types use `sale`, `refund`, and `void` in storage and API payloads, with readable labels in the UI.
+- Invoice APIs identify the external booking event explicitly as `externalBookingEventIdentifier`.
+- Local booking and invoice APIs use `bookingReference`; Travelport source fields retain their original names.
+- Booking synchronization uses an explicit `/sync` action. Invoice service-fee references identify external events. Invoice items permit source flight segments only for Air and source service fees only for Service Fee; source references remain optional and sale types remain independent.
 
 ### Fixed
 
+- Deleting an invoice during an overlapping edit also deletes its replacement lines.
+- Invoice lines retain a consistent order when listed, viewed, created, or updated, including lines sharing the same position.
+- Booking history lists newest externally created events first with stable pagination, using `externalCreatedAt` separately from local creation time. Unknown locators return no matches without imposing a six-character format.
 - Rental-car requests match flight dates and times on both new and edit forms. Matched fields remain readable and show a lock icon. Turning matching off restores the previous manual schedule, or blank dates and noon times for a new request without manual entries. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.
 - Read-only date fields no longer open the calendar picker when clicked, while preserving caller-supplied menu options.
+- Multi-city trips returning to their starting location show the destination before the return leg in summaries and request lists. Saving Purpose preserves the return-home itinerary.
 - Expense prefill excludes airfare while preserving other eligible expenses; flight estimates remain unchanged.
 - Travel Requests supports saved drafts, validated submissions, owner-only options review, and read-only itinerary viewing through the current forms. Its layout matches Travel Pre-Approvals and uses breadcrumbs for return navigation. Sortable columns, including traveller, purpose, dates, and Travel Desk status, order the full authorized result set before pagination, with sorting and pagination retained in bookmarks; Locations remains display-only. Double-click a row to open its request; rows without a request have no navigation or action. Administrators and supervisors retain question management. Non-system-admin users list only their own requests.
 - Owners can complete Travel Desk options review for requests without flights once all review data has loaded.

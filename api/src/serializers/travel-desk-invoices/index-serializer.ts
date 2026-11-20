@@ -1,4 +1,4 @@
-import { pick } from "lodash"
+import { isUndefined, pick } from "lodash"
 
 import { type TravelDeskInvoice } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
@@ -8,9 +8,8 @@ export type TravelDeskInvoiceAsIndex = Pick<
   TravelDeskInvoice,
   | "id"
   | "travelDeskTravelRequestId"
-  | "recordLocator"
-  | "sourceBookingEventId"
-  | "sourceSnapshot"
+  | "bookingReference"
+  | "externalBookingEventIdentifier"
   | "currencyCode"
   | "invoiceNumber"
   | "invoiceDate"
@@ -30,21 +29,19 @@ export type TravelDeskInvoiceAsIndex = Pick<
 
 export class IndexSerializer extends BaseSerializer<TravelDeskInvoice> {
   perform(): TravelDeskInvoiceAsIndex {
-    const { items } = this.record
-    if (!items) {
+    const { items: travelDeskInvoiceItems } = this.record
+    if (isUndefined(travelDeskInvoiceItems)) {
       throw new Error("Expected invoice items to be preloaded.")
     }
 
-    const serializedItems = ReferenceSerializer.perform(items)
-    serializedItems.sort((item1, item2) => item1.position - item2.position)
+    const serializedTravelDeskInvoiceItems = ReferenceSerializer.perform(travelDeskInvoiceItems)
 
     return {
       ...pick(this.record, [
         "id",
         "travelDeskTravelRequestId",
-        "recordLocator",
-        "sourceBookingEventId",
-        "sourceSnapshot",
+        "bookingReference",
+        "externalBookingEventIdentifier",
         "currencyCode",
         "invoiceNumber",
         "invoiceDate",
@@ -59,7 +56,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskInvoice> {
         "bookingDate",
         "grossAmount",
       ]),
-      items: serializedItems,
+      items: serializedTravelDeskInvoiceItems,
     }
   }
 }

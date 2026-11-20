@@ -1,35 +1,39 @@
 import type { QueryOptions } from "@/api/base-api"
 import http from "@/api/http-client"
-import type { TravelDeskProductType } from "@/api/travel-desk-product-types-api"
-import type { TravelDeskBookingEventAsIndex } from "@/api/travel-desk-booking-events-api"
 
-export type InvoiceSourceSnapshot = {
-  bookingEvent: TravelDeskBookingEventAsIndex
-  serviceFeeEvents: TravelDeskBookingEventAsIndex[]
+export enum TravelDeskInvoiceItemProductTypes {
+  AIR = "air",
+  SERVICE_FEE = "service_fee",
+  CREDIT = "credit",
+  CHANGE_FEE = "change_fee",
+}
+
+export enum TravelDeskInvoiceItemSaleTypes {
+  SALE = "sale",
+  REFUND = "refund",
+  VOID = "void",
 }
 
 export type TravelDeskInvoiceItemAsShow = {
   id: number
-  travelDeskProductTypeId: number
+  productType: TravelDeskInvoiceItemProductTypes
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
-  sourceServiceFeeEventId: number | null
+  sourceServiceFeeEventExternalIdentifier: number | null
   passengerName: string | null
   ticketNumber: string | null
   vendor: string | null
   description: string | null
-  saleType: "Sale" | "Refund" | "Void"
+  saleType: TravelDeskInvoiceItemSaleTypes
   grossAmount: string
   position: number
-  productType: TravelDeskProductType
 }
 
 export type TravelDeskInvoiceAsShow = {
   id: number
   travelDeskTravelRequestId: number
-  recordLocator: string
-  sourceBookingEventId: number
-  sourceSnapshot: InvoiceSourceSnapshot
+  bookingReference: string
+  externalBookingEventIdentifier: number
   currencyCode: string
   invoiceNumber: string | null
   invoiceDate: string | null
@@ -47,23 +51,21 @@ export type TravelDeskInvoiceAsShow = {
 }
 
 export type InvoiceItemInput = {
-  travelDeskProductTypeId: number
+  productType: TravelDeskInvoiceItemProductTypes
   travelDeskFlightSegmentId: number | null
   sourceAirSegmentNumber: number | null
-  sourceServiceFeeEventId: number | null
+  sourceServiceFeeEventExternalIdentifier: number | null
   passengerName: string | null
   ticketNumber: string | null
   vendor: string | null
   description: string | null
-  saleType: "Sale" | "Refund" | "Void"
+  saleType: TravelDeskInvoiceItemSaleTypes
   grossAmount: string
   position: number
 }
 
 export type InvoiceInput = {
-  recordLocator: string
-  sourceBookingEventId: number
-  sourceServiceFeeEventIds: number[]
+  externalBookingEventIdentifier: number
   currencyCode: string
   invoiceNumber: string | null
   invoiceDate: string | null
@@ -76,7 +78,7 @@ export type InvoiceInput = {
   bookingAgentName: string | null
   ticketingAgentName: string | null
   bookingDate: string | null
-  items: InvoiceItemInput[]
+  itemsAttributes: InvoiceItemInput[]
 }
 
 export type InvoiceUpdateInput = Pick<
@@ -93,7 +95,7 @@ export type InvoiceUpdateInput = Pick<
   | "bookingAgentName"
   | "ticketingAgentName"
   | "bookingDate"
-  | "items"
+  | "itemsAttributes"
 >
 
 type InvoiceResponse = {

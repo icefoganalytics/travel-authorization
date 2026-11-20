@@ -2,8 +2,7 @@ import { createVuetify } from "vuetify"
 
 import "vuetify/styles"
 
-import "@/assets/yk-style.css"
-import "@/assets/vuetify2-extensions.css"
+import "@/assets/typography.css"
 import "@/assets/vuetify3-tweaks.css" // Vuetify 3 CSS quirks that can't be fixed via defaults
 
 export default createVuetify({
@@ -17,16 +16,24 @@ export default createVuetify({
     themes: {
       yukonNorthStar: {
         colors: {
-          primary: "#0097a9",
+          primary: "#0097A9",
+          "on-primary": "#000000",
           secondary: "#F2A900",
-          "on-secondary": "#FFFFFF",
           accent: "#244C5A",
-          anchor: "#00818f",
-          info: "#0097a9",
+          anchor: "#00818F",
+          info: "#0097A9",
+          "on-info": "#000000",
           success: "#7A9A01",
+          "on-success": "#000000",
           warning: "#F2A900",
-          "on-warning": "#FFFFFF",
-          error: "#DC4405",
+          error: "#9B1B27",
+          "surface-variant": "#FFF2D5",
+          "on-surface-variant": "#323232",
+          "on-background": "#323232",
+          "on-surface": "#323232",
+        },
+        variables: {
+          "high-emphasis-opacity": 1,
         },
       },
     },
@@ -37,6 +44,13 @@ export default createVuetify({
       elevation: 0,
       style: "text-transform: none;",
       variant: "flat",
+    },
+    VCard: {
+      border: true,
+      elevation: 0,
+    },
+    VBreadcrumbs: {
+      class: "pl-0",
     },
     VCardActions: {
       VBtn: {

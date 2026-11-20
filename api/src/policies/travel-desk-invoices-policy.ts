@@ -1,10 +1,15 @@
 import { type FindOptions, type Attributes } from "@sequelize/core"
 
-import { type Path } from "@/utils/deep-pick"
+import { deepPick, type Path } from "@/utils/deep-pick"
 
 import { TravelDeskInvoice, User } from "@/models"
 import PolicyFactory from "@/policies/policy-factory"
 import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
+
+import {
+  type TravelDeskInvoiceCreationAttributes,
+  type TravelDeskInvoiceUpdateAttributes,
+} from "@/services/travel-desk-invoices"
 
 export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
   show(): boolean {
@@ -23,6 +28,14 @@ export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
     return this.user.isAdmin || this.user.isTravelDeskUser
   }
 
+  permitAttributesForCreate(record: unknown): TravelDeskInvoiceCreationAttributes {
+    return deepPick(record, this.permittedAttributesForCreate())
+  }
+
+  permitAttributesForUpdate(record: unknown): TravelDeskInvoiceUpdateAttributes {
+    return deepPick(record, this.permittedAttributes())
+  }
+
   permittedAttributes(): Path[] {
     return [
       "invoiceNumber",
@@ -38,11 +51,11 @@ export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
       "bookingDate",
       "currencyCode",
       {
-        items: [
-          "travelDeskProductTypeId",
+        itemsAttributes: [
+          "productType",
           "travelDeskFlightSegmentId",
           "sourceAirSegmentNumber",
-          "sourceServiceFeeEventId",
+          "sourceServiceFeeEventExternalIdentifier",
           "passengerName",
           "ticketNumber",
           "vendor",
@@ -57,9 +70,7 @@ export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
 
   permittedAttributesForCreate(): Path[] {
     return [
-      "recordLocator",
-      "sourceBookingEventId",
-      "sourceServiceFeeEventIds",
+      "externalBookingEventIdentifier",
       ...this.permittedAttributes(),
     ]
   }

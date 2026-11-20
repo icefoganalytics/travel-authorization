@@ -41,9 +41,9 @@ export type TravelDeskBookingEventAsIndex = {
   travelOrderIdentifier: number
   bookingFileVersionNumber: number | null
   eventType: string | null
-  recordLocator: string | null
+  bookingReference: string | null
   reservationSystemDescription: string | null
-  databaseTimestamp: string | null
+  externalCreatedAt: string | null
   hostEventTimestamp: string | null
   passengerNameRecordCreatedAt: string | null
   owningAgencyName: string | null
@@ -77,12 +77,11 @@ export const travelDeskBookingEventsApi = {
   },
   async sync(
     travelDeskTravelRequestId: number,
-    attributes: Record<string, never> = {},
     options: { signal?: AbortSignal } = {}
   ): Promise<void> {
     await http.post(
-      `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-desk-booking-events`,
-      attributes,
+      `/api/travel-desk-travel-requests/${travelDeskTravelRequestId}/travel-desk-booking-events/sync`,
+      undefined,
       options
     )
   },

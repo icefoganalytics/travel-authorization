@@ -1,82 +1,17 @@
 # Serializers
 
-## Intent
+Use the maintained [Express Light Rail backend reference](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/express-light-rail-backend-concepts-reference.md) for serializer design:
 
-Serializer code is easy to make technically correct but stylistically inconsistent. A shared
-pattern keeps association serialization readable and makes missing eager-loads fail loudly.
+- [Selection by action](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/express-light-rail-backend-concepts-reference.md#serializer-selection-by-action)
+- [Explicit field allowlists](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/express-light-rail-backend-concepts-reference.md#serializer-field-allowlists)
+- [Model ownership, required preloads, and association composition](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/express-light-rail-backend-concepts-reference.md#serializer-model-ownership)
+- [Existing class-based dispatch](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/express-light-rail-backend-concepts-reference.md#existing-class-based-serializer-dispatch)
 
-Decision rules:
+## TravelAuth Conventions
 
-- destructure associations first when the serializer depends on eager-loaded data
-- fail with explicit preload errors when a required association is missing
-- serialize associations into named locals before building the final returned object
-
-Serializers take model data, in the form mapping directly to the database structure, but with any casing standardize to JS standard. Data is then converted to a standard format that matches an external view as seen in the front-end.
-
-Serializers are used in controllers to convert from a database representation to a front-end data packet. Serializers should generally not be used for general data formating such as date or money formatting, as formatting those kinds of things in the front-end is generally more flexible.
-
-## Naming
-
-- Use `AsIndex` for index serializer types.
-- Use `AsShow` for show serializer types.
-- Follow the shape `{Model}AsIndex` and `{Model}AsShow`.
-- Avoid older view names such as `TableView` for new serializer types.
-- Extend `BaseSerializer<Model>` and implement the instance `perform()` method. Inherit its
-  static `perform(record)` / `perform(records)` entrypoint; do not reimplement array mapping.
-- Use `IndexSerializer` for index responses and `ShowSerializer` for show, create, and update
-  responses. Keep their contracts independent, even when their fields currently match.
-- Use an owning resource's `ReferenceSerializer` for nested associations. Pass association arrays
-  directly to its inherited `perform()` method.
-
-## Index File Export Order
-
-Export serializer barrel entries in the order: **Index → Show → Reference**.
-
-```typescript
-export { IndexSerializer, type LocationAsIndex as AsIndex } from "./index-serializer"
-export { ShowSerializer, type LocationAsShow as AsShow } from "./show-serializer"
-export {
-  ReferenceSerializer,
-  type LocationAsReference as AsReference,
-} from "./reference-serializer"
-```
-
-e.g. Usage in a Controller might look like this
-
-```typescript
-export class FormsController extends BaseController {
-  async index() {
-    const forms = await Form.findAll({
-      where: {
-        userId: this.currentUser.id,
-      },
-      include: ["stops", "purpose"],
-    })
-    const serializedForms = IndexSerializer.perform(forms)
-
-    return this.response.json({ forms: serializedForms })
-  }
-}
-```
-
-## Association Pattern
-
-Prefer this shape when a serializer returns an eager-loaded nested entity:
-
-```typescript
-export class ShowSerializer extends BaseSerializer<Form> {
-  perform(): FormAsShow {
-    const { purpose } = this.record
-    if (isUndefined(purpose)) {
-      throw new Error("Expected form purpose association to be preloaded.")
-    }
-
-    const serializedPurpose = Purposes.ReferenceSerializer.perform(purpose)
-
-    return {
-      ...pick(this.record, ["id", "purposeId"]),
-      purpose: serializedPurpose,
-    }
-  }
-}
-```
+- Use the local [`BaseSerializer`](base-serializer.ts), implementing instance `perform()` and inheriting its single-record/collection dispatch. Shared examples do not replace this project's actual base contract.
+- Name output types `{Model}AsIndex`, `{Model}AsShow`, and `{Model}AsReference`; export them from the resource barrel as `AsIndex`, `AsShow`, and `AsReference`.
+- Order resource barrel exports **Index → Show → Reference**.
+- Controllers import named serializers from their resource-specific path, such as `import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-invoices"`, not the top-level serializer namespace.
+- Keep controller authorization, query construction, and response conventions in the [controller guide](../controllers/README.md), rather than duplicating controller examples here.
+- Dedicated integration `SyncSerializer` classes may map source models into local persistence attributes. The Travelport event sync serializer owns that conversion; its caller supplies the normalized booking reference and owns queries, transactions, and persistence.

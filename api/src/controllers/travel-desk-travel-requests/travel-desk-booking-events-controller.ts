@@ -6,9 +6,7 @@ import { TravelDeskBookingEvent, TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskTravelRequests } from "@/policies"
 
-import { SyncService } from "@/services/travel-desk-booking-events"
-import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import ServiceValidationError from "@/services/service-validation-error"
 import { RequireLinkedTravelPortBookingService } from "@/services/travel-desk-travel-requests/require-linked-travel-port-booking-service"
 
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
@@ -32,13 +30,18 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const recordLocator = RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
-      const where = this.buildWhere({}, { recordLocator })
+      const bookingReference = RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
+      const where = this.buildWhere({}, { bookingReference })
       const scopes = this.buildFilterScopes()
-      const order = this.buildOrder([["externalTravelPortIdentifier", "ASC"]])
+      const order = this.buildOrder([
+        ["externalCreatedAt", "DESC"],
+        ["id", "DESC"],
+      ])
       const scopedTravelDeskBookingEvents = TravelDeskBookingEvent.withScope(scopes)
 
-      const totalCount = await scopedTravelDeskBookingEvents.count({ where })
+      const totalCount = await scopedTravelDeskBookingEvents.count({
+        where,
+      })
       const travelDeskBookingEvents = await scopedTravelDeskBookingEvents.findAll({
         where,
         limit: this.pagination.limit,
@@ -52,52 +55,15 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         totalCount,
       })
     } catch (error) {
-      if (error instanceof InvoiceValidationError) {
+      if (error instanceof ServiceValidationError) {
         return this.response.status(422).json({ message: error.message })
       }
 
-      logger.error(`Failed to index travel desk booking events: ${error}`, { error })
+      logger.error(`Failed to index travel desk booking events: ${error}`, {
+        error,
+      })
       return this.response.status(400).json({
         message: "Failed to load booking history.",
-      })
-    }
-  }
-
-  async create() {
-    try {
-      const travelDeskTravelRequest = await this.loadTravelDeskTravelRequest()
-      if (isNil(travelDeskTravelRequest)) {
-        return this.response.status(404).json({
-          message: "Travel desk travel request not found.",
-        })
-      }
-
-      const policy = this.buildPolicy(travelDeskTravelRequest)
-      if (!policy.show()) {
-        return this.response.status(403).json({
-          message: "You are not authorized to access booking sources.",
-        })
-      }
-
-      const recordLocator = RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
-      await SyncService.perform(recordLocator)
-      return this.response.status(204).send()
-    } catch (error) {
-      if (error instanceof InvoiceValidationError) {
-        return this.response.status(422).json({
-          message: error.message,
-        })
-      }
-
-      if (error instanceof SourceUnavailableError) {
-        return this.response.status(503).json({
-          message: "Booking source is unavailable.",
-        })
-      }
-
-      logger.error(`Failed to sync travel desk booking events: ${error}`, { error })
-      return this.response.status(400).json({
-        message: "Failed to sync booking history.",
       })
     }
   }

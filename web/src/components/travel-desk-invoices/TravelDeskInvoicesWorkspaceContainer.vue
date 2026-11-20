@@ -12,18 +12,6 @@
         class="mb-4"
         >{{ errorMessage }}</v-alert
       >
-      <v-alert
-        v-if="productTypesError"
-        type="error"
-        class="mb-4"
-      >
-        {{ productTypesError }}
-        <v-btn
-          variant="text"
-          @click="loadProductTypes"
-          >Retry product types</v-btn
-        >
-      </v-alert>
       <v-progress-linear
         v-if="isLoadingBookingLink"
         indeterminate
@@ -100,7 +88,7 @@
           v-for="value in invoices"
           :key="value.id"
           :title="value.invoiceNumber || `Invoice ${value.id}`"
-          :subtitle="`${value.recordLocator} · ${value.grossAmount} ${value.currencyCode}`"
+          :subtitle="`${value.bookingReference} · ${value.grossAmount} ${value.currencyCode}`"
           :disabled="isSaving || isOpening || isSearching || isDeleting"
           @click="openInvoice(value.id)"
         >
@@ -121,7 +109,7 @@
       >
         <v-card-title>{{ invoice.invoiceNumber || `Invoice ${invoice.id}` }}</v-card-title>
         <v-card-subtitle
-          >{{ invoice.recordLocator }} · {{ invoice.grossAmount }}
+          >{{ invoice.bookingReference }} · {{ invoice.grossAmount }}
           {{ invoice.currencyCode }}</v-card-subtitle
         >
         <v-card-text>
@@ -149,8 +137,8 @@
                 v-for="item in invoice.items"
                 :key="item.id"
               >
-                <td>{{ item.saleType }}</td>
-                <td>{{ item.productType.name }}</td>
+                <td>{{ t(`travel_desk_invoice_item.sale_type.${item.saleType}`) }}</td>
+                <td>{{ t(`travel_desk_invoice_item.product_type.${item.productType}`) }}</td>
                 <td>{{ item.vendor }}</td>
                 <td>{{ item.grossAmount }} {{ invoice.currencyCode }}</td>
                 <td>
@@ -206,7 +194,7 @@
               type="info"
               class="mt-4"
             >
-              No booking events were found for this record locator.
+              No booking events were found for this booking reference.
             </v-alert>
             <v-alert
               v-if="hasSearched && bookingEvents.length > 0 && flightBookingEvents.length === 0"
@@ -234,8 +222,8 @@
                 type="info"
                 class="my-4"
               >
-                Select the intended booking snapshot. Event order and version numbers do not
-                identify a current booking automatically.
+                Select the intended booking event. Event order and version numbers do not identify a
+                current booking automatically.
               </v-alert>
               <v-radio-group
                 v-if="flightBookingEvents.length"
@@ -285,7 +273,7 @@
               <p v-if="selectedFeeEvents.length === 0">No service-fee events selected.</p>
               <v-btn
                 color="primary"
-                :disabled="selectedBookingEvent === null || productTypes.length === 0"
+                :disabled="selectedBookingEvent === null"
                 @click="startDraft"
                 >Use selected booking</v-btn
               >
@@ -293,8 +281,8 @@
           </template>
           <template v-else>
             <p class="mb-4">
-              Record locator: <strong>{{ draft.recordLocator }}</strong> · Source event
-              {{ draft.sourceBookingEventId }}
+              Booking reference: <strong>{{ draft.bookingReference }}</strong> · Source event
+              {{ draft.externalBookingEventIdentifier }}
             </p>
             <v-row>
               <v-col
@@ -330,10 +318,9 @@
               contribute to the total.
             </p>
             <TravelDeskInvoiceItemEditCard
-              v-for="(item, index) in draft.items"
+              v-for="(item, index) in draft.itemsAttributes"
               :key="index"
-              v-model="draft.items[index]"
-              :product-types="productTypes"
+              v-model="draft.itemsAttributes[index]"
               :local-segments="localSegments"
               :passenger-names="passengerNames"
               :source-segment-description="
@@ -348,7 +335,7 @@
             <v-btn
               variant="outlined"
               prepend-icon="mdi-plus"
-              :disabled="isSaving || productTypes.length === 0"
+              :disabled="isSaving"
               @click="addCharge"
               >Add extra charge</v-btn
             >
@@ -382,39 +369,15 @@
           >
         </v-card-actions>
       </v-card>
-      <v-card
-        v-if="snapshot"
-        class="mt-4"
-        variant="outlined"
-      >
-        <v-card-text>
-          <h2 class="text-h6">Original booking source</h2>
-          <p>{{ eventSummary(snapshot.bookingEvent) }}</p>
-          <p>Passengers: {{ passengerNames.join(", ") || "None in the selected event" }}</p>
-          <p>
-            Travel agency:
-            {{
-              snapshot.bookingEvent.owningAgencyName ||
-              snapshot.bookingEvent.transactionAgencyName ||
-              "Not supplied"
-            }}
-          </p>
-          <details class="mt-3">
-            <summary>Original booking source snapshot</summary>
-            <pre class="max-w-full overflow-auto whitespace-pre-wrap overflow-wrap-anywhere">{{
-              JSON.stringify(snapshot, null, 2)
-            }}</pre>
-          </details>
-        </v-card-text>
-      </v-card>
     </template>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { computed, onScopeDispose, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
 import { isCancel } from "axios"
-import { cloneDeep, isNil } from "lodash"
+import { isNil } from "lodash"
 
 import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 
@@ -426,15 +389,12 @@ import {
 import {
   type InvoiceInput,
   type InvoiceItemInput,
-  type InvoiceSourceSnapshot,
   type InvoiceUpdateInput,
   type TravelDeskInvoiceAsShow,
+  TravelDeskInvoiceItemProductTypes,
+  TravelDeskInvoiceItemSaleTypes,
   travelDeskInvoicesApi,
 } from "@/api/travel-desk-invoices-api"
-import {
-  type TravelDeskProductType,
-  travelDeskProductTypesApi,
-} from "@/api/travel-desk-product-types-api"
 import {
   type TravelDeskBookingEventAsIndex,
   travelDeskBookingEventsApi,
@@ -452,17 +412,20 @@ const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
 
+type InvoiceDraft = InvoiceInput & {
+  bookingReference: string | null
+}
+
 const requestId = computed(() => Number(props.travelDeskTravelRequestId))
 const { isAdmin, isTravelDeskUser } = useCurrentUser()
 const canManage = computed(() => Boolean(isAdmin.value || isTravelDeskUser.value))
 const snack = useSnack()
+const { t } = useI18n()
 const invoices = ref<TravelDeskInvoiceAsShow[] | null>(null)
 const invoice = ref<TravelDeskInvoiceAsShow | null>(null)
-const productTypes = ref<TravelDeskProductType[]>([])
 const localSegments = ref<TravelDeskFlightSegmentAsIndex[]>([])
 const bookingEvents = ref<TravelDeskBookingEventAsIndex[]>([])
-const snapshot = ref<InvoiceSourceSnapshot | null>(null)
-const draft = ref<InvoiceInput | null>(null)
+const draft = ref<InvoiceDraft | null>(null)
 const editingId = ref<number | null>(null)
 const isCreating = ref(false)
 const isLoading = computed(() => isNil(invoices.value))
@@ -472,7 +435,6 @@ const isDeleting = ref(false)
 const isSearching = ref(false)
 const hasSearched = ref(false)
 const errorMessage = ref("")
-const productTypesError = ref("")
 const linkedRecordLocator = ref<string | null>(null)
 const isLoadingBookingLink = ref(false)
 const bookingLinkError = ref("")
@@ -503,14 +465,22 @@ const feeEvents = computed(() =>
   bookingEvents.value.filter((event) => event.serviceFeeTransaction !== null)
 )
 const passengerNames = computed(() => {
-  if (!snapshot.value) return []
+  if (selectedBookingEvent.value) {
+    return selectedBookingEvent.value.passengers.map((passenger) =>
+      [passenger.firstName, passenger.lastName].filter(Boolean).join(" ")
+    )
+  }
 
-  return snapshot.value.bookingEvent.passengers.map((passenger) =>
-    [passenger.firstName, passenger.lastName].filter(Boolean).join(" ")
-  )
+  return [
+    ...new Set(
+      (invoice.value?.items ?? []).flatMap((item) =>
+        item.passengerName ? [item.passengerName] : []
+      )
+    ),
+  ]
 })
 
-type InvoiceHeaderKey = keyof Omit<InvoiceUpdateInput, "items" | "currencyCode">
+type InvoiceHeaderKey = keyof Omit<InvoiceUpdateInput, "itemsAttributes" | "currencyCode">
 
 const headerFields: { key: InvoiceHeaderKey; label: string; type: string }[] = [
   { key: "invoiceNumber", label: "Invoice number", type: "text" },
@@ -582,22 +552,6 @@ async function loadInvoices() {
   }
 }
 
-async function loadProductTypes() {
-  const version = contextVersion
-  productTypesError.value = ""
-  try {
-    const { travelDeskProductTypes } = await travelDeskProductTypesApi.list({ perPage: 1000 })
-    if (version !== contextVersion) return
-
-    productTypes.value = travelDeskProductTypes
-  } catch (error) {
-    if (version !== contextVersion) return
-
-    console.error("Failed to load invoice product types", error)
-    productTypesError.value = errorText(error, "Invoice product types could not be loaded.")
-  }
-}
-
 async function refreshBookingLink(): Promise<string | null> {
   const version = contextVersion
   isLoadingBookingLink.value = true
@@ -612,6 +566,7 @@ async function refreshBookingLink(): Promise<string | null> {
 
       linkedRecordLocator.value = locator
     }
+
     return locator
   } catch (error) {
     if (version !== contextVersion) return null
@@ -638,12 +593,10 @@ function closeEditor() {
   hasSearched.value = false
   isSearching.value = false
   errorMessage.value = ""
-  snapshot.value = invoice.value?.sourceSnapshot ?? null
 }
 
 function closeInvoice() {
   invoice.value = null
-  snapshot.value = null
 }
 
 function openNewInvoice() {
@@ -670,7 +623,6 @@ async function openInvoice(id: number) {
     if (version !== contextVersion) return
 
     invoice.value = result.travelDeskInvoice
-    snapshot.value = result.travelDeskInvoice.sourceSnapshot
     localSegments.value = localResult.travelDeskFlightSegments
   } catch (error) {
     if (version !== contextVersion) return
@@ -738,7 +690,7 @@ async function refreshBookingHistory() {
   bookingPage.value = 1
   try {
     const [, localResult] = await Promise.all([
-      travelDeskBookingEventsApi.sync(requestId.value, {}, { signal: controller.signal }),
+      travelDeskBookingEventsApi.sync(requestId.value, { signal: controller.signal }),
       travelDeskFlightSegmentsApi.list({
         filters: { forTravelRequest: requestId.value },
         perPage: -1,
@@ -772,7 +724,7 @@ function selectFeeEvent(event: TravelDeskBookingEventAsIndex, selected: boolean 
 }
 
 function eventSummary(event: TravelDeskBookingEventAsIndex) {
-  return `Event ${event.travelOrderIdentifier} · ${event.eventType ?? "unknown type"} · version ${event.bookingFileVersionNumber ?? "—"} · ${event.owningAgencyName ?? event.transactionAgencyName ?? "agency unavailable"} · ${event.databaseTimestamp}`
+  return `Event ${event.travelOrderIdentifier} · ${event.eventType ?? "unknown type"} · version ${event.bookingFileVersionNumber ?? "—"} · ${event.owningAgencyName ?? event.transactionAgencyName ?? "agency unavailable"} · ${event.externalCreatedAt}`
 }
 
 function feeSummary(event: TravelDeskBookingEventAsIndex) {
@@ -783,7 +735,7 @@ function feeSummary(event: TravelDeskBookingEventAsIndex) {
 }
 
 function segmentSummary(segmentNumber: number) {
-  const segment = snapshot.value?.bookingEvent.airReservationSegments.find(
+  const segment = selectedBookingEvent.value?.airReservationSegments.find(
     (candidate) => candidate.airSegmentNumber === segmentNumber
   )
   if (!segment) return `Source segment ${segmentNumber}`
@@ -796,10 +748,13 @@ function startDraft() {
   if (!locator) return
 
   const event = selectedBookingEvent.value
-  const airType = productTypes.value.find((product) => product.code === "air")
-  const feeType = productTypes.value.find((product) => product.code === "service-fee")
-  if (!event || !airType || !feeType) {
-    errorMessage.value = "Choose a flight booking event and load the invoice product types first."
+  if (!event) {
+    errorMessage.value = "Choose a flight booking event first."
+    return
+  }
+
+  if (event.bookingReference !== locator) {
+    errorMessage.value = "The linked booking changed. Refresh booking history before continuing."
     return
   }
 
@@ -816,24 +771,23 @@ function startDraft() {
     return
   }
 
-  snapshot.value = cloneDeep({ bookingEvent: event, serviceFeeEvents: selectedFees })
   let passengerName: string | null = null
   if (event.passengers.length === 1) {
     const passenger = event.passengers[0]
     passengerName = [passenger.firstName, passenger.lastName].filter(Boolean).join(" ")
   }
-  const items: InvoiceItemInput[] = event.airReservationSegments.map((segment, index) => ({
-    travelDeskProductTypeId: airType.id,
+  const itemsAttributes = event.airReservationSegments.map<InvoiceItemInput>((segment, index) => ({
+    productType: TravelDeskInvoiceItemProductTypes.AIR,
     travelDeskFlightSegmentId: null,
     sourceAirSegmentNumber: segment.airSegmentNumber,
-    sourceServiceFeeEventId: null,
+    sourceServiceFeeEventExternalIdentifier: null,
     passengerName,
     ticketNumber: null,
     vendor: segment.carrierCode,
     description: [segment.carrierCode, segment.flightNumber, segment.boardPoint, segment.offPoint]
       .filter(Boolean)
       .join(" "),
-    saleType: "Sale",
+    saleType: TravelDeskInvoiceItemSaleTypes.SALE,
     grossAmount: "",
     position: index,
   }))
@@ -841,27 +795,26 @@ function startDraft() {
     const fee = feeEvent.serviceFeeTransaction
     if (!fee) continue
 
-    let saleType: InvoiceItemInput["saleType"] = "Sale"
-    if (fee.activeVoidStatus === "V") saleType = "Void"
+    let saleType = TravelDeskInvoiceItemSaleTypes.SALE
+    if (fee.activeVoidStatus === "V") saleType = TravelDeskInvoiceItemSaleTypes.VOID
 
-    items.push({
-      travelDeskProductTypeId: feeType.id,
+    itemsAttributes.push({
+      productType: TravelDeskInvoiceItemProductTypes.SERVICE_FEE,
       travelDeskFlightSegmentId: null,
       sourceAirSegmentNumber: null,
-      sourceServiceFeeEventId: feeEvent.travelOrderIdentifier,
+      sourceServiceFeeEventExternalIdentifier: feeEvent.travelOrderIdentifier,
       passengerName: fee.nameOnServiceFee,
       ticketNumber: fee.relatedTicketDocumentNumber,
       vendor: feeEvent.transactionAgencyName ?? feeEvent.owningAgencyName,
       description: `Service fee ${fee.serviceFeeDocumentNumber ?? ""}`.trim(),
       saleType,
       grossAmount: fee.serviceFeeAmount ?? "",
-      position: items.length,
+      position: itemsAttributes.length,
     })
   }
   draft.value = {
-    recordLocator: locator,
-    sourceBookingEventId: event.travelOrderIdentifier,
-    sourceServiceFeeEventIds: selectedFees.map((event) => event.travelOrderIdentifier),
+    bookingReference: event.bookingReference,
+    externalBookingEventIdentifier: event.travelOrderIdentifier,
     currencyCode: [...currencies][0] ?? "",
     invoiceNumber: null,
     invoiceDate: null,
@@ -874,7 +827,7 @@ function startDraft() {
     bookingAgentName: event.transactionAgent,
     ticketingAgentName: null,
     bookingDate: event.passengerNameRecordCreatedAt?.slice(0, 10) ?? null,
-    items,
+    itemsAttributes,
   }
   errorMessage.value = ""
 }
@@ -884,13 +837,9 @@ function beginEdit() {
 
   const savedInvoice = invoice.value
   editingId.value = savedInvoice.id
-  snapshot.value = savedInvoice.sourceSnapshot
   draft.value = {
-    recordLocator: savedInvoice.recordLocator,
-    sourceBookingEventId: savedInvoice.sourceBookingEventId,
-    sourceServiceFeeEventIds: savedInvoice.sourceSnapshot.serviceFeeEvents.map(
-      (event) => event.travelOrderIdentifier
-    ),
+    bookingReference: savedInvoice.bookingReference,
+    externalBookingEventIdentifier: savedInvoice.externalBookingEventIdentifier,
     currencyCode: savedInvoice.currencyCode,
     invoiceNumber: savedInvoice.invoiceNumber,
     invoiceDate: savedInvoice.invoiceDate,
@@ -903,36 +852,33 @@ function beginEdit() {
     bookingAgentName: savedInvoice.bookingAgentName,
     ticketingAgentName: savedInvoice.ticketingAgentName,
     bookingDate: savedInvoice.bookingDate,
-    items: cloneDeep(savedInvoice.items),
+    itemsAttributes: savedInvoice.items.map(({ id, ...itemAttributes }) => itemAttributes),
   }
 }
 
 function addCharge() {
   if (!draft.value) return
 
-  const defaultProduct = productTypes.value.find((product) => product.code === "change-fee")
-  if (!defaultProduct) return
-
-  draft.value.items.push({
-    travelDeskProductTypeId: defaultProduct.id,
+  draft.value.itemsAttributes.push({
+    productType: TravelDeskInvoiceItemProductTypes.CHANGE_FEE,
     travelDeskFlightSegmentId: null,
     sourceAirSegmentNumber: null,
-    sourceServiceFeeEventId: null,
+    sourceServiceFeeEventExternalIdentifier: null,
     passengerName: null,
     ticketNumber: null,
     vendor: null,
     description: null,
-    saleType: "Sale",
+    saleType: TravelDeskInvoiceItemSaleTypes.SALE,
     grossAmount: "",
-    position: draft.value.items.length,
+    position: draft.value.itemsAttributes.length,
   })
 }
 
 function removeCharge(index: number) {
   if (!draft.value) return
 
-  draft.value.items.splice(index, 1)
-  draft.value.items.forEach((item, position) => {
+  draft.value.itemsAttributes.splice(index, 1)
+  draft.value.itemsAttributes.forEach((item, position) => {
     item.position = position
   })
 }
@@ -941,7 +887,7 @@ const computedTotal = computed(() => {
   if (!draft.value) return null
 
   let total = 0n
-  for (const item of draft.value.items) {
+  for (const item of draft.value.itemsAttributes) {
     if (!AMOUNT_PATTERN.test(item.grossAmount)) return null
 
     const [whole, fraction = ""] = item.grossAmount.replace("-", "").split(".")
@@ -951,8 +897,8 @@ const computedTotal = computed(() => {
     if (amount > MAX_AMOUNT_THOUSANDTHS) return null
     if (item.grossAmount.startsWith("-")) amount = -amount
 
-    if (item.saleType === "Sale") total += amount
-    if (item.saleType === "Refund") {
+    if (item.saleType === TravelDeskInvoiceItemSaleTypes.SALE) total += amount
+    if (item.saleType === TravelDeskInvoiceItemSaleTypes.REFUND) {
       if (amount < 0n) amount = -amount
 
       total -= amount
@@ -997,17 +943,17 @@ async function saveInvoice() {
         bookingAgentName: draft.value.bookingAgentName,
         ticketingAgentName: draft.value.ticketingAgentName,
         bookingDate: draft.value.bookingDate,
-        items: draft.value.items,
+        itemsAttributes: draft.value.itemsAttributes,
       }
       result = await travelDeskInvoicesApi.update(requestId.value, editingId.value, updates)
     } else {
-      result = await travelDeskInvoicesApi.create(requestId.value, draft.value)
+      const { bookingReference, ...invoiceAttributes } = draft.value
+      result = await travelDeskInvoicesApi.create(requestId.value, invoiceAttributes)
     }
     if (version !== contextVersion) return
 
     closeEditor()
     invoice.value = result.travelDeskInvoice
-    snapshot.value = result.travelDeskInvoice.sourceSnapshot
     await loadInvoices()
     snack.success("Invoice saved")
   } catch (error) {
@@ -1030,7 +976,6 @@ async function deleteInvoice() {
     if (version !== contextVersion) return
 
     invoice.value = null
-    snapshot.value = null
     await loadInvoices()
     snack.success("Invoice deleted")
   } catch (error) {
@@ -1053,9 +998,9 @@ watch(
     isSearching.value = false
     closeEditor()
     invoice.value = null
-    snapshot.value = null
     invoices.value = []
     linkedRecordLocator.value = null
+    isLoadingBookingLink.value = false
     bookingLinkError.value = ""
 
     if (!canManage.value) return
@@ -1065,7 +1010,7 @@ watch(
       return
     }
 
-    await Promise.all([loadInvoices(), loadProductTypes(), refreshBookingLink()])
+    await Promise.all([loadInvoices(), refreshBookingLink()])
   },
   { immediate: true }
 )
@@ -1084,15 +1029,3 @@ onScopeDispose(() => {
   bookingRequestController?.abort()
 })
 </script>
-
-<style scoped>
-.max-w-full {
-  max-width: 100%;
-}
-.whitespace-pre-wrap {
-  white-space: pre-wrap;
-}
-.overflow-wrap-anywhere {
-  overflow-wrap: anywhere;
-}
-</style>

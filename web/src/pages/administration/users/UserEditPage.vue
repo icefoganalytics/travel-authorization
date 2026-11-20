@@ -16,8 +16,8 @@
         md="12"
       >
         <v-card
-          class="default"
           :loading="isLoading"
+          color="surface-variant"
         >
           <v-card-title>User Details</v-card-title>
           <v-card-text>

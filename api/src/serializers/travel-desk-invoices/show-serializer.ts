@@ -1,13 +1,14 @@
+import { isUndefined, pick } from "lodash"
+
 import { type TravelDeskInvoice } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
-import { ReferenceSerializer, type AsReference } from "@/serializers/travel-desk-invoice-items"
+import { TravelDeskInvoiceItems } from "@/serializers"
 
 export type TravelDeskInvoiceAsShow = {
   id: number
   travelDeskTravelRequestId: number
-  recordLocator: string
-  sourceBookingEventId: number
-  sourceSnapshot: TravelDeskInvoice["sourceSnapshot"]
+  bookingReference: string
+  externalBookingEventIdentifier: number
   currencyCode: string
   invoiceNumber: string | null
   invoiceDate: string | null
@@ -21,40 +22,39 @@ export type TravelDeskInvoiceAsShow = {
   ticketingAgentName: string | null
   bookingDate: string | null
   grossAmount: string
-  items: AsReference[]
+  items: TravelDeskInvoiceItems.AsReference[]
 }
 
 export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
   perform(): TravelDeskInvoiceAsShow {
-    const invoice = this.record
-    const { items } = invoice
-    if (!items) {
+    const { items: travelDeskInvoiceItems } = this.record
+    if (isUndefined(travelDeskInvoiceItems)) {
       throw new Error("Expected invoice items to be preloaded.")
     }
 
-    const serializedItems = ReferenceSerializer.perform(items)
-    serializedItems.sort((item1, item2) => item1.position - item2.position)
+    const serializedTravelDeskInvoiceItems = TravelDeskInvoiceItems.ReferenceSerializer.perform(travelDeskInvoiceItems)
 
     return {
-      id: invoice.id,
-      travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
-      recordLocator: invoice.recordLocator,
-      sourceBookingEventId: invoice.sourceBookingEventId,
-      sourceSnapshot: invoice.sourceSnapshot,
-      currencyCode: invoice.currencyCode,
-      invoiceNumber: invoice.invoiceNumber,
-      invoiceDate: invoice.invoiceDate,
-      warrantNumber: invoice.warrantNumber,
-      clientNumber: invoice.clientNumber,
-      clientName: invoice.clientName,
-      department: invoice.department,
-      mailcode: invoice.mailcode,
-      iataNumber: invoice.iataNumber,
-      bookingAgentName: invoice.bookingAgentName,
-      ticketingAgentName: invoice.ticketingAgentName,
-      bookingDate: invoice.bookingDate,
-      grossAmount: invoice.grossAmount,
-      items: serializedItems,
+      ...pick(this.record, [
+        "id",
+        "travelDeskTravelRequestId",
+        "bookingReference",
+        "externalBookingEventIdentifier",
+        "currencyCode",
+        "invoiceNumber",
+        "invoiceDate",
+        "warrantNumber",
+        "clientNumber",
+        "clientName",
+        "department",
+        "mailcode",
+        "iataNumber",
+        "bookingAgentName",
+        "ticketingAgentName",
+        "bookingDate",
+        "grossAmount",
+      ]),
+      items: serializedTravelDeskInvoiceItems,
     }
   }
 }

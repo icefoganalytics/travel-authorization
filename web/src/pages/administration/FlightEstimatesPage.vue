@@ -3,7 +3,7 @@
     <v-alert color="warning"> Page is not yet implemented </v-alert>
 
     <h1>Flight Estimates</h1>
-    <v-card class="default">
+    <v-card color="surface-variant">
       <v-card-text>
         <v-row
           v-for="(flightEstimate, index) in flightEstimates"

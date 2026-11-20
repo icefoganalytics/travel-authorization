@@ -2,19 +2,21 @@ import FactoryShark from "factory-shark"
 import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { TravelDeskInvoiceItem } from "@/models"
-import { TravelDeskInvoiceItemSaleTypes } from "@/models/travel-desk-invoice-item"
+import {
+  TravelDeskInvoiceItemProductTypes,
+  TravelDeskInvoiceItemSaleTypes,
+} from "@/models/travel-desk-invoice-item"
 import { travelDeskInvoiceFactory } from "@/factories/travel-desk-invoice-factory"
-import { travelDeskProductTypeFactory } from "@/factories/travel-desk-product-type-factory"
 
 export const travelDeskInvoiceItemFactory = FactoryShark.define(
   TravelDeskInvoiceItem,
   ({ associate }) => {
     associate("invoice", travelDeskInvoiceFactory)
-    associate("productType", travelDeskProductTypeFactory)
 
     return {
+      productType: TravelDeskInvoiceItemProductTypes.AIR,
       sourceAirSegmentNumber: null,
-      sourceServiceFeeEventId: null,
+      sourceServiceFeeEventExternalIdentifier: null,
       passengerName: faker.person.fullName(),
       ticketNumber: null,
       vendor: faker.company.name(),

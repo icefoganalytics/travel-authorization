@@ -1,29 +1,3 @@
-<script setup lang="ts">
-import type { TravelDeskFlightSegmentAsIndex } from "@/api/travel-desk-flight-segments-api"
-import type { InvoiceItemInput } from "@/api/travel-desk-invoices-api"
-import type { TravelDeskProductType } from "@/api/travel-desk-product-types-api"
-
-const item = defineModel<InvoiceItemInput>({
-  required: true,
-})
-
-defineProps<{
-  productTypes: TravelDeskProductType[]
-  localSegments: TravelDeskFlightSegmentAsIndex[]
-  passengerNames: string[]
-  sourceSegmentDescription: string | null
-  isSaving: boolean
-}>()
-
-const emit = defineEmits<{
-  removed: []
-}>()
-
-function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
-  return `${segment.flightNumber ?? "Flight"} · ${segment.departLocation ?? ""} → ${segment.arriveLocation ?? ""} · ${segment.departAt ?? "date unavailable"}`
-}
-</script>
-
 <template>
   <v-card variant="outlined">
     <v-card-text>
@@ -34,10 +8,10 @@ function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
         {{ sourceSegmentDescription }}
       </p>
       <p
-        v-if="item.sourceServiceFeeEventId !== null"
+        v-if="item.sourceServiceFeeEventExternalIdentifier !== null"
         class="mb-3"
       >
-        Source service-fee event {{ item.sourceServiceFeeEventId }}
+        Source service-fee event {{ item.sourceServiceFeeEventExternalIdentifier }}
       </p>
       <v-row>
         <v-col
@@ -45,15 +19,13 @@ function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
           md="3"
         >
           <v-select
-            v-model="item.travelDeskProductTypeId"
+            v-model="item.productType"
             :items="productTypes"
-            item-title="name"
-            item-value="id"
             label="Product type"
             :disabled="
               isSaving ||
               item.sourceAirSegmentNumber !== null ||
-              item.sourceServiceFeeEventId !== null
+              item.sourceServiceFeeEventExternalIdentifier !== null
             "
           />
         </v-col>
@@ -63,7 +35,7 @@ function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
         >
           <v-select
             v-model="item.saleType"
-            :items="['Sale', 'Refund', 'Void']"
+            :items="saleTypes"
             label="Sale type"
             :disabled="isSaving"
           />
@@ -135,7 +107,10 @@ function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
           />
         </v-col>
         <v-col
-          v-if="item.sourceAirSegmentNumber === null && item.sourceServiceFeeEventId === null"
+          v-if="
+            item.sourceAirSegmentNumber === null &&
+            item.sourceServiceFeeEventExternalIdentifier === null
+          "
           cols="12"
           md="4"
         >
@@ -151,3 +126,48 @@ function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
     </v-card-text>
   </v-card>
 </template>
+
+<script setup lang="ts">
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
+
+import type { TravelDeskFlightSegmentAsIndex } from "@/api/travel-desk-flight-segments-api"
+import {
+  type InvoiceItemInput,
+  TravelDeskInvoiceItemProductTypes,
+  TravelDeskInvoiceItemSaleTypes,
+} from "@/api/travel-desk-invoices-api"
+
+const item = defineModel<InvoiceItemInput>({
+  required: true,
+})
+
+defineProps<{
+  localSegments: TravelDeskFlightSegmentAsIndex[]
+  passengerNames: string[]
+  sourceSegmentDescription: string | null
+  isSaving: boolean
+}>()
+
+const emit = defineEmits<{
+  removed: []
+}>()
+
+const { t } = useI18n()
+const productTypes = computed(() =>
+  Object.values(TravelDeskInvoiceItemProductTypes).map((productType) => ({
+    title: t(`travel_desk_invoice_item.product_type.${productType}`),
+    value: productType,
+  }))
+)
+const saleTypes = computed(() =>
+  Object.values(TravelDeskInvoiceItemSaleTypes).map((saleType) => ({
+    title: t(`travel_desk_invoice_item.sale_type.${saleType}`),
+    value: saleType,
+  }))
+)
+
+function localSegmentSummary(segment: TravelDeskFlightSegmentAsIndex) {
+  return `${segment.flightNumber ?? "Flight"} · ${segment.departLocation ?? ""} → ${segment.arriveLocation ?? ""} · ${segment.departAt ?? "date unavailable"}`
+}
+</script>

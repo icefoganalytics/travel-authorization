@@ -1,196 +1,123 @@
-import { Op } from "@sequelize/core"
+import { type CreationAttributes } from "@sequelize/core"
 import { isNil } from "lodash"
 
 import { db } from "@/db/db-client"
 
 import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
-import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
-import { type InvoiceSourceSnapshot } from "@/models/travel-desk-invoice"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import ServiceValidationError from "@/services/service-validation-error"
 import {
-  createInvoiceItems,
-  validateLinkedFlightSegments,
-} from "@/services/travel-desk-invoices/invoice-items"
+  BulkCreateService,
+  ValidateLinkedTravelDeskFlightSegmentsService,
+} from "@/services/travel-desk-invoice-items"
 import {
-  type InvoiceItemAttributes,
-  validateInvoiceItems,
-} from "@/services/travel-desk-invoices/validate-items"
+  ValidateTravelDeskInvoiceItemsService,
+  type TravelDeskInvoiceItemAttributes,
+} from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
+import ValidateTravelDeskInvoiceServiceFeeSelectionService from "@/services/travel-desk-invoices/validate-travel-desk-invoice-service-fee-selection-service"
+import LoadAndValidateTravelDeskBookingEventForInvoiceService from "@/services/travel-desk-invoices/load-and-validate-travel-desk-booking-event-for-invoice-service"
+import { RequireLinkedTravelPortBookingService } from "@/services/travel-desk-travel-requests/require-linked-travel-port-booking-service"
 
-import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
-
-export type InvoiceHeaderAttributes = {
-  recordLocator: string
-  sourceBookingEventId: number
-  sourceServiceFeeEventIds: number[]
-  currencyCode: string
-  invoiceNumber?: string | null
-  invoiceDate?: string | null
-  warrantNumber?: string | null
-  clientNumber?: string | null
-  clientName?: string | null
-  department?: string | null
-  mailcode?: string | null
-  iataNumber?: string | null
-  bookingAgentName?: string | null
-  ticketingAgentName?: string | null
-  bookingDate?: string | null
-  items: InvoiceItemAttributes[]
-}
+export type TravelDeskInvoiceCreationAttributes = Partial<
+  Omit<CreationAttributes<TravelDeskInvoice>, "bookingReference"> & {
+    itemsAttributes: TravelDeskInvoiceItemAttributes[]
+  }
+>
 
 export class CreateService extends BaseService {
   constructor(
     protected travelDeskTravelRequest: TravelDeskTravelRequest,
-    protected attributes: Partial<InvoiceHeaderAttributes>
+    protected travelDeskInvoiceCreationAttributes: TravelDeskInvoiceCreationAttributes
   ) {
     super()
   }
 
   async perform(): Promise<TravelDeskInvoice> {
-    const { recordLocator, sourceBookingEventId, sourceServiceFeeEventIds, currencyCode, items } =
-      this.attributes
-    if (isNil(recordLocator)) {
-      throw new InvoiceValidationError("Record locator is required.")
-    }
-
-    if (isNil(sourceBookingEventId)) {
-      throw new InvoiceValidationError("Booking event is required.")
-    }
-
-    if (!Array.isArray(sourceServiceFeeEventIds)) {
-      throw new InvoiceValidationError("Service fee events must be an array.")
+    const {
+      externalBookingEventIdentifier,
+      currencyCode,
+      itemsAttributes: travelDeskInvoiceItemsAttributes,
+      ...optionalAttributes
+    } = this.travelDeskInvoiceCreationAttributes
+    if (isNil(externalBookingEventIdentifier)) {
+      throw new ServiceValidationError("Booking event is required.")
     }
 
     if (isNil(currencyCode)) {
-      throw new InvoiceValidationError("Currency code is required.")
+      throw new ServiceValidationError("Currency code is required.")
     }
 
-    if (!Array.isArray(items)) {
-      throw new InvoiceValidationError("Invoice items must be an array.")
+    if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
+      throw new ServiceValidationError("Invoice items must be an array.")
     }
-
-    const normalizedRecordLocator = recordLocator.trim().toUpperCase()
-    this.assertRecordLocatorIsValid(normalizedRecordLocator)
-
-    await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
-
-    const snapshot = await this.loadSourceSnapshot(
-      normalizedRecordLocator,
-      sourceBookingEventId,
-      sourceServiceFeeEventIds
-    )
-    const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async () => {
-      await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
-      await validateInvoiceItems(items, snapshot, sourceServiceFeeEventIds, currencyCode)
-      await validateLinkedFlightSegments(items, this.travelDeskTravelRequest.id)
+      const travelDeskTravelRequest = await this.loadActiveTravelDeskTravelRequest()
+      const linkedBookingReference =
+        RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
 
-      const invoice = await TravelDeskInvoice.create({
+      const { bookingReference, sourceAirSegmentNumbers } =
+        await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(
+          externalBookingEventIdentifier
+        )
+      if (bookingReference !== linkedBookingReference) {
+        throw new ServiceValidationError("Invoice booking must match the linked Travelport booking.")
+      }
+
+      const sourceServiceFeeEventExternalIdentifiers = ValidateTravelDeskInvoiceItemsService.perform(
+        travelDeskInvoiceItemsAttributes,
+        sourceAirSegmentNumbers
+      )
+      await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
+        bookingReference,
+        sourceServiceFeeEventExternalIdentifiers,
+        currencyCode
+      )
+
+      const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
+
+      await ValidateLinkedTravelDeskFlightSegmentsService.perform(
+        this.travelDeskTravelRequest.id,
+        travelDeskInvoiceItemsAttributes
+      )
+
+      const travelDeskInvoice = await TravelDeskInvoice.create({
+        ...optionalAttributes,
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
-        recordLocator: normalizedRecordLocator,
-        sourceBookingEventId,
-        sourceSnapshot: snapshot,
+        bookingReference,
+        externalBookingEventIdentifier,
         currencyCode,
-        invoiceNumber: this.attributes.invoiceNumber ?? null,
-        invoiceDate: this.attributes.invoiceDate ?? null,
-        warrantNumber: this.attributes.warrantNumber ?? null,
-        clientNumber: this.attributes.clientNumber ?? null,
-        clientName: this.attributes.clientName ?? null,
-        department: this.attributes.department ?? null,
-        mailcode: this.attributes.mailcode ?? null,
-        iataNumber: this.attributes.iataNumber ?? null,
-        bookingAgentName: this.attributes.bookingAgentName ?? null,
-        ticketingAgentName: this.attributes.ticketingAgentName ?? null,
-        bookingDate: this.attributes.bookingDate ?? null,
         grossAmount,
       })
-      await createInvoiceItems(invoice.id, items)
+      await BulkCreateService.perform(travelDeskInvoice.id, travelDeskInvoiceItemsAttributes)
 
-      return invoice.reload({
+      return travelDeskInvoice.reload({
         include: [
           {
             association: "items",
-            include: ["productType"],
+            separate: true,
+            order: [
+              ["position", "ASC"],
+              ["id", "ASC"],
+            ],
           },
         ],
       })
     })
   }
 
-  private assertRecordLocatorIsValid(recordLocator: string): void {
-    if (!/^[A-Z0-9]{6}$/.test(recordLocator)) {
-      throw new InvoiceValidationError("Record locator must contain six letters or numbers.")
-    }
-  }
-
-  private async requireActiveTravelRequest(travelDeskTravelRequestId: number): Promise<void> {
+  private async loadActiveTravelDeskTravelRequest(): Promise<TravelDeskTravelRequest> {
     const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(
-      travelDeskTravelRequestId,
+      this.travelDeskTravelRequest.id,
       { lock: true }
     )
     if (isNil(travelDeskTravelRequest)) {
-      throw new InvoiceValidationError("Travel desk travel request does not exist.")
+      throw new ServiceValidationError("Travel desk travel request does not exist.")
     }
 
-    if (isNil(travelDeskTravelRequest.travelPortRecordLocator)) {
-      throw new InvoiceValidationError("Link a Travelport booking to this travel request first.")
-    }
-
-    const recordLocator = this.attributes.recordLocator?.trim().toUpperCase()
-    if (recordLocator !== travelDeskTravelRequest.travelPortRecordLocator) {
-      throw new InvoiceValidationError("Invoice booking must match the linked Travelport booking.")
-    }
-  }
-
-  private async loadSourceSnapshot(
-    recordLocator: string,
-    sourceBookingEventId: number,
-    sourceServiceFeeEventIds: number[]
-  ): Promise<InvoiceSourceSnapshot> {
-    const bookingEvents = await TravelDeskBookingEvent.findAll({
-      where: {
-        recordLocator,
-        externalTravelPortIdentifier: {
-          [Op.in]: [sourceBookingEventId, ...sourceServiceFeeEventIds],
-        },
-      },
-    })
-    const sourceEvents = IndexSerializer.perform(bookingEvents)
-    const bookingEvent = sourceEvents.find(
-      (event) => event.travelOrderIdentifier === sourceBookingEventId
-    )
-    if (isNil(bookingEvent) || bookingEvent.airReservationSegments.length === 0) {
-      throw new InvoiceValidationError(
-        "Choose a booking event with flight segments for this locator."
-      )
-    }
-
-    if (bookingEvent.recordLocator?.trim().toUpperCase() !== recordLocator) {
-      throw new InvoiceValidationError("Booking event does not belong to this record locator.")
-    }
-
-    const serviceFeeEvents = sourceServiceFeeEventIds.map((eventId) => {
-      const event = sourceEvents.find(
-        (sourceEvent) => sourceEvent.travelOrderIdentifier === eventId
-      )
-      if (
-        isNil(event) ||
-        isNil(event.serviceFeeTransaction) ||
-        event.recordLocator?.trim().toUpperCase() !== recordLocator
-      ) {
-        throw new InvoiceValidationError("Every selected service fee must belong to this locator.")
-      }
-
-      return event
-    })
-
-    return {
-      bookingEvent,
-      serviceFeeEvents,
-    }
+    return travelDeskTravelRequest
   }
 }
 

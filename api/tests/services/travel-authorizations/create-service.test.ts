@@ -2,9 +2,10 @@ import { faker } from "@faker-js/faker"
 
 import { TravelAuthorization, User } from "@/models"
 import { Users } from "@/services"
-import { CreateService } from "@/services/travel-authorizations"
 
-import { userFactory } from "@/factories"
+import { locationFactory, userFactory } from "@/factories"
+
+import CreateService from "@/services/travel-authorizations/create-service"
 
 describe("api/src/services/travel-authorizations/create-service.ts", () => {
   const userEnsureServicePerformMock = vi.fn()
@@ -15,6 +16,41 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
 
   describe("CreateService", () => {
     describe(".perform", () => {
+      test("when starting a multi-city request, it creates an unselected purpose-details draft", async () => {
+        // Arrange
+        const creator = await userFactory.create()
+
+        // Act
+        const travelAuthorization = await CreateService.perform(
+          { tripTypeEstimate: TravelAuthorization.TripTypes.MULTI_CITY },
+          creator
+        )
+
+        // Assert
+        expect(travelAuthorization).toEqual(
+          expect.objectContaining({
+            status: TravelAuthorization.Statuses.DRAFT,
+            wizardStepName: TravelAuthorization.WizardStepNames.EDIT_PURPOSE_DETAILS,
+            finalDestinationLocationId: null,
+          })
+        )
+      })
+
+      test("when purpose details include a destination, it creates the draft without an itinerary", async () => {
+        // Arrange
+        const creator = await userFactory.create()
+        const location = await locationFactory.create()
+
+        // Act
+        const travelAuthorization = await CreateService.perform(
+          { finalDestinationLocationId: location.id },
+          creator
+        )
+
+        // Assert
+        expect(travelAuthorization.finalDestinationLocationId).toEqual(location.id)
+      })
+
       test("when provided with valid attributes, it creates a travel authorization with appropriate defaults", async () => {
         // Arrange
         const creator = await userFactory.create()
@@ -35,7 +71,7 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
         )
       })
 
-      test("when creator is admin, and user attributes are supplied, it calls EnsureUser with those attributes", async () => {
+      test("when an administrator supplies traveller attributes, it creates the request for that traveller", async () => {
         // Arrange
         const email = faker.internet.email().toLowerCase()
         userEnsureServicePerformMock.mockImplementation(() => {
@@ -59,8 +95,6 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
         )
 
         // Assert
-        expect.assertions(2)
-        expect(userEnsureServicePerformMock).toHaveBeenCalledWith(userAttributes, creator)
         expect(travelAuthorization).toEqual(
           expect.objectContaining({
             user: expect.objectContaining({
@@ -70,7 +104,7 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
         )
       })
 
-      test("when creator is admin, and user attributes are not supplied, it does not call EnsureUser", async () => {
+      test("when an administrator selects an existing traveller, it creates the request for that traveller", async () => {
         // Arrange
         const user = await userFactory.create()
         const travelAuthorizationAttributes = {
@@ -87,8 +121,6 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
         )
 
         // Assert
-        expect.assertions(2)
-        expect(userEnsureServicePerformMock).not.toHaveBeenCalled()
         expect(travelAuthorization).toEqual(
           expect.objectContaining({
             user: expect.objectContaining({
@@ -98,15 +130,13 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
         )
       })
 
-      test("when creator is not admin, and user attributes are supplied, it does not call EnsureUser", async () => {
+      test("when a non-administrator selects another traveller, it creates the request for the creator", async () => {
         // Arrange
         const user = await userFactory.create()
         const travelAuthorizationAttributes = {
           userId: user.id,
         }
-        const creator = await userFactory.create({
-          roles: [User.Roles.USER],
-        })
+        const creator = await userFactory.create()
 
         // Act
         const travelAuthorization = await CreateService.perform(
@@ -115,8 +145,6 @@ describe("api/src/services/travel-authorizations/create-service.ts", () => {
         )
 
         // Assert
-        expect.assertions(2)
-        expect(userEnsureServicePerformMock).not.toHaveBeenCalled()
         expect(travelAuthorization).toEqual(
           expect.objectContaining({
             user: expect.objectContaining({

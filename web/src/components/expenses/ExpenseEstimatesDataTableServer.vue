@@ -34,9 +34,7 @@
 import { computed, ref } from "vue"
 
 import { formatCurrency, formatDate } from "@/utils/formatters"
-import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
-import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
-import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
+import useRouteQueriableTableOptions from "@/use/utils/use-route-queriable-table-options"
 
 import {
   ExpenseTypes,
@@ -78,20 +76,19 @@ const headers = ref([
   },
 ])
 
-const { page, perPage } = useRouteQueryPagination({
+const { page, perPage, sortBy, order } = useRouteQueriableTableOptions({
   routeQuerySuffix: props.routeQuerySuffix,
+  sortBy: [
+    {
+      key: "date",
+      order: "asc",
+    },
+    {
+      key: "expenseType",
+      order: "asc",
+    },
+  ],
 })
-const sortBy = useVuetifySortByToSafeRouteQuery(`sortBy${props.routeQuerySuffix}`, [
-  {
-    key: "date",
-    order: "asc",
-  },
-  {
-    key: "expenseType",
-    order: "asc",
-  },
-])
-const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const estimatesQuery = computed(() => ({
   where: {

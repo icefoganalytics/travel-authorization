@@ -1,4 +1,6 @@
-import { TravelDeskTravelRequest, User } from "@/models"
+import qs from "qs"
+
+import { TravelDeskTravelRequest } from "@/models"
 
 import { mockCurrentUser, request } from "@/support"
 
@@ -6,7 +8,6 @@ import {
   travelDeskBookingEventFactory,
   travelDeskInvoiceFactory,
   travelDeskInvoiceItemFactory,
-  travelDeskProductTypeFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
@@ -14,11 +15,11 @@ import {
 import TravelDeskInvoicesController from "@/controllers/travel-desk-travel-requests/travel-desk-invoices-controller"
 
 describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-controller.ts", () => {
-  describe("TravelDeskTravelRequests.TravelDeskInvoicesController", () => {
-    describe("GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
+  describe("TravelDeskInvoicesController", () => {
+    describe("#index - GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
       test("when the user lacks parent access, it denies the invoice index", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(user)
 
@@ -30,51 +31,159 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to list invoices for this travel request.",
         })
       })
 
       test("when filtering and paginating, it counts only matching invoices within the URL parent", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const otherRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: travelRequest })
-          .create({ invoiceNumber: "INV-001", currencyCode: "CAD" })
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            invoiceNumber: "INV-001",
+            currencyCode: "CAD",
+          })
         const invoice2 = await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: travelRequest })
-          .create({ invoiceNumber: "INV-002", currencyCode: "CAD" })
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            invoiceNumber: "INV-002",
+            currencyCode: "CAD",
+          })
         await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: travelRequest })
-          .create({ invoiceNumber: "INV-003", currencyCode: "USD" })
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            invoiceNumber: "INV-003",
+            currencyCode: "USD",
+          })
         await travelDeskInvoiceFactory
-          .associations({ travelDeskTravelRequest: otherRequest })
-          .create({ invoiceNumber: "INV-004", currencyCode: "CAD" })
+          .associations({
+            travelDeskTravelRequest: otherRequest,
+          })
+          .create({
+            invoiceNumber: "INV-004",
+            currencyCode: "CAD",
+          })
+        mockCurrentUser(officer)
+
+        // Act
+        const query = qs.stringify({
+          where: {
+            travelDeskTravelRequestId: otherRequest.id,
+            currencyCode: "CAD",
+          },
+          order: [["invoiceNumber", "ASC"]],
+          page: 2,
+          perPage: 1,
+        })
+        const response = await request()
+          .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
+          .query(query)
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          travelDeskInvoices: [expect.objectContaining({
+            id: invoice2.id,
+            items: [],
+          })],
+          totalCount: 2,
+        })
+      })
+
+      test("when invoices have multiple items and matching timestamps, it paginates invoices with complete ordered items", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const createdAt = new Date("2026-01-01T12:00:00Z")
+        await travelDeskInvoiceFactory
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            createdAt,
+          })
+        const invoice2 = await travelDeskInvoiceFactory
+          .associations({
+            travelDeskTravelRequest: travelRequest,
+          })
+          .create({
+            createdAt,
+          })
+        const item1 = await travelDeskInvoiceItemFactory
+          .associations({
+            invoice: invoice2,
+          })
+          .create({
+            position: 1,
+            productType: "air",
+          })
+        const item2 = await travelDeskInvoiceItemFactory
+          .associations({
+            invoice: invoice2,
+          })
+          .create({
+            position: 0,
+            productType: "air",
+          })
+        const item3 = await travelDeskInvoiceItemFactory
+          .associations({
+            invoice: invoice2,
+          })
+          .create({
+            position: 0,
+            productType: "credit",
+          })
         mockCurrentUser(officer)
 
         // Act
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .query({
-            where: { travelDeskTravelRequestId: otherRequest.id, currencyCode: "CAD" },
-            "order[0][0]": "invoiceNumber",
-            "order[0][1]": "ASC",
-            page: 2,
+            page: 1,
             perPage: 1,
           })
 
         // Assert
         expect(response.status).toEqual(200)
         expect(response.body).toEqual({
-          travelDeskInvoices: [expect.objectContaining({ id: invoice2.id, items: [] })],
+          travelDeskInvoices: [
+            expect.objectContaining({
+              id: invoice2.id,
+              items: [
+                expect.objectContaining({
+                  id: item2.id,
+                  position: 0,
+                  productType: "air",
+                }),
+                expect.objectContaining({
+                  id: item3.id,
+                  position: 0,
+                  productType: "credit",
+                }),
+                expect.objectContaining({
+                  id: item1.id,
+                  position: 1,
+                  productType: "air",
+                }),
+              ],
+            }),
+          ],
           totalCount: 2,
         })
       })
 
       test("when query preparation fails, it returns the index error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         vi.spyOn(TravelDeskInvoicesController.prototype, "buildWhere").mockImplementationOnce(
@@ -94,29 +203,20 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           message: "Failed to load invoices.",
         })
       })
-    })
 
-    describe.each([
-      { method: "get", member: false },
-      { method: "get", member: true },
-      { method: "post", member: false },
-      { method: "patch", member: true },
-      { method: "delete", member: true },
-    ] as const)("$method parent loading (member: $member)", ({ method, member }) => {
-      test("when the parent is missing, it returns not found before processing invoice inputs", async () => {
+      test("when the parent is missing, it returns not found", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
-        await travelRequest.destroy({ force: true })
+        await travelRequest.destroy({
+          force: true,
+        })
         mockCurrentUser(officer)
-        const collectionPath = `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`
-        let path = collectionPath
-        if (member) {
-          path = `${collectionPath}/999999`
-        }
 
         // Act
-        const response = await request()[method](path)
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`
+        )
 
         // Assert
         expect(response.status).toEqual(404)
@@ -124,92 +224,184 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           message: "Travel desk travel request not found.",
         })
       })
+
+      test("when the parent lookup fails, it returns the index error response", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        mockCurrentUser(officer)
+        vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
+          new Error("Parent lookup failed.")
+        )
+
+        // Act
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`
+        )
+
+        // Assert
+        expect(response.status).toEqual(400)
+        expect(response.body).toEqual({
+          message: "Failed to load invoices.",
+        })
+      })
     })
 
-    describe.each([
-      {
-        method: "get",
-        member: false,
-        status: 400,
-        message: "Failed to load invoices.",
-      },
-      {
-        method: "get",
-        member: true,
-        status: 400,
-        message: "Failed to load invoice.",
-      },
-      {
-        method: "post",
-        member: false,
-        status: 422,
-        message: "Failed to create invoice: Error: Parent lookup failed.",
-      },
-      {
-        method: "patch",
-        member: true,
-        status: 422,
-        message: "Failed to update invoice: Error: Parent lookup failed.",
-      },
-      {
-        method: "delete",
-        member: true,
-        status: 422,
-        message: "Invoice could not be deleted.",
-      },
-    ] as const)(
-      "$method parent failure (member: $member)",
-      ({ method, member, status, message }) => {
-        test("when the parent lookup fails, it returns the action error response", async () => {
-          // Arrange
-          const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-          const travelRequest = await travelDeskTravelRequestFactory.create()
-          mockCurrentUser(officer)
-          vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
-            new Error("Parent lookup failed.")
-          )
-          const collectionPath = `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`
-          let path = collectionPath
-          if (member) {
-            path = `${collectionPath}/999999`
-          }
-
-          // Act
-          const response = await request()[method](path)
-
-          // Assert
-          expect(response.status).toEqual(status)
-          expect(response.body).toEqual({ message })
+    describe("#show - GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
+      test("when the parent is missing, it returns not found", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        await travelRequest.destroy({
+          force: true,
         })
-      }
-    )
+        mockCurrentUser(officer)
 
-    describe.each(["get", "patch", "delete"] as const)("%s parent ownership", (method) => {
+        // Act
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/999999`
+        )
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Travel desk travel request not found.",
+        })
+      })
+
+      test("when the parent lookup fails, it returns the show error response", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        mockCurrentUser(officer)
+        vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
+          new Error("Parent lookup failed.")
+        )
+
+        // Act
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/999999`
+        )
+
+        // Assert
+        expect(response.status).toEqual(400)
+        expect(response.body).toEqual({
+          message: "Failed to load invoice.",
+        })
+      })
+
       test("when the invoice belongs to another parent, it returns not found", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(officer)
 
         // Act
         const response = await request()
-          [
-            method
-          ](`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/${invoice.id}`)
-          .query({ travelDeskTravelRequestId: invoice.travelDeskTravelRequestId })
-          .send({ travelDeskTravelRequestId: invoice.travelDeskTravelRequestId })
+          .get(
+            `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/${invoice.id}`
+          )
+          .query({
+            travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
+          })
 
         // Assert
         expect(response.status).toEqual(404)
-        expect(response.body).toEqual({ message: "Invoice not found." })
+        expect(response.body).toEqual({
+          message: "Invoice not found.",
+        })
+      })
+
+      test("when an unauthorized user reads an invoice, it denies access", async () => {
+        // Arrange
+        const user = await userFactory.create()
+        const invoice = await travelDeskInvoiceFactory.create()
+        mockCurrentUser(user)
+
+        // Act
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${invoice.travelDeskTravelRequestId}/travel-desk-invoices/${invoice.id}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message: "You are not authorized to view invoices for this travel request.",
+        })
+      })
+
+      test("when source rows are absent, it still returns the saved invoice", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const invoice = await travelDeskInvoiceFactory.create()
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request().get(
+          `/api/travel-desk-travel-requests/${invoice.travelDeskTravelRequestId}/travel-desk-invoices/${invoice.id}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          travelDeskInvoice: expect.objectContaining({
+            id: invoice.id,
+            travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
+            bookingReference: invoice.bookingReference,
+            externalBookingEventIdentifier: invoice.externalBookingEventIdentifier,
+            items: [],
+          }),
+        })
       })
     })
 
-    describe("POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
+    describe("#create - POST /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices", () => {
+      test("when the parent is missing, it returns not found before processing invoice inputs", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        await travelRequest.destroy({
+          force: true,
+        })
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request().post(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`
+        )
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Travel desk travel request not found.",
+        })
+      })
+
+      test("when the parent lookup fails, it returns the creation error response", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        mockCurrentUser(officer)
+        vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
+          new Error("Parent lookup failed.")
+        )
+
+        // Act
+        const response = await request().post(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`
+        )
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message: "Invoice could not be created.",
+        })
+      })
+
       test("when an unauthorized user creates an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(user)
 
@@ -221,13 +413,13 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to create invoices for this travel request.",
         })
       })
 
       test("when a selected booking has not been synced locally, it rejects invoice creation", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create({
           travelPortRecordLocator: "API001",
         })
@@ -237,34 +429,29 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
-            recordLocator: "API001",
-            sourceBookingEventId: 930001,
-            sourceServiceFeeEventIds: [],
+            externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
-            items: [],
+            itemsAttributes: [],
           })
 
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: expect.stringContaining(
-            "Choose a booking event with flight segments for this locator."
-          ),
+          message: "The selected booking event was not found.",
         })
       })
 
-      test("when synced data is created with forged totals and snapshot, it uses local source data and calculated total", async () => {
+      test("when no booking reference is submitted and the total is forged, it uses the synced booking reference and calculated total", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create({
           travelPortRecordLocator: "API001",
         })
         const otherRequest = await travelDeskTravelRequestFactory.create()
-        const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 930001,
-          recordLocator: "API001",
+          bookingReference: "API001",
           bookingFileVersionNumber: 3,
           eventType: "B",
           airReservationSegments: [
@@ -282,25 +469,45 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             },
           ],
         })
+        await travelDeskBookingEventFactory.create({
+          externalTravelPortIdentifier: 930002,
+          bookingReference: "API001",
+          eventType: "T",
+          serviceFeeTransaction: {
+            activeVoidStatus: "A",
+            serviceFeeDocumentNumber: "FEE-001",
+            issueDate: null,
+            currencyCode: "CAD",
+            serviceFeeAmount: "10.000",
+            commissionAmount: null,
+            nameOnServiceFee: null,
+            relatedTicketDocumentNumber: null,
+            relatedInvoiceNumber: null,
+          },
+        })
 
         // Act
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
             travelDeskTravelRequestId: otherRequest.id,
-            recordLocator: "api001",
-            sourceBookingEventId: 930001,
-            sourceServiceFeeEventIds: [],
+            externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
             grossAmount: "999999.999",
-            sourceSnapshot: { forged: true },
-            items: [
+            itemsAttributes: [
               {
-                travelDeskProductTypeId: airProduct.id,
+                productType: "air",
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: "sale",
                 grossAmount: "125.500",
                 position: 0,
+              },
+              {
+                productType: "service_fee",
+                sourceServiceFeeEventExternalIdentifier: 930002,
+                saleType: "sale",
+                grossAmount: "10.000",
+                position: 1,
               },
             ],
           })
@@ -308,83 +515,128 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(201)
         expect(response.body).toEqual({
-          travelDeskInvoice: expect.objectContaining({
+          travelDeskInvoice: {
+            id: expect.any(Number),
             travelDeskTravelRequestId: travelRequest.id,
-            recordLocator: "API001",
-            sourceBookingEventId: 930001,
+            bookingReference: "API001",
+            externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
-            grossAmount: "125.500",
-            sourceSnapshot: {
-              bookingEvent: expect.objectContaining({
-                travelOrderIdentifier: 930001,
-                recordLocator: "API001",
-                airReservationSegments: [
-                  expect.objectContaining({ airSegmentNumber: 1, flightNumber: "1001" }),
-                ],
-              }),
-              serviceFeeEvents: [],
-            },
+            invoiceNumber: null,
+            invoiceDate: null,
+            warrantNumber: null,
+            clientNumber: null,
+            clientName: null,
+            department: null,
+            mailcode: null,
+            iataNumber: null,
+            bookingAgentName: null,
+            ticketingAgentName: null,
+            bookingDate: null,
+            grossAmount: "135.500",
             items: [
-              expect.objectContaining({
+              {
+                id: expect.any(Number),
+                productType: "air",
+                travelDeskFlightSegmentId: null,
                 sourceAirSegmentNumber: 1,
+                sourceServiceFeeEventExternalIdentifier: null,
+                passengerName: null,
+                ticketNumber: null,
+                vendor: null,
+                description: null,
+                saleType: "sale",
                 grossAmount: "125.500",
-                productType: expect.objectContaining({ code: "air", name: "Air" }),
-              }),
+                position: 0,
+              },
+              {
+                id: expect.any(Number),
+                productType: "service_fee",
+                travelDeskFlightSegmentId: null,
+                sourceAirSegmentNumber: null,
+                sourceServiceFeeEventExternalIdentifier: 930002,
+                passengerName: null,
+                ticketNumber: null,
+                vendor: null,
+                description: null,
+                saleType: "sale",
+                grossAmount: "10.000",
+                position: 1,
+              },
             ],
-          }),
+          },
         })
       })
     })
 
-    describe("GET /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
-      test("when an unauthorized user reads an invoice, it denies access", async () => {
+    describe("#update - PATCH /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
+      test("when the parent is missing, it returns not found before processing invoice inputs", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
-        const invoice = await travelDeskInvoiceFactory.create()
-        mockCurrentUser(user)
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        await travelRequest.destroy({
+          force: true,
+        })
+        mockCurrentUser(officer)
 
         // Act
-        const response = await request().get(
-          `/api/travel-desk-travel-requests/${invoice.travelDeskTravelRequestId}/travel-desk-invoices/${invoice.id}`
+        const response = await request().patch(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/999999`
         )
 
         // Assert
-        expect(response.status).toEqual(403)
+        expect(response.status).toEqual(404)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "Travel desk travel request not found.",
         })
       })
 
-      test("when source rows are absent, it still returns the saved invoice snapshot", async () => {
+      test("when the parent lookup fails, it returns the update error response", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        mockCurrentUser(officer)
+        vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
+          new Error("Parent lookup failed.")
+        )
+
+        // Act
+        const response = await request().patch(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/999999`
+        )
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message: "Invoice could not be updated.",
+        })
+      })
+
+      test("when the invoice belongs to another parent, it returns not found despite submitted ownership", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(officer)
 
         // Act
-        const response = await request().get(
-          `/api/travel-desk-travel-requests/${invoice.travelDeskTravelRequestId}/travel-desk-invoices/${invoice.id}`
-        )
+        const response = await request()
+          .patch(
+            `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/${invoice.id}`
+          )
+          .send({
+            travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
+          })
 
         // Assert
-        expect(response.status).toEqual(200)
+        expect(response.status).toEqual(404)
         expect(response.body).toEqual({
-          travelDeskInvoice: expect.objectContaining({
-            id: invoice.id,
-            travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
-            recordLocator: invoice.recordLocator,
-            sourceBookingEventId: invoice.sourceBookingEventId,
-            sourceSnapshot: invoice.sourceSnapshot,
-            items: [],
-          }),
+          message: "Invoice not found.",
         })
       })
-    })
 
-    describe("PATCH /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
       test("when an unauthorized user updates an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(user)
 
@@ -398,29 +650,30 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to update invoices for this travel request.",
         })
       })
 
       test("when source identity and parent are forged and headers omitted, it preserves saved source data and headers", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const invoice = await travelDeskInvoiceFactory.create()
+        const officer = await userFactory.asTravelDeskUser().create()
+        const invoice = await travelDeskInvoiceFactory.create({
+          invoiceNumber: "INV-ORIGINAL",
+        })
         const otherRequest = await travelDeskTravelRequestFactory.create()
-        await invoice.update({ invoiceNumber: "INV-ORIGINAL" })
-        const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
         await travelDeskInvoiceItemFactory
-          .associations({ invoice, productType: airProduct })
+          .associations({
+            invoice,
+          })
           .create({
             sourceAirSegmentNumber: 1,
             grossAmount: "10.000",
-            saleType: "Sale",
+            saleType: "sale",
             position: 0,
           })
         const originalRequestId = invoice.travelDeskTravelRequestId
-        const originalLocator = invoice.recordLocator
-        const originalBookingEventId = invoice.sourceBookingEventId
-        const originalSnapshot = invoice.sourceSnapshot
+        const originalBookingReference = invoice.bookingReference
+        const originalBookingEventId = invoice.externalBookingEventIdentifier
         mockCurrentUser(officer)
 
         // Act
@@ -430,15 +683,14 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           )
           .send({
             travelDeskTravelRequestId: otherRequest.id,
-            recordLocator: "FORGED",
-            sourceBookingEventId: 999999,
-            sourceSnapshot: { forged: true },
+            bookingReference: "FORGED",
+            externalBookingEventIdentifier: 999999,
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
-                travelDeskProductTypeId: airProduct.id,
+                productType: "air",
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: "sale",
                 grossAmount: "22.000",
                 position: 0,
               },
@@ -448,29 +700,89 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(200)
         expect(response.body).toEqual({
-          travelDeskInvoice: expect.objectContaining({
+          travelDeskInvoice: {
+            id: invoice.id,
             travelDeskTravelRequestId: originalRequestId,
-            recordLocator: originalLocator,
-            sourceBookingEventId: originalBookingEventId,
-            sourceSnapshot: originalSnapshot,
+            bookingReference: originalBookingReference,
+            externalBookingEventIdentifier: originalBookingEventId,
+            currencyCode: "CAD",
             invoiceNumber: "INV-ORIGINAL",
+            invoiceDate: null,
+            warrantNumber: null,
+            clientNumber: null,
+            clientName: null,
+            department: null,
+            mailcode: null,
+            iataNumber: null,
+            bookingAgentName: null,
+            ticketingAgentName: null,
+            bookingDate: null,
             grossAmount: "22.000",
-            items: [expect.objectContaining({ grossAmount: "22.000", sourceAirSegmentNumber: 1 })],
-          }),
+            items: [
+              {
+                id: expect.any(Number),
+                productType: "air",
+                travelDeskFlightSegmentId: null,
+                sourceAirSegmentNumber: 1,
+                sourceServiceFeeEventExternalIdentifier: null,
+                passengerName: null,
+                ticketNumber: null,
+                vendor: null,
+                description: null,
+                saleType: "sale",
+                grossAmount: "22.000",
+                position: 0,
+              },
+            ],
+          },
+        })
+      })
+
+      test("when an item has a custom product type, it rejects the request", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const invoice = await travelDeskInvoiceFactory.create()
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request()
+          .patch(
+            `/api/travel-desk-travel-requests/${invoice.travelDeskTravelRequestId}/travel-desk-invoices/${invoice.id}`
+          )
+          .send({
+            currencyCode: "CAD",
+            itemsAttributes: [
+              {
+                productType: "custom-fee",
+                sourceAirSegmentNumber: 1,
+                saleType: "sale",
+                grossAmount: "10.000",
+                position: 0,
+              },
+            ],
+          })
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message: "Product type must be one of: air, service_fee, credit, change_fee",
         })
       })
 
       test("when an item has malformed money, it rejects the request", async () => {
         // Arrange
-        const officer = await userFactory.create({ roles: [User.Roles.TRAVEL_DESK_USER] })
-        const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "10.000" })
-        const airProduct = await travelDeskProductTypeFactory.create({ code: "air", name: "Air" })
+        const officer = await userFactory.asTravelDeskUser().create()
+        const invoice = await travelDeskInvoiceFactory.create({
+          grossAmount: "10.000",
+        })
         await travelDeskInvoiceItemFactory
-          .associations({ invoice, productType: airProduct })
+          .associations({
+            invoice,
+          })
           .create({
             sourceAirSegmentNumber: 1,
             grossAmount: "10.000",
-            saleType: "Sale",
+            saleType: "sale",
             position: 0,
           })
         mockCurrentUser(officer)
@@ -482,11 +794,11 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           )
           .send({
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
-                travelDeskProductTypeId: airProduct.id,
+                productType: "air",
                 sourceAirSegmentNumber: 1,
-                saleType: "Sale",
+                saleType: "sale",
                 grossAmount: "not-money",
                 position: 0,
               },
@@ -496,17 +808,80 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: expect.stringContaining(
-            "Amount must have at most 15 integral digits and 3 decimals."
-          ),
+          message: "Amount must be a decimal number.",
         })
       })
     })
 
-    describe("DELETE /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
+    describe("#destroy - DELETE /api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-invoices/:travelDeskInvoiceId", () => {
+      test("when the parent is missing, it returns not found", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        await travelRequest.destroy({
+          force: true,
+        })
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/999999`
+        )
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Travel desk travel request not found.",
+        })
+      })
+
+      test("when the parent lookup fails, it returns the deletion error response", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        mockCurrentUser(officer)
+        vi.spyOn(TravelDeskTravelRequest, "findByPk").mockRejectedValueOnce(
+          new Error("Parent lookup failed.")
+        )
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/999999`
+        )
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message: "Invoice could not be deleted.",
+        })
+      })
+
+      test("when the invoice belongs to another parent, it returns not found despite submitted ownership", async () => {
+        // Arrange
+        const officer = await userFactory.asTravelDeskUser().create()
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const invoice = await travelDeskInvoiceFactory.create()
+        mockCurrentUser(officer)
+
+        // Act
+        const response = await request()
+          .delete(
+            `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices/${invoice.id}`
+          )
+          .send({
+            travelDeskTravelRequestId: invoice.travelDeskTravelRequestId,
+          })
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Invoice not found.",
+        })
+      })
+
       test("when an unauthorized user deletes an invoice, it denies the mutation", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.USER] })
+        const user = await userFactory.create()
         const invoice = await travelDeskInvoiceFactory.create()
         mockCurrentUser(user)
 
@@ -518,7 +893,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to delete invoices for this travel request.",
         })
       })
     })

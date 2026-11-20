@@ -33,6 +33,9 @@ Define migration entrypoints with named `up` and `down` function declarations:
 when the migration awaits database operations, rather than assigning functions to `exports`
 or exported constants.
 
+Keep each migration focused on one schema change, such as creating one table. Order dependent
+tables after their prerequisites, and have each migration roll back only its own change.
+
 Database tables use `snake_case`, while application models use `camelCase`. When you add or update
 columns, keep that mapping in mind.
 

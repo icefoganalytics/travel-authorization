@@ -1,3 +1,5 @@
+import qs from "qs"
+
 import { TravelAuthorization, TravelDeskTravelRequest, TravelSegment, User } from "@/models"
 
 import {
@@ -250,12 +252,12 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           await travelAuthorizationFactory.create()
 
           // Act
-          const response = await request().get("/api/travel-authorizations").query({
-            "order[0][0]": field,
-            "order[0][1]": direction,
+          const query = qs.stringify({
+            order: [[field, direction]],
             page,
             perPage,
           })
+          const response = await request().get("/api/travel-authorizations").query(query)
 
           // Assert
           expect(response.status).toEqual(200)
@@ -324,11 +326,11 @@ describe("api/src/controllers/travel-authorizations-controller.ts", () => {
           })
 
           // Act
-          const response = await request().get("/api/travel-authorizations").query({
-            "order[0][0]": field,
-            "order[0][1]": direction,
+          const query = qs.stringify({
+            order: [[field, direction]],
             perPage: 1,
           })
+          const response = await request().get("/api/travel-authorizations").query(query)
 
           // Assert
           expect(response.status).toEqual(200)

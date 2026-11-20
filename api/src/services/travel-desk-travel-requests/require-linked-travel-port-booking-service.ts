@@ -1,6 +1,6 @@
 import { TravelDeskTravelRequest } from "@/models"
 import BaseService from "@/services/base-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import ServiceValidationError from "@/services/service-validation-error"
 
 export class RequireLinkedTravelPortBookingService extends BaseService {
   constructor(protected travelDeskTravelRequest: TravelDeskTravelRequest) {
@@ -10,7 +10,7 @@ export class RequireLinkedTravelPortBookingService extends BaseService {
   perform(): string {
     const { travelPortRecordLocator } = this.travelDeskTravelRequest
     if (travelPortRecordLocator === null) {
-      throw new InvoiceValidationError("Link a Travelport booking to this travel request first.")
+      throw new ServiceValidationError("Link a Travelport booking to this travel request first.")
     }
 
     return travelPortRecordLocator

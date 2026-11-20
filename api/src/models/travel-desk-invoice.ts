@@ -16,16 +16,8 @@ import {
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
-import { type BookingEventSnapshot } from "@/integrations/travel-port-integration/models/booking-event-snapshot"
 import TravelDeskInvoiceItem from "@/models/travel-desk-invoice-item"
 import TravelDeskTravelRequest from "@/models/travel-desk-travel-request"
-
-export type InvoiceSourceSnapshot = {
-  bookingEvent: BookingEventSnapshot
-  serviceFeeEvents: BookingEventSnapshot[]
-}
-
-const DECIMAL_AMOUNT_PATTERN = /^-?\d{1,15}(?:\.\d{1,3})?$/
 
 export class TravelDeskInvoice extends Model<
   InferAttributes<TravelDeskInvoice>,
@@ -42,15 +34,11 @@ export class TravelDeskInvoice extends Model<
 
   @Attribute(DataTypes.STRING(255))
   @NotNull
-  declare recordLocator: string
+  declare bookingReference: string
 
   @Attribute(DataTypes.INTEGER)
   @NotNull
-  declare sourceBookingEventId: number
-
-  @Attribute(DataTypes.JSONB)
-  @NotNull
-  declare sourceSnapshot: InvoiceSourceSnapshot
+  declare externalBookingEventIdentifier: number
 
   @Attribute(DataTypes.STRING(3))
   @NotNull
@@ -63,7 +51,12 @@ export class TravelDeskInvoice extends Model<
   @Attribute({
     type: DataTypes.DATEONLY,
     set(value: string | null) {
-      this.setDataValue("invoiceDate", value === "" ? null : value)
+      if (value === "") {
+        this.setDataValue("invoiceDate", null)
+        return
+      }
+
+      this.setDataValue("invoiceDate", value)
     },
   })
   declare invoiceDate: string | null
@@ -95,14 +88,18 @@ export class TravelDeskInvoice extends Model<
   @Attribute({
     type: DataTypes.DATEONLY,
     set(value: string | null) {
-      this.setDataValue("bookingDate", value === "" ? null : value)
+      if (value === "") {
+        this.setDataValue("bookingDate", null)
+        return
+      }
+
+      this.setDataValue("bookingDate", value)
     },
   })
   declare bookingDate: string | null
 
   @Attribute(DataTypes.DECIMAL(18, 3))
   @NotNull
-  @ValidateAttribute({ is: DECIMAL_AMOUNT_PATTERN })
   declare grossAmount: string
 
   @Attribute(DataTypes.DATE)

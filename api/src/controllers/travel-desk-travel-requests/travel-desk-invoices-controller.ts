@@ -6,6 +6,7 @@ import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskInvoicesPolicy, TravelDeskTravelRequests } from "@/policies"
 
+import ServiceValidationError from "@/services/service-validation-error"
 import { CreateService, DestroyService, UpdateService } from "@/services/travel-desk-invoices"
 
 import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-invoices"
@@ -26,7 +27,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         this.buildTravelDeskTravelRequestPolicy(travelDeskTravelRequest)
       if (!travelDeskTravelRequestPolicy.show()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to list invoices for this travel request.",
         })
       }
 
@@ -37,10 +38,15 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         }
       )
       const scopes = this.buildFilterScopes()
-      const order = this.buildOrder([["createdAt", "DESC"]])
+      const order = this.buildOrder([
+        ["createdAt", "DESC"],
+        ["id", "DESC"],
+      ])
       const scopedTravelDeskInvoices = TravelDeskInvoicesPolicy.applyScope(scopes, this.currentUser)
 
-      const totalCount = await scopedTravelDeskInvoices.count({ where })
+      const totalCount = await scopedTravelDeskInvoices.count({
+        where,
+      })
       const travelDeskInvoices = await scopedTravelDeskInvoices.findAll({
         where,
         limit: this.pagination.limit,
@@ -49,7 +55,11 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         include: [
           {
             association: "items",
-            include: ["productType"],
+            separate: true,
+            order: [
+              ["position", "ASC"],
+              ["id", "ASC"],
+            ],
           },
         ],
       })
@@ -61,7 +71,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         totalCount,
       })
     } catch (error) {
-      logger.error(`Failed to index travel desk invoices: ${error}`, { error })
+      logger.error(`Failed to index travel desk invoices: ${error}`, {
+        error,
+      })
       return this.response.status(400).json({
         message: "Failed to load invoices.",
       })
@@ -81,7 +93,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         this.buildTravelDeskTravelRequestPolicy(travelDeskTravelRequest)
       if (!travelDeskTravelRequestPolicy.show()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to view invoices for this travel request.",
         })
       }
 
@@ -95,7 +107,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
       const travelDeskInvoicePolicy = this.buildPolicy(travelDeskInvoice)
       if (!travelDeskInvoicePolicy.show()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to view this invoice.",
         })
       }
 
@@ -104,7 +116,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         travelDeskInvoice: serializedTravelDeskInvoice,
       })
     } catch (error) {
-      logger.error(`Failed to show travel desk invoice: ${error}`, { error })
+      logger.error(`Failed to show travel desk invoice: ${error}`, {
+        error,
+      })
       return this.response.status(400).json({
         message: "Failed to load invoice.",
       })
@@ -124,15 +138,14 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         this.buildTravelDeskTravelRequestPolicy(travelDeskTravelRequest)
       if (!travelDeskTravelRequestPolicy.show()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to create invoices for this travel request.",
         })
       }
 
-      const travelDeskInvoice = TravelDeskInvoice.build()
-      const travelDeskInvoicePolicy = this.buildPolicy(travelDeskInvoice)
+      const travelDeskInvoicePolicy = this.buildPolicy()
       if (!travelDeskInvoicePolicy.create()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to create invoices for this travel request.",
         })
       }
 
@@ -148,9 +161,17 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         travelDeskInvoice: serializedTravelDeskInvoice,
       })
     } catch (error) {
-      logger.error(`Failed to create travel desk invoice: ${error}`, { error })
+      if (error instanceof ServiceValidationError) {
+        return this.response.status(422).json({
+          message: error.message,
+        })
+      }
+
+      logger.error(`Failed to create travel desk invoice: ${error}`, {
+        error,
+      })
       return this.response.status(422).json({
-        message: `Failed to create invoice: ${error}`,
+        message: "Invoice could not be created.",
       })
     }
   }
@@ -168,7 +189,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         this.buildTravelDeskTravelRequestPolicy(travelDeskTravelRequest)
       if (!travelDeskTravelRequestPolicy.show()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to update invoices for this travel request.",
         })
       }
 
@@ -182,7 +203,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
       const travelDeskInvoicePolicy = this.buildPolicy(travelDeskInvoice)
       if (!travelDeskInvoicePolicy.update()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to update this invoice.",
         })
       }
 
@@ -198,9 +219,17 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         travelDeskInvoice: serializedTravelDeskInvoice,
       })
     } catch (error) {
-      logger.error(`Failed to update travel desk invoice: ${error}`, { error })
+      if (error instanceof ServiceValidationError) {
+        return this.response.status(422).json({
+          message: error.message,
+        })
+      }
+
+      logger.error(`Failed to update travel desk invoice: ${error}`, {
+        error,
+      })
       return this.response.status(422).json({
-        message: `Failed to update invoice: ${error}`,
+        message: "Invoice could not be updated.",
       })
     }
   }
@@ -218,7 +247,7 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         this.buildTravelDeskTravelRequestPolicy(travelDeskTravelRequest)
       if (!travelDeskTravelRequestPolicy.show()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to delete invoices for this travel request.",
         })
       }
 
@@ -232,14 +261,16 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
       const travelDeskInvoicePolicy = this.buildPolicy(travelDeskInvoice)
       if (!travelDeskInvoicePolicy.destroy()) {
         return this.response.status(403).json({
-          message: "You are not authorized to manage invoices.",
+          message: "You are not authorized to delete this invoice.",
         })
       }
 
       await DestroyService.perform(travelDeskInvoice)
       return this.response.status(204).send()
     } catch (error) {
-      logger.error(`Failed to destroy travel desk invoice: ${error}`, { error })
+      logger.error(`Failed to destroy travel desk invoice: ${error}`, {
+        error,
+      })
       return this.response.status(422).json({
         message: "Invoice could not be deleted.",
       })
@@ -254,11 +285,10 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         id: this.params.travelDeskInvoiceId,
         travelDeskTravelRequestId: travelDeskTravelRequest.id,
       },
-      include: [
-        {
-          association: "items",
-          include: ["productType"],
-        },
+      include: ["items"],
+      order: [
+        ["items", "position", "ASC"],
+        ["items", "id", "ASC"],
       ],
     })
   }
@@ -276,7 +306,9 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
     )
   }
 
-  private buildPolicy(travelDeskInvoice: TravelDeskInvoice): TravelDeskInvoicesPolicy {
+  private buildPolicy(
+    travelDeskInvoice: TravelDeskInvoice = TravelDeskInvoice.build()
+  ): TravelDeskInvoicesPolicy {
     return new TravelDeskInvoicesPolicy(this.currentUser, travelDeskInvoice)
   }
 }

@@ -15,6 +15,13 @@ import {
 } from "@/integrations/travel-port-integration/serializers"
 
 export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
+  constructor(
+    record: TravelOrderEvent,
+    private bookingReference: string
+  ) {
+    super(record)
+  }
+
   perform() {
     const { passengers, airReservationSegments, serviceFeeTransaction } = this.record
 
@@ -31,7 +38,6 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
     }
 
     const eventType = this.trimSourceValue(this.record.eventType)
-    const recordLocator = this.trimSourceValue(this.record.recordLocator)
     const reservationSystemDescription = this.trimSourceValue(this.record.crsDescription)
     const owningAgencyName = this.trimSourceValue(this.record.owningAgencyName)
     const transactionAgencyName = this.trimSourceValue(this.record.transactionAgencyName)
@@ -44,14 +50,11 @@ export class SyncSerializer extends BaseSerializer<TravelOrderEvent> {
     const serializedServiceFeeTransaction = this.serializeServiceFeeTransaction(serviceFeeTransaction)
 
     return {
-      ...pick(this.record, [
-        "travelOrderIdentifier",
-        "bookingFileVersionNumber",
-        "databaseTimestamp",
-        "hostEventTimestamp",
-      ]),
+      ...pick(this.record, ["bookingFileVersionNumber", "hostEventTimestamp"]),
       eventType,
-      recordLocator,
+      bookingReference: this.bookingReference,
+      externalTravelPortIdentifier: this.record.travelOrderIdentifier,
+      externalCreatedAt: this.record.databaseTimestamp,
       reservationSystemDescription,
       passengerNameRecordCreatedAt: this.record.pnrCreationDate,
       owningAgencyName,
