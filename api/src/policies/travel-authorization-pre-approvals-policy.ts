@@ -1,12 +1,8 @@
 import { Attributes, FindOptions } from "@sequelize/core"
 import { isNil } from "lodash"
 
-import { Path } from "@/utils/deep-pick"
-import {
-  TravelAuthorizationPreApproval,
-  TravelAuthorizationPreApprovalProfile,
-  User,
-} from "@/models"
+import { type Path } from "@/utils/deep-pick"
+import { TravelAuthorizationPreApproval, User } from "@/models"
 import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
@@ -48,7 +44,6 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
     return [
       "estimatedCost",
       "location",
-      "department",
       "branch",
       "purpose",
       "reason",
@@ -66,8 +61,10 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
   permittedAttributesForCreate(): Path[] {
     return [
       ...this.permittedAttributes(),
+      "department",
       {
-        profilesAttributes: this.profilesPolicy.permittedAttributesForCreate(),
+        profilesAttributes:
+          TravelAuthorizationPreApprovalProfilesPolicy.permittedAttributesForCreate(),
       },
     ]
   }
@@ -86,14 +83,6 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
         department: user.department,
       },
     }
-  }
-
-  private get profilesPolicy(): TravelAuthorizationPreApprovalProfilesPolicy {
-    const travelAuthorizationPreApprovalProfile = TravelAuthorizationPreApprovalProfile.build()
-    return new TravelAuthorizationPreApprovalProfilesPolicy(
-      this.user,
-      travelAuthorizationPreApprovalProfile
-    )
   }
 }
 

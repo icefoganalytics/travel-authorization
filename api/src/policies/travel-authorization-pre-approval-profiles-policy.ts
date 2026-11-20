@@ -11,34 +11,41 @@ export class TravelAuthorizationPreApprovalProfilesPolicy extends PolicyFactory(
 ) {
   show(): boolean {
     if (this.user.isAdmin) return true
+    if (this.record.department === this.user.department) return true
 
-    return this.record.department === this.user.department
+    return false
   }
 
   create(): boolean {
     if (this.user.isAdmin) return true
+    if (isNil(this.record.preApproval?.department)) return false
+    if (this.record.preApproval.department === this.user.department) return true
 
-    return this.record.department === this.user.department
+    return false
   }
 
   update(): boolean {
     if (this.user.isAdmin) return true
+    if (this.record.department !== this.user.department) return false
+    if (this.record.preApproval?.department === this.user.department) return true
 
-    return this.record.department === this.user.department
+    return false
   }
 
   destroy(): boolean {
     if (this.user.isAdmin) return true
+    if (this.record.department !== this.user.department) return false
+    if (this.record.preApproval?.department === this.user.department) return true
 
-    return this.record.department === this.user.department
+    return false
   }
 
   permittedAttributes(): Path[] {
-    return ["profileName", "department", "branch"]
+    return ["profileName", "branch"]
   }
 
-  permittedAttributesForCreate(): Path[] {
-    return ["preApprovalId", ...this.permittedAttributes()]
+  static permittedAttributesForCreate(): Path[] {
+    return ["profileName", "department", "branch"]
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorizationPreApprovalProfile>> {
