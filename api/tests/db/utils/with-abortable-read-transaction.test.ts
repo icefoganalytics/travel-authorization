@@ -6,6 +6,21 @@ import withAbortableReadTransaction from "@/db/utils/with-abortable-read-transac
 import db from "@/models"
 
 describe("withAbortableReadTransaction", () => {
+  test("when called inside another transaction, it rejects without taking ownership", async () => {
+    // Arrange
+    const signal = new AbortController().signal
+
+    await db.transaction(async () => {
+      // Act
+      const nested = withAbortableReadTransaction(signal, async () => {
+        await db.query("SELECT 1")
+      })
+
+      // Assert
+      await expect(nested).rejects.toThrow("cannot run inside another transaction")
+    })
+  })
+
   test("when a download remains connected, it inherits the database statement timeout", async () => {
     // Arrange
     const readTimeout = () => db.query("SHOW statement_timeout", { type: QueryTypes.SELECT })

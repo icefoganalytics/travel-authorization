@@ -8,6 +8,10 @@ export async function withAbortableReadTransaction(
   read: () => Promise<void>
 ): Promise<void> {
   signal.throwIfAborted()
+  // Aborting closes the connection, so this utility must own the transaction.
+  if (db.getCurrentClsTransaction()) {
+    throw new Error("An abortable read transaction cannot run inside another transaction.")
+  }
 
   await db.transaction(
     { isolationLevel: IsolationLevel.REPEATABLE_READ, readOnly: true },
