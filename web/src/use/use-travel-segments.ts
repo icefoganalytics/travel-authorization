@@ -40,30 +40,60 @@ export function useTravelSegments(
     isInitialized: false,
   })
 
+  let latestRequest = 0
+
   async function fetch() {
+    const request = ++latestRequest
+    const query = unref(options)
+    state.isInitialized = false
+    state.isErrored = false
     state.isLoading = true
     try {
-      const { travelSegments, totalCount } = await travelSegmentsApi.list(unref(options))
-      state.isErrored = false
+      const { travelSegments, totalCount } = await travelSegmentsApi.list(query)
+      if (query.perPage === -1) {
+        let page = 1
+        while (travelSegments.length < totalCount && request === latestRequest) {
+          page++
+          const nextPage = await travelSegmentsApi.list({ ...query, page })
+          if (nextPage.travelSegments.length === 0 || nextPage.totalCount !== totalCount) {
+            throw new Error("The itinerary changed while loading. Try again.")
+          }
+          travelSegments.push(...nextPage.travelSegments)
+        }
+      }
+      if (request !== latestRequest) return travelSegments
+
+      state.isInitialized = true
       state.travelSegments = travelSegments
       state.totalCount = totalCount
       return travelSegments
     } catch (error) {
+      if (request !== latestRequest) throw error
       console.error(`Failed to fetch travel segments: ${error}`, { error })
       state.isErrored = true
       throw error
     } finally {
-      state.isLoading = false
+      if (request === latestRequest) {
+        state.isLoading = false
+      }
     }
   }
 
   watch(
     () => [skipWatchIf(), unref(options)],
-    async ([skip]) => {
+    async ([skip], _previous, onCleanup) => {
       if (skip) return
 
-      await fetch()
-      state.isInitialized = true
+      onCleanup(() => {
+        latestRequest++
+        state.isInitialized = false
+        state.isLoading = false
+      })
+      try {
+        await fetch()
+      } catch {
+        // Automatic loads expose the error through isErrored; explicit fetch calls reject.
+      }
     },
     { deep: true, immediate: true }
   )

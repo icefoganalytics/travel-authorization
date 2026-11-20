@@ -1,8 +1,15 @@
 <template>
   <v-skeleton-loader
-    v-if="isNil(travelAuthorization?.id)"
+    v-if="isNil(travelAuthorization?.id) || (!segmentsLoaded && !segmentsErrored)"
     type="card"
   />
+  <v-btn
+    v-else-if="segmentsErrored"
+    variant="text"
+    @click="retryLoadingSegments"
+  >
+    Retry loading itinerary
+  </v-btn>
   <v-form
     v-else
     ref="form"
@@ -93,6 +100,7 @@ import { TRIP_TYPES } from "@/api/travel-authorizations-api"
 
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
+import useTripDetailsTravelSegments from "@/use/travel-authorizations/use-trip-details-travel-segments"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
@@ -126,15 +134,12 @@ const defaultTripType = computed(
 )
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
-const actualTripSourceSegments = computed(() => {
-  const { travelSegments } = travelAuthorization.value
-  const actualSegments = travelSegments.filter((segment) => segment.isActual)
-  if (actualSegments.length > 0) {
-    return actualSegments
-  }
-
-  return travelSegments
-})
+const {
+  travelSegments: actualTripSourceSegments,
+  isInitialized: segmentsLoaded,
+  isErrored: segmentsErrored,
+  retry: retryLoadingSegments,
+} = useTripDetailsTravelSegments(travelAuthorizationId, { isActual: true })
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
@@ -232,6 +237,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: async () => form.value?.validate(),
+  validate: async () => (segmentsLoaded.value ? form.value?.validate() : { valid: false }),
 })
 </script>

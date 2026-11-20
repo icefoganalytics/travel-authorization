@@ -14,7 +14,12 @@ import {
   travelAuthorizationFactory,
   travelSegmentFactory,
 } from "@/tests/factories"
-import { mockHttpGetRoutes, mockRouter, mountWithDefaultPlugins } from "@/tests/support"
+import {
+  mockHttpGetRoute,
+  mockHttpGetRoutes,
+  mockRouter,
+  mountWithDefaultPlugins,
+} from "@/tests/support"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
@@ -227,6 +232,38 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
           },
         }),
       })
+      mockHttpGetRoute(
+        "/api/travel-segments",
+        () => ({
+          travelSegments: [],
+          totalCount: 0,
+        }),
+        {
+          params: {
+            where: {
+              travelAuthorizationId: 5,
+              isActual: true,
+            },
+            perPage: -1,
+          },
+        }
+      )
+      mockHttpGetRoute(
+        "/api/travel-segments",
+        () => ({
+          travelSegments,
+          totalCount: travelSegments.length,
+        }),
+        {
+          params: {
+            where: {
+              travelAuthorizationId: 5,
+              isActual: false,
+            },
+            perPage: -1,
+          },
+        }
+      )
       await useCurrentUser().fetch()
       const router = mockRouter([
         {

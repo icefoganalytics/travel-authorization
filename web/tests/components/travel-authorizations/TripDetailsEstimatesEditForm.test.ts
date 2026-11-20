@@ -13,6 +13,7 @@ import {
 } from "@/tests/factories"
 import {
   mockHttpClient,
+  mockHttpGetRoute,
   mockHttpGetRoutes,
   mockRouter,
   mountWithDefaultPlugins,
@@ -35,6 +36,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         departureOn: "2026-11-12",
         departureTime: "09:00",
         accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+        isActual: false,
       })
       const returnSegment = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -43,6 +45,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         arrivalLocationId: 1,
         departureOn: "2026-11-13",
         departureTime: "09:00",
+        isActual: false,
       })
       const travelSegments = [outboundSegment, returnSegment]
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
@@ -51,13 +54,28 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         finalDestinationLocationId: 4,
         daysOffTravelStatusEstimate: 0,
         dateBackToWorkEstimate: "2026-11-14",
-        travelSegments,
       })
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
         "/api/locations": () => ({ locations: [], totalCount: 0 }),
       })
+      mockHttpGetRoute(
+        "/api/travel-segments",
+        () => ({
+          travelSegments,
+          totalCount: travelSegments.length,
+        }),
+        {
+          params: {
+            where: {
+              travelAuthorizationId: 5,
+              isActual: false,
+            },
+            perPage: -1,
+          },
+        }
+      )
       const router = mockRouter()
       await router.push("/")
       const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
@@ -94,6 +112,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         departureOn: "2026-11-12",
         departureTime: "09:00",
         accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+        isActual: false,
       })
       const returnSegment = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -102,6 +121,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         arrivalLocationId: 1,
         departureOn: "2026-11-13",
         departureTime: "09:00",
+        isActual: false,
       })
       const travelSegments = [outboundSegment, returnSegment]
       const whitehorse = locationFactory.build({
@@ -131,7 +151,6 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         finalDestination: ottawa,
         daysOffTravelStatusEstimate: 0,
         dateBackToWorkEstimate: "2026-11-14",
-        travelSegments,
       })
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
@@ -144,6 +163,22 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
           totalCount: 4,
         }),
       })
+      mockHttpGetRoute(
+        "/api/travel-segments",
+        () => ({
+          travelSegments,
+          totalCount: travelSegments.length,
+        }),
+        {
+          params: {
+            where: {
+              travelAuthorizationId: 5,
+              isActual: false,
+            },
+            perPage: -1,
+          },
+        }
+      )
       httpClient.patch.mockResolvedValue({
         data: {
           travelAuthorization,
