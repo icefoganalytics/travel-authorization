@@ -23,7 +23,30 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toThrow(
-          "Choose a booking event with flight segments for this booking reference."
+          "The selected booking event was not found for this booking reference."
+        )
+      })
+
+      test("when the selected booking has no flight segments, it asks for a different event", async () => {
+        // Arrange
+        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskBookingEvent = await travelDeskBookingEventFactory.create({
+          bookingReference: "INV001",
+          airReservationSegments: [],
+        })
+
+        // Act
+        const result = CreateService.perform(travelRequest, {
+          bookingReference: "INV001",
+          externalBookingEventIdentifier: travelDeskBookingEvent.externalTravelPortIdentifier,
+          sourceServiceFeeEventExternalIdentifiers: [],
+          currencyCode: "CAD",
+          items: [],
+        })
+
+        // Assert
+        await expect(result).rejects.toThrow(
+          "The selected booking event has no flight segments. Choose a different booking event."
         )
       })
 
@@ -60,7 +83,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toThrow(
-          "Choose a booking event with flight segments for this booking reference."
+          "The selected booking event was not found for this booking reference."
         )
       })
 
