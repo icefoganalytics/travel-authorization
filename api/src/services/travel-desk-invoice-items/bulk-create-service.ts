@@ -1,7 +1,7 @@
 import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-items-service"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 
 export class BulkCreateService extends BaseService {
   constructor(

@@ -19,7 +19,7 @@ export type TravelDeskInvoiceItemAttributes = {
   position: number
 }
 
-export class ValidateItemsService extends BaseService {
+export class ValidateTravelDeskInvoiceItemsService extends BaseService {
   constructor(
     protected travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[],
     protected sourceAirSegmentNumbers: number[],
@@ -95,4 +95,4 @@ export class ValidateItemsService extends BaseService {
   }
 }
 
-export default ValidateItemsService
+export default ValidateTravelDeskInvoiceItemsService

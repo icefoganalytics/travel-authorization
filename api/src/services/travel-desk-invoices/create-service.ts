@@ -13,9 +13,9 @@ import {
   ValidateLinkedFlightSegmentsService,
 } from "@/services/travel-desk-invoice-items"
 import {
-  ValidateItemsService,
+  ValidateTravelDeskInvoiceItemsService,
   type TravelDeskInvoiceItemAttributes,
-} from "@/services/travel-desk-invoices/validate-items-service"
+} from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
   Omit<CreationAttributes<TravelDeskInvoice>, "bookingReference"> & {
@@ -69,7 +69,7 @@ export class CreateService extends BaseService {
     const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async () => {
-      ValidateItemsService.perform(
+      ValidateTravelDeskInvoiceItemsService.perform(
         items,
         travelDeskBookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
         sourceServiceFeeEventExternalIdentifiers
