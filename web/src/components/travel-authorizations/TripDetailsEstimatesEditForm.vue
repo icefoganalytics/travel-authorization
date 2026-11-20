@@ -3,14 +3,8 @@
     v-if="isNil(travelAuthorization?.id) || !isInitialized"
     type="card"
   />
-  <v-alert
-    v-else-if="isNil(savedTripType)"
-    type="error"
-  >
-    This request has no estimated trip type. Trip details cannot be edited.
-  </v-alert>
   <v-form
-    v-else
+    v-else-if="!isNil(savedTripType)"
     ref="form"
     validate-on="lazy"
   >
@@ -148,7 +142,18 @@ const { mdAndUp } = useDisplay()
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
-const savedTripType = computed(() => travelAuthorization.value?.tripTypeEstimate)
+const savedTripType = computed(() => {
+  if (isNil(travelAuthorization.value)) return
+
+  const { tripTypeEstimate } = travelAuthorization.value
+  if (isNil(tripTypeEstimate)) {
+    console.error("Expected an estimated trip type before editing trip details.", {
+      travelAuthorizationId: travelAuthorizationId.value,
+    })
+  }
+
+  return tripTypeEstimate
+})
 const tripType = useRouteQuery("trip_type", savedTripType)
 
 const travelSegmentEstimatesQuery = computed(() => ({
