@@ -2,9 +2,10 @@ import { type Writable } from "node:stream"
 
 import { type Attributes, type WhereOptions } from "@sequelize/core"
 
+import withAbortableReadTransaction from "@/db/utils/with-abortable-read-transaction"
+
 import CsvStreamingClient from "@/lib/csv-streaming-client"
 
-import withAbortableReadTransaction from "@/db/utils/with-abortable-read-transaction"
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type FlightStatistic } from "@/models"
 import { type FlightStatisticsPolicy } from "@/policies"
