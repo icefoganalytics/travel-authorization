@@ -55,7 +55,6 @@ async function exportToCsv() {
     } = travelAuthorizationPreApproval
 
     const formattedName = formatName(profiles)
-    const formattedDepartment = department ?? ""
     const formattedBranch = branch ?? ""
     const travelDate = formatTravelDate(isOpenForAnyDate, startDate, endDate, month)
     const formattedLocation = location ?? ""
@@ -67,7 +66,7 @@ async function exportToCsv() {
 
     return {
       ["Name"]: formattedName,
-      ["Department"]: formattedDepartment,
+      ["Department"]: department,
       ["Branch"]: formattedBranch,
       ["Travel Date"]: travelDate,
       ["Location"]: formattedLocation,

@@ -5,40 +5,40 @@ import { Path } from "@/utils/deep-pick"
 import { TravelAuthorizationPreApprovalProfile, User } from "@/models"
 import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
+import { ProfilePolicy } from "@/policies/travel-authorization-pre-approvals"
 
 export class TravelAuthorizationPreApprovalProfilesPolicy extends PolicyFactory(
   TravelAuthorizationPreApprovalProfile
 ) {
   show(): boolean {
     if (this.user.isAdmin) return true
+    if (this.record.department === this.user.department) return true
 
-    return this.record.department === this.user.department
+    return false
   }
 
   create(): boolean {
-    if (this.user.isAdmin) return true
-
-    return this.record.department === this.user.department
+    return this.profilePolicy?.create() ?? false
   }
 
   update(): boolean {
-    if (this.user.isAdmin) return true
+    if (!this.user.isAdmin && this.record.department !== this.user.department) {
+      return false
+    }
 
-    return this.record.department === this.user.department
+    return this.profilePolicy?.update() ?? false
   }
 
   destroy(): boolean {
-    if (this.user.isAdmin) return true
+    if (!this.user.isAdmin && this.record.department !== this.user.department) {
+      return false
+    }
 
-    return this.record.department === this.user.department
+    return this.profilePolicy?.destroy() ?? false
   }
 
   permittedAttributes(): Path[] {
-    return ["profileName", "department", "branch"]
-  }
-
-  permittedAttributesForCreate(): Path[] {
-    return ["preApprovalId", ...this.permittedAttributes()]
+    return ["profileName", "branch"]
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorizationPreApprovalProfile>> {
@@ -55,6 +55,15 @@ export class TravelAuthorizationPreApprovalProfilesPolicy extends PolicyFactory(
         department: user.department,
       },
     }
+  }
+
+  private get profilePolicy(): ProfilePolicy | undefined {
+    const { preApproval } = this.record
+    if (isNil(preApproval)) {
+      return undefined
+    }
+
+    return new ProfilePolicy(this.user, preApproval)
   }
 }
 
