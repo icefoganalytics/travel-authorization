@@ -8,9 +8,10 @@ import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies/travel-
 export class ProfilePolicy extends PolicyFactory(TravelAuthorizationPreApproval) {
   create(): boolean {
     if (this.user.isAdmin) return true
+    if (isNil(this.record.department)) return false
+    if (this.record.department === this.user.department) return true
 
-    const { department } = this.record
-    return !isNil(department) && department === this.user.department
+    return false
   }
 
   update(): boolean {
