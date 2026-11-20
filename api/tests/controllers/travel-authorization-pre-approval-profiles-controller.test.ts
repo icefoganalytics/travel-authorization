@@ -228,5 +228,28 @@ describe("api/src/controllers/travel-authorization-pre-approval-profiles-control
         })
       })
     })
+
+    describe("#destroy", () => {
+      test.each([
+        { parentDepartment: "Health", expectedStatus: 204 },
+        { parentDepartment: "Finance", expectedStatus: 403 },
+      ])("when Health deletes a Health profile under $parentDepartment, it returns $expectedStatus", async ({ parentDepartment, expectedStatus }) => {
+        // Arrange
+        const user = await userFactory.create({ department: "Health" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: parentDepartment,
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({ department: "Health" })
+
+        // Act
+        const response = await request().delete(`/api/travel-authorization-pre-approval-profiles/${profile.id}`)
+
+        // Assert
+        expect(response.status).toEqual(expectedStatus)
+      })
+    })
   })
 })
