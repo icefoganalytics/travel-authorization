@@ -2,42 +2,45 @@ import { CreationAttributes } from "@sequelize/core"
 
 import { isNil } from "lodash"
 
-import { TravelAuthorizationPreApprovalProfile, User } from "@/models"
+import { TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile } from "@/models"
 import BaseService from "@/services/base-service"
 
 type TravelAuthorizationPreApprovalProfileCreationAttributes = Partial<
-  CreationAttributes<TravelAuthorizationPreApprovalProfile>
->
+  Pick<CreationAttributes<TravelAuthorizationPreApprovalProfile>, "profileName" | "branch">
+> & {
+  department?: string | null
+}
 
 export class CreateService extends BaseService {
   constructor(
-    protected attributes: TravelAuthorizationPreApprovalProfileCreationAttributes,
-    protected currentUser: User
+    protected preApproval: TravelAuthorizationPreApproval,
+    protected attributes: TravelAuthorizationPreApprovalProfileCreationAttributes
   ) {
     super()
   }
 
   async perform(): Promise<TravelAuthorizationPreApprovalProfile> {
-    const { preApprovalId, profileName, department, ...optionalAttributes } = this.attributes
-
-    if (isNil(preApprovalId)) {
-      throw new Error("Pre-approval ID is required.")
-    }
+    const { profileName, department, branch } = this.attributes
 
     if (isNil(profileName)) {
       throw new Error("Profile name is required.")
     }
 
-    if (isNil(department)) {
-      throw new Error("Department is required.")
+    const parentDepartment = this.preApproval.department
+    if (isNil(parentDepartment)) {
+      throw new Error("Pre-approval department is required.")
+    }
+
+    if (department !== undefined && department !== parentDepartment) {
+      throw new Error("Profile department must match the pre-approval department.")
     }
 
     const travelAuthorizationPreApprovalProfile =
       await TravelAuthorizationPreApprovalProfile.create({
-        ...optionalAttributes,
-        preApprovalId,
+        preApprovalId: this.preApproval.id,
         profileName,
-        department,
+        department: parentDepartment,
+        branch,
       })
 
     return travelAuthorizationPreApprovalProfile.reload({

@@ -18,13 +18,17 @@ export class TravelAuthorizationPreApprovalProfilesPolicy extends PolicyFactory(
   create(): boolean {
     if (this.user.isAdmin) return true
 
-    return this.record.department === this.user.department
+    const department = this.record.preApproval?.department
+    return !isNil(department) && department === this.user.department
   }
 
   update(): boolean {
     if (this.user.isAdmin) return true
 
-    return this.record.department === this.user.department
+    return (
+      this.record.department === this.user.department &&
+      this.record.preApproval?.department === this.user.department
+    )
   }
 
   destroy(): boolean {

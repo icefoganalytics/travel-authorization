@@ -1,7 +1,7 @@
 import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
-import { TravelAuthorizationPreApprovalProfile } from "@/models"
+import { TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile } from "@/models"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
 import { CreateService, UpdateService } from "@/services/travel-authorization-pre-approval-profiles"
 import {
@@ -71,7 +71,19 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
 
   async create() {
     try {
-      const policy = this.buildPolicy()
+      const { preApprovalId } = this.request.body
+      if (isNil(preApprovalId)) {
+        throw new Error("Pre-approval ID is required.")
+      }
+
+      const preApproval = await TravelAuthorizationPreApproval.findByPk(preApprovalId)
+      if (isNil(preApproval)) {
+        throw new Error("Travel authorization pre-approval not found.")
+      }
+
+      const profile = TravelAuthorizationPreApprovalProfile.build()
+      profile.preApproval = preApproval
+      const policy = this.buildPolicy(profile)
       if (!policy.create()) {
         return this.response.status(403).json({
           message: "You are not authorized to create travel authorization pre-approval profiles.",
@@ -80,8 +92,8 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
 
       const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
       const travelAuthorizationPreApprovalProfile = await CreateService.perform(
-        permittedAttributes,
-        this.currentUser
+        preApproval,
+        permittedAttributes
       )
       const serializedTravelAuthorizationPreApprovalProfile = ShowSerializer.perform(
         travelAuthorizationPreApprovalProfile
@@ -173,17 +185,11 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
     )
   }
 
-  private buildPolicy(
-    travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile = this.buildTravelAuthorizationPreApprovalProfile()
-  ) {
+  private buildPolicy(travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile) {
     return new TravelAuthorizationPreApprovalProfilesPolicy(
       this.currentUser,
       travelAuthorizationPreApprovalProfile
     )
-  }
-
-  private buildTravelAuthorizationPreApprovalProfile() {
-    return TravelAuthorizationPreApprovalProfile.build(this.request.body)
   }
 }
 

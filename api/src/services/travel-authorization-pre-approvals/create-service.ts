@@ -13,7 +13,7 @@ import { TravelAuthorizationPreApprovalProfiles } from "@/services"
 type TravelAuthorizationPreApprovalCreationAttributes = Partial<
   CreationAttributes<TravelAuthorizationPreApproval>
 > & {
-  profilesAttributes?: CreationAttributes<TravelAuthorizationPreApprovalProfile>[]
+  profilesAttributes?: Partial<CreationAttributes<TravelAuthorizationPreApprovalProfile>>[]
 }
 
 export class CreateService extends BaseService {
@@ -49,13 +49,9 @@ export class CreateService extends BaseService {
       })
 
       for (const profileAttributes of profilesAttributes) {
-        const safeProfileAttributes = {
-          ...profileAttributes,
-          preApprovalId: travelAuthorizationPreApproval.id,
-        }
         await TravelAuthorizationPreApprovalProfiles.CreateService.perform(
-          safeProfileAttributes,
-          this.currentUser
+          travelAuthorizationPreApproval,
+          profileAttributes
         )
       }
 

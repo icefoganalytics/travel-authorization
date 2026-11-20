@@ -15,7 +15,15 @@ export class UpdateService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorizationPreApprovalProfile> {
-    await this.travelAuthorizationPreApprovalProfile.update(this.attributes)
+    const { department, ...attributes } = this.attributes
+    if (
+      department !== undefined &&
+      department !== this.travelAuthorizationPreApprovalProfile.department
+    ) {
+      throw new Error("Department cannot be changed.")
+    }
+
+    await this.travelAuthorizationPreApprovalProfile.update(attributes)
     return this.travelAuthorizationPreApprovalProfile.reload({
       include: ["preApproval"],
     })
