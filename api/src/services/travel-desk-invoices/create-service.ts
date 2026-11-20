@@ -42,7 +42,7 @@ export class CreateService extends BaseService {
         currencyCode,
         travelDeskInvoiceItemsAttributes,
         optionalAttributes,
-      } = this.validateInvoiceCreationAttributes()
+      } = this.validateInvoiceCreationAttributes(this.travelDeskInvoiceCreationAttributes)
       const { bookingReference, sourceAirSegmentNumbers } =
         await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(externalBookingEventIdentifier)
 
@@ -88,14 +88,16 @@ export class CreateService extends BaseService {
     })
   }
 
-  private validateInvoiceCreationAttributes() {
+  private validateInvoiceCreationAttributes(
+    travelDeskInvoiceCreationAttributes: TravelDeskInvoiceCreationAttributes
+  ) {
     const {
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode,
       items: travelDeskInvoiceItemsAttributes,
       ...optionalAttributes
-    } = this.travelDeskInvoiceCreationAttributes
+    } = travelDeskInvoiceCreationAttributes
     if (isNil(externalBookingEventIdentifier)) {
       throw new ServiceValidationError({
         field: "externalBookingEventIdentifier",
