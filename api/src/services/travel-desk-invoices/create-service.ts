@@ -62,7 +62,6 @@ export class CreateService extends BaseService {
     }
 
     const normalizedBookingReference = bookingReference.trim().toUpperCase()
-    this.assertBookingReferenceIsValid(normalizedBookingReference)
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
@@ -116,12 +115,6 @@ export class CreateService extends BaseService {
         ],
       })
     })
-  }
-
-  private assertBookingReferenceIsValid(bookingReference: string): void {
-    if (!/^[A-Z0-9]{6}$/.test(bookingReference)) {
-      throw new InvoiceValidationError("Booking reference must contain six letters or numbers.")
-    }
   }
 
   private async requireActiveTravelRequest(travelDeskTravelRequestId: number): Promise<void> {
