@@ -20,7 +20,7 @@ Pass the model returned by the report’s policy scope to the service. The servi
 
 The services use batched iteration and await each row write to bound memory use. Stable ordering and a read-only repeatable-read transaction keep those batches consistent; the tradeoff is a database connection held until generation finishes. The streaming client allows up to one hour per transfer so large downloads can finish without letting a stalled reader hold a connection indefinitely. Generation failures and client disconnects also abort the transfer rather than appending JSON to a partial CSV.
 
-Each report transaction sets PostgreSQL’s `statement_timeout` to 30 seconds locally. If the transfer stops during a database query, that query can continue until its own timeout; the transfer deadline does not cancel SQL immediately. The statement limit disappears when the transaction ends, so it does not change other requests that reuse the connection.
+Reports inherit the database’s statement timeout. On disconnect or deadline, the abort signal closes the report’s PostgreSQL connection. PostgreSQL 14 checks for client loss during query execution (`SET LOCAL client_connection_check_interval = '1s'`) and rolls back the disconnected transaction. Healthy downloads retain their connection; an aborted connection is discarded, not returned to another request.
 
 ## Travel Desk Download Contract
 

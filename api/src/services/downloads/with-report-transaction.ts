@@ -1,13 +1,10 @@
-import { IsolationLevel, QueryTypes } from "@sequelize/core"
+import { IsolationLevel } from "@sequelize/core"
+import { type PostgresConnection } from "@sequelize/postgres"
 
 import db from "@/models"
 
 export class WithReportTransaction {
-  static async perform(
-    signal: AbortSignal,
-    generateRows: () => Promise<void>,
-    statementTimeoutMs = DEFAULT_STATEMENT_TIMEOUT_MS
-  ): Promise<void> {
+  static async perform(signal: AbortSignal, generateRows: () => Promise<void>): Promise<void> {
     signal.throwIfAborted()
 
     await db.transaction(
@@ -18,21 +15,24 @@ export class WithReportTransaction {
       async (transaction) => {
         signal.throwIfAborted()
 
-        // PostgreSQL bounds each active statement without releasing the connection early.
-        await db.query("SELECT set_config('statement_timeout', $statementTimeout, true)", {
-          bind: { statementTimeout: `${statementTimeoutMs}ms` },
-          transaction,
-          type: QueryTypes.SELECT,
-        })
+        // PostgreSQL checks for a closed client even while a statement is still executing.
+        await db.query("SET LOCAL client_connection_check_interval = '1s'", { transaction })
+        signal.throwIfAborted()
 
-        signal.throwIfAborted()
-        await generateRows()
-        signal.throwIfAborted()
+        const connection = transaction.getConnection() as PostgresConnection
+        const disconnect = () => {
+          void connection.end()
+        }
+        signal.addEventListener("abort", disconnect, { once: true })
+        try {
+          await generateRows()
+          signal.throwIfAborted()
+        } finally {
+          signal.removeEventListener("abort", disconnect)
+        }
       }
     )
   }
 }
-
-const DEFAULT_STATEMENT_TIMEOUT_MS = 30_000
 
 export default WithReportTransaction
