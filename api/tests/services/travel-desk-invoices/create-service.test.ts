@@ -323,7 +323,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         await CreateService.perform(travelRequest, {
-          bookingReference: " inv001 ",
+          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",

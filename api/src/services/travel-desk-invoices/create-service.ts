@@ -61,12 +61,10 @@ export class CreateService extends BaseService {
       throw new InvoiceValidationError("Invoice items must be an array.")
     }
 
-    const normalizedBookingReference = bookingReference.trim().toUpperCase()
-
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
-    const bookingEvent = await this.loadBookingEventAndValidateSelectedFees(
-      normalizedBookingReference,
+    const travelDeskBookingEvent = await this.loadTravelDeskBookingEventAndValidateSelectedFees(
+      bookingReference,
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode
@@ -77,14 +75,14 @@ export class CreateService extends BaseService {
       await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
       ValidateItemsService.perform(
         items,
-        bookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
+        travelDeskBookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
         sourceServiceFeeEventExternalIdentifiers
       )
       await ValidateLinkedFlightSegmentsService.perform(items, this.travelDeskTravelRequest.id)
 
       const invoice = await TravelDeskInvoice.create({
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
-        bookingReference: normalizedBookingReference,
+        bookingReference,
         externalBookingEventIdentifier,
         currencyCode,
         invoiceNumber: this.attributes.invoiceNumber,
@@ -124,37 +122,40 @@ export class CreateService extends BaseService {
     }
   }
 
-  private async loadBookingEventAndValidateSelectedFees(
+  private async loadTravelDeskBookingEventAndValidateSelectedFees(
     bookingReference: string,
     externalBookingEventIdentifier: number,
     sourceServiceFeeEventExternalIdentifiers: number[],
     currencyCode: string
   ): Promise<TravelDeskBookingEvent> {
-    const bookingEvent = await TravelDeskBookingEvent.findOne({
+    const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
       where: {
         bookingReference,
         externalTravelPortIdentifier: externalBookingEventIdentifier,
       },
     })
-    if (isNil(bookingEvent) || isEmpty(bookingEvent.airReservationSegments)) {
+    if (isNil(travelDeskBookingEvent) || isEmpty(travelDeskBookingEvent.airReservationSegments)) {
       throw new InvoiceValidationError(
         "Choose a booking event with flight segments for this booking reference."
       )
     }
 
-    if (isEmpty(sourceServiceFeeEventExternalIdentifiers)) return bookingEvent
+    if (isEmpty(sourceServiceFeeEventExternalIdentifiers)) return travelDeskBookingEvent
 
-    const selectedFeeEvents = await TravelDeskBookingEvent.findAll({
+    const serviceFeeTravelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
       attributes: ["externalTravelPortIdentifier", "serviceFeeTransaction"],
       where: {
         bookingReference,
         externalTravelPortIdentifier: { [Op.in]: sourceServiceFeeEventExternalIdentifiers },
       },
     })
-    const selectedFeeEventsByIdentifier = keyBy(selectedFeeEvents, "externalTravelPortIdentifier")
+    const serviceFeeTravelDeskBookingEventsByIdentifier = keyBy(
+      serviceFeeTravelDeskBookingEvents,
+      "externalTravelPortIdentifier"
+    )
     const documentNumbers = new Set<string>()
     for (const eventId of sourceServiceFeeEventExternalIdentifiers) {
-      const fee = selectedFeeEventsByIdentifier[eventId]?.serviceFeeTransaction
+      const fee = serviceFeeTravelDeskBookingEventsByIdentifier[eventId]?.serviceFeeTransaction
       if (isNil(fee)) {
         throw new InvoiceValidationError(
           "Every selected service fee must belong to this booking reference."
@@ -178,7 +179,7 @@ export class CreateService extends BaseService {
       documentNumbers.add(documentNumber)
     }
 
-    return bookingEvent
+    return travelDeskBookingEvent
   }
 }
 
