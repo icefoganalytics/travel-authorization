@@ -3,8 +3,7 @@ import { isEmpty, isNil, keyBy } from "lodash"
 
 import { db } from "@/db/db-client"
 
-import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
-import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
+import { TravelDeskBookingEvent, TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
