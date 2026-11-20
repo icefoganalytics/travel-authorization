@@ -30,18 +30,24 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
     state.isLoading = true
     try {
       const { location } = await locationsApi.get(staticLocationId, { signal: controller.signal })
-      if (controller.signal.aborted) return null
+      if (controller.signal.aborted) {
+        return null
+      }
 
       state.isErrored = false
       state.location = location
       return location
     } catch (error) {
-      if (controller.signal.aborted) return null
+      if (controller.signal.aborted) {
+        return null
+      }
 
       state.isErrored = true
       throw error
     } finally {
-      if (!controller.signal.aborted) state.isLoading = false
+      if (!controller.signal.aborted) {
+        state.isLoading = false
+      }
     }
   }
 

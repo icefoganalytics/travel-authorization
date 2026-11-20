@@ -1,6 +1,13 @@
 <template>
+  <v-alert
+    v-if="hasTravelSegmentsLoadError"
+    type="error"
+    variant="outlined"
+  >
+    Failed to load the travel itinerary. Reload the page to try again.
+  </v-alert>
   <v-skeleton-loader
-    v-if="isNil(travelAuthorization?.id) || !isInitialized"
+    v-else-if="isNil(travelAuthorization?.id) || !isInitialized"
     type="card"
   />
   <v-form
@@ -131,7 +138,11 @@ const travelSegmentEstimatesQuery = computed(() => ({
   },
   perPage: -1,
 }))
-const { travelSegments, isInitialized } = useTravelSegments(travelSegmentEstimatesQuery)
+const {
+  travelSegments,
+  isInitialized,
+  isErrored: hasTravelSegmentsLoadError,
+} = useTravelSegments(travelSegmentEstimatesQuery)
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
@@ -229,6 +240,9 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: async () => form.value?.validate(),
+  validate: async () =>
+    form.value?.validate() ?? {
+      valid: false,
+    },
 })
 </script>

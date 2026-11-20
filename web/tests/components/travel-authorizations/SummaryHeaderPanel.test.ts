@@ -2,6 +2,7 @@ import { flushPromises } from "@vue/test-utils"
 import { VAutocomplete } from "vuetify/components"
 
 import {
+  TravelAuthorizationStatuses,
   TravelAuthorizationTripTypes,
   TravelAuthorizationWizardStepNames,
 } from "@/api/travel-authorizations-api"
@@ -184,6 +185,11 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
         finalDestination: ottawa,
         userId: 1,
         purposeId: 1,
+        status: TravelAuthorizationStatuses.APPROVED,
+        wizardStepName: TravelAuthorizationWizardStepNames.CONFIRM_ACTUAL_TRAVEL_DETAILS,
+        isDraft: false,
+        isApproved: true,
+        isTravellingByAir: true,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
         tripTypeActual: null,
         travelSegments,
@@ -261,7 +267,9 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
             control.getComponent(VAutocomplete).props("label") === "To"
           )
         })
-      if (!lastLegArrival) throw new Error("Missing arrival city control for the last leg")
+      if (!lastLegArrival) {
+        throw new Error("Missing arrival city control for the last leg")
+      }
 
       lastLegArrival.vm.$emit("update:modelValue", vancouver.id)
       await flushPromises()
@@ -273,15 +281,60 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
 
     test("when a multi-city request has no saved destination, does not infer one for the header", async () => {
       // Arrange
-      const travelSegments = travelSegmentFactory.buildList(3, { arrivalLocationId: 3 })
+      const whitehorse = locationFactory.build({
+        id: 1,
+        city: "Whitehorse",
+        province: "YT",
+      })
+      const vancouver = locationFactory.build({
+        id: 2,
+        city: "Vancouver",
+        province: "BC",
+      })
+      const toronto = locationFactory.build({
+        id: 3,
+        city: "Toronto",
+        province: "ON",
+      })
+      const outboundSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        departureLocationId: whitehorse.id,
+        arrivalLocationId: vancouver.id,
+        departureOn: "2026-11-12",
+      })
+      const connectingSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 2,
+        departureLocationId: vancouver.id,
+        arrivalLocationId: toronto.id,
+        departureOn: "2026-11-13",
+      })
+      const returnSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 3,
+        departureLocationId: toronto.id,
+        arrivalLocationId: whitehorse.id,
+        departureOn: "2026-11-14",
+      })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
+        userId: 1,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
         finalDestination: null,
-        travelSegments,
+        travelSegments: [outboundSegment, connectingSegment, returnSegment],
       })
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/locations/1": () => ({
+          location: whitehorse,
+        }),
+        "/api/locations/2": () => ({
+          location: vancouver,
+        }),
+        "/api/locations/3": () => ({
+          location: toronto,
+        }),
         "/api/current-user": () => ({
           user: {
             id: 1,
@@ -322,7 +375,9 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       const destinationLabel = wrapper.findAll(".text-caption").find((element) => {
         return element.text() === "Destination"
       })
-      if (!destinationLabel) throw new Error("Destination label is missing")
+      if (!destinationLabel) {
+        throw new Error("Destination label is missing")
+      }
 
       const destinationText = destinationLabel.element.nextElementSibling?.textContent
       expect(destinationText).toBe("—")

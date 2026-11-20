@@ -1,6 +1,13 @@
 <template>
+  <v-alert
+    v-if="hasTravelSegmentsLoadError"
+    type="error"
+    variant="outlined"
+  >
+    Failed to load the travel itinerary. Reload the page to try again.
+  </v-alert>
   <v-skeleton-loader
-    v-if="isNil(travelAuthorization?.id) || !isInitialized"
+    v-else-if="isNil(travelAuthorization?.id) || !isInitialized"
     type="card"
   />
   <v-form
@@ -83,7 +90,7 @@
 
 <script setup>
 import { computed, defineAsyncComponent, nextTick, ref, toRefs } from "vue"
-import { cloneDeep, isEmpty, max, isNil, omit } from "lodash"
+import { isEmpty, max, isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
@@ -136,22 +143,16 @@ const travelSegmentsQuery = computed(() => ({
   },
   perPage: -1,
 }))
-const { travelSegments: savedTravelSegments, isInitialized } =
-  useTravelSegments(travelSegmentsQuery)
+const {
+  travelSegments: savedTravelSegments,
+  isInitialized,
+  isErrored: hasTravelSegmentsLoadError,
+} = useTravelSegments(travelSegmentsQuery)
 const travelSegments = computed(() => {
   const actualSegments = savedTravelSegments.value.filter((segment) => segment.isActual)
   if (!isEmpty(actualSegments)) return actualSegments
 
   return savedTravelSegments.value
-    .filter((segment) => !segment.isActual)
-    .map((segment) => {
-      const clonedSegment = cloneDeep(segment)
-      const actualSegmentAttributes = omit(clonedSegment, "id")
-      return {
-        ...actualSegmentAttributes,
-        isActual: true,
-      }
-    })
 })
 
 const latestDepartureDate = ref(null)
@@ -250,6 +251,9 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: async () => form.value?.validate(),
+  validate: async () =>
+    form.value?.validate() ?? {
+      valid: false,
+    },
 })
 </script>

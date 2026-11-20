@@ -25,6 +25,31 @@ import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/Tri
 
 describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.vue", () => {
   describe("TripDetailsEstimatesEditForm", () => {
+    test("when the itinerary cannot load, tells the traveller how to recover", async () => {
+      // Arrange
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeEstimate: TravelAuthorizationTripTypes.ROUND_TRIP,
+      })
+      const router = mockRouter()
+      await router.push("/")
+      mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/travel-segments": () => Promise.reject(new Error("Service unavailable")),
+      })
+
+      // Act
+      const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
+        props: { travelAuthorizationId: 5 },
+        global: { plugins: [router], config: { errorHandler: vi.fn() } },
+      })
+      await flushPromises()
+
+      // Assert
+      expect(wrapper.get('[role="alert"]').text()).toMatch(/reload/i)
+    })
+
     test("when an estimated leg is added without an arrival city, does not save the incomplete itinerary", async () => {
       // Arrange
       const outboundSegment = travelSegmentFactory.build({
@@ -74,7 +99,9 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       const addLegButton = routeEditor
         .findAll("button")
         .find((button) => button.text().includes("Add Leg"))
-      if (!addLegButton) throw new Error("Missing Add Leg button")
+      if (!addLegButton) {
+        throw new Error("Missing Add Leg button")
+      }
 
       await addLegButton.trigger("click")
       await wrapper.vm.save()
@@ -118,10 +145,16 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         city: "Dawson City",
         province: "YT",
       })
+      const ottawa = locationFactory.build({
+        id: 4,
+        city: "Ottawa",
+        province: "ON",
+      })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
-        finalDestinationLocationId: 4,
+        finalDestinationLocationId: ottawa.id,
+        finalDestination: ottawa,
         daysOffTravelStatusEstimate: 0,
         dateBackToWorkEstimate: "2026-11-14",
         travelSegments,
@@ -137,8 +170,8 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
           totalCount: 2,
         }),
         "/api/locations": () => ({
-          locations: [whitehorse, vancouver, dawsonCity],
-          totalCount: 3,
+          locations: [whitehorse, vancouver, dawsonCity, ottawa],
+          totalCount: 4,
         }),
       })
       httpClient.patch.mockResolvedValue({
@@ -169,44 +202,40 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       await wrapper.vm.save()
 
       // Assert
-      const saveRequest = httpClient.patch.mock.lastCall
-      expect(saveRequest).toStrictEqual([
-        "/api/travel-authorizations/5",
-        {
-          tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
-          travelDurationEstimate: 2,
-          daysOffTravelStatusEstimate: 0,
-          dateBackToWorkEstimate: "2026-11-14",
-          travelSegmentEstimatesAttributes: [
-            {
-              travelAuthorizationId: 5,
-              segmentNumber: 1,
-              departureLocationId: 3,
-              arrivalLocationId: 2,
-              departureOn: "2026-11-12",
-              departureTime: "09:00",
-              modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
-              modeOfTransportOther: null,
-              accommodationType: TravelSegmentAccommodationTypes.HOTEL,
-              accommodationTypeOther: null,
-              isActual: false,
-            },
-            {
-              travelAuthorizationId: 5,
-              segmentNumber: 2,
-              departureLocationId: 2,
-              arrivalLocationId: 1,
-              departureOn: "2026-11-13",
-              departureTime: "09:00",
-              modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
-              modeOfTransportOther: null,
-              accommodationType: null,
-              accommodationTypeOther: null,
-              isActual: false,
-            },
-          ],
-        },
-      ])
+      expect(httpClient.patch).toHaveBeenLastCalledWith("/api/travel-authorizations/5", {
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelDurationEstimate: 2,
+        daysOffTravelStatusEstimate: 0,
+        dateBackToWorkEstimate: "2026-11-14",
+        travelSegmentEstimatesAttributes: [
+          {
+            travelAuthorizationId: 5,
+            segmentNumber: 1,
+            departureLocationId: 3,
+            arrivalLocationId: 2,
+            departureOn: "2026-11-12",
+            departureTime: "09:00",
+            modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
+            modeOfTransportOther: null,
+            accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+            accommodationTypeOther: null,
+            isActual: false,
+          },
+          {
+            travelAuthorizationId: 5,
+            segmentNumber: 2,
+            departureLocationId: 2,
+            arrivalLocationId: 1,
+            departureOn: "2026-11-13",
+            departureTime: "09:00",
+            modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
+            modeOfTransportOther: null,
+            accommodationType: null,
+            accommodationTypeOther: null,
+            isActual: false,
+          },
+        ],
+      })
     })
   })
 })

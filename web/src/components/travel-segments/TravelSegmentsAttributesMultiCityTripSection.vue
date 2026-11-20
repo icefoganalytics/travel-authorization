@@ -361,13 +361,13 @@ const travelSegmentsAttributes = ref([
   },
 ])
 
-function applyExistingDefaultValues(newTravelSegmentEstimates) {
-  const newTravelSegmentsSize = Math.max(2, newTravelSegmentEstimates.length)
+function applyExistingDefaultValues(currentTravelSegments) {
+  const newTravelSegmentsSize = Math.max(2, currentTravelSegments.length)
 
   const newTravelSegmentsAttributes = []
   for (let index = 0; index < newTravelSegmentsSize; index++) {
     const currentTravelSegmentAttributes = travelSegmentsAttributes.value[index]
-    const newTravelSegment = pick(newTravelSegmentEstimates[index], PERMITTED_ATTRIBUTES_FOR_CLONE)
+    const newTravelSegment = pick(currentTravelSegments[index], PERMITTED_ATTRIBUTES_FOR_CLONE)
 
     const isLastTravelSegment = index === newTravelSegmentsSize - 1
     const accommodationType = isLastTravelSegment
@@ -392,8 +392,8 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
 
 watch(
   () => cloneDeep(props.currentTravelSegments),
-  (newTravelSegmentEstimates) => {
-    applyExistingDefaultValues(newTravelSegmentEstimates)
+  (currentTravelSegments) => {
+    applyExistingDefaultValues(currentTravelSegments)
   },
   {
     deep: true,

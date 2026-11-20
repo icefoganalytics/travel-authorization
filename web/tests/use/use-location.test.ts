@@ -17,7 +17,9 @@ describe("web/src/use/use-location.ts", () => {
       const locationId = ref<number | null>(1)
       const scope = effectScope()
       const locationState = scope.run(() => useLocation(locationId))
-      if (!locationState) throw new Error("Location state did not initialize")
+      if (!locationState) {
+        throw new Error("Location state did not initialize")
+      }
 
       try {
         // Act
@@ -38,7 +40,9 @@ describe("web/src/use/use-location.ts", () => {
       const locationId = ref<number | null>(1)
       const scope = effectScope()
       const locationState = scope.run(() => useLocation(locationId))
-      if (!locationState) throw new Error("Location state did not initialize")
+      if (!locationState) {
+        throw new Error("Location state did not initialize")
+      }
 
       try {
         // Act

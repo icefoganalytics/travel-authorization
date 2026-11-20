@@ -6,7 +6,11 @@ import {
   TravelSegmentTravelMethods,
 } from "@/api/travel-segments-api"
 
-import { travelAuthorizationFactory, travelSegmentFactory } from "@/tests/factories"
+import {
+  locationFactory,
+  travelAuthorizationFactory,
+  travelSegmentFactory,
+} from "@/tests/factories"
 import {
   mockHttpClient,
   mockHttpGetRoutes,
@@ -87,44 +91,40 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       await wrapper.vm.save()
 
       // Assert
-      const saveRequest = httpClient.patch.mock.lastCall
-      expect(saveRequest).toStrictEqual([
-        "/api/travel-authorizations/5",
-        {
-          tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
-          travelDurationActual: 1,
-          daysOffTravelStatusActual: 0,
-          dateBackToWorkActual: "2026-11-14",
-          travelSegmentActualsAttributes: [
-            {
-              travelAuthorizationId: 5,
-              segmentNumber: 1,
-              departureLocationId: 1,
-              arrivalLocationId: 2,
-              departureOn: "2026-11-12",
-              departureTime: "09:00",
-              modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
-              modeOfTransportOther: null,
-              accommodationType: TravelSegmentAccommodationTypes.HOTEL,
-              accommodationTypeOther: null,
-              isActual: true,
-            },
-            {
-              travelAuthorizationId: 5,
-              segmentNumber: 2,
-              departureLocationId: 2,
-              arrivalLocationId: 1,
-              departureOn: "2026-11-12",
-              departureTime: "09:00",
-              modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
-              modeOfTransportOther: null,
-              accommodationType: null,
-              accommodationTypeOther: null,
-              isActual: true,
-            },
-          ],
-        },
-      ])
+      expect(httpClient.patch).toHaveBeenLastCalledWith("/api/travel-authorizations/5", {
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelDurationActual: 1,
+        daysOffTravelStatusActual: 0,
+        dateBackToWorkActual: "2026-11-14",
+        travelSegmentActualsAttributes: [
+          {
+            travelAuthorizationId: 5,
+            segmentNumber: 1,
+            departureLocationId: 1,
+            arrivalLocationId: 2,
+            departureOn: "2026-11-12",
+            departureTime: "09:00",
+            modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
+            modeOfTransportOther: null,
+            accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+            accommodationTypeOther: null,
+            isActual: true,
+          },
+          {
+            travelAuthorizationId: 5,
+            segmentNumber: 2,
+            departureLocationId: 2,
+            arrivalLocationId: 1,
+            departureOn: "2026-11-12",
+            departureTime: "09:00",
+            modeOfTransport: TravelSegmentTravelMethods.AIRCRAFT,
+            modeOfTransportOther: null,
+            accommodationType: null,
+            accommodationTypeOther: null,
+            isActual: true,
+          },
+        ],
+      })
     })
 
     test("when days on non-travel status are negative, does not save the actual itinerary", async () => {
@@ -224,11 +224,17 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       const travelSegments = estimatedSegments.flatMap((estimatedSegment, index) => {
         return [estimatedSegment, actualSegments[index]]
       })
+      const ottawa = locationFactory.build({
+        id: 8,
+        city: "Ottawa",
+        province: "ON",
+      })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
         tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
-        finalDestinationLocationId: 4,
+        finalDestinationLocationId: ottawa.id,
+        finalDestination: ottawa,
         daysOffTravelStatusActual: 0,
         dateBackToWorkActual: "2026-11-14",
         travelSegments,
@@ -276,55 +282,51 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       await wrapper.vm.save()
 
       // Assert
-      const saveRequest = httpClient.patch.mock.lastCall
-      expect(saveRequest).toStrictEqual([
-        "/api/travel-authorizations/5",
-        {
-          tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
-          travelDurationActual: 1,
-          daysOffTravelStatusActual: 0,
-          dateBackToWorkActual: "2026-11-14",
-          travelSegmentActualsAttributes: [
-            expect.objectContaining({
-              segmentNumber: 1,
-              departureLocationId: 1,
-              arrivalLocationId: 2,
-              isActual: true,
-            }),
-            expect.objectContaining({
-              segmentNumber: 2,
-              departureLocationId: 2,
-              arrivalLocationId: 3,
-              isActual: true,
-            }),
-            expect.objectContaining({
-              segmentNumber: 3,
-              departureLocationId: 3,
-              arrivalLocationId: 4,
-              isActual: true,
-            }),
-            expect.objectContaining({
-              segmentNumber: 4,
-              departureLocationId: 4,
-              arrivalLocationId: 5,
-              isActual: true,
-            }),
-            expect.objectContaining({
-              segmentNumber: 5,
-              departureLocationId: 5,
-              arrivalLocationId: 6,
-              isActual: true,
-            }),
-            expect.objectContaining({
-              segmentNumber: 6,
-              departureLocationId: 6,
-              arrivalLocationId: 7,
-              isActual: true,
-              accommodationType: null,
-            }),
-          ],
-        },
-      ])
+      expect(httpClient.patch).toHaveBeenLastCalledWith("/api/travel-authorizations/5", {
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        travelDurationActual: 1,
+        daysOffTravelStatusActual: 0,
+        dateBackToWorkActual: "2026-11-14",
+        travelSegmentActualsAttributes: [
+          expect.objectContaining({
+            segmentNumber: 1,
+            departureLocationId: 1,
+            arrivalLocationId: 2,
+            isActual: true,
+          }),
+          expect.objectContaining({
+            segmentNumber: 2,
+            departureLocationId: 2,
+            arrivalLocationId: 3,
+            isActual: true,
+          }),
+          expect.objectContaining({
+            segmentNumber: 3,
+            departureLocationId: 3,
+            arrivalLocationId: 4,
+            isActual: true,
+          }),
+          expect.objectContaining({
+            segmentNumber: 4,
+            departureLocationId: 4,
+            arrivalLocationId: 5,
+            isActual: true,
+          }),
+          expect.objectContaining({
+            segmentNumber: 5,
+            departureLocationId: 5,
+            arrivalLocationId: 6,
+            isActual: true,
+          }),
+          expect.objectContaining({
+            segmentNumber: 6,
+            departureLocationId: 6,
+            arrivalLocationId: 7,
+            isActual: true,
+            accommodationType: null,
+          }),
+        ],
+      })
     })
   })
 })
