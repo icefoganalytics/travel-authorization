@@ -14,16 +14,19 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
     isErrored: false,
   })
 
+  let latestRequest = 0
+
   async function fetch(): Promise<LocationAsShow | null> {
     const staticLocationId = unref(locationId)
     if (isNil(staticLocationId)) {
       throw new Error("locationId is required")
     }
 
+    const request = ++latestRequest
     state.isLoading = true
     try {
       const { location } = await locationsApi.get(staticLocationId)
-      if (locationId.value !== staticLocationId) {
+      if (request !== latestRequest) {
         return null
       }
 
@@ -31,14 +34,14 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
       state.location = location
       return location
     } catch (error) {
-      if (locationId.value !== staticLocationId) {
+      if (request !== latestRequest) {
         return null
       }
 
       state.isErrored = true
       throw error
     } finally {
-      if (locationId.value === staticLocationId) {
+      if (request === latestRequest) {
         state.isLoading = false
       }
     }
@@ -46,7 +49,7 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
 
   watch(
     () => unref(locationId),
-    async (newLocationId) => {
+    async (newLocationId, _previousLocationId, onCleanup) => {
       state.location = null
       state.isErrored = false
       if (isNil(newLocationId)) {
@@ -54,6 +57,9 @@ export function useLocation(locationId: Ref<number | null | undefined>) {
         return
       }
 
+      onCleanup(() => {
+        latestRequest++
+      })
       await fetch()
     },
     {

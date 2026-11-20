@@ -4,7 +4,7 @@ import { effectScope, nextTick, ref } from "vue"
 import { type LocationAsShow } from "@/api/locations-api"
 
 import { locationFactory } from "@/tests/factories"
-import { mockHttpGetRoute } from "@/tests/support"
+import { mockHttpGetRoute, mockHttpGetRoutes } from "@/tests/support"
 
 import useLocation from "@/use/use-location"
 
@@ -53,6 +53,46 @@ describe("web/src/use/use-location.ts", () => {
 
         // Assert
         expect(locationState.location.value).toBeNull()
+      } finally {
+        scope.stop()
+      }
+    })
+
+    test("when a destination is reselected, keeps the result of its newest lookup", async () => {
+      // Arrange
+      const firstLookup = Promise.withResolvers<{ location: LocationAsShow }>()
+      const latestLookup = Promise.withResolvers<{ location: LocationAsShow }>()
+      const originalLocation = locationFactory.build({ id: 1, city: "Old name" })
+      const renamedLocation = locationFactory.build({ id: 1, city: "New name" })
+      const otherLocation = locationFactory.build({ id: 2 })
+      const loadLocation = vi
+        .fn()
+        .mockReturnValueOnce(firstLookup.promise)
+        .mockReturnValueOnce(latestLookup.promise)
+      mockHttpGetRoutes({
+        "/api/locations/1": loadLocation,
+        "/api/locations/2": () => ({ location: otherLocation }),
+      })
+      const locationId = ref(1)
+      const scope = effectScope()
+      const locationState = scope.run(() => useLocation(locationId))
+      if (!locationState) {
+        throw new Error("Location state did not initialize")
+      }
+
+      try {
+        // Act
+        locationId.value = 2
+        await nextTick()
+        locationId.value = 1
+        await nextTick()
+        latestLookup.resolve({ location: renamedLocation })
+        await flushPromises()
+        firstLookup.resolve({ location: originalLocation })
+        await flushPromises()
+
+        // Assert
+        expect(locationState.location.value).toEqual(renamedLocation)
       } finally {
         scope.stop()
       }
