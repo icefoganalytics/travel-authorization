@@ -178,7 +178,7 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
     })
 
     describe("#permitAttributesForCreate", () => {
-      test("when ownership and totals are submitted, it keeps only editable headers and source selection", async () => {
+      test("when read-only fields are submitted, it keeps only editable headers, source selection, and item attributes", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const invoice = travelDeskInvoiceFactory.build()
@@ -187,23 +187,49 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
         // Act
         const attributes = policy.permitAttributesForCreate({
           travelDeskTravelRequestId: 999999,
-          bookingReference: "SRC001",
+          bookingReference: "FORGED",
           externalBookingEventIdentifier: 123456,
+          sourceServiceFeeEventExternalIdentifiers: [123457],
           invoiceNumber: "INV-001",
           grossAmount: "999.000",
+          items: [
+            {
+              productType: "credit",
+            },
+          ],
+          itemsAttributes: [
+            {
+              id: 999999,
+              travelDeskInvoiceId: 999999,
+              productType: "air",
+              sourceAirSegmentNumber: 1,
+              saleType: "sale",
+              grossAmount: "25.000",
+              position: 0,
+            },
+          ],
         })
 
         // Assert
         expect(attributes).toEqual({
-          bookingReference: "SRC001",
           externalBookingEventIdentifier: 123456,
+          sourceServiceFeeEventExternalIdentifiers: [123457],
           invoiceNumber: "INV-001",
+          itemsAttributes: [
+            {
+              productType: "air",
+              sourceAirSegmentNumber: 1,
+              saleType: "sale",
+              grossAmount: "25.000",
+              position: 0,
+            },
+          ],
         })
       })
     })
 
     describe("#permitAttributesForUpdate", () => {
-      test("when source identity and ownership are submitted, it keeps only editable headers", async () => {
+      test("when source selection and read-only fields are submitted, it keeps only editable headers and item attributes", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const invoice = travelDeskInvoiceFactory.build()
@@ -214,13 +240,39 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
           travelDeskTravelRequestId: 999999,
           bookingReference: "FORGED",
           externalBookingEventIdentifier: 999999,
+          sourceServiceFeeEventExternalIdentifiers: [999999],
           invoiceNumber: "INV-002",
           grossAmount: "999.000",
+          items: [
+            {
+              productType: "credit",
+            },
+          ],
+          itemsAttributes: [
+            {
+              id: 999999,
+              travelDeskInvoiceId: 999999,
+              productType: "air",
+              sourceAirSegmentNumber: 1,
+              saleType: "refund",
+              grossAmount: "25.000",
+              position: 0,
+            },
+          ],
         })
 
         // Assert
         expect(attributes).toEqual({
           invoiceNumber: "INV-002",
+          itemsAttributes: [
+            {
+              productType: "air",
+              sourceAirSegmentNumber: 1,
+              saleType: "refund",
+              grossAmount: "25.000",
+              position: 0,
+            },
+          ],
         })
       })
     })
