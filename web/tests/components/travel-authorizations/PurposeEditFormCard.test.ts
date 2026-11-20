@@ -1,6 +1,9 @@
 import { flushPromises } from "@vue/test-utils"
 import { VTextField } from "vuetify/components"
 
+import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
+import { TravelSegmentAccommodationTypes } from "@/api/travel-segments-api"
+
 import {
   locationFactory,
   travelAuthorizationFactory,
@@ -68,12 +71,17 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       // Arrange
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
+        tripTypeEstimate: TravelAuthorizationTripTypes.ROUND_TRIP,
         finalDestinationLocationId: null,
         purposeId: 1,
         eventName: "Planning meeting",
         benefits: "Coordinate the regional program",
         travelSegments: [
-          travelSegmentFactory.build({ travelAuthorizationId: 5, segmentNumber: 1 }),
+          travelSegmentFactory.build({
+            travelAuthorizationId: 5,
+            segmentNumber: 1,
+            accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+          }),
           travelSegmentFactory.build({ travelAuthorizationId: 5, segmentNumber: 2 }),
         ],
       })
