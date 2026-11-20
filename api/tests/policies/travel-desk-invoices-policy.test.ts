@@ -189,7 +189,6 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
           travelDeskTravelRequestId: 999999,
           bookingReference: "FORGED",
           externalBookingEventIdentifier: 123456,
-          sourceServiceFeeEventExternalIdentifiers: [123457],
           invoiceNumber: "INV-001",
           grossAmount: "999.000",
           items: [
@@ -207,13 +206,19 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
               grossAmount: "25.000",
               position: 0,
             },
+            {
+              productType: "service_fee",
+              sourceServiceFeeEventExternalIdentifier: 123457,
+              saleType: "sale",
+              grossAmount: "10.000",
+              position: 1,
+            },
           ],
         })
 
         // Assert
         expect(attributes).toEqual({
           externalBookingEventIdentifier: 123456,
-          sourceServiceFeeEventExternalIdentifiers: [123457],
           invoiceNumber: "INV-001",
           itemsAttributes: [
             {
@@ -222,6 +227,13 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
               saleType: "sale",
               grossAmount: "25.000",
               position: 0,
+            },
+            {
+              productType: "service_fee",
+              sourceServiceFeeEventExternalIdentifier: 123457,
+              saleType: "sale",
+              grossAmount: "10.000",
+              position: 1,
             },
           ],
         })
@@ -240,7 +252,6 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
           travelDeskTravelRequestId: 999999,
           bookingReference: "FORGED",
           externalBookingEventIdentifier: 999999,
-          sourceServiceFeeEventExternalIdentifiers: [999999],
           invoiceNumber: "INV-002",
           grossAmount: "999.000",
           items: [
@@ -258,6 +269,13 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
               grossAmount: "25.000",
               position: 0,
             },
+            {
+              productType: "service_fee",
+              sourceServiceFeeEventExternalIdentifier: 123457,
+              saleType: "refund",
+              grossAmount: "10.000",
+              position: 1,
+            },
           ],
         })
 
@@ -271,6 +289,13 @@ describe("api/src/policies/travel-desk-invoices-policy.ts", () => {
               saleType: "refund",
               grossAmount: "25.000",
               position: 0,
+            },
+            {
+              productType: "service_fee",
+              sourceServiceFeeEventExternalIdentifier: 123457,
+              saleType: "refund",
+              grossAmount: "10.000",
+              position: 1,
             },
           ],
         })

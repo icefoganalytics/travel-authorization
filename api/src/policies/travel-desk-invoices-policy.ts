@@ -71,7 +71,6 @@ export class TravelDeskInvoicesPolicy extends PolicyFactory(TravelDeskInvoice) {
   permittedAttributesForCreate(): Path[] {
     return [
       "externalBookingEventIdentifier",
-      "sourceServiceFeeEventExternalIdentifiers",
       ...this.permittedAttributes(),
     ]
   }

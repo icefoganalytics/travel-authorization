@@ -428,7 +428,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
             externalBookingEventIdentifier: 930001,
-            sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
             itemsAttributes: [],
           })
@@ -466,6 +465,22 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             },
           ],
         })
+        await travelDeskBookingEventFactory.create({
+          externalTravelPortIdentifier: 930002,
+          bookingReference: "API001",
+          eventType: "T",
+          serviceFeeTransaction: {
+            activeVoidStatus: "A",
+            serviceFeeDocumentNumber: "FEE-001",
+            issueDate: null,
+            currencyCode: "CAD",
+            serviceFeeAmount: "10.000",
+            commissionAmount: null,
+            nameOnServiceFee: null,
+            relatedTicketDocumentNumber: null,
+            relatedInvoiceNumber: null,
+          },
+        })
 
         // Act
         const response = await request()
@@ -473,7 +488,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .send({
             travelDeskTravelRequestId: otherRequest.id,
             externalBookingEventIdentifier: 930001,
-            sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
             grossAmount: "999999.999",
             itemsAttributes: [
@@ -483,6 +497,13 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
                 saleType: "sale",
                 grossAmount: "125.500",
                 position: 0,
+              },
+              {
+                productType: "service_fee",
+                sourceServiceFeeEventExternalIdentifier: 930002,
+                saleType: "sale",
+                grossAmount: "10.000",
+                position: 1,
               },
             ],
           })
@@ -507,7 +528,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             bookingAgentName: null,
             ticketingAgentName: null,
             bookingDate: null,
-            grossAmount: "125.500",
+            grossAmount: "135.500",
             items: [
               {
                 id: expect.any(Number),
@@ -522,6 +543,20 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
                 saleType: "sale",
                 grossAmount: "125.500",
                 position: 0,
+              },
+              {
+                id: expect.any(Number),
+                productType: "service_fee",
+                travelDeskFlightSegmentId: null,
+                sourceAirSegmentNumber: null,
+                sourceServiceFeeEventExternalIdentifier: 930002,
+                passengerName: null,
+                ticketNumber: null,
+                vendor: null,
+                description: null,
+                saleType: "sale",
+                grossAmount: "10.000",
+                position: 1,
               },
             ],
           },
