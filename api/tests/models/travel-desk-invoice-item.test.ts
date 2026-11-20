@@ -5,7 +5,7 @@ import { travelDeskInvoiceItemFactory } from "@/factories"
 describe("api/src/models/travel-desk-invoice-item.ts", () => {
   describe("TravelDeskInvoiceItem", () => {
     describe("validations - sourceMatchesProductType", () => {
-      test("an airfare line can identify the flight segment it pays for", async () => {
+      test("when billing airfare, the line can identify the flight segment it pays for", async () => {
         // Arrange
         const item = travelDeskInvoiceItemFactory.build({
           travelDeskInvoiceId: 1,
@@ -24,7 +24,7 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
         TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE,
         TravelDeskInvoiceItem.ProductTypes.CHANGE_FEE,
         TravelDeskInvoiceItem.ProductTypes.CREDIT,
-      ])("a %s line cannot identify a flight segment as the charge being billed", async (productType) => {
+      ])("when billing %s, the line cannot claim a flight segment as airfare", async (productType) => {
         // Arrange
         const item = travelDeskInvoiceItemFactory.build({
           travelDeskInvoiceId: 1,
@@ -39,7 +39,7 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
         await expect(validation).rejects.toThrow("Only air items can refer to a source flight segment.")
       })
 
-      test("a service fee line can identify the booking fee it bills", async () => {
+      test("when billing a service fee, the line can identify the booking fee it pays for", async () => {
         // Arrange
         const item = travelDeskInvoiceItemFactory.build({
           travelDeskInvoiceId: 1,
@@ -58,7 +58,7 @@ describe("api/src/models/travel-desk-invoice-item.ts", () => {
         TravelDeskInvoiceItem.ProductTypes.AIR,
         TravelDeskInvoiceItem.ProductTypes.CHANGE_FEE,
         TravelDeskInvoiceItem.ProductTypes.CREDIT,
-      ])("a %s line cannot identify a booking service fee as the charge being billed", async (productType) => {
+      ])("when billing %s, the line cannot claim a booking service fee as its charge", async (productType) => {
         // Arrange
         const item = travelDeskInvoiceItemFactory.build({
           travelDeskInvoiceId: 1,
