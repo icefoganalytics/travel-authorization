@@ -19,14 +19,11 @@ import {
 } from "@/services/travel-desk-invoices/validate-items-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
-  Omit<
-    CreationAttributes<TravelDeskInvoice>,
-    "id" | "travelDeskTravelRequestId" | "grossAmount" | "createdAt" | "updatedAt" | "deletedAt"
-  >
-> & {
-  sourceServiceFeeEventExternalIdentifiers?: number[]
-  items?: TravelDeskInvoiceItemAttributes[]
-}
+  CreationAttributes<TravelDeskInvoice> & {
+    sourceServiceFeeEventExternalIdentifiers: number[]
+    items: TravelDeskInvoiceItemAttributes[]
+  }
+>
 
 export class CreateService extends BaseService {
   constructor(
