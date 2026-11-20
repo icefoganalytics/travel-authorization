@@ -150,13 +150,7 @@ async function saveWrapper() {
 
   isSaving.value = true
   try {
-    await save({
-      purposeId: travelAuthorization.value.purposeId,
-      eventName: travelAuthorization.value.eventName,
-      allTravelWithinTerritory: travelAuthorization.value.allTravelWithinTerritory,
-      benefits: travelAuthorization.value.benefits,
-      finalDestinationLocationId: travelAuthorization.value.finalDestinationLocationId,
-    })
+    await save()
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })
     throw error

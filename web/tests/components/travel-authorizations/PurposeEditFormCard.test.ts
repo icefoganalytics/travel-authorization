@@ -70,11 +70,8 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         [
           "/api/travel-authorizations/5",
           {
-            finalDestinationLocationId: 2,
-            purposeId: 1,
+            ...travelAuthorization,
             eventName: "Updated meeting",
-            allTravelWithinTerritory: false,
-            benefits: "Coordinate the regional program",
           },
         ],
       ])
@@ -130,11 +127,8 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         [
           "/api/travel-authorizations/5",
           {
+            ...travelAuthorization,
             finalDestinationLocationId: 2,
-            purposeId: 1,
-            eventName: "Planning meeting",
-            allTravelWithinTerritory: null,
-            benefits: "Coordinate the regional program",
           },
         ],
       ])
@@ -234,10 +228,7 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         [
           "/api/travel-authorizations/5",
           {
-            purposeId: 1,
-            eventName: "Planning meeting",
-            allTravelWithinTerritory: false,
-            benefits: "Coordinate the regional program",
+            ...travelAuthorization,
             finalDestinationLocationId: 4,
           },
         ],
