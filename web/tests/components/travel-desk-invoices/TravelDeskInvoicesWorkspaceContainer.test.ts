@@ -46,7 +46,7 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
       useCurrentUser().reset()
     })
 
-    test("when a booking is invoiced, sends its new line as nested item attributes", async () => {
+    test("when a booking and service fee are selected, it submits their provenance on the invoice lines", async () => {
       // Arrange
       const bookingEvent: TravelDeskBookingEventAsIndex = {
         travelOrderIdentifier: 73,
@@ -78,27 +78,52 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
         ],
         serviceFeeTransaction: null,
       }
+      const feeEvent: TravelDeskBookingEventAsIndex = {
+        ...bookingEvent,
+        travelOrderIdentifier: 74,
+        eventType: "T",
+        airReservationSegments: [],
+        serviceFeeTransaction: {
+          activeVoidStatus: "A",
+          serviceFeeDocumentNumber: "FEE-74",
+          issueDate: null,
+          currencyCode: "CAD",
+          serviceFeeAmount: "10.000",
+          commissionAmount: null,
+          nameOnServiceFee: null,
+          relatedTicketDocumentNumber: null,
+          relatedInvoiceNumber: null,
+        },
+      }
       const savedItem = travelDeskInvoiceItemFactory.build({
         sourceAirSegmentNumber: 7,
         vendor: "4N",
         description: "4N 501 YXY YVR",
         grossAmount: "125.500",
       })
+      const savedFeeItem = travelDeskInvoiceItemFactory.build({
+        productType: TravelDeskInvoiceItemProductTypes.SERVICE_FEE,
+        sourceAirSegmentNumber: null,
+        sourceServiceFeeEventExternalIdentifier: 74,
+        description: "Service fee FEE-74",
+        grossAmount: "10.000",
+        position: 1,
+      })
       const savedInvoice = travelDeskInvoiceFactory.build({
         travelDeskTravelRequestId: 42,
         externalBookingEventIdentifier: 73,
         bookingAgentName: "Travel Agent",
         bookingDate: "2026-11-02",
-        grossAmount: "125.500",
-        items: [savedItem],
+        grossAmount: "135.500",
+        items: [savedItem, savedFeeItem],
       })
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
         [INVOICES_PATH]: () => ({ travelDeskInvoices: [], totalCount: 0 }),
         "/api/travel-desk-flight-segments": () => ({ travelDeskFlightSegments: [], totalCount: 0 }),
         "/api/travel-desk-travel-requests/42/travel-desk-booking-events": () => ({
-          travelDeskBookingEvents: [bookingEvent],
-          totalCount: 1,
+          travelDeskBookingEvents: [bookingEvent, feeEvent],
+          totalCount: 2,
         }),
       })
       httpClient.post.mockResolvedValueOnce({ data: {} })
@@ -117,8 +142,8 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
       await wrapper.get("form").trigger("submit")
       await flushPromises()
       await wrapper.get('input[type="radio"]').setValue()
+      await wrapper.get('input[type="checkbox"]').setValue(true)
       await getButton(wrapper, "Use selected booking").trigger("click")
-      await wrapper.get('input[maxlength="3"]').setValue("CAD")
       const itemCard = wrapper.getComponent(TravelDeskInvoiceItemEditCard)
       await itemCard.get('input[inputmode="decimal"]').setValue("125.500")
       await getButton(wrapper, "Save invoice").trigger("click")
@@ -127,7 +152,6 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
       // Assert
       expect(httpClient.post).toHaveBeenLastCalledWith(INVOICES_PATH, {
         externalBookingEventIdentifier: 73,
-        sourceServiceFeeEventExternalIdentifiers: [],
         currencyCode: "CAD",
         invoiceNumber: null,
         invoiceDate: null,
@@ -154,18 +178,32 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
             grossAmount: "125.500",
             position: 0,
           },
+          {
+            productType: "service_fee",
+            travelDeskFlightSegmentId: null,
+            sourceAirSegmentNumber: null,
+            sourceServiceFeeEventExternalIdentifier: 74,
+            passengerName: null,
+            ticketNumber: null,
+            vendor: null,
+            description: "Service fee FEE-74",
+            saleType: "sale",
+            grossAmount: "10.000",
+            position: 1,
+          },
         ],
       })
     })
 
-    test("when a saved line is edited, sends item attributes without its ID", async () => {
+    test("when a saved fee line is edited, it submits the source event without the line ID", async () => {
       // Arrange
       const savedItem = travelDeskInvoiceItemFactory.build({
         id: 51,
-        productType: TravelDeskInvoiceItemProductTypes.AIR,
-        sourceAirSegmentNumber: 7,
-        vendor: "4N",
-        description: "4N 501 YXY YVR",
+        productType: TravelDeskInvoiceItemProductTypes.SERVICE_FEE,
+        sourceAirSegmentNumber: null,
+        sourceServiceFeeEventExternalIdentifier: 74,
+        vendor: "Travel Desk",
+        description: "Service fee FEE-74",
         saleType: TravelDeskInvoiceItemSaleTypes.SALE,
         grossAmount: "125.500",
       })
@@ -222,14 +260,14 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
         bookingDate: null,
         itemsAttributes: [
           {
-            productType: "air",
+            productType: "service_fee",
             travelDeskFlightSegmentId: null,
-            sourceAirSegmentNumber: 7,
-            sourceServiceFeeEventExternalIdentifier: null,
+            sourceAirSegmentNumber: null,
+            sourceServiceFeeEventExternalIdentifier: 74,
             passengerName: null,
             ticketNumber: null,
-            vendor: "4N",
-            description: "4N 501 YXY YVR",
+            vendor: "Travel Desk",
+            description: "Service fee FEE-74",
             saleType: "sale",
             grossAmount: "140.000",
             position: 0,

@@ -66,7 +66,6 @@ export type InvoiceItemInput = {
 
 export type InvoiceInput = {
   externalBookingEventIdentifier: number
-  sourceServiceFeeEventExternalIdentifiers: number[]
   currencyCode: string
   invoiceNumber: string | null
   invoiceDate: string | null

@@ -376,7 +376,7 @@ const props = defineProps<{
 }>()
 
 type InvoiceDraft = InvoiceInput & {
-  bookingReference: string
+  bookingReference: string | null
 }
 
 const requestId = computed(() => Number(props.travelDeskTravelRequestId))
@@ -736,11 +736,8 @@ function startDraft() {
     })
   }
   draft.value = {
-    bookingReference: searchedBookingReference.value,
+    bookingReference: event.bookingReference,
     externalBookingEventIdentifier: event.travelOrderIdentifier,
-    sourceServiceFeeEventExternalIdentifiers: selectedFees.map(
-      (event) => event.travelOrderIdentifier
-    ),
     currencyCode: [...currencies][0] ?? "",
     invoiceNumber: null,
     invoiceDate: null,
@@ -766,11 +763,6 @@ function beginEdit() {
   draft.value = {
     bookingReference: savedInvoice.bookingReference,
     externalBookingEventIdentifier: savedInvoice.externalBookingEventIdentifier,
-    sourceServiceFeeEventExternalIdentifiers: savedInvoice.items.flatMap((item) =>
-      item.sourceServiceFeeEventExternalIdentifier === null
-        ? []
-        : [item.sourceServiceFeeEventExternalIdentifier]
-    ),
     currencyCode: savedInvoice.currencyCode,
     invoiceNumber: savedInvoice.invoiceNumber,
     invoiceDate: savedInvoice.invoiceDate,
