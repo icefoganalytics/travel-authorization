@@ -32,9 +32,7 @@ export class TravelAuthorizationPreApprovalProfilesPolicy extends PolicyFactory(
   }
 
   destroy(): boolean {
-    if (this.user.isAdmin) return true
-
-    return this.record.department === this.user.department
+    return this.update()
   }
 
   permittedAttributes(): Path[] {
