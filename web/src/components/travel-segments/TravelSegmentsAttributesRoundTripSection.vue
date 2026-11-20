@@ -342,7 +342,7 @@ function applyExistingDefaultValues(currentTravelSegments) {
       ...travelSegmentsAttributes.value[1],
       ...lastTravelSegment,
       modeOfTransport: lastTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: null,
+      accommodationType: lastTravelSegment.accommodationType ?? null,
       isActual: props.isActual,
       segmentNumber: 2,
       travelAuthorizationId: props.travelAuthorizationId,

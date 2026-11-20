@@ -47,6 +47,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
         finalDestinationLocationId: 4,
         daysOffTravelStatusActual: 0,
         dateBackToWorkActual: "2026-11-14",
@@ -121,6 +122,92 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
           },
         ],
       })
+    })
+
+    test.each([
+      TravelAuthorizationTripTypes.ONE_WAY,
+      TravelAuthorizationTripTypes.ROUND_TRIP,
+    ])("when reopening a %s trip, keeps the final accommodation", async (tripType) => {
+      // Arrange
+      const isRoundTrip = tripType === TravelAuthorizationTripTypes.ROUND_TRIP
+      const finalLeg = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        isActual: true,
+        segmentNumber: isRoundTrip ? 2 : 1,
+        departureLocationId: 2,
+        arrivalLocationId: 1,
+        departureOn: "2026-11-13",
+        departureTime: "09:00",
+        accommodationType: TravelSegmentAccommodationTypes.OTHER,
+        accommodationTypeOther: "Staff housing",
+      })
+      const travelSegments = [finalLeg]
+      if (isRoundTrip) {
+        const outboundLeg = travelSegmentFactory.build({
+          travelAuthorizationId: 5,
+          isActual: true,
+          segmentNumber: 1,
+          departureLocationId: 1,
+          arrivalLocationId: 2,
+          departureOn: "2026-11-12",
+          departureTime: "09:00",
+          accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+        })
+        travelSegments.unshift(outboundLeg)
+      }
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeActual: tripType,
+        daysOffTravelStatusActual: 0,
+        dateBackToWorkActual: "2026-11-14",
+        travelSegments,
+      })
+      const httpClient = mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({
+          travelAuthorization,
+          policy: {},
+        }),
+        "/api/locations": () => ({
+          locations: [],
+          totalCount: 0,
+        }),
+      })
+      httpClient.patch.mockResolvedValue({
+        data: {
+          travelAuthorization,
+          policy: {},
+        },
+      })
+      const router = mockRouter()
+      const wrapper = mountWithDefaultPlugins(TripDetailsActualsEditForm, {
+        props: {
+          travelAuthorizationId: 5,
+        },
+        global: {
+          plugins: [router],
+        },
+      })
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+
+      // Act
+      await wrapper.vm.save()
+
+      // Assert
+      expect(httpClient.patch).toHaveBeenLastCalledWith(
+        "/api/travel-authorizations/5",
+        expect.objectContaining({
+          travelSegmentActualsAttributes: expect.arrayContaining([
+            expect.objectContaining({
+              segmentNumber: finalLeg.segmentNumber,
+              accommodationType: TravelSegmentAccommodationTypes.OTHER,
+              accommodationTypeOther: "Staff housing",
+            }),
+          ]),
+        })
+      )
     })
 
     test("when days on non-travel status are negative, does not save the actual itinerary", async () => {
@@ -224,7 +311,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
-        tripTypeActual: TravelAuthorizationTripTypes.MULTI_CITY,
+        tripTypeActual: null,
         finalDestinationLocationId: ottawa.id,
         finalDestination: ottawa,
         daysOffTravelStatusActual: 0,
@@ -307,7 +394,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
             departureLocationId: 6,
             arrivalLocationId: 7,
             isActual: true,
-            accommodationType: null,
+            accommodationType: TravelSegmentAccommodationTypes.HOTEL,
           }),
         ],
       })

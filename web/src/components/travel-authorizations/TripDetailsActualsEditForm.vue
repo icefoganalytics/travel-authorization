@@ -127,9 +127,13 @@ const defaultTripType = computed(
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
 const actualTripSourceSegments = computed(() => {
-  const { tripTypeActual, travelSegments } = travelAuthorization.value
-  const hasActualTrip = !isNil(tripTypeActual)
-  return travelSegments.filter((segment) => segment.isActual === hasActualTrip)
+  const { travelSegments } = travelAuthorization.value
+  const actualSegments = travelSegments.filter((segment) => segment.isActual)
+  if (actualSegments.length > 0) {
+    return actualSegments
+  }
+
+  return travelSegments
 })
 
 const latestDepartureDate = ref(null)

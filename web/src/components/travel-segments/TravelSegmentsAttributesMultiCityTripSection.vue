@@ -370,15 +370,13 @@ function applyExistingDefaultValues(currentTravelSegments) {
     const newTravelSegment = pick(currentTravelSegments[index], PERMITTED_ATTRIBUTES_FOR_CLONE)
 
     const isLastTravelSegment = index === newTravelSegmentsSize - 1
-    const accommodationType = isLastTravelSegment
-      ? null
-      : newTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL
+    const defaultAccommodationType = isLastTravelSegment ? null : ACCOMMODATION_TYPES.HOTEL
 
     const newTravelSegmentAttributes = {
       ...currentTravelSegmentAttributes,
       ...newTravelSegment,
       modeOfTransport: newTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType,
+      accommodationType: newTravelSegment.accommodationType ?? defaultAccommodationType,
       isActual: props.isActual,
       segmentNumber: index + 1,
       travelAuthorizationId: props.travelAuthorizationId,

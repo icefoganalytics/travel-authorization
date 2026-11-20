@@ -180,7 +180,7 @@ const travelSegmentsAttributes = ref([
     departureTime: null,
     modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
     modeOfTransportOther: null,
-    accommodationType: ACCOMMODATION_TYPES.HOTEL,
+    accommodationType: null,
     accommodationTypeOther: null,
   },
 ])
@@ -193,7 +193,7 @@ function applyExistingDefaultValues(currentTravelSegments) {
       ...travelSegmentsAttributes.value[0],
       ...firstTravelSegment,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: null,
+      accommodationType: firstTravelSegment.accommodationType ?? null,
       isActual: props.isActual,
       segmentNumber: 1,
       travelAuthorizationId: props.travelAuthorizationId,
