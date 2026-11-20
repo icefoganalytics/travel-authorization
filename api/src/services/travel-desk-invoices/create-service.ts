@@ -8,7 +8,7 @@ import TravelDeskBookingEvent from "@/models/travel-desk-booking-event"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
 import {
   BulkCreateService,
   ValidateLinkedFlightSegmentsService,
@@ -41,25 +41,25 @@ export class CreateService extends BaseService {
       items,
     } = this.attributes
     if (isNil(externalBookingEventIdentifier)) {
-      throw new InvoiceValidationError("Booking event is required.")
+      throw new TravelDeskInvoiceValidationError("Booking event is required.")
     }
 
     if (!Array.isArray(sourceServiceFeeEventExternalIdentifiers)) {
-      throw new InvoiceValidationError("Service fee events must be an array.")
+      throw new TravelDeskInvoiceValidationError("Service fee events must be an array.")
     }
 
     if (isNil(currencyCode)) {
-      throw new InvoiceValidationError("Currency code is required.")
+      throw new TravelDeskInvoiceValidationError("Currency code is required.")
     }
 
     if (!Array.isArray(items)) {
-      throw new InvoiceValidationError("Invoice items must be an array.")
+      throw new TravelDeskInvoiceValidationError("Invoice items must be an array.")
     }
 
     const travelDeskBookingEvent = await this.loadTravelDeskBookingEvent(externalBookingEventIdentifier)
     const { bookingReference } = travelDeskBookingEvent
     if (isNil(bookingReference)) {
-      throw new InvoiceValidationError("The selected booking event has no booking reference.")
+      throw new TravelDeskInvoiceValidationError("The selected booking event has no booking reference.")
     }
 
     await this.assertSelectedServiceFeesAreValid(
@@ -72,7 +72,7 @@ export class CreateService extends BaseService {
     return db.transaction(async () => {
       const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(this.travelDeskTravelRequest.id)
       if (isNil(travelDeskTravelRequest)) {
-        throw new InvoiceValidationError("Travel desk travel request does not exist.")
+        throw new TravelDeskInvoiceValidationError("Travel desk travel request does not exist.")
       }
 
       ValidateItemsService.perform(
@@ -126,11 +126,11 @@ export class CreateService extends BaseService {
       },
     })
     if (isNil(travelDeskBookingEvent)) {
-      throw new InvoiceValidationError("The selected booking event was not found.")
+      throw new TravelDeskInvoiceValidationError("The selected booking event was not found.")
     }
 
     if (isEmpty(travelDeskBookingEvent.airReservationSegments)) {
-      throw new InvoiceValidationError(
+      throw new TravelDeskInvoiceValidationError(
         "The selected booking event has no flight segments. Choose a different booking event."
       )
     }
@@ -164,13 +164,13 @@ export class CreateService extends BaseService {
         serviceFeeTravelDeskBookingEventsByExternalTravelPortIdentifier[sourceServiceFeeEventExternalIdentifier]
       const serviceFeeTransaction = serviceFeeTravelDeskBookingEvent?.serviceFeeTransaction
       if (isNil(serviceFeeTransaction)) {
-        throw new InvoiceValidationError(
+        throw new TravelDeskInvoiceValidationError(
           "Every selected service fee must belong to this booking reference."
         )
       }
 
       if (!isNil(serviceFeeTransaction.currencyCode) && serviceFeeTransaction.currencyCode !== currencyCode) {
-        throw new InvoiceValidationError(
+        throw new TravelDeskInvoiceValidationError(
           "Selected service fee currency must match the invoice currency."
         )
       }
@@ -179,7 +179,7 @@ export class CreateService extends BaseService {
       if (isNil(serviceFeeDocumentNumber) || isEmpty(serviceFeeDocumentNumber)) continue
 
       if (serviceFeeDocumentNumbers.has(serviceFeeDocumentNumber)) {
-        throw new InvoiceValidationError(
+        throw new TravelDeskInvoiceValidationError(
           "Multiple versions of a service fee document cannot be selected."
         )
       }
