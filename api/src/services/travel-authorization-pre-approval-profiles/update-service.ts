@@ -1,29 +1,21 @@
-import { TravelAuthorizationPreApprovalProfile, User } from "@/models"
+import { TravelAuthorizationPreApprovalProfile } from "@/models"
 
 import BaseService from "@/services/base-service"
 
-type TravelAuthorizationPreApprovalProfileUpdateAttributes =
-  Partial<TravelAuthorizationPreApprovalProfile>
+type TravelAuthorizationPreApprovalProfileUpdateAttributes = Partial<
+  Pick<TravelAuthorizationPreApprovalProfile, "profileName" | "branch">
+>
 
 export class UpdateService extends BaseService {
   constructor(
     protected travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile,
-    protected attributes: TravelAuthorizationPreApprovalProfileUpdateAttributes,
-    protected currentUser: User
+    protected attributes: TravelAuthorizationPreApprovalProfileUpdateAttributes
   ) {
     super()
   }
 
   async perform(): Promise<TravelAuthorizationPreApprovalProfile> {
-    const { department, ...attributes } = this.attributes
-    if (
-      department !== undefined &&
-      department !== this.travelAuthorizationPreApprovalProfile.department
-    ) {
-      throw new Error("Department cannot be changed.")
-    }
-
-    await this.travelAuthorizationPreApprovalProfile.update(attributes)
+    await this.travelAuthorizationPreApprovalProfile.update(this.attributes)
     return this.travelAuthorizationPreApprovalProfile.reload({
       include: ["preApproval"],
     })

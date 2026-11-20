@@ -1,9 +1,9 @@
 import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
-import { TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile } from "@/models"
+import { TravelAuthorizationPreApprovalProfile } from "@/models"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
-import { CreateService, UpdateService } from "@/services/travel-authorization-pre-approval-profiles"
+import { UpdateService } from "@/services/travel-authorization-pre-approval-profiles"
 import {
   IndexSerializer,
   ShowSerializer,
@@ -69,46 +69,6 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
     })
   }
 
-  async create() {
-    try {
-      const { preApprovalId } = this.request.body
-      if (isNil(preApprovalId)) {
-        throw new Error("Pre-approval ID is required.")
-      }
-
-      const preApproval = await TravelAuthorizationPreApproval.findByPk(preApprovalId)
-      if (isNil(preApproval)) {
-        throw new Error("Travel authorization pre-approval not found.")
-      }
-
-      const profile = TravelAuthorizationPreApprovalProfile.build()
-      profile.preApproval = preApproval
-      const policy = this.buildPolicy(profile)
-      if (!policy.create()) {
-        return this.response.status(403).json({
-          message: "You are not authorized to create travel authorization pre-approval profiles.",
-        })
-      }
-
-      const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
-      const travelAuthorizationPreApprovalProfile = await CreateService.perform(
-        preApproval,
-        permittedAttributes
-      )
-      const serializedTravelAuthorizationPreApprovalProfile = ShowSerializer.perform(
-        travelAuthorizationPreApprovalProfile
-      )
-      return this.response.status(201).json({
-        travelAuthorizationPreApprovalProfile: serializedTravelAuthorizationPreApprovalProfile,
-      })
-    } catch (error) {
-      logger.error(`Error creating travel authorization pre-approval profile: ${error}`, { error })
-      return this.response.status(422).json({
-        message: `Failed to create travel authorization pre-approval profile: ${error}`,
-      })
-    }
-  }
-
   async update() {
     try {
       const travelAuthorizationPreApprovalProfile =
@@ -130,8 +90,7 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
       const updatedTravelAuthorizationPreApprovalProfile = await UpdateService.perform(
         travelAuthorizationPreApprovalProfile,
-        permittedAttributes,
-        this.currentUser
+        permittedAttributes
       )
       const serializedTravelAuthorizationPreApprovalProfile = ShowSerializer.perform(
         updatedTravelAuthorizationPreApprovalProfile

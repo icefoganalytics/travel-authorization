@@ -28,6 +28,7 @@ import {
   TravelAllowancesController,
   TravelAuthorizationActionLogsController,
   TravelAuthorizationPreApprovalProfilesController,
+  TravelAuthorizationPreApprovals,
   TravelAuthorizationPreApprovalsController,
   TravelAuthorizationPreApprovalSubmissions,
   TravelAuthorizationPreApprovalSubmissionsController,
@@ -326,7 +327,6 @@ router.route("/api/locations/:locationId").get(LocationsController.show)
 router
   .route("/api/travel-authorization-pre-approval-profiles")
   .get(TravelAuthorizationPreApprovalProfilesController.index)
-  .post(TravelAuthorizationPreApprovalProfilesController.create)
 router
   .route("/api/travel-authorization-pre-approval-profiles/:travelAuthorizationPreApprovalProfileId")
   .get(TravelAuthorizationPreApprovalProfilesController.show)
@@ -342,6 +342,9 @@ router
   .get(TravelAuthorizationPreApprovalsController.show)
   .patch(TravelAuthorizationPreApprovalsController.update)
   .delete(TravelAuthorizationPreApprovalsController.destroy)
+router
+  .route("/api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId/profiles")
+  .post(TravelAuthorizationPreApprovals.ProfilesController.create)
 
 router
   .route("/api/travel-authorization-pre-approval-submissions")

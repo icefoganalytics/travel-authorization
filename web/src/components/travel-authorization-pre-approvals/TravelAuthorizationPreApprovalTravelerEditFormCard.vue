@@ -188,20 +188,16 @@ async function createTravelAuthorizationPreApprovalProfile() {
     profileName = `${profilePrefix} staff`
   }
 
-  const newProfileAttributes = {
-    preApprovalId: props.travelAuthorizationPreApprovalId,
-    profileName,
-    department: props.department,
-    branch: props.branch,
-  }
-
   isLoading.value = true
   try {
     await travelAuthorizationPreApprovalsApi.update(props.travelAuthorizationPreApprovalId, {
       isOpenForAnyTraveler: props.isOpenForAnyTraveler,
       numberTravelers: props.numberTravelers,
     })
-    await travelAuthorizationPreApprovalProfilesApi.create(newProfileAttributes)
+    await travelAuthorizationPreApprovalProfilesApi.create(props.travelAuthorizationPreApprovalId, {
+      profileName,
+      branch: props.branch,
+    })
     snack.success(`Travel pre-approval profile created successfully`)
     await travelAuthorizationPreApprovalProfilesDataTable.value.refresh()
     reset()
