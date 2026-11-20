@@ -15,6 +15,7 @@ import {
   Index,
   NotNull,
   PrimaryKey,
+  Table,
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
@@ -34,6 +35,9 @@ export enum TravelAuthorizationPreApprovalStatuses {
   DECLINED = "declined",
 }
 
+@Table({
+  tableName: "travel_authorization_pre_approvals",
+})
 export class TravelAuthorizationPreApproval extends Model<
   InferAttributes<TravelAuthorizationPreApproval>,
   InferCreationAttributes<TravelAuthorizationPreApproval>
