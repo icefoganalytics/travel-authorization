@@ -1,4 +1,5 @@
 import { flushPromises } from "@vue/test-utils"
+import { VAutocomplete } from "vuetify/components"
 
 import {
   TravelAuthorizationTripTypes,
@@ -16,8 +17,10 @@ import { mockHttpGetRoutes, mockRouter, mountWithDefaultPlugins } from "@/tests/
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
-import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
+import TravelSegmentsAttributesMultiCityTripSection from "@/components/travel-segments/TravelSegmentsAttributesMultiCityTripSection.vue"
 import MyTravelRequestWizardPage from "@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"
+
+import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 
 describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () => {
   describe("SummaryHeaderPanel", () => {
@@ -143,7 +146,7 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       expect(summaryHeader.text()).toContain("Ottawa (ON)")
     })
 
-    test("when actual itinerary arrivals change, keeps the early destination in the summary", async () => {
+    test("when the last actual arrival city changes, keeps the saved Final Destination in the summary", async () => {
       // Arrange
       const travelSegment1 = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -249,8 +252,16 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       await flushPromises()
 
       // Act
-      const destinationInput = wrapper.findAllComponents(LocationsAutocomplete)[3]
-      destinationInput.vm.$emit("update:modelValue", 2)
+      const routeEditor = wrapper.getComponent(TravelSegmentsAttributesMultiCityTripSection)
+      const lastLegArrival = routeEditor.findAllComponents(LocationsAutocomplete).find((control) => {
+        return (
+          control.props("modelValue") === whitehorse.id &&
+          control.getComponent(VAutocomplete).props("label") === "To"
+        )
+      })
+      if (!lastLegArrival) throw new Error("Missing arrival city control for the last leg")
+
+      lastLegArrival.vm.$emit("update:modelValue", vancouver.id)
       await flushPromises()
 
       // Assert

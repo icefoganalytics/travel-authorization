@@ -10,7 +10,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Added
 
-- The destination chosen on Purpose stays with a travel request through itinerary changes and actual travel. Travellers can intentionally change the prefilled destination in estimated or actual trip details without changing the route. Multi-city summaries no longer replace the chosen city with a later stop or the return-home city. Reimbursement-rate calculations are unchanged.
+- The destination chosen on Purpose now stays on the request even when the itinerary changes or actual travel ends in a different city.
 - Selecting a city now fills in the province on Travel Desk traveller forms, while keeping it editable.
 - Flight statistics reports show flight volumes and durations in tables and graphs, with printing and CSV export.
 - Flight statistics synchronization shows progress and reports failures.

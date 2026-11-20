@@ -10,11 +10,11 @@ The existing `finalDestination` response contains the saved location reference. 
 
 ## Mutation Boundaries
 
-Purpose and the estimated/actual trip-detail forms save the selected location through the authorization endpoint. Trip details prefill the saved city and forward intentional changes to the wizard summary. The approved-state policy permits destination updates alongside actual-travel attributes for the owner or administrator; returned-claim permissions remain unchanged.
+Only the Purpose editor changes `finalDestinationLocationId`. The wizard summary reads the saved city and reflects edits made on Purpose. Estimated and actual trip forms send route attributes, not the destination. The approved-state policy excludes destination changes even when the user can edit actual travel.
 
 Travel-segment creation, replacement, deletion, and reordering do not update the destination. The location is selected before the itinerary is completed, so selecting it does not require a matching saved arrival. Editing the destination must not rewrite an existing route.
 
-Purpose saves only purpose details and the selected destination. The traveller and manager creation forms submit two blank estimated legs. The creation service defaults the estimated trip type to round trip. Trip Details edits the route.
+Purpose uses the standard authorization save and does not submit nested itinerary changes. The traveller and manager creation forms seed the initial estimated legs; Trip Details edits them.
 
 ## Read and Calculation Boundaries
 

@@ -18,22 +18,6 @@
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <LocationsAutocomplete
-          v-model="travelAuthorization.finalDestinationLocationId"
-          :in-territory="travelAuthorization.allTravelWithinTerritory"
-          label="Final Destination"
-          density="compact"
-          variant="outlined"
-          @update:model-value="emit('update:finalDestinationLocationId', $event)"
-        />
-      </v-col>
-    </v-row>
-
     <component
       :is="tripTypeComponent"
       v-if="tripTypeComponent"
@@ -111,7 +95,6 @@ import useTravelAuthorization from "@/use/use-travel-authorization"
 import useTravelSegments from "@/use/use-travel-segments"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
 import TravelDurationFromTravelSegmentsTextField from "@/components/travel-authorizations/TravelDurationFromTravelSegmentsTextField.vue"
 
@@ -131,11 +114,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits([
-  "update:departureDate",
-  "update:returnDate",
-  "update:finalDestinationLocationId",
-])
+const emit = defineEmits(["update:departureDate", "update:returnDate"])
 
 const { mdAndUp } = useDisplay()
 
@@ -234,7 +213,6 @@ async function saveWrapper() {
   isSaving.value = true
   try {
     await save({
-      finalDestinationLocationId: travelAuthorization.value.finalDestinationLocationId,
       tripTypeEstimate: tripType.value,
       travelDurationEstimate: travelAuthorization.value.travelDurationEstimate,
       daysOffTravelStatusEstimate: travelAuthorization.value.daysOffTravelStatusEstimate,
