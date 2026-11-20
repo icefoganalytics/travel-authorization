@@ -20,7 +20,7 @@ import ValidateTravelDeskInvoiceServiceFeeSelectionService from "@/services/trav
 import LoadAndValidateTravelDeskBookingEventForInvoiceService from "@/services/travel-desk-invoices/load-and-validate-travel-desk-booking-event-for-invoice-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
-  Omit<CreationAttributes<TravelDeskInvoice>, "bookingReference"> & {
+  CreationAttributes<TravelDeskInvoice> & {
     sourceServiceFeeEventExternalIdentifiers: number[]
     items: TravelDeskInvoiceItemAttributes[]
   }
