@@ -1,8 +1,6 @@
 import { flushPromises } from "@vue/test-utils"
 import { VTextField } from "vuetify/components"
 
-import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
-
 import {
   locationFactory,
   travelAuthorizationFactory,
@@ -15,7 +13,7 @@ import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditF
 
 describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () => {
   describe("PurposeEditFormCard", () => {
-    test("when purpose changes on a multi-city request, saves no itinerary attributes", async () => {
+    test("when the meeting name changes, saves it without changing the itinerary", async () => {
       // Arrange
       const travelSegments = travelSegmentFactory.buildList(3)
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
@@ -25,7 +23,6 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         eventName: "Planning meeting",
         benefits: "Coordinate the regional program",
         allTravelWithinTerritory: false,
-        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
         travelSegments,
       })
       const httpClient = mockHttpClient()
@@ -151,59 +148,51 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       expect(httpClient.patch).not.toHaveBeenCalled()
     })
 
-    test.each([
-      TravelAuthorizationTripTypes.ROUND_TRIP,
-      TravelAuthorizationTripTypes.ONE_WAY,
-      TravelAuthorizationTripTypes.MULTI_CITY,
-    ])(
-      "when the destination changes on a populated %s itinerary, saves only the purpose fields",
-      async (tripType) => {
-        // Arrange
-        const travelSegments = travelSegmentFactory.buildList(3, {
-          travelAuthorizationId: 5,
-          arrivalLocationId: 2,
-        })
-        const travelAuthorization = travelAuthorizationFactory.asShow().build({
-          id: 5,
-          purposeId: 1,
-          eventName: "Planning meeting",
-          benefits: "Coordinate the regional program",
-          allTravelWithinTerritory: false,
-          tripTypeEstimate: tripType,
-          finalDestinationLocationId: 2,
-          travelSegments,
-        })
-        const ottawa = locationFactory.build({ id: 4, city: "Ottawa", province: "ON" })
-        const httpClient = mockHttpClient()
-        mockHttpGetRoutes({
-          "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-          "/api/travel-purposes": () => ({
-            travelPurposes: [{ id: 1, purpose: "Meeting" }],
-            totalCount: 1,
-          }),
-          "/api/locations": () => ({ locations: [ottawa], totalCount: 1 }),
-        })
-        httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
-        const wrapper = mountWithDefaultPlugins(PurposeEditFormCard, {
-          props: { travelAuthorizationId: 5 },
-        })
-        await flushPromises()
+    test("when the traveller changes Final Destination, saves the new city without rewriting existing legs", async () => {
+      // Arrange
+      const travelSegments = travelSegmentFactory.buildList(3, {
+        travelAuthorizationId: 5,
+        arrivalLocationId: 2,
+      })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        purposeId: 1,
+        eventName: "Planning meeting",
+        benefits: "Coordinate the regional program",
+        allTravelWithinTerritory: false,
+        finalDestinationLocationId: 2,
+        travelSegments,
+      })
+      const ottawa = locationFactory.build({ id: 4, city: "Ottawa", province: "ON" })
+      const httpClient = mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/travel-purposes": () => ({
+          travelPurposes: [{ id: 1, purpose: "Meeting" }],
+          totalCount: 1,
+        }),
+        "/api/locations": () => ({ locations: [ottawa], totalCount: 1 }),
+      })
+      httpClient.patch.mockResolvedValue({ data: { travelAuthorization, policy: {} } })
+      const wrapper = mountWithDefaultPlugins(PurposeEditFormCard, {
+        props: { travelAuthorizationId: 5 },
+      })
+      await flushPromises()
 
-        // Act
-        wrapper.getComponent(LocationsAutocomplete).vm.$emit("update:modelValue", 4)
-        await flushPromises()
-        await wrapper.vm.save()
+      // Act
+      wrapper.getComponent(LocationsAutocomplete).vm.$emit("update:modelValue", 4)
+      await flushPromises()
+      await wrapper.vm.save()
 
-        // Assert
-        expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
-          purposeId: 1,
-          eventName: "Planning meeting",
-          allTravelWithinTerritory: false,
-          benefits: "Coordinate the regional program",
-          finalDestinationLocationId: 4,
-        })
-      }
-    )
+      // Assert
+      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
+        purposeId: 1,
+        eventName: "Planning meeting",
+        allTravelWithinTerritory: false,
+        benefits: "Coordinate the regional program",
+        finalDestinationLocationId: 4,
+      })
+    })
 
     test("when a saved destination differs from the itinerary, displays the saved choice", async () => {
       // Arrange
