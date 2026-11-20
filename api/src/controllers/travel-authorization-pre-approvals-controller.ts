@@ -114,7 +114,13 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
         })
       }
 
-      const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
+      const { department, ...permittedAttributes } = policy.permitAttributesForUpdate(
+        this.request.body
+      )
+      if (department !== undefined && department !== travelAuthorizationPreApproval.department) {
+        throw new Error("Department cannot be changed.")
+      }
+
       await travelAuthorizationPreApproval.update(permittedAttributes)
       const serializedTravelAuthorizationPreApproval = ShowSerializer.perform(
         travelAuthorizationPreApproval,
