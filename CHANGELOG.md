@@ -10,6 +10,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Added
 
+- The destination chosen on Purpose now stays on the request even when the itinerary changes or actual travel ends in a different city.
 - Selecting a city now fills in the province on Travel Desk traveller forms, while keeping it editable.
 - Flight statistics reports show flight volumes and durations in tables and graphs, with printing and CSV export.
 - Flight statistics synchronization shows progress and reports failures.
@@ -42,6 +43,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Fixed
 
+- Reopening actual travel uses the recorded legs instead of the estimates. Saving a trip keeps the accommodation recorded on its final leg.
 - Rental-car requests match flight dates and times on both new and edit forms. Matched fields remain readable and show a lock icon. Turning matching off restores the previous manual schedule, or blank dates and noon times for a new request without manual entries. New requests default the pick-up city to the trip destination, while incomplete flight schedules leave fields editable with normal field-level validation.
 - Read-only date fields no longer open the calendar picker when clicked, while preserving caller-supplied menu options.
 - Multi-city trips returning to their starting location show the destination before the return leg in summaries and request lists. Saving Purpose preserves the return-home itinerary.

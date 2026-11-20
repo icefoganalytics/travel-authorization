@@ -277,10 +277,9 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  currentTravelSegmentEstimates: {
+  currentTravelSegments: {
     type: Array,
     default: () => [],
-    validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
   isActual: {
     type: Boolean,
@@ -325,16 +324,18 @@ const travelSegmentsAttributes = ref([
   },
 ])
 
-function applyExistingDefaultValues(newTravelSegmentEstimates) {
-  const firstTravelSegment = pick(first(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
-  const lastTravelSegment = pick(last(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
+function applyExistingDefaultValues(currentTravelSegments) {
+  const outboundSegment = first(currentTravelSegments)
+  const firstTravelSegment = pick(outboundSegment, PERMITTED_ATTRIBUTES_FOR_CLONE)
+  const lastTravelSegment = pick(last(currentTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
+  const defaultOutboundAccommodation = outboundSegment?.isActual ? null : ACCOMMODATION_TYPES.HOTEL
 
   travelSegmentsAttributes.value = [
     {
       ...travelSegmentsAttributes.value[0],
       ...firstTravelSegment,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: firstTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL,
+      accommodationType: firstTravelSegment.accommodationType ?? defaultOutboundAccommodation,
       isActual: props.isActual,
       segmentNumber: 1,
       travelAuthorizationId: props.travelAuthorizationId,
@@ -343,7 +344,7 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
       ...travelSegmentsAttributes.value[1],
       ...lastTravelSegment,
       modeOfTransport: lastTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: null,
+      accommodationType: lastTravelSegment.accommodationType ?? null,
       isActual: props.isActual,
       segmentNumber: 2,
       travelAuthorizationId: props.travelAuthorizationId,
@@ -352,9 +353,9 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
 }
 
 watch(
-  () => cloneDeep(props.currentTravelSegmentEstimates),
-  (newTravelSegmentEstimates) => {
-    applyExistingDefaultValues(newTravelSegmentEstimates)
+  () => cloneDeep(props.currentTravelSegments),
+  (currentTravelSegments) => {
+    applyExistingDefaultValues(currentTravelSegments)
   },
   {
     deep: true,

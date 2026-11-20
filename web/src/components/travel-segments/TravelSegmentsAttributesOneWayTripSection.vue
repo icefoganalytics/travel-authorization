@@ -151,10 +151,9 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  currentTravelSegmentEstimates: {
+  currentTravelSegments: {
     type: Array,
     default: () => [],
-    validator: (value) => value.every((travelSegment) => travelSegment.isActual === false),
   },
   isActual: {
     type: Boolean,
@@ -181,20 +180,20 @@ const travelSegmentsAttributes = ref([
     departureTime: null,
     modeOfTransport: TRAVEL_METHODS.AIRCRAFT,
     modeOfTransportOther: null,
-    accommodationType: ACCOMMODATION_TYPES.HOTEL,
+    accommodationType: null,
     accommodationTypeOther: null,
   },
 ])
 
-function applyExistingDefaultValues(newTravelSegmentEstimates) {
-  const firstTravelSegment = pick(first(newTravelSegmentEstimates), PERMITTED_ATTRIBUTES_FOR_CLONE)
+function applyExistingDefaultValues(currentTravelSegments) {
+  const firstTravelSegment = pick(first(currentTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
 
   travelSegmentsAttributes.value = [
     {
       ...travelSegmentsAttributes.value[0],
       ...firstTravelSegment,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: null,
+      accommodationType: firstTravelSegment.accommodationType ?? null,
       isActual: props.isActual,
       segmentNumber: 1,
       travelAuthorizationId: props.travelAuthorizationId,
@@ -203,9 +202,9 @@ function applyExistingDefaultValues(newTravelSegmentEstimates) {
 }
 
 watch(
-  () => cloneDeep(props.currentTravelSegmentEstimates),
-  (newTravelSegmentEstimates) => {
-    applyExistingDefaultValues(newTravelSegmentEstimates)
+  () => cloneDeep(props.currentTravelSegments),
+  (currentTravelSegments) => {
+    applyExistingDefaultValues(currentTravelSegments)
   },
   {
     deep: true,

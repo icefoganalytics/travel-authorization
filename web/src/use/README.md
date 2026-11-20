@@ -8,6 +8,10 @@ browser state.
 Composables should keep API fetching, loading state, and error state out of components while still
 letting each caller provide reactive query or id inputs.
 
+Load related records through their own composable, filtered to the parent and the phase the screen
+needs. Do not rely on a collection nested in a legacy show response. For an editor that replaces a
+collection on save, load every matching page before enabling edits.
+
 ## Local Pattern
 
 Each composable owns a reactive state object. Return state as refs and return functions directly.

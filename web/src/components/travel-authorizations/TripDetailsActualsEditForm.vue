@@ -1,8 +1,15 @@
 <template>
   <v-skeleton-loader
-    v-if="isNil(travelAuthorization?.id)"
+    v-if="isNil(travelAuthorization?.id) || (!segmentsLoaded && !segmentsErrored)"
     type="card"
   />
+  <v-btn
+    v-else-if="segmentsErrored"
+    variant="text"
+    @click="retryLoadingSegments"
+  >
+    Retry loading itinerary
+  </v-btn>
   <v-form
     v-else
     ref="form"
@@ -24,7 +31,7 @@
       class="mt-3"
       :travel-authorization-id="travelAuthorizationId"
       :all-travel-within-territory="travelAuthorization.allTravelWithinTerritory"
-      :current-travel-segment-estimates="travelSegments"
+      :current-travel-segments="actualTripSourceSegments"
       is-actual
       @updated="updateTravelSegmentsAttributes"
     />
@@ -91,11 +98,9 @@ import useRouteQuery from "@/use/utils/use-route-query"
 
 import { TRIP_TYPES } from "@/api/travel-authorizations-api"
 
-import determineFinalDestinationSegment from "@/capabilities/travel-itinerary/determine-final-destination-segment"
-
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
-import useTravelSegments from "@/use/use-travel-segments"
+import useTripDetailsTravelSegments from "@/use/travel-authorizations/use-trip-details-travel-segments"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
@@ -117,11 +122,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits([
-  "update:finalDestinationLocationId",
-  "update:departureDate",
-  "update:returnDate",
-])
+const emit = defineEmits(["update:departureDate", "update:returnDate"])
 
 const { mdAndUp } = useDisplay()
 
@@ -133,28 +134,20 @@ const defaultTripType = computed(
 )
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
-const travelSegmentEstimatesQuery = computed(() => ({
-  where: {
-    travelAuthorizationId: props.travelAuthorizationId,
-    isActual: false,
-  },
-}))
-const { travelSegments } = useTravelSegments(travelSegmentEstimatesQuery)
+const {
+  travelSegments: actualTripSourceSegments,
+  isInitialized: segmentsLoaded,
+  isErrored: segmentsErrored,
+  retry: retryLoadingSegments,
+} = useTripDetailsTravelSegments(travelAuthorizationId, { isActual: true })
 
 const latestDepartureDate = ref(null)
 const travelSegmentsAttributes = ref([])
-const finalDestinationSegment = computed(() =>
-  determineFinalDestinationSegment(tripType.value, travelSegmentsAttributes.value)
-)
-const finalDestinationLocationId = computed(
-  () => finalDestinationSegment.value?.arrivalLocationId ?? null
-)
 
 function updateTravelSegmentsAttributes(newTravelSegmentsAttributes) {
   travelSegmentsAttributes.value = newTravelSegmentsAttributes
 
   updateDepartureDate(newTravelSegmentsAttributes)
-  emit("update:finalDestinationLocationId", finalDestinationLocationId.value)
   updateDateBackToWorkAndReturnDate(newTravelSegmentsAttributes)
 }
 
@@ -244,6 +237,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: async () => form.value?.validate(),
+  validate: async () => (segmentsLoaded.value ? form.value?.validate() : { valid: false }),
 })
 </script>

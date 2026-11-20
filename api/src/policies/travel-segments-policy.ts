@@ -1,4 +1,4 @@
-import { Attributes, FindOptions, Op } from "@sequelize/core"
+import { Attributes, FindOptions } from "@sequelize/core"
 import { isUndefined } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
@@ -43,7 +43,7 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelSegment>> {
-    if (user.roles.includes(User.Roles.ADMIN)) {
+    if (user.isAdmin) {
       return ALL_RECORDS_SCOPE
     }
 
@@ -51,16 +51,8 @@ export class TravelSegmentsPolicy extends PolicyFactory(TravelSegment) {
       include: [
         {
           association: "travelAuthorization",
-          where: {
-            [Op.or]: [
-              {
-                supervisorEmail: user.email,
-              },
-              {
-                userId: user.id,
-              },
-            ],
-          },
+          required: true,
+          ...TravelAuthorizationsPolicy.policyScope(user),
         },
       ],
     }

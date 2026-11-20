@@ -1,26 +1,40 @@
-import { flushPromises, mount } from "@vue/test-utils"
-import { defineComponent, h, ref } from "vue"
+import { flushPromises } from "@vue/test-utils"
+import { VAutocomplete } from "vuetify/components"
 
-import { TravelAuthorizationTripTypes } from "@/api/travel-authorizations-api"
+import {
+  TravelAuthorizationStatuses,
+  TravelAuthorizationTripTypes,
+  TravelAuthorizationWizardStepNames,
+} from "@/api/travel-authorizations-api"
 
 import useCurrentUser from "@/use/use-current-user"
-
-import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
-import ConfirmActualTravelDetailsStep from "@/components/my-travel-request-wizard/ConfirmActualTravelDetailsStep.vue"
-import EditTripDetailsStep from "@/components/my-travel-request-wizard/EditTripDetailsStep.vue"
 
 import {
   locationFactory,
   travelAuthorizationFactory,
   travelSegmentFactory,
 } from "@/tests/factories"
-import { mockHttpGetRoutes, mockRouter, mockVuetify } from "@/tests/support"
+import {
+  mockHttpGetRoute,
+  mockHttpGetRoutes,
+  mockRouter,
+  mountWithDefaultPlugins,
+} from "@/tests/support"
+
+import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
+import TravelSegmentsAttributesMultiCityTripSection from "@/components/travel-segments/TravelSegmentsAttributesMultiCityTripSection.vue"
+import MyTravelRequestWizardPage from "@/pages/my-travel-requests/MyTravelRequestWizardPage.vue"
 
 import SummaryHeaderPanel from "@/components/travel-authorizations/SummaryHeaderPanel.vue"
 
 describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () => {
   describe("SummaryHeaderPanel", () => {
-    test("when an unsaved estimated multi-city destination changes, updates the summary header", async () => {
+    beforeEach(() => {
+      vi.spyOn(window, "scrollTo").mockReturnValue(undefined)
+    })
+
+    test("when the early Final Destination choice changes, updates the wizard summary header", async () => {
       // Arrange
       const travelSegment1 = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -62,7 +76,6 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       const locations = [whitehorse, vancouver, toronto, ottawa]
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/travel-segments": () => ({ travelSegments, totalCount: 3 }),
         "/api/locations": () => ({ locations, totalCount: 4 }),
         "/api/locations/1": () => ({ location: whitehorse }),
         "/api/locations/2": () => ({ location: vancouver }),
@@ -72,48 +85,55 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
           user: { id: 1, displayName: "Test Traveler", roles: [] },
           policy: {},
         }),
+        "/api/travel-purposes": () => ({
+          travelPurposes: [{ id: 1, purpose: "Meeting" }],
+          totalCount: 1,
+        }),
         "/api/travel-purposes/1": () => ({
           travelPurpose: { id: 1, purpose: "Meeting" },
         }),
         "/api/expenses": () => ({ expenses: [], totalCount: 0 }),
+        "/api/travel-authorizations/5/wizard": () => ({
+          travelAuthorization: {
+            id: 5,
+            status: travelAuthorization.status,
+            wizardStepName: TravelAuthorizationWizardStepNames.EDIT_PURPOSE_DETAILS,
+          },
+        }),
+        "/api/travel-authorization-action-logs": () => ({
+          travelAuthorizationActionLogs: [],
+          totalCount: 0,
+        }),
+        "/api/users/1": () => ({
+          user: {
+            id: 1,
+            firstName: "Test",
+            lastName: "Traveler",
+          },
+        }),
       })
       await useCurrentUser().fetch()
       const router = mockRouter([
         {
-          path: "/",
-          component: {
-            template: "<div />",
-          },
+          path: "/requests/:travelAuthorizationId/:stepName",
+          name: "my-travel-requests/MyTravelRequestWizardPage",
+          component: MyTravelRequestWizardPage,
+        },
+        {
+          path: "/profile",
+          name: "ProfilePage",
+          component: MyTravelRequestWizardPage,
         },
       ])
-      await router.push("/")
+      await router.push("/requests/5/edit-purpose-details")
       await router.isReady()
-      const host = defineComponent({
-        setup() {
-          const summaryHeaderPanel = ref<InstanceType<typeof SummaryHeaderPanel> | null>(null)
-          return () => {
-            const summary = h(SummaryHeaderPanel, {
-              ref: summaryHeaderPanel,
-              travelAuthorizationId: 5,
-            })
-            const details = h(EditTripDetailsStep, {
-              travelAuthorizationId: 5,
-              stepTitle: "Trip details",
-              stepSubtitle: "Review your itinerary",
-              "onUpdate:finalDestinationLocationId": (
-                finalDestinationLocationId: number | null
-              ) => {
-                summaryHeaderPanel.value?.update({ finalDestinationLocationId })
-              },
-            })
-            return [summary, details]
-          }
+      const wrapper = mountWithDefaultPlugins(MyTravelRequestWizardPage, {
+        props: {
+          travelAuthorizationId: "5",
+          stepName: TravelAuthorizationWizardStepNames.EDIT_PURPOSE_DETAILS,
         },
-      })
-      const vuetify = mockVuetify()
-      const wrapper = mount(host, {
         global: {
-          plugins: [vuetify, router],
+          plugins: [router],
         },
       })
       await flushPromises()
@@ -121,7 +141,8 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       await flushPromises()
 
       // Act
-      const destinationInput = wrapper.findAllComponents(LocationsAutocomplete)[3]
+      const purposeForm = wrapper.getComponent(PurposeEditFormCard)
+      const destinationInput = purposeForm.getComponent(LocationsAutocomplete)
       destinationInput.vm.$emit("update:modelValue", 4)
       await flushPromises()
 
@@ -130,7 +151,7 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       expect(summaryHeader.text()).toContain("Ottawa (ON)")
     })
 
-    test("when an unsaved actual multi-city destination changes, updates the summary header", async () => {
+    test("when the last actual arrival city changes, keeps the saved Final Destination in the summary", async () => {
       // Arrange
       const travelSegment1 = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -157,22 +178,28 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
         isActual: false,
       })
       const travelSegments = [travelSegment1, travelSegment2, travelSegment3]
-      const travelAuthorization = travelAuthorizationFactory.asShow().build({
-        id: 5,
-        userId: 1,
-        purposeId: 1,
-        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
-        tripTypeActual: null,
-        travelSegments,
-      })
       const whitehorse = locationFactory.build({ id: 1, city: "Whitehorse", province: "YT" })
       const vancouver = locationFactory.build({ id: 2, city: "Vancouver", province: "BC" })
       const toronto = locationFactory.build({ id: 3, city: "Toronto", province: "ON" })
       const ottawa = locationFactory.build({ id: 4, city: "Ottawa", province: "ON" })
       const locations = [whitehorse, vancouver, toronto, ottawa]
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        finalDestinationLocationId: 4,
+        finalDestination: ottawa,
+        userId: 1,
+        purposeId: 1,
+        status: TravelAuthorizationStatuses.APPROVED,
+        wizardStepName: TravelAuthorizationWizardStepNames.CONFIRM_ACTUAL_TRAVEL_DETAILS,
+        isDraft: false,
+        isApproved: true,
+        isTravellingByAir: true,
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        tripTypeActual: null,
+        travelSegments,
+      })
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/travel-segments": () => ({ travelSegments, totalCount: 3 }),
         "/api/locations": () => ({ locations, totalCount: 4 }),
         "/api/locations/1": () => ({ location: whitehorse }),
         "/api/locations/2": () => ({ location: vancouver }),
@@ -186,44 +213,79 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
           travelPurpose: { id: 1, purpose: "Meeting" },
         }),
         "/api/expenses": () => ({ expenses: [], totalCount: 0 }),
+        "/api/travel-authorizations/5/wizard": () => ({
+          travelAuthorization: {
+            id: 5,
+            status: travelAuthorization.status,
+            wizardStepName: TravelAuthorizationWizardStepNames.CONFIRM_ACTUAL_TRAVEL_DETAILS,
+          },
+        }),
+        "/api/travel-authorization-action-logs": () => ({
+          travelAuthorizationActionLogs: [],
+          totalCount: 0,
+        }),
+        "/api/users/1": () => ({
+          user: {
+            id: 1,
+            firstName: "Test",
+            lastName: "Traveler",
+          },
+        }),
       })
+      mockHttpGetRoute(
+        "/api/travel-segments",
+        () => ({
+          travelSegments: [],
+          totalCount: 0,
+        }),
+        {
+          params: {
+            where: {
+              travelAuthorizationId: 5,
+              isActual: true,
+            },
+            perPage: -1,
+          },
+        }
+      )
+      mockHttpGetRoute(
+        "/api/travel-segments",
+        () => ({
+          travelSegments,
+          totalCount: travelSegments.length,
+        }),
+        {
+          params: {
+            where: {
+              travelAuthorizationId: 5,
+              isActual: false,
+            },
+            perPage: -1,
+          },
+        }
+      )
       await useCurrentUser().fetch()
       const router = mockRouter([
         {
-          path: "/",
-          component: {
-            template: "<div />",
-          },
+          path: "/requests/:travelAuthorizationId/:stepName",
+          name: "my-travel-requests/MyTravelRequestWizardPage",
+          component: MyTravelRequestWizardPage,
+        },
+        {
+          path: "/profile",
+          name: "ProfilePage",
+          component: MyTravelRequestWizardPage,
         },
       ])
-      await router.push("/")
+      await router.push("/requests/5/confirm-actual-travel-details")
       await router.isReady()
-      const host = defineComponent({
-        setup() {
-          const summaryHeaderPanel = ref<InstanceType<typeof SummaryHeaderPanel> | null>(null)
-          return () => {
-            const summary = h(SummaryHeaderPanel, {
-              ref: summaryHeaderPanel,
-              travelAuthorizationId: 5,
-            })
-            const details = h(ConfirmActualTravelDetailsStep, {
-              travelAuthorizationId: 5,
-              stepTitle: "Trip details",
-              stepSubtitle: "Review your itinerary",
-              "onUpdate:finalDestinationLocationId": (
-                finalDestinationLocationId: number | null
-              ) => {
-                summaryHeaderPanel.value?.update({ finalDestinationLocationId })
-              },
-            })
-            return [summary, details]
-          }
+      const wrapper = mountWithDefaultPlugins(MyTravelRequestWizardPage, {
+        props: {
+          travelAuthorizationId: "5",
+          stepName: TravelAuthorizationWizardStepNames.CONFIRM_ACTUAL_TRAVEL_DETAILS,
         },
-      })
-      const vuetify = mockVuetify()
-      const wrapper = mount(host, {
         global: {
-          plugins: [vuetify, router],
+          plugins: [router],
         },
       })
       await flushPromises()
@@ -231,13 +293,129 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       await flushPromises()
 
       // Act
-      const destinationInput = wrapper.findAllComponents(LocationsAutocomplete)[3]
-      destinationInput.vm.$emit("update:modelValue", 4)
+      const routeEditor = wrapper.getComponent(TravelSegmentsAttributesMultiCityTripSection)
+      const lastLegArrival = routeEditor
+        .findAllComponents(LocationsAutocomplete)
+        .find((control) => {
+          return (
+            control.props("modelValue") === whitehorse.id &&
+            control.getComponent(VAutocomplete).props("label") === "To"
+          )
+        })
+      if (!lastLegArrival) {
+        throw new Error("Missing arrival city control for the last leg")
+      }
+
+      lastLegArrival.vm.$emit("update:modelValue", vancouver.id)
       await flushPromises()
 
       // Assert
       const summaryHeader = wrapper.getComponent(SummaryHeaderPanel)
       expect(summaryHeader.text()).toContain("Ottawa (ON)")
+    })
+
+    test("when a multi-city request has no saved destination, does not infer one for the header", async () => {
+      // Arrange
+      const whitehorse = locationFactory.build({
+        id: 1,
+        city: "Whitehorse",
+        province: "YT",
+      })
+      const vancouver = locationFactory.build({
+        id: 2,
+        city: "Vancouver",
+        province: "BC",
+      })
+      const toronto = locationFactory.build({
+        id: 3,
+        city: "Toronto",
+        province: "ON",
+      })
+      const outboundSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        departureLocationId: whitehorse.id,
+        arrivalLocationId: vancouver.id,
+        departureOn: "2026-11-12",
+      })
+      const connectingSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 2,
+        departureLocationId: vancouver.id,
+        arrivalLocationId: toronto.id,
+        departureOn: "2026-11-13",
+      })
+      const returnSegment = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 3,
+        departureLocationId: toronto.id,
+        arrivalLocationId: whitehorse.id,
+        departureOn: "2026-11-14",
+      })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        userId: 1,
+        tripTypeEstimate: TravelAuthorizationTripTypes.MULTI_CITY,
+        finalDestination: null,
+        travelSegments: [outboundSegment, connectingSegment, returnSegment],
+      })
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/locations/1": () => ({
+          location: whitehorse,
+        }),
+        "/api/locations/2": () => ({
+          location: vancouver,
+        }),
+        "/api/locations/3": () => ({
+          location: toronto,
+        }),
+        "/api/current-user": () => ({
+          user: {
+            id: 1,
+            displayName: "Test Traveler",
+            roles: [],
+          },
+          policy: {},
+        }),
+        "/api/users/1": () => ({
+          user: {
+            id: 1,
+            firstName: "Test",
+            lastName: "Traveler",
+          },
+        }),
+      })
+      await useCurrentUser().fetch()
+      const router = mockRouter([
+        {
+          path: "/profile",
+          name: "ProfilePage",
+          component: MyTravelRequestWizardPage,
+        },
+      ])
+      const wrapper = mountWithDefaultPlugins(SummaryHeaderPanel, {
+        props: {
+          travelAuthorizationId: 5,
+        },
+        global: {
+          plugins: [router],
+        },
+      })
+
+      // Act
+      await flushPromises()
+
+      // Assert
+      const destinationLabel = wrapper.findAll(".text-caption").find((element) => {
+        return element.text() === "Destination"
+      })
+      if (!destinationLabel) {
+        throw new Error("Destination label is missing")
+      }
+
+      const destinationText = destinationLabel.element.nextElementSibling?.textContent
+      expect(destinationText).toBe("—")
     })
   })
 })
