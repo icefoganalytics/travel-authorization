@@ -63,9 +63,12 @@ export class CreateService extends BaseService {
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
-    const travelDeskBookingEvent = await this.loadTravelDeskBookingEventAndValidateSelectedFees(
+    const travelDeskBookingEvent = await this.loadTravelDeskBookingEvent(
       bookingReference,
-      externalBookingEventIdentifier,
+      externalBookingEventIdentifier
+    )
+    await this.validateSelectedServiceFees(
+      bookingReference,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode
     )
@@ -122,11 +125,9 @@ export class CreateService extends BaseService {
     }
   }
 
-  private async loadTravelDeskBookingEventAndValidateSelectedFees(
+  private async loadTravelDeskBookingEvent(
     bookingReference: string,
-    externalBookingEventIdentifier: number,
-    sourceServiceFeeEventExternalIdentifiers: number[],
-    currencyCode: string
+    externalBookingEventIdentifier: number
   ): Promise<TravelDeskBookingEvent> {
     const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
       where: {
@@ -140,7 +141,15 @@ export class CreateService extends BaseService {
       )
     }
 
-    if (isEmpty(sourceServiceFeeEventExternalIdentifiers)) return travelDeskBookingEvent
+    return travelDeskBookingEvent
+  }
+
+  private async validateSelectedServiceFees(
+    bookingReference: string,
+    sourceServiceFeeEventExternalIdentifiers: number[],
+    currencyCode: string
+  ): Promise<void> {
+    if (isEmpty(sourceServiceFeeEventExternalIdentifiers)) return
 
     const serviceFeeTravelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
       attributes: ["externalTravelPortIdentifier", "serviceFeeTransaction"],
@@ -178,8 +187,6 @@ export class CreateService extends BaseService {
       }
       documentNumbers.add(documentNumber)
     }
-
-    return travelDeskBookingEvent
   }
 }
 
