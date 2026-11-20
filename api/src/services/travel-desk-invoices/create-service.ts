@@ -56,8 +56,6 @@ export class CreateService extends BaseService {
       throw new InvoiceValidationError("Invoice items must be an array.")
     }
 
-    await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
-
     const travelDeskBookingEvent = await this.loadTravelDeskBookingEvent(externalBookingEventIdentifier)
     const { bookingReference } = travelDeskBookingEvent
     if (isNil(bookingReference)) {
@@ -72,7 +70,11 @@ export class CreateService extends BaseService {
     const grossAmount = CalculateTotalService.perform(items)
 
     return db.transaction(async () => {
-      await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
+      const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(this.travelDeskTravelRequest.id)
+      if (isNil(travelDeskTravelRequest)) {
+        throw new InvoiceValidationError("Travel desk travel request does not exist.")
+      }
+
       ValidateItemsService.perform(
         items,
         travelDeskBookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
@@ -113,13 +115,6 @@ export class CreateService extends BaseService {
         ],
       })
     })
-  }
-
-  private async requireActiveTravelRequest(travelDeskTravelRequestId: number): Promise<void> {
-    const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(travelDeskTravelRequestId)
-    if (isNil(travelDeskTravelRequest)) {
-      throw new InvoiceValidationError("Travel desk travel request does not exist.")
-    }
   }
 
   private async loadTravelDeskBookingEvent(
