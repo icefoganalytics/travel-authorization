@@ -66,7 +66,7 @@ export class CreateService extends BaseService {
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
-    const bookingEvent = await this.loadSelectedBookingEvent(
+    const bookingEvent = await this.loadBookingEventAndValidateSelectedFees(
       normalizedBookingReference,
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers,
@@ -131,7 +131,7 @@ export class CreateService extends BaseService {
     }
   }
 
-  private async loadSelectedBookingEvent(
+  private async loadBookingEventAndValidateSelectedFees(
     bookingReference: string,
     externalBookingEventIdentifier: number,
     sourceServiceFeeEventExternalIdentifiers: number[],
