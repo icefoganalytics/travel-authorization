@@ -5,7 +5,7 @@ import { db } from "@/db/db-client"
 
 import { TravelDeskInvoice } from "@/models"
 
-import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
+import ServiceValidationError from "@/services/service-validation-error"
 
 // Lock the invoice before touching its items, so deletion waits for an overlapping update.
 export function withTravelDeskInvoiceLock<Result>(
@@ -29,7 +29,7 @@ export function withTravelDeskInvoiceLock<Result>(
 
     const travelDeskInvoice = await TravelDeskInvoice.findByPk(travelDeskInvoiceOrId, lockOptions)
     if (isNil(travelDeskInvoice)) {
-      throw new TravelDeskInvoiceValidationError("Invoice does not exist.")
+      throw new ServiceValidationError("Invoice does not exist.")
     }
 
     return callback(travelDeskInvoice, transaction)

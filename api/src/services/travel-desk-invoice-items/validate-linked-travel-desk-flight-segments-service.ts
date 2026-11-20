@@ -3,7 +3,7 @@ import { isEmpty, isNil, uniq } from "lodash"
 import { TravelDeskFlightSegment } from "@/models"
 
 import BaseService from "@/services/base-service"
-import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
+import ServiceValidationError from "@/services/service-validation-error"
 import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 
 export class ValidateLinkedTravelDeskFlightSegmentsService extends BaseService {
@@ -46,9 +46,10 @@ export class ValidateLinkedTravelDeskFlightSegmentsService extends BaseService {
     })
 
     if (matchingTravelDeskFlightSegmentCount !== travelDeskFlightSegmentIds.length) {
-      throw new TravelDeskInvoiceValidationError(
-        "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving."
-      )
+      throw new ServiceValidationError({
+        field: "items",
+        text: "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving.",
+      })
     }
   }
 }

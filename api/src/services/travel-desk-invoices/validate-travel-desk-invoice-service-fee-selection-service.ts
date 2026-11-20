@@ -4,7 +4,7 @@ import { isEmpty, isNil } from "lodash"
 import { TravelDeskBookingEvent } from "@/models"
 
 import BaseService from "@/services/base-service"
-import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
+import ServiceValidationError from "@/services/service-validation-error"
 
 export class ValidateTravelDeskInvoiceServiceFeeSelectionService extends BaseService {
   constructor(
@@ -28,30 +28,36 @@ export class ValidateTravelDeskInvoiceServiceFeeSelectionService extends BaseSer
       },
     })
     if (selectedTravelDeskBookingEvents.length !== new Set(this.sourceServiceFeeEventExternalIdentifiers).size) {
-      throw new TravelDeskInvoiceValidationError(
-        "Every selected service fee must belong to this booking reference."
-      )
+      throw new ServiceValidationError({
+        field: "sourceServiceFeeEventExternalIdentifiers",
+        text: "Every selected service fee must belong to this booking reference.",
+      })
     }
 
     const serviceFeeDocumentNumbers = new Set<string>()
     for (const { serviceFeeTransaction } of selectedTravelDeskBookingEvents) {
       if (isNil(serviceFeeTransaction)) {
-        throw new TravelDeskInvoiceValidationError("The selected booking event has no service fee.")
+        throw new ServiceValidationError({
+          field: "sourceServiceFeeEventExternalIdentifiers",
+          text: "The selected booking event has no service fee.",
+        })
       }
 
       const { currencyCode, serviceFeeDocumentNumber } = serviceFeeTransaction
       if (!isNil(currencyCode) && currencyCode !== this.currencyCode) {
-        throw new TravelDeskInvoiceValidationError(
-          "Selected service fee currency must match the invoice currency."
-        )
+        throw new ServiceValidationError({
+          field: "sourceServiceFeeEventExternalIdentifiers",
+          text: "Selected service fee currency must match the invoice currency.",
+        })
       }
 
       if (isNil(serviceFeeDocumentNumber) || isEmpty(serviceFeeDocumentNumber)) continue
 
       if (serviceFeeDocumentNumbers.has(serviceFeeDocumentNumber)) {
-        throw new TravelDeskInvoiceValidationError(
-          "Multiple versions of a service fee document cannot be selected."
-        )
+        throw new ServiceValidationError({
+          field: "sourceServiceFeeEventExternalIdentifiers",
+          text: "Multiple versions of a service fee document cannot be selected.",
+        })
       }
       serviceFeeDocumentNumbers.add(serviceFeeDocumentNumber)
     }

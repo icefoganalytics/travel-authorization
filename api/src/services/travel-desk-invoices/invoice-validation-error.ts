@@ -1,6 +1,1 @@
-import BaseServiceError from "@/services/base-service-error"
-
-export class TravelDeskInvoiceValidationError extends BaseServiceError {}
-
-export { TravelDeskInvoiceValidationError as InvoiceValidationError }
-export default TravelDeskInvoiceValidationError
+export { ServiceValidationError as InvoiceValidationError } from "@/services/service-validation-error"
