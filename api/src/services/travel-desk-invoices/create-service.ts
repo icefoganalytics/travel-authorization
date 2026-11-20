@@ -83,34 +83,22 @@ export class CreateService extends BaseService {
       )
       await ValidateLinkedFlightSegmentsService.perform(items, this.travelDeskTravelRequest.id)
 
-      const invoiceNumber = this.attributes.invoiceNumber ?? null
-      const invoiceDate = this.attributes.invoiceDate ?? null
-      const warrantNumber = this.attributes.warrantNumber ?? null
-      const clientNumber = this.attributes.clientNumber ?? null
-      const clientName = this.attributes.clientName ?? null
-      const department = this.attributes.department ?? null
-      const mailcode = this.attributes.mailcode ?? null
-      const iataNumber = this.attributes.iataNumber ?? null
-      const bookingAgentName = this.attributes.bookingAgentName ?? null
-      const ticketingAgentName = this.attributes.ticketingAgentName ?? null
-      const bookingDate = this.attributes.bookingDate ?? null
-
       const invoice = await TravelDeskInvoice.create({
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         bookingReference: normalizedBookingReference,
         externalBookingEventIdentifier,
         currencyCode,
-        invoiceNumber,
-        invoiceDate,
-        warrantNumber,
-        clientNumber,
-        clientName,
-        department,
-        mailcode,
-        iataNumber,
-        bookingAgentName,
-        ticketingAgentName,
-        bookingDate,
+        invoiceNumber: this.attributes.invoiceNumber,
+        invoiceDate: this.attributes.invoiceDate,
+        warrantNumber: this.attributes.warrantNumber,
+        clientNumber: this.attributes.clientNumber,
+        clientName: this.attributes.clientName,
+        department: this.attributes.department,
+        mailcode: this.attributes.mailcode,
+        iataNumber: this.attributes.iataNumber,
+        bookingAgentName: this.attributes.bookingAgentName,
+        ticketingAgentName: this.attributes.ticketingAgentName,
+        bookingDate: this.attributes.bookingDate,
         grossAmount,
       })
       await BulkCreateService.perform(invoice.id, items)
