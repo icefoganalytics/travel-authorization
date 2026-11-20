@@ -25,6 +25,7 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/locations": () => ({ locations: [], totalCount: 0 }),
         "/api/travel-segments": () => ({ travelSegments: [], totalCount: 0 }),
       })
       const router = mockRouter()

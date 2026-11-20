@@ -4,7 +4,7 @@
     type="card"
   />
   <v-form
-    v-else-if="!isNil(savedTripType)"
+    v-else
     ref="form"
     validate-on="lazy"
   >
@@ -225,7 +225,7 @@ async function resetFormValidation() {
 }
 
 async function validate() {
-  if (isNil(form.value)) {
+  if (isNil(form.value) || isNil(savedTripType.value)) {
     return { valid: false }
   }
 
@@ -233,7 +233,7 @@ async function validate() {
 }
 
 async function saveWrapper() {
-  if (isNil(form.value)) return
+  if (isNil(form.value) || isNil(savedTripType.value)) return
 
   const { valid } = await form.value.validate()
   if (!valid) {
