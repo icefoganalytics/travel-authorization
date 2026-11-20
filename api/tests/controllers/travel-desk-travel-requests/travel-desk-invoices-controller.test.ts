@@ -395,7 +395,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: "Failed to create invoice: Error: Parent lookup failed.",
+          message: "Invoice could not be created.",
         })
       })
 
@@ -427,22 +427,20 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         const response = await request()
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
-            bookingReference: "API001",
             externalBookingEventIdentifier: 930001,
             sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
-            items: [],
+            itemsAttributes: [],
           })
 
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message:
-            "Failed to create invoice: InvoiceValidationError: Choose a booking event with flight segments for this booking reference.",
+          message: "The selected booking event was not found.",
         })
       })
 
-      test("when synced data is created with forged totals, it uses local source data and calculated total", async () => {
+      test("when no booking reference is submitted and the total is forged, it uses the synced booking reference and calculated total", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
@@ -474,12 +472,11 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           .post(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-invoices`)
           .send({
             travelDeskTravelRequestId: otherRequest.id,
-            bookingReference: "api001",
             externalBookingEventIdentifier: 930001,
             sourceServiceFeeEventExternalIdentifiers: [],
             currencyCode: "CAD",
             grossAmount: "999999.999",
-            items: [
+            itemsAttributes: [
               {
                 productType: "air",
                 sourceAirSegmentNumber: 1,
@@ -493,20 +490,41 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(201)
         expect(response.body).toEqual({
-          travelDeskInvoice: expect.objectContaining({
+          travelDeskInvoice: {
+            id: expect.any(Number),
             travelDeskTravelRequestId: travelRequest.id,
             bookingReference: "API001",
             externalBookingEventIdentifier: 930001,
             currencyCode: "CAD",
+            invoiceNumber: null,
+            invoiceDate: null,
+            warrantNumber: null,
+            clientNumber: null,
+            clientName: null,
+            department: null,
+            mailcode: null,
+            iataNumber: null,
+            bookingAgentName: null,
+            ticketingAgentName: null,
+            bookingDate: null,
             grossAmount: "125.500",
             items: [
-              expect.objectContaining({
-                sourceAirSegmentNumber: 1,
-                grossAmount: "125.500",
+              {
+                id: expect.any(Number),
                 productType: "air",
-              }),
+                travelDeskFlightSegmentId: null,
+                sourceAirSegmentNumber: 1,
+                sourceServiceFeeEventExternalIdentifier: null,
+                passengerName: null,
+                ticketNumber: null,
+                vendor: null,
+                description: null,
+                saleType: "sale",
+                grossAmount: "125.500",
+                position: 0,
+              },
             ],
-          }),
+          },
         })
       })
     })
@@ -550,7 +568,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: "Failed to update invoice: Error: Parent lookup failed.",
+          message: "Invoice could not be updated.",
         })
       })
 
@@ -629,7 +647,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
             bookingReference: "FORGED",
             externalBookingEventIdentifier: 999999,
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
                 productType: "air",
                 sourceAirSegmentNumber: 1,
@@ -643,17 +661,41 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(200)
         expect(response.body).toEqual({
-          travelDeskInvoice: expect.objectContaining({
+          travelDeskInvoice: {
+            id: invoice.id,
             travelDeskTravelRequestId: originalRequestId,
             bookingReference: originalBookingReference,
             externalBookingEventIdentifier: originalBookingEventId,
+            currencyCode: "CAD",
             invoiceNumber: "INV-ORIGINAL",
+            invoiceDate: null,
+            warrantNumber: null,
+            clientNumber: null,
+            clientName: null,
+            department: null,
+            mailcode: null,
+            iataNumber: null,
+            bookingAgentName: null,
+            ticketingAgentName: null,
+            bookingDate: null,
             grossAmount: "22.000",
-            items: [expect.objectContaining({
-              grossAmount: "22.000",
-              sourceAirSegmentNumber: 1,
-            })],
-          }),
+            items: [
+              {
+                id: expect.any(Number),
+                productType: "air",
+                travelDeskFlightSegmentId: null,
+                sourceAirSegmentNumber: 1,
+                sourceServiceFeeEventExternalIdentifier: null,
+                passengerName: null,
+                ticketNumber: null,
+                vendor: null,
+                description: null,
+                saleType: "sale",
+                grossAmount: "22.000",
+                position: 0,
+              },
+            ],
+          },
         })
       })
 
@@ -670,7 +712,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           )
           .send({
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
                 productType: "custom-fee",
                 sourceAirSegmentNumber: 1,
@@ -684,8 +726,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message:
-            "Failed to update invoice: InvoiceValidationError: Product type must be one of: air, service_fee, credit, change_fee",
+          message: "Product type must be one of: air, service_fee, credit, change_fee",
         })
       })
 
@@ -714,7 +755,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
           )
           .send({
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
                 productType: "air",
                 sourceAirSegmentNumber: 1,
@@ -728,8 +769,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
         // Assert
         expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message:
-            "Failed to update invoice: InvoiceValidationError: Amount must be a decimal number.",
+          message: "Amount must be a decimal number.",
         })
       })
     })

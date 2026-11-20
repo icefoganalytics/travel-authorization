@@ -1,5 +1,1 @@
-import BaseServiceError from "@/services/base-service-error"
-
-export class InvoiceValidationError extends BaseServiceError {}
-
-export default InvoiceValidationError
+export { ServiceValidationError as InvoiceValidationError } from "@/services/service-validation-error"

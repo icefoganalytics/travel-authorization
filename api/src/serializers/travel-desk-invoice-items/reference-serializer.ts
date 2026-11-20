@@ -1,37 +1,41 @@
+import { pick } from "lodash"
+
 import { type TravelDeskInvoiceItem } from "@/models"
-import { type TravelDeskInvoiceItemProductTypes } from "@/models/travel-desk-invoice-item"
 import BaseSerializer from "@/serializers/base-serializer"
 
-export type TravelDeskInvoiceItemAsReference = {
-  id: number
-  productType: `${TravelDeskInvoiceItemProductTypes}`
-  travelDeskFlightSegmentId: number | null
-  sourceAirSegmentNumber: number | null
-  sourceServiceFeeEventExternalIdentifier: number | null
-  passengerName: string | null
-  ticketNumber: string | null
-  vendor: string | null
-  description: string | null
-  saleType: TravelDeskInvoiceItem["saleType"]
-  grossAmount: string
-  position: number
-}
+export type TravelDeskInvoiceItemAsReference = Pick<
+  TravelDeskInvoiceItem,
+  | "id"
+  | "productType"
+  | "travelDeskFlightSegmentId"
+  | "sourceAirSegmentNumber"
+  | "sourceServiceFeeEventExternalIdentifier"
+  | "passengerName"
+  | "ticketNumber"
+  | "vendor"
+  | "description"
+  | "saleType"
+  | "grossAmount"
+  | "position"
+>
 
 export class ReferenceSerializer extends BaseSerializer<TravelDeskInvoiceItem> {
   perform(): TravelDeskInvoiceItemAsReference {
     return {
-      id: this.record.id,
-      productType: this.record.productType,
-      travelDeskFlightSegmentId: this.record.travelDeskFlightSegmentId,
-      sourceAirSegmentNumber: this.record.sourceAirSegmentNumber,
-      sourceServiceFeeEventExternalIdentifier: this.record.sourceServiceFeeEventExternalIdentifier,
-      passengerName: this.record.passengerName,
-      ticketNumber: this.record.ticketNumber,
-      vendor: this.record.vendor,
-      description: this.record.description,
-      saleType: this.record.saleType,
-      grossAmount: this.record.grossAmount,
-      position: this.record.position,
+      ...pick(this.record, [
+        "id",
+        "productType",
+        "travelDeskFlightSegmentId",
+        "sourceAirSegmentNumber",
+        "sourceServiceFeeEventExternalIdentifier",
+        "passengerName",
+        "ticketNumber",
+        "vendor",
+        "description",
+        "saleType",
+        "grossAmount",
+        "position",
+      ]),
     }
   }
 }

@@ -1,4 +1,4 @@
-import { pick } from "lodash"
+import { isUndefined, pick } from "lodash"
 
 import { type TravelDeskInvoice } from "@/models"
 import BaseSerializer from "@/serializers/base-serializer"
@@ -27,16 +27,15 @@ export type TravelDeskInvoiceAsShow = {
 
 export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
   perform(): TravelDeskInvoiceAsShow {
-    const invoice = this.record
-    const { items } = invoice
-    if (!items) {
+    const { items: travelDeskInvoiceItems } = this.record
+    if (isUndefined(travelDeskInvoiceItems)) {
       throw new Error("Expected invoice items to be preloaded.")
     }
 
-    const serializedItems = TravelDeskInvoiceItems.ReferenceSerializer.perform(items)
+    const serializedTravelDeskInvoiceItems = TravelDeskInvoiceItems.ReferenceSerializer.perform(travelDeskInvoiceItems)
 
     return {
-      ...pick(invoice, [
+      ...pick(this.record, [
         "id",
         "travelDeskTravelRequestId",
         "bookingReference",
@@ -55,7 +54,7 @@ export class ShowSerializer extends BaseSerializer<TravelDeskInvoice> {
         "bookingDate",
         "grossAmount",
       ]),
-      items: serializedItems,
+      items: serializedTravelDeskInvoiceItems,
     }
   }
 }

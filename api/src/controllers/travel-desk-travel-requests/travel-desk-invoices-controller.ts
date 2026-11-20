@@ -6,6 +6,7 @@ import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskInvoicesPolicy, TravelDeskTravelRequests } from "@/policies"
 
+import ServiceValidationError from "@/services/service-validation-error"
 import { CreateService, DestroyService, UpdateService } from "@/services/travel-desk-invoices"
 
 import { IndexSerializer, ShowSerializer } from "@/serializers/travel-desk-invoices"
@@ -160,11 +161,17 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         travelDeskInvoice: serializedTravelDeskInvoice,
       })
     } catch (error) {
+      if (error instanceof ServiceValidationError) {
+        return this.response.status(422).json({
+          message: error.message,
+        })
+      }
+
       logger.error(`Failed to create travel desk invoice: ${error}`, {
         error,
       })
       return this.response.status(422).json({
-        message: `Failed to create invoice: ${error}`,
+        message: "Invoice could not be created.",
       })
     }
   }
@@ -212,11 +219,17 @@ export class TravelDeskInvoicesController extends BaseController<TravelDeskInvoi
         travelDeskInvoice: serializedTravelDeskInvoice,
       })
     } catch (error) {
+      if (error instanceof ServiceValidationError) {
+        return this.response.status(422).json({
+          message: error.message,
+        })
+      }
+
       logger.error(`Failed to update travel desk invoice: ${error}`, {
         error,
       })
       return this.response.status(422).json({
-        message: `Failed to update invoice: ${error}`,
+        message: "Invoice could not be updated.",
       })
     }
   }
