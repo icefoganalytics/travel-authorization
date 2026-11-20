@@ -26,7 +26,7 @@ describe("WithReportTransaction.perform", () => {
     const controller = new AbortController()
     const baseline = db.pool.using
     const sleep = `SELECT pg_sleep(60) /* report ${randomUUID()} */`
-    const activeReport = () => db.query(
+    const findReport = () => db.query<{ pid: number }>(
       "SELECT pid FROM pg_stat_activity WHERE query = $sleep AND state = 'active'",
       { bind: { sleep }, type: QueryTypes.SELECT }
     )
@@ -35,8 +35,10 @@ describe("WithReportTransaction.perform", () => {
     })
     const completed = Promise.allSettled([report])
     try {
-      await vi.waitFor(async () => {
-        expect(await activeReport()).toHaveLength(1)
+      const pid = await vi.waitFor(async () => {
+        const [session] = await findReport()
+        if (!session) throw new Error("Report query is not active yet")
+        return session.pid
       }, { timeout: 5000 })
 
       // Act
@@ -45,10 +47,14 @@ describe("WithReportTransaction.perform", () => {
 
       // Assert
       await vi.waitFor(async () => {
-        expect({ outcome: outcome.status, connections: db.pool.using, active: await activeReport() }).toEqual({
+        const sessions = await db.query("SELECT pid FROM pg_stat_activity WHERE pid = $pid", {
+          bind: { pid },
+          type: QueryTypes.SELECT,
+        })
+        expect({ outcome: outcome.status, connections: db.pool.using, sessions }).toEqual({
           outcome: "rejected",
           connections: baseline,
-          active: [],
+          sessions: [],
         })
       }, { timeout: 5000 })
     } finally {
