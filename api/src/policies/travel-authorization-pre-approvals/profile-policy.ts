@@ -11,6 +11,14 @@ export class ProfilePolicy extends PolicyFactory(TravelAuthorizationPreApproval)
     )
   }
 
+  update(): boolean {
+    return this.create()
+  }
+
+  destroy(): boolean {
+    return this.update()
+  }
+
   permittedAttributesForCreate(): Path[] {
     return TravelAuthorizationPreApprovalProfilesPolicy.permittedAttributesForCreate()
   }

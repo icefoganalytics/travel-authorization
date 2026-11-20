@@ -216,7 +216,10 @@ async function removeTravelAuthorizationPreApprovalProfile(
 ) {
   isDeleting.value = true
   try {
-    await travelAuthorizationPreApprovalProfilesApi.delete(travelAuthorizationPreApprovalProfileId)
+    await travelAuthorizationPreApprovalProfilesApi.delete(
+      props.travelAuthorizationPreApprovalId,
+      travelAuthorizationPreApprovalProfileId
+    )
     snack.success(`Travel pre-approval profile deleted successfully`)
     await travelAuthorizationPreApprovalProfilesDataTable.value.refresh()
   } catch (error) {

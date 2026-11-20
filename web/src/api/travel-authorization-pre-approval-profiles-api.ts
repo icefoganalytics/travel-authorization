@@ -91,9 +91,12 @@ export const travelAuthorizationPreApprovalProfilesApi = {
     return data
   },
 
-  async delete(travelAuthorizationPreApprovalProfileId: number): Promise<void> {
+  async delete(
+    travelAuthorizationPreApprovalId: number | string,
+    travelAuthorizationPreApprovalProfileId: number
+  ): Promise<void> {
     await http.delete(
-      `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`
+      `/api/travel-authorization-pre-approvals/${travelAuthorizationPreApprovalId}/profiles/${travelAuthorizationPreApprovalProfileId}`
     )
   },
 }

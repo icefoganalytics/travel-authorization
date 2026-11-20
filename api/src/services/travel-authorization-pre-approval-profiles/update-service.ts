@@ -15,10 +15,7 @@ export class UpdateService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorizationPreApprovalProfile> {
-    await this.travelAuthorizationPreApprovalProfile.update(this.attributes)
-    return this.travelAuthorizationPreApprovalProfile.reload({
-      include: ["preApproval"],
-    })
+    return this.travelAuthorizationPreApprovalProfile.update(this.attributes)
   }
 }
 

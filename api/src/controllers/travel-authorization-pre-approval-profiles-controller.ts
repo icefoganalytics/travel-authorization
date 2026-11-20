@@ -68,34 +68,6 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
     })
   }
 
-  async destroy() {
-    try {
-      const travelAuthorizationPreApprovalProfile =
-        await this.loadTravelAuthorizationPreApprovalProfile()
-      if (isNil(travelAuthorizationPreApprovalProfile)) {
-        return this.response.status(404).json({
-          message: "Travel Authorization Pre-Approval Profile not found",
-        })
-      }
-
-      const policy = this.buildPolicy(travelAuthorizationPreApprovalProfile)
-      if (!policy.destroy()) {
-        return this.response.status(403).json({
-          message:
-            "You are not authorized to delete this travel authorization pre-approval profile.",
-        })
-      }
-
-      await travelAuthorizationPreApprovalProfile.destroy()
-      return this.response.status(204).send()
-    } catch (error) {
-      logger.error(`Error deleting travel authorization pre-approval profile: ${error}`, { error })
-      return this.response.status(422).json({
-        message: `Failed to delete travel authorization pre-approval profile: ${error}`,
-      })
-    }
-  }
-
   async loadTravelAuthorizationPreApprovalProfile() {
     return TravelAuthorizationPreApprovalProfile.findByPk(
       this.params.travelAuthorizationPreApprovalProfileId,

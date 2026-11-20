@@ -330,7 +330,6 @@ router
 router
   .route("/api/travel-authorization-pre-approval-profiles/:travelAuthorizationPreApprovalProfileId")
   .get(TravelAuthorizationPreApprovalProfilesController.show)
-  .delete(TravelAuthorizationPreApprovalProfilesController.destroy)
 
 router
   .route("/api/travel-authorization-pre-approvals")
@@ -349,6 +348,7 @@ router
     "/api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId/profiles/:travelAuthorizationPreApprovalProfileId"
   )
   .patch(TravelAuthorizationPreApprovals.ProfilesController.update)
+  .delete(TravelAuthorizationPreApprovals.ProfilesController.destroy)
 
 router
   .route("/api/travel-authorization-pre-approval-submissions")

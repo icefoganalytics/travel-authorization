@@ -372,6 +372,56 @@ describe("api/src/controllers/travel-authorization-pre-approvals/profiles-contro
         })
       })
 
+      test("when the pre-approval in the URL does not exist, it returns the pre-approval not found error", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Finance" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({ department: "Finance" })
+        const missingPreApprovalId = 999999
+
+        // Act
+        const response = await request()
+          .patch(
+            `/api/travel-authorization-pre-approvals/${missingPreApprovalId}/profiles/${profile.id}`
+          )
+          .send({ branch: "Accounting" })
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Travel authorization pre-approval not found.",
+        })
+      })
+
+      test("when the pre-approval is forbidden and the profile does not exist, it denies the update", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Health" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const missingProfileId = 999999
+
+        // Act
+        const response = await request()
+          .patch(
+            `/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${missingProfileId}`
+          )
+          .send({ branch: "Accounting" })
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message:
+            "You are not authorized to update this travel authorization pre-approval profile.",
+        })
+      })
+
       test("when the caller's department matches a legacy profile but not its pre-approval, it denies the update", async () => {
         // Arrange
         const user = await userFactory.create({
@@ -402,6 +452,30 @@ describe("api/src/controllers/travel-authorization-pre-approvals/profiles-contro
         })
       })
 
+      test("when the caller's department matches the pre-approval but not a legacy profile, it denies the update", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Finance" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({ department: "Health" })
+
+        // Act
+        const response = await request()
+          .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`)
+          .send({ branch: "Accounting" })
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message:
+            "You are not authorized to update this travel authorization pre-approval profile.",
+        })
+      })
+
       test("when the profile belongs to another pre-approval in the same department, it returns not found", async () => {
         // Arrange
         const user = await userFactory.create({ department: "Finance" })
@@ -416,6 +490,149 @@ describe("api/src/controllers/travel-authorization-pre-approvals/profiles-contro
         const response = await request()
           .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`)
           .send({ branch: "Accounting" })
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Travel Authorization Pre-Approval Profile not found",
+        })
+      })
+    })
+
+    describe("#destroy - DELETE - /api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId/profiles/:travelAuthorizationPreApprovalProfileId", () => {
+      test("when the caller's department matches the profile and its pre-approval, it deletes the profile", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Health" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Health",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({ department: "Health" })
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(204)
+        expect(response.body).toEqual({})
+      })
+
+      test("when the pre-approval in the URL does not exist, it returns the pre-approval not found error", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Finance" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({ department: "Finance" })
+        const missingPreApprovalId = 999999
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-authorization-pre-approvals/${missingPreApprovalId}/profiles/${profile.id}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Travel authorization pre-approval not found.",
+        })
+      })
+
+      test("when the pre-approval is forbidden and the profile does not exist, it denies deletion", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Health" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const missingProfileId = 999999
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${missingProfileId}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message:
+            "You are not authorized to delete this travel authorization pre-approval profile.",
+        })
+      })
+
+      test("when the caller's department matches a legacy profile but not its pre-approval, it denies deletion", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Health" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({ department: "Health" })
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message:
+            "You are not authorized to delete this travel authorization pre-approval profile.",
+        })
+      })
+
+      test("when the caller's department matches the pre-approval but not a legacy profile, it denies deletion", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Finance" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({ department: "Health" })
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message:
+            "You are not authorized to delete this travel authorization pre-approval profile.",
+        })
+      })
+
+      test("when the profile belongs to another pre-approval in the same department, it returns not found", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Finance" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const otherPreApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval: otherPreApproval })
+          .create({ department: "Finance" })
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`
+        )
 
         // Assert
         expect(response.status).toEqual(404)

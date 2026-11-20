@@ -46,26 +46,40 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
 
   async update() {
     try {
+      const travelAuthorizationPreApproval = await this.loadTravelAuthorizationPreApproval()
+      if (isNil(travelAuthorizationPreApproval)) {
+        return this.response.status(404).json({
+          message: "Travel authorization pre-approval not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(travelAuthorizationPreApproval)
+      if (!policy.update()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to update this travel authorization pre-approval profile.",
+        })
+      }
+
       const travelAuthorizationPreApprovalProfile =
-        await this.loadTravelAuthorizationPreApprovalProfile()
+        await this.loadTravelAuthorizationPreApprovalProfile(travelAuthorizationPreApproval)
       if (isNil(travelAuthorizationPreApprovalProfile)) {
         return this.response.status(404).json({
           message: "Travel Authorization Pre-Approval Profile not found",
         })
       }
 
-      const policy = new TravelAuthorizationPreApprovalProfilesPolicy(
+      const profilePolicy = new TravelAuthorizationPreApprovalProfilesPolicy(
         this.currentUser,
         travelAuthorizationPreApprovalProfile
       )
-      if (!policy.update()) {
+      if (!profilePolicy.update()) {
         return this.response.status(403).json({
           message:
             "You are not authorized to update this travel authorization pre-approval profile.",
         })
       }
 
-      const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
+      const permittedAttributes = profilePolicy.permitAttributesForUpdate(this.request.body)
       const updatedTravelAuthorizationPreApprovalProfile = await UpdateService.perform(
         travelAuthorizationPreApprovalProfile,
         permittedAttributes
@@ -75,7 +89,7 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
       )
       return this.response.status(200).json({
         travelAuthorizationPreApprovalProfile: serializedTravelAuthorizationPreApprovalProfile,
-        policy,
+        policy: profilePolicy,
       })
     } catch (error) {
       logger.error(`Error updating travel authorization pre-approval profile: ${error}`, { error })
@@ -85,14 +99,63 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
     }
   }
 
-  private loadTravelAuthorizationPreApprovalProfile() {
-    return TravelAuthorizationPreApprovalProfile.findOne({
+  async destroy() {
+    try {
+      const travelAuthorizationPreApproval = await this.loadTravelAuthorizationPreApproval()
+      if (isNil(travelAuthorizationPreApproval)) {
+        return this.response.status(404).json({
+          message: "Travel authorization pre-approval not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(travelAuthorizationPreApproval)
+      if (!policy.destroy()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to delete this travel authorization pre-approval profile.",
+        })
+      }
+
+      const travelAuthorizationPreApprovalProfile =
+        await this.loadTravelAuthorizationPreApprovalProfile(travelAuthorizationPreApproval)
+      if (isNil(travelAuthorizationPreApprovalProfile)) {
+        return this.response.status(404).json({
+          message: "Travel Authorization Pre-Approval Profile not found",
+        })
+      }
+
+      const profilePolicy = new TravelAuthorizationPreApprovalProfilesPolicy(
+        this.currentUser,
+        travelAuthorizationPreApprovalProfile
+      )
+      if (!profilePolicy.destroy()) {
+        return this.response.status(403).json({
+          message:
+            "You are not authorized to delete this travel authorization pre-approval profile.",
+        })
+      }
+
+      await travelAuthorizationPreApprovalProfile.destroy()
+      return this.response.status(204).send()
+    } catch (error) {
+      logger.error(`Error deleting travel authorization pre-approval profile: ${error}`, { error })
+      return this.response.status(422).json({
+        message: `Failed to delete travel authorization pre-approval profile: ${error}`,
+      })
+    }
+  }
+
+  private async loadTravelAuthorizationPreApprovalProfile(preApproval: TravelAuthorizationPreApproval) {
+    const profile = await TravelAuthorizationPreApprovalProfile.findOne({
       where: {
         id: this.params.travelAuthorizationPreApprovalProfileId,
-        preApprovalId: this.params.travelAuthorizationPreApprovalId,
+        preApprovalId: preApproval.id,
       },
-      include: ["preApproval"],
     })
+    if (!isNil(profile)) {
+      profile.preApproval = preApproval
+    }
+
+    return profile
   }
 
   private loadTravelAuthorizationPreApproval(): Promise<TravelAuthorizationPreApproval | null> {
