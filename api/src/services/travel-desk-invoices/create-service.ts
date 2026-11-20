@@ -62,7 +62,7 @@ export class CreateService extends BaseService {
       throw new InvoiceValidationError("The selected booking event has no booking reference.")
     }
 
-    await this.validateSelectedServiceFees(
+    await this.assertSelectedServiceFeesAreValid(
       bookingReference,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode
@@ -138,7 +138,7 @@ export class CreateService extends BaseService {
     return travelDeskBookingEvent
   }
 
-  private async validateSelectedServiceFees(
+  private async assertSelectedServiceFeesAreValid(
     bookingReference: string,
     sourceServiceFeeEventExternalIdentifiers: number[],
     currencyCode: string
