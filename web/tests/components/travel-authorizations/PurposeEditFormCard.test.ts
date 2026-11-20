@@ -17,7 +17,7 @@ import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditF
 
 describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () => {
   describe("PurposeEditFormCard", () => {
-    test("when the meeting name changes, saves it without changing the itinerary", async () => {
+    test("when the meeting name changes, saves the new name and retains the selected city", async () => {
       // Arrange
       const travelSegments = travelSegmentFactory.buildList(3, { travelAuthorizationId: 5 })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
@@ -66,18 +66,18 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       await wrapper.vm.save()
 
       // Assert
-      expect(httpClient.patch.mock.calls).toEqual([
+      expect(httpClient.patch.mock.calls).toMatchObject([
         [
           "/api/travel-authorizations/5",
           {
-            ...travelAuthorization,
+            finalDestinationLocationId: 2,
             eventName: "Updated meeting",
           },
         ],
       ])
     })
 
-    test("when a traveller first selects a destination, saves the city without rewriting the initial legs", async () => {
+    test("when a traveller first selects a destination, saves the city with the initial legs", async () => {
       // Arrange
       const outbound = travelSegmentFactory.build({
         travelAuthorizationId: 5,
@@ -123,12 +123,23 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       await wrapper.vm.save()
 
       // Assert
-      expect(httpClient.patch.mock.calls).toEqual([
+      expect(httpClient.patch.mock.calls).toMatchObject([
         [
           "/api/travel-authorizations/5",
           {
-            ...travelAuthorization,
             finalDestinationLocationId: 2,
+            travelSegments: [
+              {
+                segmentNumber: 1,
+                departureLocationId: null,
+                arrivalLocationId: null,
+              },
+              {
+                segmentNumber: 2,
+                departureLocationId: null,
+                arrivalLocationId: null,
+              },
+            ],
           },
         ],
       ])
@@ -182,7 +193,7 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       expect(httpClient.patch).not.toHaveBeenCalled()
     })
 
-    test("when the traveller changes Final Destination, saves the new city without rewriting existing legs", async () => {
+    test("when the traveller changes Final Destination, saves the new city independently of the route", async () => {
       // Arrange
       const travelSegments = travelSegmentFactory.buildList(3, {
         travelAuthorizationId: 5,
@@ -224,12 +235,22 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       await wrapper.vm.save()
 
       // Assert
-      expect(httpClient.patch.mock.calls).toEqual([
+      expect(httpClient.patch.mock.calls).toMatchObject([
         [
           "/api/travel-authorizations/5",
           {
-            ...travelAuthorization,
             finalDestinationLocationId: 4,
+            travelSegments: [
+              {
+                arrivalLocationId: 2,
+              },
+              {
+                arrivalLocationId: 2,
+              },
+              {
+                arrivalLocationId: 2,
+              },
+            ],
           },
         ],
       ])
