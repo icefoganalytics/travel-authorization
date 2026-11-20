@@ -64,7 +64,7 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       })
     })
 
-    test("when a new request chooses a destination, saves purpose details without creating an itinerary", async () => {
+    test("when a traveller first selects a destination, saves the city without rewriting the initial legs", async () => {
       // Arrange
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
@@ -72,7 +72,10 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         purposeId: 1,
         eventName: "Planning meeting",
         benefits: "Coordinate the regional program",
-        travelSegments: [],
+        travelSegments: [
+          travelSegmentFactory.build({ travelAuthorizationId: 5, segmentNumber: 1 }),
+          travelSegmentFactory.build({ travelAuthorizationId: 5, segmentNumber: 2 }),
+        ],
       })
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
