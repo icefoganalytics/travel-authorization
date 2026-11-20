@@ -159,37 +159,41 @@ export class CreateService extends BaseService {
       attributes: ["externalTravelPortIdentifier", "serviceFeeTransaction"],
       where: {
         bookingReference,
-        externalTravelPortIdentifier: { [Op.in]: sourceServiceFeeEventExternalIdentifiers },
+        externalTravelPortIdentifier: {
+          [Op.in]: sourceServiceFeeEventExternalIdentifiers,
+        },
       },
     })
-    const serviceFeeTravelDeskBookingEventsByIdentifier = keyBy(
+    const serviceFeeTravelDeskBookingEventsByExternalTravelPortIdentifier = keyBy(
       serviceFeeTravelDeskBookingEvents,
       "externalTravelPortIdentifier"
     )
-    const documentNumbers = new Set<string>()
-    for (const eventId of sourceServiceFeeEventExternalIdentifiers) {
-      const fee = serviceFeeTravelDeskBookingEventsByIdentifier[eventId]?.serviceFeeTransaction
-      if (isNil(fee)) {
+    const serviceFeeDocumentNumbers = new Set<string>()
+    for (const sourceServiceFeeEventExternalIdentifier of sourceServiceFeeEventExternalIdentifiers) {
+      const serviceFeeTravelDeskBookingEvent =
+        serviceFeeTravelDeskBookingEventsByExternalTravelPortIdentifier[sourceServiceFeeEventExternalIdentifier]
+      const serviceFeeTransaction = serviceFeeTravelDeskBookingEvent?.serviceFeeTransaction
+      if (isNil(serviceFeeTransaction)) {
         throw new InvoiceValidationError(
           "Every selected service fee must belong to this booking reference."
         )
       }
 
-      if (!isNil(fee.currencyCode) && fee.currencyCode !== currencyCode) {
+      if (!isNil(serviceFeeTransaction.currencyCode) && serviceFeeTransaction.currencyCode !== currencyCode) {
         throw new InvoiceValidationError(
           "Selected service fee currency must match the invoice currency."
         )
       }
 
-      const documentNumber = fee.serviceFeeDocumentNumber
-      if (isNil(documentNumber) || isEmpty(documentNumber)) continue
+      const { serviceFeeDocumentNumber } = serviceFeeTransaction
+      if (isNil(serviceFeeDocumentNumber) || isEmpty(serviceFeeDocumentNumber)) continue
 
-      if (documentNumbers.has(documentNumber)) {
+      if (serviceFeeDocumentNumbers.has(serviceFeeDocumentNumber)) {
         throw new InvoiceValidationError(
           "Multiple versions of a service fee document cannot be selected."
         )
       }
-      documentNumbers.add(documentNumber)
+      serviceFeeDocumentNumbers.add(serviceFeeDocumentNumber)
     }
   }
 }
