@@ -1,9 +1,9 @@
 import { type CreationAttributes } from "@sequelize/core"
-import { isEmpty, isNil } from "lodash"
+import { isNil } from "lodash"
 
 import { db } from "@/db/db-client"
 
-import { TravelDeskBookingEvent, TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
+import { TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
@@ -17,6 +17,7 @@ import {
   type TravelDeskInvoiceItemAttributes,
 } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 import ValidateTravelDeskInvoiceServiceFeeSelectionService from "@/services/travel-desk-invoices/validate-travel-desk-invoice-service-fee-selection-service"
+import LoadAndValidateTravelDeskBookingEventForInvoiceService from "@/services/travel-desk-invoices/load-and-validate-travel-desk-booking-event-for-invoice-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
   Omit<CreationAttributes<TravelDeskInvoice>, "bookingReference"> & {
@@ -34,61 +35,24 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<TravelDeskInvoice> {
-    const {
-      externalBookingEventIdentifier,
-      sourceServiceFeeEventExternalIdentifiers,
-      currencyCode,
-      items: travelDeskInvoiceItemsAttributes,
-      ...optionalAttributes
-    } = this.travelDeskInvoiceCreationAttributes
-    if (isNil(externalBookingEventIdentifier)) {
-      throw new ServiceValidationError({
-        field: "externalBookingEventIdentifier",
-        text: "Booking event is required.",
-      })
-    }
-
-    if (!Array.isArray(sourceServiceFeeEventExternalIdentifiers)) {
-      throw new ServiceValidationError({
-        field: "sourceServiceFeeEventExternalIdentifiers",
-        text: "Service fee events must be an array.",
-      })
-    }
-
-    if (isNil(currencyCode)) {
-      throw new ServiceValidationError({
-        field: "currencyCode",
-        text: "Currency code is required.",
-      })
-    }
-
-    if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
-      throw new ServiceValidationError({
-        field: "items",
-        text: "Invoice items must be an array.",
-      })
-    }
-
-    const travelDeskBookingEvent = await this.loadTravelDeskBookingEvent(externalBookingEventIdentifier)
-    const { bookingReference } = travelDeskBookingEvent
-    if (isNil(bookingReference)) {
-      throw new ServiceValidationError({
-        field: "externalBookingEventIdentifier",
-        text: "The selected booking event has no booking reference.",
-      })
-    }
-
-    await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
-      bookingReference,
-      sourceServiceFeeEventExternalIdentifiers,
-      currencyCode
-    )
-    const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
-    const sourceAirSegmentNumbers = travelDeskBookingEvent.airReservationSegments.map(
-      ({ airSegmentNumber }) => airSegmentNumber
-    )
-
     return db.transaction(async () => {
+      const {
+        externalBookingEventIdentifier,
+        sourceServiceFeeEventExternalIdentifiers,
+        currencyCode,
+        travelDeskInvoiceItemsAttributes,
+        optionalAttributes,
+      } = this.validateInvoiceCreationAttributes()
+      const { bookingReference, sourceAirSegmentNumbers } =
+        await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(externalBookingEventIdentifier)
+
+      await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
+        bookingReference,
+        sourceServiceFeeEventExternalIdentifiers,
+        currencyCode
+      )
+      const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
+
       ValidateTravelDeskInvoiceItemsService.perform(
         travelDeskInvoiceItemsAttributes,
         sourceAirSegmentNumbers,
@@ -124,29 +88,49 @@ export class CreateService extends BaseService {
     })
   }
 
-  private async loadTravelDeskBookingEvent(
-    externalBookingEventIdentifier: number
-  ): Promise<TravelDeskBookingEvent> {
-    const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
-      where: {
-        externalTravelPortIdentifier: externalBookingEventIdentifier,
-      },
-    })
-    if (isNil(travelDeskBookingEvent)) {
+  private validateInvoiceCreationAttributes() {
+    const {
+      externalBookingEventIdentifier,
+      sourceServiceFeeEventExternalIdentifiers,
+      currencyCode,
+      items: travelDeskInvoiceItemsAttributes,
+      ...optionalAttributes
+    } = this.travelDeskInvoiceCreationAttributes
+    if (isNil(externalBookingEventIdentifier)) {
       throw new ServiceValidationError({
         field: "externalBookingEventIdentifier",
-        text: "The selected booking event was not found.",
+        text: "Booking event is required.",
       })
     }
 
-    if (isEmpty(travelDeskBookingEvent.airReservationSegments)) {
+    if (!Array.isArray(sourceServiceFeeEventExternalIdentifiers)) {
       throw new ServiceValidationError({
-        field: "externalBookingEventIdentifier",
-        text: "The selected booking event has no flight segments. Choose a different booking event.",
+        field: "sourceServiceFeeEventExternalIdentifiers",
+        text: "Service fee events must be an array.",
       })
     }
 
-    return travelDeskBookingEvent
+    if (isNil(currencyCode)) {
+      throw new ServiceValidationError({
+        field: "currencyCode",
+        text: "Currency code is required.",
+      })
+    }
+
+    if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
+      throw new ServiceValidationError({
+        field: "items",
+        text: "Invoice items must be an array.",
+      })
+    }
+
+    return {
+      externalBookingEventIdentifier,
+      sourceServiceFeeEventExternalIdentifiers,
+      currencyCode,
+      travelDeskInvoiceItemsAttributes,
+      optionalAttributes,
+    }
   }
 }
 
