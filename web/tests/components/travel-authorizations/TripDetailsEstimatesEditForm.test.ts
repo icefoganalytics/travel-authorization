@@ -34,15 +34,25 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       const router = mockRouter()
       await router.push("/")
       mockHttpClient()
+      const itineraryLoadError = new Error("Service unavailable")
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/travel-segments": () => Promise.reject(new Error("Service unavailable")),
+        "/api/travel-segments": () => Promise.reject(itineraryLoadError),
       })
 
       // Act
       const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
         props: { travelAuthorizationId: 5 },
-        global: { plugins: [router], config: { errorHandler: vi.fn() } },
+        global: {
+          plugins: [router],
+          config: {
+            errorHandler(error) {
+              if (error !== itineraryLoadError) {
+                throw error
+              }
+            },
+          },
+        },
       })
       await flushPromises()
 

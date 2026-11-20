@@ -150,7 +150,9 @@ const {
 } = useTravelSegments(travelSegmentsQuery)
 const travelSegments = computed(() => {
   const actualSegments = savedTravelSegments.value.filter((segment) => segment.isActual)
-  if (!isEmpty(actualSegments)) return actualSegments
+  if (!isEmpty(actualSegments)) {
+    return actualSegments
+  }
 
   return savedTravelSegments.value
 })
