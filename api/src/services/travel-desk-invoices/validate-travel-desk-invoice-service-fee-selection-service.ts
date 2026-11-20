@@ -9,25 +9,29 @@ import ServiceValidationError from "@/services/service-validation-error"
 export class ValidateTravelDeskInvoiceServiceFeeSelectionService extends BaseService {
   constructor(
     protected bookingReference: string,
-    protected sourceServiceFeeEventExternalIdentifiers: number[],
+    protected sourceServiceFeeEventExternalIdentifiers: ReadonlySet<number>,
     protected currencyCode: string
   ) {
     super()
   }
 
   async perform(): Promise<void> {
-    if (isEmpty(this.sourceServiceFeeEventExternalIdentifiers)) return
+    if (this.sourceServiceFeeEventExternalIdentifiers.size === 0) {
+      return
+    }
 
     const selectedTravelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
       attributes: ["serviceFeeTransaction"],
       where: {
         bookingReference: this.bookingReference,
         externalTravelPortIdentifier: {
-          [Op.in]: this.sourceServiceFeeEventExternalIdentifiers,
+          [Op.in]: [...this.sourceServiceFeeEventExternalIdentifiers],
         },
       },
     })
-    if (selectedTravelDeskBookingEvents.length !== new Set(this.sourceServiceFeeEventExternalIdentifiers).size) {
+    if (
+      selectedTravelDeskBookingEvents.length !== this.sourceServiceFeeEventExternalIdentifiers.size
+    ) {
       throw new ServiceValidationError(
         "Every selected service fee must belong to this booking reference."
       )

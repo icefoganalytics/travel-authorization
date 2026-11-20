@@ -21,7 +21,6 @@ import LoadAndValidateTravelDeskBookingEventForInvoiceService from "@/services/t
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
   CreationAttributes<TravelDeskInvoice> & {
-    sourceServiceFeeEventExternalIdentifiers: number[]
     itemsAttributes: TravelDeskInvoiceItemAttributes[]
   }
 >
@@ -37,17 +36,12 @@ export class CreateService extends BaseService {
   async perform(): Promise<TravelDeskInvoice> {
     const {
       externalBookingEventIdentifier,
-      sourceServiceFeeEventExternalIdentifiers,
       currencyCode,
       itemsAttributes: travelDeskInvoiceItemsAttributes,
       ...optionalAttributes
     } = this.travelDeskInvoiceCreationAttributes
     if (isNil(externalBookingEventIdentifier)) {
       throw new ServiceValidationError("Booking event is required.")
-    }
-
-    if (!Array.isArray(sourceServiceFeeEventExternalIdentifiers)) {
-      throw new ServiceValidationError("Service fee events must be an array.")
     }
 
     if (isNil(currencyCode)) {
@@ -62,18 +56,18 @@ export class CreateService extends BaseService {
       const { bookingReference, sourceAirSegmentNumbers } =
         await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(externalBookingEventIdentifier)
 
+      const sourceServiceFeeEventExternalIdentifiers = ValidateTravelDeskInvoiceItemsService.perform(
+        travelDeskInvoiceItemsAttributes,
+        sourceAirSegmentNumbers
+      )
       await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
         bookingReference,
         sourceServiceFeeEventExternalIdentifiers,
         currencyCode
       )
+
       const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
-      ValidateTravelDeskInvoiceItemsService.perform(
-        travelDeskInvoiceItemsAttributes,
-        sourceAirSegmentNumbers,
-        sourceServiceFeeEventExternalIdentifiers
-      )
       await ValidateLinkedTravelDeskFlightSegmentsService.perform(
         this.travelDeskTravelRequest.id,
         travelDeskInvoiceItemsAttributes

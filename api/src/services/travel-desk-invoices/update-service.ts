@@ -15,7 +15,7 @@ import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-
 
 export type TravelDeskInvoiceUpdateAttributes = Omit<
   TravelDeskInvoiceCreationAttributes,
-  "bookingReference" | "externalBookingEventIdentifier" | "sourceServiceFeeEventExternalIdentifiers"
+  "bookingReference" | "externalBookingEventIdentifier"
 >
 
 export class UpdateService extends BaseService {

@@ -32,24 +32,27 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
       >
     >,
     protected sourceAirSegmentNumbers: number[],
-    protected sourceServiceFeeEventExternalIdentifiers: number[]
+    protected savedSourceServiceFeeEventExternalIdentifiers?: number[]
   ) {
     super()
   }
 
-  perform(): void {
+  perform(): ReadonlySet<number> {
     if (isEmpty(this.travelDeskInvoiceItemsAttributes)) {
       throw new ServiceValidationError("At least one invoice item is required.")
     }
 
-    const expectedSourceServiceFeeEventExternalIdentifiers = new Set(
-      this.sourceServiceFeeEventExternalIdentifiers
-    )
-    if (
-      expectedSourceServiceFeeEventExternalIdentifiers.size !==
-      this.sourceServiceFeeEventExternalIdentifiers.length
-    ) {
-      throw new ServiceValidationError("Service fee events cannot be selected more than once.")
+    let expectedSourceServiceFeeEventExternalIdentifiers: Set<number> | undefined
+    if (!isNil(this.savedSourceServiceFeeEventExternalIdentifiers)) {
+      expectedSourceServiceFeeEventExternalIdentifiers = new Set(
+        this.savedSourceServiceFeeEventExternalIdentifiers
+      )
+      if (
+        expectedSourceServiceFeeEventExternalIdentifiers.size !==
+        this.savedSourceServiceFeeEventExternalIdentifiers.length
+      ) {
+        throw new ServiceValidationError("Service fee events cannot be selected more than once.")
+      }
     }
 
     const expectedSourceAirSegmentNumbers = new Set(this.sourceAirSegmentNumbers)
@@ -83,6 +86,7 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
     }
 
     if (
+      !isNil(expectedSourceServiceFeeEventExternalIdentifiers) &&
       seenSourceServiceFeeEventExternalIdentifiers.size !==
       expectedSourceServiceFeeEventExternalIdentifiers.size
     ) {
@@ -90,6 +94,8 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
         "Every selected service fee must be represented exactly once."
       )
     }
+
+    return seenSourceServiceFeeEventExternalIdentifiers
   }
 
   private assertTravelDeskInvoiceItemProductType(
@@ -128,12 +134,13 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
   private assertSourceServiceFeeEventExternalIdentifier(
     sourceServiceFeeEventExternalIdentifier: number | null | undefined,
     productType: TravelDeskInvoiceItem["productType"],
-    expectedSourceServiceFeeEventExternalIdentifiers: Set<number>,
+    expectedSourceServiceFeeEventExternalIdentifiers: Set<number> | undefined,
     seenSourceServiceFeeEventExternalIdentifiers: Set<number>
   ): void {
     if (isNil(sourceServiceFeeEventExternalIdentifier)) return
 
     if (
+      !isNil(expectedSourceServiceFeeEventExternalIdentifiers) &&
       !expectedSourceServiceFeeEventExternalIdentifiers.has(sourceServiceFeeEventExternalIdentifier)
     ) {
       throw new ServiceValidationError("Invoice item refers to an unselected service fee.")
