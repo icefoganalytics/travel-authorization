@@ -3,8 +3,9 @@ import { PassThrough } from "node:stream"
 import { buffer } from "node:stream/consumers"
 import { setImmediate } from "node:timers/promises"
 
-import CsvStreamingClient from "@/lib/csv-streaming-client"
 import db from "@/models"
+
+import CsvStreamingClient from "@/lib/csv-streaming-client"
 
 describe("api/src/lib/csv-streaming-client.ts", () => {
   describe("CsvStreamingClient.stream", () => {

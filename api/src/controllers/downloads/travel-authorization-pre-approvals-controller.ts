@@ -5,7 +5,6 @@ import { DateTime } from "luxon"
 import logger from "@/utils/logger"
 
 import { type TravelAuthorizationPreApproval, type User } from "@/models"
-import { type BaseModelConstructor } from "@/models/base-model"
 import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
 import { TravelAuthorizationPreApprovals } from "@/services/downloads"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
@@ -53,7 +52,7 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
 
   private async respondWithCsv(
     response: Response,
-    scopedTravelAuthorizationPreApprovals: BaseModelConstructor<TravelAuthorizationPreApproval>,
+    scopedTravelAuthorizationPreApprovals: ReturnType<typeof TravelAuthorizationPreApprovalsPolicy.applyScope>,
     where: WhereOptions<Attributes<TravelAuthorizationPreApproval>>,
     order: ModelOrder[] | undefined,
     currentUser: User

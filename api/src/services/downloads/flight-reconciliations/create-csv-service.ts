@@ -3,9 +3,10 @@ import { type Writable } from "node:stream"
 import { type Attributes, type WhereOptions } from "@sequelize/core"
 
 import CsvStreamingClient from "@/lib/csv-streaming-client"
+
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type FlightReconciliation } from "@/models"
-import { type BaseModelConstructor } from "@/models/base-model"
+import { type FlightReconciliationsPolicy } from "@/policies"
 import {
   FLIGHT_RECONCILIATION_REPORT_HEADERS,
   ReportSerializer,
@@ -16,7 +17,7 @@ import withReportTransaction from "@/services/downloads/with-report-transaction"
 export class CreateCsvService extends BaseService {
   constructor(
     private outputStream: Writable,
-    private scopedFlightReconciliations: BaseModelConstructor<FlightReconciliation>,
+    private scopedFlightReconciliations: ReturnType<typeof FlightReconciliationsPolicy.applyScope>,
     private where: WhereOptions<Attributes<FlightReconciliation>>,
     private order: ModelOrder[] | undefined
   ) {

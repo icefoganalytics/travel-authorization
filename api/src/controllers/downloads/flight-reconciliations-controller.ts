@@ -5,7 +5,6 @@ import { DateTime } from "luxon"
 import logger from "@/utils/logger"
 
 import { type FlightReconciliation } from "@/models"
-import { type BaseModelConstructor } from "@/models/base-model"
 import { FlightReconciliationsPolicy } from "@/policies"
 import { FlightReconciliations } from "@/services/downloads"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
@@ -52,7 +51,7 @@ export class FlightReconciliationsController extends BaseController<FlightReconc
 
   private async respondWithCsv(
     response: Response,
-    scopedFlightReconciliations: BaseModelConstructor<FlightReconciliation>,
+    scopedFlightReconciliations: ReturnType<typeof FlightReconciliationsPolicy.applyScope>,
     where: WhereOptions<Attributes<FlightReconciliation>>,
     order: ModelOrder[] | undefined
   ) {

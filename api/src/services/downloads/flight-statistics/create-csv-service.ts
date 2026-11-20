@@ -3,9 +3,10 @@ import { type Writable } from "node:stream"
 import { type Attributes, type WhereOptions } from "@sequelize/core"
 
 import CsvStreamingClient from "@/lib/csv-streaming-client"
+
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type FlightStatistic } from "@/models"
-import { type BaseModelConstructor } from "@/models/base-model"
+import { type FlightStatisticsPolicy } from "@/policies"
 import {
   FLIGHT_STATISTIC_REPORT_HEADERS,
   ReportSerializer,
@@ -16,7 +17,7 @@ import withReportTransaction from "@/services/downloads/with-report-transaction"
 export class CreateCsvService extends BaseService {
   constructor(
     private outputStream: Writable,
-    private scopedFlightStatistics: BaseModelConstructor<FlightStatistic>,
+    private scopedFlightStatistics: ReturnType<typeof FlightStatisticsPolicy.applyScope>,
     private where: WhereOptions<Attributes<FlightStatistic>>,
     private order: ModelOrder[] | undefined
   ) {

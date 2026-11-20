@@ -5,7 +5,6 @@ import { DateTime } from "luxon"
 import logger from "@/utils/logger"
 
 import { type FlightStatistic } from "@/models"
-import { type BaseModelConstructor } from "@/models/base-model"
 import { FlightStatisticsPolicy } from "@/policies"
 import { FlightStatistics } from "@/services/downloads"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
@@ -50,7 +49,7 @@ export class FlightStatisticsController extends BaseController<FlightStatistic> 
 
   private async respondWithCsv(
     response: Response,
-    scopedFlightStatistics: BaseModelConstructor<FlightStatistic>,
+    scopedFlightStatistics: ReturnType<typeof FlightStatisticsPolicy.applyScope>,
     where: WhereOptions<Attributes<FlightStatistic>>,
     order: ModelOrder[] | undefined
   ) {

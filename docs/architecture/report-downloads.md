@@ -16,7 +16,7 @@ Flight reconciliation, flight statistics, and travel pre-approval CSV reports st
 
 Controllers dispatch supported formats and set attachment headers before handing the response stream to the report service. Services own policy-scoped data loading and serialization; the shared [CSV streaming client](/api/src/lib/csv-streaming-client.ts) owns CSV encoding, backpressure, and stream cleanup. It wraps `fast-csv` and writes the UTF-8 byte-order mark and headers before generating report rows, allowing a download to begin without buffering the complete report.
 
-Pass the policy-scoped model to the report service as `BaseModelConstructor<M>`. The service calls `findEach` on that model so every batch uses the caller’s visibility rules.
+Pass the model returned by the report’s policy scope to the service. The service calls `findEach` on that model so every batch uses the caller’s visibility rules.
 
 The services use batched iteration and await each row write to bound memory use. Stable ordering and a read-only repeatable-read transaction keep those batches consistent; the tradeoff is a database connection held until generation finishes. The streaming client aborts the transfer after two minutes so a stalled reader cannot keep the transaction open indefinitely. Generation failures and client disconnects also abort the transfer rather than appending JSON to a partial CSV.
 

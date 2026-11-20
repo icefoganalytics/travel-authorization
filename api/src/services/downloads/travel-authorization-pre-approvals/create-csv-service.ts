@@ -3,10 +3,13 @@ import { type Writable } from "node:stream"
 import { type Attributes, type WhereOptions } from "@sequelize/core"
 
 import CsvStreamingClient from "@/lib/csv-streaming-client"
+
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type TravelAuthorizationPreApproval, type User } from "@/models"
-import { type BaseModelConstructor } from "@/models/base-model"
-import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
+import {
+  TravelAuthorizationPreApprovalProfilesPolicy,
+  type TravelAuthorizationPreApprovalsPolicy,
+} from "@/policies"
 import {
   ReportSerializer,
   TRAVEL_AUTHORIZATION_PRE_APPROVAL_REPORT_HEADERS,
@@ -17,7 +20,7 @@ import withReportTransaction from "@/services/downloads/with-report-transaction"
 export class CreateCsvService extends BaseService {
   constructor(
     private outputStream: Writable,
-    private scopedTravelAuthorizationPreApprovals: BaseModelConstructor<TravelAuthorizationPreApproval>,
+    private scopedTravelAuthorizationPreApprovals: ReturnType<typeof TravelAuthorizationPreApprovalsPolicy.applyScope>,
     private where: WhereOptions<Attributes<TravelAuthorizationPreApproval>>,
     private order: ModelOrder[] | undefined,
     private currentUser: User
