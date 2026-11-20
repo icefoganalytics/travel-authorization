@@ -8,8 +8,8 @@ import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-inv
 
 export class ValidateLinkedFlightSegmentsService extends BaseService {
   constructor(
-    protected travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[],
-    protected travelDeskTravelRequestId: number
+    protected travelDeskTravelRequestId: number,
+    protected travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
   ) {
     super()
   }
