@@ -120,14 +120,14 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: "update:travelPurposeId", travelPurposeId: number): void
-  (event: "update:finalDestinationLocationId", finalDestinationLocationId: number): void
+  (event: "update:finalDestinationLocationId", finalDestinationLocationId: number | null): void
   (event: "update:eventName", eventName: string | null): void
 }>()
 
 const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
-function updateFinalDestinationLocationId(locationId: number) {
+function updateFinalDestinationLocationId(locationId: number | null) {
   if (isNil(travelAuthorization.value)) return
 
   travelAuthorization.value.finalDestinationLocationId = locationId
@@ -150,13 +150,7 @@ async function saveWrapper() {
 
   isSaving.value = true
   try {
-    await save({
-      purposeId: travelAuthorization.value.purposeId,
-      eventName: travelAuthorization.value.eventName,
-      allTravelWithinTerritory: travelAuthorization.value.allTravelWithinTerritory,
-      benefits: travelAuthorization.value.benefits,
-      finalDestinationLocationId: travelAuthorization.value.finalDestinationLocationId,
-    })
+    await save()
   } catch (error) {
     console.error(`Failed to save travel authorization: ${error}`, { error })
     throw error
