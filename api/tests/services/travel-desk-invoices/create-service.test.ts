@@ -14,7 +14,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -22,9 +21,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Assert
-        await expect(result).rejects.toThrow(
-          "The selected booking event was not found for this booking reference."
-        )
+        await expect(result).rejects.toThrow("The selected booking event was not found.")
       })
 
       test("when the selected booking has no flight segments, it asks for a different event", async () => {
@@ -37,7 +34,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: travelDeskBookingEvent.externalTravelPortIdentifier,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -50,12 +46,12 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         )
       })
 
-      test("when the selected booking belongs to another locator, it rejects creation", async () => {
+      test("when the selected booking has no reference, it rejects creation", async () => {
         // Arrange
         const travelRequest = await travelDeskTravelRequestFactory.create()
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
-          bookingReference: "OTHER1",
+          bookingReference: null,
           airReservationSegments: [
             {
               airSegmentNumber: 1,
@@ -74,7 +70,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -83,7 +78,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Assert
         await expect(result).rejects.toThrow(
-          "The selected booking event was not found for this booking reference."
+          "The selected booking event has no booking reference."
         )
       })
 
@@ -111,7 +106,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
@@ -163,7 +157,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
@@ -215,7 +208,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
@@ -269,7 +261,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002, 920003],
           currencyCode: "CAD",
@@ -346,7 +337,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         await CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
@@ -467,7 +457,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         await CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
@@ -548,7 +537,6 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
         // Act
         const result = CreateService.perform(travelRequest, {
-          bookingReference: "INV001",
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",

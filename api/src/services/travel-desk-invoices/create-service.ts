@@ -19,7 +19,7 @@ import {
 } from "@/services/travel-desk-invoices/validate-items-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
-  CreationAttributes<TravelDeskInvoice> & {
+  Omit<CreationAttributes<TravelDeskInvoice>, "bookingReference"> & {
     sourceServiceFeeEventExternalIdentifiers: number[]
     items: TravelDeskInvoiceItemAttributes[]
   }
@@ -35,16 +35,11 @@ export class CreateService extends BaseService {
 
   async perform(): Promise<TravelDeskInvoice> {
     const {
-      bookingReference,
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode,
       items,
     } = this.attributes
-    if (isNil(bookingReference)) {
-      throw new InvoiceValidationError("Booking reference is required.")
-    }
-
     if (isNil(externalBookingEventIdentifier)) {
       throw new InvoiceValidationError("Booking event is required.")
     }
@@ -63,10 +58,12 @@ export class CreateService extends BaseService {
 
     await this.requireActiveTravelRequest(this.travelDeskTravelRequest.id)
 
-    const travelDeskBookingEvent = await this.loadTravelDeskBookingEvent(
-      bookingReference,
-      externalBookingEventIdentifier
-    )
+    const travelDeskBookingEvent = await this.loadTravelDeskBookingEvent(externalBookingEventIdentifier)
+    const { bookingReference } = travelDeskBookingEvent
+    if (isNil(bookingReference)) {
+      throw new InvoiceValidationError("The selected booking event has no booking reference.")
+    }
+
     await this.validateSelectedServiceFees(
       bookingReference,
       sourceServiceFeeEventExternalIdentifiers,
@@ -126,17 +123,15 @@ export class CreateService extends BaseService {
   }
 
   private async loadTravelDeskBookingEvent(
-    bookingReference: string,
     externalBookingEventIdentifier: number
   ): Promise<TravelDeskBookingEvent> {
     const travelDeskBookingEvent = await TravelDeskBookingEvent.findOne({
       where: {
-        bookingReference,
         externalTravelPortIdentifier: externalBookingEventIdentifier,
       },
     })
     if (isNil(travelDeskBookingEvent)) {
-      throw new InvoiceValidationError("The selected booking event was not found for this booking reference.")
+      throw new InvoiceValidationError("The selected booking event was not found.")
     }
 
     if (isEmpty(travelDeskBookingEvent.airReservationSegments)) {
