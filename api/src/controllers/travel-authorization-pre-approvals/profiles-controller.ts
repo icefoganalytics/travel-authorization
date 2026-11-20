@@ -2,7 +2,7 @@ import { isNil } from "lodash"
 
 import logger from "@/utils/logger"
 import { TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile } from "@/models"
-import { TravelAuthorizationPreApprovalsPolicy } from "@/policies"
+import { ProfilePolicy } from "@/policies/travel-authorization-pre-approvals"
 import { CreateService } from "@/services/travel-authorization-pre-approval-profiles"
 import { ShowSerializer } from "@/serializers/travel-authorization-pre-approval-profiles"
 import BaseController from "@/controllers/base-controller"
@@ -18,13 +18,13 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
       }
 
       const policy = this.buildPolicy(travelAuthorizationPreApproval)
-      if (!policy.createProfile()) {
+      if (!policy.create()) {
         return this.response.status(403).json({
           message: "You are not authorized to create travel authorization pre-approval profiles.",
         })
       }
 
-      const permittedAttributes = policy.permitProfileAttributesForCreate(this.request.body)
+      const permittedAttributes = policy.permitAttributesForCreate(this.request.body)
       const travelAuthorizationPreApprovalProfile = await CreateService.perform(
         travelAuthorizationPreApproval,
         permittedAttributes
@@ -47,11 +47,8 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
     return TravelAuthorizationPreApproval.findByPk(this.params.travelAuthorizationPreApprovalId)
   }
 
-  private buildPolicy(travelAuthorizationPreApproval: TravelAuthorizationPreApproval) {
-    return new TravelAuthorizationPreApprovalsPolicy(
-      this.currentUser,
-      travelAuthorizationPreApproval
-    )
+  private buildPolicy(travelAuthorizationPreApproval: TravelAuthorizationPreApproval): ProfilePolicy {
+    return new ProfilePolicy(this.currentUser, travelAuthorizationPreApproval)
   }
 }
 
