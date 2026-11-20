@@ -21,7 +21,7 @@ import LoadAndValidateTravelDeskBookingEventForInvoiceService from "@/services/t
 import { RequireLinkedTravelPortBookingService } from "@/services/travel-desk-travel-requests/require-linked-travel-port-booking-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
-  Omit<CreationAttributes<TravelDeskInvoice>, "bookingReference"> & {
+  CreationAttributes<TravelDeskInvoice> & {
     itemsAttributes: TravelDeskInvoiceItemAttributes[]
   }
 >
@@ -54,7 +54,9 @@ export class CreateService extends BaseService {
     }
 
     return db.transaction(async () => {
-      const travelDeskTravelRequest = await this.loadActiveTravelDeskTravelRequest()
+      const travelDeskTravelRequest = await this.loadActiveTravelDeskTravelRequest(
+        this.travelDeskTravelRequest.id
+      )
       const linkedBookingReference =
         RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
 
@@ -108,11 +110,12 @@ export class CreateService extends BaseService {
     })
   }
 
-  private async loadActiveTravelDeskTravelRequest(): Promise<TravelDeskTravelRequest> {
-    const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(
-      this.travelDeskTravelRequest.id,
-      { lock: true }
-    )
+  private async loadActiveTravelDeskTravelRequest(
+    travelDeskTravelRequestId: number
+  ): Promise<TravelDeskTravelRequest> {
+    const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(travelDeskTravelRequestId, {
+      lock: true,
+    })
     if (isNil(travelDeskTravelRequest)) {
       throw new ServiceValidationError("Travel desk travel request does not exist.")
     }
