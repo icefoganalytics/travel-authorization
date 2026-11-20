@@ -3,7 +3,6 @@ import { isNil } from "lodash"
 import logger from "@/utils/logger"
 import { TravelAuthorizationPreApprovalProfile } from "@/models"
 import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
-import { UpdateService } from "@/services/travel-authorization-pre-approval-profiles"
 import {
   IndexSerializer,
   ShowSerializer,
@@ -67,44 +66,6 @@ export class TravelAuthorizationPreApprovalProfilesController extends BaseContro
       travelAuthorizationPreApprovalProfile: serializedTravelAuthorizationPreApprovalProfile,
       policy,
     })
-  }
-
-  async update() {
-    try {
-      const travelAuthorizationPreApprovalProfile =
-        await this.loadTravelAuthorizationPreApprovalProfile()
-      if (isNil(travelAuthorizationPreApprovalProfile)) {
-        return this.response.status(404).json({
-          message: "Travel Authorization Pre-Approval Profile not found",
-        })
-      }
-
-      const policy = this.buildPolicy(travelAuthorizationPreApprovalProfile)
-      if (!policy.update()) {
-        return this.response.status(403).json({
-          message:
-            "You are not authorized to update this travel authorization pre-approval profile.",
-        })
-      }
-
-      const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-      const updatedTravelAuthorizationPreApprovalProfile = await UpdateService.perform(
-        travelAuthorizationPreApprovalProfile,
-        permittedAttributes
-      )
-      const serializedTravelAuthorizationPreApprovalProfile = ShowSerializer.perform(
-        updatedTravelAuthorizationPreApprovalProfile
-      )
-      return this.response.status(200).json({
-        travelAuthorizationPreApprovalProfile: serializedTravelAuthorizationPreApprovalProfile,
-        policy,
-      })
-    } catch (error) {
-      logger.error(`Error updating travel authorization pre-approval profile: ${error}`, { error })
-      return this.response.status(422).json({
-        message: `Failed to update travel authorization pre-approval profile: ${error}`,
-      })
-    }
   }
 
   async destroy() {

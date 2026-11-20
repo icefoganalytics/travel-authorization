@@ -77,6 +77,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
   },
 
   async update(
+    travelAuthorizationPreApprovalId: number | string,
     travelAuthorizationPreApprovalProfileId: number,
     attributes: Partial<Pick<TravelAuthorizationPreApprovalProfile, "profileName" | "branch">>
   ): Promise<{
@@ -84,7 +85,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
     policy: Policy
   }> {
     const { data } = await http.patch(
-      `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`,
+      `/api/travel-authorization-pre-approvals/${travelAuthorizationPreApprovalId}/profiles/${travelAuthorizationPreApprovalProfileId}`,
       attributes
     )
     return data

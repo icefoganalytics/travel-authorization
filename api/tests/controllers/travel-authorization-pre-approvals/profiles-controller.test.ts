@@ -1,6 +1,10 @@
 import { TravelAuthorizationPreApproval } from "@/models"
 
-import { travelAuthorizationPreApprovalFactory, userFactory } from "@/factories"
+import {
+  travelAuthorizationPreApprovalFactory,
+  travelAuthorizationPreApprovalProfileFactory,
+  userFactory,
+} from "@/factories"
 import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/travel-authorization-pre-approvals/profiles-controller.ts", () => {
@@ -225,6 +229,198 @@ describe("api/src/controllers/travel-authorization-pre-approvals/profiles-contro
         expect(response.status).toEqual(403)
         expect(response.body).toEqual({
           message: "You are not authorized to create travel authorization pre-approval profiles.",
+        })
+      })
+    })
+
+    describe("#update - PATCH - /api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId/profiles/:travelAuthorizationPreApprovalProfileId", () => {
+      test("when the department is unchanged, it updates the branch", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          department: "Finance",
+        })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory
+          .associations({ creator: user })
+          .create({
+            estimatedCost: 1200,
+            location: "Whitehorse",
+            department: "Finance",
+            purpose: "Annual Financial Review",
+            startDate: null,
+            endDate: null,
+            isOpenForAnyDate: true,
+            month: "June",
+            status: TravelAuthorizationPreApproval.Statuses.DRAFT,
+          })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({
+            profileName: "Jane.Traveller",
+            department: "Finance",
+            branch: "Travel",
+          })
+
+        // Act
+        const response = await request()
+          .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`)
+          .send({
+            department: "Finance",
+            branch: "Accounting",
+          })
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          travelAuthorizationPreApprovalProfile: {
+            id: profile.id,
+            preApprovalId: preApproval.id,
+            profileName: "Jane.Traveller",
+            department: "Finance",
+            branch: "Accounting",
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            preApproval: {
+              id: preApproval.id,
+              estimatedCost: 1200,
+              location: "Whitehorse",
+              purpose: "Annual Financial Review",
+              startDate: null,
+              endDate: null,
+              isOpenForAnyDate: true,
+              month: "June",
+              status: "draft",
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+            },
+          },
+          policy: {
+            show: true,
+            create: true,
+            update: true,
+            destroy: true,
+          },
+        })
+      })
+
+      test("when a profile update submits a different department, it ignores the department and updates the branch", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          department: "Finance",
+        })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory
+          .associations({ creator: user })
+          .create({
+            estimatedCost: 1200,
+            location: "Whitehorse",
+            department: "Finance",
+            purpose: "Annual Financial Review",
+            startDate: null,
+            endDate: null,
+            isOpenForAnyDate: true,
+            month: "June",
+            status: TravelAuthorizationPreApproval.Statuses.DRAFT,
+          })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({
+            profileName: "Jane.Traveller",
+            department: "Finance",
+            branch: "Travel",
+          })
+
+        // Act
+        const response = await request()
+          .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`)
+          .send({
+            department: "Health",
+            branch: "Accounting",
+          })
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          travelAuthorizationPreApprovalProfile: {
+            id: profile.id,
+            preApprovalId: preApproval.id,
+            profileName: "Jane.Traveller",
+            department: "Finance",
+            branch: "Accounting",
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            preApproval: {
+              id: preApproval.id,
+              estimatedCost: 1200,
+              location: "Whitehorse",
+              purpose: "Annual Financial Review",
+              startDate: null,
+              endDate: null,
+              isOpenForAnyDate: true,
+              month: "June",
+              status: "draft",
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+            },
+          },
+          policy: {
+            show: true,
+            create: true,
+            update: true,
+            destroy: true,
+          },
+        })
+      })
+
+      test("when the caller's department matches a legacy profile but not its pre-approval, it denies the update", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          department: "Health",
+        })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({
+            department: "Health",
+          })
+
+        // Act
+        const response = await request()
+          .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`)
+          .send({
+            branch: "Accounting",
+          })
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message:
+            "You are not authorized to update this travel authorization pre-approval profile.",
+        })
+      })
+
+      test("when the profile belongs to another pre-approval in the same department, it returns not found", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "Finance" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({ department: "Finance" })
+        const otherPreApproval = await travelAuthorizationPreApprovalFactory.create({ department: "Finance" })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval: otherPreApproval })
+          .create({ department: "Finance" })
+
+        // Act
+        const response = await request()
+          .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`)
+          .send({ branch: "Accounting" })
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Travel Authorization Pre-Approval Profile not found",
         })
       })
     })
