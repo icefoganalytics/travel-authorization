@@ -135,9 +135,13 @@ export class CreateService extends BaseService {
         externalTravelPortIdentifier: externalBookingEventIdentifier,
       },
     })
-    if (isNil(travelDeskBookingEvent) || isEmpty(travelDeskBookingEvent.airReservationSegments)) {
+    if (isNil(travelDeskBookingEvent)) {
+      throw new InvoiceValidationError("The selected booking event was not found for this booking reference.")
+    }
+
+    if (isEmpty(travelDeskBookingEvent.airReservationSegments)) {
       throw new InvoiceValidationError(
-        "Choose a booking event with flight segments for this booking reference."
+        "The selected booking event has no flight segments. Choose a different booking event."
       )
     }
 
