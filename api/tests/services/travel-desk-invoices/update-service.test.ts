@@ -30,7 +30,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         await UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -93,7 +93,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         await UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -177,7 +177,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         const firstUpdate = locksReady.then(() =>
           UpdateService.perform(travelDeskInvoice1, {
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
                 productType: TravelDeskInvoiceItem.ProductTypes.AIR,
                 sourceAirSegmentNumber: 1,
@@ -192,7 +192,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         const secondUpdate = locksReady.then(() =>
           UpdateService.perform(travelDeskInvoice2, {
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
                 productType: TravelDeskInvoiceItem.ProductTypes.AIR,
                 sourceAirSegmentNumber: 1,
@@ -278,7 +278,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         await UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -336,7 +336,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         await UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -370,7 +370,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
           currencyCode: "CAD",
           invoiceDate: "",
           bookingDate: "",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -399,7 +399,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 2,
@@ -469,7 +469,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -504,7 +504,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
           invoiceNumber: "SHOULD-ROLL-BACK",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -574,7 +574,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -639,7 +639,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         await UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -695,7 +695,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         await UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -739,7 +739,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -772,7 +772,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "USD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE,
               sourceServiceFeeEventExternalIdentifier: 920002,
@@ -800,7 +800,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.CHANGE_FEE,
               saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
@@ -827,7 +827,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -864,7 +864,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE,
               sourceServiceFeeEventExternalIdentifier: 920003,
@@ -894,7 +894,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.CHANGE_FEE,
               saleType: TravelDeskInvoiceItem.SaleTypes.SALE,
@@ -923,7 +923,7 @@ describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
         // Act
         const result = UpdateService.perform(travelDeskInvoice, {
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.SERVICE_FEE,
               sourceServiceFeeEventExternalIdentifier: 920002,

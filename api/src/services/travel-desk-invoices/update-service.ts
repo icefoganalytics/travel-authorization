@@ -27,7 +27,7 @@ export class UpdateService extends BaseService {
   }
 
   async perform(): Promise<TravelDeskInvoice> {
-    const { currencyCode, items: travelDeskInvoiceItemsAttributes } =
+    const { currencyCode, itemsAttributes: travelDeskInvoiceItemsAttributes } =
       this.travelDeskInvoiceUpdateAttributes
     if (isNil(currencyCode)) {
       throw new ServiceValidationError({
@@ -38,7 +38,7 @@ export class UpdateService extends BaseService {
 
     if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
       throw new ServiceValidationError({
-        field: "items",
+        field: "itemsAttributes",
         text: "Invoice items must be an array.",
       })
     }

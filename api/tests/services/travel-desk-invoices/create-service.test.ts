@@ -17,7 +17,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
-          items: [],
+          itemsAttributes: [],
         })
 
         // Assert
@@ -37,7 +37,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: travelDeskBookingEvent.externalTravelPortIdentifier,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
-          items: [],
+          itemsAttributes: [],
         })
 
         // Assert
@@ -73,7 +73,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
-          items: [],
+          itemsAttributes: [],
         })
 
         // Assert
@@ -109,7 +109,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
-          items: [],
+          itemsAttributes: [],
         })
 
         // Assert
@@ -160,7 +160,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
-          items: [],
+          itemsAttributes: [],
         })
 
         // Assert
@@ -211,7 +211,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
-          items: [],
+          itemsAttributes: [],
         })
 
         // Assert
@@ -264,7 +264,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002, 920003],
           currencyCode: "CAD",
-          items: [],
+          itemsAttributes: [],
         })
 
         // Assert
@@ -340,7 +340,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [920002],
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -460,7 +460,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,
@@ -544,7 +544,7 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
           externalBookingEventIdentifier: 920001,
           sourceServiceFeeEventExternalIdentifiers: [],
           currencyCode: "CAD",
-          items: [
+          itemsAttributes: [
             {
               productType: TravelDeskInvoiceItem.ProductTypes.AIR,
               sourceAirSegmentNumber: 1,

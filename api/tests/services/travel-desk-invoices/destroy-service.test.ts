@@ -25,7 +25,7 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
         const edit = db.transaction(async () => {
           await UpdateService.perform(travelDeskInvoice, {
             currencyCode: "CAD",
-            items: [
+            itemsAttributes: [
               {
                 productType: TravelDeskInvoiceItem.ProductTypes.AIR,
                 sourceAirSegmentNumber: 1,
