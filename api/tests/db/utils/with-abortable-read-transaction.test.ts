@@ -2,10 +2,10 @@ import { randomUUID } from "node:crypto"
 
 import { QueryTypes } from "@sequelize/core"
 
+import withAbortableReadTransaction from "@/db/utils/with-abortable-read-transaction"
 import db from "@/models"
-import { Downloads } from "@/services"
 
-describe("WithReportTransaction.perform", () => {
+describe("withAbortableReadTransaction", () => {
   test("when a download remains connected, it inherits the database statement timeout", async () => {
     // Arrange
     const readTimeout = () => db.query("SHOW statement_timeout", { type: QueryTypes.SELECT })
@@ -13,7 +13,7 @@ describe("WithReportTransaction.perform", () => {
     let observed
 
     // Act
-    await Downloads.WithReportTransaction.perform(new AbortController().signal, async () => {
+    await withAbortableReadTransaction(new AbortController().signal, async () => {
       observed = await readTimeout()
     })
 
@@ -30,7 +30,7 @@ describe("WithReportTransaction.perform", () => {
       "SELECT pid FROM pg_stat_activity WHERE query = $sleep AND state = 'active'",
       { bind: { sleep }, type: QueryTypes.SELECT }
     )
-    const report = Downloads.WithReportTransaction.perform(controller.signal, async () => {
+    const report = withAbortableReadTransaction(controller.signal, async () => {
       await db.query(sleep)
     })
     const completed = Promise.allSettled([report])

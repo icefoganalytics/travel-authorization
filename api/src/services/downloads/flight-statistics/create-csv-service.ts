@@ -4,6 +4,7 @@ import { type Attributes, type WhereOptions } from "@sequelize/core"
 
 import CsvStreamingClient from "@/lib/csv-streaming-client"
 
+import withAbortableReadTransaction from "@/db/utils/with-abortable-read-transaction"
 import { type ModelOrder } from "@/controllers/base-controller"
 import { type FlightStatistic } from "@/models"
 import { type FlightStatisticsPolicy } from "@/policies"
@@ -12,7 +13,6 @@ import {
   ReportSerializer,
 } from "@/serializers/flight-statistics/report-serializer"
 import BaseService from "@/services/base-service"
-import { Downloads } from "@/services"
 
 export class CreateCsvService extends BaseService {
   constructor(
@@ -29,7 +29,7 @@ export class CreateCsvService extends BaseService {
       this.outputStream,
       FLIGHT_STATISTIC_REPORT_HEADERS,
       (writeRow, signal) => {
-        return Downloads.WithReportTransaction.perform(signal, async () => {
+        return withAbortableReadTransaction(signal, async () => {
           await this.scopedFlightStatistics.findEach(
             {
               where: this.where,
