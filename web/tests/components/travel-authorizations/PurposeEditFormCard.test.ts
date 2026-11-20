@@ -12,13 +12,14 @@ import {
 import { mockHttpClient, mockHttpGetRoutes, mountWithDefaultPlugins } from "@/tests/support"
 
 import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.vue"
+
 import PurposeEditFormCard from "@/components/travel-authorizations/PurposeEditFormCard.vue"
 
 describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () => {
   describe("PurposeEditFormCard", () => {
     test("when the meeting name changes, saves it without changing the itinerary", async () => {
       // Arrange
-      const travelSegments = travelSegmentFactory.buildList(3)
+      const travelSegments = travelSegmentFactory.buildList(3, { travelAuthorizationId: 5 })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         finalDestinationLocationId: 2,
@@ -31,12 +32,17 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/locations": () => ({
-          locations: [locationFactory.build({ id: 2 })],
-          totalCount: 1,
-        }),
+        "/api/locations": () => {
+          const location = locationFactory.build({ id: 2 })
+          return { locations: [location], totalCount: 1 }
+        },
         "/api/travel-purposes": () => ({
-          travelPurposes: [{ id: 1, purpose: "Meeting" }],
+          travelPurposes: [
+            {
+              id: 1,
+              purpose: "Meeting",
+            },
+          ],
           totalCount: 1,
         }),
       })
@@ -52,23 +58,36 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
           field.props("label") === "Name of meeting/conference, mission, trade fair or course *"
         )
       })
-      if (!eventNameField) throw new Error("Meeting name field is missing")
+      if (!eventNameField) {
+        throw new Error("Meeting name field is missing")
+      }
 
       await eventNameField.get("input").setValue("Updated meeting")
       await wrapper.vm.save()
 
       // Assert
-      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
-        finalDestinationLocationId: 2,
-        purposeId: 1,
-        eventName: "Updated meeting",
-        allTravelWithinTerritory: false,
-        benefits: "Coordinate the regional program",
-      })
+      expect(httpClient.patch.mock.calls).toEqual([
+        [
+          "/api/travel-authorizations/5",
+          {
+            finalDestinationLocationId: 2,
+            purposeId: 1,
+            eventName: "Updated meeting",
+            allTravelWithinTerritory: false,
+            benefits: "Coordinate the regional program",
+          },
+        ],
+      ])
     })
 
     test("when a traveller first selects a destination, saves the city without rewriting the initial legs", async () => {
       // Arrange
+      const outbound = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        segmentNumber: 1,
+        accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+      })
+      const inbound = travelSegmentFactory.build({ travelAuthorizationId: 5, segmentNumber: 2 })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
         tripTypeEstimate: TravelAuthorizationTripTypes.ROUND_TRIP,
@@ -76,24 +95,22 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         purposeId: 1,
         eventName: "Planning meeting",
         benefits: "Coordinate the regional program",
-        travelSegments: [
-          travelSegmentFactory.build({
-            travelAuthorizationId: 5,
-            segmentNumber: 1,
-            accommodationType: TravelSegmentAccommodationTypes.HOTEL,
-          }),
-          travelSegmentFactory.build({ travelAuthorizationId: 5, segmentNumber: 2 }),
-        ],
+        travelSegments: [outbound, inbound],
       })
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/locations": () => ({
-          locations: [locationFactory.build({ id: 2 })],
-          totalCount: 1,
-        }),
+        "/api/locations": () => {
+          const location = locationFactory.build({ id: 2 })
+          return { locations: [location], totalCount: 1 }
+        },
         "/api/travel-purposes": () => ({
-          travelPurposes: [{ id: 1, purpose: "Meeting" }],
+          travelPurposes: [
+            {
+              id: 1,
+              purpose: "Meeting",
+            },
+          ],
           totalCount: 1,
         }),
       })
@@ -109,13 +126,18 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       await wrapper.vm.save()
 
       // Assert
-      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
-        finalDestinationLocationId: 2,
-        purposeId: 1,
-        eventName: "Planning meeting",
-        allTravelWithinTerritory: null,
-        benefits: "Coordinate the regional program",
-      })
+      expect(httpClient.patch.mock.calls).toEqual([
+        [
+          "/api/travel-authorizations/5",
+          {
+            finalDestinationLocationId: 2,
+            purposeId: 1,
+            eventName: "Planning meeting",
+            allTravelWithinTerritory: null,
+            benefits: "Coordinate the regional program",
+          },
+        ],
+      ])
     })
 
     test("when the meeting name is cleared, does not save invalid purpose details", async () => {
@@ -130,12 +152,17 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/locations": () => ({
-          locations: [locationFactory.build({ id: 2 })],
-          totalCount: 1,
-        }),
+        "/api/locations": () => {
+          const location = locationFactory.build({ id: 2 })
+          return { locations: [location], totalCount: 1 }
+        },
         "/api/travel-purposes": () => ({
-          travelPurposes: [{ id: 1, purpose: "Meeting" }],
+          travelPurposes: [
+            {
+              id: 1,
+              purpose: "Meeting",
+            },
+          ],
           totalCount: 1,
         }),
       })
@@ -150,7 +177,9 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
           field.props("label") === "Name of meeting/conference, mission, trade fair or course *"
         )
       })
-      if (!eventNameField) throw new Error("Meeting name field is missing")
+      if (!eventNameField) {
+        throw new Error("Meeting name field is missing")
+      }
 
       await eventNameField.get("input").setValue("")
       await wrapper.vm.save()
@@ -179,7 +208,12 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
         "/api/travel-purposes": () => ({
-          travelPurposes: [{ id: 1, purpose: "Meeting" }],
+          travelPurposes: [
+            {
+              id: 1,
+              purpose: "Meeting",
+            },
+          ],
           totalCount: 1,
         }),
         "/api/locations": () => ({ locations: [ottawa], totalCount: 1 }),
@@ -196,18 +230,26 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       await wrapper.vm.save()
 
       // Assert
-      expect(httpClient.patch).toHaveBeenCalledWith("/api/travel-authorizations/5", {
-        purposeId: 1,
-        eventName: "Planning meeting",
-        allTravelWithinTerritory: false,
-        benefits: "Coordinate the regional program",
-        finalDestinationLocationId: 4,
-      })
+      expect(httpClient.patch.mock.calls).toEqual([
+        [
+          "/api/travel-authorizations/5",
+          {
+            purposeId: 1,
+            eventName: "Planning meeting",
+            allTravelWithinTerritory: false,
+            benefits: "Coordinate the regional program",
+            finalDestinationLocationId: 4,
+          },
+        ],
+      ])
     })
 
     test("when a saved destination differs from the itinerary, displays the saved choice", async () => {
       // Arrange
-      const travelSegments = travelSegmentFactory.buildList(2, { arrivalLocationId: 2 })
+      const travelSegments = travelSegmentFactory.buildList(2, {
+        travelAuthorizationId: 5,
+        arrivalLocationId: 2,
+      })
       const ottawa = locationFactory.build({ id: 4, city: "Ottawa", province: "ON" })
       const travelAuthorization = travelAuthorizationFactory.asShow().build({
         id: 5,
@@ -246,7 +288,12 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         mockHttpGetRoutes({
           "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
           "/api/travel-purposes": () => ({
-            travelPurposes: [{ id: 1, purpose: "Meeting" }],
+            travelPurposes: [
+              {
+                id: 1,
+                purpose: "Meeting",
+              },
+            ],
             totalCount: 1,
           }),
           "/api/locations": () => ({ locations: [], totalCount: 0 }),
@@ -257,8 +304,10 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
         await flushPromises()
 
         // Act
-        wrapper.getComponent(LocationsAutocomplete).vm.$emit("update:modelValue", null)
-        await flushPromises()
+        if (locationId !== null) {
+          wrapper.getComponent(LocationsAutocomplete).vm.$emit("update:modelValue", null)
+          await flushPromises()
+        }
         await wrapper.vm.save()
 
         // Assert
