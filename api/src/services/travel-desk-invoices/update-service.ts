@@ -5,7 +5,7 @@ import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
 import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
-import { type InvoiceHeaderAttributes } from "@/services/travel-desk-invoices/create-service"
+import { type TravelDeskInvoiceCreationAttributes } from "@/services/travel-desk-invoices/create-service"
 import {
   BulkCreateService,
   ValidateLinkedFlightSegmentsService,
@@ -14,14 +14,14 @@ import { ValidateItemsService } from "@/services/travel-desk-invoices/validate-i
 import { withInvoiceLock } from "@/services/travel-desk-invoices/with-invoice-lock"
 
 export type InvoiceUpdateAttributes = Omit<
-  InvoiceHeaderAttributes,
+  TravelDeskInvoiceCreationAttributes,
   "bookingReference" | "externalBookingEventIdentifier" | "sourceServiceFeeEventExternalIdentifiers"
 >
 
 export class UpdateService extends BaseService {
   constructor(
     protected invoice: TravelDeskInvoice,
-    protected attributes: Partial<InvoiceUpdateAttributes>
+    protected attributes: InvoiceUpdateAttributes
   ) {
     super()
   }
