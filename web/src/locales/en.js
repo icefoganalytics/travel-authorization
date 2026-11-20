@@ -89,6 +89,19 @@ export default {
       declined: "Declined",
     },
   },
+  travel_desk_invoice_item: {
+    product_type: {
+      air: "Air",
+      service_fee: "Service Fee",
+      credit: "Credit",
+      change_fee: "Change Fee",
+    },
+    sale_type: {
+      sale: "Sale",
+      refund: "Refund",
+      void: "Void",
+    },
+  },
   travel_desk_travel_request: {
     status: {
       booked: "Booked",
