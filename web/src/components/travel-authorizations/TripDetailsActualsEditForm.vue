@@ -1,13 +1,6 @@
 <template>
-  <v-alert
-    v-if="hasTravelSegmentsLoadError"
-    type="error"
-    variant="outlined"
-  >
-    Failed to load the travel itinerary. Reload the page to try again.
-  </v-alert>
   <v-skeleton-loader
-    v-else-if="isNil(travelAuthorization?.id) || !isInitialized"
+    v-if="isNil(travelAuthorization?.id)"
     type="card"
   />
   <v-form
@@ -90,7 +83,7 @@
 
 <script setup>
 import { computed, defineAsyncComponent, nextTick, ref, toRefs } from "vue"
-import { isEmpty, max, isNil } from "lodash"
+import { max, isNil } from "lodash"
 import { useDisplay } from "vuetify"
 
 import { required, isInteger, greaterThanOrEqualTo, lessThanOrEqualTo } from "@/utils/validators"
@@ -100,7 +93,6 @@ import { TRIP_TYPES } from "@/api/travel-authorizations-api"
 
 import useSnack from "@/use/use-snack"
 import useTravelAuthorization from "@/use/use-travel-authorization"
-import useTravelSegments from "@/use/use-travel-segments"
 
 import StringDateInput from "@/components/common/StringDateInput.vue"
 import TripTypeRadioGroup from "@/components/travel-authorizations/TripTypeRadioGroup.vue"
@@ -130,31 +122,14 @@ const { travelAuthorizationId } = toRefs(props)
 const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
 
 const defaultTripType = computed(
-  () =>
-    travelAuthorization.value?.tripTypeActual ||
-    travelAuthorization.value?.tripTypeEstimate ||
-    TRIP_TYPES.ROUND_TRIP
+  () => travelAuthorization.value.tripTypeActual || travelAuthorization.value.tripTypeEstimate
 )
 const tripType = useRouteQuery("trip_type", defaultTripType)
 
-const travelSegmentsQuery = computed(() => ({
-  where: {
-    travelAuthorizationId: props.travelAuthorizationId,
-  },
-  perPage: -1,
-}))
-const {
-  travelSegments: savedTravelSegments,
-  isInitialized,
-  isErrored: hasTravelSegmentsLoadError,
-} = useTravelSegments(travelSegmentsQuery)
 const travelSegments = computed(() => {
-  const actualSegments = savedTravelSegments.value.filter((segment) => segment.isActual)
-  if (!isEmpty(actualSegments)) {
-    return actualSegments
-  }
-
-  return savedTravelSegments.value
+  const { tripTypeActual, travelSegments } = travelAuthorization.value
+  const hasActualTrip = !isNil(tripTypeActual)
+  return travelSegments.filter((segment) => segment.isActual === hasActualTrip)
 })
 
 const latestDepartureDate = ref(null)
@@ -253,9 +228,6 @@ async function saveWrapper() {
 
 defineExpose({
   save: saveWrapper,
-  validate: async () =>
-    form.value?.validate() ?? {
-      valid: false,
-    },
+  validate: async () => form.value?.validate(),
 })
 </script>

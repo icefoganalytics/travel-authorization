@@ -58,10 +58,6 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
           travelAuthorization,
           policy: {},
         }),
-        "/api/travel-segments": () => ({
-          travelSegments,
-          totalCount: 2,
-        }),
         "/api/locations": () => ({
           locations: [],
           totalCount: 0,
@@ -163,10 +159,6 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
           travelAuthorization,
           policy: {},
         }),
-        "/api/travel-segments": () => ({
-          travelSegments,
-          totalCount: 2,
-        }),
         "/api/locations": () => ({
           locations: [],
           totalCount: 0,
@@ -245,14 +237,6 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
           travelAuthorization,
           policy: {},
         }),
-        "/api/travel-segments": (config) => {
-          const pageSize = config?.params?.perPage === -1 ? travelSegments.length : 10
-          const paginatedSegments = travelSegments.slice(0, pageSize)
-          return {
-            travelSegments: paginatedSegments,
-            totalCount: travelSegments.length,
-          }
-        },
         "/api/locations": () => ({
           locations: [],
           totalCount: 0,

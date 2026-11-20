@@ -71,7 +71,6 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       const locations = [whitehorse, vancouver, toronto, ottawa]
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/travel-segments": () => ({ travelSegments, totalCount: 3 }),
         "/api/locations": () => ({ locations, totalCount: 4 }),
         "/api/locations/1": () => ({ location: whitehorse }),
         "/api/locations/2": () => ({ location: vancouver }),
@@ -196,7 +195,6 @@ describe("web/src/components/travel-authorizations/SummaryHeaderPanel.vue", () =
       })
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/travel-segments": () => ({ travelSegments, totalCount: 3 }),
         "/api/locations": () => ({ locations, totalCount: 4 }),
         "/api/locations/1": () => ({ location: whitehorse }),
         "/api/locations/2": () => ({ location: vancouver }),

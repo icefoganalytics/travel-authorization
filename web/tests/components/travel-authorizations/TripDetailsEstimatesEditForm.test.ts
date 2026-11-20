@@ -25,41 +25,6 @@ import TripDetailsEstimatesEditForm from "@/components/travel-authorizations/Tri
 
 describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.vue", () => {
   describe("TripDetailsEstimatesEditForm", () => {
-    test("when the itinerary cannot load, tells the traveller how to recover", async () => {
-      // Arrange
-      const travelAuthorization = travelAuthorizationFactory.asShow().build({
-        id: 5,
-        tripTypeEstimate: TravelAuthorizationTripTypes.ROUND_TRIP,
-      })
-      const router = mockRouter()
-      await router.push("/")
-      mockHttpClient()
-      const itineraryLoadError = new Error("Service unavailable")
-      mockHttpGetRoutes({
-        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/travel-segments": () => Promise.reject(itineraryLoadError),
-      })
-
-      // Act
-      const wrapper = mountWithDefaultPlugins(TripDetailsEstimatesEditForm, {
-        props: { travelAuthorizationId: 5 },
-        global: {
-          plugins: [router],
-          config: {
-            errorHandler(error) {
-              if (error !== itineraryLoadError) {
-                throw error
-              }
-            },
-          },
-        },
-      })
-      await flushPromises()
-
-      // Assert
-      expect(wrapper.get('[role="alert"]').text()).toMatch(/reload/i)
-    })
-
     test("when an estimated leg is added without an arrival city, does not save the incomplete itinerary", async () => {
       // Arrange
       const outboundSegment = travelSegmentFactory.build({
@@ -91,7 +56,6 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
         "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
-        "/api/travel-segments": () => ({ travelSegments, totalCount: 2 }),
         "/api/locations": () => ({ locations: [], totalCount: 0 }),
       })
       const router = mockRouter()
@@ -174,10 +138,6 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
         "/api/travel-authorizations/5": () => ({
           travelAuthorization,
           policy: {},
-        }),
-        "/api/travel-segments": () => ({
-          travelSegments,
-          totalCount: 2,
         }),
         "/api/locations": () => ({
           locations: [whitehorse, vancouver, dawsonCity, ottawa],
