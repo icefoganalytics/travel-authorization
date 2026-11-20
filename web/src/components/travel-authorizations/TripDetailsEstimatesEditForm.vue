@@ -225,7 +225,7 @@ async function resetFormValidation() {
 }
 
 async function validate() {
-  if (isNil(savedTripType.value) || isNil(form.value)) {
+  if (isNil(form.value)) {
     return { valid: false }
   }
 
@@ -233,7 +233,9 @@ async function validate() {
 }
 
 async function saveWrapper() {
-  const { valid } = await validate()
+  if (isNil(form.value)) return
+
+  const { valid } = await form.value.validate()
   if (!valid) {
     snack.warning("Please fill in all required fields.")
     return
