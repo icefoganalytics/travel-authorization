@@ -1,4 +1,4 @@
-import { Op } from "@sequelize/core"
+import { type CreationAttributes, Op } from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
 import { db } from "@/db/db-client"
@@ -18,29 +18,20 @@ import {
   type TravelDeskInvoiceItemAttributes,
 } from "@/services/travel-desk-invoices/validate-items-service"
 
-export type InvoiceHeaderAttributes = {
-  bookingReference: string
-  externalBookingEventIdentifier: number
-  sourceServiceFeeEventExternalIdentifiers: number[]
-  currencyCode: string
-  invoiceNumber?: string | null
-  invoiceDate?: string | null
-  warrantNumber?: string | null
-  clientNumber?: string | null
-  clientName?: string | null
-  department?: string | null
-  mailcode?: string | null
-  iataNumber?: string | null
-  bookingAgentName?: string | null
-  ticketingAgentName?: string | null
-  bookingDate?: string | null
-  items: TravelDeskInvoiceItemAttributes[]
+export type TravelDeskInvoiceCreationAttributes = Partial<
+  Omit<
+    CreationAttributes<TravelDeskInvoice>,
+    "id" | "travelDeskTravelRequestId" | "grossAmount" | "createdAt" | "updatedAt" | "deletedAt"
+  >
+> & {
+  sourceServiceFeeEventExternalIdentifiers?: number[]
+  items?: TravelDeskInvoiceItemAttributes[]
 }
 
 export class CreateService extends BaseService {
   constructor(
     protected travelDeskTravelRequest: TravelDeskTravelRequest,
-    protected attributes: Partial<InvoiceHeaderAttributes>
+    protected attributes: TravelDeskInvoiceCreationAttributes
   ) {
     super()
   }
