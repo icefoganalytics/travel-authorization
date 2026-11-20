@@ -1,5 +1,5 @@
 import { type CreationAttributes, Op } from "@sequelize/core"
-import { isEmpty, isNil } from "lodash"
+import { isEmpty, isNil, keyBy } from "lodash"
 
 import { db } from "@/db/db-client"
 
@@ -145,50 +145,38 @@ export class CreateService extends BaseService {
         },
       },
     })
-    const bookingEvent = bookingEvents.find(
-      (event) => event.externalTravelPortIdentifier === externalBookingEventIdentifier
-    )
+    const bookingEventsByIdentifier = keyBy(bookingEvents, "externalTravelPortIdentifier")
+    const bookingEvent = bookingEventsByIdentifier[externalBookingEventIdentifier]
     if (isNil(bookingEvent) || isEmpty(bookingEvent.airReservationSegments)) {
       throw new InvoiceValidationError(
         "Choose a booking event with flight segments for this booking reference."
       )
     }
 
-    if (bookingEvent.bookingReference?.trim().toUpperCase() !== bookingReference) {
-      throw new InvoiceValidationError("Booking event does not belong to this booking reference.")
-    }
-
     const documentNumbers = new Set<string>()
     for (const eventId of sourceServiceFeeEventExternalIdentifiers) {
-      const event = bookingEvents.find(
-        (sourceEvent) => sourceEvent.externalTravelPortIdentifier === eventId
-      )
-      if (
-        isNil(event) ||
-        isNil(event.serviceFeeTransaction) ||
-        event.bookingReference?.trim().toUpperCase() !== bookingReference
-      ) {
+      const fee = bookingEventsByIdentifier[eventId]?.serviceFeeTransaction
+      if (isNil(fee)) {
         throw new InvoiceValidationError(
           "Every selected service fee must belong to this booking reference."
         )
       }
 
-      const fee = event.serviceFeeTransaction
       if (!isNil(fee.currencyCode) && fee.currencyCode !== currencyCode) {
         throw new InvoiceValidationError(
           "Selected service fee currency must match the invoice currency."
         )
       }
 
-      if (!isNil(fee.serviceFeeDocumentNumber) && !isEmpty(fee.serviceFeeDocumentNumber)) {
-        if (documentNumbers.has(fee.serviceFeeDocumentNumber)) {
-          throw new InvoiceValidationError(
-            "Multiple versions of a service fee document cannot be selected."
-          )
-        }
+      const documentNumber = fee.serviceFeeDocumentNumber
+      if (isNil(documentNumber) || isEmpty(documentNumber)) continue
 
-        documentNumbers.add(fee.serviceFeeDocumentNumber)
+      if (documentNumbers.has(documentNumber)) {
+        throw new InvoiceValidationError(
+          "Multiple versions of a service fee document cannot be selected."
+        )
       }
+      documentNumbers.add(documentNumber)
     }
 
     return bookingEvent
