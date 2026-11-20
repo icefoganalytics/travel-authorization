@@ -2,19 +2,19 @@ import { QueryTypes } from "@sequelize/core"
 import { get } from "lodash"
 
 import db from "@/models"
-import withReportTransaction from "@/services/downloads/with-report-transaction"
+import { Downloads } from "@/services"
 
 const STATEMENT_TIMEOUT_MS = 100
 
 describe("api/src/services/downloads/with-report-transaction.ts", () => {
-  describe("withReportTransaction", () => {
+  describe("WithReportTransaction.perform", () => {
     test("when a statement exceeds the timeout, PostgreSQL cancels it", async () => {
       // Arrange
       const signal = new AbortController().signal
       const longStatement = "SELECT pg_sleep(0.5)"
 
       // Act
-      const report = withReportTransaction(
+      const report = Downloads.WithReportTransaction.perform(
         signal,
         async () => {
           await db.query(longStatement)
@@ -38,7 +38,7 @@ describe("api/src/services/downloads/with-report-transaction.ts", () => {
       const longStatement = "SELECT pg_sleep(0.5)"
 
       // Act
-      const report = withReportTransaction(
+      const report = Downloads.WithReportTransaction.perform(
         signal,
         async () => {
           await db.query(longStatement)
@@ -62,7 +62,7 @@ describe("api/src/services/downloads/with-report-transaction.ts", () => {
       let rows: { value: number }[] = []
 
       // Act
-      await withReportTransaction(
+      await Downloads.WithReportTransaction.perform(
         signal,
         async () => {
           rows = await db.query<{ value: number }>("SELECT 1 AS value", {
@@ -93,7 +93,7 @@ describe("api/src/services/downloads/with-report-transaction.ts", () => {
       })
 
       // Act
-      await withReportTransaction(
+      await Downloads.WithReportTransaction.perform(
         signal,
         async () => {
           await db.query("SELECT 1")

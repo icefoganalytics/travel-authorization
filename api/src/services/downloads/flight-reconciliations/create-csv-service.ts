@@ -12,7 +12,7 @@ import {
   ReportSerializer,
 } from "@/serializers/flight-reconciliations/report-serializer"
 import BaseService from "@/services/base-service"
-import withReportTransaction from "@/services/downloads/with-report-transaction"
+import { Downloads } from "@/services"
 
 export class CreateCsvService extends BaseService {
   constructor(
@@ -29,7 +29,7 @@ export class CreateCsvService extends BaseService {
       this.outputStream,
       FLIGHT_RECONCILIATION_REPORT_HEADERS,
       (writeRow, signal) => {
-        return withReportTransaction(signal, async () => {
+        return Downloads.WithReportTransaction.perform(signal, async () => {
           await this.scopedFlightReconciliations.findEach(
             {
               where: this.where,
