@@ -367,10 +367,12 @@ function applyExistingDefaultValues(currentTravelSegments) {
   const newTravelSegmentsAttributes = []
   for (let index = 0; index < newTravelSegmentsSize; index++) {
     const currentTravelSegmentAttributes = travelSegmentsAttributes.value[index]
-    const newTravelSegment = pick(currentTravelSegments[index], PERMITTED_ATTRIBUTES_FOR_CLONE)
+    const sourceSegment = currentTravelSegments[index]
+    const newTravelSegment = pick(sourceSegment, PERMITTED_ATTRIBUTES_FOR_CLONE)
 
     const isLastTravelSegment = index === newTravelSegmentsSize - 1
-    const defaultAccommodationType = isLastTravelSegment ? null : ACCOMMODATION_TYPES.HOTEL
+    const defaultAccommodationType =
+      isLastTravelSegment || sourceSegment?.isActual ? null : ACCOMMODATION_TYPES.HOTEL
 
     const newTravelSegmentAttributes = {
       ...currentTravelSegmentAttributes,

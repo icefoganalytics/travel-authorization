@@ -325,15 +325,17 @@ const travelSegmentsAttributes = ref([
 ])
 
 function applyExistingDefaultValues(currentTravelSegments) {
-  const firstTravelSegment = pick(first(currentTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
+  const outboundSegment = first(currentTravelSegments)
+  const firstTravelSegment = pick(outboundSegment, PERMITTED_ATTRIBUTES_FOR_CLONE)
   const lastTravelSegment = pick(last(currentTravelSegments), PERMITTED_ATTRIBUTES_FOR_CLONE)
+  const defaultOutboundAccommodation = outboundSegment?.isActual ? null : ACCOMMODATION_TYPES.HOTEL
 
   travelSegmentsAttributes.value = [
     {
       ...travelSegmentsAttributes.value[0],
       ...firstTravelSegment,
       modeOfTransport: firstTravelSegment?.modeOfTransport || TRAVEL_METHODS.AIRCRAFT,
-      accommodationType: firstTravelSegment?.accommodationType || ACCOMMODATION_TYPES.HOTEL,
+      accommodationType: firstTravelSegment.accommodationType ?? defaultOutboundAccommodation,
       isActual: props.isActual,
       segmentNumber: 1,
       travelAuthorizationId: props.travelAuthorizationId,

@@ -32,7 +32,7 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
         arrivalLocationId: 2,
         departureOn: "2026-11-12",
         departureTime: "09:00",
-        accommodationType: TravelSegmentAccommodationTypes.HOTEL,
+        accommodationType: null,
       })
       const returnSegment = travelSegmentFactory.build({
         id: 42,
@@ -208,6 +208,69 @@ describe("web/src/components/travel-authorizations/TripDetailsActualsEditForm.vu
           ]),
         })
       )
+    })
+
+    test.each([
+      TravelAuthorizationTripTypes.ROUND_TRIP,
+      TravelAuthorizationTripTypes.MULTI_CITY,
+    ])("does not save a %s actual itinerary with missing outbound lodging", async (tripType) => {
+      // Arrange
+      const outbound = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        isActual: true,
+        segmentNumber: 1,
+        departureLocationId: 1,
+        arrivalLocationId: 2,
+        departureOn: "2026-11-12",
+        departureTime: "09:00",
+        accommodationType: null,
+      })
+      const inbound = travelSegmentFactory.build({
+        travelAuthorizationId: 5,
+        isActual: true,
+        segmentNumber: 2,
+        departureLocationId: 2,
+        arrivalLocationId: 1,
+        departureOn: "2026-11-13",
+        departureTime: "09:00",
+        accommodationType: TravelSegmentAccommodationTypes.PRIVATE,
+      })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        tripTypeActual: tripType,
+        daysOffTravelStatusActual: 0,
+        dateBackToWorkActual: "2026-11-14",
+        travelSegments: [outbound, inbound],
+      })
+      const httpClient = mockHttpClient()
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({
+          travelAuthorization,
+          policy: {},
+        }),
+        "/api/locations": () => ({
+          locations: [],
+          totalCount: 0,
+        }),
+      })
+      const router = mockRouter()
+      const wrapper = mountWithDefaultPlugins(TripDetailsActualsEditForm, {
+        props: {
+          travelAuthorizationId: 5,
+        },
+        global: {
+          plugins: [router],
+        },
+      })
+      await flushPromises()
+      await vi.dynamicImportSettled()
+      await flushPromises()
+
+      // Act
+      await wrapper.vm.save()
+
+      // Assert
+      expect(httpClient.patch).not.toHaveBeenCalled()
     })
 
     test("when days on non-travel status are negative, does not save the actual itinerary", async () => {
