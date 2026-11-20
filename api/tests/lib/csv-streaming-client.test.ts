@@ -10,7 +10,7 @@ import CsvStreamingClient from "@/lib/csv-streaming-client"
 describe("api/src/lib/csv-streaming-client.ts", () => {
   describe("CsvStreamingClient.stream", () => {
     describe("download deadline", () => {
-      const deadlineInMilliseconds = 2 * 60 * 1000
+      const deadlineInMilliseconds = 60 * 60 * 1000
 
       beforeEach(() => {
         vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })
@@ -54,7 +54,10 @@ describe("api/src/lib/csv-streaming-client.ts", () => {
         }
       })
 
-      test("when a download exceeds its deadline, it closes the output stream", async () => {
+      test.each([
+        { elapsed: deadlineInMilliseconds - 1, closed: false },
+        { elapsed: deadlineInMilliseconds, closed: true },
+      ])("when a download has run for $elapsed ms, output.closed is $closed", async ({ elapsed, closed }) => {
         // Arrange
         const outputStream = new PassThrough({ highWaterMark: 1 })
         const transfer = CsvStreamingClient.stream(outputStream, ["Name"], (writeRow) =>
@@ -64,10 +67,10 @@ describe("api/src/lib/csv-streaming-client.ts", () => {
 
         try {
           // Act
-          await vi.advanceTimersByTimeAsync(deadlineInMilliseconds)
+          await vi.advanceTimersByTimeAsync(elapsed)
 
           // Assert
-          expect(outputStream.closed).toBe(true)
+          expect(outputStream.closed).toBe(closed)
         } finally {
           outputStream.destroy()
           await completion

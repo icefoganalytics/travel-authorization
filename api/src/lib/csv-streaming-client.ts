@@ -10,7 +10,7 @@ type CsvRow = Record<string, string | number>
 type WriteRow = (row: CsvRow) => Promise<void>
 type GenerateRows = (writeRow: WriteRow, signal: AbortSignal) => Promise<void>
 
-const MAX_EXPORT_DURATION_MS = 2 * 60 * 1000
+const MAX_EXPORT_DURATION_MS = 60 * 60 * 1000
 
 export class CsvStreamingClient {
   static async stream(outputStream: Writable, headers: string[], generateRows: GenerateRows): Promise<void> {
