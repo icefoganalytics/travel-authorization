@@ -73,7 +73,14 @@ export class TravelAuthorizationPreApproval extends Model<
   declare location: string
 
   @Attribute(DataTypes.STRING(255))
-  declare department: string | null
+  @NotNull
+  @ValidateAttribute({
+    is: {
+      args: [/\S/],
+      msg: "Department is required.",
+    },
+  })
+  declare department: string
 
   @Attribute(DataTypes.STRING(255))
   declare branch: string | null

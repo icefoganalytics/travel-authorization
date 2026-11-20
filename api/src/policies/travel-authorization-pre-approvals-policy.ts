@@ -5,7 +5,6 @@ import { type Path } from "@/utils/deep-pick"
 import { TravelAuthorizationPreApproval, User } from "@/models"
 import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
-import { TravelAuthorizationPreApprovalProfilesPolicy } from "@/policies"
 
 export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
   TravelAuthorizationPreApproval
@@ -63,8 +62,7 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
       ...this.permittedAttributes(),
       "department",
       {
-        profilesAttributes:
-          TravelAuthorizationPreApprovalProfilesPolicy.permittedAttributesForCreate(),
+        profilesAttributes: ["profileName", "department", "branch"],
       },
     ]
   }

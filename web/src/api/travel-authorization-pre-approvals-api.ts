@@ -31,7 +31,7 @@ export type TravelAuthorizationPreApproval = {
   submissionId: number | null
   estimatedCost: number
   location: string
-  department: string | null
+  department: string
   branch: string | null
   purpose: string | null
   reason: string | null
@@ -139,9 +139,10 @@ export const travelAuthorizationPreApprovalsApi = {
   },
 
   async create(
-    attributes: Partial<TravelAuthorizationPreApproval> & {
-      profilesAttributes: Partial<TravelAuthorizationPreApprovalProfile>[]
-    }
+    attributes: Pick<TravelAuthorizationPreApproval, "department"> &
+      Partial<TravelAuthorizationPreApproval> & {
+        profilesAttributes: Partial<TravelAuthorizationPreApprovalProfile>[]
+      }
   ): Promise<{
     travelAuthorizationPreApproval: TravelAuthorizationPreApproval
   }> {

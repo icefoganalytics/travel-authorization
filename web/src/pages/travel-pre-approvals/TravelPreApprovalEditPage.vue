@@ -160,7 +160,6 @@
         <BranchAutocomplete
           v-model="travelAuthorizationPreApproval.branch"
           label="Branch"
-          :disabled="isNil(travelAuthorizationPreApproval.department)"
           hint="Search for a branch"
           :where="branchWhere"
           variant="outlined"
@@ -170,40 +169,31 @@
       </v-col>
     </v-row>
 
-    <v-alert
-      v-if="isNil(travelAuthorizationPreApproval.department)"
-      type="info"
-      class="mt-4"
-    >
-      Branch and traveler details are unavailable because this pre-approval has no department.
-    </v-alert>
-    <template v-else>
-      <v-row>
-        <v-col>
-          <TravelAuthorizationPreApprovalTravelerEditFormCard
-            v-model:number-travelers="travelAuthorizationPreApproval.numberTravelers"
-            v-model:is-open-for-any-traveler="travelAuthorizationPreApproval.isOpenForAnyTraveler"
-            :travel-authorization-pre-approval-id="travelAuthorizationPreApprovalId"
-            :department="travelAuthorizationPreApproval.department"
-            :branch="travelAuthorizationPreApproval.branch"
-          />
-        </v-col>
-      </v-row>
+    <v-row>
+      <v-col>
+        <TravelAuthorizationPreApprovalTravelerEditFormCard
+          v-model:number-travelers="travelAuthorizationPreApproval.numberTravelers"
+          v-model:is-open-for-any-traveler="travelAuthorizationPreApproval.isOpenForAnyTraveler"
+          :travel-authorization-pre-approval-id="travelAuthorizationPreApprovalId"
+          :department="travelAuthorizationPreApproval.department"
+          :branch="travelAuthorizationPreApproval.branch"
+        />
+      </v-col>
+    </v-row>
 
-      <v-row>
-        <v-col
-          cols="12"
-          md="12"
-        >
-          <v-textarea
-            v-model="travelAuthorizationPreApproval.travelerNotes"
-            label="Traveler Notes"
-            variant="outlined"
-            clearable
-          />
-        </v-col>
-      </v-row>
-    </template>
+    <v-row>
+      <v-col
+        cols="12"
+        md="12"
+      >
+        <v-textarea
+          v-model="travelAuthorizationPreApproval.travelerNotes"
+          label="Traveler Notes"
+          variant="outlined"
+          clearable
+        />
+      </v-col>
+    </v-row>
 
     <template #actions>
       <v-btn

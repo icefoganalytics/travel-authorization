@@ -21,7 +21,12 @@ export class CreateService extends BaseService {
   }
 
   async perform(): Promise<TravelAuthorizationPreApproval> {
-    const { estimatedCost, location, profilesAttributes, ...optionalAttributes } = this.attributes
+    const { department, estimatedCost, location, profilesAttributes, ...optionalAttributes } =
+      this.attributes
+
+    if (typeof department !== "string" || department.trim() === "") {
+      throw new Error("Department is required.")
+    }
 
     if (isNil(estimatedCost)) {
       throw new Error("Estimated cost is required.")
@@ -39,6 +44,7 @@ export class CreateService extends BaseService {
       const travelAuthorizationPreApproval = await TravelAuthorizationPreApproval.create({
         ...optionalAttributes,
         creatorId: this.currentUser.id,
+        department,
         estimatedCost,
         location,
         status: TravelAuthorizationPreApproval.Statuses.DRAFT,

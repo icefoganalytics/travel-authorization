@@ -1,4 +1,4 @@
-import { TravelAuthorizationPreApproval } from "@/models"
+import { TravelAuthorizationPreApproval, User } from "@/models"
 
 import { travelAuthorizationPreApprovalFactory, userFactory } from "@/factories"
 import { mockCurrentUser, request } from "@/support"
@@ -80,6 +80,38 @@ describe("api/src/controllers/travel-authorization-pre-approvals-controller.ts",
         expect(response.body).toEqual({
           message:
             "Failed to create travel authorization pre-approval: Error: Profile department must match the pre-approval department.",
+        })
+      })
+
+      test.each([
+        { name: "omitted", attributes: {} },
+        { name: "null", attributes: { department: null } },
+        { name: "empty", attributes: { department: "" } },
+        { name: "whitespace only", attributes: { department: " \t " } },
+      ])("when the parent department is $name, it rejects creation", async ({ attributes }) => {
+        // Arrange
+        const user = await userFactory.create({
+          roles: [User.Roles.ADMIN],
+        })
+        mockCurrentUser(user)
+
+        // Act
+        const response = await request().post("/api/travel-authorization-pre-approvals").send({
+          ...attributes,
+          estimatedCost: 1200,
+          location: "Dawson",
+          profilesAttributes: [
+            {
+              profileName: "Jane.Traveller",
+            },
+          ],
+        })
+
+        // Assert
+        expect(response.status).toEqual(422)
+        expect(response.body).toEqual({
+          message:
+            "Failed to create travel authorization pre-approval: Error: Department is required.",
         })
       })
     })

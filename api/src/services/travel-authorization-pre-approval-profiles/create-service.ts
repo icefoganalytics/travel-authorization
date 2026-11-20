@@ -26,10 +26,6 @@ export class CreateService extends BaseService {
     }
 
     const parentDepartment = this.preApproval.department
-    if (isNil(parentDepartment)) {
-      throw new Error("Pre-approval department is required.")
-    }
-
     if (!isUndefined(department) && department !== parentDepartment) {
       throw new Error("Profile department must match the pre-approval department.")
     }
