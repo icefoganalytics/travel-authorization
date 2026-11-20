@@ -63,10 +63,16 @@ export const travelAuthorizationPreApprovalProfilesApi = {
     return data
   },
 
-  async create(attributes: Partial<TravelAuthorizationPreApprovalProfile>): Promise<{
+  async create(
+    travelAuthorizationPreApprovalId: number | string,
+    attributes: Pick<TravelAuthorizationPreApprovalProfile, "profileName" | "branch">
+  ): Promise<{
     travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile
   }> {
-    const { data } = await http.post("/api/travel-authorization-pre-approval-profiles", attributes)
+    const { data } = await http.post(
+      `/api/travel-authorization-pre-approvals/${travelAuthorizationPreApprovalId}/profiles`,
+      attributes
+    )
     return data
   },
 

@@ -2,7 +2,11 @@ import { Attributes, FindOptions } from "@sequelize/core"
 import { isNil } from "lodash"
 
 import { Path } from "@/utils/deep-pick"
-import { TravelAuthorizationPreApprovalProfile, User } from "@/models"
+import {
+  TravelAuthorizationPreApproval,
+  TravelAuthorizationPreApprovalProfile,
+  User,
+} from "@/models"
 import { ALL_RECORDS_SCOPE, NO_RECORDS_SCOPE } from "@/policies/base-policy"
 import PolicyFactory from "@/policies/policy-factory"
 
@@ -16,10 +20,10 @@ export class TravelAuthorizationPreApprovalProfilesPolicy extends PolicyFactory(
   }
 
   create(): boolean {
-    if (this.user.isAdmin) return true
-
-    const department = this.record.preApproval?.department
-    return !isNil(department) && department === this.user.department
+    return TravelAuthorizationPreApprovalProfilesPolicy.canCreateForPreApproval(
+      this.user,
+      this.record.preApproval
+    )
   }
 
   update(): boolean {
@@ -36,11 +40,21 @@ export class TravelAuthorizationPreApprovalProfilesPolicy extends PolicyFactory(
   }
 
   permittedAttributes(): Path[] {
+    return ["profileName", "branch"]
+  }
+
+  static permittedAttributesForCreate(): Path[] {
     return ["profileName", "department", "branch"]
   }
 
-  permittedAttributesForCreate(): Path[] {
-    return ["preApprovalId", ...this.permittedAttributes()]
+  static canCreateForPreApproval(
+    user: User,
+    travelAuthorizationPreApproval: TravelAuthorizationPreApproval | null | undefined
+  ): boolean {
+    if (user.isAdmin) return true
+
+    const department = travelAuthorizationPreApproval?.department
+    return !isNil(department) && department === user.department
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorizationPreApprovalProfile>> {

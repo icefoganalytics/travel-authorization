@@ -1,7 +1,7 @@
 import { Attributes, FindOptions } from "@sequelize/core"
 import { isNil } from "lodash"
 
-import { Path } from "@/utils/deep-pick"
+import { deepPick, Path } from "@/utils/deep-pick"
 import {
   TravelAuthorizationPreApproval,
   TravelAuthorizationPreApprovalProfile,
@@ -26,6 +26,13 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
     return this.record.department === this.user.department
   }
 
+  createProfile(): boolean {
+    return TravelAuthorizationPreApprovalProfilesPolicy.canCreateForPreApproval(
+      this.user,
+      this.record
+    )
+  }
+
   update(): boolean {
     if (this.user.isAdmin) return true
     if (this.user.isPreApprovedTravelAdmin) {
@@ -48,7 +55,6 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
     return [
       "estimatedCost",
       "location",
-      "department",
       "branch",
       "purpose",
       "reason",
@@ -66,10 +72,21 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
   permittedAttributesForCreate(): Path[] {
     return [
       ...this.permittedAttributes(),
+      "department",
       {
-        profilesAttributes: this.profilesPolicy.permittedAttributesForCreate(),
+        profilesAttributes:
+          TravelAuthorizationPreApprovalProfilesPolicy.permittedAttributesForCreate(),
       },
     ]
+  }
+
+  permitProfileAttributesForCreate(
+    attributes: Partial<TravelAuthorizationPreApprovalProfile>
+  ): Partial<TravelAuthorizationPreApprovalProfile> {
+    return deepPick(
+      attributes,
+      TravelAuthorizationPreApprovalProfilesPolicy.permittedAttributesForCreate()
+    )
   }
 
   static policyScope(user: User): FindOptions<Attributes<TravelAuthorizationPreApproval>> {
@@ -86,14 +103,6 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
         department: user.department,
       },
     }
-  }
-
-  private get profilesPolicy(): TravelAuthorizationPreApprovalProfilesPolicy {
-    const travelAuthorizationPreApprovalProfile = TravelAuthorizationPreApprovalProfile.build()
-    return new TravelAuthorizationPreApprovalProfilesPolicy(
-      this.user,
-      travelAuthorizationPreApprovalProfile
-    )
   }
 }
 

@@ -34,7 +34,7 @@ describe("api/src/controllers/travel-authorization-pre-approvals-controller.ts",
     })
 
     describe("#update", () => {
-      test("when the department is unchanged, it updates the other pre-approval fields", async () => {
+      test("when the creator submits a new department and branch, it updates only the branch", async () => {
         // Arrange
         const user = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user)
@@ -51,7 +51,7 @@ describe("api/src/controllers/travel-authorization-pre-approvals-controller.ts",
         // Act
         const response = await request()
           .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}`)
-          .send({ department: "Finance", branch: "Accounting" })
+          .send({ department: "Health", branch: "Accounting" })
 
         // Assert
         expect(response.status).toEqual(200)
@@ -84,27 +84,6 @@ describe("api/src/controllers/travel-authorization-pre-approvals-controller.ts",
             update: true,
             destroy: true,
           },
-        })
-      })
-
-      test("when the creator submits a different department, it rejects the update", async () => {
-        // Arrange
-        const user = await userFactory.create({ department: "Finance" })
-        mockCurrentUser(user)
-        const preApproval = await travelAuthorizationPreApprovalFactory
-          .associations({ creator: user })
-          .create({ department: "Finance" })
-
-        // Act
-        const response = await request()
-          .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}`)
-          .send({ department: "Health" })
-
-        // Assert
-        expect(response.status).toEqual(422)
-        expect(response.body).toEqual({
-          message:
-            "Failed to update travel authorization pre-approval: Error: Department cannot be changed.",
         })
       })
     })
