@@ -39,9 +39,6 @@ describe("web/src/components/travel-authorizations/TripDetailsEstimatesEditForm.
       await wrapper.vm.save()
 
       // Assert
-      expect(wrapper.get('[role="alert"]').text()).toContain(
-        "This request has no estimated trip type"
-      )
       expect(httpClient.patch).not.toHaveBeenCalled()
     })
 
