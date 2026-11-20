@@ -46,10 +46,9 @@ export class ValidateLinkedTravelDeskFlightSegmentsService extends BaseService {
     })
 
     if (matchingTravelDeskFlightSegmentCount !== travelDeskFlightSegmentIds.length) {
-      throw new ServiceValidationError({
-        field: "itemsAttributes",
-        text: "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving.",
-      })
+      throw new ServiceValidationError(
+        "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving."
+      )
     }
   }
 }

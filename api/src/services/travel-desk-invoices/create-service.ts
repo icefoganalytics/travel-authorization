@@ -21,7 +21,6 @@ import LoadAndValidateTravelDeskBookingEventForInvoiceService from "@/services/t
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
   CreationAttributes<TravelDeskInvoice> & {
-    sourceServiceFeeEventExternalIdentifiers: number[]
     itemsAttributes: TravelDeskInvoiceItemAttributes[]
   }
 >
@@ -37,55 +36,38 @@ export class CreateService extends BaseService {
   async perform(): Promise<TravelDeskInvoice> {
     const {
       externalBookingEventIdentifier,
-      sourceServiceFeeEventExternalIdentifiers,
       currencyCode,
       itemsAttributes: travelDeskInvoiceItemsAttributes,
       ...optionalAttributes
     } = this.travelDeskInvoiceCreationAttributes
     if (isNil(externalBookingEventIdentifier)) {
-      throw new ServiceValidationError({
-        field: "externalBookingEventIdentifier",
-        text: "Booking event is required.",
-      })
-    }
-
-    if (!Array.isArray(sourceServiceFeeEventExternalIdentifiers)) {
-      throw new ServiceValidationError({
-        field: "sourceServiceFeeEventExternalIdentifiers",
-        text: "Service fee events must be an array.",
-      })
+      throw new ServiceValidationError("Booking event is required.")
     }
 
     if (isNil(currencyCode)) {
-      throw new ServiceValidationError({
-        field: "currencyCode",
-        text: "Currency code is required.",
-      })
+      throw new ServiceValidationError("Currency code is required.")
     }
 
     if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
-      throw new ServiceValidationError({
-        field: "itemsAttributes",
-        text: "Invoice items must be an array.",
-      })
+      throw new ServiceValidationError("Invoice items must be an array.")
     }
 
     return db.transaction(async () => {
       const { bookingReference, sourceAirSegmentNumbers } =
         await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(externalBookingEventIdentifier)
 
+      const sourceServiceFeeEventExternalIdentifiers = ValidateTravelDeskInvoiceItemsService.perform(
+        travelDeskInvoiceItemsAttributes,
+        sourceAirSegmentNumbers
+      )
       await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
         bookingReference,
         sourceServiceFeeEventExternalIdentifiers,
         currencyCode
       )
+
       const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
-      ValidateTravelDeskInvoiceItemsService.perform(
-        travelDeskInvoiceItemsAttributes,
-        sourceAirSegmentNumbers,
-        sourceServiceFeeEventExternalIdentifiers
-      )
       await ValidateLinkedTravelDeskFlightSegmentsService.perform(
         this.travelDeskTravelRequest.id,
         travelDeskInvoiceItemsAttributes

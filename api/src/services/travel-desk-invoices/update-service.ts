@@ -15,7 +15,7 @@ import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-
 
 export type TravelDeskInvoiceUpdateAttributes = Omit<
   TravelDeskInvoiceCreationAttributes,
-  "bookingReference" | "externalBookingEventIdentifier" | "sourceServiceFeeEventExternalIdentifiers"
+  "bookingReference" | "externalBookingEventIdentifier"
 >
 
 export class UpdateService extends BaseService {
@@ -30,17 +30,11 @@ export class UpdateService extends BaseService {
     const { currencyCode, itemsAttributes: travelDeskInvoiceItemsAttributes } =
       this.travelDeskInvoiceUpdateAttributes
     if (isNil(currencyCode)) {
-      throw new ServiceValidationError({
-        field: "currencyCode",
-        text: "Currency code is required.",
-      })
+      throw new ServiceValidationError("Currency code is required.")
     }
 
     if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
-      throw new ServiceValidationError({
-        field: "itemsAttributes",
-        text: "Invoice items must be an array.",
-      })
+      throw new ServiceValidationError("Invoice items must be an array.")
     }
 
     const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
@@ -74,10 +68,9 @@ export class UpdateService extends BaseService {
           !isEmpty(sourceServiceFeeEventExternalIdentifiers) &&
           currencyCode !== travelDeskInvoice.currencyCode
         ) {
-          throw new ServiceValidationError({
-            field: "currencyCode",
-            text: "Invoice currency cannot be changed for saved service fees.",
-          })
+          throw new ServiceValidationError(
+            "Invoice currency cannot be changed for saved service fees."
+          )
         }
 
         ValidateTravelDeskInvoiceItemsService.perform(
