@@ -39,6 +39,7 @@ export class CreateService extends BaseService {
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode,
       items,
+      ...optionalAttributes
     } = this.attributes
     if (isNil(externalBookingEventIdentifier)) {
       throw new TravelDeskInvoiceValidationError("Booking event is required.")
@@ -78,21 +79,11 @@ export class CreateService extends BaseService {
       await ValidateLinkedFlightSegmentsService.perform(this.travelDeskTravelRequest.id, items)
 
       const invoice = await TravelDeskInvoice.create({
+        ...optionalAttributes,
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         bookingReference,
         externalBookingEventIdentifier,
         currencyCode,
-        invoiceNumber: this.attributes.invoiceNumber,
-        invoiceDate: this.attributes.invoiceDate,
-        warrantNumber: this.attributes.warrantNumber,
-        clientNumber: this.attributes.clientNumber,
-        clientName: this.attributes.clientName,
-        department: this.attributes.department,
-        mailcode: this.attributes.mailcode,
-        iataNumber: this.attributes.iataNumber,
-        bookingAgentName: this.attributes.bookingAgentName,
-        ticketingAgentName: this.attributes.ticketingAgentName,
-        bookingDate: this.attributes.bookingDate,
         grossAmount,
       })
       await BulkCreateService.perform(invoice.id, items)
