@@ -10,7 +10,7 @@ import {
   BulkCreateService,
   ValidateLinkedFlightSegmentsService,
 } from "@/services/travel-desk-invoice-items"
-import { ValidateItemsService } from "@/services/travel-desk-invoices/validate-items-service"
+import { ValidateTravelDeskInvoiceItemsService } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 import { withInvoiceLock } from "@/services/travel-desk-invoices/with-invoice-lock"
 
 export type InvoiceUpdateAttributes = Omit<
@@ -60,7 +60,7 @@ export class UpdateService extends BaseService {
         throw new TravelDeskInvoiceValidationError("Invoice currency cannot be changed for saved service fees.")
       }
 
-      ValidateItemsService.perform(items, sourceAirSegmentNumbers, serviceFeeEventIds)
+      ValidateTravelDeskInvoiceItemsService.perform(items, sourceAirSegmentNumbers, serviceFeeEventIds)
       await ValidateLinkedFlightSegmentsService.perform(items, invoice.travelDeskTravelRequestId)
 
       await invoice.update({
