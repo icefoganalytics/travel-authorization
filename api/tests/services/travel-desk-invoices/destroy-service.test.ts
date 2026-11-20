@@ -14,15 +14,16 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
     describe(".perform", () => {
       test("when deletion overlaps an invoice edit, it also deletes the replacement lines", async () => {
         // Arrange
-        const invoice = await travelDeskInvoiceFactory.create({ grossAmount: "1.000" })
-        await travelDeskInvoiceItemFactory.associations({ invoice }).create({
+        const travelDeskInvoice = await travelDeskInvoiceFactory.create({ grossAmount: "1.000" })
+        await travelDeskInvoiceItemFactory.associations({ invoice: travelDeskInvoice }).create({
           sourceAirSegmentNumber: 1,
           grossAmount: "1.000",
         })
-        const { promise: invoiceEdited, resolve: signalEdited } = Promise.withResolvers<void>()
+        const { promise: travelDeskInvoiceEdited, resolve: signalEdited } =
+          Promise.withResolvers<void>()
         const { promise: commitAllowed, resolve: allowCommit } = Promise.withResolvers<void>()
         const edit = db.transaction(async () => {
-          await UpdateService.perform(invoice, {
+          await UpdateService.perform(travelDeskInvoice, {
             currencyCode: "CAD",
             items: [
               {
@@ -37,10 +38,10 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
           signalEdited()
           await commitAllowed
         })
-        const editReady = Promise.race([invoiceEdited, edit])
+        const editReady = Promise.race([travelDeskInvoiceEdited, edit])
 
         // Act
-        const deletion = editReady.then(() => DestroyService.perform(invoice))
+        const deletion = editReady.then(() => DestroyService.perform(travelDeskInvoice))
         const completion = Promise.allSettled([edit, deletion])
         try {
           await editReady
@@ -67,14 +68,14 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
         await Promise.all([edit, deletion])
 
         // Assert
-        const items = await TravelDeskInvoiceItem.findAll({
+        const travelDeskInvoiceItems = await TravelDeskInvoiceItem.findAll({
           paranoid: false,
           order: [
             ["position", "ASC"],
             ["id", "ASC"],
           ],
         })
-        expect(items).toEqual([
+        expect(travelDeskInvoiceItems).toEqual([
           expect.objectContaining({
             grossAmount: "1.000",
             deletedAt: expect.any(Date),
@@ -88,18 +89,18 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
 
       test("when an invoice is deleted, it soft-deletes the invoice and its lines", async () => {
         // Arrange
-        const invoice = await travelDeskInvoiceFactory.create()
-        const item = await travelDeskInvoiceItemFactory
+        const travelDeskInvoice = await travelDeskInvoiceFactory.create()
+        const travelDeskInvoiceItem = await travelDeskInvoiceItemFactory
           .associations({
-            invoice,
+            invoice: travelDeskInvoice,
           })
           .create()
 
         // Act
-        await DestroyService.perform(invoice)
+        await DestroyService.perform(travelDeskInvoice)
 
         // Assert
-        const invoices = await TravelDeskInvoice.findAll({
+        const travelDeskInvoices = await TravelDeskInvoice.findAll({
           paranoid: false,
           include: [
             {
@@ -113,13 +114,13 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
             },
           ],
         })
-        expect(invoices).toEqual([
+        expect(travelDeskInvoices).toEqual([
           expect.objectContaining({
-            id: invoice.id,
+            id: travelDeskInvoice.id,
             deletedAt: expect.any(Date),
             items: [
               expect.objectContaining({
-                id: item.id,
+                id: travelDeskInvoiceItem.id,
                 deletedAt: expect.any(Date),
               }),
             ],
@@ -129,14 +130,16 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
 
       test("when deleting the invoice fails, it rolls back deletion of its lines", async () => {
         // Arrange
-        const invoice = await travelDeskInvoiceFactory.create()
-        const item = await travelDeskInvoiceItemFactory.associations({ invoice }).create()
+        const travelDeskInvoice = await travelDeskInvoiceFactory.create()
+        const travelDeskInvoiceItem = await travelDeskInvoiceItemFactory
+          .associations({ invoice: travelDeskInvoice })
+          .create()
         const persistenceError = new Error("Invoice deletion failed.")
-        vi.spyOn(invoice, "destroy").mockRejectedValue(persistenceError)
+        vi.spyOn(travelDeskInvoice, "destroy").mockRejectedValue(persistenceError)
 
         // Act
         try {
-          await DestroyService.perform(invoice)
+          await DestroyService.perform(travelDeskInvoice)
           throw new Error("Expected invoice deletion to fail.")
         } catch (error) {
           if (error !== persistenceError) {
@@ -145,10 +148,10 @@ describe("api/src/services/travel-desk-invoices/destroy-service.ts", () => {
         }
 
         // Assert
-        const items = await TravelDeskInvoiceItem.findAll()
-        expect(items).toEqual([
+        const travelDeskInvoiceItems = await TravelDeskInvoiceItem.findAll()
+        expect(travelDeskInvoiceItems).toEqual([
           expect.objectContaining({
-            id: item.id,
+            id: travelDeskInvoiceItem.id,
             deletedAt: null,
           }),
         ])

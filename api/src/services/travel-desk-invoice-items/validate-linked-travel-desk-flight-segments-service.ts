@@ -6,7 +6,7 @@ import BaseService from "@/services/base-service"
 import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
 import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 
-export class ValidateLinkedFlightSegmentsService extends BaseService {
+export class ValidateLinkedTravelDeskFlightSegmentsService extends BaseService {
   constructor(
     protected travelDeskTravelRequestId: number,
     protected travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
@@ -18,7 +18,9 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
     const travelDeskFlightSegmentIds = uniq(
       this.travelDeskInvoiceItemsAttributes
         .map(({ travelDeskFlightSegmentId }) => travelDeskFlightSegmentId)
-        .filter((id): id is number => !isNil(id))
+        .filter(
+          (travelDeskFlightSegmentId): travelDeskFlightSegmentId is number => !isNil(travelDeskFlightSegmentId)
+        )
     )
     if (isEmpty(travelDeskFlightSegmentIds)) return
 
@@ -51,4 +53,4 @@ export class ValidateLinkedFlightSegmentsService extends BaseService {
   }
 }
 
-export default ValidateLinkedFlightSegmentsService
+export default ValidateLinkedTravelDeskFlightSegmentsService

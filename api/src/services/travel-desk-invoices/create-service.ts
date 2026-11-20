@@ -10,7 +10,7 @@ import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate
 import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/invoice-validation-error"
 import {
   BulkCreateService,
-  ValidateLinkedFlightSegmentsService,
+  ValidateLinkedTravelDeskFlightSegmentsService,
 } from "@/services/travel-desk-invoice-items"
 import {
   ValidateTravelDeskInvoiceItemsService,
@@ -28,7 +28,7 @@ export type TravelDeskInvoiceCreationAttributes = Partial<
 export class CreateService extends BaseService {
   constructor(
     protected travelDeskTravelRequest: TravelDeskTravelRequest,
-    protected attributes: TravelDeskInvoiceCreationAttributes
+    protected travelDeskInvoiceCreationAttributes: TravelDeskInvoiceCreationAttributes
   ) {
     super()
   }
@@ -38,9 +38,9 @@ export class CreateService extends BaseService {
       externalBookingEventIdentifier,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode,
-      items,
+      items: travelDeskInvoiceItemsAttributes,
       ...optionalAttributes
-    } = this.attributes
+    } = this.travelDeskInvoiceCreationAttributes
     if (isNil(externalBookingEventIdentifier)) {
       throw new TravelDeskInvoiceValidationError("Booking event is required.")
     }
@@ -53,7 +53,7 @@ export class CreateService extends BaseService {
       throw new TravelDeskInvoiceValidationError("Currency code is required.")
     }
 
-    if (!Array.isArray(items)) {
+    if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
       throw new TravelDeskInvoiceValidationError("Invoice items must be an array.")
     }
 
@@ -68,15 +68,18 @@ export class CreateService extends BaseService {
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode
     )
-    const grossAmount = CalculateTotalService.perform(items)
+    const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
     return db.transaction(async () => {
       ValidateTravelDeskInvoiceItemsService.perform(
-        items,
-        travelDeskBookingEvent.airReservationSegments.map((segment) => segment.airSegmentNumber),
+        travelDeskInvoiceItemsAttributes,
+        travelDeskBookingEvent.airReservationSegments.map(({ airSegmentNumber }) => airSegmentNumber),
         sourceServiceFeeEventExternalIdentifiers
       )
-      await ValidateLinkedFlightSegmentsService.perform(this.travelDeskTravelRequest.id, items)
+      await ValidateLinkedTravelDeskFlightSegmentsService.perform(
+        this.travelDeskTravelRequest.id,
+        travelDeskInvoiceItemsAttributes
+      )
 
       const travelDeskInvoice = await TravelDeskInvoice.create({
         ...optionalAttributes,
@@ -86,7 +89,7 @@ export class CreateService extends BaseService {
         currencyCode,
         grossAmount,
       })
-      await BulkCreateService.perform(travelDeskInvoice.id, items)
+      await BulkCreateService.perform(travelDeskInvoice.id, travelDeskInvoiceItemsAttributes)
 
       return travelDeskInvoice.reload({
         include: [

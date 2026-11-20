@@ -29,12 +29,12 @@ export type TravelDeskInvoiceAsIndex = Pick<
 
 export class IndexSerializer extends BaseSerializer<TravelDeskInvoice> {
   perform(): TravelDeskInvoiceAsIndex {
-    const { items } = this.record
-    if (isUndefined(items)) {
+    const { items: travelDeskInvoiceItems } = this.record
+    if (isUndefined(travelDeskInvoiceItems)) {
       throw new Error("Expected invoice items to be preloaded.")
     }
 
-    const serializedItems = ReferenceSerializer.perform(items)
+    const serializedTravelDeskInvoiceItems = ReferenceSerializer.perform(travelDeskInvoiceItems)
 
     return {
       ...pick(this.record, [
@@ -56,7 +56,7 @@ export class IndexSerializer extends BaseSerializer<TravelDeskInvoice> {
         "bookingDate",
         "grossAmount",
       ]),
-      items: serializedItems,
+      items: serializedTravelDeskInvoiceItems,
     }
   }
 }

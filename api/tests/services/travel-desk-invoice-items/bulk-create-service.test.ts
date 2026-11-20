@@ -11,10 +11,10 @@ describe("api/src/services/travel-desk-invoice-items/bulk-create-service.ts", ()
     describe(".perform", () => {
       test("when items have either source identity or neither, it persists the items", async () => {
         // Arrange
-        const invoice = await travelDeskInvoiceFactory.create()
+        const travelDeskInvoice = await travelDeskInvoiceFactory.create()
 
         // Act
-        await BulkCreateService.perform(invoice.id, [
+        await BulkCreateService.perform(travelDeskInvoice.id, [
           {
             productType: TravelDeskInvoiceItem.ProductTypes.AIR,
             sourceAirSegmentNumber: 1,
@@ -56,10 +56,10 @@ describe("api/src/services/travel-desk-invoice-items/bulk-create-service.ts", ()
 
       test("when an air item also refers to a source service fee, it rejects creation", async () => {
         // Arrange
-        const invoice = await travelDeskInvoiceFactory.create()
+        const travelDeskInvoice = await travelDeskInvoiceFactory.create()
 
         // Act
-        const result = BulkCreateService.perform(invoice.id, [
+        const result = BulkCreateService.perform(travelDeskInvoice.id, [
           {
             productType: TravelDeskInvoiceItem.ProductTypes.AIR,
             sourceAirSegmentNumber: 1,
@@ -86,10 +86,10 @@ describe("api/src/services/travel-desk-invoice-items/bulk-create-service.ts", ()
 
       test("when a service fee item also refers to a flight segment, it persists none of the batch", async () => {
         // Arrange
-        const invoice = await travelDeskInvoiceFactory.create()
+        const travelDeskInvoice = await travelDeskInvoiceFactory.create()
 
         // Act
-        const result = BulkCreateService.perform(invoice.id, [
+        const result = BulkCreateService.perform(travelDeskInvoice.id, [
           {
             productType: TravelDeskInvoiceItem.ProductTypes.AIR,
             sourceAirSegmentNumber: 1,

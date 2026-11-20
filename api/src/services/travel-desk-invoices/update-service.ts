@@ -8,94 +8,117 @@ import TravelDeskInvoiceValidationError from "@/services/travel-desk-invoices/in
 import { type TravelDeskInvoiceCreationAttributes } from "@/services/travel-desk-invoices/create-service"
 import {
   BulkCreateService,
-  ValidateLinkedFlightSegmentsService,
+  ValidateLinkedTravelDeskFlightSegmentsService,
 } from "@/services/travel-desk-invoice-items"
 import { ValidateTravelDeskInvoiceItemsService } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
-import { withInvoiceLock } from "@/services/travel-desk-invoices/with-invoice-lock"
+import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-travel-desk-invoice-lock"
 
-export type InvoiceUpdateAttributes = Omit<
+export type TravelDeskInvoiceUpdateAttributes = Omit<
   TravelDeskInvoiceCreationAttributes,
   "bookingReference" | "externalBookingEventIdentifier" | "sourceServiceFeeEventExternalIdentifiers"
 >
 
 export class UpdateService extends BaseService {
   constructor(
-    protected invoice: TravelDeskInvoice,
-    protected attributes: InvoiceUpdateAttributes
+    protected travelDeskInvoice: TravelDeskInvoice,
+    protected travelDeskInvoiceUpdateAttributes: TravelDeskInvoiceUpdateAttributes
   ) {
     super()
   }
 
   async perform(): Promise<TravelDeskInvoice> {
-    const { currencyCode, items } = this.attributes
+    const { currencyCode, items: travelDeskInvoiceItemsAttributes } =
+      this.travelDeskInvoiceUpdateAttributes
     if (isNil(currencyCode)) {
       throw new TravelDeskInvoiceValidationError("Currency code is required.")
     }
 
-    if (!Array.isArray(items)) {
+    if (!Array.isArray(travelDeskInvoiceItemsAttributes)) {
       throw new TravelDeskInvoiceValidationError("Invoice items must be an array.")
     }
 
-    const grossAmount = CalculateTotalService.perform(items)
+    const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
-    return withInvoiceLock(this.invoice.id, async (invoice, transaction) => {
-      const savedItems = await TravelDeskInvoiceItem.findAll({
-        where: { travelDeskInvoiceId: invoice.id },
-        lock: transaction.LOCK.UPDATE,
-        transaction,
-      })
-      const sourceAirSegmentNumbers: number[] = []
-      const serviceFeeEventIds: number[] = []
-      for (const item of savedItems) {
-        if (!isNil(item.sourceAirSegmentNumber)) {
-          sourceAirSegmentNumbers.push(item.sourceAirSegmentNumber)
-        }
-
-        if (!isNil(item.sourceServiceFeeEventExternalIdentifier)) {
-          serviceFeeEventIds.push(item.sourceServiceFeeEventExternalIdentifier)
-        }
-      }
-
-      if (!isEmpty(serviceFeeEventIds) && currencyCode !== invoice.currencyCode) {
-        throw new TravelDeskInvoiceValidationError("Invoice currency cannot be changed for saved service fees.")
-      }
-
-      ValidateTravelDeskInvoiceItemsService.perform(items, sourceAirSegmentNumbers, serviceFeeEventIds)
-      await ValidateLinkedFlightSegmentsService.perform(invoice.travelDeskTravelRequestId, items)
-
-      await invoice.update({
-        currencyCode,
-        invoiceNumber: this.attributes.invoiceNumber,
-        invoiceDate: this.attributes.invoiceDate,
-        warrantNumber: this.attributes.warrantNumber,
-        clientNumber: this.attributes.clientNumber,
-        clientName: this.attributes.clientName,
-        department: this.attributes.department,
-        mailcode: this.attributes.mailcode,
-        iataNumber: this.attributes.iataNumber,
-        bookingAgentName: this.attributes.bookingAgentName,
-        ticketingAgentName: this.attributes.ticketingAgentName,
-        bookingDate: this.attributes.bookingDate,
-        grossAmount,
-      })
-      await TravelDeskInvoiceItem.destroy({
-        where: { travelDeskInvoiceId: invoice.id },
-      })
-      await BulkCreateService.perform(invoice.id, items)
-
-      return invoice.reload({
-        include: [
-          {
-            association: "items",
-            separate: true,
-            order: [
-              ["position", "ASC"],
-              ["id", "ASC"],
-            ],
+    return withTravelDeskInvoiceLock(
+      this.travelDeskInvoice.id,
+      async (travelDeskInvoice, transaction) => {
+        const { id: travelDeskInvoiceId } = travelDeskInvoice
+        const savedTravelDeskInvoiceItems = await TravelDeskInvoiceItem.findAll({
+          where: {
+            travelDeskInvoiceId,
           },
-        ],
-      })
-    })
+          lock: transaction.LOCK.UPDATE,
+          transaction,
+        })
+        const sourceAirSegmentNumbers: number[] = []
+        const sourceServiceFeeEventExternalIdentifiers: number[] = []
+        for (const travelDeskInvoiceItem of savedTravelDeskInvoiceItems) {
+          if (!isNil(travelDeskInvoiceItem.sourceAirSegmentNumber)) {
+            sourceAirSegmentNumbers.push(travelDeskInvoiceItem.sourceAirSegmentNumber)
+          }
+
+          if (!isNil(travelDeskInvoiceItem.sourceServiceFeeEventExternalIdentifier)) {
+            sourceServiceFeeEventExternalIdentifiers.push(
+              travelDeskInvoiceItem.sourceServiceFeeEventExternalIdentifier
+            )
+          }
+        }
+
+        if (
+          !isEmpty(sourceServiceFeeEventExternalIdentifiers) &&
+          currencyCode !== travelDeskInvoice.currencyCode
+        ) {
+          throw new TravelDeskInvoiceValidationError(
+            "Invoice currency cannot be changed for saved service fees."
+          )
+        }
+
+        ValidateTravelDeskInvoiceItemsService.perform(
+          travelDeskInvoiceItemsAttributes,
+          sourceAirSegmentNumbers,
+          sourceServiceFeeEventExternalIdentifiers
+        )
+        await ValidateLinkedTravelDeskFlightSegmentsService.perform(
+          travelDeskInvoice.travelDeskTravelRequestId,
+          travelDeskInvoiceItemsAttributes
+        )
+
+        await travelDeskInvoice.update({
+          currencyCode,
+          invoiceNumber: this.travelDeskInvoiceUpdateAttributes.invoiceNumber,
+          invoiceDate: this.travelDeskInvoiceUpdateAttributes.invoiceDate,
+          warrantNumber: this.travelDeskInvoiceUpdateAttributes.warrantNumber,
+          clientNumber: this.travelDeskInvoiceUpdateAttributes.clientNumber,
+          clientName: this.travelDeskInvoiceUpdateAttributes.clientName,
+          department: this.travelDeskInvoiceUpdateAttributes.department,
+          mailcode: this.travelDeskInvoiceUpdateAttributes.mailcode,
+          iataNumber: this.travelDeskInvoiceUpdateAttributes.iataNumber,
+          bookingAgentName: this.travelDeskInvoiceUpdateAttributes.bookingAgentName,
+          ticketingAgentName: this.travelDeskInvoiceUpdateAttributes.ticketingAgentName,
+          bookingDate: this.travelDeskInvoiceUpdateAttributes.bookingDate,
+          grossAmount,
+        })
+        await TravelDeskInvoiceItem.destroy({
+          where: {
+            travelDeskInvoiceId,
+          },
+        })
+        await BulkCreateService.perform(travelDeskInvoiceId, travelDeskInvoiceItemsAttributes)
+
+        return travelDeskInvoice.reload({
+          include: [
+            {
+              association: "items",
+              separate: true,
+              order: [
+                ["position", "ASC"],
+                ["id", "ASC"],
+              ],
+            },
+          ],
+        })
+      }
+    )
   }
 }
 
