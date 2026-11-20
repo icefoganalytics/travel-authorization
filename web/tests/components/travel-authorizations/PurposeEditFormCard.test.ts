@@ -345,9 +345,33 @@ describe("web/src/components/travel-authorizations/PurposeEditFormCard.vue", () 
       await wrapper.vm.save()
 
       // Assert
-      expect(autocomplete.emitted("update:modelValue")?.at(-1)).toEqual([null])
-      expect(wrapper.emitted("update:finalDestinationLocationId")?.at(-1)).toEqual([null])
       expect(httpClient.patch).not.toHaveBeenCalled()
+    })
+
+    test("when the traveller clears a saved destination, notifies the wizard with null", async () => {
+      // Arrange
+      const savedCity = locationFactory.build({ id: 2, city: "Toronto", province: "ON" })
+      const travelAuthorization = travelAuthorizationFactory.asShow().build({
+        id: 5,
+        finalDestinationLocationId: savedCity.id,
+      })
+      mockHttpGetRoutes({
+        "/api/travel-authorizations/5": () => ({ travelAuthorization, policy: {} }),
+        "/api/travel-purposes": () => ({ travelPurposes: [], totalCount: 0 }),
+        "/api/locations": () => ({ locations: [savedCity], totalCount: 1 }),
+      })
+      const wrapper = mountWithDefaultPlugins(PurposeEditFormCard, {
+        props: { travelAuthorizationId: 5 },
+      })
+      await flushPromises()
+
+      // Act
+      const input = wrapper.getComponent(LocationsAutocomplete).get("input")
+      await input.trigger("focus")
+      await input.setValue("")
+
+      // Assert
+      expect(wrapper.emitted("update:finalDestinationLocationId")?.at(-1)).toEqual([null])
     })
   })
 })
