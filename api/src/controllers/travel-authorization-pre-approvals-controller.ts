@@ -115,7 +115,6 @@ export class TravelAuthorizationPreApprovalsController extends BaseController<Tr
       }
 
       const permittedAttributes = policy.permitAttributesForUpdate(this.request.body)
-
       await travelAuthorizationPreApproval.update(permittedAttributes)
       const serializedTravelAuthorizationPreApproval = ShowSerializer.perform(
         travelAuthorizationPreApproval,

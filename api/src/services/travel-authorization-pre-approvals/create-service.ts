@@ -1,19 +1,15 @@
 import { CreationAttributes } from "@sequelize/core"
-
 import { isEmpty, isNil } from "lodash"
 
-import db, {
-  TravelAuthorizationPreApproval,
-  TravelAuthorizationPreApprovalProfile,
-  User,
-} from "@/models"
+import db, { TravelAuthorizationPreApproval, User } from "@/models"
 import BaseService from "@/services/base-service"
 import { TravelAuthorizationPreApprovalProfiles } from "@/services"
+import { type TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/services/travel-authorization-pre-approval-profiles"
 
 type TravelAuthorizationPreApprovalCreationAttributes = Partial<
   CreationAttributes<TravelAuthorizationPreApproval>
 > & {
-  profilesAttributes?: Partial<CreationAttributes<TravelAuthorizationPreApprovalProfile>>[]
+  profilesAttributes?: TravelAuthorizationPreApprovalProfileCreationAttributes[]
 }
 
 export class CreateService extends BaseService {

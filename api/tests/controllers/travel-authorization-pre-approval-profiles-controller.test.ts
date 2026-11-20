@@ -9,17 +9,24 @@ import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/travel-authorization-pre-approval-profiles-controller.ts", () => {
   describe("TravelAuthorizationPreApprovalProfilesController", () => {
-    describe("#update", () => {
-      test("when the department is unchanged, it updates the other profile fields", async () => {
+    describe("#update - PATCH - /api/travel-authorization-pre-approval-profiles/:travelAuthorizationPreApprovalProfileId", () => {
+      test("when the department is unchanged, it updates the branch", async () => {
         // Arrange
-        const user = await userFactory.create({ department: "Finance" })
+        const user = await userFactory.create({
+          department: "Finance",
+        })
         mockCurrentUser(user)
         const preApproval = await travelAuthorizationPreApprovalFactory
           .associations({ creator: user })
           .create({
+            estimatedCost: 1200,
+            location: "Whitehorse",
             department: "Finance",
+            purpose: "Annual Financial Review",
             startDate: null,
             endDate: null,
+            isOpenForAnyDate: true,
+            month: "June",
             status: TravelAuthorizationPreApproval.Statuses.DRAFT,
           })
         const profile = await travelAuthorizationPreApprovalProfileFactory
@@ -33,7 +40,10 @@ describe("api/src/controllers/travel-authorization-pre-approval-profiles-control
         // Act
         const response = await request()
           .patch(`/api/travel-authorization-pre-approval-profiles/${profile.id}`)
-          .send({ department: "Finance", branch: "Accounting" })
+          .send({
+            department: "Finance",
+            branch: "Accounting",
+          })
 
         // Assert
         expect(response.status).toEqual(200)
@@ -48,13 +58,13 @@ describe("api/src/controllers/travel-authorization-pre-approval-profiles-control
             updatedAt: expect.any(String),
             preApproval: {
               id: preApproval.id,
-              estimatedCost: preApproval.estimatedCost,
-              location: preApproval.location,
-              purpose: preApproval.purpose,
+              estimatedCost: 1200,
+              location: "Whitehorse",
+              purpose: "Annual Financial Review",
               startDate: null,
               endDate: null,
-              isOpenForAnyDate: preApproval.isOpenForAnyDate,
-              month: preApproval.month,
+              isOpenForAnyDate: true,
+              month: "June",
               status: "draft",
               createdAt: expect.any(String),
               updatedAt: expect.any(String),
@@ -71,7 +81,9 @@ describe("api/src/controllers/travel-authorization-pre-approval-profiles-control
 
       test("when a profile update submits a different department, it ignores the department and updates the branch", async () => {
         // Arrange
-        const user = await userFactory.create({ department: "Finance" })
+        const user = await userFactory.create({
+          department: "Finance",
+        })
         mockCurrentUser(user)
         const preApproval = await travelAuthorizationPreApprovalFactory
           .associations({ creator: user })
@@ -138,19 +150,25 @@ describe("api/src/controllers/travel-authorization-pre-approval-profiles-control
 
       test("when the caller's department matches a legacy profile but not its pre-approval, it denies the update", async () => {
         // Arrange
-        const user = await userFactory.create({ department: "Health" })
+        const user = await userFactory.create({
+          department: "Health",
+        })
         mockCurrentUser(user)
         const preApproval = await travelAuthorizationPreApprovalFactory.create({
           department: "Finance",
         })
         const profile = await travelAuthorizationPreApprovalProfileFactory
           .associations({ preApproval })
-          .create({ department: "Health" })
+          .create({
+            department: "Health",
+          })
 
         // Act
         const response = await request()
           .patch(`/api/travel-authorization-pre-approval-profiles/${profile.id}`)
-          .send({ branch: "Accounting" })
+          .send({
+            branch: "Accounting",
+          })
 
         // Assert
         expect(response.status).toEqual(403)
@@ -161,26 +179,58 @@ describe("api/src/controllers/travel-authorization-pre-approval-profiles-control
       })
     })
 
-    describe("#destroy", () => {
-      test.each([
-        { parentDepartment: "Health", expectedStatus: 204 },
-        { parentDepartment: "Finance", expectedStatus: 403 },
-      ])("when Health deletes a Health profile under $parentDepartment, it returns $expectedStatus", async ({ parentDepartment, expectedStatus }) => {
+    describe("#destroy - DELETE - /api/travel-authorization-pre-approval-profiles/:travelAuthorizationPreApprovalProfileId", () => {
+      test("when the caller's department matches the profile and its pre-approval, it deletes the profile", async () => {
         // Arrange
-        const user = await userFactory.create({ department: "Health" })
+        const user = await userFactory.create({
+          department: "Health",
+        })
         mockCurrentUser(user)
         const preApproval = await travelAuthorizationPreApprovalFactory.create({
-          department: parentDepartment,
+          department: "Health",
         })
         const profile = await travelAuthorizationPreApprovalProfileFactory
           .associations({ preApproval })
-          .create({ department: "Health" })
+          .create({
+            department: "Health",
+          })
 
         // Act
-        const response = await request().delete(`/api/travel-authorization-pre-approval-profiles/${profile.id}`)
+        const response = await request().delete(
+          `/api/travel-authorization-pre-approval-profiles/${profile.id}`
+        )
 
         // Assert
-        expect(response.status).toEqual(expectedStatus)
+        expect(response.status).toEqual(204)
+        expect(response.body).toEqual({})
+      })
+
+      test("when the caller's department matches a legacy profile but not its pre-approval, it denies deletion", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          department: "Health",
+        })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({
+            department: "Health",
+          })
+
+        // Act
+        const response = await request().delete(
+          `/api/travel-authorization-pre-approval-profiles/${profile.id}`
+        )
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message:
+            "You are not authorized to delete this travel authorization pre-approval profile.",
+        })
       })
     })
   })

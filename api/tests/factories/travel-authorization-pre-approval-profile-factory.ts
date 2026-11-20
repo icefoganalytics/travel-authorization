@@ -8,6 +8,7 @@ export const travelAuthorizationPreApprovalProfileFactory = FactoryShark.define(
   TravelAuthorizationPreApprovalProfile,
   ({ associate }) => {
     associate("preApproval", travelAuthorizationPreApprovalFactory)
+
     const firstName = faker.person.firstName()
     const lastName = faker.person.lastName()
 

@@ -1,11 +1,10 @@
 import { CreationAttributes } from "@sequelize/core"
-
-import { isNil } from "lodash"
+import { isNil, isUndefined } from "lodash"
 
 import { TravelAuthorizationPreApproval, TravelAuthorizationPreApprovalProfile } from "@/models"
 import BaseService from "@/services/base-service"
 
-type TravelAuthorizationPreApprovalProfileCreationAttributes = Partial<
+export type TravelAuthorizationPreApprovalProfileCreationAttributes = Partial<
   Pick<CreationAttributes<TravelAuthorizationPreApprovalProfile>, "profileName" | "branch">
 > & {
   department?: string | null
@@ -31,7 +30,7 @@ export class CreateService extends BaseService {
       throw new Error("Pre-approval department is required.")
     }
 
-    if (department !== undefined && department !== parentDepartment) {
+    if (!isUndefined(department) && department !== parentDepartment) {
       throw new Error("Profile department must match the pre-approval department.")
     }
 

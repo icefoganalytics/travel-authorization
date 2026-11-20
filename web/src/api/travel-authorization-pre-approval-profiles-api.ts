@@ -67,7 +67,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
     travelAuthorizationPreApprovalId: number | string,
     attributes: Pick<TravelAuthorizationPreApprovalProfile, "profileName" | "branch">
   ): Promise<{
-    travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile
+    travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfileAsShow
   }> {
     const { data } = await http.post(
       `/api/travel-authorization-pre-approvals/${travelAuthorizationPreApprovalId}/profiles`,
@@ -78,7 +78,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
 
   async update(
     travelAuthorizationPreApprovalProfileId: number,
-    attributes: Partial<TravelAuthorizationPreApprovalProfile>
+    attributes: Partial<Pick<TravelAuthorizationPreApprovalProfile, "profileName" | "branch">>
   ): Promise<{
     travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfileAsShow
     policy: Policy
