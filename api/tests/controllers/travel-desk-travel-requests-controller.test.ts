@@ -1,17 +1,15 @@
-import qs from "qs"
-
 import { TravelDeskTravelRequest, User } from "@/models"
+
 import {
   travelAuthorizationFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
-
 import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/travel-desk-travel-requests-controller.ts", () => {
   describe("TravelDeskTravelRequestsController", () => {
-    describe("#index", () => {
+    describe("#index - GET - /api/travel-desk-travel-requests", () => {
       test("when requests belong to different users, it lists only visible requests and their total count", async () => {
         // Arrange
         const user1 = await userFactory.create({ roles: [User.Roles.USER] })
@@ -67,15 +65,16 @@ describe("api/src/controllers/travel-desk-travel-requests-controller.ts", () => 
         await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: travelAuthorization3 })
           .create({ status: TravelDeskTravelRequest.Statuses.DRAFT })
-        const query = qs.stringify({
-          where: { id: [travelDeskTravelRequest1.id, travelDeskTravelRequest2.id] },
-          order: [["id", "ASC"]],
-          perPage: 1,
-          page: 2,
-        })
 
         // Act
-        const response = await request().get("/api/travel-desk-travel-requests").query(query)
+        const response = await request()
+          .get("/api/travel-desk-travel-requests")
+          .query({
+            where: { id: [travelDeskTravelRequest1.id, travelDeskTravelRequest2.id] },
+            order: [["id", "ASC"]],
+            perPage: 1,
+            page: 2,
+          })
 
         // Assert
         expect(response.status).toEqual(200)

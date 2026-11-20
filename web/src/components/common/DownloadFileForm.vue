@@ -14,6 +14,7 @@
     <v-btn
       :block="smAndDown"
       :color="color"
+      :variant="variant"
       :prepend-icon="prependIcon"
       :loading="loading || isDownloading"
       type="submit"
@@ -30,6 +31,7 @@ import { useAuth0 } from "@auth0/auth0-vue"
 import { isNil } from "lodash"
 import { nextTick, ref, useTemplateRef } from "vue"
 import { useDisplay } from "vuetify"
+import { type VBtn } from "vuetify/components"
 
 const props = withDefaults(
   defineProps<{
@@ -38,6 +40,7 @@ const props = withDefaults(
     prependIcon?: string
     color?: string
     loading?: boolean
+    variant?: VBtn["$props"]["variant"]
   }>(),
   {
     text: "Download File",

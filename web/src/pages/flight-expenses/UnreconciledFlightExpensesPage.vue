@@ -15,11 +15,10 @@
           md="2"
         >
           <ExportToCsvButton
-            :flight-reconciliation-ids="selectedFlightReconciliationIds"
+            :where="exportWhere"
+            :filters="filters"
             :order="order"
-            :disabled="isEmpty(selectedFlightReconciliationIds)"
             color="primary"
-            block
           />
         </v-col>
         <v-col
@@ -84,6 +83,17 @@ const where = computed(() => ({
 }))
 
 const selectedFlightReconciliationIds = ref([])
+
+const exportWhere = computed(() => {
+  if (isEmpty(selectedFlightReconciliationIds.value)) {
+    return where.value
+  }
+
+  return {
+    ...where.value,
+    id: selectedFlightReconciliationIds.value,
+  }
+})
 
 /** @type {import("vue").Ref<InstanceType<typeof FlightReconciliationsBulkReconcileDialog> | null>} */
 const flightReconciliationsBulkReconcileDialog = ref(null)

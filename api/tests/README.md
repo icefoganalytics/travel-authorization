@@ -63,6 +63,17 @@ stale test.
 ### Controller Tests
 
 - Use `mockCurrentUser(user)` and `request()` from `@/support`.
+- Pass objects directly to `.query()`. The shared helper always uses the frontend encoder options
+  for indexed arrays, strict nulls, and empty arrays. Put deliberate raw wire-format queries in
+  the request URL rather than passing strings to `.query()`.
+- Inline single-use query objects in `.query({ ... })`, keeping multiline formatting and request
+  inputs beside the route. Keep a named query only when reused or meaningfully constructed across steps.
+- Use the existing Supertest `request()` helper for streaming checks too: `.buffer(false)` exposes
+  the response before generation finishes. Do not import the app or manage listening servers in
+  tests. Keep each endpoint's streaming scenarios in its owning controller test file.
+- For early-delivery checks, attach `readResponseLines(download, { lineCount: 2 })` before
+  starting the request. Mock the producing service with direct response-stream writes and keep
+  the completion gate in the test. Leave CSV encoding and backpressure to the streaming-client tests.
 - Assert `response.status` first, then assert `response.body` directly with `toEqual(...)`.
 - Keep an HTTP status/body test focused on that response; cover persisted outcomes in a separate
   service or behavior test.

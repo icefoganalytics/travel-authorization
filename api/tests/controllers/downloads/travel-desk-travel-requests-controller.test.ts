@@ -1,16 +1,14 @@
 import { times } from "lodash"
 import Papa from "papaparse"
-import qs from "qs"
 
 import { TravelDeskTravelRequest, User } from "@/models"
-import { CreatePdfService } from "@/services/downloads/travel-desk-travel-requests/create-pdf-service"
+import { TravelDeskTravelRequests } from "@/services/downloads"
 
 import {
   travelAuthorizationFactory,
   travelDeskTravelRequestFactory,
   userFactory,
 } from "@/factories"
-
 import { mockCurrentUser, request } from "@/support"
 
 const SELECTED_REQUEST_COUNT = 25
@@ -18,7 +16,7 @@ const NONEXISTENT_REQUEST_ID = 999999999
 
 describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.ts", () => {
   describe("TravelDeskTravelRequestsController", () => {
-    describe("#create", () => {
+    describe("#create - POST - /api/downloads/travel-desk-travel-requests", () => {
       test("when an indexed ID query exceeds twenty values, it exports every matching row in the requested order", async () => {
         // Arrange
         const user1 = await userFactory.create({
@@ -54,16 +52,15 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: unselectedTravelAuthorization })
           .create({ travelDeskOfficer: "Unselected Officer" })
-        const query = qs.stringify({
-          format: "csv",
-          where: { id: selectedIds },
-          order: [["id", "DESC"]],
-        })
 
         // Act
         const response = await request()
           .post("/api/downloads/travel-desk-travel-requests")
-          .query(query)
+          .query({
+            format: "csv",
+            where: { id: selectedIds },
+            order: [["id", "DESC"]],
+          })
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -146,18 +143,17 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         await travelDeskTravelRequestFactory
           .associations({ travelAuthorization: hiddenTravelAuthorization })
           .create({ travelDeskOfficer: "Hidden Officer" })
-        const query = qs.stringify({
-          format: "csv",
-          order: [
-            ["travelStartDate", "ASC"],
-            ["id", "DESC"],
-          ],
-        })
 
         // Act
         const response = await request()
           .post("/api/downloads/travel-desk-travel-requests")
-          .query(query)
+          .query({
+            format: "csv",
+            order: [
+              ["travelStartDate", "ASC"],
+              ["id", "DESC"],
+            ],
+          })
           .type("form")
           .send({})
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
@@ -363,17 +359,16 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
             status: TravelDeskTravelRequest.Statuses.BOOKED,
             travelDeskOfficer: "Booked Officer",
           })
-        const query = qs.stringify({
-          format: "csv",
-          where: { id: [draftRequest.id, bookedRequest.id] },
-          filters: { includeIsBookedAttribute: true },
-          order: [["isBooked", "DESC"]],
-        })
 
         // Act
         const response = await request()
           .post("/api/downloads/travel-desk-travel-requests")
-          .query(query)
+          .query({
+            format: "csv",
+            where: { id: [draftRequest.id, bookedRequest.id] },
+            filters: { includeIsBookedAttribute: true },
+            order: [["isBooked", "DESC"]],
+          })
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -449,16 +444,15 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
             status: TravelDeskTravelRequest.Statuses.BOOKED,
             travelDeskOfficer: user1.displayName,
           })
-        const query = qs.stringify({
-          format: "csv",
-          where: { id: [request1.id, request2.id, request3.id] },
-          order: [["createdAt", "ASC"]],
-        })
 
         // Act
         const response = await request()
           .post("/api/downloads/travel-desk-travel-requests")
-          .query(query)
+          .query({
+            format: "csv",
+            where: { id: [request1.id, request2.id, request3.id] },
+            order: [["createdAt", "ASC"]],
+          })
         const parsedCsv = Papa.parse<Record<string, string>>(response.text, {
           header: true,
           skipEmptyLines: true,
@@ -516,7 +510,7 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create()
-        vi.spyOn(CreatePdfService, "perform").mockRejectedValueOnce(
+        vi.spyOn(TravelDeskTravelRequests.CreatePdfService, "perform").mockRejectedValueOnce(
           new Error("PDF rendering failed")
         )
 
@@ -542,7 +536,7 @@ describe("api/src/controllers/downloads/travel-desk-travel-requests-controller.t
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory
           .associations({ travelAuthorization })
           .create()
-        vi.spyOn(CreatePdfService, "perform").mockRejectedValueOnce(
+        vi.spyOn(TravelDeskTravelRequests.CreatePdfService, "perform").mockRejectedValueOnce(
           new Error("PDF rendering failed")
         )
 

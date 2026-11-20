@@ -11,14 +11,25 @@ export const POLICY_SCOPE_NAME = "policyScope"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AllArgsButFirstOne<T extends any[]> = T extends [any, ...infer Rest] ? Rest : never
 
-export function PolicyFactory<M extends Model, T extends Model = M>(modelClass: ModelStatic<M>) {
-  const policyClass = class Policy extends BasePolicy<T> {
-    static applyScope<P extends typeof Policy>(
-      this: P,
+export function PolicyFactory<
+  ModelInstance extends Model,
+  PolicyRecord extends Model = ModelInstance,
+  ScopedMethods = object,
+>(
+  modelClass: {
+    withScope(
+      this: ModelStatic<NoInfer<ModelInstance>>,
+      scopes: BaseScopeOptions[]
+    ): ModelStatic<NoInfer<ModelInstance>> & ScopedMethods
+  } & ModelStatic<ModelInstance>
+) {
+  const policyClass = class Policy extends BasePolicy<PolicyRecord> {
+    static applyScope<PolicyClass extends typeof Policy>(
+      this: PolicyClass,
       scopes: BaseScopeOptions[],
       user: User,
-      ...extraPolicyScopeArgs: AllArgsButFirstOne<Parameters<P["policyScope"]>>
-    ): ModelStatic<M> {
+      ...extraPolicyScopeArgs: AllArgsButFirstOne<Parameters<PolicyClass["policyScope"]>>
+    ): ModelStatic<ModelInstance> & Omit<ScopedMethods, "prototype"> {
       this.ensurePolicyScope()
 
       return modelClass.withScope([

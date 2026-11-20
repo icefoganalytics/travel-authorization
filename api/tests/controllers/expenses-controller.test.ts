@@ -1,5 +1,3 @@
-import qs from "qs"
-
 import { Expense, TravelAuthorization, User } from "@/models"
 
 import { expenseFactory, travelAuthorizationFactory, userFactory } from "@/factories"
@@ -7,7 +5,7 @@ import { mockCurrentUser, request } from "@/support"
 
 describe("api/src/controllers/expenses-controller.ts", () => {
   describe("ExpensesController", () => {
-    describe("#index - GET /api/expenses", () => {
+    describe("#index - GET - /api/expenses", () => {
       test.each([
         {
           direction: "ASC",
@@ -42,20 +40,21 @@ describe("api/src/controllers/expenses-controller.ts", () => {
             date: "2026-11-10",
             cost: 30,
           })
-          const query = qs.stringify({
-            where: {
-              travelAuthorizationId: travelAuthorization.id,
-              type: Expense.Types.ESTIMATE,
-            },
-            order: [
-              ["date", "ASC"],
-              ["expenseType", direction],
-            ],
-            perPage: 1,
-          })
 
           // Act
-          const response = await request().get("/api/expenses").query(query)
+          const response = await request()
+            .get("/api/expenses")
+            .query({
+              where: {
+                travelAuthorizationId: travelAuthorization.id,
+                type: Expense.Types.ESTIMATE,
+              },
+              order: [
+                ["date", "ASC"],
+                ["expenseType", direction],
+              ],
+              perPage: 1,
+            })
 
           // Assert
           expect(response.status).toEqual(200)
@@ -72,9 +71,46 @@ describe("api/src/controllers/expenses-controller.ts", () => {
           })
         }
       )
+
+      test("when expenses are out of scope, it omits them from results and totals", async () => {
+        // Arrange
+        const user1 = await userFactory.create()
+        const user2 = await userFactory.create()
+        mockCurrentUser(user1)
+        const travelAuthorization = await travelAuthorizationFactory
+          .associations({ user: user2 })
+          .create({
+            status: TravelAuthorization.Statuses.DRAFT,
+            supervisorEmail: null,
+          })
+        await expenseFactory.associations({ travelAuthorization }).create({
+          type: Expense.Types.ESTIMATE,
+          cost: 120,
+        })
+
+        // Act
+        const response = await request()
+          .get("/api/expenses")
+          .query({
+            where: {
+              travelAuthorizationId: travelAuthorization.id,
+              type: Expense.Types.ESTIMATE,
+            },
+          })
+
+        // Assert
+        expect(response.status).toEqual(200)
+        expect(response.body).toEqual({
+          expenses: [],
+          totalCount: 0,
+          summaries: {
+            totalCost: 0,
+          },
+        })
+      })
     })
 
-    describe("#create - POST /api/expenses", () => {
+    describe("#create - POST - /api/expenses", () => {
       test("when authorized, it creates an expense", async () => {
         // Arrange
         const user = await userFactory.create({

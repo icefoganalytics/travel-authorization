@@ -48,6 +48,7 @@
           >
             <FlightStatisticsExportToCsvButton
               :filters="filters"
+              :order="order"
               color="primary"
               variant="outlined"
             />
@@ -102,6 +103,8 @@ import { sumBy } from "lodash"
 import { useRoute } from "vue-router"
 
 import useRouteQuery, { booleanTransformer, jsonTransformer } from "@/use/utils/use-route-query"
+import useVuetifySortByToSafeRouteQuery from "@/use/utils/use-vuetify-sort-by-to-safe-route-query"
+import useVuetifySortByToSequelizeSafeOrder from "@/use/utils/use-vuetify-sort-by-to-sequelize-safe-order"
 import useBreadcrumbs, { type BreadcrumbItem } from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
 
@@ -118,6 +121,14 @@ const showFilters = useRouteQuery("showFilters", "false", {
 const filters = useRouteQuery<string, FlightStatisticFiltersOptions>("filters", "{}", {
   transform: jsonTransformer,
 })
+
+const sortBy = useVuetifySortByToSafeRouteQuery("sortBy", [
+  {
+    key: "departmentMailcode",
+    order: "asc",
+  },
+])
+const order = useVuetifySortByToSequelizeSafeOrder(sortBy)
 
 const route = useRoute()
 

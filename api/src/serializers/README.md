@@ -15,6 +15,8 @@ Serializers take model data, in the form mapping directly to the database struct
 
 Serializers are used in controllers to convert from a database representation to a front-end data packet. Serializers should generally not be used for general data formating such as date or money formatting, as formatting those kinds of things in the front-end is generally more flexible.
 
+TravelAuth CSV report serializers own server-side display formatting. Follow the shared [Human-Facing Report Formatting](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/docs/references/express-light-rail-backend-concepts-reference.md#human-facing-report-formatting) convention for private `formatXyz` methods.
+
 ## Naming
 
 - Use `AsIndex` for index serializer types.

@@ -7,6 +7,7 @@ export { YkGovernmentDirectorySyncService } from "./yk-government-directory-sync
 
 // Namespaced services
 export * as Attachments from "./attachments"
+export * as Downloads from "./downloads"
 export * as Estimates from "./estimates"
 export * as Expenses from "./expenses"
 export * as GeneralLedgerCodings from "./general-ledger-codings"

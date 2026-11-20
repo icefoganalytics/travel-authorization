@@ -106,6 +106,8 @@ export class AccessRequestPolicy extends PolicyFactory(AccessRequest) {
 
 This is the preferred place to express record visibility rules.
 
+On a policy built with `PolicyFactory(Model)`, `applyScope` preserves the static methods exposed by the model’s `withScope`. A plain Sequelize model need not implement `BaseModel` helpers.
+
 ## Permitted Attributes
 
 Policies should also define the attributes a user is allowed to submit.

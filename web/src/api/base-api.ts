@@ -34,6 +34,7 @@ export type Policy = {
 // Keep in sync with api/src/controllers/base-controller.ts
 export const MAX_PER_PAGE = 1000
 
+// Keep in sync with serializeQuery in api/tests/support/request.ts.
 export function serializeQuery(params: object): string {
   return qs.stringify(params, {
     arrayFormat: "indices",

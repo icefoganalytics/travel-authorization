@@ -2,6 +2,7 @@
 export { attachmentFactory } from "./attachment-factory"
 export { distanceMatrixFactory } from "./distance-matrix-factory"
 export { expenseFactory } from "./expense-factory"
+export { flightReconciliationFactory } from "./flight-reconciliation-factory"
 export { flightStatisticFactory } from "./flight-statistic-factory"
 export { generalLedgerCodingFactory } from "./general-ledger-coding-factory"
 export { locationFactory } from "./location-factory"

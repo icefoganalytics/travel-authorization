@@ -98,6 +98,16 @@ router.use(
 
 router.route("/api/current-user").get(CurrentUserController.show)
 
+// Downloads
+router
+  .route("/api/downloads/flight-reconciliations")
+  .post(Downloads.FlightReconciliationsController.create)
+router
+  .route("/api/downloads/flight-statistics")
+  .post(Downloads.FlightStatisticsController.create)
+router
+  .route("/api/downloads/travel-authorization-pre-approvals")
+  .post(Downloads.TravelAuthorizationPreApprovalsController.create)
 router
   .route(
     "/api/downloads/travel-authorization-pre-approval-documents/:travelAuthorizationPreApprovalDocumentId"
@@ -116,6 +126,7 @@ router
   )
   .get(Downloads.TravelDeskTravelRequests.PassengerNameRecordDocumentController.show)
   .post(Downloads.TravelDeskTravelRequests.PassengerNameRecordDocumentController.create)
+// End Downloads
 
 router.route("/api/expenses").get(ExpensesController.index).post(ExpensesController.create)
 router

@@ -4,8 +4,7 @@ import { DateTime } from "luxon"
 import logger from "@/utils/logger"
 import { type TravelDeskTravelRequest } from "@/models"
 import { TravelDeskTravelRequestsPolicy } from "@/policies"
-import { CreateCsvService } from "@/services/downloads/travel-desk-travel-requests/create-csv-service"
-import { CreatePdfService } from "@/services/downloads/travel-desk-travel-requests/create-pdf-service"
+import { CreateCsvService, CreatePdfService } from "@/services/downloads/travel-desk-travel-requests"
 import BaseController, { type ModelOrder } from "@/controllers/base-controller"
 
 export class TravelDeskTravelRequestsController extends BaseController<TravelDeskTravelRequest> {

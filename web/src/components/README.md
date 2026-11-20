@@ -39,6 +39,7 @@ here instead of expanding top-level project documentation.
 - Prefer existing list item components over hardcoded navigation structures.
 - Use `v-if` for straightforward conditional rendering instead of computed component selection.
 - Reduce nesting when wrappers such as extra `v-card-text` elements add no behavior.
+- For authenticated downloads, reuse [DownloadFileForm](common/DownloadFileForm.vue). See the [report download contract](/docs/architecture/report-downloads.md#browser-and-api-responsibilities).
 
 ## Collection Pagination
 
