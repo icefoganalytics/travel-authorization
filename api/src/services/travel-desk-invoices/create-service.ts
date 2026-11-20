@@ -78,7 +78,7 @@ export class CreateService extends BaseService {
       )
       await ValidateLinkedFlightSegmentsService.perform(this.travelDeskTravelRequest.id, items)
 
-      const invoice = await TravelDeskInvoice.create({
+      const travelDeskInvoice = await TravelDeskInvoice.create({
         ...optionalAttributes,
         travelDeskTravelRequestId: this.travelDeskTravelRequest.id,
         bookingReference,
@@ -86,9 +86,9 @@ export class CreateService extends BaseService {
         currencyCode,
         grossAmount,
       })
-      await BulkCreateService.perform(invoice.id, items)
+      await BulkCreateService.perform(travelDeskInvoice.id, items)
 
-      return invoice.reload({
+      return travelDeskInvoice.reload({
         include: [
           {
             association: "items",
