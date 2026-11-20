@@ -282,9 +282,9 @@
               contribute to the total.
             </p>
             <TravelDeskInvoiceItemEditCard
-              v-for="(item, index) in draft.items"
+              v-for="(item, index) in draft.itemsAttributes"
               :key="index"
-              v-model="draft.items[index]"
+              v-model="draft.itemsAttributes[index]"
               :local-segments="localSegments"
               :passenger-names="passengerNames"
               :source-segment-description="
@@ -341,7 +341,7 @@
 import { computed, onScopeDispose, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { isCancel } from "axios"
-import { cloneDeep, isNil } from "lodash"
+import { isNil } from "lodash"
 
 import useRouteQueryPagination from "@/use/utils/use-route-query-pagination"
 
@@ -375,6 +375,10 @@ const props = defineProps<{
   travelDeskTravelRequestId: string
 }>()
 
+type InvoiceDraft = InvoiceInput & {
+  bookingReference: string
+}
+
 const requestId = computed(() => Number(props.travelDeskTravelRequestId))
 const { isAdmin, isTravelDeskUser } = useCurrentUser()
 const canManage = computed(() => Boolean(isAdmin.value || isTravelDeskUser.value))
@@ -384,7 +388,7 @@ const invoices = ref<TravelDeskInvoiceAsShow[] | null>(null)
 const invoice = ref<TravelDeskInvoiceAsShow | null>(null)
 const localSegments = ref<TravelDeskFlightSegmentAsIndex[]>([])
 const bookingEvents = ref<TravelDeskBookingEventAsIndex[]>([])
-const draft = ref<InvoiceInput | null>(null)
+const draft = ref<InvoiceDraft | null>(null)
 const editingId = ref<number | null>(null)
 const isCreating = ref(false)
 const isLoading = computed(() => isNil(invoices.value))
@@ -432,7 +436,7 @@ const passengerNames = computed(() => {
   ]
 })
 
-type InvoiceHeaderKey = keyof Omit<InvoiceUpdateInput, "items" | "currencyCode">
+type InvoiceHeaderKey = keyof Omit<InvoiceUpdateInput, "itemsAttributes" | "currencyCode">
 
 const headerFields: { key: InvoiceHeaderKey; label: string; type: string }[] = [
   { key: "invoiceNumber", label: "Invoice number", type: "text" },
@@ -695,7 +699,7 @@ function startDraft() {
     const passenger = event.passengers[0]
     passengerName = [passenger.firstName, passenger.lastName].filter(Boolean).join(" ")
   }
-  const items: InvoiceItemInput[] = event.airReservationSegments.map((segment, index) => ({
+  const itemsAttributes = event.airReservationSegments.map<InvoiceItemInput>((segment, index) => ({
     productType: TravelDeskInvoiceItemProductTypes.AIR,
     travelDeskFlightSegmentId: null,
     sourceAirSegmentNumber: segment.airSegmentNumber,
@@ -717,7 +721,7 @@ function startDraft() {
     let saleType = TravelDeskInvoiceItemSaleTypes.SALE
     if (fee.activeVoidStatus === "V") saleType = TravelDeskInvoiceItemSaleTypes.VOID
 
-    items.push({
+    itemsAttributes.push({
       productType: TravelDeskInvoiceItemProductTypes.SERVICE_FEE,
       travelDeskFlightSegmentId: null,
       sourceAirSegmentNumber: null,
@@ -728,7 +732,7 @@ function startDraft() {
       description: `Service fee ${fee.serviceFeeDocumentNumber ?? ""}`.trim(),
       saleType,
       grossAmount: fee.serviceFeeAmount ?? "",
-      position: items.length,
+      position: itemsAttributes.length,
     })
   }
   draft.value = {
@@ -749,7 +753,7 @@ function startDraft() {
     bookingAgentName: event.transactionAgent,
     ticketingAgentName: null,
     bookingDate: event.passengerNameRecordCreatedAt?.slice(0, 10) ?? null,
-    items,
+    itemsAttributes,
   }
   errorMessage.value = ""
 }
@@ -779,14 +783,14 @@ function beginEdit() {
     bookingAgentName: savedInvoice.bookingAgentName,
     ticketingAgentName: savedInvoice.ticketingAgentName,
     bookingDate: savedInvoice.bookingDate,
-    items: cloneDeep(savedInvoice.items),
+    itemsAttributes: savedInvoice.items.map(({ id, ...itemAttributes }) => itemAttributes),
   }
 }
 
 function addCharge() {
   if (!draft.value) return
 
-  draft.value.items.push({
+  draft.value.itemsAttributes.push({
     productType: TravelDeskInvoiceItemProductTypes.CHANGE_FEE,
     travelDeskFlightSegmentId: null,
     sourceAirSegmentNumber: null,
@@ -797,15 +801,15 @@ function addCharge() {
     description: null,
     saleType: TravelDeskInvoiceItemSaleTypes.SALE,
     grossAmount: "",
-    position: draft.value.items.length,
+    position: draft.value.itemsAttributes.length,
   })
 }
 
 function removeCharge(index: number) {
   if (!draft.value) return
 
-  draft.value.items.splice(index, 1)
-  draft.value.items.forEach((item, position) => {
+  draft.value.itemsAttributes.splice(index, 1)
+  draft.value.itemsAttributes.forEach((item, position) => {
     item.position = position
   })
 }
@@ -814,7 +818,7 @@ const computedTotal = computed(() => {
   if (!draft.value) return null
 
   let total = 0n
-  for (const item of draft.value.items) {
+  for (const item of draft.value.itemsAttributes) {
     if (!AMOUNT_PATTERN.test(item.grossAmount)) return null
 
     const [whole, fraction = ""] = item.grossAmount.replace("-", "").split(".")
@@ -870,11 +874,12 @@ async function saveInvoice() {
         bookingAgentName: draft.value.bookingAgentName,
         ticketingAgentName: draft.value.ticketingAgentName,
         bookingDate: draft.value.bookingDate,
-        items: draft.value.items,
+        itemsAttributes: draft.value.itemsAttributes,
       }
       result = await travelDeskInvoicesApi.update(requestId.value, editingId.value, updates)
     } else {
-      result = await travelDeskInvoicesApi.create(requestId.value, draft.value)
+      const { bookingReference, ...invoiceAttributes } = draft.value
+      result = await travelDeskInvoicesApi.create(requestId.value, invoiceAttributes)
     }
     if (version !== contextVersion) return
 

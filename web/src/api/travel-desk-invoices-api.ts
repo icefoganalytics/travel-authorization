@@ -65,7 +65,6 @@ export type InvoiceItemInput = {
 }
 
 export type InvoiceInput = {
-  bookingReference: string
   externalBookingEventIdentifier: number
   sourceServiceFeeEventExternalIdentifiers: number[]
   currencyCode: string
@@ -80,7 +79,7 @@ export type InvoiceInput = {
   bookingAgentName: string | null
   ticketingAgentName: string | null
   bookingDate: string | null
-  items: InvoiceItemInput[]
+  itemsAttributes: InvoiceItemInput[]
 }
 
 export type InvoiceUpdateInput = Pick<
@@ -97,7 +96,7 @@ export type InvoiceUpdateInput = Pick<
   | "bookingAgentName"
   | "ticketingAgentName"
   | "bookingDate"
-  | "items"
+  | "itemsAttributes"
 >
 
 type InvoiceResponse = {
