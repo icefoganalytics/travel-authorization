@@ -142,18 +142,16 @@ export class ProfilesController extends BaseController<TravelAuthorizationPreApp
     }
   }
 
-  private async loadTravelAuthorizationPreApprovalProfile(preApproval: TravelAuthorizationPreApproval) {
-    const profile = await TravelAuthorizationPreApprovalProfile.findOne({
+  private loadTravelAuthorizationPreApprovalProfile(
+    travelAuthorizationPreApproval: TravelAuthorizationPreApproval
+  ): Promise<TravelAuthorizationPreApprovalProfile | null> {
+    return TravelAuthorizationPreApprovalProfile.findOne({
       where: {
         id: this.params.travelAuthorizationPreApprovalProfileId,
-        preApprovalId: preApproval.id,
+        preApprovalId: travelAuthorizationPreApproval.id,
       },
+      include: ["preApproval"],
     })
-    if (!isNil(profile)) {
-      profile.preApproval = preApproval
-    }
-
-    return profile
   }
 
   private loadTravelAuthorizationPreApproval(): Promise<TravelAuthorizationPreApproval | null> {
