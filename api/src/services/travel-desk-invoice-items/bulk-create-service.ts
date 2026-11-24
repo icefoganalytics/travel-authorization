@@ -14,7 +14,18 @@ export class BulkCreateService extends BaseService {
   async perform(): Promise<void> {
     const travelDeskInvoiceItemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map(
       (travelDeskInvoiceItemAttributes) => ({
-        ...travelDeskInvoiceItemAttributes,
+        productType: travelDeskInvoiceItemAttributes.productType,
+        travelDeskFlightSegmentId: travelDeskInvoiceItemAttributes.travelDeskFlightSegmentId,
+        sourceAirSegmentNumber: travelDeskInvoiceItemAttributes.sourceAirSegmentNumber,
+        sourceServiceFeeEventExternalIdentifier:
+          travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier,
+        passengerName: travelDeskInvoiceItemAttributes.passengerName,
+        ticketNumber: travelDeskInvoiceItemAttributes.ticketNumber,
+        vendor: travelDeskInvoiceItemAttributes.vendor,
+        description: travelDeskInvoiceItemAttributes.description,
+        saleType: travelDeskInvoiceItemAttributes.saleType,
+        grossAmount: travelDeskInvoiceItemAttributes.grossAmount,
+        position: travelDeskInvoiceItemAttributes.position,
         travelDeskInvoiceId: this.travelDeskInvoiceId,
       })
     )
