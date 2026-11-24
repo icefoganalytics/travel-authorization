@@ -8,10 +8,7 @@ import { TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
 import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
 import ServiceValidationError from "@/services/service-validation-error"
-import {
-  BulkCreateService,
-  ValidateLinkedTravelDeskFlightSegmentsService,
-} from "@/services/travel-desk-invoice-items"
+import { TravelDeskInvoiceItems } from "@/services"
 import {
   ValidateTravelDeskInvoiceItemsService,
   type TravelDeskInvoiceItemAttributes,
@@ -68,7 +65,7 @@ export class CreateService extends BaseService {
 
       const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
-      await ValidateLinkedTravelDeskFlightSegmentsService.perform(
+      await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
         this.travelDeskTravelRequest.id,
         travelDeskInvoiceItemsAttributes
       )
@@ -81,7 +78,10 @@ export class CreateService extends BaseService {
         currencyCode,
         grossAmount,
       })
-      await BulkCreateService.perform(travelDeskInvoice, travelDeskInvoiceItemsAttributes)
+      await TravelDeskInvoiceItems.BulkCreateService.perform(
+        travelDeskInvoice,
+        travelDeskInvoiceItemsAttributes
+      )
 
       return travelDeskInvoice.reload({
         include: [
