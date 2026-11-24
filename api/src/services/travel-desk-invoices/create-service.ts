@@ -93,7 +93,7 @@ export class CreateService extends BaseService {
         currencyCode,
         grossAmount,
       })
-      await BulkCreateService.perform(travelDeskInvoice.id, travelDeskInvoiceItemsAttributes)
+      await BulkCreateService.perform(travelDeskInvoice, travelDeskInvoiceItemsAttributes)
 
       return travelDeskInvoice.reload({
         include: [
