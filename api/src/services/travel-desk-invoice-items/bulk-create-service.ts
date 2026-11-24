@@ -1,3 +1,5 @@
+import { pick } from "lodash"
+
 import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
@@ -14,18 +16,19 @@ export class BulkCreateService extends BaseService {
   async perform(): Promise<void> {
     const travelDeskInvoiceItemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map(
       (travelDeskInvoiceItemAttributes) => ({
-        productType: travelDeskInvoiceItemAttributes.productType,
-        travelDeskFlightSegmentId: travelDeskInvoiceItemAttributes.travelDeskFlightSegmentId,
-        sourceAirSegmentNumber: travelDeskInvoiceItemAttributes.sourceAirSegmentNumber,
-        sourceServiceFeeEventExternalIdentifier:
-          travelDeskInvoiceItemAttributes.sourceServiceFeeEventExternalIdentifier,
-        passengerName: travelDeskInvoiceItemAttributes.passengerName,
-        ticketNumber: travelDeskInvoiceItemAttributes.ticketNumber,
-        vendor: travelDeskInvoiceItemAttributes.vendor,
-        description: travelDeskInvoiceItemAttributes.description,
-        saleType: travelDeskInvoiceItemAttributes.saleType,
-        grossAmount: travelDeskInvoiceItemAttributes.grossAmount,
-        position: travelDeskInvoiceItemAttributes.position,
+        ...pick(travelDeskInvoiceItemAttributes, [
+          "productType",
+          "travelDeskFlightSegmentId",
+          "sourceAirSegmentNumber",
+          "sourceServiceFeeEventExternalIdentifier",
+          "passengerName",
+          "ticketNumber",
+          "vendor",
+          "description",
+          "saleType",
+          "grossAmount",
+          "position",
+        ]),
         travelDeskInvoiceId: this.travelDeskInvoiceId,
       })
     )
