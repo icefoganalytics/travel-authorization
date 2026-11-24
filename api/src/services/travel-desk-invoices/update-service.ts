@@ -6,10 +6,7 @@ import BaseService from "@/services/base-service"
 import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
 import ServiceValidationError from "@/services/service-validation-error"
 import { type TravelDeskInvoiceCreationAttributes } from "@/services/travel-desk-invoices/create-service"
-import {
-  BulkCreateService,
-  ValidateLinkedTravelDeskFlightSegmentsService,
-} from "@/services/travel-desk-invoice-items"
+import { TravelDeskInvoiceItems } from "@/services"
 import { ValidateTravelDeskInvoiceItemsService } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-travel-desk-invoice-lock"
 
@@ -78,7 +75,7 @@ export class UpdateService extends BaseService {
           sourceAirSegmentNumbers,
           sourceServiceFeeEventExternalIdentifiers
         )
-        await ValidateLinkedTravelDeskFlightSegmentsService.perform(
+        await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
           travelDeskInvoice.travelDeskTravelRequestId,
           travelDeskInvoiceItemsAttributes
         )
@@ -103,7 +100,10 @@ export class UpdateService extends BaseService {
             travelDeskInvoiceId,
           },
         })
-        await BulkCreateService.perform(travelDeskInvoice, travelDeskInvoiceItemsAttributes)
+        await TravelDeskInvoiceItems.BulkCreateService.perform(
+          travelDeskInvoice,
+          travelDeskInvoiceItemsAttributes
+        )
 
         return travelDeskInvoice.reload({
           include: [
