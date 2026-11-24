@@ -5,7 +5,7 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
-import type { TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profiles-api"
+import type { TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profile-creation-attributes"
 import type { TravelAuthorizationPreApprovalSubmission } from "@/api/travel-authorization-pre-approval-submissions-api"
 
 /** Keep in sync with api/src/models/travel-authorization-pre-approval.ts */

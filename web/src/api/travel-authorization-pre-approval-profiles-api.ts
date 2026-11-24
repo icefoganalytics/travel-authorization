@@ -5,6 +5,7 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
+import type { TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profile-creation-attributes"
 import { type TravelAuthorizationPreApprovalAsReference } from "@/api/travel-authorization-pre-approvals-api"
 
 export type TravelAuthorizationPreApprovalProfile = {
@@ -41,12 +42,6 @@ export type TravelAuthorizationPreApprovalProfilesQueryOptions = QueryOptions<
   TravelAuthorizationPreApprovalProfileWhereOptions,
   TravelAuthorizationPreApprovalProfileFiltersOptions
 >
-
-export type TravelAuthorizationPreApprovalProfileCreationAttributes = Pick<
-  TravelAuthorizationPreApprovalProfile,
-  "profileName"
-> &
-  Partial<Pick<TravelAuthorizationPreApprovalProfile, "branch">>
 
 export const travelAuthorizationPreApprovalProfilesApi = {
   async list(params: TravelAuthorizationPreApprovalProfilesQueryOptions = {}): Promise<{

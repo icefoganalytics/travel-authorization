@@ -229,7 +229,7 @@ import { useDisplay } from "vuetify"
 
 import { required } from "@/utils/validators"
 
-import { type TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profiles-api"
+import type { TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profile-creation-attributes"
 import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
