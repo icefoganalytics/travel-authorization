@@ -103,7 +103,7 @@ export class UpdateService extends BaseService {
             travelDeskInvoiceId,
           },
         })
-        await BulkCreateService.perform(travelDeskInvoiceId, travelDeskInvoiceItemsAttributes)
+        await BulkCreateService.perform(travelDeskInvoice, travelDeskInvoiceItemsAttributes)
 
         return travelDeskInvoice.reload({
           include: [

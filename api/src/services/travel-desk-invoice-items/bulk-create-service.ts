@@ -1,13 +1,13 @@
 import { pick } from "lodash"
 
-import { TravelDeskInvoiceItem } from "@/models"
+import { type TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
 import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 
 export class BulkCreateService extends BaseService {
   constructor(
-    protected travelDeskInvoiceId: number,
+    protected travelDeskInvoice: TravelDeskInvoice,
     protected travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
   ) {
     super()
@@ -29,7 +29,7 @@ export class BulkCreateService extends BaseService {
           "grossAmount",
           "position",
         ]),
-        travelDeskInvoiceId: this.travelDeskInvoiceId,
+        travelDeskInvoiceId: this.travelDeskInvoice.id,
       })
     )
 
