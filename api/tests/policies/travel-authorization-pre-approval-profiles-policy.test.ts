@@ -10,17 +10,18 @@ import {
 describe("api/src/policies/travel-authorization-pre-approval-profiles-policy.ts", () => {
   describe("TravelAuthorizationPreApprovalProfilesPolicy", () => {
     describe("#toJSON", () => {
-      test("when the user shares the parent and profile department, it allows profile mutations", () => {
+      test("when the user shares the parent and profile department, it allows profile mutations", async () => {
         // Arrange
-        const user = userFactory.build({
+        const user = await userFactory.create({
           department: "Finance",
         })
-        const preApproval = travelAuthorizationPreApprovalFactory.build({
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
           department: "Finance",
         })
-        const profile = travelAuthorizationPreApprovalProfileFactory
+        const profile = await travelAuthorizationPreApprovalProfileFactory
           .associations({ preApproval })
-          .build({
+          .include(["preApproval"])
+          .create({
             department: "Finance",
           })
         const policy = new TravelAuthorizationPreApprovalProfilesPolicy(user, profile)

@@ -234,14 +234,17 @@ describe("api/src/controllers/travel-authorization-pre-approvals/profiles-contro
     })
 
     describe("#update - PATCH - /api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId/profiles/:travelAuthorizationPreApprovalProfileId", () => {
-      test("when the department is unchanged, it updates the branch", async () => {
+      test("when a same-department user did not create the parent, it still updates the profile branch", async () => {
         // Arrange
         const user = await userFactory.create({
           department: "Finance",
         })
         mockCurrentUser(user)
+        const creator = await userFactory.create({
+          department: "Finance",
+        })
         const preApproval = await travelAuthorizationPreApprovalFactory
-          .associations({ creator: user })
+          .associations({ creator })
           .create({
             estimatedCost: 1200,
             location: "Whitehorse",
@@ -480,8 +483,12 @@ describe("api/src/controllers/travel-authorization-pre-approvals/profiles-contro
         // Arrange
         const user = await userFactory.create({ department: "Finance" })
         mockCurrentUser(user)
-        const preApproval = await travelAuthorizationPreApprovalFactory.create({ department: "Finance" })
-        const otherPreApproval = await travelAuthorizationPreApprovalFactory.create({ department: "Finance" })
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
+        const otherPreApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "Finance",
+        })
         const profile = await travelAuthorizationPreApprovalProfileFactory
           .associations({ preApproval: otherPreApproval })
           .create({ department: "Finance" })
