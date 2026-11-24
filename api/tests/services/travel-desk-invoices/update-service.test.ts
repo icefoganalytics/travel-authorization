@@ -4,6 +4,7 @@ import { DatabaseError, QueryTypes } from "@sequelize/core"
 
 import { db } from "@/db/db-client"
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
+import { ReferenceSerializer } from "@/serializers/travel-desk-invoice-items"
 import ServiceValidationError from "@/services/service-validation-error"
 import UpdateService from "@/services/travel-desk-invoices/update-service"
 
@@ -20,6 +21,25 @@ import {
 describe("api/src/services/travel-desk-invoices/update-service.ts", () => {
   describe("UpdateService", () => {
     describe(".perform", () => {
+      test("when editing a serialized line, it saves the edit with a fresh line ID", async () => {
+        const travelDeskInvoice = await travelDeskInvoiceFactory.create()
+        const originalItem = await travelDeskInvoiceItemFactory
+          .associations({ invoice: travelDeskInvoice })
+          .create({ sourceAirSegmentNumber: 1 })
+        const editedItem = { ...ReferenceSerializer.perform(originalItem), grossAmount: "12.345" }
+
+        await UpdateService.perform(travelDeskInvoice, {
+          currencyCode: "CAD",
+          itemsAttributes: [editedItem],
+        })
+
+        const savedItems = await TravelDeskInvoiceItem.findAll({
+          where: { travelDeskInvoiceId: travelDeskInvoice.id },
+        })
+        expect(savedItems).toMatchObject([{ grossAmount: "12.345" }])
+        expect(savedItems[0].id).not.toBe(originalItem.id)
+      })
+
       test("when staff add a change fee, it retains the charge and increases the saved total", async () => {
         // Arrange
         const travelDeskInvoice = await travelDeskInvoiceFactory.create()
