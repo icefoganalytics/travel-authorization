@@ -42,6 +42,12 @@ export type TravelAuthorizationPreApprovalProfilesQueryOptions = QueryOptions<
   TravelAuthorizationPreApprovalProfileFiltersOptions
 >
 
+export type TravelAuthorizationPreApprovalProfileCreationAttributes = Pick<
+  TravelAuthorizationPreApprovalProfile,
+  "profileName"
+> &
+  Partial<Pick<TravelAuthorizationPreApprovalProfile, "branch">>
+
 export const travelAuthorizationPreApprovalProfilesApi = {
   async list(params: TravelAuthorizationPreApprovalProfilesQueryOptions = {}): Promise<{
     travelAuthorizationPreApprovalProfiles: TravelAuthorizationPreApprovalProfileAsIndex[]
@@ -65,7 +71,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
 
   async create(
     travelAuthorizationPreApprovalId: number | string,
-    attributes: Pick<TravelAuthorizationPreApprovalProfile, "profileName" | "branch">
+    attributes: TravelAuthorizationPreApprovalProfileCreationAttributes
   ): Promise<{
     travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfileAsShow
   }> {
@@ -79,7 +85,7 @@ export const travelAuthorizationPreApprovalProfilesApi = {
   async update(
     travelAuthorizationPreApprovalId: number | string,
     travelAuthorizationPreApprovalProfileId: number,
-    attributes: Partial<Pick<TravelAuthorizationPreApprovalProfile, "profileName" | "branch">>
+    attributes: Partial<TravelAuthorizationPreApprovalProfileCreationAttributes>
   ): Promise<{
     travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfileAsShow
     policy: Policy

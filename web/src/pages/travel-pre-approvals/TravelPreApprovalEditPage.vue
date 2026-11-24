@@ -270,12 +270,25 @@ function resetDependentFieldsBranch() {
 const snack = useSnack()
 
 async function saveWrapper() {
+  const preApproval = travelAuthorizationPreApproval.value
+  if (isNil(preApproval)) return
+
   isLoading.value = true
   try {
-    await travelAuthorizationPreApprovalsApi.update(
-      props.travelAuthorizationPreApprovalId,
-      travelAuthorizationPreApproval.value
-    )
+    await travelAuthorizationPreApprovalsApi.update(props.travelAuthorizationPreApprovalId, {
+      estimatedCost: preApproval.estimatedCost,
+      location: preApproval.location,
+      branch: preApproval.branch,
+      purpose: preApproval.purpose,
+      reason: preApproval.reason,
+      startDate: preApproval.startDate,
+      endDate: preApproval.endDate,
+      isOpenForAnyDate: preApproval.isOpenForAnyDate,
+      month: preApproval.month,
+      isOpenForAnyTraveler: preApproval.isOpenForAnyTraveler,
+      numberTravelers: preApproval.numberTravelers,
+      travelerNotes: preApproval.travelerNotes,
+    })
     snack.success("Travel authorization pre-approval saved successfully")
     await refresh()
   } catch (error) {

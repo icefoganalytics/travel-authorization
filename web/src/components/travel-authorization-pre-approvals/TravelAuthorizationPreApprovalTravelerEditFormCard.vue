@@ -99,8 +99,6 @@ import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 import TravelAuthorizationPreApprovalProfilesDataTableServer from "@/components/travel-authorization-pre-approval-profiles/TravelAuthorizationPreApprovalProfilesDataTableServer.vue"
 
-/** @typedef {import("@/api/travel-authorization-pre-approvals-api").TravelAuthorizationPreApprovalProfile} TravelAuthorizationPreApprovalProfile */
-
 const props = defineProps({
   travelAuthorizationPreApprovalId: {
     type: [String, Number],
@@ -180,6 +178,8 @@ const travelAuthorizationPreApprovalProfilesDataTable = ref(null)
 async function createTravelAuthorizationPreApprovalProfile() {
   let profileName
   if (exactTravelerKnown.value) {
+    if (!travelerName.value) return
+
     profileName = travelerName.value
   } else {
     const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")

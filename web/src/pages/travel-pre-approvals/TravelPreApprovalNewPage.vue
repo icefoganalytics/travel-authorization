@@ -222,16 +222,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 import { useDisplay } from "vuetify"
 
 import { required } from "@/utils/validators"
 
-import travelAuthorizationPreApprovalsApi, {
-  type TravelAuthorizationPreApproval,
-} from "@/api/travel-authorization-pre-approvals-api"
+import { type TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profiles-api"
+import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
@@ -248,23 +247,30 @@ import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/componen
 
 const { smAndDown } = useDisplay()
 
-const travelAuthorizationPreApprovalAttributes = ref({
-  estimatedCost: undefined,
-  location: undefined,
-  department: undefined as TravelAuthorizationPreApproval["department"] | undefined,
-  branch: undefined,
-  purpose: undefined,
-  reason: undefined,
-  startDate: undefined,
-  endDate: undefined,
+type TravelAuthorizationPreApprovalDraft = {
+  purpose?: string
+  location?: string
+  estimatedCost?: string
+  reason?: string
+  startDate?: string
+  endDate?: string
+  month?: string
+  department?: string
+  branch?: string
+  isOpenForAnyDate: boolean
+  isOpenForAnyTraveler: boolean
+  numberTravelers?: number
+  travelerNotes?: string
+}
+
+const travelAuthorizationPreApprovalAttributes = ref<TravelAuthorizationPreApprovalDraft>({
   isOpenForAnyDate: false,
-  month: undefined,
   isOpenForAnyTraveler: false,
-  numberTravelers: undefined,
-  travelerNotes: undefined,
 })
 
-const travelAuthorizationPreApprovalProfilesAttributes = ref([])
+const travelAuthorizationPreApprovalProfilesAttributes = ref<
+  TravelAuthorizationPreApprovalProfileCreationAttributes[]
+>([])
 
 const exactTravelDateKnown = ref(true)
 
@@ -305,7 +311,7 @@ function resetDependentFieldsBranch() {
   travelAuthorizationPreApprovalProfilesAttributes.value = []
 }
 
-const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
+const headerActionsFormCard = useTemplateRef("headerActionsFormCard")
 const isLoading = ref(false)
 const snack = useSnack()
 const router = useRouter()
@@ -314,8 +320,8 @@ async function createTravelAuthorizationPreApproval() {
   if (isNil(headerActionsFormCard.value)) return
 
   const { valid } = await headerActionsFormCard.value.validate()
-  const { department } = travelAuthorizationPreApprovalAttributes.value
-  if (!valid || !department) {
+  const { department, estimatedCost, location } = travelAuthorizationPreApprovalAttributes.value
+  if (!valid || !department?.trim() || !estimatedCost?.trim() || !location) {
     snack.warning("Please fill in all required fields.")
     return
   }
@@ -326,6 +332,8 @@ async function createTravelAuthorizationPreApproval() {
     await travelAuthorizationPreApprovalsApi.create({
       ...travelAuthorizationPreApprovalAttributes.value,
       department,
+      estimatedCost: Number(estimatedCost),
+      location,
       profilesAttributes: travelAuthorizationPreApprovalProfilesAttributes.value,
     })
     snack.success("Travel pre-approval created.")
