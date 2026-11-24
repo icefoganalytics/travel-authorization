@@ -3,8 +3,10 @@ import { isEmpty, isNil } from "lodash"
 
 import db, { TravelAuthorizationPreApproval, User } from "@/models"
 import BaseService from "@/services/base-service"
-import { TravelAuthorizationPreApprovalProfiles } from "@/services"
-import { type TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/services/travel-authorization-pre-approval-profiles"
+import {
+  CreateService as CreateProfileService,
+  type TravelAuthorizationPreApprovalProfileCreationAttributes,
+} from "@/services/travel-authorization-pre-approval-profiles"
 
 type TravelAuthorizationPreApprovalCreationAttributes = Partial<
   CreationAttributes<TravelAuthorizationPreApproval>
@@ -51,10 +53,7 @@ export class CreateService extends BaseService {
       })
 
       for (const profileAttributes of profilesAttributes) {
-        await TravelAuthorizationPreApprovalProfiles.CreateService.perform(
-          travelAuthorizationPreApproval,
-          profileAttributes
-        )
+        await CreateProfileService.perform(travelAuthorizationPreApproval, profileAttributes)
       }
 
       return travelAuthorizationPreApproval.reload({
