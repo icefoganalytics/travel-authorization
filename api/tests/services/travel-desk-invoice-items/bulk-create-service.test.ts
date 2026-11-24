@@ -14,7 +14,7 @@ describe("api/src/services/travel-desk-invoice-items/bulk-create-service.ts", ()
         const travelDeskInvoice = await travelDeskInvoiceFactory.create()
 
         // Act
-        await BulkCreateService.perform(travelDeskInvoice.id, [
+        await BulkCreateService.perform(travelDeskInvoice, [
           {
             productType: TravelDeskInvoiceItem.ProductTypes.AIR,
             sourceAirSegmentNumber: 1,
@@ -59,7 +59,7 @@ describe("api/src/services/travel-desk-invoice-items/bulk-create-service.ts", ()
         const travelDeskInvoice = await travelDeskInvoiceFactory.create()
 
         // Act
-        const result = BulkCreateService.perform(travelDeskInvoice.id, [
+        const result = BulkCreateService.perform(travelDeskInvoice, [
           {
             productType: TravelDeskInvoiceItem.ProductTypes.AIR,
             sourceAirSegmentNumber: 1,
@@ -89,7 +89,7 @@ describe("api/src/services/travel-desk-invoice-items/bulk-create-service.ts", ()
         const travelDeskInvoice = await travelDeskInvoiceFactory.create()
 
         // Act
-        const result = BulkCreateService.perform(travelDeskInvoice.id, [
+        const result = BulkCreateService.perform(travelDeskInvoice, [
           {
             productType: TravelDeskInvoiceItem.ProductTypes.AIR,
             sourceAirSegmentNumber: 1,
