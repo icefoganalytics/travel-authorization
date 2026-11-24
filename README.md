@@ -85,29 +85,22 @@ If you are new to the project, start here, then read:
 
 Install the Ruby and editor-bridge gem prerequisites in [Set Up `dev`](./bin/README.md#set-up-dev).
 
-1. Create any local environment files your setup requires.
-   The main development values live in `.env.development` files that are not committed.
+Development requires Docker Compose 2.24 or later. Compose supplies the local Auth0 and database settings.
+No env file is needed unless you use a private integration; put its credentials in the ignored `api/.env.development`.
 
-2. Install the Ruby development dependencies:
+1. Install the Ruby development dependencies:
 
    ```bash
    bundle install
    ```
 
-3. Add the minimum Auth0 development values in `api/.env.development`:
-
-   ```bash
-   AUTH0_DOMAIN=https://dev-0tc6bn14.eu.auth0.com
-   AUTH0_AUDIENCE=testing
-   ```
-
-4. Start the full stack:
+2. Start the full stack:
 
    ```bash
    dev up
    ```
 
-5. Open the checkout-derived gateway hostname.
+3. Open the checkout-derived gateway hostname.
 
 Use `dev` rather than raw `docker compose` commands. The wrapper derives worktree-specific gateway
 hostnames, starts or reuses the gateway, and stops it only when no participating project remains.

@@ -36,7 +36,8 @@ services:
       context: ./api
       dockerfile: development.Dockerfile
     env_file:
-      - ./api/.env.development
+      - path: ./api/.env.development
+        required: false
     environment:
       <<: *default-environment
       TS_NODE_HISTORY: /usr/src/api/.ts_node_repl_history
@@ -75,7 +76,8 @@ services:
       dockerfile: development.Dockerfile
     command: /bin/true
     env_file:
-      - ./api/.env.development
+      - path: ./api/.env.development
+        required: false
     environment:
       <<: *default-environment
       NODE_ENV: test
@@ -86,7 +88,6 @@ services:
     tty: true
     volumes:
       - ./api:/usr/src/api
-      - ./api/.env.development:/usr/src/api/.env.test
     depends_on:
       - db
       - db_trav_com
