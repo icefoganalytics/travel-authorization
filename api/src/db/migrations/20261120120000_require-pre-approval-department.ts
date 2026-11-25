@@ -1,18 +1,11 @@
 import { Knex } from "knex"
 
 export async function up(knex: Knex): Promise<void> {
-  const missingDepartment = await knex("travel_authorization_pre_approvals")
-    .select("id")
+  // A missing owner must not be guessed from the creator or traveler profiles.
+  await knex("travel_authorization_pre_approvals")
     .whereNull("department")
     .orWhereRaw("department !~ '[^[:space:]]'")
-    .first()
-
-  if (missingDepartment) {
-    throw new Error(
-      `Resolve the missing department on pre-approval ${missingDepartment.id} before migrating. ` +
-        "Department controls access and cannot be inferred safely."
-    )
-  }
+    .update({ department: "UNKNOWN" })
 
   await knex.schema.alterTable("travel_authorization_pre_approvals", (table) => {
     table.dropNullable("department")

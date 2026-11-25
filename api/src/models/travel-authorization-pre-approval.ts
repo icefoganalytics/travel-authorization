@@ -164,6 +164,11 @@ export class TravelAuthorizationPreApproval extends Model<
   })
   declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
 
+  static isResolvedDepartment(department: unknown): department is string {
+    // The legacy backfill marks missing ownership without assigning a department.
+    return typeof department === "string" && department.trim() !== "" && department !== "UNKNOWN"
+  }
+
   static establishScopes(): void {
     this.addScope("availableForSubmission", () => {
       return {

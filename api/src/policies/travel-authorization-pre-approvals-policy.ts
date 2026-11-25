@@ -1,5 +1,4 @@
 import { Attributes, FindOptions } from "@sequelize/core"
-import { isNil } from "lodash"
 
 import { type Path } from "@/utils/deep-pick"
 import { TravelAuthorizationPreApproval, User } from "@/models"
@@ -12,19 +11,19 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
   show(): boolean {
     if (this.user.isAdmin) return true
 
-    return this.record.department === this.user.department
+    return this.isInRecordDepartment
   }
 
   create(): boolean {
     if (this.user.isAdmin) return true
 
-    return this.record.department === this.user.department
+    return this.isInRecordDepartment
   }
 
   update(): boolean {
     if (this.user.isAdmin) return true
     if (this.user.isPreApprovedTravelAdmin) {
-      return this.record.department === this.user.department
+      return this.isInRecordDepartment
     }
 
     return this.record.creatorId === this.user.id
@@ -33,7 +32,7 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
   destroy(): boolean {
     if (this.user.isAdmin) return true
     if (this.user.isPreApprovedTravelAdmin) {
-      return this.record.department === this.user.department
+      return this.isInRecordDepartment
     }
 
     return this.record.creatorId === this.user.id
@@ -72,7 +71,7 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
       return ALL_RECORDS_SCOPE
     }
 
-    if (isNil(user.department)) {
+    if (!TravelAuthorizationPreApproval.isResolvedDepartment(user.department)) {
       return NO_RECORDS_SCOPE
     }
 
@@ -81,6 +80,14 @@ export class TravelAuthorizationPreApprovalsPolicy extends PolicyFactory(
         department: user.department,
       },
     }
+  }
+
+  private get isInRecordDepartment(): boolean {
+    const { department } = this.user
+    return (
+      TravelAuthorizationPreApproval.isResolvedDepartment(department) &&
+      department === this.record.department
+    )
   }
 }
 

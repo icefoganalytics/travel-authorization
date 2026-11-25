@@ -26,7 +26,7 @@ export class CreateService extends BaseService {
     const { department, estimatedCost, location, profilesAttributes, ...optionalAttributes } =
       this.attributes
 
-    if (typeof department !== "string" || department.trim() === "") {
+    if (!TravelAuthorizationPreApproval.isResolvedDepartment(department)) {
       throw new Error("Department is required.")
     }
 

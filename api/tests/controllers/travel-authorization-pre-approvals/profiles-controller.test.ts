@@ -479,6 +479,30 @@ describe("api/src/controllers/travel-authorization-pre-approvals/profiles-contro
         })
       })
 
+      test("when a non-admin shares only UNKNOWN with the parent and profile, it denies the update", async () => {
+        // Arrange
+        const user = await userFactory.create({ department: "UNKNOWN" })
+        mockCurrentUser(user)
+        const preApproval = await travelAuthorizationPreApprovalFactory.create({
+          department: "UNKNOWN",
+        })
+        const profile = await travelAuthorizationPreApprovalProfileFactory
+          .associations({ preApproval })
+          .create({ department: "UNKNOWN" })
+
+        // Act
+        const response = await request()
+          .patch(`/api/travel-authorization-pre-approvals/${preApproval.id}/profiles/${profile.id}`)
+          .send({ branch: "Accounting" })
+
+        // Assert
+        expect(response.status).toEqual(403)
+        expect(response.body).toEqual({
+          message:
+            "You are not authorized to update this travel authorization pre-approval profile.",
+        })
+      })
+
       test("when the profile belongs to another pre-approval in the same department, it returns not found", async () => {
         // Arrange
         const user = await userFactory.create({ department: "Finance" })
