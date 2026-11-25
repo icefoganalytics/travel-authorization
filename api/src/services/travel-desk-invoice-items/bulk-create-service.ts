@@ -3,7 +3,8 @@ import { pick } from "lodash"
 import { type TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
+import { ValidateLinkedTravelDeskFlightSegmentsService } from "@/services/travel-desk-invoice-items/validate-linked-travel-desk-flight-segments-service"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items/validate-travel-desk-invoice-items-service"
 
 export class BulkCreateService extends BaseService {
   constructor(
@@ -14,6 +15,11 @@ export class BulkCreateService extends BaseService {
   }
 
   async perform(): Promise<void> {
+    await ValidateLinkedTravelDeskFlightSegmentsService.perform(
+      this.travelDeskInvoice.travelDeskTravelRequestId,
+      this.travelDeskInvoiceItemsAttributes
+    )
+
     const travelDeskInvoiceItemCreationAttributes = this.travelDeskInvoiceItemsAttributes.map(
       (travelDeskInvoiceItemAttributes) => ({
         ...pick(travelDeskInvoiceItemAttributes, [
