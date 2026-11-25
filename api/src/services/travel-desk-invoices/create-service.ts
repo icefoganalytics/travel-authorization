@@ -51,34 +51,13 @@ export class CreateService extends BaseService {
     }
 
     return db.transaction(async () => {
-      const travelDeskTravelRequest = await this.loadActiveTravelDeskTravelRequest(
-        this.travelDeskTravelRequest.id
-      )
-      const linkedBookingReference =
-        RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
-
-      const { bookingReference, sourceAirSegmentNumbers } =
-        await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(
-          externalBookingEventIdentifier
-        )
-      if (bookingReference !== linkedBookingReference) {
-        throw new ServiceValidationError("Invoice booking must match the linked Travelport booking.")
-      }
-
-      const sourceServiceFeeEventExternalIdentifiers = ValidateTravelDeskInvoiceItemsService.perform(
-        travelDeskInvoiceItemsAttributes,
-        sourceAirSegmentNumbers
-      )
-      await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
-        bookingReference,
-        sourceServiceFeeEventExternalIdentifiers,
-        currencyCode
-      )
-
-      const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
-
-      await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
+      const bookingReference = await this.validateInvoiceBookingAndItems(
         this.travelDeskTravelRequest.id,
+        externalBookingEventIdentifier,
+        currencyCode,
+        travelDeskInvoiceItemsAttributes
+      )
+      const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(
         travelDeskInvoiceItemsAttributes
       )
 
@@ -108,6 +87,44 @@ export class CreateService extends BaseService {
         ],
       })
     })
+  }
+
+  private async validateInvoiceBookingAndItems(
+    travelDeskTravelRequestId: number,
+    externalBookingEventIdentifier: number,
+    currencyCode: string,
+    travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
+  ): Promise<string> {
+    const travelDeskTravelRequest = await this.loadActiveTravelDeskTravelRequest(
+      travelDeskTravelRequestId
+    )
+    const linkedBookingReference =
+      RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
+
+    const { bookingReference, sourceAirSegmentNumbers } =
+      await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(
+        externalBookingEventIdentifier
+      )
+    if (bookingReference !== linkedBookingReference) {
+      throw new ServiceValidationError("Invoice booking must match the linked Travelport booking.")
+    }
+
+    const sourceServiceFeeEventExternalIdentifiers = ValidateTravelDeskInvoiceItemsService.perform(
+      travelDeskInvoiceItemsAttributes,
+      sourceAirSegmentNumbers
+    )
+    await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
+      bookingReference,
+      sourceServiceFeeEventExternalIdentifiers,
+      currencyCode
+    )
+
+    await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
+      travelDeskTravelRequestId,
+      travelDeskInvoiceItemsAttributes
+    )
+
+    return bookingReference
   }
 
   private async loadActiveTravelDeskTravelRequest(
