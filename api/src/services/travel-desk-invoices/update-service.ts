@@ -8,10 +8,7 @@ import BaseService from "@/services/base-service"
 import ServiceValidationError from "@/services/service-validation-error"
 
 import { type TravelDeskInvoiceCreationAttributes } from "@/services/travel-desk-invoices/create-service"
-import {
-  ValidateTravelDeskInvoiceItemsService,
-  type TravelDeskInvoiceItemAttributes,
-} from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items/validate-travel-desk-invoice-items-service"
 import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-travel-desk-invoice-lock"
 
 export type TravelDeskInvoiceUpdateAttributes = Omit<
@@ -129,14 +126,10 @@ export class UpdateService extends BaseService {
       )
     }
 
-    ValidateTravelDeskInvoiceItemsService.perform(
+    TravelDeskInvoiceItems.ValidateTravelDeskInvoiceItemsService.perform(
       travelDeskInvoiceItemsAttributes,
       sourceAirSegmentNumbers,
       sourceServiceFeeEventExternalIdentifiers
-    )
-    await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
-      travelDeskInvoice.travelDeskTravelRequestId,
-      travelDeskInvoiceItemsAttributes
     )
   }
 }
