@@ -91,7 +91,8 @@ From the repository root of each fresh checkout or worktree, create the ignored 
 touch api/.env.development
 ```
 
-Compose supplies the local Auth0 and database settings. Leave the file empty unless you need private integration credentials.
+An empty file is enough for local development. Compose supplies the Auth0 and database settings,
+including the Travelport simulator connection. These values take precedence over entries in the file.
 
 1. Install the Ruby development dependencies:
 
