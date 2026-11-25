@@ -50,23 +50,13 @@ export class CreateService extends BaseService {
     }
 
     return db.transaction(async () => {
-      const { bookingReference, sourceAirSegmentNumbers } =
-        await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(externalBookingEventIdentifier)
-
-      const sourceServiceFeeEventExternalIdentifiers = ValidateTravelDeskInvoiceItemsService.perform(
-        travelDeskInvoiceItemsAttributes,
-        sourceAirSegmentNumbers
-      )
-      await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
-        bookingReference,
-        sourceServiceFeeEventExternalIdentifiers,
-        currencyCode
-      )
-
-      const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
-
-      await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
+      const bookingReference = await this.validateInvoiceBookingAndItems(
         this.travelDeskTravelRequest.id,
+        externalBookingEventIdentifier,
+        currencyCode,
+        travelDeskInvoiceItemsAttributes
+      )
+      const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(
         travelDeskInvoiceItemsAttributes
       )
 
@@ -96,6 +86,33 @@ export class CreateService extends BaseService {
         ],
       })
     })
+  }
+
+  private async validateInvoiceBookingAndItems(
+    travelDeskTravelRequestId: number,
+    externalBookingEventIdentifier: number,
+    currencyCode: string,
+    travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
+  ): Promise<string> {
+    const { bookingReference, sourceAirSegmentNumbers } =
+      await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(externalBookingEventIdentifier)
+
+    const sourceServiceFeeEventExternalIdentifiers = ValidateTravelDeskInvoiceItemsService.perform(
+      travelDeskInvoiceItemsAttributes,
+      sourceAirSegmentNumbers
+    )
+    await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
+      bookingReference,
+      sourceServiceFeeEventExternalIdentifiers,
+      currencyCode
+    )
+
+    await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
+      travelDeskTravelRequestId,
+      travelDeskInvoiceItemsAttributes
+    )
+
+    return bookingReference
   }
 }
 
