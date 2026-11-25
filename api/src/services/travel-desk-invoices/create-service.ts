@@ -49,6 +49,7 @@ export class CreateService extends BaseService {
 
     return db.transaction(async () => {
       const bookingReference = await this.validateInvoiceBookingAndItems(
+        this.travelDeskTravelRequest.id,
         externalBookingEventIdentifier,
         currencyCode,
         travelDeskInvoiceItemsAttributes
@@ -86,6 +87,7 @@ export class CreateService extends BaseService {
   }
 
   private async validateInvoiceBookingAndItems(
+    travelDeskTravelRequestId: number,
     externalBookingEventIdentifier: number,
     currencyCode: string,
     travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
