@@ -1,3 +1,4 @@
+import { type Transaction } from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
@@ -7,7 +8,10 @@ import BaseService from "@/services/base-service"
 import ServiceValidationError from "@/services/service-validation-error"
 
 import { type TravelDeskInvoiceCreationAttributes } from "@/services/travel-desk-invoices/create-service"
-import { ValidateTravelDeskInvoiceItemsService } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
+import {
+  ValidateTravelDeskInvoiceItemsService,
+  type TravelDeskInvoiceItemAttributes,
+} from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-travel-desk-invoice-lock"
 
 export type TravelDeskInvoiceUpdateAttributes = Omit<
@@ -34,49 +38,17 @@ export class UpdateService extends BaseService {
       throw new ServiceValidationError("Invoice items must be an array.")
     }
 
-    const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
-
     return withTravelDeskInvoiceLock(
       this.travelDeskInvoice.id,
       async (travelDeskInvoice, transaction) => {
         const { id: travelDeskInvoiceId } = travelDeskInvoice
-        const savedTravelDeskInvoiceItems = await TravelDeskInvoiceItem.findAll({
-          where: {
-            travelDeskInvoiceId,
-          },
-          lock: transaction.LOCK.UPDATE,
-          transaction,
-        })
-        const sourceAirSegmentNumbers: number[] = []
-        const sourceServiceFeeEventExternalIdentifiers: number[] = []
-        for (const travelDeskInvoiceItem of savedTravelDeskInvoiceItems) {
-          if (!isNil(travelDeskInvoiceItem.sourceAirSegmentNumber)) {
-            sourceAirSegmentNumbers.push(travelDeskInvoiceItem.sourceAirSegmentNumber)
-          }
-
-          if (!isNil(travelDeskInvoiceItem.sourceServiceFeeEventExternalIdentifier)) {
-            sourceServiceFeeEventExternalIdentifiers.push(
-              travelDeskInvoiceItem.sourceServiceFeeEventExternalIdentifier
-            )
-          }
-        }
-
-        if (
-          !isEmpty(sourceServiceFeeEventExternalIdentifiers) &&
-          currencyCode !== travelDeskInvoice.currencyCode
-        ) {
-          throw new ServiceValidationError(
-            "Invoice currency cannot be changed for saved service fees."
-          )
-        }
-
-        ValidateTravelDeskInvoiceItemsService.perform(
+        await this.validateItemsAgainstSavedInvoice(
+          travelDeskInvoice,
+          currencyCode,
           travelDeskInvoiceItemsAttributes,
-          sourceAirSegmentNumbers,
-          sourceServiceFeeEventExternalIdentifiers
+          transaction
         )
-        await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
-          travelDeskInvoice.travelDeskTravelRequestId,
+        const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(
           travelDeskInvoiceItemsAttributes
         )
 
@@ -118,6 +90,53 @@ export class UpdateService extends BaseService {
           ],
         })
       }
+    )
+  }
+
+  private async validateItemsAgainstSavedInvoice(
+    travelDeskInvoice: TravelDeskInvoice,
+    currencyCode: string,
+    travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[],
+    transaction: Transaction
+  ): Promise<void> {
+    const savedTravelDeskInvoiceItems = await TravelDeskInvoiceItem.findAll({
+      where: {
+        travelDeskInvoiceId: travelDeskInvoice.id,
+      },
+      lock: transaction.LOCK.UPDATE,
+      transaction,
+    })
+    const sourceAirSegmentNumbers: number[] = []
+    const sourceServiceFeeEventExternalIdentifiers: number[] = []
+    for (const travelDeskInvoiceItem of savedTravelDeskInvoiceItems) {
+      if (!isNil(travelDeskInvoiceItem.sourceAirSegmentNumber)) {
+        sourceAirSegmentNumbers.push(travelDeskInvoiceItem.sourceAirSegmentNumber)
+      }
+
+      if (!isNil(travelDeskInvoiceItem.sourceServiceFeeEventExternalIdentifier)) {
+        sourceServiceFeeEventExternalIdentifiers.push(
+          travelDeskInvoiceItem.sourceServiceFeeEventExternalIdentifier
+        )
+      }
+    }
+
+    if (
+      !isEmpty(sourceServiceFeeEventExternalIdentifiers) &&
+      currencyCode !== travelDeskInvoice.currencyCode
+    ) {
+      throw new ServiceValidationError(
+        "Invoice currency cannot be changed for saved service fees."
+      )
+    }
+
+    ValidateTravelDeskInvoiceItemsService.perform(
+      travelDeskInvoiceItemsAttributes,
+      sourceAirSegmentNumbers,
+      sourceServiceFeeEventExternalIdentifiers
+    )
+    await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
+      travelDeskInvoice.travelDeskTravelRequestId,
+      travelDeskInvoiceItemsAttributes
     )
   }
 }
