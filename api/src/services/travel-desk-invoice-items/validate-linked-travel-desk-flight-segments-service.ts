@@ -4,7 +4,7 @@ import { TravelDeskFlightSegment } from "@/models"
 
 import BaseService from "@/services/base-service"
 import ServiceValidationError from "@/services/service-validation-error"
-import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items/validate-travel-desk-invoice-items-service"
 
 export class ValidateLinkedTravelDeskFlightSegmentsService extends BaseService {
   constructor(

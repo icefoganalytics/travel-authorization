@@ -10,10 +10,7 @@ import BaseService from "@/services/base-service"
 import ServiceValidationError from "@/services/service-validation-error"
 
 import { LoadAndValidateTravelDeskBookingEventForInvoiceService } from "@/services/travel-desk-invoices/load-and-validate-travel-desk-booking-event-for-invoice-service"
-import {
-  ValidateTravelDeskInvoiceItemsService,
-  type TravelDeskInvoiceItemAttributes,
-} from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items/validate-travel-desk-invoice-items-service"
 import { ValidateTravelDeskInvoiceServiceFeeSelectionService } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-service-fee-selection-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
@@ -51,7 +48,6 @@ export class CreateService extends BaseService {
 
     return db.transaction(async () => {
       const bookingReference = await this.validateInvoiceBookingAndItems(
-        this.travelDeskTravelRequest.id,
         externalBookingEventIdentifier,
         currencyCode,
         travelDeskInvoiceItemsAttributes
@@ -89,7 +85,6 @@ export class CreateService extends BaseService {
   }
 
   private async validateInvoiceBookingAndItems(
-    travelDeskTravelRequestId: number,
     externalBookingEventIdentifier: number,
     currencyCode: string,
     travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
@@ -97,19 +92,15 @@ export class CreateService extends BaseService {
     const { bookingReference, sourceAirSegmentNumbers } =
       await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(externalBookingEventIdentifier)
 
-    const sourceServiceFeeEventExternalIdentifiers = ValidateTravelDeskInvoiceItemsService.perform(
-      travelDeskInvoiceItemsAttributes,
-      sourceAirSegmentNumbers
-    )
+    const sourceServiceFeeEventExternalIdentifiers =
+      TravelDeskInvoiceItems.ValidateTravelDeskInvoiceItemsService.perform(
+        travelDeskInvoiceItemsAttributes,
+        sourceAirSegmentNumbers
+      )
     await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
       bookingReference,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode
-    )
-
-    await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
-      travelDeskTravelRequestId,
-      travelDeskInvoiceItemsAttributes
     )
 
     return bookingReference
