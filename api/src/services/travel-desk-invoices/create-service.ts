@@ -5,16 +5,16 @@ import { db } from "@/db/db-client"
 
 import { TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 
+import { TravelDeskInvoiceItems, TravelDeskInvoices } from "@/services"
 import BaseService from "@/services/base-service"
-import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
 import ServiceValidationError from "@/services/service-validation-error"
-import { TravelDeskInvoiceItems } from "@/services"
+
+import { LoadAndValidateTravelDeskBookingEventForInvoiceService } from "@/services/travel-desk-invoices/load-and-validate-travel-desk-booking-event-for-invoice-service"
 import {
   ValidateTravelDeskInvoiceItemsService,
   type TravelDeskInvoiceItemAttributes,
 } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
-import ValidateTravelDeskInvoiceServiceFeeSelectionService from "@/services/travel-desk-invoices/validate-travel-desk-invoice-service-fee-selection-service"
-import LoadAndValidateTravelDeskBookingEventForInvoiceService from "@/services/travel-desk-invoices/load-and-validate-travel-desk-booking-event-for-invoice-service"
+import { ValidateTravelDeskInvoiceServiceFeeSelectionService } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-service-fee-selection-service"
 import { RequireLinkedTravelPortBookingService } from "@/services/travel-desk-travel-requests/require-linked-travel-port-booking-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
@@ -75,7 +75,7 @@ export class CreateService extends BaseService {
         currencyCode
       )
 
-      const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
+      const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
       await TravelDeskInvoiceItems.ValidateLinkedTravelDeskFlightSegmentsService.perform(
         this.travelDeskTravelRequest.id,
