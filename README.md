@@ -85,8 +85,13 @@ If you are new to the project, start here, then read:
 
 Install the Ruby and editor-bridge gem prerequisites in [Set Up `dev`](./bin/README.md#set-up-dev).
 
-Development requires Docker Compose 2.24 or later. Compose supplies the local Auth0 and database settings.
-No env file is needed unless you use a private integration; put its credentials in the ignored `api/.env.development`.
+From the repository root of each fresh checkout or worktree, create the ignored API environment file:
+
+```bash
+touch api/.env.development
+```
+
+Compose supplies the local Auth0 and database settings. Leave the file empty unless you need private integration credentials.
 
 1. Install the Ruby development dependencies:
 

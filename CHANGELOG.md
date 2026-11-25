@@ -18,7 +18,6 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Changed
 
-- Development checkouts no longer need a local API environment file to run lint or tests.
 - Frontend lint now checks standalone CSS and Vue style blocks for CSS errors alongside existing script and template checks.
 - Booking-history refreshes remove only events missing from a successful source scan. Reappearing events create new local records while deleted records and saved invoices remain unchanged. Failed refreshes leave the previous local history intact.
 - Familiar colors, cream cards, and existing layouts are preserved. Errors appear consistently in red, and notifications have readable text and a working Close action.
