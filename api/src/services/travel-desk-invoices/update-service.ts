@@ -2,11 +2,11 @@ import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
+import { TravelDeskInvoiceItems, TravelDeskInvoices } from "@/services"
 import BaseService from "@/services/base-service"
-import { CalculateTotalService } from "@/services/travel-desk-invoices/calculate-total-service"
 import ServiceValidationError from "@/services/service-validation-error"
+
 import { type TravelDeskInvoiceCreationAttributes } from "@/services/travel-desk-invoices/create-service"
-import { TravelDeskInvoiceItems } from "@/services"
 import { ValidateTravelDeskInvoiceItemsService } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-items-service"
 import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-travel-desk-invoice-lock"
 
@@ -34,7 +34,7 @@ export class UpdateService extends BaseService {
       throw new ServiceValidationError("Invoice items must be an array.")
     }
 
-    const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
+    const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
     return withTravelDeskInvoiceLock(
       this.travelDeskInvoice.id,
