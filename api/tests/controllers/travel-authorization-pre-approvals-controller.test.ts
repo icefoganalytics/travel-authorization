@@ -1,4 +1,4 @@
-import { TravelAuthorizationPreApproval, User } from "@/models"
+import { TravelAuthorizationPreApproval } from "@/models"
 
 import { travelAuthorizationPreApprovalFactory, userFactory } from "@/factories"
 import { mockCurrentUser, request } from "@/support"
@@ -25,7 +25,7 @@ describe("api/src/controllers/travel-authorization-pre-approvals-controller.ts",
 
       test("when the caller is an admin, it includes a legacy pre-approval with department UNKNOWN", async () => {
         // Arrange
-        const user = await userFactory.create({ roles: [User.Roles.ADMIN] })
+        const user = await userFactory.asAdmin().create()
         mockCurrentUser(user)
         const preApproval = await travelAuthorizationPreApprovalFactory.create({
           department: "UNKNOWN",
@@ -175,9 +175,7 @@ describe("api/src/controllers/travel-authorization-pre-approvals-controller.ts",
         { name: "UNKNOWN", attributes: { department: "UNKNOWN" } },
       ])("when the parent department is $name, it rejects creation", async ({ attributes }) => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.ADMIN],
-        })
+        const user = await userFactory.asAdmin().create()
         mockCurrentUser(user)
 
         // Act
@@ -271,9 +269,8 @@ describe("api/src/controllers/travel-authorization-pre-approvals-controller.ts",
 
       test("when a departmental pre-approval admin shares only UNKNOWN with another creator's pre-approval, it denies updates", async () => {
         // Arrange
-        const user = await userFactory.create({
+        const user = await userFactory.asPreApprovedTravelAdmin().create({
           department: "UNKNOWN",
-          roles: [User.Roles.PRE_APPROVED_TRAVEL_ADMIN],
         })
         mockCurrentUser(user)
         const preApproval = await travelAuthorizationPreApprovalFactory.create({
@@ -296,9 +293,8 @@ describe("api/src/controllers/travel-authorization-pre-approvals-controller.ts",
     describe("#destroy - DELETE - /api/travel-authorization-pre-approvals/:travelAuthorizationPreApprovalId", () => {
       test("when a departmental pre-approval admin shares only UNKNOWN with another creator's pre-approval, it denies deletion", async () => {
         // Arrange
-        const user = await userFactory.create({
+        const user = await userFactory.asPreApprovedTravelAdmin().create({
           department: "UNKNOWN",
-          roles: [User.Roles.PRE_APPROVED_TRAVEL_ADMIN],
         })
         mockCurrentUser(user)
         const preApproval = await travelAuthorizationPreApprovalFactory.create({

@@ -1,4 +1,4 @@
-import { TravelAuthorizationPreApprovalProfile, User } from "@/models"
+import { TravelAuthorizationPreApprovalProfile } from "@/models"
 import TravelAuthorizationPreApprovalProfilesPolicy from "@/policies/travel-authorization-pre-approval-profiles-policy"
 
 import {
@@ -64,9 +64,7 @@ describe("api/src/policies/travel-authorization-pre-approval-profiles-policy.ts"
 
       test("when the parent association is not loaded, it denies profile mutations even to an admin", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.ADMIN],
-        })
+        const user = await userFactory.asAdmin().create()
         const profile = await travelAuthorizationPreApprovalProfileFactory.create()
         const profileWithoutPreApproval = await TravelAuthorizationPreApprovalProfile.findByPk(
           profile.id,
@@ -114,9 +112,7 @@ describe("api/src/policies/travel-authorization-pre-approval-profiles-policy.ts"
 
       test("when the caller is an admin, it includes a legacy profile with department UNKNOWN", async () => {
         // Arrange
-        const user = await userFactory.create({
-          roles: [User.Roles.ADMIN],
-        })
+        const user = await userFactory.asAdmin().create()
         const preApproval = await travelAuthorizationPreApprovalFactory.create({
           department: "UNKNOWN",
         })
