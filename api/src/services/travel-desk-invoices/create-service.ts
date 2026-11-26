@@ -1,9 +1,7 @@
 import { type CreationAttributes, Op } from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
-import { db } from "@/db/db-client"
-
-import { TravelDeskBookingEvent, TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
+import db, { TravelDeskBookingEvent, TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskInvoiceItems } from "@/services"
 import BaseService from "@/services/base-service"
@@ -93,8 +91,8 @@ export class CreateService extends BaseService {
       await LoadInvoiceBookingSourceService.perform(externalBookingEventIdentifier)
 
     TravelDeskInvoiceItems.AssertInvoiceItemsMatchSourcesService.perform(
-      travelDeskInvoiceItemsAttributes,
-      sourceAirSegmentNumbers
+      { sourceAirSegmentNumbers },
+      travelDeskInvoiceItemsAttributes
     )
 
     const sourceServiceFeeEventExternalIdentifiers: number[] = []
