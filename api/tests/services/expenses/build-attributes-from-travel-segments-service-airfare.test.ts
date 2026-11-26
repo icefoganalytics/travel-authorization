@@ -15,22 +15,52 @@ describe("api/src/services/expenses/build-attributes-from-travel-segments-servic
       test("when prefilling a trip with aircraft and rental vehicle travel, it excludes airfare but retains other expenses", async () => {
         // Arrange
         await perDiemFactory
-          .params({ travelRegion: PerDiem.TravelRegions.CANADA, currency: PerDiem.CurrencyTypes.CAD })
+          .params({
+            travelRegion: PerDiem.TravelRegions.CANADA,
+            currency: PerDiem.CurrencyTypes.CAD,
+          })
           .createMany([
-            { claimType: PerDiem.ClaimTypes.INCIDENTALS, amount: 17.3 },
-            { claimType: PerDiem.ClaimTypes.BREAKFAST, amount: 23.6 },
-            { claimType: PerDiem.ClaimTypes.LUNCH, amount: 23.9 },
-            { claimType: PerDiem.ClaimTypes.DINNER, amount: 58.6 },
-            { claimType: PerDiem.ClaimTypes.PRIVATE_ACCOMMODATIONS, amount: 50 },
+            {
+              claimType: PerDiem.ClaimTypes.INCIDENTALS,
+              amount: 17.3,
+            },
+            {
+              claimType: PerDiem.ClaimTypes.BREAKFAST,
+              amount: 23.6,
+            },
+            {
+              claimType: PerDiem.ClaimTypes.LUNCH,
+              amount: 23.9,
+            },
+            {
+              claimType: PerDiem.ClaimTypes.DINNER,
+              amount: 58.6,
+            },
+            {
+              claimType: PerDiem.ClaimTypes.PRIVATE_ACCOMMODATIONS,
+              amount: 50,
+            },
           ])
 
         await travelAllowanceFactory
           .params({ currency: TravelAllowance.CurrencyTypes.CAD })
           .createMany([
-            { allowanceType: TravelAllowance.AllowanceTypes.MAXIUM_AIRCRAFT_ALLOWANCE, amount: 1000 },
-            { allowanceType: TravelAllowance.AllowanceTypes.AIRCRAFT_ALLOWANCE_PER_SEGMENT, amount: 350 },
-            { allowanceType: TravelAllowance.AllowanceTypes.DISTANCE_ALLOWANCE_PER_KILOMETER, amount: 0.605 },
-            { allowanceType: TravelAllowance.AllowanceTypes.HOTEL_ALLOWANCE_PER_NIGHT, amount: 250 },
+            {
+              allowanceType: TravelAllowance.AllowanceTypes.MAXIUM_AIRCRAFT_ALLOWANCE,
+              amount: 1000,
+            },
+            {
+              allowanceType: TravelAllowance.AllowanceTypes.AIRCRAFT_ALLOWANCE_PER_SEGMENT,
+              amount: 350,
+            },
+            {
+              allowanceType: TravelAllowance.AllowanceTypes.DISTANCE_ALLOWANCE_PER_KILOMETER,
+              amount: 0.605,
+            },
+            {
+              allowanceType: TravelAllowance.AllowanceTypes.HOTEL_ALLOWANCE_PER_NIGHT,
+              amount: 250,
+            },
           ])
 
         const travelAuthorization = await travelAuthorizationFactory.create({
