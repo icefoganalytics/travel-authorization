@@ -4,7 +4,7 @@ import { TravelDeskBookingEvent } from "@/models"
 import BaseService from "@/services/base-service"
 import ServiceValidationError from "@/services/service-validation-error"
 
-export class LoadAndValidateTravelDeskBookingEventForInvoiceService extends BaseService {
+export class LoadInvoiceBookingSourceService extends BaseService {
   constructor(protected externalBookingEventIdentifier: number) {
     super()
   }
@@ -37,4 +37,4 @@ export class LoadAndValidateTravelDeskBookingEventForInvoiceService extends Base
   }
 }
 
-export default LoadAndValidateTravelDeskBookingEventForInvoiceService
+export default LoadInvoiceBookingSourceService
