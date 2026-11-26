@@ -12,7 +12,7 @@ import ServiceValidationError from "@/services/service-validation-error"
 import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items"
 import {
   CalculateTotalService,
-  LoadAndValidateTravelDeskBookingEventForInvoiceService,
+  LoadInvoiceBookingSourceService,
 } from "@/services/travel-desk-invoices"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
@@ -90,13 +90,19 @@ export class CreateService extends BaseService {
     travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
   ): Promise<string> {
     const { bookingReference, sourceAirSegmentNumbers } =
-      await LoadAndValidateTravelDeskBookingEventForInvoiceService.perform(externalBookingEventIdentifier)
+      await LoadInvoiceBookingSourceService.perform(externalBookingEventIdentifier)
 
-    const sourceServiceFeeEventExternalIdentifiers =
-      TravelDeskInvoiceItems.ValidateTravelDeskInvoiceItemsService.perform(
-        travelDeskInvoiceItemsAttributes,
-        sourceAirSegmentNumbers
-      )
+    TravelDeskInvoiceItems.AssertInvoiceItemsMatchSourcesService.perform(
+      travelDeskInvoiceItemsAttributes,
+      sourceAirSegmentNumbers
+    )
+
+    const sourceServiceFeeEventExternalIdentifiers: number[] = []
+    for (const { sourceServiceFeeEventExternalIdentifier } of travelDeskInvoiceItemsAttributes) {
+      if (!isNil(sourceServiceFeeEventExternalIdentifier)) {
+        sourceServiceFeeEventExternalIdentifiers.push(sourceServiceFeeEventExternalIdentifier)
+      }
+    }
     await this.assertSelectedFeesCanBeInvoicedTogether(
       bookingReference,
       sourceServiceFeeEventExternalIdentifiers,
@@ -108,10 +114,10 @@ export class CreateService extends BaseService {
 
   private async assertSelectedFeesCanBeInvoicedTogether(
     bookingReference: string,
-    sourceServiceFeeEventExternalIdentifiers: ReadonlySet<number>,
+    sourceServiceFeeEventExternalIdentifiers: readonly number[],
     invoiceCurrencyCode: string
   ): Promise<void> {
-    if (sourceServiceFeeEventExternalIdentifiers.size === 0) {
+    if (sourceServiceFeeEventExternalIdentifiers.length === 0) {
       return
     }
 
@@ -120,12 +126,12 @@ export class CreateService extends BaseService {
       where: {
         bookingReference,
         externalTravelPortIdentifier: {
-          [Op.in]: [...sourceServiceFeeEventExternalIdentifiers],
+          [Op.in]: sourceServiceFeeEventExternalIdentifiers,
         },
       },
     })
     if (
-      selectedTravelDeskBookingEvents.length !== sourceServiceFeeEventExternalIdentifiers.size
+      selectedTravelDeskBookingEvents.length !== sourceServiceFeeEventExternalIdentifiers.length
     ) {
       throw new ServiceValidationError(
         "Every selected service fee must belong to this booking reference."
