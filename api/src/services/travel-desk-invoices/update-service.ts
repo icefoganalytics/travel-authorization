@@ -42,7 +42,7 @@ export class UpdateService extends BaseService {
       this.travelDeskInvoice.id,
       async (travelDeskInvoice, transaction) => {
         const { id: travelDeskInvoiceId } = travelDeskInvoice
-        await this.validateItemsAgainstSavedInvoice(
+        await this.assertItemsMatchSavedInvoiceSources(
           travelDeskInvoice,
           currencyCode,
           travelDeskInvoiceItemsAttributes,
@@ -91,7 +91,7 @@ export class UpdateService extends BaseService {
     )
   }
 
-  private async validateItemsAgainstSavedInvoice(
+  private async assertItemsMatchSavedInvoiceSources(
     travelDeskInvoice: TravelDeskInvoice,
     currencyCode: string,
     travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[],
