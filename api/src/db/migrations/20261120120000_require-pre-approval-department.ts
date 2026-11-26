@@ -1,7 +1,6 @@
 import { Knex } from "knex"
 
 export async function up(knex: Knex): Promise<void> {
-  // A missing owner must not be guessed from the creator or traveler profiles.
   await knex("travel_authorization_pre_approvals")
     .whereNull("department")
     .orWhereRaw("department !~ '[^[:space:]]'")
