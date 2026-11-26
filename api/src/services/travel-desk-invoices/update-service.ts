@@ -127,7 +127,7 @@ export class UpdateService extends BaseService {
       )
     }
 
-    TravelDeskInvoiceItems.ValidateTravelDeskInvoiceItemsService.perform(
+    TravelDeskInvoiceItems.AssertInvoiceItemsMatchSourcesService.perform(
       travelDeskInvoiceItemsAttributes,
       sourceAirSegmentNumbers,
       sourceServiceFeeEventExternalIdentifiers
