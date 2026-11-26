@@ -126,9 +126,7 @@ to share a test database across projects, serialize those runs too.
 Before starting `./bin/dev test api`, check for a running test in the current project:
 
 ```bash
-project=$(./bin/dev compose config --format json | jq -er '.name') &&
-  docker ps --filter "label=com.docker.compose.project=$project" \
-    --filter 'label=com.docker.compose.service=test_api' --format '{{.ID}} {{.Names}}'
+./bin/dev compose ps --all --status running -q test_api
 ```
 
 If a container is listed, wait for it to finish or follow that container with `docker logs -f <ID>`.
