@@ -58,7 +58,7 @@ Preserve the import, type, and test conventions below until explicitly reconcile
 
 ### Commands
 
-Everything goes through `./bin/dev` (Ruby wrapper); development and test commands run inside Docker. [bin/README.md](bin/README.md) owns actual commands, gateway lifecycle, database selection, and test-container isolation. Use its [testing section](bin/README.md#testing), not service-shell package commands. Only one API test container may run at a time.
+Everything goes through `./bin/dev` (Ruby wrapper); development and test commands run inside Docker. [bin/README.md](bin/README.md) owns actual commands, gateway lifecycle, database selection, and test-container isolation. Use its [testing section](bin/README.md#testing), not service-shell package commands. Run at most one API test container per Compose project.
 
 PR testing instructions follow the [testing overlay](agents/workflows/testing-instructions-workflow.md): **Quality Assurance Team Checks** first, with target environment, role, and data prerequisites before actions. Put local preparation under **Developer Setup (Local Only)** afterward when needed:
 
