@@ -5,13 +5,16 @@ import { db } from "@/db/db-client"
 
 import { TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
 
-import { TravelDeskInvoiceItems, TravelDeskInvoices } from "@/services"
+import { TravelDeskInvoiceItems } from "@/services"
 import BaseService from "@/services/base-service"
 import ServiceValidationError from "@/services/service-validation-error"
 
-import { LoadAndValidateTravelDeskBookingEventForInvoiceService } from "@/services/travel-desk-invoices/load-and-validate-travel-desk-booking-event-for-invoice-service"
-import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items/validate-travel-desk-invoice-items-service"
-import { ValidateTravelDeskInvoiceServiceFeeSelectionService } from "@/services/travel-desk-invoices/validate-travel-desk-invoice-service-fee-selection-service"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items"
+import {
+  CalculateTotalService,
+  LoadAndValidateTravelDeskBookingEventForInvoiceService,
+  ValidateTravelDeskInvoiceServiceFeeSelectionService,
+} from "@/services/travel-desk-invoices"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
   CreationAttributes<TravelDeskInvoice> & {
@@ -52,9 +55,7 @@ export class CreateService extends BaseService {
         currencyCode,
         travelDeskInvoiceItemsAttributes
       )
-      const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(
-        travelDeskInvoiceItemsAttributes
-      )
+      const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
       const travelDeskInvoice = await TravelDeskInvoice.create({
         ...optionalAttributes,
