@@ -1,9 +1,7 @@
 import { type Transaction } from "@sequelize/core"
 import { isNil } from "lodash"
 
-import { db } from "@/db/db-client"
-
-import { TravelDeskInvoice } from "@/models"
+import db, { TravelDeskInvoice } from "@/models"
 
 import ServiceValidationError from "@/services/service-validation-error"
 
