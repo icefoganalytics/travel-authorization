@@ -3,8 +3,10 @@ import { pick } from "lodash"
 import { type TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { ValidateLinkedTravelDeskFlightSegmentsService } from "@/services/travel-desk-invoice-items/validate-linked-travel-desk-flight-segments-service"
-import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items/validate-travel-desk-invoice-items-service"
+import {
+  ValidateLinkedTravelDeskFlightSegmentsService,
+  type TravelDeskInvoiceItemAttributes,
+} from "@/services/travel-desk-invoice-items"
 
 export class BulkCreateService extends BaseService {
   constructor(
