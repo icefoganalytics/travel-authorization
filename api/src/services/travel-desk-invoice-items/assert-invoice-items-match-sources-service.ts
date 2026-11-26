@@ -1,4 +1,4 @@
-import { isEmpty, isNil } from "lodash"
+import { includes, isEmpty, isNil } from "lodash"
 
 import { TravelDeskInvoiceItem } from "@/models"
 
@@ -19,20 +19,20 @@ export type TravelDeskInvoiceItemAttributes = {
   position: number
 }
 
-export class AssertInvoiceItemsMatchSourcesService extends BaseService {
-  private readonly travelDeskInvoiceItemProductTypes: ReadonlyArray<
-    TravelDeskInvoiceItem["productType"]
-  > = Object.values(TravelDeskInvoiceItem.ProductTypes)
+type InvoiceItemSourceAttributes = Pick<
+  TravelDeskInvoiceItemAttributes,
+  "productType" | "sourceAirSegmentNumber" | "sourceServiceFeeEventExternalIdentifier"
+>
 
+type InvoiceSources = {
+  sourceAirSegmentNumbers: readonly number[]
+  savedSourceServiceFeeEventExternalIdentifiers?: readonly number[]
+}
+
+export class AssertInvoiceItemsMatchSourcesService extends BaseService {
   constructor(
-    protected travelDeskInvoiceItemsAttributes: ReadonlyArray<
-      Pick<
-        TravelDeskInvoiceItemAttributes,
-        "productType" | "sourceAirSegmentNumber" | "sourceServiceFeeEventExternalIdentifier"
-      >
-    >,
-    protected sourceAirSegmentNumbers: number[],
-    protected savedSourceServiceFeeEventExternalIdentifiers?: number[]
+    protected sources: InvoiceSources,
+    protected travelDeskInvoiceItemsAttributes: readonly InvoiceItemSourceAttributes[]
   ) {
     super()
   }
@@ -42,20 +42,21 @@ export class AssertInvoiceItemsMatchSourcesService extends BaseService {
       throw new ServiceValidationError("At least one invoice item is required.")
     }
 
+    const { sourceAirSegmentNumbers, savedSourceServiceFeeEventExternalIdentifiers } = this.sources
     let expectedSourceServiceFeeEventExternalIdentifiers: Set<number> | undefined
-    if (!isNil(this.savedSourceServiceFeeEventExternalIdentifiers)) {
+    if (!isNil(savedSourceServiceFeeEventExternalIdentifiers)) {
       expectedSourceServiceFeeEventExternalIdentifiers = new Set(
-        this.savedSourceServiceFeeEventExternalIdentifiers
+        savedSourceServiceFeeEventExternalIdentifiers
       )
       if (
         expectedSourceServiceFeeEventExternalIdentifiers.size !==
-        this.savedSourceServiceFeeEventExternalIdentifiers.length
+        savedSourceServiceFeeEventExternalIdentifiers.length
       ) {
         throw new ServiceValidationError("Service fee events cannot be selected more than once.")
       }
     }
 
-    const expectedSourceAirSegmentNumbers = new Set(this.sourceAirSegmentNumbers)
+    const expectedSourceAirSegmentNumbers = new Set(sourceAirSegmentNumbers)
     const seenSourceAirSegmentNumbers = new Set<number>()
     const seenSourceServiceFeeEventExternalIdentifiers = new Set<number>()
 
@@ -99,9 +100,10 @@ export class AssertInvoiceItemsMatchSourcesService extends BaseService {
   private assertTravelDeskInvoiceItemProductType(
     productType: TravelDeskInvoiceItem["productType"]
   ): void {
-    if (!this.travelDeskInvoiceItemProductTypes.includes(productType)) {
+    if (!includes(TravelDeskInvoiceItem.ProductTypes, productType)) {
+      const productTypes = Object.values(TravelDeskInvoiceItem.ProductTypes)
       throw new ServiceValidationError(
-        `Product type must be one of: ${this.travelDeskInvoiceItemProductTypes.join(", ")}`
+        `Product type must be one of: ${productTypes.join(", ")}`
       )
     }
   }
