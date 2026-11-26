@@ -1,9 +1,9 @@
-import { type CreationAttributes } from "@sequelize/core"
-import { isNil } from "lodash"
+import { type CreationAttributes, Op } from "@sequelize/core"
+import { isEmpty, isNil } from "lodash"
 
 import { db } from "@/db/db-client"
 
-import { TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
+import { TravelDeskBookingEvent, TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskInvoiceItems } from "@/services"
 import BaseService from "@/services/base-service"
@@ -13,7 +13,6 @@ import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-inv
 import {
   CalculateTotalService,
   LoadAndValidateTravelDeskBookingEventForInvoiceService,
-  ValidateTravelDeskInvoiceServiceFeeSelectionService,
 } from "@/services/travel-desk-invoices"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
@@ -98,13 +97,63 @@ export class CreateService extends BaseService {
         travelDeskInvoiceItemsAttributes,
         sourceAirSegmentNumbers
       )
-    await ValidateTravelDeskInvoiceServiceFeeSelectionService.perform(
+    await this.assertSelectedFeesCanBeInvoicedTogether(
       bookingReference,
       sourceServiceFeeEventExternalIdentifiers,
       currencyCode
     )
 
     return bookingReference
+  }
+
+  private async assertSelectedFeesCanBeInvoicedTogether(
+    bookingReference: string,
+    sourceServiceFeeEventExternalIdentifiers: ReadonlySet<number>,
+    invoiceCurrencyCode: string
+  ): Promise<void> {
+    if (sourceServiceFeeEventExternalIdentifiers.size === 0) {
+      return
+    }
+
+    const selectedTravelDeskBookingEvents = await TravelDeskBookingEvent.findAll({
+      attributes: ["serviceFeeTransaction"],
+      where: {
+        bookingReference,
+        externalTravelPortIdentifier: {
+          [Op.in]: [...sourceServiceFeeEventExternalIdentifiers],
+        },
+      },
+    })
+    if (
+      selectedTravelDeskBookingEvents.length !== sourceServiceFeeEventExternalIdentifiers.size
+    ) {
+      throw new ServiceValidationError(
+        "Every selected service fee must belong to this booking reference."
+      )
+    }
+
+    const serviceFeeDocumentNumbers = new Set<string>()
+    for (const { serviceFeeTransaction } of selectedTravelDeskBookingEvents) {
+      if (isNil(serviceFeeTransaction)) {
+        throw new ServiceValidationError("The selected booking event has no service fee.")
+      }
+
+      const { currencyCode, serviceFeeDocumentNumber } = serviceFeeTransaction
+      if (!isNil(currencyCode) && currencyCode !== invoiceCurrencyCode) {
+        throw new ServiceValidationError(
+          "Selected service fee currency must match the invoice currency."
+        )
+      }
+
+      if (isNil(serviceFeeDocumentNumber) || isEmpty(serviceFeeDocumentNumber)) continue
+
+      if (serviceFeeDocumentNumbers.has(serviceFeeDocumentNumber)) {
+        throw new ServiceValidationError(
+          "Multiple versions of a service fee document cannot be selected."
+        )
+      }
+      serviceFeeDocumentNumbers.add(serviceFeeDocumentNumber)
+    }
   }
 }
 
