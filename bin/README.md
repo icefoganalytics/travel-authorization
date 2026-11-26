@@ -118,30 +118,21 @@ Pass Vitest flags after `--` so they are forwarded to the underlying test runner
 
 ### Test Container Management
 
-**Only one test container can run at a time** — running two causes database deadlocks. Before starting
-`./bin/dev test api`, check for an existing test container and either reuse that run or wait for it to finish.
+Run one API test container at a time **per Compose project**. Two suites using the same test
+databases can interfere even if they target different files. Worktrees normally use distinct
+projects and databases, so their tests can run concurrently. If you override database settings
+to share a test database across projects, serialize those runs too.
 
-- Check containers with `docker ps --format "{{.Names}}\t{{.Status}}" | rg "test_api"`
-- Check local test processes with `ps -ef | rg "npm run test|node \\(vitest"`
-
-**When a container is already running**, watch its logs instead of starting a duplicate:
+Before starting `./bin/dev test api`, check for a running test in the current project:
 
 ```bash
-# Watch for the user's test container and tail its logs (run in background)
-while true; do
-  CONTAINER=$(docker ps --format '{{.Names}}' | grep test_api | head -1)
-  if [ -n "$CONTAINER" ]; then
-    docker logs -f "$CONTAINER" 2>&1
-    break
-  fi
-  sleep 0.5
-done
+project=$(./bin/dev compose config --format json | jq -er '.name') &&
+  docker ps --filter "label=com.docker.compose.project=$project" \
+    --filter 'label=com.docker.compose.service=test_api' --format '{{.ID}} {{.Names}}'
 ```
 
-**Important constraint:** Do not start a second `./bin/dev test api` command while another API test
-run is still active, even if you are targeting a different file set or using `--maxWorkers 1`.
-If you need to validate multiple files, pass all of those file paths to one test command and let
-that single Vitest instance run them sequentially.
+If a container is listed, wait for it to finish or follow that container with `docker logs -f <ID>`.
+Otherwise, pass all the desired test files to a single `./bin/dev test api` invocation.
 
 ### Database Operations
 

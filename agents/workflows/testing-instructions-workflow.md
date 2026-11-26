@@ -10,7 +10,7 @@ Load the direct [shared Testing Instructions Workflow](skill://test-guide/workfl
 
 The [PR template](/.github/pull_request_template.md) owns section names and order. Audience separation, scenario feasibility, prerequisites, and evidence requirements belong to the shared workflow.
 
-Use the [canonical wrapper](/bin/README.md#testing) for focused local checks, start the app with `./bin/dev up` when needed, and use the browser URL printed by Vite (honors `GATEWAY_HOSTNAME`). Only one API test container may run at a time.
+Use the [canonical wrapper](/bin/README.md#testing) for focused local checks, start the app with `./bin/dev up` when needed, and use the browser URL printed by Vite (honors `GATEWAY_HOSTNAME`). Run at most one API test container per Compose project.
 
 ## TravelAuth Formatting
 
