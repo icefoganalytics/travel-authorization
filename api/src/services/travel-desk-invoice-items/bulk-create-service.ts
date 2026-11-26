@@ -1,12 +1,10 @@
-import { pick } from "lodash"
+import { isEmpty, isNil, pick, uniq } from "lodash"
 
-import { type TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
+import { TravelDeskFlightSegment, type TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import {
-  ValidateLinkedTravelDeskFlightSegmentsService,
-  type TravelDeskInvoiceItemAttributes,
-} from "@/services/travel-desk-invoice-items"
+import ServiceValidationError from "@/services/service-validation-error"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items"
 
 export class BulkCreateService extends BaseService {
   constructor(
@@ -17,7 +15,7 @@ export class BulkCreateService extends BaseService {
   }
 
   async perform(): Promise<void> {
-    await ValidateLinkedTravelDeskFlightSegmentsService.perform(
+    await this.assertLinkedFlightSegmentsBelongToTravelRequest(
       this.travelDeskInvoice.travelDeskTravelRequestId,
       this.travelDeskInvoiceItemsAttributes
     )
@@ -44,6 +42,47 @@ export class BulkCreateService extends BaseService {
     await TravelDeskInvoiceItem.bulkCreate(travelDeskInvoiceItemCreationAttributes, {
       validate: true,
     })
+  }
+
+  private async assertLinkedFlightSegmentsBelongToTravelRequest(
+    travelDeskTravelRequestId: number,
+    travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
+  ): Promise<void> {
+    const travelDeskFlightSegmentIds = uniq(
+      travelDeskInvoiceItemsAttributes
+        .map(({ travelDeskFlightSegmentId }) => travelDeskFlightSegmentId)
+        .filter(
+          (travelDeskFlightSegmentId): travelDeskFlightSegmentId is number => !isNil(travelDeskFlightSegmentId)
+        )
+    )
+    if (isEmpty(travelDeskFlightSegmentIds)) return
+
+    const matchingTravelDeskFlightSegmentCount = await TravelDeskFlightSegment.count({
+      where: {
+        id: travelDeskFlightSegmentIds,
+      },
+      include: [
+        {
+          association: "flightOption",
+          required: true,
+          include: [
+            {
+              association: "flightRequest",
+              required: true,
+              where: {
+                travelRequestId: travelDeskTravelRequestId,
+              },
+            },
+          ],
+        },
+      ],
+    })
+
+    if (matchingTravelDeskFlightSegmentCount !== travelDeskFlightSegmentIds.length) {
+      throw new ServiceValidationError(
+        "One or more linked flight segments are no longer available or belong to another travel request. Remove or replace those links before saving."
+      )
+    }
   }
 }
 
