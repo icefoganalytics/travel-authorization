@@ -128,9 +128,11 @@ export class UpdateService extends BaseService {
     }
 
     TravelDeskInvoiceItems.AssertInvoiceItemsMatchSourcesService.perform(
-      travelDeskInvoiceItemsAttributes,
-      sourceAirSegmentNumbers,
-      sourceServiceFeeEventExternalIdentifiers
+      {
+        sourceAirSegmentNumbers,
+        savedSourceServiceFeeEventExternalIdentifiers: sourceServiceFeeEventExternalIdentifiers,
+      },
+      travelDeskInvoiceItemsAttributes
     )
   }
 }
