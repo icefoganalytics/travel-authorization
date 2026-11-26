@@ -1,7 +1,7 @@
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-travel-desk-invoice-lock"
+import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices"
 
 export class DestroyService extends BaseService {
   constructor(protected travelDeskInvoice: TravelDeskInvoice) {
