@@ -19,7 +19,7 @@ export type TravelDeskInvoiceItemAttributes = {
   position: number
 }
 
-export class ValidateTravelDeskInvoiceItemsService extends BaseService {
+export class AssertInvoiceItemsMatchSourcesService extends BaseService {
   private readonly travelDeskInvoiceItemProductTypes: ReadonlyArray<
     TravelDeskInvoiceItem["productType"]
   > = Object.values(TravelDeskInvoiceItem.ProductTypes)
@@ -37,7 +37,7 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
     super()
   }
 
-  perform(): ReadonlySet<number> {
+  perform(): void {
     if (isEmpty(this.travelDeskInvoiceItemsAttributes)) {
       throw new ServiceValidationError("At least one invoice item is required.")
     }
@@ -94,8 +94,6 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
         "Every selected service fee must be represented exactly once."
       )
     }
-
-    return seenSourceServiceFeeEventExternalIdentifiers
   }
 
   private assertTravelDeskInvoiceItemProductType(
@@ -158,4 +156,4 @@ export class ValidateTravelDeskInvoiceItemsService extends BaseService {
   }
 }
 
-export default ValidateTravelDeskInvoiceItemsService
+export default AssertInvoiceItemsMatchSourcesService

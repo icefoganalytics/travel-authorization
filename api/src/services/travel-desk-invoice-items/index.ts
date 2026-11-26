@@ -2,6 +2,6 @@ export { BulkCreateService } from "./bulk-create-service"
 
 // Special Services
 export {
-  ValidateTravelDeskInvoiceItemsService,
+  AssertInvoiceItemsMatchSourcesService,
   type TravelDeskInvoiceItemAttributes,
-} from "./validate-travel-desk-invoice-items-service"
+} from "./assert-invoice-items-match-sources-service"
