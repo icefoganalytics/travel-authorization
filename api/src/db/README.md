@@ -10,8 +10,6 @@ If you are new to the project, read the root [README.md](../../../README.md) fir
 - `migrations/` - schema changes
 - `seeds/` - environment-specific seed data
 
-Use Sequelize model validations for field content, such as requiring nonblank text, rather than SQL `CHECK` constraints. Keep structural requirements such as `NOT NULL` in the migration.
-
 ## How Database Changes Are Used
 
 In development, the database normally starts through the Docker Compose stack and is managed
