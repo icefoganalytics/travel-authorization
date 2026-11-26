@@ -3,13 +3,16 @@ import { isEmpty, isNil } from "lodash"
 
 import { TravelDeskInvoice, TravelDeskInvoiceItem } from "@/models"
 
-import { TravelDeskInvoiceItems, TravelDeskInvoices } from "@/services"
+import { TravelDeskInvoiceItems } from "@/services"
 import BaseService from "@/services/base-service"
 import ServiceValidationError from "@/services/service-validation-error"
 
-import { type TravelDeskInvoiceCreationAttributes } from "@/services/travel-desk-invoices/create-service"
-import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items/validate-travel-desk-invoice-items-service"
-import { withTravelDeskInvoiceLock } from "@/services/travel-desk-invoices/with-travel-desk-invoice-lock"
+import { type TravelDeskInvoiceItemAttributes } from "@/services/travel-desk-invoice-items"
+import {
+  CalculateTotalService,
+  type TravelDeskInvoiceCreationAttributes,
+  withTravelDeskInvoiceLock,
+} from "@/services/travel-desk-invoices"
 
 export type TravelDeskInvoiceUpdateAttributes = Omit<
   TravelDeskInvoiceCreationAttributes,
@@ -45,9 +48,7 @@ export class UpdateService extends BaseService {
           travelDeskInvoiceItemsAttributes,
           transaction
         )
-        const grossAmount = TravelDeskInvoices.CalculateTotalService.perform(
-          travelDeskInvoiceItemsAttributes
-        )
+        const grossAmount = CalculateTotalService.perform(travelDeskInvoiceItemsAttributes)
 
         await travelDeskInvoice.update({
           currencyCode,
