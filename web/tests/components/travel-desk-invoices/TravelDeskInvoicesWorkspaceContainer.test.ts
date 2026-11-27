@@ -24,6 +24,12 @@ import {
 import TravelDeskInvoiceItemEditCard from "@/components/travel-desk-invoices/TravelDeskInvoiceItemEditCard.vue"
 import TravelDeskInvoicesWorkspaceContainer from "@/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceContainer.vue"
 
+const TRAVEL_REQUEST_PATH = "/api/travel-desk-travel-requests/42"
+const TRIP_INFORMATION_ROUTE = {
+  name: "travel-desk/edit/TravelDeskRequestTripInformationPage",
+  path: "/travel-desk/:travelDeskTravelRequestId/trip-information",
+  component: { template: "<div />" },
+}
 const INVOICES_PATH = "/api/travel-desk-travel-requests/42/travel-desk-invoices"
 
 function getButton(wrapper: VueWrapper, label: string) {
@@ -119,6 +125,9 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
       })
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
+        [TRAVEL_REQUEST_PATH]: () => ({
+          travelDeskTravelRequest: { travelPortRecordLocator: "ABC123" },
+        }),
         [INVOICES_PATH]: () => ({ travelDeskInvoices: [], totalCount: 0 }),
         "/api/travel-desk-flight-segments": () => ({ travelDeskFlightSegments: [], totalCount: 0 }),
         "/api/travel-desk-travel-requests/42/travel-desk-booking-events": () => ({
@@ -128,7 +137,10 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
       })
       httpClient.post.mockResolvedValueOnce({ data: {} })
       httpClient.post.mockResolvedValueOnce({ data: { travelDeskInvoice: savedInvoice } })
-      const router = mockRouter([{ path: "/", component: { template: "<div />" } }])
+      const router = mockRouter([
+        { path: "/", component: { template: "<div />" } },
+        TRIP_INFORMATION_ROUTE,
+      ])
       await router.push("/")
       const wrapper = mountWithDefaultPlugins(TravelDeskInvoicesWorkspaceContainer, {
         props: { travelDeskTravelRequestId: "42" },
@@ -138,8 +150,7 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
 
       // Act
       await getButton(wrapper, "New invoice").trigger("click")
-      await wrapper.get('input[maxlength="6"]').setValue("ABC123")
-      await wrapper.get("form").trigger("submit")
+      await getButton(wrapper, "Refresh / load linked booking history").trigger("click")
       await flushPromises()
       await wrapper.get('input[type="radio"]').setValue()
       await wrapper.get('input[type="checkbox"]').setValue(true)
@@ -195,7 +206,7 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
       })
     })
 
-    test("when a saved fee line is edited, it submits the source event without the line ID", async () => {
+    test("when the request is unlinked, it still allows editing a saved fee line", async () => {
       // Arrange
       const savedItem = travelDeskInvoiceItemFactory.build({
         id: 51,
@@ -222,12 +233,18 @@ describe("web/src/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceCon
       }
       const httpClient = mockHttpClient()
       mockHttpGetRoutes({
+        [TRAVEL_REQUEST_PATH]: () => ({
+          travelDeskTravelRequest: { travelPortRecordLocator: null },
+        }),
         [INVOICES_PATH]: () => ({ travelDeskInvoices: [savedInvoice], totalCount: 1 }),
         [`${INVOICES_PATH}/23`]: () => ({ travelDeskInvoice: savedInvoice }),
         "/api/travel-desk-flight-segments": () => ({ travelDeskFlightSegments: [], totalCount: 0 }),
       })
       httpClient.patch.mockResolvedValue({ data: { travelDeskInvoice: updatedInvoice } })
-      const router = mockRouter([{ path: "/", component: { template: "<div />" } }])
+      const router = mockRouter([
+        { path: "/", component: { template: "<div />" } },
+        TRIP_INFORMATION_ROUTE,
+      ])
       await router.push("/")
       const wrapper = mountWithDefaultPlugins(TravelDeskInvoicesWorkspaceContainer, {
         props: { travelDeskTravelRequestId: "42" },

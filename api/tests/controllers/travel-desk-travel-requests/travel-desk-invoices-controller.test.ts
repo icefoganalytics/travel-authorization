@@ -420,7 +420,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       test("when a selected booking has not been synced locally, it rejects invoice creation", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "API001",
+        })
         mockCurrentUser(officer)
 
         // Act
@@ -442,7 +444,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-invoices-c
       test("when no booking reference is submitted and the total is forged, it uses the synced booking reference and calculated total", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "API001",
+        })
         const otherRequest = await travelDeskTravelRequestFactory.create()
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({

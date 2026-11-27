@@ -6,8 +6,10 @@ import { TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskTravelRequests } from "@/policies"
 
+import ServiceValidationError from "@/services/service-validation-error"
 import { SyncService } from "@/services/travel-desk-booking-events"
 import { SourceUnavailableError } from "@/services/travel-desk-booking-events/source-unavailable-error"
+import { RequireLinkedTravelPortBookingService } from "@/services/travel-desk-travel-requests/require-linked-travel-port-booking-service"
 
 import BaseController from "@/controllers/base-controller"
 
@@ -28,10 +30,14 @@ export class SyncController extends BaseController<TravelDeskTravelRequest> {
         })
       }
 
-      const { bookingReference } = this.request.body
+      const bookingReference = RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
       await SyncService.perform(bookingReference)
       return this.response.status(204).send()
     } catch (error) {
+      if (error instanceof ServiceValidationError) {
+        return this.response.status(422).json({ message: error.message })
+      }
+
       if (error instanceof SourceUnavailableError) {
         return this.response.status(503).json({
           message: "Booking source is unavailable.",

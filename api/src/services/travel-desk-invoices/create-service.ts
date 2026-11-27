@@ -1,7 +1,7 @@
 import { type CreationAttributes, Op } from "@sequelize/core"
 import { isEmpty, isNil } from "lodash"
 
-import db, { TravelDeskBookingEvent, TravelDeskInvoice, type TravelDeskTravelRequest } from "@/models"
+import db, { TravelDeskBookingEvent, TravelDeskInvoice, TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskInvoiceItems } from "@/services"
 import BaseService from "@/services/base-service"
@@ -12,6 +12,7 @@ import {
   CalculateTotalService,
   LoadInvoiceBookingSourceService,
 } from "@/services/travel-desk-invoices"
+import { RequireLinkedTravelPortBookingService } from "@/services/travel-desk-travel-requests/require-linked-travel-port-booking-service"
 
 export type TravelDeskInvoiceCreationAttributes = Partial<
   CreationAttributes<TravelDeskInvoice> & {
@@ -48,6 +49,7 @@ export class CreateService extends BaseService {
 
     return db.transaction(async () => {
       const bookingReference = await this.validateInvoiceBookingAndItems(
+        this.travelDeskTravelRequest.id,
         externalBookingEventIdentifier,
         currencyCode,
         travelDeskInvoiceItemsAttributes
@@ -83,12 +85,22 @@ export class CreateService extends BaseService {
   }
 
   private async validateInvoiceBookingAndItems(
+    travelDeskTravelRequestId: number,
     externalBookingEventIdentifier: number,
     currencyCode: string,
     travelDeskInvoiceItemsAttributes: TravelDeskInvoiceItemAttributes[]
   ): Promise<string> {
+    const travelDeskTravelRequest = await this.loadActiveTravelDeskTravelRequest(
+      travelDeskTravelRequestId
+    )
+    const linkedBookingReference =
+      RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
+
     const { bookingReference, sourceAirSegmentNumbers } =
       await LoadInvoiceBookingSourceService.perform(externalBookingEventIdentifier)
+    if (bookingReference !== linkedBookingReference) {
+      throw new ServiceValidationError("Invoice booking must match the linked Travelport booking.")
+    }
 
     TravelDeskInvoiceItems.AssertInvoiceItemsMatchSourcesService.perform(
       { sourceAirSegmentNumbers },
@@ -108,6 +120,19 @@ export class CreateService extends BaseService {
     )
 
     return bookingReference
+  }
+
+  private async loadActiveTravelDeskTravelRequest(
+    travelDeskTravelRequestId: number
+  ): Promise<TravelDeskTravelRequest> {
+    const travelDeskTravelRequest = await TravelDeskTravelRequest.findByPk(travelDeskTravelRequestId, {
+      lock: true,
+    })
+    if (isNil(travelDeskTravelRequest)) {
+      throw new ServiceValidationError("Travel desk travel request does not exist.")
+    }
+
+    return travelDeskTravelRequest
   }
 
   private async assertSelectedFeesCanBeInvoicedTogether(

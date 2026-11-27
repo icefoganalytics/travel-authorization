@@ -8,9 +8,26 @@ import { travelDeskBookingEventFactory, travelDeskTravelRequestFactory } from "@
 describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
   describe("CreateService", () => {
     describe(".perform", () => {
-      test("when the selected booking is not cached, it rejects creation", async () => {
+      test("when the request is unlinked, it rejects creation before reading the cached booking", async () => {
         // Arrange
         const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+
+        // Act
+        const result = CreateService.perform(travelDeskTravelRequest, {
+          externalBookingEventIdentifier: 920001,
+          currencyCode: "CAD",
+          itemsAttributes: [],
+        })
+
+        // Assert
+        await expect(result).rejects.toThrow("Link a Travelport booking to this travel request first.")
+      })
+
+      test("when the selected booking is not cached, it rejects creation", async () => {
+        // Arrange
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
 
         // Act
         const result = CreateService.perform(travelDeskTravelRequest, {
@@ -25,7 +42,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when the selected booking has no flight segments, it asks for a different event", async () => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         const travelDeskBookingEvent = await travelDeskBookingEventFactory.create({
           bookingReference: "INV001",
           airReservationSegments: [],
@@ -44,12 +63,26 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         )
       })
 
-      test("when the selected booking has no reference, it rejects creation", async () => {
+      test.each([
+        {
+          bookingReference: null,
+          message: "The selected booking event has no booking reference.",
+        },
+        {
+          bookingReference: "OTHER1",
+          message: "Invoice booking must match the linked Travelport booking.",
+        },
+      ])("when the selected booking reference is $bookingReference, it rejects creation", async ({
+        bookingReference,
+        message,
+      }) => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
-          bookingReference: null,
+          bookingReference,
           airReservationSegments: [
             {
               airSegmentNumber: 1,
@@ -74,14 +107,14 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
         })
 
         // Assert
-        await expect(result).rejects.toThrow(
-          "The selected booking event has no booking reference."
-        )
+        await expect(result).rejects.toThrow(message)
       })
 
       test("when a selected fee is not cached, it rejects creation", async () => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -131,7 +164,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when a selected fee belongs to another locator, it rejects creation", async () => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -196,7 +231,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when a selected fee uses a different currency, it rejects creation", async () => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -261,7 +298,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when two selected fees share a document number, it rejects creation", async () => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -335,7 +374,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when two invoice items reference the same fee event, it rejects the duplicate", async () => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -406,7 +447,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
       test("when cached booking and fee rows change, it retains invoice lines and staff pricing", async () => {
         // Arrange
         vi.spyOn(TravelOrderEvent, "findAll").mockRejectedValue(new Error("Source unavailable."))
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         const travelDeskBookingEvent = await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -552,7 +595,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when staff prices need rounding, it rounds each line before totaling", async () => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",
@@ -635,7 +680,9 @@ describe("api/src/services/travel-desk-invoices/create-service.ts", () => {
 
       test("when item storage fails after inserting rows, it rolls back the new invoice", async () => {
         // Arrange
-        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create()
+        const travelDeskTravelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "INV001",
+        })
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 920001,
           bookingReference: "INV001",

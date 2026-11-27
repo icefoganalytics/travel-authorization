@@ -6,6 +6,9 @@ import { TravelDeskBookingEvent, TravelDeskTravelRequest } from "@/models"
 
 import { TravelDeskTravelRequests } from "@/policies"
 
+import ServiceValidationError from "@/services/service-validation-error"
+import { RequireLinkedTravelPortBookingService } from "@/services/travel-desk-travel-requests/require-linked-travel-port-booking-service"
+
 import { IndexSerializer } from "@/serializers/travel-desk-booking-events"
 
 import BaseController from "@/controllers/base-controller"
@@ -27,7 +30,8 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         })
       }
 
-      const where = this.buildWhere()
+      const bookingReference = RequireLinkedTravelPortBookingService.perform(travelDeskTravelRequest)
+      const where = this.buildWhere({}, { bookingReference })
       const scopes = this.buildFilterScopes()
       const order = this.buildOrder([
         ["externalCreatedAt", "DESC"],
@@ -51,6 +55,10 @@ export class TravelDeskBookingEventsController extends BaseController<TravelDesk
         totalCount,
       })
     } catch (error) {
+      if (error instanceof ServiceValidationError) {
+        return this.response.status(422).json({ message: error.message })
+      }
+
       logger.error(`Failed to index travel desk booking events: ${error}`, {
         error,
       })

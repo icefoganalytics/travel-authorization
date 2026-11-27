@@ -5,7 +5,11 @@ import { TravelDeskTravelRequest } from "@/models"
 
 import { mockCurrentUser, request } from "@/support"
 
-import { travelDeskBookingEventFactory, travelDeskTravelRequestFactory, userFactory } from "@/factories"
+import {
+  travelDeskBookingEventFactory,
+  travelDeskTravelRequestFactory,
+  userFactory,
+} from "@/factories"
 
 describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-events-controller.ts", () => {
   describe("TravelDeskBookingEventsController", () => {
@@ -70,7 +74,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         })
       })
 
-      test("when the booking reference condition is an object, it returns the booking history error response", async () => {
+      test("when the request has no linked booking, a supplied booking reference cannot access cached history", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
         const travelRequest = await travelDeskTravelRequestFactory.create()
@@ -78,20 +82,22 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
 
         // Act
         const response = await request().get(
-          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?where[bookingReference][value]=SRC001`
+          `/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events?where[bookingReference]=SRC001`
         )
 
         // Assert
-        expect(response.status).toEqual(400)
+        expect(response.status).toEqual(422)
         expect(response.body).toEqual({
-          message: "Failed to load booking history.",
+          message: "Link a Travelport booking to this travel request first.",
         })
       })
 
-      test("when the locator has no matches, it returns empty cached history", async () => {
+      test("when only a different locator has matches, it returns empty cached history", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "MISS01",
+        })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
           bookingReference: "SRC001",
@@ -102,7 +108,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
           .query({
             where: {
-              bookingReference: "not-a-known-locator",
+              bookingReference: "SRC001",
             },
           })
 
@@ -133,7 +139,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
       }) => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "SRC001",
+        })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
           externalTravelPortIdentifier: 940001,
@@ -163,9 +171,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
           .query({
-            where: {
-              bookingReference: "SRC001",
-            },
             page,
             perPage: 1,
           })
@@ -183,10 +188,12 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         })
       })
 
-      test("when filters, where, and ordering are supplied, it pages the matching history", async () => {
+      test("when where and ordering are supplied, it pages results within the linked booking", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "SRC001",
+        })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
           bookingReference: "SRC001",
@@ -210,7 +217,7 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         // Act
         const query = qs.stringify({
           where: {
-            bookingReference: "SRC001",
+            bookingReference: "OTHER1",
             eventType: "B",
           },
           order: [["externalTravelPortIdentifier", "DESC"]],
@@ -237,7 +244,9 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
       test("when a page is beyond cached history, it returns an empty page with the matching total", async () => {
         // Arrange
         const officer = await userFactory.asTravelDeskUser().create()
-        const travelRequest = await travelDeskTravelRequestFactory.create()
+        const travelRequest = await travelDeskTravelRequestFactory.create({
+          travelPortRecordLocator: "SRC001",
+        })
         mockCurrentUser(officer)
         await travelDeskBookingEventFactory.create({
           bookingReference: "SRC001",
@@ -250,9 +259,6 @@ describe("api/src/controllers/travel-desk-travel-requests/travel-desk-booking-ev
         const response = await request()
           .get(`/api/travel-desk-travel-requests/${travelRequest.id}/travel-desk-booking-events`)
           .query({
-            where: {
-              bookingReference: "SRC001",
-            },
             page: 2,
             perPage: 1,
           })

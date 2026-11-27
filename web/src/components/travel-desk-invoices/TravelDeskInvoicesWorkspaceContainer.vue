@@ -12,9 +12,50 @@
         class="mb-4"
         >{{ errorMessage }}</v-alert
       >
+      <v-progress-linear
+        v-if="isLoadingBookingLink"
+        indeterminate
+      />
+      <v-alert
+        v-if="bookingLinkError"
+        type="error"
+        class="mb-4"
+      >
+        {{ bookingLinkError }}
+        <v-btn
+          variant="text"
+          @click="refreshBookingLink"
+          >Retry booking link</v-btn
+        >
+      </v-alert>
+      <v-alert
+        v-else-if="!isLoadingBookingLink && !linkedRecordLocator"
+        type="info"
+        class="mb-4"
+      >
+        Link a Travelport booking in
+        <router-link :to="tripInformationRoute">Trip Information</router-link>
+        before creating an invoice. Saved invoices remain available below.
+      </v-alert>
+      <p
+        v-else-if="linkedRecordLocator"
+        class="mb-4"
+      >
+        Linked Travelport locator: <strong>{{ linkedRecordLocator }}</strong> ·
+        <router-link :to="tripInformationRoute">Change booking link</router-link>
+      </p>
+      <v-btn
+        class="mb-4"
+        variant="outlined"
+        :loading="isLoadingBookingLink"
+        :disabled="isSaving || isSearching"
+        @click="refreshBookingLink"
+        >Refresh booking link</v-btn
+      >
       <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-4">
         <h1 class="text-h5">Travel Desk Invoices</h1>
         <v-btn
+          v-if="linkedRecordLocator && !isLoadingBookingLink && !bookingLinkError"
           color="primary"
           prepend-icon="mdi-plus"
           :disabled="isSaving || isOpening || isSearching || isDeleting"
@@ -138,21 +179,16 @@
         <v-card-title v-else>Create invoice</v-card-title>
         <v-card-text>
           <template v-if="!draft">
-            <v-form @submit.prevent="searchBookings">
-              <v-text-field
-                v-model="bookingReference"
-                label="Booking reference"
-                autocomplete="off"
-                maxlength="6"
-                :disabled="isSearching"
-              />
-              <v-btn
-                type="submit"
-                color="primary"
-                :loading="isSearching"
-                >Search booking history</v-btn
-              >
-            </v-form>
+            <p class="mb-3">
+              Linked Travelport locator: <strong>{{ linkedRecordLocator }}</strong>
+            </p>
+            <v-btn
+              color="primary"
+              :loading="isSearching"
+              :disabled="isLoadingBookingLink"
+              @click="refreshBookingHistory"
+              >Refresh / load linked booking history</v-btn
+            >
             <v-alert
               v-if="hasSearched && !isSearching && !errorMessage && bookingEventCount === 0"
               type="info"
@@ -363,6 +399,7 @@ import {
   type TravelDeskBookingEventAsIndex,
   travelDeskBookingEventsApi,
 } from "@/api/travel-desk-booking-events-api"
+import travelDeskTravelRequestsApi from "@/api/travel-desk-travel-requests-api"
 
 import useCurrentUser from "@/use/use-current-user"
 import useSnack from "@/use/use-snack"
@@ -398,8 +435,15 @@ const isDeleting = ref(false)
 const isSearching = ref(false)
 const hasSearched = ref(false)
 const errorMessage = ref("")
-const bookingReference = ref("")
-const searchedBookingReference = ref("")
+const linkedRecordLocator = ref<string | null>(null)
+const isLoadingBookingLink = ref(false)
+const bookingLinkError = ref("")
+const tripInformationRoute = computed(() => ({
+  name: "travel-desk/edit/TravelDeskRequestTripInformationPage",
+  params: {
+    travelDeskTravelRequestId: props.travelDeskTravelRequestId,
+  },
+}))
 const selectedBookingEvent = ref<TravelDeskBookingEventAsIndex | null>(null)
 const selectedFeeEvents = ref<TravelDeskBookingEventAsIndex[]>([])
 const { page: bookingPage, perPage: bookingsPerPage } = useRouteQueryPagination({
@@ -508,6 +552,35 @@ async function loadInvoices() {
   }
 }
 
+async function refreshBookingLink(): Promise<string | null> {
+  const version = contextVersion
+  isLoadingBookingLink.value = true
+  bookingLinkError.value = ""
+  try {
+    const { travelDeskTravelRequest } = await travelDeskTravelRequestsApi.get(requestId.value)
+    if (version !== contextVersion) return null
+
+    const locator = travelDeskTravelRequest.travelPortRecordLocator
+    if (locator !== linkedRecordLocator.value) {
+      if (isCreating.value) closeEditor()
+
+      linkedRecordLocator.value = locator
+    }
+
+    return locator
+  } catch (error) {
+    if (version !== contextVersion) return null
+
+    console.error("Failed to load linked Travelport booking", error)
+    bookingLinkError.value = errorText(error, "The linked Travelport booking could not be loaded.")
+    if (isCreating.value) closeEditor()
+
+    return null
+  } finally {
+    if (version === contextVersion) isLoadingBookingLink.value = false
+  }
+}
+
 function closeEditor() {
   draft.value = null
   editingId.value = null
@@ -527,11 +600,11 @@ function closeInvoice() {
 }
 
 function openNewInvoice() {
+  if (!linkedRecordLocator.value || bookingLinkError.value || isLoadingBookingLink.value) return
+
   closeEditor()
   closeInvoice()
   localSegments.value = []
-  bookingReference.value = ""
-  searchedBookingReference.value = ""
   isCreating.value = true
 }
 
@@ -562,6 +635,8 @@ async function openInvoice(id: number) {
 }
 
 async function loadBookingPage() {
+  if (!linkedRecordLocator.value) return
+
   bookingRequestController?.abort()
   const controller = new AbortController()
   bookingRequestController = controller
@@ -572,9 +647,6 @@ async function loadBookingPage() {
     const { travelDeskBookingEvents, totalCount } = await travelDeskBookingEventsApi.list(
       requestId.value,
       {
-        where: {
-          bookingReference: searchedBookingReference.value,
-        },
         page: bookingPage.value,
         perPage: bookingsPerPage.value,
       },
@@ -600,7 +672,10 @@ async function loadBookingPage() {
   }
 }
 
-async function searchBookings() {
+async function refreshBookingHistory() {
+  const locator = await refreshBookingLink()
+  if (!locator || !isCreating.value) return
+
   bookingRequestController?.abort()
   const controller = new AbortController()
   bookingRequestController = controller
@@ -614,13 +689,8 @@ async function searchBookings() {
   hasSearched.value = false
   bookingPage.value = 1
   try {
-    const normalizedBookingReference = bookingReference.value.trim().toUpperCase()
     const [, localResult] = await Promise.all([
-      travelDeskBookingEventsApi.sync(
-        requestId.value,
-        { bookingReference: normalizedBookingReference },
-        { signal: controller.signal }
-      ),
+      travelDeskBookingEventsApi.sync(requestId.value, { signal: controller.signal }),
       travelDeskFlightSegmentsApi.list({
         filters: { forTravelRequest: requestId.value },
         perPage: -1,
@@ -629,7 +699,6 @@ async function searchBookings() {
     if (version !== contextVersion || controller.signal.aborted) return
 
     localSegments.value = localResult.travelDeskFlightSegments
-    searchedBookingReference.value = normalizedBookingReference
     hasSearched.value = true
     await loadBookingPage()
   } catch (error) {
@@ -675,9 +744,17 @@ function segmentSummary(segmentNumber: number) {
 }
 
 function startDraft() {
+  const locator = linkedRecordLocator.value
+  if (!locator) return
+
   const event = selectedBookingEvent.value
   if (!event) {
     errorMessage.value = "Choose a flight booking event first."
+    return
+  }
+
+  if (event.bookingReference !== locator) {
+    errorMessage.value = "The linked booking changed. Refresh booking history before continuing."
     return
   }
 
@@ -922,6 +999,9 @@ watch(
     closeEditor()
     invoice.value = null
     invoices.value = []
+    linkedRecordLocator.value = null
+    isLoadingBookingLink.value = false
+    bookingLinkError.value = ""
 
     if (!canManage.value) return
 
@@ -930,7 +1010,7 @@ watch(
       return
     }
 
-    await loadInvoices()
+    await Promise.all([loadInvoices(), refreshBookingLink()])
   },
   { immediate: true }
 )

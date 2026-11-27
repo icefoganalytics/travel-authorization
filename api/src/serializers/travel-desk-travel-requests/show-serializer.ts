@@ -9,6 +9,7 @@ export type TravelDeskTravelRequestAsShow = Pick<
   | "travelAuthorizationId"
   | "travelAgencyId"
   | "invoiceNumber"
+  | "travelPortRecordLocator"
   | "legalFirstName"
   | "legalLastName"
   | "strAddress"
@@ -59,6 +60,7 @@ export class ShowSerializer extends BaseSerializer<TravelDeskTravelRequest> {
         "travelAuthorizationId",
         "travelAgencyId",
         "invoiceNumber",
+        "travelPortRecordLocator",
         "legalFirstName",
         "legalLastName",
         "strAddress",

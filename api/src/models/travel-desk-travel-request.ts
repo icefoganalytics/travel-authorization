@@ -78,6 +78,12 @@ export class TravelDeskTravelRequest extends Model<
   @Attribute(DataTypes.STRING(255))
   declare invoiceNumber: string | null
 
+  @Attribute(DataTypes.STRING(6))
+  @ValidateAttribute({
+    is: /^[A-Z0-9]{6}$/,
+  })
+  declare travelPortRecordLocator: string | null
+
   @Attribute(DataTypes.STRING(255))
   @NotNull
   declare legalFirstName: string

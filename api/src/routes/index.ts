@@ -340,6 +340,12 @@ router
     "/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-desk-booking-events/sync"
   )
   .post(TravelDeskTravelRequests.TravelDeskBookingEvents.SyncController.create)
+router
+  .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-port-bookings")
+  .get(TravelDeskTravelRequests.TravelPortBookingsController.index)
+router
+  .route("/api/travel-desk-travel-requests/:travelDeskTravelRequestId/travel-port-booking")
+  .put(TravelDeskTravelRequests.TravelPortBookingsController.update)
 
 router.route("/api/locations").get(LocationsController.index)
 router.route("/api/locations/:locationId").get(LocationsController.show)
